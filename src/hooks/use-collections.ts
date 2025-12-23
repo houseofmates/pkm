@@ -1,0 +1,45 @@
+
+import { useState, useEffect, useCallback } from 'react';
+import { useAuth } from '@/contexts/auth-context';
+import type { Collection } from '@/types/nocobase';
+export type { Collection };
+
+export function useCollections() {
+    const { client } = useAuth();
+    const [collections, setCollections] = useState<Collection[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    const fetchCollections = useCallback(async () => {
+        setLoading(true);
+        try {
+            const response = await client.listCollections();
+            // NocoBase sometimes wraps the list in data.data or just data
+            const rawCollections = Array.isArray(response.data) ? response.data : (response?.data as any)?.data || [];
+
+            const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers'];
+
+            const filteredCollections = rawCollections.filter((col: Collection) => {
+                // Exclude known system names
+                if (systemCollections.includes(col.name)) return false;
+                // Exclude hidden collections if any flag exists (standard NocoBase might not have 'hidden' prop on collection root, but let's check)
+                if (col.hidden) return false;
+                return true;
+            });
+
+            setCollections(filteredCollections);
+            setError(null);
+        } catch (err: any) {
+            console.error(err);
+            setError(err.message || 'Failed to fetch collections');
+        } finally {
+            setLoading(false);
+        }
+    }, [client]);
+
+    useEffect(() => {
+        fetchCollections();
+    }, [fetchCollections]);
+
+    return { collections, loading, error, refresh: fetchCollections };
+}
