@@ -69,7 +69,10 @@ export function HeadmateCard({ member, onClick, className }: HeadmateCardProps) 
             {/* Content Centered/Bottom */}
             <div className="absolute inset-x-0 bottom-0 p-4 flex flex-col items-center justify-end h-full text-center">
                 <h3
-                    className="font-bold text-xl lowercase tracking-tight mb-1 drop-shadow-md transition-all group-hover:-translate-y-1"
+                    className={cn(
+                        "font-bold text-xl tracking-tight mb-1 drop-shadow-md transition-all group-hover:-translate-y-1",
+                        member.content.name.length === 1 ? "uppercase" : "lowercase"
+                    )}
                     style={{ color: displayTextColor }}
                 >
                     {member.content.name}
