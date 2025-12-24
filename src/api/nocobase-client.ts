@@ -62,6 +62,13 @@ export class NocoBaseClient {
         });
     }
 
+    async createCollection(data: Partial<Collection>) {
+        return this.request('collections', 'create', {
+            method: 'POST',
+            data
+        });
+    }
+
     // Record operations
     async listRecords(collection: string, params?: {
         pageSize?: number;
