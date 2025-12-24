@@ -21,6 +21,7 @@ interface Member {
 }
 
 export function HeadmatesPage() {
+    const { setFronter, activeFronterId } = useFronter();
     const [apiKey, setApiKey] = useState('');
     const [members, setMembers] = useState<Member[]>([]);
     const [loading, setLoading] = useState(false);
