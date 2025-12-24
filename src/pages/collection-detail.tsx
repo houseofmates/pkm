@@ -12,6 +12,7 @@ interface CollectionDetailPageProps {
     onBack: () => void;
 }
 
+import { CreateRecordDialog } from '@/components/create-record-dialog';
 import { ViewType, VIEW_REGISTRY, VIEW_OPTIONS } from '@/components/views/registry';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
