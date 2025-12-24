@@ -11,6 +11,10 @@ const APIS = {
     nocobase: {
         nativeUrl: 'https://db.houseofmates.space/api',
         proxyUrl: '/api/nocobase'
+    },
+    ollama: {
+        nativeUrl: 'https://ollama.houseofmates.space/api',
+        proxyUrl: '/api/ollama'
     }
 };
 
