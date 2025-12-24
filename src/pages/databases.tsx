@@ -16,7 +16,7 @@ import { DatabaseContextMenu } from '@/components/database-context-menu';
 // In a real app we'd wrap this with DnD context (dnd-kit)
 // For now, implementing the Visual Card Grid
 export function DatabasesPage() {
-    const { isAuthenticated, login, logout } = useAuth();
+    const { isAuthenticated, login } = useAuth();
     const { collections, loading, error, refresh } = useCollections();
     const [apiKey, setApiKey] = useState('');
     const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
