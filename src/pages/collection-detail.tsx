@@ -14,7 +14,7 @@ interface CollectionDetailPageProps {
 
 import { CreateRecordDialog } from '@/components/create-record-dialog';
 
-import { ViewType, VIEW_REGISTRY, VIEW_OPTIONS } from '@/components/views/registry';
+import { type ViewType, VIEW_REGISTRY, VIEW_OPTIONS } from '@/components/views/registry';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function CollectionDetailPage({ collectionName, onBack }: CollectionDetailPageProps) {
