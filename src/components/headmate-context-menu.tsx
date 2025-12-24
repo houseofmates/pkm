@@ -120,11 +120,11 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
                     <ContextMenuSeparator />
 
                     <ContextMenuItem
-                        className="text-destructive focus:text-destructive-foreground focus:bg-destructive"
-                        onSelect={() => updateOverride(memberId, { hidden: true })}
+                        className={isHidden ? "" : "text-destructive focus:text-destructive-foreground focus:bg-destructive"}
+                        onSelect={toggleHide}
                     >
                         <Trash2 className="mr-2 h-4 w-4" />
-                        Hide Headmate
+                        {isHidden ? "Unhide Headmate" : "Hide Headmate"}
                     </ContextMenuItem>
                 </ContextMenuContent>
             </ContextMenu>

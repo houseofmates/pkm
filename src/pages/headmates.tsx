@@ -27,7 +27,9 @@ export function HeadmatesPage() {
     const [loading, setLoading] = useState(false);
     const [hasKey, setHasKey] = useState(false);
 
-    const members = allMembers.filter(m => !overrides[m.id]?.hidden);
+    const [showHidden, setShowHidden] = useState(false);
+
+    const members = allMembers.filter(m => showHidden || !overrides[m.id]?.hidden);
 
     useEffect(() => {
         const storedKey = localStorage.getItem('pk_api_key');
