@@ -2,7 +2,7 @@ import type { NocoBaseResponse, RequestOptions, Collection } from "@/types/nocob
 import { apiRequest } from '@/lib/api-client';
 
 export class NocoBaseClient {
-    private baseURL = 'https://db.houseofmates.space/api';
+
 
     private getToken: () => string | null;
 
