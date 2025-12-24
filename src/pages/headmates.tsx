@@ -29,28 +29,7 @@ export function HeadmatesPage() {
 
     const members = allMembers.filter(m => !overrides[m.id]?.hidden);
 
-    useEffect(() => {
-        const storedKey = localStorage.getItem('pk_api_key');
-        if (storedKey) {
-            setApiKey(storedKey);
-            setHasKey(true);
-        }
-    }, []);
-
-    const handleSaveKey = () => {
-        if (!apiKey) return;
-        localStorage.setItem('pk_api_key', apiKey);
-        setHasKey(true);
-        toast.success("API Key saved locally");
-        fetchMembers(apiKey);
-    };
-
-
-
-
-
-    // ... inside component ...
-
+    // Define fetchMembers first to avoid usage before declaration
     const fetchMembers = async (key: string) => {
         setLoading(true);
         try {
@@ -77,10 +56,37 @@ export function HeadmatesPage() {
         } catch (error: any) {
             console.error(error);
             toast.error(error.message || "Failed to load headmates");
+            // If auth fails, maybe clear the key? 
+            // setHasKey(false); 
         } finally {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        const storedKey = localStorage.getItem('pk_api_key');
+        if (storedKey) {
+            setApiKey(storedKey);
+            setHasKey(true);
+            fetchMembers(storedKey);
+        }
+    }, []);
+
+    const handleSaveKey = () => {
+        if (!apiKey) return;
+        localStorage.setItem('pk_api_key', apiKey);
+        setHasKey(true);
+        toast.success("API Key saved locally");
+        fetchMembers(apiKey);
+    };
+
+
+
+
+
+    // ... inside component ...
+
+
 
     return (
         <div className="p-4 md:p-8 space-y-6 h-full overflow-auto">
