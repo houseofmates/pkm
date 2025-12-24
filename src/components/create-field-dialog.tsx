@@ -23,11 +23,32 @@ interface CreateFieldDialogProps {
 }
 
 const FIELD_TYPES = [
-    { label: 'Single Line Text', value: 'input' },
-    { label: 'Long Text', value: 'textarea' },
-    { label: 'Number', value: 'number' },
-    { label: 'Checkbox (Boolean)', value: 'checkbox' },
-    // { label: 'Date', value: 'datetime' }, // Needs more config usually
+    { value: 'input', label: 'Single Line Text' },
+    { value: 'textarea', label: 'Long Text' },
+    { value: 'markdown', label: 'Markdown' },
+    { value: 'richText', label: 'Rich Text' },
+    { value: 'number', label: 'Number' },
+    { value: 'integer', label: 'Integer' },
+    { value: 'percent', label: 'Percent' },
+    { value: 'checkbox', label: 'Checkbox' },
+    { value: 'date', label: 'Date' },
+    { value: 'datetime', label: 'Date Time' },
+    { value: 'time', label: 'Time' },
+    { value: 'attachment', label: 'Attachment' },
+    { value: 'email', label: 'Email' },
+    { value: 'phone', label: 'Phone' },
+    { value: 'url', label: 'URL' },
+    { value: 'color', label: 'Color' },
+    { value: 'icon', label: 'Icon' },
+    { value: 'password', label: 'Password' },
+    { value: 'select', label: 'Single Select' },
+    { value: 'multipleSelect', label: 'Multiple Select' },
+    { value: 'radioGroup', label: 'Radio Group' },
+    { value: 'checkboxGroup', label: 'Checkbox Group' },
+    // Complex relationships might need more config, but listing them:
+    { value: 'linkTo', label: 'Relation (Link To)' },
+    // { value: 'formula', label: 'Formula' }, // Requires expression
+    // { value: 'sequence', label: 'Auto Number' },
 ];
 
 export function CreateFieldDialog({ collectionName, onFieldCreated }: CreateFieldDialogProps) {
