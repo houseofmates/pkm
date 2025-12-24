@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
@@ -24,6 +23,7 @@ export function CollectionDetailPage({ collectionName, onBack }: CollectionDetai
     const [records, setRecords] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentView, setCurrentView] = useState<ViewType>('table');
+    const [viewConfig, setViewConfig] = useState<Record<string, any>>({});
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -67,6 +67,24 @@ export function CollectionDetailPage({ collectionName, onBack }: CollectionDetai
         fetchData();
     }, [fetchData]);
 
+    // Load view config on view change or collection load
+    useEffect(() => {
+        const key = `view_config_${collectionName}_${currentView}`;
+        try {
+            const saved = localStorage.getItem(key);
+            if (saved) setViewConfig(JSON.parse(saved));
+            else setViewConfig({});
+        } catch (e) {
+            console.error("Failed to load view config", e);
+        }
+    }, [collectionName, currentView]);
+
+    const handleConfigChange = (key: string, value: any) => {
+        const newConfig = { ...viewConfig, [key]: value };
+        setViewConfig(newConfig);
+        localStorage.setItem(`view_config_${collectionName}_${currentView}`, JSON.stringify(newConfig));
+    };
+
     if (loading && !collection) {
         return <div className="p-10 text-center animate-pulse">Loading {collectionName}...</div>;
     }
@@ -102,9 +120,64 @@ export function CollectionDetailPage({ collectionName, onBack }: CollectionDetai
                             onRecordCreated={fetchData}
                         />
                         <CreateFieldDialog collectionName={collectionName} onFieldCreated={fetchData} />
-                        <Button variant="ghost" size="icon">
-                            <Settings2 className="h-5 w-5 opacity-50" />
-                        </Button>
+
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                    <Settings2 className="h-5 w-5 opacity-50" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80">
+                                <div className="space-y-4">
+                                    <h4 className="font-medium leading-none border-b pb-2 mb-2">View Settings</h4>
+
+                                    {/* Gallery Settings */}
+                                    {currentView === 'gallery' && (
+                                        <div className="space-y-4">
+                                            <div className="space-y-2">
+                                                <Label>Cover Image Field</Label>
+                                                <Select
+                                                    value={viewConfig.coverField || '_auto'}
+                                                    onValueChange={(val) => handleConfigChange('coverField', val === '_auto' ? undefined : val)}
+                                                >
+                                                    <SelectTrigger><SelectValue placeholder="Auto-detect" /></SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="_auto">Auto-detect</SelectItem>
+                                                        {collection.fields
+                                                            ?.filter((f: any) => f.interface === 'attachment' || f.name.includes('image'))
+                                                            .map((f: any) => (
+                                                                <SelectItem key={f.name} value={f.name}>{f.uiSchema?.title || f.name}</SelectItem>
+                                                            ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label>Title Field</Label>
+                                                <Select
+                                                    value={viewConfig.titleField || '_auto'}
+                                                    onValueChange={(val) => handleConfigChange('titleField', val === '_auto' ? undefined : val)}
+                                                >
+                                                    <SelectTrigger><SelectValue placeholder="Auto-detect" /></SelectTrigger>
+                                                    <SelectContent>
+                                                        <SelectItem value="_auto">Auto-detect</SelectItem>
+                                                        {collection.fields
+                                                            ?.filter((f: any) => f.interface === 'input' || f.type === 'string')
+                                                            .map((f: any) => (
+                                                                <SelectItem key={f.name} value={f.name}>{f.uiSchema?.title || f.name}</SelectItem>
+                                                            ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {/* Placeholder for other views */}
+                                    {currentView !== 'gallery' && (
+                                        <p className="text-sm text-muted-foreground">No specific settings for this view yet.</p>
+                                    )}
+                                </div>
+                            </PopoverContent>
+                        </Popover>
                     </div>
                 </div>
 
@@ -132,6 +205,8 @@ export function CollectionDetailPage({ collectionName, onBack }: CollectionDetai
                     data={records}
                     collection={collection}
                     loading={loading}
+                    config={viewConfig}
+                    onConfigChange={handleConfigChange}
                 />
             </div>
         </div>
