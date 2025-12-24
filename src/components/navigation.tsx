@@ -1,4 +1,4 @@
-```typescript
+
 import { useState } from 'react';
 import { Database, Home, Users, Search } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -38,7 +38,7 @@ export function Navigation({ activeTab, onTabChange, className }: NavigationProp
                         <Database className="h-5 w-5" />
                         <span className="sr-only">Databases</span>
                     </Button>
-                    
+
                     <Button
                         variant={activeTab === 'home' ? "default" : "ghost"}
                         size="icon"
@@ -73,7 +73,7 @@ export function Navigation({ activeTab, onTabChange, className }: NavigationProp
                         <Search className="h-5 w-5 text-muted-foreground" />
                     </Button>
                 </div>
-                
+
                 <GlobalSearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
             </div>
 
