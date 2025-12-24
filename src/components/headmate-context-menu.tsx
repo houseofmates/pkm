@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Image, Palette, FileText } from 'lucide-react';
+import { Image, Palette, FileText, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface HeadmateContextMenuProps {
@@ -108,6 +108,16 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
                     <ContextMenuItem onSelect={openColor}>
                         <Palette className="mr-2 h-4 w-4" />
                         Customize Colors
+                    </ContextMenuItem>
+
+                    <ContextMenuSeparator />
+
+                    <ContextMenuItem
+                        className="text-destructive focus:text-destructive-foreground focus:bg-destructive"
+                        onSelect={() => updateOverride(memberId, { hidden: true })}
+                    >
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        Hide Headmate
                     </ContextMenuItem>
                 </ContextMenuContent>
             </ContextMenu>

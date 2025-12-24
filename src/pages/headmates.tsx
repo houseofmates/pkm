@@ -21,11 +21,13 @@ interface Member {
 }
 
 export function HeadmatesPage() {
-    const { setFronter, activeFronterId } = useFronter();
+    const { setFronter, activeFronterId, overrides } = useFronter();
     const [apiKey, setApiKey] = useState('');
-    const [members, setMembers] = useState<Member[]>([]);
+    const [allMembers, setAllMembers] = useState<Member[]>([]);
     const [loading, setLoading] = useState(false);
     const [hasKey, setHasKey] = useState(false);
+
+    const members = allMembers.filter(m => !overrides[m.id]?.hidden);
 
     useEffect(() => {
         const storedKey = localStorage.getItem('pk_api_key');
@@ -77,7 +79,7 @@ export function HeadmatesPage() {
             });
 
             // SimplyPlural returns array of members directly
-            setMembers(Array.isArray(membersData) ? membersData : []);
+            setAllMembers(Array.isArray(membersData) ? membersData : []);
 
         } catch (error: any) {
             console.error(error);
