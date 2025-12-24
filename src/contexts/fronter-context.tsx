@@ -6,6 +6,7 @@ export interface HeadmateOverride {
     textColor?: string;
     avatarUrl?: string; // Custom image override
     description?: string; // Custom description override
+    hidden?: boolean; // Soft delete/hide
 }
 
 interface FronterContextType {
