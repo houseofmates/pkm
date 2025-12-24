@@ -1,6 +1,6 @@
 
 import { NocoBaseClient } from '@/api/nocobase-client';
-import type { Collection } from '@/types/nocobase';
+
 
 export async function buildKnowledgeContext(client: NocoBaseClient): Promise<string> {
     try {
