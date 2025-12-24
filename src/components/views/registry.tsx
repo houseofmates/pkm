@@ -15,6 +15,8 @@ export interface ViewProps {
     loading?: boolean;
     onEdit?: (record: any) => void;
     onDelete?: (record: any) => void;
+    config?: Record<string, any>;
+    onConfigChange?: (key: string, value: any) => void;
 }
 
 export const VIEW_REGISTRY: Record<ViewType, React.ComponentType<ViewProps>> = {
