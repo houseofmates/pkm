@@ -3,6 +3,7 @@ import { useCollections } from '@/hooks/use-collections';
 import { CollectionCard } from '@/components/collection-card';
 import { useAuth } from '@/contexts/auth-context';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CreateCollectionDialog } from '@/components/create-collection-dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -13,7 +14,7 @@ import { toast } from 'sonner';
 // For now, implementing the Visual Card Grid
 export function DatabasesPage() {
     const { isAuthenticated, login, logout } = useAuth();
-    const { collections, loading, error } = useCollections();
+    const { collections, loading, error, refresh } = useCollections();
     const [apiKey, setApiKey] = useState('');
 
     const handleLogin = () => {
@@ -61,13 +62,22 @@ export function DatabasesPage() {
         <div className="p-4 md:p-8 space-y-6 h-full overflow-auto">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold lowercase tracking-tight">Databases</h1>
-                <Button variant="outline" size="sm" onClick={logout}>Disconnect</Button>
+                <div className="flex items-center gap-2">
+                    <CreateCollectionDialog onCollectionCreated={refresh} />
+                </div>
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {collections.map(collection => (
-                    <CollectionCard key={collection.name} collection={collection} />
-                ))}
-            </div>
+            {collections.length === 0 ? (
+                <div className="flex flex-col items-center justify-center p-20 text-center space-y-4 border-2 border-dashed rounded-lg opacity-50">
+                    <p className="text-xl">no databases found</p>
+                    <p className="text-sm">create one to get started</p>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                    {collections.map(collection => (
+                        <CollectionCard key={collection.name} collection={collection} />
+                    ))}
+                </div>
+            )}
         </div>
     );
 }
