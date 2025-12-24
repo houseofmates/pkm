@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Plus, Settings2 } from 'lucide-react';
+import { ArrowLeft, Settings2 } from 'lucide-react';
 import { RecordTable } from '@/components/record-table';
 import { CreateFieldDialog } from '@/components/create-field-dialog';
 import { toast } from 'sonner';
