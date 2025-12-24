@@ -1,5 +1,7 @@
 
 import { useState, useRef, useEffect } from 'react';
+import { useAuth } from '@/contexts/auth-context';
+import { buildKnowledgeContext } from '@/lib/context-builder';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Search, Bot, Sparkles } from 'lucide-react';
@@ -14,29 +16,44 @@ interface GlobalSearchDialogProps {
 }
 
 export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogProps) {
+    const { client } = useAuth();
     const [query, setQuery] = useState('');
     const [response, setResponse] = useState<string | null>(null);
+    const [status, setStatus] = useState<string>(''); // For granular loading state
     const [loading, setLoading] = useState(false);
 
     // Auto-focus input
     const inputRef = useRef<HTMLInputElement>(null);
+
+    // Focus input when opened
+    useEffect(() => {
+        if (open) {
+            setTimeout(() => inputRef.current?.focus(), 100);
+        }
+    }, [open]);
 
     const handleSearch = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!query.trim()) return;
 
         setLoading(true);
-        setResponse(null); // Clear previous
+        setStatus('Reading database...');
+        setResponse(null);
 
         try {
-            // For now, purely AI search as requested ("powered by it")
-            const answer = await ollama.ask(query);
+            // 1. Build Context
+            const context = await buildKnowledgeContext(client);
+
+            setStatus('Thinking...');
+            // 2. Ask AI with Context
+            const answer = await ollama.ask(query, context);
             setResponse(answer);
         } catch (error) {
             console.error(error);
             setResponse("Error connecting to Ollama. Please ensure the endpoint is reachable.");
         } finally {
             setLoading(false);
+            setStatus('');
         }
     };
 
@@ -60,10 +77,10 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
 
                 {(response || loading) && (
                     <ScrollArea className="max-h-[60vh] p-4">
-                        {loading && !response && (
+                        {loading && (
                             <div className="flex items-center gap-2 text-muted-foreground text-sm animate-pulse">
                                 <Bot className="h-4 w-4" />
-                                <span>Thinking...</span>
+                                <span>{status || 'Thinking...'}</span>
                             </div>
                         )}
                         {response && (
