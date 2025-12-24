@@ -55,26 +55,13 @@ export function HeadmatesPage() {
     const fetchMembers = async (key: string) => {
         setLoading(true);
         try {
-            // CapacitorHttp bypasses CORS restrictions on both Native and Web (if configured correctly, though Web usually needs proxy. 
-            // However, CapacitorHttp on web actually proxies through a Capacitor server or falls back to fetch.
-            // For robust CORS bypass on web dev, we still rely on the Vite proxy for the web platform, 
-            // OR we use the Native HTTP which works perfectly on Android.
-
-            // Let's try the native plugin directly.
-            const response = await CapacitorHttp.get({
-                url: 'https://api.apparyllis.com/v1/members',
-                headers: {
-                    'Authorization': key,
-                    'Content-Type': 'application/json'
-                }
+            const data = await apiRequest('simplyplural', 'members', {
+                headers: { 'Authorization': key }
             });
 
-            if (response.status !== 200) {
-                throw new Error(`Failed to fetch members: ${response.status} ${JSON.stringify(response.data)}`);
-            }
-
-            // CapacitorHttp returns data directly in response.data
-            setMembers(response.data);
+            // If array, set members. If object (v1?), check structure.
+            // SP usually returns just the array.
+            setMembers(Array.isArray(data) ? data : []);
         } catch (error: any) {
             console.error(error);
             toast.error(error.message || "Failed to load headmates");
