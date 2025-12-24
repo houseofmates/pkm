@@ -5,6 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { HeadmateCard } from '@/components/headmate-card';
+import { HeadmateContextMenu } from '@/components/headmate-context-menu';
+import { useFronter } from '@/contexts/fronter-context';
 import { apiRequest } from '@/lib/api-client';
 
 interface Member {
@@ -116,26 +119,25 @@ export function HeadmatesPage() {
                     {loading ? (
                         <div className="text-center p-10 animate-pulse text-muted-foreground">Loading members...</div>
                     ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                             {members.map(member => (
-                                <Card key={member.id} className="overflow-hidden hover:border-primary/50 transition-colors">
-                                    <div className="h-24 bg-muted/30 flex items-center justify-center relative">
-                                        {member.content.avatarUrl ? (
-                                            <img
-                                                src={member.content.avatarUrl}
-                                                alt={member.content.name}
-                                                className="h-full w-full object-cover"
-                                            />
-                                        ) : (
-                                            <div className="text-4xl opacity-20">?</div>
-                                        )}
-                                    </div>
-                                    <CardContent className="p-4">
-                                        <h3 className="font-bold text-lg mb-1">{member.content.name}</h3>
-                                        <p className="text-xs text-muted-foreground">{member.content.pronouns}</p>
-                                        <p className="text-xs mt-2 line-clamp-2 opacity-70">{member.content.desc}</p>
-                                    </CardContent>
-                                </Card>
+                                <HeadmateContextMenu
+                                    key={member.id}
+                                    memberId={member.id}
+                                    memberName={member.content.name}
+                                >
+                                    <HeadmateCard
+                                        member={member}
+                                        onClick={() => {
+                                            // Toggle if already selected, or just select? User said "selects the headmate as the current fronter"
+                                            // Let's toggle for UX convenience
+                                            setFronter(activeFronterId === member.id ? null : member.id);
+                                            if (activeFronterId !== member.id) {
+                                                toast.success(`Fronting: ${member.content.name}`);
+                                            }
+                                        }}
+                                    />
+                                </HeadmateContextMenu>
                             ))}
                             {members.length === 0 && (
                                 <div className="col-span-full text-center p-10 text-muted-foreground">
