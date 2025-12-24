@@ -85,7 +85,14 @@ export async function apiRequest(type: ApiType, endpoint: string, options: Parti
 
             // Handle empty responses
             const text = await response.text();
-            return text ? JSON.parse(text) : {};
+            if (!text) return {};
+
+            try {
+                return JSON.parse(text);
+            } catch (e) {
+                // If response is not JSON (e.g. plain text), return as is or wrap
+                return { data: text };
+            }
 
         } catch (error: any) {
             console.error(`[Web API] ${type} request failed:`, error);
