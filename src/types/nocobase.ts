@@ -19,6 +19,7 @@ export interface Collection {
     name: string;
     title?: string;
     displayName?: string;
+    description?: string; // Added for cover image hack
     key?: string;
     fields?: any[];
     hidden?: boolean;
