@@ -1,18 +1,50 @@
+import React from 'react';
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import './index.css';
+import App from './App.tsx';
 
-import { createRoot } from 'react-dom/client'
-import React from 'react'
+console.log("Restored Main script executing...");
 
-console.log("Minimal Main executing...");
+class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null }> {
+  constructor(props: { children: React.ReactNode }) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, error };
+  }
+
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("Uncaught error:", error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div style={{ padding: '2rem', color: 'red', fontFamily: 'monospace', zIndex: 9999, position: 'relative' }}>
+          <h1>Something went wrong.</h1>
+          <pre>{this.state.error?.toString()}</pre>
+          <pre>{this.state.error?.stack}</pre>
+        </div>
+      );
+    }
+
+    return this.props.children;
+  }
+}
 
 try {
   const root = createRoot(document.getElementById('root')!);
   root.render(
-    <div style={{ color: 'red', fontSize: '2em', padding: '20px' }}>
-      <h1>SYSTEM CHECK</h1>
-      <p>If you see this, React is working. The issue is in the App components.</p>
-    </div>
+    <StrictMode>
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    </StrictMode>,
   );
 } catch (e) {
-  console.error("Critical Render Error:", e);
-  document.body.innerHTML = `<h1 style="color:red">CRITICAL FAILURE: ${e}</h1>`;
+  console.error("Root Render Failed:", e);
+  document.body.innerHTML = "<h1>Root Render Failed</h1>";
 }
