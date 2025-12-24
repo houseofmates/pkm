@@ -5,6 +5,7 @@ import { KanbanView } from './kanban-view';
 import { GalleryView } from './gallery-view';
 import { GanttView } from './gantt-view';
 import { ChartView } from './chart-view';
+import * as React from 'react';
 
 export type ViewType = 'table' | 'calendar' | 'kanban' | 'gallery' | 'gantt' | 'chart';
 
