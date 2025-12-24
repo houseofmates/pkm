@@ -12,6 +12,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/simplyplural/, ''),
       },
+      '/api/nocobase': {
+        target: 'https://db.houseofmates.space/api',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/nocobase/, ''),
+      },
     },
   },
   resolve: {
