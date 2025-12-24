@@ -47,9 +47,8 @@ export function HomePage() {
             <div className="absolute top-4 left-4 z-10">
                 <Dialog open={isOpen} onOpenChange={setIsOpen}>
                     <DialogTrigger asChild>
-                        <Button className="shadow-xl">
-                            <Plus className="mr-2 h-4 w-4" />
-                            Import Database
+                        <Button className="rounded-full w-12 h-12 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg p-0">
+                            <Plus className="h-6 w-6" />
                         </Button>
                     </DialogTrigger>
                     <DialogContent>
