@@ -12,10 +12,11 @@ interface CollectionDetailPageProps {
     onBack: () => void;
 }
 
-import { CreateRecordDialog } from '@/components/create-record-dialog';
-
-import { type ViewType, VIEW_REGISTRY, VIEW_OPTIONS } from '@/components/views/registry';
+import { ViewType, VIEW_REGISTRY, VIEW_OPTIONS } from '@/components/views/registry';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export function CollectionDetailPage({ collectionName, onBack }: CollectionDetailPageProps) {
     const { client } = useAuth();
