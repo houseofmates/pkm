@@ -50,7 +50,7 @@ export function HeadmatesPage() {
         localStorage.removeItem('pk_api_key');
         setApiKey('');
         setHasKey(false);
-        setMembers([]);
+        setAllMembers([]);
         toast.info("API Key cleared");
     };
 

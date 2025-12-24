@@ -41,6 +41,13 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
+    const isHidden = currentOverride.hidden;
+
+    const toggleHide = () => {
+        updateOverride(memberId, { hidden: !isHidden });
+        toast.info(isHidden ? "Headmate restored" : "Headmate hidden");
+    };
+
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
