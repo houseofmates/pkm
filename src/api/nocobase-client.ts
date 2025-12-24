@@ -69,6 +69,16 @@ export class NocoBaseClient {
         });
     }
 
+    async createField(collectionName: string, data: any) {
+        return this.request('fields', 'create', {
+            method: 'POST',
+            data: {
+                collectionName,
+                ...data
+            }
+        });
+    }
+
     // Record operations
     async listRecords(collection: string, params?: {
         pageSize?: number;
