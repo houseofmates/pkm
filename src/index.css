@@ -71,13 +71,12 @@
   }
 
   body {
-    @apply bg-background text-foreground lowercase;
-    font-family: 'Varela Round', sans-serif;
+    @apply bg-background text-foreground lowercase font-varela;
   }
 
-  /* Exclude inputs from lowercase enforcement so users can type normally */
+  /* Keep user input natural unless explicit */
   input,
   textarea {
-    text-transform: none;
+    @apply normal-case;
   }
 }

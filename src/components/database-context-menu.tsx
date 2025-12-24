@@ -21,7 +21,11 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from 'sonner';
-import { Image, Trash2, Settings, FolderOpen } from 'lucide-react';
+import { Image, Trash2, Settings, Edit, Palette } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
 
 interface DatabaseContextMenuProps {
     collection: Collection;
@@ -32,7 +36,24 @@ interface DatabaseContextMenuProps {
 export function DatabaseContextMenu({ collection, children, onUpdate }: DatabaseContextMenuProps) {
     const { client } = useAuth();
     const [deleteOpen, setDeleteOpen] = useState(false);
+    const [renameOpen, setRenameOpen] = useState(false);
+    const [newName, setNewName] = useState(collection.title || collection.name);
     const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const handleRename = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            await client.updateCollection(collection.name, {
+                title: newName
+            });
+            toast.success("Database renamed");
+            setRenameOpen(false);
+            onUpdate();
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to rename database");
+        }
+    };
 
     const handleDelete = async () => {
         try {
@@ -91,9 +112,14 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
                         Change Cover Image
                     </ContextMenuItem>
 
+                    <ContextMenuItem onSelect={() => setRenameOpen(true)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Rename
+                    </ContextMenuItem>
+
                     <ContextMenuItem disabled>
-                        <Settings className="mr-2 h-4 w-4" />
-                        Properties...
+                        <Palette className="mr-2 h-4 w-4" />
+                        Change Color
                     </ContextMenuItem>
 
                     <ContextMenuSeparator />
@@ -133,6 +159,29 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
+        </>
+            </AlertDialog >
+
+        <Dialog open={renameOpen} onOpenChange={setRenameOpen}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Rename Database</DialogTitle>
+                </DialogHeader>
+                <form onSubmit={handleRename} className="space-y-4">
+                    <div className="space-y-2">
+                        <Label htmlFor="name">Display Name</Label>
+                        <Input
+                            id="name"
+                            value={newName}
+                            onChange={(e) => setNewName(e.target.value)}
+                        />
+                    </div>
+                    <DialogFooter>
+                        <Button type="submit">Save</Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
         </>
     );
 }
