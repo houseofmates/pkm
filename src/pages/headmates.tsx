@@ -27,16 +27,13 @@ export function HeadmatesPage() {
     const [loading, setLoading] = useState(false);
     const [hasKey, setHasKey] = useState(false);
 
-    const [showHidden, setShowHidden] = useState(false);
-
-    const members = allMembers.filter(m => showHidden || !overrides[m.id]?.hidden);
+    const members = allMembers.filter(m => !overrides[m.id]?.hidden);
 
     useEffect(() => {
         const storedKey = localStorage.getItem('pk_api_key');
         if (storedKey) {
             setApiKey(storedKey);
             setHasKey(true);
-            fetchMembers(storedKey);
         }
     }, []);
 
