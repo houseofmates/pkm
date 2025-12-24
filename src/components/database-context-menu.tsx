@@ -159,29 +159,28 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
                     </AlertDialogFooter>
                 </AlertDialogContent>
             </AlertDialog>
-        </>
-            </AlertDialog >
 
-        <Dialog open={renameOpen} onOpenChange={setRenameOpen}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Rename Database</DialogTitle>
-                </DialogHeader>
-                <form onSubmit={handleRename} className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="name">Display Name</Label>
-                        <Input
-                            id="name"
-                            value={newName}
-                            onChange={(e) => setNewName(e.target.value)}
-                        />
-                    </div>
-                    <DialogFooter>
-                        <Button type="submit">Save</Button>
-                    </DialogFooter>
-                </form>
-            </DialogContent>
-        </Dialog>
+            <Dialog open={renameOpen} onOpenChange={setRenameOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Rename Database</DialogTitle>
+                    </DialogHeader>
+                    <form onSubmit={handleRename} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="name">Display Name</Label>
+                            <Input
+                                id="name"
+                                value={newName}
+                                onChange={(e) => setNewName(e.target.value)}
+                            />
+                        </div>
+                        <DialogFooter>
+                            <Button type="submit">Save</Button>
+                        </DialogFooter>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }
+```
