@@ -1,7 +1,7 @@
 
 import { useState, useRef } from 'react';
 import { useAuth } from '@/contexts/auth-context';
-import { Collection } from '@/types/nocobase';
+import type { Collection } from '@/types/nocobase';
 import {
     ContextMenu,
     ContextMenuContent,
