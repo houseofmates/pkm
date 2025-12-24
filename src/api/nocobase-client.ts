@@ -1,3 +1,4 @@
+import { CapacitorHttp } from '@capacitor/core';
 import type { NocoBaseResponse, RequestOptions, Collection } from "@/types/nocobase";
 
 export class NocoBaseClient {
@@ -20,43 +21,46 @@ export class NocoBaseClient {
             'X-Locale': 'en-US',
             'Content-Type': 'application/json',
             'X-Hostname': 'db.houseofmates.space',
-            'X-Timezone': '-08:00'
+            'X-Timezone': '-08:00',
+            ...options?.headers, // Merge any additional headers from options
         };
 
         if (token) {
             headers['Authorization'] = `Bearer ${token}`;
         }
 
-        // Build query string for GET requests
-        let queryString = '';
+        const params: any = {};
         if (options?.params) {
-            const params = new URLSearchParams();
-            Object.entries(options.params).forEach(([k, v]) => {
-                if (v !== undefined && v !== null) {
-                    params.append(k, typeof v === 'object' ? JSON.stringify(v) : String(v));
+            Object.entries(options.params).forEach(([key, value]) => {
+                if (typeof value === 'object') {
+                    params[key] = JSON.stringify(value);
+                } else {
+                    params[key] = String(value);
                 }
             });
-            queryString = '?' + params.toString();
         }
 
         try {
-            const response = await fetch(url + queryString, {
-                method: options?.method || 'GET',
-                headers,
-                body: options?.data ? JSON.stringify(options.data) : undefined,
+            const response = await CapacitorHttp.request({
+                method: (options?.method || 'GET').toUpperCase(),
+                url: url,
+                headers: headers,
+                params: params,
+                data: options?.data,
             });
 
-            if (!response.ok) {
+            if (response.status >= 400) {
                 if (response.status === 401) {
-                    // Handle unauthorized 
+                    // Handle unauthorized
                 }
-
-                throw new Error(`API Error: ${response.status} ${response.statusText}`);
+                console.error("API Error Response:", response);
+                throw new Error(`API Error: ${response.status} - ${JSON.stringify(response.data)}`);
             }
 
-            return await response.json();
-        } catch (error) {
-            console.error('API Request Failed:', error);
+            // CapacitorHttp's data property already contains the parsed JSON response
+            return response.data as NocoBaseResponse<T>;
+        } catch (error: any) {
+            console.error("NocoBase Client Error:", error);
             throw error;
         }
     }

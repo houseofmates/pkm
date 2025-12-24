@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { CapacitorHttp } from '@capacitor/core';
 
 interface Member {
     id: string;
@@ -47,35 +48,36 @@ export function HeadmatesPage() {
         toast.info("API Key cleared");
     };
 
+
+
+    // ... inside component ...
+
     const fetchMembers = async (key: string) => {
         setLoading(true);
         try {
-            // Use local proxy to bypass CORS
-            // Was: https://api.apparyllis.com/v1/members
-            const response = await fetch('/api/simplyplural/members', {
+            // CapacitorHttp bypasses CORS restrictions on both Native and Web (if configured correctly, though Web usually needs proxy. 
+            // However, CapacitorHttp on web actually proxies through a Capacitor server or falls back to fetch.
+            // For robust CORS bypass on web dev, we still rely on the Vite proxy for the web platform, 
+            // OR we use the Native HTTP which works perfectly on Android.
+
+            // Let's try the native plugin directly.
+            const response = await CapacitorHttp.get({
+                url: 'https://api.apparyllis.com/v1/members',
                 headers: {
-                    'Authorization': key
+                    'Authorization': key,
+                    'Content-Type': 'application/json'
                 }
             });
 
-            if (!response.ok) {
-                throw new Error(`Failed to fetch members: ${response.status}`);
+            if (response.status !== 200) {
+                throw new Error(`Failed to fetch members: ${response.status} ${JSON.stringify(response.data)}`);
             }
 
-            const data = await response.json();
-            // SimplyPlural returns list of members directly or in a specific structure. 
-            // Documentation says it returns array of members.
-            // Let's assume it is an array for now, or check typical response.
-            // Actually it's cleaner to just render what we get.
-            // If strictly SimplyPlural, expected format is array.
-            setMembers(data);
+            // CapacitorHttp returns data directly in response.data
+            setMembers(response.data);
         } catch (error: any) {
             console.error(error);
-            if (error.message === 'Failed to fetch') {
-                toast.error("Network Error: Possible CORS issue. This API may block browser requests.");
-            } else {
-                toast.error(error.message || "Failed to load headmates");
-            }
+            toast.error(error.message || "Failed to load headmates");
         } finally {
             setLoading(false);
         }

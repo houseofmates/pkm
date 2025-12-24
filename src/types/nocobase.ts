@@ -9,9 +9,10 @@ export interface NocoBaseResponse<T = any> {
 }
 
 export interface RequestOptions {
-    method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
     params?: Record<string, any>;
+    method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
     data?: any;
+    headers?: Record<string, string>;
 }
 
 export interface Collection {
