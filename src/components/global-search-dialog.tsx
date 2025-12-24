@@ -2,13 +2,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
 import { Search, Bot, Sparkles } from 'lucide-react';
 import { OllamaClient } from '@/api/ollama-client';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { cn } from '@/lib/utils';
-import ReactMarkdown from 'react-markdown'; // Use if installed, or just text for now.
-// We don't have react-markdown installed yet likely, so I'll just use whitespace-pre-wrap
 
 const ollama = new OllamaClient();
 
