@@ -45,13 +45,7 @@ export function HeadmatesPage() {
         fetchMembers(apiKey);
     };
 
-    const handleClearKey = () => {
-        localStorage.removeItem('pk_api_key');
-        setApiKey('');
-        setHasKey(false);
-        setAllMembers([]);
-        toast.info("API Key cleared");
-    };
+
 
 
 
