@@ -14,11 +14,15 @@ interface CollectionDetailPageProps {
 
 import { CreateRecordDialog } from '@/components/create-record-dialog';
 
+import { ViewType, VIEW_REGISTRY, VIEW_OPTIONS } from '@/components/views/registry';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 export function CollectionDetailPage({ collectionName, onBack }: CollectionDetailPageProps) {
     const { client } = useAuth();
     const [collection, setCollection] = useState<any>(null);
     const [records, setRecords] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
+    const [currentView, setCurrentView] = useState<ViewType>('table');
 
     const fetchData = useCallback(async () => {
         setLoading(true);
@@ -39,7 +43,6 @@ export function CollectionDetailPage({ collectionName, onBack }: CollectionDetai
                             interface: 'input',
                             uiSchema: { title: 'Fronter' }
                         });
-                        // Don't await refetch, just let it happen on next load or manual refresh to avoid loops
                     } catch (e) {
                         console.warn("Failed to auto-create fronter field", e);
                     }
@@ -71,39 +74,60 @@ export function CollectionDetailPage({ collectionName, onBack }: CollectionDetai
         return <div className="p-10 text-center text-destructive">Collection not found</div>;
     }
 
+    const CurrentViewComponent = VIEW_REGISTRY[currentView] || VIEW_REGISTRY['table'];
+
     return (
         <div className="flex flex-col h-full bg-background animate-in fade-in duration-500">
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
-                <div className="flex items-center gap-4">
-                    <Button variant="ghost" size="icon" onClick={onBack}>
-                        <ArrowLeft className="h-5 w-5" />
-                    </Button>
-                    <div>
-                        <h2 className="text-xl font-bold lowercase tracking-tight">
-                            {collection.title || collection.displayName || collection.name}
-                        </h2>
-                        <p className="text-xs text-muted-foreground lowercase opacity-70">
-                            {collection.name} &bull; {records.length} records
-                        </p>
+            <div className="flex flex-col border-b bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+                <div className="flex items-center justify-between p-4 pb-2">
+                    <div className="flex items-center gap-4">
+                        <Button variant="ghost" size="icon" onClick={onBack}>
+                            <ArrowLeft className="h-5 w-5" />
+                        </Button>
+                        <div>
+                            <h2 className="text-xl font-bold lowercase tracking-tight">
+                                {collection.title || collection.displayName || collection.name}
+                            </h2>
+                            <p className="text-xs text-muted-foreground lowercase opacity-70">
+                                {collection.name} &bull; {records.length} records
+                            </p>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <CreateRecordDialog
+                            collectionName={collectionName}
+                            fields={collection.fields || []}
+                            onRecordCreated={fetchData}
+                        />
+                        <CreateFieldDialog collectionName={collectionName} onFieldCreated={fetchData} />
+                        <Button variant="ghost" size="icon">
+                            <Settings2 className="h-5 w-5 opacity-50" />
+                        </Button>
                     </div>
                 </div>
-                <div className="flex items-center gap-2">
-                    <CreateRecordDialog
-                        collectionName={collectionName}
-                        fields={collection.fields || []}
-                        onRecordCreated={fetchData}
-                    />
-                    <CreateFieldDialog collectionName={collectionName} onFieldCreated={fetchData} />
-                    <Button variant="ghost" size="icon">
-                        <Settings2 className="h-5 w-5 opacity-50" />
-                    </Button>
+
+                {/* View Selector */}
+                <div className="px-4 pb-2 overflow-x-auto">
+                    <Tabs value={currentView} onValueChange={(v) => setCurrentView(v as ViewType)} className="w-full">
+                        <TabsList className="bg-transparent p-0 h-auto justify-start border-b border-transparent w-full">
+                            {VIEW_OPTIONS.map(view => (
+                                <TabsTrigger
+                                    key={view.id}
+                                    value={view.id}
+                                    className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-none border-b-2 border-transparent data-[state=active]:border-primary px-4 py-2 lowercase"
+                                >
+                                    {view.label}
+                                </TabsTrigger>
+                            ))}
+                        </TabsList>
+                    </Tabs>
                 </div>
             </div>
 
             {/* Content */}
             <div className="flex-1 overflow-auto p-4 md:p-8">
-                <RecordTable
+                <CurrentViewComponent
                     data={records}
                     collection={collection}
                     loading={loading}
