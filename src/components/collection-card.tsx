@@ -19,23 +19,33 @@ export function CollectionCard({ collection, className }: CollectionCardProps) {
                 {/* Placeholder for Main Image */}
                 <Database className="h-10 w-10 text-muted-foreground group-hover:text-primary transition-colors" />
             </div>
-            <CardHeader className="p-4 pb-2">
-                <CardTitle className="text-lg lowercase font-bold truncate">
-                    {collection.title || collection.displayName || collection.name}
-                </CardTitle>
-            </CardHeader>
-            <CardContent className="p-4 pt-0 flex-1">
-                <div className="space-y-1 text-xs text-muted-foreground">
-                    {displayFields.length > 0 ? displayFields.map((field: any) => (
-                        <div key={field.name} className="flex items-center gap-2">
-                            <span className="font-medium opacity-70 lowercase">{field.uiSchema?.title || field.name}:</span>
-                            <span className="truncate opacity-50">{field.interface || 'text'}</span>
+            <Card className={cn("h-40 hover:shadow-lg transition-all cursor-pointer relative overflow-hidden group", className)}>
+                {isCover ? (
+                    <div className="absolute inset-0">
+                        <img
+                            src={collection.description}
+                            alt={collection.title || collection.name}
+                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
+                        <div className="absolute bottom-4 left-4 text-white">
+                            <h3 className="font-bold text-lg lowercase tracking-tight">{collection.title || collection.name}</h3>
+                            <p className="text-xs opacity-80 lowercase">{fieldCount} fields</p>
                         </div>
-                    )) : (
-                        <div className="italic opacity-50">no properties</div>
-                    )}
-                </div>
-            </CardContent>
-        </Card>
-    );
+                    </div>
+                ) : (
+                    <CardHeader>
+                        <div className="flex items-center justify-between mb-2">
+                            <Database className="h-5 w-5 text-primary" />
+                            <span className="text-xs text-muted-foreground lowercase">{collection.name}</span>
+                        </div>
+                        <CardTitle className="lowercase tracking-tight">{collection.title || collection.name}</CardTitle>
+                        <CardDescription className="line-clamp-2 text-xs">
+                            {collection.description || `${fieldCount} fields`}
+                        </CardDescription>
+                    </CardHeader>
+                )}
+            </Card>
+            );
 }
+            ```

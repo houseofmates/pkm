@@ -11,6 +11,7 @@ import { useState } from 'react';
 import { toast } from 'sonner';
 
 import { CollectionDetailPage } from '@/pages/collection-detail';
+import { DatabaseContextMenu } from '@/components/database-context-menu';
 
 // In a real app we'd wrap this with DnD context (dnd-kit)
 // For now, implementing the Visual Card Grid
@@ -82,7 +83,9 @@ export function DatabasesPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     {collections.map(collection => (
                         <div key={collection.name} onClick={() => setSelectedCollection(collection.name)}>
-                            <CollectionCard collection={collection} />
+                            <DatabaseContextMenu collection={collection} onUpdate={refresh}>
+                                <CollectionCard collection={collection} />
+                            </DatabaseContextMenu>
                         </div>
                     ))}
                 </div>
