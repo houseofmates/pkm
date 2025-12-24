@@ -3,7 +3,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Settings2 } from 'lucide-react';
-import { RecordTable } from '@/components/record-table';
 import { CreateFieldDialog } from '@/components/create-field-dialog';
 import { toast } from 'sonner';
 
@@ -13,7 +12,7 @@ interface CollectionDetailPageProps {
 }
 
 import { CreateRecordDialog } from '@/components/create-record-dialog';
-import { ViewType, VIEW_REGISTRY, VIEW_OPTIONS } from '@/components/views/registry';
+import { type ViewType, VIEW_REGISTRY, VIEW_OPTIONS } from '@/components/views/registry';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
