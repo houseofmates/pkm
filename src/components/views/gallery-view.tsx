@@ -1,5 +1,5 @@
 
-import { ViewProps } from './registry';
+import type { ViewProps } from './registry';
 import { Card, CardContent } from "@/components/ui/card";
 
 export function GalleryView({ data, loading, collection }: ViewProps) {

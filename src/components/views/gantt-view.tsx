@@ -1,5 +1,5 @@
 
-import { ViewProps } from './registry';
+import type { ViewProps } from './registry';
 
 export function GanttView({ data, loading }: ViewProps) {
     if (loading) return <div>Loading timeline...</div>;
