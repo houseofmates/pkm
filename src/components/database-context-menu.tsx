@@ -182,5 +182,4 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
             </Dialog>
         </>
     );
-    );
 }
