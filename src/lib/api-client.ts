@@ -70,8 +70,8 @@ export async function apiRequest(type: ApiType, endpoint: string, options: Parti
             fetchUrl += `?${params.toString()}`;
         }
 
-        const headers = {
-            'Content-Type': 'application/json',
+        const headers: Record<string, string> = {
+            ...(options.data instanceof FormData ? {} : { 'Content-Type': 'application/json' }),
             ...(options.headers as Record<string, string>)
         };
 
@@ -79,7 +79,7 @@ export async function apiRequest(type: ApiType, endpoint: string, options: Parti
             const response = await fetch(fetchUrl, {
                 method: options.method || 'GET',
                 headers,
-                body: options.data ? JSON.stringify(options.data) : undefined,
+                body: options.data instanceof FormData ? options.data : (options.data ? JSON.stringify(options.data) : undefined),
             });
 
             if (!response.ok) {
