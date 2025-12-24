@@ -18,7 +18,9 @@ interface HeadmateCardProps {
     className?: string;
 }
 
-export function HeadmateCard({ member, onClick, className }: HeadmateCardProps) {
+import { forwardRef } from 'react';
+
+export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps>(({ member, onClick, className }, ref) => {
     const { activeFronterId, overrides } = useFronter();
     const isActive = activeFronterId === member.id;
     const override = overrides[member.id] || {};
@@ -29,6 +31,7 @@ export function HeadmateCard({ member, onClick, className }: HeadmateCardProps) 
 
     return (
         <Card
+            ref={ref}
             onClick={onClick}
             className={cn(
                 "aspect-square relative overflow-hidden group cursor-pointer border-2 transition-all duration-300",
@@ -85,4 +88,5 @@ export function HeadmateCard({ member, onClick, className }: HeadmateCardProps) 
             </div>
         </Card>
     );
-}
+});
+HeadmateCard.displayName = "HeadmateCard";
