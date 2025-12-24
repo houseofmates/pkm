@@ -21,10 +21,14 @@ function AppContent() {
   )
 }
 
+import { FronterProvider } from "@/contexts/fronter-context"
+
 function App() {
   return (
     <AuthProvider>
-      <AppContent />
+      <FronterProvider>
+        <AppContent />
+      </FronterProvider>
     </AuthProvider>
   )
 }
