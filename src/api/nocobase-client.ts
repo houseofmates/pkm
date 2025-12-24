@@ -69,45 +69,76 @@ export class NocoBaseClient {
         });
     }
 
+}
+
+    async deleteCollection(name: string) {
+    return this.request('collections', 'destroy', {
+        method: 'POST',
+        params: { filterByTk: name }
+    });
+}
+
+    async updateCollection(name: string, data: any) {
+    return this.request('collections', 'update', {
+        method: 'POST',
+        params: { filterByTk: name },
+        data
+    });
+}
+
+    // Specialized upload for handling FormData
+    async upload(file: File) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // Use direct apiRequest to bypass some NocoBase wrapper headers if needed, 
+    // or just use this.request with 'attachments:create'
+    // NocoBase attachments API: POST /api/attachments
+    return this.request('attachments', 'create', {
+        method: 'POST',
+        data: formData
+    });
+}
+
     async createField(collectionName: string, data: any) {
-        return this.request('fields', 'create', {
-            method: 'POST',
-            data: {
-                collectionName,
-                ...data
-            }
-        });
-    }
+    return this.request('fields', 'create', {
+        method: 'POST',
+        data: {
+            collectionName,
+            ...data
+        }
+    });
+}
 
     // Record operations
-    async listRecords(collection: string, params?: {
-        pageSize?: number;
-        page?: number;
-        filter?: any;
-        sort?: string[];
-    }) {
-        return this.request(collection, 'list', { params });
-    }
+    async listRecords(collection: string, params ?: {
+    pageSize?: number;
+    page?: number;
+    filter?: any;
+    sort?: string[];
+}) {
+    return this.request(collection, 'list', { params });
+}
 
     async createRecord(collection: string, data: any) {
-        return this.request(collection, 'create', {
-            method: 'POST',
-            data
-        });
-    }
+    return this.request(collection, 'create', {
+        method: 'POST',
+        data
+    });
+}
 
     async updateRecord(collection: string, id: string | number, data: any) {
-        return this.request(collection, 'update', {
-            method: 'POST',
-            params: { filterByTk: id },
-            data
-        });
-    }
+    return this.request(collection, 'update', {
+        method: 'POST',
+        params: { filterByTk: id },
+        data
+    });
+}
 
     async deleteRecord(collection: string, id: string | number) {
-        return this.request(collection, 'destroy', {
-            method: 'POST', // NocoBase uses POST for destroy with filterByTk often, or delete method
-            params: { filterByTk: id }
-        });
-    }
+    return this.request(collection, 'destroy', {
+        method: 'POST', // NocoBase uses POST for destroy with filterByTk often, or delete method
+        params: { filterByTk: id }
+    });
+}
 }
