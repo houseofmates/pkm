@@ -55,13 +55,26 @@ export function HeadmatesPage() {
     const fetchMembers = async (key: string) => {
         setLoading(true);
         try {
-            const data = await apiRequest('simplyplural', 'members', {
+            // 1. Fetch System ID (User)
+            const meData = await apiRequest('simplyplural', 'me', {
                 headers: { 'Authorization': key }
             });
 
-            // If array, set members. If object (v1?), check structure.
-            // SP usually returns just the array.
-            setMembers(Array.isArray(data) ? data : []);
+            if (!meData || !meData.id) {
+                throw new Error("Could not fetch system information. Chek API key.");
+            }
+
+            const systemId = meData.id;
+
+            // 2. Fetch Members using System ID
+            // Endpoint: /v1/members/:systemId
+            const membersData = await apiRequest('simplyplural', `members/${systemId}`, {
+                headers: { 'Authorization': key }
+            });
+
+            // SimplyPlural returns array of members directly
+            setMembers(Array.isArray(membersData) ? membersData : []);
+
         } catch (error: any) {
             console.error(error);
             toast.error(error.message || "Failed to load headmates");
