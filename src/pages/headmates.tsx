@@ -95,7 +95,17 @@ export function HeadmatesPage() {
         <div className="p-4 md:p-8 space-y-6 h-full overflow-auto">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold lowercase tracking-tight">Headmates</h1>
-                {hasKey && <Button variant="outline" onClick={handleClearKey} size="sm">Clear Key</Button>}
+                <div className="flex gap-2">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => setShowHidden(!showHidden)}
+                        className={showHidden ? "bg-accent" : ""}
+                    >
+                        {showHidden ? "Hide Details" : "Show Hidden"}
+                    </Button>
+                    {hasKey && <Button variant="destructive" size="sm" onClick={clearKey}>Clear Key</Button>}
+                </div>
             </div>
 
             {!hasKey ? (
