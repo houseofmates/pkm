@@ -5,7 +5,7 @@ import type { Collection } from '@/types/nocobase';
 export type { Collection };
 
 export function useCollections() {
-    const { client } = useAuth();
+    const { client, isAuthenticated } = useAuth();
     const [collections, setCollections] = useState<Collection[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -35,7 +35,7 @@ export function useCollections() {
         } finally {
             setLoading(false);
         }
-    }, [client]);
+    }, [client, isAuthenticated]);
 
     useEffect(() => {
         fetchCollections();
