@@ -104,7 +104,7 @@ export function HeadmatesPage() {
                     >
                         {showHidden ? "Hide Details" : "Show Hidden"}
                     </Button>
-                    {hasKey && <Button variant="destructive" size="sm" onClick={clearKey}>Clear Key</Button>}
+                    {hasKey && <Button variant="destructive" size="sm" onClick={handleClearKey}>Clear Key</Button>}
                 </div>
             </div>
 
