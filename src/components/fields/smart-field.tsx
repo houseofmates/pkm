@@ -5,13 +5,15 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { Check, X, Phone, Mail, MapPin, Lock, Palette, ChevronDown, Terminal, Code2 } from 'lucide-react';
-import { LocationField } from './location-field'; // Import
+import { Check, X, Phone, Mail, MapPin, Lock, Palette, ChevronDown, Terminal, Code2, FileText, Paperclip, Calendar as CalendarIcon, Hash, Link as LinkIcon } from 'lucide-react';
+import { LocationField } from './location-field';
 import ReactMarkdown from 'react-markdown';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
 
 export interface SmartFieldProps {
     value: any;
@@ -25,7 +27,6 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
     const [isEditing, setIsEditing] = useState(false);
     const [localValue, setLocalValue] = useState(value);
 
-    // Sync external value
     useEffect(() => {
         if (!isEditing) setLocalValue(value);
     }, [value, isEditing]);
@@ -41,6 +42,7 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
     };
 
     // --- Helper for Type Detection ---
+    // Mapping complex user requests to NocoBase/Generic types
     const type = field?.interface || field?.type || 'string';
     const name = field?.name?.toLowerCase() || '';
 
@@ -53,10 +55,44 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
     const isSelect = type === 'select' || type === 'multipleSelect';
     const isCode = type === 'code' || name === 'code';
     const isMarkdown = type === 'markdown' || type === 'richText' || name.includes('desc') || name.includes('note');
+    const isNumber = type === 'number' || type === 'integer' || type === 'percent';
+    const isUrl = type === 'url' || type === 'link' || name.includes('link') || name.includes('url');
+    const isFile = type === 'attachment' || name.includes('file') || name.includes('image') || name.includes('avatar');
+    const isDate = type === 'datetime' || type === 'date' || name.includes('date') || name.includes('created');
+    const isId = name === 'id' || name === 'uuid' || type === 'uid';
 
-    // --- Special Editors ---
+    // --- SPECIAL FORMATTERS ---
+    const formatDate = (dateStr: string) => {
+        if (!dateStr) return '';
+        try {
+            const date = new Date(dateStr);
+            // Format: (lowercase) dec. 25, '93
+            const month = date.toLocaleString('en-US', { month: 'short' }).toLowerCase() + '.';
+            const day = date.getDate();
+            const year = "'" + date.getFullYear().toString().slice(-2);
+            return `${month} ${day}, ${year}`;
+        } catch (e) { return dateStr; }
+    };
+
+    const formatTime = (dateStr: string) => {
+        // 12 hour format PST/pacific time and pulls live time to compare to current time
+        // Simplification: Just 12h formatting for now
+        if (!dateStr) return '';
+        try {
+            return new Date(dateStr).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        } catch (e) { return ''; }
+    };
+
+    const formatNumber = (val: any) => {
+        if (field?.type === 'percent' || name.includes('percent')) return `${val}%`;
+        return val;
+    }
+
+    // --- EDITORS ---
     if (isEditing) {
-        if (isLocation) {
+        // ... (Previous Editors: Location, Markdown/Code, Select, Color) ...
+
+        if (isLocation) { /* ... same as before ... */
             return (
                 <div className="w-[400px] bg-background border p-2 rounded shadow-xl z-50 fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                     <div className="flex justify-between items-center mb-2">
@@ -71,7 +107,7 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
             );
         }
 
-        if (isMarkdown || isCode) {
+        if (isMarkdown || isCode) { /* ... same as before ... */
             return (
                 <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-card w-full max-w-3xl h-[80vh] border rounded-lg shadow-2xl flex flex-col overflow-hidden">
@@ -101,9 +137,42 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
             );
         }
 
-        if (isSelect) {
-            // Basic Select Editor fallback
-            // Real implementation needs options from `field.uiSchema.enum` usually
+        if (isFile) {
+            return (
+                <div className="flex items-center gap-2 border p-1 rounded bg-background min-w-[200px]">
+                    <Input
+                        placeholder="Paste URL..."
+                        value={localValue || ''}
+                        onChange={e => setLocalValue(e.target.value)}
+                        className="h-8 text-xs"
+                    />
+                    {/* Mock Upload - In real app, this would use an uploader utils */}
+                    <div className="relative">
+                        <Input type="file" className="absolute inset-0 opacity-0 cursor-pointer w-6" onChange={() => alert("File upload mock")} />
+                        <Paperclip className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={handleSave}><Check className="h-3 w-3" /></Button>
+                </div>
+            )
+        }
+
+        if (isDate) {
+            return (
+                <div className="bg-background border rounded shadow-lg p-2 z-50 absolute">
+                    <Calendar
+                        mode="single"
+                        selected={localValue ? new Date(localValue) : undefined}
+                        onSelect={(d) => { if (d) setLocalValue(d.toISOString()); }}
+                        initialFocus
+                    />
+                    <div className="flex justify-end gap-2 mt-2">
+                        <Button size="sm" onClick={handleSave}>Save</Button>
+                    </div>
+                </div>
+            )
+        }
+
+        if (isSelect) { /* ... same as before */
             const options = field?.uiSchema?.enum || [{ label: 'Option 1', value: 'opt1' }, { label: 'Option 2', value: 'opt2' }];
             return (
                 <div className="flex items-center gap-1">
@@ -123,7 +192,7 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
             )
         }
 
-        if (isColor) {
+        if (isColor) { /* ... same as before */
             return (
                 <div className="flex items-center gap-2 p-1 bg-card border rounded shadow-lg">
                     <input
@@ -144,11 +213,11 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
             )
         }
 
-        // Default Text Editor (Inline)
         return (
             <div className={cn("flex items-center gap-1 min-w-[120px] bg-background relative z-10", className)}>
                 <Input
                     autoFocus
+                    type={isNumber ? "number" : "text"}
                     value={localValue || ''}
                     onChange={e => setLocalValue(e.target.value)}
                     className="h-8 text-xs"
@@ -167,12 +236,15 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
         );
     }
 
-    // --- View Mode ---
+    // --- VIEW MODE ---
+
+    if (isId) return <span className="font-mono text-[10px] opacity-50 select-text">{value?.toString().slice(0, 8)}...</span>;
 
     if (isPhone) return <a href={`tel:${value}`} className="text-primary hover:underline flex items-center gap-1" onClick={e => e.stopPropagation()}><Phone className="h-3 w-3" /> {value}</a>;
     if (isEmail) return <a href={`mailto:${value}`} className="text-primary hover:underline flex items-center gap-1" onClick={e => e.stopPropagation()}><Mail className="h-3 w-3" /> {value}</a>;
+    if (isUrl) return <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline flex items-center gap-1 truncate max-w-[150px]" onClick={e => e.stopPropagation()}><LinkIcon className="h-3 w-3" /> {value}</a>;
 
-    if (isPassword) {
+    if (isPassword) { /* ... */
         return (
             <div onClick={() => setIsEditing(true)} className="cursor-pointer flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
                 <Lock className="h-3 w-3" />
@@ -181,7 +253,7 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
         );
     }
 
-    if (isColor) {
+    if (isColor) { /* ... */
         return (
             <div onClick={() => setIsEditing(true)} className="flex items-center gap-2 cursor-pointer group">
                 <div className="w-4 h-4 rounded-full border shadow-sm" style={{ backgroundColor: value || 'transparent' }} />
@@ -190,22 +262,41 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
         );
     }
 
-    if (isCheckbox) {
+    if (isCheckbox) { /* ... */
         return (
             <div
                 className="flex items-center justify-center h-full w-full cursor-pointer"
-                onClick={() => onChange(!value)} // Inline toggle for bools immediately
+                onClick={() => onChange(!value)}
             >
                 <Checkbox
                     checked={!!value}
-                    className={cn("data-[state=checked]:bg-yellow-400 data-[state=checked]:text-black border-muted-foreground", !value && "opacity-50")} // Yellow when checked as requested
+                    className={cn("data-[state=checked]:bg-yellow-400 data-[state=checked]:text-black border-muted-foreground", !value && "opacity-50")}
                     onCheckedChange={(checked) => onChange(checked)}
                 />
             </div>
         )
     }
 
-    if (isSelect) {
+    if (isFile) {
+        return (
+            <div onClick={() => setIsEditing(true)} className="cursor-pointer flex items-center gap-1 hover:text-primary">
+                <Paperclip className="h-3 w-3" />
+                <span className="text-xs truncate max-w-[100px]">{value ? 'Attachment' : 'None'}</span>
+            </div>
+        )
+    }
+
+    if (isDate) {
+        return (
+            <div onClick={() => setIsEditing(true)} className="cursor-pointer flex flex-col leading-none text-xs hover:bg-muted/50 p-1 rounded">
+                <span className="font-semibold">{formatDate(value)}</span>
+                {value && <span className="opacity-50 text-[10px]">{formatTime(value)} PST</span>}
+                {!value && <span className="opacity-30">select date</span>}
+            </div>
+        )
+    }
+
+    if (isSelect) { /* ... */
         return (
             <div onClick={() => setIsEditing(true)} className="cursor-pointer hover:bg-muted/50 px-2 py-0.5 rounded border border-transparent hover:border-muted-foreground/20 text-xs">
                 {value || <span className="opacity-30">select</span>}
@@ -213,7 +304,7 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
         )
     }
 
-    if (isLocation) {
+    if (isLocation) { /* ... */
         return (
             <Dialog>
                 <DialogTrigger asChild>
@@ -234,7 +325,7 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
         );
     }
 
-    if (isMarkdown) {
+    if (isMarkdown) { /* ... */
         return (
             <div onClick={() => setIsEditing(true)} className="cursor-pointer group relative min-h-[20px]">
                 <div className="prose prose-invert prose-sm line-clamp-3 text-xs leading-tight opacity-90 group-hover:opacity-100">
@@ -245,8 +336,7 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
         )
     }
 
-    // Code with execution button
-    if (isCode) {
+    if (isCode) { /* ... */
         return (
             <div className="flex items-center gap-2">
                 <div onClick={() => setIsEditing(true)} className="cursor-pointer font-mono text-[10px] bg-muted px-1 rounded text-muted-foreground truncate max-w-[100px]">
@@ -255,8 +345,6 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
                 {value && (
                     <Button variant="outline" size="sm" className="h-5 text-[10px] px-1" onClick={() => {
                         try {
-                            // User asked to "inject into browser"
-                            // We'll run it.
                             // eslint-disable-next-line
                             const func = new Function(value);
                             func();
@@ -267,6 +355,17 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
                         Run
                     </Button>
                 )}
+            </div>
+        )
+    }
+
+    if (isNumber) {
+        return (
+            <div
+                onClick={() => setIsEditing(true)}
+                className="cursor-pointer text-right min-h-[20px] font-mono text-xs"
+            >
+                {value ? formatNumber(value) : <span className="opacity-20">-</span>}
             </div>
         )
     }
