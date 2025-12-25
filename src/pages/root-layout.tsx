@@ -142,6 +142,8 @@ export function RootLayout() {
                     ) : null}
                 </DragOverlay>
             </div>
+            <QuickEditSheet /> {/* Global Edit Panel */}
         </DndContext>
     );
 }
+```
