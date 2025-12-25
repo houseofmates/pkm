@@ -15,10 +15,8 @@ import {
     useSensors,
     DragOverlay,
     defaultDropAnimationSideEffects,
-    DragStartEvent,
-    DragOverEvent,
-    DragEndEvent,
 } from '@dnd-kit/core';
+import type { DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core';
 import {
     arrayMove,
     SortableContext,
