@@ -61,7 +61,7 @@ export function DashboardGrid() {
 
 
             <div className="p-4">
-                <div className="p-4 border border-blue-500 mb-4">
+                {/* <div className="p-4 border border-blue-500 mb-4">
                     <h2 className="text-xl font-bold">RGL DISABLED</h2>
                     <p>Testing DropdownMenu below:</p>
                     <DropdownMenu>
@@ -72,9 +72,10 @@ export function DashboardGrid() {
                             <DropdownMenuItem>Item 1</DropdownMenuItem>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                </div>
+                </div> */}
 
-                {/* <ResponsiveGridLayout
+                <h2 className="text-xl font-bold mb-4">RGL ENABLED (Dropdown Disabled)</h2>
+                <ResponsiveGridLayout
                     className="layout"
                     layouts={{ lg: widgets.map(w => ({ i: w.id, ...w.grid })) }}
                     breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
@@ -87,8 +88,9 @@ export function DashboardGrid() {
                     <div key="stat1" className="bg-card border p-4">
                         Test Widget
                     </div>
-                </ResponsiveGridLayout> */}
+                </ResponsiveGridLayout>
             </div>
         </div>
     );
 }
+```
