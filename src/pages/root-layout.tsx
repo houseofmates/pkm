@@ -1,7 +1,8 @@
-
+```
 import { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { Navigation, type NavItem } from '@/components/navigation';
+import { CollectionWrapper } from '@/components/dashboard/collection-wrapper';
 import { CollectionDetailPage } from '@/pages/collection-detail';
 import { DatabasesPage } from '@/pages/databases';
 import { HomePage } from '@/pages/home';
@@ -96,7 +97,7 @@ export function RootLayout() {
         }
         setSelectedCollection(name);
         if (name) {
-            navigate(`/databases/${name}`);
+            navigate(`/ databases / ${ name } `);
         } else {
             // If deselecting, go to main databases page
             navigate('/databases');

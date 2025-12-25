@@ -128,7 +128,13 @@ export function JournalView({ data, collection, onUpdateRecord, onEdit }: ViewPr
                         {/* Entries */}
                         <div className="space-y-4">
                             {records.map(rec => (
-                                <div key={rec.id} className="bg-card border rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow group">
+                                <div
+                                    key={rec.id}
+                                    className="bg-card border rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow group cursor-pointer hover:border-primary/50"
+                                    onClick={() => window.dispatchEvent(new CustomEvent('pkm:edit-record', {
+                                        detail: { record: rec, collectionName: collection.name }
+                                    }))}
+                                >
                                     <div className="prose dark:prose-invert prose-sm max-w-none">
                                         {/* Simple Markdown Render (Mock) */}
                                         <div className="whitespace-pre-wrap font-serif text-base text-foreground/90">
