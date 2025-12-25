@@ -1,7 +1,6 @@
-
 import { Navigation } from '@/components/navigation';
 // import { DatabasesPage } from '@/pages/databases';
-// import { HomePage } from '@/pages/home';
+import { HomePage } from '@/pages/home';
 // import { HeadmatesPage } from '@/pages/headmates';
 // import { CollectionDetailPage } from '@/pages/collection-detail';
 import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
@@ -49,12 +48,12 @@ export function RootLayout() {
                     <br />
                     If you see the sidebar + this text, Navigation is safe.
                 </div>
-                {/* <Routes>
+                <Routes>
                     <Route path="/" element={<HomePage />} />
-                    <Route path="/headmates" element={<HeadmatesPage />} />
+                    {/* <Route path="/headmates" element={<HeadmatesPage />} />
                     <Route path="/databases" element={<DatabasesPage onSelect={handleSelectCollection} />} />
-                    <Route path="/databases/:name" element={<CollectionWrapper />} />
-                </Routes> */}
+                    <Route path="/databases/:name" element={<CollectionWrapper />} /> */}
+                </Routes>
             </main>
         </div>
     );
