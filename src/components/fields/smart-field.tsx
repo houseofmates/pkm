@@ -59,7 +59,9 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
     const isUrl = type === 'url' || type === 'link' || name.includes('link') || name.includes('url');
     const isFile = type === 'attachment' || name.includes('file') || name.includes('image') || name.includes('avatar');
     const isDate = type === 'datetime' || type === 'date' || name.includes('date') || name.includes('created');
+    const isDate = type === 'datetime' || type === 'date' || name.includes('date') || name.includes('created');
     const isId = name === 'id' || name === 'uuid' || type === 'uid';
+    const isRelation = type === 'relation' || type === 'linkToAnotherRecord' || (field?.interface === 'linkToAnotherRecord'); // NocoBase specific
 
     // --- SPECIAL FORMATTERS ---
     const formatDate = (dateStr: string) => {
@@ -239,6 +241,26 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
     // --- VIEW MODE ---
 
     if (isId) return <span className="font-mono text-[10px] opacity-50 select-text">{value?.toString().slice(0, 8)}...</span>;
+
+    if (isRelation) {
+        // Prepare display value: if object, show title/name. If array, join them.
+        let display = '';
+        if (Array.isArray(value)) {
+            display = value.map(v => v?.title || v?.name || v?.id || JSON.stringify(v)).join(', ');
+        } else if (typeof value === 'object' && value !== null) {
+            display = value.title || value.name || value.id || JSON.stringify(value);
+        } else {
+            display = String(value || '');
+        }
+
+        return (
+            <div className="flex items-center gap-1">
+                <div className="px-1.5 py-0.5 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded text-xs border border-blue-100 dark:border-blue-800 truncate max-w-[200px]">
+                    {display || <span className="opacity-50 italic">empty relation</span>}
+                </div>
+            </div>
+        )
+    }
 
     if (isPhone) return <a href={`tel:${value}`} className="text-primary hover:underline flex items-center gap-1" onClick={e => e.stopPropagation()}><Phone className="h-3 w-3" /> {value}</a>;
     if (isEmail) return <a href={`mailto:${value}`} className="text-primary hover:underline flex items-center gap-1" onClick={e => e.stopPropagation()}><Mail className="h-3 w-3" /> {value}</a>;
