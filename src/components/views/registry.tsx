@@ -15,6 +15,7 @@ export interface ViewProps {
     loading?: boolean;
     onEdit?: (record: any) => void;
     onDelete?: (record: any) => void;
+    onUpdateRecord?: (id: string | number, data: any) => void;
     config?: Record<string, any>;
     onConfigChange?: (key: string, value: any) => void;
 }
