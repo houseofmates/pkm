@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Image, Palette, FileText, Trash2 } from 'lucide-react';
+import { Image, Palette, FileText, Trash2, Edit, Link as LinkIcon, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface HeadmateContextMenuProps {
@@ -31,9 +31,15 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
 
     const [editOpen, setEditOpen] = useState(false);
     const [colorOpen, setColorOpen] = useState(false);
+    const [imageOpen, setImageOpen] = useState(false);
+    const [nameOpen, setNameOpen] = useState(false);
 
     // Edit State
     const [desc, setDesc] = useState('');
+    const [visualName, setVisualName] = useState('');
+
+    // Image State
+    const [imageUrl, setImageUrl] = useState('');
 
     // Color State
     const [color, setColor] = useState('#ffffff');
@@ -48,22 +54,20 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
         toast.info(isHidden ? "Headmate restored" : "Headmate hidden");
     };
 
+    // --- Image Handling ---
     const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (!file) return;
 
+        // Use generic upload flow
         const toastId = toast.loading("Uploading avatar...");
         try {
             const res = await client.upload(file);
-            // NocoBase upload response usually returns the file object in data
             const uploadedFile = res.data;
-
             if (uploadedFile && uploadedFile.url) {
                 updateOverride(memberId, { avatarUrl: uploadedFile.url });
                 toast.success("Avatar updated", { id: toastId });
-            } else {
-                console.error("Upload response:", res);
-                throw new Error("No URL returned from upload");
+                setImageOpen(false); // Close dialog if open
             }
         } catch (error) {
             console.error(error);
@@ -71,21 +75,41 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
         }
     };
 
+    const saveImageUrl = () => {
+        if (!imageUrl) return;
+        updateOverride(memberId, { avatarUrl: imageUrl });
+        toast.success("Image link saved");
+        setImageOpen(false);
+    };
+
+    // --- Name/Desc ---
     const openEdit = () => {
         setDesc(currentOverride.description || '');
         setEditOpen(true);
     };
 
-    const openColor = () => {
-        setColor(currentOverride.color || '#cccccc');
-        setTextColor(currentOverride.textColor || '#ffffff');
-        setColorOpen(true);
+    const openNameEdit = () => {
+        setVisualName(currentOverride.name || memberName);
+        setNameOpen(true);
     };
 
     const saveDetails = () => {
         updateOverride(memberId, { description: desc });
         setEditOpen(false);
-        toast.success("Details saved");
+        toast.success("Description saved");
+    };
+
+    const saveVisualName = () => {
+        updateOverride(memberId, { name: visualName });
+        setNameOpen(false);
+        toast.success("Visual name saved");
+    };
+
+    // --- Colors ---
+    const openColor = () => {
+        setColor(currentOverride.color || '#cccccc');
+        setTextColor(currentOverride.textColor || '#ffffff');
+        setColorOpen(true);
     };
 
     const saveColors = () => {
@@ -99,10 +123,15 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
             <ContextMenu>
                 <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
                 <ContextMenuContent className="w-64">
-                    <ContextMenuLabel>{memberName}</ContextMenuLabel>
+                    <ContextMenuLabel>{currentOverride.name || memberName}</ContextMenuLabel>
                     <ContextMenuSeparator />
 
-                    <ContextMenuItem onSelect={() => fileInputRef.current?.click()}>
+                    <ContextMenuItem onSelect={() => setNameOpen(true)}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        Edit Visual Name
+                    </ContextMenuItem>
+
+                    <ContextMenuItem onSelect={() => setImageOpen(true)}>
                         <Image className="mr-2 h-4 w-4" />
                         Change Image
                     </ContextMenuItem>
@@ -129,81 +158,87 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
                 </ContextMenuContent>
             </ContextMenu>
 
-            <input
-                type="file"
-                ref={fileInputRef}
-                className="hidden"
-                accept="image/*"
-                onChange={handleFileChange}
-            />
+            {/* Hidden File Input for direct click if needed, but using dialog now mostly */}
+            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
 
-            {/* Edit Description Dialog */}
+            {/* Visual Name Dialog */}
+            <Dialog open={nameOpen} onOpenChange={setNameOpen}>
+                <DialogContent>
+                    <DialogHeader><DialogTitle>Edit Visual Name</DialogTitle></DialogHeader>
+                    <div className="py-4">
+                        <Label>Name (Overrides integration)</Label>
+                        <Input value={visualName} onChange={e => setVisualName(e.target.value)} className="mt-2" />
+                    </div>
+                    <DialogFooter><Button onClick={saveVisualName}>Save</Button></DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            {/* Image Source Dialog */}
+            <Dialog open={imageOpen} onOpenChange={setImageOpen}>
+                <DialogContent>
+                    <DialogHeader><DialogTitle>Change Image</DialogTitle></DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <div className="grid grid-cols-2 gap-4">
+                            <Button variant="outline" className="h-24 flex flex-col gap-2" onClick={() => fileInputRef.current?.click()}>
+                                <Upload className="h-6 w-6" />
+                                Upload from Device
+                            </Button>
+
+                            {/* Simple visual separator or just standard layout */}
+                            <div className="col-span-2 border-t pt-4">
+                                <Label>Or Paste Image Link</Label>
+                                <div className="flex gap-2 mt-2">
+                                    <Input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://..." />
+                                    <Button onClick={saveImageUrl}>Save</Button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Edit Description Dialog (Existing) */}
             <Dialog open={editOpen} onOpenChange={setEditOpen}>
                 <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Edit Details</DialogTitle>
-                    </DialogHeader>
+                    <DialogHeader><DialogTitle>Edit Details</DialogTitle></DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
                             <Label>Custom Description</Label>
                             <Textarea
                                 value={desc}
                                 onChange={(e) => setDesc(e.target.value)}
-                                placeholder="Enter a custom description that overrides the SimplyPlural one..."
+                                placeholder="Enter a custom description..."
                                 className="min-h-[100px]"
                             />
                         </div>
                     </div>
-                    <DialogFooter>
-                        <Button onClick={saveDetails}>Save</Button>
-                    </DialogFooter>
+                    <DialogFooter><Button onClick={saveDetails}>Save</Button></DialogFooter>
                 </DialogContent>
             </Dialog>
 
-            {/* Edit Color Dialog */}
+            {/* Edit Color Dialog (Existing) */}
             <Dialog open={colorOpen} onOpenChange={setColorOpen}>
                 <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Customize Colors</DialogTitle>
-                    </DialogHeader>
+                    <DialogHeader><DialogTitle>Customize Colors</DialogTitle></DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label>Main Color (Border/Glow)</Label>
+                            <Label>Main Color</Label>
                             <div className="flex gap-2">
-                                <Input
-                                    type="color"
-                                    className="w-12 h-10 p-1"
-                                    value={color}
-                                    onChange={(e) => setColor(e.target.value)}
-                                />
-                                <Input
-                                    value={color}
-                                    onChange={(e) => setColor(e.target.value)}
-                                />
+                                <Input type="color" className="w-12 h-10 p-1" value={color} onChange={(e) => setColor(e.target.value)} />
+                                <Input value={color} onChange={(e) => setColor(e.target.value)} />
                             </div>
                         </div>
-
                         <div className="space-y-2">
-                            <Label>Name Text Color</Label>
+                            <Label>Text Color</Label>
                             <div className="flex gap-2">
-                                <Input
-                                    type="color"
-                                    className="w-12 h-10 p-1"
-                                    value={textColor}
-                                    onChange={(e) => setTextColor(e.target.value)}
-                                />
-                                <Input
-                                    value={textColor}
-                                    onChange={(e) => setTextColor(e.target.value)}
-                                />
+                                <Input type="color" className="w-12 h-10 p-1" value={textColor} onChange={(e) => setTextColor(e.target.value)} />
+                                <Input value={textColor} onChange={(e) => setTextColor(e.target.value)} />
                             </div>
                         </div>
                     </div>
-                    <DialogFooter>
-                        <Button onClick={saveColors}>Save</Button>
-                    </DialogFooter>
+                    <DialogFooter><Button onClick={saveColors}>Save</Button></DialogFooter>
                 </DialogContent>
             </Dialog>
         </>
-    )
+    );
 }
