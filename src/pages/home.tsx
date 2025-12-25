@@ -7,12 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'; // For view selection
 
 interface Widget {
     id: string;
     collectionName: string;
     description: string;
+    viewType: string; // Added viewType
     x: number;
     y: number;
 }
@@ -22,18 +23,25 @@ export function HomePage() {
     const [widgets, setWidgets] = useState<Widget[]>([]);
     const [isOpen, setIsOpen] = useState(false);
 
-    const handleAddWidget = (collection: Collection) => {
+    // Selection state
+    const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null);
+
+    const handleAddWidget = (viewType: string) => {
+        if (!selectedCollection) return;
+
         setWidgets(prev => [
             ...prev,
             {
                 id: Date.now().toString(),
-                collectionName: collection.name,
-                description: collection.title || collection.name,
-                x: 100 + (prev.length * 20), // Simple cascade
+                collectionName: selectedCollection.name,
+                description: selectedCollection.title || selectedCollection.name,
+                viewType: viewType,
+                x: 100 + (prev.length * 20),
                 y: 100 + (prev.length * 20)
             }
         ]);
         setIsOpen(false);
+        setSelectedCollection(null);
     };
 
     const handleRemoveWidget = (id: string) => {
@@ -45,7 +53,7 @@ export function HomePage() {
     return (
         <div className="h-full w-full relative overflow-auto bg-grid-small-white/5 dark:bg-grid-small-white/5">
             <div className="absolute top-4 left-4 z-10">
-                <Dialog open={isOpen} onOpenChange={setIsOpen}>
+                <Dialog open={isOpen} onOpenChange={(v) => { setIsOpen(v); if (!v) setSelectedCollection(null); }}>
                     <DialogTrigger asChild>
                         <Button className="rounded-full w-12 h-12 bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg p-0">
                             <Plus className="h-6 w-6" />
@@ -53,22 +61,48 @@ export function HomePage() {
                     </DialogTrigger>
                     <DialogContent>
                         <DialogHeader>
-                            <DialogTitle>Select Database</DialogTitle>
+                            <DialogTitle>
+                                {selectedCollection ? `Select View for ${selectedCollection.title || selectedCollection.name}` : 'Select Database'}
+                            </DialogTitle>
                         </DialogHeader>
-                        <ScrollArea className="h-[300px] w-full pr-4">
-                            <div className="space-y-2">
-                                {collections.map(col => (
-                                    <Button
-                                        key={col.name}
-                                        variant="ghost"
-                                        className="w-full justify-start lowercase"
-                                        onClick={() => handleAddWidget(col)}
-                                    >
-                                        {col.title || col.displayName || col.name}
+
+                        {!selectedCollection ? (
+                            <ScrollArea className="h-[300px] w-full pr-4">
+                                <div className="space-y-2">
+                                    {collections.map(col => (
+                                        <Button
+                                            key={col.name}
+                                            variant="ghost"
+                                            className="w-full justify-start lowercase"
+                                            onClick={() => setSelectedCollection(col)}
+                                        >
+                                            {col.title || col.displayName || col.name}
+                                        </Button>
+                                    ))}
+                                </div>
+                            </ScrollArea>
+                        ) : (
+                            <div className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                    <Button variant="outline" className="h-20 flex flex-col gap-2 lowercase" onClick={() => handleAddWidget('table')}>
+                                        List Table
                                     </Button>
-                                ))}
+                                    <Button variant="outline" className="h-20 flex flex-col gap-2 lowercase" onClick={() => handleAddWidget('kanban')}>
+                                        Kanban Board
+                                    </Button>
+                                    <Button variant="outline" className="h-20 flex flex-col gap-2 lowercase" onClick={() => handleAddWidget('calendar')}>
+                                        Calendar
+                                    </Button>
+                                    <Button variant="outline" className="h-20 flex flex-col gap-2 lowercase" onClick={() => handleAddWidget('gallery')}>
+                                        Gallery
+                                    </Button>
+                                </div>
+                                <Button variant="ghost" size="sm" onClick={() => setSelectedCollection(null)} className="w-full text-muted-foreground">
+                                    Back to Databases
+                                </Button>
                             </div>
-                        </ScrollArea>
+                        )}
+
                     </DialogContent>
                 </Dialog>
             </div>
@@ -92,6 +126,7 @@ export function HomePage() {
                         >
                             <DatabaseWidget
                                 collection={col}
+                                initialView={widget.viewType as any}
                                 onRemove={() => handleRemoveWidget(widget.id)}
                             />
                         </div>
