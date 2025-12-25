@@ -4,10 +4,18 @@ import { Responsive, WidthProvider } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import { WidgetWrapper } from './widget-wrapper';
-import { COMPONENT_MAP, WidgetDefinition, WIDGET_TYPES } from './registry';
+import { COMPONENT_MAP, WidgetDefinition, WIDGET_TYPES, WidgetType } from './registry';
 import { Button } from '@/components/ui/button';
 import { Plus, LayoutGrid, Save } from 'lucide-react';
 import { toast } from 'sonner';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -58,17 +66,40 @@ export function DashboardGrid() {
         setWidgets(prev => prev.filter(w => w.id !== id));
     };
 
-    const handleAddWidget = () => {
-        // For now, just add a random stat widget
+    const handleAddWidget = (type: WidgetType) => {
         const id = `new_${Date.now()}`;
+        let props = {};
+        let title = 'New Widget';
+        let w = 3;
+        let h = 2;
+
+        if (type === 'stat') {
+            title = 'New Statistic';
+            props = { title: 'Stat', value: '0', trend: '---' };
+        } else if (type === 'chart-line' || type === 'chart-bar') {
+            title = 'New Chart';
+            props = { type: type === 'chart-line' ? 'line' : 'bar' };
+            w = 6;
+            h = 4;
+        } else if (type === 'activity') {
+            title = 'Recent Activity';
+            w = 3;
+            h = 6;
+        } else if (type === 'quick-add') {
+            title = 'Quick Capture';
+            w = 3;
+            h = 4;
+        }
+
         const newWidget: WidgetDefinition = {
             id,
-            type: 'stat',
-            title: 'New Widget',
-            props: { title: 'New Widget', value: '0', trend: '---' },
-            grid: { x: 0, y: Infinity, w: 3, h: 2 }
+            type,
+            title,
+            props,
+            grid: { x: 0, y: Infinity, w, h }
         };
         setWidgets(prev => [...prev, newWidget]);
+        toast.success(`Added ${title}`);
     };
 
     return (
@@ -83,9 +114,24 @@ export function DashboardGrid() {
                     <Button variant="outline" size="sm" onClick={() => setIsDraggable(!isDraggable)}>
                         {isDraggable ? 'Lock Layout' : 'Unlock Layout'}
                     </Button>
-                    <Button variant="outline" size="sm" onClick={handleAddWidget}>
-                        <Plus className="h-4 w-4 mr-2" /> Add Widget
-                    </Button>
+
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm">
+                                <Plus className="h-4 w-4 mr-2" /> Add Widget
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Choose Widget Type</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => handleAddWidget('stat')}>Statistic Card</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAddWidget('chart-line')}>Line Chart</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAddWidget('chart-bar')}>Bar Chart</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAddWidget('quick-add')}>Quick Capture</DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAddWidget('activity')}>Recent Activity</DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
                     <Button size="sm" onClick={handleSave}>
                         <Save className="h-4 w-4 mr-2" /> Save
                     </Button>
@@ -108,6 +154,8 @@ export function DashboardGrid() {
                 >
                     {widgets.map(widget => {
                         const Component = COMPONENT_MAP[widget.type];
+                        if (!Component) return null;
+
                         return (
                             <div key={widget.id}>
                                 <WidgetWrapper
