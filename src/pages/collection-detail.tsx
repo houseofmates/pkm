@@ -85,16 +85,6 @@ export function CollectionDetailPage({ collectionName, onBack }: CollectionDetai
         localStorage.setItem(`view_config_${collectionName}_${currentView}`, JSON.stringify(newConfig));
     };
 
-    if (loading && !collection) {
-        return <div className="p-10 text-center animate-pulse">Loading {collectionName}...</div>;
-    }
-
-    if (!collection) {
-        return <div className="p-10 text-center text-destructive">Collection not found</div>;
-    }
-
-    const CurrentViewComponent = VIEW_REGISTRY[currentView] || VIEW_REGISTRY['table'];
-
     const handleUpdateRecord = useCallback(async (id: string | number, data: any) => {
         try {
             // Optimistic update locally? 
@@ -108,6 +98,16 @@ export function CollectionDetailPage({ collectionName, onBack }: CollectionDetai
             fetchData(); // Revert on error
         }
     }, [client, collectionName, fetchData]);
+
+    if (loading && !collection) {
+        return <div className="p-10 text-center animate-pulse">Loading {collectionName}...</div>;
+    }
+
+    if (!collection) {
+        return <div className="p-10 text-center text-destructive">Collection not found</div>;
+    }
+
+    const CurrentViewComponent = VIEW_REGISTRY[currentView] || VIEW_REGISTRY['table'];
 
     return (
         <div className="flex flex-col h-full bg-background animate-in fade-in duration-500">
