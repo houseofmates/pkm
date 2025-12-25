@@ -284,7 +284,7 @@ export function KanbanView({ data, collection, loading, config, onConfigChange }
                     <KanbanColumn key={colId} id={colId} title={colId} items={columns[colId]}>
                         <SortableContext items={columns[colId].map(i => i.id)} strategy={verticalListSortingStrategy}>
                             {columns[colId].map(record => (
-                                <SortableItem key={record.id} id={record.id} record={record} fieldRenderer={null} />
+                                <SortableItem key={record.id} id={record.id} record={record} />
                             ))}
                         </SortableContext>
                     </KanbanColumn>
