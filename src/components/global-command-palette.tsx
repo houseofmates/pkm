@@ -54,31 +54,16 @@ export function GlobalCommandPalette() {
         setCreateDialogOpen(true);
     }
 
+    if (!open) return null;
+
     return (
-        <>
-            <CommandDialog open={open} onOpenChange={setOpen}>
-                <CommandInput placeholder="Type a command or search..." />
-                <CommandList>
-                    <CommandEmpty>No results found.</CommandEmpty>
-                    <CommandGroup heading="Suggestions">
-                        <CommandItem onSelect={() => runCommand(() => navigate('/'))}>
-                            <RocketIcon className="mr-2 h-4 w-4" />
-                            <span>Home Dashboard</span>
-                        </CommandItem>
-                        <CommandItem onSelect={() => runCommand(() => navigate('/headmates'))}>
-                            <FaceIcon className="mr-2 h-4 w-4" />
-                            <span>Headmates</span>
-                        </CommandItem>
-                    </CommandGroup>
-                    <CommandSeparator />
-                    <CommandGroup heading="Databases">
-                        {collections.map(col => (
-                            <CommandItem key={col.name} onSelect={() => runCommand(() => navigate(`/databases/${col.name}`))}>
-                                <Database className="mr-2 h-4 w-4" />
-                                <span>{col.title || col.name}</span>
-                            </CommandItem>
-                        ))}
-                    </CommandGroup>
+        <CommandItem key={col.name} onSelect={() => runCommand(() => navigate(`/databases/${col.name}`))}>
+            <Database className="mr-2 h-4 w-4" />
+            <span>{col.title || col.name}</span>
+        </CommandItem>
+    ))
+}
+                    </CommandGroup >
                     <CommandSeparator />
                     <CommandGroup heading="Quick Capture">
                         {collections.map(col => (
@@ -88,18 +73,18 @@ export function GlobalCommandPalette() {
                             </CommandItem>
                         ))}
                     </CommandGroup>
-                </CommandList>
-            </CommandDialog>
+                </CommandList >
+            </CommandDialog >
 
-            {selectedCollection && (
-                <CreateRecordDialog
-                    collectionName={selectedCollection}
-                    fields={collections.find(c => c.name === selectedCollection)?.fields || []}
-                    trigger={<></>} // Hidden trigger
-                    open={createDialogOpen}
-                    onOpenChange={setCreateDialogOpen}
-                />
-            )}
+    { selectedCollection && (
+        <CreateRecordDialog
+            collectionName={selectedCollection}
+            fields={collections.find(c => c.name === selectedCollection)?.fields || []}
+            trigger={<></>} // Hidden trigger
+            open={createDialogOpen}
+            onOpenChange={setCreateDialogOpen}
+        />
+    )}
         </>
     )
 }

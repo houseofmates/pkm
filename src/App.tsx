@@ -24,7 +24,7 @@ function AppContent() {
       {token ? (
         <BrowserRouter>
           <RootLayout />
-          {/* <GlobalCommandPalette /> */}
+          <GlobalCommandPalette />
         </BrowserRouter>
       ) : <LoginPage />}
       <Toaster />
