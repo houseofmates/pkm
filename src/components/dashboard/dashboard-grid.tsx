@@ -1,25 +1,26 @@
 
-import { useState, useEffect } from 'react';
-import { WidgetWrapper } from './widget-wrapper';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, LayoutGrid, Save, Database, Trash2 } from 'lucide-react';
+import { Plus, LayoutGrid, Save, Database, Trash2, Move, Minimize2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCollections } from '@/hooks/use-collections';
-
-
-// We'll reuse the View Registry components to render the actual views!
 import { VIEW_REGISTRY, VIEW_OPTIONS } from '@/components/views/registry';
 import type { ViewType } from '@/components/views/registry';
 import { useAuth } from '@/contexts/auth-context';
 
-type WidgetType = 'view'; // Simplified to just views for now
+type WidgetType = 'view';
 interface WidgetDefinition {
     id: string;
     type: WidgetType;
     title: string;
     collectionName: string;
     viewType: ViewType;
-    grid: { w: number; h: number };
+    // Position and Size in Pixels
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    zIndex: number;
 }
 
 const INITIAL_WIDGETS: WidgetDefinition[] = [];
@@ -28,13 +29,14 @@ export function DashboardGrid() {
     const [widgets, setWidgets] = useState<WidgetDefinition[]>(INITIAL_WIDGETS);
     const { collections } = useCollections();
     const { client } = useAuth();
+    const [isEditMode, setIsEditMode] = useState(true);
+    const containerRef = useRef<HTMLDivElement>(null);
 
-    // Data cache for widgets
+    // Data cache
     const [widgetData, setWidgetData] = useState<Record<string, { data: any[], loading: boolean }>>({});
 
-    // Load layout
     useEffect(() => {
-        const saved = localStorage.getItem('dashboard_layout_v2');
+        const saved = localStorage.getItem('dashboard_layout_freeform');
         if (saved) {
             try {
                 setWidgets(JSON.parse(saved));
@@ -45,38 +47,48 @@ export function DashboardGrid() {
     }, []);
 
     const handleSave = () => {
-        localStorage.setItem('dashboard_layout_v2', JSON.stringify(widgets));
-        toast.success("Dashboard layout saved");
+        localStorage.setItem('dashboard_layout_freeform', JSON.stringify(widgets));
+        toast.success("canvas saved");
     };
 
     const handleAddWidget = (collectionName: string, viewType: ViewType) => {
         const col = collections.find(c => c.name === collectionName);
         const title = `${col?.title || collectionName} (${viewType})`;
 
+        // Find a spot? Just center it for now or top-left offset
         const newWidget: WidgetDefinition = {
             id: `w_${Date.now()}`,
             type: 'view',
             title,
             collectionName,
             viewType,
-            grid: { w: 6, h: 4 } // Default half width, medium height
+            x: 50 + (widgets.length * 20),
+            y: 50 + (widgets.length * 20),
+            w: 400,
+            h: 300,
+            zIndex: widgets.length + 1
         };
 
         setWidgets(prev => [...prev, newWidget]);
-        toast.success(`Added ${title}`);
+        toast.success(`added ${title}`);
     };
 
     const handleRemoveWidget = (id: string) => {
         setWidgets(prev => prev.filter(w => w.id !== id));
     };
 
-    // Fetch data for widgets
+    const bringToFront = (id: string) => {
+        setWidgets(prev => {
+            const maxZ = Math.max(...prev.map(w => w.zIndex), 0);
+            return prev.map(w => w.id === id ? { ...w, zIndex: maxZ + 1 } : w);
+        });
+    };
+
+    // Fetch data
     useEffect(() => {
         widgets.forEach(widget => {
             if (!widgetData[widget.id] && !widgetData[widget.id]?.loading) {
-                // Fetch
                 setWidgetData(prev => ({ ...prev, [widget.id]: { data: [], loading: true } }));
-
                 client.listRecords(widget.collectionName).then(res => {
                     const data = Array.isArray(res.data) ? res.data : (res.data as any)?.data || [];
                     setWidgetData(prev => ({ ...prev, [widget.id]: { data, loading: false } }));
@@ -90,37 +102,92 @@ export function DashboardGrid() {
 
     const [addMenuOpen, setAddMenuOpen] = useState(false);
 
+    // --- Drag & Resize Logic ---
+    const [dragState, setDragState] = useState<{
+        id: string,
+        startX: number,
+        startY: number,
+        initialX: number,
+        initialY: number,
+        initialW: number,
+        initialH: number,
+        mode: 'move' | 'resize'
+    } | null>(null);
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!dragState) return;
+            const deltaX = e.clientX - dragState.startX;
+            const deltaY = e.clientY - dragState.startY;
+
+            setWidgets(prev => prev.map(w => {
+                if (w.id !== dragState.id) return w;
+
+                if (dragState.mode === 'move') {
+                    return {
+                        ...w,
+                        x: dragState.initialX + deltaX,
+                        y: dragState.initialY + deltaY
+                    };
+                } else {
+                    return {
+                        ...w,
+                        w: Math.max(200, dragState.initialW + deltaX),
+                        h: Math.max(150, dragState.initialH + deltaY)
+                    };
+                }
+            }));
+        };
+
+        const handleMouseUp = () => {
+            setDragState(null);
+        };
+
+        if (dragState) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+        }
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [dragState]);
+
     return (
-        <div className="flex flex-col h-full bg-background/50" onClick={() => setAddMenuOpen(false)}>
-            {/* Dashboard Controls */}
-            <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-background/80 backdrop-blur z-20">
+        <div className="flex flex-col h-full bg-background overflow-hidden">
+            {/* Toolbar */}
+            <div className="flex items-center justify-between p-4 border-b bg-background z-50 shadow-sm h-16">
                 <div className="flex items-center gap-2">
                     <LayoutGrid className="h-5 w-5 text-primary" />
-                    <h1 className="text-xl font-bold tracking-tight">Home Dashboard</h1>
+                    <h1 className="text-xl font-bold tracking-tight">canvas</h1>
                 </div>
                 <div className="flex items-center gap-2 relative">
-                    {/* Native Dropdown Trigger */}
+                    <Button
+                        variant={isEditMode ? "secondary" : "ghost"}
+                        size="sm"
+                        onClick={() => setIsEditMode(!isEditMode)}
+                    >
+                        {isEditMode ? "editing active" : "locked"}
+                    </Button>
+
                     <Button
                         onClick={(e) => { e.stopPropagation(); setAddMenuOpen(!addMenuOpen); }}
                         variant={addMenuOpen ? "secondary" : "default"}
                     >
-                        <Plus className="h-4 w-4 mr-2" /> Add View
+                        <Plus className="h-4 w-4 mr-2" /> add view
                     </Button>
 
-                    {/* Native Dropdown Content */}
                     {addMenuOpen && (
                         <div
-                            className="absolute top-full right-0 mt-2 w-64 bg-popover border rounded-md shadow-md z-50 max-h-[80vh] overflow-y-auto"
+                            className="absolute top-full right-0 mt-2 w-64 bg-popover border rounded-md shadow-lg z-50 max-h-[80vh] overflow-y-auto"
                             onClick={e => e.stopPropagation()}
                         >
                             <div className="p-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                                Add Collection View
+                                add collection view
                             </div>
 
-                            {collections.length === 0 && <div className="p-2 text-sm text-muted-foreground">No collections found</div>}
-
                             {collections.map(col => (
-                                <div key={col.name} className="border-b last:border-0">
+                                <div key={col.name} className="border-b last:border-0 border-border/50">
                                     <div className="px-2 py-1.5 text-sm font-medium flex items-center bg-muted/30">
                                         <Database className="mr-2 h-3 w-3 opacity-50" />
                                         {col.title || col.name}
@@ -129,7 +196,7 @@ export function DashboardGrid() {
                                         {VIEW_OPTIONS.map(view => (
                                             <button
                                                 key={view.id}
-                                                className="text-xs text-left px-2 py-1.5 hover:bg-muted rounded-sm transition-colors"
+                                                className="text-xs text-left px-2 py-1.5 hover:bg-muted rounded-sm transition-colors text-muted-foreground hover:text-foreground"
                                                 onClick={() => {
                                                     handleAddWidget(col.name, view.id);
                                                     setAddMenuOpen(false);
@@ -145,67 +212,107 @@ export function DashboardGrid() {
                     )}
 
                     <Button size="sm" variant="outline" onClick={handleSave}>
-                        <Save className="h-4 w-4 mr-2" /> Save Layout
+                        <Save className="h-4 w-4 mr-2" /> save
                     </Button>
                 </div>
             </div>
 
-            {/* Native CSS Grid - Auto Flow */}
-            <div className="flex-1 overflow-auto p-4 custom-scrollbar">
-                {widgets.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-[50vh] text-muted-foreground border-2 border-dashed rounded-xl m-8">
-                        <LayoutGrid className="h-12 w-12 mb-4 opacity-50" />
-                        <h3 className="text-lg font-medium">Your Dashboard is Empty</h3>
-                        <p>Add a view from your databases to get started.</p>
-                    </div>
-                ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-[400px]">
-                        {widgets.map(widget => {
-                            const ViewComponent = VIEW_REGISTRY[widget.viewType];
-                            const data = widgetData[widget.id]?.data || [];
-                            const loading = widgetData[widget.id]?.loading;
+            {/* Canvas Area */}
+            <div
+                ref={containerRef}
+                className="flex-1 relative bg-neutral-50/50 dark:bg-neutral-900/20 overflow-auto cursor-grab active:cursor-grabbing"
+                onClick={() => setAddMenuOpen(false)}
+            >
+                {/* Infinite Canvas Content */}
+                <div className="min-w-[2000px] min-h-[2000px] relative">
+                    {widgets.map(widget => {
+                        const ViewComponent = VIEW_REGISTRY[widget.viewType];
+                        const data = widgetData[widget.id]?.data || [];
 
-                            return (
-                                <div key={widget.id} className="col-span-1 rounded-xl border bg-card text-card-foreground shadow-sm flex flex-col overflow-hidden relative group">
-                                    {/* Widget Header */}
-                                    <div className="flex items-center justify-between p-3 border-b bg-muted/40">
-                                        <div className="font-semibold text-sm flex items-center gap-2">
-                                            {widget.title}
-                                            <span className="text-xs font-normal text-muted-foreground bg-background border px-1.5 py-0.5 rounded-full">
-                                                {data.length}
-                                            </span>
-                                        </div>
+                        return (
+                            <div
+                                key={widget.id}
+                                className="absolute bg-card border rounded-xl shadow-sm flex flex-col overflow-hidden group select-none transition-shadow hover:shadow-md"
+                                style={{
+                                    left: widget.x,
+                                    top: widget.y,
+                                    width: widget.w,
+                                    height: widget.h,
+                                    zIndex: widget.zIndex,
+                                }}
+                                onMouseDown={() => bringToFront(widget.id)}
+                            >
+                                {/* Header / Drag Handle */}
+                                <div
+                                    className={`flex items-center justify-between p-2 border-b bg-muted/10 cursor-move ${isEditMode ? 'opacity-100' : 'opacity-0 hover:opacity-100'} transition-opacity`}
+                                    onMouseDown={(e) => {
+                                        if (!isEditMode) return;
+                                        e.preventDefault();
+                                        setDragState({
+                                            id: widget.id,
+                                            startX: e.clientX,
+                                            startY: e.clientY,
+                                            initialX: widget.x,
+                                            initialY: widget.y,
+                                            initialW: widget.w,
+                                            initialH: widget.h,
+                                            mode: 'move'
+                                        });
+                                    }}
+                                >
+                                    <div className="font-medium text-xs flex items-center gap-2 text-muted-foreground">
+                                        <Move className="h-3 w-3" />
+                                        {widget.title}
+                                    </div>
+                                    {isEditMode && (
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                                            onClick={() => handleRemoveWidget(widget.id)}
+                                            className="h-5 w-5 hover:bg-destructive hover:text-destructive-foreground"
+                                            onClick={(e) => { e.stopPropagation(); handleRemoveWidget(widget.id); }}
                                         >
-                                            <Trash2 className="h-3 w-3 text-destructive" />
+                                            <Trash2 className="h-3 w-3" />
                                         </Button>
-                                    </div>
-
-                                    {/* Widget Content */}
-                                    <div className="flex-1 overflow-auto p-2 min-h-0">
-                                        {loading ? (
-                                            <div className="flex items-center justify-center h-full">Loading...</div>
-                                        ) : (
-                                            <div className="h-full relative transform scale-[0.95] origin-top-left w-[105%]">
-                                                {/* Scale down slightly to fit dense dashboards */}
-                                                <ViewComponent
-                                                    data={data}
-                                                    collection={collections.find(c => c.name === widget.collectionName)}
-                                                    loading={false}
-                                                />
-                                            </div>
-                                        )}
-                                    </div>
+                                    )}
                                 </div>
-                            )
-                        })}
-                    </div>
-                )}
+
+                                {/* Content */}
+                                <div className="flex-1 overflow-auto p-2">
+                                    <ViewComponent
+                                        data={data}
+                                        collection={collections.find(c => c.name === widget.collectionName)}
+                                        loading={false}
+                                    />
+                                </div>
+
+                                {/* Resize Handle */}
+                                {isEditMode && (
+                                    <div
+                                        className="absolute bottom-0 right-0 w-6 h-6 cursor-nwse-resize flex items-end justify-end p-1 opacity-0 group-hover:opacity-100"
+                                        onMouseDown={(e) => {
+                                            e.stopPropagation();
+                                            e.preventDefault();
+                                            setDragState({
+                                                id: widget.id,
+                                                startX: e.clientX,
+                                                startY: e.clientY,
+                                                initialX: widget.x,
+                                                initialY: widget.y,
+                                                initialW: widget.w,
+                                                initialH: widget.h,
+                                                mode: 'resize'
+                                            });
+                                        }}
+                                    >
+                                        <Minimize2 className="h-4 w-4 text-muted-foreground rotate-90" />
+                                    </div>
+                                )}
+                            </div>
+                        )
+                    })}
+                </div>
             </div>
         </div>
     );
 }
+

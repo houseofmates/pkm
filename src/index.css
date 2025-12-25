@@ -32,18 +32,16 @@
     --radius: 1rem;
   }
 
-  /* Force Dark Mode by default or just style the dark class to be the main experience */
+  /* Force Dark Mode by default */
   .dark {
     --background: 0 0% 0%;
     /* Pure Black */
     --foreground: 0 0% 98%;
     --card: 0 0% 3.9%;
-    /* Slightly lighter for cards? Or pure black with border */
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
     --popover-foreground: 0 0% 98%;
     --primary: 42 90% 52%;
-    /* #f6b012 */
     --primary-foreground: 0 0% 9%;
     --secondary: 0 0% 14.9%;
     --secondary-foreground: 0 0% 98%;
@@ -54,7 +52,6 @@
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
     --border: 0 0% 20%;
-    /* Visible borders */
     --input: 0 0% 14.9%;
     --ring: 42 90% 52%;
     --chart-1: 220 70% 50%;
@@ -74,9 +71,28 @@
     @apply bg-background text-foreground lowercase font-varela;
   }
 
-  /* Keep user input natural unless explicit */
+  /* Enforce lowercase on specific elements to override user-agent styles if needed */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  button,
+  a,
+  label,
   input,
-  textarea {
-    @apply normal-case;
+  span,
+  p,
+  div {
+    @apply lowercase;
+  }
+
+  /* Remove default focus rings for cleaner aesthetic if desired, keeping accessibility via visible border changes */
+
+  /* Remove outlines from dashboard empty states if any */
+  .border-dashed {
+    border-style: solid !important;
+    border-color: transparent !important;
   }
 }
