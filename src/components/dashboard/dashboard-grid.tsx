@@ -164,10 +164,11 @@ export function DashboardGrid() {
                 <div className="flex items-center gap-2 relative">
                     <Button
                         variant={isEditMode ? "secondary" : "ghost"}
-                        size="sm"
+                        size="icon"
                         onClick={() => setIsEditMode(!isEditMode)}
+                        title={isEditMode ? "Lock Layout" : "Unlock Layout"}
                     >
-                        {isEditMode ? "editing active" : "locked"}
+                        {isEditMode ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
                     </Button>
 
                     <Button
