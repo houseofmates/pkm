@@ -19,7 +19,7 @@ interface HeadmateCardProps {
     className?: string;
 }
 
-export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps>(({ member, onClick, className }, ref) => {
+export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React.HTMLAttributes<HTMLDivElement>>(({ member, onClick, className, ...props }, ref) => {
     const { activeFronterId, overrides } = useFronter();
     const isActive = activeFronterId === member.id;
     const override = overrides[member.id] || {};
