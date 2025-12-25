@@ -4,6 +4,7 @@ import { LoginPage } from "@/pages/login"
 import { RootLayout } from "@/pages/root-layout"
 import { Toaster } from "@/components/ui/sonner"
 import { useEffect } from "react"
+import { GlobalCommandPalette } from "@/components/global-command-palette"
 
 function AppContent() {
   const { token } = useAuth()
