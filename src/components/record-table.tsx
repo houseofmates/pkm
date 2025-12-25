@@ -23,10 +23,11 @@ interface RecordTableProps {
     collection: Collection;
     onEdit?: (record: any) => void;
     onDelete?: (record: any) => void;
+    onUpdateRecord?: (id: string | number, data: any) => void;
     loading?: boolean;
 }
 
-export function RecordTable({ data, collection, onEdit, onDelete, loading }: RecordTableProps) {
+export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, loading }: RecordTableProps) {
     const columnHelper = createColumnHelper<any>();
 
     // Dynamically generate columns based on collection fields or data keys
@@ -39,22 +40,35 @@ export function RecordTable({ data, collection, onEdit, onDelete, loading }: Rec
                 .filter((f: any) => !f.hidden && f.interface !== 'subTable') // Filter out hidden or complex fields for now
                 .map((field: any) => columnHelper.accessor(field.name, {
                     header: field.uiSchema?.title || field.name,
-                    cell: info => {
-                        const val = info.getValue();
-                        if (typeof val === 'object' && val !== null) return JSON.stringify(val);
-                        return val;
-                    }
+                    cell: info => (
+                        <SmartField
+                            value={info.getValue()}
+                            field={field}
+                            onChange={(val) => {
+                                // Call update callback
+                                if (onUpdateRecord) {
+                                    onUpdateRecord(info.row.original.id, { [field.name]: val });
+                                }
+                            }}
+                        />
+                    )
                 }));
         } else if (data.length > 0) {
-            // Fallback: infer from first record
+            // Fallback: infer (use string field for now)
             cols = Object.keys(data[0]).map((key) =>
                 columnHelper.accessor(key, {
                     header: key,
-                    cell: info => {
-                        const val = info.getValue();
-                        if (typeof val === 'object' && val !== null) return JSON.stringify(val);
-                        return String(val ?? '');
-                    }
+                    cell: info => (
+                        <SmartField
+                            value={info.getValue()}
+                            field={{ type: 'string', name: key }}
+                            onChange={(val) => {
+                                if (onUpdateRecord) {
+                                    onUpdateRecord(info.row.original.id, { [key]: val });
+                                }
+                            }}
+                        />
+                    )
                 })
             );
         }
