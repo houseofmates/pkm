@@ -7,11 +7,12 @@ import { GanttView } from './gantt-view';
 import { ChartView } from './chart-view';
 import { NetworkView } from './network-view';
 import { MindMapView } from './mind-map-view';
+import { ListView } from './list-view';
 import * as React from 'react';
 
-export type ViewType = 'table' | 'calendar' | 'kanban' | 'gallery' | 'gantt' | 'chart' | 'network' | 'mindmap';
+export type ViewType = 'table' | 'calendar' | 'kanban' | 'gallery' | 'gantt' | 'chart' | 'network' | 'mindmap' | 'list';
 
-// ... interface ...
+// ...
 
 export const VIEW_REGISTRY: Record<ViewType, React.ComponentType<ViewProps>> = {
     table: RecordTable,
@@ -22,10 +23,12 @@ export const VIEW_REGISTRY: Record<ViewType, React.ComponentType<ViewProps>> = {
     chart: ChartView,
     network: NetworkView,
     mindmap: MindMapView,
+    list: ListView,
 };
 
 export const VIEW_OPTIONS: { id: ViewType; label: string; icon?: any }[] = [
     { id: 'table', label: 'Table' },
+    { id: 'list', label: 'List' }, // Prioritizing List near Table
     { id: 'calendar', label: 'Calendar' },
     { id: 'kanban', label: 'Kanban' },
     { id: 'gallery', label: 'Gallery' },
