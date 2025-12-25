@@ -193,8 +193,30 @@ export function CollectionDetailPage({ collectionName, onBack }: CollectionDetai
                                         </div>
                                     )}
 
+                                    {/* Calendar Settings */}
+                                    {currentView === 'calendar' && (
+                                        <div className="space-y-4">
+                                            <div className="space-y-2">
+                                                <Label>Date Field</Label>
+                                                <Select
+                                                    value={viewConfig.dateField}
+                                                    onValueChange={(val) => handleConfigChange('dateField', val)}
+                                                >
+                                                    <SelectTrigger><SelectValue placeholder="Select date field" /></SelectTrigger>
+                                                    <SelectContent>
+                                                        {collection.fields
+                                                            ?.filter((f: any) => f.interface === 'datetime' || f.interface === 'date' || f.type === 'date')
+                                                            .map((f: any) => (
+                                                                <SelectItem key={f.name} value={f.name}>{f.uiSchema?.title || f.name}</SelectItem>
+                                                            ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {/* Placeholder for other views */}
-                                    {currentView !== 'gallery' && currentView !== 'kanban' && (
+                                    {currentView !== 'gallery' && currentView !== 'kanban' && currentView !== 'calendar' && (
                                         <p className="text-sm text-muted-foreground">No specific settings for this view yet.</p>
                                     )}
                                 </div>
