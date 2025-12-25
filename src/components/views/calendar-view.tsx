@@ -1,15 +1,13 @@
 
 import { useState, useMemo } from 'react';
 import type { ViewProps } from './registry';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { CreateRecordDialog } from '@/components/create-record-dialog';
 
 interface CalendarViewProps extends ViewProps { }
 
-export function CalendarView({ data, collection, config }: CalendarViewProps) {
+export function CalendarView({ data, config }: CalendarViewProps) {
     const [currentDate, setCurrentDate] = useState(new Date());
     const dateField = config?.dateField;
 
