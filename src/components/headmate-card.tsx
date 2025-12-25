@@ -31,13 +31,16 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
     // User requested removal of glow.
     // Active state will just be a standard border or ring without glow/shadow spread.
 
+    const customColor = member.content.color || "#ffffff";
+
     return (
         <Card
             ref={ref}
             onClick={onClick}
+            style={{ borderColor: isActive ? customColor : undefined }}
             className={cn(
                 "aspect-square relative overflow-hidden group cursor-pointer border-2 transition-all duration-200",
-                isActive ? "border-primary scale-105" : "border-transparent hover:border-white/20",
+                isActive ? "scale-105" : "border-transparent hover:border-white/20",
                 className
             )}
             {...props}
