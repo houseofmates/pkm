@@ -20,3 +20,7 @@ export const COMPONENT_MAP: Record<WidgetType, React.ComponentType<any>> = {
     [WIDGET_TYPES.CHART_BAR]: (props) => <ChartWidget type="bar" {...props} />,
     [WIDGET_TYPES.QUICK_ADD]: QuickAddWidget,
 };
+
+import { NetworkView } from '../views/network-view';
+// Note: Dashboard Widget Registry vs View Registry. 
+// Network View is a View, not a Dashboard Widget (yet).

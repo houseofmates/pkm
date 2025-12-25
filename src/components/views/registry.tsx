@@ -27,6 +27,7 @@ export const VIEW_REGISTRY: Record<ViewType, React.ComponentType<ViewProps>> = {
     gallery: GalleryView,
     gantt: GanttView,
     chart: ChartView,
+    network: NetworkView,
 };
 
 export const VIEW_OPTIONS: { id: ViewType; label: string; icon?: any }[] = [
@@ -36,4 +37,5 @@ export const VIEW_OPTIONS: { id: ViewType; label: string; icon?: any }[] = [
     { id: 'gallery', label: 'Gallery' },
     { id: 'gantt', label: 'Gantt' },
     { id: 'chart', label: 'Chart' },
+    { id: 'network', label: 'Graph' },
 ];
