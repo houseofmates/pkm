@@ -9,17 +9,33 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import { toast } from 'sonner';
-
-import { CollectionDetailPage } from '@/pages/collection-detail';
 import { DatabaseContextMenu } from '@/components/database-context-menu';
 
-// In a real app we'd wrap this with DnD context (dnd-kit)
-// For now, implementing the Visual Card Grid
-export function DatabasesPage() {
+// No longer importing CollectionDetailPage here directly, it's handled by RootLayout
+// But we can accept an onSelect prop to bubble up selection
+
+import { useOutletContext } from 'react-router-dom'; // If we were using router...
+// But we are using props in RootLayout. 
+// We generally can't easily pass props to a simplified routing if we aren't careful.
+// Wait, RootLayout renders <DatabasesPage /> directly. We can pass props.
+
+interface DatabasesPageProps {
+    onSelect?: (name: string) => void;
+}
+
+export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     const { isAuthenticated, login } = useAuth();
     const { collections, loading, error, refresh } = useCollections();
     const [apiKey, setApiKey] = useState('');
-    const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
+
+    // Fallback if no prop provided (shouldn't happen with updated RootLayout)
+    const handleSelect = (name: string) => {
+        if (onSelect) {
+            onSelect(name);
+        } else {
+            console.warn("No onSelect handler provided to DatabasesPage");
+        }
+    };
 
     const handleLogin = () => {
         if (!apiKey) return;
@@ -62,10 +78,6 @@ export function DatabasesPage() {
         return <div className="p-8 text-muted-foreground">loading databases...</div>;
     }
 
-    if (selectedCollection) {
-        return <CollectionDetailPage collectionName={selectedCollection} onBack={() => setSelectedCollection(null)} />;
-    }
-
     return (
         <div className="p-4 md:p-8 space-y-6 h-full overflow-auto">
             <div className="flex items-center justify-between">
@@ -82,7 +94,7 @@ export function DatabasesPage() {
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     {collections.map(collection => (
-                        <div key={collection.name} onClick={() => setSelectedCollection(collection.name)}>
+                        <div key={collection.name} onClick={() => handleSelect(collection.name)} className="cursor-pointer">
                             <DatabaseContextMenu collection={collection} onUpdate={refresh}>
                                 <CollectionCard collection={collection} />
                             </DatabaseContextMenu>
