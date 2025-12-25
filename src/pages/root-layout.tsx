@@ -31,7 +31,7 @@ export function RootLayout() {
                             onBack={() => setSelectedCollection(null)}
                         />
                     ) : (
-                        <DatabasesPage />
+                        <DatabasesPage onSelect={setSelectedCollection} />
                     )
                 )}
 
