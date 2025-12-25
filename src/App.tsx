@@ -5,6 +5,7 @@ import { RootLayout } from "@/pages/root-layout"
 import { Toaster } from "@/components/ui/sonner"
 import { useEffect } from "react"
 import { GlobalCommandPalette } from "@/components/global-command-palette"
+import { BrowserRouter } from "react-router-dom"
 
 function AppContent() {
   const { token } = useAuth()
@@ -18,10 +19,10 @@ function AppContent() {
 
     <>
       {token ? (
-        <>
+        <BrowserRouter>
           <RootLayout />
           <GlobalCommandPalette />
-        </>
+        </BrowserRouter>
       ) : <LoginPage />}
       <Toaster />
     </>
