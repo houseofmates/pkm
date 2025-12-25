@@ -1,73 +1,29 @@
-# React + TypeScript + Vite
+# PKM Frontend - React + NocoBase + SimplyPlural
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**For the User:**
+This is your personal Knowledge Management System, integrated with your Headmate system (SimplyPlural) and a flexible database backend (NocoBase). It is designed to be a unified, beautiful, and "lowercase-mode" interface for managing your life, system, and data on both mobile and desktop. It features an infinite canvas home page, detailed database views (Calendar, Kanban, Table, Gallery), and comprehensive personalization options.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**Context for LLMs:**
+This application is a **Persistent Knowledge Management (PKM)** frontend built with **React, Vite, TypeScript, and Tailwind CSS**. It interacts with two primary APIs:
+1.  **NocoBase**: A self-hosted no-code database platform. This app acts as a custom, polished frontend for NocoBase collections.
+2.  **SimplyPlural**: An external API for managing "Headmates" (plural system members).
 
-## React Compiler
+**Core Goals:**
+*   **Universal View Framework**: Data from NocoBase can be viewed as Tables, Kanbans, Calendars, or Galleries. Views are highly configurable and settings are persisted.
+*   **System Integration**: Headmates are first-class citizens. The app tracks who is "fronting" and tags new/edited records with their ID automatically.
+*   **Visual Aesthetics**: The design enforces a strict lowercase typography, dark/glassmorphism UI, and high responsiveness.
+*   **Mobile-First**: The navigation and layout adapt aggressively for mobile usage (bottom nav) vs desktop (sidebar).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+**Key Technical Details:**
+*   **Routing**: Custom logic in `root-layout.tsx` (Databases, Home, Headmates).
+*   **State**: `useAuth` (JWT) and `useFronter` (SimplyPlural context).
+*   **Widgets**: The Home Page uses an XY coordinate system for an infinite canvas of "Database Widgets".
+*   **Components**: Shadcn/UI is used extensively.
+*   **Conventions**: All user-facing text should be lowercase.
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+**Current Status:**
+*   Responsive optimizations are ongoing.
+*   Headmate context menu and auto-metadata injection are active.
+*   Calendar Year/Week/Day views are implemented.
