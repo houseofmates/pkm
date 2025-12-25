@@ -1,8 +1,8 @@
 import { Navigation } from '@/components/navigation';
-// import { DatabasesPage } from '@/pages/databases';
+import { DatabasesPage } from '@/pages/databases';
 import { HomePage } from '@/pages/home';
-// import { HeadmatesPage } from '@/pages/headmates';
-// import { CollectionDetailPage } from '@/pages/collection-detail';
+import { HeadmatesPage } from '@/pages/headmates';
+import { CollectionDetailPage } from '@/pages/collection-detail';
 import { Routes, Route, useNavigate, useLocation, useParams } from 'react-router-dom';
 
 export function RootLayout() {
@@ -43,16 +43,11 @@ export function RootLayout() {
 
             {/* Content Area */}
             <main className="flex-1 overflow-auto relative bg-background/50 pb-16 md:pb-0">
-                <div className="p-10 text-blue-500 font-bold">
-                    NAVIGATION IMPORT RESTORED.
-                    <br />
-                    If you see the sidebar + this text, Navigation is safe.
-                </div>
                 <Routes>
                     <Route path="/" element={<HomePage />} />
-                    {/* <Route path="/headmates" element={<HeadmatesPage />} />
+                    <Route path="/headmates" element={<HeadmatesPage />} />
                     <Route path="/databases" element={<DatabasesPage onSelect={handleSelectCollection} />} />
-                    <Route path="/databases/:name" element={<CollectionWrapper />} /> */}
+                    <Route path="/databases/:name" element={<CollectionWrapper />} />
                 </Routes>
             </main>
         </div>
@@ -60,8 +55,8 @@ export function RootLayout() {
 }
 
 // Wrapper to extract params for CollectionDetailPage
-// function CollectionWrapper() {
-//     const { name } = useParams<{ name: string }>();
-//     const navigate = useNavigate();
-//     return <CollectionDetailPage collectionName={name!} onBack={() => navigate('/databases')} />;
-// }
+function CollectionWrapper() {
+    const { name } = useParams<{ name: string }>();
+    const navigate = useNavigate();
+    return <CollectionDetailPage collectionName={name!} onBack={() => navigate('/databases')} />;
+}
