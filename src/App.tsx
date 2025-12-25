@@ -23,7 +23,15 @@ function AppContent() {
     <>
       {token ? (
         <BrowserRouter>
-          <RootLayout />
+          <Routes>
+            <Route element={<RootLayout />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/databases" element={<DatabasesPage />} />
+              <Route path="/databases/:name" element={<CollectionDetailPage />} />
+              <Route path="/headmates" element={<HeadmatesPage />} />
+              <Route path="/board" element={<MoodboardPage />} />
+            </Route>
+          </Routes>
           <GlobalCommandPalette />
         </BrowserRouter>
       ) : <LoginPage />}
