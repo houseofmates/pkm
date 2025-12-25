@@ -78,7 +78,7 @@ export function Navigation({ activeTab, onTabChange, className }: NavigationProp
             </div>
 
             {/* Mobile Top Bar (Top) */}
-            <nav className={cn("md:hidden flex items-center justify-around px-4 h-16 border-b bg-background sticky top-0 z-50", className)}>
+            <nav className={cn("md:hidden flex items-center justify-around px-4 h-16 border-t bg-background sticky bottom-0 z-50", className)}>
                 {/* Order: Databases (Left), Home (Middle), Headmates (Right) is requested */}
                 {/* Default map order is Databases, Home, Headmates. Perfect. */}
                 {tabs.map(tab => (
