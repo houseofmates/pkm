@@ -60,12 +60,9 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
             {/* Gradient Overlay for Text Readability */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
-            {/* Active Indicator (Simple Badge) */}
-            {isActive && (
-                <div
-                    className="absolute top-2 right-2 w-3 h-3 rounded-full bg-primary ring-2 ring-background"
-                />
-            )}
+            {/* Active Indicator: Custom Color Border */
+                /* Removed Dot as requested */
+            }
 
             {/* Content Centered/Bottom */}
             <div className="absolute inset-x-0 bottom-0 p-4 flex flex-col items-center justify-end h-full text-center">
