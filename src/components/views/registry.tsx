@@ -6,29 +6,22 @@ import { GalleryView } from './gallery-view';
 import { GanttView } from './gantt-view';
 import { ChartView } from './chart-view';
 import { NetworkView } from './network-view';
+import { MindMapView } from './mind-map-view';
 import * as React from 'react';
 
-export type ViewType = 'table' | 'calendar' | 'kanban' | 'gallery' | 'gantt' | 'chart' | 'network';
+export type ViewType = 'table' | 'calendar' | 'kanban' | 'gallery' | 'gantt' | 'chart' | 'network' | 'mindmap';
 
-export interface ViewProps {
-    data: any[];
-    collection: any;
-    loading?: boolean;
-    onEdit?: (record: any) => void;
-    onDelete?: (record: any) => void;
-    onUpdateRecord?: (id: string | number, data: any) => void;
-    config?: Record<string, any>;
-    onConfigChange?: (key: string, value: any) => void;
-}
+// ... interface ...
 
 export const VIEW_REGISTRY: Record<ViewType, React.ComponentType<ViewProps>> = {
-    table: RecordTable, // Existing table adapted to interface
+    table: RecordTable,
     calendar: CalendarView,
     kanban: KanbanView,
     gallery: GalleryView,
     gantt: GanttView,
     chart: ChartView,
     network: NetworkView,
+    mindmap: MindMapView,
 };
 
 export const VIEW_OPTIONS: { id: ViewType; label: string; icon?: any }[] = [
@@ -38,5 +31,6 @@ export const VIEW_OPTIONS: { id: ViewType; label: string; icon?: any }[] = [
     { id: 'gallery', label: 'Gallery' },
     { id: 'gantt', label: 'Gantt' },
     { id: 'chart', label: 'Chart' },
-    { id: 'network', label: 'Graph' },
+    { id: 'network', label: 'Graph (Auto)' },
+    { id: 'mindmap', label: 'Mind Map (Manual)' },
 ];
