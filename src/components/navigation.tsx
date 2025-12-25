@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2, Edit2 } from 'lucide-react';
+import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2, Edit2, Palette } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 // import { GlobalSearchDialog } from '@/components/global-search-dialog';
@@ -29,8 +29,8 @@ export interface NavItem {
 }
 
 interface NavigationProps {
-    activeTab: 'databases' | 'home' | 'headmates';
-    onTabChange: (tab: 'databases' | 'home' | 'headmates') => void;
+    activeTab: 'databases' | 'home' | 'headmates' | 'board';
+    onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'board') => void;
     className?: string;
     onSelectCollection: (name: string | null) => void;
     selectedCollection: string | null;
