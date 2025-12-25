@@ -14,8 +14,14 @@ function AppContent() {
   }, []);
 
   return (
+
     <>
-      {token ? <RootLayout /> : <LoginPage />}
+      {token ? (
+        <>
+          <RootLayout />
+          <GlobalCommandPalette />
+        </>
+      ) : <LoginPage />}
       <Toaster />
     </>
   )
