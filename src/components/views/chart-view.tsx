@@ -58,6 +58,9 @@ export function ChartView({ data, collection, config, onConfigChange }: ViewProp
                             <SelectItem value="pie">Donut Chart</SelectItem>
                             <SelectItem value="radar">Radar Chart</SelectItem>
                             <SelectItem value="treemap">Treemap</SelectItem>
+                            <SelectItem value="funnel">Funnel</SelectItem>
+                            <SelectItem value="gauge">Gauge (Speedometer)</SelectItem>
+                            <SelectItem value="kpi">Scorecard / KPI</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>

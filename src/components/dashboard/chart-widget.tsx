@@ -1,11 +1,13 @@
+```typescript
 import {
     ResponsiveContainer, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
     RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
-    Treemap, XAxis, YAxis, Tooltip, CartesianGrid, Legend
+    Treemap, XAxis, YAxis, Tooltip, CartesianGrid, Legend,
+    FunnelChart as RechartsFunnelChart, Funnel, LabelList
 } from 'recharts';
 
 interface ChartProps {
-    type: 'line' | 'bar' | 'pie' | 'radar' | 'treemap';
+    type: 'line' | 'bar' | 'pie' | 'radar' | 'treemap' | 'funnel' | 'gauge' | 'kpi';
     data?: any[];
     xKey?: string;
     yKey?: string;
@@ -67,7 +69,7 @@ export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yK
                         nameKey={xKey}
                     >
                         {data.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            <Cell key={`cell - ${ index } `} fill={COLORS[index % COLORS.length]} />
                         ))}
                     </Pie>
                     <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />
