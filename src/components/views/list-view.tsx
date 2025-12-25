@@ -18,75 +18,70 @@ export function ListView({ data, collection, onEdit, onDelete, onUpdateRecord }:
 
     const handleStatusClick = (record: any, e: React.MouseEvent) => {
         e.stopPropagation();
-        // Cycle status if simple? Or open generic quick edit?
-        // For now, let's just cycle if it's "todo" -> "done"
         if (record.status === 'todo') onUpdateRecord?.(record.id, { status: 'done' });
         else if (record.status === 'done') onUpdateRecord?.(record.id, { status: 'todo' });
         else onEdit?.(record);
     };
 
     if (!data.length) {
-        return <div className="p-8 text-center text-muted-foreground border-2 border-dashed rounded-xl">No items in list</div>;
+        return <div className="p-8 text-center text-muted-foreground border-2 border-dashed rounded-xl text-sm">No items found</div>;
     }
 
     return (
-        <div className="flex flex-col gap-2 max-w-3xl mx-auto">
+        <div className="flex flex-col gap-1 max-w-4xl mx-auto pb-10">
             {data.map((record) => (
                 <div
                     key={record.id}
-                    className="group flex items-start p-3 bg-card border rounded-lg shadow-sm hover:shadow-md transition-all gap-3 items-center cursor-pointer"
+                    className="group flex items-center p-2 bg-card/50 hover:bg-card border border-transparent hover:border-border/50 rounded-md transition-all gap-3 cursor-pointer"
                     onClick={() => {
                         window.dispatchEvent(new CustomEvent('pkm:edit-record', {
                             detail: { record: record, collectionName: collection.name }
                         }));
                     }}
                 >
-                    {/* Checkbox / Status Indicator */}
-                    <div className="pt-1">
+                    {/* Checkbox / Status Indicator - Compact */}
+                    <div className="flex-shrink-0">
                         <Button
                             variant="ghost"
                             size="icon"
-                            className={`h-6 w-6 rounded-full border ${record.status === 'done' ? 'bg-primary border-primary text-primary-foreground' : 'text-muted-foreground'}`}
+                            className={`h-5 w-5 rounded-md border ${record.status === 'done' ? 'bg-primary border-primary text-primary-foreground' : 'text-muted-foreground/30 hover:text-muted-foreground'}`}
                             onClick={(e) => handleStatusClick(record, e)}
                         >
-                            <CheckSquare className="h-4 w-4" />
+                            <CheckSquare className="h-3 w-3" />
                         </Button>
                     </div>
 
-                    {/* Main Content */}
-                    <div className="flex-1 min-w-0">
-                        <div className={`font-medium truncate ${record.status === 'done' ? 'line-through text-muted-foreground' : ''}`}>
+                    {/* Main Content - Dense */}
+                    <div className="flex-1 min-w-0 flex items-center gap-3">
+                        <div className={`text-sm font-medium truncate ${record.status === 'done' ? 'line-through text-muted-foreground' : 'text-foreground'}`}>
                             {record[titleField.name] || 'Untitled'}
                         </div>
 
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground mt-0.5 truncate h-5">
-                            {dateField && record[dateField.name] && (
-                                <span className="flex items-center text-blue-500/80">
-                                    <Calendar className="h-3 w-3 mr-1" />
-                                    {format(new Date(record[dateField.name]), 'MMM d')}
-                                </span>
-                            )}
-
-                            {tagsField && Array.isArray(record[tagsField.name]) && record[tagsField.name].map((tag: any) => (
-                                <Badge key={String(tag)} variant="secondary" className="text-[10px] px-1 py-0 h-4">
+                        {/* Meta inline for compact view */}
+                        <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground ml-auto">
+                            {tagsField && Array.isArray(record[tagsField.name]) && record[tagsField.name].slice(0, 3).map((tag: any) => (
+                                <Badge key={String(tag)} variant="outline" className="text-[10px] px-1 py-0 h-4 font-normal text-muted-foreground border-border/50 bg-muted/20">
                                     {String(tag)}
                                 </Badge>
                             ))}
 
-                            {/* Show "Subtitle" fields roughly if not date/tags? */}
-                            {/* Generic fallback for other fields */}
+                            {dateField && record[dateField.name] && (
+                                <span className="flex items-center text-[10px] opacity-70 w-16 justify-end">
+                                    {format(new Date(record[dateField.name]), 'MMM d')}
+                                </span>
+                            )}
                         </div>
                     </div>
 
-                    {/* Actions */}
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                    {/* Actions - Slide in */}
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-0.5 pl-2">
                         {onDelete && (
-                            <Button variant="ghost" size="icon" className="h-7 w-7 text-destructive" onClick={(e) => { e.stopPropagation(); onDelete(record); }}>
+                            <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive/70 hover:text-destructive" onClick={(e) => { e.stopPropagation(); onDelete(record); }}>
                                 <Trash2 className="h-3 w-3" />
                             </Button>
                         )}
-                        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={(e) => { e.stopPropagation(); onEdit?.(record); }}>
-                            <MoreHorizontal className="h-4 w-4" />
+                        <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground" onClick={(e) => { e.stopPropagation(); onEdit?.(record); }}>
+                            <MoreHorizontal className="h-3 w-3" />
                         </Button>
                     </div>
                 </div>
