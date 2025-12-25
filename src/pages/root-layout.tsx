@@ -68,13 +68,16 @@ export function RootLayout() {
             return;
         }
 
-        // 2. Handle Drop onto Dashboard or other Zones (Future)
+        // 2. Handle Drop onto Dashboard
         if (activeIsSidebar && overId === 'dashboard-canvas') {
-            // Trigger Add Widget logic? 
-            // We need a way to signal the dashboard.
-            console.log("Dropped sidebar item onto dashboard!", activeId);
-            // We can emit a custom event or use a global store. 
-            // For now, let's look for a specialized droppable.
+            const item = sidebarItems.find(i => i.id === activeId);
+            if (item && item.type === 'collection') {
+                // Dispatch event for Dashboard to pick up
+                const event = new CustomEvent('pkm:add-widget', {
+                    detail: { collectionName: item.id }
+                });
+                window.dispatchEvent(event);
+            }
         }
     };
 

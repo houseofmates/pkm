@@ -4,9 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Plus, LayoutGrid, Save, Database, Trash2, Move, Minimize2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCollections } from '@/hooks/use-collections';
+import { useCollections } from '@/hooks/use-collections';
 import { VIEW_REGISTRY, VIEW_OPTIONS } from '@/components/views/registry';
 import type { ViewType } from '@/components/views/registry';
 import { useAuth } from '@/contexts/auth-context';
+import { useDroppable } from '@dnd-kit/core';
 
 type WidgetType = 'view';
 interface WidgetDefinition {
@@ -153,6 +155,24 @@ export function DashboardGrid() {
         };
     }, [dragState]);
 
+    // --- Global Drop Listener ---
+    const { setNodeRef, isOver } = useDroppable({
+        id: 'dashboard-canvas',
+    });
+
+    useEffect(() => {
+        const handleExternalDrop = (e: CustomEvent<{ collectionName: string }>) => {
+            handleAddWidget(e.detail.collectionName, 'table'); // Default to table view
+        };
+
+        window.addEventListener('pkm:add-widget', handleExternalDrop as EventListener);
+        return () => {
+            window.removeEventListener('pkm:add-widget', handleExternalDrop as EventListener);
+        };
+    }, [widgets, collections]); // Re-bind if dependencies change, though handleAddWidget relies on current state? 
+    // Actually handleAddWidget uses setWidgets(prev => ...), so it's safe.
+    // But we need 'collections' to look up title.
+
     return (
         <div className="flex flex-col h-full bg-background overflow-hidden">
             {/* Toolbar */}
@@ -160,6 +180,7 @@ export function DashboardGrid() {
                 <div className="flex items-center gap-2">
                     <LayoutGrid className="h-5 w-5 text-primary" />
                     <h1 className="text-xl font-bold tracking-tight">canvas</h1>
+                    {isOver && <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full animate-pulse">Drop to Add</span>}
                 </div>
                 <div className="flex items-center gap-2 relative">
                     <Button
@@ -220,8 +241,11 @@ export function DashboardGrid() {
 
             {/* Canvas Area */}
             <div
-                ref={containerRef}
-                className="flex-1 relative bg-neutral-50/50 dark:bg-neutral-900/20 overflow-auto cursor-grab active:cursor-grabbing"
+                ref={(node) => {
+                    containerRef.current = node;
+                    setNodeRef(node);
+                }}
+                className={`flex-1 relative bg-neutral-50/50 dark:bg-neutral-900/20 overflow-auto cursor-grab active:cursor-grabbing ${isOver ? 'ring-2 ring-primary ring-inset' : ''}`}
                 onClick={() => setAddMenuOpen(false)}
             >
                 {/* Infinite Canvas Content */}
