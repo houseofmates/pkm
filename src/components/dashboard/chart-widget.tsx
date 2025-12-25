@@ -113,5 +113,83 @@ export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yK
         );
     }
 
+    if (type === 'funnel') {
+        // Funnel needs specific data shape usually, but we'll try to map standard
+        // Sorted by value descending usually
+        const sorted = [...data].sort((a, b) => (b[yKey] || 0) - (a[yKey] || 0));
+        return (
+            <ResponsiveContainer width="100%" height="100%">
+                <RechartsFunnelChart>
+                    <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />
+                    <Funnel
+                        dataKey={yKey}
+                        data={sorted}
+                        isAnimationActive
+                    >
+                        <LabelList position="right" fill="var(--foreground)" stroke="none" dataKey={xKey} />
+                    </Funnel>
+                </RechartsFunnelChart>
+            </ResponsiveContainer>
+        );
+    }
+
+    if (type === 'gauge') {
+        // Half donut
+        // We need a single value usually. Let's take the first item or sum?
+        // Let's assume data[0].value is the current, and we need a max?
+        // For generic usage, let's just show the first value relative to 100? Or just render it visually.
+        const val = data[0]?.[yKey] || 0;
+        const max = 100; // Arbitrary for now without config
+        const gaugeData = [
+            { name: 'Value', value: val },
+            { name: 'Remainder', value: max - val }
+        ];
+
+        return (
+            <div className="relative w-full h-full flex items-center justify-center">
+                <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                        <Pie
+                            data={gaugeData}
+                            cx="50%"
+                            cy="70%"
+                            startAngle={180}
+                            endAngle={0}
+                            innerRadius={60}
+                            outerRadius={80}
+                            paddingAngle={5}
+                            dataKey="value"
+                        >
+                            <Cell fill={color} />
+                            <Cell fill="var(--muted)" />
+                        </Pie>
+                    </PieChart>
+                </ResponsiveContainer>
+                <div className="absolute bottom-4 text-2xl font-bold flex flex-col items-center">
+                    {val}%
+                    <span className="text-xs text-muted-foreground font-normal">Target</span>
+                </div>
+            </div>
+        );
+    }
+
+    if (type === 'kpi') {
+        // Big Number
+        const val = data.reduce((acc, cur) => acc + (Number(cur[yKey]) || 0), 0); // Sum by default?
+        // Or if it's count, standard chartData is straight counts. So sum of counts = total count.
+
+        return (
+            <div className="h-full w-full flex flex-col items-center justify-center p-4">
+                <div className="text-sm text-muted-foreground uppercase tracking-wider mb-2">{xKey} Total</div>
+                <div className="text-5xl font-bold tracking-tighter text-primary">
+                    {val.toLocaleString()}
+                </div>
+                <div className="flex items-center gap-1 text-xs text-green-500 mt-2">
+                    +12% <span className="text-muted-foreground">vs last period (mock)</span>
+                </div>
+            </div>
+        );
+    }
+
     return null;
 }
