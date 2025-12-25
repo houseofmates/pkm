@@ -55,7 +55,9 @@ export function ChartView({ data, collection, config, onConfigChange }: ViewProp
                         <SelectContent>
                             <SelectItem value="bar">Bar Chart</SelectItem>
                             <SelectItem value="line">Line Chart</SelectItem>
-                            <SelectItem value="pie">Pie Chart</SelectItem>
+                            <SelectItem value="pie">Donut Chart</SelectItem>
+                            <SelectItem value="radar">Radar Chart</SelectItem>
+                            <SelectItem value="treemap">Treemap</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
