@@ -6,15 +6,7 @@ import { Plus, LayoutGrid, Save, Database, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCollections } from '@/hooks/use-collections';
 import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-    DropdownMenuSub,
-    DropdownMenuSubTrigger,
-    DropdownMenuSubContent,
+    //    DropdownMenu...
 } from "@/components/ui/dropdown-menu";
 
 // We'll reuse the View Registry components to render the actual views!
@@ -97,43 +89,61 @@ export function DashboardGrid() {
         });
     }, [widgets, client]);
 
+    const [addMenuOpen, setAddMenuOpen] = useState(false);
+
     return (
-        <div className="flex flex-col h-full bg-background/50">
+        <div className="flex flex-col h-full bg-background/50" onClick={() => setAddMenuOpen(false)}>
             {/* Dashboard Controls */}
             <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-background/80 backdrop-blur z-20">
                 <div className="flex items-center gap-2">
                     <LayoutGrid className="h-5 w-5 text-primary" />
                     <h1 className="text-xl font-bold tracking-tight">Home Dashboard</h1>
                 </div>
-                <div className="flex items-center gap-2">
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button>
-                                <Plus className="h-4 w-4 mr-2" /> Add View
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-56">
-                            <DropdownMenuLabel>Add Collection View</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
+                <div className="flex items-center gap-2 relative">
+                    {/* Native Dropdown Trigger */}
+                    <Button
+                        onClick={(e) => { e.stopPropagation(); setAddMenuOpen(!addMenuOpen); }}
+                        variant={addMenuOpen ? "secondary" : "default"}
+                    >
+                        <Plus className="h-4 w-4 mr-2" /> Add View
+                    </Button>
+
+                    {/* Native Dropdown Content */}
+                    {addMenuOpen && (
+                        <div
+                            className="absolute top-full right-0 mt-2 w-64 bg-popover border rounded-md shadow-md z-50 max-h-[80vh] overflow-y-auto"
+                            onClick={e => e.stopPropagation()}
+                        >
+                            <div className="p-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                Add Collection View
+                            </div>
+
                             {collections.length === 0 && <div className="p-2 text-sm text-muted-foreground">No collections found</div>}
 
                             {collections.map(col => (
-                                <DropdownMenuSub key={col.name}>
-                                    <DropdownMenuSubTrigger>
-                                        <Database className="mr-2 h-4 w-4" />
+                                <div key={col.name} className="border-b last:border-0">
+                                    <div className="px-2 py-1.5 text-sm font-medium flex items-center bg-muted/30">
+                                        <Database className="mr-2 h-3 w-3 opacity-50" />
                                         {col.title || col.name}
-                                    </DropdownMenuSubTrigger>
-                                    <DropdownMenuSubContent>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-1 p-1">
                                         {VIEW_OPTIONS.map(view => (
-                                            <DropdownMenuItem key={view.id} onClick={() => handleAddWidget(col.name, view.id)}>
-                                                {view.label}
-                                            </DropdownMenuItem>
+                                            <button
+                                                key={view.id}
+                                                className="text-xs text-left px-2 py-1.5 hover:bg-muted rounded-sm transition-colors"
+                                                onClick={() => {
+                                                    handleAddWidget(col.name, view.id);
+                                                    setAddMenuOpen(false);
+                                                }}
+                                            >
+                                                + {view.label}
+                                            </button>
                                         ))}
-                                    </DropdownMenuSubContent>
-                                </DropdownMenuSub>
+                                    </div>
+                                </div>
                             ))}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                        </div>
+                    )}
 
                     <Button size="sm" variant="outline" onClick={handleSave}>
                         <Save className="h-4 w-4 mr-2" /> Save Layout
