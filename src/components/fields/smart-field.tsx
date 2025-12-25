@@ -141,7 +141,7 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
     const isUrl = type === 'url' || type === 'link' || name.includes('link') || name.includes('url');
     const isFile = type === 'attachment' || name.includes('file') || name.includes('image') || name.includes('avatar');
     const isDate = type === 'datetime' || type === 'date' || name.includes('date') || name.includes('created');
-    const isDate = type === 'datetime' || type === 'date' || name.includes('date') || name.includes('created');
+
     const isId = name === 'id' || name === 'uuid' || type === 'uid';
     const isRelation = type === 'relation' || type === 'linkToAnotherRecord' || (field?.interface === 'linkToAnotherRecord'); // NocoBase specific
 
