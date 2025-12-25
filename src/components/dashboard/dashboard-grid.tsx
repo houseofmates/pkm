@@ -8,7 +8,8 @@ import { useCollections } from '@/hooks/use-collections';
 
 
 // We'll reuse the View Registry components to render the actual views!
-import { VIEW_REGISTRY, ViewType, VIEW_OPTIONS } from '@/components/views/registry';
+import { VIEW_REGISTRY, VIEW_OPTIONS } from '@/components/views/registry';
+import type { ViewType } from '@/components/views/registry';
 import { useAuth } from '@/contexts/auth-context';
 
 type WidgetType = 'view'; // Simplified to just views for now
