@@ -17,6 +17,7 @@ import type { Collection } from '@/hooks/use-collections';
 import { Button } from '@/components/ui/button';
 import { Edit2, Trash2 } from 'lucide-react';
 import * as React from 'react';
+import { SmartField } from '@/components/fields/smart-field';
 
 interface RecordTableProps {
     data: any[];
