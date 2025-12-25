@@ -34,8 +34,12 @@ export function ListView({ data, collection, onEdit, onDelete, onUpdateRecord }:
             {data.map((record) => (
                 <div
                     key={record.id}
-                    className="group flex items-start p-3 bg-card border rounded-lg shadow-sm hover:shadow-md transition-all gap-3 items-center"
-                    onClick={() => onEdit?.(record)}
+                    className="group flex items-start p-3 bg-card border rounded-lg shadow-sm hover:shadow-md transition-all gap-3 items-center cursor-pointer"
+                    onClick={() => {
+                        window.dispatchEvent(new CustomEvent('pkm:edit-record', {
+                            detail: { record: record, collectionName: collection.name }
+                        }));
+                    }}
                 >
                     {/* Checkbox / Status Indicator */}
                     <div className="pt-1">
