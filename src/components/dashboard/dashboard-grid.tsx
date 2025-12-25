@@ -2,33 +2,100 @@
 import { useState, useEffect } from 'react';
 import { WidgetWrapper } from './widget-wrapper';
 import { Button } from '@/components/ui/button';
-import { Plus, LayoutGrid, Save, TrendingUp, TrendingDown, Minus, Activity } from 'lucide-react';
+import { Plus, LayoutGrid, Save, Database, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { useCollections } from '@/hooks/use-collections';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+    DropdownMenuSub,
+    DropdownMenuSubTrigger,
+    DropdownMenuSubContent,
+} from "@/components/ui/dropdown-menu";
 
-// Simplified types since we aren't using the registry complex types yet
-type WidgetType = 'stat' | 'chart-line' | 'chart-bar' | 'activity' | 'quick-add';
+// We'll reuse the View Registry components to render the actual views!
+import { VIEW_REGISTRY, ViewType, VIEW_OPTIONS } from '@/components/views/registry';
+import { useAuth } from '@/contexts/auth-context';
+
+type WidgetType = 'view'; // Simplified to just views for now
 interface WidgetDefinition {
     id: string;
     type: WidgetType;
     title: string;
-    props: any;
-    grid: { x: number; y: number; w: number; h: number };
-    // We will map w/h to col-span and row-span
+    collectionName: string;
+    viewType: ViewType;
+    grid: { w: number; h: number };
 }
 
-const INITIAL_WIDGETS: WidgetDefinition[] = [
-    { id: 'stat1', type: 'stat', title: 'Total Records', props: { title: 'Records', value: '1,240', trend: '+12%', trendUp: true }, grid: { x: 0, y: 0, w: 3, h: 2 } },
-    { id: 'stat2', type: 'stat', title: 'Tasks Due', props: { title: 'Pending Tasks', value: '8', trend: '-2', trendUp: true }, grid: { x: 3, y: 0, w: 3, h: 2 } },
-    { id: 'stat3', type: 'stat', title: 'Active Projects', props: { title: 'Projects', value: '4', trend: 'On Track', trendUp: true }, grid: { x: 6, y: 0, w: 3, h: 2 } },
-    { id: 'activity1', type: 'activity', title: 'Recent Activity', props: {}, grid: { x: 9, y: 0, w: 3, h: 6 } },
-    { id: 'chart1', type: 'chart-line', title: 'Productivity Trend', props: { type: 'line' }, grid: { x: 0, y: 2, w: 9, h: 6 } },
-];
+const INITIAL_WIDGETS: WidgetDefinition[] = [];
 
 export function DashboardGrid() {
     const [widgets, setWidgets] = useState<WidgetDefinition[]>(INITIAL_WIDGETS);
+    const { collections } = useCollections();
+    const { client } = useAuth();
 
-    // Simple Grid Rendering Logic
-    // We assume 12 columns total
+    // Data cache for widgets
+    const [widgetData, setWidgetData] = useState<Record<string, { data: any[], loading: boolean }>>({});
+
+    // Load layout
+    useEffect(() => {
+        const saved = localStorage.getItem('dashboard_layout_v2');
+        if (saved) {
+            try {
+                setWidgets(JSON.parse(saved));
+            } catch (e) {
+                console.error(e);
+            }
+        }
+    }, []);
+
+    const handleSave = () => {
+        localStorage.setItem('dashboard_layout_v2', JSON.stringify(widgets));
+        toast.success("Dashboard layout saved");
+    };
+
+    const handleAddWidget = (collectionName: string, viewType: ViewType) => {
+        const col = collections.find(c => c.name === collectionName);
+        const title = `${col?.title || collectionName} (${viewType})`;
+
+        const newWidget: WidgetDefinition = {
+            id: `w_${Date.now()}`,
+            type: 'view',
+            title,
+            collectionName,
+            viewType,
+            grid: { w: 6, h: 4 } // Default half width, medium height
+        };
+
+        setWidgets(prev => [...prev, newWidget]);
+        toast.success(`Added ${title}`);
+    };
+
+    const handleRemoveWidget = (id: string) => {
+        setWidgets(prev => prev.filter(w => w.id !== id));
+    };
+
+    // Fetch data for widgets
+    useEffect(() => {
+        widgets.forEach(widget => {
+            if (!widgetData[widget.id] && !widgetData[widget.id]?.loading) {
+                // Fetch
+                setWidgetData(prev => ({ ...prev, [widget.id]: { data: [], loading: true } }));
+
+                client.listRecords(widget.collectionName).then(res => {
+                    const data = Array.isArray(res.data) ? res.data : (res.data as any)?.data || [];
+                    setWidgetData(prev => ({ ...prev, [widget.id]: { data, loading: false } }));
+                }).catch(err => {
+                    console.error(err);
+                    setWidgetData(prev => ({ ...prev, [widget.id]: { data: [], loading: false } }));
+                });
+            }
+        });
+    }, [widgets, client]);
 
     return (
         <div className="flex flex-col h-full bg-background/50">
@@ -36,87 +103,100 @@ export function DashboardGrid() {
             <div className="flex items-center justify-between p-4 border-b sticky top-0 bg-background/80 backdrop-blur z-20">
                 <div className="flex items-center gap-2">
                     <LayoutGrid className="h-5 w-5 text-primary" />
-                    <h1 className="text-xl font-bold tracking-tight">Dashboard</h1>
+                    <h1 className="text-xl font-bold tracking-tight">Home Dashboard</h1>
                 </div>
                 <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => toast.info("Drag & Drop coming in update (React 19 Support)")}>
-                        Unlock Layout
-                    </Button>
-                    <Button size="sm" onClick={() => toast.success("Layout Saved")}>
-                        <Save className="h-4 w-4 mr-2" /> Save
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button>
+                                <Plus className="h-4 w-4 mr-2" /> Add View
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-56">
+                            <DropdownMenuLabel>Add Collection View</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            {collections.length === 0 && <div className="p-2 text-sm text-muted-foreground">No collections found</div>}
+
+                            {collections.map(col => (
+                                <DropdownMenuSub key={col.name}>
+                                    <DropdownMenuSubTrigger>
+                                        <Database className="mr-2 h-4 w-4" />
+                                        {col.title || col.name}
+                                    </DropdownMenuSubTrigger>
+                                    <DropdownMenuSubContent>
+                                        {VIEW_OPTIONS.map(view => (
+                                            <DropdownMenuItem key={view.id} onClick={() => handleAddWidget(col.name, view.id)}>
+                                                {view.label}
+                                            </DropdownMenuItem>
+                                        ))}
+                                    </DropdownMenuSubContent>
+                                </DropdownMenuSub>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <Button size="sm" variant="outline" onClick={handleSave}>
+                        <Save className="h-4 w-4 mr-2" /> Save Layout
                     </Button>
                 </div>
             </div>
 
-            {/* Native CSS Grid */}
+            {/* Native CSS Grid - Auto Flow */}
             <div className="flex-1 overflow-auto p-4 custom-scrollbar">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-12 gap-4 auto-rows-[minmax(100px,auto)]">
-                    {widgets.map(widget => {
-                        // Map standard 12-col grid logic to Tailwind classes
-                        const colSpan = widget.grid.w === 3 ? 'col-span-1 md:col-span-1 lg:col-span-1 xl:col-span-3'
-                            : widget.grid.w === 6 ? 'col-span-1 md:col-span-2 lg:col-span-2 xl:col-span-6'
-                                : widget.grid.w === 9 ? 'col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-9'
-                                    : 'col-span-full';
+                {widgets.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-[50vh] text-muted-foreground border-2 border-dashed rounded-xl m-8">
+                        <LayoutGrid className="h-12 w-12 mb-4 opacity-50" />
+                        <h3 className="text-lg font-medium">Your Dashboard is Empty</h3>
+                        <p>Add a view from your databases to get started.</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 auto-rows-[400px]">
+                        {widgets.map(widget => {
+                            const ViewComponent = VIEW_REGISTRY[widget.viewType];
+                            const data = widgetData[widget.id]?.data || [];
+                            const loading = widgetData[widget.id]?.loading;
 
-                        const rowSpan = widget.grid.h > 4 ? 'row-span-2' : 'row-span-1';
+                            return (
+                                <div key={widget.id} className="col-span-1 rounded-xl border bg-card text-card-foreground shadow-sm flex flex-col overflow-hidden relative group">
+                                    {/* Widget Header */}
+                                    <div className="flex items-center justify-between p-3 border-b bg-muted/40">
+                                        <div className="font-semibold text-sm flex items-center gap-2">
+                                            {widget.title}
+                                            <span className="text-xs font-normal text-muted-foreground bg-background border px-1.5 py-0.5 rounded-full">
+                                                {data.length}
+                                            </span>
+                                        </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                                            onClick={() => handleRemoveWidget(widget.id)}
+                                        >
+                                            <Trash2 className="h-3 w-3 text-destructive" />
+                                        </Button>
+                                    </div>
 
-                        return (
-                            <div key={widget.id} className={`${colSpan} ${rowSpan} min-h-[140px]`}>
-                                <WidgetWrapper
-                                    title={widget.title}
-                                    onRemove={() => { }}
-                                    editable={false}
-                                >
-                                    <NativeWidgetRenderer widget={widget} />
-                                </WidgetWrapper>
-                            </div>
-                        )
-                    })}
-                </div>
+                                    {/* Widget Content */}
+                                    <div className="flex-1 overflow-auto p-2 min-h-0">
+                                        {loading ? (
+                                            <div className="flex items-center justify-center h-full">Loading...</div>
+                                        ) : (
+                                            <div className="h-full relative transform scale-[0.95] origin-top-left w-[105%]">
+                                                {/* Scale down slightly to fit dense dashboards */}
+                                                <ViewComponent
+                                                    data={data}
+                                                    collection={collections.find(c => c.name === widget.collectionName)}
+                                                    loading={false}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )
+                        })}
+                    </div>
+                )}
             </div>
         </div>
     );
-}
-
-// Simple Renderer to avoid complex Registry for now
-function NativeWidgetRenderer({ widget }: { widget: WidgetDefinition }) {
-    if (widget.type === 'stat') {
-        const { value, trend, trendUp } = widget.props;
-        return (
-            <div className="flex flex-col h-full justify-center">
-                <div className="text-3xl font-bold">{value}</div>
-                <div className={`flex items-center text-sm ${trendUp ? 'text-green-500' : 'text-red-500'} mt-1`}>
-                    {trendUp ? <TrendingUp className="h-4 w-4 mr-1" /> : <TrendingDown className="h-4 w-4 mr-1" />}
-                    {trend}
-                </div>
-            </div>
-        );
-    }
-
-    if (widget.type === 'chart-line') {
-        return (
-            <div className="flex items-center justify-center h-full text-muted-foreground bg-accent/10 rounded">
-                [Native Chart Placeholder]
-            </div>
-        );
-    }
-
-    if (widget.type === 'activity') {
-        return (
-            <div className="flex flex-col gap-2 p-2">
-                <div className="flex items-center gap-2 text-sm border-b pb-2">
-                    <Activity className="h-4 w-4 text-primary" />
-                    <span>Edited "Project Alpha"</span>
-                    <span className="ml-auto text-xs text-muted-foreground">2m</span>
-                </div>
-                <div className="flex items-center gap-2 text-sm border-b pb-2">
-                    <Plus className="h-4 w-4 text-green-500" />
-                    <span>Created "New Task"</span>
-                    <span className="ml-auto text-xs text-muted-foreground">1h</span>
-                </div>
-            </div>
-        );
-    }
-
-    return <div>Unknown Widget</div>;
 }
