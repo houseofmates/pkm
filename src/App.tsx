@@ -5,7 +5,12 @@ import { RootLayout } from "@/pages/root-layout"
 import { Toaster } from "@/components/ui/sonner"
 import { useEffect } from "react"
 import { GlobalCommandPalette } from "@/components/global-command-palette"
-import { BrowserRouter } from "react-router-dom"
+import { Routes, Route, BrowserRouter } from "react-router-dom"
+import { HomePage } from "@/pages/home"
+import { DatabasesPage } from "@/pages/databases"
+import { CollectionDetailPage } from "@/pages/collection-detail"
+import { HeadmatesPage } from "@/pages/headmates"
+import { MoodboardPage } from "@/pages/moodboard" // Will create this next
 
 function AppContent() {
   const { token } = useAuth()
