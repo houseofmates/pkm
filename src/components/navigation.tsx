@@ -153,6 +153,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         { id: 'databases', icon: Database, label: 'Databases' },
         { id: 'home', icon: Home, label: 'Home' },
         { id: 'headmates', icon: Users, label: 'Headmates' },
+        { id: 'board', icon: Palette, label: 'Moodboard' }, // Added Board Logic
     ] as const;
 
     return (

@@ -81,11 +81,12 @@ export function RootLayout() {
         }
     };
 
-    const handleTabChange = (tab: 'databases' | 'home' | 'headmates') => {
-        setActiveTab(tab);
+    const handleTabChange = (tab: 'databases' | 'home' | 'headmates' | 'board') => { // Update type
+        setActiveTab(tab as any);
         if (tab === 'home') navigate('/');
         if (tab === 'headmates') navigate('/headmates');
-        if (tab === 'databases') navigate('/databases'); // Though we usually select a DB
+        if (tab === 'databases') navigate('/databases');
+        if (tab === 'board') navigate('/board');
     };
 
     const handleSelectCollection = (name: string | null) => {
