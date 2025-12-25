@@ -4,15 +4,54 @@ import type { ViewProps } from './registry';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { format, differenceInDays, addDays, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
+import { SmartField } from '@/components/fields/smart-field';
+import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@/components/ui/context-menu';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { CreateRecordDialog } from '@/components/create-record-dialog'; // Reuse for edit? Or custom?
+import { Button } from '@/components/ui/button';
+import { Trash2, Edit } from 'lucide-react';
 
 interface GanttViewProps extends ViewProps { }
 
-export function GanttView({ data, config, collection }: GanttViewProps) {
+// Simple Edit Dialog wrapper
+function EditRecordModal({ record, open, onOpenChange, onUpdate, collection }: any) {
+    // In a real app we'd reuse the Form logic from CreateRecordDialog but populated
+    // For now, we mock an "Edit Properties" card by listing fields
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
+                <div className="space-y-4">
+                    <h3 className="text-lg font-bold border-b pb-2">Edit {record.title || 'Record'}</h3>
+                    <div className="grid gap-4 py-4">
+                        {collection.fields?.map((f: any) => (
+                            <div key={f.name} className="grid grid-cols-4 items-center gap-4">
+                                <label className="text-right text-sm font-medium text-muted-foreground">{f.uiSchema?.title || f.name}</label>
+                                <div className="col-span-3">
+                                    <SmartField
+                                        value={record[f.name]}
+                                        field={f}
+                                        onChange={(val) => onUpdate(record.id, { [f.name]: val })}
+                                        className="border rounded px-2 min-h-[32px]"
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </DialogContent>
+        </Dialog>
+    )
+}
+
+export function GanttView({ data, config, collection, onUpdateRecord, onDelete }: GanttViewProps) {
     const dateFields = collection.fields?.filter((f: any) => f.interface === 'datetime' || f.interface === 'date') || [];
 
     // Configurable start/end fields
     const startField = config?.ganttStartField || dateFields[0]?.name;
     const endField = config?.ganttEndField || dateFields[1]?.name || startField;
+
+    // State for interactions
+    const [editingRecord, setEditingRecord] = useState<any>(null);
 
     // Determine Timeline Range based on data
     const { startDate, endDate, timelineDays } = useMemo(() => {
@@ -61,6 +100,11 @@ export function GanttView({ data, config, collection }: GanttViewProps) {
 
     const colWidth = 40; // px per day
 
+    // Interaction Handlers
+    const handleBarClick = (record: any) => {
+        setEditingRecord(record);
+    }
+
     return (
         <div className="h-full flex flex-col bg-card rounded-lg border shadow-sm overflow-hidden select-none">
             {/* Header Timeline */}
@@ -104,37 +148,65 @@ export function GanttView({ data, config, collection }: GanttViewProps) {
                         }
 
                         return (
-                            <div key={record.id} className="flex border-b hover:bg-muted/10 items-center h-10 group">
-                                <div className="w-48 p-2 border-r text-xs font-medium sticky left-0 bg-background z-10 shrink-0 truncate flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-primary/50" />
-                                    {record.title || record.name || <span className="italic opacity-50">Untitled</span>}
-                                </div>
-                                <div className="flex-1 relative h-full">
-                                    {/* Background Grid Lines */}
-                                    <div className="absolute inset-0 flex pointer-events-none">
-                                        {timelineDays.map((d, i) => (
-                                            <div key={i} className={cn("border-r shrink-0 h-full", d.getDay() === 0 || d.getDay() === 6 ? "bg-muted/10" : "")} style={{ width: `${colWidth}px` }} />
-                                        ))}
-                                    </div>
-
-                                    {/* Task Bar */}
-                                    {visible && (
-                                        <div
-                                            className="absolute top-2 bottom-2 bg-blue-500/20 border border-blue-500 text-blue-700 dark:text-blue-300 rounded-md flex items-center px-2 text-[10px] whitespace-nowrap overflow-hidden shadow-sm hover:brightness-110 cursor-pointer transition-all"
-                                            style={{ left: `${left}px`, width: `${Math.max(width, colWidth)}px` }}
-                                            title={`${format(sDate!, 'PP')} - ${format(eDate!, 'PP')}`}
-                                        >
-                                            <div className="truncate w-full font-semibold opacity-80 group-hover:opacity-100">
-                                                {record.title || record.name}
-                                            </div>
+                            <ContextMenu key={record.id}>
+                                <ContextMenuTrigger>
+                                    <div className="flex border-b hover:bg-muted/10 items-center h-10 group relative">
+                                        <div className="w-48 p-2 border-r text-xs font-medium sticky left-0 bg-background z-10 shrink-0 truncate flex items-center gap-2">
+                                            {/* Status Indicator (Mock) or Checkbox */}
+                                            <div className="w-2 h-2 rounded-full bg-primary/50" />
+                                            {record.title || record.name || <span className="italic opacity-50">Untitled</span>}
                                         </div>
-                                    )}
-                                </div>
-                            </div>
+                                        <div className="flex-1 relative h-full">
+                                            {/* Background Grid Lines */}
+                                            <div className="absolute inset-0 flex pointer-events-none">
+                                                {timelineDays.map((d, i) => (
+                                                    <div key={i} className={cn("border-r shrink-0 h-full", d.getDay() === 0 || d.getDay() === 6 ? "bg-muted/10" : "")} style={{ width: `${colWidth}px` }} />
+                                                ))}
+                                            </div>
+
+                                            {/* Task Bar */}
+                                            {visible && (
+                                                <div
+                                                    className="absolute top-2 bottom-2 bg-blue-500/20 border border-blue-500 text-blue-700 dark:text-blue-300 rounded-md flex items-center px-2 text-[10px] whitespace-nowrap overflow-hidden shadow-sm hover:brightness-110 cursor-pointer transition-all hover:scale-[1.01]"
+                                                    style={{ left: `${left}px`, width: `${Math.max(width, colWidth)}px` }}
+                                                    title={`${format(sDate!, 'PP')} - ${format(eDate!, 'PP')}`}
+                                                    onDoubleClick={() => handleBarClick(record)}
+                                                >
+                                                    <div className="truncate w-full font-semibold opacity-80 group-hover:opacity-100">
+                                                        {record.title || record.name}
+                                                    </div>
+                                                    {/* Drag Handles (Visual Only for now, implementation of drag resize is huge) */}
+                                                    <div className="absolute left-0 w-1 h-full cursor-w-resize bg-blue-600/30 opacity-0 group-hover:opacity-100" />
+                                                    <div className="absolute right-0 w-1 h-full cursor-e-resize bg-blue-600/30 opacity-0 group-hover:opacity-100" />
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </ContextMenuTrigger>
+                                <ContextMenuContent>
+                                    <ContextMenuItem onClick={() => handleBarClick(record)}>
+                                        <Edit className="mr-2 h-4 w-4" /> Edit Record
+                                    </ContextMenuItem>
+                                    <ContextMenuItem className="text-red-500" onClick={() => onDelete && onDelete(record)}>
+                                        <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                    </ContextMenuItem>
+                                </ContextMenuContent>
+                            </ContextMenu>
                         )
                     })}
                 </div>
             </ScrollArea>
+
+            {/* Edit Dialog */}
+            {editingRecord && (
+                <EditRecordModal
+                    record={editingRecord}
+                    open={!!editingRecord}
+                    onOpenChange={(open: boolean) => !open && setEditingRecord(null)}
+                    collection={collection}
+                    onUpdate={onUpdateRecord}
+                />
+            )}
         </div>
     );
 }

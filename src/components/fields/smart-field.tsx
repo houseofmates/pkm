@@ -14,6 +14,88 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
+import { useAuth } from '@/contexts/auth-context';
+
+// --- Relation Picker Component ---
+function RelationPicker({ field, value, onChange, onCancel }: any) {
+    const { client } = useAuth();
+    const [options, setOptions] = useState<any[]>([]);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        // Fetch target records
+        const fetchTarget = async () => {
+            if (!field.target) return;
+            setLoading(true);
+            try {
+                // Determine target collection
+                const res = await client.listRecords(field.target);
+                const data = Array.isArray(res.data) ? res.data : (res.data as any)?.data || [];
+                setOptions(data);
+            } catch (e) { console.error(e); }
+            finally { setLoading(false); }
+        };
+        fetchTarget();
+    }, [field, client]);
+
+    // Handle Selection
+    // If "many", we usually need a multi-select. 
+    // Checking field.interface or type for "many" hint.
+    const isMany = field.interface?.includes('Many') || field.type?.includes('Many');
+
+    const handleSelect = (recId: string) => {
+        // Find full record or just send ID? NocoBase usually wants ID or object.
+        // Sending object for now to keep local state pretty
+        const selected = options.find(o => o.id == recId); // loose match
+
+        if (isMany) {
+            // If already array, add/remove
+            const current = Array.isArray(value) ? value : [];
+            const exists = current.find((c: any) => c.id == recId);
+            let newVal;
+            if (exists) newVal = current.filter((c: any) => c.id != recId);
+            else newVal = [...current, selected];
+            onChange(newVal);
+        } else {
+            // Single select: immediate save
+            onChange(selected);
+        }
+    };
+
+    return (
+        <div className="absolute z-50 bg-popover border shadow-lg rounded-md p-2 w-[250px] max-h-[300px] flex flex-col gap-2">
+            <div className="text-xs font-semibold text-muted-foreground px-1 uppercase tracking-wider">
+                Select {field.target}
+            </div>
+            <div className="flex-1 overflow-y-auto space-y-1">
+                {loading && <div className="text-xs p-2">Loading...</div>}
+                {options.map(opt => {
+                    const isSelected = Array.isArray(value)
+                        ? value.some((v: any) => v.id == opt.id)
+                        : value?.id == opt.id;
+
+                    return (
+                        <div
+                            key={opt.id}
+                            onClick={() => handleSelect(opt.id)}
+                            className={cn(
+                                "text-sm p-1.5 rounded cursor-pointer hover:bg-accent flex items-center justify-between",
+                                isSelected && "bg-accent/50 font-medium"
+                            )}
+                        >
+                            <span className="truncate">{opt.title || opt.name || opt.id}</span>
+                            {isSelected && <Check className="h-3 w-3 opacity-50" />}
+                        </div>
+                    )
+                })}
+            </div>
+            <div className="flex justify-end gap-1 pt-2 border-t mt-1">
+                {isMany && <Button size="sm" className="h-6 text-xs" onClick={() => onChange(value)}>Done</Button>}
+                <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={onCancel}>Cancel</Button>
+            </div>
+        </div>
+    )
+}
 
 export interface SmartFieldProps {
     value: any;
