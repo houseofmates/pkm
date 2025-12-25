@@ -20,7 +20,7 @@ export function RootLayout() { // Exported as RootLayout
             />
 
             {/* Content Area */}
-            <main className="flex-1 overflow-hidden relative bg-background/50">
+            <main className="flex-1 overflow-auto relative bg-background/50 pb-16 md:pb-0">
                 {activeTab === 'databases' && <DatabasesPage />}
 
                 {activeTab === 'home' && <HomePage />}
