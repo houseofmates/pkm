@@ -171,8 +171,30 @@ export function CollectionDetailPage({ collectionName, onBack }: CollectionDetai
                                         </div>
                                     )}
 
+                                    {/* Kanban Settings */}
+                                    {currentView === 'kanban' && (
+                                        <div className="space-y-4">
+                                            <div className="space-y-2">
+                                                <Label>Group By Field</Label>
+                                                <Select
+                                                    value={viewConfig.groupByField}
+                                                    onValueChange={(val) => handleConfigChange('groupByField', val)}
+                                                >
+                                                    <SelectTrigger><SelectValue placeholder="Select field" /></SelectTrigger>
+                                                    <SelectContent>
+                                                        {collection.fields
+                                                            ?.filter((f: any) => f.interface === 'select' || f.interface === 'radioGroup' || f.type === 'string')
+                                                            .map((f: any) => (
+                                                                <SelectItem key={f.name} value={f.name}>{f.uiSchema?.title || f.name}</SelectItem>
+                                                            ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        </div>
+                                    )}
+
                                     {/* Placeholder for other views */}
-                                    {currentView !== 'gallery' && (
+                                    {currentView !== 'gallery' && currentView !== 'kanban' && (
                                         <p className="text-sm text-muted-foreground">No specific settings for this view yet.</p>
                                     )}
                                 </div>
