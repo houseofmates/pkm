@@ -215,6 +215,13 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
             )
         }
 
+        if (isRelation) {
+            // Relation Editor: Simple picker that fetches target records
+            // We need to fetch the target collection list.
+            // Assumption: field.target is the collection name of the relation.
+            return <RelationPicker field={field} value={localValue} onChange={handleSave} onCancel={handleCancel} />;
+        }
+
         return (
             <div className={cn("flex items-center gap-1 min-w-[120px] bg-background relative z-10", className)}>
                 <Input
@@ -237,6 +244,9 @@ export function SmartField({ value, field, mode = 'view', onChange, className }:
             </div>
         );
     }
+
+    // ... View logic ...
+
 
     // --- VIEW MODE ---
 
