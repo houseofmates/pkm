@@ -10,14 +10,7 @@ import { Label } from '@/components/ui/label';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import { DatabaseContextMenu } from '@/components/database-context-menu';
-
-// No longer importing CollectionDetailPage here directly, it's handled by RootLayout
-// But we can accept an onSelect prop to bubble up selection
-
-import { useOutletContext } from 'react-router-dom'; // If we were using router...
-// But we are using props in RootLayout. 
-// We generally can't easily pass props to a simplified routing if we aren't careful.
-// Wait, RootLayout renders <DatabasesPage /> directly. We can pass props.
+import { useNavigate } from 'react-router-dom';
 
 interface DatabasesPageProps {
     onSelect?: (name: string) => void;
@@ -27,13 +20,14 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     const { isAuthenticated, login } = useAuth();
     const { collections, loading, error, refresh } = useCollections();
     const [apiKey, setApiKey] = useState('');
+    const navigate = useNavigate();
 
-    // Fallback if no prop provided (shouldn't happen with updated RootLayout)
     const handleSelect = (name: string) => {
+        // Prefer prop if available (for flexibility), else direct route
         if (onSelect) {
             onSelect(name);
         } else {
-            console.warn("No onSelect handler provided to DatabasesPage");
+            navigate(`/databases/${name}`);
         }
     };
 
@@ -94,9 +88,12 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
             ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                     {collections.map(collection => (
-                        <div key={collection.name} onClick={() => handleSelect(collection.name)} className="cursor-pointer">
+                        <div key={collection.name} onClick={() => handleSelect(collection.name)} className="cursor-pointer group relative">
                             <DatabaseContextMenu collection={collection} onUpdate={refresh}>
-                                <CollectionCard collection={collection} />
+                                <div className="pointer-events-none">
+                                    {/* Disable pointer events on card ensuring the parent div click always fires */}
+                                    <CollectionCard collection={collection} />
+                                </div>
                             </DatabaseContextMenu>
                         </div>
                     ))}
