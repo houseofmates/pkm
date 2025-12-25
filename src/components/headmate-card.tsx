@@ -40,7 +40,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
                 isActive ? "border-primary scale-105" : "border-transparent hover:border-white/20",
                 className
             )}
-        // Removed inline style for boxShadow and borderColor dependent on headmate color to avoid "glow" look
+            {...props}
         >
             {/* Background Image */}
             <div className="absolute inset-0 bg-muted/30">
