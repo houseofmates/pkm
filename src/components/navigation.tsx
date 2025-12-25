@@ -7,20 +7,12 @@ import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useCollections } from '@/hooks/use-collections';
 import {
-    DndContext,
-    closestCenter,
-    KeyboardSensor,
-    PointerSensor,
-    useSensor,
-    useSensors,
-    DragOverlay,
-    defaultDropAnimationSideEffects,
+    // DndContext removed, we rely on parent
+    useDraggable,
+    useDroppable
 } from '@dnd-kit/core';
-import type { DragStartEvent, DragOverEvent, DragEndEvent } from '@dnd-kit/core';
 import {
-    arrayMove,
     SortableContext,
-    sortableKeyboardCoordinates,
     verticalListSortingStrategy,
     useSortable,
 } from '@dnd-kit/sortable';
@@ -28,15 +20,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 
-interface NavigationProps {
-    activeTab: 'databases' | 'home' | 'headmates';
-    onTabChange: (tab: 'databases' | 'home' | 'headmates') => void;
-    className?: string;
-    onSelectCollection: (name: string | null) => void;
-    selectedCollection: string | null;
-}
-
-interface NavItem {
+export interface NavItem {
     id: string;
     type: 'collection' | 'folder';
     name: string;
@@ -44,9 +28,21 @@ interface NavItem {
     collapsed?: boolean;
 }
 
+interface NavigationProps {
+    activeTab: 'databases' | 'home' | 'headmates';
+    onTabChange: (tab: 'databases' | 'home' | 'headmates') => void;
+    className?: string;
+    onSelectCollection: (name: string | null) => void;
+    selectedCollection: string | null;
+
+    // Lifted State Props
+    items: NavItem[];
+    setItems: (items: NavItem[]) => void; // For local updates like folder creation
+}
+
 // --- Sortable Components ---
 
-function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle, onRename, onDelete }: any) {
+export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle, onRename, onDelete }: any) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: id, data: { type: item.type, item } });
 
     const style = {
@@ -96,17 +92,22 @@ function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle, onRen
     );
 }
 
-export function Navigation({ activeTab, onTabChange, className, onSelectCollection, selectedCollection }: NavigationProps) {
+export function Navigation({ activeTab, onTabChange, className, onSelectCollection, selectedCollection, items, setItems }: NavigationProps) {
     const [searchOpen, setSearchOpen] = useState(false);
     const { collections } = useCollections();
 
-    const [items, setItems] = useState<NavItem[]>([]);
     const [folderDialogOpen, setFolderDialogOpen] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
 
-    // Initialize items from collections if empty
+    // Initialize items from collections if empty (Logic moved to effect here, 
+    // but typically parent should handle initialization if it owns state. 
+    // We'll keep a sync effect here for convenience if parent passes empty.)
     useEffect(() => {
         if (collections.length > 0 && items.filter(i => i.type === 'collection').length === 0) {
+            // Only add if we don't have them? 
+            // Logic is tricky if parent owns state. 
+            // Better: Allow parent to sync, or we sync and call setItems.
+
             const existingIds = new Set(items.map(i => i.id));
             const newCols = collections.filter(c => !existingIds.has(c.name)).map(c => ({
                 id: c.name,
@@ -114,30 +115,11 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                 name: c.title || c.name,
             }));
 
-            setItems(prev => [...prev, ...newCols]);
+            if (newCols.length > 0) {
+                setItems([...items, ...newCols]);
+            }
         }
-    }, [collections]);
-
-    const sensors = useSensors(
-        useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-        useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-    );
-
-    const handleDragEnd = (event: DragEndEvent) => {
-        const { active, over } = event;
-        if (!over) return;
-
-        const activeId = active.id as string;
-        const overId = over.id as string;
-
-        if (activeId !== overId) {
-            setItems((items) => {
-                const oldIndex = items.findIndex((i) => i.id === activeId);
-                const newIndex = items.findIndex((i) => i.id === overId);
-                return arrayMove(items, oldIndex, newIndex);
-            });
-        }
-    };
+    }, [collections, items, setItems]);
 
     // Create Folder Logic
     const createFolder = () => {
@@ -150,21 +132,21 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             children: [],
             collapsed: false
         };
-        setItems(prev => [folder, ...prev]);
+        setItems([folder, ...items]);
         setFolderDialogOpen(false);
         setNewFolderName('');
     };
 
     // Toggle Folder
     const toggleFolder = (id: string) => {
-        setItems(prev => prev.map(item =>
+        setItems(items.map(item =>
             item.id === id ? { ...item, collapsed: !item.collapsed } : item
         ));
     };
 
     // Delete Folder (Ungroup)
     const deleteFolder = (id: string) => {
-        setItems(prev => prev.filter(i => i.id !== id));
+        setItems(items.filter(i => i.id !== id));
     };
 
     const tabs = [
@@ -239,28 +221,27 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
 
 
                 <ScrollArea className="flex-1 px-2">
-                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                        <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
-                            <div className="space-y-0.5">
-                                {items.map((item) => (
-                                    <SortableItem
-                                        key={item.id}
-                                        id={item.id}
-                                        item={item}
-                                        selected={selectedCollection === item.id}
-                                        onSelect={(id: string) => {
-                                            if (item.type === 'collection') {
-                                                onSelectCollection(id);
-                                                onTabChange('databases');
-                                            }
-                                        }}
-                                        onToggle={toggleFolder}
-                                        onDelete={deleteFolder}
-                                    />
-                                ))}
-                            </div>
-                        </SortableContext>
-                    </DndContext>
+                    {/* DndContext REMOVED - controlled by Parent */}
+                    <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
+                        <div className="space-y-0.5">
+                            {items.map((item) => (
+                                <SortableItem
+                                    key={item.id}
+                                    id={item.id}
+                                    item={item}
+                                    selected={selectedCollection === item.id}
+                                    onSelect={(id: string) => {
+                                        if (item.type === 'collection') {
+                                            onSelectCollection(id);
+                                            onTabChange('databases');
+                                        }
+                                    }}
+                                    onToggle={toggleFolder}
+                                    onDelete={deleteFolder}
+                                />
+                            ))}
+                        </div>
+                    </SortableContext>
                 </ScrollArea>
 
                 <div className="mt-auto px-2 pt-4 border-t">
