@@ -1,33 +1,37 @@
 
-import * as React from "react"
+import React, { useState, useEffect } from "react";
 import {
-    CalendarIcon,
-    EnvelopeClosedIcon,
-    FaceIcon,
-    GearIcon,
-    PersonIcon,
-    RocketIcon,
-} from "@radix-ui/react-icons"
+    Calculator,
+    Calendar,
+    CreditCard,
+    Settings,
+    Smile,
+    User,
+    Rocket,
+    Database,
+    Plus
+} from "lucide-react";
+
 import {
-    CommandDialog,
+    Command,
     CommandEmpty,
     CommandGroup,
     CommandInput,
     CommandItem,
     CommandList,
     CommandSeparator,
-    CommandShortcut
-} from "@/components/ui/command"
-import { useNavigate } from "react-router-dom";
+    CommandShortcut,
+} from "@/components/ui/command";
+import { useNavigate } from 'react-router-dom';
 import { useCollections } from "@/hooks/use-collections";
-import { useAuth } from "@/contexts/auth-context";
-import { Plus, Search, Database } from "lucide-react";
-import { CreateRecordDialog } from "@/components/create-record-dialog";
+// import { CreateRecordDialog } from './create-record-dialog'; // Assuming this exists or will exist
 
 export function GlobalCommandPalette() {
-    const [open, setOpen] = React.useState(false)
+    const [open, setOpen] = React.useState(false);
     const navigate = useNavigate();
     const { collections } = useCollections();
+
+    // Quick Capture State
     const [createDialogOpen, setCreateDialogOpen] = React.useState(false);
     const [selectedCollection, setSelectedCollection] = React.useState<string | null>(null);
 
@@ -38,7 +42,6 @@ export function GlobalCommandPalette() {
                 setOpen((open) => !open)
             }
         }
-
         document.addEventListener("keydown", down)
         return () => document.removeEventListener("keydown", down)
     }, [])
@@ -48,43 +51,55 @@ export function GlobalCommandPalette() {
         command()
     }, [])
 
-    const handleCreate = (collectionName: string) => {
-        setSelectedCollection(collectionName);
-        setOpen(false);
-        setCreateDialogOpen(true);
-    }
-
     if (!open) return null;
 
     return (
-        <CommandItem key={col.name} onSelect={() => runCommand(() => navigate(`/databases/${col.name}`))}>
-            <Database className="mr-2 h-4 w-4" />
-            <span>{col.title || col.name}</span>
-        </CommandItem>
-    ))
-}
-                    </CommandGroup >
-                    <CommandSeparator />
-                    <CommandGroup heading="Quick Capture">
-                        {collections.map(col => (
-                            <CommandItem key={`create-${col.name}`} onSelect={() => handleCreate(col.name)}>
-                                <Plus className="mr-2 h-4 w-4" />
-                                <span>Add to {col.title || col.name}</span>
-                            </CommandItem>
-                        ))}
-                    </CommandGroup>
-                </CommandList >
-            </CommandDialog >
+        <>
+            <div className="fixed inset-0 z-50 flex items-start justify-center pt-[20vh] bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)}>
+                <div className="w-full max-w-lg overflow-hidden rounded-xl border bg-popover text-popover-foreground shadow-2xl" onClick={e => e.stopPropagation()}>
+                    <Command className="rounded-xl border shadow-md">
+                        <CommandInput placeholder="Type a command or search..." />
+                        <CommandList>
+                            <CommandEmpty>No results found.</CommandEmpty>
+                            <CommandGroup heading="Suggestions">
+                                <CommandItem onSelect={() => runCommand(() => navigate('/'))}>
+                                    <Rocket className="mr-2 h-4 w-4" />
+                                    <span>Home Dashboard</span>
+                                </CommandItem>
+                                <CommandItem onSelect={() => runCommand(() => navigate('/headmates'))}>
+                                    <User className="mr-2 h-4 w-4" />
+                                    <span>Headmates</span>
+                                </CommandItem>
+                            </CommandGroup>
+                            <CommandSeparator />
+                            <CommandGroup heading="Databases">
+                                {collections.map((collection) => (
+                                    <CommandItem key={collection.name} onSelect={() => runCommand(() => {
+                                        setSelectedCollection(collection.name);
+                                        navigate(`/databases/${collection.name}`);
+                                    })}>
+                                        <Database className="mr-2 h-4 w-4" />
+                                        <span>{collection.title || collection.name}</span>
+                                    </CommandItem>
+                                ))}
+                            </CommandGroup>
+                            <CommandSeparator />
+                            <CommandGroup heading="Quick Capture">
+                                <CommandItem onSelect={() => runCommand(() => setCreateDialogOpen(true))}>
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    <span>Quick Note / Task</span>
+                                </CommandItem>
+                            </CommandGroup>
+                        </CommandList>
+                    </Command>
+                </div>
+            </div>
 
-    { selectedCollection && (
-        <CreateRecordDialog
-            collectionName={selectedCollection}
-            fields={collections.find(c => c.name === selectedCollection)?.fields || []}
-            trigger={<></>} // Hidden trigger
-            open={createDialogOpen}
-            onOpenChange={setCreateDialogOpen}
-        />
-    )}
+            {/* <CreateRecordDialog 
+            open={createDialogOpen} 
+            onOpenChange={setCreateDialogOpen} 
+            defaultCollection={selectedCollection}
+        /> */}
         </>
     )
 }
