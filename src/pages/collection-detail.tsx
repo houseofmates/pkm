@@ -95,6 +95,20 @@ export function CollectionDetailPage({ collectionName, onBack }: CollectionDetai
 
     const CurrentViewComponent = VIEW_REGISTRY[currentView] || VIEW_REGISTRY['table'];
 
+    const handleUpdateRecord = useCallback(async (id: string | number, data: any) => {
+        try {
+            // Optimistic update locally? 
+            // For now, simple await and refetch
+            setRecords(prev => prev.map(r => r.id === id ? { ...r, ...data } : r)); // Optimistic UI
+            await client.update(collectionName, id, data);
+            // fetchData(); // Optional: if we trust the return or optimistic update
+        } catch (error) {
+            console.error("Failed to update record", error);
+            toast.error("Failed to update record");
+            fetchData(); // Revert on error
+        }
+    }, [client, collectionName, fetchData]);
+
     return (
         <div className="flex flex-col h-full bg-background animate-in fade-in duration-500">
             {/* Header */}
@@ -251,6 +265,7 @@ export function CollectionDetailPage({ collectionName, onBack }: CollectionDetai
                     loading={loading}
                     config={viewConfig}
                     onConfigChange={handleConfigChange}
+                    onUpdateRecord={handleUpdateRecord}
                 />
             </div>
         </div>
