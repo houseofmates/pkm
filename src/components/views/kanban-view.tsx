@@ -1,8 +1,8 @@
 
-import { useState, useEffect, useMemo } from 'react';
-import { ViewProps } from './registry';
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { useState, useEffect } from 'react';
+import type { ViewProps } from './registry';
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from 'sonner';
 import {
@@ -13,16 +13,14 @@ import {
     PointerSensor,
     useSensor,
     useSensors,
-    DragStartEvent,
-    DragOverEvent,
-    DragEndEvent,
+    type DragStartEvent,
+    type DragOverEvent,
+    type DragEndEvent,
 } from '@dnd-kit/core';
 import {
-    arrayMove,
     SortableContext,
     sortableKeyboardCoordinates,
     verticalListSortingStrategy,
-    horizontalListSortingStrategy,
     useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -31,7 +29,7 @@ import { GripVertical } from 'lucide-react';
 interface KanbanViewProps extends ViewProps { }
 
 // Helper for Sortable Item (Card)
-function SortableItem({ id, record, fieldRenderer }: { id: string | number, record: any, fieldRenderer: any }) {
+function SortableItem({ id, record }: { id: string | number, record: any }) {
     const {
         attributes,
         listeners,
@@ -60,10 +58,8 @@ function SortableItem({ id, record, fieldRenderer }: { id: string | number, reco
                 </div>
             </CardHeader>
             <CardContent className="p-3 pt-0 text-xs text-muted-foreground">
-                {/* Render a few properties if needed, for now just placeholder or configured/first 3 fields */}
                 {/* Simplified for first iteration */}
                 <div className="flex flex-col gap-1 mt-1">
-                    {/* Placeholder content could go here */}
                 </div>
             </CardContent>
         </Card>
@@ -98,7 +94,7 @@ function KanbanColumn({ id, title, items, children }: { id: string, title: strin
 }
 
 
-export function KanbanView({ data, collection, loading, config, onConfigChange }: KanbanViewProps) {
+export function KanbanView({ data, collection, config }: KanbanViewProps) {
     const { client } = useAuth();
     const [columns, setColumns] = useState<Record<string, any[]>>({});
     const [columnOrder, setColumnOrder] = useState<string[]>([]);
