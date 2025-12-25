@@ -63,6 +63,32 @@ export function CollectionDetailPage({ collectionName, onBack }: CollectionDetai
         }
     }, [client, collectionName]);
 
+    // --- Event Listeners ---
+    useEffect(() => {
+        const handleCreate = async (e: CustomEvent) => {
+            if (e.detail?.collection === collectionName) {
+                console.log("Creating record via event:", e.detail.data);
+                try {
+                    await client.request({
+                        url: collectionName,
+                        method: 'post',
+                        data: e.detail.data
+                    });
+                    toast.success("Record created!");
+                    // Refresh
+                    const res = await client.request({ url: collectionName, params: { pageSize: 100, sort: '-created_at' } });
+                    setRecords(res.data?.data || []);
+                } catch (err) {
+                    console.error(err);
+                    toast.error("Failed to create record");
+                }
+            }
+        };
+
+        window.addEventListener('pkm:create-record', handleCreate as EventListener);
+        return () => window.removeEventListener('pkm:create-record', handleCreate as EventListener);
+    }, [collectionName, client]);
+
     useEffect(() => {
         fetchData();
     }, [fetchData]);
