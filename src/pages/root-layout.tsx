@@ -92,14 +92,12 @@ export function RootLayout() {
 
     const handleSelectCollection = (name: string | null) => {
         if (name === 'NEW') {
-            // Handle new collection logic elsewhere or open dialog
             return;
         }
         setSelectedCollection(name);
         if (name) {
             navigate(`/ databases / ${ name } `);
         } else {
-            // If deselecting, go to main databases page
             navigate('/databases');
         }
     };
