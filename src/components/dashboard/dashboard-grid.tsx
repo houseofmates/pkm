@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Plus, LayoutGrid, Save, Database, Trash2, Move, Minimize2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCollections } from '@/hooks/use-collections';
-import { useCollections } from '@/hooks/use-collections';
 import { VIEW_REGISTRY, VIEW_OPTIONS } from '@/components/views/registry';
 import type { ViewType } from '@/components/views/registry';
 import { useAuth } from '@/contexts/auth-context';
