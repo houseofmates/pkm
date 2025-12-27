@@ -26,6 +26,7 @@ import {
 
 import { IconPicker } from './icon-picker-dialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { CollectionDialog } from './collection-dialog';
 
 export interface NavItem {
     id: string;
@@ -273,9 +274,14 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                             <Folder className="h-3 w-3" />
                         </Button>
 
-                        <Button variant="ghost" size="icon" className="h-5 w-5 rounded-full hover:bg-muted" onClick={() => onSelectCollection('NEW')}>
-                            <Plus className="h-3 w-3" />
-                        </Button>
+                        <CollectionDialog
+                            onSuccess={refresh}
+                            trigger={
+                                <Button variant="ghost" size="icon" className="h-5 w-5 rounded-full hover:bg-muted" title="create database">
+                                    <Plus className="h-3 w-3" />
+                                </Button>
+                            }
+                        />
                     </div>
                 </div>
 
