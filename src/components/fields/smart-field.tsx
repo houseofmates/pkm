@@ -475,8 +475,8 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
                                 {galleryImgs.map((u, i) => (
                                     <div key={u+"-"+i} className="relative p-1 bg-card rounded">
                                         <img src={u} alt={`img-${i}`} className="rounded shadow cursor-pointer object-contain w-full h-60" />
-                                        <input type="text" placeholder="Caption (optional)" className="mt-2 w-full p-1 text-sm border rounded" onBlur={(e) => {
-                                            // caption handling placeholder (extend later)
+                                        <input type="text" placeholder="Caption (optional)" className="mt-2 w-full p-1 text-sm border rounded" onBlur={() => {
+                                            /* caption handling placeholder (extend later) */
                                         }} />
                                         <div className="absolute top-2 right-2 flex gap-1">
                                             <button className="btn-ghost btn-xs" onClick={() => {
