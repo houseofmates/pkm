@@ -40,28 +40,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
         return token ? { Authorization: `Bearer ${token}` } : {};
     }, [token]);
 
-    // Helper: Find existing setting ID by key
-    const fetchRemoteId = useCallback(async () => {
-        if (!token) return null;
-        try {
-            const response = await apiRequest('nocobase', '/pkm_settings', {
-                headers: getHeaders(),
-                params: {
-                    filter: JSON.stringify({ key: { $eq: key } }),
-                    pageSize: '1',
-                    fields: 'id,key',
-                }
-            });
 
-            const data = response?.data || [];
-            if (data.length > 0 && data[0].id) {
-                return data[0].id;
-            }
-        } catch (e) {
-            // Silently fail, it's just a discovery helper
-        }
-        return null;
-    }, [key, token, getHeaders]);
 
     // Helper: Create the collection if missing
     const ensureCollectionExists = useCallback(async () => {
@@ -119,7 +98,6 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
             }
         } finally {
             setLoading(false);
-            isFirstLoad.current = false;
         }
     }, [key, isAuthenticated, token, getHeaders]);
 
