@@ -71,11 +71,15 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const [metadata, setMetadata] = useAppSetting<Record<string, CollectionMetadata>>('collection_metadata', {});
+    const [collectionsList, setCollectionsList] = useState<Collection[]>([]);
 
     const isEdit = !!collection;
 
     useEffect(() => {
         if (open) {
+            // Fetch collections list for relation targets
+            client.listCollections().then(res => setCollectionsList(res.data)).catch(console.error);
+
             if (isEdit) {
                 setDisplayName(collection.title || '');
                 setName(collection.name || '');
@@ -93,10 +97,10 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                 setTimeout(() => titleInputRef.current?.focus(), 100);
             }
         }
-    }, [open, isEdit, collection, metadata]);
+    }, [open, isEdit, collection, metadata, client]);
 
     const [csvData, setCsvData] = useState<any[]>([]);
-    const [csvFields, setCsvFields] = useState<any[]>([]);
+    const [csvFields, setCsvFields] = useState<any[]>(<{ name: string; title: string; interface: string; target?: string }[]>([]);
     const csvInputRef = useRef<HTMLInputElement>(null);
 
     const inferType = (values: any[]) => {
