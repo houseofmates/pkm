@@ -45,10 +45,8 @@ const FIELD_TYPES = [
     { value: 'multipleSelect', label: 'Multiple Select' },
     { value: 'radioGroup', label: 'Radio Group' },
     { value: 'checkboxGroup', label: 'Checkbox Group' },
-    // Complex relationships might need more config, but listing them:
+    { value: 'formula', label: 'Formula' },
     { value: 'linkTo', label: 'Relation (Link To)' },
-    // { value: 'formula', label: 'Formula' }, // Requires expression
-    // { value: 'sequence', label: 'Auto Number' },
 ];
 
 export function CreateFieldDialog({ collectionName, onFieldCreated }: CreateFieldDialogProps) {
