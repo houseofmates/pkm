@@ -189,8 +189,8 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     useEffect(() => {
         if (collections.length === 0) return;
 
-        const existingIds = new Set(items.map(i => i.id));
-        const newCols = collections.filter(c => !existingIds.has(c.name)).map(c => ({
+        const existingIds = new Set(items.map(i => String(i.id).toLowerCase()));
+        const newCols = collections.filter(c => !existingIds.has(String(c.name).toLowerCase())).map(c => ({
             id: c.name,
             type: 'collection' as const,
             name: c.title || c.name,
