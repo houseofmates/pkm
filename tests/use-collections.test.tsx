@@ -21,7 +21,7 @@ describe('useCollections filtering', () => {
 
     (useAuth as any).mockReturnValue({ client: mockClient, isAuthenticated: true });
 
-    const { result, waitFor } = renderHook(() => useCollections());
+    const { result } = renderHook(() => useCollections());
     // wait for initial fetch
     await waitFor(() => result.current.collections.length > 0);
 
