@@ -6,24 +6,29 @@ This is your personal Knowledge Management System, integrated with your Headmate
 ---
 
 **Context for LLMs:**
-This application is a **Persistent Knowledge Management (PKM)** frontend built with **React, Vite, TypeScript, and Tailwind CSS**. It interacts with two primary APIs:
-1.  **NocoBase**: A self-hosted no-code database platform. This app acts as a custom, polished frontend for NocoBase collections.
-2.  **SimplyPlural**: An external API for managing "Headmates" (plural system members).
+### Core Purpose & Identity
+This project is a **Personal Knowledge Management (PKM)** system built specifically for the user, who is a **depressed autistic DID (Dissociative Identity Disorder) system with ADHD**. 
+- The app must feel safe, low-friction, and visually calming.
+- It acts as a custom frontend for **NocoBase** and **SimplyPlural**.
 
-**Core Goals:**
-*   **Universal View Framework**: Data from NocoBase can be viewed as Tables, Kanbans, Calendars, or Galleries. Views are highly configurable and settings are persisted.
-*   **System Integration**: Headmates are first-class citizens. The app tracks who is "fronting" and tags new/edited records with their ID automatically.
-*   **Visual Aesthetics**: The design enforces a strict lowercase typography, dark/glassmorphism UI, and high responsiveness.
-*   **Mobile-First**: The navigation and layout adapt aggressively for mobile usage (bottom nav) vs desktop (sidebar).
+### Strict Typography Rule: All Lowercase
+- **Mandatory**: All user-facing UI text (buttons, labels, headers, placeholders, etc.) MUST be lowercase.
+- **Exceptions**: Data values stored within database fields (e.g., a record title entered by the user) should be displayed as-is, but all UI chrome and fixed labels must be lowercase.
+- **Correction Policy**: If any hardcoded text or visible UI label is found with capitalization, it is considered a bug and must be changed to lowercase immediately.
 
-**Key Technical Details:**
-*   **Routing**: Custom logic in `root-layout.tsx` (Databases, Home, Headmates).
+### Technical Stack
+- **Framework**: React, Vite, TypeScript, Tailwind CSS.
+- **APIs**: NocoBase (Collections), SimplyPlural (Headmates).
+- **UI Components**: Shadcn/UI (Radix UI).
+
+### Key Technical Details
+*   **Routing**: Custom logic in `root-layout.tsx`.
 *   **State**: `useAuth` (JWT) and `useFronter` (SimplyPlural context).
-*   **Widgets**: The Home Page uses an XY coordinate system for an infinite canvas of "Database Widgets".
-*   **Components**: Shadcn/UI is used extensively.
-*   **Conventions**: All user-facing text should be lowercase.
+*   **Widgets**: The home page uses an XY coordinate system for an infinite canvas of "database widgets".
+*   **Mobile-First**: Navigation adapts for mobile (bottom nav) vs desktop (sidebar).
 
 **Current Status:**
 *   Responsive optimizations are ongoing.
 *   Headmate context menu and auto-metadata injection are active.
 *   Calendar Year/Week/Day views are implemented.
+*   Chart views use a single gear button for configuration to maintain a clean interface.
