@@ -188,15 +188,9 @@ export function DashboardGrid() {
                         return;
                     }
 
-                    // If url is relative, attempt to resolve against the correct API base
-                    if (fileUrl.startsWith('/')) {
-                        // APIS.nocobase.nativeUrl is https://db.houseofmates.space/api
-                        // We need https://db.houseofmates.space to prepend to /storage/...
-                        const baseUrl = APIS.nocobase.nativeUrl.replace(/\/api$/, '');
-                        fileUrl = `${baseUrl}${fileUrl}`;
-                    }
+                    // If url is relative, treat it as relative (proxy will handle it)
+                    // Proxy /storage -> https://db.houseofmates.space/storage
 
-                    console.log("Fetching canvas blob from:", fileUrl);
                     console.log("Fetching canvas blob from:", fileUrl);
                     const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
                     const response = await fetch(fileUrl, { headers });
