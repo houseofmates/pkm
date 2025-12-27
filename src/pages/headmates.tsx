@@ -11,8 +11,7 @@ import { useFronter } from '@/contexts/fronter-context';
 import { apiRequest } from '@/lib/api-client';
 import { PLACEHOLDER_IMAGE } from '@/lib/discord-utils';
 
-// Strict Capitalization Map
-// Rule: If case-insensitive match, use value. Else use DB name.
+// Helper for strict name capitalization
 const formatName = (name: string) => {
     const lower = name.toLowerCase().trim();
     const specialCases: Record<string, string> = {
@@ -32,7 +31,7 @@ interface Member {
     content: {
         name: string;
         pronouns?: string;
-        avatarUrl?: string; // We modify this if needed
+        avatarUrl?: string;
         desc?: string;
     };
 }
@@ -46,11 +45,9 @@ export function HeadmatesPage() {
 
     const members = allMembers.filter(m => !overrides[m.id]?.hidden);
 
-    // Define fetchMembers first to avoid usage before declaration
     const fetchMembers = async (key: string) => {
         setLoading(true);
         try {
-            // 1. Fetch System ID (User)
             const meData = await apiRequest('simplyplural', 'me', {
                 headers: { 'Authorization': key }
             });
@@ -60,14 +57,10 @@ export function HeadmatesPage() {
             }
 
             const systemId = meData.id;
-
-            // 2. Fetch Members using System ID
-            // Endpoint: /v1/members/:systemId
             const membersData = await apiRequest('simplyplural', `members/${systemId}`, {
                 headers: { 'Authorization': key }
             });
 
-            // SimplyPlural returns array of members directly
             const rawMembers = Array.isArray(membersData) ? membersData : [];
 
             // Sanitize members (Aggressive pre-render check)
@@ -75,13 +68,13 @@ export function HeadmatesPage() {
                 let avatarUrl = m.content?.avatarUrl || "";
 
                 // Aggressive check: If it's a discordapp.net link (media or images-ext-2), kill it.
-                // User instruction: "if avatarUrl includes 'discordapp.net' ... immediately swap it"
                 if (avatarUrl.includes('discordapp.net')) {
                     avatarUrl = PLACEHOLDER_IMAGE;
                 }
 
                 // Apply Strict Name Formatting
                 const originalName = m.content?.name || "Unknown";
+                // We format it here to ensure the state object is clean
                 const formattedName = formatName(originalName);
 
                 return {
@@ -125,7 +118,6 @@ export function HeadmatesPage() {
         <div className="p-4 md:p-8 space-y-6 h-full overflow-auto">
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold lowercase tracking-tight">headmates</h1>
-
             </div>
 
             {!hasKey ? (
@@ -172,6 +164,7 @@ export function HeadmatesPage() {
                                         member={member}
                                         onClick={() => {
                                             setFronter(activeFronterId === member.id ? null : member.id);
+                                            // Ensure function call in toast as requested, though state is already formatted
                                             if (activeFronterId !== member.id) {
                                                 toast.success(`Fronting: ${formatName(member.content.name)}`);
                                             }
