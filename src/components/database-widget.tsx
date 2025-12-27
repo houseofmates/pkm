@@ -7,7 +7,7 @@ import { X, RotateCw } from "lucide-react";
 import { useRecords } from '@/hooks/use-records';
 import { cn } from "@/lib/utils";
 import { type ViewType, VIEW_REGISTRY } from '@/components/views/registry';
-import { toast } from 'sonner';
+
 
 interface DatabaseWidgetProps {
     collection: Collection;
