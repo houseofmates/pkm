@@ -8,7 +8,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 
 export function ChartView(props: ViewProps) {
-    const { data, collection, config, onConfigChange } = props;
+    const { data, collection, config, onConfigChange, loading } = props;
+
+    if (!collection) {
+        return (
+            <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center">
+                <div className="flex flex-col items-center gap-2">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <p className="text-sm">Loading collection metadata...</p>
+                </div>
+            </div>
+        );
+    }
+
     const defaultX = collection.fields?.find((f: any) => f.type === 'string' || f.interface === 'input')?.name;
 
     const xKey = config?.chartX || defaultX || 'id';
