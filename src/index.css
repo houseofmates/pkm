@@ -95,4 +95,34 @@
     border-style: solid !important;
     border-color: transparent !important;
   }
+
+  /* GLOBAL TYPOGRAPHY BRANDING */
+  /* Ensure all text is effectively white unless specified */
+  body {
+    color: #ffffff;
+  }
+
+  /* Bold text and Headings in Gold #f6b012 */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  b,
+  strong,
+  .font-bold {
+    color: #f6b012 !important;
+  }
+
+  /* Ensure muted text is light gray, never dark gray */
+  .text-muted-foreground {
+    color: #a1a1aa !important;
+    /* zinc-400 equivalent */
+  }
+
+  /* Override any accidental black text */
+  .text-foreground {
+    color: #ffffff !important;
+  }
 }
