@@ -487,22 +487,44 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     }
 
     if (type === 'kpi') {
-        // Big Number
-        const val = data.reduce((acc, cur) => acc + (Number(cur[yKey]) || 0), 0); // Sum by default?
-        // Or if it's count, standard chartData is straight counts. So sum of counts = total count.
+        const val = isPlaceholder ? 1234 : data.reduce((acc, cur) => acc + (Number(cur[yKey]) || 0), 0);
 
         return (
-            <div className="h-full w-full flex flex-col items-center justify-center p-4">
-                <div className="text-sm text-muted-foreground uppercase tracking-wider mb-2">{xKey} Total</div>
-                <div className="text-5xl font-bold tracking-tighter text-primary">
+            <div className="h-full w-full flex flex-col items-center justify-center p-4 group cursor-pointer relative" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
+                <PlaceholderOverlay label="Configure KPI" />
+                <div className={cn("text-sm uppercase tracking-wider mb-2", isPlaceholder ? "text-muted-foreground/50" : "text-muted-foreground")}>
+                    {isPlaceholder ? "Total Metric" : (xKey + ' Total')}
+                </div>
+                <div className={cn("text-5xl font-bold tracking-tighter", isPlaceholder ? "text-muted-foreground/30 dashed-text" : "text-primary")}>
                     {val.toLocaleString()}
                 </div>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2 opacity-0">
-                    {/* Placeholder for future trends */}
-                </div>
+                {!isPlaceholder && (
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2 opacity-0">
+                        {/* Placeholder for future trends */}
+                    </div>
+                )}
             </div>
         );
     }
 
-    return null;
-}
+    if (type === 'scatter') {
+        return (
+            <div className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
+                <PlaceholderOverlay />
+                <ResponsiveContainer width="100%" height="100%">
+                    <ScatterChart>
+                        <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
+                        <XAxis dataKey="amt" type="number" name="amt" unit="" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
+                        <YAxis dataKey={yKey} type="number" name="val" unit="" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
+                        {!isPlaceholder && <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />}
+                        <Scatter
+                            name="A school"
+                            data={chartData}
+                            fill={isPlaceholder ? "var(--muted)" : color}
+                            fillOpacity={isPlaceholder ? 0.3 : 1}
+                        />
+                    </ScatterChart>
+                </ResponsiveContainer>
+            </div>
+        );
+    }
