@@ -11,10 +11,69 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { DatabaseContextMenu } from '@/components/database-context-menu';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Plus } from 'lucide-react';
+import { Plus, GripVertical } from 'lucide-react';
+import { useAppSetting } from '@/hooks/use-app-setting';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    rectSortingStrategy,
+    useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import type { Collection } from '@/types/nocobase';
 
-interface DatabasesPageProps {
-    onSelect?: (name: string) => void;
+interface SortableDatabaseItemProps {
+    collection: Collection;
+    onSelect: (name: string) => void;
+    onRefresh: () => void;
+}
+
+function SortableDatabaseItem({ collection, onSelect, onRefresh }: SortableDatabaseItemProps) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+    } = useSortable({ id: collection.name });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    };
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={style}
+            className="group relative"
+        >
+            <div
+                {...attributes}
+                {...listeners}
+                className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing p-1 bg-background/80 backdrop-blur rounded-md border shadow-sm transition-opacity"
+            >
+                <GripVertical className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <div onClick={() => onSelect(collection.name)} className="cursor-pointer">
+                <DatabaseContextMenu collection={collection} onUpdate={onRefresh}>
+                    <div className="pointer-events-none">
+                        <CollectionCard collection={collection} />
+                    </div>
+                </DatabaseContextMenu>
+            </div>
+        </div>
+    );
 }
 
 export function DatabasesPage({ onSelect }: DatabasesPageProps) {
@@ -23,6 +82,19 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     const [apiKey, setApiKey] = useState('');
     const navigate = useNavigate();
     const location = useLocation();
+
+    const [dbOrder, setDbOrder] = useAppSetting<string[]>('database_order', []);
+
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8,
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
@@ -33,8 +105,26 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location, navigate]);
 
+    const sortedCollections = [...collections].sort((a, b) => {
+        const indexA = dbOrder.indexOf(a.name);
+        const indexB = dbOrder.indexOf(b.name);
+        if (indexA === -1 && indexB === -1) return 0;
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+        return indexA - indexB;
+    });
+
+    const handleDragEnd = (event: any) => {
+        const { active, over } = event;
+        if (active.id !== over?.id) {
+            const oldIndex = sortedCollections.findIndex((c) => c.name === active.id);
+            const newIndex = sortedCollections.findIndex((c) => c.name === over.id);
+            const newOrder = arrayMove(sortedCollections.map(c => c.name), oldIndex, newIndex);
+            setDbOrder(newOrder);
+        }
+    };
+
     const handleSelect = (name: string) => {
-        // Prefer prop if available (for flexibility), else direct route
         if (onSelect) {
             onSelect(name);
         } else {
@@ -47,17 +137,17 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
         try {
             navigator.clipboard.writeText(url);
             localStorage.setItem('pkm:allow_databases_direct', '1');
-            toast.success('Database link copied to clipboard');
+            toast.success('database link copied to clipboard');
         } catch (e) {
             console.warn('Clipboard write failed', e);
-            toast.success('Copy URL: ' + url);
+            toast.success('copy URL: ' + url);
         }
     };
 
     const handleLogin = () => {
         if (!apiKey) return;
         login(apiKey);
-        toast.success("NocoBase API Key saved");
+        toast.success("nocobase API key saved");
     };
 
     if (!isAuthenticated) {
@@ -69,18 +159,18 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <Label>API Token</Label>
+                            <Label>API token</Label>
                             <Input
                                 type="password"
                                 value={apiKey}
                                 onChange={(e) => setApiKey(e.target.value)}
-                                placeholder="Enter NocoBase API Token"
+                                placeholder="enter nocobase API token"
                             />
                             <p className="text-xs text-muted-foreground">
-                                Your token is stored locally.
+                                your token is stored locally.
                             </p>
                             <p className="text-xs text-muted-foreground">
-                                <strong>Note:</strong> Dev servers use the full origin (host + port). If you started the dev server on a different port, you'll need to re-enter your API token for this origin.
+                                <strong>note:</strong> dev servers use the full origin (host + port). if you started the dev server on a different port, you'll need to re-enter your API token for this origin.
                             </p>
                         </div>
                         <Button className="w-full" onClick={handleLogin}>connect</Button>
@@ -117,18 +207,27 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
                     <p className="text-sm">create one to get started</p>
                 </div>
             ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                    {collections.map(collection => (
-                        <div key={collection.name} onClick={() => handleSelect(collection.name)} className="cursor-pointer group relative">
-                            <DatabaseContextMenu collection={collection} onUpdate={refresh}>
-                                <div className="pointer-events-none">
-                                    {/* Disable pointer events on card ensuring the parent div click always fires */}
-                                    <CollectionCard collection={collection} />
-                                </div>
-                            </DatabaseContextMenu>
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                >
+                    <SortableContext
+                        items={sortedCollections.map(c => c.name)}
+                        strategy={rectSortingStrategy}
+                    >
+                        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                            {sortedCollections.map(collection => (
+                                <SortableDatabaseItem
+                                    key={collection.name}
+                                    collection={collection}
+                                    onSelect={handleSelect}
+                                    onRefresh={refresh}
+                                />
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    </SortableContext>
+                </DndContext>
             )}
         </div>
     );
