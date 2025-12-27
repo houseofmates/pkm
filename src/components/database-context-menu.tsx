@@ -1,4 +1,5 @@
 
+import { useState } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import type { Collection } from '@/types/nocobase';
 import {
@@ -9,8 +10,19 @@ import {
     ContextMenuTrigger,
     ContextMenuLabel,
 } from "@/components/ui/context-menu";
+import {
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { toast } from 'sonner';
+import { Trash2, Edit } from 'lucide-react';
 import { CollectionDialog } from './collection-dialog';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface DatabaseContextMenuProps {
     collection: Collection;
@@ -18,58 +30,19 @@ interface DatabaseContextMenuProps {
     onUpdate: () => void;
 }
 
-import { useAppSetting } from '@/hooks/use-app-setting';
-
-interface CollectionMetadata {
-    color?: string;
-    image?: string;
-}
-
 export function DatabaseContextMenu({ collection, children, onUpdate }: DatabaseContextMenuProps) {
     const { client } = useAuth();
+    const [deleteOpen, setDeleteOpen] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
-
-    const [metadata, setMetadata] = useAppSetting<Record<string, CollectionMetadata>>('collection_metadata', {});
-    const currentMeta = metadata[collection.name] || {};
 
     const handleDelete = async () => {
         try {
             await client.deleteCollection(collection.name);
-            toast.success(`Deleted ${collection.title || collection.name}`);
+            toast.success(`deleted ${collection.title || collection.name}`);
             onUpdate();
         } catch (error) {
             console.error(error);
-            toast.error("Failed to delete database");
-        }
-    };
-
-    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-
-        const toastId = toast.loading("Uploading cover...");
-        try {
-            const res = await client.upload(file);
-            const uploadedFile = res.data;
-
-            if (!uploadedFile || !uploadedFile.url) {
-                throw new Error("Upload failed");
-            }
-
-            setMetadata(prev => ({
-                ...prev,
-                [collection.name]: {
-                    ...prev[collection.name],
-                    image: uploadedFile.url
-                }
-            }));
-
-            toast.success("Cover updated", { id: toastId });
-            onUpdate();
-
-        } catch (error) {
-            console.error(error);
-            toast.error("Failed to update cover", { id: toastId });
+            toast.error("failed to delete database");
         }
     };
 
@@ -105,7 +78,24 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
                 onSuccess={onUpdate}
             />
 
-            {/* Rename and Color dialogs removed and replaced by unified CollectionDialog */}
+            {/* Delete Alert */}
+            <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            this will permanently delete the <strong>{collection.title || collection.name}</strong> database and all its data.
+                            this action cannot be undone.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                            delete
+                        </AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
         </>
     );
 }
