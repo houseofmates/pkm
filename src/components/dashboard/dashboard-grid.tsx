@@ -152,21 +152,21 @@ export function DashboardGrid() {
                     // 1. Construct Full URL if relative
                     let fileUrl = savedCanvasData;
                     if (savedCanvasData.startsWith('/')) {
-                        // Assumption: Web mode only for now, or adapt based on platform
-                        // For a relative path like /storage/..., we need the base of the app or api?
-                        // Actually, if it comes from NocoBase upload, it might be an API path.
-                        // Let's try to just use it directly if it works, or fetch it.
-                        // Better: Fetch as Blob to handle everything.
-
-                        // If we are in 'web' mode, we might need the proxy prefix if it's under /api?
-                        // Usually uploads are static files served by server.
+                        // savedCanvasData usually comes as /storage/uploads/...
+                        // APIS.nocobase.nativeUrl is https://db.houseofmates.space/api
+                        // We need https://db.houseofmates.space
+                        const baseUrl = APIS.nocobase.nativeUrl.replace(/\/api$/, '');
+                        fileUrl = `${baseUrl}${savedCanvasData}`;
+                        console.log("Resolved relative URL to:", fileUrl);
                     }
 
                     // Fetch as Blob to report errors and handle CORS cleanly via ObjectURL
+                    console.log("Fetching canvas blob from:", fileUrl);
                     const response = await fetch(fileUrl);
-                    if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`);
+                    if (!response.ok) throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
                     const blob = await response.blob();
                     const objectUrl = URL.createObjectURL(blob);
+                    console.log("Blob fetch success, objectUrl:", objectUrl);
 
                     const img = new Image();
                     img.onload = () => {
