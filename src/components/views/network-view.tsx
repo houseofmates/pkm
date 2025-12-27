@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ZoomIn, ZoomOut, Maximize, RefreshCw } from 'lucide-react';
 
 export function NetworkView({ data, collection, config }: ViewProps) {
-    const graphRef = useRef<any>();
+    const graphRef = useRef<any>(null);
     const [dimensions, setDimensions] = useState({ w: 800, h: 600 });
     const containerRef = useRef<HTMLDivElement>(null);
 
