@@ -12,6 +12,7 @@ import type { ViewType } from '@/components/views/registry';
 import { useAuth } from '@/contexts/auth-context';
 import { useDroppable } from '@dnd-kit/core';
 import { useAppSetting } from '@/hooks/use-app-setting';
+import { APIS } from '@/lib/api-client';
 import { HexColorPicker } from 'react-colorful';
 
 type WidgetType = 'view';
