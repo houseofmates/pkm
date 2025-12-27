@@ -41,8 +41,8 @@ export function useCollections() {
                 // Exclude known system names
                 if (systemCollections.includes(name)) return false;
 
-                // Explicitly exclude pkm_settings by name/title or hidden flag
-                if (name === 'pkm_settings' || name.includes('pkm_settings') || name.includes('pkm-settings') || title === 'pkm settings' || title.includes('pkm settings')) return false;
+                // Explicitly exclude pkm_settings by name/title
+                if (name === 'pkm_settings' || title === 'pkm settings' || title === 'pkm settings') return false;
 
                 // Exclude hidden collections
                 if (col.hidden) return false;
