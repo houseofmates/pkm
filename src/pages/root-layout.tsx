@@ -26,7 +26,16 @@ export function RootLayout() {
     const navigate = useNavigate();
 
     // --- Global Drag State (Lifted from Navigation) ---
-    const [sidebarItems, setSidebarItems] = useState<NavItem[]>([]);
+    const [sidebarItems, setSidebarItems] = useState<NavItem[]>(() => {
+        const saved = localStorage.getItem('pkm:sidebar_items');
+        return saved ? JSON.parse(saved) : [];
+    });
+
+    // Persist sidebar items
+    useEffect(() => {
+        localStorage.setItem('pkm:sidebar_items', JSON.stringify(sidebarItems));
+    }, [sidebarItems]);
+
     const [activeDragItem, setActiveDragItem] = useState<NavItem | null>(null);
 
     const sensors = useSensors(
@@ -84,7 +93,7 @@ export function RootLayout() {
             localStorage.setItem('pkm:allow_databases_direct', '1');
             navigate('/databases', { state: { fromSidebar: true } });
         }
-    }; 
+    };
 
     const handleSelectCollection = (name: string | null) => {
         if (name === 'NEW') {
