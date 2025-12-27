@@ -62,7 +62,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
     const [displayName, setDisplayName] = useState('');
     const [name, setName] = useState('');
     const [imageUrl, setImageUrl] = useState('');
-    const [color, setColor('#666666');
+    const [color, setColor] = useState('#666666');
 
     const titleInputRef = useRef<HTMLInputElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -194,7 +194,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
 
                         // Intelligent Text Logic: Auto-switch between input and textarea
                         let finalInterface = field.interface;
-                        let internalType = typeConfig?.type || 'string';
+                        let internalType: any = typeConfig?.type || 'string';
 
                         if (field.interface === 'text') {
                             const isLong = csvData.some(row => String(row[field.title] || '').length > 200);
