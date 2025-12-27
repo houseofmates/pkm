@@ -113,7 +113,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                         // NocoBase :update with filter returns [] if nothing found, NO error.
                         const updateRes = await client.request('pkm_settings', 'update', {
                             method: 'POST',
-                            params: { filter: { key } },
+                            params: { filter: { key: { $eq: key } } },
                             data: { value: valueToSave },
                             silent: true
                         });
@@ -140,7 +140,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                                 if (isConflict) {
                                     await client.request('pkm_settings', 'update', {
                                         method: 'POST',
-                                        params: { filter: { key } },
+                                        params: { filter: { key: { $eq: key } } },
                                         data: { value: valueToSave },
                                         silent: true
                                     });
@@ -176,7 +176,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                 // Update-First Strategy for Flush
                 const updateRes = await client.request('pkm_settings', 'update', {
                     method: 'POST',
-                    params: { filter: { key } },
+                    params: { filter: { key: { $eq: key } } },
                     data: { value: toSave },
                     silent: true
                 });
@@ -198,7 +198,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                         if (isConflict) {
                             await client.request('pkm_settings', 'update', {
                                 method: 'POST',
-                                params: { filter: { key } },
+                                params: { filter: { key: { $eq: key } } },
                                 data: { value: toSave },
                                 silent: true
                             });
