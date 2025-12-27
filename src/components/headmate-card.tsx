@@ -28,6 +28,21 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
     const displayTextColor = override.textColor || override.color || member.content.color || "white";
     const customColor = override.color || member.content.color || "#ffffff";
 
+    // Check if a color is light (to use black border instead for visibility)
+    const isLightColor = (color: string) => {
+        if (color === "white" || color === "#ffffff" || color === "#fff") return true;
+        if (color.startsWith('#')) {
+            const hex = color.slice(1);
+            const r = parseInt(hex.slice(0, 2), 16);
+            const g = parseInt(hex.slice(2, 4), 16);
+            const b = parseInt(hex.slice(4, 6), 16);
+            // Calculate luminance - if > 180, it's a light color
+            const luminance = (0.299 * r + 0.587 * g + 0.114 * b);
+            return luminance > 180;
+        }
+        return false;
+    };
+
     // Create a faded version of the color for inactive state (30% opacity)
     const getFadedColor = (color: string) => {
         // Handle hex colors
@@ -50,6 +65,8 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
     };
 
     const fadedColor = getFadedColor(displayTextColor);
+    // For active state: use black if the color is light (like white), otherwise use their color
+    const activeBorderColor = isLightColor(displayTextColor) ? "#000000" : displayTextColor;
 
     return (
         <Card
@@ -69,7 +86,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
             <div 
                 className="absolute inset-0 pointer-events-none z-50 rounded-lg"
                 style={{
-                    border: `${isActive ? "4px" : "2px"} solid ${isActive ? displayTextColor : fadedColor}`
+                    border: `${isActive ? "5px" : "2px"} solid ${isActive ? activeBorderColor : fadedColor}`
                 }}
             />
             {/* Background Image */}
