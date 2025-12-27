@@ -40,7 +40,7 @@ export function RelationshipPicker({ collectionName, onSelect, value }: Relation
             <Dialog open={open} onOpenChange={setOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Select {collectionName}</DialogTitle>
+                        <DialogTitle>select {collectionName}</DialogTitle>
                     </DialogHeader>
                     <div className="max-h-[300px] overflow-y-auto space-y-2">
                         {options.map(opt => (
