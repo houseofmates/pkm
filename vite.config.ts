@@ -35,6 +35,11 @@ export default defineConfig({
   css: {
     devSourcemap: false,
   },
+  optimizeDeps: {
+    esbuildOptions: {
+      sourcemap: false, // Disable sourcemaps for pre-bundled dependencies in dev
+    },
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
