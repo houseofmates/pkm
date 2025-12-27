@@ -493,7 +493,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
                 {!isPlaceholder && (
                     <div className="absolute bottom-4 text-2xl font-bold flex flex-col items-center">
                         {val}%
-                        <span className="text-xs text-muted-foreground font-normal">Target</span>
+                        <span className="text-xs text-muted-foreground font-normal">target</span>
                     </div>
                 )}
             </div>
