@@ -94,7 +94,7 @@ export class NocoBaseClient {
         // Use standard REST endpoint for persistence reliability
         return apiRequest('nocobase', '/attachments', {
             method: 'POST',
-            headers: this.getToken() ? { 'Authorization': `Bearer ${this.getToken()}` } : {},
+            headers: (this.getToken() ? { 'Authorization': `Bearer ${this.getToken()}` } : {}) as Record<string, string>,
             data: formData
         });
     }
