@@ -106,7 +106,6 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
     const [isEditing, setIsEditing] = useState(false);
     const [localValue, setLocalValue] = useState(value);
     const [galleryOpen, setGalleryOpen] = useState(false);
-    const [galleryIndex, setGalleryIndex] = useState(0);
 
     useEffect(() => {
         if (!isEditing) setLocalValue(value);
