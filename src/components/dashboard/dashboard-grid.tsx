@@ -251,18 +251,24 @@ export function DashboardGrid() {
                 const file = new File([blob], "canvas_state.png", { type: "image/png" });
                 try {
                     const res = await client.upload(file);
-                    console.log("Canvas upload result:", res);
-                    if (res.data?.url) {
-                        lastSyncedUrlRef.current = res.data.url;
-                        setSavedCanvasData(res.data.url);
-                        // Force a flush so the setting persists immediately and is visible to other devices
+                    console.log("Canvas full upload response:", res);
+
+                    // Handle variable response structures (NocoBase sometimes returns object directly)
+                    const uploadedUrl = res?.data?.url || res?.url;
+
+                    if (uploadedUrl) {
+                        lastSyncedUrlRef.current = uploadedUrl;
+                        setSavedCanvasData(uploadedUrl);
+                        // Force a flush so the setting persists immediately
                         try {
-                            await (flushSavedCanvas?.(res.data.url) ?? Promise.resolve());
+                            await (flushSavedCanvas?.(uploadedUrl) ?? Promise.resolve());
+                            console.log("Canvas setting flushed successfully:", uploadedUrl);
                         } catch (e) {
                             console.error('Failed to flush saved canvas setting', e);
                         }
                         canvasDirtyRef.current = false;
-                        console.log("Synced canvas URL to setting:", res.data.url);
+                    } else {
+                        console.error("Upload succeeded but no URL found in response:", res);
                     }
                 } catch (e) {
                     console.error("Canvas sync failed", e);
