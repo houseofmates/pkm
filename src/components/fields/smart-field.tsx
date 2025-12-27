@@ -210,7 +210,7 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
                             </div>
                             <div className="flex gap-2">
                                 <Button size="sm" onClick={handleSave}>save</Button>
-                                <Button size="sm" variant="ghost" onClick={handleCancel}>Cancel</Button>
+                                <Button size="sm" variant="ghost" onClick={handleCancel}>cancel</Button>
                             </div>
                         </div>
 
@@ -278,7 +278,7 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
                         initialFocus
                     />
                     <div className="flex justify-end gap-2 mt-2">
-                        <Button size="sm" onClick={handleSave}>Save</Button>
+                        <Button size="sm" onClick={handleSave}>save</Button>
                     </div>
                 </div>
             )
