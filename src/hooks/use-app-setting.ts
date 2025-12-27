@@ -148,27 +148,28 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
                 const headers = getHeaders();
 
-                const performSave = async (retryCount = 0): Promise<void> => {
+                const performSave = async (valueToSave: any, retryCount = 0): Promise<void> => {
                     try {
                         // Strategy: Always try to use ID if we have it
                         if (settingIdRef.current) {
                             await apiRequest('nocobase', `/pkm_settings/${settingIdRef.current}`, {
                                 method: 'PUT',
                                 headers,
-                                data: { value: resolvedValue }
+                                data: { value: valueToSave }
                             });
-                        } else {
-                            // No ID, try CREATE (POST)
-                            // Note: This might fail if key exists but we don't have ID yet
-                            const response = await apiRequest('nocobase', '/pkm_settings', {
-                                method: 'POST',
-                                headers,
-                                data: { key, value: resolvedValue }
-                            });
-                            if (response?.data?.id) {
-                                settingIdRef.current = response.data.id;
-                            }
+                            return;
                         }
+
+                        // No ID, try CREATE (POST)
+                        const response = await apiRequest('nocobase', '/pkm_settings', {
+                            method: 'POST',
+                            headers,
+                            data: { key, value: valueToSave }
+                        });
+                        if (response?.data?.id) {
+                            settingIdRef.current = response.data.id;
+                        }
+                        return;
                     } catch (err: any) {
                         const errMsg = (err.message || JSON.stringify(err)).toLowerCase();
 
@@ -177,8 +178,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                             const foundId = await fetchRemoteId();
                             if (foundId) {
                                 settingIdRef.current = foundId;
-                                // Retry as Update
-                                if (retryCount < 1) return performSave(retryCount + 1);
+                                if (retryCount < 1) return performSave(valueToSave, retryCount + 1);
                             }
                         }
 
@@ -186,16 +186,18 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                         if (errMsg.includes('404') || errMsg.includes('not found') || errMsg.includes('relation "pkm_settings" does not exist')) {
                             if (retryCount < 1) { // Only try creating collection once
                                 const created = await ensureCollectionExists();
-                                if (created) return performSave(retryCount + 1);
+                                if (created) return performSave(valueToSave, retryCount + 1);
                             }
                         }
 
                         // Only log real errors (skip 404s if we handled them)
                         console.error(`Failed to save setting ${key} (attempt ${retryCount}):`, err);
+                        throw err;
                     }
                 };
 
-                await performSave();
+                // Chain into serial promise to avoid races between multiple debounced saves or flushes
+                savePromiseRef.current = (savePromiseRef.current || Promise.resolve()).then(() => performSave(resolvedValue)).catch(e => { console.error('save chain error', e); });
 
             }, debounceMs); // configurable debounce
 
