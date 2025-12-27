@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useAuth } from '@/contexts/auth-context';
+
 import { toast } from 'sonner';
 import { DndContext, useDraggable, useDroppable, DragOverlay } from '@dnd-kit/core';
 
@@ -14,7 +14,7 @@ interface CalendarViewProps extends ViewProps { }
 
 type ViewMode = 'year' | 'month' | 'week' | 'day';
 
-export function CalendarView({ data, config, collection, onUpdateRecord }: CalendarViewProps) {
+export function CalendarView({ data, config, collection: _collection, onUpdateRecord }: CalendarViewProps) {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [viewMode, setViewMode] = useState<ViewMode>('month');
     const [activeId, setActiveId] = useState<string | number | null>(null);

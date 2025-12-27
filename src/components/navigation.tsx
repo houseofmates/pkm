@@ -241,7 +241,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                 </ScrollArea>
 
                 <div className="mt-auto px-2 pt-4 border-t">
-                    <Button variant="outline" className="w-full justify-start gap-2 text-muted-foreground border-dashed" onClick={() => setSearchOpen(true)}>
+                    <Button variant="outline" className="w-full justify-start gap-2 text-muted-foreground border-dashed" onClick={() => { /* TODO: open global search */ }}>
                         <Search className="h-4 w-4" />
                         <span className="text-xs">Search / Ask AI...</span>
                     </Button>
