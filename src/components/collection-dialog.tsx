@@ -362,25 +362,45 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                                             {csvFields.map((field, idx) => (
                                                 <div key={field.name} className="flex items-center justify-between text-xs py-1.5 border-b last:border-0 border-muted group/field">
                                                     <span className="font-medium truncate mr-2" title={field.title}>{field.title}</span>
-                                                    <Select
-                                                        value={field.interface}
-                                                        onValueChange={(val) => {
-                                                            const newFields = [...csvFields];
-                                                            newFields[idx].interface = val;
-                                                            setCsvFields(newFields);
-                                                        }}
-                                                    >
-                                                        <SelectTrigger className="h-7 w-[110px] text-[10px] px-2 bg-background border-muted hover:border-accent transition-colors">
-                                                            <SelectValue />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {FIELD_TYPES.map(t => (
-                                                                <SelectItem key={t.interface} value={t.interface} className="text-xs">
-                                                                    {t.label}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
+                                                    <div className="flex flex-col gap-2">
+                                                        <Select
+                                                            value={field.interface}
+                                                            onValueChange={(val) => {
+                                                                const newFields = [...csvFields];
+                                                                newFields[idx].interface = val;
+                                                                setCsvFields(newFields);
+                                                            }}
+                                                        >
+                                                            <SelectTrigger className="h-8 text-xs">
+                                                                <SelectValue />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {FIELD_TYPES.map(t => (
+                                                                    <SelectItem key={t.interface} value={t.interface}>{t.label}</SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
+
+                                                        {field.interface === 'belongsTo' && (
+                                                            <Select
+                                                                value={field.target}
+                                                                onValueChange={(val) => {
+                                                                    const newFields = [...csvFields];
+                                                                    newFields[idx].target = val;
+                                                                    setCsvFields(newFields);
+                                                                }}
+                                                            >
+                                                                <SelectTrigger className="h-8 text-xs border-primary/50 bg-primary/5">
+                                                                    <SelectValue placeholder="Target collection..." />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    {collectionsList.map(c => (
+                                                                        <SelectItem key={c.name} value={c.name}>{c.title || c.name}</SelectItem>
+                                                                    ))}
+                                                                </SelectContent>
+                                                            </Select>
+                                                        )}
+                                                    </div>
                                                 </div>
                                             ))}
                                         </div>
