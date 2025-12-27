@@ -196,6 +196,7 @@ export function ChartView(props: ViewProps) {
                             seriesOrder={config?.chartSeriesOrder}
                             legendCollapsed={!!config?.chartLegendCollapsed}
                             onConfig={handleConfig}
+                            columns={collection.fields?.map((f: any) => ({ label: f.uiSchema?.title || f.name, value: f.name }))}
                         />
                     </div>
                 ) : type === 'network' ? (
