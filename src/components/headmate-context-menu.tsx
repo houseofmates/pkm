@@ -164,19 +164,19 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
             {/* Visual Name Dialog */}
             <Dialog open={nameOpen} onOpenChange={setNameOpen}>
                 <DialogContent>
-                    <DialogHeader><DialogTitle>Edit Visual Name</DialogTitle></DialogHeader>
+                    <DialogHeader><DialogTitle>edit visual name</DialogTitle></DialogHeader>
                     <div className="py-4">
-                        <Label>Name (Overrides integration)</Label>
+                        <Label>name (overrides integration)</Label>
                         <Input value={visualName} onChange={e => setVisualName(e.target.value)} className="mt-2" />
                     </div>
-                    <DialogFooter><Button onClick={saveVisualName}>Save</Button></DialogFooter>
+                    <DialogFooter><Button onClick={saveVisualName}>save</Button></DialogFooter>
                 </DialogContent>
             </Dialog>
 
             {/* Image Source Dialog */}
             <Dialog open={imageOpen} onOpenChange={setImageOpen}>
                 <DialogContent>
-                    <DialogHeader><DialogTitle>Change Image</DialogTitle></DialogHeader>
+                    <DialogHeader><DialogTitle>change image</DialogTitle></DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="grid grid-cols-2 gap-4">
                             <Button variant="outline" className="h-24 flex flex-col gap-2" onClick={() => fileInputRef.current?.click()}>
@@ -186,10 +186,10 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
 
                             {/* Simple visual separator or just standard layout */}
                             <div className="col-span-2 border-t pt-4">
-                                <Label>Or Paste Image Link</Label>
+                                <Label>or paste image link</Label>
                                 <div className="flex gap-2 mt-2">
                                     <Input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://..." />
-                                    <Button onClick={saveImageUrl}>Save</Button>
+                                    <Button onClick={saveImageUrl}>save</Button>
                                 </div>
                             </div>
                         </div>
@@ -200,10 +200,10 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
             {/* Edit Description Dialog (Existing) */}
             <Dialog open={editOpen} onOpenChange={setEditOpen}>
                 <DialogContent>
-                    <DialogHeader><DialogTitle>Edit Details</DialogTitle></DialogHeader>
+                    <DialogHeader><DialogTitle>edit details</DialogTitle></DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label>Custom Description</Label>
+                            <Label>custom description</Label>
                             <Textarea
                                 value={desc}
                                 onChange={(e) => setDesc(e.target.value)}
@@ -212,31 +212,31 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
                             />
                         </div>
                     </div>
-                    <DialogFooter><Button onClick={saveDetails}>Save</Button></DialogFooter>
+                    <DialogFooter><Button onClick={saveDetails}>save</Button></DialogFooter>
                 </DialogContent>
             </Dialog>
 
             {/* Edit Color Dialog (Existing) */}
             <Dialog open={colorOpen} onOpenChange={setColorOpen}>
                 <DialogContent>
-                    <DialogHeader><DialogTitle>Customize Colors</DialogTitle></DialogHeader>
+                    <DialogHeader><DialogTitle>customize colors</DialogTitle></DialogHeader>
                     <div className="space-y-4 py-4">
                         <div className="space-y-2">
-                            <Label>Main Color</Label>
+                            <Label>main color</Label>
                             <div className="flex gap-2">
                                 <Input type="color" className="w-12 h-10 p-1" value={color} onChange={(e) => setColor(e.target.value)} />
                                 <Input value={color} onChange={(e) => setColor(e.target.value)} />
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Label>Text Color</Label>
+                            <Label>text color</Label>
                             <div className="flex gap-2">
                                 <Input type="color" className="w-12 h-10 p-1" value={textColor} onChange={(e) => setTextColor(e.target.value)} />
                                 <Input value={textColor} onChange={(e) => setTextColor(e.target.value)} />
                             </div>
                         </div>
                     </div>
-                    <DialogFooter><Button onClick={saveColors}>Save</Button></DialogFooter>
+                    <DialogFooter><Button onClick={saveColors}>save</Button></DialogFooter>
                 </DialogContent>
             </Dialog>
         </>
