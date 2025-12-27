@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
 @tailwind base;
 
 @layer base {
@@ -139,10 +138,12 @@
     width: 0%;
     margin-left: 0%;
   }
+
   50% {
     width: 60%;
     margin-left: 20%;
   }
+
   100% {
     width: 0%;
     margin-left: 100%;
