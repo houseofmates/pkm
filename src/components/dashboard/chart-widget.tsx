@@ -121,6 +121,21 @@ export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yK
     }
 
     if (type === 'bar') {
+        if (seriesKeys && seriesKeys.length > 0) {
+            return (
+                <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                        <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
+                        <YAxis fontSize={10} tickLine={false} axisLine={false} />
+                        <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />
+                        {renderSeries()}
+                        <Legend />
+                    </BarChart>
+                </ResponsiveContainer>
+            );
+        }
+
         return (
             <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
