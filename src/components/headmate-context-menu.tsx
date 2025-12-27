@@ -79,6 +79,11 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
                 console.log('Setting Override URL:', avatarUrl, 'for member:', memberId);
                 updateOverride(memberId, { avatarUrl });
                 toast.success("Avatar updated", { id: toastId });
+
+                // Reset file input and close dialog
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
                 setImageOpen(false);
             }
         } catch (error) {
