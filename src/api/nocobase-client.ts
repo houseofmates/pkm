@@ -103,19 +103,33 @@ export class NocoBaseClient {
     async downloadAttachmentBlob(attachmentId: string) {
         const headers = (this.getToken() ? { 'Authorization': `Bearer ${this.getToken()}` } : {}) as Record<string, string>;
 
-        // Attempt the typical download endpoint
-        try {
-            const blob = await apiRequest('nocobase', `/attachments/${attachmentId}/download`, {
-                method: 'GET',
-                headers,
-                responseType: 'blob'
-            });
+        const attempts = [
+            `/attachments/${attachmentId}/download`,
+            `/attachments/${attachmentId}`,
+            `/attachments/${attachmentId}?download=true`,
+        ];
 
-            return blob as Blob;
-        } catch (error) {
-            console.warn('[NocoBase] downloadAttachmentBlob failed for id', attachmentId, error);
-            throw error;
+        for (const endpoint of attempts) {
+            try {
+                const resp = await apiRequest('nocobase', endpoint, {
+                    method: 'GET',
+                    headers,
+                    responseType: 'blob'
+                });
+
+                // apiRequest returns a Blob for 'blob' responseType
+                if (resp instanceof Blob) return resp as Blob;
+
+                // Some proxies might wrap blob inside data
+                if (resp && (resp as any).data instanceof Blob) return (resp as any).data as Blob;
+
+            } catch (error) {
+                console.warn(`[NocoBase] download attempt failed (${endpoint}) for id ${attachmentId}:`, error);
+                // try next
+            }
         }
+
+        throw new Error(`All download attempts failed for attachment ${attachmentId}`);
     }
 
     async createField(collectionName: string, data: any) {

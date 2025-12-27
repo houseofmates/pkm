@@ -187,21 +187,17 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     // but typically parent should handle initialization if it owns state. 
     // We'll keep a sync effect here for convenience if parent passes empty.)
     useEffect(() => {
-        if (collections.length > 0 && items.filter(i => i.type === 'collection').length === 0) {
-            // Only add if we don't have them? 
-            // Logic is tricky if parent owns state. 
-            // Better: Allow parent to sync, or we sync and call setItems.
+        if (collections.length === 0) return;
 
-            const existingIds = new Set(items.map(i => i.id));
-            const newCols = collections.filter(c => !existingIds.has(c.name)).map(c => ({
-                id: c.name,
-                type: 'collection' as const,
-                name: c.title || c.name,
-            }));
+        const existingIds = new Set(items.map(i => i.id));
+        const newCols = collections.filter(c => !existingIds.has(c.name)).map(c => ({
+            id: c.name,
+            type: 'collection' as const,
+            name: c.title || c.name,
+        }));
 
-            if (newCols.length > 0) {
-                setItems([...items, ...newCols]);
-            }
+        if (newCols.length > 0) {
+            setItems([...items, ...newCols]);
         }
     }, [collections, items, setItems]);
 

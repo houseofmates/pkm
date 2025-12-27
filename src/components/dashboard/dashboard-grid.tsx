@@ -188,33 +188,60 @@ export function DashboardGrid() {
                         return;
                     }
 
-                    // If url is relative, treat it as relative (proxy will handle it)
-                    // Proxy /storage -> https://db.houseofmates.space/storage
-
-                    console.log("Fetching canvas blob from:", fileUrl);
-                    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
-                    const response = await fetch(fileUrl, { headers });
-                    if (!response.ok) throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
-                    const blob = await response.blob();
-                    const objectUrl = URL.createObjectURL(blob);
-                    console.log("Blob fetch success, objectUrl:", objectUrl);
-
-                    const img = new Image();
-                    img.onload = () => {
-                        const ctx = canvasRef.current?.getContext('2d');
-                        if (ctx && canvasRef.current) {
-                            ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-                            ctx.drawImage(img, 0, 0);
-                            lastSyncedUrlRef.current = fileUrl;
-                            URL.revokeObjectURL(objectUrl);
-                            console.log("Canvas loaded successfully.");
-                            // Initialize undo stack with this state if empty
-                            if (undoStack.current.length === 0) {
-                                saveSnapshot();
+                    // Prefer server-side proxied download (avoids CORS); fall back to direct fetch if proxy isn't available
+                    try {
+                        const attachId = savedCanvasData && typeof savedCanvasData === 'object' ? savedCanvasData.id : null;
+                        if (attachId && client && (client as any).downloadAttachmentBlob) {
+                            const blob = await (client as any).downloadAttachmentBlob(String(attachId));
+                            if (blob instanceof Blob) {
+                                const objectUrl = URL.createObjectURL(blob);
+                                const img = new Image();
+                                img.onload = () => {
+                                    const ctx = canvasRef.current?.getContext('2d');
+                                    if (ctx && canvasRef.current) {
+                                        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                                        ctx.drawImage(img, 0, 0);
+                                        lastSyncedUrlRef.current = savedCanvasData?.url || null;
+                                        URL.revokeObjectURL(objectUrl);
+                                        console.log("Canvas loaded successfully via proxied download.");
+                                        if (undoStack.current.length === 0) saveSnapshot();
+                                    }
+                                };
+                                img.src = objectUrl;
+                                return;
                             }
                         }
-                    };
-                    img.src = objectUrl;
+                    } catch (e) {
+                        console.warn('Proxied download also failed for canvas background:', e);
+                    }
+
+                    // Fallback: try direct fetch (may fail due to CORS)
+                    try {
+                        console.log("Fetching canvas blob from:", fileUrl);
+                        const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+                        const response = await fetch(fileUrl, { headers });
+                        if (!response.ok) throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
+                        const blob = await response.blob();
+                        const objectUrl = URL.createObjectURL(blob);
+                        console.log("Blob fetch success, objectUrl:", objectUrl);
+
+                        const img = new Image();
+                        img.onload = () => {
+                            const ctx = canvasRef.current?.getContext('2d');
+                            if (ctx && canvasRef.current) {
+                                ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                                ctx.drawImage(img, 0, 0);
+                                lastSyncedUrlRef.current = fileUrl;
+                                URL.revokeObjectURL(objectUrl);
+                                console.log("Canvas loaded successfully.");
+                                // Initialize undo stack with this state if empty
+                                if (undoStack.current.length === 0) {
+                                    saveSnapshot();
+                                }
+                            }
+                        };
+                        img.src = objectUrl;
+
 
                 } catch (e) {
                     console.warn("Direct fetch failed for canvas background:", e);
