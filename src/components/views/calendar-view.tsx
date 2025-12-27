@@ -20,7 +20,7 @@ export function CalendarView({ data, config, collection, onUpdateRecord }: Calen
             <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
                 <div className="flex flex-col items-center gap-2">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    <p className="text-sm">Loading calendar metadata...</p>
+                    <p className="text-sm">loading calendar metadata...</p>
                 </div>
             </div>
         );
@@ -90,8 +90,8 @@ export function CalendarView({ data, config, collection, onUpdateRecord }: Calen
         return (
             <div className="flex h-full items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg bg-muted/10">
                 <div className="text-center">
-                    <p>No Date field selected.</p>
-                    <p className="text-sm">Open View Settings to configure.</p>
+                    <p>no date field selected.</p>
+                    <p className="text-sm">open view settings to configure.</p>
                 </div>
             </div>
         );
@@ -134,10 +134,10 @@ export function CalendarView({ data, config, collection, onUpdateRecord }: Calen
 
                     <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)} className="w-full md:w-auto">
                         <TabsList className="grid w-full grid-cols-4 md:w-auto">
-                            <TabsTrigger value="year" className="text-xs md:text-sm">Year</TabsTrigger>
-                            <TabsTrigger value="month" className="text-xs md:text-sm">Month</TabsTrigger>
-                            <TabsTrigger value="week" className="text-xs md:text-sm">Week</TabsTrigger>
-                            <TabsTrigger value="day" className="text-xs md:text-sm">Day</TabsTrigger>
+                            <TabsTrigger value="year" className="text-xs md:text-sm">year</TabsTrigger>
+                            <TabsTrigger value="month" className="text-xs md:text-sm">month</TabsTrigger>
+                            <TabsTrigger value="week" className="text-xs md:text-sm">week</TabsTrigger>
+                            <TabsTrigger value="day" className="text-xs md:text-sm">day</TabsTrigger>
                         </TabsList>
                     </Tabs>
                 </div>
@@ -315,7 +315,7 @@ function DayView({ currentDate, recordsByDate }: { currentDate: Date, recordsByD
                  For now, just list items. Detailed time dragging is complex. */}
             <h3 className="text-xl font-bold mb-4">{currentDate.toDateString()}</h3>
             {records.length === 0 ? (
-                <div className="text-muted-foreground text-sm">No events</div>
+                <div className="text-muted-foreground text-sm">no events</div>
             ) : (
                 <div className="space-y-2">
                     {records.map(rec => (
