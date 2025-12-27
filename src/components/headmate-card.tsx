@@ -2,7 +2,7 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useFronter } from "@/contexts/fronter-context";
-import { forwardRef } from 'react';
+import { forwardRef, useEffect, useState } from 'react';
 
 interface HeadmateCardProps {
     member: {
