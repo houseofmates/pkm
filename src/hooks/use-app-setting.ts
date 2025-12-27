@@ -56,9 +56,14 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
             console.log(`[useAppSetting] Fetch Response for ${key}:`, response);
 
             const data = response?.data || [];
-            if (data.length > 0 && data[0].id) {
-                console.log(`[useAppSetting] Recovered ID for ${key}:`, data[0].id);
-                return data[0].id; // Return the ID
+            if (data.length > 0) {
+                console.log(`[useAppSetting] Inspecting record 0 for ${key}:`, JSON.stringify(data[0]));
+                if (data[0].id) {
+                    console.log(`[useAppSetting] Recovered ID for ${key}:`, data[0].id);
+                    return data[0].id; // Return the ID
+                } else {
+                    console.warn(`[useAppSetting] Record found but 'id' is missing? Keys:`, Object.keys(data[0]));
+                }
             } else {
                 console.warn(`[useAppSetting] Fetch successful but no existing record found for ${key} (Length: ${data.length})`);
             }
