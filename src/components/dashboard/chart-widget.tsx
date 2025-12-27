@@ -28,19 +28,20 @@ const MOCK_DATA = [
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
-export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yKey = 'value', color = '#8884d8' }: ChartProps) {
+export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yKey = 'value', color = '#8884d8', seriesKeys, stacked, seriesType }: ChartProps) {
     // Multi-series rendering helper
     const renderSeries = () => {
-        if (!props.seriesKeys || props.seriesKeys.length === 0) return null;
-        return props.seriesKeys.map((key, idx) => {
+        if (!seriesKeys || seriesKeys.length === 0) return null;
+        return seriesKeys.map((key, idx) => {
             const col = COLORS[idx % COLORS.length];
-            if (type === 'bar') {
-                return <Bar key={key} dataKey={key} stackId={props.stacked ? 'stack' : undefined} fill={col} />;
+            const useType = seriesType || type;
+            if (useType === 'bar') {
+                return <Bar key={key} dataKey={key} stackId={stacked ? 'stack' : undefined} fill={col} />;
             }
-            if (type === 'line') {
+            if (useType === 'line') {
                 return <Line key={key} type="monotone" dataKey={key} stroke={col} strokeWidth={2} dot={false} />;
             }
-            if (type === 'area') {
+            if (useType === 'area') {
                 return <Area key={key} type="monotone" dataKey={key} stroke={col} fill={col} fillOpacity={0.25} />;
             }
             return null;
