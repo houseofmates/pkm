@@ -1,6 +1,24 @@
+import { useState } from 'react';
+import { Outlet, useNavigate } from 'react-router-dom';
+import { Navigation, type NavItem } from '@/components/navigation';
+import { QuickEditSheet } from '@/components/quick-edit-sheet';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragOverlay,
+    type DragEndEvent,
+    type DragStartEvent
+} from '@dnd-kit/core';
+import {
+    arrayMove,
+    sortableKeyboardCoordinates,
+} from '@dnd-kit/sortable';
+import { Folder } from 'lucide-react';
 import { useAppSetting } from '@/hooks/use-app-setting';
-
-// ...
 
 export function RootLayout() {
     const [activeTab, setActiveTab] = useState<'databases' | 'home' | 'headmates'>('home');
