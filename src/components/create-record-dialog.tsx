@@ -12,13 +12,21 @@ import { toast } from 'sonner';
 interface CreateRecordDialogProps {
     collectionName: string;
     fields: any[];
-    onRecordCreated: () => void;
+    onRecordCreated?: () => void;
+    open?: boolean;
+    onOpenChange?: (v: boolean) => void;
+    trigger?: React.ReactNode;
 }
 
-export function CreateRecordDialog({ collectionName, fields, onRecordCreated }: CreateRecordDialogProps) {
+export function CreateRecordDialog({ collectionName, fields, onRecordCreated, open: openProp, onOpenChange, trigger }: CreateRecordDialogProps) {
     const { client } = useAuth();
     const { activeFronterId } = useFronter();
-    const [open, setOpen] = useState(false);
+    const [internalOpen, setInternalOpen] = useState(false);
+    const open = openProp !== undefined ? openProp : internalOpen;
+    const setOpen = (v: boolean) => {
+        if (onOpenChange) onOpenChange(v);
+        else setInternalOpen(v);
+    };
     const [formData, setFormData] = useState<Record<string, any>>({});
     const [loading, setLoading] = useState(false);
 
