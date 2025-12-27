@@ -33,12 +33,12 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
             ref={ref}
             onClick={onClick}
             style={{
-                borderColor: (isActive || true) ? customColor : undefined,
-                boxShadow: isActive ? `0 0 20px ${customColor}44` : undefined
+                borderColor: customColor,
+                boxShadow: isActive ? `0 0 30px ${customColor}88` : undefined
             }}
             className={cn(
                 "aspect-square relative overflow-hidden group cursor-pointer border-2 transition-all duration-300",
-                isActive ? "scale-[1.02] border-opacity-100" : "border-opacity-20 hover:border-opacity-50",
+                isActive ? "scale-[1.05] border-opacity-100 z-10" : "border-opacity-30 hover:border-opacity-80",
                 className
             )}
             {...props}
