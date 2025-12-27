@@ -37,15 +37,20 @@ export const VIEW_REGISTRY: Record<ViewType, React.ComponentType<ViewProps>> = {
     journal: JournalView,
 };
 
+import {
+    Table, List, BookOpen, Calendar, Kanban as KanbanIcon,
+    LayoutGrid, GitGraph, BarChart3, Network, GitMerge
+} from 'lucide-react';
+
 export const VIEW_OPTIONS: { id: ViewType; label: string; icon?: any }[] = [
-    { id: 'table', label: 'Table' },
-    { id: 'list', label: 'List' }, // Prioritizing List near Table
-    { id: 'journal', label: 'Journal Stream' },
-    { id: 'calendar', label: 'Calendar' },
-    { id: 'kanban', label: 'Kanban' },
-    { id: 'gallery', label: 'Gallery' },
-    { id: 'gantt', label: 'Gantt' },
-    { id: 'chart', label: 'Chart' },
-    { id: 'network', label: 'Graph (Auto)' },
-    { id: 'mindmap', label: 'Mind Map (Manual)' },
+    { id: 'table', label: 'Table', icon: Table },
+    { id: 'list', label: 'List', icon: List },
+    { id: 'journal', label: 'Journal Stream', icon: BookOpen },
+    { id: 'calendar', label: 'Calendar', icon: Calendar },
+    { id: 'kanban', label: 'Kanban', icon: KanbanIcon },
+    { id: 'gallery', label: 'Gallery', icon: LayoutGrid },
+    { id: 'gantt', label: 'Gantt', icon: GitGraph },
+    { id: 'chart', label: 'Chart', icon: BarChart3 },
+    { id: 'network', label: 'Graph (Auto)', icon: Network },
+    { id: 'mindmap', label: 'Mind Map (Manual)', icon: GitMerge },
 ];
