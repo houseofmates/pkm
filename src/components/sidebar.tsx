@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Database, Plus, ChevronRight, ChevronDown, Folder } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { CollectionContextMenu } from '@/components/collection-context-menu';
+import { DatabaseContextMenu } from '@/components/database-context-menu';
 import { toast } from 'sonner';
 import { CollectionDialog } from '@/components/collection-dialog';
 import { useCollections } from '@/hooks/use-collections';
@@ -62,16 +62,7 @@ export function Sidebar({ collections, selectedCollection, onSelect, className }
         });
     };
 
-    const handleRename = (col: Collection) => {
-        const newName = prompt("Enter new name for " + (col.title || col.name), col.title || col.name);
-        if (newName) {
-            toast.success(`Renamed (Local): ${newName}`);
-        }
-    };
-
-    const handleColorChange = (_col: Collection, color: string) => {
-        toast.success(`Color changed to ${color}`);
-    };
+    // Local handlers removed in favor of DatabaseContextMenu
 
     // Helper to get collections in a folder
     const getFolderCollections = (folder: FolderState) => {
@@ -130,11 +121,10 @@ export function Sidebar({ collections, selectedCollection, onSelect, className }
                                     {folder.isExpanded && (
                                         <div className="pl-4 space-y-1 border-l ml-2 border-border/50">
                                             {getFolderCollections(folder).map(collection => (
-                                                <CollectionContextMenu
+                                                <DatabaseContextMenu
                                                     key={collection.name}
-                                                    onRename={() => handleRename(collection)}
-                                                    onColorChange={(c) => handleColorChange(collection, c)}
-                                                    onAddToFolder={() => toast.info("Drag to move (Coming soon)")}
+                                                    collection={collection}
+                                                    onUpdate={refresh}
                                                 >
                                                     <Button
                                                         variant={selectedCollection?.name === collection.name ? "secondary" : "ghost"}
@@ -145,7 +135,7 @@ export function Sidebar({ collections, selectedCollection, onSelect, className }
                                                         <Database className="mr-2 h-3 w-3 opacity-70" />
                                                         <span className="truncate">{collection.title || collection.displayName || collection.name}</span>
                                                     </Button>
-                                                </CollectionContextMenu>
+                                                </DatabaseContextMenu>
                                             ))}
                                             {getFolderCollections(folder).length === 0 && (
                                                 <div className="text-xs text-muted-foreground px-2 py-1 italic">empty</div>
@@ -160,10 +150,10 @@ export function Sidebar({ collections, selectedCollection, onSelect, className }
                                 <div className="space-y-1 pt-4 border-t">
                                     <h3 className="px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">unassigned</h3>
                                     {unassigned.map(collection => (
-                                        <CollectionContextMenu
+                                        <DatabaseContextMenu
                                             key={collection.name}
-                                            onRename={() => handleRename(collection)}
-                                            onColorChange={(c) => handleColorChange(collection, c)}
+                                            collection={collection}
+                                            onUpdate={refresh}
                                         >
                                             <Button
                                                 variant={selectedCollection?.name === collection.name ? "secondary" : "ghost"}
@@ -174,7 +164,7 @@ export function Sidebar({ collections, selectedCollection, onSelect, className }
                                                 <Database className="mr-2 h-3 w-3 opacity-70" />
                                                 <span className="truncate">{collection.title || collection.displayName || collection.name}</span>
                                             </Button>
-                                        </CollectionContextMenu>
+                                        </DatabaseContextMenu>
                                     ))}
                                 </div>
                             )}
