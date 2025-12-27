@@ -95,6 +95,16 @@ function KanbanColumn({ id, title, items, children }: { id: string, title: strin
 
 
 export function KanbanView({ data, collection, config }: KanbanViewProps) {
+    if (!collection) {
+        return (
+            <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-muted/20 rounded-lg border">
+                <div className="flex flex-col items-center gap-2">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <p className="text-sm">Loading kanban metadata...</p>
+                </div>
+            </div>
+        );
+    }
     const { client } = useAuth();
     const [columns, setColumns] = useState<Record<string, any[]>>({});
     const [columnOrder, setColumnOrder] = useState<string[]>([]);
