@@ -12,6 +12,9 @@ interface ChartProps {
     xKey?: string;
     yKey?: string;
     color?: string;
+    seriesKeys?: string[]; // keys in `data` to render as separate series
+    stacked?: boolean;
+    seriesType?: 'bar' | 'line' | 'area';
 } 
 
 // Mock Data if none provided
