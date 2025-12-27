@@ -109,6 +109,25 @@ export class NocoBaseClient {
         });
     }
 
+    // Download attachment as a Blob using the server proxy to avoid CORS issues
+    async downloadAttachmentBlob(attachmentId: string) {
+        const headers = this.getToken() ? { 'Authorization': `Bearer ${this.getToken()}` } : {};
+
+        // Attempt the typical download endpoint
+        try {
+            const blob = await apiRequest('nocobase', `/attachments/${attachmentId}/download`, {
+                method: 'GET',
+                headers,
+                responseType: 'blob'
+            });
+
+            return blob as Blob;
+        } catch (error) {
+            console.warn('[NocoBase] downloadAttachmentBlob failed for id', attachmentId, error);
+            throw error;
+        }
+    }
+
     async createField(collectionName: string, data: any) {
         return this.request('fields', 'create', {
             method: 'POST',
