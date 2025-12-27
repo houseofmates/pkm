@@ -93,8 +93,8 @@ function RelationPicker({ field, value, onChange, onCancel }: any) {
                 })}
             </div>
             <div className="flex justify-end gap-1 pt-2 border-t mt-1">
-                {isMany && <Button size="sm" className="h-6 text-xs" onClick={() => onChange(value)}>Done</Button>}
-                <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={onCancel}>Cancel</Button>
+                {isMany && <Button size="sm" className="h-6 text-xs" onClick={() => onChange(value)}>done</Button>}
+                <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={onCancel}>cancel</Button>
             </div>
         </div>
     )
@@ -188,7 +188,7 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
             return (
                 <div className="w-[400px] bg-background border p-2 rounded shadow-xl z-50 fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                     <div className="flex justify-between items-center mb-2">
-                        <span className="font-bold text-xs">Set Location</span>
+                        <span className="font-bold text-xs">set location</span>
                         <div className="flex gap-1">
                             <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleSave}><Check className="h-3 w-3 text-green-500" /></Button>
                             <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancel}><X className="h-3 w-3 text-red-500" /></Button>
@@ -209,7 +209,7 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
                                 <span className="font-mono text-sm font-bold">{isCode ? 'Code Editor' : 'Rich Text Editor'}</span>
                             </div>
                             <div className="flex gap-2">
-                                <Button size="sm" onClick={handleSave}>Save</Button>
+                                <Button size="sm" onClick={handleSave}>save</Button>
                                 <Button size="sm" variant="ghost" onClick={handleCancel}>Cancel</Button>
                             </div>
                         </div>
@@ -489,9 +489,9 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
                                                     <img src={u} alt={`img-${i}`} className="rounded shadow cursor-pointer object-contain w-full h-60" />
                                                     <input type="text" placeholder="Caption (optional)" className="mt-2 w-full p-1 text-sm border rounded" onBlur={() => {/* caption handling placeholder */ }} />
                                                     <div className="absolute top-2 right-2 flex gap-1">
-                                                        <button className="btn-ghost btn-xs" onClick={() => setGalleryImgs(prev => prev.filter((_, idx) => idx !== i))}>Delete</button>
-                                                        <button className="btn-ghost btn-xs" onClick={() => { if (i === 0) return; const arr = [...galleryImgs];[arr[i - 1], arr[i]] = [arr[i], arr[i - 1]]; setGalleryImgs(arr); }}>Left</button>
-                                                        <button className="btn-ghost btn-xs" onClick={() => { if (i === galleryImgs.length - 1) return; const arr = [...galleryImgs];[arr[i + 1], arr[i]] = [arr[i], arr[i + 1]]; setGalleryImgs(arr); }}>Right</button>
+                                                        <button className="btn-ghost btn-xs" onClick={() => setGalleryImgs(prev => prev.filter((_, idx) => idx !== i))}>delete</button>
+                                                        <button className="btn-ghost btn-xs" onClick={() => { if (i === 0) return; const arr = [...galleryImgs];[arr[i - 1], arr[i]] = [arr[i], arr[i - 1]]; setGalleryImgs(arr); }}>left</button>
+                                                        <button className="btn-ghost btn-xs" onClick={() => { if (i === galleryImgs.length - 1) return; const arr = [...galleryImgs];[arr[i + 1], arr[i]] = [arr[i], arr[i + 1]]; setGalleryImgs(arr); }}>right</button>
                                                     </div>
                                                 </div>
                                             )
