@@ -125,10 +125,6 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     };
 
     if (type === 'line') {
-        // ... (multi-series logic kept but using chartData?) 
-        // Actually, for placeholder we just want a simple view usually, but let's try to support multi-series placeholder if needed.
-        // For simplicity, if placeholder, we render a single wireframe line.
-
         if (!isPlaceholder && seriesKeys && seriesKeys.length > 0) {
             return (
                 <div className="w-full h-full relative group">
@@ -141,16 +137,13 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
                             {renderSeries()}
                         </LineChart>
                     </ResponsiveContainer>
-                    {/* ... Legend controls ... */}
                     <div className="flex items-center justify-between gap-2 mt-2">
-                        {/* ... */}
                         <div className="flex items-center gap-2">
                             <input placeholder="Search series..." value={search} onChange={(e) => setSearch(e.target.value)} className="input input-sm" />
                             <button onClick={() => setCollapsed(!collapsed)} className="btn btn-ghost">{collapsed ? 'Expand Legend' : 'Collapse Legend'}</button>
                         </div>
                         <div className="text-xs text-muted-foreground">{(buildKeys() || []).filter(k => !hidden[k]).length} visible</div>
                     </div>
-                    {/* ... Legend items ... */}
                     {!collapsed && (
                         <div className="flex flex-wrap gap-2 mt-2">
                             {buildKeys().map((k, idx) => {
@@ -171,8 +164,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
         }
 
         return (
-            <div className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
-                <PlaceholderOverlay />
+            <div className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
+                <PlaceholderOverlay label="Select Group By" targetKey="chartX" />
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                         <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={isPlaceholder ? 0.1 : 0.2} />
@@ -251,8 +244,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
         }
 
         return (
-            <div className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
-                <PlaceholderOverlay />
+            <div className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
+                <PlaceholderOverlay label="Select Group By" targetKey="chartX" />
                 <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                         <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
