@@ -157,7 +157,7 @@ export function DashboardGrid() {
         }
     }, [savedCanvasData]);
 
-    const saveCanvas = useCallback((skipSnapshot = false) => {
+    const saveCanvas = useCallback(() => {
         if (canvasRef.current) {
             canvasRef.current.toBlob(async (blob) => {
                 if (!blob) return;
