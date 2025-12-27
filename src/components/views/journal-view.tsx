@@ -1,6 +1,6 @@
 
 import { useState, useMemo } from 'react';
-import { ViewProps } from './registry';
+import type { ViewProps } from './registry';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { format, isSameDay } from 'date-fns';
