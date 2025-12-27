@@ -51,8 +51,11 @@ interface NavigationProps {
 
 // --- Sortable Components ---
 
-export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle, onDelete }: any) {
+export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle, onUpdate }: any) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: id, data: { type: item.type, item } });
+    const [pickerOpen, setPickerOpen] = useState(false);
+    const [isRenaming, setIsRenaming] = useState(false);
+    const [renameValue, setRenameValue] = useState(item.name);
 
     const style = {
         transform: CSS.Translate.toString(transform),
@@ -61,42 +64,89 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
         paddingLeft: `${depth * 12 + 8}px`
     };
 
+    const handleRename = () => {
+        onUpdate(id, { name: renameValue });
+        setIsRenaming(false);
+    };
+
+    // Render Icon Logic
+    const renderIcon = () => {
+        if (item.icon && item.iconType) {
+            if (item.iconType === 'emoji') return <span className="mr-2 text-base leading-none">{item.icon}</span>;
+            if (item.iconType === 'image') return <img src={item.icon} alt="icon" className="h-4 w-4 mr-2 object-contain" />;
+            if (item.iconType === 'lucide') {
+                const Icon = (LucideIcons as any)[item.icon];
+                if (Icon) return <Icon className="h-3 w-3 mr-2" />;
+            }
+        }
+        // Fallback
+        if (item.type === 'folder') return <Folder className="h-3 w-3 mr-2" />;
+        return null;
+    };
+
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="mb-0.5 group relative">
-            <div className="flex items-center">
-                {item.type === 'folder' && (
-                    <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 mr-1"
-                        onClick={(e) => { e.stopPropagation(); onToggle(id); }}
-                    >
-                        {item.collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                    </Button>
-                )}
+            <IconPicker
+                open={pickerOpen}
+                onOpenChange={setPickerOpen}
+                onSelect={(icon, type) => onUpdate(id, { icon, iconType: type })}
+            />
 
-                <Button
-                    variant={selected ? "secondary" : "ghost"}
-                    className={cn(
-                        "flex-1 justify-start text-sm font-normal lowercase h-8 px-2 overflow-hidden",
-                        selected && "bg-accent font-medium shadow-sm",
-                        item.type === 'folder' && "font-semibold text-muted-foreground"
-                    )}
-                    onClick={() => onSelect(id)}
-                >
-                    {item.type === 'folder' && <Folder className="h-3 w-3 mr-2" />}
-                    <span className="truncate">{item.name}</span>
-                </Button>
+            <Dialog open={isRenaming} onOpenChange={setIsRenaming}>
+                <DialogContent>
+                    <DialogHeader><DialogTitle>Rename {item.type}</DialogTitle></DialogHeader>
+                    <Input value={renameValue} onChange={e => setRenameValue(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleRename()} autoFocus />
+                    <DialogFooter>
+                        <Button variant="ghost" onClick={() => setIsRenaming(false)}>Cancel</Button>
+                        <Button onClick={handleRename}>Save</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
-                {/* Context Actions (Hover) */}
-                {item.type === 'folder' && (
-                    <div className="absolute right-1 opacity-0 group-hover:opacity-100 flex gap-1">
-                        <Button variant="ghost" size="icon" className="h-6 w-6" onClick={(e) => { e.stopPropagation(); onDelete(id); }}>
-                            <Trash2 className="h-3 w-3 text-red-500" />
+            <ContextMenu>
+                <ContextMenuTrigger>
+                    <div className="flex items-center">
+                        {item.type === 'folder' && (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6 mr-1"
+                                onClick={(e) => { e.stopPropagation(); onToggle(id); }}
+                            >
+                                {item.collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                            </Button>
+                        )}
+
+                        <Button
+                            variant={selected ? "secondary" : "ghost"}
+                            className={cn(
+                                "flex-1 justify-start text-sm font-normal lowercase h-8 px-2 overflow-hidden",
+                                selected && "bg-accent font-medium shadow-sm",
+                                item.type === 'folder' && "font-semibold text-muted-foreground"
+                            )}
+                            onClick={() => onSelect(id)}
+                        >
+                            {renderIcon()}
+                            <span className="truncate">{item.name}</span>
                         </Button>
                     </div>
+                </ContextMenuTrigger>
+
+                {item.type === 'folder' && (
+                    <ContextMenuContent>
+                        <ContextMenuItem onClick={() => setPickerOpen(true)}>
+                            <ImageIcon className="h-4 w-4 mr-2" /> Change Icon
+                        </ContextMenuItem>
+                        <ContextMenuItem onClick={() => setIsRenaming(true)}>
+                            <Edit2 className="h-4 w-4 mr-2" /> Rename
+                        </ContextMenuItem>
+                        <ContextMenuSeparator />
+                        <ContextMenuItem className="text-red-500 focus:text-red-500" onClick={() => onUpdate(id, { delete: true })}>
+                            <Trash2 className="h-4 w-4 mr-2" /> Delete
+                        </ContextMenuItem>
+                    </ContextMenuContent>
                 )}
-            </div>
+            </ContextMenu>
         </div>
     );
 }
