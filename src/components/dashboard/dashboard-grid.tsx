@@ -475,13 +475,14 @@ export function DashboardGrid() {
                     {/* Eraser Cursor */}
                     {drawingTool === 'eraser' && (
                         <div
-                            className="absolute z-[100] pointer-events-none border border-neutral-500 rounded-full bg-white/10 backdrop-invert"
+                            className="absolute z-[100] pointer-events-none border border-foreground/30 rounded-full bg-transparent"
                             style={{
                                 left: mousePos.x,
                                 top: mousePos.y,
                                 width: eraserSize,
                                 height: eraserSize,
-                                transform: 'translate(-50%, -50%)'
+                                transform: 'translate(-50%, -50%)',
+                                borderWidth: '1px' // Ensure visible but thin
                             }}
                         />
                     )}
