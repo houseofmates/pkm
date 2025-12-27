@@ -25,7 +25,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
         return localStorage.getItem('pkm_active_fronter');
     });
 
-    const [overrides, setOverrides] = useAppSetting<Record<string, HeadmateOverride>>('pkm_headmate_overrides', {});
+    const [overrides, setOverrides, , flushOverrides] = useAppSetting<Record<string, HeadmateOverride>>('pkm_headmate_overrides', {});
 
     useEffect(() => {
         if (activeFronterId) {
