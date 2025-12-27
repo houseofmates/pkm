@@ -88,6 +88,22 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
                 const headers = { Authorization: `Bearer ${token}` };
 
                 const saveToBackend = async () => {
+                    // 1. Ensure we have an ID. If not, try to fetch it first.
+                    if (!settingIdRef.current) {
+                        try {
+                            const getRes = await apiRequest('nocobase', '/pkm_settings', {
+                                headers,
+                                params: { filter: JSON.stringify({ key }), pageSize: '1' }
+                            });
+                            if (getRes?.data?.[0]?.id) {
+                                settingIdRef.current = getRes.data[0].id;
+                            }
+                        } catch (e) {
+                            // Ignore fetch error, will try create/handle below
+                        }
+                    }
+
+                    // 2. Perform Update or Create
                     if (settingIdRef.current) {
                         await apiRequest('nocobase', `/pkm_settings/${settingIdRef.current}`, {
                             method: 'PUT',
@@ -111,33 +127,11 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
                     console.log(`Saved setting ${key} to backend`);
                 } catch (err: any) {
                     console.error(`Failed to save setting ${key}:`, err);
-
                     const errorMessage = err.message || JSON.stringify(err);
 
-                    // 1. Handle "Key Already Exists" (400) -> Fetch ID and Update
-                    if (errorMessage.includes('key already exists') || (err.response?.status === 400 && errorMessage.includes('key'))) {
-                        try {
-                            const getRes = await apiRequest('nocobase', '/pkm_settings', {
-                                headers,
-                                params: { filter: JSON.stringify({ key }), pageSize: '1' }
-                            });
-                            if (getRes?.data?.[0]?.id) {
-                                settingIdRef.current = getRes.data[0].id;
-                                // Retry as PUT
-                                await apiRequest('nocobase', `/pkm_settings/${settingIdRef.current}`, {
-                                    method: 'PUT',
-                                    headers,
-                                    data: { value: resolvedValue }
-                                });
-                                toast.success("Settings synced (recovered state)");
-                                return; // Success
-                            }
-                        } catch (retryErr) {
-                            console.error("Failed to recover from 400:", retryErr);
-                        }
-                    }
-
-                    // 2. Auto-healing: Create collection if missing (404)
+                    // Auto-healing: Create collection ONLY if missing (404)
+                    // If it was a 400 (Key exists), the logic above should have caught it (by fetching ID).
+                    // So if we are here with 400, something else is wrong, but we mostly care about 404 for auto-init.
                     if (errorMessage.includes('404') || errorMessage.includes('not found') || errorMessage.includes('collection')) {
                         try {
                             console.log("Attempting to create pkm_settings collection...");
@@ -151,7 +145,7 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
                                         { name: 'key', type: 'string', unique: true },
                                         { name: 'value', type: 'json' }
                                     ],
-                                    hidden: true // Try to set hidden flag on creation
+                                    hidden: true
                                 }
                             });
                             await new Promise(r => setTimeout(r, 1000));
@@ -159,10 +153,9 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
                             toast.success("Settings synced (initialized storage)");
                         } catch (createErr: any) {
                             console.error("Failed to create pkm_settings:", createErr);
-                            toast.error(`Sync failed: ${createErr.message || "Unknown error"}`);
+                            toast.error(`Sync failed: ${createErr.message || "Could not init storage"}`);
                         }
                     } else {
-                        // If we didn't recover above, show error
                         toast.error(`Sync failed: ${errorMessage}`);
                     }
                 }
