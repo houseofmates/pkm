@@ -42,9 +42,20 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     const [hoverKey, setHoverKey] = useState<string | null>(null);
     const [search, setSearch] = useState('');
     const [collapsed, setCollapsed] = useState(!!legendCollapsed);
+    const [isMounted, setIsMounted] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        setIsMounted(true);
+    }, []);
 
     const isPlaceholder = !data || data.length === 0;
     const chartData = isPlaceholder ? PLACEHOLDER_DATA : data;
+
+    // Check if container has valid dimensions
+    const hasValidDimensions = containerRef.current && 
+        containerRef.current.offsetWidth > 0 && 
+        containerRef.current.offsetHeight > 0;
 
     // Helper to request config change
     const triggerConfig = (configKey: string, val?: any) => {
