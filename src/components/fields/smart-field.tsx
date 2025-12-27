@@ -219,7 +219,7 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
                                     onChange={(html) => setLocalValue(sanitizeHTML(html))}
                                     uploadImage={async (file: File) => {
                                         try {
-                                            const res = await (useAuth().client.upload(file));
+                                            const res = await client.upload(file);
                                             return res?.data?.url || '';
                                         } catch (e) {
                                             console.error('upload failed', e);
