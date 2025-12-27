@@ -120,14 +120,14 @@ export function CreateFieldDialog({ collectionName, onFieldCreated }: CreateFiel
             </DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Add New Property</DialogTitle>
+                    <DialogTitle>add new property</DialogTitle>
                     <DialogDescription>
                         Add a new column to the <strong>{collectionName}</strong> database.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
-                        <Label>Type</Label>
+                        <Label>type</Label>
                         <Select value={interfaceType} onValueChange={setInterfaceType}>
                             <SelectTrigger>
                                 <SelectValue />
@@ -140,7 +140,7 @@ export function CreateFieldDialog({ collectionName, onFieldCreated }: CreateFiel
                         </Select>
                     </div>
                     <div className="space-y-2">
-                        <Label>Property Name</Label>
+                        <Label>property name</Label>
                         <Input
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
@@ -149,7 +149,7 @@ export function CreateFieldDialog({ collectionName, onFieldCreated }: CreateFiel
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label>System Key (Optional)</Label>
+                        <Label>system key (optional)</Label>
                         <Input
                             value={name}
                             onChange={(e) => setName(e.target.value)}
