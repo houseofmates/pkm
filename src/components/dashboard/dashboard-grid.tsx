@@ -464,12 +464,27 @@ export function DashboardGrid() {
                         className="absolute inset-0 z-[60] pointer-events-auto"
                         style={{
                             pointerEvents: drawingTool !== 'none' ? 'auto' : 'none',
+                            cursor: drawingTool === 'eraser' ? 'none' : (drawingTool !== 'none' ? 'crosshair' : 'default')
                         }}
                         onMouseDown={handleCanvasDown}
                         onMouseMove={handleCanvasMove}
                         onMouseUp={handleCanvasUp}
                         onMouseLeave={handleCanvasUp}
                     />
+
+                    {/* Eraser Cursor */}
+                    {drawingTool === 'eraser' && (
+                        <div
+                            className="absolute z-[100] pointer-events-none border border-neutral-500 rounded-full bg-white/10 backdrop-invert"
+                            style={{
+                                left: mousePos.x,
+                                top: mousePos.y,
+                                width: eraserSize,
+                                height: eraserSize,
+                                transform: 'translate(-50%, -50%)'
+                            }}
+                        />
+                    )}
 
                     {/* Lasso Feedback */}
                     {drawingTool === 'lasso' && lassoPoints.length > 0 && (
