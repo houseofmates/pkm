@@ -7,8 +7,7 @@ import { format, differenceInDays, addDays, startOfMonth, endOfMonth, eachDayOfI
 import { SmartField } from '@/components/fields/smart-field';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@/components/ui/context-menu';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { CreateRecordDialog } from '@/components/create-record-dialog'; // Reuse for edit? Or custom?
-import { Button } from '@/components/ui/button';
+
 import { Trash2, Edit } from 'lucide-react';
 
 interface GanttViewProps extends ViewProps { }
@@ -54,7 +53,7 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete }
     const [editingRecord, setEditingRecord] = useState<any>(null);
 
     // Determine Timeline Range based on data
-    const { startDate, endDate, timelineDays } = useMemo(() => {
+    const { startDate, timelineDays } = useMemo(() => {
         if (!data.length || !startField) {
             const now = new Date();
             const start = startOfMonth(now);

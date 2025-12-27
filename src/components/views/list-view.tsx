@@ -9,7 +9,7 @@ export function ListView({ data, collection, onEdit, onDelete, onUpdateRecord }:
     // Identify key fields for display
     const titleField = collection.fields?.find((f: any) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
     const dateField = collection.fields?.find((f: any) => f.type === 'date' || f.interface === 'date');
-    const _statusField = collection.fields?.find((f: any) => f.name === 'status' || f.interface === 'select');
+
     const tagsField = collection.fields?.find((f: any) => f.interface === 'tags' || f.interface === 'multipleSelect');
 
     const handleStatusClick = (record: any, e: React.MouseEvent) => {

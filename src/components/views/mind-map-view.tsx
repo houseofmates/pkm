@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import type { ViewProps } from './registry';
 import { Button } from '@/components/ui/button';
-import { Save, RefreshCw, ZoomIn, ZoomOut, Move } from 'lucide-react';
+import { Save } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface NodePosition {

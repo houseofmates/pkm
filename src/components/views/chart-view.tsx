@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 
 export function ChartView({ data, collection, config, onConfigChange }: ViewProps) {
     const defaultX = collection.fields?.find((f: any) => f.type === 'string' || f.interface === 'input')?.name;
-    const _defaultY = collection.fields?.find((f: any) => f.type === 'number' || f.interface === 'number' || f.name === 'id')?.name;
+
 
     const xKey = config?.chartX || defaultX || 'id';
 

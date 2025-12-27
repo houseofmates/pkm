@@ -2,7 +2,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
-    Plus, Image as ImageIcon, Type, Palette, MoreHorizontal,
+    Image as ImageIcon, MoreHorizontal,
     Trash2, Move, Maximize2, Minimize2, ZoomIn, ZoomOut, Save
 } from 'lucide-react';
 import { useCollections } from '@/hooks/use-collections';

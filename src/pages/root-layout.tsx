@@ -10,7 +10,6 @@ import {
     useSensor,
     useSensors,
     DragOverlay,
-    defaultDropAnimationSideEffects,
     type DragEndEvent,
     type DragStartEvent
 } from '@dnd-kit/core';

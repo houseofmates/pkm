@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react';
 import type { ViewProps } from './registry';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { format, isSameDay } from 'date-fns';
+import { format } from 'date-fns';
 import { Send, Sparkles, Calendar, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -18,7 +18,7 @@ const PROMPTS = [
     "What did you learn today?",
 ];
 
-export function JournalView({ data, collection, onUpdateRecord, onEdit }: ViewProps) {
+export function JournalView({ data, collection, onUpdateRecord: _onUpdateRecord, onEdit: _onEdit }: ViewProps) {
     const [entry, setEntry] = useState('');
     const [prompt, setPrompt] = useState(PROMPTS[0]);
 
