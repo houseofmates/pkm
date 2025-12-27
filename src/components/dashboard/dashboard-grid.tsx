@@ -274,8 +274,28 @@ export function DashboardGrid() {
             }
         };
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [performUndo, performRedo]);
+
+        // Save local fallback when user leaves the page to avoid losing progress
+        const handleBeforeUnload = () => {
+            try {
+                if (!canvasRef.current) return;
+                const dataUrl = canvasRef.current.toDataURL('image/png');
+                localStorage.setItem('dashboard_canvas_local', dataUrl);
+                // also persist floating selection
+                if (floatingSelection) {
+                    localStorage.setItem('dashboard_floating_local', JSON.stringify(floatingSelection));
+                } else {
+                    localStorage.removeItem('dashboard_floating_local');
+                }
+            } catch (e) { /* ignore */ }
+        };
+        window.addEventListener('beforeunload', handleBeforeUnload);
+
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('beforeunload', handleBeforeUnload);
+        };
+    }, [performUndo, performRedo, floatingSelection]);
 
     // Fetch Widget Data
     useEffect(() => {
