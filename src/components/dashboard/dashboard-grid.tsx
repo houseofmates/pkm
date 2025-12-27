@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import {
+Plus, LayoutGrid, Database, Trash2, Move, Minimize2,
     Lock, Unlock, Pencil, Eraser, MousePointer2, Check, Wand2
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -18,6 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 type WidgetType = 'view';
+interface Widget extends WidgetDefinition { }
 interface WidgetDefinition {
     id: string;
     type: WidgetType;
@@ -64,13 +65,14 @@ export function DashboardGrid() {
 
     // Lasso / Selection
     const [lassoPoints, setLassoPoints] = useState<{ x: number, y: number }[]>([]);
-    const [floatingSelection, _setFloatingSelection] = useState<{
+    const [floatingSelection, _setFloatingSelection] = useState<FloatingSelection | null>(null);
+    interface FloatingSelection {
         image: string; // Data URL
         x: number;
         y: number;
         w: number;
         h: number;
-    } | null>(null);
+    }
     // Wrap setter to persist changes via setting
     const setFloatingSelection = (v: any) => {
         _setFloatingSelection(v);
@@ -84,9 +86,9 @@ export function DashboardGrid() {
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
     // Synced Canvas Data - may be a string (legacy) or an object { id, url, data }
-    const [savedCanvasData, setSavedCanvasData] = useAppSetting<{ id?: number, url?: string, data?: string } | null>('dashboard_canvas', null);
-    const [savedWidgets, setSavedWidgets] = useAppSetting<Widget[]>('dashboard_widgets', []);
-    const [savedFloatingSelection, setSavedFloatingSelection] = useAppSetting<FloatingSelection | null>('dashboard_floating_selection', null);
+    const [savedCanvasData, setSavedCanvasData, , flushSavedCanvas] = useAppSetting<any>('dashboard_canvas_data', null);
+    // Persist floating selection separately so it can be resumed across devices
+    const [savedFloatingSelection, setSavedFloatingSelection, , flushSavedFloating] = useAppSetting<any>('dashboard_floating_selection_v2', null);
 
     const lastSyncedUrlRef = useRef<string | null>(null);
     const canvasDirtyRef = useRef(false);
