@@ -257,15 +257,44 @@ export function DashboardGrid() {
                     const uploadedUrl = res?.data?.url || res?.url;
 
                     if (uploadedUrl) {
-                        lastSyncedUrlRef.current = uploadedUrl;
-                        setSavedCanvasData(uploadedUrl);
-                        // Force a flush so the setting persists immediately
+                        const url = uploadedUrl;
+                        const id = res?.data?.id || res?.id;
+
+                        // Attempt to fetch the uploaded file (with auth) to create a dataURL backup if small
+                        let dataUrl: string | undefined = undefined;
                         try {
-                            await (flushSavedCanvas?.(uploadedUrl) ?? Promise.resolve());
-                            console.log("Canvas setting flushed successfully:", uploadedUrl);
+                            const headers: Record<string,string> = token ? { Authorization: `Bearer ${token}` } : {};
+                            const fetchRes = await fetch(url, { headers });
+                            if (fetchRes.ok) {
+                                const blob = await fetchRes.blob();
+                                // Convert to dataURL
+                                dataUrl = await new Promise<string | undefined>((resolve) => {
+                                    try {
+                                        const reader = new FileReader();
+                                        reader.onloadend = () => resolve(reader.result as string);
+                                        reader.onerror = () => resolve(undefined);
+                                        reader.readAsDataURL(blob);
+                                    } catch (e) { resolve(undefined); }
+                                });
+                            }
+                        } catch (e) {
+                            console.warn('Could not fetch uploaded canvas for dataURL backup:', e);
+                        }
+
+                        const payload: any = { id, url };
+                        if (dataUrl && dataUrl.length < 1_000_000) payload.data = dataUrl; // include small backup
+
+                        lastSyncedUrlRef.current = url;
+                        setSavedCanvasData(payload);
+
+                        // Force a flush so the setting persists immediately and is visible to other devices
+                        try {
+                            await (flushSavedCanvas?.(payload) ?? Promise.resolve());
+                            console.log("Canvas setting flushed successfully:", url);
                         } catch (e) {
                             console.error('Failed to flush saved canvas setting', e);
                         }
+
                         canvasDirtyRef.current = false;
                     } else {
                         console.error("Upload succeeded but no URL found in response:", res);
