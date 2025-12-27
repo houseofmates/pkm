@@ -145,6 +145,18 @@ export function CreateFieldDialog({ collectionName, onFieldCreated }: CreateFiel
                             </SelectContent>
                         </Select>
                     </div>
+                    {interfaceType === 'formula' && (
+                        <div className="space-y-2">
+                            <Label>expression</Label>
+                            <Input
+                                value={expression}
+                                onChange={(e) => setExpression(e.target.value)}
+                                placeholder="e.g. {{price}} * {{quantity}}"
+                                className="font-mono text-xs"
+                                required
+                            />
+                        </div>
+                    )}
                     <div className="space-y-2">
                         <Label>property name</Label>
                         <Input
