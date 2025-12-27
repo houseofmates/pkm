@@ -49,7 +49,7 @@ export function GlobalCommandPalette() {
                     <Command className="rounded-xl border shadow-md">
                         <CommandInput placeholder="Type a command or search..." />
                         <CommandList>
-                            <CommandEmpty>No results found.</CommandEmpty>
+                            <CommandEmpty>no results found.</CommandEmpty>
                             <CommandGroup heading="Suggestions">
                                 <CommandItem onSelect={() => runCommand(() => navigate('/'))}>
                                     <Rocket className="mr-2 h-4 w-4" />
