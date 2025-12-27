@@ -18,7 +18,7 @@ import {
     arrayMove,
     sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
-import { Button } from '@/components/ui/button';
+
 import { Folder } from 'lucide-react';
 
 export function RootLayout() {
