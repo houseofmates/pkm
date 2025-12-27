@@ -23,6 +23,8 @@ vi.mock('@/contexts/auth-context', () => ({
 describe('useAppSetting upsert behaviors', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    // Ensure localStorage has a token so the hooks don't skip fetch/save
+    localStorage.setItem('nocobase_token', 'tok');
   });
 
   it('recovers from 400 key exists by fetching and updating', async () => {
