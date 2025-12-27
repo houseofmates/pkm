@@ -2,8 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import {
-    Plus, LayoutGrid, Database, Trash2, Move, Minimize2,
-    Lock, Unlock, Pencil, Eraser, Scissors, MousePointer2, Check, Wand2
+    Lock, Unlock, Pencil, Eraser, MousePointer2, Check, Wand2
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCollections } from '@/hooks/use-collections';
@@ -52,9 +51,9 @@ export function DashboardGrid() {
     // Drawing State
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const [drawingTool, setDrawingTool] = useState<'none' | 'pencil' | 'eraser' | 'lasso'>('none');
-    const [brushColor, setBrushColor] = useState('#f6b012');
-    const [brushSize, setBrushSize] = useState(2);
-    const [eraserSize, setEraserSize] = useState(20);
+    const [brushColor, setBrushColor] = useState('#ffffff');
+    const [brushSize] = useState(3);
+    const [eraserSize] = useState(20);
     const [colorPickerOpen, setColorPickerOpen] = useState(false);
 
     // Undo/Redo State
@@ -85,9 +84,9 @@ export function DashboardGrid() {
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
     // Synced Canvas Data - may be a string (legacy) or an object { id, url, data }
-    const [savedCanvasData, setSavedCanvasData, savedCanvasLoading, flushSavedCanvas] = useAppSetting<any>('dashboard_canvas_data', null);
-    // Persist floating selection separately so it can be resumed across devices
-    const [savedFloatingSelection, setSavedFloatingSelection, savedFloatingLoading, flushSavedFloating] = useAppSetting<string | null>('dashboard_floating_selection', null);
+    const [savedCanvasData, setSavedCanvasData] = useAppSetting<{ id?: number, url?: string, data?: string } | null>('dashboard_canvas', null);
+    const [savedWidgets, setSavedWidgets] = useAppSetting<Widget[]>('dashboard_widgets', []);
+    const [savedFloatingSelection, setSavedFloatingSelection] = useAppSetting<FloatingSelection | null>('dashboard_floating_selection', null);
 
     const lastSyncedUrlRef = useRef<string | null>(null);
     const canvasDirtyRef = useRef(false);
