@@ -129,8 +129,11 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
         };
     }, [blobUrl]);
 
-    // For data URLs and http URLs, use directly; for blob URLs use those
-    const finalImageSrc = blobUrl || (!imageError ? displayImage : null);
+    // For data URLs and http URLs, use directly; for blob URLs use those.
+    // If it's a /storage/ URL, it MUST be loaded via blobUrl (with auth).
+    const finalImageSrc = blobUrl || (
+        !imageError && !displayImage?.startsWith('/storage/') ? displayImage : null
+    );
 
     return (
         <Card
