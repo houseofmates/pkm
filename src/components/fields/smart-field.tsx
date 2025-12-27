@@ -348,6 +348,8 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
         );
     }
 
+    }
+
     // ... View logic ...
 
 
