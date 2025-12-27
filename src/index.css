@@ -72,7 +72,7 @@
 
 @layer base {
   * {
-    @apply border-border;
+    
   }
 
   body {
@@ -120,7 +120,7 @@
   b,
   strong,
   .font-bold {
-    color: #f6b012;
+    color: #f6b012 !important;
   }
 
   /* Ensure muted text is light gray, never dark gray */
