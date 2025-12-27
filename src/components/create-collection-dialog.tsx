@@ -62,14 +62,14 @@ export function CreateCollectionDialog({ onCollectionCreated }: CreateCollection
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>Create Database</DialogTitle>
+                    <DialogTitle>create database</DialogTitle>
                     <DialogDescription>
                         Create a new collection to store your data.
                     </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
-                        <Label htmlFor="title">Display Name</Label>
+                        <Label htmlFor="title">display name</Label>
                         <Input
                             id="title"
                             value={displayName}
@@ -79,7 +79,7 @@ export function CreateCollectionDialog({ onCollectionCreated }: CreateCollection
                         />
                     </div>
                     <div className="space-y-2">
-                        <Label htmlFor="name">System Name (Optional)</Label>
+                        <Label htmlFor="name">system name (optional)</Label>
                         <Input
                             id="name"
                             value={name}
