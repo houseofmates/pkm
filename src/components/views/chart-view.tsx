@@ -174,36 +174,101 @@ const seriesType = config?.chartSeriesType || null; // global series display ove
                 {seriesField && (chartData[0] ? Object.keys(chartData[0]).filter(k => k !== 'name') : []).length > 0 && (
                     <div className="w-full p-2 border-t mt-2">
                         <Label>Per-series Types</Label>
+
                         <div className="flex gap-4 flex-wrap mt-2">
-                            {(chartData[0] ? Object.keys(chartData[0]).filter(k => k !== 'name') : []).map((sKey) => (
-                                <div key={sKey} className="space-y-1 min-w-[150px]">
-                                    <Label className="text-xs">{sKey}</Label>
-                                    <Select value={(config?.chartSeriesTypes?.[sKey]) || ''} onValueChange={(v) => {
-                                        const cur = { ...(config?.chartSeriesTypes || {}) };
-                                        if (!v) {
-                                            delete cur[sKey];
-                                        } else {
-                                            cur[sKey] = v as 'bar' | 'line' | 'area';
-                                        }
-                                        handleConfig('chartSeriesTypes', cur);
-                                    }}>
-                                        <SelectTrigger><SelectValue /></SelectTrigger>
+                            {/* Bulk apply */}
+                            <div className="space-y-1 min-w-[150px]">
+                                <Label className="text-xs">Bulk apply</Label>
+                                <div className="flex gap-2">
+                                    <Select value={''} onValueChange={(v) => { /* noop placeholder for UI */ }}>
+                                        <SelectTrigger className="w-[120px]"><SelectValue /></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="">Auto</SelectItem>
                                             <SelectItem value="bar">Bar</SelectItem>
                                             <SelectItem value="line">Line</SelectItem>
                                             <SelectItem value="area">Area</SelectItem>
                                         </SelectContent>
                                     </Select>
+                                    <button className="btn" onClick={() => {
+                                        // apply chosen type to all series - reads from DOM select value
+                                        const sel = (document.querySelector('.w-[120px] select') as HTMLSelectElement | null)?.value || 'line';
+                                        const cur: Record<string, 'bar'|'line'|'area'> = {};
+                                        (chartData[0] ? Object.keys(chartData[0]).filter(k => k !== 'name') : []).forEach(s => cur[s] = sel as any);
+                                        handleConfig('chartSeriesTypes', cur);
+                                    }}>Apply to all</button>
                                 </div>
-                            ))}
+                            </div>
+
+                            {/* Ordering controls */}
+                            <div className="space-y-1 min-w-[320px]">
+                                <Label className="text-xs">Order Series</Label>
+                                <div className="space-y-2 mt-2">
+                                    {(config?.chartSeriesOrder || (chartData[0] ? Object.keys(chartData[0]).filter(k => k !== 'name') : [])).map((sKey: string, idx: number) => (
+                                        <div key={`order-${sKey}`} className="flex items-center gap-2">
+                                            <div className="text-sm flex-1">{sKey}</div>
+                                            <button disabled={idx === 0} onClick={() => {
+                                                const order = config?.chartSeriesOrder ? [...config.chartSeriesOrder] : (chartData[0] ? Object.keys(chartData[0]).filter(k => k !== 'name') : []);
+                                                if (idx > 0) {
+                                                    [order[idx - 1], order[idx]] = [order[idx], order[idx - 1]];
+                                                    handleConfig('chartSeriesOrder', order);
+                                                }
+                                            }}>▲</button>
+                                            <button disabled={idx === ((config?.chartSeriesOrder || (chartData[0] ? Object.keys(chartData[0]).filter(k => k !== 'name') : [])).length - 1)} onClick={() => {
+                                                const order = config?.chartSeriesOrder ? [...config.chartSeriesOrder] : (chartData[0] ? Object.keys(chartData[0]).filter(k => k !== 'name') : []);
+                                                if (idx < order.length - 1) {
+                                                    [order[idx + 1], order[idx]] = [order[idx], order[idx + 1]];
+                                                    handleConfig('chartSeriesOrder', order);
+                                                }
+                                            }}>▼</button>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Per-series types as before */}
+                            <div className="flex-1">
+                                <div className="flex gap-4 flex-wrap">
+                                    {(chartData[0] ? Object.keys(chartData[0]).filter(k => k !== 'name') : []).map((sKey) => (
+                                        <div key={sKey} className="space-y-1 min-w-[150px]">
+                                            <Label className="text-xs">{sKey}</Label>
+                                            <Select value={(config?.chartSeriesTypes?.[sKey]) || ''} onValueChange={(v) => {
+                                                const cur = { ...(config?.chartSeriesTypes || {}) };
+                                                if (!v) {
+                                                    delete cur[sKey];
+                                                } else {
+                                                    cur[sKey] = v as 'bar' | 'line' | 'area';
+                                                }
+                                                handleConfig('chartSeriesTypes', cur);
+                                            }}>
+                                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="">Auto</SelectItem>
+                                                    <SelectItem value="bar">Bar</SelectItem>
+                                                    <SelectItem value="line">Line</SelectItem>
+                                                    <SelectItem value="area">Area</SelectItem>
+                                                </SelectContent>
+                                            </Select>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                )}
+                )} 
             </div>
 
             <div className="flex-1 min-h-[400px] border rounded-lg p-4 bg-card shadow-sm">
-                <ChartWidget type={type} data={chartData} xKey="name" yKey="value" seriesKeys={seriesField ? (chartData[0] ? Object.keys(chartData[0]).filter(k => k !== 'name') : []) : undefined} stacked={stacked} seriesType={seriesType} seriesTypes={config?.chartSeriesTypes} />
+                <ChartWidget
+                    type={type}
+                    data={chartData}
+                    xKey="name"
+                    yKey="value"
+                    seriesKeys={seriesField ? (chartData[0] ? Object.keys(chartData[0]).filter(k => k !== 'name') : []) : undefined}
+                    stacked={stacked}
+                    seriesType={seriesType}
+                    seriesTypes={config?.chartSeriesTypes}
+                    seriesOrder={config?.chartSeriesOrder}
+                    legendCollapsed={!!config?.chartLegendCollapsed}
+                />
             </div>
         </div>
     );

@@ -17,7 +17,9 @@ interface ChartProps {
     stacked?: boolean;
     seriesType?: 'bar' | 'line' | 'area';
     seriesTypes?: Record<string, 'bar' | 'line' | 'area'>;
-} 
+    seriesOrder?: string[];
+    legendCollapsed?: boolean;
+}  
 
 // Mock Data if none provided
 const MOCK_DATA = [
@@ -32,23 +34,39 @@ const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yKey = 'value', color = '#8884d8', seriesKeys, stacked, seriesType, seriesTypes }: ChartProps) {
     const [hidden, setHidden] = useState<Record<string, boolean>>({});
+    const [hoverKey, setHoverKey] = useState<string | null>(null);
+    const [search, setSearch] = useState('');
+    const [collapsed, setCollapsed] = useState(!!legendCollapsed);
     const toggle = (k: string) => setHidden(prev => ({ ...prev, [k]: !prev[k] }));
+
+    // Build the ordered keys list (respect seriesOrder if present)
+    const buildKeys = () => {
+        const base = seriesKeys || [];
+        if (seriesOrder && seriesOrder.length > 0) {
+            // only include keys that exist in base and preserve order
+            return seriesOrder.filter(k => base.includes(k));
+        }
+        return base;
+    };
 
     // Multi-series rendering helper
     const renderSeries = () => {
-        if (!seriesKeys || seriesKeys.length === 0) return null;
-        return seriesKeys.map((key, idx) => {
+        const keys = buildKeys();
+        if (!keys || keys.length === 0) return null;
+        return keys.map((key, idx) => {
             if (hidden[key]) return null;
+            if (search && !key.toLowerCase().includes(search.toLowerCase())) return null;
             const col = COLORS[idx % COLORS.length];
             const keyType = seriesTypes?.[key] || seriesType || type;
+            const isDim = hoverKey && hoverKey !== key;
             if (keyType === 'bar') {
-                return <Bar key={key} dataKey={key} stackId={stacked ? 'stack' : undefined} fill={col} />;
+                return <Bar key={key} dataKey={key} stackId={stacked ? 'stack' : undefined} fill={col} fillOpacity={isDim ? 0.15 : 1} />;
             }
             if (keyType === 'line') {
-                return <Line key={key} type="monotone" dataKey={key} stroke={col} strokeWidth={2} dot={false} />;
+                return <Line key={key} type="monotone" dataKey={key} stroke={col} strokeWidth={2} dot={false} strokeOpacity={isDim ? 0.2 : 1} />;
             }
             if (keyType === 'area') {
-                return <Area key={key} type="monotone" dataKey={key} stroke={col} fill={col} fillOpacity={0.25} />;
+                return <Area key={key} type="monotone" dataKey={key} stroke={col} fill={col} fillOpacity={isDim ? 0.08 : 0.25} />;
             }
             return null;
         });
