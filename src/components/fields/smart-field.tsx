@@ -439,51 +439,67 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
                         <span className="text-xs truncate max-w-[120px]">{imgs.length} image{imgs.length > 1 ? 's' : ''}</span>
                     </div>
 
-                    <Dialog open={galleryOpen} onOpenChange={setGalleryOpen}>
+                    <Dialog open={galleryOpen} onOpenChange={(open) => {
+                        setGalleryOpen(open);
+                        if (open) {
+                            const imgsInit: string[] = [];
+                            if (Array.isArray(value)) value.forEach((v: any) => { if (typeof v === 'string') imgsInit.push(v); else if (v?.url) imgsInit.push(v.url); });
+                            else if (typeof value === 'string') imgsInit.push(value);
+                            setGalleryImgs(imgsInit);
+                        } else {
+                            // persist changes on close
+                            onChange?.(galleryImgs.length === 1 ? galleryImgs[0] : galleryImgs);
+                        }
+                    }}>
                         <DialogContent className="max-w-5xl w-full">
-                                <div className="flex gap-2 items-center mb-4">
-                                    <input type="file" accept="image/*" onChange={async (e) => {
-                                        const f = e.target.files?.[0];
-                                        if (!f) return;
+                            <div className="flex gap-2 items-center mb-4">
+                                <input type="file" accept="image/*" multiple onChange={async (e) => {
+                                    const files = e.target.files;
+                                    if (!files || files.length === 0) return;
+                                    Array.from(files).forEach(async (f) => {
+                                        const id = `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+                                        setUploadingMap(m => ({ ...m, [id]: true }));
                                         try {
                                             const res = await client.upload(f);
                                             const url = res?.data?.url;
-                                            if (url) {
-                                                const newImgs = [...imgs, url];
-                                                onChange?.(newImgs);
-                                            }
+                                            if (url) setGalleryImgs(cur => [...cur, url]);
                                         } catch (err) { console.error(err); alert('Upload failed'); }
-                                    }} />
-                                </div>
+                                        finally { setUploadingMap(m => { const copy = { ...m }; delete copy[id]; return copy; }); }
+                                    });
+                                    e.currentTarget.value = '';
+                                }} />
+                            </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    {imgs.map((u, i) => (
-                                        <div key={i} className="relative">
-                                            <img src={u} alt={`img-${i}`} className="rounded shadow cursor-pointer object-contain w-full h-60" />
-                                            <div className="absolute top-2 right-2 flex gap-1">
-                                                <button className="btn-ghost btn-xs" onClick={() => {
-                                                    // remove
-                                                    const newImgs = imgs.filter((_, idx) => idx !== i);
-                                                    onChange?.(newImgs.length === 1 ? newImgs[0] : newImgs);
-                                                }}>Delete</button>
-                                                <button className="btn-ghost btn-xs" onClick={() => {
-                                                    if (i === 0) return;
-                                                    const arr = [...imgs];
-                                                    [arr[i-1], arr[i]] = [arr[i], arr[i-1]];
-                                                    onChange?.(arr.length === 1 ? arr[0] : arr);
-                                                }}>Left</button>
-                                                <button className="btn-ghost btn-xs" onClick={() => {
-                                                    if (i === imgs.length - 1) return;
-                                                    const arr = [...imgs];
-                                                    [arr[i+1], arr[i]] = [arr[i], arr[i+1]];
-                                                    onChange?.(arr.length === 1 ? arr[0] : arr);
-                                                }}>Right</button>
-                                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {galleryImgs.map((u, i) => (
+                                    <div key={u+"-"+i} className="relative p-1 bg-card rounded">
+                                        <img src={u} alt={`img-${i}`} className="rounded shadow cursor-pointer object-contain w-full h-60" />
+                                        <input type="text" placeholder="Caption (optional)" className="mt-2 w-full p-1 text-sm border rounded" onBlur={(e) => {
+                                            // caption handling placeholder (extend later)
+                                        }} />
+                                        <div className="absolute top-2 right-2 flex gap-1">
+                                            <button className="btn-ghost btn-xs" onClick={() => {
+                                                const newImgs = galleryImgs.filter((_, idx) => idx !== i);
+                                                setGalleryImgs(newImgs);
+                                            }}>Delete</button>
+                                            <button className="btn-ghost btn-xs" onClick={() => {
+                                                if (i === 0) return;
+                                                const arr = [...galleryImgs];
+                                                [arr[i-1], arr[i]] = [arr[i], arr[i-1]];
+                                                setGalleryImgs(arr);
+                                            }}>Left</button>
+                                            <button className="btn-ghost btn-xs" onClick={() => {
+                                                if (i === galleryImgs.length - 1) return;
+                                                const arr = [...galleryImgs];
+                                                [arr[i+1], arr[i]] = [arr[i], arr[i+1]];
+                                                setGalleryImgs(arr);
+                                            }}>Right</button>
                                         </div>
-                                    ))}
-                                </div>
-                            </DialogContent>
-                        </Dialog>
+                                    </div>
+                                ))}
+                            </div>
+                        </DialogContent>
+                    </Dialog>
                     </>
                 )
             }
