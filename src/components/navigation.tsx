@@ -184,21 +184,45 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     const [folderDialogOpen, setFolderDialogOpen] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
 
-    // Initialize items from collections if empty (Logic moved to effect here, 
-    // but typically parent should handle initialization if it owns state. 
-    // We'll keep a sync effect here for convenience if parent passes empty.)
-    useEffect(() => {
-        if (collections.length === 0) return;
+    // Handle updates to specific items (name, icon, refresh, delete)
+    const handleUpdateItem = (id: string, updates: any) => {
+        if (updates.refresh) {
+            refresh();
+            return;
+        }
+        if (updates.delete) {
+            setItems(items.filter(i => i.id !== id));
+            return;
+        }
+        setItems(items.map(item =>
+            item.id === id ? { ...item, ...updates } : item
+        ));
+    };
 
-        const existingIds = new Set(items.map(i => String(i.id).toLowerCase()));
+    // Initialize/Sync items from collections
+    useEffect(() => {
+        if (collections.length === 0 && items.length === 0) return;
+
+        const collectionNames = new Set(collections.map(c => String(c.name).toLowerCase()));
+
+        // 1. Filter out items that were collections but are no longer in the DB
+        const filteredItems = items.filter(item => {
+            if (item.type === 'collection') {
+                return collectionNames.has(String(item.id).toLowerCase());
+            }
+            return true;
+        });
+
+        // 2. Add new collections
+        const existingIds = new Set(filteredItems.map(i => String(i.id).toLowerCase()));
         const newCols = collections.filter(c => !existingIds.has(String(c.name).toLowerCase())).map(c => ({
             id: c.name,
             type: 'collection' as const,
             name: c.title || c.name,
         }));
 
-        if (newCols.length > 0) {
-            setItems([...items, ...newCols]);
+        if (newCols.length > 0 || filteredItems.length !== items.length) {
+            setItems([...filteredItems, ...newCols]);
         }
     }, [collections, items, setItems]);
 
@@ -323,7 +347,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                                         }
                                     }}
                                     onToggle={toggleFolder}
-                                    onDelete={deleteFolder}
+                                    onUpdate={handleUpdateItem}
                                     collection={item.type === 'collection' ? collections.find(c => c.name === item.id) : undefined}
                                 />
                             ))}
