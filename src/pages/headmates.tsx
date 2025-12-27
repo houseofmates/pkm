@@ -9,6 +9,7 @@ import { HeadmateCard } from '@/components/headmate-card';
 import { HeadmateContextMenu } from '@/components/headmate-context-menu';
 import { useFronter } from '@/contexts/fronter-context';
 import { apiRequest } from '@/lib/api-client';
+import { isDiscordLinkExpired, PLACEHOLDER_IMAGE } from '@/lib/discord-utils';
 
 // Names that should always be displayed in uppercase
 const UPPERCASE_NAMES = ['alastor', 'deer', 'mike', 'walt'];
