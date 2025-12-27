@@ -50,18 +50,18 @@ export function RecordForm({ collection, initialData, onSubmit, onCancel }: Reco
                                     {...register(field.name, { required: !field.uiSchema?.nullable })}
                                     placeholder={field.uiSchema?.title || field.name}
                                 />
-                                {errors[field.name] && <span className="text-sm text-red-500">This field is required</span>}
+                                {errors[field.name] && <span className="text-sm text-red-500">this field is required</span>}
                             </div>
                         );
                     })}
                 </div>
             ) : (
-                <div className="text-muted-foreground p-4 text-center">No fields available</div>
+                <div className="text-muted-foreground p-4 text-center">no fields available</div>
             )}
 
             <div className="flex justify-end pt-4 space-x-2">
-                <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
-                <Button type="submit">Save Record</Button>
+                <Button type="button" variant="outline" onClick={onCancel}>cancel</Button>
+                <Button type="submit">save record</Button>
             </div>
         </form>
     );
