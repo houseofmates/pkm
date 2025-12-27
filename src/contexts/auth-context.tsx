@@ -22,13 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // The client implementation I wrote takes `getToken` callback.
     const [client] = useState(() => new NocoBaseClient(() => localStorage.getItem('nocobase_token')));
 
-    useEffect(() => {
-        if (token) {
-            localStorage.setItem('nocobase_token', token);
-        } else {
-            localStorage.removeItem('nocobase_token');
-        }
-    }, [token]);
+
 
     // Listen for 401s from api-client
     useEffect(() => {
