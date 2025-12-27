@@ -101,11 +101,11 @@ export function NetworkView({ data, collection, config: _config }: ViewProps) {
                     height={dimensions.h}
                     graphData={{ nodes, links }}
                     nodeLabel="name"
-                    nodeColor={(node: any) => isDark ? '#3b82f6' : '#2563eb'} // Default to primary blue
+                    nodeColor={() => isDark ? '#3b82f6' : '#2563eb'} // Default to primary blue
                     nodeRelSize={6}
                     linkColor={() => isDark ? '#ffffff33' : '#00000033'}
                     linkDirectionalParticles={2}
-                    linkDirectionalParticleSpeed={d => 0.005}
+                    linkDirectionalParticleSpeed={() => 0.005}
                     backgroundColor={isDark ? '#00000000' : '#ffffff00'} // Transparent to let card bg show
                     cooldownTicks={100}
                     onEngineStop={() => graphRef.current?.zoomToFit(400)}
