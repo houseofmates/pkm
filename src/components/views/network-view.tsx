@@ -6,6 +6,16 @@ import { Button } from '@/components/ui/button';
 import { ZoomIn, ZoomOut, Maximize, RefreshCw } from 'lucide-react';
 
 export function NetworkView({ data, collection, config: _config }: ViewProps) {
+    if (!collection) {
+        return (
+            <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border">
+                <div className="flex flex-col items-center gap-2">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <p className="text-sm">Loading network metadata...</p>
+                </div>
+            </div>
+        );
+    }
     const graphRef = useRef<any>(null);
     const [dimensions, setDimensions] = useState({ w: 800, h: 600 });
     const containerRef = useRef<HTMLDivElement>(null);
