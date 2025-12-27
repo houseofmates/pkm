@@ -99,7 +99,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
 
     // If the navigation specified a view (e.g. sidebar clicked), respect it
     useEffect(() => {
-        const view = (location.state as any)?.view as Any || undefined;
+        const view = (location.state as any)?.view as any || undefined;
         if (view && VIEW_REGISTRY[view]) {
             setCurrentView(view as ViewType);
         }
