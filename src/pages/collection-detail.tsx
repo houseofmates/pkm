@@ -139,11 +139,11 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     }, [client, collectionName, fetchData]);
 
     if (loading && !collection) {
-        return <div className="p-10 text-center animate-pulse">Loading {collectionName}...</div>;
+        return <div className="p-10 text-center animate-pulse">loading {collectionName}...</div>;
     }
 
     if (!collection) {
-        return <div className="p-10 text-center text-destructive">Collection not found</div>;
+        return <div className="p-10 text-center text-destructive">collection not found</div>;
     }
 
     const CurrentViewComponent = VIEW_REGISTRY[currentView] || VIEW_REGISTRY['table'];
@@ -182,13 +182,13 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                             </PopoverTrigger>
                             <PopoverContent className="w-80">
                                 <div className="space-y-4">
-                                    <h4 className="font-medium leading-none border-b pb-2 mb-2">View Settings</h4>
+                                    <h4 className="font-medium leading-none border-b pb-2 mb-2">view settings</h4>
 
                                     {/* Gallery Settings */}
                                     {currentView === 'gallery' && (
                                         <div className="space-y-4">
                                             <div className="space-y-2">
-                                                <Label>Cover Image Field</Label>
+                                                <Label>cover image field</Label>
                                                 <Select
                                                     value={viewConfig.coverField || '_auto'}
                                                     onValueChange={(val) => handleConfigChange('coverField', val === '_auto' ? undefined : val)}
@@ -205,7 +205,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                                                 </Select>
                                             </div>
                                             <div className="space-y-2">
-                                                <Label>Title Field</Label>
+                                                <Label>title field</Label>
                                                 <Select
                                                     value={viewConfig.titleField || '_auto'}
                                                     onValueChange={(val) => handleConfigChange('titleField', val === '_auto' ? undefined : val)}
@@ -228,7 +228,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                                     {currentView === 'kanban' && (
                                         <div className="space-y-4">
                                             <div className="space-y-2">
-                                                <Label>Group By Field</Label>
+                                                <Label>group by field</Label>
                                                 <Select
                                                     value={viewConfig.groupByField}
                                                     onValueChange={(val) => handleConfigChange('groupByField', val)}
@@ -250,7 +250,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                                     {currentView === 'calendar' && (
                                         <div className="space-y-4">
                                             <div className="space-y-2">
-                                                <Label>Date Field</Label>
+                                                <Label>date field</Label>
                                                 <Select
                                                     value={viewConfig.dateField}
                                                     onValueChange={(val) => handleConfigChange('dateField', val)}
@@ -270,7 +270,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
 
                                     {/* Placeholder for other views */}
                                     {currentView !== 'gallery' && currentView !== 'kanban' && currentView !== 'calendar' && (
-                                        <p className="text-sm text-muted-foreground">No specific settings for this view yet.</p>
+                                        <p className="text-sm text-muted-foreground">no specific settings for this view yet.</p>
                                     )}
                                 </div>
                             </PopoverContent>
