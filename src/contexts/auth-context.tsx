@@ -39,11 +39,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return () => window.removeEventListener('auth-error', handleAuthError);
     }, []);
 
+    // Sync changes to localStorage is handled in login/logout to avoid race conditions with API clients
     const login = (newToken: string) => {
+        localStorage.setItem('nocobase_token', newToken);
         setToken(newToken);
     };
 
     const logout = () => {
+        localStorage.removeItem('nocobase_token');
         setToken(null);
     };
 
