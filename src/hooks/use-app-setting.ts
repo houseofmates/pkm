@@ -11,7 +11,7 @@ export interface AppSetting {
 }
 
 export function useAppSetting<T>(key: string, defaultValue: T) {
-    const { isAuthenticated } = useAuth();
+    const { isAuthenticated, token } = useAuth();
     // Initialize from localStorage for immediate availability
     const [value, setValue] = useState<T>(() => {
         try {
@@ -26,13 +26,18 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
     const settingIdRef = useRef<string | number | null>(null);
     const isFirstLoad = useRef(true);
 
+    const getHeaders = useCallback(() => {
+        return token ? { Authorization: `Bearer ${token}` } : {};
+    }, [token]);
+
     // Fetch from Backend
     const fetchSetting = useCallback(async () => {
-        if (!isAuthenticated) return;
+        if (!isAuthenticated || !token) return;
         setLoading(true);
         try {
             // Filter by key
             const response = await apiRequest('nocobase', '/pkm_settings', {
+                headers: getHeaders(),
                 params: {
                     filter: JSON.stringify({ key }),
                     pageSize: '1',
@@ -57,7 +62,7 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
             setLoading(false);
             isFirstLoad.current = false;
         }
-    }, [key, isAuthenticated]);
+    }, [key, isAuthenticated, token, getHeaders]);
 
     // Initial Load
     useEffect(() => {
@@ -78,17 +83,21 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
             if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
 
             saveTimeoutRef.current = setTimeout(async () => {
-                if (!isAuthenticated) return;
+                if (!isAuthenticated || !token) return;
+
+                const headers = { Authorization: `Bearer ${token}` };
 
                 const saveToBackend = async () => {
                     if (settingIdRef.current) {
                         await apiRequest('nocobase', `/pkm_settings/${settingIdRef.current}`, {
                             method: 'PUT',
+                            headers,
                             data: { value: resolvedValue }
                         });
                     } else {
                         const response = await apiRequest('nocobase', '/pkm_settings', {
                             method: 'POST',
+                            headers,
                             data: { key, value: resolvedValue }
                         });
                         if (response?.data?.id) {
@@ -110,6 +119,7 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
                             // Create Collection
                             await apiRequest('nocobase', '/collections', {
                                 method: 'POST',
+                                headers,
                                 data: {
                                     name: 'pkm_settings',
                                     title: 'PKM Settings',
@@ -136,7 +146,7 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
 
             return resolvedValue;
         });
-    }, [key, isAuthenticated]);
+    }, [key, isAuthenticated, token]);
 
     return [value, updateValue, loading] as const;
 }
