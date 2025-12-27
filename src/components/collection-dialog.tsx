@@ -14,7 +14,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Plus, Image as ImageIcon, Palette } from 'lucide-react';
+import { Image as ImageIcon } from 'lucide-react';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import type { Collection } from '@/types/nocobase';
 
