@@ -197,10 +197,6 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                     toast.info(`creating ${csvFields.length} fields...`);
                     // We must create fields sequentially or carefully to avoid NocoBase race conditions
                     for (const field of csvFields) {
-                        let typeConfig = FIELD_TYPES.find(t => t.interface === field.interface);
-
-                        // Intelligent Text Logic: Auto-switch between input and textarea
-                        let finalInterface = field.interface;
                         const fieldType = FIELD_TYPES.find(t => t.interface === field.interface);
 
                         let uiSchema: any = {
