@@ -108,7 +108,8 @@ export function RootLayout() {
     };
 
     const handleSelectCollection = (name: string | null) => {
-        if (name === 'NEW') {
+        if (!name || name === 'NEW') {
+            setSelectedCollection(null);
             return;
         }
         setSelectedCollection(name);
