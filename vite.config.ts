@@ -4,7 +4,39 @@ import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    {
+      name: 'serve-storage',
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          if (req.url?.startsWith('/storage/')) {
+            const fs = require('fs');
+            const path = require('path');
+            const filePath = path.join(process.cwd(), req.url);
+
+            if (fs.existsSync(filePath) && fs.lstatSync(filePath).isFile()) {
+              res.setHeader('Access-Control-Allow-Origin', '*');
+              res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+              res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+
+              if (req.method === 'OPTIONS') {
+                res.statusCode = 204;
+                res.end();
+                return;
+              }
+
+              // Simple static serving for the middleware
+              const stream = fs.createReadStream(filePath);
+              stream.pipe(res);
+              return;
+            }
+          }
+          next();
+        });
+      }
+    }
+  ],
   server: {
     host: true,
     port: 5173,
