@@ -7,7 +7,6 @@ import { cn } from '@/lib/utils';
 import { Check, X, Phone, Mail, MapPin, Lock, Palette, ChevronDown, Terminal, Code2, FileText, Paperclip, Calendar as CalendarIcon, Hash, Link as LinkIcon } from 'lucide-react';
 import { LocationField } from './location-field';
 import ReactMarkdown from 'react-markdown';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
