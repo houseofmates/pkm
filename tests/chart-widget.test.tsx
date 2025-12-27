@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import { ChartWidget } from '@/components/dashboard/chart-widget';
 
@@ -24,14 +24,13 @@ describe('ChartWidget legend & ordering', () => {
     expect(buttons.map(b => b.textContent).join(' ')).toContain('s2');
   });
 
-  it('toggles series visibility when legend button clicked', async () => {
-    const user = userEvent.setup();
+  it('toggles series visibility when legend button clicked', () => {
     render(<ChartWidget type="bar" data={mockData as any} seriesKeys={["s1", "s2"]} />);
 
     const btn = screen.getByText('s1');
-    await user.click(btn);
+    fireEvent.click(btn);
 
-    // clicking should add line-through class to the label span
+    // clicking should add line-through class to the label span (or apply equivalent)
     const span = btn;
     expect(span.className.includes('line-through') || span.querySelector('.line-through')).toBeTruthy();
   });
