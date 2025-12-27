@@ -195,6 +195,7 @@ export function ChartView(props: ViewProps) {
                             seriesTypes={config?.chartSeriesTypes}
                             seriesOrder={config?.chartSeriesOrder}
                             legendCollapsed={!!config?.chartLegendCollapsed}
+                            onConfig={handleConfig}
                         />
                     </div>
                 ) : type === 'network' ? (
