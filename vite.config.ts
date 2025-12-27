@@ -24,11 +24,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/ollama/, ''),
       },
-      '/storage': {
-        target: 'https://db.houseofmates.space/storage',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/storage/, ''),
-      },
+      // '/storage': {
+      //   target: 'https://db.houseofmates.space/storage',
+      //   changeOrigin: true,
+      //   rewrite: (path) => path.replace(/^\/storage/, ''),
+      // },
     },
   },
   build: {
