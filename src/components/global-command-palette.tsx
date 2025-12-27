@@ -74,7 +74,7 @@ export function GlobalCommandPalette() {
                             </CommandGroup>
                             <CommandSeparator />
                             <CommandGroup heading="Quick Capture">
-                                <CommandItem onSelect={() => runCommand(() => setCreateDialogOpen(true))}>
+                                <CommandItem onSelect={() => runCommand(() => _setCreateDialogOpen(true))}>
                                     <Plus className="mr-2 h-4 w-4" />
                                     <span>Quick Note / Task</span>
                                 </CommandItem>
