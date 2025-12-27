@@ -275,6 +275,9 @@ export function DashboardGrid() {
 
                         console.error("Failed to load canvas background:", e);
                     }
+                } catch (err) {
+                    console.error("Critical error in loadCanvasImage:", err);
+                }
             };
             loadCanvasImage();
         }
