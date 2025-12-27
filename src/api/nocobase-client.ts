@@ -176,4 +176,68 @@ export class NocoBaseClient {
             params: { filterByTk: id }
         });
     }
+
+    // Ensure pkm_backend collection exists for avatar storage
+    async ensureBackendCollection() {
+        try {
+            // Check if pkm_backend collection exists
+            await this.getCollection('pkm_backend');
+        } catch (error) {
+            // Collection doesn't exist, create it
+            try {
+                await this.createCollection({
+                    name: 'pkm_backend',
+                    title: 'PKM Backend Storage',
+                    hidden: true, // Hide from UI
+                    description: 'Backend storage for PKM app data like avatars'
+                });
+
+                // Add required fields
+                await this.createField('pkm_backend', {
+                    name: 'type',
+                    type: 'string',
+                    title: 'Type',
+                    description: 'Type of stored data (avatar, etc.)'
+                });
+
+                await this.createField('pkm_backend', {
+                    name: 'member_id',
+                    type: 'string',
+                    title: 'Member ID',
+                    description: 'Associated headmate member ID'
+                });
+
+                await this.createField('pkm_backend', {
+                    name: 'attachment_id',
+                    type: 'bigInt',
+                    title: 'Attachment ID',
+                    description: 'Reference to attachment record'
+                });
+
+                await this.createField('pkm_backend', {
+                    name: 'filename',
+                    type: 'string',
+                    title: 'Filename',
+                    description: 'Original filename'
+                });
+
+                await this.createField('pkm_backend', {
+                    name: 'mime_type',
+                    type: 'string',
+                    title: 'MIME Type',
+                    description: 'File MIME type'
+                });
+
+                await this.createField('pkm_backend', {
+                    name: 'url',
+                    type: 'string',
+                    title: 'URL',
+                    description: 'File URL'
+                });
+
+            } catch (createError) {
+                console.warn('Failed to create pkm_backend collection:', createError);
+            }
+        }
+    }
 }
