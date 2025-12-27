@@ -61,29 +61,33 @@ export function DashboardGrid() {
 
     // --- Effects ---
 
-    // Load Canvas (Local Only for now due to size)
+    // Synced Canvas Data
+    const [savedCanvasData, setSavedCanvasData] = useAppSetting<string>('dashboard_canvas_data', '');
+
+    // Load Canvas
     useEffect(() => {
-        const saved = localStorage.getItem('dashboard_canvas_data');
-        if (saved && canvasRef.current) {
+        if (savedCanvasData && canvasRef.current) {
             const img = new Image();
             img.onload = () => {
                 const ctx = canvasRef.current?.getContext('2d');
-                ctx?.drawImage(img, 0, 0);
+                if (ctx && canvasRef.current) {
+                    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                    ctx.drawImage(img, 0, 0);
+                }
             };
-            img.src = saved;
+            img.src = savedCanvasData;
         }
-    }, []);
+    }, [savedCanvasData]);
 
     const saveCanvas = () => {
         if (canvasRef.current) {
             const data = canvasRef.current.toDataURL();
-            localStorage.setItem('dashboard_canvas_data', data);
+            setSavedCanvasData(data);
         }
     };
 
     const handleSave = () => {
-        // Widgets are auto-saved by useAppSetting hook debouncer
-        saveCanvas();
+        // Widgets and Canvas are auto-saved by hooks
         toast.success("Board saved");
     };
 
