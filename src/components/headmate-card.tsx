@@ -21,11 +21,11 @@ interface HeadmateCardProps {
 
 export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React.HTMLAttributes<HTMLDivElement>>(({ member, onClick, className, ...props }, ref) => {
     const { activeFronterId, overrides } = useFronter();
+    const { client } = useAuth();
     const isActive = activeFronterId === member.id;
     const override = overrides[member.id] || {};
 
     const displayImage = override.avatarUrl || member.content.avatarUrl;
-    // console.log(`HeadmateCard [${member.content.name}]:`, { overrideUrl: override.avatarUrl, displayImage });
 
     const displayTextColor = override.textColor || override.color || member.content.color || "white";
     const customColor = override.color || member.content.color || "#ffffff";
@@ -56,28 +56,32 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
     const [blobUrl, setBlobUrl] = useState<string | null>(null);
 
     useEffect(() => {
-        if (displayImage && displayImage.startsWith('/api/nocobase')) {
-            // It's a secure endpoint, we need to fetch it with headers
-            const fetchBlob = async () => {
+        let active = true;
+        const loadSecure = async () => {
+            if (displayImage && displayImage.includes('/api/nocobase/attachments/')) {
                 try {
-                    const token = localStorage.getItem('nocobase_token');
-                    const res = await fetch(displayImage, {
-                        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
-                    });
-                    if (res.ok) {
-                        const blob = await res.blob();
-                        const url = URL.createObjectURL(blob);
-                        setBlobUrl(url);
+                    // Extract ID from URL like /api/nocobase/attachments/219/download
+                    const match = displayImage.match(/\/attachments\/(\d+)/);
+                    if (match && match[1]) {
+                        const blob = await client.downloadAttachmentBlob(match[1]);
+                        if (active && blob) {
+                            const url = URL.createObjectURL(blob);
+                            setBlobUrl(url);
+                        }
                     }
                 } catch (e) {
-                    console.error("Failed to load secure avatar", e);
+                    console.error("Failed to load secure avatar via client", e);
                 }
-            };
-            fetchBlob();
-        } else {
-            setBlobUrl(null);
-        }
-    }, [displayImage]);
+            } else {
+                setBlobUrl(null);
+            }
+        };
+
+        loadSecure();
+        return () => {
+            active = false;
+        };
+    }, [displayImage, client]);
 
     const finalImageSrc = blobUrl || displayImage;
 
