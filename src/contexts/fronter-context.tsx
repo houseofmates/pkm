@@ -43,7 +43,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
     };
 
     return (
-        <FronterContext.Provider value={{ activeFronterId, setFronter: setActiveFronterId, overrides, updateOverride }}>
+        <FronterContext.Provider value={{ activeFronterId, setFronter: setActiveFronterId, overrides, updateOverride, flushOverrides }}>
             {children}
         </FronterContext.Provider>
     );
