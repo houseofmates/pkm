@@ -180,7 +180,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
             {/* Content Centered/Bottom */}
             <div className="absolute inset-x-0 bottom-0 p-4 flex flex-col items-center justify-end h-full text-center">
                 <h3
-                    className="font-bold text-xl tracking-tight mb-1 drop-shadow-md transition-all group-hover:-translate-y-1"
+                    className="font-bold text-xl tracking-tight mb-1 drop-shadow-md transition-all group-hover:-translate-y-1 normal-case"
                     style={{ color: displayTextColor }}
                 >
                     {/* Use override name if available, else original - with uppercase for specific names */}
