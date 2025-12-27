@@ -1,6 +1,6 @@
-
 import { useState, useEffect } from 'react';
-import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2 } from 'lucide-react';
+import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2, Edit2, Image as ImageIcon } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 // import { GlobalSearchDialog } from '@/components/global-search-dialog';
@@ -15,6 +15,17 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
+
+import {
+    ContextMenu,
+    ContextMenuContent,
+    ContextMenuItem,
+    ContextMenuTrigger,
+    ContextMenuSeparator,
+} from "@/components/ui/context-menu";
+
+import { IconPicker } from './icon-picker-dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 
 export interface NavItem {
     id: string;
