@@ -61,6 +61,9 @@ export function DashboardGrid() {
 
     // --- Effects ---
 
+    // Mouse Position for Cursor
+    const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+
     // Synced Canvas Data
     const [savedCanvasData, setSavedCanvasData] = useAppSetting<string>('dashboard_canvas_data', '');
 
@@ -68,6 +71,7 @@ export function DashboardGrid() {
     useEffect(() => {
         if (savedCanvasData && canvasRef.current) {
             const img = new Image();
+            img.crossOrigin = 'anonymous'; // Important for later toDataURL/toBlob if CORS applies
             img.onload = () => {
                 const ctx = canvasRef.current?.getContext('2d');
                 if (ctx && canvasRef.current) {
@@ -81,8 +85,20 @@ export function DashboardGrid() {
 
     const saveCanvas = () => {
         if (canvasRef.current) {
-            const data = canvasRef.current.toDataURL();
-            setSavedCanvasData(data);
+            canvasRef.current.toBlob(async (blob) => {
+                if (!blob) return;
+                // Upload blob as file
+                const file = new File([blob], "canvas_state.png", { type: "image/png" });
+                try {
+                    const res = await client.upload(file);
+                    if (res.data?.url) {
+                        setSavedCanvasData(res.data.url);
+                    }
+                } catch (e) {
+                    console.error("Canvas sync failed", e);
+                    toast.error("Failed to sync canvas");
+                }
+            });
         }
     };
 
@@ -172,6 +188,9 @@ export function DashboardGrid() {
     };
 
     const handleCanvasMove = (e: React.MouseEvent) => {
+        // Track mouse for Eraser Cursor immediately
+        setMousePos({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY });
+
         if (!isDrawingRef.current) return;
         if (drawingTool === 'none') return;
 
