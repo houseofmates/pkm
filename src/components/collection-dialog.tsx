@@ -39,7 +39,7 @@ interface CollectionMetadata {
 }
 
 const FIELD_TYPES = [
-    { label: 'text', type: 'string', interface: 'text' }, // Will auto-switch between input and textarea
+    { label: 'text', type: 'string', interface: 'text' },
     { label: 'email', type: 'string', interface: 'email' },
     { label: 'phone', type: 'string', interface: 'phone' },
     { label: 'password', type: 'string', interface: 'password' },
@@ -50,6 +50,9 @@ const FIELD_TYPES = [
     { label: 'color', type: 'string', interface: 'color' },
     { label: 'file/image', type: 'attachment', interface: 'attachment' },
     { label: 'location', type: 'point', interface: 'map' },
+    { label: 'select', type: 'string', interface: 'select' },
+    { label: 'multi-select', type: 'json', interface: 'multipleSelect' },
+    { label: 'relation', type: 'belongsTo', interface: 'belongsTo' },
 ] as const;
 
 export function CollectionDialog({ collection, onSuccess, trigger, open: controlledOpen, onOpenChange: setControlledOpen }: CollectionDialogProps) {
