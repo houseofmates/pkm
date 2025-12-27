@@ -3,7 +3,7 @@ import { AuthProvider, useAuth } from "@/contexts/auth-context"
 import { LoginPage } from "@/pages/login"
 import { RootLayout } from "@/pages/root-layout"
 import { Toaster } from "@/components/ui/sonner"
-import { useEffect } from "react"
+
 import { GlobalCommandPalette } from "@/components/global-command-palette"
 import { Routes, Route, BrowserRouter } from "react-router-dom"
 import { HomePage } from "@/pages/home"
