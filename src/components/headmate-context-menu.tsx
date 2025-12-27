@@ -83,9 +83,10 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
     };
 
     const saveImageUrl = () => {
-        if (!imageUrl) return;
-        updateOverride(memberId, { avatarUrl: imageUrl });
+        if (!imageUrl.trim()) return;
+        updateOverride(memberId, { avatarUrl: imageUrl.trim() });
         toast.success("Image link saved");
+        setImageUrl(''); // Clear input after saving
         setImageOpen(false);
     };
 
