@@ -189,26 +189,46 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
             );
         }
 
-        if (isMarkdown || isCode) { /* ... same as before ... */
+        if (isMarkdown || isCode) { /* WYSIWYG editor for markdown, code still uses plaintext */
             return (
                 <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-card w-full max-w-3xl h-[80vh] border rounded-lg shadow-2xl flex flex-col overflow-hidden">
                         <div className="p-2 border-b flex justify-between items-center bg-muted/50">
                             <div className="flex items-center gap-2">
                                 {isCode ? <Code2 className="h-4 w-4" /> : <Terminal className="h-4 w-4" />}
-                                <span className="font-mono text-sm font-bold">{isCode ? 'Code Injection' : 'Markdown Editor'}</span>
+                                <span className="font-mono text-sm font-bold">{isCode ? 'Code Editor' : 'Rich Text Editor'}</span>
                             </div>
                             <div className="flex gap-2">
                                 <Button size="sm" onClick={handleSave}>Save</Button>
                                 <Button size="sm" variant="ghost" onClick={handleCancel}>Cancel</Button>
                             </div>
                         </div>
-                        <Textarea
-                            value={localValue || ''}
-                            onChange={e => setLocalValue(e.target.value)}
-                            className="flex-1 p-4 font-mono text-sm resize-none border-0 focus-visible:ring-0"
-                            placeholder={isCode ? "// Enter Javascript code here..." : "# Markdown text..."}
-                        />
+
+                        {isCode ? (
+                            <Textarea
+                                value={localValue || ''}
+                                onChange={e => setLocalValue(e.target.value)}
+                                className="flex-1 p-4 font-mono text-sm resize-none border-0 focus-visible:ring-0"
+                                placeholder={"// Enter Javascript code here..."}
+                            />
+                        ) : (
+                            <div className="flex-1 overflow-auto p-4">
+                                <RichEditor
+                                    value={localValue && String(localValue).trim().startsWith('<') ? localValue : (localValue ? `<p>${String(localValue).replace(/\n/g, '<br/>')}</p>` : '')}
+                                    onChange={(html) => setLocalValue(sanitizeHTML(html))}
+                                    uploadImage={async (file: File) => {
+                                        try {
+                                            const res = await (useAuth().client.upload(file));
+                                            return res?.data?.url || '';
+                                        } catch (e) {
+                                            console.error('upload failed', e);
+                                            throw e;
+                                        }
+                                    }}
+                                />
+                            </div>
+                        )}
+
                         {isCode && (
                             <div className="p-2 bg-destructive/10 text-destructive text-xs border-t">
                                 Warning: Code injection allows this script to run in your browser.
