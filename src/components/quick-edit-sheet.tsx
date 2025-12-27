@@ -4,7 +4,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFo
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import RichEditor, { markdownToHtml } from '@/components/ui/rich-editor';
-import { sanitizeHTML } from '@/lib/utils';import { Label } from '@/components/ui/label';
+import { sanitizeHTML } from '@/lib/utils'; import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -158,8 +158,8 @@ export function QuickEditSheet() {
                 {/* Footer */}
                 <div className="p-6 border-t bg-muted/10 mt-auto">
                     <SheetFooter>
-                        <Button variant="outline" onClick={() => setOpen(false)}>Cancel</Button>
-                        <Button onClick={handleSave}>Save Changes</Button>
+                        <Button variant="outline" onClick={() => setOpen(false)}>cancel</Button>
+                        <Button onClick={handleSave}>save changes</Button>
                     </SheetFooter>
                 </div>
 
