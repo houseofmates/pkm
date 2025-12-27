@@ -1,4 +1,3 @@
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { apiRequest } from '@/lib/api-client';
@@ -156,51 +155,43 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
                                 headers,
                                 data: { key, value: resolvedValue }
                             });
-                            headers,
-                                data: {
-                                name: 'pkm_settings',
-                                    title: 'PKM Settings',
-                                        fields: [
-                                            { name: 'key', type: 'string', unique: true },
-                                            { name: 'value', type: 'json' }
-                                        ],
-                                            hidden: true
+                            if (response?.data?.id) {
+                                settingIdRef.current = response.data.id;
                             }
-                        });
-            // Small delay for backend to initialize
-            await new Promise(r => setTimeout(r, 1000));
-            // Retry the upsert once
-            return attemptUpsert(attempt + 1);
-        } catch (createErr: any) {
-            console.error("Failed to create pkm_settings:", createErr);
-            throw createErr;
-        }
-    }
-                            }
-
-// Propagate unknown error
-throw err;
                         }
-                    };
+                    } catch (err: any) {
+                        const errMsg = (err.message || JSON.stringify(err)).toLowerCase();
 
-try {
-    await attemptUpsert();
-    console.log(`Saved setting ${key} to backend`);
-} catch (err: any) {
-    console.error(`Failed to save setting ${key}:`, err);
-    const msg = err?.message || JSON.stringify(err);
-    toast.error(`Sync failed: ${msg}`);
-}
-                }).catch ((chainErr) => {
-    // ensure unhandled rejections in chain are logged
-    console.error('Save chain error:', chainErr);
-});
+                        // Case 1: Key already exists (400) -> We need to fetch ID and update instead
+                        if (errMsg.includes('exists') || errMsg.includes('unique')) {
+                            const foundId = await fetchRemoteId();
+                            if (foundId) {
+                                settingIdRef.current = foundId;
+                                // Retry as Update
+                                if (retryCount < 1) return performSave(retryCount + 1);
+                            }
+                        }
+
+                        // Case 2: Collection not found (404) -> Create collection and retry
+                        if (errMsg.includes('404') || errMsg.includes('not found') || errMsg.includes('relation "pkm_settings" does not exist')) {
+                            if (retryCount < 1) { // Only try creating collection once
+                                const created = await ensureCollectionExists();
+                                if (created) return performSave(retryCount + 1);
+                            }
+                        }
+
+                        // Only log real errors (skip 404s if we handled them)
+                        console.error(`Failed to save setting ${key} (attempt ${retryCount}):`, err);
+                    }
+                };
+
+                await performSave();
 
             }, 1000); // 1s debounce
 
-return resolvedValue;
+            return resolvedValue;
         });
-    }, [key, isAuthenticated, token, getHeaders]);
+    }, [key, isAuthenticated, token, getHeaders, fetchRemoteId, ensureCollectionExists]);
 
-return [value, updateValue, loading] as const;
+    return [value, updateValue, loading] as const;
 }
