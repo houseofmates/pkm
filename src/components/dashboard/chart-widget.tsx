@@ -42,20 +42,27 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     const [hoverKey, setHoverKey] = useState<string | null>(null);
     const [search, setSearch] = useState('');
     const [collapsed, setCollapsed] = useState(!!legendCollapsed);
-    const [isMounted, setIsMounted] = useState(false);
+    const [isReady, setIsReady] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         setIsMounted(true);
+        if (!containerRef.current) return;
+
+        const observer = new ResizeObserver((entries) => {
+            for (const entry of entries) {
+                if (entry.contentRect.width > 0 && entry.contentRect.height > 0) {
+                    setIsReady(true);
+                }
+            }
+        });
+
+        observer.observe(containerRef.current);
+        return () => observer.disconnect();
     }, []);
 
     const isPlaceholder = !data || data.length === 0;
     const chartData = isPlaceholder ? PLACEHOLDER_DATA : data;
-
-    // Check if container has valid dimensions
-    const hasValidDimensions = containerRef.current && 
-        containerRef.current.offsetWidth > 0 && 
-        containerRef.current.offsetHeight > 0;
 
     // Helper to request config change
     const triggerConfig = (configKey: string, val?: any) => {
@@ -136,13 +143,13 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     };
 
     if (type === 'line') {
-        if (!isMounted || !hasValidDimensions) {
-            return <div className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+        if (!isMounted || !isReady) {
+            return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
         }
 
         if (!isPlaceholder && seriesKeys && seriesKeys.length > 0) {
             return (
-                <div ref={containerRef} className="w-full h-full relative group">
+                <div className="w-full h-full relative group">
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
