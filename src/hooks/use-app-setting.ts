@@ -30,6 +30,15 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
         return token ? { Authorization: `Bearer ${token}` } : {};
     }, [token]);
 
+    // Helper: extract list data from various shapes returned by the API
+    const extractList = (resp: any) => {
+        if (!resp) return [];
+        if (Array.isArray(resp)) return resp;
+        if (Array.isArray(resp.data)) return resp.data;
+        if (resp?.data?.data && Array.isArray(resp.data.data)) return resp.data.data;
+        return [];
+    };
+
     // Fetch from Backend
     const fetchSetting = useCallback(async () => {
         if (!isAuthenticated || !token) return;
@@ -44,19 +53,19 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
                 }
             });
 
-            const data = response?.data || [];
+            const data = extractList(response);
             if (data.length > 0) {
                 const setting = data[0];
                 settingIdRef.current = setting.id;
 
-                // Merge strategies could go here, for now backend wins if exists
-                if (setting.value) {
+                // Backend wins if exists
+                if (setting.value !== undefined) {
                     setValue(setting.value);
                     // Update local cache
                     localStorage.setItem(`pkm_setting:${key}`, JSON.stringify(setting.value));
                 }
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error(`Failed to fetch setting ${key}:`, err);
         } finally {
             setLoading(false);
