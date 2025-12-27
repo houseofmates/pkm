@@ -99,8 +99,8 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
 
     // If the navigation specified a view (e.g. sidebar clicked), respect it
     useEffect(() => {
-        const view = (location.state as any)?.view as any || undefined;
-        if (view && VIEW_REGISTRY[view]) {
+        const view = (location.state as any)?.view;
+        if (typeof view === 'string' && view in VIEW_REGISTRY) {
             setCurrentView(view as ViewType);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
