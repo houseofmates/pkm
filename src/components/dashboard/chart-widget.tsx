@@ -270,11 +270,12 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     }
 
     if (type === 'bar') {
-        if (seriesKeys && seriesKeys.length > 0) {
+        if (!isPlaceholder && seriesKeys && seriesKeys.length > 0) {
+            // ... (multi-series logic)
             return (
                 <div className="w-full h-full">
                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                        <BarChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                             <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
                             <YAxis fontSize={10} tickLine={false} axisLine={false} />
@@ -309,15 +310,23 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
         }
 
         return (
-            <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                    <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
-                    <YAxis fontSize={10} tickLine={false} axisLine={false} />
-                    <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />
-                    <Bar dataKey={yKey} fill={color} radius={[4, 4, 0, 0]} />
-                </BarChart>
-            </ResponsiveContainer>
+            <div className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
+                <PlaceholderOverlay />
+                <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                        <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
+                        <XAxis dataKey="name" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
+                        <YAxis {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
+                        {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />}
+                        <Bar
+                            dataKey={isPlaceholder ? "value" : yKey}
+                            fill={isPlaceholder ? "var(--muted)" : color}
+                            opacity={isPlaceholder ? 0.3 : 1}
+                            radius={[4, 4, 0, 0]}
+                        />
+                    </BarChart>
+                </ResponsiveContainer>
+            </div>
         );
     }
 
