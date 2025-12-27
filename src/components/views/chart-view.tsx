@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 
 export function ChartView(props: ViewProps) {
-    const { data, collection, config, onConfigChange, loading } = props;
+    const { data, collection, config, onConfigChange } = props;
 
     if (!collection) {
         return (
