@@ -102,7 +102,7 @@ export interface SmartFieldProps {
     className?: string;
 }
 
-export function SmartField({ value, field, mode = 'view', onChange, className }: SmartFieldProps) {
+export function SmartField({ value, field, mode: _mode = 'view', onChange, className }: SmartFieldProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [localValue, setLocalValue] = useState(value);
 
