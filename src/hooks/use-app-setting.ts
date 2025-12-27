@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { apiRequest } from '@/lib/api-client';
-import { toast } from 'sonner';
 
 export interface AppSetting {
     id?: number | string;
