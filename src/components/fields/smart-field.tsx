@@ -433,33 +433,46 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
 
                     <Dialog open={galleryOpen} onOpenChange={setGalleryOpen}>
                         <DialogContent className="max-w-5xl w-full">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                {imgs.map((u, i) => (
-                                    <img key={i} src={u} alt={`img-${i}`} className="rounded shadow cursor-pointer object-contain" onClick={() => window.open(u, '_blank')} />
-                                ))}
-                            </div>
-                        </DialogContent>
-                    </Dialog>
-                </>
-            )
-        }
+                                <div className="flex gap-2 items-center mb-4">
+                                    <input type="file" accept="image/*" onChange={async (e) => {
+                                        const f = e.target.files?.[0];
+                                        if (!f) return;
+                                        try {
+                                            const { client } = useAuth();
+                                            const res = await client.upload(f);
+                                            const url = res?.data?.url;
+                                            if (url) {
+                                                const newImgs = [...imgs, url];
+                                                onChange?.(newImgs);
+                                            }
+                                        } catch (err) { console.error(err); alert('Upload failed'); }
+                                    }} />
+                                </div>
 
-        return (
-            <div onClick={() => setIsEditing(true)} className="cursor-pointer flex items-center gap-1 hover:text-primary">
-                <Paperclip className="h-3 w-3" />
-                <span className="text-xs truncate max-w-[100px]">{value ? 'Attachment' : 'None'}</span>
-            </div>
-        )
-    }
-
-    if (isDate) {
-        return (
-            <div onClick={() => setIsEditing(true)} className="cursor-pointer flex flex-col leading-none text-xs hover:bg-muted/50 p-1 rounded">
-                <span className="font-semibold">{formatDate(value)}</span>
-                {value && <span className="opacity-50 text-[10px]">{formatTime(value)} PST</span>}
-                {!value && <span className="opacity-30">select date</span>}
-            </div>
-        )
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    {imgs.map((u, i) => (
+                                        <div key={i} className="relative">
+                                            <img src={u} alt={`img-${i}`} className="rounded shadow cursor-pointer object-contain w-full h-60" />
+                                            <div className="absolute top-2 right-2 flex gap-1">
+                                                <button className="btn-ghost btn-xs" onClick={() => {
+                                                    // remove
+                                                    const newImgs = imgs.filter((_, idx) => idx !== i);
+                                                    onChange?.(newImgs.length === 1 ? newImgs[0] : newImgs);
+                                                }}>Delete</button>
+                                                <button className="btn-ghost btn-xs" onClick={() => {
+                                                    if (i === 0) return;
+                                                    const arr = [...imgs];
+                                                    [arr[i-1], arr[i]] = [arr[i], arr[i-1]];
+                                                    onChange?.(arr.length === 1 ? arr[0] : arr);
+                                                }}>Left</button>
+                                                <button className="btn-ghost btn-xs" onClick={() => {
+                                                    if (i === imgs.length - 1) return;
+                                                    const arr = [...imgs];
+                                                    [arr[i+1], arr[i]] = [arr[i], arr[i+1]];
+                                                    onChange?.(arr.length === 1 ? arr[0] : arr);
+                                                }}>Right</button>
+                                            </div>
+                                        </div>
     }
 
     if (isSelect) { /* ... */
