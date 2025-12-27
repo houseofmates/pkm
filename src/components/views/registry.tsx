@@ -16,7 +16,7 @@ export type ViewType = 'table' | 'calendar' | 'kanban' | 'gallery' | 'gantt' | '
 export type ViewProps = {
     data: any[];
     loading?: boolean;
-    collection?: any;
+    collection: any;
     config?: any;
     onUpdateRecord?: (id: any, data: any) => Promise<void> | void;
     onDelete?: (id: any) => Promise<void> | void;
