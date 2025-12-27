@@ -439,7 +439,6 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
                                         const f = e.target.files?.[0];
                                         if (!f) return;
                                         try {
-                                            const { client } = useAuth();
                                             const res = await client.upload(f);
                                             const url = res?.data?.url;
                                             if (url) {
