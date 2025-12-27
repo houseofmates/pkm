@@ -249,10 +249,6 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         ));
     };
 
-    // Delete Folder (Ungroup)
-    const deleteFolder = (id: string) => {
-        setItems(items.filter(i => i.id !== id));
-    };
 
     const tabs = [
         { id: 'databases', icon: Database, label: 'databases' },
