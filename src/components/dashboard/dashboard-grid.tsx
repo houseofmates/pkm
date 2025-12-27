@@ -14,6 +14,9 @@ import { useDroppable } from '@dnd-kit/core';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { APIS } from '@/lib/api-client';
 import { HexColorPicker } from 'react-colorful';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 type WidgetType = 'view';
 interface WidgetDefinition {
