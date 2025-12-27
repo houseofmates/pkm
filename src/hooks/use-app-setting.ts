@@ -94,80 +94,127 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
             saveTimeoutRef.current = setTimeout(async () => {
                 if (!isAuthenticated || !token) return;
 
-                const headers = { Authorization: `Bearer ${token}` };
+                const headers = getHeaders();
 
-                const saveToBackend = async () => {
-                    // 1. Ensure we have an ID. If not, try to fetch it first.
-                    if (!settingIdRef.current) {
+                // Serialize saves so multiple quick changes don't race internally
+                if (!lastSavePromiseRef.current) lastSavePromiseRef.current = Promise.resolve();
+
+                // Append this save to the promise chain
+                lastSavePromiseRef.current = lastSavePromiseRef.current.then(async () => {
+                    // Try up to two attempts (create -> conflict -> fetch+update) and handle missing collection
+                    const attemptUpsert = async (attempt = 1): Promise<void> => {
+                        // First, try to find existing setting id (best-effort)
                         try {
-                            const getRes = await apiRequest('nocobase', '/pkm_settings', {
-                                headers,
-                                params: { filter: JSON.stringify({ key }), pageSize: '1' }
-                            });
-                            if (getRes?.data?.[0]?.id) {
-                                settingIdRef.current = getRes.data[0].id;
+                            if (!settingIdRef.current) {
+                                const getRes = await apiRequest('nocobase', '/pkm_settings', {
+                                    headers,
+                                    params: { filter: JSON.stringify({ key }), pageSize: '1' }
+                                });
+                                const list = extractList(getRes);
+                                if (list.length > 0) {
+                                    settingIdRef.current = list[0].id;
+                                }
                             }
                         } catch (e) {
-                            // Ignore fetch error, will try create/handle below
+                            // ignore, we'll handle on create/update
                         }
-                    }
 
-                    // 2. Perform Update or Create
-                    if (settingIdRef.current) {
-                        await apiRequest('nocobase', `/pkm_settings/${settingIdRef.current}`, {
-                            method: 'PUT',
-                            headers,
-                            data: { value: resolvedValue }
-                        });
-                    } else {
-                        const response = await apiRequest('nocobase', '/pkm_settings', {
-                            method: 'POST',
-                            headers,
-                            data: { key, value: resolvedValue }
-                        });
-                        if (response?.data?.id) {
-                            settingIdRef.current = response.data.id;
+                        // If we have an ID, update
+                        if (settingIdRef.current) {
+                            await apiRequest('nocobase', `/pkm_settings/${settingIdRef.current}`, {
+                                method: 'PUT',
+                                headers,
+                                data: { value: resolvedValue }
+                            });
+                            return;
                         }
-                    }
-                };
 
-                try {
-                    await saveToBackend();
-                    console.log(`Saved setting ${key} to backend`);
-                } catch (err: any) {
-                    console.error(`Failed to save setting ${key}:`, err);
-                    const errorMessage = err.message || JSON.stringify(err);
-
-                    // Auto-healing: Create collection ONLY if missing (404)
-                    // If it was a 400 (Key exists), the logic above should have caught it (by fetching ID).
-                    // So if we are here with 400, something else is wrong, but we mostly care about 404 for auto-init.
-                    if (errorMessage.includes('404') || errorMessage.includes('not found') || errorMessage.includes('collection')) {
+                        // Otherwise try to create
                         try {
-                            console.log("Attempting to create pkm_settings collection...");
-                            await apiRequest('nocobase', '/collections', {
+                            const response = await apiRequest('nocobase', '/pkm_settings', {
                                 method: 'POST',
                                 headers,
-                                data: {
-                                    name: 'pkm_settings',
-                                    title: 'PKM Settings',
-                                    fields: [
-                                        { name: 'key', type: 'string', unique: true },
-                                        { name: 'value', type: 'json' }
-                                    ],
-                                    hidden: true
-                                }
+                                data: { key, value: resolvedValue }
                             });
-                            await new Promise(r => setTimeout(r, 1000));
-                            await saveToBackend();
-                            toast.success("Settings synced (initialized storage)");
-                        } catch (createErr: any) {
-                            console.error("Failed to create pkm_settings:", createErr);
-                            toast.error(`Sync failed: ${createErr.message || "Could not init storage"}`);
+                            const created = (response && (response.data || response)) as any;
+                            // Depending on API shape, id may be at response.data.id or response.id
+                            settingIdRef.current = created?.id || created?.data?.id || settingIdRef.current;
+                            return;
+                        } catch (err: any) {
+                            // Detect structured status if available
+                            const status = err?.status;
+                            const dataString = JSON.stringify(err?.data || err?.message || err);
+
+                            // 400 conflict => key exists. Refresh and update
+                            if (status === 400 || /key\s+already\s+exists/i.test(dataString) || /already\s+exists/i.test(dataString)) {
+                                try {
+                                    const getRes = await apiRequest('nocobase', '/pkm_settings', {
+                                        headers,
+                                        params: { filter: JSON.stringify({ key }), pageSize: '1' }
+                                    });
+                                    const list = extractList(getRes);
+                                    if (list.length > 0) {
+                                        settingIdRef.current = list[0].id;
+                                        // Now update
+                                        await apiRequest('nocobase', `/pkm_settings/${settingIdRef.current}`, {
+                                            method: 'PUT',
+                                            headers,
+                                            data: { value: resolvedValue }
+                                        });
+                                        return;
+                                    }
+                                } catch (inner) {
+                                    // fall through to error handling below
+                                }
+                            }
+
+                            // 404 / collection missing -> create collection and retry once
+                            if (status === 404 || /not\s*found|collection/i.test(dataString)) {
+                                if (attempt === 1) {
+                                    try {
+                                        console.log("Attempting to create pkm_settings collection...");
+                                        await apiRequest('nocobase', '/collections', {
+                                            method: 'POST',
+                                            headers,
+                                            data: {
+                                                name: 'pkm_settings',
+                                                title: 'PKM Settings',
+                                                fields: [
+                                                    { name: 'key', type: 'string', unique: true },
+                                                    { name: 'value', type: 'json' }
+                                                ],
+                                                hidden: true
+                                            }
+                                        });
+                                        // Small delay for backend to initialize
+                                        await new Promise(r => setTimeout(r, 1000));
+                                        // Retry the upsert once
+                                        return attemptUpsert(attempt + 1);
+                                    } catch (createErr: any) {
+                                        console.error("Failed to create pkm_settings:", createErr);
+                                        throw createErr;
+                                    }
+                                }
+                            }
+
+                            // Propagate unknown error
+                            throw err;
                         }
-                    } else {
-                        toast.error(`Sync failed: ${errorMessage}`);
+                    };
+
+                    try {
+                        await attemptUpsert();
+                        console.log(`Saved setting ${key} to backend`);
+                    } catch (err: any) {
+                        console.error(`Failed to save setting ${key}:`, err);
+                        const msg = err?.message || JSON.stringify(err);
+                        toast.error(`Sync failed: ${msg}`);
                     }
-                }
+                }).catch((chainErr) => {
+                    // ensure unhandled rejections in chain are logged
+                    console.error('Save chain error:', chainErr);
+                });
+
             }, 1000); // 1s debounce
 
             return resolvedValue;
