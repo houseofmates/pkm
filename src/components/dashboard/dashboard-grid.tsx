@@ -155,8 +155,6 @@ export function DashboardGrid() {
             // Check existence of local undo stack to prevent overwriting WIP
             if (undoStack.current.length > 0 && incomingUrl === lastSyncedUrlRef.current) return;
 
-            console.log("Loading canvas from:", savedCanvasData);
-
             const loadCanvasImage = async () => {
                 try {
                     // savedCanvasData may be a string (legacy) or an object { id, url, data }
@@ -172,7 +170,6 @@ export function DashboardGrid() {
                     // If we have inline data backup, use it first (this avoids auth/fetch issues)
                     if (backupDataUrl) {
                         try {
-                            console.log("Prioritizing inline data backup for canvas restoration...");
                             const img = new Image();
                             img.onload = () => {
                                 const ctx = canvasRef.current?.getContext('2d');
@@ -180,7 +177,6 @@ export function DashboardGrid() {
                                     ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
                                     ctx.drawImage(img, 0, 0);
                                     lastSyncedUrlRef.current = fileUrl; // mark origin URL if present
-                                    console.log("Canvas loaded from inline data backup.");
                                     if (undoStack.current.length === 0) saveSnapshot();
                                 }
                             };
@@ -1015,7 +1011,7 @@ export function DashboardGrid() {
                                 const initialY = floatingSelection.y;
 
                                 const handleMove = (e: MouseEvent) => {
-                                    setFloatingSelection(prev => prev ? ({ ...prev, x: initialX + (e.clientX - startX), y: initialY + (e.clientY - startY) }) : null);
+                                    setFloatingSelection((prev: any) => prev ? ({ ...prev, x: initialX + (e.clientX - startX), y: initialY + (e.clientY - startY) }) : null);
                                 };
                                 const handleUp = () => {
                                     window.removeEventListener('mousemove', handleMove);
@@ -1038,7 +1034,7 @@ export function DashboardGrid() {
                                     const initialH = floatingSelection.h;
 
                                     const handleResize = (e: MouseEvent) => {
-                                        setFloatingSelection(prev => prev ? ({ ...prev, w: Math.max(10, initialW + (e.clientX - startX)), h: Math.max(10, initialH + (e.clientY - startY)) }) : null);
+                                        setFloatingSelection((prev: any) => prev ? ({ ...prev, w: Math.max(10, initialW + (e.clientX - startX)), h: Math.max(10, initialH + (e.clientY - startY)) }) : null);
                                     };
                                     const handleUp = () => { window.removeEventListener('mousemove', handleResize); window.removeEventListener('mouseup', handleUp); };
                                     window.addEventListener('mousemove', handleResize);
@@ -1053,7 +1049,7 @@ export function DashboardGrid() {
                                     const startX = e.clientX;
                                     const initialW = floatingSelection.w;
                                     const handleWarp = (e: MouseEvent) => {
-                                        setFloatingSelection(prev => prev ? ({ ...prev, w: Math.max(10, initialW + (e.clientX - startX)) }) : null);
+                                        setFloatingSelection((prev: any) => prev ? ({ ...prev, w: Math.max(10, initialW + (e.clientX - startX)) }) : null);
                                     };
                                     const handleUp = () => { window.removeEventListener('mousemove', handleWarp); window.removeEventListener('mouseup', handleUp); };
                                     window.addEventListener('mousemove', handleWarp);
