@@ -136,9 +136,13 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     };
 
     if (type === 'line') {
+        if (!isMounted || !hasValidDimensions) {
+            return <div className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+        }
+
         if (!isPlaceholder && seriesKeys && seriesKeys.length > 0) {
             return (
-                <div className="w-full h-full relative group">
+                <div ref={containerRef} className="w-full h-full relative group">
                     <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
@@ -175,7 +179,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
         }
 
         return (
-            <div className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
+            <div ref={containerRef} className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
                 <PlaceholderOverlay label="Select Group By" targetKey="chartX" />
                 <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
