@@ -201,7 +201,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                         const fieldType = FIELD_TYPES.find(t => t.interface === field.interface);
 
                         // Intelligent Type/UI Management: Prevent varchar(255) overflow
-                        let dbType = fieldType?.type || 'string';
+                        let dbType: string = fieldType?.type || 'string';
                         let xComponent = 'Input';
 
                         // Check if data contains long strings (> 200 chars)
