@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2, Edit2 } from 'lucide-react';
+import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 // import { GlobalSearchDialog } from '@/components/global-search-dialog';
