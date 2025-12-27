@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import RichEditor, { markdownToHtml } from '@/components/ui/rich-editor';
 import { sanitizeHTML } from '@/lib/utils';
 import { format } from 'date-fns';
-import { Send, Sparkles, Calendar, Clock } from 'lucide-react';
+import { Send, Sparkles, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 
 const PROMPTS = [
