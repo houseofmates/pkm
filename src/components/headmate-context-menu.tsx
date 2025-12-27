@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Image, FileText, Trash2, Edit, Upload } from 'lucide-react';
+import { Image, FileText, Trash2, Edit, Upload, Palette } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface HeadmateContextMenuProps {
@@ -123,10 +123,10 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
             <ContextMenu>
                 <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
                 <ContextMenuContent className="w-64">
-                    <ContextMenuLabel>{currentOverride.name || memberName}</ContextMenuLabel>
+                    <ContextMenuLabel>{(currentOverride as any).name || memberName}</ContextMenuLabel>
                     <ContextMenuSeparator />
 
-                    <ContextMenuItem onSelect={() => setNameOpen(true)}>
+                    <ContextMenuItem onSelect={openNameEdit}>
                         <Edit className="mr-2 h-4 w-4" />
                         Edit Visual Name
                     </ContextMenuItem>
