@@ -927,9 +927,7 @@ export function DashboardGrid() {
                         </Button>
                     </div>
 
-                    <Button size="sm" variant="outline" onClick={handleSave}>
-                        <Save className="h-4 w-4 mr-2" /> save
-                    </Button>
+
                 </div>
             </div>
 
