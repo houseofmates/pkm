@@ -10,7 +10,7 @@ import { VIEW_REGISTRY, VIEW_OPTIONS } from '@/components/views/registry';
 import type { ViewType } from '@/components/views/registry';
 import { useAuth } from '@/contexts/auth-context';
 import { useDroppable } from '@dnd-kit/core';
-import { useAppSetting } from '@/hooks/use-app-setting';
+import { useAppSetting } => '@/hooks/use-app-setting';
 import { APIS } from '@/lib/api-client';
 import { HexColorPicker } from 'react-colorful';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -63,9 +63,7 @@ export function DashboardGrid() {
     const [canUndo, setCanUndo] = useState(false);
     const [canRedo, setCanRedo] = useState(false);
 
-    // Lasso / Selection
     const [lassoPoints, setLassoPoints] = useState<{ x: number, y: number }[]>([]);
-    const [floatingSelection, _setFloatingSelection] = useState<FloatingSelection | null>(null);
     interface FloatingSelection {
         image: string; // Data URL
         x: number;
@@ -73,6 +71,7 @@ export function DashboardGrid() {
         w: number;
         h: number;
     }
+    const [floatingSelection, _setFloatingSelection] = useState<FloatingSelection | null>(null);
     // Wrap setter to persist changes via setting
     const setFloatingSelection = (v: any) => {
         _setFloatingSelection(v);
