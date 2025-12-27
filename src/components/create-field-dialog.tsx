@@ -56,6 +56,7 @@ export function CreateFieldDialog({ collectionName, onFieldCreated }: CreateFiel
     const [title, setTitle] = useState('');
     const [name, setName] = useState('');
     const [interfaceType, setInterfaceType] = useState('input');
+    const [expression, setExpression] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
