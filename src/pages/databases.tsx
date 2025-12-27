@@ -78,6 +78,9 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
                             <p className="text-xs text-muted-foreground">
                                 Your token is stored locally.
                             </p>
+                            <p className="text-xs text-muted-foreground">
+                                <strong>Note:</strong> Dev servers use the full origin (host + port). If you started the dev server on a different port, you'll need to re-enter your API token for this origin.
+                            </p>
                         </div>
                         <Button className="w-full" onClick={handleLogin}>Connect</Button>
                     </CardContent>
