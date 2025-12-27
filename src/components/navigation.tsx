@@ -38,7 +38,7 @@ interface NavigationProps {
 
 // --- Sortable Components ---
 
-export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle, onRename, onDelete }: any) {
+export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle, onDelete }: any) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: id, data: { type: item.type, item } });
 
     const style = {
