@@ -6,7 +6,11 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    sourcemapIgnoreList: (sourcePath) => sourcePath.includes('node_modules') || sourcePath.includes('.vite'),
+    host: true,
+    port: 5173,
+    sourcemapIgnoreList(sourcePath) {
+      return sourcePath.includes('node_modules') || sourcePath.includes('.vite');
+    },
     proxy: {
       '/api/simplyplural': {
         target: 'https://api.apparyllis.com/v1',
