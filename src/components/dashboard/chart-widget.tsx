@@ -310,7 +310,7 @@ export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yK
                     dataKey={yKey}
                     aspectRatio={4 / 3}
                     stroke="var(--background)"
-                    fill={color}
+                    fill="#000000"
                     isAnimationActive={false}
                 >
                     <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />
