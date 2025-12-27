@@ -2,7 +2,6 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
 import type { ViewProps } from './registry';
 import ForceGraph2D from 'react-force-graph-2d';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ZoomIn, ZoomOut, Maximize, RefreshCw } from 'lucide-react';
 
