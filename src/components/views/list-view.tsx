@@ -6,6 +6,16 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 
 export function ListView({ data, collection, onEdit, onDelete, onUpdateRecord }: ViewProps) {
+    if (!collection) {
+        return (
+            <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
+                <div className="flex flex-col items-center gap-2">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <p className="text-sm">Loading list metadata...</p>
+                </div>
+            </div>
+        );
+    }
     // Identify key fields for display
     const titleField = collection.fields?.find((f: any) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
     const dateField = collection.fields?.find((f: any) => f.type === 'date' || f.interface === 'date');
