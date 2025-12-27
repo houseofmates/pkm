@@ -17,7 +17,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 type WidgetType = 'view';
-interface Widget extends WidgetDefinition { }
 interface WidgetDefinition {
     id: string;
     type: WidgetType;
@@ -34,7 +33,7 @@ interface WidgetDefinition {
 export function DashboardGrid() {
     // --- State ---
     // Widgets (Synced to Backend)
-    const [widgets, setWidgets] = useAppSetting<WidgetDefinition[]>('dashboard_widgets', []);
+    const [widgets, setWidgets] = useAppSetting<WidgetDefinition[]>('dashboard_widgets_v2', []);
     const { collections } = useCollections();
     const { client, token, isAuthenticated, login } = useAuth();
     const [apiKey, setApiKey] = useState('');
@@ -85,7 +84,7 @@ export function DashboardGrid() {
 
     // Synced Canvas Data - may be a string (legacy) or an object { id, url, data }
     const [savedCanvasData, setSavedCanvasData, , flushSavedCanvas] = useAppSetting<any>('dashboard_canvas_data', null);
-    const [savedWidgets, setSavedWidgets] = useAppSetting<WidgetDefinition[]>('dashboard_widgets_v2', []);
+
     // Persist floating selection separately so it can be resumed across devices
     const [savedFloatingSelection, setSavedFloatingSelection, , flushSavedFloating] = useAppSetting<any>('dashboard_floating_selection_v2', null);
 
