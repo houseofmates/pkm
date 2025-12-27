@@ -190,12 +190,26 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                         data: { value: toSave }
                     });
                 } else {
-                    const response = await client.request('pkm_settings', 'create', {
-                        method: 'POST',
-                        data: { key, value: toSave },
-                        silent: true
-                    });
-                    if (response?.data?.id) settingIdRef.current = response.data.id;
+                    try {
+                        const response = await client.request('pkm_settings', 'create', {
+                            method: 'POST',
+                            data: { key, value: toSave },
+                            silent: true
+                        });
+                        if (response?.data?.id) settingIdRef.current = response.data.id;
+                    } catch (createErr: any) {
+                        const isConflict = createErr.status === 400 || (createErr.message || '').includes('exists');
+                        if (isConflict) {
+                            await client.request('pkm_settings', 'update', {
+                                method: 'POST',
+                                params: { filter: { key } },
+                                data: { value: toSave },
+                                silent: true
+                            });
+                        } else {
+                            throw createErr;
+                        }
+                    }
                 }
             } catch (err: any) {
                 const errMsg = (err.message || JSON.stringify(err)).toLowerCase();
