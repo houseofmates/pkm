@@ -29,6 +29,12 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    sourcemap: false,
+  },
+  css: {
+    devSourcemap: false,
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
