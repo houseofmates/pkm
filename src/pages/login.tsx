@@ -43,8 +43,8 @@ export function LoginPage() {
     return (
         <div className="flex h-screen items-center justify-center bg-background p-4">
             <div className="w-full max-w-md space-y-4 rounded-lg border bg-card p-6 shadow-sm">
-                <h1 className="text-2xl font-bold text-center">Login to PKM</h1>
-                <p className="text-sm text-center text-muted-foreground">Enter your NocoBase JWT Token</p>
+                <h1 className="text-2xl font-bold text-center">login to pkm</h1>
+                <p className="text-sm text-center text-muted-foreground">enter your nocobase jwt token</p>
 
                 {error && (
                     <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md">
@@ -62,7 +62,7 @@ export function LoginPage() {
                                     const isExpired = date < new Date();
                                     return (
                                         <div className={`mt-2 p-2 rounded ${isExpired ? 'bg-yellow-50 text-yellow-800' : 'bg-green-50 text-green-800'}`}>
-                                            <p><strong>Token Type:</strong> JWT</p>
+                                            <p><strong>token type:</strong> jwt</p>
                                             <p><strong>Expires:</strong> {date.toLocaleString()}</p>
                                             {isExpired && <p className="font-bold text-red-600">⚠️ This token has expired!</p>}
                                         </div>
