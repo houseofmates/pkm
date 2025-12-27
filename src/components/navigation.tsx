@@ -6,11 +6,7 @@ import { cn } from '@/lib/utils';
 // import { GlobalSearchDialog } from '@/components/global-search-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useCollections } from '@/hooks/use-collections';
-import {
-    // DndContext removed, we rely on parent
-    useDraggable,
-    useDroppable
-} from '@dnd-kit/core';
+
 import {
     SortableContext,
     verticalListSortingStrategy,
