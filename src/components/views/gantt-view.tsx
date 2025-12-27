@@ -43,6 +43,16 @@ function EditRecordModal({ record, open, onOpenChange, onUpdate, collection }: a
 }
 
 export function GanttView({ data, config, collection, onUpdateRecord, onDelete }: GanttViewProps) {
+    if (!collection) {
+        return (
+            <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
+                <div className="flex flex-col items-center gap-2">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <p className="text-sm">Loading gantt metadata...</p>
+                </div>
+            </div>
+        );
+    }
     const dateFields = collection.fields?.filter((f: any) => f.interface === 'datetime' || f.interface === 'date') || [];
 
     // Configurable start/end fields
