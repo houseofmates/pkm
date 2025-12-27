@@ -64,7 +64,7 @@ export function GlobalCommandPalette() {
                             <CommandGroup heading="Databases">
                                 {collections.map((collection) => (
                                     <CommandItem key={collection.name} onSelect={() => runCommand(() => {
-                                        setSelectedCollection(collection.name);
+                                        _setSelectedCollection(collection.name);
                                         navigate(`/databases/${collection.name}`);
                                     })}>
                                         <Database className="mr-2 h-4 w-4" />
