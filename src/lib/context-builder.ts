@@ -14,9 +14,34 @@ export async function buildKnowledgeContext(client: NocoBaseClient): Promise<str
             }
         });
 
-        const collections = collectionsRes.data;
-        if (!collections || collections.length === 0) {
+        const rawCollections = collectionsRes.data;
+        if (!rawCollections || rawCollections.length === 0) {
             return "No databases found.";
+        }
+
+        // Filter collections like in useCollections hook
+        const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers'];
+        const collections = rawCollections.filter((col: any) => {
+            const name = (col.name || '').toLowerCase().trim();
+            const title = (col.title || '').toLowerCase().trim();
+
+            // Exclude known system names
+            if (systemCollections.includes(name)) return false;
+
+            // Explicitly exclude only the pkm_settings collection (exact match) or exact title 'pkm settings'
+            if (name === 'pkm_settings' || title === 'pkm settings') return false;
+
+            // Hide anything with "backend" in the name or title
+            if (name.includes('backend') || title.includes('backend')) return false;
+
+            // Exclude hidden collections
+            if (col.hidden) return false;
+
+            return true;
+        });
+
+        if (collections.length === 0) {
+            return "No user-created databases found.";
         }
 
         let context = "Here is the current state of the user's NocoBase data:\n\n";
