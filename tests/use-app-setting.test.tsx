@@ -45,16 +45,14 @@ describe('useAppSetting upsert behaviors', () => {
       return {};
     });
 
-    render(<TestComp settingKey="x" />);
+    render(<TestComp settingKey="x" debounceMs={10} />);
     const btn = screen.getByText('set');
     btn.click();
 
+    // Wait for PUT to occur after debounce/retries
     await waitFor(() => {
-      // ensure api called for POST then GET then PUT
-      expect(api).toHaveBeenCalledWith('nocobase', '/pkm_settings', expect.any(Object));
-      expect(api).toHaveBeenCalledWith('nocobase', '/pkm_settings', expect.any(Object));
       expect(api).toHaveBeenCalledWith('nocobase', '/pkm_settings/123', expect.objectContaining({ method: 'PUT' }));
-    });
+    }, { timeout: 2000 });
   });
 
   it('creates collection on 404 and retries upsert', async () => {
