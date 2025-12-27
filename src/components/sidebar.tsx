@@ -135,7 +135,7 @@ export function Sidebar({ collections, selectedCollection, onSelect, className }
                                                 </CollectionContextMenu>
                                             ))}
                                             {getFolderCollections(folder).length === 0 && (
-                                                <div className="text-xs text-muted-foreground px-2 py-1 italic">Empty</div>
+                                                <div className="text-xs text-muted-foreground px-2 py-1 italic">empty</div>
                                             )}
                                         </div>
                                     )}
@@ -145,7 +145,7 @@ export function Sidebar({ collections, selectedCollection, onSelect, className }
                             {/* Render Unassigned */}
                             {unassigned.length > 0 && (
                                 <div className="space-y-1 pt-4 border-t">
-                                    <h3 className="px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Unassigned</h3>
+                                    <h3 className="px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">unassigned</h3>
                                     {unassigned.map(collection => (
                                         <CollectionContextMenu
                                             key={collection.name}
