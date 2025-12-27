@@ -46,7 +46,10 @@ export async function apiRequest(type: ApiType, endpoint: string, options: Parti
             });
 
             if (response.status >= 400) {
-                throw new Error(`API Error ${response.status}: ${JSON.stringify(response.data)}`);
+                const err = new Error(`API Error ${response.status}: ${JSON.stringify(response.data)}`) as any;
+                err.status = response.status;
+                err.data = response.data;
+                throw err;
             }
             return response.data;
 
