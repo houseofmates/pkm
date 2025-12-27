@@ -217,6 +217,35 @@ export function DashboardGrid() {
                     img.src = objectUrl;
 
                 } catch (e) {
+                    console.warn("Direct fetch failed for canvas background:", e);
+
+                    // Attempt to fetch via server-side proxy (attachment download) using attachment id
+                    try {
+                        const attachId = savedCanvasData && typeof savedCanvasData === 'object' ? savedCanvasData.id : null;
+                        if (attachId && client && (client as any).downloadAttachmentBlob) {
+                            const blob = await (client as any).downloadAttachmentBlob(String(attachId));
+                            if (blob instanceof Blob) {
+                                const objectUrl = URL.createObjectURL(blob);
+                                const img = new Image();
+                                img.onload = () => {
+                                    const ctx = canvasRef.current?.getContext('2d');
+                                    if (ctx && canvasRef.current) {
+                                        ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                                        ctx.drawImage(img, 0, 0);
+                                        lastSyncedUrlRef.current = savedCanvasData?.url || null;
+                                        URL.revokeObjectURL(objectUrl);
+                                        console.log("Canvas loaded successfully via proxied download.");
+                                        if (undoStack.current.length === 0) saveSnapshot();
+                                    }
+                                };
+                                img.src = objectUrl;
+                                return;
+                            }
+                        }
+                    } catch (e2) {
+                        console.error('Proxied download also failed for canvas background:', e2);
+                    }
+
                     console.error("Failed to load canvas background:", e);
                 }
             };
