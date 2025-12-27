@@ -29,8 +29,8 @@ export interface NavItem {
 }
 
 interface NavigationProps {
-    activeTab: 'databases' | 'home' | 'headmates' | 'board';
-    onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'board') => void;
+    activeTab: 'databases' | 'home' | 'headmates';
+    onTabChange: (tab: 'databases' | 'home' | 'headmates') => void;
     className?: string;
     onSelectCollection: (name: string | null) => void;
     selectedCollection: string | null;
