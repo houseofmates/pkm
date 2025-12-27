@@ -241,6 +241,10 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                             fieldConfig.targetKey = 'id';
                         }
 
+                        if (field.interface === 'formula' && field.expression) {
+                            fieldConfig.params = { expression: field.expression };
+                        }
+
                         await client.createField(finalName, fieldConfig);
                     }
 
