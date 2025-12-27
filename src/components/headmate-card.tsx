@@ -24,6 +24,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
     const isActive = activeFronterId === member.id;
     const override = overrides[member.id] || {};
 
+    const displayImage = override.avatarUrl || member.content.avatarUrl;
     const displayTextColor = override.textColor || override.color || member.content.color || "white";
     const customColor = override.color || member.content.color || "#ffffff";
 
