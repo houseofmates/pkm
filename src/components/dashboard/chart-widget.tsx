@@ -19,7 +19,7 @@ interface ChartProps {
     seriesTypes?: Record<string, 'bar' | 'line' | 'area'>;
     seriesOrder?: string[];
     legendCollapsed?: boolean;
-}  
+}
 
 // Mock Data if none provided
 const MOCK_DATA = [
@@ -32,7 +32,7 @@ const MOCK_DATA = [
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
-export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yKey = 'value', color = '#8884d8', seriesKeys, stacked, seriesType, seriesTypes }: ChartProps) {
+export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yKey = 'value', color = '#8884d8', seriesKeys, stacked, seriesType, seriesTypes, seriesOrder, legendCollapsed }: ChartProps) {
     const [hidden, setHidden] = useState<Record<string, boolean>>({});
     const [hoverKey, setHoverKey] = useState<string | null>(null);
     const [search, setSearch] = useState('');
@@ -139,10 +139,19 @@ export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yK
                     </ResponsiveContainer>
                     <div className="flex items-center justify-between gap-2 mt-2">
                         <div className="flex items-center gap-2">
-                            <input placeholder="Search series..." value={search} onChange={(e) => setSearch(e.target.value)} className="input input-sm" />
-                            <button onClick={() => setCollapsed(!collapsed)} className="btn btn-ghost">{collapsed ? 'Expand Legend' : 'Collapse Legend'}</button>
+                            <input
+                                placeholder="Search series..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="input input-sm"
+                            />
+                            <button onClick={() => setCollapsed(!collapsed)} className="btn btn-ghost">
+                                {collapsed ? 'Expand Legend' : 'Collapse Legend'}
+                            </button>
                         </div>
-                        <div className="text-xs text-muted-foreground">{(buildKeys() || []).filter(k => !hidden[k]).length} visible</div>
+                        <div className="text-xs text-muted-foreground">
+                            {(buildKeys() || []).filter(k => !hidden[k]).length} visible
+                        </div>
                     </div>
                     {!collapsed && (
                         <div className="flex flex-wrap gap-2 mt-2">
@@ -151,13 +160,20 @@ export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yK
                                 const hiddenFlag = !!hidden[k];
                                 if (search && !k.toLowerCase().includes(search.toLowerCase())) return null;
                                 return (
-                                    <button key={k} onClick={() => toggle(k)} onMouseEnter={() => setHoverKey(k)} onMouseLeave={() => setHoverKey(null)} className="flex items-center gap-2 px-2 py-1 rounded bg-card">
+                                    <button
+                                        key={k}
+                                        onClick={() => toggle(k)}
+                                        onMouseEnter={() => setHoverKey(k)}
+                                        onMouseLeave={() => setHoverKey(null)}
+                                        className="flex items-center gap-2 px-2 py-1 rounded bg-card"
+                                    >
                                         <span style={{ width: 12, height: 12, backgroundColor: col, display: 'inline-block', borderRadius: 3, opacity: hiddenFlag ? 0.3 : 1 }} />
-                                    <span className={hiddenFlag ? 'line-through text-muted-foreground' : ''}>{k}</span>
-                                </button>
-                            );
-                        })}
-                    </div>
+                                        <span className={hiddenFlag ? 'line-through text-muted-foreground' : ''}>{k}</span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    )}
                 </div>
             );
         }
