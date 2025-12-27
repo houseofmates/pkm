@@ -1,7 +1,7 @@
 import {
     ResponsiveContainer, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
     RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
-    Treemap, XAxis, YAxis, Tooltip, CartesianGrid,
+    Treemap, XAxis, YAxis, Tooltip, CartesianGrid, Legend,
     FunnelChart as RechartsFunnelChart, Funnel, LabelList,
     AreaChart, Area, ScatterChart, Scatter
 } from 'recharts';
