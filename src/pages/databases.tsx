@@ -21,13 +21,22 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     const { collections, loading, error, refresh } = useCollections();
     const [apiKey, setApiKey] = useState('');
     const navigate = useNavigate();
+    const location = useLocation();
+
+    useEffect(() => {
+        // Only allow viewing /databases if we came from the sidebar icon
+        if (!(location.state as any)?.fromSidebar) {
+            navigate('/');
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const handleSelect = (name: string) => {
         // Prefer prop if available (for flexibility), else direct route
         if (onSelect) {
             onSelect(name);
         } else {
-            navigate(`/databases/${name}`);
+            navigate(`/databases/${name}`, { state: { fromSidebar: true, view: 'table' } });
         }
     };
 
