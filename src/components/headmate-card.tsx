@@ -162,6 +162,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
                     <img
                         src={finalImageSrc}
                         alt={(member.content as any).name}
+                        onError={() => setImageError(true)}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                 ) : (
