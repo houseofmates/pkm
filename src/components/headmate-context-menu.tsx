@@ -70,59 +70,48 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
         const file = e.target.files?.[0];
         if (!file) return;
 
-        const toastId = toast.loading("Uploading avatar...");
+        const toastId = toast.loading("Processing avatar...");
+        
         try {
-            // Upload directly to NocoBase attachments
-            const res = await client.upload(file);
-            console.log('Full Upload response:', JSON.stringify(res, null, 2));
+            // Convert file to base64 data URL - this avoids all CORS/auth issues
+            // The image is stored directly in the override data
+            const reader = new FileReader();
             
-            // NocoBase returns { data: { ... } } or just the attachment object
-            const uploadedFile = res?.data || res;
-            console.log('Uploaded file data:', JSON.stringify(uploadedFile, null, 2));
-
-            if (uploadedFile) {
-                // Save relative URL to work with proxy (avoids CORS)
-                // The URL should be relative like /storage/uploads/filename.jpg
-                let avatarUrl = '';
+            reader.onload = async () => {
+                const base64DataUrl = reader.result as string;
+                console.log('Image converted to base64, length:', base64DataUrl.length);
                 
-                if (uploadedFile.url) {
-                    // Use relative URL directly (e.g., /storage/uploads/file.jpg)
-                    avatarUrl = uploadedFile.url.startsWith('/') ? uploadedFile.url : `/${uploadedFile.url}`;
-                } else if (uploadedFile.filename) {
-                    // Construct from filename
-                    avatarUrl = `/storage/uploads/${uploadedFile.filename}`;
-                } else if (uploadedFile.id) {
-                    // Fallback to attachment ID
-                    avatarUrl = `/storage/uploads/${uploadedFile.id}`;
+                // Check size - warn if very large (> 500KB base64)
+                if (base64DataUrl.length > 500000) {
+                    console.warn('Large image detected, consider compressing');
                 }
-
-                console.log('Final avatar URL (relative for proxy):', avatarUrl);
-
-                if (avatarUrl) {
-                    console.log('Setting Override URL:', avatarUrl, 'for member:', memberId);
-                    updateOverride(memberId, { avatarUrl });
-
-                    // Flush immediately to ensure persistence
-                    try {
-                        await flushOverrides();
-                        console.log('Overrides flushed successfully');
-                    } catch (flushError) {
-                        console.warn('Failed to flush overrides:', flushError);
-                    }
-
-                    toast.success("Avatar updated", { id: toastId });
-                } else {
-                    toast.error("Could not get image URL from upload", { id: toastId });
+                
+                updateOverride(memberId, { avatarUrl: base64DataUrl });
+                
+                // Flush immediately to ensure persistence
+                try {
+                    await flushOverrides();
+                    console.log('Overrides flushed successfully');
+                } catch (flushError) {
+                    console.warn('Failed to flush overrides:', flushError);
                 }
-
+                
+                toast.success("Avatar updated", { id: toastId });
+                
                 // Reset file input and close dialog
                 if (fileInputRef.current) {
                     fileInputRef.current.value = '';
                 }
                 setImageOpen(false);
-            } else {
-                toast.error("Upload returned empty response", { id: toastId });
-            }
+            };
+            
+            reader.onerror = () => {
+                console.error('FileReader error:', reader.error);
+                toast.error("Failed to read image file", { id: toastId });
+            };
+            
+            reader.readAsDataURL(file);
+            
         } catch (error) {
             console.error('Upload error:', error);
             toast.error("Upload failed", { id: toastId });
