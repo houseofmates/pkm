@@ -95,6 +95,17 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         fetchData();
     }, [fetchData]);
 
+    const location = useLocation();
+
+    // If the navigation specified a view (e.g. sidebar clicked), respect it
+    useEffect(() => {
+        const view = (location.state as any)?.view as Any || undefined;
+        if (view && VIEW_REGISTRY[view]) {
+            setCurrentView(view as ViewType);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     // Load view config on view change or collection load
     useEffect(() => {
         const key = `view_config_${collectionName}_${currentView}`;
