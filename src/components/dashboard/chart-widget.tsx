@@ -211,8 +211,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     }
 
     if (type === 'area') {
-        if (!isMounted || !hasValidDimensions) {
-            return <div className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+        if (!isMounted || !isReady) {
+            return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
         }
 
         if (!isPlaceholder && seriesKeys && seriesKeys.length > 0) {
@@ -292,8 +292,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     }
 
     if (type === 'scatter') {
-        if (!isMounted || !hasValidDimensions) {
-            return <div className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+        if (!isMounted || !isReady) {
+            return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
         }
 
         return (
@@ -313,8 +313,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     }
 
     if (type === 'bar') {
-        if (!isMounted || !hasValidDimensions) {
-            return <div className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+        if (!isMounted || !isReady) {
+            return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
         }
 
         if (!isPlaceholder && seriesKeys && seriesKeys.length > 0) {
@@ -377,8 +377,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     }
 
     if (type === 'pie') {
-        if (!isMounted || !hasValidDimensions) {
-            return <div className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+        if (!isMounted || !isReady) {
+            return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
         }
 
         return (
@@ -416,8 +416,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     }
 
     if (type === 'radar') {
-        if (!isMounted || !hasValidDimensions) {
-            return <div className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+        if (!isMounted || !isReady) {
+            return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
         }
 
         return (
@@ -444,8 +444,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     }
 
     if (type === 'treemap') {
-        if (!isMounted || !hasValidDimensions) {
-            return <div className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+        if (!isMounted || !isReady) {
+            return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
         }
 
         return (
@@ -476,8 +476,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     }
 
     if (type === 'funnel') {
-        if (!isMounted || !hasValidDimensions) {
-            return <div className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+        if (!isMounted || !isReady) {
+            return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
         }
 
         // Funnel sort
@@ -502,8 +502,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     }
 
     if (type === 'gauge') {
-        if (!isMounted || !hasValidDimensions) {
-            return <div className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+        if (!isMounted || !isReady) {
+            return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
         }
 
         const val = isPlaceholder ? 0 : (data[0]?.[yKey] || 0);
@@ -553,8 +553,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     }
 
     if (type === 'kpi') {
-        if (!isMounted || !hasValidDimensions) {
-            return <div className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+        if (!isMounted || !isReady) {
+            return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
         }
 
         const val = isPlaceholder ? 1234 : data.reduce((acc, cur) => acc + (Number(cur[yKey]) || 0), 0);
@@ -578,8 +578,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     }
 
     if (type === 'scatter') {
-        if (!isMounted || !hasValidDimensions) {
-            return <div className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+        if (!isMounted || !isReady) {
+            return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
         }
 
         return (
