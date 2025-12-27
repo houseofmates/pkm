@@ -1,7 +1,7 @@
 
 export function isDiscordLinkExpired(url: string | undefined): boolean {
     if (!url) return false;
-    if (!url.includes('media.discordapp.net') && !url.includes('cdn.discordapp.com')) return false;
+    if (!url.includes('media.discordapp.net') && !url.includes('cdn.discordapp.com') && !url.includes('images-ext-2.discordapp.net')) return false;
 
     try {
         const urlObj = new URL(url);
