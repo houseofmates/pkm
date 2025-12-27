@@ -25,7 +25,7 @@ export function QuickAddWidget() {
                     onClick={() => handleOpen(col.name)}
                 >
                     <Plus className="h-4 w-4 text-muted-foreground" />
-                    <span className="truncate">Add to {col.title || col.name}</span>
+                    <span className="truncate">add to {col.title || col.name}</span>
                 </Button>
             ))}
 
