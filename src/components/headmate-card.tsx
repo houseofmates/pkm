@@ -28,12 +28,35 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
     const displayTextColor = override.textColor || override.color || member.content.color || "white";
     const customColor = override.color || member.content.color || "#ffffff";
 
+    // Create a faded version of the color for inactive state (30% opacity)
+    const getFadedColor = (color: string) => {
+        // Handle hex colors
+        if (color.startsWith('#')) {
+            const hex = color.slice(1);
+            const r = parseInt(hex.slice(0, 2), 16);
+            const g = parseInt(hex.slice(2, 4), 16);
+            const b = parseInt(hex.slice(4, 6), 16);
+            return `rgba(${r}, ${g}, ${b}, 0.3)`;
+        }
+        // Handle named colors or other formats - add alpha
+        if (color.startsWith('rgb(')) {
+            return color.replace('rgb(', 'rgba(').replace(')', ', 0.3)');
+        }
+        if (color.startsWith('rgba(')) {
+            return color.replace(/,\s*[\d.]+\)$/, ', 0.3)');
+        }
+        // For named colors, wrap in rgba-like approach using CSS
+        return `color-mix(in srgb, ${color} 30%, transparent)`;
+    };
+
+    const fadedColor = getFadedColor(displayTextColor);
+
     return (
         <Card
             ref={ref}
             onClick={onClick}
             style={{
-                borderColor: isActive ? displayTextColor : "#333333",
+                borderColor: isActive ? displayTextColor : fadedColor,
                 borderWidth: isActive ? "4px" : "2px",
                 borderStyle: "solid",
                 boxShadow: "none"
