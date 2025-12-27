@@ -27,7 +27,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Listen for 401s from api-client
     useEffect(() => {
         const handleAuthError = () => {
+            // Token already cleared by api-client; just update React state
             setToken(null);
+            // Force reload to clear all stale closures and queued requests
+            window.location.reload();
         };
         window.addEventListener('auth-error', handleAuthError);
         return () => window.removeEventListener('auth-error', handleAuthError);

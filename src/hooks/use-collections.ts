@@ -11,6 +11,10 @@ export function useCollections() {
     const [error, setError] = useState<string | null>(null);
 
     const fetchCollections = useCallback(async () => {
+        if (!isAuthenticated) {
+            setLoading(false);
+            return;
+        }
         setLoading(true);
         try {
             const response = await client.listCollections();
