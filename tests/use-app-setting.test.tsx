@@ -6,8 +6,8 @@ import * as apiClient from '@/lib/api-client';
 import { useAuth } from '@/contexts/auth-context';
 
 // Simple component to use the hook
-function TestComp({ settingKey }: { settingKey: string }) {
-  const [value, setValue] = useAppSetting(settingKey, null);
+function TestComp({ settingKey, debounceMs }: { settingKey: string; debounceMs?: number }) {
+  const [value, setValue] = useAppSetting(settingKey, null, { debounceMs });
   return (
     <div>
       <button onClick={() => setValue({foo: 'bar'})}>set</button>
