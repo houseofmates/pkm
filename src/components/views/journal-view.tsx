@@ -20,6 +20,16 @@ const PROMPTS = [
 ];
 
 export function JournalView({ data, collection, onUpdateRecord: _onUpdateRecord, onEdit: _onEdit }: ViewProps) {
+    if (!collection) {
+        return (
+            <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
+                <div className="flex flex-col items-center gap-2">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <p className="text-sm">Loading journal metadata...</p>
+                </div>
+            </div>
+        );
+    }
     const [entry, setEntry] = useState('');
     const [prompt, setPrompt] = useState(PROMPTS[0]);
 
