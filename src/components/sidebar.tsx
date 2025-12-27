@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Database, Plus, ChevronRight, ChevronDown, Folder } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { DatabaseContextMenu } from '@/components/database-context-menu';
-import { toast } from 'sonner';
 import { CollectionDialog } from '@/components/collection-dialog';
 import { useCollections } from '@/hooks/use-collections';
 
@@ -148,7 +147,7 @@ export function Sidebar({ collections, selectedCollection, onSelect, className }
                             {/* Render Unassigned */}
                             {unassigned.length > 0 && (
                                 <div className="space-y-1 pt-4 border-t">
-                                    <h3 className="px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">unassigned</h3>
+                                    <h3 className="px-2 text-xs font-semibold text-muted-foreground lowercase tracking-wider">unassigned</h3>
                                     {unassigned.map(collection => (
                                         <DatabaseContextMenu
                                             key={collection.name}
