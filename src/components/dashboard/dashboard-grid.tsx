@@ -1,7 +1,7 @@
-
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-Plus, LayoutGrid, Database, Trash2, Move, Minimize2,
+import {
+    Plus, LayoutGrid, Database, Trash2, Move, Minimize2,
     Lock, Unlock, Pencil, Eraser, MousePointer2, Check, Wand2
 } from 'lucide-react';
 import { toast } from 'sonner';
