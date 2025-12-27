@@ -17,7 +17,7 @@ import { sanitizeHTML } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
-import { useAuth } from '@/contexts/auth-context';
+import { toast } from 'sonner';
 
 // --- Relation Picker Component ---
 function RelationPicker({ field, value, onChange, onCancel }: any) {
