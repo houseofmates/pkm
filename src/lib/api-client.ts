@@ -90,7 +90,8 @@ export async function apiRequest(type: ApiType, endpoint: string, options: Parti
 
             if (!response.ok) {
                 if (response.status === 401) {
-                    localStorage.removeItem('token');
+                    console.warn('[API] 401 Unauthorized - clearing token and dispatching auth-error');
+                    localStorage.removeItem('nocobase_token'); // Ensure correct key is removed
                     window.dispatchEvent(new Event('auth-error'));
                 }
 
