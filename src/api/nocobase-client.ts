@@ -101,7 +101,7 @@ export class NocoBaseClient {
 
     // Download attachment as a Blob using the server proxy to avoid CORS issues
     async downloadAttachmentBlob(attachmentId: string) {
-        const headers = this.getToken() ? { 'Authorization': `Bearer ${this.getToken()}` } : {};
+        const headers = (this.getToken() ? { 'Authorization': `Bearer ${this.getToken()}` } : {}) as Record<string, string>;
 
         // Attempt the typical download endpoint
         try {
