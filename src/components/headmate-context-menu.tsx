@@ -26,7 +26,7 @@ interface HeadmateContextMenuProps {
 
 export function HeadmateContextMenu({ memberId, memberName, children }: HeadmateContextMenuProps) {
     const { client } = useAuth();
-    const { overrides, updateOverride } = useFronter();
+    const { overrides, updateOverride, flushOverrides } = useFronter();
     const currentOverride = overrides[memberId] || {};
 
     const [editOpen, setEditOpen] = useState(false);
