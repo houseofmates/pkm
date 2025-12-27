@@ -6,7 +6,6 @@ import {
     Trash2, ZoomIn, ZoomOut, Save, Type, Palette
 } from 'lucide-react';
 import { useCollections } from '@/hooks/use-collections';
-import { VIEW_REGISTRY } from '@/components/views/registry';
 import { toast } from 'sonner';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger, ContextMenuSub, ContextMenuSubTrigger, ContextMenuSubContent } from '@/components/ui/context-menu';
 import { Input } from '@/components/ui/input';
