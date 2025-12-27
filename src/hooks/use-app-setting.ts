@@ -123,7 +123,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                         if (!settingIdRef.current) {
                             const found = await apiRequest('nocobase', '/pkm_settings', {
                                 headers,
-                                params: { filter: JSON.stringify({ key }), pageSize: '1' }
+                                params: { filter: JSON.stringify({ key: { $eq: key } }), pageSize: '1' }
                             });
                             if (found?.data?.length > 0) {
                                 settingIdRef.current = found.data[0].id;
@@ -189,7 +189,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                 if (!settingIdRef.current) {
                     const found = await apiRequest('nocobase', '/pkm_settings', {
                         headers,
-                        params: { filter: JSON.stringify({ key }), pageSize: '1' }
+                        params: { filter: JSON.stringify({ key: { $eq: key } }), pageSize: '1' }
                     });
                     if (found?.data?.length > 0) settingIdRef.current = found.data[0].id;
                 }
