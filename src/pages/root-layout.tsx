@@ -36,6 +36,25 @@ export function RootLayout() {
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
     );
 
+    // Filter out pkm_settings from sidebar persisted state
+    // This cleans up legacy state where it might have been added
+    useEffect(() => {
+        if (sidebarItems.length === 0) return;
+
+        const filtered = sidebarItems.filter(i => {
+            const name = (i.name || '').toLowerCase();
+            const id = i.id.toLowerCase();
+            // Check ID (collection name) and display name
+            if (id.includes('pkm_settings') || name.includes('pkm settings')) return false;
+            return true;
+        });
+
+        if (filtered.length !== sidebarItems.length) {
+            console.log("Removing pkm_settings from sidebar items");
+            setSidebarItems(filtered);
+        }
+    }, [sidebarItems, setSidebarItems]); // This effectively runs on load and cleans it up
+
     const handleDragStart = (event: DragStartEvent) => {
         const { active } = event;
         const item = sidebarItems.find(i => i.id === active.id);
