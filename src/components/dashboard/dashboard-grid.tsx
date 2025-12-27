@@ -141,10 +141,12 @@ export function DashboardGrid() {
 
     // Load Canvas
     useEffect(() => {
+        // Determine incoming URL (supports legacy string or object shape)
+        const incomingUrl = typeof savedCanvasData === 'string' ? savedCanvasData : (savedCanvasData && savedCanvasData.url ? savedCanvasData.url : null);
         // Only load if different from what we last synced (avoid overwritting local edits)
-        if (savedCanvasData && (savedCanvasData !== lastSyncedUrlRef.current || !lastSyncedUrlRef.current)) {
+        if (incomingUrl && (incomingUrl !== lastSyncedUrlRef.current || !lastSyncedUrlRef.current)) {
             // Check existence of local undo stack to prevent overwriting WIP
-            if (undoStack.current.length > 0 && savedCanvasData === lastSyncedUrlRef.current) return;
+            if (undoStack.current.length > 0 && incomingUrl === lastSyncedUrlRef.current) return;
 
             console.log("Loading canvas from:", savedCanvasData);
 
