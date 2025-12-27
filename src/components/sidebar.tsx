@@ -7,6 +7,8 @@ import { Database, Plus, ChevronRight, ChevronDown, Folder } from 'lucide-react'
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CollectionContextMenu } from '@/components/collection-context-menu';
 import { toast } from 'sonner';
+import { CollectionDialog } from '@/components/collection-dialog';
+import { useCollections } from '@/hooks/use-collections';
 
 interface SidebarProps {
     collections: Collection[];
@@ -23,6 +25,7 @@ interface FolderState {
 }
 
 export function Sidebar({ collections, selectedCollection, onSelect, className }: SidebarProps) {
+    const { refresh } = useCollections();
     const [folders, setFolders] = useState<FolderState[]>([]);
 
     // Initialize folders on load
@@ -91,11 +94,21 @@ export function Sidebar({ collections, selectedCollection, onSelect, className }
                 <div className="px-3 py-2 flex-1 flex flex-col">
                     <div className="flex items-center justify-between px-4 mb-2">
                         <h2 className="text-lg font-semibold tracking-tight text-primary">
-                            Databases
+                            databases
                         </h2>
-                        <Button variant="ghost" size="icon" className="h-4 w-4" onClick={handleCreateFolder}>
-                            <Plus className="h-4 w-4" />
-                        </Button>
+                        <div className="flex items-center gap-1">
+                            <CollectionDialog
+                                onSuccess={refresh}
+                                trigger={
+                                    <Button variant="ghost" size="icon" className="h-6 w-6" title="create database">
+                                        <Plus className="h-4 w-4" />
+                                    </Button>
+                                }
+                            />
+                            <Button variant="ghost" size="icon" className="h-4 w-4" onClick={handleCreateFolder} title="add folder">
+                                <Folder className="h-3 w-3" />
+                            </Button>
+                        </div>
                     </div>
 
                     <ScrollArea className="flex-1 px-1">
