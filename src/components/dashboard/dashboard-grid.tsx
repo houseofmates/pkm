@@ -1107,7 +1107,7 @@ export function DashboardGrid() {
                                     )}
                                 </div>
 
-                                <div className="flex-1 overflow-auto p-2">
+                                <div className="flex-1 p-2 flex flex-col min-h-0">
                                     <ViewComponent data={data} collection={collections.find(c => c.name === widget.collectionName)} loading={false} />
                                 </div>
 
