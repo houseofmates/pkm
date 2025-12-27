@@ -8,6 +8,7 @@ import {
 import { useState } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Placeholder Data for "Wireframe" mode
 const PLACEHOLDER_DATA = [
@@ -33,9 +34,10 @@ interface ChartProps {
     seriesOrder?: string[];
     legendCollapsed?: boolean;
     onConfig?: (key: string, value?: any) => void;
+    columns?: { label: string, value: string }[];
 }
 
-export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'value', color = '#8884d8', seriesKeys, stacked, seriesType, seriesTypes, seriesOrder, legendCollapsed, onConfig }: ChartProps) {
+export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'value', color = '#8884d8', seriesKeys, stacked, seriesType, seriesTypes, seriesOrder, legendCollapsed, onConfig, columns }: ChartProps) {
     const [hidden, setHidden] = useState<Record<string, boolean>>({});
     const [hoverKey, setHoverKey] = useState<string | null>(null);
     const [search, setSearch] = useState('');
@@ -45,16 +47,31 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     const chartData = isPlaceholder ? PLACEHOLDER_DATA : data;
 
     // Helper to request config change
-    const triggerConfig = (configKey: string) => {
+    const triggerConfig = (configKey: string, val?: any) => {
         if (!onConfig) return;
-        // In a real implementation, this might open a popover context menu.
-        // For now, it signals intent to parent.
-        onConfig(configKey);
+        onConfig(configKey, val);
     };
 
     // Render Overlay for Placeholder instructions
-    const PlaceholderOverlay = ({ label }: { label?: string }) => {
+    const PlaceholderOverlay = ({ label, targetKey }: { label?: string, targetKey?: string }) => {
         if (!isPlaceholder) return null;
+
+        if (targetKey && columns && columns.length > 0) {
+            return (
+                <div className="absolute inset-0 flex items-center justify-center z-10" onClick={(e) => e.stopPropagation()}>
+                    <Select onValueChange={(v) => triggerConfig(targetKey, v)}>
+                        <SelectTrigger className="w-[200px] bg-background/90 backdrop-blur shadow-lg border-dashed border-primary/50">
+                            <PlusCircle className="mr-2 h-4 w-4 text-primary" />
+                            <SelectValue placeholder={label || "Configure Data"} />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {columns.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+                        </SelectContent>
+                    </Select>
+                </div>
+            )
+        }
+
         return (
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
                 <div className="bg-background/80 backdrop-blur-sm border border-dashed border-primary/50 text-primary px-4 py-2 rounded-full shadow-lg flex items-center gap-2 animate-in fade-in zoom-in duration-300">
@@ -67,7 +84,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
 
     // Common Axis Props for Placeholders
     const placeholderAxisProps = isPlaceholder ? {
-        onClick: () => triggerConfig('xAxis'),
+        // We can't easily put a Select on Axis click without positioning logic
+        // So we fallback to simple trigger or just let the main overlay handle it
         cursor: "pointer",
         tick: { fill: 'var(--muted-foreground)', opacity: 0.5 }
     } : {};
