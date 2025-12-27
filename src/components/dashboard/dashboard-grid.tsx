@@ -804,34 +804,101 @@ export function DashboardGrid() {
                     </Button>
 
                     <Button
-                        onClick={(e) => { e.stopPropagation(); setAddMenuOpen(!addMenuOpen); }}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setAddMenuOpen(!addMenuOpen);
+                            setWizardStep('collection');
+                            setWizardSearch('');
+                        }}
                         variant={addMenuOpen ? "secondary" : "default"}
                     >
                         <Plus className="h-4 w-4 mr-2" /> add view
                     </Button>
 
                     {addMenuOpen && (
-                        <div className="absolute top-full right-0 mt-2 w-64 bg-popover border rounded-md shadow-lg z-50 max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
-                            <div className="p-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">add collection view</div>
-                            {collections.map(col => (
-                                <div key={col.name} className="border-b last:border-0 border-border/50">
-                                    <div className="px-2 py-1.5 text-sm font-medium flex items-center bg-muted/30">
-                                        <Database className="mr-2 h-3 w-3 opacity-50" />
-                                        {col.title || col.name}
-                                    </div>
-                                    <div className="grid grid-cols-2 gap-1 p-1">
-                                        {VIEW_OPTIONS.map(view => (
-                                            <button
-                                                key={view.id}
-                                                className="text-xs text-left px-2 py-1.5 hover:bg-muted rounded-sm transition-colors text-muted-foreground hover:text-foreground"
-                                                onClick={() => { handleAddWidget(col.name, view.id); setAddMenuOpen(false); }}
-                                            >
-                                                + {view.label}
-                                            </button>
-                                        ))}
-                                    </div>
+                        <div
+                            className="absolute top-full right-0 mt-2 w-72 bg-popover border rounded-xl shadow-2xl z-50 overflow-hidden flex flex-col"
+                            style={{ maxHeight: '400px' }}
+                            onClick={e => e.stopPropagation()}
+                        >
+                            {/* Wizard Header */}
+                            <div className="p-3 border-b bg-muted/30">
+                                <div className="flex items-center gap-2 mb-2">
+                                    {wizardStep === 'view' && (
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-6 w-6 -ml-1"
+                                            onClick={() => { setWizardStep('collection'); setWizardSearch(''); }}
+                                        >
+                                            <div className="rotate-180">➤</div>
+                                        </Button>
+                                    )}
+                                    <span className="text-sm font-semibold">
+                                        {wizardStep === 'collection' ? 'Select Database' : 'Select View Type'}
+                                    </span>
                                 </div>
-                            ))}
+                                <Input
+                                    placeholder={wizardStep === 'collection' ? "Search collections..." : "Search view types..."}
+                                    value={wizardSearch}
+                                    onChange={e => setWizardSearch(e.target.value)}
+                                    className="h-8 text-xs bg-background"
+                                    autoFocus
+                                />
+                            </div>
+
+                            {/* Wizard Body */}
+                            <div className="overflow-y-auto flex-1 p-1">
+                                {wizardStep === 'collection' ? (
+                                    <div className="space-y-1">
+                                        {collections
+                                            .filter(c => (c.title || c.name).toLowerCase().includes(wizardSearch.toLowerCase()))
+                                            .map(col => (
+                                                <button
+                                                    key={col.name}
+                                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-accent hover:text-accent-foreground text-sm flex items-center transition-colors"
+                                                    onClick={() => {
+                                                        setSelectedCollectionForWizard(col.name);
+                                                        setWizardStep('view');
+                                                        setWizardSearch('');
+                                                    }}
+                                                >
+                                                    <Database className="mr-2 h-4 w-4 opacity-50" />
+                                                    <div className="flex-1 truncate">
+                                                        {col.title || col.name}
+                                                    </div>
+                                                    <div className="text-xs text-muted-foreground">➤</div>
+                                                </button>
+                                            ))}
+                                        {collections.length === 0 && <div className="p-4 text-center text-xs text-muted-foreground">No collections found</div>}
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 gap-1">
+                                        {VIEW_OPTIONS
+                                            .filter(v => v.label.toLowerCase().includes(wizardSearch.toLowerCase()))
+                                            .map(view => (
+                                                <button
+                                                    key={view.id}
+                                                    className="w-full text-left px-3 py-2 rounded-md hover:bg-accent hover:text-accent-foreground text-sm flex items-center transition-colors group"
+                                                    onClick={() => {
+                                                        if (selectedCollectionForWizard) {
+                                                            handleAddWidget(selectedCollectionForWizard, view.id);
+                                                            setAddMenuOpen(false);
+                                                        }
+                                                    }}
+                                                >
+                                                    <span className="w-8 h-8 rounded bg-muted flex items-center justify-center mr-3 group-hover:bg-background transition-colors">
+                                                        {view.icon ? <view.icon className="h-4 w-4" /> : <div className="h-4 w-4" />}
+                                                    </span>
+                                                    <div>
+                                                        <div className="font-medium">{view.label}</div>
+                                                        <div className="text-[10px] text-muted-foreground line-clamp-1">{view.description}</div>
+                                                    </div>
+                                                </button>
+                                            ))}
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     )}
 
