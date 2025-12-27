@@ -463,8 +463,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
         ];
 
         return (
-            <div className="relative w-full h-full flex items-center justify-center p-2 group" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
-                <PlaceholderOverlay />
+            <div className="relative w-full h-full flex items-center justify-center p-2 group" onClick={() => isPlaceholder && triggerConfig('chartY')}>
+                <PlaceholderOverlay label="Select Metric" targetKey="chartY" />
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                         <Pie
@@ -504,8 +504,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
         const val = isPlaceholder ? 1234 : data.reduce((acc, cur) => acc + (Number(cur[yKey]) || 0), 0);
 
         return (
-            <div className="h-full w-full flex flex-col items-center justify-center p-4 group cursor-pointer relative" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
-                <PlaceholderOverlay label="Configure KPI" />
+            <div className="h-full w-full flex flex-col items-center justify-center p-4 group cursor-pointer relative" onClick={() => isPlaceholder && triggerConfig('chartY')}>
+                <PlaceholderOverlay label="Configure KPI Values" targetKey="chartY" />
                 <div className={cn("text-sm uppercase tracking-wider mb-2", isPlaceholder ? "text-muted-foreground/50" : "text-muted-foreground")}>
                     {isPlaceholder ? "Total Metric" : (xKey + ' Total')}
                 </div>
