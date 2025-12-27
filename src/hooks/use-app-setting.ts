@@ -65,7 +65,7 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
     }, [fetchSetting]);
 
     // Save to Backend (Debounced)
-    const saveTimeoutRef = useRef<NodeJS.Timeout>();
+    const saveTimeoutRef = useRef<any>(null);
 
     const updateValue = useCallback((newValue: T | ((val: T) => T)) => {
         setValue((prev) => {
