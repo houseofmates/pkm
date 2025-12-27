@@ -81,6 +81,13 @@ export async function apiRequest(type: ApiType, endpoint: string, options: Parti
             ...(options.headers as Record<string, string>)
         };
 
+        // DEBUG: Check what headers are being sent
+        if (headers['Authorization']) {
+            console.log('[API] Header Auth:', headers['Authorization'].substring(0, 15) + '...');
+        } else {
+            console.warn('[API] Missing Auth Header!');
+        }
+
         try {
             const response = await fetch(fetchUrl, {
                 method: options.method || 'GET',
@@ -89,11 +96,11 @@ export async function apiRequest(type: ApiType, endpoint: string, options: Parti
             });
 
             if (!response.ok) {
-                if (response.status === 401) {
-                    console.warn('[API] 401 Unauthorized - clearing token and dispatching auth-error');
-                    localStorage.removeItem('nocobase_token'); // Ensure correct key is removed
-                    window.dispatchEvent(new Event('auth-error'));
-                }
+                // if (response.status === 401) {
+                //    console.warn('[API] 401 Unauthorized - clearing token and dispatching auth-error');
+                //    localStorage.removeItem('nocobase_token'); // Ensure correct key is removed
+                //    window.dispatchEvent(new Event('auth-error'));
+                // }
 
                 const text = await response.text();
                 let parsed: any = text;
