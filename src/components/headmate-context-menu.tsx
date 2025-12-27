@@ -68,11 +68,16 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
             console.log('Uploaded file data:', uploadedFile);
 
             if (uploadedFile && uploadedFile.id) {
-                // Use the proxy endpoint to avoid 403 errors by leveraging the auth token
-                // NocoBase attachments are secure by default
-                const secureUrl = `/api/nocobase/attachments/${uploadedFile.id}/download`;
-                console.log('Setting Override URL:', secureUrl, 'for member:', memberId);
-                updateOverride(memberId, { avatarUrl: secureUrl });
+                // Check if the upload response includes a direct URL
+                let avatarUrl = uploadedFile.url || uploadedFile.path;
+
+                // If no direct URL, use the attachment endpoint
+                if (!avatarUrl) {
+                    avatarUrl = `/api/nocobase/attachments/${uploadedFile.id}/download`;
+                }
+
+                console.log('Setting Override URL:', avatarUrl, 'for member:', memberId);
+                updateOverride(memberId, { avatarUrl });
                 toast.success("Avatar updated", { id: toastId });
                 setImageOpen(false);
             }
