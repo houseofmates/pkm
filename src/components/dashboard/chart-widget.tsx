@@ -311,6 +311,7 @@ export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yK
                     aspectRatio={4 / 3}
                     stroke="var(--background)"
                     fill={color}
+                    isAnimationActive={false}
                 >
                     <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />
                 </Treemap>
