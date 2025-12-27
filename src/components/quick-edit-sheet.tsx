@@ -4,7 +4,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFo
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
+import RichEditor, { markdownToHtml } from '@/components/ui/rich-editor';
+import { sanitizeHTML } from '@/lib/utils';import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -125,10 +126,10 @@ export function QuickEditSheet() {
                                 Note Content
                             </Label>
                             <div className="relative group">
-                                <Textarea
+                                <RichEditor
                                     className="min-h-[300px] font-mono text-sm leading-relaxed resize-none p-4 bg-muted/10 focus:bg-background"
-                                    value={data.content || ''}
-                                    onChange={e => handleChange('content', e.target.value)}
+                                    value={data.content ? (String(data.content).trim().startsWith('<') ? String(data.content) : markdownToHtml(String(data.content))) : ''}
+                                    onChange={(html) => handleChange('content', sanitizeHTML(html))}
                                     placeholder="# Write with markdown..."
                                 />
                                 {/* Quick Embed Actions Helper */}

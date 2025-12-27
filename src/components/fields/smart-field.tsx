@@ -108,6 +108,8 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
     const [isEditing, setIsEditing] = useState(false);
     const [localValue, setLocalValue] = useState(value);
     const [galleryOpen, setGalleryOpen] = useState(false);
+    const [galleryImgs, setGalleryImgs] = useState<string[]>([]);
+    const [uploadingMap, setUploadingMap] = useState<Record<string, boolean>>({});
     const { client } = useAuth();
 
     useEffect(() => {

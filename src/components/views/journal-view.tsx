@@ -2,7 +2,8 @@
 import { useState, useMemo } from 'react';
 import type { ViewProps } from './registry';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
+import RichEditor, { markdownToHtml } from '@/components/ui/rich-editor';
+import { sanitizeHTML } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Send, Sparkles, Calendar, Clock } from 'lucide-react';
 import { toast } from 'sonner';
@@ -100,15 +101,15 @@ export function JournalView({ data, collection, onUpdateRecord: _onUpdateRecord,
                     </Button>
                 </div>
 
-                <Textarea
+                <RichEditor
                     placeholder="Write your thoughts..."
                     className="min-h-[120px] bg-background/50 border-input/50 focus:bg-background transition-all resize-none text-lg leading-relaxed"
-                    value={entry}
-                    onChange={e => setEntry(e.target.value)}
+                    value={entry ? (String(entry).trim().startsWith('<') ? entry : markdownToHtml(entry)) : ''}
+                    onChange={(html) => setEntry(sanitizeHTML(html))}
                 />
 
                 <div className="flex justify-end mt-4">
-                    <Button onClick={handleSubmit} disabled={!entry.trim()}>
+                    <Button onClick={handleSubmit} disabled={!entry || !String(entry).trim()}>
                         <Send className="h-4 w-4 mr-2" /> Save Entry
                     </Button>
                 </div>
@@ -138,12 +139,11 @@ export function JournalView({ data, collection, onUpdateRecord: _onUpdateRecord,
                                     <div className="prose dark:prose-invert prose-sm max-w-none">
                                         {/* Simple Markdown Render (Mock) */}
                                         <div className="whitespace-pre-wrap font-serif text-base text-foreground/90">
-                                            {String(rec[contentField.name] || '').replace(/\*\*(.*?)\*\*/g, '').trim()}
-                                            {/* Hide prompt in preview if bolded */}
+                                            <div dangerouslySetInnerHTML={{ __html: sanitizeHTML(String(rec[contentField.name] || '')) }} />
                                         </div>
                                         {/* Prompt Was: */}
                                         <div className="text-[10px] text-muted-foreground mt-2 italic border-t pt-2 opacity-50 group-hover:opacity-100 transition-opacity">
-                                            {String(rec[contentField.name] || '').match(/\*\*(.*?)\*\*/)?.[1] || 'Free entry'}
+                                            {((String(rec[contentField.name] || '').match(/<strong>(.*?)<\/strong>/)?.[1]) || 'Free entry')}
                                             {' • '}
                                             {format(new Date(rec[dateField?.name] || rec.created_at), 'h:mm a')}
                                         </div>
