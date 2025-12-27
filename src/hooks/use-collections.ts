@@ -22,7 +22,7 @@ export function useCollections() {
             const rawCollections = Array.isArray(response.data) ? response.data : (response?.data as any)?.data || [];
 
             // Debugging: list names returned by server so we can see if proxy/auth is returning nothing
-            console.log('[useCollections] fetched collections:', rawCollections.map((c: any) => c.name).join(', '));
+
 
             const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers'];
 
@@ -60,7 +60,7 @@ export function useCollections() {
             setCollections(filteredCollections);
             setError(null);
         } catch (err: any) {
-            console.error(err);
+
             setError(err.message || 'Failed to fetch collections');
         } finally {
             setLoading(false);
