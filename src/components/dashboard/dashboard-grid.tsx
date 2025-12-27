@@ -408,7 +408,7 @@ export function DashboardGrid() {
                 }
             });
         }
-    }, [client, setSavedCanvasData]);
+    }, [client, setSavedCanvasData, token, flushSavedCanvas]);
 
     const handleSave = () => {
         saveCanvas();
