@@ -53,6 +53,34 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
 
     const fadedColor = getFadedColor(displayTextColor);
 
+    const [blobUrl, setBlobUrl] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (displayImage && displayImage.startsWith('/api/nocobase')) {
+            // It's a secure endpoint, we need to fetch it with headers
+            const fetchBlob = async () => {
+                try {
+                    const token = localStorage.getItem('nocobase_token');
+                    const res = await fetch(displayImage, {
+                        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                    });
+                    if (res.ok) {
+                        const blob = await res.blob();
+                        const url = URL.createObjectURL(blob);
+                        setBlobUrl(url);
+                    }
+                } catch (e) {
+                    console.error("Failed to load secure avatar", e);
+                }
+            };
+            fetchBlob();
+        } else {
+            setBlobUrl(null);
+        }
+    }, [displayImage]);
+
+    const finalImageSrc = blobUrl || displayImage;
+
     return (
         <Card
             ref={ref}
@@ -76,9 +104,9 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
             />
             {/* Background Image */}
             <div className="absolute inset-0 bg-muted/30">
-                {displayImage ? (
+                {finalImageSrc ? (
                     <img
-                        src={displayImage}
+                        src={finalImageSrc}
                         alt={(member.content as any).name}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
