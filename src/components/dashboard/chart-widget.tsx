@@ -542,10 +542,14 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     }
 
     if (type === 'kpi') {
+        if (!isMounted || !hasValidDimensions) {
+            return <div className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+        }
+
         const val = isPlaceholder ? 1234 : data.reduce((acc, cur) => acc + (Number(cur[yKey]) || 0), 0);
 
         return (
-            <div className="h-full w-full flex flex-col items-center justify-center p-4 group cursor-pointer relative" onClick={() => isPlaceholder && triggerConfig('chartY')}>
+            <div ref={containerRef} className="h-full w-full flex flex-col items-center justify-center p-4 group cursor-pointer relative" onClick={() => isPlaceholder && triggerConfig('chartY')}>
                 <PlaceholderOverlay label="configure kpi values" targetKey="chartY" />
                 <div className={cn("text-sm uppercase tracking-wider mb-2", isPlaceholder ? "text-muted-foreground/50" : "text-muted-foreground")}>
                     {isPlaceholder ? "total metric" : (xKey + ' total')}
