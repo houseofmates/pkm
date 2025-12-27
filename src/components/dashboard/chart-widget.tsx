@@ -178,11 +178,12 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     }
 
     if (type === 'area') {
-        if (seriesKeys && seriesKeys.length > 0) {
+        if (!isPlaceholder && seriesKeys && seriesKeys.length > 0) {
+            // ... (existing multi-series logic)
             return (
                 <div className="w-full h-full">
                     <ResponsiveContainer width="100%" height="100%">
-                        <AreaChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                        <AreaChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
                             <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
                             <YAxis fontSize={10} tickLine={false} axisLine={false} />
@@ -232,15 +233,25 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
         }
 
         return (
-            <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                    <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
-                    <YAxis fontSize={10} tickLine={false} axisLine={false} />
-                    <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />
-                    <Area type="monotone" dataKey={yKey} stroke={color} fill={color} fillOpacity={0.3} />
-                </AreaChart>
-            </ResponsiveContainer>
+            <div className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
+                <PlaceholderOverlay />
+                <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                        <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
+                        <XAxis dataKey="name" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
+                        <YAxis {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
+                        {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />}
+                        <Area
+                            type="monotone"
+                            dataKey={isPlaceholder ? "value" : yKey}
+                            stroke={isPlaceholder ? "var(--muted-foreground)" : color}
+                            fill={isPlaceholder ? "var(--muted)" : color}
+                            fillOpacity={isPlaceholder ? 0.1 : 0.3}
+                            strokeDasharray={isPlaceholder ? "5 5" : undefined}
+                        />
+                    </AreaChart>
+                </ResponsiveContainer>
+            </div>
         );
     }
 
