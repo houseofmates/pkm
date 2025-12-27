@@ -302,10 +302,13 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     }
 
     if (type === 'bar') {
+        if (!isMounted || !hasValidDimensions) {
+            return <div className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+        }
+
         if (!isPlaceholder && seriesKeys && seriesKeys.length > 0) {
-            // ... (multi-series logic)
             return (
-                <div className="w-full h-full">
+                <div ref={containerRef} className="w-full h-full">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
                             <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
