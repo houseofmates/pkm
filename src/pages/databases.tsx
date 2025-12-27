@@ -100,8 +100,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     );
 
     useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        const allowed = (location.state as any)?.fromSidebar || localStorage.getItem('pkm:allow_databases_direct') || params.get('bookmark') === 'true';
+        const allowed = (location.state as any)?.fromSidebar || localStorage.getItem('pkm:allow_databases_direct');
         if (!allowed) {
             navigate('/');
         }
@@ -135,17 +134,6 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
         }
     };
 
-    const handleBookmark = () => {
-        const url = window.location.origin + '/databases?bookmark=true';
-        try {
-            navigator.clipboard.writeText(url);
-            localStorage.setItem('pkm:allow_databases_direct', '1');
-            toast.success('database link copied to clipboard');
-        } catch (e) {
-            console.warn('Clipboard write failed', e);
-            toast.success('copy URL: ' + url);
-        }
-    };
 
     const handleLogin = () => {
         if (!apiKey) return;
@@ -201,7 +189,6 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
                             <Plus className="h-6 w-6" />
                         </Button>
                     } />
-                    <Button variant="ghost" size="sm" onClick={handleBookmark}>bookmark</Button>
                 </div>
             </div>
             {collections.length === 0 ? (
