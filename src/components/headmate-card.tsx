@@ -56,14 +56,10 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
             ref={ref}
             onClick={onClick}
             style={{
-                borderColor: isActive ? displayTextColor : fadedColor,
-                borderWidth: isActive ? "4px" : "2px",
-                borderStyle: "solid",
                 boxShadow: "none"
             }}
             className={cn(
-                "aspect-square relative overflow-hidden group cursor-pointer transition-all duration-300",
-                "!border-none",
+                "aspect-square relative overflow-hidden group cursor-pointer transition-all duration-300 border-0",
                 isActive ? "scale-[1.1] z-10" : "",
                 className
             )}
@@ -71,10 +67,9 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
         >
             {/* Wrapper div to handle the border since Card's border class interferes */}
             <div 
-                className="absolute inset-0 pointer-events-none z-50"
+                className="absolute inset-0 pointer-events-none z-50 rounded-lg"
                 style={{
-                    border: `${isActive ? "4px" : "2px"} solid ${isActive ? displayTextColor : fadedColor}`,
-                    borderRadius: "inherit"
+                    border: `${isActive ? "4px" : "2px"} solid ${isActive ? displayTextColor : fadedColor}`
                 }}
             />
             {/* Background Image */}
