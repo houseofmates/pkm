@@ -130,44 +130,74 @@ export function DashboardGrid() {
     // Load Canvas
     useEffect(() => {
         // Only load if different from what we last synced (avoid overwritting local edits)
-        // Also load if it's the very first load (lastSyncedUrlRef is empty) and we have data
         if (savedCanvasData && (savedCanvasData !== lastSyncedUrlRef.current || !lastSyncedUrlRef.current)) {
-            // If we have local unsaved changes (undoStack > 0), maybe we shouldn't overwrite?
-            // For now, let's respect remote "persistence" on load.
+            // Check existence of local undo stack to prevent overwriting WIP
             if (undoStack.current.length > 0 && savedCanvasData === lastSyncedUrlRef.current) return;
 
-            const img = new Image();
-            img.crossOrigin = 'anonymous';
-            img.onload = () => {
-                const ctx = canvasRef.current?.getContext('2d');
-                if (ctx && canvasRef.current) {
-                    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-                    ctx.drawImage(img, 0, 0);
-                    // Update our reference so we don't re-trigger
-                    lastSyncedUrlRef.current = savedCanvasData;
+            console.log("Loading canvas from:", savedCanvasData);
 
-                    // We don't snapshot initial load to empty stack, or maybe we should?
-                    // Let's keep stack clean for user actions.
+            const loadCanvasImage = async () => {
+                try {
+                    // 1. Construct Full URL if relative
+                    let fileUrl = savedCanvasData;
+                    if (savedCanvasData.startsWith('/')) {
+                        // Assumption: Web mode only for now, or adapt based on platform
+                        // For a relative path like /storage/..., we need the base of the app or api?
+                        // Actually, if it comes from NocoBase upload, it might be an API path.
+                        // Let's try to just use it directly if it works, or fetch it.
+                        // Better: Fetch as Blob to handle everything.
+
+                        // If we are in 'web' mode, we might need the proxy prefix if it's under /api?
+                        // Usually uploads are static files served by server.
+                    }
+
+                    // Fetch as Blob to report errors and handle CORS cleanly via ObjectURL
+                    const response = await fetch(fileUrl);
+                    if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`);
+                    const blob = await response.blob();
+                    const objectUrl = URL.createObjectURL(blob);
+
+                    const img = new Image();
+                    img.onload = () => {
+                        const ctx = canvasRef.current?.getContext('2d');
+                        if (ctx && canvasRef.current) {
+                            ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                            ctx.drawImage(img, 0, 0);
+                            lastSyncedUrlRef.current = savedCanvasData;
+                            URL.revokeObjectURL(objectUrl);
+                            console.log("Canvas loaded successfully.");
+                            // Initialize undo stack with this state if empty
+                            if (undoStack.current.length === 0) {
+                                saveSnapshot();
+                            }
+                        }
+                    };
+                    img.src = objectUrl;
+
+                } catch (e) {
+                    console.error("Failed to load canvas background:", e);
                 }
             };
-            img.onerror = () => {
-                console.error("Failed to load canvas background", savedCanvasData);
-            };
-            img.src = savedCanvasData;
+            loadCanvasImage();
         }
-    }, [savedCanvasData]);
+    }, [savedCanvasData, saveSnapshot]);
 
     const saveCanvas = useCallback(() => {
         if (canvasRef.current) {
             canvasRef.current.toBlob(async (blob) => {
-                if (!blob) return;
+                if (!blob) {
+                    console.error("Canvas toBlob failed (empty or tainted?)");
+                    return;
+                }
+                console.log("Canvas uploading blob size:", blob.size);
                 const file = new File([blob], "canvas_state.png", { type: "image/png" });
                 try {
                     const res = await client.upload(file);
+                    console.log("Canvas upload result:", res);
                     if (res.data?.url) {
-                        // Mark this URL as known so we don't reload it
                         lastSyncedUrlRef.current = res.data.url;
                         setSavedCanvasData(res.data.url);
+                        console.log("Synced canvas URL to setting:", res.data.url);
                     }
                 } catch (e) {
                     console.error("Canvas sync failed", e);
