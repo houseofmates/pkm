@@ -69,6 +69,63 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
         }
     }, [open, isEdit, collection, metadata]);
 
+    const [csvData, setCsvData] = useState<any[]>([]);
+    const [csvFields, setCsvFields] = useState<any[]>([]);
+    const csvInputRef = useRef<HTMLInputElement>(null);
+
+    const inferType = (values: any[]) => {
+        const nonNull = values.filter(v => v !== null && v !== undefined && v !== '');
+        if (nonNull.length === 0) return 'string';
+
+        // Check for boolean
+        const isBool = nonNull.every(v => {
+            const s = String(v).toLowerCase();
+            return ['true', 'false', 'yes', 'no', '1', '0'].includes(s);
+        });
+        if (isBool) return 'boolean';
+
+        // Check for number
+        const isNum = nonNull.every(v => !isNaN(Number(v)));
+        if (isNum) return 'number';
+
+        // Check for date
+        const isDate = nonNull.every(v => !isNaN(Date.parse(String(v))));
+        if (isDate) return 'date';
+
+        return 'string';
+    };
+
+    const handleCsvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        import('papaparse').then((Papa) => {
+            Papa.default.parse(file, {
+                header: true,
+                dynamicTyping: true,
+                skipEmptyLines: true,
+                complete: (results) => {
+                    if (results.data && results.data.length > 0) {
+                        const data = results.data as any[];
+                        const headers = Object.keys(data[0]);
+                        const fields = headers.map(h => ({
+                            name: h.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''),
+                            title: h,
+                            type: inferType(data.map(row => row[h]))
+                        }));
+                        setCsvData(data);
+                        setCsvFields(fields);
+                        if (!displayName) setDisplayName(file.name.replace(/\.[^/.]+$/, ""));
+                        toast.success(`parsed ${data.length} rows and ${fields.length} columns`);
+                    }
+                },
+                error: (err) => {
+                    toast.error("failed to parse CSV: " + err.message);
+                }
+            });
+        });
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
@@ -81,10 +138,48 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                     title: displayName,
                 });
             } else {
+                // 1. Create Collection
                 await client.createCollection({
                     title: displayName,
                     name: finalName,
                 });
+
+                // 2. If CSV, Create Fields
+                if (csvFields.length > 0) {
+                    toast.info(`creating ${csvFields.length} fields...`);
+                    // We must create fields sequentially or carefully to avoid NocoBase race conditions
+                    for (const field of csvFields) {
+                        await client.createField(finalName, {
+                            name: field.name,
+                            title: field.title,
+                            type: field.type,
+                            // Map generic types to NocoBase nuances if needed
+                            interface: field.type === 'string' ? 'input' :
+                                field.type === 'number' ? 'number' :
+                                    field.type === 'date' ? 'datetime' :
+                                        field.type === 'boolean' ? 'checkbox' : 'input'
+                        });
+                    }
+
+                    // 3. Batch Create Records
+                    if (csvData.length > 0) {
+                        toast.info(`importing ${csvData.length} records...`);
+                        // For simplicity, we loop. In production we'd want a bulk API
+                        const batchSize = 10;
+                        for (let i = 0; i < csvData.length; i += batchSize) {
+                            const chunk = csvData.slice(i, i + batchSize);
+                            await Promise.all(chunk.map(row => {
+                                // Map CSV header keys to NocoBase field names
+                                const record: any = {};
+                                csvFields.forEach(f => {
+                                    record[f.name] = row[f.title];
+                                });
+                                return client.createRecord(finalName, record);
+                            }));
+                            if (i % 50 === 0) toast.info(`imported ${i + chunk.length} / ${csvData.length} records...`);
+                        }
+                    }
+                }
             }
 
             // Save metadata
@@ -98,7 +193,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                 }
             }));
 
-            toast.success(isEdit ? "database updated" : "database created");
+            toast.success(isEdit ? "database updated" : (csvData.length > 0 ? "database imported successfully" : "database created"));
             setOpen(false);
             onSuccess();
         } catch (error: any) {
