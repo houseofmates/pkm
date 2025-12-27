@@ -71,9 +71,7 @@
 }
 
 @layer base {
-  * {
-    
-  }
+  * {}
 
   body {
     @apply bg-background text-foreground lowercase font-varela;
@@ -120,7 +118,7 @@
   b,
   strong,
   .font-bold {
-    color: #f6b012 !important;
+    color: #f6b012;
   }
 
   /* Ensure muted text is light gray, never dark gray */
