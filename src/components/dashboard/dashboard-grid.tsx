@@ -342,11 +342,9 @@ export function DashboardGrid() {
                     reader.readAsDataURL(blob);
                 } catch (e) { /* ignore local fallback errors */ }
 
-                console.log("Canvas uploading blob size:", blob.size);
                 const file = new File([blob], "canvas_state.png", { type: "image/png" });
                 try {
                     const res = await client.upload(file);
-                    console.log("Canvas full upload response:", res);
 
                     // Handle variable response structures
                     const uploadedUrl = res?.data?.url || res?.url;
@@ -371,7 +369,6 @@ export function DashboardGrid() {
                         // Use the local blob directly to create the backup dataURL
                         // This avoids the 500/403 errors when trying to fetch back the image we just uploaded
                         const dataUrl = await blobToDataURL(blob);
-                        console.log("Generated inline backup from local blob (length: " + (dataUrl?.length || 0) + ")");
 
                         const payload: any = { id, url };
                         if (dataUrl && dataUrl.length < 1_000_000) payload.data = dataUrl; // include small backup
@@ -382,7 +379,6 @@ export function DashboardGrid() {
                         // Force a flush so the setting persists immediately and is visible to other devices
                         try {
                             await (flushSavedCanvas?.(payload) ?? Promise.resolve());
-                            console.log("Canvas setting flushed successfully:", url);
                             resolve();
                         } catch (e) {
                             console.error('Failed to flush saved canvas setting', e);
