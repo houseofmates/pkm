@@ -142,7 +142,7 @@ export function HeadmatesPage() {
                                             // Let's toggle for UX convenience
                                             setFronter(activeFronterId === member.id ? null : member.id);
                                             if (activeFronterId !== member.id) {
-                                                toast.success(`Fronting: ${member.content.name}`);
+                                                toast.success(`Fronting: ${formatDisplayName(member.content.name)}`);
                                             }
                                         }}
                                     />
