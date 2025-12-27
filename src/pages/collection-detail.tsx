@@ -112,7 +112,7 @@ export function CollectionDetailPage({ collectionName, onBack }: CollectionDetai
             // Optimistic update locally? 
             // For now, simple await and refetch
             setRecords(prev => prev.map(r => r.id === id ? { ...r, ...data } : r)); // Optimistic UI
-            await client.update(collectionName, id, data);
+            await client.updateRecord(collectionName, id, data);
             // fetchData(); // Optional: if we trust the return or optimistic update
         } catch (error) {
             console.error("Failed to update record", error);
