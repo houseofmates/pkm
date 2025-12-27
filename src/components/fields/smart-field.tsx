@@ -8,6 +8,8 @@ import { Check, X, Phone, Mail, MapPin, Lock, Terminal, Code2, Paperclip, Link a
 import { LocationField } from './location-field';
 import ReactMarkdown from 'react-markdown';
 import { Textarea } from '@/components/ui/textarea';
+import RichEditor from '@/components/ui/rich-editor';
+import { sanitizeHTML } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
