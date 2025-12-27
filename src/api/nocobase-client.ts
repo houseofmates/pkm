@@ -45,15 +45,25 @@ export class NocoBaseClient {
 
     // Collection operations
     async listCollections(options?: RequestOptions): Promise<NocoBaseResponse<Collection[]>> {
-        return this.request<Collection[]>('collections', 'list', {
+        const response = await this.request<Collection[]>('collections', 'list', {
             params: {
                 paginate: false,
-                // 'appends': ['fields'], // REMOVED: Causing 500 error on some instances
-                // sort: ['sort'], // REMOVED: Causing 500 error if sort field doesn't exist
                 ...options?.params,
             },
             ...options,
         });
+
+        // Global filter to hide pkm_settings from the entire app
+        if (response.data && Array.isArray(response.data)) {
+            response.data = response.data.filter(c => {
+                const name = (c.name || '').toLowerCase();
+                const title = (c.title || '').toLowerCase();
+                if (name.includes('pkm_settings') || name === 'pkm_settings') return false;
+                if (title.includes('pkm settings') || title === 'pkm settings') return false;
+                return true;
+            });
+        }
+        return response;
     }
 
     async getCollection(name: string) {
@@ -91,11 +101,10 @@ export class NocoBaseClient {
         const formData = new FormData();
         formData.append('file', file);
 
-        // Use direct apiRequest to bypass some NocoBase wrapper headers if needed, 
-        // or just use this.request with 'attachments:create'
-        // NocoBase attachments API: POST /api/attachments
-        return this.request('attachments', 'create', {
+        // Use standard REST endpoint for persistence reliability
+        return apiRequest('nocobase', '/attachments', {
             method: 'POST',
+            headers: this.getToken() ? { 'Authorization': `Bearer ${this.getToken()}` } : {},
             data: formData
         });
     }
