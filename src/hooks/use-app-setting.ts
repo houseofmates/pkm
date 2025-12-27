@@ -145,7 +145,8 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
             if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
 
             saveTimeoutRef.current = setTimeout(async () => {
-                if (!isAuthenticated || !token) return;
+                // Double-check localStorage as well to avoid stale closures
+                if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) return;
 
                 const headers = getHeaders();
 
