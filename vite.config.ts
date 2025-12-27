@@ -1,4 +1,5 @@
 import path from "path"
+import fs from "fs" // Added fs import
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
@@ -11,9 +12,9 @@ export default defineConfig({
       configureServer(server) {
         server.middlewares.use((req, res, next) => {
           if (req.url?.startsWith('/storage/')) {
-            const fs = require('fs');
-            const path = require('path');
-            const filePath = path.join(process.cwd(), req.url);
+            // Decode the URL path to handle special characters like spaces
+            const decodedUrl = decodeURIComponent(req.url);
+            const filePath = path.join(process.cwd(), decodedUrl);
 
             if (fs.existsSync(filePath) && fs.lstatSync(filePath).isFile()) {
               res.setHeader('Access-Control-Allow-Origin', '*');
