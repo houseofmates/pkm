@@ -354,6 +354,12 @@ export function DashboardGrid() {
         if (drawingTool === 'pencil' || drawingTool === 'eraser') {
             ctx.lineTo(x, y);
             ctx.stroke();
+            canvasDirtyRef.current = true;
+            // debounce auto-save: schedule save 1s after last draw
+            if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+            saveTimerRef.current = (setTimeout(() => {
+                if (canvasDirtyRef.current) saveCanvas();
+            }, 1000) as unknown) as number;
         } else if (drawingTool === 'lasso') {
             setLassoPoints(prev => [...prev, { x, y }]);
         }
