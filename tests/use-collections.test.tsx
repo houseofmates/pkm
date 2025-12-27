@@ -22,8 +22,9 @@ describe('useCollections filtering', () => {
     (useAuth as any).mockReturnValue({ client: mockClient, isAuthenticated: true });
 
     const { result } = renderHook(() => useCollections());
-    // wait for initial fetch
-    await waitFor(() => result.current.collections.length > 0);
+    // wait for client.listCollections to be called, then for the collections to populate
+    await waitFor(() => expect(mockClient.listCollections).toHaveBeenCalled());
+    await waitFor(() => expect(result.current.collections.length).toBeGreaterThan(0));
 
     const names = result.current.collections.map(c => c.name);
     expect(names).toContain('posts');
