@@ -73,15 +73,18 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
         if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) return;
         setLoading(true);
         try {
-            const response = await apiRequest('nocobase', '/pkm_settings', {
+            // Use :list instead of :get for filtering by key
+            const response = await apiRequest('nocobase', 'pkm_settings:list', {
                 headers: getHeaders(),
                 params: {
                     filter: JSON.stringify({ key: { $eq: key } }),
-                    pageSize: '1',
-                }
+                    pageSize: 1
+                },
+                silent: true
             });
 
-            const data = response?.data || [];
+            // NocoBase :list returns { data: [...] }
+            const data = response?.data || (Array.isArray(response) ? response : []);
             if (data.length > 0) {
                 const setting = data[0];
                 settingIdRef.current = setting.id;
