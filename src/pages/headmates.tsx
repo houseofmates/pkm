@@ -11,13 +11,22 @@ import { useFronter } from '@/contexts/fronter-context';
 import { apiRequest } from '@/lib/api-client';
 import { isDiscordLinkExpired, PLACEHOLDER_IMAGE } from '@/lib/discord-utils';
 
-// Names that should always be displayed in uppercase
-const UPPERCASE_NAMES = ['alastor', 'deer', 'mike', 'walt'];
+// Strict Capitalization Map
+// Rule: If case-insensitive match, use value. Else use DB name.
+const STRICT_NAMES: Record<string, string> = {
+    'l': 'L',
+    'c': 'C',
+    's': 'S',
+    'alastor': 'Alastor',
+    'deer': 'Deer',
+    'walt': 'Walt',
+    'mike': 'Mike'
+};
 
 function formatDisplayName(name: string): string {
     const nameLower = name.toLowerCase().trim();
-    if (UPPERCASE_NAMES.includes(nameLower)) {
-        return name.toUpperCase();
+    if (STRICT_NAMES[nameLower]) {
+        return STRICT_NAMES[nameLower];
     }
     return name;
 }
@@ -63,18 +72,19 @@ export function HeadmatesPage() {
             });
 
             // SimplyPlural returns array of members directly
-            // SimplyPlural returns array of members directly
             const rawMembers = Array.isArray(membersData) ? membersData : [];
 
             // Sanitize members (check for dead Discord links)
             const sanitizedMembers = rawMembers.map((m: any) => {
+                // Check if link is expired (includes media.discordapp.net and images-ext-2.discordapp.net)
                 if (m.content?.avatarUrl && isDiscordLinkExpired(m.content.avatarUrl)) {
-                    console.warn(`[Fix] replaced expired Discord link for ${m.content.name}`);
+                    // Silenced log per user request
+                    // console.warn(`[Fix] replaced expired Discord link for ${m.content.name}`);
                     return {
                         ...m,
                         content: {
                             ...m.content,
-                            avatarUrl: PLACEHOLDER_IMAGE
+                            avatarUrl: PLACEHOLDER_IMAGE // Use placeholder if check fails
                         }
                     };
                 }
