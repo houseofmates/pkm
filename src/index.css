@@ -3,7 +3,7 @@
 
 @layer base {
   * {
-    font-family: 'Varela Round', sans-serif !important;
+    font-family: 'Varela Round', Inter, system-ui, -apple-system, sans-serif !important;
   }
 }
 
