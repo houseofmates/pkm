@@ -9,7 +9,7 @@ export default defineConfig({
     host: true,
     port: 5173,
     sourcemapIgnoreList(sourcePath) {
-      return sourcePath.includes('node_modules') || sourcePath.includes('.vite');
+      return sourcePath.includes('node_modules');
     },
     proxy: {
       '/api/simplyplural': {
@@ -36,13 +36,31 @@ export default defineConfig({
   },
   build: {
     sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom'],
+          'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-slot', '@radix-ui/react-popover'],
+          'util-vendor': ['clsx', 'date-fns', 'leaflet'],
+          'dnd-vendor': ['@dnd-kit/core', '@dnd-kit/utilities']
+        }
+      }
+    }
   },
   css: {
     devSourcemap: false,
+    preprocessorOptions: {
+      css: {
+        charset: false
+      }
+    }
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  optimizeDeps: {
+    include: ['react', 'react-dom', '@radix-ui/react-dialog', '@radix-ui/react-slot', '@radix-ui/react-popover', 'clsx', 'date-fns', 'leaflet', '@dnd-kit/core', '@dnd-kit/utilities']
+  }
 })
