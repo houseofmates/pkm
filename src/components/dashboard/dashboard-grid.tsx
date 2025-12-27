@@ -346,43 +346,41 @@ export function DashboardGrid() {
                         const url = uploadedUrl;
                         const id = res?.data?.id || res?.id;
 
-                        // Attempt to fetch the uploaded file (with auth) to create a dataURL backup if small
+                        // Create helper to convert Blob -> dataURL
+                        const blobToDataURL = async (b: Blob): Promise<string | undefined> => {
+                            return await new Promise((resolve) => {
+                                try {
+                                    const reader = new FileReader();
+                                    reader.onloadend = () => resolve(reader.result as string);
+                                    reader.onerror = () => resolve(undefined);
+                                    reader.readAsDataURL(b);
+                                } catch (e) { resolve(undefined); }
+                            });
+                        };
+
+                        // Prefer server-side proxied download (avoids CORS); fall back to direct fetch if proxy isn't available
                         let dataUrl: string | undefined = undefined;
                         try {
-                            const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
-                            const fetchRes = await fetch(url, { headers });
-                            if (fetchRes.ok) {
-                                const blob = await fetchRes.blob();
-                                // Convert to dataURL
-                                dataUrl = await new Promise<string | undefined>((resolve) => {
-                                    try {
-                                        const reader = new FileReader();
-                                        reader.onloadend = () => resolve(reader.result as string);
-                                        reader.onerror = () => resolve(undefined);
-                                        reader.readAsDataURL(blob);
-                                    } catch (e) { resolve(undefined); }
-                                });
+                            if (id && client && (client as any).downloadAttachmentBlob) {
+                                const blob = await (client as any).downloadAttachmentBlob(String(id));
+                                if (blob instanceof Blob) {
+                                    dataUrl = await blobToDataURL(blob);
+                                }
                             }
                         } catch (e) {
-                            console.warn('Could not fetch uploaded canvas for dataURL backup (direct fetch failed):', e);
+                            console.warn('Proxied download for dataURL backup failed:', e);
+                        }
 
-                            // Try server-side proxied download as a fallback to avoid browser CORS restrictions
+                        if (!dataUrl) {
                             try {
-                                if (id && client && (client as any).downloadAttachmentBlob) {
-                                    const blob = await (client as any).downloadAttachmentBlob(String(id));
-                                    if (blob instanceof Blob) {
-                                        dataUrl = await new Promise<string | undefined>((resolve) => {
-                                            try {
-                                                const reader = new FileReader();
-                                                reader.onloadend = () => resolve(reader.result as string);
-                                                reader.onerror = () => resolve(undefined);
-                                                reader.readAsDataURL(blob);
-                                            } catch (e) { resolve(undefined); }
-                                        });
-                                    }
+                                const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
+                                const fetchRes = await fetch(url, { headers });
+                                if (fetchRes.ok) {
+                                    const blob = await fetchRes.blob();
+                                    dataUrl = await blobToDataURL(blob);
                                 }
-                            } catch (e2) {
-                                console.warn('Proxied download for dataURL backup also failed:', e2);
+                            } catch (e) {
+                                console.warn('Direct fetch for dataURL backup failed:', e);
                             }
                         }
 
