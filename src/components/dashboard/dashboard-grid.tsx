@@ -77,12 +77,12 @@ export function DashboardGrid() {
     // Mouse Position for Cursor
     const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-    // Synced Canvas Data
-    const [savedCanvasData, setSavedCanvasData, savedCanvasLoading, flushSavedCanvas] = useAppSetting<string>('dashboard_canvas_data', '');
+    // Synced Canvas Data - may be a string (legacy) or an object { id, url, data }
+    const [savedCanvasData, setSavedCanvasData, savedCanvasLoading, flushSavedCanvas] = useAppSetting<any>('dashboard_canvas_data', null);
     // Persist floating selection separately so it can be resumed across devices
     const [savedFloatingSelection, setSavedFloatingSelection, savedFloatingLoading, flushSavedFloating] = useAppSetting<string | null>('dashboard_floating_selection', null);
 
-    const lastSyncedUrlRef = useRef<string>('');
+    const lastSyncedUrlRef = useRef<string | null>(null);
     const canvasDirtyRef = useRef(false);
 
 
