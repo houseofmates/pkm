@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { Navigation, type NavItem } from '@/components/navigation';
 import { QuickEditSheet } from '@/components/quick-edit-sheet';
