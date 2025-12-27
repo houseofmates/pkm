@@ -370,30 +370,10 @@ export function DashboardGrid() {
                         };
 
                         // Prefer server-side proxied download (avoids CORS); fall back to direct fetch if proxy isn't available
-                        let dataUrl: string | undefined = undefined;
-                        try {
-                            if (id && client && (client as any).downloadAttachmentBlob) {
-                                const blob = await (client as any).downloadAttachmentBlob(String(id));
-                                if (blob instanceof Blob) {
-                                    dataUrl = await blobToDataURL(blob);
-                                }
-                            }
-                        } catch (e) {
-                            console.warn('Proxied download for dataURL backup failed:', e);
-                        }
-
-                        if (!dataUrl) {
-                            try {
-                                const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
-                                const fetchRes = await fetch(url, { headers });
-                                if (fetchRes.ok) {
-                                    const blob = await fetchRes.blob();
-                                    dataUrl = await blobToDataURL(blob);
-                                }
-                            } catch (e) {
-                                console.warn('Direct fetch for dataURL backup failed:', e);
-                            }
-                        }
+                        // Use the local blob directly to create the backup dataURL
+                        // This avoids the 500/403 errors when trying to fetch back the image we just uploaded
+                        const dataUrl = await blobToDataURL(blob);
+                        console.log("Generated inline backup from local blob (length: " + (dataUrl?.length || 0) + ")");
 
                         const payload: any = { id, url };
                         if (dataUrl && dataUrl.length < 1_000_000) payload.data = dataUrl; // include small backup
