@@ -100,7 +100,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
     };
 
     const saveVisualName = () => {
-        updateOverride(memberId, { name: visualName });
+        updateOverride(memberId, ({ name: visualName } as any));
         setNameOpen(false);
         toast.success("Visual name saved");
     };
