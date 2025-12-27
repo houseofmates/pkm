@@ -81,28 +81,22 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
             console.log('Uploaded file data:', JSON.stringify(uploadedFile, null, 2));
 
             if (uploadedFile) {
-                // NocoBase attachment URLs can come in different forms:
-                // 1. Full URL in 'url' field
-                // 2. Relative path that needs base URL
-                // 3. Need to construct from storage path
+                // Save relative URL to work with proxy (avoids CORS)
+                // The URL should be relative like /storage/uploads/filename.jpg
                 let avatarUrl = '';
                 
                 if (uploadedFile.url) {
-                    // If it's already a full URL, use it
-                    if (uploadedFile.url.startsWith('http')) {
-                        avatarUrl = uploadedFile.url;
-                    } else {
-                        // Relative URL - prepend base
-                        avatarUrl = `https://db.houseofmates.space${uploadedFile.url.startsWith('/') ? '' : '/'}${uploadedFile.url}`;
-                    }
-                } else if (uploadedFile.path) {
-                    avatarUrl = `https://db.houseofmates.space${uploadedFile.path.startsWith('/') ? '' : '/'}${uploadedFile.path}`;
+                    // Use relative URL directly (e.g., /storage/uploads/file.jpg)
+                    avatarUrl = uploadedFile.url.startsWith('/') ? uploadedFile.url : `/${uploadedFile.url}`;
+                } else if (uploadedFile.filename) {
+                    // Construct from filename
+                    avatarUrl = `/storage/uploads/${uploadedFile.filename}`;
                 } else if (uploadedFile.id) {
-                    // Fallback to attachment download endpoint
-                    avatarUrl = `https://db.houseofmates.space/storage/uploads/${uploadedFile.filename || uploadedFile.id}`;
+                    // Fallback to attachment ID
+                    avatarUrl = `/storage/uploads/${uploadedFile.id}`;
                 }
 
-                console.log('Final avatar URL:', avatarUrl);
+                console.log('Final avatar URL (relative for proxy):', avatarUrl);
 
                 if (avatarUrl) {
                     console.log('Setting Override URL:', avatarUrl, 'for member:', memberId);
