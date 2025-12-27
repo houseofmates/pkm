@@ -22,17 +22,17 @@ interface ChartProps {
 }
 
 // Mock Data if none provided
-const MOCK_DATA = [
-    { name: 'Mon', value: 400 },
-    { name: 'Tue', value: 300 },
-    { name: 'Wed', value: 300 },
-    { name: 'Thu', value: 200 },
-    { name: 'Fri', value: 278 },
-];
+// Mock Data removed
+const MOCK_DATA: any[] = [];
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
-
-export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yKey = 'value', color = '#8884d8', seriesKeys, stacked, seriesType, seriesTypes, seriesOrder, legendCollapsed }: ChartProps) {
+export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'value', color = '#8884d8', seriesKeys, stacked, seriesType, seriesTypes, seriesOrder, legendCollapsed }: ChartProps) {
+    if (!data || data.length === 0) {
+        return (
+            <div className="flex items-center justify-center w-full h-full text-muted-foreground text-sm">
+                No data available
+            </div>
+        );
+    }
     const [hidden, setHidden] = useState<Record<string, boolean>>({});
     const [hoverKey, setHoverKey] = useState<string | null>(null);
     const [search, setSearch] = useState('');
