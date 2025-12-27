@@ -5,7 +5,7 @@ import {
     FunnelChart as RechartsFunnelChart, Funnel, LabelList,
     AreaChart, Area, ScatterChart, Scatter
 } from 'recharts';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { PlusCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
