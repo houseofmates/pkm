@@ -3,7 +3,7 @@ import { useCollections } from '@/hooks/use-collections';
 import { CollectionCard } from '@/components/collection-card';
 import { useAuth } from '@/contexts/auth-context';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { CreateCollectionDialog } from '@/components/create-collection-dialog';
+import { CollectionDialog } from '@/components/collection-dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -102,7 +102,11 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
             <div className="flex items-center justify-between">
                 <h1 className="text-3xl font-bold lowercase tracking-tight">databases</h1>
                 <div className="flex items-center gap-2">
-                    <CreateCollectionDialog onCollectionCreated={refresh} />
+                    <CollectionDialog onSuccess={refresh} trigger={
+                        <Button size="icon" variant="outline" className="rounded-full w-10 h-10">
+                            <Plus className="h-6 w-6" />
+                        </Button>
+                    } />
                     <Button variant="ghost" size="sm" onClick={handleBookmark}>bookmark</Button>
                 </div>
             </div>
