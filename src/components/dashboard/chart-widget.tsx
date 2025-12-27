@@ -29,7 +29,40 @@ const MOCK_DATA = [
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yKey = 'value', color = '#8884d8' }: ChartProps) {
+    // Multi-series rendering helper
+    const renderSeries = () => {
+        if (!props.seriesKeys || props.seriesKeys.length === 0) return null;
+        return props.seriesKeys.map((key, idx) => {
+            const col = COLORS[idx % COLORS.length];
+            if (type === 'bar') {
+                return <Bar key={key} dataKey={key} stackId={props.stacked ? 'stack' : undefined} fill={col} />;
+            }
+            if (type === 'line') {
+                return <Line key={key} type="monotone" dataKey={key} stroke={col} strokeWidth={2} dot={false} />;
+            }
+            if (type === 'area') {
+                return <Area key={key} type="monotone" dataKey={key} stroke={col} fill={col} fillOpacity={0.25} />;
+            }
+            return null;
+        });
+    };
+
     if (type === 'line') {
+        if (props.seriesKeys && props.seriesKeys.length > 0) {
+            return (
+                <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                        <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
+                        <YAxis fontSize={10} tickLine={false} axisLine={false} />
+                        <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />
+                        {renderSeries()}
+                        <Legend />
+                    </LineChart>
+                </ResponsiveContainer>
+            );
+        }
+
         return (
             <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
@@ -44,6 +77,21 @@ export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yK
     }
 
     if (type === 'area') {
+        if (props.seriesKeys && props.seriesKeys.length > 0) {
+            return (
+                <ResponsiveContainer width="100%" height="100%">
+                    <AreaChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                        <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                        <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
+                        <YAxis fontSize={10} tickLine={false} axisLine={false} />
+                        <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />
+                        {renderSeries()}
+                        <Legend />
+                    </AreaChart>
+                </ResponsiveContainer>
+            );
+        }
+
         return (
             <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
