@@ -111,9 +111,8 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
             const response = await apiRequest('nocobase', '/pkm_settings', {
                 headers: getHeaders(),
                 params: {
-                    filter: JSON.stringify({ key }),
+                    filter: JSON.stringify({ key: { $eq: key } }),
                     pageSize: '1',
-                    fields: 'id,key,value',
                 }
             });
 
