@@ -482,9 +482,7 @@ export function DashboardGrid() {
         setWidgets((prev: WidgetDefinition[]) => prev.filter(w => w.id !== id));
     };
 
-    const handleUpdateWidget = (id: string, updates: Partial<WidgetDefinition>) => {
-        setWidgets((prev: WidgetDefinition[]) => prev.map((w: WidgetDefinition) => w.id === id ? { ...w, ...updates } : w));
-    };
+
 
     const bringToFront = (id: string) => {
         setWidgets((prev: WidgetDefinition[]) => {
@@ -608,7 +606,7 @@ export function DashboardGrid() {
             try {
                 setSavedFloatingSelection(JSON.stringify(newFloating));
                 // Fire-and-forget flush to make sure it's on the server quickly
-                flushSavedFloating?.(JSON.stringify(newFloating)).catch((e) => console.error('flush floating failed', e));
+                flushSavedFloating?.(JSON.stringify(newFloating)).catch(() => { });
             } catch (e) {
                 console.error('Failed to save floating selection:', e);
             }
