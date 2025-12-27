@@ -105,7 +105,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             setCurrentView(viewParam as ViewType);
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [location]); 
+    }, [location]);
 
     // Load view config on view change or collection load
     useEffect(() => {
@@ -280,20 +280,22 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                 </div>
 
                 {/* View Selector */}
-                <div className="px-4 pb-2 overflow-x-auto">
-                    <Tabs value={currentView} onValueChange={(v) => setCurrentView(v as ViewType)} className="w-full">
-                        <TabsList className="bg-transparent p-0 h-auto justify-start border-b border-transparent w-full">
+                <div className="px-4 pb-2">
+                    <Select value={currentView} onValueChange={(v) => setCurrentView(v as ViewType)}>
+                        <SelectTrigger className="w-full md:w-[240px] h-9 bg-background/50 backdrop-blur border-input/50">
+                            <SelectValue placeholder="Select View" />
+                        </SelectTrigger>
+                        <SelectContent align="start">
                             {VIEW_OPTIONS.map(view => (
-                                <TabsTrigger
-                                    key={view.id}
-                                    value={view.id}
-                                    className="data-[state=active]:bg-primary/10 data-[state=active]:text-primary rounded-none border-b-2 border-transparent data-[state=active]:border-primary px-4 py-2 lowercase"
-                                >
-                                    {view.label}
-                                </TabsTrigger>
+                                <SelectItem key={view.id} value={view.id}>
+                                    <div className="flex items-center gap-2">
+                                        {view.icon && <view.icon className="h-4 w-4 opacity-50" />}
+                                        <span>{view.label}</span>
+                                    </div>
+                                </SelectItem>
                             ))}
-                        </TabsList>
-                    </Tabs>
+                        </SelectContent>
+                    </Select>
                 </div>
             </div>
 
