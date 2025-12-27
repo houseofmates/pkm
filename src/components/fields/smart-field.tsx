@@ -483,7 +483,17 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
                                     <SortableContext items={galleryImgs.map(g => String(g))} strategy={rectSortingStrategy}>
                                         {galleryImgs.map((u, i) => {
                                             const id = String(u);
-                                            return <SortableImage key={id+"-"+i} id={id} src={u} index={i} onDelete={() => setGalleryImgs(prev => prev.filter((_, idx) => idx !== i))} />
+                                            return (
+                                                <div key={id+"-"+i} className="relative p-1 bg-card rounded" data-id={id}>
+                                                    <img src={u} alt={`img-${i}`} className="rounded shadow cursor-pointer object-contain w-full h-60" />
+                                                    <input type="text" placeholder="Caption (optional)" className="mt-2 w-full p-1 text-sm border rounded" onBlur={() => {/* caption handling placeholder */}} />
+                                                    <div className="absolute top-2 right-2 flex gap-1">
+                                                        <button className="btn-ghost btn-xs" onClick={() => setGalleryImgs(prev => prev.filter((_, idx) => idx !== i))}>Delete</button>
+                                                        <button className="btn-ghost btn-xs" onClick={() => { if (i === 0) return; const arr = [...galleryImgs]; [arr[i-1], arr[i]] = [arr[i], arr[i-1]]; setGalleryImgs(arr); }}>Left</button>
+                                                        <button className="btn-ghost btn-xs" onClick={() => { if (i === galleryImgs.length - 1) return; const arr = [...galleryImgs]; [arr[i+1], arr[i]] = [arr[i], arr[i+1]]; setGalleryImgs(arr); }}>Right</button>
+                                                    </div>
+                                                </div>
+                                            )
                                         })}
                                     </SortableContext>
                                 </DndContext>
