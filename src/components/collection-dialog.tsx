@@ -79,7 +79,29 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
     useEffect(() => {
         if (open) {
             // Fetch collections list for relation targets
-            client.listCollections().then(res => setCollectionsList(res.data)).catch(console.error);
+            client.listCollections().then(res => {
+                // Filter out system and backend collections
+                const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers'];
+                const filteredCollections = res.data.filter((col: Collection) => {
+                    const name = (col.name || '').toLowerCase().trim();
+                    const title = (col.title || '').toLowerCase().trim();
+                    
+                    // Exclude system collections
+                    if (systemCollections.includes(name)) return false;
+                    
+                    // Exclude pkm_settings
+                    if (name === 'pkm_settings' || title === 'pkm settings') return false;
+                    
+                    // Hide anything with "backend" in the name or title
+                    if (name.includes('backend') || title.includes('backend')) return false;
+                    
+                    // Exclude hidden collections
+                    if (col.hidden) return false;
+                    
+                    return true;
+                });
+                setCollectionsList(filteredCollections);
+            }).catch(console.error);
 
             if (isEdit) {
                 setDisplayName(collection.title || '');
