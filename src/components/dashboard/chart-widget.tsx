@@ -1,4 +1,3 @@
-```typescript
 import {
     ResponsiveContainer, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
     RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
