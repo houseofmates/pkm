@@ -7,6 +7,7 @@ export interface RichEditorProps {
     className?: string;
     onChange?: (html: string) => void;
     uploadImage?: (file: File) => Promise<string> | string;
+    showToolbar?: boolean;
 }
 
 // Very small, dependency-free rich editor using contentEditable and document.execCommand
@@ -15,7 +16,7 @@ export function markdownToHtml(md: string) {
     // Very lightweight markdown -> HTML converter for paste/initial import
     let out = md.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     // Code blocks ```
-    out = out.replace(/```([\s\S]*?)```/g, (_, code) => `<pre><code>${code.replace(/</g,'&lt;')}</code></pre>`);
+    out = out.replace(/```([\s\S]*?)```/g, (_, code) => `<pre><code>${code.replace(/</g, '&lt;')}</code></pre>`);
     // Headings
     out = out.replace(/^### (.*$)/gim, '<h3>$1</h3>');
     out = out.replace(/^## (.*$)/gim, '<h2>$1</h2>');
@@ -34,7 +35,7 @@ export function markdownToHtml(md: string) {
     return out;
 }
 
-export function RichEditor({ value = '', placeholder, className, onChange, uploadImage }: RichEditorProps) {
+export function RichEditor({ value = '', placeholder, className, onChange, uploadImage, showToolbar = true }: RichEditorProps) {
     const ref = useRef<HTMLDivElement | null>(null);
     const fileRef = useRef<HTMLInputElement | null>(null);
 
@@ -88,29 +89,31 @@ export function RichEditor({ value = '', placeholder, className, onChange, uploa
 
     return (
         <div className={cn('w-full', className)}>
-            <div className="flex gap-1 mb-2">
-                <button type="button" className="btn-ghost btn-sm" onClick={() => exec('bold')}>B</button>
-                <button type="button" className="btn-ghost btn-sm" onClick={() => exec('italic')}>I</button>
-                <button type="button" className="btn-ghost btn-sm" onClick={() => exec('underline')}>U</button>
-                <button type="button" className="btn-ghost btn-sm" onClick={() => exec('formatBlock', 'H1')}>H1</button>
-                <button type="button" className="btn-ghost btn-sm" onClick={() => exec('formatBlock', 'H2')}>H2</button>
-                <button type="button" className="btn-ghost btn-sm" onClick={() => exec('formatBlock', 'H3')}>H3</button>
-                <button type="button" className="btn-ghost btn-sm" onClick={() => exec('formatBlock', 'BLOCKQUOTE')}>❝</button>
-                <button type="button" className="btn-ghost btn-sm" onClick={() => exec('formatBlock', 'PRE')}>Code</button>
-                <button type="button" className="btn-ghost btn-sm" onClick={() => {
-                    const url = prompt('Enter URL');
-                    if (url) exec('createLink', url);
-                }}>Link</button>
-                <button type="button" className="btn-ghost btn-sm" onClick={() => exec('insertUnorderedList')}>• List</button>
-                <button type="button" className="btn-ghost btn-sm" onClick={() => exec('insertOrderedList')}>1. List</button>
-                <button type="button" className="btn-ghost btn-sm" onClick={() => fileRef.current?.click()}>Image</button>
-                <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => {
-                    const files = e.target.files;
-                    if (!files) return;
-                    Array.from(files).forEach(f => insertImageFromFile(f));
-                    e.currentTarget.value = '';
-                }} multiple />
-            </div>
+            {showToolbar && (
+                <div className="flex gap-1 mb-2">
+                    <button type="button" className="btn-ghost btn-sm" onClick={() => exec('bold')}>B</button>
+                    <button type="button" className="btn-ghost btn-sm" onClick={() => exec('italic')}>I</button>
+                    <button type="button" className="btn-ghost btn-sm" onClick={() => exec('underline')}>U</button>
+                    <button type="button" className="btn-ghost btn-sm" onClick={() => exec('formatBlock', 'H1')}>H1</button>
+                    <button type="button" className="btn-ghost btn-sm" onClick={() => exec('formatBlock', 'H2')}>H2</button>
+                    <button type="button" className="btn-ghost btn-sm" onClick={() => exec('formatBlock', 'H3')}>H3</button>
+                    <button type="button" className="btn-ghost btn-sm" onClick={() => exec('formatBlock', 'BLOCKQUOTE')}>❝</button>
+                    <button type="button" className="btn-ghost btn-sm" onClick={() => exec('formatBlock', 'PRE')}>Code</button>
+                    <button type="button" className="btn-ghost btn-sm" onClick={() => {
+                        const url = prompt('Enter URL');
+                        if (url) exec('createLink', url);
+                    }}>Link</button>
+                    <button type="button" className="btn-ghost btn-sm" onClick={() => exec('insertUnorderedList')}>• List</button>
+                    <button type="button" className="btn-ghost btn-sm" onClick={() => exec('insertOrderedList')}>1. List</button>
+                    <button type="button" className="btn-ghost btn-sm" onClick={() => fileRef.current?.click()}>Image</button>
+                    <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => {
+                        const files = e.target.files;
+                        if (!files) return;
+                        Array.from(files).forEach(f => insertImageFromFile(f));
+                        e.currentTarget.value = '';
+                    }} multiple />
+                </div>
+            )}
             <div
                 ref={ref}
                 contentEditable
