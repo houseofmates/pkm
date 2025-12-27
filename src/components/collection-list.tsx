@@ -17,7 +17,7 @@ export function CollectionList({ collections, onSelect }: CollectionListProps) {
     });
 
     if (collections.length === 0) {
-        return <div className="text-center text-muted-foreground p-8">No collections found.</div>;
+        return <div className="text-center text-muted-foreground p-8">no collections found.</div>;
     }
 
     return (
