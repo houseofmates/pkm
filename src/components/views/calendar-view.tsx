@@ -25,7 +25,6 @@ export function CalendarView({ data, config, collection, onUpdateRecord }: Calen
             </div>
         );
     }
-    const _collection = collection; // backwards compat for local var rename if needed, but registry uses collection
     const [currentDate, setCurrentDate] = useState(new Date());
     const [viewMode, setViewMode] = useState<ViewMode>('month');
     const [activeId, setActiveId] = useState<string | number | null>(null);
