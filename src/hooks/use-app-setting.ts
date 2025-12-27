@@ -45,17 +45,22 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
     const fetchRemoteId = useCallback(async () => {
         if (!token) return null;
         try {
+            console.log(`[useAppSetting] Fetching ID for key: ${key}`);
             const response = await apiRequest('nocobase', '/pkm_settings', {
                 headers: getHeaders(),
                 params: {
-                    filter: JSON.stringify({ key }),
+                    filter: JSON.stringify({ key: { $eq: key } }),
                     pageSize: '1',
                 }
             });
+            console.log(`[useAppSetting] Fetch Response for ${key}:`, response);
+
             const data = response?.data || [];
             if (data.length > 0 && data[0].id) {
                 console.log(`[useAppSetting] Recovered ID for ${key}:`, data[0].id);
                 return data[0].id; // Return the ID
+            } else {
+                console.warn(`[useAppSetting] Fetch successful but no existing record found for ${key} (Length: ${data.length})`);
             }
         } catch (e) {
             console.warn(`[useAppSetting] Failed to recover ID for ${key}`, e);
