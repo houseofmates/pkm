@@ -34,5 +34,9 @@ describe('useCollections filtering', () => {
     expect(names).not.toContain('pkm-settings');
     // hidden true should also be excluded
     expect(names).not.toContain('private');
+
+    // Ensure we attempted to hide server collection when returned as visible
+    await waitFor(() => expect(mockClient.updateCollection).toHaveBeenCalledWith('PKM_SETTINGS ', expect.objectContaining({ hidden: true })));
+
   });
 });
