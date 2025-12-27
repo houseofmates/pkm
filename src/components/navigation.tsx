@@ -179,7 +179,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
 
 export function Navigation({ activeTab, onTabChange, className, onSelectCollection, selectedCollection, items, setItems }: NavigationProps) {
 
-    const { collections } = useCollections();
+    const { collections, refresh } = useCollections();
 
     const [folderDialogOpen, setFolderDialogOpen] = useState(false);
     const [newFolderName, setNewFolderName] = useState('');
