@@ -260,7 +260,7 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
                     />
                     {/* Mock Upload - In real app, this would use an uploader utils */}
                     <div className="relative">
-                        <Input type="file" className="absolute inset-0 opacity-0 cursor-pointer w-6" onChange={() => alert("File upload mock")} />
+                        <Input type="file" className="absolute inset-0 opacity-0 cursor-pointer w-6" onChange={() => console.log("File upload not implemented")} />
                         <Paperclip className="h-4 w-4 text-muted-foreground" />
                     </div>
                     <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={handleSave}><Check className="h-3 w-3" /></Button>
@@ -355,7 +355,7 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
         );
     }
 
-    
+
     // ... View logic ...
 
 
@@ -473,11 +473,11 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                                        <DndContext collisionDetection={closestCenter} onDragEnd={(ev) => {
+                                <DndContext collisionDetection={closestCenter} onDragEnd={(ev) => {
                                     const { active, over } = ev as any;
                                     if (!over || active.id === over.id) return;
-                                    const oldIndex = galleryImgs.findIndex(u => (u+'') === active.id);
-                                    const newIndex = galleryImgs.findIndex(u => (u+'') === over.id);
+                                    const oldIndex = galleryImgs.findIndex(u => (u + '') === active.id);
+                                    const newIndex = galleryImgs.findIndex(u => (u + '') === over.id);
                                     if (oldIndex === -1 || newIndex === -1) return;
                                     setGalleryImgs(prev => arrayMove(prev, oldIndex, newIndex));
                                 }}>
@@ -485,13 +485,13 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
                                         {galleryImgs.map((u, i) => {
                                             const id = String(u);
                                             return (
-                                                <div key={id+"-"+i} className="relative p-1 bg-card rounded" data-id={id}>
+                                                <div key={id + "-" + i} className="relative p-1 bg-card rounded" data-id={id}>
                                                     <img src={u} alt={`img-${i}`} className="rounded shadow cursor-pointer object-contain w-full h-60" />
-                                                    <input type="text" placeholder="Caption (optional)" className="mt-2 w-full p-1 text-sm border rounded" onBlur={() => {/* caption handling placeholder */}} />
+                                                    <input type="text" placeholder="Caption (optional)" className="mt-2 w-full p-1 text-sm border rounded" onBlur={() => {/* caption handling placeholder */ }} />
                                                     <div className="absolute top-2 right-2 flex gap-1">
                                                         <button className="btn-ghost btn-xs" onClick={() => setGalleryImgs(prev => prev.filter((_, idx) => idx !== i))}>Delete</button>
-                                                        <button className="btn-ghost btn-xs" onClick={() => { if (i === 0) return; const arr = [...galleryImgs]; [arr[i-1], arr[i]] = [arr[i], arr[i-1]]; setGalleryImgs(arr); }}>Left</button>
-                                                        <button className="btn-ghost btn-xs" onClick={() => { if (i === galleryImgs.length - 1) return; const arr = [...galleryImgs]; [arr[i+1], arr[i]] = [arr[i], arr[i+1]]; setGalleryImgs(arr); }}>Right</button>
+                                                        <button className="btn-ghost btn-xs" onClick={() => { if (i === 0) return; const arr = [...galleryImgs];[arr[i - 1], arr[i]] = [arr[i], arr[i - 1]]; setGalleryImgs(arr); }}>Left</button>
+                                                        <button className="btn-ghost btn-xs" onClick={() => { if (i === galleryImgs.length - 1) return; const arr = [...galleryImgs];[arr[i + 1], arr[i]] = [arr[i], arr[i + 1]]; setGalleryImgs(arr); }}>Right</button>
                                                     </div>
                                                 </div>
                                             )
@@ -501,94 +501,94 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
                             </div>
                         </DialogContent>
                     </Dialog>
-                    </>
-                )
-            }
+                </>
+            )
+        }
 
-    if (isSelect) { /* ... */
-        return (
-            <div onClick={() => setIsEditing(true)} className="cursor-pointer hover:bg-muted/50 px-2 py-0.5 rounded border border-transparent hover:border-muted-foreground/20 text-xs">
-                {value || <span className="opacity-30">select</span>}
-            </div>
-        )
-    }
+        if (isSelect) { /* ... */
+            return (
+                <div onClick={() => setIsEditing(true)} className="cursor-pointer hover:bg-muted/50 px-2 py-0.5 rounded border border-transparent hover:border-muted-foreground/20 text-xs">
+                    {value || <span className="opacity-30">select</span>}
+                </div>
+            )
+        }
 
-    if (isLocation) { /* ... */
-        return (
-            <Dialog>
-                <DialogTrigger asChild>
-                    <div className="flex items-center gap-2 cursor-pointer group">
-                        <MapPin className="h-4 w-4 text-primary group-hover:animate-bounce" />
-                        <span className="text-xs truncate max-w-[150px] underline decoration-dotted text-muted-foreground group-hover:text-primary">
-                            {value ? 'View Map' : 'Set location'}
-                        </span>
-                        <Button variant="ghost" size="icon" className="h-4 w-4 ml-1 opacity-0 group-hover:opacity-100" onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}>
-                            <Check className="h-3 w-3" />
-                        </Button>
+        if (isLocation) { /* ... */
+            return (
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <div className="flex items-center gap-2 cursor-pointer group">
+                            <MapPin className="h-4 w-4 text-primary group-hover:animate-bounce" />
+                            <span className="text-xs truncate max-w-[150px] underline decoration-dotted text-muted-foreground group-hover:text-primary">
+                                {value ? 'View Map' : 'Set location'}
+                            </span>
+                            <Button variant="ghost" size="icon" className="h-4 w-4 ml-1 opacity-0 group-hover:opacity-100" onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}>
+                                <Check className="h-3 w-3" />
+                            </Button>
+                        </div>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl h-[500px]">
+                        <LocationField value={value} onChange={() => { }} readOnly={true} />
+                    </DialogContent>
+                </Dialog>
+            );
+        }
+
+        if (isMarkdown) { /* ... */
+            return (
+                <div onClick={() => setIsEditing(true)} className="cursor-pointer group relative min-h-[20px]">
+                    <div className="prose prose-invert prose-sm line-clamp-3 text-xs leading-tight opacity-90 group-hover:opacity-100">
+                        <ReactMarkdown>{value || ''}</ReactMarkdown>
                     </div>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl h-[500px]">
-                    <LocationField value={value} onChange={() => { }} readOnly={true} />
-                </DialogContent>
-            </Dialog>
-        );
-    }
-
-    if (isMarkdown) { /* ... */
-        return (
-            <div onClick={() => setIsEditing(true)} className="cursor-pointer group relative min-h-[20px]">
-                <div className="prose prose-invert prose-sm line-clamp-3 text-xs leading-tight opacity-90 group-hover:opacity-100">
-                    <ReactMarkdown>{value || ''}</ReactMarkdown>
+                    {!value && <span className="opacity-20 italic text-xs">empty markdown</span>}
                 </div>
-                {!value && <span className="opacity-20 italic text-xs">empty markdown</span>}
-            </div>
-        )
-    }
+            )
+        }
 
-    if (isCode) { /* ... */
-        return (
-            <div className="flex items-center gap-2">
-                <div onClick={() => setIsEditing(true)} className="cursor-pointer font-mono text-[10px] bg-muted px-1 rounded text-muted-foreground truncate max-w-[100px]">
-                    {value ? '<script...>' : 'empty code'}
+        if (isCode) { /* ... */
+            return (
+                <div className="flex items-center gap-2">
+                    <div onClick={() => setIsEditing(true)} className="cursor-pointer font-mono text-[10px] bg-muted px-1 rounded text-muted-foreground truncate max-w-[100px]">
+                        {value ? '<script...>' : 'empty code'}
+                    </div>
+                    {value && (
+                        <Button variant="outline" size="sm" className="h-5 text-[10px] px-1" onClick={() => {
+                            try {
+                                // eslint-disable-next-line
+                                const func = new Function(value);
+                                func();
+                            } catch (e) {
+                                alert("Error running code: " + e);
+                            }
+                        }}>
+                            Run
+                        </Button>
+                    )}
                 </div>
-                {value && (
-                    <Button variant="outline" size="sm" className="h-5 text-[10px] px-1" onClick={() => {
-                        try {
-                            // eslint-disable-next-line
-                            const func = new Function(value);
-                            func();
-                        } catch (e) {
-                            alert("Error running code: " + e);
-                        }
-                    }}>
-                        Run
-                    </Button>
-                )}
-            </div>
-        )
-    }
+            )
+        }
 
-    if (isNumber) {
+        if (isNumber) {
+            return (
+                <div
+                    onClick={() => setIsEditing(true)}
+                    className="cursor-pointer text-right min-h-[20px] font-mono text-xs"
+                >
+                    {value ? formatNumber(value) : <span className="opacity-20">-</span>}
+                </div>
+            )
+        }
+
+        // Default String
         return (
             <div
                 onClick={() => setIsEditing(true)}
-                className="cursor-pointer text-right min-h-[20px] font-mono text-xs"
+                className={cn("cursor-pointer hover:bg-muted/50 px-1 py-0.5 rounded transition-colors min-h-[20px] break-words text-sm", className)}
+                title="Click to edit"
             >
-                {value ? formatNumber(value) : <span className="opacity-20">-</span>}
+                {value || <span className="opacity-20 italic text-xs">empty</span>}
             </div>
-        )
+        );
     }
-
-    // Default String
-    return (
-        <div
-            onClick={() => setIsEditing(true)}
-            className={cn("cursor-pointer hover:bg-muted/50 px-1 py-0.5 rounded transition-colors min-h-[20px] break-words text-sm", className)}
-            title="Click to edit"
-        >
-            {value || <span className="opacity-20 italic text-xs">empty</span>}
-        </div>
-    );
-}
 }
 
