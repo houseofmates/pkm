@@ -70,7 +70,8 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
 
     // --- Event Listeners ---
     useEffect(() => {
-        const handleCreate = async (e: CustomEvent) => {
+        const handleCreate = async (evt: Event) => {
+            const e = evt as CustomEvent<any>;
             if (e.detail?.collection === collectionName) {
                 console.log("Creating record via event:", e.detail.data);
                 try {
@@ -86,8 +87,8 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             }
         };
 
-        window.addEventListener('pkm:create-record', handleCreate as EventListener);
-        return () => window.removeEventListener('pkm:create-record', handleCreate as EventListener);
+        window.addEventListener('pkm:create-record', handleCreate);
+        return () => window.removeEventListener('pkm:create-record', handleCreate);
     }, [collectionName, client]);
 
     useEffect(() => {
