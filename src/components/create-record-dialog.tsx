@@ -77,11 +77,13 @@ export function CreateRecordDialog({ collectionName, fields, onRecordCreated, op
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button>
-                    <Plus className="mr-2 h-4 w-4" /> New Item
-                </Button>
-            </DialogTrigger>
+            {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : (
+                <DialogTrigger asChild>
+                    <Button>
+                        <Plus className="mr-2 h-4 w-4" /> New Item
+                    </Button>
+                </DialogTrigger>
+            )}
             <DialogContent className="max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>New Item</DialogTitle>
