@@ -87,7 +87,12 @@ export async function apiRequest(type: ApiType, endpoint: string, options: Parti
 
             if (!response.ok) {
                 const text = await response.text();
-                throw new Error(`API Error ${response.status}: ${text}`);
+                let parsed: any = text;
+                try { parsed = JSON.parse(text); } catch (e) { /* keep raw text */ }
+                const err = new Error(`API Error ${response.status}: ${text}`) as any;
+                err.status = response.status;
+                err.data = parsed;
+                throw err;
             }
 
             // Handle empty responses
