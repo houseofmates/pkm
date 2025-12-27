@@ -346,8 +346,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
 
     if (type === 'pie') {
         return (
-            <div className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
-                <PlaceholderOverlay />
+            <div className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
+                <PlaceholderOverlay label="Select Category" targetKey="chartX" />
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                         <Pie
@@ -381,8 +381,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
 
     if (type === 'radar') {
         return (
-            <div className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
-                <PlaceholderOverlay />
+            <div className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
+                <PlaceholderOverlay label="Select Dimensions" targetKey="chartX" />
                 <ResponsiveContainer width="100%" height="100%">
                     <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
                         <PolarGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
@@ -405,8 +405,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
 
     if (type === 'treemap') {
         return (
-            <div className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
-                <PlaceholderOverlay />
+            <div className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
+                <PlaceholderOverlay label="Select Grouping" targetKey="chartX" />
                 <ResponsiveContainer width="100%" height="100%">
                     <Treemap
                         data={chartData}
@@ -435,8 +435,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
         // Funnel sort
         const sorted = isPlaceholder ? chartData : [...data].sort((a, b) => (b[yKey] || 0) - (a[yKey] || 0));
         return (
-            <div className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
-                <PlaceholderOverlay />
+            <div className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
+                <PlaceholderOverlay label="Select Stage" targetKey="chartX" />
                 <ResponsiveContainer width="100%" height="100%">
                     <RechartsFunnelChart>
                         {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
