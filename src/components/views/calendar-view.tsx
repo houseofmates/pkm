@@ -14,7 +14,18 @@ interface CalendarViewProps extends ViewProps { }
 
 type ViewMode = 'year' | 'month' | 'week' | 'day';
 
-export function CalendarView({ data, config, collection: _collection, onUpdateRecord }: CalendarViewProps) {
+export function CalendarView({ data, config, collection, onUpdateRecord }: CalendarViewProps) {
+    if (!collection) {
+        return (
+            <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
+                <div className="flex flex-col items-center gap-2">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <p className="text-sm">Loading calendar metadata...</p>
+                </div>
+            </div>
+        );
+    }
+    const _collection = collection; // backwards compat for local var rename if needed, but registry uses collection
     const [currentDate, setCurrentDate] = useState(new Date());
     const [viewMode, setViewMode] = useState<ViewMode>('month');
     const [activeId, setActiveId] = useState<string | number | null>(null);
