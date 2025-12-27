@@ -205,5 +205,62 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
         });
     }, [key, isAuthenticated, token, getHeaders, fetchRemoteId, ensureCollectionExists]);
 
+    // Immediate flush function (returns a promise) to persist current value to backend
+    const flush = useCallback(async (valueToSave?: T) => {
+        if (!isAuthenticated || !token) return;
+        const headers = getHeaders();
+        const toSave = valueToSave === undefined ? valueRef.current : valueToSave;
+
+        const attemptUpsert = async (attempt = 1): Promise<void> => {
+            try {
+                // Try update by known ID
+                if (settingIdRef.current) {
+                    await apiRequest('nocobase', `/pkm_settings/${settingIdRef.current}`, {
+                        method: 'PUT',
+                        headers,
+                        data: { value: toSave }
+                    });
+                    return;
+                }
+
+                // Try create
+                const response = await apiRequest('nocobase', '/pkm_settings', {
+                    method: 'POST',
+                    headers,
+                    data: { key, value: toSave }
+                });
+                if (response?.data?.id) settingIdRef.current = response.data.id;
+                return;
+            } catch (err: any) {
+                const status = err?.status;
+                const dataString = JSON.stringify(err?.data || err?.message || err || '');
+
+                // 400 conflict -> fetch id and update
+                if (status === 400 || /exists/i.test(dataString)) {
+                    const found = await fetchRemoteId();
+                    if (found) {
+                        settingIdRef.current = found;
+                        return await attemptUpsert(attempt + 1);
+                    }
+                }
+
+                // 404 / missing collection -> create and retry
+                if ((status === 404 || /not\s*found|collection/i.test(dataString)) && attempt === 1) {
+                    const ok = await ensureCollectionExists();
+                    if (ok) return attemptUpsert(attempt + 1);
+                }
+
+                throw err;
+            }
+        };
+
+        // Serialize flushes
+        savePromiseRef.current = (savePromiseRef.current || Promise.resolve()).then(() => attemptUpsert()).catch(e => { console.error('flush error', e); throw e; });
+        return savePromiseRef.current;
+    }, [isAuthenticated, token, getHeaders, fetchRemoteId, ensureCollectionExists]);
+
+    // Save flush function in ref for external use if needed
+    flushRef.current = flush;
+
     return [value, updateValue, loading] as const;
 }
