@@ -8,7 +8,7 @@ import { toast } from 'sonner';
 import { HeadmateCard } from '@/components/headmate-card';
 import { HeadmateContextMenu } from '@/components/headmate-context-menu';
 import { useFronter } from '@/contexts/fronter-context';
-import { apiRequest } from '@/lib/api-client';
+import { apiRequest } from '@/lib/api-client';\n\n// Names that should always be displayed in uppercase\nconst UPPERCASE_NAMES = ['alastor', 'deer', 'mike', 'walt'];\n\nfunction formatDisplayName(name: string): string {\n    const nameLower = name.toLowerCase().trim();\n    if (UPPERCASE_NAMES.includes(nameLower)) {\n        return name.toUpperCase();\n    }\n    return name;\n}
 
 interface Member {
     id: string;
