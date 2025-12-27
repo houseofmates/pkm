@@ -12,33 +12,62 @@ export function ChartView({ data, collection, config, onConfigChange }: ViewProp
     const xKey = config?.chartX || defaultX || 'id';
 
     const type = config?.chartType || 'bar';
+    const seriesField = config?.chartSeriesField || null;
+    const aggregation: 'count' | 'sum' = config?.chartAgg || 'count';
+    const yField = config?.chartY || null;
+    const stacked = !!config?.chartStacked;
 
-    // Data Preparation: Count or Sum?
-    // User probably wants to Count occurrences for categorical, or Sum/Avg for numerical.
-    // Simplifying: If Y is number, plot it. If Y is ID/String, count occurrences.
-
+    // Build chart data - supports multi-series split by `seriesField` with aggregation
     const chartData = useMemo(() => {
         if (!xKey) return [];
 
-        // Strategy: Aggregate by X
-        const map = new Map<string, number>();
+        if (!seriesField) {
+            // Simple single-series aggregation by X
+            const map = new Map<string, number>();
+            data.forEach(rec => {
+                const xVal = String(rec[xKey] || 'Untagged');
+                const current = map.get(xVal) || 0;
+                if (aggregation === 'sum' && yField && Number(rec[yField]) != null) {
+                    map.set(xVal, current + (Number(rec[yField]) || 0));
+                } else {
+                    map.set(xVal, current + 1);
+                }
+            });
+            return Array.from(map.entries()).map(([name, value]) => ({ name, value }));
+        }
+
+        // Multi-series: build nested map: x -> seriesVal -> agg
+        const xMap = new Map<string, Map<string, number>>();
+        const seriesSet = new Set<string>();
 
         data.forEach(rec => {
             const xVal = String(rec[xKey] || 'Untagged');
-
-            // If Y is just ID, we are counting occurrences of X
-            // If Y is a number field, we are summing/averaging? 
-            // Let's assume Count for now unless Y is explicitly a number field AND user selects "Sum"?
-            // Simplest robust v1: Count Occurrences of X
-
-            const current = map.get(xVal) || 0;
-            // If we find a way to distinguish 'Sum' vs 'Count' later.
-            // For now: Count
-            map.set(xVal, current + 1);
+            const sVal = String(rec[seriesField] ?? '');
+            seriesSet.add(sVal);
+            if (!xMap.has(xVal)) xMap.set(xVal, new Map());
+            const inner = xMap.get(xVal)!;
+            const current = inner.get(sVal) || 0;
+            if (aggregation === 'sum' && yField && Number(rec[yField]) != null) {
+                inner.set(sVal, current + (Number(rec[yField]) || 0));
+            } else {
+                inner.set(sVal, current + 1);
+            }
         });
 
-        return Array.from(map.entries()).map(([name, value]) => ({ name, value }));
-    }, [data, xKey]);
+        // Limit to top series to keep chart readable (e.g., top 8)
+        const seriesList = Array.from(seriesSet).slice(0, 8);
+
+        const rows: any[] = [];
+        xMap.forEach((inner, xVal) => {
+            const row: any = { name: xVal };
+            seriesList.forEach(s => {
+                row[String(s)] = inner.get(s) || 0;
+            });
+            rows.push(row);
+        });
+
+        return rows;
+    }, [data, xKey, seriesField, aggregation, yField]);
 
     const handleConfig = (key: string, val: any) => {
         if (onConfigChange) onConfigChange(key, val);
