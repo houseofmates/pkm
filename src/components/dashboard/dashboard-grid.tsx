@@ -152,7 +152,7 @@ export function DashboardGrid() {
 
             const loadCanvasImage = async () => {
                 try {
-                                // savedCanvasData may be a string (legacy) or an object { id, url, data }
+                    // savedCanvasData may be a string (legacy) or an object { id, url, data }
                     let fileUrl: string | null = null;
                     let backupDataUrl: string | undefined;
                     if (typeof savedCanvasData === 'string') {
@@ -188,14 +188,17 @@ export function DashboardGrid() {
                         return;
                     }
 
-                    // If url is relative, attempt to resolve against window.location.origin
+                    // If url is relative, attempt to resolve against the correct API base
                     if (fileUrl.startsWith('/')) {
-                        fileUrl = `${window.location.origin}${fileUrl}`;
+                        // APIS.nocobase.nativeUrl is https://db.houseofmates.space/api
+                        // We need https://db.houseofmates.space to prepend to /storage/...
+                        const baseUrl = APIS.nocobase.nativeUrl.replace(/\/api$/, '');
+                        fileUrl = `${baseUrl}${fileUrl}`;
                     }
 
-                    // Fetch as Blob to report errors and handle CORS cleanly via ObjectURL
                     console.log("Fetching canvas blob from:", fileUrl);
-                    const headers: Record<string,string> = token ? { Authorization: `Bearer ${token}` } : {};
+                    console.log("Fetching canvas blob from:", fileUrl);
+                    const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
                     const response = await fetch(fileUrl, { headers });
                     if (!response.ok) throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
                     const blob = await response.blob();
@@ -296,7 +299,7 @@ export function DashboardGrid() {
                         // Attempt to fetch the uploaded file (with auth) to create a dataURL backup if small
                         let dataUrl: string | undefined = undefined;
                         try {
-                            const headers: Record<string,string> = token ? { Authorization: `Bearer ${token}` } : {};
+                            const headers: Record<string, string> = token ? { Authorization: `Bearer ${token}` } : {};
                             const fetchRes = await fetch(url, { headers });
                             if (fetchRes.ok) {
                                 const blob = await fetchRes.blob();
