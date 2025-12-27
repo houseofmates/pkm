@@ -1,7 +1,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, LayoutGrid, Save, Database, Trash2, Move, Minimize2 } from 'lucide-react';
+import { Plus, LayoutGrid, Save, Database, Trash2, Move, Minimize2, Lock, Unlock } from 'lucide-react';
 import { toast } from 'sonner';
 import { useCollections } from '@/hooks/use-collections';
 import { VIEW_REGISTRY, VIEW_OPTIONS } from '@/components/views/registry';
