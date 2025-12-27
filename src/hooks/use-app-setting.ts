@@ -25,6 +25,13 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
         }
     });
 
+    // Keep a ref to latest value for flush to read
+    const valueRef = useRef<T>(value);
+    useEffect(() => { valueRef.current = value; }, [value]);
+
+    // Serialize immediate saves
+    const savePromiseRef = useRef<Promise<void> | null>(null);
+
     const [loading, setLoading] = useState(false);
     const settingIdRef = useRef<string | number | null>(null);
     const isFirstLoad = useRef(true);
