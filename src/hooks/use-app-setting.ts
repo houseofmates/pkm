@@ -13,7 +13,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
     // Expose a way to flush pending saves immediately (useful when you need cross-device persistence)
     const flushRef = useRef<() => Promise<void> | null>(null);
-    const { isAuthenticated, token } = useAuth();
+    const { isAuthenticated, token, client } = useAuth();
 
     // Initialize from localStorage for immediate availability
     const [value, setValue] = useState<T>(() => {
@@ -36,27 +36,18 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
     const settingIdRef = useRef<string | number | null>(null);
     const saveTimeoutRef = useRef<any>(null);
 
-    const getHeaders = useCallback((): Record<string, string> => {
-        return token ? { Authorization: `Bearer ${token}` } : {};
-    }, [token]);
 
 
-
-    // Helper: Create the collection if missing
     const ensureCollectionExists = useCallback(async () => {
         try {
-            await apiRequest('nocobase', '/collections', {
-                method: 'POST',
-                headers: getHeaders(),
-                data: {
-                    name: 'pkm_settings',
-                    title: 'PKM Settings',
-                    fields: [
-                        { name: 'key', type: 'string', unique: true },
-                        { name: 'value', type: 'json' }
-                    ],
-                    hidden: true
-                }
+            await client.createCollection({
+                name: 'pkm_settings',
+                title: 'PKM Settings',
+                fields: [
+                    { name: 'key', type: 'string', unique: true },
+                    { name: 'value', type: 'json' }
+                ],
+                hidden: true
             });
             // Wait a moment for propagation
             await new Promise(r => setTimeout(r, 1000));
@@ -66,7 +57,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
             if (err.message?.includes('exists')) return true;
             return false;
         }
-    }, [getHeaders]);
+    }, [client]);
 
     // Fetch from Backend on mount
     const fetchSetting = useCallback(async () => {
@@ -74,10 +65,9 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
         setLoading(true);
         try {
             // Use :list instead of :get for filtering by key
-            const response = await apiRequest('nocobase', 'pkm_settings:list', {
-                headers: getHeaders(),
+            const response = await client.request('pkm_settings', 'list', {
                 params: {
-                    filter: JSON.stringify({ key: { $eq: key } }),
+                    filter: { key: { $eq: key } },
                     pageSize: '1'
                 },
                 silent: true
@@ -102,7 +92,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
         } finally {
             setLoading(false);
         }
-    }, [key, isAuthenticated, token, getHeaders]);
+    }, [key, isAuthenticated, token, client]);
 
     // Initial Load
     useEffect(() => {
@@ -118,36 +108,30 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
             if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
             saveTimeoutRef.current = setTimeout(async () => {
                 if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) return;
-                const headers = getHeaders();
-
                 const performSave = async (valueToSave: any, retryCount = 0): Promise<void> => {
                     try {
-                        // 1. Ensure we have the latest ID before deciding strategy
-                        if (!settingIdRef.current) {
-                            const found = await apiRequest('nocobase', 'pkm_settings:list', {
-                                headers,
-                                params: { filter: JSON.stringify({ key: { $eq: key } }), pageSize: '1' }
-                            });
-                            const records = found?.data || (Array.isArray(found) ? found : []);
-                            if (records.length > 0) {
-                                settingIdRef.current = records[0].id;
-                            }
+                        // 1. Resolve ID first with full identity headers to avoid list failures
+                        const found = await client.request('pkm_settings', 'list', {
+                            params: { filter: { key: { $eq: key } }, pageSize: '1' },
+                            silent: true
+                        });
+                        const records = found?.data || (Array.isArray(found) ? found : []);
+                        if (records.length > 0) {
+                            settingIdRef.current = records[0].id;
                         }
 
                         // 2. Decide Strategy (PUT if exists, POST if new)
                         if (settingIdRef.current) {
-                            await apiRequest('nocobase', `/pkm_settings/${settingIdRef.current}`, {
-                                method: 'PUT',
-                                headers,
+                            await client.request('pkm_settings', 'update', {
+                                method: 'POST',
+                                params: { filterByTk: settingIdRef.current },
                                 data: { value: valueToSave }
                             });
                         } else {
-                            // First attempt to create. If it fails due to conflict, we'll handle it in catch.
-                            const response = await apiRequest('nocobase', '/pkm_settings', {
+                            const response = await client.request('pkm_settings', 'create', {
                                 method: 'POST',
-                                headers,
                                 data: { key, value: valueToSave },
-                                silent: true // Stay silent to avoid red 400s in console if it exists
+                                silent: true // Stay silent to avoid red 400s if it somehow appeared
                             });
                             if (response?.data?.id) {
                                 settingIdRef.current = response.data.id;
@@ -155,18 +139,6 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                         }
                     } catch (err: any) {
                         const errMsg = (err.message || JSON.stringify(err)).toLowerCase();
-                        // Fallback only if we hit a race (another client created it between our check and POST)
-                        if (errMsg.includes('exists') || errMsg.includes('unique') || errMsg.includes('400')) {
-                            await apiRequest('nocobase', '/pkm_settings:update', {
-                                method: 'POST',
-                                headers,
-                                params: { filter: JSON.stringify({ key }) },
-                                data: { value: valueToSave },
-                                silent: true
-                            });
-                            return;
-                        }
-
                         if (errMsg.includes('404') || errMsg.includes('not found') || errMsg.includes('relation "pkm_settings"')) {
                             if (retryCount < 1) {
                                 const created = await ensureCollectionExists();
@@ -190,26 +162,23 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
         const attemptUpsert = async (attempt = 1): Promise<void> => {
             try {
-                // 1. Resolve ID first to avoid 400s
-                if (!settingIdRef.current) {
-                    const found = await apiRequest('nocobase', 'pkm_settings:list', {
-                        headers,
-                        params: { filter: JSON.stringify({ key: { $eq: key } }), pageSize: '1' }
-                    });
-                    const records = found?.data || (Array.isArray(found) ? found : []);
-                    if (records.length > 0) settingIdRef.current = records[0].id;
-                }
+                // 1. Pre-emptively resolve ID with full headers
+                const found = await client.request('pkm_settings', 'list', {
+                    params: { filter: { key: { $eq: key } }, pageSize: '1' },
+                    silent: true
+                });
+                const records = found?.data || (Array.isArray(found) ? found : []);
+                if (records.length > 0) settingIdRef.current = records[0].id;
 
                 if (settingIdRef.current) {
-                    await apiRequest('nocobase', `/pkm_settings/${settingIdRef.current}`, {
-                        method: 'PUT',
-                        headers,
+                    await client.request('pkm_settings', 'update', {
+                        method: 'POST',
+                        params: { filterByTk: settingIdRef.current },
                         data: { value: toSave }
                     });
                 } else {
-                    const response = await apiRequest('nocobase', '/pkm_settings', {
+                    const response = await client.request('pkm_settings', 'create', {
                         method: 'POST',
-                        headers,
                         data: { key, value: toSave },
                         silent: true
                     });
@@ -217,17 +186,6 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                 }
             } catch (err: any) {
                 const errMsg = (err.message || JSON.stringify(err)).toLowerCase();
-
-                if (attempt < 2 && (errMsg.includes('exists') || errMsg.includes('unique') || errMsg.includes('400'))) {
-                    await apiRequest('nocobase', '/pkm_settings:update', {
-                        method: 'POST',
-                        headers,
-                        params: { filter: JSON.stringify({ key }) },
-                        data: { value: toSave },
-                        silent: true
-                    });
-                    return;
-                }
 
                 if (attempt < 2 && (errMsg.includes('404') || errMsg.includes('not found') || errMsg.includes('collection'))) {
                     const ok = await ensureCollectionExists();
@@ -237,9 +195,8 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
             }
         };
 
-        savePromiseRef.current = (savePromiseRef.current || Promise.resolve()).then(() => attemptUpsert()).catch(() => { });
         return savePromiseRef.current;
-    }, [isAuthenticated, token, getHeaders, ensureCollectionExists, key]);
+    }, [isAuthenticated, token, client, ensureCollectionExists, key]);
 
     flushRef.current = flush;
     return [value, updateValue, loading, flush] as const;
