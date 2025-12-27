@@ -18,6 +18,17 @@ import { Textarea } from '@/components/ui/textarea';
 import { Image, FileText, Trash2, Edit, Upload, Palette } from 'lucide-react';
 import { toast } from 'sonner';
 
+// Names that should always be displayed in uppercase
+const UPPERCASE_NAMES = ['alastor', 'deer', 'mike', 'walt'];
+
+function formatDisplayName(name: string): string {
+    const nameLower = name.toLowerCase().trim();
+    if (UPPERCASE_NAMES.includes(nameLower)) {
+        return name.toUpperCase();
+    }
+    return name;
+}
+
 interface HeadmateContextMenuProps {
     memberId: string;
     memberName: string;
