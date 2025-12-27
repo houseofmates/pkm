@@ -3,7 +3,8 @@ import { Capacitor } from '@capacitor/core';
 import { CapacitorHttp, type HttpOptions } from '@capacitor/core';
 
 // Configuration for our two APIs
-const APIS = {
+// Configuration for our two APIs
+export const APIS = {
     simplyplural: {
         nativeUrl: 'https://api.apparyllis.com/v1',
         proxyUrl: '/api/simplyplural'
