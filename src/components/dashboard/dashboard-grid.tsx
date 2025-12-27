@@ -207,6 +207,15 @@ export function DashboardGrid() {
                     console.error("Canvas toBlob failed (empty or tainted?)");
                     return;
                 }
+                // Also store a local fallback dataURL so reload doesn't lose immediate state
+                try {
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        try { localStorage.setItem('dashboard_canvas_local', reader.result as string); } catch (e) { }
+                    };
+                    reader.readAsDataURL(blob);
+                } catch (e) { /* ignore local fallback errors */ }
+
                 console.log("Canvas uploading blob size:", blob.size);
                 const file = new File([blob], "canvas_state.png", { type: "image/png" });
                 try {
@@ -215,6 +224,7 @@ export function DashboardGrid() {
                     if (res.data?.url) {
                         lastSyncedUrlRef.current = res.data.url;
                         setSavedCanvasData(res.data.url);
+                        canvasDirtyRef.current = false;
                         console.log("Synced canvas URL to setting:", res.data.url);
                     }
                 } catch (e) {
