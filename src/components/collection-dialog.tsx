@@ -13,6 +13,13 @@ import {
     DialogTitle,
     DialogTrigger,
 } from '@/components/ui/dialog';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { toast } from 'sonner';
 import { Image as ImageIcon, Plus } from 'lucide-react';
 import { useAppSetting } from '@/hooks/use-app-setting';
@@ -30,6 +37,18 @@ interface CollectionMetadata {
     color?: string;
     image?: string;
 }
+
+const FIELD_TYPES = [
+    { label: 'text (short)', type: 'string', interface: 'input' },
+    { label: 'text (long)', type: 'text', interface: 'textarea' },
+    { label: 'number', type: 'number', interface: 'number' },
+    { label: 'date', type: 'date', interface: 'datetime' },
+    { label: 'checkbox', type: 'boolean', interface: 'checkbox' },
+    { label: 'url', type: 'string', interface: 'url' },
+    { label: 'color', type: 'string', interface: 'color' },
+    { label: 'file/image', type: 'attachment', interface: 'attachment' },
+    { label: 'location', type: 'point', interface: 'map' },
+] as const;
 
 export function CollectionDialog({ collection, onSuccess, trigger, open: controlledOpen, onOpenChange: setControlledOpen }: CollectionDialogProps) {
     const { client } = useAuth();
@@ -75,14 +94,14 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
 
     const inferType = (values: any[]) => {
         const nonNull = values.filter(v => v !== null && v !== undefined && v !== '');
-        if (nonNull.length === 0) return 'string';
+        if (nonNull.length === 0) return 'input';
 
         // Check for boolean
         const isBool = nonNull.every(v => {
             const s = String(v).toLowerCase();
             return ['true', 'false', 'yes', 'no', '1', '0'].includes(s);
         });
-        if (isBool) return 'boolean';
+        if (isBool) return 'checkbox';
 
         // Check for number
         const isNum = nonNull.every(v => !isNaN(Number(v)));
@@ -90,9 +109,9 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
 
         // Check for date
         const isDate = nonNull.every(v => !isNaN(Date.parse(String(v))));
-        if (isDate) return 'date';
+        if (isDate) return 'datetime';
 
-        return 'string';
+        return 'input';
     };
 
     const handleCsvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,7 +130,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                         const fields = headers.map(h => ({
                             name: h.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''),
                             title: h,
-                            type: inferType(data.map(row => row[h]))
+                            interface: inferType(data.map(row => row[h]))
                         }));
                         setCsvData(data);
                         setCsvFields(fields);
@@ -149,15 +168,12 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                     toast.info(`creating ${csvFields.length} fields...`);
                     // We must create fields sequentially or carefully to avoid NocoBase race conditions
                     for (const field of csvFields) {
+                        const typeConfig = FIELD_TYPES.find(t => t.interface === field.interface);
                         await client.createField(finalName, {
                             name: field.name,
                             title: field.title,
-                            type: field.type,
-                            // Map generic types to NocoBase nuances if needed
-                            interface: field.type === 'string' ? 'input' :
-                                field.type === 'number' ? 'number' :
-                                    field.type === 'date' ? 'datetime' :
-                                        field.type === 'boolean' ? 'checkbox' : 'input'
+                            type: typeConfig?.type || 'string',
+                            interface: field.interface
                         });
                     }
 
@@ -274,11 +290,29 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                                         <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                                             detected {csvFields.length} columns:
                                         </div>
-                                        <div className="max-h-32 overflow-y-auto border rounded p-2 bg-muted/30">
-                                            {csvFields.map(field => (
-                                                <div key={field.name} className="flex items-center justify-between text-xs py-1 border-b last:border-0 border-muted">
-                                                    <span className="font-medium truncate mr-2">{field.title}</span>
-                                                    <span className="text-muted-foreground bg-background px-1.5 py-0.5 rounded border">{field.type}</span>
+                                        <div className="max-h-48 overflow-y-auto border rounded p-2 bg-muted/30 space-y-1">
+                                            {csvFields.map((field, idx) => (
+                                                <div key={field.name} className="flex items-center justify-between text-xs py-1.5 border-b last:border-0 border-muted group/field">
+                                                    <span className="font-medium truncate mr-2" title={field.title}>{field.title}</span>
+                                                    <Select
+                                                        value={field.interface}
+                                                        onValueChange={(val) => {
+                                                            const newFields = [...csvFields];
+                                                            newFields[idx].interface = val;
+                                                            setCsvFields(newFields);
+                                                        }}
+                                                    >
+                                                        <SelectTrigger className="h-7 w-[110px] text-[10px] px-2 bg-background border-muted hover:border-accent transition-colors">
+                                                            <SelectValue />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {FIELD_TYPES.map(t => (
+                                                                <SelectItem key={t.interface} value={t.interface} className="text-xs">
+                                                                    {t.label}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
                                                 </div>
                                             ))}
                                         </div>
