@@ -85,6 +85,7 @@ export function DashboardGrid() {
 
     // Synced Canvas Data - may be a string (legacy) or an object { id, url, data }
     const [savedCanvasData, setSavedCanvasData, , flushSavedCanvas] = useAppSetting<any>('dashboard_canvas_data', null);
+    const [savedWidgets, setSavedWidgets] = useAppSetting<WidgetDefinition[]>('dashboard_widgets_v2', []);
     // Persist floating selection separately so it can be resumed across devices
     const [savedFloatingSelection, setSavedFloatingSelection, , flushSavedFloating] = useAppSetting<any>('dashboard_floating_selection_v2', null);
 
@@ -463,31 +464,33 @@ export function DashboardGrid() {
 
     const handleAddWidget = (collectionName: string, viewType: ViewType) => {
         const col = collections.find(c => c.name === collectionName);
-        const title = `${col?.title || collectionName} (${viewType})`;
         const newWidget: WidgetDefinition = {
-            id: `w_${Date.now()}`,
+            id: Math.random().toString(36).substring(7),
             type: 'view',
-            title,
+            title: col?.title || collectionName,
             collectionName,
             viewType,
-            x: 50 + (widgets.length * 20),
-            y: 50 + (widgets.length * 20),
-            w: 400,
-            h: 300,
-            zIndex: widgets.length + 1
+            x: 0,
+            y: 0,
+            w: 6,
+            h: 4,
+            zIndex: 10
         };
-        setWidgets(prev => [...prev, newWidget]);
-        toast.success(`added ${title}`);
+        setWidgets((prev: WidgetDefinition[]) => [...prev, newWidget]);
     };
 
     const handleRemoveWidget = (id: string) => {
-        setWidgets(prev => prev.filter(w => w.id !== id));
+        setWidgets((prev: WidgetDefinition[]) => prev.filter(w => w.id !== id));
+    };
+
+    const handleUpdateWidget = (id: string, updates: Partial<WidgetDefinition>) => {
+        setWidgets((prev: WidgetDefinition[]) => prev.map((w: WidgetDefinition) => w.id === id ? { ...w, ...updates } : w));
     };
 
     const bringToFront = (id: string) => {
-        setWidgets(prev => {
-            const maxZ = Math.max(...prev.map(w => w.zIndex), 0);
-            return prev.map(w => w.id === id ? { ...w, zIndex: maxZ + 1 } : w);
+        setWidgets((prev: WidgetDefinition[]) => {
+            const maxZ = Math.max(...prev.map((w: WidgetDefinition) => w.zIndex), 0);
+            return prev.map((w: WidgetDefinition) => w.id === id ? { ...w, zIndex: maxZ + 1 } : w);
         });
     };
 
