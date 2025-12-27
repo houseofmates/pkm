@@ -127,13 +127,28 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                                 data: { value: valueToSave }
                             });
                         } else {
-                            const response = await client.request('pkm_settings', 'create', {
-                                method: 'POST',
-                                data: { key, value: valueToSave },
-                                silent: true // Stay silent to avoid red 400s if it somehow appeared
-                            });
-                            if (response?.data?.id) {
-                                settingIdRef.current = response.data.id;
+                            try {
+                                const response = await client.request('pkm_settings', 'create', {
+                                    method: 'POST',
+                                    data: { key, value: valueToSave },
+                                    silent: true // Stay silent to avoid red 400s if it somehow appeared
+                                });
+                                if (response?.data?.id) {
+                                    settingIdRef.current = response.data.id;
+                                }
+                            } catch (createErr: any) {
+                                // If create failed because it already exists, fall back to update!
+                                const isConflict = createErr.status === 400 || (createErr.message || '').includes('exists');
+                                if (isConflict) {
+                                    await client.request('pkm_settings', 'update', {
+                                        method: 'POST',
+                                        params: { filter: { key } },
+                                        data: { value: valueToSave },
+                                        silent: true
+                                    });
+                                } else {
+                                    throw createErr;
+                                }
                             }
                         }
                     } catch (err: any) {
