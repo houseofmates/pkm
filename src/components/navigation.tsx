@@ -322,6 +322,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                                     }}
                                     onToggle={toggleFolder}
                                     onDelete={deleteFolder}
+                                    collection={item.type === 'collection' ? collections.find(c => c.name === item.id) : undefined}
                                 />
                             ))}
                         </div>
