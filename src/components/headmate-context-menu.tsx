@@ -89,7 +89,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
     };
 
     const openNameEdit = () => {
-        setVisualName(currentOverride.name || memberName);
+        setVisualName((currentOverride as any).name || memberName);
         setNameOpen(true);
     };
 
