@@ -215,7 +215,7 @@ export function MoodboardPage() {
                                             {(() => {
                                                 // We need data. Moodboard doesn't fetch on its own efficiently yet.
                                                 // Simple Placeholder for now or efficient fetch?
-                                                return <div className="p-4 text-xs text-muted-foreground">Database View: {el.content}</div>
+                                                return <div className="p-4 text-xs text-muted-foreground">database view: {el.content}</div>
                                             })()}
                                         </div>
                                     </div>
