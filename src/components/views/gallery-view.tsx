@@ -3,7 +3,16 @@ import type { ViewProps } from './registry';
 import { Card, CardContent } from "@/components/ui/card";
 
 export function GalleryView({ data, loading, collection }: ViewProps) {
-    if (loading) return <div>Loading gallery...</div>;
+    if (loading || !collection) {
+        return (
+            <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
+                <div className="flex flex-col items-center gap-2">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <p className="text-sm">Loading gallery...</p>
+                </div>
+            </div>
+        );
+    }
 
     // Helper to get image URL from a record field
     const getImageUrl = (record: any, field: any) => {
