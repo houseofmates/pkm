@@ -50,7 +50,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
                 {displayImage ? (
                     <img
                         src={displayImage}
-                        alt={member.content.name}
+                        alt={(member.content as any).name}
                         className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                     />
                 ) : (
