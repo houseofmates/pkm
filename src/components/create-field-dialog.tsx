@@ -95,12 +95,12 @@ export function CreateFieldDialog({ collectionName, onFieldCreated }: CreateFiel
         }
     };
 
-    // Simple mapping helper
     const getDBType = (uiType: string) => {
         switch (uiType) {
-            case 'number': return 'integer'; // or float
+            case 'number': return 'integer';
             case 'checkbox': return 'boolean';
-            case 'textarea': return 'text'; // or string since long text
+            case 'textarea': return 'text';
+            case 'formula': return 'formula';
             default: return 'string';
         }
     };
@@ -108,9 +108,10 @@ export function CreateFieldDialog({ collectionName, onFieldCreated }: CreateFiel
     const getComponentType = (uiType: string) => {
         switch (uiType) {
             case 'input': return 'Input';
-            case 'textarea': return 'Markdown.Void'; // or Input.TextArea
+            case 'textarea': return 'Input.TextArea';
             case 'number': return 'InputNumber';
             case 'checkbox': return 'Checkbox';
+            case 'formula': return 'Input'; // Generic field to show formula result or define it
             default: return 'Input';
         }
     };
