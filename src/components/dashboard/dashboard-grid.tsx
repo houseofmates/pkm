@@ -199,11 +199,20 @@ export function DashboardGrid() {
                 const parsed = JSON.parse(savedFloatingSelection);
                 if (parsed && parsed.image) {
                     _setFloatingSelection(parsed);
+                    return;
                 }
             } catch (e) {
                 console.error('Failed to parse saved floating selection:', e);
             }
         }
+        // Fallback to local persisted floating selection if available
+        try {
+            const local = localStorage.getItem('dashboard_floating_local');
+            if (local) {
+                const parsed = JSON.parse(local);
+                if (parsed && parsed.image) _setFloatingSelection(parsed);
+            }
+        } catch (e) { }
     }, [savedFloatingSelection]);
 
     // Persist floating selection when it changes (debounced)
