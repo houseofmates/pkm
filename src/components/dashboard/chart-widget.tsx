@@ -16,6 +16,7 @@ interface ChartProps {
     seriesKeys?: string[]; // keys in `data` to render as separate series
     stacked?: boolean;
     seriesType?: 'bar' | 'line' | 'area';
+    seriesTypes?: Record<string, 'bar' | 'line' | 'area'>;
 } 
 
 // Mock Data if none provided
@@ -29,7 +30,7 @@ const MOCK_DATA = [
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
-export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yKey = 'value', color = '#8884d8', seriesKeys, stacked, seriesType }: ChartProps) {
+export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yKey = 'value', color = '#8884d8', seriesKeys, stacked, seriesType, seriesTypes }: ChartProps) {
     const [hidden, setHidden] = useState<Record<string, boolean>>({});
     const toggle = (k: string) => setHidden(prev => ({ ...prev, [k]: !prev[k] }));
 
@@ -39,14 +40,14 @@ export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yK
         return seriesKeys.map((key, idx) => {
             if (hidden[key]) return null;
             const col = COLORS[idx % COLORS.length];
-            const useType = seriesType || type;
-            if (useType === 'bar') {
+            const keyType = seriesTypes?.[key] || seriesType || type;
+            if (keyType === 'bar') {
                 return <Bar key={key} dataKey={key} stackId={stacked ? 'stack' : undefined} fill={col} />;
             }
-            if (useType === 'line') {
+            if (keyType === 'line') {
                 return <Line key={key} type="monotone" dataKey={key} stroke={col} strokeWidth={2} dot={false} />;
             }
-            if (useType === 'area') {
+            if (keyType === 'area') {
                 return <Area key={key} type="monotone" dataKey={key} stroke={col} fill={col} fillOpacity={0.25} />;
             }
             return null;
