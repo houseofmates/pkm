@@ -10,7 +10,7 @@ export function ChartView({ data, collection, config, onConfigChange }: ViewProp
     const defaultY = collection.fields?.find((f: any) => f.type === 'number' || f.interface === 'number' || f.name === 'id')?.name;
 
     const xKey = config?.chartX || defaultX || 'id';
-    const yKey = config?.chartY || defaultY || 'id';
+    const _yKey = config?.chartY || defaultY || 'id';
     const type = config?.chartType || 'bar';
 
     // Data Preparation: Count or Sum?

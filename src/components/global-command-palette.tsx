@@ -1,16 +1,6 @@
 
-import React, { useState, useEffect } from "react";
-import {
-    Calculator,
-    Calendar,
-    CreditCard,
-    Settings,
-    Smile,
-    User,
-    Rocket,
-    Database,
-    Plus
-} from "lucide-react";
+import React from "react";
+import { User, Rocket, Database, Plus } from "lucide-react";
 
 import {
     Command,
@@ -20,7 +10,6 @@ import {
     CommandItem,
     CommandList,
     CommandSeparator,
-    CommandShortcut,
 } from "@/components/ui/command";
 import { useNavigate } from 'react-router-dom';
 import { useCollections } from "@/hooks/use-collections";
@@ -32,8 +21,8 @@ export function GlobalCommandPalette() {
     const { collections } = useCollections();
 
     // Quick Capture State
-    const [createDialogOpen, setCreateDialogOpen] = React.useState(false);
-    const [selectedCollection, setSelectedCollection] = React.useState<string | null>(null);
+    const [_createDialogOpen, _setCreateDialogOpen] = React.useState(false);
+    const [_selectedCollection, _setSelectedCollection] = React.useState<string | null>(null);
 
     React.useEffect(() => {
         const down = (e: KeyboardEvent) => {

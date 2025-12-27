@@ -1,8 +1,8 @@
 
-import { useState, useMemo, useRef, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import type { ViewProps } from './registry';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, Clock, Grid, LayoutGrid } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';

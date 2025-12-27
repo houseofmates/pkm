@@ -1,13 +1,9 @@
 
 import type { ViewProps } from './registry';
 import { Button } from '@/components/ui/button';
-import { Edit2, Trash2, MoreHorizontal, Calendar, CheckSquare } from 'lucide-react';
-import { Separator } from '@/components/ui/separator';
+import { Trash2, MoreHorizontal, CheckSquare } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
-import {
-    DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu';
 
 export function ListView({ data, collection, onEdit, onDelete, onUpdateRecord }: ViewProps) {
     // Identify key fields for display
