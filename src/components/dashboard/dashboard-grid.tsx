@@ -102,7 +102,7 @@ export function DashboardGrid() {
         const previousState = undoStack.current.pop();
         if (previousState) {
             ctx.putImageData(previousState, 0, 0);
-            saveCanvas(true); // Save but don't snapshot
+            saveCanvas(); // Save but don't snapshot
         }
 
         setCanUndo(undoStack.current.length > 0);
@@ -120,7 +120,7 @@ export function DashboardGrid() {
         const nextState = redoStack.current.pop();
         if (nextState) {
             ctx.putImageData(nextState, 0, 0);
-            saveCanvas(true);
+            saveCanvas();
         }
 
         setCanUndo(true);
