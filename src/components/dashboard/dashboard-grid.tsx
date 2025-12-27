@@ -1,177 +1,605 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Plus, LayoutGrid, Save, Database, Trash2, Move, Minimize2, Lock, Unlock, Pencil, Eraser, Scissors, MousePointer2, Settings2, Check } from 'lucide-react';
-// ...
+import {
+    Plus, LayoutGrid, Save, Database, Trash2, Move, Minimize2,
+    Lock, Unlock, Pencil, Eraser, Scissors, MousePointer2, Check, Wand2
+} from 'lucide-react';
+import { toast } from 'sonner';
+import { useCollections } from '@/hooks/use-collections';
+import { VIEW_REGISTRY, VIEW_OPTIONS } from '@/components/views/registry';
+import type { ViewType } from '@/components/views/registry';
+import { useAuth } from '@/contexts/auth-context';
+import { useDroppable } from '@dnd-kit/core';
+import { useAppSetting } from '@/hooks/use-app-setting';
 import { HexColorPicker } from 'react-colorful';
-// ...
 
-// ...
-<div className="flex items-center gap-2">
-    <LayoutGrid className="h-5 w-5 text-primary" />
-
-    {isOver && <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full animate-pulse">Drop to Add</span>}
-</div>
-{ isOver && <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full animate-pulse">Drop to Add</span> }
-                </div >
-    <div className="flex items-center gap-2 relative">
-        <Button
-            variant={isEditMode ? "secondary" : "ghost"}
-            size="icon"
-            onClick={() => setIsEditMode(!isEditMode)}
-            title={isEditMode ? "Lock Layout" : "Unlock Layout"}
-        >
-            {isEditMode ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
-        </Button>
-
-        <Button
-            onClick={(e) => { e.stopPropagation(); setAddMenuOpen(!addMenuOpen); }}
-            variant={addMenuOpen ? "secondary" : "default"}
-        >
-            <Plus className="h-4 w-4 mr-2" /> add view
-        </Button>
-
-        {addMenuOpen && (
-            <div
-                className="absolute top-full right-0 mt-2 w-64 bg-popover border rounded-md shadow-lg z-50 max-h-[80vh] overflow-y-auto"
-                onClick={e => e.stopPropagation()}
-            >
-                <div className="p-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    add collection view
-                </div>
-
-                {collections.map(col => (
-                    <div key={col.name} className="border-b last:border-0 border-border/50">
-                        <div className="px-2 py-1.5 text-sm font-medium flex items-center bg-muted/30">
-                            <Database className="mr-2 h-3 w-3 opacity-50" />
-                            {col.title || col.name}
-                        </div>
-                        <div className="grid grid-cols-2 gap-1 p-1">
-                            {VIEW_OPTIONS.map(view => (
-                                <button
-                                    key={view.id}
-                                    className="text-xs text-left px-2 py-1.5 hover:bg-muted rounded-sm transition-colors text-muted-foreground hover:text-foreground"
-                                    onClick={() => {
-                                        handleAddWidget(col.name, view.id);
-                                        setAddMenuOpen(false);
-                                    }}
-                                >
-                                    + {view.label}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                ))}
-            </div>
-        )}
-
-        <Button size="sm" variant="outline" onClick={handleSave}>
-            <Save className="h-4 w-4 mr-2" /> save
-        </Button>
-    </div>
-            </div >
-
-    {/* Canvas Area */ }
-    < div
-ref = {(node) => {
-    containerRef.current = node;
-    setNodeRef(node);
-}}
-className = {`flex-1 relative bg-neutral-50/50 dark:bg-neutral-900/20 overflow-auto cursor-grab active:cursor-grabbing ${isOver ? 'ring-2 ring-primary ring-inset' : ''}`}
-onClick = {() => setAddMenuOpen(false)}
-            >
-    {/* Infinite Canvas Content */ }
-    < div className = "min-w-[2000px] min-h-[2000px] relative" >
-    {
-        widgets.map(widget => {
-            const ViewComponent = VIEW_REGISTRY[widget.viewType];
-            const data = widgetData[widget.id]?.data || [];
-
-            return (
-                <div
-                    key={widget.id}
-                    className="absolute bg-card border rounded-xl shadow-sm flex flex-col overflow-hidden group select-none transition-shadow hover:shadow-md"
-                    style={{
-                        left: widget.x,
-                        top: widget.y,
-                        width: widget.w,
-                        height: widget.h,
-                        zIndex: widget.zIndex,
-                    }}
-                    onMouseDown={() => bringToFront(widget.id)}
-                >
-                    {/* Header / Drag Handle */}
-                    <div
-                        className={`flex items-center justify-between p-2 border-b bg-muted/10 cursor-move ${isEditMode ? 'opacity-100' : 'opacity-0 hover:opacity-100'} transition-opacity`}
-                        onMouseDown={(e) => {
-                            if (!isEditMode) return;
-                            e.preventDefault();
-                            setDragState({
-                                id: widget.id,
-                                startX: e.clientX,
-                                startY: e.clientY,
-                                initialX: widget.x,
-                                initialY: widget.y,
-                                initialW: widget.w,
-                                initialH: widget.h,
-                                mode: 'move'
-                            });
-                        }}
-                    >
-                        <div className="font-medium text-xs flex items-center gap-2 text-muted-foreground">
-                            <Move className="h-3 w-3" />
-                            {widget.title}
-                        </div>
-                        {isEditMode && (
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-5 w-5 hover:bg-destructive hover:text-destructive-foreground"
-                                onClick={(e) => { e.stopPropagation(); handleRemoveWidget(widget.id); }}
-                            >
-                                <Trash2 className="h-3 w-3" />
-                            </Button>
-                        )}
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 overflow-auto p-2">
-                        <ViewComponent
-                            data={data}
-                            collection={collections.find(c => c.name === widget.collectionName)}
-                            loading={false}
-                        />
-                    </div>
-
-                    {/* Resize Handle */}
-                    {isEditMode && (
-                        <div
-                            className="absolute bottom-0 right-0 w-6 h-6 cursor-nwse-resize flex items-end justify-end p-1 opacity-0 group-hover:opacity-100"
-                            onMouseDown={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                setDragState({
-                                    id: widget.id,
-                                    startX: e.clientX,
-                                    startY: e.clientY,
-                                    initialX: widget.x,
-                                    initialY: widget.y,
-                                    initialW: widget.w,
-                                    initialH: widget.h,
-                                    mode: 'resize'
-                                });
-                            }}
-                        >
-                            <Minimize2 className="h-4 w-4 text-muted-foreground rotate-90" />
-                        </div>
-                    )}
-                </div>
-            )
-        })
-    }
-                </div >
-            </div >
-        </div >
-    );
+type WidgetType = 'view';
+interface WidgetDefinition {
+    id: string;
+    type: WidgetType;
+    title: string;
+    collectionName: string;
+    viewType: ViewType;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    zIndex: number;
 }
 
+export function DashboardGrid() {
+    // --- State ---
+    // Widgets (Synced to Backend)
+    const [widgets, setWidgets] = useAppSetting<WidgetDefinition[]>('dashboard_widgets', []);
+    const { collections } = useCollections();
+    const { client } = useAuth();
+    const [isEditMode, setIsEditMode] = useState(true);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [addMenuOpen, setAddMenuOpen] = useState(false);
+
+    // Data cache
+    const [widgetData, setWidgetData] = useState<Record<string, { data: any[], loading: boolean }>>({});
+
+    // Drawing State
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [drawingTool, setDrawingTool] = useState<'none' | 'pencil' | 'eraser' | 'lasso'>('none');
+    const [brushColor, setBrushColor] = useState('#f6b012');
+    const [brushSize, setBrushSize] = useState(2);
+    const [eraserSize, setEraserSize] = useState(20);
+    const [colorPickerOpen, setColorPickerOpen] = useState(false);
+
+    // Lasso / Selection
+    const [lassoPoints, setLassoPoints] = useState<{ x: number, y: number }[]>([]);
+    const [floatingSelection, setFloatingSelection] = useState<{
+        image: string; // Data URL
+        x: number;
+        y: number;
+        w: number;
+        h: number;
+    } | null>(null);
+
+    // --- Effects ---
+
+    // Load Canvas (Local Only for now due to size)
+    useEffect(() => {
+        const saved = localStorage.getItem('dashboard_canvas_data');
+        if (saved && canvasRef.current) {
+            const img = new Image();
+            img.onload = () => {
+                const ctx = canvasRef.current?.getContext('2d');
+                ctx?.drawImage(img, 0, 0);
+            };
+            img.src = saved;
+        }
+    }, []);
+
+    const saveCanvas = () => {
+        if (canvasRef.current) {
+            const data = canvasRef.current.toDataURL();
+            localStorage.setItem('dashboard_canvas_data', data);
+        }
+    };
+
+    const handleSave = () => {
+        // Widgets are auto-saved by useAppSetting hook debouncer
+        saveCanvas();
+        toast.success("Board saved");
+    };
+
+    // Fetch Widget Data
+    useEffect(() => {
+        widgets.forEach(widget => {
+            if (!widgetData[widget.id] && !widgetData[widget.id]?.loading) {
+                setWidgetData(prev => ({ ...prev, [widget.id]: { data: [], loading: true } }));
+                client.listRecords(widget.collectionName).then(res => {
+                    const data = Array.isArray(res.data) ? res.data : (res.data as any)?.data || [];
+                    setWidgetData(prev => ({ ...prev, [widget.id]: { data, loading: false } }));
+                }).catch(err => {
+                    console.error(err);
+                    setWidgetData(prev => ({ ...prev, [widget.id]: { data: [], loading: false } }));
+                });
+            }
+        });
+    }, [widgets, client]);
+
+
+    // --- Widget Operations ---
+
+    const handleAddWidget = (collectionName: string, viewType: ViewType) => {
+        const col = collections.find(c => c.name === collectionName);
+        const title = `${col?.title || collectionName} (${viewType})`;
+        const newWidget: WidgetDefinition = {
+            id: `w_${Date.now()}`,
+            type: 'view',
+            title,
+            collectionName,
+            viewType,
+            x: 50 + (widgets.length * 20),
+            y: 50 + (widgets.length * 20),
+            w: 400,
+            h: 300,
+            zIndex: widgets.length + 1
+        };
+        setWidgets(prev => [...prev, newWidget]);
+        toast.success(`added ${title}`);
+    };
+
+    const handleRemoveWidget = (id: string) => {
+        setWidgets(prev => prev.filter(w => w.id !== id));
+    };
+
+    const bringToFront = (id: string) => {
+        setWidgets(prev => {
+            const maxZ = Math.max(...prev.map(w => w.zIndex), 0);
+            return prev.map(w => w.id === id ? { ...w, zIndex: maxZ + 1 } : w);
+        });
+    };
+
+    // --- Drawing Handlers ---
+    const isDrawingRef = useRef(false);
+
+    const handleCanvasDown = (e: React.MouseEvent) => {
+        if (drawingTool === 'none') return;
+
+        isDrawingRef.current = true;
+        const x = e.nativeEvent.offsetX;
+        const y = e.nativeEvent.offsetY;
+        const ctx = canvasRef.current!.getContext('2d')!;
+
+        if (drawingTool === 'pencil') {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.strokeStyle = brushColor;
+            ctx.lineWidth = brushSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        } else if (drawingTool === 'eraser') {
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.lineWidth = eraserSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        } else if (drawingTool === 'lasso') {
+            setLassoPoints([{ x, y }]);
+        }
+    };
+
+    const handleCanvasMove = (e: React.MouseEvent) => {
+        if (!isDrawingRef.current) return;
+        if (drawingTool === 'none') return;
+
+        const x = e.nativeEvent.offsetX;
+        const y = e.nativeEvent.offsetY;
+        const ctx = canvasRef.current!.getContext('2d')!;
+
+        if (drawingTool === 'pencil' || drawingTool === 'eraser') {
+            ctx.lineTo(x, y);
+            ctx.stroke();
+        } else if (drawingTool === 'lasso') {
+            setLassoPoints(prev => [...prev, { x, y }]);
+        }
+    };
+
+    const handleCanvasUp = () => {
+        if (!isDrawingRef.current) return;
+        isDrawingRef.current = false;
+        saveCanvas();
+
+        if (drawingTool === 'lasso' && lassoPoints.length > 2) {
+            // Finish Lasso - Extract Selection
+            const ctx = canvasRef.current!.getContext('2d')!;
+
+            // 1. Calc Bounds
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            lassoPoints.forEach(p => {
+                minX = Math.min(minX, p.x);
+                minY = Math.min(minY, p.y);
+                maxX = Math.max(maxX, p.x);
+                maxY = Math.max(maxY, p.y);
+            });
+            const w = maxX - minX;
+            const h = maxY - minY;
+
+            if (w <= 0 || h <= 0) { setLassoPoints([]); return; }
+
+            // 2. Clip and Extract
+            ctx.save();
+            ctx.beginPath();
+            lassoPoints.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+            ctx.closePath();
+            ctx.clip();
+
+            const imageData = ctx.getImageData(minX, minY, w, h);
+
+            // Clear original
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fill();
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.restore();
+
+            // Store in temp canvas
+            const cropCanvas = document.createElement('canvas');
+            cropCanvas.width = w;
+            cropCanvas.height = h;
+            const cropCtx = cropCanvas.getContext('2d')!;
+            cropCtx.putImageData(imageData, 0, 0);
+
+            setFloatingSelection({
+                image: cropCanvas.toDataURL(),
+                x: minX,
+                y: minY,
+                w,
+                h
+            });
+            setLassoPoints([]);
+        }
+    };
+
+    const pasteSelection = () => {
+        if (!floatingSelection || !canvasRef.current) return;
+        const ctx = canvasRef.current.getContext('2d')!;
+        const img = new Image();
+        img.onload = () => {
+            ctx.drawImage(img, floatingSelection.x, floatingSelection.y, floatingSelection.w, floatingSelection.h);
+            saveCanvas();
+            setFloatingSelection(null);
+        };
+        img.src = floatingSelection.image;
+    };
+
+
+    // --- Global Drag Logic (Widgets) ---
+    const [dragState, setDragState] = useState<{
+        id: string,
+        startX: number,
+        startY: number,
+        initialX: number,
+        initialY: number,
+        initialW: number,
+        initialH: number,
+        mode: 'move' | 'resize'
+    } | null>(null);
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!dragState) return;
+            const deltaX = e.clientX - dragState.startX;
+            const deltaY = e.clientY - dragState.startY;
+
+            setWidgets(prev => prev.map(w => {
+                if (w.id !== dragState.id) return w;
+                if (dragState.mode === 'move') {
+                    return { ...w, x: dragState.initialX + deltaX, y: dragState.initialY + deltaY };
+                } else {
+                    return { ...w, w: Math.max(200, dragState.initialW + deltaX), h: Math.max(150, dragState.initialH + deltaY) };
+                }
+            }));
+        };
+        const handleMouseUp = () => setDragState(null);
+
+        if (dragState) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+        }
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [dragState]);
+
+    const { setNodeRef, isOver } = useDroppable({ id: 'dashboard-canvas' });
+
+    useEffect(() => {
+        const handleExternalDrop = (e: CustomEvent<{ collectionName: string }>) => {
+            handleAddWidget(e.detail.collectionName, 'table');
+        };
+        window.addEventListener('pkm:add-widget', handleExternalDrop as EventListener);
+        return () => { window.removeEventListener('pkm:add-widget', handleExternalDrop as EventListener); };
+    }, [widgets, collections]);
+
+
+    return (
+        <div className="flex flex-col h-full bg-background overflow-hidden">
+            {/* Toolbar */}
+            <div className="flex items-center justify-between p-4 border-b bg-background z-50 shadow-sm h-16 relative">
+                <div className="flex items-center gap-2">
+                    <LayoutGrid className="h-5 w-5 text-primary" />
+                    {isOver && <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full animate-pulse">Drop to Add</span>}
+                </div>
+
+                <div className="flex items-center gap-2 relative">
+
+                    {/* Drawing Tools */}
+                    <div className="flex items-center bg-muted/20 rounded-lg p-1 mr-2 border">
+                        <div className="relative">
+                            <Button
+                                variant={drawingTool === 'pencil' ? "secondary" : "ghost"}
+                                size="icon"
+                                onClick={() => setDrawingTool(drawingTool === 'pencil' ? 'none' : 'pencil')}
+                                onContextMenu={(e) => {
+                                    e.preventDefault();
+                                    setColorPickerOpen(!colorPickerOpen);
+                                }}
+                                title="Pencil (Right-click for color)"
+                                className={drawingTool === 'pencil' ? "bg-accent" : ""}
+                            >
+                                <Pencil className="h-4 w-4" style={{ color: drawingTool === 'pencil' ? brushColor : 'currentColor' }} />
+                            </Button>
+                            {colorPickerOpen && (
+                                <div className="absolute top-12 left-0 z-50 p-2 bg-popover border rounded shadow-xl">
+                                    <div className="fixed inset-0 z-40" onClick={() => setColorPickerOpen(false)} />
+                                    <div className="relative z-50">
+                                        <HexColorPicker color={brushColor} onChange={setBrushColor} />
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        <Button
+                            variant={drawingTool === 'eraser' ? "secondary" : "ghost"}
+                            size="icon"
+                            onClick={() => setDrawingTool(drawingTool === 'eraser' ? 'none' : 'eraser')}
+                            className={drawingTool === 'eraser' ? "bg-accent" : ""}
+                            title="Eraser"
+                        >
+                            <Eraser className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            variant={drawingTool === 'lasso' ? "secondary" : "ghost"}
+                            size="icon"
+                            onClick={() => {
+                                if (floatingSelection) pasteSelection();
+                                setDrawingTool(drawingTool === 'lasso' ? 'none' : 'lasso');
+                            }}
+                            className={drawingTool === 'lasso' ? "bg-accent" : ""}
+                            title="Lasso / Wand"
+                        >
+                            <Wand2 className="h-4 w-4" />
+                        </Button>
+                        <Button
+                            variant={drawingTool === 'none' ? "secondary" : "ghost"}
+                            size="icon"
+                            onClick={() => {
+                                if (floatingSelection) pasteSelection();
+                                setDrawingTool('none');
+                            }}
+                            title="Cursor (Move Widgets)"
+                            className={drawingTool === 'none' ? "bg-accent" : ""}
+                        >
+                            <MousePointer2 className="h-4 w-4" />
+                        </Button>
+                    </div>
+
+                    <div className="h-6 w-px bg-border mx-2" />
+
+                    <Button
+                        variant={isEditMode ? "secondary" : "ghost"}
+                        size="icon"
+                        onClick={() => setIsEditMode(!isEditMode)}
+                        title={isEditMode ? "Lock Layout" : "Unlock Layout"}
+                    >
+                        {isEditMode ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+                    </Button>
+
+                    <Button
+                        onClick={(e) => { e.stopPropagation(); setAddMenuOpen(!addMenuOpen); }}
+                        variant={addMenuOpen ? "secondary" : "default"}
+                    >
+                        <Plus className="h-4 w-4 mr-2" /> add view
+                    </Button>
+
+                    {addMenuOpen && (
+                        <div className="absolute top-full right-0 mt-2 w-64 bg-popover border rounded-md shadow-lg z-50 max-h-[80vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+                            <div className="p-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">add collection view</div>
+                            {collections.map(col => (
+                                <div key={col.name} className="border-b last:border-0 border-border/50">
+                                    <div className="px-2 py-1.5 text-sm font-medium flex items-center bg-muted/30">
+                                        <Database className="mr-2 h-3 w-3 opacity-50" />
+                                        {col.title || col.name}
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-1 p-1">
+                                        {VIEW_OPTIONS.map(view => (
+                                            <button
+                                                key={view.id}
+                                                className="text-xs text-left px-2 py-1.5 hover:bg-muted rounded-sm transition-colors text-muted-foreground hover:text-foreground"
+                                                onClick={() => { handleAddWidget(col.name, view.id); setAddMenuOpen(false); }}
+                                            >
+                                                + {view.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+
+                    <Button size="sm" variant="outline" onClick={handleSave}>
+                        <Save className="h-4 w-4 mr-2" /> save
+                    </Button>
+                </div>
+            </div>
+
+            {/* Canvas Area */}
+            <div
+                ref={(node) => {
+                    containerRef.current = node;
+                    setNodeRef(node);
+                }}
+                className={`flex-1 relative bg-neutral-50/50 dark:bg-neutral-900/20 overflow-auto cursor-grab active:cursor-grabbing ${isOver ? 'ring-2 ring-primary ring-inset' : ''}`}
+                onClick={() => setAddMenuOpen(false)}
+            >
+                <div className="min-w-[2000px] min-h-[2000px] relative">
+
+                    {/* Painting Canvas */}
+                    <canvas
+                        ref={canvasRef}
+                        width={2000}
+                        height={2000}
+                        className="absolute inset-0 z-[60] pointer-events-auto"
+                        style={{
+                            pointerEvents: drawingTool !== 'none' ? 'auto' : 'none',
+                        }}
+                        onMouseDown={handleCanvasDown}
+                        onMouseMove={handleCanvasMove}
+                        onMouseUp={handleCanvasUp}
+                        onMouseLeave={handleCanvasUp}
+                    />
+
+                    {/* Lasso Feedback */}
+                    {drawingTool === 'lasso' && lassoPoints.length > 0 && (
+                        <svg className="absolute inset-0 z-[65] pointer-events-none" width={2000} height={2000}>
+                            <polygon
+                                points={lassoPoints.map(p => `${p.x},${p.y}`).join(' ')}
+                                fill="#f6b01233"
+                                stroke="#f6b012"
+                                strokeDasharray="4"
+                            />
+                        </svg>
+                    )}
+
+                    {/* Floating Selection */}
+                    {floatingSelection && (
+                        <div
+                            className="absolute z-[70] border-2 border-dashed border-[#f6b012] group cursor-move"
+                            style={{ left: floatingSelection.x, top: floatingSelection.y, width: floatingSelection.w, height: floatingSelection.h }}
+                            onMouseDown={(e) => {
+                                e.stopPropagation();
+                                const startX = e.clientX;
+                                const startY = e.clientY;
+                                const initialX = floatingSelection.x;
+                                const initialY = floatingSelection.y;
+
+                                const handleMove = (e: MouseEvent) => {
+                                    setFloatingSelection(prev => prev ? ({ ...prev, x: initialX + (e.clientX - startX), y: initialY + (e.clientY - startY) }) : null);
+                                };
+                                const handleUp = () => {
+                                    window.removeEventListener('mousemove', handleMove);
+                                    window.removeEventListener('mouseup', handleUp);
+                                };
+                                window.addEventListener('mousemove', handleMove);
+                                window.addEventListener('mouseup', handleUp);
+                            }}
+                        >
+                            <img src={floatingSelection.image} className="w-full h-full pointer-events-none" />
+
+                            {/* Resize Handle */}
+                            <div
+                                className="absolute -bottom-2 -right-2 w-4 h-4 bg-[#f6b012] cursor-nwse-resize"
+                                onMouseDown={(e) => {
+                                    e.stopPropagation();
+                                    const startX = e.clientX;
+                                    const startY = e.clientY;
+                                    const initialW = floatingSelection.w;
+                                    const initialH = floatingSelection.h;
+
+                                    const handleResize = (e: MouseEvent) => {
+                                        setFloatingSelection(prev => prev ? ({ ...prev, w: Math.max(10, initialW + (e.clientX - startX)), h: Math.max(10, initialH + (e.clientY - startY)) }) : null);
+                                    };
+                                    const handleUp = () => { window.removeEventListener('mousemove', handleResize); window.removeEventListener('mouseup', handleUp); };
+                                    window.addEventListener('mousemove', handleResize);
+                                    window.addEventListener('mouseup', handleUp);
+                                }}
+                            />
+                            {/* Side Warp Handle */}
+                            <div
+                                className="absolute top-1/2 -right-2 w-2 h-4 bg-[#f6b012] cursor-ew-resize -translate-y-1/2"
+                                onMouseDown={(e) => {
+                                    e.stopPropagation();
+                                    const startX = e.clientX;
+                                    const initialW = floatingSelection.w;
+                                    const handleWarp = (e: MouseEvent) => {
+                                        setFloatingSelection(prev => prev ? ({ ...prev, w: Math.max(10, initialW + (e.clientX - startX)) }) : null);
+                                    };
+                                    const handleUp = () => { window.removeEventListener('mousemove', handleWarp); window.removeEventListener('mouseup', handleUp); };
+                                    window.addEventListener('mousemove', handleWarp);
+                                    window.addEventListener('mouseup', handleUp);
+                                }}
+                            />
+
+                            <div className="absolute -top-8 left-0 flex gap-2">
+                                <Button size="sm" onClick={pasteSelection} variant="secondary">
+                                    <Check className="h-3 w-3 mr-1" /> Done
+                                </Button>
+                            </div>
+                        </div>
+                    )}
+
+                    {widgets.map(widget => {
+                        const ViewComponent = VIEW_REGISTRY[widget.viewType];
+                        const data = widgetData[widget.id]?.data || [];
+
+                        return (
+                            <div
+                                key={widget.id}
+                                className="absolute bg-card border rounded-xl shadow-sm flex flex-col overflow-hidden group select-none transition-shadow hover:shadow-md"
+                                style={{
+                                    left: widget.x,
+                                    top: widget.y,
+                                    width: widget.w,
+                                    height: widget.h,
+                                    zIndex: widget.zIndex,
+                                }}
+                                onMouseDown={() => bringToFront(widget.id)}
+                            >
+                                <div
+                                    className={`flex items-center justify-between p-2 border-b bg-muted/10 cursor-move ${isEditMode ? 'opacity-100' : 'opacity-0 hover:opacity-100'} transition-opacity`}
+                                    onMouseDown={(e) => {
+                                        if (!isEditMode) return;
+                                        e.preventDefault(); // This might block click propagation if not careful, but drag logic relies on it. 
+                                        // Wait, drawingTool checks? Widgets are below canvas z-index 60, but if drawingTool is 'none', canvas is pointer-events-none.
+                                        // So widgets get clicks. Good.
+                                        setDragState({
+                                            id: widget.id,
+                                            startX: e.clientX, startY: e.clientY,
+                                            initialX: widget.x, initialY: widget.y,
+                                            initialW: widget.w, initialH: widget.h,
+                                            mode: 'move'
+                                        });
+                                    }}
+                                >
+                                    <div className="font-medium text-xs flex items-center gap-2 text-muted-foreground">
+                                        <Move className="h-3 w-3" />
+                                        {widget.title}
+                                    </div>
+                                    {isEditMode && (
+                                        <Button
+                                            variant="ghost" size="icon" className="h-5 w-5 hover:bg-destructive hover:text-destructive-foreground"
+                                            onClick={(e) => { e.stopPropagation(); handleRemoveWidget(widget.id); }}
+                                        >
+                                            <Trash2 className="h-3 w-3" />
+                                        </Button>
+                                    )}
+                                </div>
+
+                                <div className="flex-1 overflow-auto p-2">
+                                    <ViewComponent data={data} collection={collections.find(c => c.name === widget.collectionName)} loading={false} />
+                                </div>
+
+                                {isEditMode && (
+                                    <div
+                                        className="absolute bottom-0 right-0 w-6 h-6 cursor-nwse-resize flex items-end justify-end p-1 opacity-0 group-hover:opacity-100"
+                                        onMouseDown={(e) => {
+                                            e.stopPropagation(); e.preventDefault();
+                                            setDragState({
+                                                id: widget.id,
+                                                startX: e.clientX, startY: e.clientY,
+                                                initialX: widget.x, initialY: widget.y,
+                                                initialW: widget.w, initialH: widget.h,
+                                                mode: 'resize'
+                                            });
+                                        }}
+                                    >
+                                        <Minimize2 className="h-4 w-4 text-muted-foreground rotate-90" />
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                </div>
+            </div>
+        </div>
+    );
+}
