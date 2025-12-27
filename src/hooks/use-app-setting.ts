@@ -190,7 +190,9 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                         return;
                     } catch (err: any) {
                         const errMsg = (err.message || JSON.stringify(err)).toLowerCase();
-                        console.warn(`[useAppSetting] Save error for ${key}:`, errMsg);
+                        if (!errMsg.includes('exists') && !errMsg.includes('unique') && !errMsg.includes('400')) {
+                            console.warn(`[useAppSetting] Save error for ${key}:`, errMsg);
+                        }
 
                         // Case 1: Key already exists (400) -> Use Filter-Based Update (since ID might be hidden)
                         if (errMsg.includes('exists') || errMsg.includes('unique') || errMsg.includes('400')) {
