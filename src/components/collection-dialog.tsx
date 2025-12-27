@@ -39,8 +39,10 @@ interface CollectionMetadata {
 }
 
 const FIELD_TYPES = [
-    { label: 'text (short)', type: 'string', interface: 'input' },
-    { label: 'text (long)', type: 'text', interface: 'textarea' },
+    { label: 'text', type: 'string', interface: 'text' }, // Will auto-switch between input and textarea
+    { label: 'email', type: 'string', interface: 'email' },
+    { label: 'phone', type: 'string', interface: 'phone' },
+    { label: 'password', type: 'string', interface: 'password' },
     { label: 'number', type: 'number', interface: 'number' },
     { label: 'date', type: 'date', interface: 'datetime' },
     { label: 'checkbox', type: 'boolean', interface: 'checkbox' },
@@ -60,7 +62,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
     const [displayName, setDisplayName] = useState('');
     const [name, setName] = useState('');
     const [imageUrl, setImageUrl] = useState('');
-    const [color, setColor] = useState('#666666');
+    const [color, setColor('#666666');
 
     const titleInputRef = useRef<HTMLInputElement>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -82,6 +84,8 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                 setName('');
                 setImageUrl('');
                 setColor('#666666');
+                setCsvData([]);
+                setCsvFields([]);
                 // Auto-focus title on create
                 setTimeout(() => titleInputRef.current?.focus(), 100);
             }
@@ -94,7 +98,25 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
 
     const inferType = (values: any[]) => {
         const nonNull = values.filter(v => v !== null && v !== undefined && v !== '');
-        if (nonNull.length === 0) return 'input';
+        if (nonNull.length === 0) return 'text';
+
+        // Check for Email
+        const isEmail = nonNull.every(v => /[^\s@]+@[^\s@]+\.[^\s@]+/.test(String(v)));
+        if (isEmail) return 'email';
+
+        // Check for Phone (10+ digits or specific patterns)
+        const isPhone = nonNull.every(v => {
+            const s = String(v).replace(/[-().\s+]/g, '');
+            return s.length >= 10 && /^\d+$/.test(s);
+        });
+        if (isPhone) return 'phone';
+
+        // Check for Password (numbers > 3 digits without decimals)
+        const isSecret = nonNull.every(v => {
+            const s = String(v);
+            return s.length >= 4 && /^\d+$/.test(s);
+        });
+        if (isSecret) return 'password';
 
         // Check for boolean
         const isBool = nonNull.every(v => {
@@ -104,14 +126,14 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
         if (isBool) return 'checkbox';
 
         // Check for number
-        const isNum = nonNull.every(v => !isNaN(Number(v)));
+        const isNum = nonNull.every(v => !isNaN(Number(v)) && String(v).trim() !== '');
         if (isNum) return 'number';
 
         // Check for date
         const isDate = nonNull.every(v => !isNaN(Date.parse(String(v))));
         if (isDate) return 'datetime';
 
-        return 'input';
+        return 'text';
     };
 
     const handleCsvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -168,12 +190,23 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                     toast.info(`creating ${csvFields.length} fields...`);
                     // We must create fields sequentially or carefully to avoid NocoBase race conditions
                     for (const field of csvFields) {
-                        const typeConfig = FIELD_TYPES.find(t => t.interface === field.interface);
+                        let typeConfig = FIELD_TYPES.find(t => t.interface === field.interface);
+
+                        // Intelligent Text Logic: Auto-switch between input and textarea
+                        let finalInterface = field.interface;
+                        let internalType = typeConfig?.type || 'string';
+
+                        if (field.interface === 'text') {
+                            const isLong = csvData.some(row => String(row[field.title] || '').length > 200);
+                            finalInterface = isLong ? 'textarea' : 'input';
+                            internalType = isLong ? 'text' : 'string';
+                        }
+
                         await client.createField(finalName, {
                             name: field.name,
                             title: field.title,
-                            type: typeConfig?.type || 'string',
-                            interface: field.interface
+                            type: internalType,
+                            interface: finalInterface
                         });
                     }
 
