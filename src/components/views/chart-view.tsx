@@ -169,10 +169,41 @@ const seriesType = config?.chartSeriesType || null; // global series display ove
                         {seriesField ? `Split by ${seriesField}` : `Showing ${aggregation} of records by ${xKey}`}
                     </div>
                 </div>
+
+                {/* Per-series type overrides */}
+                {seriesField && (chartData[0] ? Object.keys(chartData[0]).filter(k => k !== 'name') : []).length > 0 && (
+                    <div className="w-full p-2 border-t mt-2">
+                        <Label>Per-series Types</Label>
+                        <div className="flex gap-4 flex-wrap mt-2">
+                            {(chartData[0] ? Object.keys(chartData[0]).filter(k => k !== 'name') : []).map((sKey) => (
+                                <div key={sKey} className="space-y-1 min-w-[150px]">
+                                    <Label className="text-xs">{sKey}</Label>
+                                    <Select value={(config?.chartSeriesTypes?.[sKey]) || ''} onValueChange={(v) => {
+                                        const cur = { ...(config?.chartSeriesTypes || {}) };
+                                        if (!v) {
+                                            delete cur[sKey];
+                                        } else {
+                                            cur[sKey] = v as 'bar' | 'line' | 'area';
+                                        }
+                                        handleConfig('chartSeriesTypes', cur);
+                                    }}>
+                                        <SelectTrigger><SelectValue /></SelectTrigger>
+                                        <SelectContent>
+                                            <SelectItem value="">Auto</SelectItem>
+                                            <SelectItem value="bar">Bar</SelectItem>
+                                            <SelectItem value="line">Line</SelectItem>
+                                            <SelectItem value="area">Area</SelectItem>
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div className="flex-1 min-h-[400px] border rounded-lg p-4 bg-card shadow-sm">
-                <ChartWidget type={type} data={chartData} xKey="name" yKey="value" seriesKeys={seriesField ? (chartData[0] ? Object.keys(chartData[0]).filter(k => k !== 'name') : []) : undefined} stacked={stacked} seriesType={seriesType} />
+                <ChartWidget type={type} data={chartData} xKey="name" yKey="value" seriesKeys={seriesField ? (chartData[0] ? Object.keys(chartData[0]).filter(k => k !== 'name') : []) : undefined} stacked={stacked} seriesType={seriesType} seriesTypes={config?.chartSeriesTypes} />
             </div>
         </div>
     );
