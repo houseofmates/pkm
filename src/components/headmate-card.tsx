@@ -58,30 +58,51 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
 
     useEffect(() => {
         let active = true;
+
         const loadSecure = async () => {
-            if (displayImage && displayImage.includes('/api/nocobase/attachments/')) {
+            if (!displayImage) {
+                setBlobUrl(null);
+                return;
+            }
+
+            // Strategy 1: Direct Storage URL with Auth (Bypasses API 500 errors)
+            if (displayImage.includes('db.houseofmates.space')) {
                 try {
-                    // Extract ID from URL like /api/nocobase/attachments/219/download
+                    const token = localStorage.getItem('nocobase_token');
+                    const res = await fetch(displayImage, {
+                        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                    });
+                    if (res.ok) {
+                        const blob = await res.blob();
+                        if (active) setBlobUrl(URL.createObjectURL(blob));
+                        return;
+                    }
+                } catch (e) {
+                    console.error("Failed to fetch secure storage URL", e);
+                }
+            }
+
+            // Strategy 2: API Proxy (Legacy/Fallback)
+            if (displayImage.includes('/api/nocobase/attachments/')) {
+                try {
                     const match = displayImage.match(/\/attachments\/(\d+)/);
                     if (match && match[1]) {
                         const blob = await client.downloadAttachmentBlob(match[1]);
-                        if (active && blob) {
-                            const url = URL.createObjectURL(blob);
-                            setBlobUrl(url);
-                        }
+                        if (active && blob) setBlobUrl(URL.createObjectURL(blob));
                     }
                 } catch (e) {
                     console.error("Failed to load secure avatar via client", e);
                 }
-            } else {
+            }
+
+            // If neither, we assume it's a public URL or handled by src directly
+            if (!displayImage.includes('db.houseofmates.space') && !displayImage.includes('/api/nocobase')) {
                 setBlobUrl(null);
             }
         };
 
         loadSecure();
-        return () => {
-            active = false;
-        };
+        return () => { active = false; };
     }, [displayImage, client]);
 
     const finalImageSrc = blobUrl || displayImage;
