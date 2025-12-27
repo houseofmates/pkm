@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/auth-context';
-import { apiRequest } from '@/lib/api-client';
 
 export interface AppSetting {
     id?: number | string;
@@ -153,11 +152,10 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
             return resolvedValue;
         });
-    }, [key, isAuthenticated, token, getHeaders, ensureCollectionExists]);
+    }, [key, isAuthenticated, token, client, ensureCollectionExists, debounceMs]);
 
     const flush = useCallback(async (valueToSave?: T) => {
         if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) return;
-        const headers = getHeaders();
         const toSave = valueToSave === undefined ? valueRef.current : valueToSave;
 
         const attemptUpsert = async (attempt = 1): Promise<void> => {
@@ -195,9 +193,11 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
             }
         };
 
-        return savePromiseRef.current;
+        const p = (savePromiseRef.current || Promise.resolve()).then(() => attemptUpsert()).catch(() => { });
+        savePromiseRef.current = p as Promise<void>;
+        return p;
     }, [isAuthenticated, token, client, ensureCollectionExists, key]);
 
-    flushRef.current = flush;
+    flushRef.current = () => flush();
     return [value, updateValue, loading, flush] as const;
 }
