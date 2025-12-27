@@ -23,9 +23,17 @@ export function LoginPage() {
                 });
 
                 login(inputToken);
-            } catch (err) {
+            } catch (err: any) {
                 console.error("Token validation failed:", err);
-                setError("Invalid token. Please check and try again.");
+                // Check if specific blocked error
+                const msg = err?.data?.errors?.[0]?.message || err?.message || '';
+                const code = err?.data?.errors?.[0]?.code || '';
+
+                if (code === 'BLOCKED_TOKEN') {
+                    setError("Token rejected by server (BLOCKED_TOKEN). This usually means it was explicitly revoked or you logged out.");
+                } else {
+                    setError(`Invalid token: ${msg || 'Unknown error'}`);
+                }
             } finally {
                 setIsValidating(false);
             }
