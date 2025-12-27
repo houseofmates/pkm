@@ -380,6 +380,8 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
     if (isEmail) return <a href={`mailto:${value}`} className="text-primary hover:underline flex items-center gap-1" onClick={e => e.stopPropagation()}><Mail className="h-3 w-3" /> {value}</a>;
     if (isUrl) return <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline flex items-center gap-1 truncate max-w-[150px]" onClick={e => e.stopPropagation()}><LinkIcon className="h-3 w-3" /> {value}</a>;
 
+    if (isDate) return <div onClick={() => setIsEditing(true)} className="cursor-pointer text-xs">{formatDate(value)} {formatTime(value)}</div>;
+
     if (isPassword) { /* ... */
         return (
             <div onClick={() => setIsEditing(true)} className="cursor-pointer flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
