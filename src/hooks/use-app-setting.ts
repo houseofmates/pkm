@@ -50,15 +50,15 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                 params: {
                     filter: JSON.stringify({ key }),
                     pageSize: '1',
-
                 }
             });
             const data = response?.data || [];
-            if (data.length > 0) {
-                return data[0].id;
+            if (data.length > 0 && data[0].id) {
+                console.log(`[useAppSetting] Recovered ID for ${key}:`, data[0].id);
+                return data[0].id; // Return the ID
             }
         } catch (e) {
-            // Ignore fetch error
+            console.warn(`[useAppSetting] Failed to recover ID for ${key}`, e);
         }
         return null;
     }, [key, token, getHeaders]);
