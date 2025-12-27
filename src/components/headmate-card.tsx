@@ -87,18 +87,25 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
                 return;
             }
 
-            // Strategy 3: Relative storage URL - try proxy
+            // Strategy 3: Relative storage URL - try proxy with auth
             if (displayImage.startsWith('/storage/')) {
                 try {
-                    const res = await fetch(displayImage);
+                    const token = localStorage.getItem('nocobase_token');
+                    const res = await fetch(displayImage, {
+                        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                    });
                     if (res.ok) {
                         const blob = await res.blob();
                         if (active) setBlobUrl(URL.createObjectURL(blob));
                         return;
+                    } else {
+                        throw new Error(`Fetch failed with status: ${res.status}`);
                     }
                 } catch (e) {
-                    console.warn("Proxy fetch failed, will try direct URL");
+                    console.warn("Storage fetch failed:", e);
+                    if (active) setImageError(true);
                 }
+                return;
             }
 
             // If nothing worked and it's not a data/http URL, mark as error
@@ -108,7 +115,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
         };
 
         loadImage();
-        return () => { 
+        return () => {
             active = false;
         };
     }, [displayImage]);
