@@ -177,7 +177,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                 <Separator className="mb-4" />
 
                 <div className="px-4 mb-2 flex items-center justify-between">
-                    <span className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Databases</span>
+
                     <div className="flex gap-1">
                         <Button
                             variant="ghost"
