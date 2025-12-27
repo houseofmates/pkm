@@ -11,7 +11,7 @@ export function ListView({ data, collection, onEdit, onDelete, onUpdateRecord }:
             <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
                 <div className="flex flex-col items-center gap-2">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    <p className="text-sm">Loading list metadata...</p>
+                    <p className="text-sm">loading list metadata...</p>
                 </div>
             </div>
         );
@@ -30,7 +30,7 @@ export function ListView({ data, collection, onEdit, onDelete, onUpdateRecord }:
     };
 
     if (!data.length) {
-        return <div className="p-8 text-center text-muted-foreground border-2 border-dashed rounded-xl text-sm">No items found</div>;
+        return <div className="p-8 text-center text-muted-foreground border-2 border-dashed rounded-xl text-sm">no items found</div>;
     }
 
     return (
