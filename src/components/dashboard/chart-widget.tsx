@@ -69,7 +69,7 @@ export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yK
                         nameKey={xKey}
                     >
                         {data.map((entry, index) => (
-                            <Cell key={`cell - ${ index } `} fill={COLORS[index % COLORS.length]} />
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                     </Pie>
                     <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />
