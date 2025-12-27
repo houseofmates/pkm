@@ -10,6 +10,9 @@ export interface AppSetting {
 
 export function useAppSetting<T>(key: string, defaultValue: T, options?: { debounceMs?: number }) {
     const debounceMs = options?.debounceMs ?? 1000;
+
+    // Expose a way to flush pending saves immediately (useful when you need cross-device persistence)
+    const flushRef = useRef<() => Promise<void> | null>(null);
     const { isAuthenticated, token } = useAuth();
 
     // Initialize from localStorage for immediate availability
