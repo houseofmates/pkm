@@ -69,7 +69,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
             <div 
                 className="absolute inset-0 pointer-events-none z-50 rounded-lg"
                 style={{
-                    border: `${isActive ? "4px" : "2px"} solid ${isActive ? displayTextColor : fadedColor}`
+                    border: `${isActive ? "6px" : "2px"} solid ${isActive ? displayTextColor : fadedColor}`
                 }}
             />
             {/* Background Image */}
