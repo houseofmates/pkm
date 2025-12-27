@@ -247,15 +247,20 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                     // 3. Batch Create Records
                     if (csvData.length > 0) {
                         toast.info(`importing ${csvData.length} records...`);
-                        // For simplicity, we loop. In production we'd want a bulk API
                         const batchSize = 10;
                         for (let i = 0; i < csvData.length; i += batchSize) {
                             const chunk = csvData.slice(i, i + batchSize);
                             await Promise.all(chunk.map(row => {
-                                // Map CSV header keys to NocoBase field names
                                 const record: any = {};
                                 csvFields.forEach(f => {
-                                    record[f.name] = row[f.title];
+                                    let val = row[f.title];
+                                    if (f.interface === 'multipleSelect' && val) {
+                                        val = String(val).split(',').map(s => s.trim()).filter(Boolean);
+                                    }
+                                    if (f.interface === 'belongsTo' && val) {
+                                        val = isNaN(Number(val)) ? val : Number(val);
+                                    }
+                                    record[f.name] = val;
                                 });
                                 return client.createRecord(finalName, record);
                             }));
