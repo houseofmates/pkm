@@ -895,7 +895,6 @@ export function DashboardGrid() {
                                                     </span>
                                                     <div>
                                                         <div className="font-medium">{view.label}</div>
-                                                        <div className="text-[10px] text-muted-foreground line-clamp-1">{view.description}</div>
                                                     </div>
                                                 </button>
                                             ))}
