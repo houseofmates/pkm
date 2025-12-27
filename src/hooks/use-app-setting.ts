@@ -69,7 +69,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                 console.warn(`[useAppSetting] Fetch successful but no existing record found for ${key} (Length: ${data.length})`);
             }
         } catch (e) {
-            console.warn(`[useAppSetting] Failed to recover ID for ${key}`, e);
+            // Silently fail, it's just a discovery helper
         }
         return null;
     }, [key, token, getHeaders]);
@@ -181,7 +181,8 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                         const response = await apiRequest('nocobase', '/pkm_settings', {
                             method: 'POST',
                             headers,
-                            data: { key, value: valueToSave }
+                            data: { key, value: valueToSave },
+                            silent: true
                         });
                         if (response?.data?.id) {
                             settingIdRef.current = response.data.id;
@@ -196,16 +197,15 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
                         // Case 1: Key already exists (400) -> Use Filter-Based Update (since ID might be hidden)
                         if (errMsg.includes('exists') || errMsg.includes('unique') || errMsg.includes('400')) {
-                            console.log(`[useAppSetting] Collision. Switching to Filter-Based Update for ${key}...`);
                             await apiRequest('nocobase', '/pkm_settings:update', {
                                 method: 'POST',
                                 headers,
                                 params: {
                                     filter: JSON.stringify({ key })
                                 },
-                                data: { value: valueToSave }
+                                data: { value: valueToSave },
+                                silent: true
                             });
-                            console.log(`[useAppSetting] Filter-Based Update success for ${key}`);
                             return;
                         }
 
@@ -263,7 +263,8 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                 const response = await apiRequest('nocobase', '/pkm_settings', {
                     method: 'POST',
                     headers,
-                    data: { key, value: toSave }
+                    data: { key, value: toSave },
+                    silent: true
                 });
                 if (response?.data?.id) {
                     settingIdRef.current = response.data.id;
@@ -278,16 +279,15 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
                 // 400 conflict -> Use Filter-Based Update
                 if (attempt < 2 && (errMsg.includes('exists') || errMsg.includes('unique') || errMsg.includes('400'))) {
-                    console.log(`[useAppSetting] Flush: Collision. Switching to Filter-Based Update...`);
                     await apiRequest('nocobase', '/pkm_settings:update', {
                         method: 'POST',
                         headers,
                         params: {
                             filter: JSON.stringify({ key })
                         },
-                        data: { value: toSave }
+                        data: { value: toSave },
+                        silent: true
                     });
-                    console.log(`[useAppSetting] Flush: Filter-Based Update success`);
                     return;
                 }
 
