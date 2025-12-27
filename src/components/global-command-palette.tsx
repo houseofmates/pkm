@@ -53,11 +53,11 @@ export function GlobalCommandPalette() {
                             <CommandGroup heading="Suggestions">
                                 <CommandItem onSelect={() => runCommand(() => navigate('/'))}>
                                     <Rocket className="mr-2 h-4 w-4" />
-                                    <span>Home Dashboard</span>
+                                    <span>home dashboard</span>
                                 </CommandItem>
                                 <CommandItem onSelect={() => runCommand(() => navigate('/headmates'))}>
                                     <User className="mr-2 h-4 w-4" />
-                                    <span>Headmates</span>
+                                    <span>headmates</span>
                                 </CommandItem>
                             </CommandGroup>
                             <CommandSeparator />
@@ -76,7 +76,7 @@ export function GlobalCommandPalette() {
                             <CommandGroup heading="Quick Capture">
                                 <CommandItem onSelect={() => runCommand(() => _setCreateDialogOpen(true))}>
                                     <Plus className="mr-2 h-4 w-4" />
-                                    <span>Quick Note / Task</span>
+                                    <span>quick note / task</span>
                                 </CommandItem>
                             </CommandGroup>
                         </CommandList>
