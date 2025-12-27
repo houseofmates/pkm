@@ -214,7 +214,6 @@ export function MoodboardPage() {
                                             {/* For moodboard, maybe just Table or Gallery is best? */}
                                             {/* Let's default to Gallery for visuals */}
                                             {(() => {
-                                                const View = VIEW_REGISTRY['gallery'];
                                                 // We need data. Moodboard doesn't fetch on its own efficiently yet.
                                                 // Simple Placeholder for now or efficient fetch?
                                                 return <div className="p-4 text-xs text-muted-foreground">Database View: {el.content}</div>
