@@ -172,14 +172,14 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
             <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogTitle>are you absolutely sure?</AlertDialogTitle>
                         <AlertDialogDescription>
                             This will permanently delete the <strong>{collection.title || collection.name}</strong> database and all its data.
                             This action cannot be undone.
                         </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>cancel</AlertDialogCancel>
                         <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                             Delete
                         </AlertDialogAction>
@@ -191,11 +191,11 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
             <Dialog open={renameOpen} onOpenChange={setRenameOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Rename Database</DialogTitle>
+                        <DialogTitle>rename database</DialogTitle>
                     </DialogHeader>
                     <form onSubmit={handleRename} className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="name">Display Name</Label>
+                            <Label htmlFor="name">display name</Label>
                             <Input
                                 id="name"
                                 value={newName}
@@ -203,7 +203,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
                             />
                         </div>
                         <DialogFooter>
-                            <Button type="submit">Save</Button>
+                            <Button type="submit">save</Button>
                         </DialogFooter>
                     </form>
                 </DialogContent>
@@ -213,7 +213,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
             <Dialog open={colorOpen} onOpenChange={setColorOpen}>
                 <DialogContent>
                     <DialogHeader>
-                        <DialogTitle>Change Color</DialogTitle>
+                        <DialogTitle>change color</DialogTitle>
                     </DialogHeader>
                     <div className="space-y-4 py-2">
                         <div className="flex gap-2 justify-center">
@@ -236,7 +236,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
                         </div>
                     </div>
                     <DialogFooter>
-                        <Button onClick={handleColorSave}>Save Color</Button>
+                        <Button onClick={handleColorSave}>save color</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
