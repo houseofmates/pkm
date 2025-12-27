@@ -44,7 +44,7 @@ export function DatabaseWidget({ collection, onRemove, className, initialView }:
                     </CardTitle>
                 </div>
                 <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={refresh} title="Refresh Data">
+                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => refresh()} title="Refresh Data">
                         <RotateCw className="h-3 w-3" />
                     </Button>
                     <Button variant="ghost" size="icon" className="h-6 w-6 hover:bg-destructive hover:text-destructive-foreground" onClick={onRemove} title="Remove Widget">
