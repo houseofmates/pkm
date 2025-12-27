@@ -29,6 +29,16 @@ interface RecordTableProps {
 }
 
 export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, loading }: RecordTableProps) {
+    if (!collection) {
+        return (
+            <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center">
+                <div className="flex flex-col items-center gap-2">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <p className="text-sm">Loading collection...</p>
+                </div>
+            </div>
+        );
+    }
     const columnHelper = createColumnHelper<any>();
 
     // Dynamically generate columns based on collection fields or data keys
