@@ -8,7 +8,8 @@ export interface AppSetting {
     value: any;
 }
 
-export function useAppSetting<T>(key: string, defaultValue: T) {
+export function useAppSetting<T>(key: string, defaultValue: T, options?: { debounceMs?: number }) {
+    const debounceMs = options?.debounceMs ?? 1000;
     const { isAuthenticated, token } = useAuth();
 
     // Initialize from localStorage for immediate availability
