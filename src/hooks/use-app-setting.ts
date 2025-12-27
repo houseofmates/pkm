@@ -37,7 +37,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
     const isFirstLoad = useRef(true);
     const saveTimeoutRef = useRef<any>(null);
 
-    const getHeaders = useCallback(() => {
+    const getHeaders = useCallback((): Record<string, string> => {
         return token ? { Authorization: `Bearer ${token}` } : {};
     }, [token]);
 
