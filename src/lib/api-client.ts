@@ -96,11 +96,11 @@ export async function apiRequest(type: ApiType, endpoint: string, options: Parti
             });
 
             if (!response.ok) {
-                // if (response.status === 401) {
-                //    console.warn('[API] 401 Unauthorized - clearing token and dispatching auth-error');
-                //    localStorage.removeItem('nocobase_token'); // Ensure correct key is removed
-                //    window.dispatchEvent(new Event('auth-error'));
-                // }
+                if (response.status === 401) {
+                    console.warn('[API] 401 Unauthorized - clearing token and dispatching auth-error');
+                    localStorage.removeItem('nocobase_token');
+                    window.dispatchEvent(new Event('auth-error'));
+                }
 
                 const text = await response.text();
                 let parsed: any = text;
