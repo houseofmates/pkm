@@ -77,45 +77,44 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
                 return;
             }
 
-            // Strategy 1: NocoBase Direct Storage URL with Proper Authentication
-            if (displayImage.includes('db.houseofmates.space')) {
+            // Strategy 1: Relative storage URL (use Vite proxy to avoid CORS)
+            // This handles URLs like /storage/uploads/filename.jpg
+            if (displayImage.startsWith('/storage/')) {
                 try {
-                    const token = localStorage.getItem('nocobase_token');
-                    const res = await fetch(displayImage, {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'X-Authenticator': 'basic',
-                            'X-Role': 'root'
-                        }
-                    });
+                    const res = await fetch(displayImage);
                     if (res.ok) {
                         const blob = await res.blob();
                         if (active) setBlobUrl(URL.createObjectURL(blob));
                         return;
                     } else {
-                        console.warn(`Failed to fetch image: ${res.status} ${res.statusText}`);
+                        console.warn(`Failed to fetch from proxy: ${res.status}`);
                     }
                 } catch (e) {
-                    console.error("Failed to fetch secure storage URL", e);
+                    console.error("Failed to fetch via proxy", e);
                 }
             }
 
-            // Strategy 2: Extract ID and use NocoBase client
-            const idMatch = displayImage.match(/\/attachments\/(\d+)/);
-            if (idMatch && idMatch[1]) {
+            // Strategy 2: Full NocoBase URL - convert to proxy path
+            if (displayImage.includes('db.houseofmates.space/storage/')) {
                 try {
-                    const blob = await client.downloadAttachmentBlob(idMatch[1]);
-                    if (active && blob) {
-                        setBlobUrl(URL.createObjectURL(blob));
-                        return;
+                    // Extract the path after db.houseofmates.space
+                    const match = displayImage.match(/db\.houseofmates\.space(\/storage\/.*)/);                    if (match && match[1]) {
+                        const proxyUrl = match[1];
+                        const res = await fetch(proxyUrl);
+                        if (res.ok) {
+                            const blob = await res.blob();
+                            if (active) setBlobUrl(URL.createObjectURL(blob));
+                            return;
+                        }
                     }
                 } catch (e) {
-                    console.error("Failed to load secure avatar via client", e);
+                    console.error("Failed to fetch via converted proxy URL", e);
                 }
             }
 
-            // Strategy 3: Public URL (no authentication needed)
-            if (!displayImage.includes('db.houseofmates.space') && !displayImage.includes('/api/nocobase') && !displayImage.includes('/attachments/')) {
+            // Strategy 3: External/public URL (no proxy needed)
+            if (displayImage.startsWith('http') && !displayImage.includes('db.houseofmates.space')) {
+                // Just use the URL directly
                 setBlobUrl(null);
                 return;
             }
