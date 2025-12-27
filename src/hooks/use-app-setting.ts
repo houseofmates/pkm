@@ -34,8 +34,8 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
             // Filter by key
             const response = await apiRequest('nocobase', '/pkm_settings', {
                 params: {
-                    filter: { key },
-                    pageSize: 1,
+                    filter: JSON.stringify({ key }),
+                    pageSize: '1',
                 }
             });
 
@@ -104,8 +104,7 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
                     console.error(`Failed to save setting ${key}:`, err);
 
                     // Auto-healing: Create collection if missing (404 or similar)
-                    // NocoBase returns 404 for missing collection
-                    if (err.response?.status === 404 || err.message?.includes('not found')) {
+                    if (err.message && (err.message.includes('404') || err.message.includes('not found') || err.message.includes('collection'))) {
                         try {
                             console.log("Attempting to create pkm_settings collection...");
                             // Create Collection
@@ -120,15 +119,17 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
                                     ]
                                 }
                             });
+                            // Wait for propagation
+                            await new Promise(r => setTimeout(r, 1000));
                             // Retry save
                             await saveToBackend();
                             toast.success("Settings synced (initialized storage)");
-                        } catch (createErr) {
+                        } catch (createErr: any) {
                             console.error("Failed to create pkm_settings:", createErr);
-                            toast.error('Failed to sync settings to cloud');
+                            toast.error(`Sync failed: ${createErr.message || "Unknown error"}`);
                         }
                     } else {
-                        toast.error('Failed to sync settings to cloud');
+                        toast.error(`Sync failed: ${err.message || "Unknown error"}`);
                     }
                 }
             }, 1000); // 1s debounce
