@@ -108,8 +108,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
                     } else {
                         throw new Error(`Fetch failed with status: ${res.status}`);
                     }
-                } catch (e) {
-                    console.warn(`Storage fetch failed for ${displayImage}:`, e);
+                } catch {
                     imageErrorBlacklist.add(displayImage);
                     if (active) setImageError(true);
                 }
