@@ -505,9 +505,9 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
 
         return (
             <div className="h-full w-full flex flex-col items-center justify-center p-4 group cursor-pointer relative" onClick={() => isPlaceholder && triggerConfig('chartY')}>
-                <PlaceholderOverlay label="Configure KPI Values" targetKey="chartY" />
+                <PlaceholderOverlay label="configure kpi values" targetKey="chartY" />
                 <div className={cn("text-sm uppercase tracking-wider mb-2", isPlaceholder ? "text-muted-foreground/50" : "text-muted-foreground")}>
-                    {isPlaceholder ? "Total Metric" : (xKey + ' Total')}
+                    {isPlaceholder ? "total metric" : (xKey + ' total')}
                 </div>
                 <div className={cn("text-5xl font-bold tracking-tighter", isPlaceholder ? "text-muted-foreground/30 dashed-text" : "text-primary")}>
                     {val.toLocaleString()}
