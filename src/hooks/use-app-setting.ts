@@ -109,35 +109,33 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                 if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) return;
                 const performSave = async (valueToSave: any, retryCount = 0): Promise<void> => {
                     try {
-                        // 1. Resolve ID first with full identity headers to avoid list failures
-                        const found = await client.request('pkm_settings', 'list', {
-                            params: { filter: { key: { $eq: key } }, pageSize: '1' },
+                        // Update-First Strategy: Attempt to update via filter first.
+                        // NocoBase :update with filter returns [] if nothing found, NO error.
+                        const updateRes = await client.request('pkm_settings', 'update', {
+                            method: 'POST',
+                            params: { filter: { key } },
+                            data: { value: valueToSave },
                             silent: true
                         });
-                        const records = found?.data || (Array.isArray(found) ? found : []);
-                        if (records.length > 0) {
-                            settingIdRef.current = records[0].id;
-                        }
 
-                        // 2. Decide Strategy (PUT if exists, POST if new)
-                        if (settingIdRef.current) {
-                            await client.request('pkm_settings', 'update', {
-                                method: 'POST',
-                                params: { filterByTk: settingIdRef.current },
-                                data: { value: valueToSave }
-                            });
+                        const updatedRecords = updateRes?.data || (Array.isArray(updateRes) ? updateRes : []);
+
+                        if (updatedRecords.length > 0) {
+                            // Successfully updated!
+                            settingIdRef.current = updatedRecords[0].id;
                         } else {
+                            // Nothing updated, so it likely doesn't exist. Now safe to create.
                             try {
                                 const response = await client.request('pkm_settings', 'create', {
                                     method: 'POST',
                                     data: { key, value: valueToSave },
-                                    silent: true // Stay silent to avoid red 400s if it somehow appeared
+                                    silent: true
                                 });
                                 if (response?.data?.id) {
                                     settingIdRef.current = response.data.id;
                                 }
                             } catch (createErr: any) {
-                                // If create failed because it already exists, fall back to update!
+                                // Double-catch for safety
                                 const isConflict = createErr.status === 400 || (createErr.message || '').includes('exists');
                                 if (isConflict) {
                                     await client.request('pkm_settings', 'update', {
@@ -175,20 +173,18 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
         const attemptUpsert = async (attempt = 1): Promise<void> => {
             try {
-                // 1. Pre-emptively resolve ID with full headers
-                const found = await client.request('pkm_settings', 'list', {
-                    params: { filter: { key: { $eq: key } }, pageSize: '1' },
+                // Update-First Strategy for Flush
+                const updateRes = await client.request('pkm_settings', 'update', {
+                    method: 'POST',
+                    params: { filter: { key } },
+                    data: { value: toSave },
                     silent: true
                 });
-                const records = found?.data || (Array.isArray(found) ? found : []);
-                if (records.length > 0) settingIdRef.current = records[0].id;
 
-                if (settingIdRef.current) {
-                    await client.request('pkm_settings', 'update', {
-                        method: 'POST',
-                        params: { filterByTk: settingIdRef.current },
-                        data: { value: toSave }
-                    });
+                const updatedRecords = updateRes?.data || (Array.isArray(updateRes) ? updateRes : []);
+
+                if (updatedRecords.length > 0) {
+                    settingIdRef.current = updatedRecords[0].id;
                 } else {
                     try {
                         const response = await client.request('pkm_settings', 'create', {
