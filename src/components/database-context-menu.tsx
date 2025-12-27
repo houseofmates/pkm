@@ -33,16 +33,26 @@ interface DatabaseContextMenuProps {
     onUpdate: () => void;
 }
 
+import { useAppSetting } from '@/hooks/use-app-setting';
+
+interface CollectionMetadata {
+    color?: string;
+    image?: string;
+}
+
 export function DatabaseContextMenu({ collection, children, onUpdate }: DatabaseContextMenuProps) {
     const { client } = useAuth();
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [renameOpen, setRenameOpen] = useState(false);
     const [colorOpen, setColorOpen] = useState(false);
 
+    const [metadata, setMetadata] = useAppSetting<Record<string, CollectionMetadata>>('collection_metadata', {});
+    const currentMeta = metadata[collection.name] || {};
+
     const [newName, setNewName] = useState(collection.title || collection.name);
     // Try to get color from uiSchema or description hacks? 
     // For now, let's assume no pre-existing color store standard, so default to empty
-    const [newColor, setNewColor] = useState('#666666');
+    const [newColor, setNewColor] = useState(currentMeta.color || '#666666');
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -61,32 +71,17 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
         }
     };
 
-    const handleColorSave = async () => {
-        // Where to save color? uiSchema is a good place for view-related meta
-        // But updateCollection is for DB metadata.
-        // Let's store it in the description with a prefix convention if no other field exists,
-        // OR update the collection.uiSchema if the API allows.
-        // Given simplified requirements, reusing the 'description' field as a metadata store 
-        // (like we discussed for cover image: "COVER:url | COLOR:hex") is risky but quick.
-        // Better: Let's assume we can just save it to local storage for THIS app if the backend is rigid,
-        // BUT user asked for "Visual Customization" back in id:33 task...
-        // Let's try to update uiSchema via updateCollection if possible, or fall back to description.
-
-        // Actually, NocoBase collections have `option` field sometimes.
-        // Let's just stick to a localStorage override for "Color" if we can't easily modify schema,
-        // OR, safer: Try to update the description with a JSON blob if possible?
-        // No, the safest "App-Level" customization without breaking backend schema is often Client-Side persistence 
-        // OR a dedicated "preferences" collection.
-
-        // Let's use the same trick as View Config -> LocalStorage for "Visuals" if backend capabilities are unknown?
-        // WAit, task 33 said "Visual Customization ... Context Menu".
-        // I'll implement it using `localStorage` for now to ensure it works reliably immediately,
-        // keyed by `collection_color_${collection.name}`.
-
-        localStorage.setItem(`collection_color_${collection.name}`, newColor);
-        toast.success("Color saved (Local)");
+    const handleColorSave = () => {
+        setMetadata(prev => ({
+            ...prev,
+            [collection.name]: {
+                ...prev[collection.name],
+                color: newColor
+            }
+        }));
+        toast.success("Color saved");
         setColorOpen(false);
-        onUpdate(); // Trigger re-render if parent listens
+        onUpdate();
     };
 
     const handleDelete = async () => {
@@ -113,10 +108,13 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
                 throw new Error("Upload failed");
             }
 
-            // NOTE: Using description for cover image is the existing pattern from previous task
-            await client.updateCollection(collection.name, {
-                description: uploadedFile.url
-            });
+            setMetadata(prev => ({
+                ...prev,
+                [collection.name]: {
+                    ...prev[collection.name],
+                    image: uploadedFile.url
+                }
+            }));
 
             toast.success("Cover updated", { id: toastId });
             onUpdate();
