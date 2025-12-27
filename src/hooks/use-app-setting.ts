@@ -96,8 +96,8 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
             }
         } catch (err: any) {
             const msg = err.message || '';
-            if (!msg.includes('404')) {
-                // Ignore silent errors
+            if (!msg.includes('404') && !msg.includes('400')) {
+                // Ignore silent errors for existence checks
             }
         } finally {
             setLoading(false);
@@ -142,11 +142,12 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                                 data: { value: valueToSave }
                             });
                         } else {
+                            // First attempt to create. If it fails due to conflict, we'll handle it in catch.
                             const response = await apiRequest('nocobase', '/pkm_settings', {
                                 method: 'POST',
                                 headers,
                                 data: { key, value: valueToSave },
-                                silent: true
+                                silent: true // Stay silent to avoid red 400s in console if it exists
                             });
                             if (response?.data?.id) {
                                 settingIdRef.current = response.data.id;
