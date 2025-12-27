@@ -88,68 +88,110 @@ export function JournalView({ data, collection, onUpdateRecord: _onUpdateRecord,
         return groups;
     }, [data, dateField]);
 
+    // Helper to extract preview
+    const parseContent = (htmlOrMd: string) => {
+        const text = htmlOrMd || '';
+        // If markdown (starts with **), try to split prompt
+        let promptText = '';
+        let bodyText = text;
+
+        // Naive Markdown check for our specific format
+        const promptMatch = text.match(/^\*\*(.*?)\*\*\s*\n*(.*)/s);
+        if (promptMatch) {
+            promptText = promptMatch[1];
+            bodyText = promptMatch[2];
+        } else if (text.startsWith('<')) {
+            // HTML handling if rich editor saved HTML
+            const div = document.createElement('div');
+            div.innerHTML = text;
+            const strong = div.querySelector('strong');
+            if (strong && div.firstChild === strong) {
+                promptText = strong.textContent || '';
+                strong.remove(); // Remove prompt from body
+                bodyText = div.innerHTML;
+            }
+        }
+
+        // Preview (First paragraph or truncated)
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = bodyText.startsWith('<') ? bodyText : markdownToHtml(bodyText);
+        const firstP = tempDiv.querySelector('p');
+        const preview = firstP ? firstP.textContent : tempDiv.textContent?.slice(0, 150) + '...';
+
+        return { prompt: promptText, body: bodyText, preview };
+    };
+
     return (
-        <div className="max-w-3xl mx-auto flex flex-col gap-8 p-4">
+        <div className="max-w-2xl mx-auto flex flex-col gap-6 p-4">
 
             {/* Daily Prompt / Entry Area */}
-            <div className="bg-gradient-to-br from-indigo-500/10 to-purple-500/10 border rounded-2xl p-6 shadow-sm">
-                <div className="flex items-center gap-2 mb-4 text-primary">
-                    <Sparkles className="h-5 w-5" />
-                    <h3 className="font-semibold text-lg">{prompt}</h3>
-                    <Button variant="ghost" size="icon" className="h-6 w-6 ml-auto opacity-50 hover:opacity-100" onClick={handleShufflePrompt}>
-                        <Clock className="h-4 w-4" />
+            <div className="bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border rounded-2xl p-5 shadow-sm">
+                <div className="flex items-center gap-2 mb-3 text-primary/80">
+                    <Sparkles className="h-4 w-4 text-amber-400" />
+                    <h3 className="font-medium text-sm">{prompt}</h3>
+                    <Button variant="ghost" size="icon" className="h-5 w-5 ml-auto opacity-50 hover:opacity-100" onClick={handleShufflePrompt}>
+                        <Clock className="h-3 w-3" />
                     </Button>
                 </div>
 
                 <RichEditor
                     placeholder="Write your thoughts..."
-                    className="min-h-[120px] bg-background/50 border-input/50 focus:bg-background transition-all resize-none text-lg leading-relaxed"
+                    className="min-h-[100px] bg-background border-input/50 focus:bg-background transition-all resize-none text-base"
                     value={entry ? (String(entry).trim().startsWith('<') ? entry : markdownToHtml(entry)) : ''}
                     onChange={(html) => setEntry(sanitizeHTML(html))}
                 />
 
-                <div className="flex justify-end mt-4">
-                    <Button onClick={handleSubmit} disabled={!entry || !String(entry).trim()}>
-                        <Send className="h-4 w-4 mr-2" /> Save Entry
+                <div className="flex justify-end mt-3">
+                    <Button size="sm" onClick={handleSubmit} disabled={!entry || !String(entry).trim()}>
+                        <Send className="h-3 w-3 mr-2" /> Post Entry
                     </Button>
                 </div>
             </div>
 
             {/* Stream */}
             <div className="space-y-8">
+                {Object.keys(grouped).length === 0 && (
+                    <div className="text-center text-muted-foreground py-10 opacity-50">
+                        <p>No journal entries yet. Start writing above!</p>
+                    </div>
+                )}
+
                 {Object.entries(grouped).map(([dateKey, records]) => (
-                    <div key={dateKey} className="relative pl-8 border-l-2 border-muted">
+                    <div key={dateKey} className="relative pl-6 border-l-2 border-primary/10">
                         {/* Date Header */}
-                        <div className="absolute -left-[9px] top-0 h-4 w-4 rounded-full bg-muted border-4 border-background" />
-                        <div className="mb-4 text-sm font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                            <Calendar className="h-3 w-3" />
-                            {format(new Date(dateKey), 'EEE, MMM do, yyyy')}
+                        <div className="absolute -left-[9px] top-0 h-4 w-4 rounded-full bg-background border-4 border-primary/20" />
+                        <div className="mb-4 text-xs font-bold text-muted-foreground uppercase opacity-70 flex items-center gap-2">
+                            {format(new Date(dateKey), 'EEEE, MMMM do, yyyy')}
                         </div>
 
                         {/* Entries */}
-                        <div className="space-y-4">
-                            {records.map(rec => (
-                                <div
-                                    key={rec.id}
-                                    className="bg-card border rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow group cursor-pointer hover:border-primary/50"
-                                    onClick={() => window.dispatchEvent(new CustomEvent('pkm:edit-record', {
-                                        detail: { record: rec, collectionName: collection.name }
-                                    }))}
-                                >
-                                    <div className="prose dark:prose-invert prose-sm max-w-none">
-                                        {/* Simple Markdown Render (Mock) */}
-                                        <div className="whitespace-pre-wrap font-serif text-base text-foreground/90">
-                                            <div dangerouslySetInnerHTML={{ __html: sanitizeHTML(String(rec[contentField.name] || '')) }} />
-                                        </div>
-                                        {/* Prompt Was: */}
-                                        <div className="text-[10px] text-muted-foreground mt-2 italic border-t pt-2 opacity-50 group-hover:opacity-100 transition-opacity">
-                                            {((String(rec[contentField.name] || '').match(/<strong>(.*?)<\/strong>/)?.[1]) || 'Free entry')}
-                                            {' • '}
-                                            {format(new Date(rec[dateField?.name] || rec.created_at), 'h:mm a')}
+                        <div className="space-y-3">
+                            {records.map(rec => {
+                                const { prompt, preview } = parseContent(String(rec[contentField.name] || ''));
+                                return (
+                                    <div
+                                        key={rec.id}
+                                        className="bg-card border rounded-lg p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                                        onClick={() => window.dispatchEvent(new CustomEvent('pkm:edit-record', {
+                                            detail: { record: rec, collectionName: collection.name }
+                                        }))}
+                                    >
+                                        <div className="space-y-2">
+                                            {prompt && (
+                                                <div className="text-xs font-medium text-primary/70 bg-primary/5 inline-block px-2 py-0.5 rounded">
+                                                    {prompt}
+                                                </div>
+                                            )}
+                                            <div className="text-base text-foreground/90 leading-relaxed line-clamp-3">
+                                                {preview}
+                                            </div>
+                                            <div className="text-[10px] text-muted-foreground pt-2 flex items-center justify-between opacity-60">
+                                                <span>{format(new Date(rec[dateField?.name] || rec.created_at), 'h:mm a')}</span>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </div>
                 ))}
