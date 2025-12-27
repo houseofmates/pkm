@@ -96,7 +96,7 @@ export function RootLayout() {
         }
         setSelectedCollection(name);
         if (name) {
-            navigate(`/databases/${name}`);
+            navigate('/databases/' + name);
         } else {
             navigate('/databases');
         }
