@@ -42,6 +42,9 @@ export function DashboardGrid() {
     const [isEditMode, setIsEditMode] = useState(true);
     const containerRef = useRef<HTMLDivElement>(null);
     const [addMenuOpen, setAddMenuOpen] = useState(false);
+    const [wizardStep, setWizardStep] = useState<'collection' | 'view'>('collection');
+    const [wizardSearch, setWizardSearch] = useState('');
+    const [selectedCollectionForWizard, setSelectedCollectionForWizard] = useState<string | null>(null);
 
     // Data cache
     const [widgetData, setWidgetData] = useState<Record<string, { data: any[], loading: boolean }>>({});
