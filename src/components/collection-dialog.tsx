@@ -200,16 +200,37 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                     for (const field of csvFields) {
                         const fieldType = FIELD_TYPES.find(t => t.interface === field.interface);
 
+                        // Intelligent Type/UI Management: Prevent varchar(255) overflow
+                        let dbType = fieldType?.type || 'string';
+                        let xComponent = 'Input';
+
+                        // Check if data contains long strings (> 200 chars)
+                        const isLong = csvData.some(row => String(row[field.title] || '').length > 200);
+
+                        if (isLong && (dbType === 'string' || field.interface === 'text')) {
+                            dbType = 'text';
+                            xComponent = 'Input.TextArea';
+                        } else {
+                            // Default component mapping
+                            switch (field.interface) {
+                                case 'number': xComponent = 'InputNumber'; break;
+                                case 'checkbox': xComponent = 'Checkbox'; break;
+                                case 'attachment': xComponent = 'Upload.Attachment'; break;
+                                case 'select': case 'multipleSelect': xComponent = 'Select'; break;
+                                default: xComponent = 'Input';
+                            }
+                        }
+
                         let uiSchema: any = {
                             title: field.title,
-                            'x-component': 'Input', // Default
+                            'x-component': xComponent,
                         };
 
                         // Extract options for Select / Multi-Select
                         if (field.interface === 'select' || field.interface === 'multipleSelect') {
                             const uniqueValues = new Set<string>();
                             csvData.forEach(row => {
-                                const val = row[field.title]; // Use field.title to access original CSV header
+                                const val = row[field.title];
                                 if (val) {
                                     if (field.interface === 'multipleSelect') {
                                         String(val).split(',').map(s => s.trim()).forEach(v => v && uniqueValues.add(v));
@@ -219,19 +240,14 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                                 }
                             });
                             uiSchema.enum = Array.from(uniqueValues).map(v => ({ label: v, value: v }));
-                            uiSchema['x-component'] = 'Select';
                             if (field.interface === 'multipleSelect') {
                                 uiSchema['x-component-props'] = { mode: 'multiple' };
                             }
-                        } else if (field.interface === 'text') {
-                            const isLong = csvData.some(row => String(row[field.title] || '').length > 200);
-                            uiSchema['x-component'] = isLong ? 'Input.TextArea' : 'Input';
                         }
-
 
                         const fieldConfig: any = {
                             name: field.name,
-                            type: fieldType?.type || 'string',
+                            type: dbType,
                             interface: field.interface,
                             uiSchema
                         };
