@@ -57,14 +57,20 @@ export function DashboardGrid() {
 
     // Lasso / Selection
     const [lassoPoints, setLassoPoints] = useState<{ x: number, y: number }[]>([]);
-    const [floatingSelection, setFloatingSelection] = useState<{
+    const [floatingSelection, _setFloatingSelection] = useState<{
         image: string; // Data URL
         x: number;
         y: number;
         w: number;
         h: number;
     } | null>(null);
+    // Wrap setter to persist changes via setting
+    const setFloatingSelection = (v: any) => {
+        _setFloatingSelection(v);
+    };
 
+    // Save timer ref for debounced autosave
+    const saveTimerRef = useRef<number | null>(null);
     // --- Effects ---
 
     // Mouse Position for Cursor
