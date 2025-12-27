@@ -272,17 +272,19 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                 const errMsg = (err.message || JSON.stringify(err)).toLowerCase();
                 console.warn(`[useAppSetting] Flush error for ${key}:`, errMsg);
 
-                // 400 conflict -> fetch id and update
+                // 400 conflict -> Use Filter-Based Update
                 if (attempt < 2 && (errMsg.includes('exists') || errMsg.includes('unique') || errMsg.includes('400'))) {
-                    console.log(`[useAppSetting] Flush: Collision detected. Recovering ID...`);
-                    const found = await fetchRemoteId();
-                    if (found) {
-                        settingIdRef.current = found;
-                        console.log(`[useAppSetting] Flush: ID Recovered ${found}. Retrying...`);
-                        return await attemptUpsert(attempt + 1);
-                    } else {
-                        console.error(`[useAppSetting] Flush: Failed to recover ID for ${key}`);
-                    }
+                    console.log(`[useAppSetting] Flush: Collision. Switching to Filter-Based Update...`);
+                    await apiRequest('nocobase', '/pkm_settings:update', {
+                        method: 'POST',
+                        headers,
+                        params: {
+                            filter: JSON.stringify({ key })
+                        },
+                        data: { value: toSave }
+                    });
+                    console.log(`[useAppSetting] Flush: Filter-Based Update success`);
+                    return;
                 }
 
                 // 404 / missing collection -> create and retry
