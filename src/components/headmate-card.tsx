@@ -2,7 +2,6 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useFronter } from "@/contexts/fronter-context";
-import { useAuth } from "@/contexts/auth-context";
 import { forwardRef, useEffect, useState } from 'react';
 
 // Names that should always be displayed in uppercase
@@ -33,7 +32,6 @@ interface HeadmateCardProps {
 
 export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React.HTMLAttributes<HTMLDivElement>>(({ member, onClick, className, ...props }, ref) => {
     const { activeFronterId, overrides } = useFronter();
-    const { client } = useAuth();
     const isActive = activeFronterId === member.id;
     const override = overrides[member.id] || {};
 
@@ -134,7 +132,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
                 URL.revokeObjectURL(blobUrl);
             }
         };
-    }, [displayImage, client]);
+    }, [displayImage]);
 
     // Clean up blob URL when component unmounts
     useEffect(() => {
