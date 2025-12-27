@@ -51,11 +51,18 @@ interface NavigationProps {
 
 // --- Sortable Components ---
 
-export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle, onUpdate }: any) {
+import { DatabaseContextMenu } from '@/components/database-context-menu';
+import { useAppSetting } from '@/hooks/use-app-setting';
+
+export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle, onUpdate, collection }: any) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: id, data: { type: item.type, item } });
     const [pickerOpen, setPickerOpen] = useState(false);
     const [isRenaming, setIsRenaming] = useState(false);
     const [renameValue, setRenameValue] = useState(item.name);
+
+    // Global Metadata for Collections
+    const [metadata] = useAppSetting<Record<string, { color?: string }>>('collection_metadata', {});
+    const metaColor = item.type === 'collection' ? metadata[id]?.color : undefined;
 
     const style = {
         transform: CSS.Translate.toString(transform),
@@ -72,17 +79,52 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
     // Render Icon Logic
     const renderIcon = () => {
         if (item.icon && item.iconType) {
+            // ... strict icon logic
             if (item.iconType === 'emoji') return <span className="mr-2 text-base leading-none">{item.icon}</span>;
             if (item.iconType === 'image') return <img src={item.icon} alt="icon" className="h-4 w-4 mr-2 object-contain" />;
             if (item.iconType === 'lucide') {
                 const Icon = (LucideIcons as any)[item.icon];
-                if (Icon) return <Icon className="h-3 w-3 mr-2" />;
+                if (Icon) return <Icon className="h-3 w-3 mr-2" style={metaColor ? { color: metaColor } : undefined} />;
             }
         }
         // Fallback
         if (item.type === 'folder') return <Folder className="h-3 w-3 mr-2" />;
+        // Collection default icon? usually handled by caller or icon is null?
+        // If collection has no icon, we might show nothing or Database icon?
+        // Parent Navigation seems to set icon?
+        // Usually Collections don't have icons in NavItem unless set manually.
+        // Let's rely on text color primarily.
         return null;
     };
+
+    const content = (
+        <div className="flex items-center">
+            {item.type === 'folder' && (
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6 mr-1"
+                    onClick={(e) => { e.stopPropagation(); onToggle(id); }}
+                >
+                    {item.collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                </Button>
+            )}
+
+            <Button
+                variant={selected ? "secondary" : "ghost"}
+                className={cn(
+                    "flex-1 justify-start text-lg font-normal lowercase h-8 px-2 overflow-hidden",
+                    selected && "bg-accent font-medium shadow-sm",
+                    item.type === 'folder' && "font-semibold text-muted-foreground"
+                )}
+                style={metaColor ? { color: metaColor } : undefined}
+                onClick={() => onSelect(id)}
+            >
+                {renderIcon()}
+                <span className="truncate">{item.name}</span>
+            </Button>
+        </div>
+    );
 
     return (
         <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="mb-0.5 group relative">
@@ -93,6 +135,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
             />
 
             <Dialog open={isRenaming} onOpenChange={setIsRenaming}>
+                {/* Rename logic for folders/items */}
                 <DialogContent>
                     <DialogHeader><DialogTitle>Rename {item.type}</DialogTitle></DialogHeader>
                     <Input value={renameValue} onChange={e => setRenameValue(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleRename()} autoFocus />
@@ -103,50 +146,32 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
                 </DialogContent>
             </Dialog>
 
-            <ContextMenu>
-                <ContextMenuTrigger>
-                    <div className="flex items-center">
-                        {item.type === 'folder' && (
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-6 w-6 mr-1"
-                                onClick={(e) => { e.stopPropagation(); onToggle(id); }}
-                            >
-                                {item.collapsed ? <ChevronRight className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-                            </Button>
-                        )}
-
-                        <Button
-                            variant={selected ? "secondary" : "ghost"}
-                            className={cn(
-                                "flex-1 justify-start text-lg font-normal lowercase h-8 px-2 overflow-hidden",
-                                selected && "bg-accent font-medium shadow-sm",
-                                item.type === 'folder' && "font-semibold text-muted-foreground"
-                            )}
-                            onClick={() => onSelect(id)}
-                        >
-                            {renderIcon()}
-                            <span className="truncate">{item.name}</span>
-                        </Button>
-                    </div>
-                </ContextMenuTrigger>
-
-                {item.type === 'folder' && (
-                    <ContextMenuContent>
-                        <ContextMenuItem onClick={() => setPickerOpen(true)}>
-                            <ImageIcon className="h-4 w-4 mr-2" /> Change Icon
-                        </ContextMenuItem>
-                        <ContextMenuItem onClick={() => setIsRenaming(true)}>
-                            <Edit2 className="h-4 w-4 mr-2" /> Rename
-                        </ContextMenuItem>
-                        <ContextMenuSeparator />
-                        <ContextMenuItem className="text-red-500 focus:text-red-500" onClick={() => onUpdate(id, { delete: true })}>
-                            <Trash2 className="h-4 w-4 mr-2" /> Delete
-                        </ContextMenuItem>
-                    </ContextMenuContent>
-                )}
-            </ContextMenu>
+            {/* Context Menu Logic */}
+            {item.type === 'collection' && collection ? (
+                <DatabaseContextMenu collection={collection} onUpdate={() => onUpdate(id, { refresh: true })}>
+                    {content}
+                </DatabaseContextMenu>
+            ) : (
+                <ContextMenu>
+                    <ContextMenuTrigger>
+                        {content}
+                    </ContextMenuTrigger>
+                    {item.type === 'folder' && (
+                        <ContextMenuContent>
+                            <ContextMenuItem onClick={() => setPickerOpen(true)}>
+                                <ImageIcon className="h-4 w-4 mr-2" /> Change Icon
+                            </ContextMenuItem>
+                            <ContextMenuItem onClick={() => setIsRenaming(true)}>
+                                <Edit2 className="h-4 w-4 mr-2" /> Rename
+                            </ContextMenuItem>
+                            <ContextMenuSeparator />
+                            <ContextMenuItem className="text-red-500 focus:text-red-500" onClick={() => onUpdate(id, { delete: true })}>
+                                <Trash2 className="h-4 w-4 mr-2" /> Delete
+                            </ContextMenuItem>
+                        </ContextMenuContent>
+                    )}
+                </ContextMenu>
+            )}
         </div>
     );
 }
