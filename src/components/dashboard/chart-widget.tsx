@@ -78,7 +78,7 @@ export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yK
     }
 
     if (type === 'area') {
-        if (props.seriesKeys && props.seriesKeys.length > 0) {
+        if (seriesKeys && seriesKeys.length > 0) {
             return (
                 <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
