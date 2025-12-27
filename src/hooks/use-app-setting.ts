@@ -78,7 +78,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                 headers: getHeaders(),
                 params: {
                     filter: JSON.stringify({ key: { $eq: key } }),
-                    pageSize: 1
+                    pageSize: '1'
                 },
                 silent: true
             });
@@ -124,12 +124,13 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                     try {
                         // 1. Ensure we have the latest ID before deciding strategy
                         if (!settingIdRef.current) {
-                            const found = await apiRequest('nocobase', '/pkm_settings', {
+                            const found = await apiRequest('nocobase', 'pkm_settings:list', {
                                 headers,
                                 params: { filter: JSON.stringify({ key: { $eq: key } }), pageSize: '1' }
                             });
-                            if (found?.data?.length > 0) {
-                                settingIdRef.current = found.data[0].id;
+                            const records = found?.data || (Array.isArray(found) ? found : []);
+                            if (records.length > 0) {
+                                settingIdRef.current = records[0].id;
                             }
                         }
 
@@ -190,11 +191,12 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
             try {
                 // 1. Resolve ID first to avoid 400s
                 if (!settingIdRef.current) {
-                    const found = await apiRequest('nocobase', '/pkm_settings', {
+                    const found = await apiRequest('nocobase', 'pkm_settings:list', {
                         headers,
                         params: { filter: JSON.stringify({ key: { $eq: key } }), pageSize: '1' }
                     });
-                    if (found?.data?.length > 0) settingIdRef.current = found.data[0].id;
+                    const records = found?.data || (Array.isArray(found) ? found : []);
+                    if (records.length > 0) settingIdRef.current = records[0].id;
                 }
 
                 if (settingIdRef.current) {
