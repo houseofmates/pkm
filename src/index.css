@@ -120,7 +120,7 @@
   b,
   strong,
   .font-bold {
-    color: #f6b012 !important;
+    color: #f6b012;
   }
 
   /* Ensure muted text is light gray, never dark gray */
