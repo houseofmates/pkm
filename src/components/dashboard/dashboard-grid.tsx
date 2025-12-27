@@ -408,14 +408,7 @@ export function DashboardGrid() {
         });
     }, [client, setSavedCanvasData, token, flushSavedCanvas]);
 
-    const handleSave = async () => {
-        try {
-            await saveCanvas();
-            toast.success("Board saved");
-        } catch (e) {
-            // Toast handled in saveCanvas or generic here
-        }
-    };
+
 
     // Keyboard Shortcuts
     useEffect(() => {
