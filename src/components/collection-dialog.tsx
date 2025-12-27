@@ -53,6 +53,7 @@ const FIELD_TYPES = [
     { label: 'select', type: 'string', interface: 'select' },
     { label: 'multi-select', type: 'json', interface: 'multipleSelect' },
     { label: 'relation', type: 'belongsTo', interface: 'belongsTo' },
+    { label: 'formula', type: 'formula', interface: 'formula' },
 ] as const;
 
 export function CollectionDialog({ collection, onSuccess, trigger, open: controlledOpen, onOpenChange: setControlledOpen }: CollectionDialogProps) {
