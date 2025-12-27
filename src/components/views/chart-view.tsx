@@ -1,5 +1,12 @@
 
+import { useMemo } from 'react';
 import { Settings } from 'lucide-react';
+import type { ViewProps } from './registry';
+import { ChartWidget } from '@/components/dashboard/chart-widget';
+import { NetworkView } from './network-view';
+import { MindMapView } from './mind-map-view';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 
@@ -99,7 +106,7 @@ export function ChartView(props: ViewProps) {
                     <PopoverContent className="w-80 p-4" align="end">
                         <div className="space-y-4">
                             <div className="space-y-1">
-                                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">visualization type</Label>
+                                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">visualization type</Label>
                                 <Select value={type} onValueChange={(v) => handleConfig('chartType', v)}>
                                     <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                                     <SelectContent>
@@ -122,7 +129,7 @@ export function ChartView(props: ViewProps) {
                             {isChart && (
                                 <>
                                     <div className="space-y-1">
-                                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">group by (x axis)</Label>
+                                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">group by (x axis)</Label>
                                         <Select value={xKey} onValueChange={(v) => handleConfig('chartX', v)}>
                                             <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                                             <SelectContent>
@@ -134,7 +141,7 @@ export function ChartView(props: ViewProps) {
                                     </div>
 
                                     <div className="space-y-1">
-                                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">split by (series)</Label>
+                                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">split by (series)</Label>
                                         <Select value={seriesField || '_none'} onValueChange={(v) => handleConfig('chartSeriesField', v === '_none' ? null : v)}>
                                             <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                                             <SelectContent>
@@ -148,7 +155,7 @@ export function ChartView(props: ViewProps) {
 
                                     <div className="grid grid-cols-2 gap-2">
                                         <div className="space-y-1">
-                                            <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">aggregation</Label>
+                                            <Label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">aggregation</Label>
                                             <Select value={aggregation} onValueChange={(v) => handleConfig('chartAgg', v)}>
                                                 <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                                                 <SelectContent>
@@ -160,7 +167,7 @@ export function ChartView(props: ViewProps) {
 
                                         {aggregation === 'sum' && (
                                             <div className="space-y-1">
-                                                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">y field</Label>
+                                                <Label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">y field</Label>
                                                 <Select value={yField || '_none'} onValueChange={(v) => handleConfig('chartY', v === '_none' ? null : v)}>
                                                     <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                                                     <SelectContent>
@@ -175,7 +182,7 @@ export function ChartView(props: ViewProps) {
                                     </div>
 
                                     <div className="space-y-1">
-                                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground">series display</Label>
+                                        <Label className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">series display</Label>
                                         <Select value={seriesType || '_auto'} onValueChange={(v) => handleConfig('chartSeriesType', v === '_auto' ? null : v)}>
                                             <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                                             <SelectContent>
@@ -195,7 +202,7 @@ export function ChartView(props: ViewProps) {
                                             onChange={(e) => handleConfig('chartStacked', e.target.checked)}
                                             className="rounded border-muted bg-muted/20"
                                         />
-                                        <Label htmlFor="stacked" className="text-xs cursor-pointer">stacked bars/areas</Label>
+                                        <Label htmlFor="stacked" className="text-xs cursor-pointer font-normal">stacked bars/areas</Label>
                                     </div>
                                 </>
                             )}
@@ -220,7 +227,7 @@ export function ChartView(props: ViewProps) {
                             seriesOrder={config?.chartSeriesOrder}
                             legendCollapsed={!!config?.chartLegendCollapsed}
                             onConfig={handleConfig}
-                            columns={collection.fields?.map((f: any) => ({ label: f.uiSchema?.title || f.name, value: f.name }))}
+                            columns={collection.fields?.map((f: any) => ({ label: (f.uiSchema?.title || f.name).toLowerCase(), value: f.name }))}
                         />
                     </div>
                 ) : type === 'network' ? (
@@ -230,5 +237,34 @@ export function ChartView(props: ViewProps) {
                 ) : null}
             </div>
         </div>
+    );
+}
+
+{/* Content Area */ }
+<div className="flex-1 min-h-0 border rounded-lg p-0 bg-card shadow-sm overflow-hidden relative">
+    {isChart ? (
+        <div className="w-full h-full p-4">
+            <ChartWidget
+                type={type as any}
+                data={chartData}
+                xKey="name"
+                yKey="value"
+                seriesKeys={seriesField ? (chartData[0] ? Object.keys(chartData[0]).filter(k => k !== 'name') : []) : undefined}
+                stacked={stacked}
+                seriesType={seriesType}
+                seriesTypes={config?.chartSeriesTypes}
+                seriesOrder={config?.chartSeriesOrder}
+                legendCollapsed={!!config?.chartLegendCollapsed}
+                onConfig={handleConfig}
+                columns={collection.fields?.map((f: any) => ({ label: f.uiSchema?.title || f.name, value: f.name }))}
+            />
+        </div>
+    ) : type === 'network' ? (
+        <NetworkView {...props} />
+    ) : type === 'mindmap' ? (
+        <MindMapView {...props} />
+    ) : null}
+</div>
+        </div >
     );
 }
