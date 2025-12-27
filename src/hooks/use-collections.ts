@@ -17,7 +17,7 @@ export function useCollections() {
             // NocoBase sometimes wraps the list in data.data or just data
             const rawCollections = Array.isArray(response.data) ? response.data : (response?.data as any)?.data || [];
 
-            const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers'];
+            const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers', 'pkm_settings'];
 
             const filteredCollections = rawCollections.filter((col: Collection) => {
                 // Exclude known system names
