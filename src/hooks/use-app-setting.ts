@@ -79,8 +79,14 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                 settingIdRef.current = setting.id;
 
                 if (setting.value !== undefined) {
-                    setValue(setting.value);
-                    localStorage.setItem(`pkm_setting:${key}`, JSON.stringify(setting.value));
+                    // Deep compare to avoid redundant re-renders
+                    const newValueString = JSON.stringify(setting.value);
+                    const localValueString = localStorage.getItem(`pkm_setting:${key}`);
+
+                    if (newValueString !== localValueString) {
+                        setValue(setting.value);
+                        localStorage.setItem(`pkm_setting:${key}`, newValueString);
+                    }
                 }
             }
         } catch (err: any) {
