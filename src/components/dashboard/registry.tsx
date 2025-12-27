@@ -1,5 +1,6 @@
 import { ChartWidget } from './chart-widget';
 import { QuickAddWidget } from './quick-add-widget';
+import { StatWidget, RecentActivityWidget } from './widgets';
 
 export const WIDGET_TYPES = {
     STAT: 'stat',
