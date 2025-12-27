@@ -39,6 +39,8 @@ export default defineConfig({
     esbuildOptions: {
       sourcemap: false, // Disable sourcemaps for pre-bundled dependencies in dev
     },
+    // Sometimes specific packages need to be excluded to stop their maps from being served
+    exclude: ['leaflet']
   },
   resolve: {
     alias: {
@@ -46,3 +48,4 @@ export default defineConfig({
     },
   },
 })
+  ```
