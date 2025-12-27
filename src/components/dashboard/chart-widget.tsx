@@ -1,10 +1,11 @@
 import {
     ResponsiveContainer, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
     RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
-    Treemap, XAxis, YAxis, Tooltip, CartesianGrid, Legend,
+    Treemap, XAxis, YAxis, Tooltip, CartesianGrid,
     FunnelChart as RechartsFunnelChart, Funnel, LabelList,
     AreaChart, Area, ScatterChart, Scatter
 } from 'recharts';
+import { useState } from 'react';
 
 interface ChartProps {
     type: 'line' | 'bar' | 'pie' | 'radar' | 'treemap' | 'funnel' | 'gauge' | 'kpi' | 'area' | 'scatter';
@@ -29,10 +30,14 @@ const MOCK_DATA = [
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yKey = 'value', color = '#8884d8', seriesKeys, stacked, seriesType }: ChartProps) {
+    const [hidden, setHidden] = useState<Record<string, boolean>>({});
+    const toggle = (k: string) => setHidden(prev => ({ ...prev, [k]: !prev[k] }));
+
     // Multi-series rendering helper
     const renderSeries = () => {
         if (!seriesKeys || seriesKeys.length === 0) return null;
         return seriesKeys.map((key, idx) => {
+            if (hidden[key]) return null;
             const col = COLORS[idx % COLORS.length];
             const useType = seriesType || type;
             if (useType === 'bar') {
@@ -51,16 +56,29 @@ export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yK
     if (type === 'line') {
         if (seriesKeys && seriesKeys.length > 0) {
             return (
-                <ResponsiveContainer width="100%" height="100%">
-                    <LineChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                        <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
-                        <YAxis fontSize={10} tickLine={false} axisLine={false} />
-                        <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />
-                        {renderSeries()}
-                        <Legend />
-                    </LineChart>
-                </ResponsiveContainer>
+                <div className="w-full h-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                            <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
+                            <YAxis fontSize={10} tickLine={false} axisLine={false} />
+                            <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />
+                            {renderSeries()}
+                        </LineChart>
+                    </ResponsiveContainer>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        {seriesKeys.map((k, idx) => {
+                            const col = COLORS[idx % COLORS.length];
+                            const hiddenFlag = !!hidden[k];
+                            return (
+                                <button key={k} onClick={() => toggle(k)} className="flex items-center gap-2 px-2 py-1 rounded bg-card">
+                                    <span style={{ width: 12, height: 12, backgroundColor: col, display: 'inline-block', borderRadius: 3, opacity: hiddenFlag ? 0.3 : 1 }} />
+                                    <span className={hiddenFlag ? 'line-through text-muted-foreground' : ''}>{k}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
             );
         }
 
@@ -80,16 +98,29 @@ export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yK
     if (type === 'area') {
         if (seriesKeys && seriesKeys.length > 0) {
             return (
-                <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                        <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
-                        <YAxis fontSize={10} tickLine={false} axisLine={false} />
-                        <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />
-                        {renderSeries()}
-                        <Legend />
-                    </AreaChart>
-                </ResponsiveContainer>
+                <div className="w-full h-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                            <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
+                            <YAxis fontSize={10} tickLine={false} axisLine={false} />
+                            <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />
+                            {renderSeries()}
+                        </AreaChart>
+                    </ResponsiveContainer>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        {seriesKeys.map((k, idx) => {
+                            const col = COLORS[idx % COLORS.length];
+                            const hiddenFlag = !!hidden[k];
+                            return (
+                                <button key={k} onClick={() => toggle(k)} className="flex items-center gap-2 px-2 py-1 rounded bg-card">
+                                    <span style={{ width: 12, height: 12, backgroundColor: col, display: 'inline-block', borderRadius: 3, opacity: hiddenFlag ? 0.3 : 1 }} />
+                                    <span className={hiddenFlag ? 'line-through text-muted-foreground' : ''}>{k}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
             );
         }
 
@@ -123,16 +154,29 @@ export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yK
     if (type === 'bar') {
         if (seriesKeys && seriesKeys.length > 0) {
             return (
-                <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-                        <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                        <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
-                        <YAxis fontSize={10} tickLine={false} axisLine={false} />
-                        <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />
-                        {renderSeries()}
-                        <Legend />
-                    </BarChart>
-                </ResponsiveContainer>
+                <div className="w-full h-full">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                            <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
+                            <YAxis fontSize={10} tickLine={false} axisLine={false} />
+                            <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />
+                            {renderSeries()}
+                        </BarChart>
+                    </ResponsiveContainer>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                        {seriesKeys.map((k, idx) => {
+                            const col = COLORS[idx % COLORS.length];
+                            const hiddenFlag = !!hidden[k];
+                            return (
+                                <button key={k} onClick={() => toggle(k)} className="flex items-center gap-2 px-2 py-1 rounded bg-card">
+                                    <span style={{ width: 12, height: 12, backgroundColor: col, display: 'inline-block', borderRadius: 3, opacity: hiddenFlag ? 0.3 : 1 }} />
+                                    <span className={hiddenFlag ? 'line-through text-muted-foreground' : ''}>{k}</span>
+                                </button>
+                            );
+                        })}
+                    </div>
+                </div>
             );
         }
 
