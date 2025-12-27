@@ -95,7 +95,7 @@ export function ChartView({ data, collection, config, onConfigChange }: ViewProp
                         </SelectContent>
                     </Select>
                 </div>
-                <div className="space-y-1 min-w-[150px]">
+                    <div className="space-y-1 min-w-[150px]">
                     <Label>Group By (X Axis)</Label>
                     <Select value={xKey} onValueChange={(v) => handleConfig('chartX', v)}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
@@ -106,9 +106,56 @@ export function ChartView({ data, collection, config, onConfigChange }: ViewProp
                         </SelectContent>
                     </Select>
                 </div>
+
+                <div className="space-y-1 min-w-[180px]">
+                    <Label>Split By (Series)</Label>
+                    <Select value={seriesField || ''} onValueChange={(v) => handleConfig('chartSeriesField', v || null)}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="">(none)</SelectItem>
+                            {collection.fields?.map((f: any) => (
+                                <SelectItem key={f.name} value={f.name}>{f.uiSchema?.title || f.name}</SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="space-y-1 min-w-[150px]">
+                    <Label>Aggregation</Label>
+                    <Select value={aggregation} onValueChange={(v) => handleConfig('chartAgg', v)}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="count">Count</SelectItem>
+                            <SelectItem value="sum">Sum (requires Y field)</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                {aggregation === 'sum' && (
+                    <div className="space-y-1 min-w-[150px]">
+                        <Label>Y Field</Label>
+                        <Select value={yField || ''} onValueChange={(v) => handleConfig('chartY', v || null)}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                                {collection.fields?.filter((f: any) => f.type === 'number' || f.interface === 'number').map((f: any) => (
+                                    <SelectItem key={f.name} value={f.name}>{f.uiSchema?.title || f.name}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                )}
+
+                <div className="space-y-1 min-w-[120px]">
+                    <Label>Display</Label>
+                    <div className="flex items-center gap-2 mt-2">
+                        <input type="checkbox" id="stacked" checked={stacked} onChange={(e) => handleConfig('chartStacked', e.target.checked)} />
+                        <label htmlFor="stacked" className="text-sm text-muted-foreground">Stacked</label>
+                    </div>
+                </div>
+
                 <div className="space-y-1 min-w-[150px]">
                     <div className="text-xs text-muted-foreground pt-3">
-                        Showing count of records by <b>{xKey}</b>
+                        {seriesField ? `Split by ${seriesField}` : `Showing ${aggregation} of records by ${xKey}`}
                     </div>
                 </div>
             </div>
