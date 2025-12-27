@@ -21,7 +21,7 @@ export const APIS = {
 
 type ApiType = keyof typeof APIS;
 
-export async function apiRequest(type: ApiType, endpoint: string, options: Partial<HttpOptions> & { responseType?: 'json' | 'text' | 'blob' } = {}) {
+export async function apiRequest(type: ApiType, endpoint: string, options: Partial<HttpOptions> & { responseType?: 'json' | 'text' | 'blob', silent?: boolean } = {}) {
     const isNative = Capacitor.isNativePlatform();
     const config = APIS[type];
 
@@ -57,7 +57,9 @@ export async function apiRequest(type: ApiType, endpoint: string, options: Parti
             return response.data;
 
         } catch (error: any) {
-            console.error(`[Native API] ${type} request failed:`, error);
+            if (!options.silent) {
+                console.error(`[Native API] ${type} request failed:`, error);
+            }
             throw error;
         }
 
@@ -81,13 +83,6 @@ export async function apiRequest(type: ApiType, endpoint: string, options: Parti
             ...(options.headers as Record<string, string>)
         };
 
-        // DEBUG: Check what headers are being sent
-        if (headers['Authorization']) {
-            console.log('[API] Header Auth:', headers['Authorization'].substring(0, 15) + '...');
-        } else {
-            console.warn('[API] Missing Auth Header!');
-        }
-
         try {
             const response = await fetch(fetchUrl, {
                 method: options.method || 'GET',
@@ -100,7 +95,7 @@ export async function apiRequest(type: ApiType, endpoint: string, options: Parti
                     // Prevent multiple logout events from concurrent requests
                     const alreadyCleared = !localStorage.getItem('nocobase_token');
                     if (!alreadyCleared) {
-                        console.warn('[API] 401 Unauthorized - clearing token and dispatching auth-error');
+                        if (!options.silent) console.warn('[API] 401 Unauthorized - clearing token and dispatching auth-error');
                         localStorage.removeItem('nocobase_token');
                         window.dispatchEvent(new Event('auth-error'));
                     }
@@ -135,7 +130,9 @@ export async function apiRequest(type: ApiType, endpoint: string, options: Parti
             }
 
         } catch (error: any) {
-            console.error(`[Web API] ${type} request failed:`, error);
+            if (!options.silent) {
+                console.error(`[Web API] ${type} request failed:`, error);
+            }
             throw error;
         }
     }
