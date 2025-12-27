@@ -39,7 +39,9 @@ export class NocoBaseClient {
 
             return data as NocoBaseResponse<T>;
         } catch (error: any) {
-            console.error("NocoBase Client Error:", error);
+            if (!options?.silent) {
+                console.error("NocoBase Client Error:", error);
+            }
             throw error;
         }
     }
