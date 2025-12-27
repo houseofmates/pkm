@@ -137,11 +137,11 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
             <Dialog open={isRenaming} onOpenChange={setIsRenaming}>
                 {/* Rename logic for folders/items */}
                 <DialogContent>
-                    <DialogHeader><DialogTitle>Rename {item.type}</DialogTitle></DialogHeader>
+                    <DialogHeader><DialogTitle>rename {item.type}</DialogTitle></DialogHeader>
                     <Input value={renameValue} onChange={e => setRenameValue(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleRename()} autoFocus />
                     <DialogFooter>
-                        <Button variant="ghost" onClick={() => setIsRenaming(false)}>Cancel</Button>
-                        <Button onClick={handleRename}>Save</Button>
+                        <Button variant="ghost" onClick={() => setIsRenaming(false)}>cancel</Button>
+                        <Button onClick={handleRename}>save</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
@@ -283,7 +283,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                 {folderDialogOpen && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
                         <div className="bg-popover border p-4 rounded-lg shadow-lg w-full max-w-xs">
-                            <h3 className="font-semibold mb-2">Create Folder</h3>
+                            <h3 className="font-semibold mb-2">create folder</h3>
                             <Input
                                 placeholder="Folder Name"
                                 value={newFolderName}
@@ -292,8 +292,8 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                                 className="mb-4"
                             />
                             <div className="flex justify-end gap-2">
-                                <Button variant="ghost" size="sm" onClick={() => setFolderDialogOpen(false)}>Cancel</Button>
-                                <Button size="sm" onClick={createFolder}>Create</Button>
+                                <Button variant="ghost" size="sm" onClick={() => setFolderDialogOpen(false)}>cancel</Button>
+                                <Button size="sm" onClick={createFolder}>create</Button>
                             </div>
                         </div>
                     </div>
@@ -328,7 +328,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                 <div className="mt-auto px-2 pt-4 border-t">
                     <Button variant="outline" className="w-full justify-start gap-2 text-muted-foreground border-dashed" onClick={() => { /* TODO: open global search */ }}>
                         <Search className="h-4 w-4" />
-                        <span className="text-xs">Search / Ask AI...</span>
+                        <span className="text-xs">search / ask ai...</span>
                     </Button>
                 </div>
             </div>
