@@ -25,7 +25,7 @@ export function JournalView({ data, collection, onUpdateRecord: _onUpdateRecord,
             <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
                 <div className="flex flex-col items-center gap-2">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    <p className="text-sm">Loading journal metadata...</p>
+                    <p className="text-sm">loading journal metadata...</p>
                 </div>
             </div>
         );
@@ -163,7 +163,7 @@ export function JournalView({ data, collection, onUpdateRecord: _onUpdateRecord,
             <div className="space-y-8">
                 {Object.keys(grouped).length === 0 && (
                     <div className="text-center text-muted-foreground py-10 opacity-50">
-                        <p>No journal entries yet. Start writing above!</p>
+                        <p>no journal entries yet. start writing above!</p>
                     </div>
                 )}
 
