@@ -491,6 +491,10 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     }
 
     if (type === 'gauge') {
+        if (!isMounted || !hasValidDimensions) {
+            return <div className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+        }
+
         const val = isPlaceholder ? 0 : (data[0]?.[yKey] || 0);
         const max = 100; // Arbitrary for now without config
         const safeVal = Math.min(Math.max(val, 0), max);
@@ -500,7 +504,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
         ];
 
         return (
-            <div className="relative w-full h-full flex items-center justify-center p-2 group" onClick={() => isPlaceholder && triggerConfig('chartY')}>
+            <div ref={containerRef} className="relative w-full h-full flex items-center justify-center p-2 group" onClick={() => isPlaceholder && triggerConfig('chartY')}>
                 <PlaceholderOverlay label="Select Metric" targetKey="chartY" />
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
