@@ -16,11 +16,7 @@ export function ChartView({ data, collection, config, onConfigChange }: ViewProp
     const aggregation: 'count' | 'sum' = config?.chartAgg || 'count';
     const yField = config?.chartY || null;
     const stacked = !!config?.chartStacked;
-
-    // Build chart data - supports multi-series split by `seriesField` with aggregation
-    const chartData = useMemo(() => {
-        if (!xKey) return [];
-
+const seriesType = config?.chartSeriesType || null; // global series display override (bar/line/area)
         if (!seriesField) {
             // Simple single-series aggregation by X
             const map = new Map<string, number>();
@@ -154,6 +150,19 @@ export function ChartView({ data, collection, config, onConfigChange }: ViewProp
                 </div>
 
                 <div className="space-y-1 min-w-[150px]">
+                    <Label>Series Type</Label>
+                    <Select value={seriesType || ''} onValueChange={(v) => handleConfig('chartSeriesType', v || null)}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="">Auto</SelectItem>
+                            <SelectItem value="bar">Bar</SelectItem>
+                            <SelectItem value="line">Line</SelectItem>
+                            <SelectItem value="area">Area</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="space-y-1 min-w-[150px]">
                     <div className="text-xs text-muted-foreground pt-3">
                         {seriesField ? `Split by ${seriesField}` : `Showing ${aggregation} of records by ${xKey}`}
                     </div>
@@ -161,7 +170,7 @@ export function ChartView({ data, collection, config, onConfigChange }: ViewProp
             </div>
 
             <div className="flex-1 min-h-[400px] border rounded-lg p-4 bg-card shadow-sm">
-                <ChartWidget type={type} data={chartData} xKey="name" yKey="value" seriesKeys={seriesField ? (chartData[0] ? Object.keys(chartData[0]).filter(k => k !== 'name') : []) : undefined} stacked={stacked} />
+                <ChartWidget type={type} data={chartData} xKey="name" yKey="value" seriesKeys={seriesField ? (chartData[0] ? Object.keys(chartData[0]).filter(k => k !== 'name') : []) : undefined} stacked={stacked} seriesType={seriesType} />
             </div>
         </div>
     );
