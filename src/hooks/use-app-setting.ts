@@ -51,6 +51,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                 params: {
                     filter: JSON.stringify({ key: { $eq: key } }),
                     pageSize: '1',
+                    fields: 'id,key',
                 }
             });
             console.log(`[useAppSetting] Fetch Response for ${key}:`, response);
