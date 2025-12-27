@@ -40,6 +40,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const login = (newToken: string) => {
         localStorage.setItem('nocobase_token', newToken);
         setToken(newToken);
+        
+        // Ensure backend collection exists after login
+        setTimeout(async () => {
+            try {
+                await client.ensureBackendCollection();
+            } catch (error) {
+                console.warn('Failed to ensure backend collection:', error);
+            }
+        }, 1000); // Delay to allow login to complete
     };
 
     const logout = () => {
