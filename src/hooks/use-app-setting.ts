@@ -34,7 +34,6 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
     const [loading, setLoading] = useState(false);
     const settingIdRef = useRef<string | number | null>(null);
-    const isFirstLoad = useRef(true);
     const saveTimeoutRef = useRef<any>(null);
 
     const getHeaders = useCallback((): Record<string, string> => {
