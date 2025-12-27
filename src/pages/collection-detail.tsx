@@ -18,8 +18,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-export function CollectionDetailPage({ collectionName, onBack }: CollectionDetailPageProps) {
+export function CollectionDetailPage({ collectionName: propCollectionName, onBack: propOnBack }: CollectionDetailPageProps) {
     const { client } = useAuth();
+    const params = useParams();
+    const navigate = useNavigate();
+    const collectionName = propCollectionName ?? (params.name as string);
+    const onBack = propOnBack ?? (() => navigate(-1));
     const [collection, setCollection] = useState<any>(null);
     const [records, setRecords] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
