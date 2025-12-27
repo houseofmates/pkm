@@ -221,7 +221,7 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
 
             return resolvedValue;
         });
-    }, [key, isAuthenticated, token]);
+    }, [key, isAuthenticated, token, getHeaders]);
 
     return [value, updateValue, loading] as const;
 }
