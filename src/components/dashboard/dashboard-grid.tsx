@@ -254,6 +254,12 @@ export function DashboardGrid() {
                     if (res.data?.url) {
                         lastSyncedUrlRef.current = res.data.url;
                         setSavedCanvasData(res.data.url);
+                        // Force a flush so the setting persists immediately and is visible to other devices
+                        try {
+                            await (flushSavedCanvas?.(res.data.url) ?? Promise.resolve());
+                        } catch (e) {
+                            console.error('Failed to flush saved canvas setting', e);
+                        }
                         canvasDirtyRef.current = false;
                         console.log("Synced canvas URL to setting:", res.data.url);
                     }
