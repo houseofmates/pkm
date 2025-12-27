@@ -332,92 +332,115 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
 
     if (type === 'pie') {
         return (
-            <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                    <Pie
-                        data={data}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60} // Donut style by default for modern look
-                        outerRadius={80}
-                        paddingAngle={5}
-                        dataKey={yKey}
-                        nameKey={xKey}
-                    >
-                        {data.map((_, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                        ))}
-                    </Pie>
-                    <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />
-                    <Legend />
-                </PieChart>
-            </ResponsiveContainer>
+            <div className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
+                <PlaceholderOverlay />
+                <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                        <Pie
+                            data={chartData}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={60} // Donut style by default for modern look
+                            outerRadius={80}
+                            paddingAngle={5}
+                            dataKey={isPlaceholder ? "value" : yKey}
+                            nameKey={isPlaceholder ? "name" : xKey}
+                            cursor={isPlaceholder ? "pointer" : "default"}
+                        >
+                            {chartData.map((_, index) => (
+                                <Cell
+                                    key={`cell-${index}`}
+                                    fill={isPlaceholder ? 'var(--muted)' : COLORS[index % COLORS.length]}
+                                    fillOpacity={isPlaceholder ? 0.3 : 1}
+                                    stroke={isPlaceholder ? 'var(--muted-foreground)' : 'none'}
+                                    strokeDasharray={isPlaceholder ? '5 5' : ''}
+                                />
+                            ))}
+                        </Pie>
+                        {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
+                        {!isPlaceholder && <Legend />}
+                    </PieChart>
+                </ResponsiveContainer>
+            </div>
         );
     }
 
     if (type === 'radar') {
         return (
-            <ResponsiveContainer width="100%" height="100%">
-                <RadarChart cx="50%" cy="50%" outerRadius="80%" data={data}>
-                    <PolarGrid />
-                    <PolarAngleAxis dataKey={xKey} tick={{ fontSize: 10 }} />
-                    <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={{ fontSize: 10 }} />
-                    <Radar
-                        name={yKey}
-                        dataKey={yKey}
-                        stroke={color}
-                        fill={color}
-                        fillOpacity={0.6}
-                    />
-                    <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />
-                </RadarChart>
-            </ResponsiveContainer>
+            <div className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
+                <PlaceholderOverlay />
+                <ResponsiveContainer width="100%" height="100%">
+                    <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
+                        <PolarGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
+                        <PolarAngleAxis dataKey="name" tick={{ fontSize: 10, fill: isPlaceholder ? 'var(--muted-foreground)' : 'var(--foreground)' }} {...placeholderAxisProps} />
+                        <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={{ fontSize: 10 }} {...placeholderAxisProps} />
+                        <Radar
+                            name={isPlaceholder ? "Metric" : yKey}
+                            dataKey={isPlaceholder ? "value" : yKey}
+                            stroke={isPlaceholder ? "var(--muted-foreground)" : color}
+                            fill={isPlaceholder ? "var(--muted)" : color}
+                            fillOpacity={isPlaceholder ? 0.1 : 0.6}
+                            strokeDasharray={isPlaceholder ? "5 5" : undefined}
+                        />
+                        {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
+                    </RadarChart>
+                </ResponsiveContainer>
+            </div>
         );
     }
 
     if (type === 'treemap') {
         return (
-            <ResponsiveContainer width="100%" height="100%">
-                <Treemap
-                    data={data}
-                    dataKey={yKey}
-                    aspectRatio={4 / 3}
-                    stroke="var(--background)"
-                    fill="#000000"
-                    isAnimationActive={false}
-                >
-                    <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />
-                </Treemap>
-            </ResponsiveContainer>
+            <div className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
+                <PlaceholderOverlay />
+                <ResponsiveContainer width="100%" height="100%">
+                    <Treemap
+                        data={chartData}
+                        dataKey={isPlaceholder ? "value" : yKey}
+                        aspectRatio={4 / 3}
+                        stroke="var(--background)"
+                        fill={isPlaceholder ? "var(--muted)" : "#000000"}
+                        isAnimationActive={false}
+                        content={isPlaceholder ? (props: any) => {
+                            const { x, y, width, height } = props;
+                            return (
+                                <g>
+                                    <rect x={x} y={y} width={width} height={height} fill="var(--muted)" stroke="var(--background)" strokeDasharray="3 3" fillOpacity={0.1} />
+                                </g>
+                            )
+                        } : undefined}
+                    >
+                        {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
+                    </Treemap>
+                </ResponsiveContainer>
+            </div>
         );
     }
 
     if (type === 'funnel') {
-        // Funnel needs specific data shape usually, but we'll try to map standard
-        // Sorted by value descending usually
-        const sorted = [...data].sort((a, b) => (b[yKey] || 0) - (a[yKey] || 0));
+        // Funnel sort
+        const sorted = isPlaceholder ? chartData : [...data].sort((a, b) => (b[yKey] || 0) - (a[yKey] || 0));
         return (
-            <ResponsiveContainer width="100%" height="100%">
-                <RechartsFunnelChart>
-                    <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />
-                    <Funnel
-                        dataKey={yKey}
-                        data={sorted}
-                        isAnimationActive
-                    >
-                        <LabelList position="right" fill="var(--foreground)" stroke="none" dataKey={xKey} />
-                    </Funnel>
-                </RechartsFunnelChart>
-            </ResponsiveContainer>
+            <div className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
+                <PlaceholderOverlay />
+                <ResponsiveContainer width="100%" height="100%">
+                    <RechartsFunnelChart>
+                        {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
+                        <Funnel
+                            dataKey={isPlaceholder ? "value" : yKey}
+                            data={sorted}
+                            isAnimationActive
+                        >
+                            <LabelList position="right" fill="var(--foreground)" stroke="none" dataKey={isPlaceholder ? "name" : xKey} />
+                        </Funnel>
+                    </RechartsFunnelChart>
+                </ResponsiveContainer>
+            </div>
         );
     }
 
     if (type === 'gauge') {
-        // Half donut
-        // We need a single value usually. Let's take the first item or sum?
-        // Let's assume data[0].value is the current, and we need a max?
-        // For generic usage, let's just show the first value relative to 100? Or just render it visually.
-        const val = data[0]?.[yKey] || 0;
+        const val = isPlaceholder ? 0 : (data[0]?.[yKey] || 0);
         const max = 100; // Arbitrary for now without config
         const safeVal = Math.min(Math.max(val, 0), max);
         const gaugeData = [
@@ -426,11 +449,12 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
         ];
 
         return (
-            <div className="relative w-full h-full flex items-center justify-center p-2">
+            <div className="relative w-full h-full flex items-center justify-center p-2 group" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
+                <PlaceholderOverlay />
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                         <Pie
-                            data={gaugeData}
+                            data={isPlaceholder ? [{ value: 100 }] : gaugeData}
                             cx="50%"
                             cy="85%"
                             startAngle={180}
@@ -441,15 +465,23 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
                             dataKey="value"
                             stroke="none"
                         >
-                            <Cell fill={color} />
-                            <Cell fill="var(--muted)" opacity={0.2} />
+                            {isPlaceholder ? (
+                                <Cell fill="var(--muted)" strokeDasharray="5 5" stroke="var(--muted-foreground)" fillOpacity={0.1} />
+                            ) : (
+                                <>
+                                    <Cell fill={color} />
+                                    <Cell fill="var(--muted)" opacity={0.2} />
+                                </>
+                            )}
                         </Pie>
                     </PieChart>
                 </ResponsiveContainer>
-                <div className="absolute bottom-4 text-2xl font-bold flex flex-col items-center">
-                    {val}%
-                    <span className="text-xs text-muted-foreground font-normal">Target</span>
-                </div>
+                {!isPlaceholder && (
+                    <div className="absolute bottom-4 text-2xl font-bold flex flex-col items-center">
+                        {val}%
+                        <span className="text-xs text-muted-foreground font-normal">Target</span>
+                    </div>
+                )}
             </div>
         );
     }
