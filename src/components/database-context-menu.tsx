@@ -1,5 +1,4 @@
 
-import { useState, useRef } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import type { Collection } from '@/types/nocobase';
 import {
@@ -11,22 +10,7 @@ import {
     ContextMenuLabel,
 } from "@/components/ui/context-menu";
 import { CollectionDialog } from './collection-dialog';
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { toast } from 'sonner';
-import { Image, Trash2, Edit, Palette } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface DatabaseContextMenuProps {
     collection: Collection;
@@ -43,7 +27,6 @@ interface CollectionMetadata {
 
 export function DatabaseContextMenu({ collection, children, onUpdate }: DatabaseContextMenuProps) {
     const { client } = useAuth();
-    const [deleteOpen, setDeleteOpen] = useState(false);
     const [editOpen, setEditOpen] = useState(false);
 
     const [metadata, setMetadata] = useAppSetting<Record<string, CollectionMetadata>>('collection_metadata', {});
