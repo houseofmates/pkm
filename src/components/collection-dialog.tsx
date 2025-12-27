@@ -101,7 +101,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
     }, [open, isEdit, collection, metadata, client]);
 
     const [csvData, setCsvData] = useState<any[]>([]);
-    const [csvFields, setCsvFields] = useState<{ name: string; title: string; interface: string; target?: string }[]>([]);
+    const [csvFields, setCsvFields] = useState<{ name: string; title: string; interface: string; target?: string; expression?: string }[]>([]);
     const csvInputRef = useRef<HTMLInputElement>(null);
 
     const inferType = (values: any[]) => {
