@@ -36,12 +36,6 @@ export default defineConfig({
   css: {
     devSourcemap: false,
   },
-  optimizeDeps: {
-    esbuildOptions: {
-      sourcemap: false,
-    },
-    exclude: ['leaflet']
-  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
