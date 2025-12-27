@@ -69,47 +69,44 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
         if (!file) return;
 
         const toastId = toast.loading("Processing avatar...");
-        
+
         try {
             // Convert file to base64 data URL - this avoids all CORS/auth issues
             // The image is stored directly in the override data
             const reader = new FileReader();
-            
+
             reader.onload = async () => {
                 const base64DataUrl = reader.result as string;
-                console.log('Image converted to base64, length:', base64DataUrl.length);
-                
-                // Check size - warn if very large (> 500KB base64)
                 if (base64DataUrl.length > 500000) {
+                    // Large image warning is fine to keep as a warn
                     console.warn('Large image detected, consider compressing');
                 }
-                
+
                 updateOverride(memberId, { avatarUrl: base64DataUrl });
-                
+
                 // Flush immediately to ensure persistence
                 try {
                     await flushOverrides();
-                    console.log('Overrides flushed successfully');
                 } catch (flushError) {
                     console.warn('Failed to flush overrides:', flushError);
                 }
-                
+
                 toast.success("Avatar updated", { id: toastId });
-                
+
                 // Reset file input and close dialog
                 if (fileInputRef.current) {
                     fileInputRef.current.value = '';
                 }
                 setImageOpen(false);
             };
-            
+
             reader.onerror = () => {
                 console.error('FileReader error:', reader.error);
                 toast.error("Failed to read image file", { id: toastId });
             };
-            
+
             reader.readAsDataURL(file);
-            
+
         } catch (error) {
             console.error('Upload error:', error);
             toast.error("Upload failed", { id: toastId });
