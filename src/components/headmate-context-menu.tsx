@@ -63,12 +63,16 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
         const toastId = toast.loading("Uploading avatar...");
         try {
             const res = await client.upload(file);
+            console.log('Upload response:', res);
             const uploadedFile = res.data;
+            console.log('Uploaded file data:', uploadedFile);
+
             if (uploadedFile && uploadedFile.url) {
                 let finalUrl = uploadedFile.url;
                 if (finalUrl.startsWith('/')) {
                     finalUrl = `https://db.houseofmates.space${finalUrl}`;
                 }
+                console.log('Setting Override URL:', finalUrl, 'for member:', memberId);
                 updateOverride(memberId, { avatarUrl: finalUrl });
                 toast.success("Avatar updated", { id: toastId });
                 setImageOpen(false); // Close dialog if open
