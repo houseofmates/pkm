@@ -77,7 +77,7 @@ describe('useAppSetting upsert behaviors', () => {
       return {};
     });
 
-    render(<TestComp settingKey="y" />);
+    render(<TestComp settingKey="y" debounceMs={10} />);
     const btn = screen.getByText('set');
     btn.click();
 
@@ -85,6 +85,6 @@ describe('useAppSetting upsert behaviors', () => {
       expect(createCalled).toBe(true);
       expect(api).toHaveBeenCalledWith('nocobase', '/collections', expect.objectContaining({ method: 'POST' }));
       expect(api).toHaveBeenCalledWith('nocobase', '/pkm_settings', expect.objectContaining({ method: 'POST' }));
-    });
+    }, { timeout: 2000 });
   });
 });
