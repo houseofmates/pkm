@@ -4,14 +4,8 @@ import { cn } from "@/lib/utils";
 import { useFronter } from "@/contexts/fronter-context";
 import { forwardRef, useEffect, useState } from 'react';
 
-// Names that should always be displayed in uppercase
-const UPPERCASE_NAMES = ['alastor', 'deer', 'mike', 'walt'];
-
+// Formatting handled by parent component now
 function formatDisplayName(name: string): string {
-    const nameLower = name.toLowerCase().trim();
-    if (UPPERCASE_NAMES.includes(nameLower)) {
-        return name.toUpperCase();
-    }
     return name;
 }
 
