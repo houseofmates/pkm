@@ -53,16 +53,6 @@ export class NocoBaseClient {
             ...options,
         });
 
-        // Global filter to hide pkm_settings from the entire app
-        if (response.data && Array.isArray(response.data)) {
-            response.data = response.data.filter(c => {
-                const name = (c.name || '').toLowerCase();
-                const title = (c.title || '').toLowerCase();
-                if (name.includes('pkm_settings') || name === 'pkm_settings') return false;
-                if (title.includes('pkm settings') || title === 'pkm settings') return false;
-                return true;
-            });
-        }
         return response;
     }
 
