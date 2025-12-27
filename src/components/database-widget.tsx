@@ -17,7 +17,7 @@ interface DatabaseWidgetProps {
 }
 
 export function DatabaseWidget({ collection, onRemove, className, initialView }: DatabaseWidgetProps) {
-    const { records, loading, refresh, deleteRecord } = useRecords(collection.name);
+    const { records, loading, refresh } = useRecords(collection.name);
     // View config state could be local or shared. 
     // To share it, we'd need to lift it or load from localStorage using the same key convention.
     // Let's load generic config for now.
