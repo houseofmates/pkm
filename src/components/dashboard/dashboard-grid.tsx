@@ -467,8 +467,8 @@ export function DashboardGrid() {
             viewType,
             x: 0,
             y: 0,
-            w: 6,
-            h: 4,
+            w: 600,
+            h: 400,
             zIndex: 10
         };
         setWidgets((prev: WidgetDefinition[]) => [...prev, newWidget]);
