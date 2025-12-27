@@ -13,7 +13,16 @@ import * as React from 'react';
 
 export type ViewType = 'table' | 'calendar' | 'kanban' | 'gallery' | 'gantt' | 'chart' | 'network' | 'mindmap' | 'list' | 'journal';
 
-// ...
+export type ViewProps = {
+    data?: any[];
+    loading?: boolean;
+    collection?: any;
+    config?: any;
+    onUpdateRecord?: (id: any, data: any) => Promise<void> | void;
+    onDelete?: (id: any) => Promise<void> | void;
+    onEdit?: (id: any) => void;
+    onConfigChange?: (key: string, value: any) => void;
+};
 
 export const VIEW_REGISTRY: Record<ViewType, React.ComponentType<ViewProps>> = {
     table: RecordTable,
