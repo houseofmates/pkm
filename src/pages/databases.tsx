@@ -11,6 +11,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { DatabaseContextMenu } from '@/components/database-context-menu';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Plus } from 'lucide-react';
 
 interface DatabasesPageProps {
     onSelect?: (name: string) => void;
