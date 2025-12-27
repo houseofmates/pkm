@@ -187,7 +187,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
                 await performSave();
 
-            }, 1000); // 1s debounce
+            }, debounceMs); // configurable debounce
 
             return resolvedValue;
         });
