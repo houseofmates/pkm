@@ -192,7 +192,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
             <ContextMenu>
                 <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
                 <ContextMenuContent className="w-64">
-                    <ContextMenuLabel>{(currentOverride as any).name || memberName}</ContextMenuLabel>
+                    <ContextMenuLabel>{formatDisplayName((currentOverride as any).name || memberName)}</ContextMenuLabel>
                     <ContextMenuSeparator />
 
                     <ContextMenuItem onSelect={openNameEdit}>
