@@ -192,14 +192,19 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                         const errMsg = (err.message || JSON.stringify(err)).toLowerCase();
                         console.warn(`[useAppSetting] Save error for ${key}:`, errMsg);
 
-                        // Case 1: Key already exists (400) -> We need to fetch ID and update instead
-                        if (errMsg.includes('exists') || errMsg.includes('unique')) {
-                            console.log(`[useAppSetting] Key exists collision. Attempting recovery...`);
-                            const foundId = await fetchRemoteId();
-                            if (foundId) {
-                                settingIdRef.current = foundId;
-                                if (retryCount < 1) return performSave(valueToSave, retryCount + 1);
-                            }
+                        // Case 1: Key already exists (400) -> Use Filter-Based Update (since ID might be hidden)
+                        if (errMsg.includes('exists') || errMsg.includes('unique') || errMsg.includes('400')) {
+                            console.log(`[useAppSetting] Collision. Switching to Filter-Based Update for ${key}...`);
+                            await apiRequest('nocobase', '/pkm_settings:update', {
+                                method: 'POST',
+                                headers,
+                                params: {
+                                    filter: JSON.stringify({ key })
+                                },
+                                data: { value: valueToSave }
+                            });
+                            console.log(`[useAppSetting] Filter-Based Update success for ${key}`);
+                            return;
                         }
 
                         // Case 2: Collection not found (404) -> Create collection and retry
