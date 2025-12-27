@@ -8,18 +8,7 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import { Check, X, Phone, Mail, MapPin, Lock, Terminal, Code2, Paperclip, Link as LinkIcon } from 'lucide-react';
 
-// Sortable image helper for simple drag UX (no custom UI drag handle for now)
-function SortableImage({ id, src, index, onDelete }: any) {
-    // Simple wrapper to show item - full useSortable UX could be added later
-    return (
-        <div className="relative p-1 bg-card rounded" data-id={id}>
-            <img src={src} alt={`img-${index}`} className="rounded shadow cursor-pointer object-contain w-full h-60" />
-            <div className="absolute top-2 right-2 flex gap-1">
-                <button className="btn-ghost btn-xs" onClick={onDelete}>Delete</button>
-            </div>
-        </div>
-    )
-}
+
 import { LocationField } from './location-field';
 import ReactMarkdown from 'react-markdown';
 import { Textarea } from '@/components/ui/textarea';
