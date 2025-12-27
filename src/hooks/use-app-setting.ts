@@ -151,18 +151,22 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                 const headers = getHeaders();
 
                 const performSave = async (valueToSave: any, retryCount = 0): Promise<void> => {
+                    console.log(`[useAppSetting] Saving ${key}...`, { hasId: !!settingIdRef.current, retryCount });
                     try {
                         // Strategy: Always try to use ID if we have it
                         if (settingIdRef.current) {
+                            console.log(`[useAppSetting] Updating existing setting ${key} (ID: ${settingIdRef.current})`);
                             await apiRequest('nocobase', `/pkm_settings/${settingIdRef.current}`, {
                                 method: 'PUT',
                                 headers,
                                 data: { value: valueToSave }
                             });
+                            console.log(`[useAppSetting] Update success for ${key}`);
                             return;
                         }
 
                         // No ID, try CREATE (POST)
+                        console.log(`[useAppSetting] Creating new setting ${key}`);
                         const response = await apiRequest('nocobase', '/pkm_settings', {
                             method: 'POST',
                             headers,
@@ -170,13 +174,16 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                         });
                         if (response?.data?.id) {
                             settingIdRef.current = response.data.id;
+                            console.log(`[useAppSetting] Create success for ${key}, assigned ID: ${settingIdRef.current}`);
                         }
                         return;
                     } catch (err: any) {
                         const errMsg = (err.message || JSON.stringify(err)).toLowerCase();
+                        console.warn(`[useAppSetting] Save error for ${key}:`, errMsg);
 
                         // Case 1: Key already exists (400) -> We need to fetch ID and update instead
                         if (errMsg.includes('exists') || errMsg.includes('unique')) {
+                            console.log(`[useAppSetting] Key exists collision. Attempting recovery...`);
                             const foundId = await fetchRemoteId();
                             if (foundId) {
                                 settingIdRef.current = foundId;
@@ -187,6 +194,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                         // Case 2: Collection not found (404) -> Create collection and retry
                         if (errMsg.includes('404') || errMsg.includes('not found') || errMsg.includes('relation "pkm_settings" does not exist')) {
                             if (retryCount < 1) { // Only try creating collection once
+                                console.log(`[useAppSetting] Collection missing. Creating...`);
                                 const created = await ensureCollectionExists();
                                 if (created) return performSave(valueToSave, retryCount + 1);
                             }
