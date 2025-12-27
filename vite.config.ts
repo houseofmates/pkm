@@ -33,6 +33,7 @@ export default defineConfig({
   },
   build: {
     sourcemap: false,
+    reportCompressedSize: false,
     rollupOptions: {
       output: {
         manualChunks: {
@@ -59,7 +60,10 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ['react', 'react-dom', '@radix-ui/react-dialog', '@radix-ui/react-slot', '@radix-ui/react-popover', 'clsx', 'date-fns', 'leaflet', '@dnd-kit/core', '@dnd-kit/utilities'],
-    exclude: []
+    exclude: [],
+    esbuildOptions: {
+      sourcemap: false,
+    }
   },
   define: {
     'process.env': {}
