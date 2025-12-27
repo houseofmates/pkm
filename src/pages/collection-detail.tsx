@@ -69,15 +69,11 @@ export function CollectionDetailPage({ collectionName, onBack }: CollectionDetai
             if (e.detail?.collection === collectionName) {
                 console.log("Creating record via event:", e.detail.data);
                 try {
-                    await client.request({
-                        url: collectionName,
-                        method: 'post',
-                        data: e.detail.data
-                    });
+                    await client.createRecord(collectionName, e.detail.data);
                     toast.success("Record created!");
                     // Refresh
-                    const res = await client.request({ url: collectionName, params: { pageSize: 100, sort: '-created_at' } });
-                    setRecords(res.data?.data || []);
+                    const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
+                    setRecords(res.data?.data || res.data || []);
                 } catch (err) {
                     console.error(err);
                     toast.error("Failed to create record");
