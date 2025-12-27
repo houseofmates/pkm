@@ -55,12 +55,12 @@ export function IconPicker({ onSelect, trigger, open, onOpenChange }: IconPicker
             {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
             <DialogContent className="sm:max-w-md">
                 <DialogHeader>
-                    <DialogTitle>Select Icon</DialogTitle>
+                    <DialogTitle>select icon</DialogTitle>
                 </DialogHeader>
                 <Tabs defaultValue="icons" className="w-full" onValueChange={setActiveTab}>
                     <TabsList className="grid w-full grid-cols-2">
-                        <TabsTrigger value="icons">Icons</TabsTrigger>
-                        <TabsTrigger value="emojis">Emojis</TabsTrigger>
+                        <TabsTrigger value="icons">icons</TabsTrigger>
+                        <TabsTrigger value="emojis">emojis</TabsTrigger>
                     </TabsList>
 
                     <div className="h-[300px] mt-4 rounded-md border p-1">
