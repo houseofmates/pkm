@@ -201,20 +201,47 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
 
                         // Intelligent Text Logic: Auto-switch between input and textarea
                         let finalInterface = field.interface;
-                        let internalType: any = typeConfig?.type || 'string';
+                        const fieldType = FIELD_TYPES.find(t => t.interface === field.interface);
 
-                        if (field.interface === 'text') {
+                        let uiSchema: any = {
+                            title: field.title,
+                            'x-component': 'Input', // Default
+                        };
+
+                        // Extract options for Select / Multi-Select
+                        if (field.interface === 'select' || field.interface === 'multipleSelect') {
+                            const uniqueValues = new Set<string>();
+                            csvData.forEach(row => {
+                                const val = row[field.title]; // Use field.title to access original CSV header
+                                if (val) {
+                                    if (field.interface === 'multipleSelect') {
+                                        String(val).split(',').map(s => s.trim()).forEach(v => v && uniqueValues.add(v));
+                                    } else {
+                                        uniqueValues.add(String(val).trim());
+                                    }
+                                }
+                            });
+                            uiSchema.enum = Array.from(uniqueValues).map(v => ({ label: v, value: v }));
+                            uiSchema['x-component'] = field.interface === 'select' ? 'Select' : 'RecordPicker'; // multipleSelect uses RecordPicker or Select
+                        } else if (field.interface === 'text') {
                             const isLong = csvData.some(row => String(row[field.title] || '').length > 200);
-                            finalInterface = isLong ? 'textarea' : 'input';
-                            internalType = isLong ? 'text' : 'string';
+                            uiSchema['x-component'] = isLong ? 'Input.TextArea' : 'Input';
                         }
 
-                        await client.createField(finalName, {
+
+                        const fieldConfig: any = {
                             name: field.name,
-                            title: field.title,
-                            type: internalType,
-                            interface: finalInterface
-                        });
+                            type: fieldType?.type || 'string',
+                            interface: field.interface,
+                            uiSchema
+                        };
+
+                        if (field.interface === 'belongsTo' && field.target) {
+                            fieldConfig.target = field.target;
+                            fieldConfig.targetKey = 'id';
+                        }
+
+                        await client.createField(finalName, fieldConfig);
                     }
 
                     // 3. Batch Create Records
