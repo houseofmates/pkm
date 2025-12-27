@@ -161,7 +161,7 @@ export function ChartView({ data, collection, config, onConfigChange }: ViewProp
             </div>
 
             <div className="flex-1 min-h-[400px] border rounded-lg p-4 bg-card shadow-sm">
-                <ChartWidget type={type} data={chartData} xKey="name" yKey="value" />
+                <ChartWidget type={type} data={chartData} xKey="name" yKey="value" seriesKeys={seriesField ? (chartData[0] ? Object.keys(chartData[0]).filter(k => k !== 'name') : []) : undefined} stacked={stacked} />
             </div>
         </div>
     );
