@@ -19,7 +19,7 @@ export function LoginPage() {
                 const { apiRequest } = await import('@/lib/api-client');
                 await apiRequest('nocobase', '/collections:list', {
                     headers: { Authorization: `Bearer ${inputToken}` },
-                    params: { pageSize: 1 }
+                    params: { pageSize: '1' }
                 });
 
                 login(inputToken);
