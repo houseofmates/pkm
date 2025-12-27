@@ -33,6 +33,8 @@ export interface NavItem {
     name: string;
     children?: string[]; // IDs of children if folder
     collapsed?: boolean;
+    icon?: string;
+    iconType?: 'lucide' | 'emoji' | 'image';
 }
 
 interface NavigationProps {
