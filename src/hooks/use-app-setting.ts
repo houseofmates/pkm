@@ -217,46 +217,61 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
     // Immediate flush function (returns a promise) to persist current value to backend
     const flush = useCallback(async (valueToSave?: T) => {
-        // Double-check localStorage as well to avoid stale closures
-        if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) return;
+        if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) {
+            console.warn("[useAppSetting] Flush skipped - no auth");
+            return;
+        }
         const headers = getHeaders();
         const toSave = valueToSave === undefined ? valueRef.current : valueToSave;
 
         const attemptUpsert = async (attempt = 1): Promise<void> => {
+            console.log(`[useAppSetting] Flush: Saving ${key} (Attempt ${attempt})`, { hasId: !!settingIdRef.current });
+
             try {
                 // Try update by known ID
                 if (settingIdRef.current) {
+                    console.log(`[useAppSetting] Flush: Updating existing ${key} (ID: ${settingIdRef.current})`);
                     await apiRequest('nocobase', `/pkm_settings/${settingIdRef.current}`, {
                         method: 'PUT',
                         headers,
                         data: { value: toSave }
                     });
+                    console.log(`[useAppSetting] Flush: Update success for ${key}`);
                     return;
                 }
 
                 // Try create
+                console.log(`[useAppSetting] Flush: Creating new ${key}`);
                 const response = await apiRequest('nocobase', '/pkm_settings', {
                     method: 'POST',
                     headers,
                     data: { key, value: toSave }
                 });
-                if (response?.data?.id) settingIdRef.current = response.data.id;
+                if (response?.data?.id) {
+                    settingIdRef.current = response.data.id;
+                    console.log(`[useAppSetting] Flush: Create success, ID assigned: ${settingIdRef.current}`);
+                }
                 return;
             } catch (err: any) {
-                const status = err?.status;
-                const dataString = JSON.stringify(err?.data || err?.message || err || '');
+                const errMsg = (err.message || JSON.stringify(err)).toLowerCase();
+                console.warn(`[useAppSetting] Flush error for ${key}:`, errMsg);
 
                 // 400 conflict -> fetch id and update
-                if (status === 400 || /exists/i.test(dataString)) {
+                if (attempt < 2 && (errMsg.includes('exists') || errMsg.includes('unique') || errMsg.includes('400'))) {
+                    console.log(`[useAppSetting] Flush: Collision detected. Recovering ID...`);
                     const found = await fetchRemoteId();
                     if (found) {
                         settingIdRef.current = found;
+                        console.log(`[useAppSetting] Flush: ID Recovered ${found}. Retrying...`);
                         return await attemptUpsert(attempt + 1);
+                    } else {
+                        console.error(`[useAppSetting] Flush: Failed to recover ID for ${key}`);
                     }
                 }
 
                 // 404 / missing collection -> create and retry
-                if ((status === 404 || /not\s*found|collection/i.test(dataString)) && attempt === 1) {
+                if (attempt < 2 && (errMsg.includes('404') || errMsg.includes('not found') || errMsg.includes('collection'))) {
+                    console.log(`[useAppSetting] Flush: Collection missing. creating...`);
                     const ok = await ensureCollectionExists();
                     if (ok) return attemptUpsert(attempt + 1);
                 }
@@ -266,9 +281,13 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
         };
 
         // Serialize flushes
-        savePromiseRef.current = (savePromiseRef.current || Promise.resolve()).then(() => attemptUpsert()).catch(e => { console.error('flush error', e); throw e; });
+        savePromiseRef.current = (savePromiseRef.current || Promise.resolve()).then(() => attemptUpsert()).catch(e => {
+            console.error('[useAppSetting] Flush chain failed:', e);
+            // We don't rethrow here to prevent unhandled rejection crashes, but we rely on toast in caller
+            throw e;
+        });
         return savePromiseRef.current;
-    }, [isAuthenticated, token, getHeaders, fetchRemoteId, ensureCollectionExists]);
+    }, [isAuthenticated, token, getHeaders, fetchRemoteId, ensureCollectionExists, key]);
 
     // Save flush function in ref for external use if needed
     flushRef.current = flush;
