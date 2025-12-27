@@ -33,7 +33,8 @@ export class NocoBaseClient {
                 method: options?.method,
                 headers,
                 params: options?.params,
-                data: options?.data
+                data: options?.data,
+                silent: options?.silent
             });
 
             return data as NocoBaseResponse<T>;
