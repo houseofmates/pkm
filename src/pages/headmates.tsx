@@ -62,7 +62,25 @@ export function HeadmatesPage() {
             });
 
             // SimplyPlural returns array of members directly
-            setAllMembers(Array.isArray(membersData) ? membersData : []);
+            // SimplyPlural returns array of members directly
+            const rawMembers = Array.isArray(membersData) ? membersData : [];
+
+            // Sanitize members (check for dead Discord links)
+            const sanitizedMembers = rawMembers.map((m: any) => {
+                if (m.content?.avatarUrl && isDiscordLinkExpired(m.content.avatarUrl)) {
+                    console.warn(`[Fix] replaced expired Discord link for ${m.content.name}`);
+                    return {
+                        ...m,
+                        content: {
+                            ...m.content,
+                            avatarUrl: PLACEHOLDER_IMAGE
+                        }
+                    };
+                }
+                return m;
+            });
+
+            setAllMembers(sanitizedMembers);
 
         } catch (error: any) {
             console.error(error);
@@ -132,7 +150,7 @@ export function HeadmatesPage() {
                     {loading ? (
                         <div className="flex items-center justify-center p-10">
                             <div className="w-64 h-2 bg-muted rounded-full overflow-hidden">
-                                <div 
+                                <div
                                     className="h-full rounded-full animate-loading-bar"
                                     style={{ backgroundColor: '#f6b012' }}
                                 />
