@@ -193,7 +193,7 @@ export function ChartView(props: ViewProps) {
             </div>
 
             {/* Content Area */}
-            <div className="flex-1 min-h-[400px] border rounded-lg p-0 bg-card shadow-sm overflow-hidden relative">
+            <div className="flex-1 min-h-0 border rounded-lg p-0 bg-card shadow-sm overflow-hidden relative">
                 {isChart ? (
                     <div className="w-full h-full p-4">
                         <ChartWidget
