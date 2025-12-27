@@ -407,6 +407,17 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                                                                     ))}
                                                                 </SelectContent>
                                                             </Select>
+                                                        {field.interface === 'formula' && (
+                                                            <Input
+                                                                className="h-8 text-xs border-primary/50 bg-primary/5 font-mono"
+                                                                placeholder="Formula (e.g. {{price}} * 0.1)..."
+                                                                value={field.expression || ''}
+                                                                onChange={(e) => {
+                                                                    const newFields = [...csvFields];
+                                                                    newFields[idx].expression = e.target.value;
+                                                                    setCsvFields(newFields);
+                                                                }}
+                                                            />
                                                         )}
                                                     </div>
                                                 </div>
