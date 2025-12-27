@@ -160,14 +160,14 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
                     {item.type === 'folder' && (
                         <ContextMenuContent>
                             <ContextMenuItem onClick={() => setPickerOpen(true)}>
-                                <ImageIcon className="h-4 w-4 mr-2" /> Change Icon
+                                <ImageIcon className="h-4 w-4 mr-2" /> change icon
                             </ContextMenuItem>
                             <ContextMenuItem onClick={() => setIsRenaming(true)}>
-                                <Edit2 className="h-4 w-4 mr-2" /> Rename
+                                <Edit2 className="h-4 w-4 mr-2" /> rename
                             </ContextMenuItem>
                             <ContextMenuSeparator />
                             <ContextMenuItem className="text-red-500 focus:text-red-500" onClick={() => onUpdate(id, { delete: true })}>
-                                <Trash2 className="h-4 w-4 mr-2" /> Delete
+                                <Trash2 className="h-4 w-4 mr-2" /> delete
                             </ContextMenuItem>
                         </ContextMenuContent>
                     )}
@@ -231,9 +231,9 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     };
 
     const tabs = [
-        { id: 'databases', icon: Database, label: 'Databases' },
-        { id: 'home', icon: Home, label: 'Home' },
-        { id: 'headmates', icon: Users, label: 'Headmates' },
+        { id: 'databases', icon: Database, label: 'databases' },
+        { id: 'home', icon: Home, label: 'home' },
+        { id: 'headmates', icon: Users, label: 'headmates' },
     ] as const;
 
     return (
@@ -268,7 +268,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                             variant="ghost"
                             size="icon"
                             className="h-5 w-5 rounded-full hover:bg-muted"
-                            title="New Folder"
+                            title="new folder"
                             onClick={() => setFolderDialogOpen(true)}
                         >
                             <Folder className="h-3 w-3" />
