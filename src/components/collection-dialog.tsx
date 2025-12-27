@@ -14,7 +14,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Image as ImageIcon } from 'lucide-react';
+import { Image as ImageIcon, Plus } from 'lucide-react';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import type { Collection } from '@/types/nocobase';
 
@@ -247,6 +247,49 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                             required
                         />
                     </div>
+
+                    {!isEdit && (
+                        <div className="space-y-4 border-t pt-4">
+                            <Label>csv import (optional)</Label>
+                            <div className="flex flex-col gap-2">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    className="w-full border-dashed"
+                                    onClick={() => csvInputRef.current?.click()}
+                                >
+                                    <Plus className="mr-2 h-4 w-4" />
+                                    {csvData.length > 0 ? "change csv file" : "upload csv (notion export)"}
+                                </Button>
+                                <input
+                                    type="file"
+                                    ref={csvInputRef}
+                                    className="hidden"
+                                    accept=".csv"
+                                    onChange={handleCsvChange}
+                                />
+
+                                {csvData.length > 0 && (
+                                    <div className="mt-2 space-y-2">
+                                        <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                                            detected {csvFields.length} columns:
+                                        </div>
+                                        <div className="max-h-32 overflow-y-auto border rounded p-2 bg-muted/30">
+                                            {csvFields.map(field => (
+                                                <div key={field.name} className="flex items-center justify-between text-xs py-1 border-b last:border-0 border-muted">
+                                                    <span className="font-medium truncate mr-2">{field.title}</span>
+                                                    <span className="text-muted-foreground bg-background px-1.5 py-0.5 rounded border">{field.type}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <p className="text-[0.7rem] text-muted-foreground italic">
+                                            {csvData.length} records will be imported.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
 
                     {!isEdit && (
                         <div className="space-y-2">
