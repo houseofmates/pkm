@@ -13,6 +13,7 @@ export interface RequestOptions {
     method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
     data?: any;
     headers?: Record<string, string>;
+    silent?: boolean;
 }
 
 export interface Collection {
