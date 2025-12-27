@@ -186,6 +186,20 @@ export function DashboardGrid() {
         }
     }, [savedCanvasData, saveSnapshot]);
 
+    // Load persisted floating selection (if any)
+    useEffect(() => {
+        if (savedFloatingSelection) {
+            try {
+                const parsed = JSON.parse(savedFloatingSelection);
+                if (parsed && parsed.image) {
+                    setFloatingSelection(parsed);
+                }
+            } catch (e) {
+                console.error('Failed to parse saved floating selection:', e);
+            }
+        }
+    }, [savedFloatingSelection]);
+
     const saveCanvas = useCallback(() => {
         if (canvasRef.current) {
             canvasRef.current.toBlob(async (blob) => {
