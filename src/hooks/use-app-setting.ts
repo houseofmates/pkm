@@ -119,27 +119,38 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
                 const performSave = async (valueToSave: any, retryCount = 0): Promise<void> => {
                     try {
+                        // 1. Ensure we have the latest ID before deciding strategy
+                        if (!settingIdRef.current) {
+                            const found = await apiRequest('nocobase', '/pkm_settings', {
+                                headers,
+                                params: { filter: JSON.stringify({ key }), pageSize: '1', fields: 'id' }
+                            });
+                            if (found?.data?.length > 0) {
+                                settingIdRef.current = found.data[0].id;
+                            }
+                        }
+
+                        // 2. Decide Strategy (PUT if exists, POST if new)
                         if (settingIdRef.current) {
                             await apiRequest('nocobase', `/pkm_settings/${settingIdRef.current}`, {
                                 method: 'PUT',
                                 headers,
                                 data: { value: valueToSave }
                             });
-                            return;
-                        }
-
-                        const response = await apiRequest('nocobase', '/pkm_settings', {
-                            method: 'POST',
-                            headers,
-                            data: { key, value: valueToSave },
-                            silent: true
-                        });
-                        if (response?.data?.id) {
-                            settingIdRef.current = response.data.id;
+                        } else {
+                            const response = await apiRequest('nocobase', '/pkm_settings', {
+                                method: 'POST',
+                                headers,
+                                data: { key, value: valueToSave },
+                                silent: true
+                            });
+                            if (response?.data?.id) {
+                                settingIdRef.current = response.data.id;
+                            }
                         }
                     } catch (err: any) {
                         const errMsg = (err.message || JSON.stringify(err)).toLowerCase();
-
+                        // Fallback only if we hit a race (another client created it between our check and POST)
                         if (errMsg.includes('exists') || errMsg.includes('unique') || errMsg.includes('400')) {
                             await apiRequest('nocobase', '/pkm_settings:update', {
                                 method: 'POST',
@@ -174,23 +185,29 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
         const attemptUpsert = async (attempt = 1): Promise<void> => {
             try {
+                // 1. Resolve ID first to avoid 400s
+                if (!settingIdRef.current) {
+                    const found = await apiRequest('nocobase', '/pkm_settings', {
+                        headers,
+                        params: { filter: JSON.stringify({ key }), pageSize: '1', fields: 'id' }
+                    });
+                    if (found?.data?.length > 0) settingIdRef.current = found.data[0].id;
+                }
+
                 if (settingIdRef.current) {
                     await apiRequest('nocobase', `/pkm_settings/${settingIdRef.current}`, {
                         method: 'PUT',
                         headers,
                         data: { value: toSave }
                     });
-                    return;
-                }
-
-                const response = await apiRequest('nocobase', '/pkm_settings', {
-                    method: 'POST',
-                    headers,
-                    data: { key, value: toSave },
-                    silent: true
-                });
-                if (response?.data?.id) {
-                    settingIdRef.current = response.data.id;
+                } else {
+                    const response = await apiRequest('nocobase', '/pkm_settings', {
+                        method: 'POST',
+                        headers,
+                        data: { key, value: toSave },
+                        silent: true
+                    });
+                    if (response?.data?.id) settingIdRef.current = response.data.id;
                 }
             } catch (err: any) {
                 const errMsg = (err.message || JSON.stringify(err)).toLowerCase();
