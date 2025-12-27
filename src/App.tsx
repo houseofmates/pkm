@@ -17,11 +17,8 @@ function AppContent() {
 
   // Force dark mode for this design
   useEffect(() => {
-    console.log("AppContent Mounted, Token:", !!token);
     document.documentElement.classList.add('dark');
   }, [token]);
-
-  console.log("Rendering AppContent. Token present?", !!token);
 
   return (
 
