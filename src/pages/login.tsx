@@ -44,6 +44,29 @@ export function LoginPage() {
                     </div>
                 )}
 
+                {inputToken.startsWith('ey') && (
+                    <div className="text-xs text-muted-foreground break-all">
+                        {(() => {
+                            try {
+                                const payload = JSON.parse(atob(inputToken.split('.')[1]));
+                                if (payload.exp) {
+                                    const date = new Date(payload.exp * 1000);
+                                    const isExpired = date < new Date();
+                                    return (
+                                        <div className={`mt-2 p-2 rounded ${isExpired ? 'bg-yellow-50 text-yellow-800' : 'bg-green-50 text-green-800'}`}>
+                                            <p><strong>Token Type:</strong> JWT</p>
+                                            <p><strong>Expires:</strong> {date.toLocaleString()}</p>
+                                            {isExpired && <p className="font-bold text-red-600">⚠️ This token has expired!</p>}
+                                        </div>
+                                    );
+                                }
+                            } catch (e) {
+                                return null;
+                            }
+                        })()}
+                    </div>
+                )}
+
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <textarea
                         className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
