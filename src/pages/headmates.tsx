@@ -91,14 +91,14 @@ export function HeadmatesPage() {
     return (
         <div className="p-4 md:p-8 space-y-6 h-full overflow-auto">
             <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold lowercase tracking-tight">Headmates</h1>
+                <h1 className="text-3xl font-bold lowercase tracking-tight">headmates</h1>
 
             </div>
 
             {!hasKey ? (
                 <Card className="max-w-md mx-auto mt-10">
                     <CardHeader>
-                        <CardTitle>Connect SimplyPlural</CardTitle>
+                        <CardTitle>connect simplyplural</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
@@ -113,13 +113,13 @@ export function HeadmatesPage() {
                                 Your key is stored locally in your browser.
                             </p>
                         </div>
-                        <Button className="w-full" onClick={handleSaveKey}>Connect</Button>
+                        <Button className="w-full" onClick={handleSaveKey}>connect</Button>
                     </CardContent>
                 </Card>
             ) : (
                 <>
                     {loading ? (
-                        <div className="text-center p-10 animate-pulse text-muted-foreground">Loading members...</div>
+                        <div className="text-center p-10 animate-pulse text-muted-foreground">loading members...</div>
                     ) : (
                         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                             {members.map(member => (
