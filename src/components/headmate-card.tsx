@@ -77,7 +77,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
                     style={{ color: displayTextColor }}
                 >
                     {/* Use override name if available, else original */}
-                    {override.name || member.content.name}
+                    {(override as any).name || member.content.name}
                 </h3>
                 {member.content.pronouns && (
                     <p className="text-xs text-white/70 lowercase opacity-0 group-hover:opacity-100 transition-opacity delay-100 translate-y-2 group-hover:translate-y-0 duration-300">
