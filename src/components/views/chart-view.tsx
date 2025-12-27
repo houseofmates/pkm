@@ -240,31 +240,3 @@ export function ChartView(props: ViewProps) {
     );
 }
 
-{/* Content Area */ }
-<div className="flex-1 min-h-0 border rounded-lg p-0 bg-card shadow-sm overflow-hidden relative">
-    {isChart ? (
-        <div className="w-full h-full p-4">
-            <ChartWidget
-                type={type as any}
-                data={chartData}
-                xKey="name"
-                yKey="value"
-                seriesKeys={seriesField ? (chartData[0] ? Object.keys(chartData[0]).filter(k => k !== 'name') : []) : undefined}
-                stacked={stacked}
-                seriesType={seriesType}
-                seriesTypes={config?.chartSeriesTypes}
-                seriesOrder={config?.chartSeriesOrder}
-                legendCollapsed={!!config?.chartLegendCollapsed}
-                onConfig={handleConfig}
-                columns={collection.fields?.map((f: any) => ({ label: f.uiSchema?.title || f.name, value: f.name }))}
-            />
-        </div>
-    ) : type === 'network' ? (
-        <NetworkView {...props} />
-    ) : type === 'mindmap' ? (
-        <MindMapView {...props} />
-    ) : null}
-</div>
-        </div >
-    );
-}
