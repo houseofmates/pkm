@@ -1,5 +1,5 @@
 
-import { ViewProps } from './registry';
+import type { ViewProps } from './registry';
 import { Button } from '@/components/ui/button';
 import { Edit2, Trash2, MoreHorizontal, Calendar, CheckSquare } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
