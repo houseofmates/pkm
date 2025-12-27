@@ -5,50 +5,96 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/png" href="/favicon.png" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
   
-  <!-- Critical CSS to prevent FOUC -->
+  <!-- Preload critical resources -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap"></noscript>
+  
+  <!-- Critical CSS to prevent FOUC - loaded immediately -->
   <style>
-    * {
-      font-family: 'Varela Round', sans-serif !important;
-    }
-    
-    body {
-      background-color: #000000;
-      color: #ffffff;
+    /* Reset and base styles */
+    *, *::before, *::after {
+      box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Varela Round', sans-serif !important;
     }
     
+    html, body {
+      height: 100%;
+      font-family: 'Varela Round', system-ui, -apple-system, sans-serif;
+      background-color: #000000;
+      color: #ffffff;
+      overflow-x: hidden;
+    }
+    
+    /* Hide all content until React loads */
     #root {
       min-height: 100vh;
       background-color: #000000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     
-    /* Loading state */
+    /* Loading spinner */
     .loading {
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      min-height: 100vh;
+      gap: 1rem;
       background-color: #000000;
       color: #f6b012;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
+    }
+    
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid #333;
+      border-top: 3px solid #f6b012;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Font loading state */
+    .fonts-loading {
+      font-family: system-ui, -apple-system, sans-serif;
+    }
+    
+    .fonts-loaded {
+      font-family: 'Varela Round', system-ui, -apple-system, sans-serif;
     }
   </style>
   
   <title>pkm</title>
 </head>
 
-<body>
+<body class="fonts-loading">
   <div id="root">
     <div class="loading">
-      loading...
+      <div class="spinner"></div>
+      <span>Loading pkm...</span>
     </div>
   </div>
+  
+  <script>
+    // Font loading detection
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        document.body.classList.remove('fonts-loading');
+        document.body.classList.add('fonts-loaded');
+      });
+    }
+    
+    // Prevent layout shift
+    document.documentElement.style.visibility = 'visible';
+  </script>
+  
   <script type="module" src="/src/main.tsx"></script>
 </body>
 
