@@ -29,7 +29,6 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
     const displayImage = override.avatarUrl || member.content.avatarUrl;
 
     const displayTextColor = override.textColor || override.color || member.content.color || "white";
-    const customColor = override.color || member.content.color || "#ffffff";
 
     // Create a faded version of the color for inactive state (30% opacity)
     const getFadedColor = (color: string) => {

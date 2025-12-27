@@ -27,7 +27,7 @@ export function RootLayout() {
 
     // --- Global Drag State (Lifted from Navigation) ---
     // Synced with NocoBase 'pkm_settings' collection
-    const [sidebarItems, setSidebarItems, isLoadingSidebar] = useAppSetting<NavItem[]>('sidebar_items', []);
+    const [sidebarItems, setSidebarItems] = useAppSetting<NavItem[]>('sidebar_items', []);
 
     const [activeDragItem, setActiveDragItem] = useState<NavItem | null>(null);
 
