@@ -150,20 +150,51 @@ export function DashboardGrid() {
 
             const loadCanvasImage = async () => {
                 try {
-                    // 1. Construct Full URL if relative
-                    let fileUrl = savedCanvasData;
-                    if (savedCanvasData.startsWith('/')) {
-                        // savedCanvasData usually comes as /storage/uploads/...
-                        // APIS.nocobase.nativeUrl is https://db.houseofmates.space/api
-                        // We need https://db.houseofmates.space
-                        const baseUrl = APIS.nocobase.nativeUrl.replace(/\/api$/, '');
-                        fileUrl = `${baseUrl}${savedCanvasData}`;
-                        console.log("Resolved relative URL to:", fileUrl);
+                                // savedCanvasData may be a string (legacy) or an object { id, url, data }
+                    let fileUrl: string | null = null;
+                    let backupDataUrl: string | undefined;
+                    if (typeof savedCanvasData === 'string') {
+                        fileUrl = savedCanvasData;
+                    } else if (savedCanvasData && typeof savedCanvasData === 'object') {
+                        fileUrl = savedCanvasData.url || null;
+                        backupDataUrl = savedCanvasData.data;
+                    }
+
+                    // If we have inline data backup, use it first (this avoids auth/fetch issues)
+                    if (backupDataUrl) {
+                        try {
+                            const img = new Image();
+                            img.onload = () => {
+                                const ctx = canvasRef.current?.getContext('2d');
+                                if (ctx && canvasRef.current) {
+                                    ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+                                    ctx.drawImage(img, 0, 0);
+                                    lastSyncedUrlRef.current = fileUrl; // mark origin URL if present
+                                    console.log("Canvas loaded from inline data backup.");
+                                    if (undoStack.current.length === 0) saveSnapshot();
+                                }
+                            };
+                            img.src = backupDataUrl;
+                            return; // done
+                        } catch (e) {
+                            console.warn('Failed to load inline data backup', e);
+                        }
+                    }
+
+                    if (!fileUrl) {
+                        // Nothing to load
+                        return;
+                    }
+
+                    // If url is relative, attempt to resolve against window.location.origin
+                    if (fileUrl.startsWith('/')) {
+                        fileUrl = `${window.location.origin}${fileUrl}`;
                     }
 
                     // Fetch as Blob to report errors and handle CORS cleanly via ObjectURL
                     console.log("Fetching canvas blob from:", fileUrl);
-                    const response = await fetch(fileUrl);
+                    const headers: Record<string,string> = token ? { Authorization: `Bearer ${token}` } : {};
+                    const response = await fetch(fileUrl, { headers });
                     if (!response.ok) throw new Error(`Failed to fetch image: ${response.status} ${response.statusText}`);
                     const blob = await response.blob();
                     const objectUrl = URL.createObjectURL(blob);
@@ -175,7 +206,7 @@ export function DashboardGrid() {
                         if (ctx && canvasRef.current) {
                             ctx.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
                             ctx.drawImage(img, 0, 0);
-                            lastSyncedUrlRef.current = savedCanvasData;
+                            lastSyncedUrlRef.current = fileUrl;
                             URL.revokeObjectURL(objectUrl);
                             console.log("Canvas loaded successfully.");
                             // Initialize undo stack with this state if empty
