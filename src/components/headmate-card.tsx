@@ -68,15 +68,26 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
     useEffect(() => {
         let active = true;
         setImageError(false);
+        setBlobUrl(null);
 
-        const loadSecure = async () => {
+        const loadImage = async () => {
             if (!displayImage) {
-                setBlobUrl(null);
                 return;
             }
 
-            // Strategy 1: Relative storage URL (use Vite proxy to avoid CORS)
-            // This handles URLs like /storage/uploads/filename.jpg
+            // Strategy 1: Base64 data URL (stored directly, no fetch needed)
+            if (displayImage.startsWith('data:')) {
+                // Data URLs work directly, no processing needed
+                return;
+            }
+
+            // Strategy 2: External URL (Discord, etc.) - use directly
+            if (displayImage.startsWith('http')) {
+                // External URLs can be used directly as img src
+                return;
+            }
+
+            // Strategy 3: Relative storage URL - try proxy
             if (displayImage.startsWith('/storage/')) {
                 try {
                     const res = await fetch(displayImage);
@@ -84,57 +95,25 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
                         const blob = await res.blob();
                         if (active) setBlobUrl(URL.createObjectURL(blob));
                         return;
-                    } else {
-                        console.warn(`Failed to fetch from proxy: ${res.status}`);
                     }
                 } catch (e) {
-                    console.error("Failed to fetch via proxy", e);
+                    console.warn("Proxy fetch failed, will try direct URL");
                 }
             }
 
-            // Strategy 2: Full NocoBase URL - convert to proxy path
-            if (displayImage.includes('db.houseofmates.space/storage/')) {
-                try {
-                    // Extract the path after db.houseofmates.space
-                    const match = displayImage.match(/db\.houseofmates\.space(\/storage\/.*)/);                    if (match && match[1]) {
-                        const proxyUrl = match[1];
-                        const res = await fetch(proxyUrl);
-                        if (res.ok) {
-                            const blob = await res.blob();
-                            if (active) setBlobUrl(URL.createObjectURL(blob));
-                            return;
-                        }
-                    }
-                } catch (e) {
-                    console.error("Failed to fetch via converted proxy URL", e);
-                }
-            }
-
-            // Strategy 3: External/public URL (no proxy needed)
-            if (displayImage.startsWith('http') && !displayImage.includes('db.houseofmates.space')) {
-                // Just use the URL directly
-                setBlobUrl(null);
-                return;
-            }
-
-            // If we get here, all strategies failed
-            if (active) {
+            // If nothing worked and it's not a data/http URL, mark as error
+            if (active && !displayImage.startsWith('data:') && !displayImage.startsWith('http')) {
                 setImageError(true);
-                console.warn('All image loading strategies failed for:', displayImage);
             }
         };
 
-        loadSecure();
+        loadImage();
         return () => { 
             active = false;
-            // Clean up blob URL to prevent memory leaks
-            if (blobUrl) {
-                URL.revokeObjectURL(blobUrl);
-            }
         };
     }, [displayImage]);
 
-    // Clean up blob URL when component unmounts
+    // Clean up blob URL when it changes or component unmounts
     useEffect(() => {
         return () => {
             if (blobUrl) {
@@ -143,6 +122,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
         };
     }, [blobUrl]);
 
+    // For data URLs and http URLs, use directly; for blob URLs use those
     const finalImageSrc = blobUrl || (!imageError ? displayImage : null);
 
     return (
