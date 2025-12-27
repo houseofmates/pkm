@@ -14,7 +14,7 @@ import * as React from 'react';
 export type ViewType = 'table' | 'calendar' | 'kanban' | 'gallery' | 'gantt' | 'chart' | 'network' | 'mindmap' | 'list' | 'journal';
 
 export type ViewProps = {
-    data?: any[];
+    data: any[];
     loading?: boolean;
     collection?: any;
     config?: any;
