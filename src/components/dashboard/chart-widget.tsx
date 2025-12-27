@@ -24,6 +24,7 @@ interface ChartProps {
 // Mock Data if none provided
 // Mock Data removed
 const MOCK_DATA: any[] = [];
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'value', color = '#8884d8', seriesKeys, stacked, seriesType, seriesTypes, seriesOrder, legendCollapsed }: ChartProps) {
     if (!data || data.length === 0) {
