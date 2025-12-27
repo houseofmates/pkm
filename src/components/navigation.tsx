@@ -120,7 +120,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
                         <Button
                             variant={selected ? "secondary" : "ghost"}
                             className={cn(
-                                "flex-1 justify-start text-sm font-normal lowercase h-8 px-2 overflow-hidden",
+                                "flex-1 justify-start text-lg font-normal lowercase h-8 px-2 overflow-hidden",
                                 selected && "bg-accent font-medium shadow-sm",
                                 item.type === 'folder' && "font-semibold text-muted-foreground"
                             )}
