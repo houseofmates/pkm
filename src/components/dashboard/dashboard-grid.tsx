@@ -378,13 +378,20 @@ export function DashboardGrid() {
             const cropCtx = cropCanvas.getContext('2d')!;
             cropCtx.putImageData(imageData, 0, 0);
 
-            setFloatingSelection({
+            const newFloating = {
                 image: cropCanvas.toDataURL(),
                 x: minX,
                 y: minY,
                 w,
                 h
-            });
+            };
+            setFloatingSelection(newFloating);
+            // Persist floating selection so it can be resumed on another device
+            try {
+                setSavedFloatingSelection(JSON.stringify(newFloating));
+            } catch (e) {
+                console.error('Failed to save floating selection:', e);
+            }
             setLassoPoints([]);
         }
     };
