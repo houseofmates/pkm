@@ -72,7 +72,11 @@ export function DashboardGrid() {
 
     // Synced Canvas Data
     const [savedCanvasData, setSavedCanvasData] = useAppSetting<string>('dashboard_canvas_data', '');
+    // Persist floating selection separately so it can be resumed across devices
+    const [savedFloatingSelection, setSavedFloatingSelection] = useAppSetting<string | null>('dashboard_floating_selection', null);
+
     const lastSyncedUrlRef = useRef<string>('');
+    const canvasDirtyRef = useRef(false);
 
     // Internal helper to save current state to undo stack
     const saveSnapshot = useCallback(() => {
