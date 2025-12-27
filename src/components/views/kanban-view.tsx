@@ -100,7 +100,7 @@ export function KanbanView({ data, collection, config }: KanbanViewProps) {
             <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-muted/20 rounded-lg border">
                 <div className="flex flex-col items-center gap-2">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    <p className="text-sm">Loading kanban metadata...</p>
+                    <p className="text-sm">loading kanban metadata...</p>
                 </div>
             </div>
         );
@@ -269,8 +269,8 @@ export function KanbanView({ data, collection, config }: KanbanViewProps) {
         return (
             <div className="flex h-full items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg bg-muted/10">
                 <div className="text-center">
-                    <p>No Group By field selected.</p>
-                    <p className="text-sm">Open View Settings to configure.</p>
+                    <p>no group by field selected.</p>
+                    <p className="text-sm">open view settings to configure.</p>
                 </div>
             </div>
         );
