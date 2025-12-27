@@ -420,17 +420,45 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
         )
     }
 
-    if (isPhone) return <a href={`tel:${value}`} className="text-primary hover:underline flex items-center gap-1" onClick={e => e.stopPropagation()}><Phone className="h-3 w-3" /> {value}</a>;
-    if (isEmail) return <a href={`mailto:${value}`} className="text-primary hover:underline flex items-center gap-1" onClick={e => e.stopPropagation()}><Mail className="h-3 w-3" /> {value}</a>;
+    if (isPhone) {
+        return (
+            <div
+                className="text-primary hover:underline flex items-center gap-1 cursor-pointer font-mono text-xs"
+                onClick={(e) => handlePhoneClick(e, strValue)}
+            >
+                <Phone className="h-3 w-3" />
+                {formatPhoneNumber(strValue)}
+            </div>
+        );
+    }
+
+    if (isEmail) {
+        return (
+            <a
+                href={`mailto:${strValue}`}
+                className="text-primary hover:underline flex items-center gap-1 truncate max-w-[200px]"
+                onClick={e => e.stopPropagation()}
+            >
+                <Mail className="h-3 w-3" />
+                {strValue}
+            </a>
+        );
+    }
+
     if (isUrl) return <a href={value} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline flex items-center gap-1 truncate max-w-[150px]" onClick={e => e.stopPropagation()}><LinkIcon className="h-3 w-3" /> {value}</a>;
 
     if (isDate) return <div onClick={() => setIsEditing(true)} className="cursor-pointer text-xs">{formatDate(value)} {formatTime(value)}</div>;
 
-    if (isPassword) { /* ... */
+    if (isPassword) {
         return (
-            <div onClick={() => setIsEditing(true)} className="cursor-pointer flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors">
+            <div
+                onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
+                className="cursor-pointer flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors group"
+                title="Click to edit/reveal"
+            >
                 <Lock className="h-3 w-3" />
-                <span className="font-mono text-xs">••••••••</span>
+                <span className="font-mono text-xs group-hover:hidden">••••••••</span>
+                <span className="font-mono text-[10px] hidden group-hover:inline opacity-50">{strValue.slice(0, 1)}***{strValue.slice(-1)}</span>
             </div>
         );
     }
