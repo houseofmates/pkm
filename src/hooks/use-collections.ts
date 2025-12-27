@@ -17,6 +17,9 @@ export function useCollections() {
             // NocoBase sometimes wraps the list in data.data or just data
             const rawCollections = Array.isArray(response.data) ? response.data : (response?.data as any)?.data || [];
 
+            // Debugging: list names returned by server so we can see if proxy/auth is returning nothing
+            console.log('[useCollections] fetched collections:', rawCollections.map((c: any) => c.name).join(', '));
+
             const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers'];
 
             // Defensive: if the pkm_settings collection exists but isn't hidden, attempt to mark it hidden on the server
@@ -41,8 +44,8 @@ export function useCollections() {
                 // Exclude known system names
                 if (systemCollections.includes(name)) return false;
 
-                // Explicitly exclude pkm_settings by name/title
-                if (name === 'pkm_settings' || title === 'pkm settings' || title === 'pkm settings') return false;
+                // Explicitly exclude only the pkm_settings collection (exact match) or exact title 'pkm settings'
+                if (name === 'pkm_settings' || title === 'pkm settings') return false;
 
                 // Exclude hidden collections
                 if (col.hidden) return false;
