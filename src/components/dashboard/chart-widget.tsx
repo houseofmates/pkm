@@ -67,7 +67,7 @@ export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yK
                         dataKey={yKey}
                         nameKey={xKey}
                     >
-                        {data.map((entry, index) => (
+                        {data.map((_, index) => (
                             <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
                     </Pie>
