@@ -63,11 +63,20 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
             }}
             className={cn(
                 "aspect-square relative overflow-hidden group cursor-pointer transition-all duration-300",
+                "!border-none",
                 isActive ? "scale-[1.1] z-10" : "",
                 className
             )}
             {...props}
         >
+            {/* Wrapper div to handle the border since Card's border class interferes */}
+            <div 
+                className="absolute inset-0 pointer-events-none z-50"
+                style={{
+                    border: `${isActive ? "4px" : "2px"} solid ${isActive ? displayTextColor : fadedColor}`,
+                    borderRadius: "inherit"
+                }}
+            />
             {/* Background Image */}
             <div className="absolute inset-0 bg-muted/30">
                 {displayImage ? (
