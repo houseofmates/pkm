@@ -133,27 +133,64 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
 
     // --- Helper for Type Detection ---
     // Mapping complex user requests to NocoBase/Generic types
-    const type = field?.interface || field?.type || 'string';
+    const baseType = field?.interface || field?.type || 'string';
     const name = field?.name?.toLowerCase() || '';
+    const strValue = String(value || '');
 
-    const isLocation = type === 'location' || name.includes('location') || name.includes('map');
-    const isPhone = type === 'phone' || name.includes('phone');
-    const isEmail = type === 'email' || name.includes('email');
-    const isPassword = type === 'password' || name.includes('password');
-    const isColor = type === 'color' || name.includes('color');
-    const isCheckbox = type === 'boolean' || type === 'checkbox';
-    const isSelect = type === 'select' || type === 'multipleSelect';
-    const isCode = type === 'code' || name === 'code';
-    const isMarkdown = type === 'markdown' || type === 'richText' || name.includes('desc') || name.includes('note');
-    const isNumber = type === 'number' || type === 'integer' || type === 'percent';
-    const isUrl = type === 'url' || type === 'link' || name.includes('link') || name.includes('url');
-    const isFile = type === 'attachment' || name.includes('file') || name.includes('image') || name.includes('avatar');
-    const isDate = type === 'datetime' || type === 'date' || name.includes('date') || name.includes('created');
+    // Enhanced Detection: If it's a generic string, check content
+    const detectedType = (() => {
+        if (baseType !== 'string' && baseType !== 'text' && baseType !== 'input') return baseType;
 
-    const isId = name === 'id' || name === 'uuid' || type === 'uid';
-    const isRelation = type === 'relation' || type === 'linkToAnotherRecord' || (field?.interface === 'linkToAnotherRecord'); // NocoBase specific
+        // Email detection (even if no .com)
+        if (/[^\s@]+@[^\s@]+\.[^\s@]+/.test(strValue)) return 'email';
+
+        // Phone detection (10 digits)
+        const digits = strValue.replace(/\D/g, '');
+        if (digits.length === 10) return 'phone';
+
+        // Password/Secret detection (4+ digits, no decimals)
+        if (strValue.length >= 4 && /^\d+$/.test(strValue)) return 'password';
+
+        return baseType;
+    })();
+
+    const isLocation = detectedType === 'location' || detectedType === 'point' || detectedType === 'map' || name.includes('location') || name.includes('map');
+    const isPhone = detectedType === 'phone' || name.includes('phone');
+    const isEmail = detectedType === 'email' || name.includes('email');
+    const isPassword = detectedType === 'password' || name.includes('password');
+    const isColor = detectedType === 'color' || name.includes('color');
+    const isCheckbox = detectedType === 'boolean' || detectedType === 'checkbox';
+    const isSelect = detectedType === 'select' || detectedType === 'multipleSelect';
+    const isCode = detectedType === 'code' || name === 'code';
+    const isMarkdown = detectedType === 'markdown' || detectedType === 'richText' || name.includes('desc') || name.includes('note');
+    const isNumber = detectedType === 'number' || detectedType === 'integer' || detectedType === 'percent';
+    const isUrl = detectedType === 'url' || detectedType === 'link' || name.includes('link') || name.includes('url');
+    const isFile = detectedType === 'attachment' || name.includes('file') || name.includes('image') || name.includes('avatar');
+    const isDate = detectedType === 'datetime' || detectedType === 'date' || name.includes('date') || name.includes('created');
+
+    const isId = name === 'id' || name === 'uuid' || detectedType === 'uid';
+    const isRelation = detectedType === 'relation' || detectedType === 'linkToAnotherRecord' || (field?.interface === 'linkToAnotherRecord'); // NocoBase specific
 
     // --- SPECIAL FORMATTERS ---
+    const formatPhoneNumber = (val: string) => {
+        const d = val.replace(/\D/g, '');
+        if (d.length === 10) {
+            return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
+        }
+        return val;
+    };
+
+    const handlePhoneClick = (e: React.MouseEvent, val: string) => {
+        e.stopPropagation();
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (isMobile) {
+            window.location.href = `tel:${val.replace(/\D/g, '')}`;
+        } else {
+            navigator.clipboard.writeText(val.replace(/\D/g, ''));
+            toast.success(`Copied ${formatPhoneNumber(val)} to clipboard`);
+        }
+    };
+
     const formatDate = (dateStr: string) => {
         if (!dateStr) return '';
         try {
