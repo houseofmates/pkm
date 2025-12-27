@@ -17,6 +17,8 @@ export function ChartView({ data, collection, config, onConfigChange }: ViewProp
     const yField = config?.chartY || null;
     const stacked = !!config?.chartStacked;
 const seriesType = config?.chartSeriesType || null; // global series display override (bar/line/area)
+
+    const chartData = useMemo(() => {
         if (!seriesField) {
             // Simple single-series aggregation by X
             const map = new Map<string, number>();
