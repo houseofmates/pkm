@@ -470,6 +470,8 @@ export function DashboardGrid() {
             // Persist floating selection so it can be resumed on another device
             try {
                 setSavedFloatingSelection(JSON.stringify(newFloating));
+                // Fire-and-forget flush to make sure it's on the server quickly
+                flushSavedFloating?.(JSON.stringify(newFloating)).catch((e) => console.error('flush floating failed', e));
             } catch (e) {
                 console.error('Failed to save floating selection:', e);
             }
