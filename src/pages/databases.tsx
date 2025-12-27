@@ -25,12 +25,15 @@ import {
     arrayMove,
     SortableContext,
     sortableKeyboardCoordinates,
-    verticalListSortingStrategy,
     rectSortingStrategy,
     useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import type { Collection } from '@/types/nocobase';
+
+interface DatabasesPageProps {
+    onSelect?: (name: string) => void;
+}
 
 interface SortableDatabaseItemProps {
     collection: Collection;
