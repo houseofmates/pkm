@@ -45,242 +45,202 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
     const fetchRemoteId = useCallback(async () => {
         if (!token) return null;
         try {
-            return data[0].id; // Return the ID
-        }
+            const response = await apiRequest('nocobase', '/pkm_settings', {
+                headers: getHeaders(),
+                params: {
+                    filter: JSON.stringify({ key: { $eq: key } }),
+                    pageSize: '1',
+                    fields: 'id,key',
+                }
+            });
+
+            const data = response?.data || [];
+            if (data.length > 0 && data[0].id) {
+                return data[0].id;
             }
         } catch (e) {
-    // Silently fail, it's just a discovery helper
-}
-return null;
+            // Silently fail, it's just a discovery helper
+        }
+        return null;
     }, [key, token, getHeaders]);
 
-// Helper: Create the collection if missing
-const ensureCollectionExists = useCallback(async () => {
-    try {
-        await apiRequest('nocobase', '/collections', {
-            method: 'POST',
-            headers: getHeaders(),
-            data: {
-                name: 'pkm_settings',
-                title: 'PKM Settings',
-                fields: [
-                    { name: 'key', type: 'string', unique: true },
-                    { name: 'value', type: 'json' }
-                ],
-                hidden: true
-            }
-        });
-        // Wait a moment for propagation
-        await new Promise(r => setTimeout(r, 1000));
-        return true;
-    } catch (err: any) {
-        // If it already exists, that's fine too
-        if (err.message?.includes('exists')) return true;
-        console.error("Failed to create pkm_settings:", err);
-        return false;
-    }
-}, [getHeaders]);
-
-// Fetch from Backend on mount
-const fetchSetting = useCallback(async () => {
-    // Double-check localStorage as well to avoid stale closures
-    if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) return;
-    setLoading(true);
-    try {
-        const response = await apiRequest('nocobase', '/pkm_settings', {
-            headers: getHeaders(),
-            params: {
-                filter: JSON.stringify({ key: { $eq: key } }),
-                pageSize: '1',
-            }
-        });
-
-        const data = response?.data || [];
-        if (data.length > 0) {
-            const setting = data[0];
-            settingIdRef.current = setting.id;
-
-            // Backend wins on initial load
-            if (setting.value !== undefined) {
-                setValue(setting.value);
-                localStorage.setItem(`pkm_setting:${key}`, JSON.stringify(setting.value));
-            }
+    // Helper: Create the collection if missing
+    const ensureCollectionExists = useCallback(async () => {
+        try {
+            await apiRequest('nocobase', '/collections', {
+                method: 'POST',
+                headers: getHeaders(),
+                data: {
+                    name: 'pkm_settings',
+                    title: 'PKM Settings',
+                    fields: [
+                        { name: 'key', type: 'string', unique: true },
+                        { name: 'value', type: 'json' }
+                    ],
+                    hidden: true
+                }
+            });
+            // Wait a moment for propagation
+            await new Promise(r => setTimeout(r, 1000));
+            return true;
+        } catch (err: any) {
+            // If it already exists, that's fine too
+            if (err.message?.includes('exists')) return true;
+            return false;
         }
-    } catch (err: any) {
-        const msg = err.message || '';
-        // If collection missing (404), likely first run, ignore.
-        if (!msg.includes('404')) {
-            console.error(`Failed to fetch setting ${key}:`, err);
+    }, [getHeaders]);
+
+    // Fetch from Backend on mount
+    const fetchSetting = useCallback(async () => {
+        if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) return;
+        setLoading(true);
+        try {
+            const response = await apiRequest('nocobase', '/pkm_settings', {
+                headers: getHeaders(),
+                params: {
+                    filter: JSON.stringify({ key: { $eq: key } }),
+                    pageSize: '1',
+                }
+            });
+
+            const data = response?.data || [];
+            if (data.length > 0) {
+                const setting = data[0];
+                settingIdRef.current = setting.id;
+
+                if (setting.value !== undefined) {
+                    setValue(setting.value);
+                    localStorage.setItem(`pkm_setting:${key}`, JSON.stringify(setting.value));
+                }
+            }
+        } catch (err: any) {
+            const msg = err.message || '';
+            if (!msg.includes('404')) {
+                // Ignore silent errors
+            }
+        } finally {
+            setLoading(false);
+            isFirstLoad.current = false;
         }
-    } finally {
-        setLoading(false);
-        isFirstLoad.current = false;
-    }
-}, [key, isAuthenticated, token, getHeaders]);
+    }, [key, isAuthenticated, token, getHeaders]);
 
-// Initial Load
-useEffect(() => {
-    fetchSetting();
-}, [fetchSetting]);
+    // Initial Load
+    useEffect(() => {
+        fetchSetting();
+    }, [fetchSetting]);
 
-// Save to Backend (Debounced)
-const updateValue = useCallback((newValue: T | ((val: T) => T)) => {
-    setValue((prev) => {
-        const resolvedValue = newValue instanceof Function ? newValue(prev) : newValue;
+    // Save to Backend (Debounced)
+    const updateValue = useCallback((newValue: T | ((val: T) => T)) => {
+        setValue((prev) => {
+            const resolvedValue = newValue instanceof Function ? newValue(prev) : newValue;
+            localStorage.setItem(`pkm_setting:${key}`, JSON.stringify(resolvedValue));
 
-        // 1. Update Local Storage Immediately
-        localStorage.setItem(`pkm_setting:${key}`, JSON.stringify(resolvedValue));
+            if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+            saveTimeoutRef.current = setTimeout(async () => {
+                if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) return;
+                const headers = getHeaders();
 
-        // 2. Debounce Save to Backend
-        if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
+                const performSave = async (valueToSave: any, retryCount = 0): Promise<void> => {
+                    try {
+                        if (settingIdRef.current) {
+                            await apiRequest('nocobase', `/pkm_settings/${settingIdRef.current}`, {
+                                method: 'PUT',
+                                headers,
+                                data: { value: valueToSave }
+                            });
+                            return;
+                        }
 
-        saveTimeoutRef.current = setTimeout(async () => {
-            // Double-check localStorage as well to avoid stale closures
-            if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) return;
-
-            const headers = getHeaders();
-
-            const performSave = async (valueToSave: any, retryCount = 0): Promise<void> => {
-                try {
-                    // Strategy: Always try to use ID if we have it
-                    if (settingIdRef.current) {
-                        headers,
-                            data: { value: valueToSave }
-                    });
-        return;
-    }
-
-                        // No ID, try CREATE (POST)
                         const response = await apiRequest('nocobase', '/pkm_settings', {
-        method: 'POST',
-        headers,
-        data: { key, value: valueToSave },
-        silent: true
-    });
-    if (response?.data?.id) {
-        settingIdRef.current = response.data.id;
-    }
-    return;
-} catch (err: any) {
-    const errMsg = (err.message || JSON.stringify(err)).toLowerCase();
-    if (!errMsg.includes('exists') && !errMsg.includes('unique') && !errMsg.includes('400')) {
-        console.warn(`[useAppSetting] Save error for ${key}:`, errMsg);
-    }
+                            method: 'POST',
+                            headers,
+                            data: { key, value: valueToSave },
+                            silent: true
+                        });
+                        if (response?.data?.id) {
+                            settingIdRef.current = response.data.id;
+                        }
+                    } catch (err: any) {
+                        const errMsg = (err.message || JSON.stringify(err)).toLowerCase();
 
-    // Case 1: Key already exists (400) -> Use Filter-Based Update (since ID might be hidden)
-    if (errMsg.includes('exists') || errMsg.includes('unique') || errMsg.includes('400')) {
-        await apiRequest('nocobase', '/pkm_settings:update', {
-            method: 'POST',
-            headers,
-            params: {
-                filter: JSON.stringify({ key })
-            },
-            data: { value: valueToSave },
-            silent: true
-        });
-        return;
-    }
+                        if (errMsg.includes('exists') || errMsg.includes('unique') || errMsg.includes('400')) {
+                            await apiRequest('nocobase', '/pkm_settings:update', {
+                                method: 'POST',
+                                headers,
+                                params: { filter: JSON.stringify({ key }) },
+                                data: { value: valueToSave },
+                                silent: true
+                            });
+                            return;
+                        }
 
-    // Case 2: Collection not found (404) -> Create collection and retry
-    if (errMsg.includes('404') || errMsg.includes('not found') || errMsg.includes('relation "pkm_settings" does not exist')) {
-        if (retryCount < 1) { // Only try creating collection once
-            const created = await ensureCollectionExists();
-            if (created) return performSave(valueToSave, retryCount + 1);
-        }
-    }
-
-    // Only log real errors (skip 404s if we handled them)
-    console.error(`Failed to save setting ${key} (attempt ${retryCount}):`, err);
-    throw err;
-}
+                        if (errMsg.includes('404') || errMsg.includes('not found') || errMsg.includes('relation "pkm_settings"')) {
+                            if (retryCount < 1) {
+                                const created = await ensureCollectionExists();
+                                if (created) return performSave(valueToSave, retryCount + 1);
+                            }
+                        }
+                    }
                 };
 
-// Chain into serial promise to avoid races between multiple debounced saves or flushes
-savePromiseRef.current = (savePromiseRef.current || Promise.resolve()).then(() => performSave(resolvedValue)).catch(e => { console.error('save chain error', e); });
+                savePromiseRef.current = (savePromiseRef.current || Promise.resolve()).then(() => performSave(resolvedValue)).catch(() => { });
+            }, debounceMs);
 
-            }, debounceMs); // configurable debounce
-
-return resolvedValue;
+            return resolvedValue;
         });
-    }, [key, isAuthenticated, token, getHeaders, fetchRemoteId, ensureCollectionExists]);
+    }, [key, isAuthenticated, token, getHeaders, ensureCollectionExists]);
 
-// Immediate flush function (returns a promise) to persist current value to backend
-const flush = useCallback(async (valueToSave?: T) => {
-    if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) {
-        return;
-    }
-    const headers = getHeaders();
-    const toSave = valueToSave === undefined ? valueRef.current : valueToSave;
+    const flush = useCallback(async (valueToSave?: T) => {
+        if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) return;
+        const headers = getHeaders();
+        const toSave = valueToSave === undefined ? valueRef.current : valueToSave;
 
-    const attemptUpsert = async (attempt = 1): Promise<void> => {
-        try {
-            // Try update by known ID
-            if (settingIdRef.current) {
-                console.log(`[useAppSetting] Flush: Updating existing ${key} (ID: ${settingIdRef.current})`);
-                await apiRequest('nocobase', `/pkm_settings/${settingIdRef.current}`, {
-                    method: 'PUT',
-                    headers,
-                    data: { value: toSave }
-                });
-                console.log(`[useAppSetting] Flush: Update success for ${key}`);
-                return;
-            }
+        const attemptUpsert = async (attempt = 1): Promise<void> => {
+            try {
+                if (settingIdRef.current) {
+                    await apiRequest('nocobase', `/pkm_settings/${settingIdRef.current}`, {
+                        method: 'PUT',
+                        headers,
+                        data: { value: toSave }
+                    });
+                    return;
+                }
 
-            // Try create
-            console.log(`[useAppSetting] Flush: Creating new ${key}`);
-            const response = await apiRequest('nocobase', '/pkm_settings', {
-                method: 'POST',
-                headers,
-                data: { key, value: toSave },
-                silent: true
-            });
-            if (response?.data?.id) {
-                settingIdRef.current = response.data.id;
-                console.log(`[useAppSetting] Flush: Create success, ID assigned: ${settingIdRef.current}`);
-            }
-            return;
-        } catch (err: any) {
-            const errMsg = (err.message || JSON.stringify(err)).toLowerCase();
-            if (!errMsg.includes('exists') && !errMsg.includes('unique') && !errMsg.includes('400')) {
-                console.warn(`[useAppSetting] Flush error for ${key}:`, errMsg);
-            }
-
-            // 400 conflict -> Use Filter-Based Update
-            if (attempt < 2 && (errMsg.includes('exists') || errMsg.includes('unique') || errMsg.includes('400'))) {
-                await apiRequest('nocobase', '/pkm_settings:update', {
+                const response = await apiRequest('nocobase', '/pkm_settings', {
                     method: 'POST',
                     headers,
-                    params: {
-                        filter: JSON.stringify({ key })
-                    },
-                    data: { value: toSave },
+                    data: { key, value: toSave },
                     silent: true
                 });
-                return;
+                if (response?.data?.id) {
+                    settingIdRef.current = response.data.id;
+                }
+            } catch (err: any) {
+                const errMsg = (err.message || JSON.stringify(err)).toLowerCase();
+
+                if (attempt < 2 && (errMsg.includes('exists') || errMsg.includes('unique') || errMsg.includes('400'))) {
+                    await apiRequest('nocobase', '/pkm_settings:update', {
+                        method: 'POST',
+                        headers,
+                        params: { filter: JSON.stringify({ key }) },
+                        data: { value: toSave },
+                        silent: true
+                    });
+                    return;
+                }
+
+                if (attempt < 2 && (errMsg.includes('404') || errMsg.includes('not found') || errMsg.includes('collection'))) {
+                    const ok = await ensureCollectionExists();
+                    if (ok) return attemptUpsert(attempt + 1);
+                }
+                throw err;
             }
+        };
 
-            // 404 / missing collection -> create and retry
-            if (attempt < 2 && (errMsg.includes('404') || errMsg.includes('not found') || errMsg.includes('collection'))) {
-                console.log(`[useAppSetting] Flush: Collection missing. creating...`);
-                const ok = await ensureCollectionExists();
-                if (ok) return attemptUpsert(attempt + 1);
-            }
+        savePromiseRef.current = (savePromiseRef.current || Promise.resolve()).then(() => attemptUpsert()).catch(() => { });
+        return savePromiseRef.current;
+    }, [isAuthenticated, token, getHeaders, ensureCollectionExists, key]);
 
-            throw err;
-        }
-    };
-
-    // Serialize flushes
-    savePromiseRef.current = (savePromiseRef.current || Promise.resolve()).then(() => attemptUpsert()).catch(e => {
-        console.error('[useAppSetting] Flush chain failed:', e);
-        // We don't rethrow here to prevent unhandled rejection crashes, but we rely on toast in caller
-        throw e;
-    });
-    return savePromiseRef.current;
-}, [isAuthenticated, token, getHeaders, fetchRemoteId, ensureCollectionExists, key]);
-
-// Save flush function in ref for external use if needed
-flushRef.current = flush;
-
-return [value, updateValue, loading, flush] as const;
+    flushRef.current = flush;
+    return [value, updateValue, loading, flush] as const;
 }
