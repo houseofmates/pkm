@@ -473,7 +473,13 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
                                                 }}>Right</button>
                                             </div>
                                         </div>
-    }
+                                    ))}
+                                </div>
+                            </DialogContent>
+                        </Dialog>
+                    </>
+                )
+            }
 
     if (isSelect) { /* ... */
         return (
