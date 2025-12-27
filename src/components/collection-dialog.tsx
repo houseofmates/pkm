@@ -407,6 +407,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                                                                     ))}
                                                                 </SelectContent>
                                                             </Select>
+                                                        )}
                                                         {field.interface === 'formula' && (
                                                             <Input
                                                                 className="h-8 text-xs border-primary/50 bg-primary/5 font-mono"
