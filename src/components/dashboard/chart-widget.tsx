@@ -62,7 +62,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
                     <Select onValueChange={(v) => triggerConfig(targetKey, v)}>
                         <SelectTrigger className="w-[200px] bg-background/90 backdrop-blur shadow-lg border-dashed border-primary/50">
                             <PlusCircle className="mr-2 h-4 w-4 text-primary" />
-                            <SelectValue placeholder={label || "Configure Data"} />
+                            <SelectValue placeholder={label || "configure data"} />
                         </SelectTrigger>
                         <SelectContent>
                             {columns.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
