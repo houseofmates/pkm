@@ -25,7 +25,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
     if (this.state.hasError) {
       return (
         <div style={{ padding: '2rem', color: 'red', fontFamily: 'monospace', zIndex: 9999, position: 'relative' }}>
-          <h1>Something went wrong.</h1>
+          <h1>something went wrong.</h1>
           <pre>{this.state.error?.toString()}</pre>
           <pre>{this.state.error?.stack}</pre>
         </div>
@@ -47,5 +47,5 @@ try {
   );
 } catch (e) {
   console.error("Root Render Failed:", e);
-  document.body.innerHTML = "<h1>Root Render Failed</h1>";
+  document.body.innerHTML = "<h1>root render failed</h1>";
 }
