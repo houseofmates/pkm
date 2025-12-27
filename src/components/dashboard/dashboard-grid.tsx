@@ -169,6 +169,7 @@ export function DashboardGrid() {
                     // If we have inline data backup, use it first (this avoids auth/fetch issues)
                     if (backupDataUrl) {
                         try {
+                            console.log("Prioritizing inline data backup for canvas restoration...");
                             const img = new Image();
                             img.onload = () => {
                                 const ctx = canvasRef.current?.getContext('2d');
