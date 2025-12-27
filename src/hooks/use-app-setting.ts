@@ -80,6 +80,8 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
 
     // Save to Backend (Debounced)
     const saveTimeoutRef = useRef<any>(null);
+    // Serialize saves to avoid internal race conditions
+    const lastSavePromiseRef = useRef<Promise<any> | null>(null);
 
     const updateValue = useCallback((newValue: T | ((val: T) => T)) => {
         setValue((prev) => {
