@@ -16,7 +16,8 @@ describe('useCollections filtering', () => {
         { name: 'pkm-settings', title: 'PKM Settings', hidden: false },
         { name: 'public', title: 'Public' },
         { name: 'private', title: 'Private', hidden: true }
-      ] }))
+      ] })),
+      updateCollection: vi.fn(async (name: string, data: any) => ({ data: { name, ...data } }))
     };
 
     (useAuth as any).mockReturnValue({ client: mockClient, isAuthenticated: true });
