@@ -89,6 +89,11 @@ export async function apiRequest(type: ApiType, endpoint: string, options: Parti
             });
 
             if (!response.ok) {
+                if (response.status === 401) {
+                    localStorage.removeItem('token');
+                    window.dispatchEvent(new Event('auth-error'));
+                }
+
                 const text = await response.text();
                 let parsed: any = text;
                 try { parsed = JSON.parse(text); } catch (e) { /* keep raw text */ }
