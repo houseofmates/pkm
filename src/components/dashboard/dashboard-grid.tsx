@@ -407,6 +407,8 @@ export function DashboardGrid() {
             ctx.drawImage(img, floatingSelection.x, floatingSelection.y, floatingSelection.w, floatingSelection.h);
             saveCanvas();
             setFloatingSelection(null);
+            // Remove persisted floating selection after it's pasted
+            try { setSavedFloatingSelection(null); } catch (e) { /* ignore */ }
         };
         img.src = floatingSelection.image;
     };
