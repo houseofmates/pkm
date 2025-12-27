@@ -17,15 +17,8 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    if (this.state.hasError) {
-      return (
-        <div style={{ padding: '2rem', color: 'red', fontFamily: 'monospace', zIndex: 9999, position: 'relative' }}>
-          <h1>Something went wrong.</h1>
-          <pre>{this.state.error?.toString()}</pre>
-          <pre>{this.state.error?.stack}</pre>
-        </div>
-      );
-    }
+    // We let ErrorBoundary handle the UI, but we can log for debugging if needed.
+    // console.error("Uncaught error:", error, errorInfo);
   }
 
   render() {
