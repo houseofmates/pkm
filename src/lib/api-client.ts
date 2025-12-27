@@ -57,7 +57,7 @@ export async function apiRequest(type: ApiType, endpoint: string, options: Parti
             return response.data;
 
         } catch (error: any) {
-            if (!options.silent) {
+            if (options.silent !== true) {
                 console.error(`[Native API] ${type} request failed:`, error);
             }
             throw error;
@@ -130,7 +130,7 @@ export async function apiRequest(type: ApiType, endpoint: string, options: Parti
             }
 
         } catch (error: any) {
-            if (!options.silent) {
+            if (options.silent !== true) {
                 console.error(`[Web API] ${type} request failed:`, error);
             }
             throw error;
