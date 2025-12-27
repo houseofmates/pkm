@@ -37,7 +37,8 @@ export function DashboardGrid() {
     // Widgets (Synced to Backend)
     const [widgets, setWidgets] = useAppSetting<WidgetDefinition[]>('dashboard_widgets', []);
     const { collections } = useCollections();
-    const { client, token } = useAuth();
+    const { client, token, isAuthenticated, login } = useAuth();
+    const [apiKey, setApiKey] = useState('');
     const [isEditMode, setIsEditMode] = useState(true);
     const containerRef = useRef<HTMLDivElement>(null);
     const [addMenuOpen, setAddMenuOpen] = useState(false);
