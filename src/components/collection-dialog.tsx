@@ -218,7 +218,10 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                                 }
                             });
                             uiSchema.enum = Array.from(uniqueValues).map(v => ({ label: v, value: v }));
-                            uiSchema['x-component'] = field.interface === 'select' ? 'Select' : 'RecordPicker'; // multipleSelect uses RecordPicker or Select
+                            uiSchema['x-component'] = 'Select';
+                            if (field.interface === 'multipleSelect') {
+                                uiSchema['x-component-props'] = { mode: 'multiple' };
+                            }
                         } else if (field.interface === 'text') {
                             const isLong = csvData.some(row => String(row[field.title] || '').length > 200);
                             uiSchema['x-component'] = isLong ? 'Input.TextArea' : 'Input';
