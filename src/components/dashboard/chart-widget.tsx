@@ -392,8 +392,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
                 <div className="text-5xl font-bold tracking-tighter text-primary">
                     {val.toLocaleString()}
                 </div>
-                <div className="flex items-center gap-1 text-xs text-green-500 mt-2">
-                    +12% <span className="text-muted-foreground">vs last period (mock)</span>
+                <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2 opacity-0">
+                    {/* Placeholder for future trends */}
                 </div>
             </div>
         );
