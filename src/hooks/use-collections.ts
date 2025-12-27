@@ -20,12 +20,18 @@ export function useCollections() {
             const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers', 'pkm_settings'];
 
             const filteredCollections = rawCollections.filter((col: Collection) => {
+                const name = col.name?.toLowerCase() || '';
+                const title = col.title?.toLowerCase() || '';
+
                 // Exclude known system names
                 if (systemCollections.includes(col.name)) return false;
+
                 // Exclude hidden collections
                 if (col.hidden) return false;
-                // Exclude pkm_settings variants
-                if (col.name.includes('pkm_settings') || col.title?.toLowerCase() === 'pkm settings') return false;
+
+                // Aggressive hiding for pkm_settings
+                if (name.includes('pkm_settings') || name === 'pkm_settings') return false;
+                if (title === 'pkm settings' || title.includes('pkm settings')) return false;
 
                 return true;
             });
