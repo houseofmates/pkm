@@ -61,7 +61,7 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="sm:max-w-[600px] gap-0 p-0 overflow-hidden bg-background/95 backdrop-blur-xl border-primary/20">
                 <DialogHeader className="px-4 py-4 border-b">
-                    <DialogTitle className="hidden">Search</DialogTitle>
+                    <DialogTitle className="hidden">search</DialogTitle>
                     <form onSubmit={handleSearch} className="flex items-center gap-2">
                         <Search className="h-5 w-5 text-muted-foreground" />
                         <Input
