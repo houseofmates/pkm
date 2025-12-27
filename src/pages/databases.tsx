@@ -51,7 +51,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
             console.warn('Clipboard write failed', e);
             toast.success('Copy URL: ' + url);
         }
-    }; 
+    };
 
     const handleLogin = () => {
         if (!apiKey) return;
@@ -64,7 +64,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
             <div className="p-4 md:p-8 h-full flex items-center justify-center">
                 <Card className="max-w-md w-full">
                     <CardHeader>
-                        <CardTitle>Connect NocoBase</CardTitle>
+                        <CardTitle>connect nocobase</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
@@ -82,7 +82,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
                                 <strong>Note:</strong> Dev servers use the full origin (host + port). If you started the dev server on a different port, you'll need to re-enter your API token for this origin.
                             </p>
                         </div>
-                        <Button className="w-full" onClick={handleLogin}>Connect</Button>
+                        <Button className="w-full" onClick={handleLogin}>connect</Button>
                     </CardContent>
                 </Card>
             </div>
@@ -90,7 +90,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     }
 
     if (error) {
-        return <div className="p-8 text-destructive">Error loading databases: {error}</div>;
+        return <div className="p-8 text-destructive">error loading databases: {error}</div>;
     }
 
     if (loading && collections.length === 0) {
@@ -100,11 +100,11 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     return (
         <div className="p-4 md:p-8 space-y-6 h-full overflow-auto">
             <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold lowercase tracking-tight">Databases</h1>
+                <h1 className="text-3xl font-bold lowercase tracking-tight">databases</h1>
                 <div className="flex items-center gap-2">
                     <CreateCollectionDialog onCollectionCreated={refresh} />
-                    <Button variant="ghost" size="sm" onClick={handleBookmark}>Bookmark</Button>
-                </div> 
+                    <Button variant="ghost" size="sm" onClick={handleBookmark}>bookmark</Button>
+                </div>
             </div>
             {collections.length === 0 ? (
                 <div className="flex flex-col items-center justify-center p-20 text-center space-y-4 border-2 border-dashed rounded-lg opacity-50">
