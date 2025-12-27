@@ -272,7 +272,9 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                 return;
             } catch (err: any) {
                 const errMsg = (err.message || JSON.stringify(err)).toLowerCase();
-                console.warn(`[useAppSetting] Flush error for ${key}:`, errMsg);
+                if (!errMsg.includes('exists') && !errMsg.includes('unique') && !errMsg.includes('400')) {
+                    console.warn(`[useAppSetting] Flush error for ${key}:`, errMsg);
+                }
 
                 // 400 conflict -> Use Filter-Based Update
                 if (attempt < 2 && (errMsg.includes('exists') || errMsg.includes('unique') || errMsg.includes('400'))) {
