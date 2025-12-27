@@ -22,8 +22,11 @@ export function useCollections() {
             const filteredCollections = rawCollections.filter((col: Collection) => {
                 // Exclude known system names
                 if (systemCollections.includes(col.name)) return false;
-                // Exclude hidden collections if any flag exists (standard NocoBase might not have 'hidden' prop on collection root, but let's check)
+                // Exclude hidden collections
                 if (col.hidden) return false;
+                // Exclude pkm_settings variants
+                if (col.name.includes('pkm_settings') || col.title?.toLowerCase() === 'pkm settings') return false;
+
                 return true;
             });
 
