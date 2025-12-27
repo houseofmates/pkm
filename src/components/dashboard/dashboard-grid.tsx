@@ -198,13 +198,27 @@ export function DashboardGrid() {
             try {
                 const parsed = JSON.parse(savedFloatingSelection);
                 if (parsed && parsed.image) {
-                    setFloatingSelection(parsed);
+                    _setFloatingSelection(parsed);
                 }
             } catch (e) {
                 console.error('Failed to parse saved floating selection:', e);
             }
         }
     }, [savedFloatingSelection]);
+
+    // Persist floating selection when it changes (debounced)
+    useEffect(() => {
+        if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current);
+        saveTimerRef.current = (window.setTimeout(() => {
+            try {
+                if (floatingSelection) setSavedFloatingSelection(JSON.stringify(floatingSelection));
+                else setSavedFloatingSelection(null);
+            } catch (e) {
+                console.error('Failed to persist floating selection:', e);
+            }
+        }, 200) as unknown) as number;
+        return () => { if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current); };
+    }, [floatingSelection, setSavedFloatingSelection]);
 
     const saveCanvas = useCallback(() => {
         if (canvasRef.current) {
