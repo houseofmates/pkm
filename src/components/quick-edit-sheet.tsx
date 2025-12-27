@@ -3,7 +3,6 @@ import { useEffect, useState } from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetFooter } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import RichEditor, { markdownToHtml } from '@/components/ui/rich-editor';
 import { sanitizeHTML } from '@/lib/utils';import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
