@@ -6,6 +6,19 @@ import {
     AreaChart, Area, ScatterChart, Scatter
 } from 'recharts';
 import { useState } from 'react';
+import { PlusCircle } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+// Placeholder Data for "Wireframe" mode
+const PLACEHOLDER_DATA = [
+    { name: 'Category A', value: 40, value2: 24, amt: 2400 },
+    { name: 'Category B', value: 30, value2: 13, amt: 2210 },
+    { name: 'Category C', value: 20, value2: 98, amt: 2290 },
+    { name: 'Category D', value: 27, value2: 39, amt: 2000 },
+    { name: 'Category E', value: 18, value2: 48, amt: 2181 },
+];
+
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
 
 interface ChartProps {
     type: 'line' | 'bar' | 'pie' | 'radar' | 'treemap' | 'funnel' | 'gauge' | 'kpi' | 'area' | 'scatter';
@@ -19,24 +32,45 @@ interface ChartProps {
     seriesTypes?: Record<string, 'bar' | 'line' | 'area'>;
     seriesOrder?: string[];
     legendCollapsed?: boolean;
+    onConfig?: (key: string, value?: any) => void;
 }
 
-// Mock Data if none provided
-// MOCK_DATA removed
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884d8'];
-
-export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'value', color = '#8884d8', seriesKeys, stacked, seriesType, seriesTypes, seriesOrder, legendCollapsed }: ChartProps) {
-    if (!data || data.length === 0) {
-        return (
-            <div className="flex items-center justify-center w-full h-full text-muted-foreground text-sm">
-                No data available
-            </div>
-        );
-    }
+export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'value', color = '#8884d8', seriesKeys, stacked, seriesType, seriesTypes, seriesOrder, legendCollapsed, onConfig }: ChartProps) {
     const [hidden, setHidden] = useState<Record<string, boolean>>({});
     const [hoverKey, setHoverKey] = useState<string | null>(null);
     const [search, setSearch] = useState('');
     const [collapsed, setCollapsed] = useState(!!legendCollapsed);
+
+    const isPlaceholder = !data || data.length === 0;
+    const chartData = isPlaceholder ? PLACEHOLDER_DATA : data;
+
+    // Helper to request config change
+    const triggerConfig = (configKey: string) => {
+        if (!onConfig) return;
+        // In a real implementation, this might open a popover context menu.
+        // For now, it signals intent to parent.
+        onConfig(configKey);
+    };
+
+    // Render Overlay for Placeholder instructions
+    const PlaceholderOverlay = ({ label }: { label?: string }) => {
+        if (!isPlaceholder) return null;
+        return (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                <div className="bg-background/80 backdrop-blur-sm border border-dashed border-primary/50 text-primary px-4 py-2 rounded-full shadow-lg flex items-center gap-2 animate-in fade-in zoom-in duration-300">
+                    <PlusCircle className="h-4 w-4" />
+                    <span className="text-xs font-semibold">{label || "Configure Chart Data"}</span>
+                </div>
+            </div>
+        )
+    };
+
+    // Common Axis Props for Placeholders
+    const placeholderAxisProps = isPlaceholder ? {
+        onClick: () => triggerConfig('xAxis'),
+        cursor: "pointer",
+        tick: { fill: 'var(--muted-foreground)', opacity: 0.5 }
+    } : {};
     const toggle = (k: string) => setHidden(prev => ({ ...prev, [k]: !prev[k] }));
 
     // Build the ordered keys list (respect seriesOrder if present)
