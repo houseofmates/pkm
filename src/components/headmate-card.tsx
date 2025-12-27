@@ -25,6 +25,8 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
     const override = overrides[member.id] || {};
 
     const displayImage = override.avatarUrl || member.content.avatarUrl;
+    // console.log(`HeadmateCard [${member.content.name}]:`, { overrideUrl: override.avatarUrl, displayImage });
+
     const displayTextColor = override.textColor || override.color || member.content.color || "white";
     const customColor = override.color || member.content.color || "#ffffff";
 
@@ -66,7 +68,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
             {...props}
         >
             {/* Wrapper div to handle the border since Card's border class interferes */}
-            <div 
+            <div
                 className="absolute inset-0 pointer-events-none z-50 rounded-lg"
                 style={{
                     border: `${isActive ? "6px" : "2px"} solid ${isActive ? displayTextColor : fadedColor}`
