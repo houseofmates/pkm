@@ -324,14 +324,17 @@ export function DashboardGrid() {
         return () => { if (saveTimerRef.current) window.clearTimeout(saveTimerRef.current); };
     }, [floatingSelection, setSavedFloatingSelection]);
 
-    const saveCanvas = useCallback(() => {
-        if (canvasRef.current) {
-            canvasRef.current.toBlob(async (blob) => {
+    const saveCanvas = useCallback(async () => {
+        if (!canvasRef.current) return;
+
+        return new Promise<void>((resolve, reject) => {
+            canvasRef.current?.toBlob(async (blob) => {
                 if (!blob) {
                     console.error("Canvas toBlob failed (empty or tainted?)");
+                    reject(new Error("Canvas export failed"));
                     return;
                 }
-                // Also store a local fallback dataURL so reload doesn't lose immediate state
+                // Also store a local fallback dataURL
                 try {
                     const reader = new FileReader();
                     reader.onloadend = () => {
@@ -346,7 +349,7 @@ export function DashboardGrid() {
                     const res = await client.upload(file);
                     console.log("Canvas full upload response:", res);
 
-                    // Handle variable response structures (NocoBase sometimes returns object directly)
+                    // Handle variable response structures
                     const uploadedUrl = res?.data?.url || res?.url;
 
                     if (uploadedUrl) {
@@ -401,25 +404,33 @@ export function DashboardGrid() {
                         try {
                             await (flushSavedCanvas?.(payload) ?? Promise.resolve());
                             console.log("Canvas setting flushed successfully:", url);
+                            resolve();
                         } catch (e) {
                             console.error('Failed to flush saved canvas setting', e);
+                            reject(e);
                         }
 
                         canvasDirtyRef.current = false;
                     } else {
                         console.error("Upload succeeded but no URL found in response:", res);
+                        reject(new Error("Upload succeeded but provided no URL"));
                     }
                 } catch (e) {
                     console.error("Canvas sync failed", e);
                     toast.error("Failed to sync canvas");
+                    reject(e);
                 }
             });
-        }
+        });
     }, [client, setSavedCanvasData, token, flushSavedCanvas]);
 
-    const handleSave = () => {
-        saveCanvas();
-        toast.success("Board saved");
+    const handleSave = async () => {
+        try {
+            await saveCanvas();
+            toast.success("Board saved");
+        } catch (e) {
+            // Toast handled in saveCanvas or generic here
+        }
     };
 
     // Keyboard Shortcuts
@@ -721,7 +732,7 @@ export function DashboardGrid() {
                                 <strong>Note:</strong> Dev servers use the full origin (host + port). If you started the dev server on a different port, you'll need to re-enter your API token for this origin.
                             </p>
                         </div>
-                        <Button className="w-full" onClick={() => { if(apiKey) login(apiKey); }}>Connect</Button>
+                        <Button className="w-full" onClick={() => { if (apiKey) login(apiKey); }}>Connect</Button>
                     </CardContent>
                 </Card>
             </div>
