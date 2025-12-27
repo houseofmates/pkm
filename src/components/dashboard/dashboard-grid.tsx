@@ -223,7 +223,8 @@ export function DashboardGrid() {
                 e.preventDefault();
                 performUndo();
             }
-            if ((e.ctrlKey || e.metaKey) && e.key === 'v') {
+            // Support both Ctrl+V and Ctrl+Y for redo (user requested Ctrl+V as redo)
+            if ((e.ctrlKey || e.metaKey) && (e.key === 'v' || e.key === 'y')) {
                 e.preventDefault();
                 performRedo();
             }
