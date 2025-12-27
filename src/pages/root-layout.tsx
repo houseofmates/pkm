@@ -1,24 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Outlet, useNavigate } from 'react-router-dom';
-import { Navigation, type NavItem } from '@/components/navigation';
-import { QuickEditSheet } from '@/components/quick-edit-sheet';
-import {
-    DndContext,
-    closestCenter,
-    KeyboardSensor,
-    PointerSensor,
-    useSensor,
-    useSensors,
-    DragOverlay,
-    type DragEndEvent,
-    type DragStartEvent
-} from '@dnd-kit/core';
-import {
-    arrayMove,
-    sortableKeyboardCoordinates,
-} from '@dnd-kit/sortable';
+import { useAppSetting } from '@/hooks/use-app-setting';
 
-import { Folder } from 'lucide-react';
+// ...
 
 export function RootLayout() {
     const [activeTab, setActiveTab] = useState<'databases' | 'home' | 'headmates'>('home');
@@ -26,15 +8,8 @@ export function RootLayout() {
     const navigate = useNavigate();
 
     // --- Global Drag State (Lifted from Navigation) ---
-    const [sidebarItems, setSidebarItems] = useState<NavItem[]>(() => {
-        const saved = localStorage.getItem('pkm:sidebar_items');
-        return saved ? JSON.parse(saved) : [];
-    });
-
-    // Persist sidebar items
-    useEffect(() => {
-        localStorage.setItem('pkm:sidebar_items', JSON.stringify(sidebarItems));
-    }, [sidebarItems]);
+    // Synced with NocoBase 'pkm_settings' collection
+    const [sidebarItems, setSidebarItems, isLoadingSidebar] = useAppSetting<NavItem[]>('sidebar_items', []);
 
     const [activeDragItem, setActiveDragItem] = useState<NavItem | null>(null);
 
