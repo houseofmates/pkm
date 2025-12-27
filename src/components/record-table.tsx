@@ -34,7 +34,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
             <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center">
                 <div className="flex flex-col items-center gap-2">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    <p className="text-sm">Loading collection...</p>
+                    <p className="text-sm">loading collection...</p>
                 </div>
             </div>
         );
@@ -115,11 +115,11 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     });
 
     if (loading) {
-        return <div className="p-8 text-center text-muted-foreground animate-pulse">Loading records...</div>;
+        return <div className="p-8 text-center text-muted-foreground animate-pulse">loading records...</div>;
     }
 
     if (!data || data.length === 0) {
-        return <div className="p-4 text-center text-muted-foreground">No records found.</div>;
+        return <div className="p-4 text-center text-muted-foreground">no records found.</div>;
     }
 
     return (
