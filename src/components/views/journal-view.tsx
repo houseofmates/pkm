@@ -139,6 +139,7 @@ export function JournalView({ data, collection, onUpdateRecord: _onUpdateRecord,
                     className="min-h-[100px] bg-background border-input/50 focus:bg-background transition-all resize-none text-base"
                     value={entry ? (String(entry).trim().startsWith('<') ? entry : markdownToHtml(entry)) : ''}
                     onChange={(html) => setEntry(sanitizeHTML(html))}
+                    showToolbar={false}
                 />
 
                 <div className="flex justify-end mt-3">
