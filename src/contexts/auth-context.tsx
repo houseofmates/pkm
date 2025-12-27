@@ -30,6 +30,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
     }, [token]);
 
+    // Listen for 401s from api-client
+    useEffect(() => {
+        const handleAuthError = () => {
+            setToken(null);
+        };
+        window.addEventListener('auth-error', handleAuthError);
+        return () => window.removeEventListener('auth-error', handleAuthError);
+    }, []);
+
     const login = (newToken: string) => {
         setToken(newToken);
     };
