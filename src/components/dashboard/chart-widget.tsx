@@ -528,3 +528,5 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
             </div>
         );
     }
+    return null;
+}
