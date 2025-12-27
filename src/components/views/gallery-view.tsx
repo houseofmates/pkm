@@ -8,7 +8,7 @@ export function GalleryView({ data, loading, collection }: ViewProps) {
             <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
                 <div className="flex flex-col items-center gap-2">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    <p className="text-sm">Loading gallery...</p>
+                    <p className="text-sm">loading gallery...</p>
                 </div>
             </div>
         );
@@ -75,7 +75,7 @@ export function GalleryView({ data, loading, collection }: ViewProps) {
                     </Card>
                 );
             })}
-            {data.length === 0 && <div className="col-span-full text-center p-10">No items found.</div>}
+            {data.length === 0 && <div className="col-span-full text-center p-10">no items found.</div>}
         </div>
     );
 }
