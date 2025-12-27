@@ -78,6 +78,14 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
 
                 console.log('Setting Override URL:', avatarUrl, 'for member:', memberId);
                 updateOverride(memberId, { avatarUrl });
+
+                // Flush immediately to ensure persistence
+                try {
+                    await flushOverrides();
+                } catch (flushError) {
+                    console.warn('Failed to flush overrides:', flushError);
+                }
+
                 toast.success("Avatar updated", { id: toastId });
 
                 // Reset file input and close dialog
