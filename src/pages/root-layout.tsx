@@ -76,12 +76,11 @@ export function RootLayout() {
         }
     };
 
-    const handleTabChange = (tab: 'databases' | 'home' | 'headmates' | 'board') => { // Update type
+    const handleTabChange = (tab: 'databases' | 'home' | 'headmates') => {
         setActiveTab(tab as any);
         if (tab === 'home') navigate('/');
         if (tab === 'headmates') navigate('/headmates');
-        if (tab === 'databases') navigate('/databases');
-        if (tab === 'board') navigate('/board');
+        if (tab === 'databases') navigate('/databases', { state: { fromSidebar: true } });
     };
 
     const handleSelectCollection = (name: string | null) => {
@@ -90,9 +89,9 @@ export function RootLayout() {
         }
         setSelectedCollection(name);
         if (name) {
-            navigate('/databases/' + name);
+            navigate('/databases/' + name, { state: { fromSidebar: true, view: 'table' } });
         } else {
-            navigate('/databases');
+            navigate('/databases', { state: { fromSidebar: true } });
         }
     };
 
