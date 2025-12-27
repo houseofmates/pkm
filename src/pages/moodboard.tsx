@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Image as ImageIcon, MoreHorizontal,
-    Trash2, Move, Maximize2, Minimize2, ZoomIn, ZoomOut, Save
+    Trash2, ZoomIn, ZoomOut, Save, Type, Palette
 } from 'lucide-react';
 import { useCollections } from '@/hooks/use-collections';
 import { VIEW_REGISTRY } from '@/components/views/registry';
