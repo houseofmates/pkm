@@ -9,34 +9,30 @@ import { HeadmateCard } from '@/components/headmate-card';
 import { HeadmateContextMenu } from '@/components/headmate-context-menu';
 import { useFronter } from '@/contexts/fronter-context';
 import { apiRequest } from '@/lib/api-client';
-import { isDiscordLinkExpired, PLACEHOLDER_IMAGE } from '@/lib/discord-utils';
+import { PLACEHOLDER_IMAGE } from '@/lib/discord-utils';
 
 // Strict Capitalization Map
 // Rule: If case-insensitive match, use value. Else use DB name.
-const STRICT_NAMES: Record<string, string> = {
-    'l': 'L',
-    'c': 'C',
-    's': 'S',
-    'alastor': 'Alastor',
-    'deer': 'Deer',
-    'walt': 'Walt',
-    'mike': 'Mike'
+const formatName = (name: string) => {
+    const lower = name.toLowerCase().trim();
+    const specialCases: Record<string, string> = {
+        'l': 'L',
+        'c': 'C',
+        's': 'S',
+        'alastor': 'Alastor',
+        'deer': 'Deer',
+        'walt': 'Walt',
+        'mike': 'Mike'
+    };
+    return specialCases[lower] || name; // returns exact match override, or original db value
 };
-
-function formatDisplayName(name: string): string {
-    const nameLower = name.toLowerCase().trim();
-    if (STRICT_NAMES[nameLower]) {
-        return STRICT_NAMES[nameLower];
-    }
-    return name;
-}
 
 interface Member {
     id: string;
     content: {
         name: string;
         pronouns?: string;
-        avatarUrl?: string;
+        avatarUrl?: string; // We modify this if needed
         desc?: string;
     };
 }
@@ -74,21 +70,28 @@ export function HeadmatesPage() {
             // SimplyPlural returns array of members directly
             const rawMembers = Array.isArray(membersData) ? membersData : [];
 
-            // Sanitize members (check for dead Discord links)
+            // Sanitize members (Aggressive pre-render check)
             const sanitizedMembers = rawMembers.map((m: any) => {
-                // Check if link is expired (includes media.discordapp.net and images-ext-2.discordapp.net)
-                if (m.content?.avatarUrl && isDiscordLinkExpired(m.content.avatarUrl)) {
-                    // Silenced log per user request
-                    // console.warn(`[Fix] replaced expired Discord link for ${m.content.name}`);
-                    return {
-                        ...m,
-                        content: {
-                            ...m.content,
-                            avatarUrl: PLACEHOLDER_IMAGE // Use placeholder if check fails
-                        }
-                    };
+                let avatarUrl = m.content?.avatarUrl || "";
+
+                // Aggressive check: If it's a discordapp.net link (media or images-ext-2), kill it.
+                // User instruction: "if avatarUrl includes 'discordapp.net' ... immediately swap it"
+                if (avatarUrl.includes('discordapp.net')) {
+                    avatarUrl = PLACEHOLDER_IMAGE;
                 }
-                return m;
+
+                // Apply Strict Name Formatting
+                const originalName = m.content?.name || "Unknown";
+                const formattedName = formatName(originalName);
+
+                return {
+                    ...m,
+                    content: {
+                        ...m.content,
+                        name: formattedName,
+                        avatarUrl: avatarUrl
+                    }
+                };
             });
 
             setAllMembers(sanitizedMembers);
@@ -96,8 +99,6 @@ export function HeadmatesPage() {
         } catch (error: any) {
             console.error(error);
             toast.error(error.message || "Failed to load headmates");
-            // If auth fails, maybe clear the key? 
-            // setHasKey(false); 
         } finally {
             setLoading(false);
         }
@@ -119,14 +120,6 @@ export function HeadmatesPage() {
         toast.success("API Key saved locally");
         fetchMembers(apiKey);
     };
-
-
-
-
-
-    // ... inside component ...
-
-
 
     return (
         <div className="p-4 md:p-8 space-y-6 h-full overflow-auto">
@@ -178,11 +171,9 @@ export function HeadmatesPage() {
                                     <HeadmateCard
                                         member={member}
                                         onClick={() => {
-                                            // Toggle if already selected, or just select? User said "selects the headmate as the current fronter"
-                                            // Let's toggle for UX convenience
                                             setFronter(activeFronterId === member.id ? null : member.id);
                                             if (activeFronterId !== member.id) {
-                                                toast.success(`Fronting: ${formatDisplayName(member.content.name)}`);
+                                                toast.success(`Fronting: ${formatName(member.content.name)}`);
                                             }
                                         }}
                                     />
