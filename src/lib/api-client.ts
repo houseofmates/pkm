@@ -21,7 +21,7 @@ export const APIS = {
 
 type ApiType = keyof typeof APIS;
 
-export async function apiRequest(type: ApiType, endpoint: string, options: Partial<HttpOptions> = {}) {
+export async function apiRequest(type: ApiType, endpoint: string, options: Partial<HttpOptions> & { responseType?: 'json' | 'text' | 'blob' } = {}) {
     const isNative = Capacitor.isNativePlatform();
     const config = APIS[type];
 
@@ -52,6 +52,8 @@ export async function apiRequest(type: ApiType, endpoint: string, options: Parti
                 err.data = response.data;
                 throw err;
             }
+
+            // Native response data is already parsed
             return response.data;
 
         } catch (error: any) {
@@ -96,9 +98,17 @@ export async function apiRequest(type: ApiType, endpoint: string, options: Parti
                 throw err;
             }
 
+            // Handle response types
+            const respType = options.responseType || 'json';
+            if (respType === 'blob') {
+                return await response.blob();
+            }
+
             // Handle empty responses
             const text = await response.text();
             if (!text) return {};
+
+            if (respType === 'text') return text;
 
             try {
                 return JSON.parse(text);
