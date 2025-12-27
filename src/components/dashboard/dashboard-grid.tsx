@@ -308,7 +308,26 @@ export function DashboardGrid() {
                                 });
                             }
                         } catch (e) {
-                            console.warn('Could not fetch uploaded canvas for dataURL backup:', e);
+                            console.warn('Could not fetch uploaded canvas for dataURL backup (direct fetch failed):', e);
+
+                            // Try server-side proxied download as a fallback to avoid browser CORS restrictions
+                            try {
+                                if (id && client && (client as any).downloadAttachmentBlob) {
+                                    const blob = await (client as any).downloadAttachmentBlob(String(id));
+                                    if (blob instanceof Blob) {
+                                        dataUrl = await new Promise<string | undefined>((resolve) => {
+                                            try {
+                                                const reader = new FileReader();
+                                                reader.onloadend = () => resolve(reader.result as string);
+                                                reader.onerror = () => resolve(undefined);
+                                                reader.readAsDataURL(blob);
+                                            } catch (e) { resolve(undefined); }
+                                        });
+                                    }
+                                }
+                            } catch (e2) {
+                                console.warn('Proxied download for dataURL backup also failed:', e2);
+                            }
                         }
 
                         const payload: any = { id, url };
