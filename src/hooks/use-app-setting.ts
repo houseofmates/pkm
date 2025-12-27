@@ -208,7 +208,8 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
     // Immediate flush function (returns a promise) to persist current value to backend
     const flush = useCallback(async (valueToSave?: T) => {
-        if (!isAuthenticated || !token) return;
+        // Double-check localStorage as well to avoid stale closures
+        if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) return;
         const headers = getHeaders();
         const toSave = valueToSave === undefined ? valueRef.current : valueToSave;
 
