@@ -61,50 +61,65 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
 
         const toastId = toast.loading("Uploading avatar...");
         try {
-            // Upload to pkm_backend collection for secure storage
+            // Upload directly to NocoBase attachments
             const res = await client.upload(file);
-            console.log('Upload response:', res);
-            const uploadedFile = res.data;
-            console.log('Uploaded file data:', uploadedFile);
+            console.log('Full Upload response:', JSON.stringify(res, null, 2));
+            
+            // NocoBase returns { data: { ... } } or just the attachment object
+            const uploadedFile = res?.data || res;
+            console.log('Uploaded file data:', JSON.stringify(uploadedFile, null, 2));
 
-            if (uploadedFile && uploadedFile.id) {
-                // Store the attachment in pkm_backend collection for proper access control
-                try {
-                    await client.createRecord('pkm_backend', {
-                        type: 'avatar',
-                        member_id: memberId,
-                        attachment_id: uploadedFile.id,
-                        filename: uploadedFile.filename || file.name,
-                        mime_type: uploadedFile.mimetype || file.type,
-                        url: uploadedFile.url || uploadedFile.path
-                    });
-                } catch (backendError) {
-                    console.warn('Failed to store in pkm_backend, continuing with direct attachment:', backendError);
+            if (uploadedFile) {
+                // NocoBase attachment URLs can come in different forms:
+                // 1. Full URL in 'url' field
+                // 2. Relative path that needs base URL
+                // 3. Need to construct from storage path
+                let avatarUrl = '';
+                
+                if (uploadedFile.url) {
+                    // If it's already a full URL, use it
+                    if (uploadedFile.url.startsWith('http')) {
+                        avatarUrl = uploadedFile.url;
+                    } else {
+                        // Relative URL - prepend base
+                        avatarUrl = `https://db.houseofmates.space${uploadedFile.url.startsWith('/') ? '' : '/'}${uploadedFile.url}`;
+                    }
+                } else if (uploadedFile.path) {
+                    avatarUrl = `https://db.houseofmates.space${uploadedFile.path.startsWith('/') ? '' : '/'}${uploadedFile.path}`;
+                } else if (uploadedFile.id) {
+                    // Fallback to attachment download endpoint
+                    avatarUrl = `https://db.houseofmates.space/storage/uploads/${uploadedFile.filename || uploadedFile.id}`;
                 }
 
-                // Use NocoBase's direct storage URL format for authenticated access
-                const avatarUrl = uploadedFile.url || uploadedFile.path || `https://db.houseofmates.space/api/attachments/${uploadedFile.id}`;
+                console.log('Final avatar URL:', avatarUrl);
 
-                console.log('Setting Override URL:', avatarUrl, 'for member:', memberId);
-                updateOverride(memberId, { avatarUrl });
+                if (avatarUrl) {
+                    console.log('Setting Override URL:', avatarUrl, 'for member:', memberId);
+                    updateOverride(memberId, { avatarUrl });
 
-                // Flush immediately to ensure persistence
-                try {
-                    await flushOverrides();
-                } catch (flushError) {
-                    console.warn('Failed to flush overrides:', flushError);
+                    // Flush immediately to ensure persistence
+                    try {
+                        await flushOverrides();
+                        console.log('Overrides flushed successfully');
+                    } catch (flushError) {
+                        console.warn('Failed to flush overrides:', flushError);
+                    }
+
+                    toast.success("Avatar updated", { id: toastId });
+                } else {
+                    toast.error("Could not get image URL from upload", { id: toastId });
                 }
-
-                toast.success("Avatar updated", { id: toastId });
 
                 // Reset file input and close dialog
                 if (fileInputRef.current) {
                     fileInputRef.current.value = '';
                 }
                 setImageOpen(false);
+            } else {
+                toast.error("Upload returned empty response", { id: toastId });
             }
         } catch (error) {
-            console.error(error);
+            console.error('Upload error:', error);
             toast.error("Upload failed", { id: toastId });
         }
     };

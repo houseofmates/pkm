@@ -5,6 +5,17 @@ import { useFronter } from "@/contexts/fronter-context";
 import { useAuth } from "@/contexts/auth-context";
 import { forwardRef, useEffect, useState } from 'react';
 
+// Names that should always be displayed in uppercase
+const UPPERCASE_NAMES = ['alastor', 'deer', 'mike', 'walt'];
+
+function formatDisplayName(name: string): string {
+    const nameLower = name.toLowerCase().trim();
+    if (UPPERCASE_NAMES.includes(nameLower)) {
+        return name.toUpperCase();
+    }
+    return name;
+}
+
 interface HeadmateCardProps {
     member: {
         id: string;
@@ -183,14 +194,11 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
             {/* Content Centered/Bottom */}
             <div className="absolute inset-x-0 bottom-0 p-4 flex flex-col items-center justify-end h-full text-center">
                 <h3
-                    className={cn(
-                        "font-bold text-xl tracking-tight mb-1 drop-shadow-md transition-all group-hover:-translate-y-1",
-                        member.content.name.length === 1 ? "uppercase" : "lowercase"
-                    )}
+                    className="font-bold text-xl tracking-tight mb-1 drop-shadow-md transition-all group-hover:-translate-y-1"
                     style={{ color: displayTextColor }}
                 >
-                    {/* Use override name if available, else original */}
-                    {(override as any).name || member.content.name}
+                    {/* Use override name if available, else original - with uppercase for specific names */}
+                    {formatDisplayName((override as any).name || member.content.name)}
                 </h3>
                 {member.content.pronouns && (
                     <p className="text-xs text-white/70 lowercase opacity-0 group-hover:opacity-100 transition-opacity delay-100 translate-y-2 group-hover:translate-y-0 duration-300">
