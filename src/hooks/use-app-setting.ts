@@ -80,17 +80,13 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
             saveTimeoutRef.current = setTimeout(async () => {
                 if (!isAuthenticated) return;
 
-                try {
+                const saveToBackend = async () => {
                     if (settingIdRef.current) {
-                        // Update
                         await apiRequest('nocobase', `/pkm_settings/${settingIdRef.current}`, {
                             method: 'PUT',
                             data: { value: resolvedValue }
                         });
                     } else {
-                        // Create
-                        // Double check it didn't get created in the meantime?
-                        // For simplicity, just try create.
                         const response = await apiRequest('nocobase', '/pkm_settings', {
                             method: 'POST',
                             data: { key, value: resolvedValue }
@@ -99,10 +95,41 @@ export function useAppSetting<T>(key: string, defaultValue: T) {
                             settingIdRef.current = response.data.id;
                         }
                     }
+                };
+
+                try {
+                    await saveToBackend();
                     console.log(`Saved setting ${key} to backend`);
-                } catch (err) {
+                } catch (err: any) {
                     console.error(`Failed to save setting ${key}:`, err);
-                    toast.error('Failed to sync settings to cloud');
+
+                    // Auto-healing: Create collection if missing (404 or similar)
+                    // NocoBase returns 404 for missing collection
+                    if (err.response?.status === 404 || err.message?.includes('not found')) {
+                        try {
+                            console.log("Attempting to create pkm_settings collection...");
+                            // Create Collection
+                            await apiRequest('nocobase', '/collections', {
+                                method: 'POST',
+                                data: {
+                                    name: 'pkm_settings',
+                                    title: 'PKM Settings',
+                                    fields: [
+                                        { name: 'key', type: 'string', unique: true },
+                                        { name: 'value', type: 'json' }
+                                    ]
+                                }
+                            });
+                            // Retry save
+                            await saveToBackend();
+                            toast.success("Settings synced (initialized storage)");
+                        } catch (createErr) {
+                            console.error("Failed to create pkm_settings:", createErr);
+                            toast.error('Failed to sync settings to cloud');
+                        }
+                    } else {
+                        toast.error('Failed to sync settings to cloud');
+                    }
                 }
             }, 1000); // 1s debounce
 
