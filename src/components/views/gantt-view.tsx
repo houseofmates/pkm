@@ -20,7 +20,7 @@ function EditRecordModal({ record, open, onOpenChange, onUpdate, collection }: a
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
                 <div className="space-y-4">
-                    <h3 className="text-lg font-bold border-b pb-2">Edit {record.title || 'Record'}</h3>
+                    <h3 className="text-lg font-bold border-b pb-2">edit {record.title || 'record'}</h3>
                     <div className="grid gap-4 py-4">
                         {collection.fields?.map((f: any) => (
                             <div key={f.name} className="grid grid-cols-4 items-center gap-4">
@@ -48,7 +48,7 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete }
             <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
                 <div className="flex flex-col items-center gap-2">
                     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    <p className="text-sm">Loading gantt metadata...</p>
+                    <p className="text-sm">loading gantt metadata...</p>
                 </div>
             </div>
         );
@@ -104,7 +104,7 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete }
     }, [data, startField, endField]);
 
     if (!startField) {
-        return <div className="p-10 text-center opacity-50">No date fields found. Please add a date field to use Gantt View.</div>;
+        return <div className="p-10 text-center opacity-50">no date fields found. please add a date field to use gantt view.</div>;
     }
 
     const colWidth = 40; // px per day
@@ -119,7 +119,7 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete }
             {/* Header Timeline */}
             <div className="flex border-b bg-muted/20">
                 <div className="w-48 p-2 border-r font-bold text-xs sticky left-0 bg-background z-20 shrink-0 shadow-sm flex items-center">
-                    Task Name
+                    task name
                 </div>
                 <div className="flex-1 overflow-x-auto custom-scrollbar">
                     <div className="flex" style={{ width: `${timelineDays.length * colWidth}px` }}>
@@ -163,7 +163,7 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete }
                                         <div className="w-48 p-2 border-r text-xs font-medium sticky left-0 bg-background z-10 shrink-0 truncate flex items-center gap-2">
                                             {/* Status Indicator (Mock) or Checkbox */}
                                             <div className="w-2 h-2 rounded-full bg-primary/50" />
-                                            {record.title || record.name || <span className="italic opacity-50">Untitled</span>}
+                                            {record.title || record.name || <span className="italic opacity-50">untitled</span>}
                                         </div>
                                         <div className="flex-1 relative h-full">
                                             {/* Background Grid Lines */}
@@ -194,10 +194,10 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete }
                                 </ContextMenuTrigger>
                                 <ContextMenuContent>
                                     <ContextMenuItem onClick={() => handleBarClick(record)}>
-                                        <Edit className="mr-2 h-4 w-4" /> Edit Record
+                                        <Edit className="mr-2 h-4 w-4" /> edit record
                                     </ContextMenuItem>
                                     <ContextMenuItem className="text-red-500" onClick={() => onDelete && onDelete(record)}>
-                                        <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                        <Trash2 className="mr-2 h-4 w-4" /> delete
                                     </ContextMenuItem>
                                 </ContextMenuContent>
                             </ContextMenu>
