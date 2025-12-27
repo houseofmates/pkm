@@ -26,10 +26,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
 
     const displayImage = override.avatarUrl || member.content.avatarUrl;
     // const displayColor = override.color || member.content.color || "#cccccc"; // Not used for glow anymore
-    const displayTextColor = override.textColor || "white";
-
-    // User requested removal of glow.
-    // Active state will just be a standard border or ring without glow/shadow spread.
+    const displayTextColor = override.textColor || member.content.color || "white";
 
     const customColor = member.content.color || "#ffffff";
 
@@ -37,10 +34,13 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
         <Card
             ref={ref}
             onClick={onClick}
-            style={{ borderColor: isActive ? customColor : undefined }}
+            style={{
+                borderColor: (isActive || true) ? customColor : undefined,
+                boxShadow: isActive ? `0 0 20px ${customColor}44` : undefined
+            }}
             className={cn(
-                "aspect-square relative overflow-hidden group cursor-pointer border-2 transition-all duration-200",
-                isActive ? "scale-105" : "border-transparent hover:border-white/20",
+                "aspect-square relative overflow-hidden group cursor-pointer border-2 transition-all duration-300",
+                isActive ? "scale-[1.02] border-opacity-100" : "border-opacity-20 hover:border-opacity-50",
                 className
             )}
             {...props}
