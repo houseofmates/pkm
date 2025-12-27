@@ -458,14 +458,11 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
                                     const files = e.target.files;
                                     if (!files || files.length === 0) return;
                                     Array.from(files).forEach(async (f) => {
-                                        const id = `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
-                                        setUploadingMap(m => ({ ...m, [id]: true }));
                                         try {
                                             const res = await client.upload(f);
                                             const url = res?.data?.url;
                                             if (url) setGalleryImgs(cur => [...cur, url]);
                                         } catch (err) { console.error(err); alert('Upload failed'); }
-                                        finally { setUploadingMap(m => { const copy = { ...m }; delete copy[id]; return copy; }); }
                                     });
                                     e.currentTarget.value = '';
                                 }} />
