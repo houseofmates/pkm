@@ -1,6 +1,5 @@
 
 import { useState, useRef } from 'react';
-import { useAuth } from '@/contexts/auth-context';
 import { useFronter } from '@/contexts/fronter-context';
 import {
     ContextMenu,
@@ -36,7 +35,6 @@ interface HeadmateContextMenuProps {
 }
 
 export function HeadmateContextMenu({ memberId, memberName, children }: HeadmateContextMenuProps) {
-    const { client } = useAuth();
     const { overrides, updateOverride, flushOverrides } = useFronter();
     const currentOverride = overrides[memberId] || {};
 
