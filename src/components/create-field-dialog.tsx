@@ -65,16 +65,22 @@ export function CreateFieldDialog({ collectionName, onFieldCreated }: CreateFiel
         try {
             const finalName = name || title.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
 
-            await client.createField(collectionName, {
+            const fieldConfig: any = {
                 title,
                 name: finalName,
                 interface: interfaceType,
-                type: getDBType(interfaceType), // Helper to map interface to DB type
+                type: getDBType(interfaceType),
                 uiSchema: {
                     title,
                     'x-component': getComponentType(interfaceType),
                 }
-            });
+            };
+
+            if (interfaceType === 'formula') {
+                fieldConfig.params = { expression };
+            }
+
+            await client.createField(collectionName, fieldConfig);
 
             toast.success("Field created");
             setOpen(false);
