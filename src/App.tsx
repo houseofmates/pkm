@@ -15,10 +15,7 @@ import { MoodboardPage } from "@/pages/moodboard" // Will create this next
 function AppContent() {
   const { token } = useAuth()
 
-  // Force dark mode for this design
-  useEffect(() => {
-    document.documentElement.classList.add('dark');
-  }, [token]);
+
 
   return (
 
