@@ -6,6 +6,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
+    sourcemapIgnoreList: (sourcePath) => sourcePath.includes('node_modules') || sourcePath.includes('.vite'),
     proxy: {
       '/api/simplyplural': {
         target: 'https://api.apparyllis.com/v1',
@@ -37,9 +38,8 @@ export default defineConfig({
   },
   optimizeDeps: {
     esbuildOptions: {
-      sourcemap: false, // Disable sourcemaps for pre-bundled dependencies in dev
+      sourcemap: false,
     },
-    // Sometimes specific packages need to be excluded to stop their maps from being served
     exclude: ['leaflet']
   },
   resolve: {
@@ -48,4 +48,3 @@ export default defineConfig({
     },
   },
 })
-  ```
