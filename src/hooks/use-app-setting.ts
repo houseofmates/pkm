@@ -262,5 +262,5 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
     // Save flush function in ref for external use if needed
     flushRef.current = flush;
 
-    return [value, updateValue, loading] as const;
+    return [value, updateValue, loading, flush] as const;
 }
