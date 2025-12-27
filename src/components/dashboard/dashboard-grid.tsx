@@ -697,6 +697,35 @@ export function DashboardGrid() {
         return () => { window.removeEventListener('pkm:add-widget', handleExternalDrop as EventListener); };
     }, [widgets, collections]);
 
+    if (!isAuthenticated) {
+        return (
+            <div className="p-4 md:p-8 h-full flex items-center justify-center">
+                <Card className="max-w-md w-full">
+                    <CardHeader>
+                        <CardTitle>Connect NocoBase</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label>API Token</Label>
+                            <Input
+                                type="password"
+                                value={apiKey}
+                                onChange={(e) => setApiKey(e.target.value)}
+                                placeholder="Enter NocoBase API Token"
+                            />
+                            <p className="text-xs text-muted-foreground">
+                                Your token is stored locally.
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                <strong>Note:</strong> Dev servers use the full origin (host + port). If you started the dev server on a different port, you'll need to re-enter your API token for this origin.
+                            </p>
+                        </div>
+                        <Button className="w-full" onClick={() => { if(apiKey) login(apiKey); }}>Connect</Button>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col h-full bg-background overflow-hidden relative">
