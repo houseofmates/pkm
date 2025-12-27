@@ -59,22 +59,31 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
         const file = e.target.files?.[0];
         if (!file) return;
 
-        // Use generic upload flow
         const toastId = toast.loading("Uploading avatar...");
         try {
+            // Upload to pkm_backend collection for secure storage
             const res = await client.upload(file);
             console.log('Upload response:', res);
             const uploadedFile = res.data;
             console.log('Uploaded file data:', uploadedFile);
 
             if (uploadedFile && uploadedFile.id) {
-                // Check if the upload response includes a direct URL
-                let avatarUrl = uploadedFile.url || uploadedFile.path;
-
-                // If no direct URL, use the attachment endpoint
-                if (!avatarUrl) {
-                    avatarUrl = `/api/nocobase/attachments/${uploadedFile.id}/download`;
+                // Store the attachment in pkm_backend collection for proper access control
+                try {
+                    await client.createRecord('pkm_backend', {
+                        type: 'avatar',
+                        member_id: memberId,
+                        attachment_id: uploadedFile.id,
+                        filename: uploadedFile.filename || file.name,
+                        mime_type: uploadedFile.mimetype || file.type,
+                        url: uploadedFile.url || uploadedFile.path
+                    });
+                } catch (backendError) {
+                    console.warn('Failed to store in pkm_backend, continuing with direct attachment:', backendError);
                 }
+
+                // Use NocoBase's direct storage URL format for authenticated access
+                const avatarUrl = uploadedFile.url || uploadedFile.path || `https://db.houseofmates.space/api/attachments/${uploadedFile.id}`;
 
                 console.log('Setting Override URL:', avatarUrl, 'for member:', memberId);
                 updateOverride(memberId, { avatarUrl });

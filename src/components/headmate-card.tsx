@@ -55,9 +55,11 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
     const fadedColor = getFadedColor(displayTextColor);
 
     const [blobUrl, setBlobUrl] = useState<string | null>(null);
+    const [imageError, setImageError] = useState(false);
 
     useEffect(() => {
         let active = true;
+        setImageError(false);
 
         const loadSecure = async () => {
             if (!displayImage) {
@@ -65,47 +67,76 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
                 return;
             }
 
-            // Strategy 1: Direct Storage URL with Auth (Bypasses API 500 errors)
+            // Strategy 1: NocoBase Direct Storage URL with Proper Authentication
             if (displayImage.includes('db.houseofmates.space')) {
                 try {
                     const token = localStorage.getItem('nocobase_token');
                     const res = await fetch(displayImage, {
-                        headers: token ? { 'Authorization': `Bearer ${token}` } : {}
+                        headers: {
+                            'Authorization': `Bearer ${token}`,
+                            'X-Authenticator': 'basic',
+                            'X-Role': 'root'
+                        }
                     });
                     if (res.ok) {
                         const blob = await res.blob();
                         if (active) setBlobUrl(URL.createObjectURL(blob));
                         return;
+                    } else {
+                        console.warn(`Failed to fetch image: ${res.status} ${res.statusText}`);
                     }
                 } catch (e) {
                     console.error("Failed to fetch secure storage URL", e);
                 }
             }
 
-            // Strategy 2: API Proxy (Legacy/Fallback)
-            if (displayImage.includes('/api/nocobase/attachments/')) {
+            // Strategy 2: Extract ID and use NocoBase client
+            const idMatch = displayImage.match(/\/attachments\/(\d+)/);
+            if (idMatch && idMatch[1]) {
                 try {
-                    const match = displayImage.match(/\/attachments\/(\d+)/);
-                    if (match && match[1]) {
-                        const blob = await client.downloadAttachmentBlob(match[1]);
-                        if (active && blob) setBlobUrl(URL.createObjectURL(blob));
+                    const blob = await client.downloadAttachmentBlob(idMatch[1]);
+                    if (active && blob) {
+                        setBlobUrl(URL.createObjectURL(blob));
+                        return;
                     }
                 } catch (e) {
                     console.error("Failed to load secure avatar via client", e);
                 }
             }
 
-            // If neither, we assume it's a public URL or handled by src directly
-            if (!displayImage.includes('db.houseofmates.space') && !displayImage.includes('/api/nocobase')) {
+            // Strategy 3: Public URL (no authentication needed)
+            if (!displayImage.includes('db.houseofmates.space') && !displayImage.includes('/api/nocobase') && !displayImage.includes('/attachments/')) {
                 setBlobUrl(null);
+                return;
+            }
+
+            // If we get here, all strategies failed
+            if (active) {
+                setImageError(true);
+                console.warn('All image loading strategies failed for:', displayImage);
             }
         };
 
         loadSecure();
-        return () => { active = false; };
+        return () => { 
+            active = false;
+            // Clean up blob URL to prevent memory leaks
+            if (blobUrl) {
+                URL.revokeObjectURL(blobUrl);
+            }
+        };
     }, [displayImage, client]);
 
-    const finalImageSrc = blobUrl || displayImage;
+    // Clean up blob URL when component unmounts
+    useEffect(() => {
+        return () => {
+            if (blobUrl) {
+                URL.revokeObjectURL(blobUrl);
+            }
+        };
+    }, [blobUrl]);
+
+    const finalImageSrc = blobUrl || (!imageError ? displayImage : null);
 
     return (
         <Card
