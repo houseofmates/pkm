@@ -12,6 +12,16 @@ interface NodePosition {
 }
 
 export function MindMapView({ data, collection, config, onConfigChange }: ViewProps) {
+    if (!collection) {
+        return (
+            <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-neutral-100 dark:bg-neutral-900 overflow-hidden">
+                <div className="flex flex-col items-center gap-2">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                    <p className="text-sm">Loading mindmap metadata...</p>
+                </div>
+            </div>
+        );
+    }
     const [positions, setPositions] = useState<Record<string, NodePosition>>({});
     const [scale, setScale] = useState(1);
     const [offset, setOffset] = useState({ x: 0, y: 0 });
