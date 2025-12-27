@@ -346,28 +346,30 @@ export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yK
         // For generic usage, let's just show the first value relative to 100? Or just render it visually.
         const val = data[0]?.[yKey] || 0;
         const max = 100; // Arbitrary for now without config
+        const safeVal = Math.min(Math.max(val, 0), max);
         const gaugeData = [
-            { name: 'Value', value: val },
-            { name: 'Remainder', value: max - val }
+            { name: 'Value', value: safeVal },
+            { name: 'Remainder', value: max - safeVal }
         ];
 
         return (
-            <div className="relative w-full h-full flex items-center justify-center">
+            <div className="relative w-full h-full flex items-center justify-center p-2">
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                         <Pie
                             data={gaugeData}
                             cx="50%"
-                            cy="70%"
+                            cy="85%"
                             startAngle={180}
                             endAngle={0}
-                            innerRadius={60}
-                            outerRadius={80}
-                            paddingAngle={5}
+                            innerRadius="75%"
+                            outerRadius="110%"
+                            paddingAngle={0}
                             dataKey="value"
+                            stroke="none"
                         >
                             <Cell fill={color} />
-                            <Cell fill="var(--muted)" />
+                            <Cell fill="var(--muted)" opacity={0.2} />
                         </Pie>
                     </PieChart>
                 </ResponsiveContainer>
