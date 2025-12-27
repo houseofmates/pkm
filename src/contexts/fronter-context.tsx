@@ -1,5 +1,6 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { useAppSetting } from '@/hooks/use-app-setting';
 
 export interface HeadmateOverride {
     color?: string;
@@ -23,10 +24,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
         return localStorage.getItem('pkm_active_fronter');
     });
 
-    const [overrides, setOverrides] = useState<Record<string, HeadmateOverride>>(() => {
-        const stored = localStorage.getItem('pkm_headmate_overrides');
-        return stored ? JSON.parse(stored) : {};
-    });
+    const [overrides, setOverrides] = useAppSetting<Record<string, HeadmateOverride>>('pkm_headmate_overrides', {});
 
     useEffect(() => {
         if (activeFronterId) {
@@ -35,10 +33,6 @@ export function FronterProvider({ children }: { children: ReactNode }) {
             localStorage.removeItem('pkm_active_fronter');
         }
     }, [activeFronterId]);
-
-    useEffect(() => {
-        localStorage.setItem('pkm_headmate_overrides', JSON.stringify(overrides));
-    }, [overrides]);
 
     const updateOverride = (id: string, data: Partial<HeadmateOverride>) => {
         setOverrides(prev => ({
