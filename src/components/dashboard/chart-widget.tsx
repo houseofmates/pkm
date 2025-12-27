@@ -2,16 +2,17 @@ import {
     ResponsiveContainer, LineChart, Line, BarChart, Bar, PieChart, Pie, Cell,
     RadarChart, Radar, PolarGrid, PolarAngleAxis, PolarRadiusAxis,
     Treemap, XAxis, YAxis, Tooltip, CartesianGrid, Legend,
-    FunnelChart as RechartsFunnelChart, Funnel, LabelList
+    FunnelChart as RechartsFunnelChart, Funnel, LabelList,
+    AreaChart, Area, ScatterChart, Scatter
 } from 'recharts';
 
 interface ChartProps {
-    type: 'line' | 'bar' | 'pie' | 'radar' | 'treemap' | 'funnel' | 'gauge' | 'kpi';
+    type: 'line' | 'bar' | 'pie' | 'radar' | 'treemap' | 'funnel' | 'gauge' | 'kpi' | 'area' | 'scatter';
     data?: any[];
     xKey?: string;
     yKey?: string;
     color?: string;
-}
+} 
 
 // Mock Data if none provided
 const MOCK_DATA = [
@@ -35,6 +36,34 @@ export function ChartWidget({ type = 'line', data = MOCK_DATA, xKey = 'name', yK
                     <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />
                     <Line type="monotone" dataKey={yKey} stroke={color} strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
                 </LineChart>
+            </ResponsiveContainer>
+        );
+    }
+
+    if (type === 'area') {
+        return (
+            <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={data} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                    <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
+                    <YAxis fontSize={10} tickLine={false} axisLine={false} />
+                    <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />
+                    <Area type="monotone" dataKey={yKey} stroke={color} fill={color} fillOpacity={0.3} />
+                </AreaChart>
+            </ResponsiveContainer>
+        );
+    }
+
+    if (type === 'scatter') {
+        return (
+            <ResponsiveContainer width="100%" height="100%">
+                <ScatterChart>
+                    <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+                    <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
+                    <YAxis dataKey={yKey} fontSize={10} tickLine={false} axisLine={false} />
+                    <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />
+                    <Scatter data={data} fill={color} />
+                </ScatterChart>
             </ResponsiveContainer>
         );
     }

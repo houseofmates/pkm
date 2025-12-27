@@ -24,12 +24,13 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     const location = useLocation();
 
     useEffect(() => {
-        // Only allow viewing /databases if we came from the sidebar icon
-        if (!(location.state as any)?.fromSidebar) {
+        const params = new URLSearchParams(location.search);
+        const allowed = (location.state as any)?.fromSidebar || localStorage.getItem('pkm:allow_databases_direct') || params.get('bookmark') === 'true';
+        if (!allowed) {
             navigate('/');
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    }, [location, navigate]);
 
     const handleSelect = (name: string) => {
         // Prefer prop if available (for flexibility), else direct route
@@ -39,6 +40,18 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
             navigate(`/databases/${name}`, { state: { fromSidebar: true, view: 'table' } });
         }
     };
+
+    const handleBookmark = () => {
+        const url = window.location.origin + '/databases?bookmark=true';
+        try {
+            navigator.clipboard.writeText(url);
+            localStorage.setItem('pkm:allow_databases_direct', '1');
+            toast.success('Database link copied to clipboard');
+        } catch (e) {
+            console.warn('Clipboard write failed', e);
+            toast.success('Copy URL: ' + url);
+        }
+    }; 
 
     const handleLogin = () => {
         if (!apiKey) return;
@@ -87,7 +100,8 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
                 <h1 className="text-3xl font-bold lowercase tracking-tight">Databases</h1>
                 <div className="flex items-center gap-2">
                     <CreateCollectionDialog onCollectionCreated={refresh} />
-                </div>
+                    <Button variant="ghost" size="sm" onClick={handleBookmark}>Bookmark</Button>
+                </div> 
             </div>
             {collections.length === 0 ? (
                 <div className="flex flex-col items-center justify-center p-20 text-center space-y-4 border-2 border-dashed rounded-lg opacity-50">

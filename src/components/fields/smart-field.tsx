@@ -105,6 +105,8 @@ export interface SmartFieldProps {
 export function SmartField({ value, field, mode: _mode = 'view', onChange, className }: SmartFieldProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [localValue, setLocalValue] = useState(value);
+    const [galleryOpen, setGalleryOpen] = useState(false);
+    const [galleryIndex, setGalleryIndex] = useState(0);
 
     useEffect(() => {
         if (!isEditing) setLocalValue(value);
@@ -389,6 +391,40 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
     }
 
     if (isFile) {
+        // Normalize to array of urls
+        const imgs: string[] = [];
+        if (Array.isArray(value)) {
+            value.forEach((v: any) => {
+                if (!v) return;
+                if (typeof v === 'string') imgs.push(v);
+                else if (v.url) imgs.push(v.url);
+            });
+        } else if (typeof value === 'string') imgs.push(value);
+        else if (value?.url) imgs.push(value.url);
+
+        if (imgs.length > 0) {
+            return (
+                <>
+                    <div className="cursor-pointer flex items-center gap-2" onClick={(e) => { e.stopPropagation(); setGalleryOpen(true); }}>
+                        {imgs.slice(0, 3).map((u, i) => (
+                            <img key={i} src={u} className="h-6 w-6 object-cover rounded" alt={`img-${i}`} />
+                        ))}
+                        <span className="text-xs truncate max-w-[120px]">{imgs.length} image{imgs.length > 1 ? 's' : ''}</span>
+                    </div>
+
+                    <Dialog open={galleryOpen} onOpenChange={setGalleryOpen}>
+                        <DialogContent className="max-w-5xl w-full">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {imgs.map((u, i) => (
+                                    <img key={i} src={u} alt={`img-${i}`} className="rounded shadow cursor-pointer object-contain" onClick={() => window.open(u, '_blank')} />
+                                ))}
+                            </div>
+                        </DialogContent>
+                    </Dialog>
+                </>
+            )
+        }
+
         return (
             <div onClick={() => setIsEditing(true)} className="cursor-pointer flex items-center gap-1 hover:text-primary">
                 <Paperclip className="h-3 w-3" />
