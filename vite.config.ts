@@ -16,21 +16,27 @@ export default defineConfig({
             const decodedUrl = decodeURIComponent(req.url);
             const filePath = path.join(process.cwd(), decodedUrl);
 
-            if (fs.existsSync(filePath) && fs.lstatSync(filePath).isFile()) {
-              res.setHeader('Access-Control-Allow-Origin', '*');
-              res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-              res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
+            try {
+              if (fs.existsSync(filePath) && fs.lstatSync(filePath).isFile()) {
+                res.setHeader('Access-Control-Allow-Origin', '*');
+                res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+                res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
 
-              if (req.method === 'OPTIONS') {
-                res.statusCode = 204;
-                res.end();
+                if (req.method === 'OPTIONS') {
+                  res.statusCode = 204;
+                  res.end();
+                  return;
+                }
+
+                // Simple static serving for the middleware
+                const stream = fs.createReadStream(filePath);
+                stream.pipe(res);
                 return;
               }
-
-              // Simple static serving for the middleware
-              const stream = fs.createReadStream(filePath);
-              stream.pipe(res);
-              return;
+            } catch (e) {
+              console.error('Middleware Error serving:', req.url, e);
+              // Fallthrough to next() or 500 response?
+              // If we error here, it's safer to next() or return 500
             }
           }
           next();
