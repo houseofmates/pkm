@@ -51,7 +51,7 @@ export function Dashboard() {
                                 {loading ? 'Refreshing...' : 'Refresh'}
                             </Button>
                         )}
-                        <Button variant="outline" size="sm" onClick={logout}>Logout</Button>
+                        <Button variant="outline" size="sm" onClick={logout}>logout</Button>
                     </div>
                 </header>
 
@@ -68,7 +68,7 @@ export function Dashboard() {
                             </p>
                             {/* Mobile: Show list if Sidebar is hidden */}
                             <div className="md:hidden w-full max-w-sm text-left border rounded-lg p-4 bg-card">
-                                <div className="font-medium mb-2">Collections ({collections.length})</div>
+                                <div className="font-medium mb-2">collections ({collections.length})</div>
                                 <div className="space-y-1">
                                     {collections.map(c => (
                                         <Button key={c.name} variant="ghost" className="w-full justify-start" onClick={() => handleCollectionSelect(c)}>
