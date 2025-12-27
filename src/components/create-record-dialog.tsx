@@ -86,11 +86,11 @@ export function CreateRecordDialog({ collectionName, fields, onRecordCreated, op
             )}
             <DialogContent className="max-h-[80vh] overflow-y-auto">
                 <DialogHeader>
-                    <DialogTitle>New Item</DialogTitle>
+                    <DialogTitle>new item</DialogTitle>
                 </DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4 py-4">
                     {editableFields.length === 0 && (
-                        <p className="text-muted-foreground">No editable fields found.</p>
+                        <p className="text-muted-foreground">no editable fields found.</p>
                     )}
                     {editableFields.map(field => (
                         <div key={field.name} className="space-y-2">
