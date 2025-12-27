@@ -4,10 +4,11 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft, Settings2 } from 'lucide-react';
 import { CreateFieldDialog } from '@/components/create-field-dialog';
 import { toast } from 'sonner';
+import { useNavigate, useParams } from 'react-router-dom';
 
 interface CollectionDetailPageProps {
-    collectionName: string;
-    onBack: () => void;
+    collectionName?: string;
+    onBack?: () => void;
 }
 
 import { CreateRecordDialog } from '@/components/create-record-dialog';
