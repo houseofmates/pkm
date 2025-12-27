@@ -15,6 +15,7 @@ interface FronterContextType {
     setFronter: (id: string | null) => void;
     overrides: Record<string, HeadmateOverride>;
     updateOverride: (id: string, data: Partial<HeadmateOverride>) => void;
+    flushOverrides: () => Promise<void>;
 }
 
 const FronterContext = createContext<FronterContextType | undefined>(undefined);
