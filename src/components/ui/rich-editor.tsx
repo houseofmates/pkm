@@ -98,14 +98,14 @@ export function RichEditor({ value = '', placeholder, className, onChange, uploa
                     <button type="button" className="btn-ghost btn-sm" onClick={() => exec('formatBlock', 'H2')}>H2</button>
                     <button type="button" className="btn-ghost btn-sm" onClick={() => exec('formatBlock', 'H3')}>H3</button>
                     <button type="button" className="btn-ghost btn-sm" onClick={() => exec('formatBlock', 'BLOCKQUOTE')}>❝</button>
-                    <button type="button" className="btn-ghost btn-sm" onClick={() => exec('formatBlock', 'PRE')}>Code</button>
+                    <button type="button" className="btn-ghost btn-sm" onClick={() => exec('formatBlock', 'PRE')}>code</button>
                     <button type="button" className="btn-ghost btn-sm" onClick={() => {
                         const url = prompt('Enter URL');
                         if (url) exec('createLink', url);
-                    }}>Link</button>
+                    }}>link</button>
                     <button type="button" className="btn-ghost btn-sm" onClick={() => exec('insertUnorderedList')}>• List</button>
                     <button type="button" className="btn-ghost btn-sm" onClick={() => exec('insertOrderedList')}>1. List</button>
-                    <button type="button" className="btn-ghost btn-sm" onClick={() => fileRef.current?.click()}>Image</button>
+                    <button type="button" className="btn-ghost btn-sm" onClick={() => fileRef.current?.click()}>image</button>
                     <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => {
                         const files = e.target.files;
                         if (!files) return;
