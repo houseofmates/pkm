@@ -1,6 +1,5 @@
 
-import { useState, useRef, useEffect } from 'react';
-import type { Field } from '@/types/nocobase';
+import { useState, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
