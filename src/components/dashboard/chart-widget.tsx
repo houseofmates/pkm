@@ -366,8 +366,12 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
     }
 
     if (type === 'pie') {
+        if (!isMounted || !hasValidDimensions) {
+            return <div className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+        }
+
         return (
-            <div className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
+            <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
                 <PlaceholderOverlay label="Select Category" targetKey="chartX" />
                 <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
