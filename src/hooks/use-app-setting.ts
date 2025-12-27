@@ -113,6 +113,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
                 params: {
                     filter: JSON.stringify({ key }),
                     pageSize: '1',
+                    fields: 'id,key,value',
                 }
             });
 
