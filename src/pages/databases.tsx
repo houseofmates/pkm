@@ -7,10 +7,10 @@ import { CreateCollectionDialog } from '@/components/create-collection-dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { DatabaseContextMenu } from '@/components/database-context-menu';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 interface DatabasesPageProps {
     onSelect?: (name: string) => void;
