@@ -53,7 +53,7 @@ export function CreateRecordDialog({ collectionName, fields, onRecordCreated, op
             toast.success("Record created");
             setOpen(false);
             setFormData({});
-            onRecordCreated();
+            if (onRecordCreated) onRecordCreated();
         } catch (error: any) {
             console.error(error);
             toast.error("Failed to create record");
