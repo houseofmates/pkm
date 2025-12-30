@@ -55,6 +55,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         <SmartField
                             value={info.getValue()}
                             field={field}
+                            record={info.row.original}
                             onChange={(val) => {
                                 // Call update callback
                                 if (onUpdateRecord) {
@@ -73,6 +74,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         <SmartField
                             value={info.getValue()}
                             field={{ type: 'string', name: key }}
+                            record={info.row.original}
                             onChange={(val) => {
                                 if (onUpdateRecord) {
                                     onUpdateRecord(info.row.original.id, { [key]: val });
