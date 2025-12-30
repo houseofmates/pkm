@@ -133,8 +133,15 @@ export function detectFieldType(header: string, values: any[]): DetectionResult 
     const nonNullValues = values.filter(v => v !== null && v !== undefined && String(v).trim() !== '');
 
     // 1. Check Header Patterns
+    // Sort patterns by length (descending) to ensure specific matches (e.g. "last fronted") 
+    // catch before generic ones if necessary, though our map is flat.
     for (const [pattern, type] of Object.entries(HEADER_PATTERNS)) {
         if (normalizedHeader.includes(pattern)) {
+            // Special handling: 'front' keywords might be number (days fronted) or date (last fronted)
+            // If header contains 'days', 'hours', 'count' -> Number
+            if (normalizedHeader.includes('days') || normalizedHeader.includes('hours') || normalizedHeader.includes('count')) {
+                if (validateNumber(nonNullValues)) return { type: 'number', confidence: 'high', reason: 'matched "days/hours" keyword' };
+            }
             // Additional validations for specific types to avoid false positives
             if (type === 'multipleSelect' && !validateMultiSelect(nonNullValues)) {
                 continue;
