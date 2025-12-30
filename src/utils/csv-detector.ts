@@ -140,13 +140,22 @@ export function detectFieldType(header: string, values: any[], existingCollectio
     // We check this BEFORE patterns in case the column name literally matches a collection name
     // (e.g. column "Category" matching collection "categories" should be a relation, not just a select)
     if (existingCollections.length > 0) {
-        // Simple normalization for comparison (remove 's', replace _ with space)
-        const cleanHeader = normalizedHeader.replace(/s$/, '').replace(/_/g, ' ');
+        const h = normalizedHeader.replace(/_/g, ' ');
 
         for (const colName of existingCollections) {
-            const cleanColName = colName.toLowerCase().replace(/_/g, ' ').replace(/s$/, '');
-            // Exact match of singular/cleaned versions
-            if (cleanHeader === cleanColName || cleanHeader === colName.toLowerCase()) {
+            const c = colName.toLowerCase().replace(/_/g, ' ');
+
+            // Check for match
+            let match = false;
+            // 1. Exact
+            if (h === c) match = true;
+            // 2. Simple plural (Author <-> Authors)
+            else if (h + 's' === c || c + 's' === h) match = true;
+            // 3. ties/y (Category <-> Categories)
+            else if (h.endsWith('y') && h.slice(0, -1) + 'ies' === c) match = true;
+            else if (c.endsWith('y') && c.slice(0, -1) + 'ies' === h) match = true;
+
+            if (match) {
                 return { type: 'belongsTo', confidence: 'high', reason: `matches collection "${colName}"`, target: colName };
             }
         }
