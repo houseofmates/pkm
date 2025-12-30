@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
-import Editor, { Monaco } from '@monaco-editor/react';
+import React, { useState } from 'react';
+import Editor from '@monaco-editor/react';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
-import { Terminal, Send, Play, Sparkles, X, Check, Save } from 'lucide-react';
+import { Terminal, Send, Play, Sparkles, X, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 
@@ -148,6 +148,7 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
                                                                     variant="secondary"
                                                                     className="absolute top-0 right-0 h-5 text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"
                                                                     onClick={() => setCode(String(children).replace(/\n$/, ''))}
+                                                                    onClick={() => setCode(codeContent.trim())}
                                                                 >
                                                                     Apply
                                                                 </Button>
