@@ -98,8 +98,34 @@ const HEADER_PATTERNS: Record<string, FieldType> = {
     summary: 'text',
     comment: 'text',
     message: 'text',
-    title: 'text',
+    // Plural System Special
+    front: 'datetime',
+    fronting: 'datetime',
+    last_fronted: 'datetime', // Handles 'last fronted', 'dynamic last fronted'
+
+    // Select / Demographics
+    gender: 'select',
+    sexuality: 'select',
+    orientation: 'select',
+    pronouns: 'text',
+    introject: 'select', // 'introject type'
+    role: 'multipleSelect', // 'role' often has multiple values
+
+    // Tracking
+    frequency: 'select', // 'fronting frequency'
+    communication: 'text', // 'communication style'
+    boundaries: 'text', // Long text
+    triggers: 'text', // 'pos. triggers'
+
+    // Interests
+    likes: 'multipleSelect',
+    dislikes: 'multipleSelect',
+    interests: 'multipleSelect',
+
+    // Text Fallbacks for Specific Names
     name: 'text',
+    title: 'text',
+    source: 'text', // 'introject/sourced from'
 };
 
 export function detectFieldType(header: string, values: any[]): DetectionResult {
