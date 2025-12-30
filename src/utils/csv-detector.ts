@@ -18,6 +18,7 @@ export interface DetectionResult {
     type: FieldType;
     confidence: 'high' | 'medium' | 'low';
     reason: string;
+    target?: string;
 }
 
 const HEADER_PATTERNS: Record<string, FieldType> = {
@@ -60,6 +61,7 @@ const HEADER_PATTERNS: Record<string, FieldType> = {
     rating: 'number',
     score: 'number',
     percent: 'number',
+    age: 'number', // Explicit user request
 
     // Attachment
     image: 'attachment',
@@ -68,6 +70,8 @@ const HEADER_PATTERNS: Record<string, FieldType> = {
     thumbnail: 'attachment',
     file: 'attachment',
     attachment: 'attachment',
+    img: 'attachment',
+    pic: 'attachment',
 
     // Select / Status
     status: 'select',
@@ -128,12 +132,28 @@ const HEADER_PATTERNS: Record<string, FieldType> = {
     source: 'text', // 'introject/sourced from'
 };
 
-export function detectFieldType(header: string, values: any[]): DetectionResult {
+export function detectFieldType(header: string, values: any[], existingCollections: string[] = []): DetectionResult {
     const normalizedHeader = header.toLowerCase().trim();
     const nonNullValues = values.filter(v => v !== null && v !== undefined && String(v).trim() !== '');
 
+    // 0. Check for Relations (User Request: "obvious references to other titles")
+    // We check this BEFORE patterns in case the column name literally matches a collection name
+    // (e.g. column "Category" matching collection "categories" should be a relation, not just a select)
+    if (existingCollections.length > 0) {
+        // Simple normalization for comparison (remove 's', replace _ with space)
+        const cleanHeader = normalizedHeader.replace(/s$/, '').replace(/_/g, ' ');
+
+        for (const colName of existingCollections) {
+            const cleanColName = colName.toLowerCase().replace(/_/g, ' ').replace(/s$/, '');
+            // Exact match of singular/cleaned versions
+            if (cleanHeader === cleanColName || cleanHeader === colName.toLowerCase()) {
+                return { type: 'belongsTo', confidence: 'high', reason: `matches collection "${colName}"`, target: colName };
+            }
+        }
+    }
+
     // 1. Check Header Patterns
-    // Sort patterns by length (descending) to ensure specific matches (e.g. "last fronted") 
+    // Sort patterns by length (descending) to ensure specific matches (e.g. "last fronted")
     // catch before generic ones if necessary, though our map is flat.
     for (const [pattern, type] of Object.entries(HEADER_PATTERNS)) {
         if (normalizedHeader.includes(pattern)) {
