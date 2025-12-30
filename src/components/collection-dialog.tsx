@@ -149,11 +149,12 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                         const data = results.data as any[];
                         const headers = Object.keys(data[0]);
                         const fields = headers.map(h => {
-                            const detection = detectFieldType(h, data.map(row => row[h]));
+                            const detection = detectFieldType(h, data.map(row => row[h]), collectionsList.map(c => c.name));
                             return {
                                 name: h.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''),
                                 title: h,
                                 interface: detection.type,
+                                target: detection.target,
                                 detectionReason: detection.reason,
                                 detectionConfidence: detection.confidence
                             };
