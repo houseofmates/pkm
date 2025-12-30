@@ -181,8 +181,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
 
     return (
         <div className="p-4 md:p-8 space-y-6 h-full overflow-auto">
-            <div className="flex items-center justify-between">
-                <h1 className="text-3xl font-bold lowercase tracking-tight">databases</h1>
+            <div className="flex items-center justify-end mb-4">
                 <div className="flex items-center gap-2">
                     <CollectionDialog onSuccess={refresh} trigger={
                         <Button size="icon" variant="outline" className="rounded-full w-10 h-10">
