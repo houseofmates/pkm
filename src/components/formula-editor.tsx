@@ -132,35 +132,36 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
                                 {messages.map((m, i) => (
                                     <div key={i} className={cn("flex flex-col gap-1 max-w-[90%]", m.role === 'user' ? "self-end items-end" : "self-start")}>
                                         <div className={cn("p-2 rounded-lg text-sm", m.role === 'user' ? "bg-primary text-primary-foreground" : "bg-muted")}>
-                                            <ReactMarkdown
-                                                className="prose prose-sm dark:prose-invert max-w-none"
-                                                components={{
-                                                    code({ node, inline, className, children, ...props }: any) {
-                                                        const match = /language-(\w+)/.exec(className || '')
-                                                        return !inline && match ? (
-                                                            <div className="relative group">
+                                            <div className="prose prose-sm dark:prose-invert max-w-none">
+                                                <ReactMarkdown
+                                                    components={{
+                                                        code({ node, inline, className, children, ...props }: any) {
+                                                            const match = /language-(\w+)/.exec(className || '')
+                                                            return !inline && match ? (
+                                                                <div className="relative group">
+                                                                    <code className={className} {...props}>
+                                                                        {children}
+                                                                    </code>
+                                                                    <Button
+                                                                        size="sm"
+                                                                        variant="secondary"
+                                                                        className="absolute top-0 right-0 h-5 text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"
+                                                                        onClick={() => setCode(String(children).replace(/\n$/, ''))}
+                                                                    >
+                                                                        Apply
+                                                                    </Button>
+                                                                </div>
+                                                            ) : (
                                                                 <code className={className} {...props}>
                                                                     {children}
                                                                 </code>
-                                                                <Button
-                                                                    size="sm"
-                                                                    variant="secondary"
-                                                                    className="absolute top-0 right-0 h-5 text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"
-                                                                    onClick={() => setCode(String(children).replace(/\n$/, ''))}
-                                                                >
-                                                                    Apply
-                                                                </Button>
-                                                            </div>
-                                                        ) : (
-                                                            <code className={className} {...props}>
-                                                                {children}
-                                                            </code>
-                                                        )
-                                                    }
-                                                }}
-                                            >
-                                                {m.content}
-                                            </ReactMarkdown>
+                                                            )
+                                                        }
+                                                    }}
+                                                >
+                                                    {m.content}
+                                                </ReactMarkdown>
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
