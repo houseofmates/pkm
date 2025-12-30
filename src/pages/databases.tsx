@@ -68,13 +68,11 @@ function SortableDatabaseItem({ collection, onSelect, onRefresh }: SortableDatab
             >
                 <GripVertical className="h-4 w-4 text-muted-foreground" />
             </div>
-            <div onClick={() => onSelect(collection.name)} className="cursor-pointer">
-                <DatabaseContextMenu collection={collection} onUpdate={onRefresh}>
-                    <div className="pointer-events-none">
-                        <CollectionCard collection={collection} />
-                    </div>
-                </DatabaseContextMenu>
-            </div>
+            <DatabaseContextMenu collection={collection} onUpdate={onRefresh}>
+                <div onClick={() => onSelect(collection.name)} className="cursor-pointer">
+                    <CollectionCard collection={collection} />
+                </div>
+            </DatabaseContextMenu>
         </div>
     );
 }
