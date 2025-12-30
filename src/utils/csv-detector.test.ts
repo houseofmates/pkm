@@ -14,6 +14,15 @@ describe('detectFieldType', () => {
         expect(detectFieldType('Status', ['Active']).type).toBe('select');
         expect(detectFieldType('Avatar Image', ['image.png']).type).toBe('attachment');
         expect(detectFieldType('Background Color', ['#fff']).type).toBe('color');
+
+        // System Specific
+        expect(detectFieldType('Pronouns', ['she/her']).type).toBe('text'); // Override default?
+        expect(detectFieldType('Gender', ['Non-binary']).type).toBe('select');
+        expect(detectFieldType('Introject Type', ['Fictive']).type).toBe('select');
+        expect(detectFieldType('Role', ['Protector, Caretaker']).type).toBe('multipleSelect');
+        expect(detectFieldType('Likes', ['Pizza, Games']).type).toBe('multipleSelect');
+        expect(detectFieldType('Last Fronted', ['2023-01-01']).type).toBe('datetime');
+        expect(detectFieldType('Days Fronted', ['5', '10']).type).toBe('number'); // Test collision with 'front' -> datetime
     });
 
     // 2. Notion Special Cases
