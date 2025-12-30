@@ -85,19 +85,19 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                 const filteredCollections = res.data.filter((col: Collection) => {
                     const name = (col.name || '').toLowerCase().trim();
                     const title = (col.title || '').toLowerCase().trim();
-                    
+
                     // Exclude system collections
                     if (systemCollections.includes(name)) return false;
-                    
+
                     // Exclude pkm_settings
                     if (name === 'pkm_settings' || title === 'pkm settings') return false;
-                    
+
                     // Hide anything with "backend" in the name or title
                     if (name.includes('backend') || title.includes('backend')) return false;
-                    
+
                     // Exclude hidden collections
                     if (col.hidden) return false;
-                    
+
                     return true;
                 });
                 setCollectionsList(filteredCollections);
@@ -123,48 +123,16 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
     }, [open, isEdit, collection, metadata, client]);
 
     const [csvData, setCsvData] = useState<any[]>([]);
-    const [csvFields, setCsvFields] = useState<{ name: string; title: string; interface: string; target?: string; expression?: string }[]>([]);
+    const [csvFields, setCsvFields] = useState<{
+        name: string;
+        title: string;
+        interface: string;
+        target?: string;
+        expression?: string;
+        detectionReason?: string;
+        detectionConfidence?: 'high' | 'medium' | 'low';
+    }[]>([]);
     const csvInputRef = useRef<HTMLInputElement>(null);
-
-    const inferType = (values: any[]) => {
-        const nonNull = values.filter(v => v !== null && v !== undefined && v !== '');
-        if (nonNull.length === 0) return 'text';
-
-        // Check for Email
-        const isEmail = nonNull.every(v => /[^\s@]+@[^\s@]+\.[^\s@]+/.test(String(v)));
-        if (isEmail) return 'email';
-
-        // Check for Phone (10+ digits or specific patterns)
-        const isPhone = nonNull.every(v => {
-            const s = String(v).replace(/[-().\s+]/g, '');
-            return s.length >= 10 && /^\d+$/.test(s);
-        });
-        if (isPhone) return 'phone';
-
-        // Check for Password (numbers > 3 digits without decimals)
-        const isSecret = nonNull.every(v => {
-            const s = String(v);
-            return s.length >= 4 && /^\d+$/.test(s);
-        });
-        if (isSecret) return 'password';
-
-        // Check for boolean
-        const isBool = nonNull.every(v => {
-            const s = String(v).toLowerCase();
-            return ['true', 'false', 'yes', 'no', '1', '0'].includes(s);
-        });
-        if (isBool) return 'checkbox';
-
-        // Check for number
-        const isNum = nonNull.every(v => !isNaN(Number(v)) && String(v).trim() !== '');
-        if (isNum) return 'number';
-
-        // Check for date
-        const isDate = nonNull.every(v => !isNaN(Date.parse(String(v))));
-        if (isDate) return 'datetime';
-
-        return 'text';
-    };
 
     const handleCsvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
@@ -179,11 +147,16 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                     if (results.data && results.data.length > 0) {
                         const data = results.data as any[];
                         const headers = Object.keys(data[0]);
-                        const fields = headers.map(h => ({
-                            name: h.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''),
-                            title: h,
-                            interface: inferType(data.map(row => row[h]))
-                        }));
+                        const fields = headers.map(h => {
+                            const detection = detectFieldType(h, data.map(row => row[h]));
+                            return {
+                                name: h.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''),
+                                title: h,
+                                interface: detection.type,
+                                detectionReason: detection.reason,
+                                detectionConfidence: detection.confidence
+                            };
+                        });
                         setCsvData(data);
                         setCsvFields(fields);
                         if (!displayName) setDisplayName(file.name.replace(/\.[^/.]+$/, ""));
