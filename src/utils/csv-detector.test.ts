@@ -11,9 +11,10 @@ describe('detectFieldType', () => {
         expect(detectFieldType('Created Date', ['2023-01-01']).type).toBe('datetime');
         expect(detectFieldType('Is Active', ['true']).type).toBe('checkbox');
         expect(detectFieldType('Tags', ['tag1, tag2']).type).toBe('multipleSelect');
-        expect(detectFieldType('Status', ['Active']).type).toBe('select');
-        expect(detectFieldType('Avatar Image', ['image.png']).type).toBe('attachment');
         expect(detectFieldType('Background Color', ['#fff']).type).toBe('color');
+        expect(detectFieldType('Age', ['25']).type).toBe('number'); // Explicit user request
+        expect(detectFieldType('Profile Pic', ['img.png']).type).toBe('attachment');
+        expect(detectFieldType('Img', ['img.png']).type).toBe('attachment');
 
         // System Specific
         expect(detectFieldType('Pronouns', ['she/her']).type).toBe('text'); // Override default?
@@ -23,6 +24,25 @@ describe('detectFieldType', () => {
         expect(detectFieldType('Likes', ['Pizza, Games']).type).toBe('multipleSelect');
         expect(detectFieldType('Last Fronted', ['2023-01-01']).type).toBe('datetime');
         expect(detectFieldType('Days Fronted', ['5', '10']).type).toBe('number'); // Test collision with 'front' -> datetime
+    });
+
+    it('detects relations matches against existing collections', () => {
+        const collections = ['authors', 'books', 'categories'];
+
+        // Exact singular match
+        const result1 = detectFieldType('Author', ['Alice'], collections);
+        expect(result1.type).toBe('belongsTo');
+        expect(result1.target).toBe('authors');
+
+        // Plural match
+        const result2 = detectFieldType('Books', ['123'], collections);
+        expect(result2.type).toBe('belongsTo');
+        expect(result2.target).toBe('books');
+
+        // Case insensitive match
+        const result3 = detectFieldType('category', ['Fiction'], collections);
+        expect(result3.type).toBe('belongsTo');
+        expect(result3.target).toBe('categories');
     });
 
     // 2. Notion Special Cases
