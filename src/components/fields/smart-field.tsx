@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { Check, X, Phone, Mail, MapPin, Lock, Terminal, Code2, Paperclip, Link as LinkIcon } from 'lucide-react';
+import { Check, X, Phone, Mail, MapPin, Lock, Terminal, Code2, Paperclip, Link as LinkIcon, Sparkles } from 'lucide-react';
 
 
 import { LocationField } from './location-field';
@@ -19,6 +19,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from 'sonner';
+
+// Import Formula Editor
+import { FormulaEditor } from '@/components/formula-editor';
 
 // --- Relation Picker Component ---
 function RelationPicker({ field, value, onChange, onCancel }: any) {
@@ -104,17 +107,20 @@ function RelationPicker({ field, value, onChange, onCancel }: any) {
 export interface SmartFieldProps {
     value: any;
     field: any;
+    record?: any; // Added record context
     mode?: 'view' | 'edit';
     onChange: (value: any) => void;
     className?: string;
 }
 
-export function SmartField({ value, field, mode: _mode = 'view', onChange, className }: SmartFieldProps) {
+export function SmartField({ value, field, record, mode: _mode = 'view', onChange, className }: SmartFieldProps) {
     const [isEditing, setIsEditing] = useState(false);
     const [localValue, setLocalValue] = useState(value);
     const [galleryOpen, setGalleryOpen] = useState(false);
     const [galleryImgs, setGalleryImgs] = useState<string[]>([]);
-    // TODO: show upload progress UI later
+
+    // Formula Editor State
+    const [showFormulaEditor, setShowFormulaEditor] = useState(false);
 
     const { client } = useAuth();
 
@@ -162,7 +168,7 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
     const isColor = detectedType === 'color' || name.includes('color');
     const isCheckbox = detectedType === 'boolean' || detectedType === 'checkbox';
     const isSelect = detectedType === 'select' || detectedType === 'multipleSelect';
-    const isCode = detectedType === 'code' || name === 'code';
+    const isCode = detectedType === 'code' || name === 'code' || name === 'formula'; // Added formula
     const isMarkdown = detectedType === 'markdown' || detectedType === 'richText' || name.includes('desc') || name.includes('note');
     const isNumber = detectedType === 'number' || detectedType === 'integer' || detectedType === 'percent';
     const isUrl = detectedType === 'url' || detectedType === 'link' || name.includes('link') || name.includes('url');
@@ -237,14 +243,40 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
             );
         }
 
-        if (isMarkdown || isCode) { /* WYSIWYG editor for markdown, code still uses plaintext */
+        if (isCode && showFormulaEditor) {
+            return (
+                <FormulaEditor
+                    value={localValue}
+                    record={record}
+                    client={client}
+                    onSave={(newCode) => {
+                        setLocalValue(newCode);
+                        onChange(newCode);
+                        setIsEditing(false);
+                        setShowFormulaEditor(false);
+                    }}
+                    onCancel={() => {
+                        setIsEditing(false);
+                        setShowFormulaEditor(false);
+                    }}
+                />
+            );
+        }
+
+        if (isMarkdown || isCode) { /* WYSIWYG editor for markdown, code button for code */
+            if (isCode) {
+                // Should have triggered above, but if slightly different logic:
+                setShowFormulaEditor(true);
+                return null;
+            }
+
             return (
                 <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
                     <div className="bg-card w-full max-w-3xl h-[80vh] border rounded-lg shadow-2xl flex flex-col overflow-hidden">
                         <div className="p-2 border-b flex justify-between items-center bg-muted/50">
                             <div className="flex items-center gap-2">
-                                {isCode ? <Code2 className="h-4 w-4" /> : <Terminal className="h-4 w-4" />}
-                                <span className="font-mono text-sm font-bold">{isCode ? 'Code Editor' : 'Rich Text Editor'}</span>
+                                <Terminal className="h-4 w-4" />
+                                <span className="font-mono text-sm font-bold">Rich Text Editor</span>
                             </div>
                             <div className="flex gap-2">
                                 <Button size="sm" onClick={handleSave}>save</Button>
@@ -252,36 +284,21 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
                             </div>
                         </div>
 
-                        {isCode ? (
-                            <Textarea
-                                value={localValue || ''}
-                                onChange={e => setLocalValue(e.target.value)}
-                                className="flex-1 p-4 font-mono text-sm resize-none border-0 focus-visible:ring-0"
-                                placeholder={"// Enter Javascript code here..."}
+                        <div className="flex-1 overflow-auto p-4">
+                            <RichEditor
+                                value={localValue && String(localValue).trim().startsWith('<') ? localValue : (localValue ? `<p>${String(localValue).replace(/\n/g, '<br/>')}</p>` : '')}
+                                onChange={(html) => setLocalValue(sanitizeHTML(html))}
+                                uploadImage={async (file: File) => {
+                                    try {
+                                        const res = await client.upload(file);
+                                        return res?.data?.url || '';
+                                    } catch (e) {
+                                        console.error('upload failed', e);
+                                        throw e;
+                                    }
+                                }}
                             />
-                        ) : (
-                            <div className="flex-1 overflow-auto p-4">
-                                <RichEditor
-                                    value={localValue && String(localValue).trim().startsWith('<') ? localValue : (localValue ? `<p>${String(localValue).replace(/\n/g, '<br/>')}</p>` : '')}
-                                    onChange={(html) => setLocalValue(sanitizeHTML(html))}
-                                    uploadImage={async (file: File) => {
-                                        try {
-                                            const res = await client.upload(file);
-                                            return res?.data?.url || '';
-                                        } catch (e) {
-                                            console.error('upload failed', e);
-                                            throw e;
-                                        }
-                                    }}
-                                />
-                            </div>
-                        )}
-
-                        {isCode && (
-                            <div className="p-2 bg-destructive/10 text-destructive text-xs border-t">
-                                Warning: Code injection allows this script to run in your browser.
-                            </div>
-                        )}
+                        </div>
                     </div>
                 </div>
             );
@@ -614,21 +631,27 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
         if (isCode) { /* ... */
             return (
                 <div className="flex items-center gap-2">
-                    <div onClick={() => setIsEditing(true)} className="cursor-pointer font-mono text-[10px] bg-muted px-1 rounded text-muted-foreground truncate max-w-[100px]">
+                    <div onClick={() => { setIsEditing(true); setShowFormulaEditor(true); }} className="cursor-pointer font-mono text-[10px] bg-muted px-1 rounded text-muted-foreground truncate max-w-[100px] hover:text-foreground hover:bg-muted/80">
                         {value ? '<script...>' : 'empty code'}
                     </div>
                     {value && (
-                        <Button variant="outline" size="sm" className="h-5 text-[10px] px-1" onClick={() => {
-                            try {
-                                // eslint-disable-next-line
-                                const func = new Function(value);
-                                func();
-                            } catch (e) {
-                                alert("Error running code: " + e);
-                            }
-                        }}>
-                            Run
-                        </Button>
+                        <div className="flex gap-1">
+                            <Button variant="outline" size="sm" className="h-5 text-[10px] px-1" title="Run" onClick={() => {
+                                try {
+                                    // eslint-disable-next-line
+                                    const func = new Function('record', 'api', value);
+                                    func(record, client); // Run with context
+                                    toast.success("Script executed");
+                                } catch (e) {
+                                    alert("Error running code: " + e);
+                                }
+                            }}>
+                                <Terminal className="h-3 w-3" />
+                            </Button>
+                            <Button variant="outline" size="sm" className="h-5 text-[10px] px-1" title="AI Edit" onClick={() => { setIsEditing(true); setShowFormulaEditor(true); }}>
+                                <Sparkles className="h-3 w-3" />
+                            </Button>
+                        </div>
                     )}
                 </div>
             )
@@ -657,4 +680,3 @@ export function SmartField({ value, field, mode: _mode = 'view', onChange, class
         );
     }
 }
-
