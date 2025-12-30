@@ -6,12 +6,11 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { Check, X, Phone, Mail, MapPin, Lock, Terminal, Code2, Paperclip, Link as LinkIcon, Sparkles } from 'lucide-react';
+import { Check, X, Phone, Mail, MapPin, Lock, Terminal, Paperclip, Link as LinkIcon, Sparkles } from 'lucide-react';
 
 
 import { LocationField } from './location-field';
 import ReactMarkdown from 'react-markdown';
-import { Textarea } from '@/components/ui/textarea';
 import RichEditor from '@/components/ui/rich-editor';
 import { sanitizeHTML } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
