@@ -24,6 +24,7 @@ import { toast } from 'sonner';
 import { Image as ImageIcon, Plus } from 'lucide-react';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import type { Collection } from '@/types/nocobase';
+import { detectFieldType } from '@/utils/csv-detector';
 
 interface CollectionDialogProps {
     collection?: Collection;
