@@ -381,7 +381,14 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                                         <div className="max-h-48 overflow-y-auto border rounded p-2 bg-muted/30 space-y-1">
                                             {csvFields.map((field, idx) => (
                                                 <div key={field.name} className="flex items-center justify-between text-xs py-1.5 border-b last:border-0 border-muted group/field">
-                                                    <span className="font-medium truncate mr-2" title={field.title}>{field.title}</span>
+                                                    <div className="flex flex-col gap-0.5 max-w-[45%]">
+                                                        <span className="font-medium truncate" title={field.title}>{field.title}</span>
+                                                        {field.detectionReason && (
+                                                            <span className={`text-[0.65rem] truncate ${field.detectionConfidence === 'high' ? 'text-green-600' : 'text-muted-foreground'}`} title={`Detected as ${field.interface}: ${field.detectionReason}`}>
+                                                                {field.detectionReason}
+                                                            </span>
+                                                        )}
+                                                    </div>
                                                     <div className="flex flex-col gap-2">
                                                         <Select
                                                             value={field.interface}
