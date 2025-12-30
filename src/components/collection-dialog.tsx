@@ -44,7 +44,7 @@ const FIELD_TYPES = [
     { label: 'email', type: 'string', interface: 'email' },
     { label: 'phone', type: 'string', interface: 'phone' },
     { label: 'password', type: 'string', interface: 'password' },
-    { label: 'number', type: 'number', interface: 'number' },
+    { label: 'number', type: 'double', interface: 'number' },
     { label: 'date', type: 'date', interface: 'datetime' },
     { label: 'checkbox', type: 'boolean', interface: 'checkbox' },
     { label: 'url', type: 'string', interface: 'url' },
