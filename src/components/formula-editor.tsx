@@ -148,7 +148,6 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
                                                                     variant="secondary"
                                                                     className="absolute top-0 right-0 h-5 text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"
                                                                     onClick={() => setCode(String(children).replace(/\n$/, ''))}
-                                                                    onClick={() => setCode(codeContent.trim())}
                                                                 >
                                                                     Apply
                                                                 </Button>
