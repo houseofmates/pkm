@@ -21,8 +21,13 @@ import {
     AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { toast } from 'sonner';
-import { Trash2, Edit } from 'lucide-react';
+import { Trash2, Edit, Image as ImageIcon } from 'lucide-react';
 import { CollectionDialog } from './collection-dialog';
+import { useAppSetting } from '@/hooks/use-app-setting';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 interface DatabaseContextMenuProps {
     collection: Collection;
