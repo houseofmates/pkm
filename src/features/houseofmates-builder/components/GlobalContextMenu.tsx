@@ -76,7 +76,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
             try {
                 const uploaded = await api.upload(file);
                 console.log('[GlobalContextMenu] Upload response:', uploaded);
-                
+
                 // Try multiple possible response structures
                 const url = uploaded?.url || uploaded?.data?.url || uploaded?.data?.data?.url;
                 console.log('[GlobalContextMenu] Extracted URL:', url);
@@ -85,7 +85,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
                     const bgStyle = `url("${url}") center center / cover no-repeat fixed`;
                     console.log('[GlobalContextMenu] Setting background to:', bgStyle);
                     console.log('[GlobalContextMenu] Current page:', page);
-                    
+
                     updatePage({ background: bgStyle });
                     toast.success('background uploaded successfully');
                 } else {
@@ -241,7 +241,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
                         <div className="mb-4 p-3 rounded-xl bg-white/5 border border-white/10">
                             <p className="text-xs text-white/40 lowercase mb-1">url preview</p>
                             <p className="text-sm text-[var(--primary)] font-mono">
-                                houseofmates.space/<span className="text-white">{previewSlug || 'page-slug'}</span>
+                                {import.meta.env.VITE_DOMAIN || 'localhost'}/<span className="text-white">{previewSlug || 'page-slug'}</span>
                             </p>
                         </div>
                     )}

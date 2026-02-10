@@ -226,8 +226,9 @@ export function HeadmatesPage() {
                     // Note: If SP has the NocoBase URL, it might be absolute.
                     // We check if spAvatar *contains* the override path if relative.
                     if (overrideAvatar.startsWith('/')) {
-                        // e.g. /storage/uploads/xyz.png vs https://db.houseofmates.space/storage/uploads/xyz.png
-                        if (spAvatar.endsWith(overrideAvatar)) matches = true;
+                        // e.g. /storage/uploads/xyz.png vs https://db.../storage/uploads/xyz.png
+                        const nocobaseUrl = import.meta.env.VITE_NOCOBASE_URL || '';
+                        if (spAvatar.endsWith(overrideAvatar) || (nocobaseUrl && spAvatar.includes(nocobaseUrl))) matches = true;
                     }
 
                     if (!matches && spAvatar.length > 0) {

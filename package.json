@@ -5,6 +5,8 @@
   "type": "module",
   "main": "electron/main.js",
   "scripts": {
+    "predev": "node setup-env.js",
+    "prebuild": "node setup-env.js",
     "dev": "concurrently -k \"vite\" \"npm run backend\"",
     "dev:dupe": "concurrently -k \"vite --port 3010\" \"npm run backend\"",
     "build": "vite build",

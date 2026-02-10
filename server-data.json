@@ -2,18 +2,6 @@
   "chatHistory": [
     {
       "type": "chat",
-      "player": "House",
-      "message": "House left the game",
-      "timestamp": "2026-02-09T05:44:23Z"
-    },
-    {
-      "type": "chat",
-      "player": "system",
-      "message": "system sent an event",
-      "timestamp": "2026-02-09T05:45:49.534Z"
-    },
-    {
-      "type": "chat",
       "player": "system",
       "message": "system sent an event",
       "timestamp": "2026-02-09T05:47:03.378Z"
@@ -299,6 +287,18 @@
       "player": "system",
       "message": "ITZtacoYT left the game",
       "timestamp": "2026-02-10T14:17:40.979Z"
+    },
+    {
+      "type": "join",
+      "player": "system",
+      "message": "zpx3 joined the game",
+      "timestamp": "2026-02-10T19:27:43.664Z"
+    },
+    {
+      "type": "leave",
+      "player": "system",
+      "message": "zpx3 left the game",
+      "timestamp": "2026-02-10T19:36:43.980Z"
     }
   ],
   "lastServerStats": {
@@ -307,6 +307,6 @@
     "maxPlayers": 20,
     "tps": 20,
     "uptime": "Unknown",
-    "lastUpdated": "2026-02-10T19:14:53.574Z"
+    "lastUpdated": "2026-02-10T19:38:13.574Z"
   }
 }

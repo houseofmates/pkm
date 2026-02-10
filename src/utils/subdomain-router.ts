@@ -46,9 +46,10 @@ export const isPublicDomain = () => {
         return false;
     }
 
-    // EXPLICIT MARKER for houseofmates.space domains
-    // Any subdomain (except pkm, handled above) on houseofmates.space is PUBLIC
-    if (hostname.includes('houseofmates.space')) {
+    // EXPLICIT MARKER for configured primary domain
+    // Any subdomain (except pkm, handled above) on the primary domain is PUBLIC
+    const primaryDomain = import.meta.env.VITE_DOMAIN || 'localhost';
+    if (hostname.includes(primaryDomain) && primaryDomain !== 'localhost') {
         return true;
     }
 

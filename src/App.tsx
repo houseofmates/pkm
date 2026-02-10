@@ -13,6 +13,7 @@ import { LLMContextProvider } from "@/contexts/llm-context"
 // Lazy load heavy components
 const GlobalCommandPalette = lazy(() => import("@/components/global-command-palette").then(m => ({ default: m.GlobalCommandPalette })));
 const WilsonChat = lazy(() => import("@/features/chat/wilson-chat").then(m => ({ default: m.WilsonChat })));
+const SetupRequired = lazy(() => import("@/components/setup-required").then(m => ({ default: m.SetupRequired })));
 const HomePage = lazy(() => import("@/pages/home").then(m => ({ default: m.HomePage })));
 const DatabasesPage = lazy(() => import("@/pages/databases").then(m => ({ default: m.DatabasesPage })));
 const CollectionDetailPage = lazy(() => import("@/pages/collection-detail").then(m => ({ default: m.CollectionDetailPage })));
@@ -78,6 +79,16 @@ function AppContent() {
         : "loading..."}
     </div>
   );
+
+  // Check for critical configuration
+  const isConfigured = !!import.meta.env.VITE_API_URL;
+  if (!isConfigured && !isPublic) {
+    return (
+      <Suspense fallback={LoadingFallback}>
+        <SetupRequired />
+      </Suspense>
+    );
+  }
 
   // Public Site Router - Bypass standard App for public domains
   if (isPublic) {
