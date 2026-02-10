@@ -22,3 +22,39 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Build artifacts
+release/
+build/
+
+# Tauri
+src-tauri/target/
+
+# Electron
+electron/dist/
+
+# Capacitor
+android/app/build/
+android/.gradle/
+android/local.properties
+
+# Backend data
+backend/server-data.json
+backend/server-data.json.backup
+backend/public/*.png
+backend/public/*.jpg
+backend/public/*.jpeg
+backend/public/*.gif
+backend/public/*.webp
+backend/public/*.pdf
+
+# Personal files
+!releases/
+*.private.*

@@ -2,8 +2,11 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import type { ViewProps } from './registry';
 import { Button } from '@/components/ui/button';
-import { Save, ZoomIn, ZoomOut } from 'lucide-react';
+import { ZoomIn, ZoomOut, Save } from 'lucide-react';
+import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { RecordContextMenu } from '@/features/records/components/record-context-menu';
+import { SmartField } from '@/components/fields/smart-field';
 
 interface NodePosition {
     id: string;
@@ -11,7 +14,7 @@ interface NodePosition {
     y: number;
 }
 
-export function MindMapView({ data, collection, config, onConfigChange }: ViewProps) {
+export function MindMapView({ data, collection, config = {}, onConfigChange, onUpdateRecord, onDelete }: ViewProps) {
     if (!collection) {
         return (
             <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-neutral-100 dark:bg-neutral-900 overflow-hidden">
@@ -174,34 +177,74 @@ export function MindMapView({ data, collection, config, onConfigChange }: ViewPr
                 {/* Nodes */}
                 {data.map(record => {
                     const pos = positions[record.id] || { x: 0, y: 0 };
+                    const titleField = config.titleField
+                        ? collection.fields?.find((f: any) => f.name === config.titleField)
+                        : collection.fields?.find((f: any) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
+
+                    const visibleFieldNames = config.visibleFields || [];
+                    const visibleFields = collection?.fields?.filter((f: any) => visibleFieldNames.includes(f.name)) || [];
+
                     return (
-                        <div
+                        <RecordContextMenu
                             key={record.id}
-                            className="absolute w-[200px] p-3 bg-card border rounded-lg shadow-sm hover:shadow-md hover:border-primary transition-colors cursor-move group select-none"
-                            style={{
-                                left: pos.x,
-                                top: pos.y,
-                            }}
-                            onMouseDown={(e) => {
-                                e.stopPropagation();
-                                setNodeDrag({
-                                    id: record.id,
-                                    startX: e.clientX,
-                                    startY: e.clientY,
-                                    initialX: pos.x,
-                                    initialY: pos.y
-                                });
-                            }}
+                            record={record}
+                            collection={collection}
+                            onUpdate={onUpdateRecord}
+                            onDelete={onDelete}
+                            titleField={titleField}
+                            config={config}
+                            onConfigChange={onConfigChange}
                         >
-                            <div className="font-medium text-sm truncate flex items-center gap-2">
-                                <span className={`w-2 h-2 rounded-full`} style={{ backgroundColor: record.color || 'var(--primary)' }} />
-                                {record.title || record.name || 'Untitled'}
+                            <div
+                                className="absolute w-[200px] p-3 bg-card border rounded-lg shadow-sm hover:shadow-md hover:border-primary transition-colors cursor-move group select-none"
+                                style={{
+                                    left: pos.x,
+                                    top: pos.y,
+                                }}
+                                onMouseDown={(e) => {
+                                    if (e.button !== 0) return; // Only drag on left click
+                                    e.stopPropagation();
+                                    setNodeDrag({
+                                        id: record.id,
+                                        startX: e.clientX,
+                                        startY: e.clientY,
+                                        initialX: pos.x,
+                                        initialY: pos.y
+                                    });
+                                }}
+                            >
+                                <div className="font-black text-base truncate flex items-center gap-2" onMouseDown={e => e.stopPropagation()}>
+                                    <span className={`w-2 h-2 rounded-full shrink-0`} style={{ backgroundColor: record.color || 'var(--primary)' }} />
+                                    <div className="flex-1 min-w-0">
+                                        <SmartField
+                                            value={record[titleField.name]}
+                                            field={titleField}
+                                            record={record}
+                                            collectionName={collection.name}
+                                            size="sm"
+                                            onChange={(val) => onUpdateRecord?.(record.id, { [titleField.name]: val })}
+                                            className="h-auto p-0 border-none bg-transparent hover:bg-muted/30 rounded px-1 font-black w-full"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="flex flex-col gap-1 mt-2" onMouseDown={e => e.stopPropagation()}>
+                                    {visibleFields.slice(0, 3).map((f: any) => (
+                                        <div key={f.name} className="flex flex-col">
+                                            <Label className="text-[9px] text-muted-foreground lowercase opacity-50">{f.uiSchema?.title || f.name}</Label>
+                                            <SmartField
+                                                value={record[f.name]}
+                                                field={f}
+                                                record={record}
+                                                collectionName={collection.name}
+                                                size="sm"
+                                                onChange={(val) => onUpdateRecord?.(record.id, { [f.name]: val })}
+                                                className="h-auto p-0 border-none bg-transparent hover:bg-muted/30 rounded px-1 text-xs"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                            {/* Tiny metadata preview could go here */}
-                            <div className="text-[10px] text-muted-foreground mt-1 truncate">
-                                {record.status || 'No status'}
-                            </div>
-                        </div>
+                        </RecordContextMenu>
                     );
                 })}
             </div>

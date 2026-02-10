@@ -1,13 +1,16 @@
 [Unit]
-Description=PKM Auto-Sync to GitHub
+Description=PKM Sync Server
 After=network.target
 
 [Service]
 Type=simple
-WorkingDirectory=%h/pkm
-ExecStart=%h/pkm/autosync.sh
+User=house
+WorkingDirectory=/home/house/pkm
+ExecStart=/usr/bin/node server/sync-server.js
 Restart=always
+# Restart service after 10 seconds if node service crashes
 RestartSec=10
+Environment=NODE_ENV=production
 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target

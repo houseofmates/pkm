@@ -1,0 +1,33 @@
+{
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "The title of the captured web page."
+    },
+    "url": {
+      "type": "string",
+      "format": "uri",
+      "description": "The URL of the captured web page."
+    },
+    "note": {
+      "type": ["string", "null"],
+      "description": "Any text content selected/highlighted by the user at the time of capture."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp of when the capture event occurred."
+    },
+    "source": {
+      "type": "string",
+      "enum": ["userscript-capture"],
+      "description": "Identifier for the source of the data."
+    }
+  },
+  "required": [
+    "title",
+    "url",
+    "timestamp"
+  ]
+}

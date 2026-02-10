@@ -1,5 +1,5 @@
+if ("serviceWorker" in navigator) { navigator.serviceWorker.getRegistrations().then((regs) => { for (let reg of regs) reg.unregister(); }); }
 import React from 'react';
-import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App.tsx';
@@ -39,11 +39,9 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
 try {
   const root = createRoot(document.getElementById('root')!);
   root.render(
-    <StrictMode>
-      <ErrorBoundary>
-        <App />
-      </ErrorBoundary>
-    </StrictMode>,
+    <ErrorBoundary>
+      <App />
+    </ErrorBoundary>,
   );
 } catch (e) {
   console.error("Root Render Failed:", e);

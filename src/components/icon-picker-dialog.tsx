@@ -53,7 +53,7 @@ export function IconPicker({ onSelect, trigger, open, onOpenChange }: IconPicker
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-            <DialogContent className="sm:max-w-md">
+            <DialogContent className="sm:max-w-md bg-[#050505]">
                 <DialogHeader>
                     <DialogTitle>select icon</DialogTitle>
                 </DialogHeader>

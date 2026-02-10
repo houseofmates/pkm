@@ -63,7 +63,8 @@ export default {
                 "accordion-up": "accordion-up 0.2s ease-out",
             },
             fontFamily: {
-                varela: ['"Varela Round"', 'sans-serif'],
+                sans: ['Inter', 'system-ui', 'sans-serif'],
+                varela: ['Varela Round', 'sans-serif'],
             },
         },
     },

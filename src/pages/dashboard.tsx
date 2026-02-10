@@ -1,9 +1,10 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/contexts/auth-context';
+import { PageTransition } from '@/components/page-transition';
 import { useCollections, type Collection } from '@/hooks/use-collections';
 import { Button } from '@/components/ui/button';
-import { CollectionView } from '@/components/collection-view';
+import { CollectionView } from '@/features/collections/components/collection-view';
 import { Sidebar } from '@/components/sidebar';
 import { Menu } from 'lucide-react';
 
@@ -47,7 +48,7 @@ export function Dashboard() {
 
                     <div className="flex items-center gap-2">
                         {!selectedCollection && (
-                            <Button variant="ghost" size="sm" onClick={refresh} disabled={loading}>
+                            <Button variant="ghost" size="sm" onClick={() => refresh()} disabled={loading}>
                                 {loading ? 'Refreshing...' : 'Refresh'}
                             </Button>
                         )}
@@ -57,27 +58,31 @@ export function Dashboard() {
 
                 <main className="flex-1 p-4 md:p-6 overflow-auto">
                     {selectedCollection ? (
-                        <CollectionView collection={selectedCollection} onBack={handleBack} />
+                        <PageTransition key={selectedCollection.name} className="h-full">
+                            <CollectionView collection={selectedCollection} onBack={handleBack} />
+                        </PageTransition>
                     ) : (
-                        <div className="flex flex-col items-center justify-center h-[70vh] text-center space-y-4">
-                            <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl text-primary">
-                                Welcome to PKM
-                            </h1>
-                            <p className="text-xl text-muted-foreground max-w-[600px]">
-                                Select a database from the sidebar to view records.
-                            </p>
-                            {/* Mobile: Show list if Sidebar is hidden */}
-                            <div className="md:hidden w-full max-w-sm text-left border rounded-lg p-4 bg-card">
-                                <div className="font-medium mb-2">collections ({collections.length})</div>
-                                <div className="space-y-1">
-                                    {collections.map(c => (
-                                        <Button key={c.name} variant="ghost" className="w-full justify-start" onClick={() => handleCollectionSelect(c)}>
-                                            {c.title || c.displayName || c.name}
-                                        </Button>
-                                    ))}
+                        <PageTransition className="h-full flex flex-col">
+                            <div className="flex flex-col items-center justify-center h-[70vh] text-center space-y-4">
+                                <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl text-primary">
+                                    Welcome to PKM
+                                </h1>
+                                <p className="text-xl text-muted-foreground max-w-[600px]">
+                                    Select a database from the sidebar to view records.
+                                </p>
+                                {/* Mobile: Show list if Sidebar is hidden */}
+                                <div className="md:hidden w-full max-w-sm text-left border rounded-lg p-4 bg-card">
+                                    <div className="font-medium mb-2">collections ({collections.length})</div>
+                                    <div className="space-y-1">
+                                        {collections.map((c: Collection) => (
+                                            <Button key={c.name} variant="ghost" className="w-full justify-start" onClick={() => handleCollectionSelect(c)}>
+                                                {c.title || c.displayName || c.name}
+                                            </Button>
+                                        ))}
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </PageTransition>
                     )}
 
                     {error && (

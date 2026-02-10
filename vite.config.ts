@@ -1,53 +1,94 @@
 import path from "path"
-import fs from "fs" // Added fs import
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/',
   plugins: [
     react(),
-    {
-      name: 'serve-storage',
-      configureServer(server) {
-        server.middlewares.use((req, res, next) => {
-          if (req.url?.startsWith('/storage/')) {
-            // Decode the URL path to handle special characters like spaces
-            const decodedUrl = decodeURIComponent(req.url);
-            const filePath = path.join(process.cwd(), decodedUrl);
-
-            try {
-              if (fs.existsSync(filePath) && fs.lstatSync(filePath).isFile()) {
-                res.setHeader('Access-Control-Allow-Origin', '*');
-                res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-                res.setHeader('Access-Control-Allow-Headers', 'Authorization, Content-Type');
-
-                if (req.method === 'OPTIONS') {
-                  res.statusCode = 204;
-                  res.end();
-                  return;
-                }
-
-                // Simple static serving for the middleware
-                const stream = fs.createReadStream(filePath);
-                stream.pipe(res);
-                return;
-              }
-            } catch (e) {
-              console.error('Middleware Error serving:', req.url, e);
-              // Fallthrough to next() or 500 response?
-              // If we error here, it's safer to next() or return 500
-            }
-          }
-          next();
-        });
-      }
-    }
   ],
   server: {
     host: true,
-    port: 5173,
+    port: 3010,
+    strictPort: false,
+    allowedHosts: ["app.houseofmates.space", "houseofmates.space", ".houseofmates.space"],
     proxy: {
+      '/api/broadcast': {
+        target: 'http://127.0.0.1:4100',
+        changeOrigin: true,
+      },
+      '/api/chat': {
+        target: 'http://127.0.0.1:4100',
+        changeOrigin: true,
+      },
+      '/api/stats': {
+        target: 'http://127.0.0.1:4100',
+        changeOrigin: true,
+      },
+      '/api/players': {
+        target: 'http://127.0.0.1:4100',
+        changeOrigin: true,
+      },
+      '/socket.io': {
+        target: 'http://127.0.0.1:4100',
+        ws: true,
+        changeOrigin: true,
+      },
+      '/api/simplyplural': {
+        target: 'https://api.apparyllis.com/v1',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/simplyplural/, ''),
+      },
+      '/api/nocobase': {
+        target: 'http://192.168.254.33:8091/api',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/nocobase/, ''),
+      },
+      // Catch-all for other /api requests
+      '/api': {
+        target: 'http://192.168.254.33:8091/api',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+      '/api/ollama': {
+        target: 'https://ollama.houseofmates.space/api',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api\/ollama/, ''),
+      },
+      '/storage': {
+        target: 'https://db.houseofmates.space',
+        changeOrigin: true,
+        secure: true,
+      },
+    },
+  },
+  preview: {
+    allowedHosts: ["app.houseofmates.space", "houseofmates.space", ".houseofmates.space"],
+    port: 3010,
+    strictPort: false,
+    proxy: {
+      '/api/broadcast': {
+        target: 'http://127.0.0.1:4100',
+        changeOrigin: true,
+      },
+      '/api/chat': {
+        target: 'http://127.0.0.1:4100',
+        changeOrigin: true,
+      },
+      '/api/stats': {
+        target: 'http://127.0.0.1:4100',
+        changeOrigin: true,
+      },
+      '/api/players': {
+        target: 'http://127.0.0.1:4100',
+        changeOrigin: true,
+      },
+      '/socket.io': {
+        target: 'http://127.0.0.1:4100',
+        ws: true,
+        changeOrigin: true,
+      },
       '/api/simplyplural': {
         target: 'https://api.apparyllis.com/v1',
         changeOrigin: true,
@@ -63,12 +104,12 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/ollama/, ''),
       },
-      // '/storage': {
-      //   target: 'https://db.houseofmates.space/storage',
-      //   changeOrigin: true,
-      //   rewrite: (path) => path.replace(/^\/storage/, ''),
-      // },
-    },
+      '/storage': {
+        target: 'https://db.houseofmates.space',
+        changeOrigin: true,
+        secure: true,
+      },
+    }
   },
   build: {
     sourcemap: false,
@@ -87,9 +128,9 @@ export default defineConfig({
   css: {
     devSourcemap: false,
     preprocessorOptions: {
-      css: {
-        charset: false
-      }
+      //   scss: {
+      //     charset: false
+      //   }
     }
   },
   resolve: {

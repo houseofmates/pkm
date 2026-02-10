@@ -7,6 +7,8 @@ import { sanitizeHTML } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Send, Sparkles, Clock } from 'lucide-react';
 import { toast } from 'sonner';
+import { RecordContextMenu } from '@/features/records/components/record-context-menu';
+import { SmartField } from '@/components/fields/smart-field';
 
 const PROMPTS = [
     "What's on your mind right now?",
@@ -19,7 +21,7 @@ const PROMPTS = [
     "What did you learn today?",
 ];
 
-export function JournalView({ data, collection, onUpdateRecord: _onUpdateRecord, onEdit: _onEdit }: ViewProps) {
+export function JournalView({ data, collection, config = {}, onConfigChange, onUpdateRecord: _onUpdateRecord, onEdit: _onEdit }: ViewProps) {
     if (!collection) {
         return (
             <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
@@ -171,8 +173,8 @@ export function JournalView({ data, collection, onUpdateRecord: _onUpdateRecord,
                     <div key={dateKey} className="relative pl-6 border-l-2 border-primary/10">
                         {/* Date Header */}
                         <div className="absolute -left-[9px] top-0 h-4 w-4 rounded-full bg-background border-4 border-primary/20" />
-                        <div className="mb-4 text-xs font-bold text-muted-foreground uppercase opacity-70 flex items-center gap-2">
-                            {format(new Date(dateKey), 'EEEE, MMMM do, yyyy')}
+                        <div className="mb-4 text-xs font-bold text-muted-foreground lowercase opacity-70 flex items-center gap-2">
+                            {format(new Date(dateKey), 'eeee, MMMM do, yyyy')}
                         </div>
 
                         {/* Entries */}
@@ -180,27 +182,51 @@ export function JournalView({ data, collection, onUpdateRecord: _onUpdateRecord,
                             {records.map(rec => {
                                 const { prompt, preview } = parseContent(String(rec[contentField.name] || ''));
                                 return (
-                                    <div
+                                    <RecordContextMenu
                                         key={rec.id}
-                                        className="bg-card border rounded-lg p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group"
-                                        onClick={() => window.dispatchEvent(new CustomEvent('pkm:edit-record', {
-                                            detail: { record: rec, collectionName: collection.name }
-                                        }))}
+                                        record={rec}
+                                        collection={collection}
+                                        onUpdate={_onUpdateRecord}
+                                        onDelete={() => { /* TODO: implement if needed or relies on onView */ }}
+                                        config={config}
+                                        onConfigChange={onConfigChange}
                                     >
-                                        <div className="space-y-2">
-                                            {prompt && (
-                                                <div className="text-xs font-medium text-primary/70 bg-primary/5 inline-block px-2 py-0.5 rounded">
-                                                    {prompt}
+                                        <div
+                                            className="bg-card border rounded-lg p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                                            onClick={() => window.dispatchEvent(new CustomEvent('pkm:edit-record', {
+                                                detail: { record: rec, collectionName: collection.name }
+                                            }))}
+                                        >
+                                            <div className="space-y-2">
+                                                {prompt && (
+                                                    <div className="text-xs font-medium text-primary/70 bg-primary/5 inline-block px-2 py-0.5 rounded">
+                                                        {prompt}
+                                                    </div>
+                                                )}
+                                                <div className="text-base text-foreground/90 leading-relaxed line-clamp-3">
+                                                    {preview}
                                                 </div>
-                                            )}
-                                            <div className="text-base text-foreground/90 leading-relaxed line-clamp-3">
-                                                {preview}
-                                            </div>
-                                            <div className="text-[10px] text-muted-foreground pt-2 flex items-center justify-between opacity-60">
-                                                <span>{format(new Date(rec[dateField?.name] || rec.created_at), 'h:mm a')}</span>
+                                                {/* Universal Property Visibility */}
+                                                {collection.fields?.filter((f: any) => config.visibleFields?.includes(f.name)).slice(0, 3).map((f: any) => (
+                                                    <div key={f.name} className="flex flex-col gap-0.5 mt-2 bg-muted/20 p-2 rounded-md">
+                                                        <span className="text-[10px] text-muted-foreground uppercase tracking-wider opacity-60">{f.uiSchema?.title || f.name}</span>
+                                                        <SmartField
+                                                            value={rec[f.name]}
+                                                            field={f}
+                                                            record={rec}
+                                                            collectionName={collection.name}
+                                                            size="sm"
+                                                            className="h-auto p-0 border-none bg-transparent text-sm"
+                                                            onChange={(val: any) => _onUpdateRecord?.(rec.id, { [f.name]: val })}
+                                                        />
+                                                    </div>
+                                                ))}
+                                                <div className="text-[10px] text-muted-foreground pt-2 flex items-center justify-between opacity-60">
+                                                    <span>{format(new Date(rec[dateField?.name] || rec.created_at), 'h:mm a')}</span>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
+                                    </RecordContextMenu>
                                 );
                             })}
                         </div>

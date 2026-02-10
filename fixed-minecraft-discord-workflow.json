@@ -1,0 +1,188 @@
+{
+  "name": "Minecraft + Discord Bridge (FIXED)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "minecraft-events",
+        "options": {}
+      },
+      "id": "minecraft-webhook",
+      "name": "Minecraft Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [450, 300],
+      "webhookId": "minecraft-events"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "discord-chat",
+        "options": {}
+      },
+      "id": "discord-webhook",
+      "name": "Discord Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [450, 500],
+      "webhookId": "46067072-f15e-4aa0-85f8-746d91daf62f"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds",
+              "secondsInterval": 30
+            }
+          ]
+        }
+      },
+      "id": "poll-node",
+      "name": "Poll Every 30s",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.1,
+      "position": [450, 700]
+    },
+    {
+      "parameters": {
+        "url": "https://mcapi.us/server/status?ip=dupemates.playit.pub",
+        "options": {}
+      },
+      "id": "get-status-node",
+      "name": "Get Server Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [650, 700]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://172.17.0.1:4100/api/broadcast",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGVOYW1lIjoicm9vdCIsImlhdCI6MTc2OTY2MTcwMiwiZXhwIjozMzMyNzI2MTcwMn0.aMl0pcnaUOlmeJwkODjVjSIqYhs1OxZDtPbNKv66fnE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "={{ $json.body?.type || 'ping' }}"
+            },
+            {
+              "name": "player",
+              "value": "={{ $json.body?.player || 'system' }}"
+            },
+            {
+              "name": "message",
+              "value": "={{ $json.body?.message || 'external-status-poll' }}"
+            },
+            {
+              "name": "online",
+              "value": "={{ $json.body?.online !== undefined ? $json.body.online : ($json.online || false) }}"
+            },
+            {
+              "name": "count",
+              "value": "={{ $json.body?.count !== undefined ? $json.body.count : ($json.players?.now !== undefined ? $json.players.now : ($json.players?.online || 0)) }}"
+            },
+            {
+              "name": "extra",
+              "value": "={{ $json.body?.extra || { tps: 20, motd: $json.motd || ($json.motd?.clean ? $json.motd.clean[0] : 'Minecraft Server'), version: $json.server?.name || $json.version || '1.21.10', favicon: $json.favicon || '' } }}"
+            },
+            {
+              "name": "timestamp",
+              "value": "={{ new Date().toISOString() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "send-minecraft-node",
+      "name": "Send Minecraft Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [850, 400]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://172.17.0.1:4100/api/broadcast",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGVOYW1lIjoicm9vdCIsImlhdCI6MTc2OTY2MTcwMiwiZXhwIjozMzMyNzI2MTcwMn0.aMl0pcnaUOlmeJwkODjVjSIqYhs1OxZDtPbNKv66fnE"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"type\": \"chat\",\n  \"player\": \"{{$json.body.author.username}}\",\n  \"message\": \"{{$json.body.content}}\",\n  \"timestamp\": \"{{$json.body.timestamp}}\"\n}",
+        "options": {}
+      },
+      "id": "send-discord-node",
+      "name": "Send Discord Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [850, 500]
+    }
+  ],
+  "connections": {
+    "Minecraft Webhook": {
+      "main": [
+        [
+          {
+            "node": "Send Minecraft Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discord Webhook": {
+      "main": [
+        [
+          {
+            "node": "Send Discord Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Poll Every 30s": {
+      "main": [
+        [
+          {
+            "node": "Get Server Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Server Status": {
+      "main": [
+        [
+          {
+            "node": "Send Minecraft Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

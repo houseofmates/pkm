@@ -3,35 +3,140 @@ import { AuthProvider, useAuth } from "@/contexts/auth-context"
 import { LoginPage } from "@/pages/login"
 import { RootLayout } from "@/pages/root-layout"
 import { Toaster } from "@/components/ui/sonner"
-
-import { GlobalCommandPalette } from "@/components/global-command-palette"
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Routes, Route, BrowserRouter } from "react-router-dom"
-import { HomePage } from "@/pages/home"
-import { DatabasesPage } from "@/pages/databases"
-import { CollectionDetailPage } from "@/pages/collection-detail"
-import { HeadmatesPage } from "@/pages/headmates"
-import { MoodboardPage } from "@/pages/moodboard" // Will create this next
+import { isPublicDomain } from "@/utils/subdomain-router"
+import { lazy, Suspense } from "react"
+import { FronterProvider } from "@/contexts/fronter-context"
+import { LLMContextProvider } from "@/contexts/llm-context"
+
+// Lazy load heavy components
+const GlobalCommandPalette = lazy(() => import("@/components/global-command-palette").then(m => ({ default: m.GlobalCommandPalette })));
+const WilsonChat = lazy(() => import("@/features/chat/wilson-chat").then(m => ({ default: m.WilsonChat })));
+const HomePage = lazy(() => import("@/pages/home").then(m => ({ default: m.HomePage })));
+const DatabasesPage = lazy(() => import("@/pages/databases").then(m => ({ default: m.DatabasesPage })));
+const CollectionDetailPage = lazy(() => import("@/pages/collection-detail").then(m => ({ default: m.CollectionDetailPage })));
+const HeadmatesPage = lazy(() => import("@/pages/headmates").then(m => ({ default: m.HeadmatesPage })));
+const MoodboardPage = lazy(() => import("@/pages/moodboard").then(m => ({ default: m.MoodboardPage })));
+const CanvasPage = lazy(() => import("@/pages/canvas-page").then(m => ({ default: m.CanvasPage })));
+const DrawingPage = lazy(() => import("@/pages/drawing-page").then(m => ({ default: m.DrawingPage })));
+const CapturesPage = lazy(() => import("@/pages/captures").then(m => ({ default: m.CapturesPage })));
+const DatabaseCanvasView = lazy(() => import("@/features/databases/components/DatabaseCanvasView").then(m => ({ default: m.DatabaseCanvasView })));
+const PageCanvas = lazy(() => import("@/features/page/components/PageCanvas").then(m => ({ default: m.PageCanvas })));
+const RecordView = lazy(() => import("@/features/records/components/record-view").then(m => ({ default: m.RecordView })));
+const HouseofmatesBuilder = lazy(() => import("@/features/houseofmates-builder/HouseofmatesBuilder").then(m => ({ default: m.HouseofmatesBuilder })));
+const BlogBuilder = lazy(() => import("@/features/blog-builder/BlogBuilder").then(m => ({ default: m.BlogBuilder })));
+const TemplatePage = lazy(() => import("@/pages/template").then(m => ({ default: m.TemplatePage })));
+const WorkspacePage = lazy(() => import("@/pages/workspace").then(m => ({ default: m.WorkspacePage })));
+const JournalDocument = lazy(() => import("@/components/journal/journal-document").then(m => ({ default: m.JournalDocument })));
+const PublicDocViewer = lazy(() => import("@/components/journal/public-doc-viewer").then(m => ({ default: m.PublicDocViewer })));
+
+
+
+
+const queryClient = new QueryClient()
+
+// Check public mode early
+const isPublic = isPublicDomain();
+console.log(`[App Routing] Host: ${window.location.hostname}, Port: ${window.location.port}, isPublic: ${isPublic}`);
+
+// Set branding immediately (before React mounts)
+if (typeof document !== 'undefined') {
+  const hostname = window.location.hostname;
+  if (hostname.includes('dupe')) {
+    document.title = "dupemates";
+  } else if (hostname.includes('blog')) {
+    document.title = "blog";
+  } else if (hostname.includes('home')) {
+    document.title = "home";
+  } else {
+    document.title = isPublic ? "house of mates" : "pkm";
+  }
+  const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
+  if (favicon) {
+    if (window.location.hostname.includes('dupe')) {
+      favicon.href = "/favicon-dupe.png";
+    } else if (isPublic) {
+      favicon.href = "/favicon-home.png";
+    } else {
+      favicon.href = "/favicon.png";
+    }
+  }
+}
 
 function AppContent() {
   const { token } = useAuth()
 
+  const LoadingFallback = (
+    <div className="h-screen flex items-center justify-center bg-[#060606] text-[var(--primary)] lowercase text-xl">
+      {isPublic
+        ? (window.location.hostname.includes('dupe')
+          ? "dupemates loading..."
+          : window.location.hostname.includes('blog')
+            ? "blog loading..."
+            : "house of mates loading...")
+        : "loading..."}
+    </div>
+  );
 
+  // Public Site Router - Bypass standard App for public domains
+  if (isPublic) {
+    const isBlog = window.location.hostname.includes('blog');
+
+    if (isBlog) {
+      return (
+        <BrowserRouter>
+          <Suspense fallback={LoadingFallback}>
+            <Routes>
+
+              <Route path="/" element={<BlogBuilder />} />
+              <Route path="/:slug" element={<BlogBuilder />} />
+            </Routes>
+          </Suspense>
+          <Toaster />
+        </BrowserRouter>
+      );
+    }
+
+    return (
+      <BrowserRouter>
+        <Suspense fallback={LoadingFallback}>
+          <Routes>
+            <Route path="/" element={<HouseofmatesBuilder />} />
+            <Route path="/doc/:slug" element={<PublicDocViewer slug={window.location.pathname.split('/doc/')[1]} />} />
+            <Route path="/:slug" element={<HouseofmatesBuilder />} />
+          </Routes>
+        </Suspense>
+        <Toaster />
+      </BrowserRouter>
+    );
+  }
 
   return (
-
     <>
       {token ? (
         <BrowserRouter>
-          <Routes>
-            <Route element={<RootLayout />}>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/databases" element={<DatabasesPage />} />
-              <Route path="/databases/:name" element={<CollectionDetailPage />} />
-              <Route path="/headmates" element={<HeadmatesPage />} />
-              <Route path="/board" element={<MoodboardPage />} />
-            </Route>
-          </Routes>
-          <GlobalCommandPalette />
+          <Suspense fallback={LoadingFallback}>
+            <Routes>
+              <Route element={<RootLayout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/databases" element={<DatabasesPage />} />
+                <Route path="/databases/:name" element={<CollectionDetailPage />} />
+                <Route path="/headmates" element={<HeadmatesPage />} />
+                <Route path="/board" element={<MoodboardPage />} />
+                <Route path="/canvas/:id" element={<CanvasPage />} />
+                <Route path="/drawings/:id" element={<DrawingPage />} />
+                <Route path="/databases/:name/:id" element={<RecordView />} />
+                <Route path="/captures" element={<CapturesPage />} />
+                <Route path="/db-canvas" element={<DatabaseCanvasView />} />
+                <Route path="/page/:id" element={<PageCanvas />} />
+                <Route path="/template" element={<TemplatePage />} />
+                <Route path="/workspace/:id" element={<WorkspacePage />} />
+              </Route>
+            </Routes>
+            <GlobalCommandPalette />
+            <WilsonChat />
+          </Suspense>
         </BrowserRouter>
       ) : <LoginPage />}
       <Toaster />
@@ -39,14 +144,31 @@ function AppContent() {
   )
 }
 
-import { FronterProvider } from "@/contexts/fronter-context"
-
 function App() {
+  // Check if public domain
+  const isPublic = isPublicDomain();
+
+  if (isPublic) {
+    // Public site doesn't need FronterProvider or LLMContextProvider
+    return (
+      <AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <AppContent />
+        </QueryClientProvider>
+      </AuthProvider>
+    );
+  }
+
+  // Private PKM site needs all providers
   return (
     <AuthProvider>
-      <FronterProvider>
-        <AppContent />
-      </FronterProvider>
+      <QueryClientProvider client={queryClient}>
+        <FronterProvider>
+          <LLMContextProvider>
+            <AppContent />
+          </LLMContextProvider>
+        </FronterProvider>
+      </QueryClientProvider>
     </AuthProvider>
   )
 }

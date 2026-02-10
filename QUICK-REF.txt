@@ -1,0 +1,156 @@
+╔══════════════════════════════════════════════════════════════════╗
+║                   PKM STACK MIGRATION - QUICK REF                ║
+╚══════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 🚀 QUICK START                                                  │
+└─────────────────────────────────────────────────────────────────┘
+
+  cd /home/house/pkm
+  sudo ./migrate-stack.sh
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 📝 WHAT WAS FIXED                                               │
+└─────────────────────────────────────────────────────────────────┘
+
+  ✓ Background images now save to ~/pkm/public/
+  ✓ Discord webhook uses local backend (172.17.0.1:4100)
+  ✓ Minecraft webhook registered correctly (/minecraft-events)
+  ✓ server-data.json updates in real-time
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 📂 FILES CHANGED                                                │
+└─────────────────────────────────────────────────────────────────┘
+
+  backend/server.js             → Added upload endpoint + multer
+  src/api/nocobase-client.ts    → Updated upload() to use backend
+  
+  NEW: fixed-minecraft-discord-workflow.json  (import to n8n)
+  NEW: migrate-stack.sh                       (run this!)
+  NEW: test-stack.sh                          (verify working)
+  NEW: MIGRATION-GUIDE.md                     (full docs)
+  NEW: CODE-CHANGES.md                        (dev reference)
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 🔧 MANUAL STEPS (if not using migrate-stack.sh)                │
+└─────────────────────────────────────────────────────────────────┘
+
+  1. npm install multer
+  2. mkdir -p public && chown house:house public
+  3. Restart: sudo pkill -f backend && node backend/server.js &
+  4. Import: fixed-minecraft-discord-workflow.json into n8n
+  5. Activate new workflow, deactivate old ones
+
+┌─────────────────────────────────────────────────────────────────┐
+│ ✅ TEST COMMANDS                                                │
+└─────────────────────────────────────────────────────────────────┘
+
+  # Backend status
+  curl http://localhost:4100/api/status
+  
+  # Test broadcast
+  curl -X POST http://172.17.0.1:4100/api/broadcast \
+    -H "x-api-key: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGVOYW1lIjoicm9vdCIsImlhdCI6MTc2OTY2MTcwMiwiZXhwIjozMzMyNzI2MTcwMn0.aMl0pcnaUOlmeJwkODjVjSIqYhs1OxZDtPbNKv66fnE" \
+    -H "Content-Type: application/json" \
+    -d '{"type":"ping","player":"system","message":"test"}'
+  
+  # Test upload
+  curl -X POST http://172.17.0.1:4100/api/upload-background \
+    -F "file=@/path/to/image.jpg"
+  
+  # Check data freshness
+  stat -c %y server-data.json && cat server-data.json | jq '.lastServerStats'
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 📊 LOGS                                                         │
+└─────────────────────────────────────────────────────────────────┘
+
+  tail -f backend.log                    # Backend
+  sudo journalctl -fu pkm-frontend       # Frontend
+  docker logs -f n8n                     # n8n
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 🔄 RESTART SERVICES                                             │
+└─────────────────────────────────────────────────────────────────┘
+
+  # Backend only
+  sudo pkill -f "node.*backend/server.js"
+  cd /home/house/pkm && nohup node backend/server.js > backend.log 2>&1 &
+  
+  # Frontend only
+  sudo systemctl restart pkm-frontend
+  
+  # n8n only
+  docker restart n8n
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 🚨 TROUBLESHOOTING                                              │
+└─────────────────────────────────────────────────────────────────┘
+
+  ❌ "webhook not registered"
+     → Check n8n UI: workflow active? correct path?
+     → Restart: docker restart n8n
+  
+  ❌ "server-data.json stale"
+     → Test webhook: curl -X POST localhost:5678/webhook/minecraft-events ...
+     → Check n8n logs: docker logs n8n | grep broadcast
+  
+  ❌ "background 404"
+     → Check file: ls -la public/bg-*
+     → Check permissions: chown house:house public/*
+     → Restart backend
+  
+  ❌ "upload fails"
+     → Check multer installed: npm list multer
+     → Check backend logs: tail -f backend.log
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 🌐 ENDPOINTS                                                    │
+└─────────────────────────────────────────────────────────────────┘
+
+  Backend:   http://localhost:4100
+  Frontend:  http://localhost:3010
+  n8n:       http://localhost:5678
+  
+  NEW:  POST /api/upload-background  (multipart form)
+        GET  /public/:filename       (static files)
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 🎯 n8n WORKFLOW IMPORT                                          │
+└─────────────────────────────────────────────────────────────────┘
+
+  1. Open: http://localhost:5678
+  2. Click: Workflows → Import from File
+  3. Select: fixed-minecraft-discord-workflow.json
+  4. Click: Import
+  5. Click: Activate (top right)
+  6. Deactivate old workflows:
+     - "Minecraft Monitoring V3 (Clean)"
+     - "DupeMates Webhook Bridge"
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 📋 POST-MIGRATION CHECKLIST                                    │
+└─────────────────────────────────────────────────────────────────┘
+
+  [ ] Backend running on 4100
+  [ ] Frontend running on 3010
+  [ ] n8n running on 5678
+  [ ] New workflow active in n8n
+  [ ] Old workflows deactivated
+  [ ] Test broadcast: curl succeeds
+  [ ] Test upload: file appears in public/
+  [ ] Minecraft events update server-data.json
+  [ ] Discord messages show on site
+  [ ] Background upload works in UI
+
+┌─────────────────────────────────────────────────────────────────┐
+│ 🆘 NEED HELP?                                                   │
+└─────────────────────────────────────────────────────────────────┘
+
+  Read: MIGRATION-GUIDE.md      (detailed guide)
+  Read: CODE-CHANGES.md         (what changed)
+  Run:  ./test-stack.sh         (automated testing)
+
+╔══════════════════════════════════════════════════════════════════╗
+║  Migration complete! Test with: ./test-stack.sh                  ║
+╚══════════════════════════════════════════════════════════════════╝

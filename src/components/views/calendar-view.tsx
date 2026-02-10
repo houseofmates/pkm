@@ -9,12 +9,16 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 
 import { toast } from 'sonner';
 import { DndContext, useDraggable, useDroppable, DragOverlay } from '@dnd-kit/core';
+import { RecordContextMenu } from '@/features/records/components/record-context-menu';
+import { SmartField } from '@/components/fields/smart-field';
+import { Label } from '@/components/ui/label';
 
 interface CalendarViewProps extends ViewProps { }
 
 type ViewMode = 'year' | 'month' | 'week' | 'day';
 
-export function CalendarView({ data, config, collection, onUpdateRecord }: CalendarViewProps) {
+
+export function CalendarView({ data, config, collection, onUpdateRecord, onDelete, onConfigChange }: CalendarViewProps) {
     if (!collection) {
         return (
             <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
@@ -28,6 +32,14 @@ export function CalendarView({ data, config, collection, onUpdateRecord }: Calen
     const [currentDate, setCurrentDate] = useState(new Date());
     const [viewMode, setViewMode] = useState<ViewMode>('month');
     const [activeId, setActiveId] = useState<string | number | null>(null);
+
+    // Unified Property Logic
+    const titleField = config?.titleField
+        ? collection.fields?.find((f: any) => f.name === config.titleField)
+        : collection.fields?.find((f: any) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
+
+    const visibleFieldNames = config?.visibleFields || [];
+    const visibleFields = collection?.fields?.filter((f: any) => visibleFieldNames.includes(f.name)) || [];
 
     const dateField = config?.dateField;
 
@@ -145,9 +157,9 @@ export function CalendarView({ data, config, collection, onUpdateRecord }: Calen
                 {/* Content Area */}
                 <div className="flex-1 overflow-hidden relative">
                     {viewMode === 'year' && <YearView currentDate={currentDate} recordsByDate={recordsByDate} onMonthClick={(date) => { setCurrentDate(date); setViewMode('month'); }} />}
-                    {viewMode === 'month' && <MonthView currentDate={currentDate} recordsByDate={recordsByDate} />}
-                    {viewMode === 'week' && <WeekView currentDate={currentDate} recordsByDate={recordsByDate} />}
-                    {viewMode === 'day' && <DayView currentDate={currentDate} recordsByDate={recordsByDate} />}
+                    {viewMode === 'month' && <MonthView currentDate={currentDate} recordsByDate={recordsByDate} collection={collection} onUpdateRecord={onUpdateRecord} onDelete={onDelete} titleField={titleField} visibleFields={visibleFields} config={config} onConfigChange={onConfigChange} />}
+                    {viewMode === 'week' && <WeekView currentDate={currentDate} recordsByDate={recordsByDate} collection={collection} onUpdateRecord={onUpdateRecord} onDelete={onDelete} titleField={titleField} visibleFields={visibleFields} config={config} onConfigChange={onConfigChange} />}
+                    {viewMode === 'day' && <DayView currentDate={currentDate} recordsByDate={recordsByDate} collection={collection} onUpdateRecord={onUpdateRecord} onDelete={onDelete} titleField={titleField} visibleFields={visibleFields} config={config} onConfigChange={onConfigChange} />}
                 </div>
             </div>
 
@@ -164,22 +176,44 @@ export function CalendarView({ data, config, collection, onUpdateRecord }: Calen
 
 // --- Helpers with DND ---
 
-function DraggableEvent({ record }: { record: any }) {
+function DraggableEvent({ record, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange }: { record: any, collection: any, onUpdateRecord?: any, onDelete?: any, titleField: any, visibleFields: any[], config?: any, onConfigChange?: any }) {
     const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: record.id });
 
     return (
-        <div
-            ref={setNodeRef}
-            {...listeners}
-            {...attributes}
-            className={cn(
-                "text-[9px] md:text-[10px] bg-primary/10 text-primary px-1 md:px-1.5 py-0.5 rounded truncate cursor-grab hover:bg-primary/20",
-                isDragging && "opacity-50"
-            )}
-            title={record.title || record.name}
-        >
-            {record.title || record.name || 'Untitled'}
-        </div>
+        <RecordContextMenu record={record} collection={collection} onUpdate={onUpdateRecord} onDelete={onDelete} titleField={titleField} config={config} onConfigChange={onConfigChange}>
+            <div
+                ref={setNodeRef}
+                {...listeners}
+                {...attributes}
+                className={cn(
+                    "text-[10px] bg-primary/10 text-primary px-1.5 py-1 rounded truncate cursor-grab hover:bg-primary/20 transition-colors shadow-sm",
+                    isDragging && "opacity-50"
+                )}
+                title={record[titleField.name]}
+            >
+                <div className="truncate font-bold mb-0.5">
+                    {record[titleField.name] || 'Untitled'}
+                </div>
+                {visibleFields.length > 0 && (
+                    <div className="flex flex-col gap-0.5 mt-1 opacity-90">
+                        {visibleFields.slice(0, 3).map(f => (
+                            <div key={f.name} className="text-[8px] flex flex-col gap-0">
+                                <span className="opacity-50 lowercase">{f.uiSchema?.title || f.name}:</span>
+                                <SmartField
+                                    value={record[f.name]}
+                                    field={f}
+                                    record={record}
+                                    collectionName={collection.name}
+                                    size="sm"
+                                    className="h-auto p-0 border-none bg-transparent text-[8px] leading-tight"
+                                    onChange={() => { }}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </RecordContextMenu>
     )
 }
 
@@ -197,7 +231,7 @@ function DroppableDateCell({ date, children, className }: { date: Date, children
 }
 
 
-function MonthView({ currentDate, recordsByDate }: { currentDate: Date, recordsByDate: Record<string, any[]> }) {
+function MonthView({ currentDate, recordsByDate, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange }: { currentDate: Date, recordsByDate: Record<string, any[]>, collection: any, onUpdateRecord?: any, onDelete?: any, titleField: any, visibleFields: any[], config?: any, onConfigChange?: any }) {
     const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
     const startDayOfWeek = monthStart.getDay();
@@ -244,7 +278,7 @@ function MonthView({ currentDate, recordsByDate }: { currentDate: Date, recordsB
 
                             <div className="flex flex-col gap-0.5 overflow-hidden">
                                 {dayRecords.slice(0, 3).map(rec => (
-                                    <DraggableEvent key={rec.id} record={rec} />
+                                    <DraggableEvent key={rec.id} record={rec} collection={collection} onUpdateRecord={onUpdateRecord} onDelete={onDelete} titleField={titleField} visibleFields={visibleFields} config={config} onConfigChange={onConfigChange} />
                                 ))}
                                 {dayRecords.length > 3 && (
                                     <div className="text-[9px] text-muted-foreground pl-1">
@@ -260,7 +294,7 @@ function MonthView({ currentDate, recordsByDate }: { currentDate: Date, recordsB
     );
 }
 
-function WeekView({ currentDate, recordsByDate }: { currentDate: Date, recordsByDate: Record<string, any[]> }) {
+function WeekView({ currentDate, recordsByDate, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange }: { currentDate: Date, recordsByDate: Record<string, any[]>, collection: any, onUpdateRecord?: any, onDelete?: any, titleField: any, visibleFields: any[], config?: any, onConfigChange?: any }) {
     const weekStart = new Date(currentDate);
     weekStart.setDate(currentDate.getDate() - currentDate.getDay());
 
@@ -293,7 +327,7 @@ function WeekView({ currentDate, recordsByDate }: { currentDate: Date, recordsBy
                             <DroppableDateCell key={i} date={d} className="border-r last:border-r-0 min-h-[200px] p-2 space-y-2">
                                 {records.map(rec => (
                                     <div key={rec.id} className="relative z-0">
-                                        <DraggableEvent record={rec} />
+                                        <DraggableEvent record={rec} collection={collection} onUpdateRecord={onUpdateRecord} onDelete={onDelete} titleField={titleField} visibleFields={visibleFields} config={config} onConfigChange={onConfigChange} />
                                     </div>
                                 ))}
                             </DroppableDateCell>
@@ -305,24 +339,50 @@ function WeekView({ currentDate, recordsByDate }: { currentDate: Date, recordsBy
     );
 }
 
-function DayView({ currentDate, recordsByDate }: { currentDate: Date, recordsByDate: Record<string, any[]> }) {
+function DayView({ currentDate, recordsByDate, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange }: { currentDate: Date, recordsByDate: Record<string, any[]>, collection: any, onUpdateRecord?: any, onDelete?: any, titleField: any, visibleFields: any[], config?: any, onConfigChange?: any }) {
     const dateKey = currentDate.toDateString();
     const records = recordsByDate[dateKey] || [];
 
     return (
         <div className="h-full w-full p-4 overflow-y-auto">
-            {/* Day View Dragging is less common for "Rescheduling to another day" unless we show sidebar. 
-                 For now, just list items. Detailed time dragging is complex. */}
             <h3 className="text-xl font-bold mb-4">{currentDate.toDateString()}</h3>
             {records.length === 0 ? (
                 <div className="text-muted-foreground text-sm">no events</div>
             ) : (
-                <div className="space-y-2">
+                <div className="space-y-4">
                     {records.map(rec => (
-                        <div key={rec.id} className="p-3 border rounded-lg bg-card shadow-sm">
-                            <div className="font-bold">{rec.title || rec.name}</div>
-                            {/* Draggable logic disabled here as there are no other drop targets visible */}
-                        </div>
+                        <RecordContextMenu key={rec.id} record={rec} collection={collection} onUpdate={onUpdateRecord} onDelete={onDelete} titleField={titleField} config={config} onConfigChange={onConfigChange}>
+                            <div className="p-4 border rounded-xl bg-card shadow-sm hover:shadow-md transition-all cursor-pointer group">
+                                <div className="flex items-center gap-2 mb-2">
+                                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: rec.color || 'var(--primary)' }} />
+                                    <div className="flex-1 font-bold text-lg">
+                                        <SmartField
+                                            value={rec[titleField.name]}
+                                            field={titleField}
+                                            record={rec}
+                                            collectionName={collection.name}
+                                            onChange={(val) => onUpdateRecord?.(rec.id, { [titleField.name]: val })}
+                                            className="h-auto p-0 border-none bg-transparent hover:bg-muted/30 rounded px-1"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4 bg-muted/20 p-3 rounded-lg">
+                                    {visibleFields.map(f => (
+                                        <div key={f.name} className="flex flex-col gap-1">
+                                            <Label className="text-[10px] text-muted-foreground uppercase">{f.uiSchema?.title || f.name}</Label>
+                                            <SmartField
+                                                value={rec[f.name]}
+                                                field={f}
+                                                record={rec}
+                                                collectionName={collection.name}
+                                                onChange={(val) => onUpdateRecord?.(rec.id, { [f.name]: val })}
+                                                className="h-auto p-0 border-none bg-transparent hover:bg-muted/30 rounded px-1 text-sm text-foreground"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </RecordContextMenu>
                     ))}
                 </div>
             )}

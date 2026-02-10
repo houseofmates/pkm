@@ -37,26 +37,8 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
 
 
-    const ensureCollectionExists = useCallback(async () => {
-        try {
-            await client.createCollection({
-                name: 'pkm_settings',
-                title: 'PKM Settings',
-                fields: [
-                    { name: 'key', type: 'string', unique: true },
-                    { name: 'value', type: 'json' }
-                ],
-                hidden: true
-            });
-            // Wait a moment for propagation
-            await new Promise(r => setTimeout(r, 1000));
-            return true;
-        } catch (err: any) {
-            // If it already exists, that's fine too
-            if (err.message?.includes('exists')) return true;
-            return false;
-        }
-    }, [client]);
+    // ensureCollectionExists removed - handled by NocoBaseClient.ensureBackendCollection
+    // which is called by AuthProvider on login.
 
     // Fetch from Backend on mount
     const fetchSetting = useCallback(async () => {
@@ -85,7 +67,11 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
                     if (newValueString !== localValueString) {
                         setValue(setting.value);
-                        localStorage.setItem(`pkm_setting:${key}`, newValueString);
+                        try {
+                            localStorage.setItem(`pkm_setting:${key}`, newValueString);
+                        } catch (e) {
+                            console.warn(`Failed to update local cache for ${key}`, e);
+                        }
                     }
                 }
             }
@@ -104,64 +90,73 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
         fetchSetting();
     }, [fetchSetting]);
 
+    // Event Bus Listener for Cross-Component Sync
+    useEffect(() => {
+        const handler = (e: CustomEvent) => {
+            const newValue = e.detail;
+            setValue(prev => {
+                // Prevent loops/unnecessary renders
+                if (JSON.stringify(prev) === JSON.stringify(newValue)) return prev;
+                return newValue;
+            });
+        };
+        window.addEventListener(`pkm_setting_update:${key}`, handler as any);
+        return () => window.removeEventListener(`pkm_setting_update:${key}`, handler as any);
+    }, [key]);
+
     // Save to Backend (Debounced)
     const updateValue = useCallback((newValue: T | ((val: T) => T)) => {
         setValue((prev) => {
             const resolvedValue = newValue instanceof Function ? newValue(prev) : newValue;
-            localStorage.setItem(`pkm_setting:${key}`, JSON.stringify(resolvedValue));
+            try {
+                localStorage.setItem(`pkm_setting:${key}`, JSON.stringify(resolvedValue));
+                // Broadcast change to other hooks
+                setTimeout(() => {
+                    window.dispatchEvent(new CustomEvent(`pkm_setting_update:${key}`, { detail: resolvedValue }));
+                }, 0);
+            } catch (e) {
+                // Ignore QuotaExceededError - just don't cache locally, rely on server
+                console.warn(`Failed to save locally for ${key}`, e);
+            }
 
             if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
             saveTimeoutRef.current = setTimeout(async () => {
                 if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) return;
-                const performSave = async (valueToSave: any, retryCount = 0): Promise<void> => {
+                const performSave = async (valueToSave: any): Promise<void> => {
                     try {
-                        // Update-First Strategy: Attempt to update via filter first.
-                        // NocoBase :update with filter returns [] if nothing found, NO error.
-                        const updateRes = await client.request('pkm_settings', 'update', {
+                        const payload = { value: valueToSave };
+
+                        // Try UPDATE first
+                        try {
+                            const res = await client.request('pkm_settings', 'update', {
+                                method: 'POST',
+                                params: { filter: { key: { $eq: key } } },
+                                data: payload,
+                                silent: true
+                            });
+
+                            const updated = Array.isArray(res?.data) ? res.data : (res?.data ? [res.data] : []);
+                            if (updated.length > 0) {
+                                settingIdRef.current = updated[0].id;
+                                return;
+                            }
+                        } catch (e) { /* ignore update failure, try create */ }
+
+                        // If update didn't work, CREATE
+                        const createRes = await client.request('pkm_settings', 'create', {
                             method: 'POST',
-                            params: { filter: { key: { $eq: key } } },
-                            data: { value: valueToSave },
+                            data: { key, value: valueToSave },
                             silent: true
                         });
-
-                        const updatedRecords = updateRes?.data || (Array.isArray(updateRes) ? updateRes : []);
-
-                        if (updatedRecords.length > 0) {
-                            // Successfully updated!
-                            settingIdRef.current = updatedRecords[0].id;
-                        } else {
-                            // Nothing updated, so it likely doesn't exist. Now safe to create.
-                            try {
-                                const response = await client.request('pkm_settings', 'create', {
-                                    method: 'POST',
-                                    data: { key, value: valueToSave },
-                                    silent: true
-                                });
-                                if (response?.data?.id) {
-                                    settingIdRef.current = response.data.id;
-                                }
-                            } catch (createErr: any) {
-                                // Double-catch for safety
-                                const isConflict = createErr.status === 400 || (createErr.message || '').includes('exists');
-                                if (isConflict) {
-                                    await client.request('pkm_settings', 'update', {
-                                        method: 'POST',
-                                        params: { filter: { key: { $eq: key } } },
-                                        data: { value: valueToSave },
-                                        silent: true
-                                    });
-                                } else {
-                                    throw createErr;
-                                }
-                            }
+                        if (createRes?.data?.id) {
+                            settingIdRef.current = createRes.data.id;
                         }
+
                     } catch (err: any) {
-                        const errMsg = (err.message || JSON.stringify(err)).toLowerCase();
-                        if (errMsg.includes('404') || errMsg.includes('not found') || errMsg.includes('relation "pkm_settings"')) {
-                            if (retryCount < 1) {
-                                const created = await ensureCollectionExists();
-                                if (created) return performSave(valueToSave, retryCount + 1);
-                            }
+                        const errMsg = (err.message || "").toLowerCase();
+                        if (errMsg.includes('404') || errMsg.includes('not found')) {
+                            console.warn("PKM Setting save failed: Collection not ready.", errMsg);
+                            // Initial ensureBackendCollection should handle this; we just fail silently here to avoid loops
                         }
                     }
                 };
@@ -171,7 +166,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
             return resolvedValue;
         });
-    }, [key, isAuthenticated, token, client, ensureCollectionExists, debounceMs]);
+    }, [key, isAuthenticated, token, client, debounceMs]);
 
     const flush = useCallback(async (valueToSave?: T) => {
         if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) return;
@@ -179,46 +174,35 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
         const attemptUpsert = async (attempt = 1): Promise<void> => {
             try {
-                // Update-First Strategy for Flush
-                const updateRes = await client.request('pkm_settings', 'update', {
+                const payload = { value: toSave };
+                // Update First
+                try {
+                    const res = await client.request('pkm_settings', 'update', {
+                        method: 'POST',
+                        params: { filter: { key: { $eq: key } } },
+                        data: payload,
+                        silent: true
+                    });
+                    const updated = Array.isArray(res?.data) ? res.data : (res?.data ? [res.data] : []);
+                    if (updated.length > 0) {
+                        settingIdRef.current = updated[0].id;
+                        return;
+                    }
+                } catch (e) {/* try create */ }
+
+                // Create
+                const createRes = await client.request('pkm_settings', 'create', {
                     method: 'POST',
-                    params: { filter: { key: { $eq: key } } },
-                    data: { value: toSave },
+                    data: { key, value: toSave },
                     silent: true
                 });
+                if (createRes?.data?.id) settingIdRef.current = createRes.data.id;
 
-                const updatedRecords = updateRes?.data || (Array.isArray(updateRes) ? updateRes : []);
-
-                if (updatedRecords.length > 0) {
-                    settingIdRef.current = updatedRecords[0].id;
-                } else {
-                    try {
-                        const response = await client.request('pkm_settings', 'create', {
-                            method: 'POST',
-                            data: { key, value: toSave },
-                            silent: true
-                        });
-                        if (response?.data?.id) settingIdRef.current = response.data.id;
-                    } catch (createErr: any) {
-                        const isConflict = createErr.status === 400 || (createErr.message || '').includes('exists');
-                        if (isConflict) {
-                            await client.request('pkm_settings', 'update', {
-                                method: 'POST',
-                                params: { filter: { key: { $eq: key } } },
-                                data: { value: toSave },
-                                silent: true
-                            });
-                        } else {
-                            throw createErr;
-                        }
-                    }
-                }
             } catch (err: any) {
-                const errMsg = (err.message || JSON.stringify(err)).toLowerCase();
-
-                if (attempt < 2 && (errMsg.includes('404') || errMsg.includes('not found') || errMsg.includes('collection'))) {
-                    const ok = await ensureCollectionExists();
-                    if (ok) return attemptUpsert(attempt + 1);
+                const errMsg = (err.message || "").toLowerCase();
+                if (attempt < 2 && (errMsg.includes('404') || errMsg.includes('not found'))) {
+                    // Retry once for network blips
+                    return attemptUpsert(attempt + 1);
                 }
                 throw err;
             }
@@ -227,7 +211,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
         const p = (savePromiseRef.current || Promise.resolve()).then(() => attemptUpsert()).catch(() => { });
         savePromiseRef.current = p as Promise<void>;
         return p;
-    }, [isAuthenticated, token, client, ensureCollectionExists, key]);
+    }, [isAuthenticated, token, client, key]);
 
     flushRef.current = () => flush();
     return [value, updateValue, loading, flush] as const;

@@ -1,6 +1,4 @@
 
-import { apiRequest } from '@/lib/api-client';
-
 export interface ChatMessage {
     role: 'system' | 'user' | 'assistant';
     content: string;
@@ -18,17 +16,32 @@ export const OLLAMA_MODEL = 'qwen2.5:7b';
 
 export class OllamaClient {
 
-    async chat(messages: ChatMessage[], stream: boolean = false): Promise<ChatResponse> {
-        // We are using /api/chat endpoint
-        return apiRequest('ollama', 'chat', {
-            method: 'POST',
-            data: {
-                model: OLLAMA_MODEL,
-                messages,
-                stream // For now, we might stick to non-streaming for simplicity in v1, or handle stream if apiRequest supports it (it relies on fetch/capacitor which can, but my wrapper awaits text)
-                // For simplicity: stream = false for now
+    async chat(messages: ChatMessage[]): Promise<ChatResponse> {
+        // Direct call to Ollama endpoint (via Vite proxy or direct URL)
+        // Using fetch to avoid conflicting with the NocoBase apiClient axios instance
+        try {
+            const response = await fetch('http://192.168.4.232:11434/api/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    model: OLLAMA_MODEL,
+                    messages,
+                    stream: false // Enforce false for this simple client
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Ollama API Error: ${response.statusText}`);
             }
-        });
+
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error("Ollama Chat Error:", error);
+            throw error;
+        }
     }
 
     // "Other quick accurate search functions"
@@ -36,14 +49,15 @@ export class OllamaClient {
     // For now, let's add a robust "ask" method that frames the user query.
     async ask(query: string, context?: string): Promise<string> {
         const systemPrompt = context
-            ? `You are a helpful assistant for a Personal Knowledge Management system. Answer the user's question based on the following context:\n\n${context}`
-            : `You are a helpful assistant for a Personal Knowledge Management system. Be concise and accurate.`;
+            ? `you are wilson, a helpful ai assistant for a personal knowledge management system. you must respond entirely in lowercase with no capital letters at all. be concise, friendly, and helpful. answer the user's question based on the following context:\n\n${context}`
+            : `you are wilson, a helpful ai assistant for a personal knowledge management system. you must respond entirely in lowercase with no capital letters at all. be concise, friendly, and accurate.`;
 
         const response = await this.chat([
             { role: 'system', content: systemPrompt },
             { role: 'user', content: query }
-        ], false);
+        ]);
 
-        return response.message.content;
+        // Ensure response is lowercase
+        return response.message.content.toLowerCase();
     }
 }

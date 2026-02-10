@@ -1,0 +1,80 @@
+{
+    "name": "PKM Capture (Fixed)",
+    "nodes": [
+        {
+            "parameters": {
+                "method": "POST",
+                "url": "https://db.houseofmates.space/api/captures",
+                "authentication": "genericCredentialType",
+                "genericAuthType": "httpBearerAuth",
+                "sendBody": true,
+                "bodyParameters": {
+                    "parameters": [
+                        {
+                            "name": "title",
+                            "value": "={{ $json.body.title }}"
+                        },
+                        {
+                            "name": "url",
+                            "value": "={{ $json.body.url }}"
+                        },
+                        {
+                            "name": "note",
+                            "value": "={{ $json.body.note }}"
+                        },
+                        {
+                            "name": "source",
+                            "value": "={{ $json.body.source || 'n8n' }}"
+                        }
+                    ]
+                },
+                "options": {
+                    "timeout": 10000
+                }
+            },
+            "id": "cfb54d32-d537-4d91-8edf-9c1dac41d85e",
+            "name": "Create Capture Record",
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4,
+            "position": [
+                1000,
+                -160
+            ],
+            "credentials": {
+                "httpBearerAuth": {
+                    "id": "GFEvT6UoaN9XdDxA",
+                    "name": "nocobase"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "pkm-capture",
+                "options": {}
+            },
+            "id": "93635563-6b06-4dca-b6af-adf0b1daf771",
+            "name": "Webhook Trigger",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 2,
+            "position": [
+                800,
+                -160
+            ],
+            "webhookId": "pkm-capture"
+        }
+    ],
+    "connections": {
+        "Webhook Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Create Capture Record",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

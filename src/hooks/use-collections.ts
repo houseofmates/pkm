@@ -1,78 +1,81 @@
 
-import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import type { Collection } from '@/types/nocobase';
+import { useQuery } from '@tanstack/react-query';
+
 export type { Collection };
 
-export function useCollections() {
-    const { client, isAuthenticated } = useAuth();
-    const [collections, setCollections] = useState<Collection[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+const SYSTEM_COLLECTIONS = [
+    'users', 'roles', 'attachments', 'collection_fields', 'collections',
+    'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers',
+    'form-submissions', 'site-pages', 'dupemates-stats', 'dupemates-pages', 'dupe-forms', 'form_submissions', 'site_pages'
+];
 
-    const fetchCollections = useCallback(async () => {
-        if (!isAuthenticated) {
-            setLoading(false);
-            return;
-        }
-        setLoading(true);
+export function useCollections() {
+    const { client, isAuthenticated, logout } = useAuth();
+
+    const fetchCollections = async () => {
+        if (!isAuthenticated) return [];
+
         try {
             const response = await client.listCollections();
-            // NocoBase sometimes wraps the list in data.data or just data
             const rawCollections = Array.isArray(response.data) ? response.data : (response?.data as any)?.data || [];
 
-            // Debugging: list names returned by server so we can see if proxy/auth is returning nothing
-
-
-            const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers'];
-
-            // Defensive: if the pkm_settings collection exists but isn't hidden, attempt to mark it hidden on the server
+            // Side Effects (Hiding Check)
             rawCollections.forEach(async (col: Collection) => {
                 const nameNorm = (col.name || '').toLowerCase().trim();
                 if (nameNorm === 'pkm_settings' && !col.hidden) {
                     try {
                         if (client?.updateCollection) {
-                            // Attempt to mark it hidden so it won't show in the UI or list
                             await client.updateCollection(col.name, { hidden: true, title: col.title || 'PKM Settings' });
                         }
                     } catch (e) {
-                        console.error('Failed to hide pkm_settings collection on server:', e);
+                        console.error('Failed to hide pkm_settings:', e);
                     }
                 }
             });
 
-            const filteredCollections = rawCollections.filter((col: Collection) => {
+            return rawCollections;
+        } catch (err: any) {
+            console.error("fetchCollections Error object:", err);
+            const msg = (err.message || JSON.stringify(err) || '').toString();
+
+            if (msg.includes('404') || msg.includes('401')) {
+                console.warn("Auth Error Detected: Logging out.");
+                logout();
+            }
+            throw new Error(msg || 'Failed to fetch collections');
+        }
+    };
+
+    const { data: collections = [], isLoading, error, refetch } = useQuery({
+        queryKey: ['collections'],
+        queryFn: fetchCollections,
+        enabled: isAuthenticated,
+        select: (data) => {
+            return data.filter((col: Collection) => {
                 const name = (col.name || '').toLowerCase().trim();
                 const title = (col.title || '').toLowerCase().trim();
 
-                // Exclude known system names
-                if (systemCollections.includes(name)) return false;
-
-                // Explicitly exclude only the pkm_settings collection (exact match) or exact title 'pkm settings'
-                if (name === 'pkm_settings' || title === 'pkm settings') return false;
-
-                // Hide anything with "backend" in the name or title
+                if (SYSTEM_COLLECTIONS.includes(name)) return false;
+                if (name === 'pkm_settings' || title === 'pkm settings' || name === 'front_history' || title === 'front history') return false;
                 if (name.includes('backend') || title.includes('backend')) return false;
-
-                // Exclude hidden collections
                 if (col.hidden) return false;
-
                 return true;
             });
-
-            setCollections(filteredCollections);
-            setError(null);
-        } catch (err: any) {
-
-            setError(err.message || 'Failed to fetch collections');
-        } finally {
-            setLoading(false);
         }
-    }, [client, isAuthenticated]);
+    });
 
-    useEffect(() => {
-        fetchCollections();
-    }, [fetchCollections]);
+    return {
+        collections,
+        loading: isLoading,
+        error: error ? (error as Error).message : null,
+        refresh: refetch
+    };
+}
 
-    return { collections, loading, error, refresh: fetchCollections };
+export function useCollection(name: string) {
+    const { collections, loading, error } = useCollections();
+    const collection = collections.find((c: Collection) => c.name === name);
+    return { data: collection, loading, error };
 }

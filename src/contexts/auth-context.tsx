@@ -20,7 +20,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // but here we are passing a fresh client or using the ref pattern.
     // Actually, simplest is to re-create client or pass a token getter.
     // The client implementation I wrote takes `getToken` callback.
-    const [client] = useState(() => new NocoBaseClient(() => localStorage.getItem('nocobase_token')));
+    // Actually, simplest is to re-create client or pass a token getter.
+    // The client uses the singleton apiClient which handles tokens via interceptors.
+    const [client] = useState(() => new NocoBaseClient());
 
 
 
@@ -29,10 +31,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const handleAuthError = () => {
             // Token already cleared by api-client; just update React state
             setToken(null);
-            // Force reload to clear all stale closures and queued requests
-            window.location.reload();
+            // Reliance on React state reset is smoother than reload
         };
         window.addEventListener('auth-error', handleAuthError);
+
+        // Initial sync
+        const electron = (window as any).electron;
+        if (electron?.syncState && token) {
+            electron.syncState({ token });
+        }
+
         return () => window.removeEventListener('auth-error', handleAuthError);
     }, []);
 
@@ -40,7 +48,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const login = (newToken: string) => {
         localStorage.setItem('nocobase_token', newToken);
         setToken(newToken);
-        
+
+        // Sync to Electron
+        const electron = (window as any).electron;
+        if (electron?.syncState) {
+            electron.syncState({ token: newToken });
+        }
+
         // Ensure backend collection exists after login
         setTimeout(async () => {
             try {
@@ -54,6 +68,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const logout = () => {
         localStorage.removeItem('nocobase_token');
         setToken(null);
+
+        // Sync to Electron
+        const electron = (window as any).electron;
+        if (electron?.syncState) {
+            electron.syncState({ token: null });
+        }
     };
 
     return (

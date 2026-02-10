@@ -1,48 +1,14 @@
-
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import type { ViewProps } from './registry';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-import { format, differenceInDays, addDays, startOfMonth, endOfMonth, eachDayOfInterval } from 'date-fns';
+import { differenceInDays, addDays, startOfMonth, endOfMonth, eachDayOfInterval, format } from 'date-fns';
 import { SmartField } from '@/components/fields/smart-field';
-import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger } from '@/components/ui/context-menu';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-
-import { Trash2, Edit } from 'lucide-react';
+import { RecordContextMenu } from '@/features/records/components/record-context-menu';
 
 interface GanttViewProps extends ViewProps { }
 
-// Simple Edit Dialog wrapper
-function EditRecordModal({ record, open, onOpenChange, onUpdate, collection }: any) {
-    // In a real app we'd reuse the Form logic from CreateRecordDialog but populated
-    // For now, we mock an "Edit Properties" card by listing fields
-    return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
-                <div className="space-y-4">
-                    <h3 className="text-lg font-bold border-b pb-2">edit {record.title || 'record'}</h3>
-                    <div className="grid gap-4 py-4">
-                        {collection.fields?.map((f: any) => (
-                            <div key={f.name} className="grid grid-cols-4 items-center gap-4">
-                                <label className="text-right text-sm font-medium text-muted-foreground">{f.uiSchema?.title || f.name}</label>
-                                <div className="col-span-3">
-                                    <SmartField
-                                        value={record[f.name]}
-                                        field={f}
-                                        onChange={(val) => onUpdate(record.id, { [f.name]: val })}
-                                        className="border rounded px-2 min-h-[32px]"
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </DialogContent>
-        </Dialog>
-    )
-}
-
-export function GanttView({ data, config, collection, onUpdateRecord, onDelete }: GanttViewProps) {
+export function GanttView({ data, config, collection, onUpdateRecord, onDelete, onConfigChange }: GanttViewProps) {
     if (!collection) {
         return (
             <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
@@ -59,8 +25,13 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete }
     const startField = config?.ganttStartField || dateFields[0]?.name;
     const endField = config?.ganttEndField || dateFields[1]?.name || startField;
 
-    // State for interactions
-    const [editingRecord, setEditingRecord] = useState<any>(null);
+    // Unified Property Logic
+    const titleField = config?.titleField
+        ? collection.fields?.find((f: any) => f.name === config.titleField)
+        : collection.fields?.find((f: any) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
+
+    const visibleFieldNames = config?.visibleFields || [];
+    const visibleFields = collection?.fields?.filter((f: any) => visibleFieldNames.includes(f.name)) || [];
 
     // Determine Timeline Range based on data
     const { startDate, timelineDays } = useMemo(() => {
@@ -111,7 +82,9 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete }
 
     // Interaction Handlers
     const handleBarClick = (record: any) => {
-        setEditingRecord(record);
+        window.dispatchEvent(new CustomEvent('pkm:edit-record', {
+            detail: { record: record, collectionName: collection.name }
+        }));
     }
 
     return (
@@ -157,65 +130,83 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete }
                         }
 
                         return (
-                            <ContextMenu key={record.id}>
-                                <ContextMenuTrigger>
-                                    <div className="flex border-b hover:bg-muted/10 items-center h-10 group relative">
-                                        <div className="w-48 p-2 border-r text-xs font-medium sticky left-0 bg-background z-10 shrink-0 truncate flex items-center gap-2">
-                                            {/* Status Indicator (Mock) or Checkbox */}
-                                            <div className="w-2 h-2 rounded-full bg-primary/50" />
-                                            {record.title || record.name || <span className="italic opacity-50">untitled</span>}
-                                        </div>
-                                        <div className="flex-1 relative h-full">
-                                            {/* Background Grid Lines */}
-                                            <div className="absolute inset-0 flex pointer-events-none">
-                                                {timelineDays.map((d, i) => (
-                                                    <div key={i} className={cn("border-r shrink-0 h-full", d.getDay() === 0 || d.getDay() === 6 ? "bg-muted/10" : "")} style={{ width: `${colWidth}px` }} />
-                                                ))}
-                                            </div>
+                            <RecordContextMenu
+                                key={record.id}
+                                record={record}
+                                collection={collection}
+                                onUpdate={onUpdateRecord}
+                                onDelete={onDelete}
+                                titleField={titleField}
+                                config={config}
+                                onConfigChange={onConfigChange}
+                                className="contents"
+                            >
+                                <div className="flex border-b hover:bg-muted/10 items-center min-h-[40px] py-1 group relative">
+                                    <div className="w-48 p-2 border-r text-xs font-medium sticky left-0 bg-background z-10 shrink-0 truncate flex items-center gap-2">
+                                        {/* Status Indicator */}
+                                        <div className="w-2 h-2 rounded-full bg-primary/50 shrink-0" />
+                                        <div className="flex-1 min-w-0">
+                                            <SmartField
+                                                value={record[titleField.name]}
+                                                field={titleField}
+                                                record={record}
+                                                collectionName={collection.name}
+                                                size="sm"
+                                                onChange={(val) => onUpdateRecord?.(record.id, { [titleField.name]: val })}
+                                                className="h-auto p-0 border-none bg-transparent hover:bg-muted/30 rounded px-1 font-black text-sm w-full"
+                                            />
 
-                                            {/* Task Bar */}
-                                            {visible && (
-                                                <div
-                                                    className="absolute top-2 bottom-2 bg-blue-500/20 border border-blue-500 text-blue-700 dark:text-blue-300 rounded-md flex items-center px-2 text-[10px] whitespace-nowrap overflow-hidden shadow-sm hover:brightness-110 cursor-pointer transition-all hover:scale-[1.01]"
-                                                    style={{ left: `${left}px`, width: `${Math.max(width, colWidth)}px` }}
-                                                    title={`${format(sDate!, 'PP')} - ${format(eDate!, 'PP')}`}
-                                                    onDoubleClick={() => handleBarClick(record)}
-                                                >
-                                                    <div className="truncate w-full font-semibold opacity-80 group-hover:opacity-100">
-                                                        {record.title || record.name}
-                                                    </div>
-                                                    {/* Drag Handles (Visual Only for now, implementation of drag resize is huge) */}
-                                                    <div className="absolute left-0 w-1 h-full cursor-w-resize bg-blue-600/30 opacity-0 group-hover:opacity-100" />
-                                                    <div className="absolute right-0 w-1 h-full cursor-e-resize bg-blue-600/30 opacity-0 group-hover:opacity-100" />
+                                            {/* Universal Property Visibility */}
+                                            {visibleFields.length > 0 && (
+                                                <div className="flex flex-col gap-0.5 mt-1">
+                                                    {visibleFields.slice(0, 3).map((f: any) => (
+                                                        <div key={f.name} className="flex items-center gap-1 min-w-0">
+                                                            <span className="text-[9px] text-muted-foreground lowercase shrink-0 opacity-50">{f.uiSchema?.title || f.name}:</span>
+                                                            <SmartField
+                                                                value={record[f.name]}
+                                                                field={f}
+                                                                record={record}
+                                                                collectionName={collection.name}
+                                                                size="sm"
+                                                                onChange={(val) => onUpdateRecord?.(record.id, { [f.name]: val })}
+                                                                className="h-auto p-0 border-none bg-transparent hover:bg-muted/30 rounded px-1 text-[10px] truncate"
+                                                            />
+                                                        </div>
+                                                    ))}
                                                 </div>
                                             )}
                                         </div>
                                     </div>
-                                </ContextMenuTrigger>
-                                <ContextMenuContent>
-                                    <ContextMenuItem onClick={() => handleBarClick(record)}>
-                                        <Edit className="mr-2 h-4 w-4" /> edit record
-                                    </ContextMenuItem>
-                                    <ContextMenuItem className="text-red-500" onClick={() => onDelete && onDelete(record)}>
-                                        <Trash2 className="mr-2 h-4 w-4" /> delete
-                                    </ContextMenuItem>
-                                </ContextMenuContent>
-                            </ContextMenu>
-                        )
+                                    <div className="flex-1 relative h-full">
+                                        {/* Background Grid Lines */}
+                                        <div className="absolute inset-0 flex pointer-events-none">
+                                            {timelineDays.map((d, i) => (
+                                                <div key={i} className={cn("border-r shrink-0 h-full", d.getDay() === 0 || d.getDay() === 6 ? "bg-muted/10" : "")} style={{ width: `${colWidth}px` }} />
+                                            ))}
+                                        </div>
+
+                                        {/* Task Bar */}
+                                        {visible && (
+                                            <div
+                                                className="absolute top-2 bottom-2 bg-blue-500/20 border border-blue-500 text-blue-700 dark:text-blue-300 rounded-md flex items-center px-2 text-[10px] whitespace-nowrap overflow-hidden shadow-sm hover:brightness-110 cursor-pointer transition-all hover:scale-[1.01]"
+                                                style={{ left: `${left}px`, width: `${Math.max(width, colWidth)}px` }}
+                                                title={`${format(sDate!, 'PP')} - ${format(eDate!, 'PP')}`}
+                                                onDoubleClick={() => handleBarClick(record)}
+                                            >
+                                                <div className="truncate w-full font-black opacity-80 group-hover:opacity-100">
+                                                    {record[titleField.name]}
+                                                </div>
+                                                <div className="absolute left-0 w-1 h-full cursor-w-resize bg-blue-600/30 opacity-0 group-hover:opacity-100" />
+                                                <div className="absolute right-0 w-1 h-full cursor-e-resize bg-blue-600/30 opacity-0 group-hover:opacity-100" />
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </RecordContextMenu>
+                        );
                     })}
                 </div>
             </ScrollArea>
-
-            {/* Edit Dialog */}
-            {editingRecord && (
-                <EditRecordModal
-                    record={editingRecord}
-                    open={!!editingRecord}
-                    onOpenChange={(open: boolean) => !open && setEditingRecord(null)}
-                    collection={collection}
-                    onUpdate={onUpdateRecord}
-                />
-            )}
         </div>
     );
 }

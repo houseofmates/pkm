@@ -1,155 +1,463 @@
-@tailwind base;
+@import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
 
-@layer base {
-  * {
-    font-family: 'Varela Round', Inter, -apple-system, sans-serif !important;
-  }
+@font-face {
+  font-family: 'Varela Round';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/VarelaRound-Regular.woff2') format('woff2');
 }
 
+@tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+* {
+  font-family: 'Varela Round', sans-serif !important;
+}
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.9%;
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.9%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.9%;
-    --primary: 42 90% 52%;
-    /* #f6b012 */
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --ring: 42 90% 52%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
-    --radius: 1rem;
-  }
+    --background: 0 0% 5%;
+    --foreground: 0 0% 95%;
 
-  /* Force Dark Mode by default */
-  .dark {
-    --background: 0 0% 0%;
-    /* Pure Black */
-    --foreground: 0 0% 98%;
-    --card: 0 0% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 0 0% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 42 90% 52%;
-    --primary-foreground: 0 0% 9%;
-    --secondary: 0 0% 14.9%;
+    --card: 0 0% 8%;
+    --card-foreground: 0 0% 95%;
+
+    --popover: 0 0% 8%;
+    --popover-foreground: 0 0% 95%;
+
+    /* THE VOID BLUEPRINT DEFAULT: Orange */
+    --primary: 38 93% 51%;
+    --primary-foreground: 0 0% 0%;
+    --primary-soft: rgba(246, 176, 18, 0.10) !important;
+
+    --secondary: 0 0% 12%;
     --secondary-foreground: 0 0% 98%;
-    --muted: 0 0% 14.9%;
-    --muted-foreground: 0 0% 63.9%;
-    --accent: 0 0% 14.9%;
+
+    --muted: 0 0% 12%;
+    --muted-foreground: 0 0% 60%;
+
+    --accent: 0 0% 12%;
     --accent-foreground: 0 0% 98%;
+
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 0 0% 98%;
-    --border: 0 0% 20%;
-    --input: 0 0% 14.9%;
-    --ring: 42 90% 52%;
-    --chart-1: 220 70% 50%;
-    --chart-2: 160 60% 45%;
-    --chart-3: 30 80% 55%;
-    --chart-4: 280 65% 60%;
-    --chart-5: 340 75% 55%;
-  }
-}
 
-@layer base {
-  * {}
+    --border: 0 0% 15%;
+    --input: 0 0% 15%;
+    --ring: 38 93% 51%;
+    /* Match primary default */
+
+    --radius: 0.75rem;
+  }
+
+  * {
+    @apply border-border;
+  }
 
   body {
-    @apply bg-background text-foreground lowercase font-varela;
-  }
-
-  /* Enforce lowercase on specific elements to override user-agent styles if needed */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6,
-  button,
-  a,
-  label,
-  input,
-  span,
-  p,
-  div {
-    @apply lowercase;
-  }
-
-  /* Remove default focus rings for cleaner aesthetic if desired, keeping accessibility via visible border changes */
-
-  /* Remove outlines from dashboard empty states if any */
-  .border-dashed {
-    border-style: solid !important;
-    border-color: transparent !important;
-  }
-
-  /* GLOBAL TYPOGRAPHY BRANDING */
-  /* Ensure all text is effectively white unless specified */
-  body {
-    color: #ffffff;
-  }
-
-  /* Bold text and Headings in Gold #f6b012 */
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6,
-  b,
-  strong,
-  .font-bold {
-    color: #f6b012;
-  }
-
-  /* Ensure muted text is light gray, never dark gray */
-  .text-muted-foreground {
-    color: #a1a1aa !important;
-    /* zinc-400 equivalent */
-  }
-
-  /* Override any accidental black text */
-  .text-foreground {
-    color: #ffffff !important;
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+    font-family: 'Varela Round', sans-serif !important;
   }
 }
 
-/* Loading bar animation */
-@keyframes loading-bar {
-  0% {
-    width: 0%;
-    margin-left: 0%;
-  }
-
-  50% {
-    width: 60%;
-    margin-left: 20%;
-  }
-
-  100% {
-    width: 0%;
-    margin-left: 100%;
-  }
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Varela Round', sans-serif !important;
 }
 
-.animate-loading-bar {
-  animation: loading-bar 1.5s ease-in-out infinite;
+/* --- OVERRIDE: VISUAL REPAIR V2 --- */
+aside,
+.sidebar,
+nav,
+.card-header,
+[class*="header"] {
+  border-bottom-width: 0px !important;
+  border-right-width: 0px !important;
+  border-left-width: 0px !important;
+  border-top-width: 0px !important;
+}
+
+aside {
+  border-right: 1px solid var(--primary) !important;
+}
+
+.card,
+[class*="Card"] {
+  overflow: hidden !important;
+  border-radius: var(--radius) !important;
+  border: 1px solid var(--border);
+  /* Ensure border is visible */
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  /* Restore shadow if border: none removed it? No, shadow-sm class does it. */
+}
+
+.card-content,
+[class*="CardContent"] {
+  border-radius: 0 0 var(--radius) var(--radius);
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  display: none;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent;
+  border-radius: 0px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: transparent;
+}
+
+/* --- THE VOID BLUEPRINT OVERRIDES --- */
+
+/* Force Icons to Inherit Variable Directly */
+svg,
+.lucide,
+[class*="icon"] {
+  /* color: var(--primary) !important; */
+  /* stroke: var(--primary) !important; */
+  fill: none;
+  /* Reset fill mostly, or let it handle itself */
+}
+
+/* Explicitly targeted Selection Logic */
+.nav-selected,
+[data-selected="true"] {
+  background-color: var(--primary-soft) !important;
+  color: var(--primary) !important;
+}
+
+/* Soft Background Utility */
+.bg-primary-soft {
+  background-color: var(--primary-soft) !important;
+}
+
+/* Ensure focus states use primary */
+*:focus,
+*:focus-visible {
+  outline-color: var(--primary) !important;
+  --tw-ring-color: var(--primary) !important;
+}
+
+/* Kill generic white text/borders that shouldn't exist */
+.text-white {
+  /* color: var(--primary) !important; */
+}
+
+.border-white {
+  border-color: var(--primary-soft) !important;
+}
+
+/* --- CRITICAL UI REPAIR SPEC --- */
+.card-fix {
+  border-radius: 0.75rem;
+  /* rounded-xl */
+  overflow: hidden;
+  isolation: isolate;
+  /* forces new stacking context */
+  mask-image: radial-gradient(white, black);
+  /* safari/webkit fix for rounding */
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+  border: 2px solid transparent;
+  /* reserve space for layout */
+  position: relative;
+}
+
+/* Pseudo-element border to sit ON TOP of opaque children */
+.card-fix::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-shadow: inset 0 0 0 2px var(--border-color, rgba(255, 255, 255, 0.1));
+  pointer-events: none;
+  z-index: 50;
+  /* Ensure on top of content */
+}
+
+/* Spec: Force rounded inherit on children of .card-fix */
+.card-fix>* {
+  border-radius: inherit;
+}
+
+/* --- UTILITY: HIDE SCROLLBARS --- */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+.no-scrollbar {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+/* --- INTERACTIVE POLISH --- */
+.interactive-pop {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease, filter 0.2s ease !important;
+}
+
+.interactive-pop:hover {
+  transform: scale(1.025) translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
+  filter: brightness(1.1);
+  z-index: 50;
+}
+
+.interactive-pop:active {
+  transform: scale(0.98) translateY(0px);
+  filter: brightness(0.9);
+  transition: transform 0.05s linear !important;
+}
+
+/* Specific fix for buttons in components */
+button.interactive-pop:hover {
+  filter: brightness(1.2);
+}
+
+/* --- GLOBAL FORCE LOWERCASE (REMOVED) --- */
+/* User requested capitalization preservation. */
+/* * {
+  text-transform: lowercase !important;
+  font-variant: normal !important;
+} */
+
+/* Selected icon styling: color the icon instead of button background */
+.selected-icon-btn {
+  background: transparent !important;
+  /* keep bold text where used */
+  font-weight: 700 !important;
+  color: inherit !important;
+}
+
+/* Strongly enforce icon coloring for selected state, including nested children
+   This overrides inline fills / hardcoded tailwind utility colors on svg or paths. */
+.selected-icon-btn svg,
+.selected-icon-btn svg *,
+.selected-icon-btn .lucide,
+.selected-icon-btn .lucide *,
+.selected-icon-btn .icon,
+.selected-icon-btn .icon * {
+  color: var(--primary) !important;
+  stroke: currentColor !important;
+  fill: currentColor !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+/* Additional aggressive overrides to neutralize hardcoded yellow utilities
+   and inline SVG fills that are still present in many components/builds. */
+.selected-icon-btn {
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Override tailwind-like utility classname usages that embed the yellow color */
+.selected-icon-btn [class*="text-[var(--primary)]"],
+.selected-icon-btn [class*="bg-[var(--primary)]"],
+.selected-icon-btn [class*="fill-[var(--primary)]"],
+.selected-icon-btn [class*="stroke-[var(--primary)]"] {
+  color: var(--primary) !important;
+  background-color: transparent !important;
+  fill: currentColor !important;
+  stroke: currentColor !important;
+}
+
+/* Catch inline SVG attributes and style attributes that reference the hex */
+
+
+.selected-icon-btn svg [fill="var(--primary)"],
+.selected-icon-btn svg [stroke="var(--primary)"],
+.selected-icon-btn [style*="var(--primary)"] {
+  fill: currentColor !important;
+  stroke: currentColor !important;
+  color: var(--primary) !important;
+}
+
+/* Generic fallback: force any SVG children to use currentColor */
+.selected-icon-btn svg,
+.selected-icon-btn svg * {
+  fill: currentColor !important;
+  stroke: currentColor !important;
+  color: var(--primary) !important;
+}
+
+/* --- NUCLEAR OVERRIDE (user request) --- */
+.selected-icon-btn svg,
+.selected-icon-btn path,
+.selected-icon-btn circle {
+  fill: var(--primary) !important;
+  stroke: var(--primary) !important;
+  color: var(--primary) !important;
+}
+
+.selected-icon-btn {
+  /* transparency fix: clear container background and shadows */
+  background: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Universal nested selector to catch wrappers/spans around svgs */
+.selected-icon-btn * {
+  fill: var(--primary) !important;
+  stroke: var(--primary) !important;
+}
+
+/* --- NUCLEAR UI FIX ROUND 2 (USER REQUEST) --- */
+
+/* --- NUCLEAR OVERRIDE REFINED --- */
+/* Avoid global border removal, it breaks status widgets and selection outlines. */
+.sidebar *,
+.nav-container *,
+header * {
+  border-top: none !important;
+  border-bottom: none !important;
+}
+
+/* Restore for header/sidebar only */
+.sidebar-container,
+.nav-header {
+  border-bottom: 2px solid var(--primary) !important;
+}
+
+/* 2. SIDEBAR ICONS SPECIFIC TARGET */
+.sidebar svg,
+.nav-item svg,
+.top-nav svg {
+  fill: var(--primary) !important;
+  color: var(--primary) !important;
+  filter: drop-shadow(0 0 0 var(--primary)) !important;
+}
+
+/* --- HIGH CONTRAST & VISIBILITY RESTORATION (USER REQUEST) --- */
+
+/* 1. THE BACKGROUND: Force Dark #050505 */
+.sidebar,
+.nav-container,
+.nav-item.selected {
+  background-color: #050505 !important;
+  background: #050505 !important;
+}
+
+/* --- V5 EMERGENCY FIX (COHERENT) --- */
+
+/* 1. Header & Sidebar Background (Dark Grey/Black) */
+header,
+.nav-header,
+.sidebar,
+.sidebar-container,
+.nav-container,
+aside {
+  background-color: #050505 !important;
+  background: #050505 !important;
+  border-bottom: 2px solid var(--primary) !important;
+  /* Restore header separating line */
+}
+
+/* 2. Button Outlines -> Headmate Color */
+button,
+.btn,
+.icon-btn,
+[role="button"] {
+  border-color: var(--primary) !important;
+  outline-color: var(--primary) !important;
+}
+
+/* 3. Selected Items: Transparent Background, Colored Icon */
+.nav-item.selected,
+.nav-item:hover,
+.nav-button.active,
+.selected-icon-btn,
+.nav-icon-btn,
+.nav-icon-btn:active,
+.nav-icon-btn:focus,
+.nav-icon-btn:hover {
+  background-color: transparent !important;
+  background: transparent !important;
+  border: none !important;
+  /* No box border around the item itself */
+}
+
+/* 4. Icons: ALWAYS Primary Color & Visible */
+.sidebar svg,
+.nav-item svg,
+.sidebar-icon,
+[class*='sidebar'] svg,
+.selected-icon-btn svg,
+.selected-icon-btn * {
+  fill: var(--primary) !important;
+  color: var(--primary) !important;
+  stroke: var(--primary) !important;
+  opacity: 1 !important;
+  display: block !important;
+  visibility: visible !important;
+}
+
+/* 5. Global Border Cleanup (Safety Net) */
+/* Kill random white borders, force them to primary or transparent */
+*[style*="border"],
+[class*="border"] {
+  border-color: var(--primary);
+}
+
+/* Force cmdk items to always be visible and clickable */
+[cmdk-item] {
+  display: flex !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+}
+
+[cmdk-item][hidden] {
+  display: flex !important;
+}
+
+[cmdk-group] {
+  display: block !important;
+}
+
+[cmdk-group][hidden] {
+  display: block !important;
+}
+
+/* --- BLOG CUSTOM SCROLLBAR --- */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  display: block;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+  opacity: 0.5;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
+  opacity: 1;
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) rgba(255, 255, 255, 0.05);
 }

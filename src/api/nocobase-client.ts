@@ -1,243 +1,359 @@
-import type { NocoBaseResponse, RequestOptions, Collection } from "@/types/nocobase";
-import { apiRequest } from '@/lib/api-client';
+// @ts-nocheck
+import { apiClient } from '@/lib/api-client';
 
 export class NocoBaseClient {
+  constructor() {
+    // RENAME internal variable to avoid conflict
+    this._axios = apiClient;
+  }
 
+  // Getter to allow 'this.client' access without writing to it
+  get client() {
+    return this._axios;
+  }
 
-    private getToken: () => string | null;
+  // --- Collection Methods ---
+  async listCollections(params = {}) {
+    // Actions are usually resource:action
+    const res = await this._axios.get('/collections:list', { params });
+    return res.data;
+  }
+  async getCollection(name) {
+    try {
+      const res = await this._axios.get(`/collections/${name}:get`);
+      return res.data;
+    } catch (error) {
+      // Fallback: If 404/400 (likely due to name mismatch with ID), try filtered list
+      if (error.response?.status === 404 || error.response?.status === 400 || error.response?.status === 500) {
+        console.warn(`getCollection(${name}) failed, attempting fallback search...`);
 
-    constructor(getToken: () => string | null) {
-        this.getToken = getToken;
-    }
+        // Attempt 1: Exact Name Match
+        let res = await this._axios.get('/collections:list', {
+          params: {
+            'filter[name]': name,
+            'appends': ['fields'] // Ensure fields are returned
+          }
+        });
 
-    async request<T = any>(resource: string, action: string, options?: RequestOptions): Promise<NocoBaseResponse<T>> {
-        const endpoint = `${resource}:${action}`;
-        const token = this.getToken();
+        let list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
 
-        const headers: Record<string, string> = {
-            'X-Authenticator': 'basic',
-            'X-Role': 'root',
-            'X-With-ACL-Meta': 'true',
-            'X-Locale': 'en-US',
-            'X-Hostname': 'db.houseofmates.space',
-            'X-Timezone': '-08:00',
-            ...options?.headers,
-        };
-
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
+        if (list.length > 0) {
+          return { data: list[0] };
         }
 
+        // Attempt 2: Case-Insensitive Match (Postgres/General)
+        // Trying both $ilike and $like to be safe across DB types
+        console.warn(`getCollection(${name}) exact match failed, attempting case-insensitive...`);
         try {
-            const data = await apiRequest('nocobase', endpoint, {
-                method: options?.method,
-                headers,
-                params: options?.params,
-                data: options?.data,
-                silent: options?.silent
-            });
-
-            return data as NocoBaseResponse<T>;
-        } catch (error: any) {
-            if (options?.silent !== true) {
-                console.error("NocoBase Client Error:", error);
-            }
-            throw error;
-        }
-    }
-
-    // Collection operations
-    async listCollections(options?: RequestOptions): Promise<NocoBaseResponse<Collection[]>> {
-        const response = await this.request<Collection[]>('collections', 'list', {
+          res = await this._axios.get('/collections:list', {
             params: {
-                paginate: false,
-                ...options?.params,
-            },
-            ...options,
-        });
-
-        return response;
-    }
-
-    async getCollection(name: string) {
-        return this.request('collections', 'get', {
-            params: { filterByTk: name }
-        });
-    }
-
-    async createCollection(data: Partial<Collection>) {
-        return this.request('collections', 'create', {
-            method: 'POST',
-            data
-        });
-    }
-
-
-
-    async deleteCollection(name: string) {
-        return this.request('collections', 'destroy', {
-            method: 'POST',
-            params: { filterByTk: name }
-        });
-    }
-
-    async updateCollection(name: string, data: any) {
-        return this.request('collections', 'update', {
-            method: 'POST',
-            params: { filterByTk: name },
-            data
-        });
-    }
-
-    // Specialized upload for handling FormData
-    async upload(file: File) {
-        const formData = new FormData();
-        formData.append('file', file);
-
-        // Use standard REST endpoint for persistence reliability
-        return apiRequest('nocobase', '/attachments', {
-            method: 'POST',
-            headers: (this.getToken() ? { 'Authorization': `Bearer ${this.getToken()}` } : {}) as Record<string, string>,
-            data: formData
-        });
-    }
-
-    // Download attachment as a Blob using the server proxy to avoid CORS issues
-    async downloadAttachmentBlob(attachmentId: string) {
-        const headers = (this.getToken() ? { 'Authorization': `Bearer ${this.getToken()}` } : {}) as Record<string, string>;
-
-        const attempts = [
-            `/attachments/${attachmentId}/download`,
-            `/attachments/${attachmentId}`,
-            `/attachments/${attachmentId}?download=true`,
-        ];
-
-        for (const endpoint of attempts) {
-            try {
-                const resp = await apiRequest('nocobase', endpoint, {
-                    method: 'GET',
-                    headers,
-                    responseType: 'blob'
-                });
-
-                // apiRequest returns a Blob for 'blob' responseType
-                if (resp instanceof Blob) return resp as Blob;
-
-                // Some proxies might wrap blob inside data
-                if (resp && (resp as any).data instanceof Blob) return (resp as any).data as Blob;
-
-            } catch (error) {
-                console.warn(`[NocoBase] download attempt failed (${endpoint}) for id ${attachmentId}:`, error);
-                // try next
+              'filter[name.$ilike]': name, // Postgres
+              'appends': ['fields']
             }
+          });
+          list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+          if (list.length > 0) return { data: list[0] };
+
+          // Try $like?
+          res = await this._axios.get('/collections:list', {
+            params: {
+              'filter[name.$like]': name,
+              'appends': ['fields']
+            }
+          });
+          list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+          if (list.length > 0) return { data: list[0] };
+
+        } catch (e) {
+          console.warn("Case insensitive search failed", e);
+        }
+      }
+
+      // Attempt 3: Brute Force (Fetch all and find)
+      console.warn(`getCollection(${name}) still failing, attempting brute - force list search...`);
+      try {
+        // Try WITH fields first (removed paginate: false in case it's problematic)
+        let res = await this._axios.get('/collections:list', {
+          params: {
+            'appends': ['fields']
+          }
+        });
+        let list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+        let found = list.find(c => (c.name || '').toLowerCase() === (name || '').toLowerCase());
+
+        if (found) {
+          console.log(`FOUND collection ${name} via brute force(with fields) !`);
+          return { data: found };
         }
 
-        throw new Error(`All download attempts failed for attachment ${attachmentId}`);
-    }
+        // Try WITHOUT fields (Exact same as useCollections/sidebar)
+        console.warn(`getCollection(${name}) not found with fields, trying bare list...`);
+        res = await this._axios.get('/collections:list'); // No params
+        list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+        found = list.find(c => (c.name || '').toLowerCase() === (name || '').toLowerCase());
 
-    async createField(collectionName: string, data: any) {
-        return this.request('fields', 'create', {
-            method: 'POST',
-            data: {
-                collectionName,
-                ...data
-            }
-        });
-    }
+        if (found) {
+          console.log(`FOUND collection ${name} via bare list!`);
+          // If we found it without fields, we return it. 
+          // The UI might lack field definitions but it won't 404.
+          return { data: found };
+        }
 
-    // Record operations
-    async listRecords(collection: string, params?: {
-        pageSize?: number;
-        page?: number;
-        filter?: any;
-        sort?: string[];
-    }) {
-        return this.request(collection, 'list', { params });
-    }
+      } catch (e) {
+        console.warn("Brute force search failed", e);
+      }
 
-    async createRecord(collection: string, data: any) {
-        return this.request(collection, 'create', {
-            method: 'POST',
-            data
-        });
+      throw error;
     }
+  }
 
-    async updateRecord(collection: string, id: string | number, data: any) {
-        return this.request(collection, 'update', {
-            method: 'POST',
-            params: { filterByTk: id },
-            data
-        });
-    }
-
-    async deleteRecord(collection: string, id: string | number) {
-        return this.request(collection, 'destroy', {
-            method: 'POST', // NocoBase uses POST for destroy with filterByTk often, or delete method
-            params: { filterByTk: id }
-        });
-    }
-
-    // Ensure pkm_backend collection exists for avatar storage
-    async ensureBackendCollection() {
+  async createCollection(data) {
+    const res = await this._axios.post('/collections:create', data);
+    return res.data;
+  }
+  async updateCollection(name, data) {
+    try {
+      // Use filterByTk for better compatibility
+      const res = await this._axios.post(`/collections:update?filterByTk=${name}`, data);
+      return res.data;
+    } catch (error) {
+      // If 404, it might be a case-sensitivity mismatch. Try to resolve the real name.
+      if (error.response?.status === 404) {
+        console.warn(`updateCollection(${name}) 404, attempting to resolve real name...`);
         try {
-            // Check if pkm_backend collection exists
-            await this.getCollection('pkm_backend');
-        } catch (error) {
-            // Collection doesn't exist, create it
-            try {
-                await this.createCollection({
-                    name: 'pkm_backend',
-                    title: 'PKM Backend Storage',
-                    hidden: true, // Hide from UI
-                    description: 'Backend storage for PKM app data like avatars'
-                });
+          const col = await this.getCollection(name);
+          // Handle both { data: Collection } and Collection structure
+          const realName = col?.data?.name || col?.name;
 
-                // Add required fields
-                await this.createField('pkm_backend', {
-                    name: 'type',
-                    type: 'string',
-                    title: 'Type',
-                    description: 'Type of stored data (avatar, etc.)'
-                });
-
-                await this.createField('pkm_backend', {
-                    name: 'member_id',
-                    type: 'string',
-                    title: 'Member ID',
-                    description: 'Associated headmate member ID'
-                });
-
-                await this.createField('pkm_backend', {
-                    name: 'attachment_id',
-                    type: 'bigInt',
-                    title: 'Attachment ID',
-                    description: 'Reference to attachment record'
-                });
-
-                await this.createField('pkm_backend', {
-                    name: 'filename',
-                    type: 'string',
-                    title: 'Filename',
-                    description: 'Original filename'
-                });
-
-                await this.createField('pkm_backend', {
-                    name: 'mime_type',
-                    type: 'string',
-                    title: 'MIME Type',
-                    description: 'File MIME type'
-                });
-
-                await this.createField('pkm_backend', {
-                    name: 'url',
-                    type: 'string',
-                    title: 'URL',
-                    description: 'File URL'
-                });
-
-            } catch (createError) {
-                console.warn('Failed to create pkm_backend collection:', createError);
-            }
+          if (realName && realName !== name) {
+            console.log(`Resolved collection name mismatch: ${name} -> ${realName}. Retrying update.`);
+            const res = await this._axios.post(`/collections/${realName}:update`, data);
+            return res.data;
+          }
+        } catch (findError) {
+          console.warn("Failed to resolve collection for retry", findError);
         }
+      }
+      throw error;
     }
+  }
+  async deleteCollection(name) {
+    const res = await this._axios.delete(`/collections/${name}`);
+    return res.data;
+  }
+  async ensureBackendCollection() {
+    try {
+      // Check if exists
+      try {
+        await this.getCollection('pkm_settings');
+        return true;
+      } catch (e) {
+        // likely 404, proceed to create
+      }
+
+      await this.createCollection({
+        name: 'pkm_settings',
+        title: 'PKM Settings',
+        fields: [
+          { name: 'key', type: 'string', unique: true },
+          { name: 'value', type: 'json' }
+        ],
+        hidden: true
+      });
+      return true;
+    } catch (error) {
+      if (error?.response?.status === 400) return true; // Already exists race condition
+      console.warn('Backend collection check failed', error);
+      return false;
+    }
+  }
+
+  // Ensure pkm_canvases collection exists with correct schema (for syncing drawings)
+  async ensureCanvasesCollection() {
+    const COL_NAME = 'pkm_canvases';
+    const SCHEMA_VERSION = 'v2'; // Increment this when schema changes
+
+    // Check if we need to recreate (stored in localStorage)
+    const schemaKey = `nocobase_schema_${COL_NAME}`;
+    const currentSchema = typeof localStorage !== 'undefined' ? localStorage.getItem(schemaKey) : null;
+
+    if (currentSchema === SCHEMA_VERSION) {
+      // Schema is up to date, just verify collection exists
+      try {
+        await this._axios.get(`/${COL_NAME}:list`, { params: { pageSize: 1 } });
+        return true;
+      } catch (e: any) {
+        if (e?.response?.status !== 404) {
+          return true; // Collection exists but some other error
+        }
+        // Fall through to create
+      }
+    }
+
+    // Delete existing collection if it exists (to fix schema)
+    console.log(`[NocoBase] Resetting ${COL_NAME} collection to fix schema...`);
+    try {
+      await this._axios.post(`/collections:destroy?filterByTk=${COL_NAME}`);
+      console.log(`[NocoBase] Deleted old ${COL_NAME} collection`);
+      await new Promise(r => setTimeout(r, 1000));
+    } catch (e) {
+      // Ignore delete errors - collection might not exist
+    }
+
+    // Create with correct schema
+    console.log(`[NocoBase] Creating ${COL_NAME} collection with correct schema...`);
+    try {
+      await this.createCollection({
+        name: COL_NAME,
+        title: 'PKM Canvases',
+        fields: [
+          { name: 'title', type: 'string' },
+          { name: 'content', type: 'text' },       // Compressed base64 string
+          { name: 'thumbnail', type: 'text' }       // Base64 image string
+        ]
+      });
+      await new Promise(r => setTimeout(r, 2000));
+
+      // Mark schema as current
+      if (typeof localStorage !== 'undefined') {
+        localStorage.setItem(schemaKey, SCHEMA_VERSION);
+      }
+
+      console.log(`[NocoBase] ${COL_NAME} collection created successfully`);
+      return true;
+    } catch (createError: any) {
+      console.error(`[NocoBase] Failed to create ${COL_NAME}:`, createError?.message || createError);
+      return false;
+    }
+  }
+
+  async createDrawingRecord(title = 'untitled drawing') {
+    const COL_NAME = 'pkm_canvases';
+
+    // Internal helper to ensure collection
+    const ensure = async () => {
+      try {
+        await this.getCollection(COL_NAME);
+        return true;
+      } catch (e) {
+        // Not found
+      }
+
+      console.log(`Creating ${COL_NAME} collection...`);
+      await this.createCollection({
+        name: COL_NAME,
+        title: 'PKM Canvases',
+        fields: [
+          { name: 'title', type: 'string' },
+          { name: 'content', type: 'json' },
+          { name: 'thumbnail', type: 'json' }
+        ]
+      });
+      // Verification wait
+      await new Promise(r => setTimeout(r, 1000));
+      return true;
+    };
+
+    // 1. Ensure collection exists
+    await ensure();
+
+    // 2. Try create record
+    try {
+      const res = await this.createRecord(COL_NAME, {
+        title,
+        content: ''
+      });
+      return res.data;
+    } catch (error) {
+      // @ts-ignore
+      if (error?.response?.status === 404) {
+        console.warn("First create attempt failed 404, retrying ensure...", error);
+        await ensure(); // Force check/create again
+        await new Promise(r => setTimeout(r, 1000)); // Wait more
+        // Retry create
+        const res = await this.createRecord(COL_NAME, {
+          title,
+          content: ''
+        });
+        return res.data;
+      }
+      throw error;
+    }
+  }
+
+  // --- Field/Record Methods ---
+  async createField(collection, data) {
+    const res = await this._axios.post(`/collections/${collection}/fields:create`, data);
+    return res.data;
+  }
+  async updateField(collection, name, data) {
+    const res = await this._axios.post(`/collections/${collection}/fields:update?filterByTk=${name}`, data);
+    return res.data;
+  }
+  async listRecords(collection, params = {}) {
+    // Remove /obj/ prefix, use <collection>:list
+    const res = await this._axios.get(`/${collection}:list`, { params });
+    return res.data;
+  }
+  async getRecord(collection, id) {
+    const res = await this._axios.get(`/${collection}:get?filterByTk=${id}`);
+    return res.data;
+  }
+  async createRecord(collection, data) {
+    // Remove /obj/ prefix, use <collection>:create
+    const res = await this._axios.post(`/${collection}:create`, data);
+    return res.data;
+  }
+  async updateRecord(collection, id, data) {
+    // Use filterByTk query param for reliable update, matching deleteRecord
+    const res = await this._axios.post(`/${collection}:update?filterByTk=${id}`, data);
+    return res.data;
+  }
+  async deleteRecord(collection, id) {
+    // Use filterByTk query param for reliable deletion
+    const res = await this._axios.post(`/${collection}:destroy?filterByTk=${id}`);
+    return res.data;
+  }
+
+  // --- File/Storage Methods ---
+  async upload(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // Try PKM backend upload first (for background images)
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4100';
+      const res = await fetch(`${backendUrl}/api/upload-background`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        console.log('[Upload] Using PKM backend upload:', data);
+        return data;
+      }
+    } catch (err) {
+      console.warn('[Upload] PKM backend upload failed, falling back to NocoBase:', err);
+    }
+
+    // Fallback to NocoBase attachments endpoint
+    const res = await this._axios.post('/attachments', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    return res.data;
+  }
+
+  // --- Generic Request ---
+  async request(resource, action, params = {}) {
+    const { method = 'GET', ...rest } = params;
+    return this._axios.request({
+      url: `/${resource}:${action}`,
+      method,
+      ...rest
+    });
+  }
 }
+
+export const api = new NocoBaseClient();
+export default api;

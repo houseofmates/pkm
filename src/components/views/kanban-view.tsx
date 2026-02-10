@@ -25,11 +25,13 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical } from 'lucide-react';
+import { RecordContextMenu } from '@/features/records/components/record-context-menu';
+import { SmartField } from '@/components/fields/smart-field';
 
 interface KanbanViewProps extends ViewProps { }
 
 // Helper for Sortable Item (Card)
-function SortableItem({ id, record }: { id: string | number, record: any }) {
+function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange }: { id: string | number, record: any, collection: any, onUpdateRecord?: any, onDelete?: any, titleField: any, visibleFields: any[], config?: any, onConfigChange?: any }) {
     const {
         attributes,
         listeners,
@@ -46,23 +48,61 @@ function SortableItem({ id, record }: { id: string | number, record: any }) {
     };
 
     return (
-        <Card ref={setNodeRef} style={style} className="cursor-grab active:cursor-grabbing mb-2 shadow-sm bg-card hover:bg-accent/50 group border-muted">
-            <CardHeader className="p-3 space-y-0">
-                <div className="flex items-start justify-between gap-2">
-                    <span className="text-sm font-medium leading-tight line-clamp-2">
-                        {record.title || record.name || record.id}
-                    </span>
-                    <div {...attributes} {...listeners} className="opacity-0 group-hover:opacity-50 hover:opacity-100 cursor-move">
-                        <GripVertical className="h-4 w-4" />
+        <RecordContextMenu
+            record={record}
+            collection={collection}
+            onUpdate={onUpdateRecord}
+            onDelete={onDelete}
+            titleField={titleField}
+            config={config}
+            onConfigChange={onConfigChange}
+            className="contents" // Ensure it doesn't break layout if context menu adds wrapper
+        >
+            <Card ref={setNodeRef} style={style} className="cursor-grab active:cursor-grabbing mb-2 shadow-sm bg-card hover:bg-accent/50 group border-muted">
+                <CardHeader className="p-3 space-y-0">
+                    <div className="flex items-center justify-between gap-2 h-7 min-h-0">
+                        <div className="flex-1 min-w-0" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
+                            <SmartField
+                                value={record[titleField.name]}
+                                field={titleField}
+                                record={record}
+                                collectionName={collection.name}
+                                size="sm"
+                                onChange={(val) => {
+                                    if (onUpdateRecord) {
+                                        onUpdateRecord(record.id, { [titleField.name]: val });
+                                    }
+                                }}
+                                className="h-auto p-0 border-none bg-transparent hover:bg-muted/50 rounded px-1 font-black leading-tight text-base w-full block text-center"
+                            />
+                        </div>
+                        <div {...attributes} {...listeners} className="opacity-0 group-hover:opacity-50 hover:opacity-100 cursor-move flex items-center h-full">
+                            <GripVertical className="h-4 w-4 shrink-0" />
+                        </div>
                     </div>
-                </div>
-            </CardHeader>
-            <CardContent className="p-3 pt-0 text-xs text-muted-foreground">
-                {/* Simplified for first iteration */}
-                <div className="flex flex-col gap-1 mt-1">
-                </div>
-            </CardContent>
-        </Card>
+                </CardHeader>
+                <CardContent className="p-3 pt-1 text-xs text-muted-foreground">
+                    {visibleFields.length > 0 && (
+                        <div className="flex flex-col gap-1 mt-1" onClick={(e) => e.stopPropagation()}>
+                            {visibleFields.slice(0, 3).map((f: any) => (
+                                <div key={f.name} className="flex flex-col items-center gap-0.5 min-w-0 opacity-80 text-center">
+                                    <span className="text-[9px] uppercase tracking-wider shrink-0 opacity-50">{f.uiSchema?.title || f.name}:</span>
+                                    <SmartField
+                                        value={record[f.name]}
+                                        field={f}
+                                        record={record}
+                                        collectionName={collection.name}
+                                        size="sm"
+                                        onChange={(val) => onUpdateRecord?.(record.id, { [f.name]: val })}
+                                        className="h-auto p-0 border-none bg-transparent hover:bg-muted/30 rounded px-1 truncate flex-1 text-center"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
+        </RecordContextMenu>
     );
 }
 
@@ -94,7 +134,7 @@ function KanbanColumn({ id, title, items, children }: { id: string, title: strin
 }
 
 
-export function KanbanView({ data, collection, config }: KanbanViewProps) {
+export function KanbanView({ data, collection, config, onUpdateRecord, onDelete, onConfigChange }: KanbanViewProps) {
     if (!collection) {
         return (
             <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-muted/20 rounded-lg border">
@@ -110,6 +150,14 @@ export function KanbanView({ data, collection, config }: KanbanViewProps) {
     const [columnOrder, setColumnOrder] = useState<string[]>([]);
     const [activeId, setActiveId] = useState<string | number | null>(null);
     const [draggedRecord, setDraggedRecord] = useState<any>(null);
+
+    // Identify title and visible fields
+    const titleField = config?.titleField
+        ? collection.fields?.find((f: any) => f.name === config.titleField)
+        : collection.fields?.find((f: any) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
+
+    const visibleFieldNames = config?.visibleFields || [];
+    const visibleFields = collection?.fields?.filter((f: any) => visibleFieldNames.includes(f.name)) || [];
 
     // Default to first select field if not configured
     const groupByField = config?.groupByField;
@@ -290,7 +338,18 @@ export function KanbanView({ data, collection, config }: KanbanViewProps) {
                     <KanbanColumn key={colId} id={colId} title={colId} items={columns[colId]}>
                         <SortableContext items={columns[colId].map(i => i.id)} strategy={verticalListSortingStrategy}>
                             {columns[colId].map(record => (
-                                <SortableItem key={record.id} id={record.id} record={record} />
+                                <SortableItem
+                                    key={record.id}
+                                    id={record.id}
+                                    record={record}
+                                    collection={collection}
+                                    onUpdateRecord={onUpdateRecord}
+                                    onDelete={onDelete}
+                                    titleField={titleField}
+                                    visibleFields={visibleFields}
+                                    config={config}
+                                    onConfigChange={onConfigChange}
+                                />
                             ))}
                         </SortableContext>
                     </KanbanColumn>

@@ -18,20 +18,20 @@ interface FormulaEditorProps {
 // Mock AI Service until WebSocket is fully confirmed
 const fetchAIResponse = async (prompt: string, context: any) => {
     try {
-        const res = await fetch('https://ollama.houseofmates.space/api/generate', {
+        const res = await fetch('http://192.168.4.232:11434/api/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                model: 'qwen2.5:14b', // Or whatever is available
-                prompt: `Context: ${JSON.stringify(context)}\n\nUser: ${prompt}\n\nProvide a concise JavaScript code snippet to solve the user's request using the valid context variables (record, api). Wrap code in \`\`\`javascript ... \`\`\`.`,
+                model: 'qwen2.5:7b',
+                prompt: `context: ${JSON.stringify(context)}\n\nuser: ${prompt}\n\nprovide a concise javascript code snippet to solve the user's request using the valid context variables (record, api). wrap code in \`\`\`javascript ... \`\`\`. respond entirely in lowercase.`,
                 stream: false
             })
         });
         const data = await res.json();
-        return data.response;
+        return data.response?.toLowerCase() || data.response;
     } catch (e) {
         console.error("AI Error", e);
-        return "Error connecting to AI Assistant.";
+        return "error connecting to ai assistant.";
     }
 };
 

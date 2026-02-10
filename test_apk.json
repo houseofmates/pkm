@@ -1,0 +1,362 @@
+{
+  "updatedAt": "2026-01-09T19:40:16.913Z",
+  "createdAt": "2025-12-26T21:12:22.388Z",
+  "id": "3lfzGD6iW44gH7-b6lx5Q",
+  "name": "Test Webhook Registration",
+  "description": null,
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "minecraft-chat-sync",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "2b378143-a1f4-49f5-a2ec-24a1999e60e3",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        112
+      ],
+      "webhookId": "minecraft-chat-sync-uuid"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.body.file }}",
+              "operation": "endsWith",
+              "value2": ".apk"
+            }
+          ]
+        }
+      },
+      "id": "16e517fc-35f7-4568-9b2c-ccb2b3131ecd",
+      "name": "Filter APK Files",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://vt-upload:5555/upload",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"file_path\": \"/nextcloud-data{{ $json.body.file }}\"\n}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "17d176ca-0cfa-438f-bc79-f50b3530baf9",
+      "name": "Start VT Upload",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=http://vt-upload:5555/status/{{ $json.job_id }}",
+        "options": {}
+      },
+      "id": "30564d77-da4a-4cce-9afe-c2fb63151bad",
+      "name": "Check Upload Status",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.status }}",
+              "value2": "complete"
+            }
+          ]
+        }
+      },
+      "id": "1107c584-3c88-44e8-8b7f-a8e59071413e",
+      "name": "Is Complete?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 1,
+      "position": [
+        608,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.analysisUrl }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "virusTotalApi",
+        "options": {}
+      },
+      "id": "1af938ea-38d2-4688-8e01-cd3ebb6e321e",
+      "name": "Get Analysis Results",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        800,
+        0
+      ],
+      "credentials": {
+        "virusTotalApi": {
+          "id": "NndBVtB4MhiircJn",
+          "name": "virustotal api key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const filePath = $('Webhook').item.json.body.file;\nconst fileName = filePath.split('/').pop();\nconst results = $json.data.attributes.stats;\nconst scans = $json.data.attributes.results;\n\nconst malicious = results.malicious || 0;\nconst suspicious = results.suspicious || 0;\nconst totalDetections = malicious + suspicious;\n\nconst reputableEngines = [\n  'Kaspersky', 'ESET-NOD32', 'Bitdefender', 'Microsoft', \n  'Google', 'Sophos', 'TrendMicro', 'McAfee', 'Avast'\n];\n\nlet hasReputableDetection = false;\nlet detectionTypes = [];\n\nfor (const [engine, result] of Object.entries(scans)) {\n  if (result.category === 'malicious' || result.category === 'suspicious') {\n    const detectionName = result.result || '';\n    detectionTypes.push(`${engine}: ${detectionName}`);\n    \n    if (reputableEngines.includes(engine)) {\n      if (!detectionName.toLowerCase().includes('pup') && \n          !detectionName.toLowerCase().includes('pua')) {\n        hasReputableDetection = true;\n      }\n    }\n  }\n}\n\nlet status = 'safe';\nlet reason = '';\n\nif (hasReputableDetection) {\n  status = 'unsafe';\n  reason = 'reputable engine flagged non-pup threat';\n} else if (totalDetections > 5) {\n  status = 'unsafe';\n  reason = `${totalDetections} detections total`;\n} else if (totalDetections >= 1 && totalDetections <= 3) {\n  status = 'safe';\n  reason = 'low detection count from minor engines';\n} else if (totalDetections === 0) {\n  status = 'safe';\n  reason = 'no detections';\n} else {\n  status = 'review';\n  reason = `${totalDetections} detections - manual check recommended`;\n}\n\nreturn [{\n  json: {\n    fileName,\n    status,\n    reason,\n    totalDetections,\n    detectionTypes: detectionTypes.slice(0, 5),\n    vtLink: $json.data.links.self.replace('/api/v3/analyses/', '/gui/file/')\n  }\n}];"
+      },
+      "id": "4812a8b5-0e8d-40bd-8362-c8eda60d97ee",
+      "name": "Process Results",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1008,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "8039086930",
+        "text": "=*{{ $json.status }}* - {{ $json.fileName }}\n\n{{ $json.reason }}\ndetections: {{ $json.totalDetections }}\n\n{{ $json.detectionTypes.join('\\n') }}\n\n[view on virustotal]({{ $json.vtLink }})",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "fac573e5-c1c8-4b72-a672-2ace46922222",
+      "name": "Send Telegram Notification",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.1,
+      "position": [
+        1200,
+        0
+      ],
+      "webhookId": "4241bb1e-b693-4064-8a1a-a37636801e46",
+      "credentials": {
+        "telegramApi": {
+          "id": "wKUq3NB7qKPuTI37",
+          "name": "telegram bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "=scan started for {{ $('Webhook').item.json.body.file }}",
+        "options": {}
+      },
+      "id": "ad3ebc19-4cfb-490b-ae6b-5454071a90f6",
+      "name": "Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        528
+      ]
+    },
+    {
+      "parameters": {
+        "amount": 10,
+        "unit": "seconds"
+      },
+      "id": "956628af-444c-4ed6-84a3-aa44d39993f0",
+      "name": "Wait 10s More",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        400,
+        160
+      ],
+      "webhookId": "wait-retry"
+    },
+    {
+      "parameters": {
+        "amount": 10,
+        "unit": "seconds"
+      },
+      "id": "0918a947-24ce-4c40-bce5-f823c79fb55b",
+      "name": "Wait 10s",
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "webhookId": "wait-initial"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Filter APK Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter APK Files": {
+      "main": [
+        [
+          {
+            "node": "Start VT Upload",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start VT Upload": {
+      "main": [
+        [
+          {
+            "node": "Wait 10s",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Upload Status": {
+      "main": [
+        [
+          {
+            "node": "Is Complete?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Complete?": {
+      "main": [
+        [
+          {
+            "node": "Get Analysis Results",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait 10s More",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Analysis Results": {
+      "main": [
+        [
+          {
+            "node": "Process Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Results": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 10s More": {
+      "main": [
+        [
+          {
+            "node": "Check Upload Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 10s": {
+      "main": [
+        [
+          {
+            "node": "Check Upload Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "c67f9c7b-78ca-4058-89b7-8f8629819620",
+  "activeVersionId": "c67f9c7b-78ca-4058-89b7-8f8629819620",
+  "versionCounter": 49,
+  "triggerCount": 1,
+  "tags": [],
+  "shared": [
+    {
+      "updatedAt": "2025-12-26T21:12:22.388Z",
+      "createdAt": "2025-12-26T21:12:22.388Z",
+      "role": "workflow:owner",
+      "workflowId": "3lfzGD6iW44gH7-b6lx5Q",
+      "projectId": "teDkjWssk6qcQaUW",
+      "project": {
+        "updatedAt": "2025-12-19T02:22:06.875Z",
+        "createdAt": "2025-12-19T02:19:38.704Z",
+        "id": "teDkjWssk6qcQaUW",
+        "name": "house of mates <houseofmates@pm.me>",
+        "type": "personal",
+        "icon": null,
+        "description": null,
+        "creatorId": "56a226e7-cf79-465c-a2f5-749dc545c7b3"
+      }
+    }
+  ]
+}

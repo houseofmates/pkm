@@ -1,111 +1,165 @@
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/contexts/auth-context';
-import { useFronter } from '@/contexts/fronter-context'; // Import useFronter
-import type { NocoBaseResponse } from '@/types/nocobase';
+import { useFronter } from '@/contexts/fronter-context';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
-export function useRecords(collectionName: string) {
+export function useRecords(collectionName: string, initialParams: any = {}) {
     const { client } = useAuth();
-    const { activeFronterId } = useFronter(); // Get active fronter
-    const [records, setRecords] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [meta, setMeta] = useState<NocoBaseResponse['meta']>(undefined);
+    const { activeFronters } = useFronter();
+    const activeFronterId = activeFronters[0] || null;
+    const queryClient = useQueryClient();
 
-    const fetchRecords = useCallback(async (params?: { page?: number; pageSize?: number; filter?: any }) => {
-        setLoading(true);
-        try {
-            const apiParams: any = {
-                page: params?.page || 1,
-                pageSize: params?.pageSize || 20,
-                sort: ['-createdAt', 'id'],
-            };
+    // State for dynamic query parameters (pagination, filtering)
+    const [queryParams, setQueryParams] = useState<any>({
+        page: 1,
+        pageSize: 20,
+        sort: ['-createdAt', 'id'],
+        ...initialParams
+    });
 
-            if (params?.filter) {
-                apiParams.filter = params.filter;
-            }
+    // Update queryParams if initialParams change (deep check or just key check? usually simplistic is fine for now)
+    // Actually, we shouldn't overwrite user interaction (pagination) if parent re-renders, 
+    // unless we want parent to control it fully.
+    // Let's rely on initialization for now.
 
-            const response = await client.listRecords(collectionName, apiParams);
+    const fetchRecords = async () => {
+        const response = await client.listRecords(collectionName, queryParams);
+        return response; // { data: [...], meta: ... }
+    };
 
-            setRecords(response.data || []);
-            setMeta(response.meta);
-            setError(null);
-        } catch (err: any) {
-            console.error(err);
-            setError(err.message || 'Failed to fetch records');
-        } finally {
-            setLoading(false);
+    const { data, isLoading, error, refetch } = useQuery({
+        queryKey: ['records', collectionName, queryParams],
+        queryFn: fetchRecords,
+        enabled: !!collectionName,
+        placeholderData: (previousData) => previousData, // Keep previous data while fetching new (better UX)
+    });
+
+    const records = data?.data || [];
+    const meta = data?.meta;
+
+    // Refresh wrapper to support updating params
+    const refresh = (newParams?: any) => {
+        if (newParams) {
+            setQueryParams((prev: any) => ({ ...prev, ...newParams }));
+        } else {
+            refetch();
         }
-    }, [client, collectionName]);
+    };
 
-    useEffect(() => {
-        if (collectionName) {
-            fetchRecords();
-        }
-    }, [fetchRecords, collectionName]);
+    // --- Mutations ---
 
-    const createRecord = useCallback(async (data: any) => {
-        setLoading(true);
-        try {
-            // Auto-Metadata: Inject Fronter ID if active
+    // Create
+    const createMutation = useMutation({
+        mutationFn: async (data: any) => {
             const payload = { ...data };
             if (activeFronterId) {
                 payload.fronter = activeFronterId;
-                // We could also add a readable name if standardizing on a schema, e.g. payload.fronterName
             }
+            return client.createRecord(collectionName, payload);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['records', collectionName] });
+        },
+    });
 
-            await client.createRecord(collectionName, payload);
-            await fetchRecords();
-            return true;
-        } catch (err: any) {
-            setError(err.message);
-            return false;
-        } finally {
-            setLoading(false);
-        }
-    }, [client, collectionName, fetchRecords, activeFronterId]);
-
-    const updateRecord = useCallback(async (id: string | number, data: any) => {
-        setLoading(true);
-        try {
-            // Auto-Metadata: Inject Fronter ID on edit too?
-            // "auto metadata when a headmate is fronting and adds or edits an entry" -> Yes.
+    // Update (Optimistic)
+    const updateMutation = useMutation({
+        mutationFn: async ({ id, data }: { id: string | number; data: any }) => {
             const payload = { ...data };
             if (activeFronterId) {
-                payload.lastEditedByFronter = activeFronterId; // Different field for visual audit?
-                // Or just 'fronter' again if it implies ownership?
-                // Use 'fronter' for creation usually. For edits, maybe 'updatedByFronter'?
-                // Let's stick to injecting 'fronter' if missing, or 'lastEditedBy'
-                // User said "auto metadata... edits an entry".
-                // I'll add 'lastEditedByFronter' to be safe and distinct.
                 payload.lastEditedByFronter = activeFronterId;
             }
+            return client.updateRecord(collectionName, id, payload);
+        },
+        onMutate: async ({ id, data }) => {
+            // Cancel outgoing refetches
+            await queryClient.cancelQueries({ queryKey: ['records', collectionName] });
 
-            await client.updateRecord(collectionName, id, payload);
-            await fetchRecords();
-            return true;
-        } catch (err: any) {
-            setError(err.message);
-            return false;
-        } finally {
-            setLoading(false);
-        }
-    }, [client, collectionName, fetchRecords, activeFronterId]);
+            // Snapshot previous value
+            const previousData = queryClient.getQueryData(['records', collectionName, queryParams]);
 
-    const deleteRecord = useCallback(async (id: string | number) => {
-        if (!confirm('Are you sure?')) return;
-        setLoading(true);
-        try {
-            await client.deleteRecord(collectionName, id);
-            await fetchRecords();
-            return true;
-        } catch (err: any) {
-            setError(err.message);
-            return false;
-        } finally {
-            setLoading(false);
-        }
-    }, [client, collectionName, fetchRecords]);
+            // Optimistically update
+            queryClient.setQueryData(['records', collectionName, queryParams], (old: any) => {
+                if (!old || !old.data) return old;
+                return {
+                    ...old,
+                    data: old.data.map((record: any) =>
+                        record.id === id ? { ...record, ...data } : record
+                    ),
+                };
+            });
 
-    return { records, meta, loading, error, refresh: fetchRecords, createRecord, updateRecord, deleteRecord };
+            return { previousData };
+        },
+        onError: (_err, _newRecord, context) => {
+            // Rollback
+            if (context?.previousData) {
+                queryClient.setQueryData(['records', collectionName, queryParams], context.previousData);
+            }
+        },
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: ['records', collectionName] });
+        },
+    });
+
+    // Delete
+    const deleteMutation = useMutation({
+        mutationFn: async (id: string | number) => {
+            return client.deleteRecord(collectionName, id);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['records', collectionName] });
+        },
+    });
+
+    return {
+        records,
+        meta,
+        loading: isLoading,
+        error: error ? (error as Error).message : null,
+        refresh,
+        createRecord: (data: any) => createMutation.mutateAsync(data),
+        updateRecord: (id: string | number, data: any) => updateMutation.mutateAsync({ id, data }),
+        deleteRecord: (id: string | number) => deleteMutation.mutateAsync(id),
+    };
+}
+
+export function useRecord(collectionName: string, recordId: string | number) {
+    const { client } = useAuth();
+    const queryClient = useQueryClient();
+    const { activeFronters } = useFronter();
+    const activeFronterId = activeFronters[0] || null;
+
+    const fetchRecord = async () => {
+        return client.getRecord(collectionName, recordId);
+    };
+
+    const { data, isLoading, error, refetch } = useQuery({
+        queryKey: ['record', collectionName, recordId],
+        queryFn: fetchRecord,
+        enabled: !!collectionName && !!recordId,
+    });
+
+    const updateMutation = useMutation({
+        mutationFn: async (data: any) => {
+            const payload = { ...data };
+            if (activeFronterId) {
+                payload.lastEditedByFronter = activeFronterId;
+            }
+            return client.updateRecord(collectionName, recordId, payload);
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['record', collectionName, recordId] });
+            queryClient.invalidateQueries({ queryKey: ['records', collectionName] });
+        },
+    });
+
+    return {
+        data: data?.data || data, // Handle structure variations
+        loading: isLoading,
+        error: error ? (error as Error).message : null,
+        updateRecord: (data: any) => updateMutation.mutateAsync(data),
+        refresh: refetch
+    };
 }

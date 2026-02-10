@@ -65,7 +65,7 @@ export function MoodboardPage() {
             zIndex: elements.length + 1,
             content: content || '',
             style: {
-                backgroundColor: type === 'shape' ? '#f6b012' : 'transparent',
+                backgroundColor: type === 'shape' ? 'var(--primary)' : 'transparent',
                 color: '#000000',
                 fontSize: '16px',
                 borderRadius: '8px',
@@ -268,13 +268,13 @@ export function MoodboardPage() {
 
                     {/* Floating HUD */}
                     <div className="absolute top-4 right-4 flex gap-2">
-                        <Button variant="secondary" onClick={handleSave} size="sm"><Save className="h-4 w-4 mr-2" /> Save Board</Button>
+                        <Button variant="secondary" onClick={handleSave} size="icon" title="save board"><Save className="h-4 w-4" /></Button>
                         <Button variant="outline" size="icon" onClick={() => setScale(s => s + 0.1)}><ZoomIn className="h-4 w-4" /></Button>
                         <Button variant="outline" size="icon" onClick={() => setScale(s => Math.max(0.1, s - 0.1))}><ZoomOut className="h-4 w-4" /></Button>
                     </div>
 
                     <div className="absolute bottom-4 left-4 text-xs text-muted-foreground">
-                        Right-click anywhere to add items
+                        long-press anywhere to add items
                     </div>
 
                 </div>

@@ -1,5 +1,5 @@
 
-import { DashboardGrid } from '@/components/dashboard/dashboard-grid';
+import { DashboardGrid } from '@/features/dashboard/dashboard-grid';
 
 export function HomePage() {
     return <DashboardGrid />;

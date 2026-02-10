@@ -4,8 +4,10 @@ import type { ViewProps } from './registry';
 import ForceGraph2D from 'react-force-graph-2d';
 import { Button } from '@/components/ui/button';
 import { ZoomIn, ZoomOut, Maximize, RefreshCw } from 'lucide-react';
+import { RecordEditContent } from '@/features/records/components/record-context-menu';
 
-export function NetworkView({ data, collection, config: _config }: ViewProps) {
+export function NetworkView(props: ViewProps) {
+    const { data, collection, config = {}, onConfigChange, onUpdateRecord, onDelete } = props;
     if (!collection) {
         return (
             <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border">
@@ -19,6 +21,7 @@ export function NetworkView({ data, collection, config: _config }: ViewProps) {
     const graphRef = useRef<any>(null);
     const [dimensions, setDimensions] = useState({ w: 800, h: 600 });
     const containerRef = useRef<HTMLDivElement>(null);
+    const [virtualMenu, setVirtualMenu] = useState<{ x: number, y: number, record: any } | null>(null);
 
     // Resize Observer
     useEffect(() => {
@@ -44,13 +47,24 @@ export function NetworkView({ data, collection, config: _config }: ViewProps) {
     // If this is the "Headmates" collection, and they have "friends" relations (to Headmates), it works beautifully.
 
     const { nodes, links } = useMemo(() => {
-        const nodes = data.map(r => ({
-            id: r.id,
-            name: r.title || r.name || `Record ${r.id}`,
-            val: 1, // Size
-            color: r.color || 'var(--primary)', // Allow record color override
-            group: r.group // Optional grouping
-        }));
+        const titleField = config.titleField
+            ? collection.fields?.find((f: any) => f.name === config.titleField)
+            : collection.fields?.find((f: any) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
+
+        const nodes = data.map(r => {
+            const visibleFieldNames = config.visibleFields || [];
+            const visibleFields = collection?.fields?.filter((f: any) => visibleFieldNames.includes(f.name)) || [];
+            const props = visibleFields.slice(0, 3).map((f: any) => `${f.uiSchema?.title || f.name}: ${r[f.name] || ''}`).join('\n');
+
+            return {
+                id: r.id,
+                name: (r[titleField.name] || `Record ${r.id}`) + (props ? `\n---\n${props}` : ''),
+                record: r,
+                val: 1,
+                color: r.color || 'var(--primary)',
+                group: r.group
+            };
+        });
 
         const links: any[] = [];
         const relationFields = collection.fields?.filter((f: any) => f.interface === 'linkToMany' || f.interface === 'linkToOne') || [];
@@ -119,7 +133,47 @@ export function NetworkView({ data, collection, config: _config }: ViewProps) {
                     backgroundColor={isDark ? '#00000000' : '#ffffff00'} // Transparent to let card bg show
                     cooldownTicks={100}
                     onEngineStop={() => graphRef.current?.zoomToFit(400)}
+                    onNodeClick={(node: any) => {
+                        window.dispatchEvent(new CustomEvent('pkm:edit-record', {
+                            detail: { record: node.record, collectionName: collection.name }
+                        }));
+                    }}
+                    onNodeRightClick={(node: any, e: MouseEvent) => {
+                        e.preventDefault();
+                        setVirtualMenu({
+                            x: e.clientX,
+                            y: e.clientY,
+                            record: node.record
+                        });
+                    }}
                 />
+            )}
+
+            {virtualMenu && (
+                <div
+                    className="fixed inset-0 z-50 bg-black/5"
+                    onClick={() => setVirtualMenu(null)}
+                    onContextMenu={(e) => { e.preventDefault(); setVirtualMenu(null); }}
+                >
+                    <div
+                        className="absolute bg-popover text-popover-foreground border shadow-lg rounded-md w-[380px] overflow-hidden flex flex-col max-h-[85vh] animate-in fade-in zoom-in duration-200"
+                        style={{
+                            left: Math.min(virtualMenu.x, window.innerWidth - 390),
+                            top: Math.min(virtualMenu.y, window.innerHeight - 500)
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <RecordEditContent
+                            record={virtualMenu.record}
+                            collection={collection}
+                            onUpdate={onUpdateRecord}
+                            onDelete={(rec: any) => { onDelete?.(rec); setVirtualMenu(null); }}
+                            onView={() => setVirtualMenu(null)}
+                            config={config}
+                            onConfigChange={onConfigChange}
+                        />
+                    </div>
+                </div>
             )}
 
             {nodes.length === 0 && (
