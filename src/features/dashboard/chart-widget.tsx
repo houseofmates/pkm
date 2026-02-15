@@ -187,7 +187,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
                     </ResponsiveContainer>
                     <div className="flex items-center justify-between gap-2 mt-2">
                         <div className="flex items-center gap-2">
-                            <input placeholder="Search series..." value={search} onChange={(e) => setSearch(e.target.value)} className="input input-sm" />
+                            <input placeholder="search series..." value={search} onChange={(e) => setSearch(e.target.value)} className="input input-sm" />
                             <button onClick={() => setCollapsed(!collapsed)} className="btn btn-ghost">{collapsed ? 'Expand Legend' : 'Collapse Legend'}</button>
                         </div>
                         <div className="text-xs text-muted-foreground">{(buildKeys() || []).filter(k => !hidden[k]).length} visible</div>
@@ -256,7 +256,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
                     <div className="flex items-center justify-between gap-2 mt-2">
                         <div className="flex items-center gap-2">
                             <input
-                                placeholder="Search series..."
+                                placeholder="search series..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 className="input input-sm"
@@ -357,7 +357,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
                     </ResponsiveContainer>
                     <div className="flex items-center justify-between gap-2 mt-2">
                         <div className="flex items-center gap-2">
-                            <input placeholder="Search series..." value={search} onChange={(e) => setSearch(e.target.value)} className="input input-sm" />
+                            <input placeholder="search series..." value={search} onChange={(e) => setSearch(e.target.value)} className="input input-sm" />
                             <button onClick={() => setCollapsed(!collapsed)} className="btn btn-ghost">{collapsed ? 'Expand Legend' : 'Collapse Legend'}</button>
                         </div>
                         <div className="text-xs text-muted-foreground">{(buildKeys() || []).filter(k => !hidden[k]).length} visible</div>

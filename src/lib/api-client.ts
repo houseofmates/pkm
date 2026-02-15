@@ -50,7 +50,7 @@ apiClient.interceptors.request.use((config) => {
     }
   } else {
     // Anonymous auth is broken in NocoBase - use a hardcoded public access token (member role with view-only perms)
-    const PUBLIC_ACCESS_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsInJvbGVOYW1lIjoibWVtYmVyIiwiaWF0IjoxNzY5NjUxOTkxLCJleHAiOjMzMzI3MjUxOTkxfQ.x04njjFz4uMpMk64aaoGL9jAHIql3v2f-rnrode_5dg';
+    const PUBLIC_ACCESS_TOKEN = import.meta.env.VITE_PUBLIC_ACCESS_TOKEN || '';
     token = PUBLIC_ACCESS_TOKEN;
     const bearerToken = `Bearer ${token}`;
     config.headers['Authorization'] = bearerToken;

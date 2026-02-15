@@ -353,73 +353,25 @@ app.post('/api/broadcast', async (req, res) => {
             chatHistory.push({ type: 'leave', player: 'system', message: `${finalPlayer} left the game`, timestamp: msgTimestamp });
         }
 
-        // Send join/leave event to n8n webhook with flat structure
-        if (normalizedType === 'join' || normalizedType === 'leave' || normalizedType === 'quit') {
+        if (normalizedType === "join" || normalizedType === "leave" || normalizedType === "quit") {
             try {
-                const axios = (await import('axios')).default;
-                await axios.post('http://192.168.4.233:5678/webhook/leave-join', {
-                    type: normalizedType === 'quit' ? 'leave' : normalizedType,
-                    player: finalPlayer,
+                const axios = (await import("axios")).default;
+                await axios.post(process.env.N8N_WEBHOOK_URL || "http://localhost:5678/webhook/leave-join", {
+                    type: normalizedType === "quit" ? "leave" : normalizedType,
                     username: finalPlayer,
-                    message: normalizedType === 'join' ? `${finalPlayer} joined the game` : `${finalPlayer} left the game`,
+                    message: normalizedType === "join" ? `${finalPlayer} joined the game` : `${finalPlayer} left the game`,
                     timestamp: msgTimestamp,
-                    processed: true
+                    online: safeOnline,
+                    count: safeCount,
+                    avatar: `https://mc-heads.net/avatar/${finalPlayer}`
                 }, {
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: { "Content-Type": "application/json" }
                 });
-                console.log(`[Backend] Forwarded ${normalizedType} event to n8n webhook.`);
+                console.log(`[Backend] Forwarded consolidated ${normalizedType} event to n8n.`);
             } catch (err) {
-                console.error('[Backend] Failed to forward event to n8n webhook:', err);
+                console.error("[Backend] Failed to forward consolidated event to n8n:", err.message);
             }
         }
-        // Send join/leave event to n8n webhook with Discord-style structure
-        if (normalizedType === 'join' || normalizedType === 'leave' || normalizedType === 'quit') {
-            try {
-                const axios = (await import('axios')).default;
-                await axios.post('http://192.168.4.233:5678/webhook/leave-join', {
-                    body: {
-                        type: normalizedType === 'quit' ? 'leave' : normalizedType,
-                        author: {
-                            username: finalPlayer,
-                            id: '001',
-                            avatar: `https://mc-heads.net/avatar/${finalPlayer}`,
-                            bot: false
-                        },
-                        content: normalizedType === 'join' ? `${finalPlayer} joined the game` : `${finalPlayer} left the game`,
-                        timestamp: msgTimestamp,
-                        online: safeOnline,
-                        webhookUrl: 'http://localhost:5678/webhook-test/discord-status',
-                        executionMode: 'test'
-                    }
-                }, {
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                console.log(`[Backend] Forwarded ${normalizedType} event to n8n webhook.`);
-            } catch (err) {
-                console.error('[Backend] Failed to forward event to n8n webhook:', err);
-            }
-        }
-        // Send join/leave event to n8n webhook with correct keys
-        if (normalizedType === 'join' || normalizedType === 'leave' || normalizedType === 'quit') {
-            try {
-                const axios = (await import('axios')).default;
-                await axios.post('http://192.168.4.233:5678/webhook/leave-join', {
-                    username: finalPlayer,
-                    message: normalizedType === 'join' ? `${finalPlayer} joined the game` : `${finalPlayer} left the game`,
-                    timestamp: msgTimestamp,
-                    type: normalizedType === 'quit' ? 'leave' : normalizedType
-                }, {
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                console.log(`[Backend] Forwarded ${normalizedType} event to n8n webhook.`);
-            } catch (err) {
-                console.error('[Backend] Failed to forward event to n8n webhook:', err);
-            }
-        }
-    } else {
-        console.log(`[Deduper] Ignored duplicate ${normalizedType}: "${currentGeneratedMsg}"`);
-        // If it's a duplicate history entry, we still emit the socket event for real-time jitter fix,
-        // but we've already done that above. This block just prevents history bloat.
     }
 
     // Always keep history tidy

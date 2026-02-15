@@ -229,7 +229,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
                     <RichEditor
                         value={document.content || ''}
                         onChange={(content) => !readOnly && onUpdate({ content })}
-                        placeholder="Start writing your journal entry..."
+                        placeholder="start writing your journal entry..."
                         className="min-h-[500px] text-lg leading-relaxed"
                     />
                 </div>

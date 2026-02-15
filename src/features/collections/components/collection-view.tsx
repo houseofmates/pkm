@@ -123,7 +123,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
 
             <form onSubmit={handleSearch} className="flex gap-2">
                 <Input
-                    placeholder="Search..."
+                    placeholder="search..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="max-w-xs"

@@ -257,7 +257,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
                             <Textarea
                                 value={desc}
                                 onChange={(e) => setDesc(e.target.value)}
-                                placeholder="Enter a custom description..."
+                                placeholder="enter a custom description..."
                                 className="min-h-[100px]"
                             />
                         </div>

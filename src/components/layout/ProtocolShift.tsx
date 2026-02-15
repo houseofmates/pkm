@@ -58,7 +58,7 @@ export function ProtocolShift() {
             <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30" />
 
             <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/20 text-xs tracking-[1em] font-light animate-pulse">
-                SANCTUARY PROTOCOL ACTIVE
+                sanctuary protocol active
             </div>
         </div>
     );

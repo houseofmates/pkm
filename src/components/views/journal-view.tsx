@@ -147,7 +147,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
                 </div>
 
                 <RichEditor
-                    placeholder="Write your thoughts..."
+                    placeholder="write your thoughts..."
                     className="min-h-[100px] bg-background border-input/50 focus:bg-background transition-all resize-none text-base"
                     value={entry ? (String(entry).trim().startsWith('<') ? entry : markdownToHtml(entry)) : ''}
                     onChange={(html) => setEntry(sanitizeHTML(html))}

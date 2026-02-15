@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { fireEvent } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
-import { ChartWidget } from '@/components/dashboard/chart-widget';
+import { ChartWidget } from '@/features/dashboard/chart-widget';
 
 const mockData = [
   { name: 'A', s1: 10, s2: 20 },

@@ -10,7 +10,7 @@ export const useSocket = () => {
     useEffect(() => {
         if (!socket) {
             // connecting to host IP for cross-device support
-            socket = io('http://192.168.4.65:3456', {
+            socket = io('/', {
                 reconnectionAttempts: 5,
                 reconnectionDelay: 1000,
                 autoConnect: true,

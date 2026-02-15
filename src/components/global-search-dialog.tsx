@@ -166,7 +166,7 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
                             ref={inputRef}
                             value={query}
                             onChange={(e) => setQuery(e.target.value)}
-                            placeholder="Search databases or ask AI..."
+                            placeholder="search databases or ask AI..."
                             className="border-none shadow-none focus-visible:ring-0 bg-transparent text-lg h-auto p-0 placeholder:text-muted-foreground/60"
                         />
                         {loading && <Sparkles className="h-5 w-5 text-primary animate-pulse" />}
@@ -243,7 +243,7 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
                 {/* Footer */}
                 <div className="p-2 border-t bg-muted/10 flex justify-between items-center text-[10px] text-muted-foreground px-4 lowercase">
                     <span><strong>enter</strong> to search</span>
-                    <span>powered by <strong>qwen2.5:7b</strong> @ 192.168.4.232:11434</span>
+                    <span>powered by <strong>qwen2.5:7b</strong> @ {import.meta.env.VITE_OLLAMA_URL || "localhost:11434"}</span>
                 </div>
             </DialogContent>
         </Dialog>

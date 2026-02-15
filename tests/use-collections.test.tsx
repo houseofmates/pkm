@@ -1,12 +1,22 @@
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useCollections } from '@/hooks/use-collections';
 import { useAuth } from '@/contexts/auth-context';
+import React from 'react';
 
 vi.mock('@/contexts/auth-context', () => ({ useAuth: vi.fn() }));
 
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+);
+
 describe('useCollections filtering', () => {
-  beforeEach(() => vi.restoreAllMocks());
+  beforeEach(() => {
+    vi.restoreAllMocks();
+    queryClient.clear();
+  });
 
   it('filters out pkm_settings by name/title/hidden', async () => {
     const mockClient = {
@@ -22,7 +32,7 @@ describe('useCollections filtering', () => {
 
     (useAuth as any).mockReturnValue({ client: mockClient, isAuthenticated: true });
 
-    const { result } = renderHook(() => useCollections());
+    const { result } = renderHook(() => useCollections(), { wrapper });
     // wait for client.listCollections to be called, then for the collections to populate
     await waitFor(() => expect(mockClient.listCollections).toHaveBeenCalled());
     await waitFor(() => expect(result.current.collections.length).toBeGreaterThan(0));

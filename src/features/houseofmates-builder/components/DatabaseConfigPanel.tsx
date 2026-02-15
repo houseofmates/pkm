@@ -216,7 +216,7 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
                                         type="text"
                                         value={filterValue}
                                         onChange={(e) => setFilterValue(e.target.value)}
-                                        placeholder="Value..."
+                                        placeholder="value..."
                                         className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/20"
                                     />
                                 </>

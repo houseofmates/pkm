@@ -2041,7 +2041,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                             {drawingTool === 'pencil' && (
                                 <div className="space-y-1">
                                     <div className="flex justify-between text-xs font-medium text-muted-foreground">
-                                        <span>Brush Size</span>
+                                        <span>brush size</span>
                                         <span>{brushSize}px</span>
                                     </div>
                                     <input
@@ -2058,7 +2058,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                             {/* Eraser Slider (Always, per request) */}
                             <div className="space-y-1">
                                 <div className="flex justify-between text-xs font-medium text-muted-foreground">
-                                    <span>Eraser Size</span>
+                                    <span>eraser size</span>
                                     <span>{eraserSize}px</span>
                                 </div>
                                 <input

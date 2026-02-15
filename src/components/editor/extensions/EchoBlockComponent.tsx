@@ -155,7 +155,7 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
 
                 <div className="text-xs text-muted-foreground uppercase tracking-wider mb-1 flex items-center justify-between">
                     <span className="flex items-center gap-2">
-                        <span>Synced Block • {collectionName}</span>
+                        <span>synced block • {collectionName}</span>
                         {isConnected ?
                             <Wifi className="h-3 w-3 text-green-500 opacity-50" /> :
                             <WifiOff className="h-3 w-3 text-red-500 opacity-50" />

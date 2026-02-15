@@ -419,7 +419,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
             return (
                 <div className="flex items-center gap-2 border border-primary p-1 bg-background min-w-[200px]">
                     <Input
-                        placeholder="Paste URL..."
+                        placeholder="paste URL..."
                         value={localValue || ''}
                         onChange={e => setLocalValue(e.target.value)}
                         className="h-8 text-xs border-none focus-visible:ring-0 rounded-none"
@@ -471,7 +471,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
                 <div className="flex items-center gap-1">
                     <Select value={localValue} onValueChange={setLocalValue}>
                         <SelectTrigger className="h-8 w-[150px]">
-                            <SelectValue placeholder="Select..." />
+                            <SelectValue placeholder="select..." />
                         </SelectTrigger>
                         <SelectContent>
                             {options.map((opt: any) => (

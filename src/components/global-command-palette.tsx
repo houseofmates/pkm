@@ -193,7 +193,7 @@ user question: ${userQuery}
 
 your response (all lowercase):`;
 
-            const res = await fetch('http://192.168.4.232:11434/api/generate', {
+            const res = await fetch(import.meta.env.VITE_OLLAMA_API_URL || 'http://localhost:11434/api/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

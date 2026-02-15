@@ -166,7 +166,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
                                     value={bannerUrl}
                                     onChange={(e) => setBannerUrl(e.target.value)}
                                     className="bg-black/80 border border-white/30 p-2 rounded text-white text-sm w-3/4"
-                                    placeholder="Enter URL..."
+                                    placeholder="enter URL..."
                                 />
                             </div>
                         )}
@@ -200,7 +200,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
                                     <input
                                         value={pronouns}
                                         onChange={e => setPronouns(e.target.value)}
-                                        placeholder="Pronouns"
+                                        placeholder="pronouns"
                                         className="bg-white/5 px-2 py-1 rounded-md text-white border border-white/10"
                                     />
                                 ) : (pronouns && (
@@ -281,7 +281,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
                                             value={description}
                                             onChange={e => setDescription(e.target.value)}
                                             className="w-full h-32 bg-white/5 border border-white/10 rounded py-2 px-3 text-white focus:outline-none font-mono text-sm"
-                                            placeholder="Supports **markdown** formatting..."
+                                            placeholder="supports **markdown** formatting..."
                                         />
                                         <div className="text-xs text-white/40">Supports markdown: **bold**, *italic*, [links](url), etc.</div>
                                     </div>
@@ -313,7 +313,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
                                             value={status}
                                             onChange={e => setStatus(e.target.value)}
                                             className="bg-transparent border-b border-white/20 text-white focus:outline-none w-full"
-                                            placeholder="Active"
+                                            placeholder="active"
                                         />
                                     ) : (
                                         <div className="text-white">{status || 'Active'}</div>
@@ -326,7 +326,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
                                             value={role}
                                             onChange={e => setRole(e.target.value)}
                                             className="bg-transparent border-b border-white/20 text-white focus:outline-none w-full"
-                                            placeholder="Protector"
+                                            placeholder="protector"
                                         />
                                     ) : (
                                         <div className="text-white">{role || 'Protector'}</div>

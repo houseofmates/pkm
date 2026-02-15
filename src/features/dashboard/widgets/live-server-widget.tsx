@@ -6,7 +6,7 @@ import { io } from 'socket.io-client';
 interface ServerStats {
     online: boolean;
     players: number;
-    maxPlayers: number;
+    maxplayers: number;
     tps: number;
     uptime: string;
     lastUpdated: string;
@@ -40,7 +40,7 @@ export function LiveServerWidget() {
                     setStats({
                         online: data.online,
                         players: data.players,
-                        maxPlayers: data.maxPlayers,
+                        maxplayers: data.maxplayers,
                         tps: data.tps,
                         uptime: data.uptime,
                         lastUpdated: data.lastUpdated
@@ -106,7 +106,7 @@ export function LiveServerWidget() {
             } else {
                 // Update Stats (Ping/Join/Quit)
                 setStats(prev => ({
-                    ...(prev || { maxPlayers: 20, tps: 20, uptime: '0h' }),
+                    ...(prev || { maxplayers: 20, tps: 20, uptime: '0h' }),
                     online: data.online,
                     players: data.count,
                     lastUpdated: data.timestamp
@@ -150,7 +150,7 @@ export function LiveServerWidget() {
 
     const isLowTps = (stats?.tps || 20) < 18;
 
-    if (loading && !stats) return <div className="p-4 text-xs text-muted-foreground">Connecting to Dupemates...</div>;
+    if (loading && !stats) return <div className="p-4 text-xs text-muted-foreground">connecting to dupemates...</div>;
 
     return (
         <div className={cn(
@@ -161,35 +161,35 @@ export function LiveServerWidget() {
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                     <Activity className={cn("h-4 w-4", stats?.online ? "text-green-400" : "text-red-400")} />
-                    <span className="font-bold text-primary uppercase tracking-widest text-xs">Dupemates SMP</span>
+                    <span className="font-bold text-primary tracking-widest text-xs">dupemates smp</span>
                 </div>
                 <div className="flex items-center gap-1">
                     <div className={cn("w-2 h-2 rounded-full animate-pulse", stats?.online ? "bg-green-500" : "bg-red-500")} />
-                    <span className="text-[10px] text-muted-foreground">{stats?.online ? 'ONLINE' : 'OFFLINE'}</span>
+                    <span className="text-[10px] text-muted-foreground">{stats?.online ? 'online' : 'offline'}</span>
                 </div>
             </div>
 
             {/* Grid */}
             <div className="grid grid-cols-3 gap-2">
-                {/* TPS */}
+                {/* tps */}
                 <div className={cn(
                     "flex flex-col items-center justify-center p-2 rounded bg-white/5",
                     isLowTps ? "text-red-400" : "text-green-400"
                 )}>
                     <span className="text-xl font-mono font-bold">{stats?.tps.toFixed(1)}</span>
-                    <span className="text-[10px] uppercase opacity-50">TPS</span>
+                    <span className="text-[10px] opacity-50">tps</span>
                 </div>
 
-                {/* Players */}
+                {/* players */}
                 <div className="flex flex-col items-center justify-center p-2 rounded bg-white/5 text-blue-400">
-                    <span className="text-xl font-mono font-bold">{stats?.players}/{stats?.maxPlayers}</span>
-                    <span className="text-[10px] uppercase opacity-50">Players</span>
+                    <span className="text-xl font-mono font-bold">{stats?.players}/{stats?.maxplayers}</span>
+                    <span className="text-[10px] opacity-50">players</span>
                 </div>
 
-                {/* Ping/Uptime */}
+                {/* Ping/uptime */}
                 <div className="flex flex-col items-center justify-center p-2 rounded bg-white/5 text-purple-400">
                     <span className="text-xl font-mono font-bold text-xs">{stats?.uptime}</span>
-                    <span className="text-[10px] uppercase opacity-50">Uptime</span>
+                    <span className="text-[10px] opacity-50">uptime</span>
                 </div>
             </div>
 
@@ -197,14 +197,14 @@ export function LiveServerWidget() {
             {isLowTps && (
                 <div className="flex items-center gap-2 text-red-500 bg-red-500/10 p-2 rounded text-xs">
                     <AlertTriangle size={14} />
-                    <span>Server performance degraded</span>
+                    <span>server performance degraded</span>
                 </div>
             )}
 
             {/* Chat List */}
             <div className="mt-2 space-y-1 relative">
-                <div className="text-[10px] uppercase opacity-50 mb-1 flex items-center gap-1">
-                    <Users size={10} /> Live Chat
+                <div className="text-[10px] opacity-50 mb-1 flex items-center gap-1">
+                    <Users size={10} /> live chat
                 </div>
                 <div className="h-[120px] overflow-y-auto space-y-2 pr-1 font-mono text-[10px] custom-scrollbar flex flex-col-reverse">
                     {chatMessages.length === 0 ? (

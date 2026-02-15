@@ -11,7 +11,7 @@ export interface ChatResponse {
     done: boolean;
     total_duration?: number;
 }
-
+            const response = await fetch(import.meta.env.VITE_OLLAMA_CHAT_URL || 'http://localhost:11434/api/chat', {
 export const OLLAMA_MODEL = 'qwen2.5:7b';
 
 export class OllamaClient {
@@ -20,7 +20,7 @@ export class OllamaClient {
         // Direct call to Ollama endpoint (via Vite proxy or direct URL)
         // Using fetch to avoid conflicting with the NocoBase apiClient axios instance
         try {
-            const response = await fetch('http://192.168.4.232:11434/api/chat', {
+            const response = await fetch(import.meta.env.VITE_OLLAMA_CHAT_URL || 'http://localhost:11434/api/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

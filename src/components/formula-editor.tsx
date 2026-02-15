@@ -18,7 +18,7 @@ interface FormulaEditorProps {
 // Mock AI Service until WebSocket is fully confirmed
 const fetchAIResponse = async (prompt: string, context: any) => {
     try {
-        const res = await fetch('http://192.168.4.232:11434/api/generate', {
+        const res = await fetch(import.meta.env.VITE_OLLAMA_API_URL || 'http://localhost:11434/api/generate', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -170,7 +170,7 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
                         </ScrollArea>
                         <div className="p-2 border-t flex gap-2">
                             <Input
-                                placeholder="Ask AI to generate code..."
+                                placeholder="ask AI to generate code..."
                                 value={chatInput}
                                 onChange={e => setChatInput(e.target.value)}
                                 onKeyDown={e => e.key === 'Enter' && handleSendChat()}

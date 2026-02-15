@@ -385,7 +385,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
                             }
                         }}
                         className="h-9 font-medium text-sm bg-transparent border-transparent hover:border-input focus:border-ring transition-colors px-2 shadow-none"
-                        placeholder="Untitled"
+                        placeholder="untitled"
                     />
                 </div>
 

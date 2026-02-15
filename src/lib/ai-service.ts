@@ -7,7 +7,7 @@ export async function generateResponse(context: string, prompt: string, model: s
     const systemPrompt = `You are a helpful assistant. Answer in all lowercase. Use a casual, humanized tone. You have access to the following context from the user's document:\n\n${context}`;
 
     try {
-        const res = await fetch('http://192.168.4.232:11434/api/generate', {
+        const res = await fetch(import.meta.env.VITE_OLLAMA_API_URL || 'http://localhost:11434/api/generate', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

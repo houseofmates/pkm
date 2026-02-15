@@ -185,7 +185,7 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: Props) {
                             <label className="text-white/70 text-sm">Avatar</label>
                             <div className="flex gap-2">
                                 <Input 
-                                    placeholder="Custom Avatar URL (Optional)" 
+                                    placeholder="custom avatar url (Optional)"
                                     value={content.avatar} 
                                     onChange={(v: string) => updateField('avatar', v)} 
                                 />
@@ -219,8 +219,8 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: Props) {
                                         <span className="text-xs text-white/40">Question {idx + 1}</span>
                                         <button onClick={() => handleArrayRemove('items', idx)} className="text-red-400 hover:text-red-300"><Trash2 size={14} /></button>
                                     </div>
-                                    <Input value={item.question} onChange={(v: string) => handleArrayUpdate('items', idx, { ...item, question: v })} placeholder="Question" />
-                                    <Input value={item.answer} onChange={(v: string) => handleArrayUpdate('items', idx, { ...item, answer: v })} textarea placeholder="Answer" />
+                                    <Input value={item.question} onChange={(v: string) => handleArrayUpdate('items', idx, { ...item, question: v })} placeholder="question" />
+                                    <Input value={item.answer} onChange={(v: string) => handleArrayUpdate('items', idx, { ...item, answer: v })} textarea placeholder="answer" />
                                 </div>
                             ))}
                             <button onClick={() => handleArrayAdd('items', { question: 'New Question', answer: 'Answer here' })} className="flex items-center gap-2 text-[var(--primary)] text-sm hover:underline">
@@ -240,7 +240,7 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: Props) {
                             <label className="text-white/70 text-sm">Background Image</label>
                             <div className="flex gap-2">
                                 <Input 
-                                    placeholder="Background Image URL" 
+                                    placeholder="background image url"
                                     value={content.backgroundImage} 
                                     onChange={(v: string) => updateField('backgroundImage', v)} 
                                 />
@@ -382,7 +382,7 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: Props) {
                             <label className="text-white/70 text-sm">Avatar</label>
                             <div className="flex gap-2">
                                 <Input 
-                                    placeholder="Avatar URL (Optional)" 
+                                    placeholder="avatar url (Optional)"
                                     value={content.avatar} 
                                     onChange={(v: string) => updateField('avatar', v)} 
                                 />

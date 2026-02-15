@@ -148,7 +148,6 @@ function AppContent() {
                 <Route path="/workspace/:id" element={<WorkspacePage />} />
               </Route>
             </Routes>
-            <GlobalCommandPalette />
             <WilsonChat />
           </Suspense>
         </BrowserRouter>

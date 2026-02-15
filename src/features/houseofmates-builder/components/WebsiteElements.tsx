@@ -104,7 +104,7 @@ export function ServerStatus({ isOnline = true, playerCount = 0, maxPlayers = 10
             <div className={`flex items-center justify-between ${isMobile ? 'mb-[0.25em]' : 'mb-[0.5em]'}`}>
                 <div className="flex items-center gap-[0.5em]">
                     <div className={`${isMobile ? 'w-[0.4em] h-[0.4em]' : 'w-[0.5em] h-[0.5em]'} rounded-full ${isOnline ? 'bg-green-500 shadow-[0_0_10px_#22c55e]' : 'bg-red-500'}`} />
-                    <span className={`text-[var(--primary)] font-black ${isMobile ? 'text-[0.65em]' : 'text-[0.875em]'} tracking-wide`}>{isOnline ? 'SYSTEMS ONLINE' : 'OFFLINE'}</span>
+                    <span className={`text-[var(--primary)] font-black ${isMobile ? 'text-[0.65em]' : 'text-[0.875em]'} tracking-wide`}>{isOnline ? 'systems online' : 'offline'}</span>
                 </div>
                 <div className={`text-[var(--primary)] ${isMobile ? 'text-[0.6em]' : 'text-[0.75em]'} font-black font-mono`}>
                     {playerCount} / {maxPlayers}
@@ -252,7 +252,7 @@ export function StatusIndicator({ label, status, showLabel = true }: StatusIndic
                     <div className="absolute inset-0 w-full h-full rounded-full animate-ping opacity-75" style={{ backgroundColor: color }} />
                 )}
             </div>
-            {showLabel && <span className="text-[10px] font-black text-white/50 uppercase tracking-tighter whitespace-nowrap">{label}</span>}
+            {showLabel && <span className="text-[10px] font-black text-white/50 tracking-tighter whitespace-nowrap">{label}</span>}
         </div>
     );
 }
@@ -639,7 +639,7 @@ export function CodeElement({ code, language = 'javascript' }: CodeElementProps)
                 <div className="w-3 h-3 rounded-full bg-red-500/50" />
                 <div className="w-3 h-3 rounded-full bg-yellow-500/50" />
                 <div className="w-3 h-3 rounded-full bg-green-500/50" />
-                <span className="ml-2 text-xs text-white/40 font-mono uppercase">{language}</span>
+                <span className="ml-2 text-xs text-white/40 font-mono">{language}</span>
             </div>
             <div className="flex-1 overflow-auto p-4 custom-scrollbar">
                 <pre className="text-sm font-mono leading-relaxed text-blue-300">
@@ -983,7 +983,7 @@ export function MinecraftStatsWidget() {
                 {messages.length === 0 ? (
                     <div className="h-full flex flex-col items-center justify-center opacity-30 min-h-[100px]">
                         <Gamepad2 size={32} className="mb-2" />
-                        <p className="text-xs italic tracking-widest text-white/30 uppercase">Waiting for activity...</p>
+                        <p className="text-xs italic tracking-widest text-white/30">waiting for activity...</p>
                         {!status.online && <p className="text-[10px] mt-1 text-red-400 font-bold">(server is offline)</p>}
                     </div>
                 ) : (
@@ -1031,7 +1031,7 @@ export function MinecraftStatsWidget() {
                 }}
                 className={`mx-6 mb-6 ${isMobile ? 'p-3' : 'p-6'} border border-[var(--primary)]/20 bg-[var(--primary)]/5 hover:bg-[var(--primary)]/10 rounded-xl sm:rounded-2xl cursor-pointer hover:border-[var(--primary)]/50 transition-all flex flex-col items-center gap-1 sm:gap-3 group/discord shadow-[0_0_20px_rgba(246,176,18,0.05)] hover:shadow-[0_0_30px_rgba(246,176,18,0.1)] active:scale-[0.98]`}
             >
-                <div className={`text-[var(--primary)] ${isMobile ? 'text-[x-small]' : 'text-2xl'} font-black tracking-tighter group-hover/discord:scale-105 transition-transform text-center leading-none uppercase`}>
+                <div className={`text-[var(--primary)] ${isMobile ? 'text-[x-small]' : 'text-2xl'} font-black tracking-tighter group-hover/discord:scale-105 transition-transform text-center leading-none`}>
                     join the discord to chat!
                 </div>
                 {!isMobile && (
