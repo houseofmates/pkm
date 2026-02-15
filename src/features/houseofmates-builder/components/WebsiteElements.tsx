@@ -1305,19 +1305,19 @@ export function SlickButton({ text, url, icon, bgColor, textColor, iconColor, bo
     return (
         <button
             onClick={handleClick}
-            className="w-full h-full flex items-center justify-between px-6 py-4 font-black transition-all active:scale-95 group relative overflow-hidden shadow-lg border border-white/5"
+            className="w-full h-full flex items-center justify-start gap-4 px-6 py-4 font-black transition-all active:scale-95 group relative overflow-hidden shadow-lg border border-white/5"
             style={{
                 backgroundColor: bgColor || 'var(--primary)',
                 color: textColor || '#000',
                 borderRadius: borderRadius || 16,
             }}
         >
-            <span className="text-xl tracking-tighter lowercase relative z-10">{text || 'click here'}</span>
             {Icon && (
-                <div className="relative z-10 group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
+                <div className="relative z-10 group-hover:scale-110 transition-transform duration-300 flex items-center justify-center shrink-0">
                     <Icon size={32} style={{ color: iconColor || textColor || 'rgba(0,0,0,0.6)' }} strokeWidth={2.5} />
                 </div>
             )}
+            <span className="text-xl tracking-tighter lowercase relative z-10">{text || 'click here'}</span>
 
             {/* Subtle glow/shine effect on hover */}
             <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
