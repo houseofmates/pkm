@@ -56,6 +56,11 @@ export function BlogBuilder() {
             }
         };
         window.addEventListener('keydown', handleKeyDown);
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                body { font-family: "Varela Round", sans-serif; }
+                `
+            }} />
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
@@ -67,8 +72,13 @@ export function BlogBuilder() {
     };
 
     if (isAdmin) {
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                body { font-family: "Varela Round", sans-serif; }
+                `
+            }} />
         return (
-            <Suspense fallback={<div className="h-screen w-full flex items-center justify-center bg-[#0c0c0c] text-white">loading editor...</div>}>
+            <Suspense fallback={<div className="h-screen w-full flex items-center justify-center bg-[#050505] text-white">loading editor...</div>}>
                 <BlogEditor />
             </Suspense>
         );
@@ -156,7 +166,7 @@ export function BlogBuilder() {
     let content;
     if (loading) {
         content = (
-            <div className="h-screen flex items-center justify-center bg-[#060606] text-[var(--primary)] lowercase text-xl">
+            <div className="h-screen flex items-center justify-center bg-[#050505] text-[var(--primary)] lowercase text-xl">
                 loading blog...
             </div>
         );
@@ -177,6 +187,11 @@ export function BlogBuilder() {
         );
     }
 
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                body { font-family: "Varela Round", sans-serif; }
+                `
+            }} />
     return (
         <>
             {content}

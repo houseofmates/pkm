@@ -80,7 +80,7 @@ function BlogDashboard() {
     };
 
     return (
-        <div className="min-h-screen bg-[#0c0c0c] text-white p-8 font-['Varela_Round']">
+        <div className="min-h-screen bg-[#050505] text-white p-8 font-['Varela_Round']">
             <div className="max-w-5xl mx-auto">
                 <div className="flex justify-between items-center mb-8">
                     <h1 className="text-3xl font-bold">blog dashboard</h1>
@@ -295,14 +295,14 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
         savePost
     };
 
-    if (loading) return <div className="h-screen flex items-center justify-center bg-[#0c0c0c] text-white">loading editor...</div>;
-    if (!post) return <div className="h-screen flex items-center justify-center bg-[#0c0c0c] text-white">post not found</div>;
+    if (loading) return <div className="h-screen flex items-center justify-center bg-[#050505] text-white">loading editor...</div>;
+    if (!post) return <div className="h-screen flex items-center justify-center bg-[#050505] text-white">post not found</div>;
 
     return (
         <BlogContext.Provider value={contextValue}>
-            <div className="h-screen flex flex-col bg-[#0c0c0c] font-['Varela_Round'] text-white overflow-hidden">
+            <div className="h-screen flex flex-col bg-[#050505] font-['Varela_Round'] text-white overflow-hidden">
                 {/* TOP BAR */}
-                <div className="h-14 border-b border-white/10 flex items-center px-4 justify-between bg-[#0c0c0c] z-50">
+                <div className="h-14 border-b border-white/10 flex items-center px-4 justify-between bg-[#050505] z-50">
                     <div className="flex items-center gap-4">
                         <button onClick={() => window.location.href = '/editor'} className="p-2 hover:bg-white/10 rounded-lg text-white/50 hover:text-white">
                             <ArrowLeft size={18} />
@@ -352,7 +352,7 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
                         <BlogCanvas />
 
                         {/* Simple Add Menu (Bottom Center) */}
-                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-[#0c0c0c] border border-white/10 p-2 rounded-2xl shadow-2xl z-[1000]">
+                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-[#050505] border border-white/10 p-2 rounded-2xl shadow-2xl z-[1000]">
                             <ToolBtn icon={<Type size={18} />} label="Text" onClick={() => addElement({ type: 'text', content: { html: '<p>New Text</p>' }, width: 300, height: 100, x: 100, y: 100, styles: {} })} />
                             <ToolBtn icon={<ImageIcon size={18} />} label="Image" onClick={() => {
                                 const url = prompt('Image URL');
@@ -366,7 +366,7 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
 
                     {/* SIDEBAR PROPERTIES */}
                     {showSidebar && (
-                        <div className="w-80 bg-[#0c0c0c] border-l border-white/10 p-4 overflow-y-auto">
+                        <div className="w-80 bg-[#050505] border-l border-white/10 p-4 overflow-y-auto">
                             <h3 className="text-white/50 text-xs font-bold uppercase tracking-wider mb-4">Post Settings</h3>
 
                             <div className="space-y-4">

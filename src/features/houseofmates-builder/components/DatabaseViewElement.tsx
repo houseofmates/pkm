@@ -3,6 +3,7 @@ import { api } from '@/api/nocobase-client';
 import { Database, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
 
 interface Props {
+    isAdmin?: boolean;
     collectionName: string;
     viewType: 'table' | 'kanban' | 'gallery' | 'calendar' | 'gantt' | 'chart';
     width?: number;
@@ -12,7 +13,7 @@ interface Props {
     visibleFields?: string[];
 }
 
-export function DatabaseViewElement({ collectionName, viewType, width = 400, height = 300, sort, filter, visibleFields }: Props) {
+export function DatabaseViewElement({ collectionName, viewType, width = 400, height = 300, sort, filter, visibleFields, isAdmin }: Props) {
     const [data, setData] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -87,20 +88,20 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
     }
 
     // Render based on view type
-    const renderView = () => {
+        const renderView = () => {
         switch (viewType) {
             case 'table':
                 return <TableView data={data} fields={fields} visibleFields={visibleFields} />;
             case 'kanban':
-                return <KanbanPlaceholder collection={collectionName} count={data.length} />;
+                return <KanbanView data={data} fields={fields} collectionName={collectionName} />;
             case 'gallery':
                 return <GalleryView data={data} fields={fields} visibleFields={visibleFields} />;
             case 'calendar':
-                return <CalendarPlaceholder collection={collectionName} count={data.length} />;
+                return <PlaceholderView name="calendar" collection={collectionName} />;
             case 'gantt':
-                return <GanttPlaceholder collection={collectionName} count={data.length} />;
+                return <PlaceholderView name="gantt" collection={collectionName} />;
             case 'chart':
-                return <ChartPlaceholder collection={collectionName} count={data.length} />;
+                return <PlaceholderView name="chart" collection={collectionName} />;
             default:
                 return <TableView data={data} fields={fields} visibleFields={visibleFields} />;
         }
@@ -108,7 +109,7 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
 
     return (
         <div
-            className="bg-[#0c0c0c] border border-white/10 rounded-xl overflow-hidden flex flex-col"
+            className="bg-[#050505] border border-white/10 rounded-xl overflow-hidden flex flex-col"
             style={{ width, height }}
         >
             {/* Header */}
@@ -135,80 +136,129 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
     );
 }
 
-// Simple Table View
+
+// --- VIEWS ---
+
 function TableView({ data, fields, visibleFields }: { data: any[], fields: any[], visibleFields?: string[] }) {
-    // Filter fields based on visibleFields array or default to first 5
     const displayFields = visibleFields && visibleFields.length > 0
         ? fields.filter(f => visibleFields.includes(f.name))
         : fields.slice(0, 5);
 
     if (displayFields.length > 0 && visibleFields) {
-        // Sort displayFields to match the order in visibleFields if possible
         displayFields.sort((a, b) => visibleFields.indexOf(a.name) - visibleFields.indexOf(b.name));
     }
 
-    if (data.length === 0) {
-        return <p className="text-white/40 text-sm text-center py-8 lowercase">no records</p>;
-    }
+    if (data.length === 0) return <EmptyState />;
 
     return (
-        <table className="w-full text-sm">
-            <thead>
-                <tr className="border-b border-white/10">
-                    {displayFields.map(f => (
-                        <th key={f.name} className="text-left px-2 py-2 text-white/60 font-medium lowercase">
-                            {f.title || f.name}
-                        </th>
-                    ))}
-                </tr>
-            </thead>
-            <tbody>
-                {data.slice(0, 20).map((row, i) => (
-                    <tr key={row.id || i} className="border-b border-white/5 hover:bg-white/5">
+        <div className="w-full overflow-x-auto">
+            <table className="w-full text-sm border-collapse">
+                <thead>
+                    <tr className="border-b border-white/5">
                         {displayFields.map(f => (
-                            <td key={f.name} className="px-2 py-2 text-white/80 truncate max-w-[150px]">
-                                {formatValue(row[f.name])}
-                            </td>
+                            <th key={f.name} className="text-left px-3 py-3 text-white/40 font-black uppercase tracking-widest text-[10px]">
+                                {f.title || f.name}
+                            </th>
                         ))}
                     </tr>
-                ))}
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    {data.map((row, i) => (
+                        <tr key={row.id || i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group">
+                            {displayFields.map(f => (
+                                <td key={f.name} className="px-3 py-3 text-white/80 truncate max-w-[200px] font-medium">
+                                    {formatValue(row[f.name])}
+                                </td>
+                            ))}
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
     );
 }
 
-// Simple Gallery View
-function GalleryView({ data, fields }: { data: any[], fields: any[] }) {
-    const titleField = fields.find(f => f.name === 'title' || f.name === 'name') || fields[0];
+function GalleryView({ data, fields, visibleFields }: { data: any[], fields: any[], visibleFields?: string[] }) {
+    const titleField = fields.find(f => f.name === 'title' || f.name === 'name' || f.primary) || fields[0];
+    const imageField = fields.find(f => f.type === 'attachment' || f.name.includes('image') || f.name.includes('cover'));
 
-    if (data.length === 0) {
-        return <p className="text-white/40 text-sm text-center py-8 lowercase">no records</p>;
-    }
+    const displayFields = visibleFields
+        ? fields.filter(f => visibleFields.includes(f.name) && f.name !== titleField?.name && f.name !== imageField?.name)
+        : fields.slice(1, 3);
+
+    if (data.length === 0) return <EmptyState />;
 
     return (
-        <div className="grid grid-cols-2 gap-2">
-            {data.slice(0, 8).map((row, i) => (
-                <div key={row.id || i} className="bg-white/5 rounded-lg p-3">
-                    <p className="text-white/80 text-sm truncate">
-                        {titleField ? formatValue(row[titleField.name]) : `Record ${i + 1}`}
-                    </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-1">
+            {data.map((row, i) => (
+                <div key={row.id || i} className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden hover:border-white/10 transition-all group">
+                    {imageField && row[imageField.name] && (
+                        <div className="aspect-video w-full overflow-hidden border-b border-white/5">
+                            <img
+                                src={Array.isArray(row[imageField.name]) ? row[imageField.name][0]?.url : row[imageField.name]}
+                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                alt=""
+                            />
+                        </div>
+                    )}
+                    <div className="p-4">
+                        <h4 className="text-white font-bold truncate mb-1">
+                            {titleField ? formatValue(row[titleField.name]) : `Record ${i + 1}`}
+                        </h4>
+                        <div className="space-y-1">
+                            {displayFields.map(f => (
+                                <div key={f.name} className="flex justify-between gap-2 text-[10px]">
+                                    <span className="text-white/30 uppercase font-black tracking-tighter">{f.title || f.name}</span>
+                                    <span className="text-white/60 truncate text-right">{formatValue(row[f.name])}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                 </div>
             ))}
         </div>
     );
 }
 
-// Placeholder components for complex views
-function KanbanPlaceholder({ collection, count: _count }: { collection: string, count: number }) {
+function KanbanView({ data, fields, collectionName, groupByField }: { data: any[], fields: any[], collectionName: string, groupByField?: string }) {
+    if (!groupByField) {
+        groupByField = fields.find(f => f.type === 'select' || f.type === 'radio')?.name;
+    }
+
+    if (!groupByField) {
+        return <p className="text-white/40 text-sm text-center py-8 lowercase">no group-by field found for kanban</p>;
+    }
+
+    const groups: Record<string, any[]> = {};
+    data.forEach(row => {
+        const val = row[groupByField] || 'uncategorized';
+        if (!groups[val]) groups[val] = [];
+        groups[val].push(row);
+    });
+
     return (
-        <div className="flex gap-2 h-full">
-            {['todo', 'in progress', 'done'].map(col => (
-                <div key={col} className="flex-1 bg-white/5 rounded-lg p-2">
-                    <p className="text-xs text-white/40 lowercase mb-2">{col}</p>
-                    <div className="space-y-2">
-                        {[1, 2].map(n => (
-                            <div key={n} className="bg-white/10 rounded p-2 text-xs text-white/60">
-                                {collection} item
+        <div className="flex gap-4 h-full overflow-x-auto pb-4 scrollbar-hide snap-x">
+            {Object.entries(groups).map(([group, items]) => (
+                <div key={group} className="flex-shrink-0 w-72 flex flex-col gap-3 snap-start">
+                    <div className="flex items-center justify-between px-2 py-1 bg-white/5 rounded-lg border border-white/5">
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[var(--primary)]">{group}</span>
+                        <span className="text-[10px] font-bold text-white/30">{items.length}</span>
+                    </div>
+                    <div className="flex flex-col gap-2 overflow-y-auto custom-scrollbar pr-1" style={{ maxHeight: 'calc(100% - 40px)' }}>
+                        {items.map(item => (
+                            <div key={item.id} className="p-4 bg-white/5 border border-white/5 rounded-2xl hover:bg-white/[0.08] hover:border-white/10 transition-all cursor-default">
+                                <p className="text-sm font-bold text-white/90 mb-2 leading-tight">
+                                    {item.title || item.name || item.id}
+                                </p>
+                                {item.tags && Array.isArray(item.tags) && (
+                                    <div className="flex flex-wrap gap-1">
+                                        {item.tags.map((t: any, idx: number) => (
+                                            <span key={idx} className="px-1.5 py-0.5 bg-white/5 rounded text-[9px] text-white/40 uppercase font-black">
+                                                {typeof t === 'string' ? t : t.name}
+                                            </span>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         ))}
                     </div>
@@ -218,34 +268,28 @@ function KanbanPlaceholder({ collection, count: _count }: { collection: string, 
     );
 }
 
-function CalendarPlaceholder({ collection, count: _count }: { collection: string, count: number }) {
+function PlaceholderView({ name, collection }: { name: string, collection: string }) {
     return (
-        <div className="flex items-center justify-center h-full text-white/40 text-sm lowercase">
-            calendar view: {collection}
+        <div className="flex flex-col items-center justify-center h-64 text-white/20 gap-3 border-2 border-dashed border-white/5 rounded-2xl">
+            <span className="text-sm font-black uppercase tracking-[0.3em]">{name} view</span>
+            <span className="text-[10px] lowercase italic opacity-50">{collection} content here</span>
         </div>
     );
 }
 
-function GanttPlaceholder({ collection, count: _count }: { collection: string, count: number }) {
+function EmptyState() {
     return (
-        <div className="flex items-center justify-center h-full text-white/40 text-sm lowercase">
-            gantt view: {collection}
+        <div className="flex flex-col items-center justify-center py-12 text-white/20">
+            <Database className="w-8 h-8 mb-2 opacity-20" />
+            <p className="text-sm lowercase">no records found</p>
         </div>
     );
 }
 
-function ChartPlaceholder({ collection, count: _count }: { collection: string, count: number }) {
-    return (
-        <div className="flex items-center justify-center h-full text-white/40 text-sm lowercase">
-            chart view: {collection}
-        </div>
-    );
-}
-
-// Helper
 function formatValue(value: any): string {
     if (value === null || value === undefined) return '-';
-    if (typeof value === 'object') return JSON.stringify(value).slice(0, 50);
+    if (Array.isArray(value)) return value.map(v => typeof v === 'object' ? (v.title || v.name || JSON.stringify(v)) : v).join(', ');
+    if (typeof value === 'object') return value.title || value.name || JSON.stringify(value).slice(0, 50);
     if (typeof value === 'boolean') return value ? '✓' : '✗';
     return String(value);
 }

@@ -60,7 +60,7 @@ export function BlogGallery({ posts, scrollDirection = 'horizontal', onScrollDir
         <div
             ref={containerRef}
             onContextMenu={handleContextMenu}
-            className="relative w-full h-screen overflow-hidden bg-[#060606]"
+            className="relative w-full h-screen overflow-hidden bg-[#050505]"
         >
             {/* Header */}
             <div className="absolute top-0 left-0 right-0 z-10 p-8 bg-gradient-to-b from-black/80 to-transparent">

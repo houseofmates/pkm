@@ -28,9 +28,9 @@
     --popover-foreground: 0 0% 95%;
 
     /* THE VOID BLUEPRINT DEFAULT: Orange */
-    --primary: 38 93% 51%;
+    --primary: 41 92% 52%;
     --primary-foreground: 0 0% 0%;
-    --primary-soft: rgba(246, 176, 18, 0.10) !important;
+    --primary-soft: rgba(245, 175, 18, 0.1) !important;
 
     /* RECOLORABLE WHITE: Defaults to white, becomes headmate color via useThemeReactor */
     --headmate-white: 0 0% 100%;
@@ -49,7 +49,7 @@
 
     --border: 0 0% 15%;
     --input: 0 0% 15%;
-    --ring: 38 93% 51%;
+    --ring: 41 92% 52%;
     /* Match primary default */
 
     --radius: 0.75rem;

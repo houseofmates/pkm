@@ -266,11 +266,49 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: Props) {
                     </>
                 );
             case 'button':
+            case 'slick_button':
                 return (
                     <>
-                        <Input label="Button Text" value={content.text} onChange={(v: string) => updateField('text', v)} />
-                        <Input label="Background Color" value={content.bgColor} onChange={(v: string) => updateField('bgColor', v)} />
-                        <Input label="Text Color" value={content.textColor} onChange={(v: string) => updateField('textColor', v)} />
+                        <Input label="Button Text" value={content.text} onChange={(v) => updateField('text', v)} />
+                        <Input label="URL / Link" value={content.url} onChange={(v) => updateField('url', v)} />
+
+                        <div className="flex flex-col gap-1.5 relative">
+                            <label className="text-white/70 text-xs uppercase tracking-wider font-bold">Icon</label>
+                            <button
+                                onClick={() => setShowIconPicker(!showIconPicker)}
+                                className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white flex items-center justify-between hover:border-[var(--primary)]/50 transition-colors"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="p-1.5 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]">
+                                        {(() => {
+                                            const iconName = content.icon || 'arrow-right';
+                                            const formattedName = iconName.charAt(0).toUpperCase() + iconName.slice(1).replace(/-([a-z])/g, (g) => g[1].toUpperCase());
+                                            // @ts-ignore
+                                            const Icon = LucideIcons[formattedName] || LucideIcons.ArrowRight;
+                                            return <Icon size={18} />;
+                                        })()}
+                                    </div>
+                                    <span className="text-sm">{content.icon || 'select icon...'}</span>
+                                </div>
+                                <LucideIcons.Search size={16} className="text-white/20" />
+                            </button>
+
+                            {showIconPicker && (
+                                <div className="absolute top-full left-0 mt-2 z-[3000]">
+                                    <IconPicker
+                                        value={content.icon || 'arrow-right'}
+                                        onChange={(icon) => updateField('icon', icon)}
+                                        onClose={() => setShowIconPicker(false)}
+                                    />
+                                </div>
+                            )}
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            <Input label="BG Color" value={content.bgColor} onChange={(v) => updateField('bgColor', v)} />
+                            <Input label="Text Color" value={content.textColor} onChange={(v) => updateField('textColor', v)} />
+                        </div>
+                        <Input label="Icon Color (Optional)" value={content.iconColor} onChange={(v) => updateField('iconColor', v)} />
                     </>
                 );
             case 'video':

@@ -32,7 +32,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
     const [showAddMenu, setShowAddMenu] = useState(false);
     const [showBackgroundMenu, setShowBackgroundMenu] = useState(false);
     const [showCollectionPicker, setShowCollectionPicker] = useState(false);
-    const [bgColor, setBgColor] = useState(page?.background || '#060606');
+    const [bgColor, setBgColor] = useState(page?.background || '#050505');
     const [newPageTitle, setNewPageTitle] = useState('');
     const [creating, setCreating] = useState(false);
 
@@ -56,7 +56,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
                 updatePage({ background: `url("${url.trim()}") center center / cover no-repeat fixed` });
                 toast.success('background image set');
             } else {
-                updatePage({ background: '#060606' });
+                updatePage({ background: '#050505' });
                 toast.success('background cleared');
             }
         }
@@ -115,7 +115,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
                 site: site_identifier,
                 is_home: false,
                 theme_color: 'var(--primary)',
-                background: page?.background || '#060606',
+                background: page?.background || '#050505',
                 elements: JSON.stringify([])
             });
             toast.success(`page "${slug}" created!`);
@@ -189,14 +189,14 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
     if (showColorPicker) {
         return (
             <div className="fixed inset-0 z-[30000] flex items-center justify-center bg-black/80" onClick={onClose}>
-                <div className="bg-[#0c0c0c] border border-white/10 rounded-2xl p-6 w-80" onClick={e => e.stopPropagation()}>
+                <div className="bg-[#050505] border border-white/10 rounded-2xl p-6 w-80" onClick={e => e.stopPropagation()}>
                     <div className="flex justify-between items-center mb-4">
                         <h3 className="text-lg font-bold text-[var(--primary)] lowercase">background color</h3>
                         <button onClick={onClose} className="text-white/40 hover:text-white"><X className="w-5 h-5" /></button>
                     </div>
                     <input
                         type="color"
-                        value={bgColor.startsWith('#') ? bgColor : '#060606'}
+                        value={bgColor.startsWith('#') ? bgColor : '#050505'}
                         onChange={(e) => setBgColor(e.target.value)}
                         className="w-full h-16 rounded-xl cursor-pointer mb-4"
                     />
@@ -204,7 +204,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
                         type="text"
                         value={bgColor}
                         onChange={(e) => setBgColor(e.target.value)}
-                        placeholder="#060606 or linear-gradient(...)"
+                        placeholder="#050505 or linear-gradient(...)"
                         className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white mb-4"
                     />
                     <button
@@ -223,7 +223,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
         const previewSlug = generateSlug(newPageTitle);
         return (
             <div className="fixed inset-0 z-[30000] flex items-center justify-center bg-black/80" onClick={onClose}>
-                <div className="bg-[#0c0c0c] border border-white/10 rounded-2xl p-6 w-96" onClick={e => e.stopPropagation()}>
+                <div className="bg-[#050505] border border-white/10 rounded-2xl p-6 w-96" onClick={e => e.stopPropagation()}>
                     <div className="flex justify-between items-center mb-4">
                         <h3 className="text-lg font-bold text-[var(--primary)] lowercase">create new page</h3>
                         <button onClick={onClose} className="text-white/40 hover:text-white"><X className="w-5 h-5" /></button>
@@ -264,7 +264,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
 
             {/* Menu */}
             <div
-                className="fixed z-[19999] bg-[#0c0c0c] border border-white/10 rounded-xl shadow-2xl py-2 min-w-[220px] animate-bounce-up builder-context-menu"
+                className="fixed z-[19999] bg-[#050505] border border-white/10 rounded-xl shadow-2xl py-2 min-w-[220px] animate-bounce-up builder-context-menu"
                 style={menuStyle}
                 onClick={(e) => e.stopPropagation()}
             >

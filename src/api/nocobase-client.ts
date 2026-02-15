@@ -1,3 +1,4 @@
+import { ListRecordsResponseSchema, GetRecordResponseSchema, ActionResponseSchema } from "@/lib/api/schemas";
 // @ts-nocheck
 import { apiClient } from '@/lib/api-client';
 
@@ -16,12 +17,12 @@ export class NocoBaseClient {
   async listCollections(params = {}) {
     // Actions are usually resource:action
     const res = await this._axios.get('/collections:list', { params });
-    return res.data;
+    return ListRecordsResponseSchema.parse(res.data);
   }
   async getCollection(name) {
     try {
       const res = await this._axios.get(`/collections/${name}:get`);
-      return res.data;
+      return GetRecordResponseSchema.parse(res.data);
     } catch (error) {
       // Fallback: If 404/400 (likely due to name mismatch with ID), try filtered list
       if (error.response?.status === 404 || error.response?.status === 400 || error.response?.status === 500) {
@@ -109,13 +110,13 @@ export class NocoBaseClient {
 
   async createCollection(data) {
     const res = await this._axios.post('/collections:create', data);
-    return res.data;
+    return GetRecordResponseSchema.parse(res.data);
   }
   async updateCollection(name, data) {
     try {
       // Use filterByTk for better compatibility
       const res = await this._axios.post(`/collections:update?filterByTk=${name}`, data);
-      return res.data;
+      return ActionResponseSchema.parse(res.data);
     } catch (error) {
       // If 404, it might be a case-sensitivity mismatch. Try to resolve the real name.
       if (error.response?.status === 404) {
@@ -128,7 +129,7 @@ export class NocoBaseClient {
           if (realName && realName !== name) {
             console.log(`Resolved collection name mismatch: ${name} -> ${realName}. Retrying update.`);
             const res = await this._axios.post(`/collections/${realName}:update`, data);
-            return res.data;
+            return ListRecordsResponseSchema.parse(res.data);
           }
         } catch (findError) {
           console.warn("Failed to resolve collection for retry", findError);
@@ -139,7 +140,7 @@ export class NocoBaseClient {
   }
   async deleteCollection(name) {
     const res = await this._axios.delete(`/collections/${name}`);
-    return res.data;
+    return ActionResponseSchema.parse(res.data);
   }
   async ensureBackendCollection() {
     try {
@@ -263,7 +264,7 @@ export class NocoBaseClient {
         title,
         content: ''
       });
-      return res.data;
+      return ListRecordsResponseSchema.parse(res.data);
     } catch (error) {
       // @ts-ignore
       if (error?.response?.status === 404) {
@@ -275,7 +276,7 @@ export class NocoBaseClient {
           title,
           content: ''
         });
-        return res.data;
+        return ListRecordsResponseSchema.parse(res.data);
       }
       throw error;
     }
@@ -284,35 +285,35 @@ export class NocoBaseClient {
   // --- Field/Record Methods ---
   async createField(collection, data) {
     const res = await this._axios.post(`/collections/${collection}/fields:create`, data);
-    return res.data;
+    return GetRecordResponseSchema.parse(res.data);
   }
   async updateField(collection, name, data) {
     const res = await this._axios.post(`/collections/${collection}/fields:update?filterByTk=${name}`, data);
-    return res.data;
+    return ActionResponseSchema.parse(res.data);
   }
   async listRecords(collection, params = {}) {
     // Remove /obj/ prefix, use <collection>:list
     const res = await this._axios.get(`/${collection}:list`, { params });
-    return res.data;
+    return ListRecordsResponseSchema.parse(res.data);
   }
   async getRecord(collection, id) {
     const res = await this._axios.get(`/${collection}:get?filterByTk=${id}`);
-    return res.data;
+    return GetRecordResponseSchema.parse(res.data);
   }
   async createRecord(collection, data) {
     // Remove /obj/ prefix, use <collection>:create
     const res = await this._axios.post(`/${collection}:create`, data);
-    return res.data;
+    return GetRecordResponseSchema.parse(res.data);
   }
   async updateRecord(collection, id, data) {
     // Use filterByTk query param for reliable update, matching deleteRecord
     const res = await this._axios.post(`/${collection}:update?filterByTk=${id}`, data);
-    return res.data;
+    return ActionResponseSchema.parse(res.data);
   }
   async deleteRecord(collection, id) {
     // Use filterByTk query param for reliable deletion
     const res = await this._axios.post(`/${collection}:destroy?filterByTk=${id}`);
-    return res.data;
+    return ActionResponseSchema.parse(res.data);
   }
 
   // --- File/Storage Methods ---
@@ -341,7 +342,7 @@ export class NocoBaseClient {
     const res = await this._axios.post('/attachments', formData, {
       headers: { 'Content-Type': 'multipart/form-data' },
     });
-    return res.data;
+    return GetRecordResponseSchema.parse(res.data);
   }
 
   // --- Generic Request ---
