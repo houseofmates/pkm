@@ -979,7 +979,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
     return (
         <div className="flex flex-col h-full bg-background overflow-hidden relative no-scrollbar">
             {/* Toolbar */}
-            <div className="flex items-center justify-between p-4 border-b bg-background z-[70] shadow-sm h-16 relative">
+            <div className="flex items-center justify-between p-4 border-b border-primary bg-background z-[70] shadow-sm h-16 relative">
                 <div className="flex items-center gap-2">
                     {/* Grid Icon Removed */}
                     {isOver && <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full animate-pulse">drop to add</span>}
@@ -1001,7 +1001,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                                 title="pencil (right-click for options)"
                                 className={drawingTool === 'pencil' ? "bg-accent" : ""}
                             >
-                                <Pencil className="h-4 w-4" style={{ color: drawingTool === 'pencil' ? brushColor : 'currentColor' }} />
+                                <Pencil className="h-4 w-4" style={{ color: drawingTool === 'pencil' ? brushColor : 'var(--primary)' }} />
                             </Button>
                             {colorPickerOpen && (
                                 <div className="absolute top-12 left-0 z-50 p-3 bg-popover border rounded-xl shadow-xl w-64 space-y-3">
@@ -1043,9 +1043,8 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                                     if (eraserTimerRef.current) clearTimeout(eraserTimerRef.current);
                                 }}
                                 className={drawingTool === 'eraser' ? "bg-accent" : ""}
-                                title="eraser (right-click/hold for size)"
                             >
-                                <Eraser className="h-4 w-4" />
+                                <Eraser className="h-4 w-4 text-[var(--primary)]" />
                             </Button>
                             {eraserMenuOpen && (
                                 <div className="absolute top-12 left-0 z-50 p-3 bg-popover border rounded-xl shadow-xl w-48">
@@ -1132,7 +1131,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                             title="cursor (move widgets)"
                             className={drawingTool === 'none' ? "bg-accent" : ""}
                         >
-                            <MousePointer2 className="h-4 w-4" />
+                            <MousePointer2 className="h-4 w-4 text-[var(--primary)]" />
                         </Button>
                     </div>
 
@@ -1144,7 +1143,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                         onClick={() => setIsEditMode(!isEditMode)}
                         title={isEditMode ? "lock layout" : "unlock layout"}
                     >
-                        {isEditMode ? <Unlock className="h-4 w-4" /> : <Lock className="h-4 w-4" />}
+                        {isEditMode ? <Unlock className="h-4 w-4 text-[var(--primary)]" /> : <Lock className="h-4 w-4 text-[var(--primary)]" />}
                     </Button>
 
                     <Button
@@ -1158,7 +1157,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                         size="icon"
                         title="add view"
                     >
-                        <Plus className="h-4 w-4" />
+                        <Plus className="h-4 w-4 text-[var(--primary)]" />
                     </Button>
 
                     {addMenuOpen && (
@@ -1343,7 +1342,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                             title="Undo (Ctrl+Z)"
                         >
                             <span className="sr-only">undo</span>
-                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-4 w-4"><path d="M4.85355 2.14645C5.04882 2.34171 5.04882 2.65829 4.85355 2.85355L3.70711 4H9C11.4853 4 13.5 6.01472 13.5 8.5C13.5 10.9853 11.4853 13 9 13H5C4.72386 13 4.5 12.7761 4.5 12.5C4.5 12.2239 4.72386 12 5 12H9C10.933 12 12.5 10.433 12.5 8.5C12.5 6.567 10.933 5 9 5H3.70711L4.85355 6.14645C5.04882 6.34171 5.04882 6.65829 4.85355 6.85355C4.65829 7.04882 4.34171 7.04882 4.14645 6.85355L2.14645 4.85355C1.95118 4.65829 1.95118 4.34171 2.14645 4.14645L4.14645 2.14645C4.34171 1.95118 4.65829 1.95118 4.85355 2.14645Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
+                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[var(--primary)]"><path d="M4.85355 2.14645C5.04882 2.34171 5.04882 2.65829 4.85355 2.85355L3.70711 4H9C11.4853 4 13.5 6.01472 13.5 8.5C13.5 10.9853 11.4853 13 9 13H5C4.72386 13 4.5 12.7761 4.5 12.5C4.5 12.2239 4.72386 12 5 12H9C10.933 12 12.5 10.433 12.5 8.5C12.5 6.567 10.933 5 9 5H3.70711L4.85355 6.14645C5.04882 6.34171 5.04882 6.65829 4.85355 6.85355C4.65829 7.04882 4.34171 7.04882 4.14645 6.85355L2.14645 4.85355C1.95118 4.65829 1.95118 4.34171 2.14645 4.14645L4.14645 2.14645C4.34171 1.95118 4.65829 1.95118 4.85355 2.14645Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
                         </Button>
                         <Button
                             variant="outline"
@@ -1353,7 +1352,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                             title="Redo (Ctrl+V / Ctrl+Y)"
                         >
                             <span className="sr-only">redo</span>
-                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-4 w-4"><path d="M10.1464 2.14645C10.3417 1.95118 10.6583 1.95118 10.8536 2.14645L12.8536 4.14645C13.0488 4.34171 13.0488 4.65829 12.8536 4.85355L10.8536 6.85355C10.6583 7.04882 10.3417 7.04882 10.1464 6.85355C9.95118 6.65829 9.95118 6.34171 10.1464 6.14645L11.2929 5H6C4.067 5 2.5 6.567 2.5 8.5C2.5 10.433 4.067 12 6 12H10C10.2761 12 10.5 12.2239 10.5 12.5C10.5 12.7761 10.2761 13 10 13H6C3.51472 13 1.5 10.9853 1.5 8.5C1.5 6.01472 3.51472 4 6 4H11.2929L10.1464 2.85355C9.95118 2.65829 9.95118 2.34171 10.1464 2.14645Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
+                            <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[var(--primary)]"><path d="M10.1464 2.14645C10.3417 1.95118 10.6583 1.95118 10.8536 2.14645L12.8536 4.14645C13.0488 4.34171 13.0488 4.65829 12.8536 4.85355L10.8536 6.85355C10.6583 7.04882 10.3417 7.04882 10.1464 6.85355C9.95118 6.65829 9.95118 6.34171 10.1464 6.14645L11.2929 5H6C4.067 5 2.5 6.567 2.5 8.5C2.5 10.433 4.067 12 6 12H10C10.2761 12 10.5 12.2239 10.5 12.5C10.5 12.7761 10.2761 13 10 13H6C3.51472 13 1.5 10.9853 1.5 8.5C1.5 6.01472 3.51472 4 6 4H11.2929L10.1464 2.85355C9.95118 2.65829 9.95118 2.34171 10.1464 2.14645Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path></svg>
                         </Button>
                     </div>
 

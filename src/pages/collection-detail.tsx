@@ -480,7 +480,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     return (
         <div className="flex flex-col h-full bg-background animate-in fade-in duration-500">
             {/* Header */}
-            <div className="flex flex-col bg-card/50 backdrop-blur-sm sticky top-0 z-10">
+            <div className="flex flex-col bg-card/50 backdrop-blur-sm sticky top-0 z-10 border-b border-primary">
                 <div className="flex items-center justify-between p-4 pb-2">
                     <div className="flex items-center gap-4">
                         <Button variant="ghost" size="icon" onClick={onBack}>

@@ -141,7 +141,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
         <div className="min-h-screen bg-background font-varela">
             {/* Banner Image Area */}
             <div
-                className="relative w-full h-64 bg-muted/20 border-b cursor-pointer group"
+                className="relative w-full h-64 bg-muted/20 border-b border-primary cursor-pointer group"
                 onClick={handleBannerClick}
                 onContextMenu={(e) => {
                     if (!readOnly) {
@@ -218,7 +218,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
                 </div>
 
                 {/* Divider */}
-                <div className="w-24 h-0.5 bg-border mx-auto mb-12" />
+                <div className="w-24 h-0.5 bg-primary mx-auto mb-12" />
 
                 {/* Content Editor */}
                 <div

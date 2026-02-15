@@ -74,11 +74,11 @@ export function PageCanvas() {
                     >
                         {items.map(item => (
                             <div key={item.i} className={cn(
-                                "bg-[#111] border border-white/10 rounded-lg overflow-hidden group hover:border-white/20 transition-colors",
+                                "bg-[#111] border border-primary/20 rounded-lg overflow-hidden group hover:border-primary/40 transition-colors",
                                 "flex flex-col font-['Varela_Round']"
                             )}>
                                 {/* Drag Handle (Dedicated Top Bar) */}
-                                <div className="drag-handle h-6 w-full bg-white/5 cursor-grab active:cursor-grabbing flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div className="drag-handle h-6 w-full bg-primary/10 cursor-grab active:cursor-grabbing flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                                     <GripVertical className="w-4 h-4 text-white/30" />
                                 </div>
 

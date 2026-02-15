@@ -6,6 +6,12 @@ export function useThemeReactor() {
     const { activeFronters, overrides, members } = useFronter();
 
     useEffect(() => {
+        // 1. Electron-specific zoom (1.15x)
+        const isElectron = (window as any).electron?.isElectron;
+        if (isElectron) {
+            document.documentElement.style.zoom = "1.15";
+        }
+
         // Strategy: Use the FIRST active fronter's color. 
         // Fallback: Use the FIRST headmate's color in the system list.
         let primaryFronterId = activeFronters[0];
@@ -42,6 +48,14 @@ export function useThemeReactor() {
                 // Parse lightness from "H S% L%" format
                 const lightnessMatch = hsl.match(/(\d+)%$/);
                 const lightness = lightnessMatch ? parseInt(lightnessMatch[1]) : 50;
+
+                // High-Contrast detection: If color is very dark, add a helper class
+                // to the body so CSS can apply outlines to accent elements.
+                if (lightness < 30) {
+                    document.body.classList.add('high-contrast-outline');
+                } else {
+                    document.body.classList.remove('high-contrast-outline');
+                }
 
                 // If very dark color (like black), override to white
                 let finalColor = color;

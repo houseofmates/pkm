@@ -286,7 +286,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         if (collections.length === 0 && items.length === 0 && localItems.length === 0) return;
 
         // 0. Aggressive Pruning: Remove names that should NEVER be in the sidebar
-        const FORBIDDEN_COLLECTIONS = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates'];
+        const FORBIDDEN_COLLECTIONS = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates', 'website', 'dupemates-pages'];
 
         // Filter out pkm_canvases and others from incoming collections
         const visibleCollections = collections.filter((c: any) => !FORBIDDEN_COLLECTIONS.includes(String(c.name).toLowerCase()));

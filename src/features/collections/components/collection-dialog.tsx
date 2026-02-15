@@ -127,7 +127,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
             // Fetch collections list for relation targets
             client.listCollections().then(res => {
                 // Filter out system and backend collections
-                const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers', 'site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates'];
+                const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers', 'site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates', 'website'];
                 const filteredCollections = res.data.filter((col: Collection) => {
                     const name = (col.name || '').toLowerCase().trim();
                     const title = (col.title || '').toLowerCase().trim();

@@ -141,7 +141,7 @@ svg,
 .nav-selected,
 [data-selected="true"] {
   background-color: var(--primary-soft) !important;
-  color: var(--primary) !important;
+  color: hsl(var(--primary)) !important;
 }
 
 /* Soft Background Utility */
@@ -152,8 +152,8 @@ svg,
 /* Ensure focus states use primary */
 *:focus,
 *:focus-visible {
-  outline-color: var(--primary) !important;
-  --tw-ring-color: var(--primary) !important;
+  outline-color: hsl(var(--primary)) !important;
+  --tw-ring-color: hsl(var(--primary)) !important;
 }
 
 /* Kill generic white text/borders that shouldn't exist */
@@ -303,9 +303,9 @@ button.interactive-pop:hover {
 .selected-icon-btn svg,
 .selected-icon-btn path,
 .selected-icon-btn circle {
-  fill: var(--primary) !important;
-  stroke: var(--primary) !important;
-  color: var(--primary) !important;
+  fill: hsl(var(--primary)) !important;
+  stroke: hsl(var(--primary)) !important;
+  color: hsl(var(--primary)) !important;
 }
 
 .selected-icon-btn {
@@ -317,8 +317,8 @@ button.interactive-pop:hover {
 
 /* Universal nested selector to catch wrappers/spans around svgs */
 .selected-icon-btn * {
-  fill: var(--primary) !important;
-  stroke: var(--primary) !important;
+  fill: hsl(var(--primary)) !important;
+  stroke: hsl(var(--primary)) !important;
 }
 
 /* --- NUCLEAR UI FIX ROUND 2 (USER REQUEST) --- */
@@ -335,16 +335,16 @@ header * {
 /* Restore for header/sidebar only */
 .sidebar-container,
 .nav-header {
-  border-bottom: 2px solid var(--primary) !important;
+  border-bottom: 2px solid hsl(var(--primary)) !important;
 }
 
 /* 2. SIDEBAR ICONS SPECIFIC TARGET */
 .sidebar svg,
 .nav-item svg,
 .top-nav svg {
-  fill: var(--primary) !important;
-  color: var(--primary) !important;
-  filter: drop-shadow(0 0 0 var(--primary)) !important;
+  fill: hsl(var(--primary)) !important;
+  color: hsl(var(--primary)) !important;
+  filter: drop-shadow(0 0 0 hsl(var(--primary))) !important;
 }
 
 /* --- HIGH CONTRAST & VISIBILITY RESTORATION (USER REQUEST) --- */
@@ -368,7 +368,7 @@ header,
 aside {
   background-color: #050505 !important;
   background: #050505 !important;
-  border-bottom: 2px solid var(--primary) !important;
+  border-bottom: 2px solid hsl(var(--primary)) !important;
   /* Restore header separating line */
 }
 
@@ -377,8 +377,8 @@ button,
 .btn,
 .icon-btn,
 [role="button"] {
-  border-color: var(--primary) !important;
-  outline-color: var(--primary) !important;
+  border-color: hsl(var(--primary)) !important;
+  outline-color: hsl(var(--primary)) !important;
 }
 
 /* 3. Selected Items: Transparent Background, Colored Icon */
@@ -403,19 +403,18 @@ button,
 [class*='sidebar'] svg,
 .selected-icon-btn svg,
 .selected-icon-btn * {
-  fill: var(--primary) !important;
-  color: var(--primary) !important;
-  stroke: var(--primary) !important;
+  fill: hsl(var(--primary)) !important;
+  color: hsl(var(--primary)) !important;
+  stroke: hsl(var(--primary)) !important;
   opacity: 1 !important;
   display: block !important;
   visibility: visible !important;
 }
 
-/* 5. Global Border Cleanup (Safety Net) */
 /* Kill random white borders, force them to primary or transparent */
 *[style*="border"],
 [class*="border"] {
-  border-color: var(--primary);
+  border-color: hsl(var(--primary)) !important;
 }
 
 /* Force cmdk items to always be visible and clickable */

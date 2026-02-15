@@ -117,7 +117,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     }, [location, navigate]);
 
     // 1. Filter out internal collections from grid
-    const FORBIDDEN_COLLECTIONS = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates'];
+    const FORBIDDEN_COLLECTIONS = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates', 'website', 'dupemates-pages'];
     const filteredCollections = collections.filter((c: Collection) => !FORBIDDEN_COLLECTIONS.includes(String(c.name).toLowerCase()));
 
     // 2. Extract Docs and Drawings from Sidebar Items

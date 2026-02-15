@@ -50,7 +50,7 @@ export function DatabaseWidget({ collection, onRemove, className, initialView, v
     return (
         <Card className={cn("w-[600px] h-[400px] flex flex-col shadow-lg isolate bg-card", "card-fix", className)}>
             <CardHeader
-                className="p-3 border-b flex flex-row items-center justify-between space-y-0 bg-muted/20 handle cursor-move rounded-t-[inherit]"
+                className="p-3 border-b border-primary flex flex-row items-center justify-between space-y-0 bg-muted/20 handle cursor-move rounded-t-[inherit]"
                 onMouseDown={onHeaderMouseDown}
             >
                 <div className="flex items-center gap-2">
