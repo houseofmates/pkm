@@ -84,7 +84,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
     return (
         <div className="fixed inset-0 z-[30000] flex items-center justify-center bg-black/80 builder-modal" onClick={onClose}>
             <div
-                className="bg-[#0c0c0c] border border-white/10 rounded-2xl p-6 w-96 max-h-[80vh] overflow-y-auto"
+                className="bg-[#050505] border border-white/10 rounded-2xl p-6 w-96 max-h-[80vh] overflow-y-auto"
                 onClick={e => e.stopPropagation()}
             >
                 <div className="flex justify-between items-center mb-6">
@@ -166,9 +166,9 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
                                     onChange={(e) => setInternalPage(e.target.value)}
                                     className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white appearance-none cursor-pointer"
                                 >
-                                    <option value="" className="bg-[#0c0c0c]">-- select a page --</option>
+                                    <option value="" className="bg-[#050505]">-- select a page --</option>
                                     {pages.map(p => (
-                                        <option key={p.slug} value={p.slug} className="bg-[#0c0c0c]">
+                                        <option key={p.slug} value={p.slug} className="bg-[#050505]">
                                             {p.title} (/{p.slug})
                                         </option>
                                     ))}

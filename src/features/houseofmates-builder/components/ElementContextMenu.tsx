@@ -105,7 +105,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
         <>
             <div className="fixed inset-0 z-[19998]" onClick={onClose} />
             <div
-                className="fixed z-[19999] bg-[#0c0c0c] border border-white/10 rounded-xl shadow-2xl py-2 min-w-[200px] animate-bounce-up builder-context-menu"
+                className="fixed z-[19999] bg-[#050505] border border-white/10 rounded-xl shadow-2xl py-2 min-w-[200px] animate-bounce-up builder-context-menu"
                 style={menuStyle}
                 onClick={(e) => e.stopPropagation()}
             >

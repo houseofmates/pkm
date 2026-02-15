@@ -79,7 +79,7 @@ export function CollectionPickerModal({ onSelect, onClose }: Props) {
     return (
         <div className="fixed inset-0 z-[30000] flex items-center justify-center bg-black/80 builder-modal" onClick={onClose}>
             <div
-                className="bg-[#0c0c0c] border border-white/10 rounded-2xl p-6 w-[480px] max-h-[80vh] overflow-hidden flex flex-col"
+                className="bg-[#050505] border border-white/10 rounded-2xl p-6 w-[480px] max-h-[80vh] overflow-hidden flex flex-col"
                 onClick={e => e.stopPropagation()}
             >
                 <div className="flex justify-between items-center mb-6">

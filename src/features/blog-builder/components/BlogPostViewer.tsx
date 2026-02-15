@@ -36,7 +36,7 @@ export function BlogPostViewer({ post, onViewCountUpdate }: BlogPostViewerProps)
     }, [post.id, onViewCountUpdate]);
 
     return (
-        <div className="min-h-screen bg-[#060606] text-white">
+        <div className="min-h-screen bg-[#050505] text-white">
             {/* Back Button */}
             <button
                 onClick={() => navigate('/')}
@@ -53,7 +53,7 @@ export function BlogPostViewer({ post, onViewCountUpdate }: BlogPostViewerProps)
                         alt={post.title}
                         className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-[#060606]" />
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/50 to-[#050505]" />
                 </div>
             )}
 

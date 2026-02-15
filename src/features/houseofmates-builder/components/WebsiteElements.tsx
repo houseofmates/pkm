@@ -48,7 +48,7 @@ export function ServerIPDisplay({ javaIP, bedrockIP, bedrockPort = '19132', show
                     <div className="flex flex-col gap-3 w-full">
                         <div
                             onClick={() => javaIP && copyToClipboard(javaIP, 'java')}
-                            className="flex-1 flex items-center justify-between px-5 py-3 rounded-2xl bg-[#F6B012]/10 border border-[#F6B012]/30 hover:bg-[#F6B012]/20 cursor-pointer transition-all group interactive-pop"
+                            className="flex-1 flex items-center justify-between px-5 py-3 rounded-2xl bg-[var(--primary)]/10 border border-[var(--primary)]/30 hover:bg-[var(--primary)]/20 cursor-pointer transition-all group interactive-pop"
                         >
                             <div className="flex items-center gap-4">
                                 <div className="p-2.5 rounded-xl bg-[var(--primary)]/20 text-[var(--primary)]">
@@ -59,7 +59,7 @@ export function ServerIPDisplay({ javaIP, bedrockIP, bedrockPort = '19132', show
                                     <div className="text-xl text-[var(--primary)] font-mono font-bold">{javaIP || 'play.server.com'}</div>
                                 </div>
                             </div>
-                            {copiedJava ? <Check size={18} className="text-green-500" /> : <Copy size={18} className="text-[#F6B012]/40 opacity-0 group-hover:opacity-100 transition-opacity" />}
+                            {copiedJava ? <Check size={18} className="text-green-500" /> : <Copy size={18} className="text-[var(--primary)]/40 opacity-0 group-hover:opacity-100 transition-opacity" />}
                         </div>
 
                         {showBedrock && (
@@ -1087,7 +1087,7 @@ export function FinancialChartElement({ title, data }: FinancialChartProps) {
                             tickFormatter={(v) => `$${v}`}
                         />
                         <RechartsTooltip
-                            contentStyle={{ backgroundColor: '#0c0c0c', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', fontSize: '12px' }}
+                            contentStyle={{ backgroundColor: '#050505', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', fontSize: '12px' }}
                             itemStyle={{ color: 'var(--primary)' }}
                             cursor={{ fill: 'rgba(255,255,255,0.05)' }}
                         />
@@ -1274,5 +1274,53 @@ export function SleepRingElement() {
                 </div>
             </div>
         </div>
+    );
+}
+
+// --- SLICK BUTTON ---
+export interface SlickButtonProps {
+    text: string;
+    url?: string;
+    icon?: string;
+    bgColor?: string;
+    textColor?: string;
+    iconColor?: string;
+    borderRadius?: number;
+}
+
+export function SlickButton({ text, url, icon, bgColor, textColor, iconColor, borderRadius }: SlickButtonProps) {
+    // Helper to format icon name (e.g. "shopping-cart" -> "ShoppingCart")
+    const formattedIconName = icon ? icon.charAt(0).toUpperCase() + icon.slice(1).replace(/-([a-z])/g, (g: any) => g[1].toUpperCase()) : null;
+    const Icon = formattedIconName ? (LucideIcons as any)[formattedIconName] : null;
+
+    const handleClick = () => {
+        if (!url) return;
+        if (url.startsWith('http')) {
+            window.open(url, '_blank');
+        } else {
+            window.location.href = url;
+        }
+    };
+
+    return (
+        <button
+            onClick={handleClick}
+            className="w-full h-full flex items-center justify-start gap-4 px-6 py-4 font-black transition-all active:scale-95 group relative overflow-hidden shadow-lg border border-white/5"
+            style={{
+                backgroundColor: bgColor || 'var(--primary)',
+                color: textColor || '#000',
+                borderRadius: borderRadius || 16,
+            }}
+        >
+            {Icon && (
+                <div className="relative z-10 group-hover:scale-110 transition-transform duration-300 flex items-center justify-center shrink-0">
+                    <Icon size={32} style={{ color: iconColor || textColor || 'rgba(0,0,0,0.6)' }} strokeWidth={2.5} />
+                </div>
+            )}
+            <span className="text-xl tracking-tighter lowercase relative z-10">{text || 'click here'}</span>
+
+            {/* Subtle glow/shine effect on hover */}
+            <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
+        </button>
     );
 }
