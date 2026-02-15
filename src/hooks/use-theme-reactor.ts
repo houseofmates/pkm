@@ -6,34 +6,32 @@ export function useThemeReactor() {
     const { activeFronters, overrides, members } = useFronter();
 
     useEffect(() => {
-        if (activeFronters.length === 0) {
-            // Revert to default yellow
-            document.documentElement.style.removeProperty('--primary');
-            document.documentElement.style.removeProperty('--ring');
-            document.body.style.removeProperty('--primary');
-            document.body.style.removeProperty('--ring');
-            return;
-        }
+        // Strategy: Use the FIRST active fronter's color. 
+        // Fallback: Use the FIRST headmate's color in the system list.
+        let primaryFronterId = activeFronters[0];
+        let color: string | undefined;
 
-        // Strategy: Use the FIRST active fronter's color as the primary accent.
-        const primaryFronterId = activeFronters[0];
-        
-        // Check overrides first, then members array, then cached colors
-        let color = overrides[primaryFronterId]?.color;
-        
-        if (!color) {
-            // Check members array from context
-            const member = members.find(m => m.id === primaryFronterId);
-            color = member?.color;
-        }
-        
-        if (!color) {
-            // Check localStorage cache as last resort
-            try {
-                const colorCache = JSON.parse(localStorage.getItem('member_colors') || '{}');
-                color = colorCache[primaryFronterId];
-            } catch (e) {
-                console.warn('Failed to read color cache:', e);
+        if (!primaryFronterId && members.length > 0) {
+            // No one is fronting, use the first member
+            color = members[0].color;
+        } else if (primaryFronterId) {
+            // Check overrides first, then members array, then cached colors
+            color = overrides[primaryFronterId]?.color;
+
+            if (!color) {
+                // Check members array from context
+                const member = members.find(m => m.id === primaryFronterId);
+                color = member?.color;
+            }
+
+            if (!color) {
+                // Check localStorage cache as last resort
+                try {
+                    const colorCache = JSON.parse(localStorage.getItem('member_colors') || '{}');
+                    color = colorCache[primaryFronterId];
+                } catch (e) {
+                    console.warn('Failed to read color cache:', e);
+                }
             }
         }
 
@@ -44,31 +42,37 @@ export function useThemeReactor() {
                 // Parse lightness from "H S% L%" format
                 const lightnessMatch = hsl.match(/(\d+)%$/);
                 const lightness = lightnessMatch ? parseInt(lightnessMatch[1]) : 50;
-                
+
                 // If very dark color (like black), override to white
                 let finalColor = color;
                 if (lightness < 25) {
                     finalColor = '#ffffff';
                     console.log('Dark color detected, using white instead');
                 }
-                
+
                 const finalHsl = hexToHsl(finalColor);
                 if (finalHsl) {
                     // Force injection on BOTH documentElement and body for max coverage
                     document.documentElement.style.setProperty('--primary', finalHsl);
                     document.documentElement.style.setProperty('--ring', finalHsl);
 
+                    // User Request: recolor white elements to headmate color
+                    document.documentElement.style.setProperty('--headmate-white', finalHsl);
+
                     // Also force body style as backup for portals outside root
                     document.body.style.setProperty('--primary', finalHsl, 'important');
                     document.body.style.setProperty('--ring', finalHsl, 'important');
+                    document.body.style.setProperty('--headmate-white', finalHsl, 'important');
                 }
             }
         } else {
             // No color found, revert to default (will use index.css default which is yellow)
             document.documentElement.style.removeProperty('--primary');
             document.documentElement.style.removeProperty('--ring');
+            document.documentElement.style.removeProperty('--headmate-white');
             document.body.style.removeProperty('--primary');
             document.body.style.removeProperty('--ring');
+            document.body.style.removeProperty('--headmate-white');
         }
 
     }, [activeFronters, overrides, members]);

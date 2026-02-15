@@ -38,8 +38,11 @@ const PublicDocViewer = lazy(() => import("@/components/journal/public-doc-viewe
 const queryClient = new QueryClient()
 
 // Check public mode early
-const isPublic = isPublicDomain();
-console.log(`[App Routing] Host: ${window.location.hostname}, Port: ${window.location.port}, isPublic: ${isPublic}`);
+const isPublicByDomain = isPublicDomain();
+const isPkmDomain = window.location.hostname.startsWith('pkm.');
+const isPublic = isPublicByDomain && !isPkmDomain;
+
+console.log(`[Router] Host: ${window.location.hostname}, isPublicByDomain: ${isPublicByDomain}, isPkm: ${isPkmDomain}, Result Public: ${isPublic}`);
 
 // Set branding immediately (before React mounts)
 if (typeof document !== 'undefined') {
@@ -76,7 +79,7 @@ function AppContent() {
           : window.location.hostname.includes('blog')
             ? "blog loading..."
             : "house of mates loading...")
-        : "loading..."}
+        : `loading ${isPkmDomain ? 'pkm' : 'app'}...`}
     </div>
   );
 

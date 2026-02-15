@@ -2,7 +2,6 @@
 import { useCollections } from '@/hooks/use-collections';
 import { CollectionCard } from '@/features/collections/components/collection-card';
 import { useAuth } from '@/contexts/auth-context';
-import { NocoBaseClient } from '@/api/nocobase-client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CollectionDialog } from '@/features/collections/components/collection-dialog';
 import { Input } from '@/components/ui/input';
@@ -86,13 +85,13 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     const navigate = useNavigate();
     const location = useLocation();
 
-    console.log('DatabasesPage:', { 
-        isAuthenticated, 
+    console.log('DatabasesPage:', {
+        isAuthenticated,
         hasToken: !!token,
         token: token?.substring(0, 20) + '...',
-        collectionsCount: collections.length, 
-        loading, 
-        error 
+        collectionsCount: collections.length,
+        loading,
+        error
     });
 
     const [dbOrder, setDbOrder] = useAppSetting<string[]>('database_order', []);
@@ -117,8 +116,9 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [location, navigate]);
 
-    // 1. Filter out pkm_canvases from collections
-    const filteredCollections = collections.filter(c => c.name !== 'pkm_canvases');
+    // 1. Filter out internal collections from grid
+    const FORBIDDEN_COLLECTIONS = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates'];
+    const filteredCollections = collections.filter((c: Collection) => !FORBIDDEN_COLLECTIONS.includes(String(c.name).toLowerCase()));
 
     // 2. Extract Docs and Drawings from Sidebar Items
     // We treat them as "Pseudo Collections" so they can live in the grid
@@ -223,8 +223,8 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
                                 your token is stored locally.
                             </p>
                         </div>
-                        <Button 
-                            className="w-full lowercase" 
+                        <Button
+                            className="w-full lowercase"
                             onClick={handleLogin}
                             disabled={validating || !apiKey}
                         >

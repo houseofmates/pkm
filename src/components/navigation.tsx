@@ -285,25 +285,30 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
 
         if (collections.length === 0 && items.length === 0 && localItems.length === 0) return;
 
-        // Filter out internal collections like pkm_canvases
-        const visibleCollections = collections.filter((c: any) => c.name !== 'pkm_canvases');
+        // 0. Aggressive Pruning: Remove names that should NEVER be in the sidebar
+        const FORBIDDEN_COLLECTIONS = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates'];
+
+        // Filter out pkm_canvases and others from incoming collections
+        const visibleCollections = collections.filter((c: any) => !FORBIDDEN_COLLECTIONS.includes(String(c.name).toLowerCase()));
         const collectionNames = new Set(visibleCollections.map((c: any) => String(c.name).toLowerCase()));
 
-        // 1. Filter out items that were collections but are no longer in the DB (or are hidden)
+        // 1. Filter out items that were collections but are no longer in the DB (or are hidden/forbidden)
         const filteredItems = items.filter(item => {
-            // Always hide pkm_canvases if it was previously added
-            if (item.id === 'pkm_canvases') return false;
+            const itemIdLower = String(item.id).toLowerCase();
+
+            // Hard block forbidden collections
+            if (FORBIDDEN_COLLECTIONS.includes(itemIdLower)) return false;
 
             if (item.type === 'collection') {
                 // If it's a doc, keep it if it exists in localItems
-                if (String(item.id).startsWith('doc_')) {
+                if (itemIdLower.startsWith('doc_')) {
                     return localItems.some(d => d.id === item.id);
                 }
                 // If it's a drawing, keep it if it exists in localItems
-                if (String(item.id).startsWith('drawing_')) {
+                if (itemIdLower.startsWith('drawing_')) {
                     return localItems.some(d => d.id === item.id);
                 }
-                return collectionNames.has(String(item.id).toLowerCase());
+                return collectionNames.has(itemIdLower);
             }
             return true;
         });
@@ -486,7 +491,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                         <div className="bg-popover border p-4 rounded-lg shadow-lg w-full max-w-xs">
                             <h3 className="font-semibold mb-2">create folder</h3>
                             <Input
-                                placeholder="Folder Name"
+                                placeholder="folder name"
                                 value={newFolderName}
                                 onChange={e => setNewFolderName(e.target.value)}
                                 autoFocus

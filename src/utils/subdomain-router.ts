@@ -1,11 +1,11 @@
 
 export const getSubdomain = () => {
     const hostname = window.location.hostname;
+
     // Handle localhost and IP addresses
     if (hostname.includes('localhost') || hostname.match(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/)) {
-        // For testing locally, we can simulate a subdomain via localStorage or a query param if needed
-        // Or checking hosts file mapping like "test.localhost"
         const parts = hostname.split('.');
+        // If we have something like "dupe.localhost"
         if (parts.length > 1 && parts[0] !== 'www' && !hostname.match(/^\d/)) {
             return parts[0];
         }
@@ -13,13 +13,19 @@ export const getSubdomain = () => {
     }
 
     const parts = hostname.split('.');
-    // Removing TLD and SLD (e.g. houseofmates.space)
-    // If parts > 2, the first part is likely a subdomain
-    if (parts.length > 2) {
-        // Check for 'www' or standard
-        if (parts[0] === 'www') return parts[1] === 'houseofmates' ? null : parts[1];
+
+    // If we have "dupe.houseofmates.space" (length 3)
+    if (parts.length === 3) {
+        if (parts[0] === 'www') return null;
         return parts[0];
     }
+
+    // If we have "some.sub.houseofmates.space" (length > 3)
+    if (parts.length > 3) {
+        return parts[0];
+    }
+
+    // Root domain ("houseofmates.space")
     return null;
 };
 
@@ -29,27 +35,36 @@ export const isPublicDomain = () => {
     const search = window.location.search;
 
     // EXPLICIT INCLUDE: Port 3010/3001 is always public builder
-    if (port === '3010' || port === '3001') return true;
+    if (port === '3010' || port === '3001') {
+        console.log(`[Router] Public by Port: ${port}`);
+        return true;
+    }
 
     const subdomain = getSubdomain();
 
     // EXPLICIT EXCLUSION: pkm is always the private app
-    if (subdomain === 'pkm') return false;
+    if (subdomain === 'pkm') {
+        console.log('[Router] Private: PKM subdomain detected');
+        return false;
+    }
 
     // For local dev, we can use a query param
     if (search.includes('mode=public')) return true;
 
     // Treat local IP or localhost as public IF it's on the specific ports
-    // But if it's on 3000, it's likely the pkm app
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
-        if (port === '3010' || port === '3001') return true;
-        return false;
+        return port === '3010' || port === '3001';
     }
 
-    // EXPLICIT MARKER for configured primary domain
-    // Any subdomain (except pkm, handled above) on the primary domain is PUBLIC
-    const primaryDomain = import.meta.env.VITE_DOMAIN || 'localhost';
-    if (hostname.includes(primaryDomain) && primaryDomain !== 'localhost') {
+    // Root domain ("houseofmates.space") is PUBLIC
+    if (hostname === 'houseofmates.space') {
+        console.log('[Router] Public: Root domain houseofmates.space detected');
+        return true;
+    }
+
+    // Any other subdomain on houseofmates.space (except pkm) is PUBLIC
+    if (hostname.endsWith('.houseofmates.space')) {
+        console.log(`[Router] Public: Subdomain ${subdomain} on houseofmates.space detected`);
         return true;
     }
 

@@ -103,7 +103,7 @@ type ContextMenuState =
 // --- MAIN COMPONENT ---
 export function HouseofmatesBuilder() {
     const { slug = 'home' } = useParams();
-    const site_identifier = getSubdomain() || 'default';
+    const site_identifier = getSubdomain() || 'home';
 
     const getCollectionNames = (site: string) => {
         if (site === 'dupe') {
@@ -217,12 +217,12 @@ export function HouseofmatesBuilder() {
         console.log('[HouseofmatesBuilder] fetchPage called', { slug, site_identifier });
         console.log('[HouseofmatesBuilder] collectionNames:', collectionNames);
         setLoading(true);
-        
+
         try {
             console.log('[HouseofmatesBuilder] About to make API request to:', collectionNames.website);
             console.log('[HouseofmatesBuilder] api object:', api);
             console.log('[HouseofmatesBuilder] api.request:', typeof api.request);
-            
+
             let pageRes;
             try {
                 console.log('[HouseofmatesBuilder] Calling api.request...');
@@ -294,7 +294,7 @@ export function HouseofmatesBuilder() {
             if (error.response) {
                 console.error('Error response data:', error.response.data);
                 console.error('Error response status:', error.response.status);
-                
+
                 // Handle 401 specifically
                 if (error.response.status === 401) {
                     console.warn('[HouseofmatesBuilder] 401 Unauthorized - prompting for login');
@@ -310,17 +310,17 @@ export function HouseofmatesBuilder() {
     }, [slug, site_identifier, collectionNames]);
 
     const hasFetchedRef = useRef(false);
-    
+
     useEffect(() => {
         // Only fetch once on mount
         if (hasFetchedRef.current) {
             console.log('[HouseofmatesBuilder] Skipping duplicate fetch');
             return;
         }
-        
+
         console.log('[HouseofmatesBuilder] init useEffect running');
         hasFetchedRef.current = true;
-        
+
         const key = localStorage.getItem('hom_api_key');
         if (key && key !== 'null' && key !== 'undefined') {
             setIsAdmin(true);
@@ -332,7 +332,7 @@ export function HouseofmatesBuilder() {
                 console.error('background collection setup failed:', err);
             });
         }
-        
+
         fetchPage();
     }, []);
 
@@ -343,7 +343,7 @@ export function HouseofmatesBuilder() {
             // Save token directly - it will be validated on first actual API call
             // This avoids timeout issues during login
             localStorage.setItem('hom_api_key', apiKey);
-            
+
             setIsAdmin(true);
             setShowLoginModal(false);
             toast.success('admin mode enabled');
@@ -632,14 +632,14 @@ export function HouseofmatesBuilder() {
             console.error('[Builder] Cannot update page - no page loaded');
             return;
         }
-        
+
         if (!isAdmin) {
             console.error('[Builder] Cannot update page - not logged in as admin');
             toast.error('you must be logged in as admin to edit');
             setShowLoginModal(true);
             return;
         }
-        
+
         const newPage = { ...page, ...updates };
         addToHistory(newPage);
         setPage(newPage);

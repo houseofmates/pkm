@@ -87,7 +87,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
         // Stash config
         localStorage.setItem(`canvas-config-${id}`, JSON.stringify({ title: "untitled document", mode }));
         navigate(`/canvas/${id}`);
-        setOpen(false);
+        if (setOpen) setOpen(false);
     };
 
     const handleTemplateSelect = (template: typeof TRACKING_TEMPLATES[0] | null) => {
@@ -127,7 +127,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
             // Fetch collections list for relation targets
             client.listCollections().then(res => {
                 // Filter out system and backend collections
-                const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers'];
+                const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers', 'site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates'];
                 const filteredCollections = res.data.filter((col: Collection) => {
                     const name = (col.name || '').toLowerCase().trim();
                     const title = (col.title || '').toLowerCase().trim();
@@ -211,8 +211,8 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                         toast.success(`parsed ${data.length} rows and ${fields.length} columns`);
                     }
                 },
-                error: (err) => {
-                    toast.error("failed to parse CSV: " + err.message);
+                error: (err: any) => {
+                    toast.error("failed to parse csv: " + err.message);
                 }
             });
         });
@@ -353,7 +353,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
             }));
 
             toast.success(isEdit ? "database updated" : (csvData.length > 0 ? "database imported successfully" : "database created"));
-            setOpen(false);
+            if (setOpen) setOpen(false);
             onSuccess();
         } catch (error: any) {
             console.error(error);
@@ -604,7 +604,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                                                                     }}
                                                                 >
                                                                     <SelectTrigger className="h-8 text-xs border-primary/50 bg-primary/5">
-                                                                        <SelectValue placeholder="Target collection..." />
+                                                                        <SelectValue placeholder="target collection..." />
                                                                     </SelectTrigger>
                                                                     <SelectContent>
                                                                         {collectionsList.map(c => (
@@ -616,7 +616,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                                                             {field.interface === 'formula' && (
                                                                 <Input
                                                                     className="h-8 text-xs border-primary/50 bg-primary/5 font-mono"
-                                                                    placeholder="Formula (e.g. {{price}} * 0.1)..."
+                                                                    placeholder="formula (e.g. {{price}} * 0.1)..."
                                                                     value={field.expression || ''}
                                                                     onChange={(e) => {
                                                                         const newFields = [...csvFields];
