@@ -1,28 +1,4 @@
-import { useState } from 'react';
-import { Star, Send, Loader2 } from 'lucide-react';
-import { api } from '@/api/nocobase-client';
-import { toast } from 'sonner';
-import { getSubdomain } from '@/utils/subdomain-router';
-
-interface FormField {
-    id: string;
-    type: 'text' | 'textarea' | 'number' | 'email' | 'rating' | 'dropdown' | 'checkbox';
-    label: string;
-    placeholder?: string;
-    required?: boolean;
-    options?: string[]; // For dropdown
-}
-
-interface FormElementData {
-    id: string;
-    type: 'form';
-    formName: string;
-    fields: FormField[];
-    submitButtonText: string;
-    successMessage: string;
-    styles?: Record<string, any>;
-}
-
+// --- FORM RENDERER (User-facing) ---
 interface FormRendererProps {
     element: FormElementData;
     isAdmin?: boolean;
@@ -34,7 +10,6 @@ export function FormRenderer({ element, isAdmin }: FormRendererProps) {
     const [submitted, setSubmitted] = useState(false);
     const [rating, setRating] = useState(0);
     const [hoverRating, setHoverRating] = useState(0);
-
     const site_identifier = getSubdomain() || 'default';
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -43,13 +18,10 @@ export function FormRenderer({ element, isAdmin }: FormRendererProps) {
             toast.info('form submission disabled in admin mode');
             return;
         }
-
         setSubmitting(true);
         try {
-            // Find the rating field if any
             const ratingField = element.fields.find(f => f.type === 'rating');
             const ratingValue = ratingField ? rating : undefined;
-
             await api.createRecord('forms', {
                 site: site_identifier,
                 form_name: element.formName,
@@ -59,7 +31,6 @@ export function FormRenderer({ element, isAdmin }: FormRendererProps) {
                 message: formData.message || formData.feedback || formData.content || null,
                 submitted_at: new Date().toISOString(),
             });
-
             setSubmitted(true);
             toast.success(element.successMessage || 'submitted!');
         } catch (error: any) {
@@ -91,15 +62,13 @@ export function FormRenderer({ element, isAdmin }: FormRendererProps) {
             onClick={(e) => e.stopPropagation()}
         >
             <h3 className="text-2xl font-bold text-[var(--primary)] mb-6 lowercase">{element.formName}</h3>
-
             <div className="space-y-4">
-                {element.fields.map((field) => (
+                {(element.fields || []).map((field) => (
                     <div key={field.id} className="flex flex-col gap-2">
                         <label className="text-white/70 text-sm lowercase">
                             {field.label}
                             {field.required && <span className="text-red-400 ml-1">*</span>}
                         </label>
-
                         {field.type === 'text' && (
                             <input
                                 type="text"
@@ -109,17 +78,6 @@ export function FormRenderer({ element, isAdmin }: FormRendererProps) {
                                 onChange={(e) => handleChange(field.id, e.target.value)}
                             />
                         )}
-
-                        {field.type === 'email' && (
-                            <input
-                                type="email"
-                                placeholder={field.placeholder}
-                                required={field.required}
-                                className="px-4 py-3 rounded-xl bg-black/50 border border-white/20 text-white placeholder-white/30 focus:border-[var(--primary)] focus:outline-none transition-colors"
-                                onChange={(e) => handleChange(field.id, e.target.value)}
-                            />
-                        )}
-
                         {field.type === 'number' && (
                             <input
                                 type="number"
@@ -129,7 +87,6 @@ export function FormRenderer({ element, isAdmin }: FormRendererProps) {
                                 onChange={(e) => handleChange(field.id, e.target.value)}
                             />
                         )}
-
                         {field.type === 'textarea' && (
                             <textarea
                                 placeholder={field.placeholder}
@@ -139,33 +96,15 @@ export function FormRenderer({ element, isAdmin }: FormRendererProps) {
                                 onChange={(e) => handleChange(field.id, e.target.value)}
                             />
                         )}
-
-                        {field.type === 'rating' && (
-                            <div className="flex gap-2">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                    <button
-                                        key={star}
-                                        type="button"
-                                        onClick={() => {
-                                            setRating(star);
-                                            handleChange(field.id, star);
-                                        }}
-                                        onMouseEnter={() => setHoverRating(star)}
-                                        onMouseLeave={() => setHoverRating(0)}
-                                        className="p-1 transition-transform hover:scale-110"
-                                    >
-                                        <Star
-                                            size={28}
-                                            className={`transition-colors ${(hoverRating || rating) >= star
-                                                ? 'fill-[var(--primary)] text-[var(--primary)]'
-                                                : 'text-white/30'
-                                                }`}
-                                        />
-                                    </button>
-                                ))}
-                            </div>
+                        {field.type === 'email' && (
+                            <input
+                                type="email"
+                                placeholder={field.placeholder}
+                                required={field.required}
+                                className="px-4 py-3 rounded-xl bg-black/50 border border-white/20 text-white placeholder-white/30 focus:border-[var(--primary)] focus:outline-none transition-colors"
+                                onChange={(e) => handleChange(field.id, e.target.value)}
+                            />
                         )}
-
                         {field.type === 'dropdown' && field.options && (
                             <select
                                 required={field.required}
@@ -173,12 +112,11 @@ export function FormRenderer({ element, isAdmin }: FormRendererProps) {
                                 onChange={(e) => handleChange(field.id, e.target.value)}
                             >
                                 <option value="">{field.placeholder || 'select...'}</option>
-                                {field.options.map((opt) => (
-                                    <option key={opt} value={opt}>{opt}</option>
+                                {field.options.map((opt, i) => (
+                                    <option key={i} value={opt}>{opt}</option>
                                 ))}
                             </select>
                         )}
-
                         {field.type === 'checkbox' && (
                             <label className="flex items-center gap-3 cursor-pointer">
                                 <input
@@ -189,14 +127,37 @@ export function FormRenderer({ element, isAdmin }: FormRendererProps) {
                                 <span className="text-white/70">{field.placeholder}</span>
                             </label>
                         )}
+                        {field.type === 'rating' && (
+                            <div className="flex gap-1 items-center">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <button
+                                        key={star}
+                                        type="button"
+                                        className="focus:outline-none"
+                                        onClick={() => setRating(star)}
+                                        onMouseEnter={() => setHoverRating(star)}
+                                        onMouseLeave={() => setHoverRating(0)}
+                                    >
+                                        <Star
+                                            size={24}
+                                            className={`transition-colors ${
+                                                (hoverRating || rating) >= star
+                                                ? 'fill-[var(--primary)] text-[var(--primary)]'
+                                                : 'text-white/30'
+                                                }`}
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
-
             <button
                 type="submit"
                 disabled={submitting}
                 className="mt-6 w-full py-4 px-6 rounded-xl selected-icon-btn font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                style={{ marginTop: '2rem' }}
             >
                 {submitting ? (
                     <>
@@ -212,6 +173,30 @@ export function FormRenderer({ element, isAdmin }: FormRendererProps) {
             </button>
         </form>
     );
+}
+import { useState } from 'react';
+import { Star, Send, Loader2 } from 'lucide-react';
+import { api } from '@/api/nocobase-client';
+import { toast } from 'sonner';
+import { getSubdomain } from '@/utils/subdomain-router';
+
+interface FormField {
+    id: string;
+    type: 'text' | 'textarea' | 'number' | 'email' | 'rating' | 'dropdown' | 'checkbox';
+    label: string;
+    placeholder?: string;
+    required?: boolean;
+    options?: string[]; // For dropdown
+}
+
+interface FormElementData {
+    id: string;
+    type: 'form';
+    formName: string;
+    fields: FormField[];
+    submitButtonText: string;
+    successMessage: string;
+    styles?: Record<string, any>;
 }
 
 // --- FORM BUILDER (Admin) ---
@@ -316,6 +301,70 @@ export function FormBuilder({ onSave, onCancel, initialData }: FormBuilderProps)
                                             required
                                         </label>
                                     </div>
+                                    {/* Dropdown options editor */}
+                                    {field.type === 'dropdown' && (
+                                        <div className="ml-6 mt-2">
+                                            <label className="text-white/60 text-xs mb-1 block">dropdown options</label>
+                                            <ul className="space-y-1 mb-2">
+                                                {(field.options || []).map((opt, optIdx) => (
+                                                    <li key={optIdx} className="flex items-center gap-2">
+                                                        <input
+                                                            type="text"
+                                                            value={opt}
+                                                            onChange={e => {
+                                                                const newOptions = [...(field.options || [])];
+                                                                newOptions[optIdx] = e.target.value;
+                                                                updateField(field.id, { options: newOptions });
+                                                            }}
+                                                            className="px-2 py-1 rounded bg-black/40 border border-white/10 text-white/80 text-xs flex-1"
+                                                        />
+                                                        <button
+                                                            type="button"
+                                                            className="text-red-400 hover:text-red-300 text-xs"
+                                                            onClick={() => {
+                                                                const newOptions = [...(field.options || [])];
+                                                                newOptions.splice(optIdx, 1);
+                                                                updateField(field.id, { options: newOptions });
+                                                            }}
+                                                        >
+                                                            ✕
+                                                        </button>
+                                                        {/* drag handle for reordering (future: implement drag+drop) */}
+                                                        {optIdx > 0 && (
+                                                            <button
+                                                                type="button"
+                                                                className="text-white/40 hover:text-white/70 text-xs"
+                                                                onClick={() => {
+                                                                    const newOptions = [...(field.options || [])];
+                                                                    [newOptions[optIdx - 1], newOptions[optIdx]] = [newOptions[optIdx], newOptions[optIdx - 1]];
+                                                                    updateField(field.id, { options: newOptions });
+                                                                }}
+                                                            >↑</button>
+                                                        )}
+                                                        {optIdx < (field.options?.length || 0) - 1 && (
+                                                            <button
+                                                                type="button"
+                                                                className="text-white/40 hover:text-white/70 text-xs"
+                                                                onClick={() => {
+                                                                    const newOptions = [...(field.options || [])];
+                                                                    [newOptions[optIdx + 1], newOptions[optIdx]] = [newOptions[optIdx], newOptions[optIdx + 1]];
+                                                                    updateField(field.id, { options: newOptions });
+                                                                }}
+                                                            >↓</button>
+                                                        )}
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                            <button
+                                                type="button"
+                                                className="px-2 py-1 rounded bg-white/10 text-white/70 text-xs hover:bg-white/20"
+                                                onClick={() => {
+                                                    const newOptions = [...(field.options || []), `option ${((field.options || []).length + 1)}`];
+                                                    updateField(field.id, { options: newOptions });
+                                                }}
+                                            >+ add option</button>
+                                        </div>
+                                    )}
                                 </div>
                             ))}
                         </div>

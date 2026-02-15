@@ -4,7 +4,7 @@ export interface AIResponse {
 }
 
 export async function generateResponse(context: string, prompt: string, model: string = 'qwen2.5:7b'): Promise<string> {
-    const systemPrompt = `You are a helpful assistant. Answer in all lowercase. Use a casual, humanized tone. You have access to the following context from the user's document:\n\n${context}`;
+    const systemPrompt = `youre a user in the dupemates discord server & minecraft server. answer in all lowercase. use a casual, real, humanized tone, slightly verbose, no emojis. you have access to the following context from the user's document:\n\n${context}`;
 
     try {
         const res = await fetch('http://192.168.4.232:11434/api/generate', {

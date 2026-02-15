@@ -3,6 +3,7 @@ import { useCollections } from '@/hooks/use-collections';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Settings2 } from 'lucide-react';
+import { Separator } from '@/components/ui/separator';
 import { CreateFieldDialog } from '@/features/collections/components/create-field-dialog';
 import { toast } from 'sonner';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
@@ -479,26 +480,24 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
 
     return (
         <div className="flex flex-col h-full bg-background animate-in fade-in duration-500">
-            {/* Header */}
-            <div className="flex flex-col bg-card/50 backdrop-blur-sm sticky top-0 z-10 border-b border-primary">
-                <div className="flex items-center justify-between p-4 pb-2">
+            {/* Header — Row 1 (title) + Separator aligned to Sidebar */}
+            <div className="pt-4 shrink-0 bg-card/50 backdrop-blur-sm sticky top-0 z-10 flex flex-col">
+                <div className="flex items-center justify-between px-4 mb-2 h-10">
                     <div className="flex items-center gap-4">
-                        <Button variant="ghost" size="icon" onClick={onBack}>
+                        <Button variant="ghost" size="icon" className="h-10 w-10" onClick={onBack}>
                             <ArrowLeft className="h-5 w-5" />
                         </Button>
-                        <div>
-                            <h2
-                                className="text-xl font-bold lowercase tracking-tight"
-                                style={{ color: collectionColor }}
-                            >
-                                {collection.title || collection.displayName || collection.name}
-                            </h2>
-                        </div>
+                        <h2
+                            className="text-xl font-bold lowercase tracking-tight"
+                            style={{ color: collectionColor }}
+                        >
+                            {collection.title || collection.displayName || collection.name}
+                        </h2>
                     </div>
                     <div className="flex items-center gap-2">
                         <Popover>
                             <PopoverTrigger asChild>
-                                <Button variant="ghost" size="icon">
+                                <Button variant="ghost" size="icon" className="h-10 w-10">
                                     <Settings2 className="h-5 w-5 opacity-50" />
                                 </Button>
                             </PopoverTrigger>
@@ -515,53 +514,54 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                         </Popover>
                     </div>
                 </div>
-
-                {/* View Selector */}
-                <div className="px-4 pb-2">
-                    <Select value={currentView} onValueChange={(v) => setCurrentView(v as ViewType)}>
-                        <SelectTrigger
-                            className="w-full md:w-[240px] h-9 bg-background/50 backdrop-blur border-input/50"
-                            data-view-switcher="true"
-                        >
-                            <SelectValue placeholder="Select View" />
-                        </SelectTrigger>
-                        <SelectContent align="start">
-                            {VIEW_OPTIONS.map((view: any) => (
-                                <SelectItem key={view.id} value={view.id}>
-                                    <div className="flex items-center gap-2 w-full">
-                                        {view.icon && <view.icon className="h-4 w-4 opacity-50 text-primary" />}
-                                        <span>{view.label}</span>
-                                        {defaultView === view.id && <Star className="h-3 w-3 ml-auto fill-current opacity-50 text-primary" />}
-                                    </div>
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                {/* Default View Picker Dialog (Triggered by right-click or 'v') */}
-                <Dialog open={defaultPickerOpen} onOpenChange={setDefaultPickerOpen}>
-                    <DialogContent className="sm:max-w-[300px] p-0 overflow-hidden border-none bg-popover/90 backdrop-blur-xl shadow-2xl">
-                        <DialogHeader className="p-4 pb-2">
-                            <DialogTitle className="text-sm font-medium lowercase opacity-50">set default view</DialogTitle>
-                        </DialogHeader>
-                        <div className="flex flex-col p-1">
-                            {VIEW_OPTIONS.map((view: any) => (
-                                <Button
-                                    key={view.id}
-                                    variant="ghost"
-                                    className="justify-start gap-3 h-10 px-3 lowercase font-normal"
-                                    onClick={() => handleSetDefaultView(view.id as ViewType)}
-                                >
-                                    {view.icon && <view.icon className="h-4 w-4 opacity-50 text-primary" />}
-                                    <span className="flex-1 text-left">{view.label}</span>
-                                    {defaultView === view.id && <Star className="h-3 w-3 fill-current text-primary" />}
-                                </Button>
-                            ))}
-                        </div>
-                    </DialogContent>
-                </Dialog>
+                <Separator className="mb-2 bg-primary" />
             </div>
+
+            {/* Row 2: View Selector (below separator) */}
+            <div className="px-4 pb-2 shrink-0">
+                <Select value={currentView} onValueChange={(v) => setCurrentView(v as ViewType)}>
+                    <SelectTrigger
+                        className="w-full md:w-[240px] h-9 bg-background/50 backdrop-blur border-input/50"
+                        data-view-switcher="true"
+                    >
+                        <SelectValue placeholder="Select View" />
+                    </SelectTrigger>
+                    <SelectContent align="start">
+                        {VIEW_OPTIONS.map((view: any) => (
+                            <SelectItem key={view.id} value={view.id}>
+                                <div className="flex items-center gap-2 w-full">
+                                    {view.icon && <view.icon className="h-4 w-4 opacity-50 text-primary" />}
+                                    <span>{view.label}</span>
+                                    {defaultView === view.id && <Star className="h-3 w-3 ml-auto fill-current opacity-50 text-primary" />}
+                                </div>
+                            </SelectItem>
+                        ))}
+                    </SelectContent>
+                </Select>
+            </div>
+
+            {/* Default View Picker Dialog (Triggered by right-click or 'v') */}
+            <Dialog open={defaultPickerOpen} onOpenChange={setDefaultPickerOpen}>
+                <DialogContent className="sm:max-w-[300px] p-0 overflow-hidden border-none bg-popover/90 backdrop-blur-xl shadow-2xl">
+                    <DialogHeader className="p-4 pb-2">
+                        <DialogTitle className="text-sm font-medium lowercase opacity-50">set default view</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex flex-col p-1">
+                        {VIEW_OPTIONS.map((view: any) => (
+                            <Button
+                                key={view.id}
+                                variant="ghost"
+                                className="justify-start gap-3 h-10 px-3 lowercase font-normal"
+                                onClick={() => handleSetDefaultView(view.id as ViewType)}
+                            >
+                                {view.icon && <view.icon className="h-4 w-4 opacity-50 text-primary" />}
+                                <span className="flex-1 text-left">{view.label}</span>
+                                {defaultView === view.id && <Star className="h-3 w-3 fill-current text-primary" />}
+                            </Button>
+                        ))}
+                    </div>
+                </DialogContent>
+            </Dialog>
 
             {/* Content */}
             <div className="flex-1 overflow-auto p-4 md:p-8">

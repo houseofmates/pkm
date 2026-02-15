@@ -41,45 +41,12 @@ interface WidgetDefinition {
 }
 
 export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKey?: string }) {
-    // --- State ---
-    // Widgets (Synced to Backend)
-    const [widgets, setWidgets] = useAppSetting<WidgetDefinition[]>(layoutKey, []);
-    const { collections } = useCollections();
-    const { client, token, isAuthenticated, login } = useAuth();
-    const [apiKey, setApiKey] = useState('');
-    const [isEditMode, setIsEditMode] = useState(true);
-    const containerRef = useRef<HTMLDivElement>(null);
-    const [addMenuOpen, setAddMenuOpen] = useState(false);
-    const [wizardStep, setWizardStep] = useState<'collection' | 'view'>('collection');
-    const [wizardSearch, setWizardSearch] = useState('');
-    const [selectedCollectionForWizard, setSelectedCollectionForWizard] = useState<string | null>(null);
-    const [localDocs, setLocalDocs] = useState<{ id: string, title: string }[]>([]);
-    const [wizardTab, setWizardTab] = useState<'databases' | 'documents' | 'contacts'>('databases');
-    const { members } = useFronter();
-    const navigate = useNavigate();
-
-    // Load Local Docs
-    useEffect(() => {
-        if (!addMenuOpen) return;
-        const docs: { id: string, title: string }[] = [];
-        for (let i = 0; i < localStorage.length; i++) {
-            const key = localStorage.key(i);
-            if (key && key.startsWith('canvas-config-')) {
-                const id = key.replace('canvas-config-', '');
-                try {
-                    const config = JSON.parse(localStorage.getItem(key) || '{}');
-                    docs.push({ id, title: config.title || 'Untitled Document' });
-                } catch (e) { }
-            }
-        }
-        setLocalDocs(docs);
-    }, [addMenuOpen]);
-
-    // Drawing State
-    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const [cursorMenu, setCursorMenu] = useState<{ open: boolean; x: number; y: number }>({ open: false, x: 0, y: 0 });
     const [drawingTool, setDrawingTool] = useState<'none' | 'pencil' | 'eraser' | 'lasso'>('none');
+    const lastDrawingToolRef = useRef<typeof drawingTool | null>(null);
     const [selectionMode, setSelectionMode] = useState<'free' | 'rect' | 'magic'>('free');
     const [brushColor, setBrushColor] = useState('#ffffff');
+    const lastCursorModeRef = useRef<'select' | 'pan' | null>(null);
     const [brushSize, setBrushSize] = useState(3);
     const [eraserSize, setEraserSize] = useState(20);
     const [colorPickerOpen, setColorPickerOpen] = useState(false);
@@ -123,6 +90,45 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
 
     const lastSyncedUrlRef = useRef<string | null>(null);
     const canvasDirtyRef = useRef(false);
+    // Auth client and token for uploads/downloads
+    const { client, token, isAuthenticated, login } = useAuth();
+    const [apiKey, setApiKey] = useState('');
+    
+    // Collections and members
+    const { collections } = useCollections();
+    const { members } = useFronter();
+
+    // UI state for widget adding / wizard
+    const [isEditMode, setIsEditMode] = useState(false);
+    const [addMenuOpen, setAddMenuOpen] = useState(false);
+    const [wizardTab, setWizardTab] = useState<'databases'|'documents'|'contacts'>('databases');
+    const [wizardStep, setWizardStep] = useState<'collection'|'view'>('collection');
+    const [wizardSearch, setWizardSearch] = useState('');
+    const [selectedCollectionForWizard, setSelectedCollectionForWizard] = useState<string | null>(null);
+    const [localDocs] = useState<Array<{ id: string, title: string }>>([]);
+
+    // Cursor / selection state
+    const [cursorMode, setCursorMode] = useState<'select'|'pan'>('select');
+    // Widgets state (persisted to localStorage under the layoutKey)
+    const [widgets, setWidgets] = useState<WidgetDefinition[]>(() => {
+        try {
+            const raw = localStorage.getItem(layoutKey);
+            if (raw) return JSON.parse(raw) as WidgetDefinition[];
+        } catch (e) { }
+        return [] as WidgetDefinition[];
+    });
+
+    useEffect(() => {
+        try {
+            localStorage.setItem(layoutKey, JSON.stringify(widgets));
+        } catch (e) { }
+    }, [widgets, layoutKey]);
+
+    // DOM refs and pointer tracking
+    const canvasRef = useRef<HTMLCanvasElement | null>(null);
+    const containerRef = useRef<HTMLDivElement | null>(null);
+    const pointersRef = useRef<Map<number, { x: number; y: number; type: string }>>(new Map());
+    const panningRef = useRef<{ active: boolean; lastX?: number; lastY?: number; lastCentroid?: { x: number; y: number } }>({ active: false });
 
 
     // Internal helper to save current state to undo stack
@@ -446,8 +452,54 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                 e.preventDefault();
                 performRedo();
             }
+
+            // Space: temporary pan while held (press-and-hold to pan)
+            if (e.code === 'Space') {
+                if (!e.repeat) {
+                    // remember previous mode and switch to pan
+                    lastCursorModeRef.current = cursorMode;
+                    setCursorMode('pan');
+                }
+            }
+
+            // E key: if double-pressed, toggle back to last drawing tool before eraser
+            if (e.key.toLowerCase() === 'e') {
+                // simple single/double press detection
+                const now = Date.now();
+                if ((window as any).__lastEPress && now - (window as any).__lastEPress < 400) {
+                    // double press
+                    if (drawingTool === 'eraser' && lastDrawingToolRef.current) {
+                        setDrawingTool(lastDrawingToolRef.current);
+                        lastDrawingToolRef.current = null;
+                    }
+                } else {
+                    // single press: toggle eraser
+                    if (drawingTool === 'eraser') {
+                        // restore last
+                        if (lastDrawingToolRef.current) setDrawingTool(lastDrawingToolRef.current);
+                        else setDrawingTool('none');
+                        lastDrawingToolRef.current = null;
+                    } else {
+                        lastDrawingToolRef.current = drawingTool;
+                        setDrawingTool('eraser');
+                    }
+                }
+                (window as any).__lastEPress = now;
+            }
         };
         window.addEventListener('keydown', handleKeyDown);
+        const handleKeyUp = (e: KeyboardEvent) => {
+            if (e.code === 'Space') {
+                // revert to previous cursor mode when space released
+                if (lastCursorModeRef.current) {
+                    setCursorMode(lastCursorModeRef.current);
+                    lastCursorModeRef.current = null;
+                } else {
+                    setCursorMode('select');
+                }
+            }
+        };
+        window.addEventListener('keyup', handleKeyUp);
 
         // Save local fallback when user leaves the page to avoid losing progress
         const handleBeforeUnload = () => {
@@ -467,6 +519,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
 
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('keyup', handleKeyUp);
             window.removeEventListener('beforeunload', handleBeforeUnload);
         };
     }, [performUndo, performRedo, floatingSelection]);
@@ -1130,8 +1183,13 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                             }}
                             title="cursor (move widgets)"
                             className={drawingTool === 'none' ? "bg-accent" : ""}
+                            onContextMenu={(e) => {
+                                e.preventDefault();
+                                // Toggle persistent cursor mode between select and pan
+                                setCursorMode(prev => prev === 'select' ? 'pan' : 'select');
+                            }}
                         >
-                            <MousePointer2 className="h-4 w-4 text-[var(--primary)]" />
+                            {cursorMode === 'pan' ? <Hand className="h-4 w-4 text-[var(--primary)]" /> : <MousePointer2 className="h-4 w-4 text-[var(--primary)]" />}
                         </Button>
                     </div>
 
@@ -1390,71 +1448,65 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                     containerRef.current = node;
                     setNodeRef(node);
                 }}
-                className={`flex-1 relative bg-[#060606] overflow-auto ${drawingTool === 'none' ? 'cursor-grab active:cursor-grabbing' : (drawingTool === 'eraser' ? 'cursor-none' : 'cursor-crosshair')} ${isOver ? 'ring-2 ring-primary ring-inset' : ''}`}
+                className={`flex-1 relative bg-[#060606] overflow-auto no-scrollbar ${drawingTool === 'none' ? (cursorMode === 'pan' ? 'cursor-grab active:cursor-grabbing' : 'cursor-default') : (drawingTool === 'eraser' ? 'cursor-none' : 'cursor-crosshair')} ${isOver ? 'ring-2 ring-primary ring-inset' : ''}`}
                 onClick={() => setAddMenuOpen(false)}
                 onPointerDown={(e) => {
-                    if (drawingTool === 'none') {
-                        // Check for resize handle interaction first?
-                        // Actually, handles are their own elements with stopPropagation usually, 
-                        // but if we handle it here:
-                        const handleEl = (e.target as HTMLElement).closest('.resize-handle');
-                        if (handleEl) {
-                            // Resize Start Logic handled by the handle's onPointerDown
+                    // Track pointer for multi-touch panning
+                    try {
+                        pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY, type: (e as any).pointerType || 'mouse' });
+                    } catch (err) { }
+
+                    const pointerCount = pointersRef.current.size;
+
+                    // If two-finger touch or mouse drag (left button) and not drawing, start panning
+                    const target = e.target as HTMLElement;
+                    const interactiveHit = !!target.closest('button, input, textarea, a, .interactive-el');
+
+                    if (drawingTool === 'none' && !interactiveHit) {
+                        const handleEl = target.closest('.resize-handle');
+                        if (handleEl) return; // let resize handlers own the event
+
+                        const widgetEl = target.closest('.dashboard-widget');
+                        if (widgetEl && widgets) {
+                            const widgetId = widgetEl.getAttribute('data-id');
+                            if (widgetId) setSelectedWidgetId(widgetId);
+                        } else {
+                            setSelectedWidgetId(null);
+                        }
+
+                        // Mouse: left-button drag to pan
+                        if ((e as any).pointerType === 'mouse' && (e as any).button === 0) {
+                            panningRef.current.active = true;
+                            panningRef.current.lastX = e.clientX;
+                            panningRef.current.lastY = e.clientY;
+                            try { (e.target as Element).setPointerCapture(e.pointerId); } catch (err) { }
+                            e.preventDefault();
                             return;
                         }
 
-                        // Select/Distort logic
-                        const widgetEl = (e.target as HTMLElement).closest('.dashboard-widget');
-                        if (widgetEl && widgets) {
-                            // Find widget ID from element (we need to add data-id to widget)
-                            const widgetId = widgetEl.getAttribute('data-id');
-                            if (widgetId) {
-                                setSelectedWidgetId(widgetId);
-                            }
-                        } else {
-                            // Deselect if clicking background
-                            setSelectedWidgetId(null);
+                        // Touch: start panning when two pointers present
+                        if (pointerCount >= 2 && (Array.from(pointersRef.current.values()).some(p => p.type === 'touch'))) {
+                            // compute centroid
+                            const pts = Array.from(pointersRef.current.values());
+                            const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
+                            const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+                            panningRef.current.active = true;
+                            panningRef.current.lastCentroid = { x: cx, y: cy };
+                            e.preventDefault();
+                            return;
                         }
-                    } else {
-                        // If drawing, deselect?
+                    } else if (drawingTool !== 'none') {
+                        // If drawing, deselect and start drawing if appropriate
                         setSelectedWidgetId(null);
-                    }
-
-                    // Interaction Logic:
-                    // 1. If hitting an interactive element (button, input), let it pass (do nothing)
-                    const target = e.target as HTMLElement;
-                    if (target.closest('button, input, textarea, a, .interactive-el')) return;
-
-                    // 2. Check if hitting a Widget (Card)
-                    // 2. Check if hitting a Widget (Card)
-                    const widgetEl = target.closest('.dashboard-widget');
-
-                    if (drawingTool !== 'none') {
-                        if (widgetEl) {
-                            // Hit a card! Drawing allowed.
-                            // Calculate coordinates relative to the Canvas
-                            const wrapper = canvasRef.current?.parentElement;
-                            if (wrapper) {
-                                const rect = wrapper.getBoundingClientRect();
-                                const x = e.clientX - rect.left;
-                                const y = e.clientY - rect.top;
-
-                                startDrawing(x, y, e.pressure);
-                                e.preventDefault(); // Prevent text selection / native drag
-                                (e.target as Element).setPointerCapture(e.pointerId);
-                            }
-                        } else {
-                            // Hit background (Canvas). Drawing ALLOWED.
-                            const wrapper = canvasRef.current?.parentElement;
-                            if (wrapper) {
-                                const rect = wrapper.getBoundingClientRect();
-                                const x = e.clientX - rect.left;
-                                const y = e.clientY - rect.top;
-
-                                startDrawing(x, y, e.pressure);
-                                e.preventDefault();
-                                (e.target as Element).setPointerCapture(e.pointerId);
-                            }
+                        const widgetEl = target.closest('.dashboard-widget');
+                        const wrapper = canvasRef.current?.parentElement;
+                        if (wrapper) {
+                            const rect = wrapper.getBoundingClientRect();
+                            const x = e.clientX - rect.left;
+                            const y = e.clientY - rect.top;
+                            startDrawing(x, y, (e as any).pressure);
+                            e.preventDefault();
+                            try { (e.target as Element).setPointerCapture(e.pointerId); } catch (err) { }
                         }
                     }
                 }}
@@ -1565,14 +1617,27 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                     }
                 }}
                 onPointerUp={(e) => {
+                    // Remove tracked pointer
+                    try { pointersRef.current.delete(e.pointerId); } catch (err) { }
+
+                    // End panning when appropriate
+                    if (panningRef.current.active) {
+                        const remaining = pointersRef.current.size;
+                        if (remaining < 2 || (e as any).pointerType === 'mouse') {
+                            panningRef.current.active = false;
+                            panningRef.current.lastCentroid = undefined;
+                            try { (e.target as Element).releasePointerCapture(e.pointerId); } catch (err) { }
+                        }
+                    }
+
                     handleCanvasUp();
                     if (isDrawingRef.current) {
-                        (e.target as Element).releasePointerCapture(e.pointerId);
+                        try { (e.target as Element).releasePointerCapture(e.pointerId); } catch (err) { }
                     }
                     // End Resize
                     if (resizeStateRef.current.active) {
                         resizeStateRef.current.active = false;
-                        (e.target as Element).releasePointerCapture(e.pointerId);
+                        try { (e.target as Element).releasePointerCapture(e.pointerId); } catch (err) { }
                     }
                 }}
             >
@@ -1787,20 +1852,49 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                                                         top: h.includes('n') ? -6 : (h.includes('s') ? 'calc(100% - 6px)' : 'calc(50% - 6px)'),
                                                         left: h.includes('w') ? -6 : (h.includes('e') ? 'calc(100% - 6px)' : 'calc(50% - 6px)')
                                                     }}
-                                                    onPointerDown={(e) => {
+                                                    onPointerMove={(e) => {
                                                         e.stopPropagation(); e.currentTarget.setPointerCapture(e.pointerId);
-                                                        const wrapper = canvasRef.current?.parentElement;
-                                                        if (wrapper) {
-                                                            const rect = wrapper.getBoundingClientRect();
-                                                            const x = e.clientX - rect.left;
-                                                            const y = e.clientY - rect.top;
-                                                            resizeStateRef.current = {
-                                                                active: true,
-                                                                handle: h as any,
-                                                                startMouse: { x, y },
-                                                                startWidget: { x: widget.x, y: widget.y, w: widget.w, h: widget.h }
-                                                            };
+
+                                                        // Update tracked pointer position
+                                                        if (pointersRef.current.has(e.pointerId)) {
+                                                            pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY, type: (e as any).pointerType || 'mouse' });
                                                         }
+
+                                                        const wrapper = canvasRef.current?.parentElement;
+                                                        if (!wrapper) return;
+                                                        const rect = wrapper.getBoundingClientRect();
+                                                        const x = e.clientX - rect.left;
+                                                        const y = e.clientY - rect.top;
+
+                                                        // If panning is active, handle scroll updates and skip drawing/resizing
+                                                        if (panningRef.current.active) {
+                                                            const container = containerRef.current;
+                                                            if (container) {
+                                                                // Touch two-finger centroid panning
+                                                                if (panningRef.current.lastCentroid) {
+                                                                    const pts = Array.from(pointersRef.current.values());
+                                                                    const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
+                                                                    const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
+                                                                    const dx = cx - (panningRef.current.lastCentroid.x || cx);
+                                                                    const dy = cy - (panningRef.current.lastCentroid.y || cy);
+                                                                    container.scrollLeft -= dx;
+                                                                    container.scrollTop -= dy;
+                                                                    panningRef.current.lastCentroid = { x: cx, y: cy };
+                                                                } else {
+                                                                    // Mouse drag panning
+                                                                    const dx = e.clientX - panningRef.current.lastX;
+                                                                    const dy = e.clientY - panningRef.current.lastY;
+                                                                    container.scrollLeft -= dx;
+                                                                    container.scrollTop -= dy;
+                                                                    panningRef.current.lastX = e.clientX;
+                                                                    panningRef.current.lastY = e.clientY;
+                                                                }
+                                                            }
+                                                            return;
+                                                        }
+
+                                                        // ALWAYS update mousePos for cursor visualization (Eraser)
+                                                        setMousePos({ x, y });
                                                     }}
                                                 />
                                             ))}

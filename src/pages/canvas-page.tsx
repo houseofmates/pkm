@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Settings, ArrowLeft } from 'lucide-react'
 import { useAppSetting } from '@/hooks/use-app-setting'
+import { Separator } from '@/components/ui/separator'
 
 export function CanvasPage() {
     const { id } = useParams();
@@ -39,6 +40,8 @@ export function CanvasPage() {
 
     const pdfInputRef = useRef<HTMLInputElement>(null);
 
+
+    // --- Header Structure Aligned with Sidebar / Page ---
     return (
         <div className="w-full h-screen relative overflow-hidden bg-background flex flex-col">
             {/* PDF Layer (Background / Full Screen) */}
@@ -55,59 +58,66 @@ export function CanvasPage() {
                 </div>
             )}
 
-            {/* Header */}
-            <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between p-4 pointer-events-none">
-                <div className="flex items-center gap-4 pointer-events-auto bg-background/50 backdrop-blur-sm p-1 rounded-lg border shadow-sm">
-                    <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="h-8 w-8">
-                        <ArrowLeft className="h-4 w-4" />
-                    </Button>
-                    <div className="flex flex-col">
-                        <span className="font-bold text-sm leading-none">{title}</span>
-                        <span className="text-[10px] text-muted-foreground uppercase tracking-widest">canvas</span>
+            {/* Fixed Top Header (Sidebar Alignment) */}
+            <div className="pt-4 shrink-0 bg-background z-50 pointer-events-auto flex flex-col">
+                <div className="px-5 mb-2 h-10 flex items-center justify-between">
+                    {/* Left: Back + Title */}
+                    <div className="flex items-center gap-4">
+                        <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="h-10 w-10">
+                            <ArrowLeft className="h-5 w-5" />
+                        </Button>
+                        <div className="flex flex-col justify-center h-10">
+                            <span className="font-bold text-sm leading-none">{title}</span>
+                            <span className="text-[10px] text-muted-foreground uppercase tracking-widest leading-none mt-1">canvas</span>
+                        </div>
+                    </div>
+
+                    {/* Right: Settings + PDF Upload */}
+                    <div className="flex items-center gap-2">
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-10 w-10">
+                                    <Settings className="h-5 w-5" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80 p-4" align="end">
+                                <DatabaseSettingsForm
+                                    collectionName={id || ''}
+                                    title={title}
+                                    isPage={true}
+                                    onDelete={() => {
+                                        // Handle delete?
+                                        console.log("Delete page", id)
+                                    }}
+                                />
+                                {/* PDF Upload Section injected here or inside form? Injected here is easier for now without huge refactor */}
+                                <div className="mt-4 pt-4 border-t space-y-2">
+                                    <span className="text-xs font-semibold uppercase text-muted-foreground">Document PDF</span>
+                                    <div className="flex gap-2">
+                                        <input
+                                            type="file"
+                                            ref={pdfInputRef}
+                                            className="hidden"
+                                            accept="application/pdf"
+                                            onChange={handlePdfUpload}
+                                        />
+                                        <Button variant="outline" size="sm" className="w-full" onClick={() => pdfInputRef.current?.click()}>
+                                            Upload PDF Layer
+                                        </Button>
+                                    </div>
+                                </div>
+                            </PopoverContent>
+                        </Popover>
                     </div>
                 </div>
-
-                <div className="pointer-events-auto bg-background/50 backdrop-blur-sm p-1 rounded-lg border shadow-sm">
-                    <Popover>
-                        <PopoverTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <Settings className="h-4 w-4" />
-                            </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-80 p-4" align="end">
-                            <DatabaseSettingsForm
-                                collectionName={id || ''}
-                                title={title}
-                                isPage={true}
-                                onDelete={() => {
-                                    // Handle delete?
-                                    console.log("Delete page", id)
-                                }}
-                            />
-                            {/* PDF Upload Section injected here or inside form? Injected here is easier for now without huge refactor */}
-                            <div className="mt-4 pt-4 border-t space-y-2">
-                                <span className="text-xs font-semibold uppercase text-muted-foreground">Document PDF</span>
-                                <div className="flex gap-2">
-                                    <input
-                                        type="file"
-                                        ref={pdfInputRef}
-                                        className="hidden"
-                                        accept="application/pdf"
-                                        onChange={handlePdfUpload}
-                                    />
-                                    <Button variant="outline" size="sm" className="w-full" onClick={() => pdfInputRef.current?.click()}>
-                                        Upload PDF Layer
-                                    </Button>
-                                </div>
-                            </div>
-                        </PopoverContent>
-                    </Popover>
-                </div>
+                <Separator className="mb-2 bg-primary" />
             </div>
 
-            <div className="flex-1 relative z-10 pointer-events-none">
+            {/* Main Canvas Area */}
+            <div className="flex-1 relative overflow-hidden z-10">
                 {/* Canvas elements should be interactive */}
                 <div className="pointer-events-auto w-full h-full">
+                    {/* Toolbar might need z-index adjustment if it overlaps header */}
                     <Toolbar />
                     <CanvasControls />
                     <WilsonChat />
