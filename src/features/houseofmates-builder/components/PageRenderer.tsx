@@ -17,7 +17,7 @@ import {
     CountdownTimer,
     AboutSection,
     Gallery,
-    Testimonial,
+    Testimonial, SlickButton,
     Divider,
     PDFElement,
     CodeElement,
@@ -216,7 +216,7 @@ export function PageRenderer() {
     // Responsive Canvas Styling
     const isDesktop = previewMode === 'desktop';
     const canvasStyle: React.CSSProperties = {
-        background: page.background || '#060606',
+        background: page.background || '#050505',
         height: isDesktop ? (page.height ? `${page.height}px` : 'auto') : '100%',
         minHeight: isDesktop ? '100vh' : '100%',
     };
@@ -756,7 +756,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
                 navigator.clipboard.writeText(textToCopy);
                 toast.success('copied to clipboard!', {
                     icon: '📋',
-                    style: { backgroundColor: '#0c0c0c', color: 'var(--primary)', border: '1px solid rgba(255,255,255,0.1)' }
+                    style: { backgroundColor: '#050505', color: 'var(--primary)', border: '1px solid rgba(255,255,255,0.1)' }
                 });
             }
         }
@@ -851,15 +851,17 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
             case 'image':
                 return <img src={element.content?.url} alt={element.content?.alt} className="w-full h-full object-cover rounded-xl pointer-events-none" />;
             case 'button':
+            case 'slick_button':
                 return (
-                    <button className="w-full h-full flex items-center justify-center font-bold transition-transform active:scale-95 leading-none" style={{
-                        backgroundColor: element.content?.bgColor || 'var(--primary)',
-                        color: element.content?.textColor || '#000',
-                        borderRadius: element.styles?.borderRadius || 8,
-                        fontSize: 'inherit',
-                    }}>
-                        {element.content?.text || 'button'}
-                    </button>
+                    <SlickButton
+                        text={element.content?.text}
+                        url={element.content?.url}
+                        icon={element.content?.icon}
+                        bgColor={element.content?.bgColor}
+                        textColor={element.content?.textColor}
+                        iconColor={element.content?.iconColor}
+                        borderRadius={element.styles?.borderRadius}
+                    />
                 );
             case 'video':
                 return (
@@ -969,7 +971,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
                         height={posH}
                         sort={element.content?.sort}
                         filter={element.content?.filter}
-                        visibleFields={element.content?.visibleFields}
+                        visibleFields={element.content?.visibleFields} isAdmin={isAdmin}
                     />
                 );
             case 'linkcard':

@@ -11,6 +11,7 @@ interface FormField {
     placeholder?: string;
     required?: boolean;
     options?: string[]; // For dropdown
+    optionColors?: string[]; // For dropdown
 }
 
 interface FormElementData {
@@ -86,13 +87,13 @@ export function FormRenderer({ element, isAdmin }: FormRendererProps) {
     return (
         <form
             onSubmit={handleSubmit}
-            className="p-6 rounded-2xl bg-black/30 border border-white/10"
+            className="w-full h-full p-6 rounded-2xl bg-black/30 border border-white/10 flex flex-col"
             style={element.styles}
             onClick={(e) => e.stopPropagation()}
         >
-            <h3 className="text-2xl font-bold text-[var(--primary)] mb-6 lowercase">{element.formName}</h3>
+            <h3 className="text-2xl font-bold text-[var(--primary)] mb-6 lowercase shrink-0">{element.formName}</h3>
 
-            <div className="space-y-4">
+            <div className="space-y-4 flex-1 overflow-y-auto pr-2 custom-scrollbar">
                 {element.fields.map((field) => (
                     <div key={field.id} className="flex flex-col gap-2">
                         <label className="text-white/70 text-sm lowercase">
@@ -173,8 +174,8 @@ export function FormRenderer({ element, isAdmin }: FormRendererProps) {
                                 onChange={(e) => handleChange(field.id, e.target.value)}
                             >
                                 <option value="">{field.placeholder || 'select...'}</option>
-                                {field.options.map((opt) => (
-                                    <option key={opt} value={opt}>{opt}</option>
+                                {field.options.map((opt, idx) => (
+                                    <option key={opt} value={opt} style={{ color: field.optionColors?.[idx] }}>{opt}</option>
                                 ))}
                             </select>
                         )}
@@ -196,7 +197,7 @@ export function FormRenderer({ element, isAdmin }: FormRendererProps) {
             <button
                 type="submit"
                 disabled={submitting}
-                className="mt-6 w-full py-4 px-6 rounded-xl selected-icon-btn font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                className="mt-6 w-full py-4 px-6 rounded-xl selected-icon-btn font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shrink-0"
             >
                 {submitting ? (
                     <>
@@ -316,6 +317,93 @@ export function FormBuilder({ onSave, onCancel, initialData }: FormBuilderProps)
                                             required
                                         </label>
                                     </div>
+                                        {field.type === 'dropdown' && (
+                                            <div className="mt-2 ml-6 space-y-2">
+                                                <label className="text-white/40 text-[10px] uppercase font-black">options (name, color, order)</label>
+                                                <div className="space-y-2">
+                                                    {(field.options || []).map((opt, optIdx) => (
+                                                        <div key={optIdx} className="flex items-center gap-2 bg-white/5 rounded-lg p-2 border border-white/5">
+                                                            <input
+                                                                type="text"
+                                                                value={opt}
+                                                                onChange={(e) => {
+                                                                    const newOpts = [...(field.options || [])];
+                                                                    newOpts[optIdx] = e.target.value;
+                                                                    updateField(field.id, { options: newOpts });
+                                                                }}
+                                                                className="bg-black/30 border border-white/10 rounded px-2 py-1 text-white text-xs flex-1 focus:outline-none"
+                                                            />
+                                                            <input
+                                                                type="color"
+                                                                value={field.optionColors?.[optIdx] || '#ffffff'}
+                                                                onChange={(e) => {
+                                                                    const newColors = [...(field.optionColors || [])];
+                                                                    while (newColors.length < (field.options?.length || 0)) newColors.push('#ffffff');
+                                                                    newColors[optIdx] = e.target.value;
+                                                                    updateField(field.id, { optionColors: newColors });
+                                                                }}
+                                                                className="w-6 h-6 rounded border-none bg-transparent cursor-pointer"
+                                                            />
+                                                            <div className="flex gap-1">
+                                                                <button
+                                                                    onClick={() => {
+                                                                        if (optIdx === 0) return;
+                                                                        const newOpts = [...(field.options || [])];
+                                                                        const newColors = [...(field.optionColors || [])];
+                                                                        [newOpts[optIdx-1], newOpts[optIdx]] = [newOpts[optIdx], newOpts[optIdx-1]];
+                                                                        if (newColors.length > optIdx) {
+                                                                            [newColors[optIdx-1], newColors[optIdx]] = [newColors[optIdx], newColors[optIdx-1]];
+                                                                        }
+                                                                        updateField(field.id, { options: newOpts, optionColors: newColors });
+                                                                    }}
+                                                                    className="text-white/30 hover:text-white disabled:opacity-10"
+                                                                    disabled={optIdx === 0}
+                                                                >
+                                                                    ↑
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        if (optIdx === (field.options?.length || 0) - 1) return;
+                                                                        const newOpts = [...(field.options || [])];
+                                                                        const newColors = [...(field.optionColors || [])];
+                                                                        [newOpts[optIdx+1], newOpts[optIdx]] = [newOpts[optIdx], newOpts[optIdx+1]];
+                                                                        if (newColors.length > optIdx + 1) {
+                                                                            [newColors[optIdx+1], newColors[optIdx]] = [newColors[optIdx], newColors[optIdx+1]];
+                                                                        }
+                                                                        updateField(field.id, { options: newOpts, optionColors: newColors });
+                                                                    }}
+                                                                    className="text-white/30 hover:text-white disabled:opacity-10"
+                                                                    disabled={optIdx === (field.options?.length || 0) - 1}
+                                                                >
+                                                                    ↓
+                                                                </button>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => {
+                                                                    const newOpts = (field.options || []).filter((_, i) => i !== optIdx);
+                                                                    const newColors = (field.optionColors || []).filter((_, i) => i !== optIdx);
+                                                                    updateField(field.id, { options: newOpts, optionColors: newColors });
+                                                                }}
+                                                                className="text-white/30 hover:text-red-400 ml-2"
+                                                            >
+                                                                ✕
+                                                            </button>
+                                                        </div>
+                                                    ))}
+                                                    <button
+                                                        onClick={() => {
+                                                            const newOpts = [...(field.options || []), 'new option'];
+                                                            const newColors = [...(field.optionColors || []), '#ffffff'];
+                                                            updateField(field.id, { options: newOpts, optionColors: newColors });
+                                                        }}
+                                                        className="w-full py-1.5 rounded bg-[var(--primary)]/10 text-[var(--primary)] text-[10px] font-bold uppercase hover:bg-[var(--primary)]/20 border border-[var(--primary)]/20"
+                                                    >
+                                                        + add option
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        )}
+
                                 </div>
                             ))}
                         </div>

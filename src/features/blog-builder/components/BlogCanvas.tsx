@@ -641,7 +641,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
                 navigator.clipboard.writeText(textToCopy);
                 toast.success('copied to clipboard!', {
                     icon: '📋',
-                    style: { backgroundColor: '#0c0c0c', color: 'var(--primary)', border: '1px solid rgba(255,255,255,0.1)' }
+                    style: { backgroundColor: '#050505', color: 'var(--primary)', border: '1px solid rgba(255,255,255,0.1)' }
                 });
             }
         }

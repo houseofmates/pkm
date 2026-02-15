@@ -24,7 +24,7 @@ export function AdminLoginModal({ isOpen, onClose, onLogin }: Props) {
 
     return (
         <div className="fixed inset-0 z-[50000] flex items-center justify-center bg-black/80 backdrop-blur-sm">
-            <div className="bg-[#0c0c0c] rounded-2xl p-8 w-full max-w-md border border-white/10 shadow-2xl animate-bounce-up">
+            <div className="bg-[#050505] rounded-2xl p-8 w-full max-w-md border border-white/10 shadow-2xl animate-bounce-up">
                 <div className="flex justify-between items-center mb-6">
                     <h2 className="text-2xl font-bold text-[var(--primary)] lowercase">admin login</h2>
                     <button onClick={onClose} className="text-white/40 hover:text-white transition-colors">

@@ -383,7 +383,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                                 onTabChange(tab.id as any);
                                 onSelectCollection(null);
                             }}
-                            title={tab.label}
+                            title={tab.label} aria-label={tab.label}
                         >
                             <tab.icon className="h-5 w-5" />
                         </Button>

@@ -979,7 +979,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
     return (
         <div className="flex flex-col h-full bg-background overflow-hidden relative no-scrollbar">
             {/* Toolbar */}
-            <div className="flex items-center justify-between p-4 border-b border-primary bg-background z-[70] shadow-sm h-16 relative">
+            <div className="flex items-center justify-between px-4 pt-4 pb-2 border-b border-primary bg-background z-[70] shadow-sm sticky top-0 relative">
                 <div className="flex items-center gap-2">
                     {/* Grid Icon Removed */}
                     {isOver && <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full animate-pulse">drop to add</span>}

@@ -94,14 +94,14 @@ export function RootLayout() {
     const isHouseFronting = activeFronters.length > 0;
 
     // Get the color from the fronting member
-    let activeColor = "#f6b012"; // Default color
+    let activeColor = "#f5af12"; // Default color
     if (activeFronters.length > 0) {
         const fronterId = activeFronters[0];
         console.log('Getting color for fronter:', fronterId);
         console.log('Overrides:', overrides[fronterId]);
         console.log('Member from list:', members.find(m => m.id === fronterId));
         // Try to get color from overrides first, then from members data
-        activeColor = overrides[fronterId]?.color || members.find(m => m.id === fronterId)?.color || "#f6b012";
+        activeColor = overrides[fronterId]?.color || members.find(m => m.id === fronterId)?.color || "#f5af12";
         console.log('Final active color:', activeColor);
     } else {
         console.log('No fronters, using default color:', activeColor);

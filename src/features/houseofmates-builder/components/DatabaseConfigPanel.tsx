@@ -88,7 +88,7 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
     return (
         <div className="fixed inset-0 z-[30000] flex items-center justify-center bg-black/80 builder-modal" onClick={onClose}>
             <div
-                className="bg-[#0c0c0c] border border-white/10 rounded-2xl p-6 w-[400px] max-h-[90vh] overflow-y-auto"
+                className="bg-[#050505] border border-white/10 rounded-2xl p-6 w-[400px] max-h-[90vh] overflow-y-auto"
                 onClick={e => e.stopPropagation()}
             >
                 <div className="flex justify-between items-center mb-6">
@@ -143,9 +143,9 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
                                     onChange={(e) => setSortField(e.target.value)}
                                     className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white appearance-none cursor-pointer lowercase"
                                 >
-                                    <option value="" className="bg-[#0c0c0c]">no sorting</option>
+                                    <option value="" className="bg-[#050505]">no sorting</option>
                                     {fields.map(f => (
-                                        <option key={f.name} value={f.name} className="bg-[#0c0c0c]">
+                                        <option key={f.name} value={f.name} className="bg-[#050505]">
                                             {f.title || f.name}
                                         </option>
                                     ))}
@@ -187,9 +187,9 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
                                     onChange={(e) => setFilterField(e.target.value)}
                                     className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white appearance-none cursor-pointer lowercase"
                                 >
-                                    <option value="" className="bg-[#0c0c0c]">no filter</option>
+                                    <option value="" className="bg-[#050505]">no filter</option>
                                     {fields.map(f => (
-                                        <option key={f.name} value={f.name} className="bg-[#0c0c0c]">
+                                        <option key={f.name} value={f.name} className="bg-[#050505]">
                                             {f.title || f.name}
                                         </option>
                                     ))}
@@ -205,10 +205,10 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
                                             onChange={(e) => setFilterOp(e.target.value)}
                                             className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white appearance-none cursor-pointer lowercase"
                                         >
-                                            <option value="$eq" className="bg-[#0c0c0c]">equals</option>
-                                            <option value="$ne" className="bg-[#0c0c0c]">not equal</option>
-                                            <option value="$includes" className="bg-[#0c0c0c]">contains</option>
-                                            <option value="$notIncludes" className="bg-[#0c0c0c]">does not contain</option>
+                                            <option value="$eq" className="bg-[#050505]">equals</option>
+                                            <option value="$ne" className="bg-[#050505]">not equal</option>
+                                            <option value="$includes" className="bg-[#050505]">contains</option>
+                                            <option value="$notIncludes" className="bg-[#050505]">does not contain</option>
                                         </select>
                                         <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
                                     </div>

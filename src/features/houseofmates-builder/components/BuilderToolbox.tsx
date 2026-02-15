@@ -486,7 +486,7 @@ export function BuilderToolbox() {
 
             {/* Toolbox Panel */}
             {isOpen && (
-                <div className="fixed bottom-24 right-8 w-96 bg-[#0c0c0c] border border-white/10 rounded-2xl overflow-hidden z-[40000]">
+                <div className="fixed bottom-24 right-8 w-96 bg-[#050505] border border-white/10 rounded-2xl overflow-hidden z-[40000]">
                     {/* Tabs */}
                     <div className="flex border-b border-white/10 overflow-x-auto">
                         {(['basic', 'home', 'website', 'minecraft', 'media', 'integrations', 'embeds'] as TabType[]).map((tab) => (
@@ -513,7 +513,7 @@ export function BuilderToolbox() {
                         {activeTab === 'basic' && (
                             <div className="grid grid-cols-2 gap-3">
                                 <ToolButton icon={<Type className="w-5 h-5" />} label="text" onClick={handleAddText} />
-                                <ToolButton icon={<MousePointerClick className="w-5 h-5" />} label="button" onClick={handleAddButton} />
+                                <ToolButton icon={<MousePointerClick className="w-5 h-5" />} label="slick button" onClick={handleAddButton} />
                                 <ToolButton icon={<Square className="w-5 h-5" />} label="shape" onClick={handleAddShape} />
                                 <ToolButton icon={<Layout className="w-5 h-5" />} label="container" onClick={handleAddContainer} />
                                 <ToolButton icon={<FileText className="w-5 h-5" />} label="form" onClick={() => setShowFormBuilder(true)} />

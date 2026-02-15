@@ -943,7 +943,7 @@ export function HouseofmatesBuilder() {
                             navigator.clipboard.writeText(textToCopy);
                             toast.success('copied to clipboard!', {
                                 icon: '📋',
-                                style: { backgroundColor: '#0c0c0c', color: 'var(--primary)', border: '1px solid rgba(255,255,255,0.1)' }
+                                style: { backgroundColor: '#050505', color: 'var(--primary)', border: '1px solid rgba(255,255,255,0.1)' }
                             });
                         }
                     }
@@ -957,7 +957,7 @@ export function HouseofmatesBuilder() {
             <div
                 className="min-h-screen w-full relative overflow-hidden"
                 style={{
-                    background: '#060606',
+                    background: '#050505',
                     '--primary': page?.theme_color || 'var(--primary)',
                 } as any}
                 onContextMenu={handleContextMenu}
@@ -1031,7 +1031,7 @@ export function HouseofmatesBuilder() {
                                                     site: site_identifier,
                                                     is_home: true,
                                                     theme_color: 'var(--primary)',
-                                                    background: '#060606',
+                                                    background: '#050505',
                                                     elements: JSON.stringify([])
                                                 });
                                                 toast.success(`home page created for ${site_identifier}`);
