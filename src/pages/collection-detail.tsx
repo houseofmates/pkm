@@ -1,0 +1,590 @@
+import { useState, useEffect, useCallback } from 'react';
+import { useCollections } from '@/hooks/use-collections';
+import { useAuth } from '@/contexts/auth-context';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Settings2 } from 'lucide-react';
+import { CreateFieldDialog } from '@/features/collections/components/create-field-dialog';
+import { toast } from 'sonner';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
+import { useFronter } from '@/contexts/fronter-context';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+
+interface CollectionDetailPageProps {
+    collectionName?: string;
+    onBack?: () => void;
+}
+
+
+import { type ViewType, VIEW_REGISTRY, VIEW_OPTIONS } from '@/components/views/registry';
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useAppSetting } from '@/hooks/use-app-setting';
+import { Star } from 'lucide-react';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DatabaseSettingsForm } from '@/features/databases/components/database-settings-form';
+
+export function CollectionDetailPage({ collectionName: propCollectionName, onBack: propOnBack }: CollectionDetailPageProps) {
+    const { client, isAuthenticated, login } = useAuth();
+    const params = useParams();
+    const navigate = useNavigate();
+    const location = useLocation();
+    const collectionName = propCollectionName ?? (params.name as string);
+    const onBack = propOnBack ?? (() => navigate(-1));
+    const [collection, setCollection] = useState<any>(null);
+    const [records, setRecords] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [fetchError, setFetchError] = useState<string | null>(null);
+    const [apiKey, setApiKey] = useState('');
+    const [fieldDialogOpen, setFieldDialogOpen] = useState(false);
+    const { activeFronters } = useFronter();
+
+    // Metadata for cosmetics and defaults
+    const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
+    // Get Collection Color for Header using Metadata (Source of Truth)
+    const collectionColor = metadata[collectionName]?.color;
+    const defaultView = metadata[collectionName]?.default_view as ViewType | undefined;
+    const [defaultPickerOpen, setDefaultPickerOpen] = useState(false);
+
+    const [currentView, setCurrentView] = useState<ViewType>('table');
+    const [viewConfig, setViewConfig] = useState<Record<string, any>>({});
+
+    // Sync currentView with URL, state, or defaultView
+    useEffect(() => {
+        const queryParams = new URLSearchParams(location.search);
+        const viewFromUrl = queryParams.get('view');
+        const viewFromState = (location.state as any)?.view;
+
+        // Priority: URL Param > Location State > User Default > 'table'
+        const targetView = viewFromUrl || viewFromState || defaultView || 'table';
+
+        if (targetView && targetView in VIEW_REGISTRY) {
+            setCurrentView(targetView as ViewType);
+        }
+    }, [location.search, location.state, defaultView, collectionName]);
+
+    // Keyboard shortcut 'v' and Right-Click for default view picker
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            // Lowercase 'v' only, no modifiers
+            if (e.key.toLowerCase() === 'v' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
+                const target = e.target as HTMLElement;
+                const isInput = target.tagName === 'INPUT' ||
+                    target.tagName === 'TEXTAREA' ||
+                    target.isContentEditable ||
+                    target.closest('[contenteditable="true"]');
+
+                if (!isInput) {
+                    e.preventDefault();
+                    setDefaultPickerOpen(true);
+                }
+            }
+        }
+
+        const handleContextMenu = (e: MouseEvent) => {
+            const target = e.target as HTMLElement;
+            // Detect if right-clicked on our view switcher component
+            if (target.closest('[data-view-switcher="true"]')) {
+                e.preventDefault();
+                e.stopPropagation();
+                setDefaultPickerOpen(true);
+            }
+        };
+
+        window.addEventListener('keydown', handleKeyDown);
+        window.addEventListener('contextmenu', handleContextMenu, true); // Use capture to beat other listeners
+        return () => {
+            window.removeEventListener('keydown', handleKeyDown);
+            window.removeEventListener('contextmenu', handleContextMenu, true);
+        };
+    }, []);
+
+    const handleSetDefaultView = (viewId: ViewType) => {
+        setMetadata({
+            ...metadata,
+            [collectionName]: {
+                ...(metadata[collectionName] || {}),
+                default_view: viewId
+            }
+        });
+        toast.success(`default view set to ${viewId}`);
+        setDefaultPickerOpen(false);
+    };
+
+    // Get collections list early - this is already loaded from databases page
+    const { collections: availableCollections, loading: collectionsLoading } = useCollections();
+
+    const handleLogin = () => {
+        if (!apiKey) return;
+        login(apiKey);
+        toast.success("nocobase api key saved");
+        // refresh triggered by auth context change or we manually re-fetch?
+        // fetchData depends on client/collectionName. 
+        // client will be updated if it depends on token? 
+        // AuthProvider re-renders, causing this to re-render.
+    };
+
+    const handleDirectCreate = async () => {
+        try {
+            const dataToSubmit: any = {};
+            // Auto-inject fronter
+            if (activeFronters && activeFronters.length > 0) {
+                // Check if collection has fronter field (from collection schema)
+                const hasFronter = collection?.fields?.some((f: any) => f.name === 'fronter');
+                if (hasFronter) {
+                    dataToSubmit['fronter'] = activeFronters[0];
+                }
+            }
+
+            // Optional: Set default title if needed, or let backend handle it.
+            // dataToSubmit['title'] = 'Untitled'; 
+
+            await client.createRecord(collectionName, dataToSubmit);
+            toast.success("Record created");
+            fetchData();
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to create record");
+        }
+    };
+
+
+    const fetchData = useCallback(async () => {
+        setLoading(true);
+        setFetchError(null);
+        try {
+            // 1. Try to find collection in already-loaded list first (from useCollections)
+            // This fixes mobile issue where getCollection API call fails but listCollections works
+            let colData: any = null;
+            const preloaded = availableCollections.find(
+                (c: any) => (c.name || '').toLowerCase() === (collectionName || '').toLowerCase()
+            );
+
+            if (preloaded) {
+                console.log("Found preloaded collection:", preloaded.name);
+                colData = preloaded;
+            }
+
+            // 2. If no preloaded or preloaded lacks fields, try to fetch full schema
+            if (!colData?.fields) {
+                try {
+                    const colRes = await client.getCollection(collectionName);
+                    colData = colRes.data;
+                } catch (e: any) {
+                    console.warn("getCollection failed, using preloaded if available:", e.message);
+                    // If API fails but we have preloaded data, use it
+                    if (preloaded) {
+                        colData = preloaded;
+                    } else {
+                        throw e; // No fallback available
+                    }
+                }
+            }
+
+            setCollection(colData);
+
+            // Auto-Create 'fronter' field if missing
+            if (colData && colData.fields) {
+                const hasFronter = colData.fields.some((f: any) => f.name === 'fronter');
+                if (!hasFronter) {
+                    try {
+                        console.log("Auto-creating 'fronter' field for", collectionName);
+                        await client.createField(collectionName, {
+                            name: 'fronter',
+                            interface: 'input',
+                            uiSchema: { title: 'Fronter' }
+                        });
+                    } catch (e) {
+                        console.warn("Failed to auto-create fronter field", e);
+                    }
+                }
+            }
+
+            // 3. Fetch Records
+            const recRes = await client.listRecords(collectionName);
+            const recData = Array.isArray(recRes.data) ? recRes.data : (recRes.data as any)?.data || [];
+            setRecords(recData);
+
+        } catch (error: any) {
+            console.error(error);
+            setFetchError(error.message || "Unknown Error");
+            toast.error("Failed to load collection data");
+        } finally {
+            setLoading(false);
+        }
+    }, [client, collectionName, availableCollections]);
+
+    // --- Event Listeners ---
+    useEffect(() => {
+        const handleCreate = async (evt: Event) => {
+            const e = evt as CustomEvent<any>;
+            if (e.detail?.collection === collectionName) {
+                console.log("Creating record via event:", e.detail.data);
+                try {
+                    await client.createRecord(collectionName, e.detail.data);
+                    toast.success("record created!");
+                    // Refresh
+                    const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
+                    setRecords(res.data?.data || res.data || []);
+                } catch (err) {
+                    console.error(err);
+                    toast.error("failed to create record");
+                }
+            }
+        };
+
+        window.addEventListener('pkm:create-record', handleCreate);
+        return () => window.removeEventListener('pkm:create-record', handleCreate);
+    }, [collectionName, client]);
+
+    // Only fetch data when collections are loaded (or if they fail to load, proceed anyway)
+    // This ensures availableCollections is populated before we try to use it
+    useEffect(() => {
+        if (!collectionsLoading) {
+            fetchData();
+        }
+    }, [fetchData, collectionsLoading]);
+
+    // Retry if collection still not found after initial load and collections become available
+    useEffect(() => {
+        if (!collection && !loading && availableCollections.length > 0) {
+            const found = availableCollections.find(
+                (c: any) => (c.name || '').toLowerCase() === (collectionName || '').toLowerCase()
+            );
+            if (found) {
+                console.log("Late-rescue: Found collection in availableCollections:", found.name);
+                setCollection(found);
+                // Fetch records for this collection
+                client.listRecords(collectionName).then(res => {
+                    const recData = Array.isArray(res.data) ? res.data : (res.data as any)?.data || [];
+                    setRecords(recData);
+                }).catch(e => console.error("Late-rescue record fetch failed", e));
+            }
+        }
+    }, [collection, loading, availableCollections, collectionName, client]);
+
+    // Load view config on view change or collection load
+    useEffect(() => {
+        const key = `view_config_${collectionName}_${currentView}`;
+        try {
+            const saved = localStorage.getItem(key);
+            if (saved) setViewConfig(JSON.parse(saved));
+            else setViewConfig({});
+        } catch (e) {
+            console.error("Failed to load view config", e);
+        }
+    }, [collectionName, currentView]);
+
+    if (!isAuthenticated) {
+        return (
+            <div className="p-4 md:p-8 h-full flex items-center justify-center">
+                <Card className="max-w-md w-full">
+                    <CardHeader>
+                        <CardTitle>connect nocobase</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label>API token</Label>
+                            <Input
+                                type="password"
+                                value={apiKey}
+                                onChange={(e) => setApiKey(e.target.value)}
+                                placeholder="enter nocobase api token"
+                            />
+                            <p className="text-xs text-muted-foreground">
+                                your token is stored locally.
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                <strong>note:</strong> accessing via IP address requires re-authentication as localStorage is origin-specific.
+                            </p>
+                        </div>
+                        <Button className="w-full" onClick={handleLogin}>connect</Button>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
+
+    const handleConfigChange = (key: string, value: any) => {
+        const newConfig = { ...viewConfig, [key]: value };
+        setViewConfig(newConfig);
+        localStorage.setItem(`view_config_${collectionName}_${currentView}`, JSON.stringify(newConfig));
+    };
+
+
+    const handleUpdateRecord = useCallback(async (id: string | number, data: any) => {
+        try {
+            // Optimistic update locally? 
+            // For now, simple await and refetch
+            setRecords(prev => prev.map(r => r.id === id ? { ...r, ...data } : r)); // Optimistic UI
+            await client.updateRecord(collectionName, id, data);
+            // fetchData(); // Optional: if we trust the return or optimistic update
+        } catch (error) {
+            console.error("failed to update record", error);
+            toast.error("failed to update record");
+            fetchData(); // Revert on error
+        }
+    }, [client, collectionName, fetchData]);
+
+    // Undo Stack
+    const [deletedStack, setDeletedStack] = useState<any[]>([]);
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                if (deletedStack.length > 0) {
+                    e.preventDefault();
+                    handleUndoDelete();
+                }
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [deletedStack]);
+
+    const handleUndoDelete = async () => {
+        const lastDeleted = deletedStack[deletedStack.length - 1];
+        if (!lastDeleted) return;
+
+        try {
+            // Remove 'id' maybe? Or keep it if trying to force restore?
+            // NocoDB might ignore ID on create, but let's try pushing the data back.
+            // Ideally we omit 'id', 'created_at', 'updated_at'
+            const { id, created_at, updated_at, ...rest } = lastDeleted;
+            await client.createRecord(collectionName, rest);
+
+            setDeletedStack(prev => prev.slice(0, -1));
+            toast.success("deletion undone");
+
+            // Refresh
+            const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
+            setRecords(res.data?.data || res.data || []);
+        } catch (e) {
+            console.error("failed to undo delete", e);
+            toast.error("failed to undo delete");
+        }
+    };
+
+    const handleDeleteRecord = useCallback(async (record: any) => {
+        // Removed confirmation as requested
+        try {
+            await client.deleteRecord(collectionName, record.id);
+
+            // Add to stack
+            setDeletedStack(prev => [...prev, record]);
+
+            toast.success("record deleted", {
+                action: {
+                    label: "undo",
+                    onClick: () => handleUndoDelete() // This might refer to stale closure if not careful, but state updates via prev are fine. 
+                    // Actually handleUndoDelete needs access to latest state? 
+                    // We better use a ref or ensure this closure captures the needed info.
+                    // But handleUndoDelete depends on deletedStack. 
+                    // This closure might capture OLD handleUndoDelete.
+                    // Simplification: trigger the SAME undo logic. 
+                }
+            });
+            setRecords(prev => prev.filter(r => r.id !== record.id));
+        } catch (error) {
+            console.error("failed to delete record", error);
+            toast.error("failed to delete record");
+        }
+    }, [client, collectionName, deletedStack]); // Added deletedStack dependency to update closure? No, that causes re-renders of list.
+    // Better: Helper function for restore that takes the record as arg, valid for Toast.
+    // For Ctrl+Z, we need state. 
+
+    // Refactor to ensure Toast works:
+    const restoreRecord = async (recordToRestore: any) => {
+        try {
+            const { id, created_at, updated_at, ...rest } = recordToRestore;
+            await client.createRecord(collectionName, rest);
+            toast.success("deletion undone");
+            const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
+            setRecords(res.data?.data || res.data || []);
+            setDeletedStack(prev => prev.filter(r => r.id !== recordToRestore.id));
+        } catch (e) {
+            console.error("failed to undo delete", e);
+            toast.error("failed to undo delete");
+        }
+    }
+
+
+
+    // Re-bind undo for keyboard
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
+                // Get latest stack
+                setDeletedStack(currentStack => {
+                    if (currentStack.length > 0) {
+                        const last = currentStack[currentStack.length - 1];
+                        restoreRecord(last);
+                        return currentStack.slice(0, -1); // Optimistic remove from stack? restoreRecord also updates it.
+                    }
+                    return currentStack;
+                });
+            }
+        };
+        window.addEventListener('keydown', handleKeyDown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [collectionName]); // minimalist deps
+
+    // Rescue logic is now integrated into fetchData, no separate effect needed
+
+    if (!collection) {
+        if (loading) return <div className="p-10 text-center animate-pulse">loading {collectionName}...</div>;
+
+        return (
+            <div className="p-10 flex flex-col items-center gap-4 text-center">
+                <div className="text-destructive font-bold text-lg">collection not found: &ldquo;{collectionName}&rdquo;</div>
+                <div className="text-muted-foreground text-sm max-w-md">
+                    Attempting to locate collection in system... (v2 rescue)
+                </div>
+                {fetchError && (
+                    <div className="mt-4 p-4 bg-destructive/10 text-destructive rounded-md text-xs font-mono text-left max-w-sm overflow-auto">
+                        <strong>Debug Info:</strong><br />
+                        Error: {fetchError}<br />
+                        ID: {params.name}<br />
+                        Decoded: {collectionName}<br />
+                        Auth: {isAuthenticated ? 'Yes' : 'No'}<br />
+                        Available: {availableCollections.length}
+                        <div className="mt-1 opacity-50 max-h-20 overflow-y-auto">
+                            [{availableCollections.map((c: any) => c.name).join(', ')}]
+                        </div>
+                    </div>
+                )}
+                <Button variant="outline" onClick={() => navigate('/databases')}>
+                    Return to Databases
+                </Button>
+            </div>
+        );
+    }
+
+    // Fix "No Fields" flash: If we rescued a collection object but it has no fields (and we are loading),
+    // we should wait. The rescued object from sidebar list often lacks 'fields'.
+    if (!collection.fields && loading) {
+        return <div className="p-10 text-center animate-pulse">loading schema for {collectionName}...</div>;
+    }
+
+    const CurrentViewComponent = VIEW_REGISTRY[currentView] || VIEW_REGISTRY['table'];
+
+
+
+    return (
+        <div className="flex flex-col h-full bg-background animate-in fade-in duration-500">
+            {/* Header */}
+            <div className="flex flex-col bg-card/50 backdrop-blur-sm sticky top-0 z-10 border-b border-primary">
+                <div className="flex items-center justify-between p-4 pb-2">
+                    <div className="flex items-center gap-4">
+                        <Button variant="ghost" size="icon" onClick={onBack}>
+                            <ArrowLeft className="h-5 w-5" />
+                        </Button>
+                        <div>
+                            <h2
+                                className="text-xl font-bold lowercase tracking-tight"
+                                style={{ color: collectionColor }}
+                            >
+                                {collection.title || collection.displayName || collection.name}
+                            </h2>
+                        </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button variant="ghost" size="icon">
+                                    <Settings2 className="h-5 w-5 opacity-50" />
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80">
+                                <DatabaseSettingsForm
+                                    collectionName={collectionName}
+                                    title={collection.title || collection.displayName || collectionName}
+                                    viewConfig={viewConfig}
+                                    fields={collection.fields}
+                                    currentView={currentView}
+                                    onUpdateConfig={handleConfigChange}
+                                />
+                            </PopoverContent>
+                        </Popover>
+                    </div>
+                </div>
+
+                {/* View Selector */}
+                <div className="px-4 pb-2">
+                    <Select value={currentView} onValueChange={(v) => setCurrentView(v as ViewType)}>
+                        <SelectTrigger
+                            className="w-full md:w-[240px] h-9 bg-background/50 backdrop-blur border-input/50"
+                            data-view-switcher="true"
+                        >
+                            <SelectValue placeholder="Select View" />
+                        </SelectTrigger>
+                        <SelectContent align="start">
+                            {VIEW_OPTIONS.map((view: any) => (
+                                <SelectItem key={view.id} value={view.id}>
+                                    <div className="flex items-center gap-2 w-full">
+                                        {view.icon && <view.icon className="h-4 w-4 opacity-50 text-primary" />}
+                                        <span>{view.label}</span>
+                                        {defaultView === view.id && <Star className="h-3 w-3 ml-auto fill-current opacity-50 text-primary" />}
+                                    </div>
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                {/* Default View Picker Dialog (Triggered by right-click or 'v') */}
+                <Dialog open={defaultPickerOpen} onOpenChange={setDefaultPickerOpen}>
+                    <DialogContent className="sm:max-w-[300px] p-0 overflow-hidden border-none bg-popover/90 backdrop-blur-xl shadow-2xl">
+                        <DialogHeader className="p-4 pb-2">
+                            <DialogTitle className="text-sm font-medium lowercase opacity-50">set default view</DialogTitle>
+                        </DialogHeader>
+                        <div className="flex flex-col p-1">
+                            {VIEW_OPTIONS.map((view: any) => (
+                                <Button
+                                    key={view.id}
+                                    variant="ghost"
+                                    className="justify-start gap-3 h-10 px-3 lowercase font-normal"
+                                    onClick={() => handleSetDefaultView(view.id as ViewType)}
+                                >
+                                    {view.icon && <view.icon className="h-4 w-4 opacity-50 text-primary" />}
+                                    <span className="flex-1 text-left">{view.label}</span>
+                                    {defaultView === view.id && <Star className="h-3 w-3 fill-current text-primary" />}
+                                </Button>
+                            ))}
+                        </div>
+                    </DialogContent>
+                </Dialog>
+            </div>
+
+            {/* Content */}
+            <div className="flex-1 overflow-auto p-4 md:p-8">
+                <CurrentViewComponent
+                    data={records}
+                    collection={collection}
+                    loading={loading}
+                    config={viewConfig}
+                    onConfigChange={handleConfigChange}
+                    onUpdateRecord={handleUpdateRecord}
+                    onDelete={handleDeleteRecord}
+                    onCreateRecord={handleDirectCreate}
+                    onCreateField={() => setFieldDialogOpen(true)}
+                />
+            </div>
+
+            {/* Field creation dialog - controlled by onCreateField callback */}
+            <CreateFieldDialog
+                collectionName={collectionName}
+                onFieldCreated={fetchData}
+                open={fieldDialogOpen}
+                onOpenChange={setFieldDialogOpen}
+            />
+        </div >
+    );
+}

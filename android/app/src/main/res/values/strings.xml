@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">pkm</string>
+    <string name="title_activity_main">pkm</string>
+    <string name="package_name">com.houseofmates.pkm</string>
+    <string name="custom_url_scheme">com.houseofmates.pkm</string>
+</resources>

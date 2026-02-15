@@ -1,0 +1,52 @@
+/* src/components/editor/editor.css */
+
+.ProseMirror {
+    outline: none !important;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+    color: #adb5bd;
+    content: attr(data-placeholder);
+    float: left;
+    height: 0;
+    pointer-events: none;
+}
+
+.ProseMirror h1 {
+    color: var(--foreground);
+    @apply text-3xl font-bold mt-6 mb-2;
+}
+
+.ProseMirror h2 {
+    color: var(--foreground);
+    @apply text-2xl font-bold mt-4 mb-2;
+}
+
+.ProseMirror h3 {
+    color: var(--foreground);
+    @apply text-xl font-bold mt-4 mb-2;
+}
+
+.ProseMirror ul {
+    @apply list-disc pl-5 my-2;
+}
+
+.ProseMirror ol {
+    @apply list-decimal pl-5 my-2;
+}
+
+.ProseMirror blockquote {
+    @apply border-l-4 border-primary pl-4 py-1 italic my-4 bg-muted rounded-r;
+}
+
+.ProseMirror pre {
+    @apply bg-muted p-3 rounded-md my-2 font-mono text-sm overflow-x-auto;
+}
+
+.ProseMirror code {
+    @apply bg-muted px-1.5 py-0.5 rounded text-sm font-mono text-primary;
+}
+
+.ProseMirror hr {
+    @apply border-border my-6;
+}

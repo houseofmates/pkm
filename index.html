@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en" class="dark">
+
+<head>
+  <meta charset="UTF-8" />
+  <base href="/" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+
+
+  <!-- Critical CSS to prevent FOUC - loaded immediately -->
+  <style>
+    /* Reset and base styles */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html,
+    body {
+      height: 100%;
+      font-family: 'Varela Round', sans-serif;
+      background-color: #000000;
+      color: #ffffff;
+      overflow-x: hidden;
+    }
+
+    /* Hide all content until React loads */
+    #root {
+      min-height: 100vh;
+      background-color: #000000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Loading Bar Container */
+    .loading-container {
+      width: 240px;
+      height: 4px;
+      background-color: #333;
+      border-radius: 2px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Loading Bar Fill */
+    .loading-bar {
+      height: 100%;
+      background-color: var(--primary);
+      width: 0%;
+      /* Simulate progress: Fast to 30%, steady to 70%, slow to 90% */
+      animation: simulated-load 1.5s cubic-bezier(0.2, 0, 0.4, 1) forwards;
+    }
+
+    @keyframes simulated-load {
+      0% {
+        width: 0%;
+      }
+
+      30% {
+        width: 40%;
+      }
+
+      70% {
+        width: 70%;
+      }
+
+      100% {
+        width: 95%;
+      }
+    }
+  </style>
+
+  <title>pkm</title>
+</head>
+
+<body class="fonts-loading">
+  <div id="root">
+    <div class="loading">
+      <!-- Simple progress bar, no text -->
+      <div class="loading-container">
+        <div class="loading-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Font loading detection
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        document.body.classList.remove('fonts-loading');
+        document.body.classList.add('fonts-loaded');
+      });
+    }
+
+    // Prevent layout shift
+    document.documentElement.style.visibility = 'visible';
+  </script>
+
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+
+</html>

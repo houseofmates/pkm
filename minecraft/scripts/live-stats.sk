@@ -1,0 +1,40 @@
+# live-stats.sk (VERSION 3.0)
+# THIS IS THE FIXED VERSION - PLEASE RELOAD AFTER UPDATING
+
+options:
+    n8n_url: "http://192.168.4.65:5678/webhook/minecraft-events"
+
+# Using a function to bridge the gap between events and HTTP
+function syncBroadcast(t: text, p: text, m: text, c: number):
+    # Construct JSON manually to avoid issues
+    set {_json} to "{""type"": ""%{_t}%"", ""player"": ""%{_p}%"", ""message"": ""%{_m}%"", ""count"": %{_c}%, ""online"": true}"
+    
+    # 1. Create the request object
+    set {_request} to new http request to "{@n8n_url}"
+    set method of {_request} to "POST"
+    add "Content-Type: application/json" to headers of {_request}
+    set body of {_request} to {_json}
+    
+    # 2. SEPARATE the 'send' word from the line to avoid Skript misinterpreting it as a message
+    # We use the full long-form to satisfy the compiler
+    send http request {_request}
+    
+    # Debug message (visible in console only)
+    # send "[LiveStats] Syncing %{_t}% event" to console
+
+on chat:
+    broadcast "DEBUG: Chat event fired for %player%"
+    set {_c} to size of all players
+    syncBroadcast("chat", name of player, message, {_c})
+
+on join:
+    wait 2 ticks
+    # Handled by LogBridge
+
+on quit:
+    # Handled by LogBridge
+
+# FOR HEARTBEAT: We use the function to ensure there is no 'sender' requirement
+every 1 minute:
+    set {_c} to size of all players
+    syncBroadcast("ping", "system", "heartbeat", {_c})

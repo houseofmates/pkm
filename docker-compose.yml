@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  # Frontend (PKM)
+  pkm-frontend:
+    build: .
+    container_name: pkm-frontend
+    restart: always
+    ports:
+      - "3010:3000"
+    networks:
+      - main-stack_frontend
+
+networks:
+  main-stack_frontend:
+    external: true

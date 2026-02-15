@@ -1,0 +1,378 @@
+import { useState } from 'react';
+import { Star, Send, Loader2 } from 'lucide-react';
+import { api } from '@/api/nocobase-client';
+import { toast } from 'sonner';
+import { getSubdomain } from '@/utils/subdomain-router';
+
+interface FormField {
+    id: string;
+    type: 'text' | 'textarea' | 'number' | 'email' | 'rating' | 'dropdown' | 'checkbox';
+    label: string;
+    placeholder?: string;
+    required?: boolean;
+    options?: string[]; // For dropdown
+}
+
+interface FormElementData {
+    id: string;
+    type: 'form';
+    formName: string;
+    fields: FormField[];
+    submitButtonText: string;
+    successMessage: string;
+    styles?: Record<string, any>;
+}
+
+interface FormRendererProps {
+    element: FormElementData;
+    isAdmin?: boolean;
+}
+
+export function FormRenderer({ element, isAdmin }: FormRendererProps) {
+    const [formData, setFormData] = useState<Record<string, any>>({});
+    const [submitting, setSubmitting] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+    const [rating, setRating] = useState(0);
+    const [hoverRating, setHoverRating] = useState(0);
+
+    const site_identifier = getSubdomain() || 'default';
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (isAdmin) {
+            toast.info('form submission disabled in admin mode');
+            return;
+        }
+
+        setSubmitting(true);
+        try {
+            // Find the rating field if any
+            const ratingField = element.fields.find(f => f.type === 'rating');
+            const ratingValue = ratingField ? rating : undefined;
+
+            await api.createRecord('forms', {
+                site: site_identifier,
+                form_name: element.formName,
+                data: JSON.stringify(formData),
+                minecraft_username: formData.minecraft_username || formData.username || null,
+                rating: ratingValue,
+                message: formData.message || formData.feedback || formData.content || null,
+                submitted_at: new Date().toISOString(),
+            });
+
+            setSubmitted(true);
+            toast.success(element.successMessage || 'submitted!');
+        } catch (error: any) {
+            console.error('Form submission failed:', error);
+            toast.error('submission failed. please try again.');
+        } finally {
+            setSubmitting(false);
+        }
+    };
+
+    const handleChange = (fieldId: string, value: any) => {
+        setFormData(prev => ({ ...prev, [fieldId]: value }));
+    };
+
+    if (submitted) {
+        return (
+            <div className="p-8 text-center text-[var(--primary)] bg-black/20 rounded-2xl">
+                <div className="text-4xl mb-4">✨</div>
+                <p className="text-xl">{element.successMessage || 'thank you for your submission!'}</p>
+            </div>
+        );
+    }
+
+    return (
+        <form
+            onSubmit={handleSubmit}
+            className="p-6 rounded-2xl bg-black/30 border border-white/10"
+            style={element.styles}
+            onClick={(e) => e.stopPropagation()}
+        >
+            <h3 className="text-2xl font-bold text-[var(--primary)] mb-6 lowercase">{element.formName}</h3>
+
+            <div className="space-y-4">
+                {element.fields.map((field) => (
+                    <div key={field.id} className="flex flex-col gap-2">
+                        <label className="text-white/70 text-sm lowercase">
+                            {field.label}
+                            {field.required && <span className="text-red-400 ml-1">*</span>}
+                        </label>
+
+                        {field.type === 'text' && (
+                            <input
+                                type="text"
+                                placeholder={field.placeholder}
+                                required={field.required}
+                                className="px-4 py-3 rounded-xl bg-black/50 border border-white/20 text-white placeholder-white/30 focus:border-[var(--primary)] focus:outline-none transition-colors"
+                                onChange={(e) => handleChange(field.id, e.target.value)}
+                            />
+                        )}
+
+                        {field.type === 'email' && (
+                            <input
+                                type="email"
+                                placeholder={field.placeholder}
+                                required={field.required}
+                                className="px-4 py-3 rounded-xl bg-black/50 border border-white/20 text-white placeholder-white/30 focus:border-[var(--primary)] focus:outline-none transition-colors"
+                                onChange={(e) => handleChange(field.id, e.target.value)}
+                            />
+                        )}
+
+                        {field.type === 'number' && (
+                            <input
+                                type="number"
+                                placeholder={field.placeholder}
+                                required={field.required}
+                                className="px-4 py-3 rounded-xl bg-black/50 border border-white/20 text-white placeholder-white/30 focus:border-[var(--primary)] focus:outline-none transition-colors"
+                                onChange={(e) => handleChange(field.id, e.target.value)}
+                            />
+                        )}
+
+                        {field.type === 'textarea' && (
+                            <textarea
+                                placeholder={field.placeholder}
+                                required={field.required}
+                                rows={4}
+                                className="px-4 py-3 rounded-xl bg-black/50 border border-white/20 text-white placeholder-white/30 focus:border-[var(--primary)] focus:outline-none transition-colors resize-none"
+                                onChange={(e) => handleChange(field.id, e.target.value)}
+                            />
+                        )}
+
+                        {field.type === 'rating' && (
+                            <div className="flex gap-2">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                    <button
+                                        key={star}
+                                        type="button"
+                                        onClick={() => {
+                                            setRating(star);
+                                            handleChange(field.id, star);
+                                        }}
+                                        onMouseEnter={() => setHoverRating(star)}
+                                        onMouseLeave={() => setHoverRating(0)}
+                                        className="p-1 transition-transform hover:scale-110"
+                                    >
+                                        <Star
+                                            size={28}
+                                            className={`transition-colors ${(hoverRating || rating) >= star
+                                                ? 'fill-[var(--primary)] text-[var(--primary)]'
+                                                : 'text-white/30'
+                                                }`}
+                                        />
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+
+                        {field.type === 'dropdown' && field.options && (
+                            <select
+                                required={field.required}
+                                className="px-4 py-3 rounded-xl bg-black/50 border border-white/20 text-white focus:border-[var(--primary)] focus:outline-none transition-colors"
+                                onChange={(e) => handleChange(field.id, e.target.value)}
+                            >
+                                <option value="">{field.placeholder || 'select...'}</option>
+                                {field.options.map((opt) => (
+                                    <option key={opt} value={opt}>{opt}</option>
+                                ))}
+                            </select>
+                        )}
+
+                        {field.type === 'checkbox' && (
+                            <label className="flex items-center gap-3 cursor-pointer">
+                                <input
+                                    type="checkbox"
+                                    className="w-5 h-5 rounded border-white/20 bg-black/50 text-[var(--primary)] focus:ring-[var(--primary)]"
+                                    onChange={(e) => handleChange(field.id, e.target.checked)}
+                                />
+                                <span className="text-white/70">{field.placeholder}</span>
+                            </label>
+                        )}
+                    </div>
+                ))}
+            </div>
+
+            <button
+                type="submit"
+                disabled={submitting}
+                className="mt-6 w-full py-4 px-6 rounded-xl selected-icon-btn font-bold text-lg hover:scale-[1.02] active:scale-[0.98] transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+            >
+                {submitting ? (
+                    <>
+                        <Loader2 className="animate-spin" size={20} />
+                        submitting...
+                    </>
+                ) : (
+                    <>
+                        <Send size={20} />
+                        {element.submitButtonText || 'submit'}
+                    </>
+                )}
+            </button>
+        </form>
+    );
+}
+
+// --- FORM BUILDER (Admin) ---
+interface FormBuilderProps {
+    onSave: (formElement: Omit<FormElementData, 'id' | 'type'>) => void;
+    onCancel: () => void;
+    initialData?: Partial<FormElementData>;
+}
+
+export function FormBuilder({ onSave, onCancel, initialData }: FormBuilderProps) {
+    const [formName, setFormName] = useState(initialData?.formName || 'feedback form');
+    const [fields, setFields] = useState<FormField[]>(initialData?.fields || [
+        { id: 'minecraft_username', type: 'text', label: 'minecraft username', placeholder: 'your ign...', required: true },
+        { id: 'rating', type: 'rating', label: 'how would you rate us?', required: true },
+        { id: 'feedback', type: 'textarea', label: 'your feedback', placeholder: 'tell us what you think...', required: false },
+    ]);
+    const [submitButtonText, setSubmitButtonText] = useState(initialData?.submitButtonText || 'submit');
+    const [successMessage, setSuccessMessage] = useState(initialData?.successMessage || 'thank you for your feedback!');
+
+    const addField = (type: FormField['type']) => {
+        const newField: FormField = {
+            id: `field_${Date.now()}`,
+            type,
+            label: `new ${type} field`,
+            placeholder: '',
+            required: false,
+        };
+        if (type === 'dropdown') {
+            newField.options = ['option 1', 'option 2', 'option 3'];
+        }
+        setFields([...fields, newField]);
+    };
+
+    const updateField = (id: string, updates: Partial<FormField>) => {
+        setFields(fields.map(f => f.id === id ? { ...f, ...updates } : f));
+    };
+
+    const removeField = (id: string) => {
+        setFields(fields.filter(f => f.id !== id));
+    };
+
+    const handleSave = () => {
+        onSave({
+            formName,
+            fields,
+            submitButtonText,
+            successMessage,
+        });
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-[#1a1a1a] rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <h2 className="text-2xl font-bold text-[var(--primary)] mb-6">form builder</h2>
+
+                <div className="space-y-4 mb-6">
+                    <div>
+                        <label className="text-white/70 text-sm">form name</label>
+                        <input
+                            type="text"
+                            value={formName}
+                            onChange={(e) => setFormName(e.target.value)}
+                            className="w-full px-4 py-2 rounded-lg bg-black/50 border border-white/20 text-white mt-1"
+                        />
+                    </div>
+
+                    <div className="border-t border-white/10 pt-4">
+                        <h3 className="text-white font-medium mb-3">fields</h3>
+                        <div className="space-y-3">
+                            {fields.map((field, idx) => (
+                                <div key={field.id} className="p-3 bg-black/30 rounded-lg flex flex-col gap-2">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-white/50 text-sm w-6">{idx + 1}.</span>
+                                        <input
+                                            type="text"
+                                            value={field.label}
+                                            onChange={(e) => updateField(field.id, { label: e.target.value })}
+                                            className="flex-1 px-2 py-1 rounded bg-black/50 border border-white/10 text-white text-sm"
+                                        />
+                                        <span className="text-white/30 text-xs px-2 py-1 rounded bg-white/5">{field.type}</span>
+                                        <button
+                                            onClick={() => removeField(field.id)}
+                                            className="text-red-400 hover:text-red-300 text-sm"
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                    <div className="flex items-center gap-2 ml-6">
+                                        <input
+                                            type="text"
+                                            value={field.placeholder || ''}
+                                            onChange={(e) => updateField(field.id, { placeholder: e.target.value })}
+                                            placeholder="placeholder..."
+                                            className="flex-1 px-2 py-1 rounded bg-black/50 border border-white/10 text-white/70 text-xs"
+                                        />
+                                        <label className="flex items-center gap-1 text-white/50 text-xs">
+                                            <input
+                                                type="checkbox"
+                                                checked={field.required}
+                                                onChange={(e) => updateField(field.id, { required: e.target.checked })}
+                                            />
+                                            required
+                                        </label>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        <div className="flex gap-2 mt-3 flex-wrap">
+                            {(['text', 'textarea', 'email', 'number', 'rating', 'dropdown', 'checkbox'] as const).map((type) => (
+                                <button
+                                    key={type}
+                                    onClick={() => addField(type)}
+                                    className="px-3 py-1 rounded-lg bg-white/5 text-white/70 text-sm hover:bg-white/10 transition-colors"
+                                >
+                                    + {type}
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="text-white/70 text-sm">submit button text</label>
+                            <input
+                                type="text"
+                                value={submitButtonText}
+                                onChange={(e) => setSubmitButtonText(e.target.value)}
+                                className="w-full px-4 py-2 rounded-lg bg-black/50 border border-white/20 text-white mt-1"
+                            />
+                        </div>
+                        <div>
+                            <label className="text-white/70 text-sm">success message</label>
+                            <input
+                                type="text"
+                                value={successMessage}
+                                onChange={(e) => setSuccessMessage(e.target.value)}
+                                className="w-full px-4 py-2 rounded-lg bg-black/50 border border-white/20 text-white mt-1"
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex gap-3 justify-end">
+                    <button
+                        onClick={onCancel}
+                        className="px-4 py-2 rounded-lg bg-white/5 text-white/70 hover:bg-white/10"
+                    >
+                        cancel
+                    </button>
+                    <button
+                        onClick={handleSave}
+                        className="px-6 py-2 rounded-lg bg-[var(--primary)] text-black font-bold hover:scale-[1.02] transition-transform"
+                    >
+                        add form
+                    </button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+// Export types
+export type { FormField, FormElementData };
