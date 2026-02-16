@@ -38,7 +38,7 @@ export function Dashboard() {
 
   {/* Main Content */}
   <div className="flex-1 flex flex-col min-h-screen">
- <header className="border-b bg-background/95 backdrop-blur z-10 sticky top-0 h-14 flex items-center justify-between px-4">
+ <header className="border-b-2 bg-background/95 backdrop-blur z-10 sticky top-0 h-14 flex items-center justify-between px-4">
  <div className="flex items-center gap-4">
  <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
    <Menu className="h-5 w-5" />
