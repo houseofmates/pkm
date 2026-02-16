@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import {
-  Plus, Database, Trash2, Move, Minimize2,
-  Lock, Unlock, Pencil, Eraser, MousePointer2, Check, Wand2, FileText, ExternalLink, X, User
+    Plus, Database, Trash2, Move, Minimize2,
+    Lock, Unlock, Pencil, Eraser, MousePointer2, Check, Wand2, FileText, ExternalLink, X, User
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -23,30 +23,63 @@ import { HeadmateCard } from '@/features/headmates/components/headmate-card';
 
 type WidgetType = 'view' | 'document' | 'contact';
 interface WidgetDefinition {
-  id: string;
-  type: WidgetType;
-  title: string;
-  collectionName: string;
-  viewType: ViewType;
-  viewConfig?: {
-  sort?: string[];
-  filter?: Record<string, any>;
-  viewType?: ViewType;
-  };
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  zIndex: number;
+    id: string;
+    type: WidgetType;
+    title: string;
+    collectionName: string;
+    viewType: ViewType;
+    viewConfig?: {
+        sort?: string[];
+        filter?: Record<string, any>;
+        viewType?: ViewType;
+    };
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+    zIndex: number;
 }
 
 export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKey?: string }) {
-    const [cursorMenu, setCursorMenu] = useState<{ open: boolean; x: number; y: number }>({ open: false, x: 0, y: 0 });
+    // --- State ---
+    // Widgets (Synced to Backend)
+    const [widgets, setWidgets] = useAppSetting<WidgetDefinition[]>(layoutKey, []);
+    const { collections } = useCollections();
+    const { client, token, isAuthenticated, login } = useAuth();
+    const [apiKey, setApiKey] = useState('');
+    const [isEditMode, setIsEditMode] = useState(true);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [addMenuOpen, setAddMenuOpen] = useState(false);
+    const [wizardStep, setWizardStep] = useState<'collection' | 'view'>('collection');
+    const [wizardSearch, setWizardSearch] = useState('');
+    const [selectedCollectionForWizard, setSelectedCollectionForWizard] = useState<string | null>(null);
+    const [localDocs, setLocalDocs] = useState<{ id: string, title: string }[]>([]);
+    const [wizardTab, setWizardTab] = useState<'databases' | 'documents' | 'contacts'>('databases');
+    const { members } = useFronter();
+    const navigate = useNavigate();
+
+    // Load Local Docs
+    useEffect(() => {
+        if (!addMenuOpen) return;
+        const docs: { id: string, title: string }[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (key && key.startsWith('canvas-config-')) {
+                const id = key.replace('canvas-config-', '');
+                try {
+                    const config = JSON.parse(localStorage.getItem(key) || '{}');
+                    docs.push({ id, title: config.title || 'Untitled Document' });
+                } catch (e) { }
+            }
+        }
+        setLocalDocs(docs);
+    }, [addMenuOpen]);
+
+    // Drawing State
+    const canvasRef = useRef<HTMLCanvasElement>(null);
     const [drawingTool, setDrawingTool] = useState<'none' | 'pencil' | 'eraser' | 'lasso'>('none');
-    const lastDrawingToolRef = useRef<typeof drawingTool | null>(null);
     const [selectionMode, setSelectionMode] = useState<'free' | 'rect' | 'magic'>('free');
     const [brushColor, setBrushColor] = useState('#ffffff');
-    const lastCursorModeRef = useRef<'select' | 'pan' | null>(null);
     const [brushSize, setBrushSize] = useState(3);
     const [eraserSize, setEraserSize] = useState(20);
     const [colorPickerOpen, setColorPickerOpen] = useState(false);
@@ -90,45 +123,6 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
 
     const lastSyncedUrlRef = useRef<string | null>(null);
     const canvasDirtyRef = useRef(false);
-    // Auth client and token for uploads/downloads
-    const { client, token, isAuthenticated, login } = useAuth();
-    const [apiKey, setApiKey] = useState('');
-    
-    // Collections and members
-    const { collections } = useCollections();
-    const { members } = useFronter();
-
-    // UI state for widget adding / wizard
-    const [isEditMode, setIsEditMode] = useState(false);
-    const [addMenuOpen, setAddMenuOpen] = useState(false);
-    const [wizardTab, setWizardTab] = useState<'databases'|'documents'|'contacts'>('databases');
-    const [wizardStep, setWizardStep] = useState<'collection'|'view'>('collection');
-    const [wizardSearch, setWizardSearch] = useState('');
-    const [selectedCollectionForWizard, setSelectedCollectionForWizard] = useState<string | null>(null);
-    const [localDocs] = useState<Array<{ id: string, title: string }>>([]);
-
-    // Cursor / selection state
-    const [cursorMode, setCursorMode] = useState<'select'|'pan'>('select');
-    // Widgets state (persisted to localStorage under the layoutKey)
-    const [widgets, setWidgets] = useState<WidgetDefinition[]>(() => {
-        try {
-            const raw = localStorage.getItem(layoutKey);
-            if (raw) return JSON.parse(raw) as WidgetDefinition[];
-        } catch (e) { }
-        return [] as WidgetDefinition[];
-    });
-
-    useEffect(() => {
-        try {
-            localStorage.setItem(layoutKey, JSON.stringify(widgets));
-        } catch (e) { }
-    }, [widgets, layoutKey]);
-
-    // DOM refs and pointer tracking
-    const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const containerRef = useRef<HTMLDivElement | null>(null);
-    const pointersRef = useRef<Map<number, { x: number; y: number; type: string }>>(new Map());
-    const panningRef = useRef<{ active: boolean; lastX?: number; lastY?: number; lastCentroid?: { x: number; y: number } }>({ active: false });
 
 
     // Internal helper to save current state to undo stack
@@ -452,54 +446,8 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                 e.preventDefault();
                 performRedo();
             }
-
-            // Space: temporary pan while held (press-and-hold to pan)
-            if (e.code === 'Space') {
-                if (!e.repeat) {
-                    // remember previous mode and switch to pan
-                    lastCursorModeRef.current = cursorMode;
-                    setCursorMode('pan');
-                }
-            }
-
-            // E key: if double-pressed, toggle back to last drawing tool before eraser
-            if (e.key.toLowerCase() === 'e') {
-                // simple single/double press detection
-                const now = Date.now();
-                if ((window as any).__lastEPress && now - (window as any).__lastEPress < 400) {
-                    // double press
-                    if (drawingTool === 'eraser' && lastDrawingToolRef.current) {
-                        setDrawingTool(lastDrawingToolRef.current);
-                        lastDrawingToolRef.current = null;
-                    }
-                } else {
-                    // single press: toggle eraser
-                    if (drawingTool === 'eraser') {
-                        // restore last
-                        if (lastDrawingToolRef.current) setDrawingTool(lastDrawingToolRef.current);
-                        else setDrawingTool('none');
-                        lastDrawingToolRef.current = null;
-                    } else {
-                        lastDrawingToolRef.current = drawingTool;
-                        setDrawingTool('eraser');
-                    }
-                }
-                (window as any).__lastEPress = now;
-            }
         };
         window.addEventListener('keydown', handleKeyDown);
-        const handleKeyUp = (e: KeyboardEvent) => {
-            if (e.code === 'Space') {
-                // revert to previous cursor mode when space released
-                if (lastCursorModeRef.current) {
-                    setCursorMode(lastCursorModeRef.current);
-                    lastCursorModeRef.current = null;
-                } else {
-                    setCursorMode('select');
-                }
-            }
-        };
-        window.addEventListener('keyup', handleKeyUp);
 
         // Save local fallback when user leaves the page to avoid losing progress
         const handleBeforeUnload = () => {
@@ -519,7 +467,6 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
 
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
-            window.removeEventListener('keyup', handleKeyUp);
             window.removeEventListener('beforeunload', handleBeforeUnload);
         };
     }, [performUndo, performRedo, floatingSelection]);
@@ -600,223 +547,439 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
     const handleRemoveWidget = (id: string) => {
         setWidgets((prev: WidgetDefinition[]) => prev.filter(w => w.id !== id));
     };
-    }
-    }}
-  />
-  ))}
-  </>
-   )}
-   </div>
-   )
- }
 
- // render Document Widget
- if (widget.type === 'document') {
-   return (
-   <div
-   key={widget.id}
-   data-id={widget.id}
-   className={`dashboard-widget absolute flex flex-col Select-none transition-shadow ${selectedWidgetId === widget.id ? 'z-[60]' : ''}`}
-   style={{
-  left: widget.x,
-  top: widget.y,
-  width: widget.w,
-  height: widget.h,
-  zIndex: widget.zIndex,
-   }}
-   onMouseDown={() => bringToFront(widget.id)}
-   >
-   <Card className="w-full h-full flex flex-col shadow-lg border-2 border-border/50 group overflow-hidden rounded-xl isolate">
-  <CardHeader
-  className="p-3 border-b flex flex-row items-center justify-between space-y-0 bg-muted/20 handle cursor-move rounded-t-[inherit]"
-  onMouseDown={(e) => {
-  if (!isEditMode) return;
-  e.preventDefault();
-  setDragState({
-    id: widget.id,
-    startX: e.clientX, startY: e.clientY,
-    initialX: widget.x, initialY: widget.y,
-    initialW: widget.w, initialH: widget.h,
-    mode: 'move'
-  });
-  }}
-  >
-  <div className="flex items-center gap-2">
-  <FileText className="h-4 w-4 text-[var(--primary)]" />
-  <CardTitle className="text-sm font-bold flex items-center gap-2 truncate">
-    {widget.title}
-  </CardTitle>
-  </div>
-  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRemoveWidget(widget.id)} title="Remove Widget">
-    <X className="h-3 w-3" />
-  </Button>
-  </div>
-  </CardHeader>
-  <CardContent className="flex-1 flex items-center justify-center bg-background p-4 flex-col text-center gap-2 rounded-b-[inherit]">
-  <Button
-  variant="secondary"
-  className="w-full h-full flex flex-col items-center justify-center gap-2 text-muted-foreground hover:text-foreground"
-  onClick={() => navigate(`/canvas/${widget.collectionName}`)}
-  >
-  <ExternalLink className="h-6 w-6 mb-1 opacity-50" />
-  <span className="text-xs">Open Canvas</span>
-  </Button>
-  </CardContent>
-   </Card>
 
-   {isEditMode && (
-  <div
-  className="absolute bottom-0 right-0 w-6 h-6 cursor-nwse-resize flex items-end justify-end p-1 opacity-0 group-hover:opacity-100 z-50"
-  onMouseDown={(e) => {
-  e.stopPropagation(); e.preventDefault();
-  setDragState({
-    id: widget.id,
-    startX: e.clientX, startY: e.clientY,
-    initialX: widget.x, initialY: widget.y,
-    initialW: widget.w, initialH: widget.h,
-    mode: 'resize'
-  });
-  }}
-  >
-  <Minimize2 className="h-4 w-4 text-muted-foreground rotate-90" />
-  </div>
-   )}
 
-   {/* resize Handles (Only if selected) */}
-   {selectedWidgetId === widget.id && drawingTool === 'none' && (
-  <>
-  {/* border Highlighting */}
-  <div className="absolute inset-0 border-2 border-primary z-50 pointer-events-none rounded-xl" />
-  {/* handles */}
-  {['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'].map((h) => (
-  <div
-    key={h}
-    className="resize-handle absolute w-3 h-3 !bg-transparent rounded-full z-[60] !opacity-0 transition-opacity"
-    style={{
-    cursor: `${h}-resize`,
-    top: h.includes('n') ? -6 : (h.includes('s') ? 'calc(100% - 6px)' : 'calc(50% - 6px)'),
-    left: h.includes('w') ? -6 : (h.includes('e') ? 'calc(100% - 6px)' : 'calc(50% - 6px)')
-    }}
-    onPointerDown={(e) => {
-    e.stopPropagation(); e.currentTarget.setPointerCapture(e.pointerId);
-    const wrapper = canvasRef.current?.parentElement;
-    if (wrapper) {
-    const rect = wrapper.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    resizeStateRef.current = {
-   active: true,
-   handle: h as any,
-   startMouse: { x, y },
-   startWidget: { x: widget.x, y: widget.y, w: widget.w, h: widget.h }
+    const bringToFront = (id: string) => {
+        setWidgets((prev: WidgetDefinition[]) => {
+            const maxZ = Math.max(...prev.map((w: WidgetDefinition) => w.zIndex), 0);
+            return prev.map((w: WidgetDefinition) => w.id === id ? { ...w, zIndex: maxZ + 1 } : w);
+        });
     };
-    }
-    }}
-  />
-  ))}
-  </>
-   )}
-   </div>
-   );
- }
 
- const col = collections.find(c => c.name === widget.collectionName);
- if (!col) return null;
+    // --- Widget Selection & Resizing ---
+    const [selectedWidgetId, setSelectedWidgetId] = useState<string | null>(null);
+    const resizeStateRef = useRef<{
+        active: boolean;
+        handle: 'n' | 's' | 'e' | 'w' | 'ne' | 'nw' | 'se' | 'sw' | null;
+        startMouse: { x: number, y: number };
+        startWidget: { x: number, y: number, w: number, h: number };
+    }>({ active: false, handle: null, startMouse: { x: 0, y: 0 }, startWidget: { x: 0, y: 0, w: 0, h: 0 } });
 
- return (
-   <div
-   key={widget.id}
-   data-id={widget.id}
-   className={`dashboard-widget absolute flex flex-col Select-none transition-shadow ${selectedWidgetId === widget.id ? 'z-[60]' : ''}`} // removed border/bg since Widget has it
-   style={{
-   left: widget.x,
-   top: widget.y,
-   width: widget.w,
-   height: widget.h,
-   zIndex: widget.zIndex,
-   }}
-   onMouseDown={() => bringToFront(widget.id)}
-   >
-   <DatabaseWidget
-   collection={col}
-   initialView={widget.viewType}
-   className="w-full h-full"
-   onRemove={() => handleRemoveWidget(widget.id)}
-   viewConfig={widget.viewConfig}
-   onConfigChange={(newConfig) => {
-  setWidgets(prev => prev.map(w => w.id === widget.id ? { ...w, viewConfig: newConfig } : w));
-   }}
-   onHeaderMouseDown={(e) => {
-  if (!isEditMode) return;
-  e.preventDefault();
-  setDragState({
-  id: widget.id,
-  startX: e.clientX, startY: e.clientY,
-  initialX: widget.x, initialY: widget.y,
-  initialW: widget.w, initialH: widget.h,
-  mode: 'move'
-  });
-   }}
-   />
+    // --- Drawing Handlers ---
+    const isDrawingRef = useRef(false);
 
-   {isEditMode && (
-   <div
-  className="absolute bottom-0 right-0 w-6 h-6 cursor-nwse-resize flex items-end justify-end p-1 opacity-0 group-hover:opacity-100 z-50"
-  onMouseDown={(e) => {
-  e.stopPropagation(); e.preventDefault();
-  setDragState({
-  id: widget.id,
-  startX: e.clientX, startY: e.clientY,
-  initialX: widget.x, initialY: widget.y,
-  initialW: widget.w, initialH: widget.h,
-  mode: 'resize'
-  });
-  }}
-   >
-  <Minimize2 className="h-4 w-4 text-muted-foreground rotate-90" />
-   </div>
-   )}
+    // Refactored to accept explicit coordinates for routed events
+    const startDrawing = useCallback((x: number, y: number, pressure: number = 0.5) => {
+        if (drawingTool === 'none') return;
+        saveSnapshot();
 
-   {/* resize Handles (Only if selected) */}
-   {selectedWidgetId === widget.id && drawingTool === 'none' && (
-   <>
-  {/* border Highlighting */}
-  <div className="absolute inset-0 border-2 border-primary z-50 pointer-events-none rounded-xl" />
+        isDrawingRef.current = true;
+        const ctx = canvasRef.current!.getContext('2d')!;
 
-  {/* handles */}
-  {['nw', 'n', 'ne', 'w', 'e', 'sw', 's', 'se'].map((h) => (
-  <div
-  key={h}
-  className="resize-handle absolute w-3 h-3 !bg-transparent rounded-full z-[60] !opacity-0 transition-opacity"
-  style={{
-    cursor: `${h}-resize`,
-    top: h.includes('n') ? -6 : (h.includes('s') ? 'calc(100% - 6px)' : 'calc(50% - 6px)'),
-    left: h.includes('w') ? -6 : (h.includes('e') ? 'calc(100% - 6px)' : 'calc(50% - 6px)')
-  }}
-  onPointerDown={(e) => {
-    e.stopPropagation(); // stop drag/Select
-    e.currentTarget.setPointerCapture(e.pointerId);
+        if (drawingTool === 'pencil') {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.strokeStyle = brushColor;
+            ctx.lineWidth = brushSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        } else if (drawingTool === 'eraser') {
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.lineWidth = eraserSize;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(x, y);
+        } else if (drawingTool === 'lasso') {
+            setLassoPoints([{ x, y }]);
+        }
+    }, [drawingTool, brushColor, brushSize, eraserSize, saveSnapshot]);
 
-    // calc start pos relative to container
-    const wrapper = canvasRef.current?.parentElement;
-    if (wrapper) {
-    const rect = wrapper.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    /* handleCanvasDown/Move removed - logic moved to Container onPointerDown/Move */
 
-    resizeStateRef.current = {
-    active: true,
-    handle: h as any,
-    startMouse: { x, y },
-    startWidget: { x: widget.x, y: widget.y, w: widget.w, h: widget.h }
+    const handleCanvasUp = useCallback(() => {
+        if (!isDrawingRef.current) return;
+        isDrawingRef.current = false;
+        saveCanvas();
+
+        if (drawingTool === 'lasso' && lassoPoints.length > 2) {
+            // Finish Lasso - Extract Selection
+            const ctx = canvasRef.current!.getContext('2d')!;
+
+            // 1. Calc Bounds of the user's rough selection
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+            lassoPoints.forEach(p => {
+                minX = Math.min(minX, p.x);
+                minY = Math.min(minY, p.y);
+                maxX = Math.max(maxX, p.x);
+                maxY = Math.max(maxY, p.y);
+            });
+            let w = maxX - minX;
+            let h = maxY - minY;
+
+            if (w <= 0 || h <= 0) { setLassoPoints([]); return; }
+
+            // MAGIC LASSO LOGIC
+            if (selectionMode === 'magic') {
+                // Expand bounds slightly to ensure we catch content near the line
+                const pad = 2;
+                const searchX = Math.max(0, minX - pad);
+                const searchY = Math.max(0, minY - pad);
+                const searchW = w + pad * 2;
+                const searchH = h + pad * 2;
+
+                // Get data for the rough area
+                const imageData = ctx.getImageData(searchX, searchY, searchW, searchH);
+                const data = imageData.data;
+
+                for (let y = 0; y < searchH; y++) {
+                    for (let x = 0; x < searchW; x++) {
+                        const idx = (y * searchW + x) * 4;
+                        const alpha = data[idx + 3];
+
+                        // If pixel is visible
+                        if (alpha > 10) {
+                            // Check if this pixel is roughly inside/near the user's polygon
+                            // Optimization: Just check if it's non-transparent? 
+                            // The user said "automatically detects edges". 
+                            // If we just check non-transparent, we might select stuff *outside* the loop if the loop cuts through an object.
+                            // But usually "Magic Lasso" implies selecting objects *inside* the loop.
+                            // Let's assume we only care about pixels that are non-transparent.
+                            // AND we should probably mask it by the user's polygon first?
+
+                            // For simplicity and speed: 
+                            // 1. Create a temp canvas with the user's polygon filled.
+                            // 2. Composite 'source-in' with the original image data.
+                            // 3. This leaves ONLY the content inside the polygon.
+                            // 4. Then we calculate the bounds of THAT content.
+
+                            // Let's implement that approach instead of raw pixel iteration first.
+                        }
+                    }
+                }
+
+                // TEMP CANVAS APPROACH (Robust)
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = canvasRef.current!.width;
+                tempCanvas.height = canvasRef.current!.height;
+                const tempCtx = tempCanvas.getContext('2d')!;
+
+                // Draw the user's polygon mask
+                tempCtx.beginPath();
+                lassoPoints.forEach((p, i) => i === 0 ? tempCtx.moveTo(p.x, p.y) : tempCtx.lineTo(p.x, p.y));
+                tempCtx.closePath();
+                tempCtx.fillStyle = '#000000'; // Color doesn't matter, just alpha
+                tempCtx.fill();
+
+                // Composite: Keep only image content that overlaps the mask
+                tempCtx.globalCompositeOperation = 'source-in';
+                tempCtx.drawImage(canvasRef.current!, 0, 0);
+
+                // Now find the bounds of the NON-TRANSPARENT pixels in this temp canvas
+                // Restrict search to the bounding box to save perf
+                const maskedData = tempCtx.getImageData(minX, minY, w, h);
+                const mData = maskedData.data;
+
+                let contentMinX = w, contentMinY = h, contentMaxX = 0, contentMaxY = 0;
+                let hasContent = false;
+
+                for (let y = 0; y < h; y++) {
+                    for (let x = 0; x < w; x++) {
+                        const alpha = mData[(y * w + x) * 4 + 3];
+                        if (alpha > 5) { // Threshold
+                            if (x < contentMinX) contentMinX = x;
+                            if (x > contentMaxX) contentMaxX = x;
+                            if (y < contentMinY) contentMinY = y;
+                            if (y > contentMaxY) contentMaxY = y;
+                            hasContent = true;
+                        }
+                    }
+                }
+
+                if (hasContent) {
+                    // Add 1px buffer (or 0.5px logic as requested "half a pixel", we'll do 1px)
+                    const buffer = 1;
+                    const finalX = Math.max(0, minX + contentMinX - buffer);
+                    const finalY = Math.max(0, minY + contentMinY - buffer);
+                    const finalW = (contentMaxX - contentMinX) + (buffer * 2);
+                    const finalH = (contentMaxY - contentMinY) + (buffer * 2);
+
+                    // Extract final tight crop from ORIGINAL canvas
+                    const finalData = ctx.getImageData(finalX, finalY, finalW, finalH);
+
+                    // Helper to create data URL
+                    const c2 = document.createElement('canvas');
+                    c2.width = finalW;
+                    c2.height = finalH;
+                    c2.getContext('2d')!.putImageData(finalData, 0, 0);
+
+                    // Clear original (using the tight bounds)
+                    ctx.save();
+                    ctx.globalCompositeOperation = 'destination-out';
+                    // We only want to clear the parts we moved? 
+                    // Or just clear the box? The user said "select... ensure no pixels get left behind".
+                    // Usually move tool clears the source.
+                    // But if we clear the BOX, we might cut background?
+                    // In a flat canvas, "background" is just pixels.
+                    // We should clear distinctively. 
+                    // Let's clear the exact captured rect.
+                    ctx.fillStyle = 'black';
+                    ctx.fillRect(finalX, finalY, finalW, finalH);
+                    ctx.restore();
+
+                    const newFloating = {
+                        image: c2.toDataURL(),
+                        x: finalX,
+                        y: finalY,
+                        w: finalW,
+                        h: finalH
+                    };
+                    setFloatingSelection(newFloating);
+
+                    try {
+                        setSavedFloatingSelection(JSON.stringify(newFloating));
+                        flushSavedFloating?.(JSON.stringify(newFloating)).catch(() => { });
+                    } catch (e) { }
+                    setLassoPoints([]);
+                    return;
+                }
+                // If no content found inside loop, fall back to standard loop selection or cancel?
+                // Let's fall back to standard behavior (empty selection)
+            }
+
+
+            // STANDARD / RECT BEHAVIOR
+            // 2. Clip and Extract
+            ctx.save();
+            ctx.beginPath();
+            if (selectionMode === 'rect') {
+                ctx.rect(minX, minY, w, h);
+            } else {
+                lassoPoints.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+            }
+            ctx.closePath();
+            ctx.clip();
+
+            const imageData = ctx.getImageData(minX, minY, w, h);
+
+            // Clear original
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.fill(); // Fills the current path (polygon or rect) with "transparent"
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.restore();
+
+            // Store in temp canvas
+            const cropCanvas = document.createElement('canvas');
+            cropCanvas.width = w;
+            cropCanvas.height = h;
+            const cropCtx = cropCanvas.getContext('2d')!;
+            cropCtx.putImageData(imageData, 0, 0);
+
+            const newFloating = {
+                image: cropCanvas.toDataURL(),
+                x: minX,
+                y: minY,
+                w,
+                h
+            };
+            setFloatingSelection(newFloating);
+            // Persist floating selection so it can be resumed on another device
+            try {
+                setSavedFloatingSelection(JSON.stringify(newFloating));
+                // Fire-and-forget flush to make sure it's on the server quickly
+                flushSavedFloating?.(JSON.stringify(newFloating)).catch(() => { });
+            } catch (e) {
+                console.error('Failed to save floating selection:', e);
+            }
+            setLassoPoints([]);
+        }
+    }, [drawingTool, lassoPoints, saveCanvas, setSavedFloatingSelection, flushSavedFloating, selectionMode]);
+
+    const pasteSelection = () => {
+        if (!floatingSelection || !canvasRef.current) return;
+
+        saveSnapshot(); // Snapshot before pasting back
+
+        const ctx = canvasRef.current.getContext('2d')!;
+        const img = new Image();
+        img.onload = () => {
+            ctx.drawImage(img, floatingSelection.x, floatingSelection.y, floatingSelection.w, floatingSelection.h);
+            saveCanvas();
+            setFloatingSelection(null);
+            // Remove persisted floating selection after it's pasted
+            try { setSavedFloatingSelection(null); } catch (e) { /* ignore */ }
+        };
+        img.src = floatingSelection.image;
     };
+
+
+
+    // --- Touch Handling for Mobile Drawing ---
+
+    useEffect(() => {
+        const container = containerRef.current; // Use container instead of canvas for touch/pointer
+        if (!container) return;
+
+        // We use Pointer Events on the Container now (see JSX), but we might need
+        // passive: false for touch scrolling prevention if we want to support mobile drawing 
+        // properly. The React onPointerDown is good, but for move/up we might want window listeners
+        // or container listeners.
+        // For now, we rely on the Container's React Event handlers.
+
+        // However, to prevent scrolling on touch devices while drawing:
+        const handleTouchMove = (e: TouchEvent) => {
+            if (isDrawingRef.current) e.preventDefault();
+        };
+        container.addEventListener('touchmove', handleTouchMove, { passive: false });
+        // Clean up
+        return () => container.removeEventListener('touchmove', handleTouchMove);
+
+        /* Legacy Canvas Touch Handlers Removed in favor of Container Pointer Events */
+        /*
+        const handleTouchStart = (e: TouchEvent) => {
+    
+            if (drawingTool === 'none') return;
+            if (e.touches.length === 1) {
+                // Drawing: Prevent default to stop mouse emulation / scrolling
+                if (e.cancelable) e.preventDefault();
+    
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+    
+                // MOCK event for reuse
+                const mockE = { nativeEvent: { offsetX: x, offsetY: y } };
+                handleCanvasDown(mockE);
+            }
+        };
+    
+        const handleTouchMove = (e: TouchEvent) => {
+            if (drawingTool === 'none') return;
+            if (e.touches.length === 1) {
+                // 1 Finger: Block Scroll, Draw
+                if (e.cancelable) e.preventDefault();
+    
+                const rect = canvas.getBoundingClientRect();
+                const touch = e.touches[0];
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+    
+                const mockE = { nativeEvent: { offsetX: x, offsetY: y } };
+                handleCanvasMove(mockE);
+            }
+            // 2+ Fingers: Do nothing (don't preventDefault), let browser Pan/Zoom
+        };
+    
+        const handleTouchEnd = () => {
+            if (drawingTool === 'none') return;
+            // If we were drawing (1 finger), finish it.
+            // If we were panning (2 fingers), we didn't start a line technically (or shouldn't have).
+            // handleCanvasUp checks isDrawingRef, so safe to call always.
+            handleCanvasUp();
+        };
+    
+        // Attach non-passive listeners
+        canvas.addEventListener('touchstart', handleTouchStart, { passive: false });
+        canvas.addEventListener('touchmove', handleTouchMove, { passive: false });
+        canvas.addEventListener('touchend', handleTouchEnd);
+    
+        return () => {
+            canvas.removeEventListener('touchstart', handleTouchStart);
+            canvas.removeEventListener('touchmove', handleTouchMove);
+            canvas.removeEventListener('touchend', handleTouchEnd);
+        };
+        };
+        */
+    }, [drawingTool]); // simplified dependnecies as we just manage scroll prevention
+
+
+
+    // --- Global Drag Logic (Widgets) ---
+    const [dragState, setDragState] = useState<{
+        id: string,
+        startX: number,
+        startY: number,
+        initialX: number,
+        initialY: number,
+        initialW: number,
+        initialH: number,
+        mode: 'move' | 'resize'
+    } | null>(null);
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!dragState) return;
+            const deltaX = e.clientX - dragState.startX;
+            const deltaY = e.clientY - dragState.startY;
+
+            setWidgets(prev => prev.map(w => {
+                if (w.id !== dragState.id) return w;
+                if (dragState.mode === 'move') {
+                    return { ...w, x: dragState.initialX + deltaX, y: dragState.initialY + deltaY };
+                } else {
+                    return { ...w, w: Math.max(200, dragState.initialW + deltaX), h: Math.max(150, dragState.initialH + deltaY) };
+                }
+            }));
+        };
+        const handleMouseUp = () => setDragState(null);
+
+        if (dragState) {
+            window.addEventListener('mousemove', handleMouseMove);
+            window.addEventListener('mouseup', handleMouseUp);
+        }
+        return () => {
+            window.removeEventListener('mousemove', handleMouseMove);
+            window.removeEventListener('mouseup', handleMouseUp);
+        };
+    }, [dragState]);
+
+    const { setNodeRef, isOver } = useDroppable({ id: 'dashboard-canvas' });
+
+    useEffect(() => {
+        const handleExternalDrop = (e: CustomEvent<{ collectionName: string }>) => {
+            handleAddWidget(e.detail.collectionName, 'table');
+        };
+        window.addEventListener('pkm:add-widget', handleExternalDrop as EventListener);
+        return () => { window.removeEventListener('pkm:add-widget', handleExternalDrop as EventListener); };
+    }, [widgets, collections]);
+
+    if (!isAuthenticated) {
+        return (
+            <div className="p-4 md:p-8 h-full flex items-center justify-center">
+                <Card className="max-w-md w-full">
+                    <CardHeader>
+                        <CardTitle>connect nocobase</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                        <div className="space-y-2">
+                            <Label>api token</Label>
+                            <Input
+                                type="password"
+                                value={apiKey}
+                                onChange={(e) => setApiKey(e.target.value)}
+                                placeholder="enter nocobase api token"
+                            />
+                            <p className="text-xs text-muted-foreground">
+                                your token is stored locally.
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                <strong>note:</strong> dev servers use the full origin (host + port). if you started the dev server on a different port, you'll need to re-enter your api token for this origin.
+                            </p>
+                        </div>
+                        <Button className="w-full" onClick={() => { if (apiKey) login(apiKey); }}>connect</Button>
+                    </CardContent>
+                </Card>
+            </div>
+        );
     }
 
     return (
         <div className="flex flex-col h-full bg-background overflow-hidden relative no-scrollbar">
             {/* Toolbar */}
-            <div className="flex items-center justify-between p-4 border-b border-primary bg-background z-[70] shadow-sm h-16 relative">
+            <div className="flex items-center justify-between px-4 pt-4 pb-2 border-b border-primary bg-background z-[70] shadow-sm sticky top-0 relative">
                 <div className="flex items-center gap-2">
                     {/* Grid Icon Removed */}
                     {isOver && <span className="text-xs bg-primary text-primary-foreground px-2 py-1 rounded-full animate-pulse">drop to add</span>}
@@ -967,13 +1130,8 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                             }}
                             title="cursor (move widgets)"
                             className={drawingTool === 'none' ? "bg-accent" : ""}
-                            onContextMenu={(e) => {
-                                e.preventDefault();
-                                // Toggle persistent cursor mode between select and pan
-                                setCursorMode(prev => prev === 'select' ? 'pan' : 'select');
-                            }}
                         >
-                            {cursorMode === 'pan' ? <Hand className="h-4 w-4 text-[var(--primary)]" /> : <MousePointer2 className="h-4 w-4 text-[var(--primary)]" />}
+                            <MousePointer2 className="h-4 w-4 text-[var(--primary)]" />
                         </Button>
                     </div>
 
@@ -1232,65 +1390,71 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                     containerRef.current = node;
                     setNodeRef(node);
                 }}
-                className={`flex-1 relative bg-[#060606] overflow-auto no-scrollbar ${drawingTool === 'none' ? (cursorMode === 'pan' ? 'cursor-grab active:cursor-grabbing' : 'cursor-default') : (drawingTool === 'eraser' ? 'cursor-none' : 'cursor-crosshair')} ${isOver ? 'ring-2 ring-primary ring-inset' : ''}`}
+                className={`flex-1 relative bg-[#060606] overflow-auto ${drawingTool === 'none' ? 'cursor-grab active:cursor-grabbing' : (drawingTool === 'eraser' ? 'cursor-none' : 'cursor-crosshair')} ${isOver ? 'ring-2 ring-primary ring-inset' : ''}`}
                 onClick={() => setAddMenuOpen(false)}
                 onPointerDown={(e) => {
-                    // Track pointer for multi-touch panning
-                    try {
-                        pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY, type: (e as any).pointerType || 'mouse' });
-                    } catch (err) { }
+                    if (drawingTool === 'none') {
+                        // Check for resize handle interaction first?
+                        // Actually, handles are their own elements with stopPropagation usually, 
+                        // but if we handle it here:
+                        const handleEl = (e.target as HTMLElement).closest('.resize-handle');
+                        if (handleEl) {
+                            // Resize Start Logic handled by the handle's onPointerDown
+                            return;
+                        }
 
-                    const pointerCount = pointersRef.current.size;
-
-                    // If two-finger touch or mouse drag (left button) and not drawing, start panning
-                    const target = e.target as HTMLElement;
-                    const interactiveHit = !!target.closest('button, input, textarea, a, .interactive-el');
-
-                    if (drawingTool === 'none' && !interactiveHit) {
-                        const handleEl = target.closest('.resize-handle');
-                        if (handleEl) return; // let resize handlers own the event
-
-                        const widgetEl = target.closest('.dashboard-widget');
+                        // Select/Distort logic
+                        const widgetEl = (e.target as HTMLElement).closest('.dashboard-widget');
                         if (widgetEl && widgets) {
+                            // Find widget ID from element (we need to add data-id to widget)
                             const widgetId = widgetEl.getAttribute('data-id');
-                            if (widgetId) setSelectedWidgetId(widgetId);
+                            if (widgetId) {
+                                setSelectedWidgetId(widgetId);
+                            }
                         } else {
+                            // Deselect if clicking background
                             setSelectedWidgetId(null);
                         }
-
-                        // Mouse: left-button drag to pan
-                        if ((e as any).pointerType === 'mouse' && (e as any).button === 0) {
-                            panningRef.current.active = true;
-                            panningRef.current.lastX = e.clientX;
-                            panningRef.current.lastY = e.clientY;
-                            try { (e.target as Element).setPointerCapture(e.pointerId); } catch (err) { }
-                            e.preventDefault();
-                            return;
-                        }
-
-                        // Touch: start panning when two pointers present
-                        if (pointerCount >= 2 && (Array.from(pointersRef.current.values()).some(p => p.type === 'touch'))) {
-                            // compute centroid
-                            const pts = Array.from(pointersRef.current.values());
-                            const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
-                            const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
-                            panningRef.current.active = true;
-                            panningRef.current.lastCentroid = { x: cx, y: cy };
-                            e.preventDefault();
-                            return;
-                        }
-                    } else if (drawingTool !== 'none') {
-                        // If drawing, deselect and start drawing if appropriate
+                    } else {
+                        // If drawing, deselect?
                         setSelectedWidgetId(null);
-                        const widgetEl = target.closest('.dashboard-widget');
-                        const wrapper = canvasRef.current?.parentElement;
-                        if (wrapper) {
-                            const rect = wrapper.getBoundingClientRect();
-                            const x = e.clientX - rect.left;
-                            const y = e.clientY - rect.top;
-                            startDrawing(x, y, (e as any).pressure);
-                            e.preventDefault();
-                            try { (e.target as Element).setPointerCapture(e.pointerId); } catch (err) { }
+                    }
+
+                    // Interaction Logic:
+                    // 1. If hitting an interactive element (button, input), let it pass (do nothing)
+                    const target = e.target as HTMLElement;
+                    if (target.closest('button, input, textarea, a, .interactive-el')) return;
+
+                    // 2. Check if hitting a Widget (Card)
+                    // 2. Check if hitting a Widget (Card)
+                    const widgetEl = target.closest('.dashboard-widget');
+
+                    if (drawingTool !== 'none') {
+                        if (widgetEl) {
+                            // Hit a card! Drawing allowed.
+                            // Calculate coordinates relative to the Canvas
+                            const wrapper = canvasRef.current?.parentElement;
+                            if (wrapper) {
+                                const rect = wrapper.getBoundingClientRect();
+                                const x = e.clientX - rect.left;
+                                const y = e.clientY - rect.top;
+
+                                startDrawing(x, y, e.pressure);
+                                e.preventDefault(); // Prevent text selection / native drag
+                                (e.target as Element).setPointerCapture(e.pointerId);
+                            }
+                        } else {
+                            // Hit background (Canvas). Drawing ALLOWED.
+                            const wrapper = canvasRef.current?.parentElement;
+                            if (wrapper) {
+                                const rect = wrapper.getBoundingClientRect();
+                                const x = e.clientX - rect.left;
+                                const y = e.clientY - rect.top;
+
+                                startDrawing(x, y, e.pressure);
+                                e.preventDefault();
+                                (e.target as Element).setPointerCapture(e.pointerId);
+                            }
                         }
                     }
                 }}
@@ -1401,27 +1565,14 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                     }
                 }}
                 onPointerUp={(e) => {
-                    // Remove tracked pointer
-                    try { pointersRef.current.delete(e.pointerId); } catch (err) { }
-
-                    // End panning when appropriate
-                    if (panningRef.current.active) {
-                        const remaining = pointersRef.current.size;
-                        if (remaining < 2 || (e as any).pointerType === 'mouse') {
-                            panningRef.current.active = false;
-                            panningRef.current.lastCentroid = undefined;
-                            try { (e.target as Element).releasePointerCapture(e.pointerId); } catch (err) { }
-                        }
-                    }
-
                     handleCanvasUp();
                     if (isDrawingRef.current) {
-                        try { (e.target as Element).releasePointerCapture(e.pointerId); } catch (err) { }
+                        (e.target as Element).releasePointerCapture(e.pointerId);
                     }
                     // End Resize
                     if (resizeStateRef.current.active) {
                         resizeStateRef.current.active = false;
-                        try { (e.target as Element).releasePointerCapture(e.pointerId); } catch (err) { }
+                        (e.target as Element).releasePointerCapture(e.pointerId);
                     }
                 }}
             >
@@ -1636,49 +1787,20 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                                                         top: h.includes('n') ? -6 : (h.includes('s') ? 'calc(100% - 6px)' : 'calc(50% - 6px)'),
                                                         left: h.includes('w') ? -6 : (h.includes('e') ? 'calc(100% - 6px)' : 'calc(50% - 6px)')
                                                     }}
-                                                    onPointerMove={(e) => {
+                                                    onPointerDown={(e) => {
                                                         e.stopPropagation(); e.currentTarget.setPointerCapture(e.pointerId);
-
-                                                        // Update tracked pointer position
-                                                        if (pointersRef.current.has(e.pointerId)) {
-                                                            pointersRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY, type: (e as any).pointerType || 'mouse' });
-                                                        }
-
                                                         const wrapper = canvasRef.current?.parentElement;
-                                                        if (!wrapper) return;
-                                                        const rect = wrapper.getBoundingClientRect();
-                                                        const x = e.clientX - rect.left;
-                                                        const y = e.clientY - rect.top;
-
-                                                        // If panning is active, handle scroll updates and skip drawing/resizing
-                                                        if (panningRef.current.active) {
-                                                            const container = containerRef.current;
-                                                            if (container) {
-                                                                // Touch two-finger centroid panning
-                                                                if (panningRef.current.lastCentroid) {
-                                                                    const pts = Array.from(pointersRef.current.values());
-                                                                    const cx = pts.reduce((s, p) => s + p.x, 0) / pts.length;
-                                                                    const cy = pts.reduce((s, p) => s + p.y, 0) / pts.length;
-                                                                    const dx = cx - (panningRef.current.lastCentroid.x || cx);
-                                                                    const dy = cy - (panningRef.current.lastCentroid.y || cy);
-                                                                    container.scrollLeft -= dx;
-                                                                    container.scrollTop -= dy;
-                                                                    panningRef.current.lastCentroid = { x: cx, y: cy };
-                                                                } else {
-                                                                    // Mouse drag panning
-                                                                    const dx = e.clientX - panningRef.current.lastX;
-                                                                    const dy = e.clientY - panningRef.current.lastY;
-                                                                    container.scrollLeft -= dx;
-                                                                    container.scrollTop -= dy;
-                                                                    panningRef.current.lastX = e.clientX;
-                                                                    panningRef.current.lastY = e.clientY;
-                                                                }
-                                                            }
-                                                            return;
+                                                        if (wrapper) {
+                                                            const rect = wrapper.getBoundingClientRect();
+                                                            const x = e.clientX - rect.left;
+                                                            const y = e.clientY - rect.top;
+                                                            resizeStateRef.current = {
+                                                                active: true,
+                                                                handle: h as any,
+                                                                startMouse: { x, y },
+                                                                startWidget: { x: widget.x, y: widget.y, w: widget.w, h: widget.h }
+                                                            };
                                                         }
-
-                                                        // ALWAYS update mousePos for cursor visualization (Eraser)
-                                                        setMousePos({ x, y });
                                                     }}
                                                 />
                                             ))}
