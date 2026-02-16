@@ -4,138 +4,138 @@ import { RecordContextMenu } from '@/features/records/components/record-context-
 import { SmartField } from '@/components/fields/smart-field';
 
 export function GalleryView({ data, loading, collection, config = {}, onUpdateRecord, onDelete, onConfigChange }: ViewProps) {
-    if (loading || !collection) {
-        return (
-            <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
-                <div className="flex flex-col items-center gap-2">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                    <p className="text-sm">loading gallery...</p>
-                </div>
-            </div>
-        );
+  if (loading || !collection) {
+  return (
+  <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
+ <div className="flex flex-col items-center gap-2">
+ <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+ <p className="text-sm">loading gallery...</p>
+ </div>
+  </div>
+  );
+  }
+
+  // Helper to get image URL from a record field
+  const getImageUrl = (record: any, field: any) => {
+  if (!field) return null;
+  const value = record[field.name];
+  if (!value) return null;
+
+  // Handle NocoBase attachment array
+  if (Array.isArray(value) && value.length > 0) {
+  return value[0].url || value[0].url_thumbnail || null;
+  }
+  // Handle string URL
+  if (typeof value === 'string' && (value.startsWith('http') || value.startsWith('/'))) {
+  return value;
+  }
+  return null;
+  };
+
+  // Detect fields if not configured
+  // Priority: Config -> Explicit 'attachment' interface -> name includes 'image'/'cover'
+  const imageField = config.coverField
+  ? collection?.fields?.find((f: any) => f.name === config.coverField)
+  : (collection?.fields?.find((f: any) => f.interface === 'attachment')
+  || collection?.fields?.find((f: any) => f.name.toLowerCase().includes('image') || f.name.toLowerCase().includes('cover')));
+
+  // Priority: Config -> 'title'/'name' -> First input field
+  const titleField = config.titleField
+  ? collection?.fields?.find((f: any) => f.name === config.titleField)
+  : (collection?.fields?.find((f: any) => f.name === 'title' || f.name === 'name')
+  || collection?.fields?.find((f: any) => f.interface === 'input'));
+
+  const visibleFieldNames = config.visibleFields || [];
+  const visibleFields = collection?.fields?.filter((f: any) => visibleFieldNames.includes(f.name)) || [];
+
+  return (
+  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+  {data.map((record, i) => {
+ const imageUrl = getImageUrl(record, imageField);
+ const title = titleField ? record[titleField.name] : (record.id || 'Untitled');
+
+ return (
+ <RecordContextMenu
+ key={record.id || i}
+ record={record}
+ collection={collection}
+ onUpdate={onUpdateRecord}
+ onDelete={onDelete}
+ titleField={titleField}
+ config={config}
+ onConfigChange={onConfigChange}
+ >
+ <Card className="rounded-xl shadow-lg border-2 border-transparent p-0 relative hover:scale-[1.02] transition-all bg-card overflow-hidden flex flex-col group/card">
+   {/* INNER CONTENT VESSEL */}
+   <div className="flex flex-col h-full w-full rounded-[inherit] overflow-hidden">
+   {imageUrl && (
+   <div className="aspect-square bg-muted/30 flex items-center justify-center relative overflow-hidden rounded-t-[inherit]">
+  <img
+  src={imageUrl}
+  alt="Cover"
+  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 rounded-t-[inherit]"
+  />
+
+  {/* Hover Overlay */}
+  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-t-[inherit]">
+  <span className="text-white text-xs font-bold px-2 py-1 border border-primary bg-primary/20 rounded-full lowercase">
+  View Details
+  </span>
+  </div>
+   </div>
+   )}
+   <CardContent className="p-3 bg-card/95 rounded-b-[inherit]">
+   {/* Editable Title */}
+   <div className="font-black text-xl mb-1 text-center" onClick={(e) => e.stopPropagation()}>
+  {titleField ? (
+  <SmartField
+  value={record[titleField.name]}
+  field={titleField}
+  record={record}
+  collectionName={collection.name}
+  size="sm"
+  onChange={(val) => {
+    if (onUpdateRecord) {
+    onUpdateRecord(record.id, { [titleField.name]: val });
     }
-
-    // Helper to get image URL from a record field
-    const getImageUrl = (record: any, field: any) => {
-        if (!field) return null;
-        const value = record[field.name];
-        if (!value) return null;
-
-        // Handle NocoBase attachment array
-        if (Array.isArray(value) && value.length > 0) {
-            return value[0].url || value[0].url_thumbnail || null;
-        }
-        // Handle string URL
-        if (typeof value === 'string' && (value.startsWith('http') || value.startsWith('/'))) {
-            return value;
-        }
-        return null;
-    };
-
-    // Detect fields if not configured
-    // Priority: Config -> Explicit 'attachment' interface -> name includes 'image'/'cover'
-    const imageField = config.coverField
-        ? collection?.fields?.find((f: any) => f.name === config.coverField)
-        : (collection?.fields?.find((f: any) => f.interface === 'attachment')
-            || collection?.fields?.find((f: any) => f.name.toLowerCase().includes('image') || f.name.toLowerCase().includes('cover')));
-
-    // Priority: Config -> 'title'/'name' -> First input field
-    const titleField = config.titleField
-        ? collection?.fields?.find((f: any) => f.name === config.titleField)
-        : (collection?.fields?.find((f: any) => f.name === 'title' || f.name === 'name')
-            || collection?.fields?.find((f: any) => f.interface === 'input'));
-
-    const visibleFieldNames = config.visibleFields || [];
-    const visibleFields = collection?.fields?.filter((f: any) => visibleFieldNames.includes(f.name)) || [];
-
-    return (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-            {data.map((record, i) => {
-                const imageUrl = getImageUrl(record, imageField);
-                const title = titleField ? record[titleField.name] : (record.id || 'Untitled');
-
-                return (
-                    <RecordContextMenu
-                        key={record.id || i}
-                        record={record}
-                        collection={collection}
-                        onUpdate={onUpdateRecord}
-                        onDelete={onDelete}
-                        titleField={titleField}
-                        config={config}
-                        onConfigChange={onConfigChange}
-                    >
-                        <Card className="rounded-xl shadow-lg border-2 border-transparent p-0 relative hover:scale-[1.02] transition-all bg-card overflow-hidden flex flex-col group/card">
-                            {/* INNER CONTENT VESSEL */}
-                            <div className="flex flex-col h-full w-full rounded-[inherit] overflow-hidden">
-                                {imageUrl && (
-                                    <div className="aspect-square bg-muted/30 flex items-center justify-center relative overflow-hidden rounded-t-[inherit]">
-                                        <img
-                                            src={imageUrl}
-                                            alt="Cover"
-                                            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 rounded-t-[inherit]"
-                                        />
-
-                                        {/* Hover Overlay */}
-                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-t-[inherit]">
-                                            <span className="text-white text-xs font-bold px-2 py-1 border border-primary bg-primary/20 rounded-full lowercase">
-                                                View Details
-                                            </span>
-                                        </div>
-                                    </div>
-                                )}
-                                <CardContent className="p-3 bg-card/95 rounded-b-[inherit]">
-                                    {/* Editable Title */}
-                                    <div className="font-black text-xl mb-1 text-center" onClick={(e) => e.stopPropagation()}>
-                                        {titleField ? (
-                                            <SmartField
-                                                value={record[titleField.name]}
-                                                field={titleField}
-                                                record={record}
-                                                collectionName={collection.name}
-                                                size="sm"
-                                                onChange={(val) => {
-                                                    if (onUpdateRecord) {
-                                                        onUpdateRecord(record.id, { [titleField.name]: val });
-                                                    }
-                                                }}
-                                                className="h-auto p-0 border-none bg-transparent hover:bg-muted/50 rounded px-1 w-full font-bold text-center"
-                                            />
-                                        ) : (
-                                            <span className="px-1 truncate block">{typeof title === 'string' ? title : String(title)}</span>
-                                        )}
-                                    </div>
-                                    {/* Editable Properties (Max 3) */}
-                                    {visibleFields.length > 0 && (
-                                        <div className="mt-2 space-y-1 text-center" onClick={(e) => e.stopPropagation()}>
-                                            {visibleFields.slice(0, 3).map((f: any) => (
-                                                <div key={f.name} className="text-xs text-muted-foreground truncate flex flex-col items-center gap-0.5">
-                                                    <span className="opacity-50 lowercase text-[10px] uppercase tracking-wider">{f.uiSchema?.title || f.name}:</span>
-                                                    <div className="w-full">
-                                                        <SmartField
-                                                            value={record[f.name]}
-                                                            field={f}
-                                                            record={record}
-                                                            size="sm"
-                                                            onChange={(val) => {
-                                                                if (onUpdateRecord) {
-                                                                    onUpdateRecord(record.id, { [f.name]: val });
-                                                                }
-                                                            }}
-                                                            className="h-auto p-0 border-none bg-transparent hover:bg-muted/50 rounded px-1 text-center"
-                                                        />
-                                                    </div>
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
-                                </CardContent>
-                            </div>
-                        </Card>
-                    </RecordContextMenu>
-                );
-            })}
-            {data.length === 0 && <div className="col-span-full text-center p-10">no items found.</div>}
-        </div>
-    );
+  }}
+  className="h-auto p-0 border-none bg-transparent hover:bg-muted/50 rounded px-1 w-full font-bold text-center"
+  />
+  ) : (
+  <span className="px-1 truncate block">{typeof title === 'string' ? title : String(title)}</span>
+  )}
+   </div>
+   {/* Editable Properties (Max 3) */}
+   {visibleFields.length > 0 && (
+  <div className="mt-2 space-y-1 text-center" onClick={(e) => e.stopPropagation()}>
+  {visibleFields.slice(0, 3).map((f: any) => (
+  <div key={f.name} className="text-xs text-muted-foreground truncate flex flex-col items-center gap-0.5">
+    <span className="opacity-50 lowercase text-[10px] ">{f.uiSchema?.title || f.name}:</span>
+    <div className="w-full">
+    <SmartField
+    value={record[f.name]}
+    field={f}
+    record={record}
+    size="sm"
+    onChange={(val) => {
+   if (onUpdateRecord) {
+   onUpdateRecord(record.id, { [f.name]: val });
+   }
+    }}
+    className="h-auto p-0 border-none bg-transparent hover:bg-muted/50 rounded px-1 text-center"
+    />
+    </div>
+  </div>
+  ))}
+  </div>
+   )}
+   </CardContent>
+   </div>
+ </Card>
+ </RecordContextMenu>
+ );
+  })}
+  {data.length === 0 && <div className="col-span-full text-center p-10">no items found.</div>}
+  </div>
+  );
 }

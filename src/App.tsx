@@ -46,145 +46,145 @@ console.log(`[Router] Host: ${window.location.hostname}, isPublicByDomain: ${isP
 
 // Set branding immediately (before React mounts)
 if (typeof document !== 'undefined') {
-  const hostname = window.location.hostname;
-  if (hostname.includes('dupe')) {
-    document.title = "dupemates";
-  } else if (hostname.includes('blog')) {
-    document.title = "blog";
-  } else if (hostname.includes('home')) {
-    document.title = "home";
+ const hostname = window.location.hostname;
+ if (hostname.includes('dupe')) {
+  document.title = "dupemates";
+ } else if (hostname.includes('blog')) {
+  document.title = "blog";
+ } else if (hostname.includes('home')) {
+  document.title = "home";
+ } else {
+  document.title = isPublic ? "house of mates" : "pkm";
+ }
+ const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
+ if (favicon) {
+  if (window.location.hostname.includes('dupe')) {
+ favicon.href = "/favicon-dupe.png";
+  } else if (isPublic) {
+ favicon.href = "/favicon-home.png";
   } else {
-    document.title = isPublic ? "house of mates" : "pkm";
+ favicon.href = "/favicon.png";
   }
-  const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
-  if (favicon) {
-    if (window.location.hostname.includes('dupe')) {
-      favicon.href = "/favicon-dupe.png";
-    } else if (isPublic) {
-      favicon.href = "/favicon-home.png";
-    } else {
-      favicon.href = "/favicon.png";
-    }
-  }
+ }
 }
 
 function AppContent() {
-  const { token } = useAuth()
+ const { token } = useAuth()
 
-  const LoadingFallback = (
-    <div className="h-screen flex items-center justify-center bg-[#060606] text-[var(--primary)] lowercase text-xl">
-      {isPublic
-        ? (window.location.hostname.includes('dupe')
-          ? "dupemates loading..."
-          : window.location.hostname.includes('blog')
-            ? "blog loading..."
-            : "house of mates loading...")
-        : `loading ${isPkmDomain ? 'pkm' : 'app'}...`}
-    </div>
+ const LoadingFallback = (
+  <div className="h-screen flex items-center justify-center bg-[#050505] text-[var(--primary)] lowercase text-xl">
+ {isPublic
+  ? (window.location.hostname.includes('dupe')
+   ? "dupemates loading..."
+   : window.location.hostname.includes('blog')
+  ? "blog loading..."
+  : "house of mates loading...")
+  : `loading ${isPkmDomain ? 'pkm' : 'app'}...`}
+  </div>
+ );
+
+ // Check for critical configuration
+ const isConfigured = !!import.meta.env.VITE_API_URL;
+ if (!isConfigured && !isPublic) {
+  return (
+ <Suspense fallback={LoadingFallback}>
+  <SetupRequired />
+ </Suspense>
   );
+ }
 
-  // Check for critical configuration
-  const isConfigured = !!import.meta.env.VITE_API_URL;
-  if (!isConfigured && !isPublic) {
-    return (
-      <Suspense fallback={LoadingFallback}>
-        <SetupRequired />
-      </Suspense>
-    );
-  }
+ // Public Site Router - Bypass standard App for public domains
+ if (isPublic) {
+  const isBlog = window.location.hostname.includes('blog');
 
-  // Public Site Router - Bypass standard App for public domains
-  if (isPublic) {
-    const isBlog = window.location.hostname.includes('blog');
+  if (isBlog) {
+ return (
+  <BrowserRouter>
+   <Suspense fallback={LoadingFallback}>
+  <Routes>
 
-    if (isBlog) {
-      return (
-        <BrowserRouter>
-          <Suspense fallback={LoadingFallback}>
-            <Routes>
-
-              <Route path="/" element={<BlogBuilder />} />
-              <Route path="/:slug" element={<BlogBuilder />} />
-            </Routes>
-          </Suspense>
-          <Toaster />
-        </BrowserRouter>
-      );
-    }
-
-    return (
-      <BrowserRouter>
-        <Suspense fallback={LoadingFallback}>
-          <Routes>
-            <Route path="/" element={<HouseofmatesBuilder />} />
-            <Route path="/doc/:slug" element={<PublicDocViewer slug={window.location.pathname.split('/doc/')[1]} />} />
-            <Route path="/:slug" element={<HouseofmatesBuilder />} />
-          </Routes>
-        </Suspense>
-        <Toaster />
-      </BrowserRouter>
-    );
+   <Route path="/" element={<BlogBuilder />} />
+   <Route path="/:slug" element={<BlogBuilder />} />
+  </Routes>
+   </Suspense>
+   <Toaster />
+  </BrowserRouter>
+ );
   }
 
   return (
-    <>
-      {token ? (
-        <BrowserRouter>
-          <Suspense fallback={LoadingFallback}>
-            <Routes>
-              <Route element={<RootLayout />}>
-                <Route path="/" element={<HomePage />} />
-                <Route path="/databases" element={<DatabasesPage />} />
-                <Route path="/databases/:name" element={<CollectionDetailPage />} />
-                <Route path="/headmates" element={<HeadmatesPage />} />
-                <Route path="/board" element={<MoodboardPage />} />
-                <Route path="/canvas/:id" element={<CanvasPage />} />
-                <Route path="/drawings/:id" element={<DrawingPage />} />
-                <Route path="/databases/:name/:id" element={<RecordView />} />
-                <Route path="/captures" element={<CapturesPage />} />
-                <Route path="/db-canvas" element={<DatabaseCanvasView />} />
-                <Route path="/page/:id" element={<PageCanvas />} />
-                <Route path="/template" element={<TemplatePage />} />
-                <Route path="/workspace/:id" element={<WorkspacePage />} />
-              </Route>
-            </Routes>
-            <GlobalCommandPalette />
-            <WilsonChat />
-          </Suspense>
-        </BrowserRouter>
-      ) : <LoginPage />}
-      <Toaster />
-    </>
-  )
+ <BrowserRouter>
+  <Suspense fallback={LoadingFallback}>
+   <Routes>
+  <Route path="/" element={<HouseofmatesBuilder />} />
+  <Route path="/doc/:slug" element={<PublicDocViewer slug={window.location.pathname.split('/doc/')[1]} />} />
+  <Route path="/:slug" element={<HouseofmatesBuilder />} />
+   </Routes>
+  </Suspense>
+  <Toaster />
+ </BrowserRouter>
+  );
+ }
+
+ return (
+  <>
+ {token ? (
+  <BrowserRouter>
+   <Suspense fallback={LoadingFallback}>
+  <Routes>
+   <Route element={<RootLayout />}>
+ <Route path="/" element={<HomePage />} />
+ <Route path="/databases" element={<DatabasesPage />} />
+ <Route path="/databases/:name" element={<CollectionDetailPage />} />
+ <Route path="/headmates" element={<HeadmatesPage />} />
+ <Route path="/board" element={<MoodboardPage />} />
+ <Route path="/canvas/:id" element={<CanvasPage />} />
+ <Route path="/drawings/:id" element={<DrawingPage />} />
+ <Route path="/databases/:name/:id" element={<RecordView />} />
+ <Route path="/captures" element={<CapturesPage />} />
+ <Route path="/db-canvas" element={<DatabaseCanvasView />} />
+ <Route path="/page/:id" element={<PageCanvas />} />
+ <Route path="/template" element={<TemplatePage />} />
+ <Route path="/workspace/:id" element={<WorkspacePage />} />
+   </Route>
+  </Routes>
+  <GlobalCommandPalette />
+  <WilsonChat />
+   </Suspense>
+  </BrowserRouter>
+ ) : <LoginPage />}
+ <Toaster />
+  </>
+ )
 }
 
 function App() {
-  // Check if public domain
-  const isPublic = isPublicDomain();
+ // Check if public domain
+ const isPublic = isPublicDomain();
 
-  if (isPublic) {
-    // Public site doesn't need FronterProvider or LLMContextProvider
-    return (
-      <AuthProvider>
-        <QueryClientProvider client={queryClient}>
-          <AppContent />
-        </QueryClientProvider>
-      </AuthProvider>
-    );
-  }
-
-  // Private PKM site needs all providers
+ if (isPublic) {
+  // Public site doesn't need FronterProvider or LLMContextProvider
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <FronterProvider>
-          <LLMContextProvider>
-            <AppContent />
-          </LLMContextProvider>
-        </FronterProvider>
-      </QueryClientProvider>
-    </AuthProvider>
-  )
+ <AuthProvider>
+  <QueryClientProvider client={queryClient}>
+   <AppContent />
+  </QueryClientProvider>
+ </AuthProvider>
+  );
+ }
+
+ // Private PKM site needs all providers
+ return (
+  <AuthProvider>
+ <QueryClientProvider client={queryClient}>
+  <FronterProvider>
+   <LLMContextProvider>
+  <AppContent />
+   </LLMContextProvider>
+  </FronterProvider>
+ </QueryClientProvider>
+  </AuthProvider>
+ )
 }
 
 export default App
