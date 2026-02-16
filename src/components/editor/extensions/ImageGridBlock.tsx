@@ -3,50 +3,50 @@ import { ReactNodeViewRenderer, NodeViewWrapper } from '@tiptap/react';
 import { ImageGrid } from '@/components/ImageGrid';
 
 function ImageGridBlockComponent(props: any) {
-    return (
-        <NodeViewWrapper className="my-8">
-            <ImageGrid />
-        </NodeViewWrapper>
-    );
+  return (
+  <NodeViewWrapper className="my-8">
+  <ImageGrid />
+  </NodeViewWrapper>
+  );
 }
 
 export const ImageGridBlock = Node.create({
-    name: 'imageGridBlock',
-    group: 'block',
-    atom: true,
+  name: 'imageGridBlock',
+  group: 'block',
+  atom: true,
 
-    addAttributes() {
-        return {
-            images: {
-                default: [],
-            },
-        };
-    },
+  addAttributes() {
+  return {
+  images: {
+ default: [],
+  },
+  };
+  },
 
-    parseHTML() {
-        return [
-            {
-                tag: 'image-grid-block',
-            },
-        ];
-    },
+  parseHTML() {
+  return [
+  {
+ tag: 'image-grid-block',
+  },
+  ];
+  },
 
-    renderHTML({ HTMLAttributes }) {
-        return ['image-grid-block', HTMLAttributes];
-    },
+  renderHTML({ HTMLAttributes }) {
+  return ['image-grid-block', HTMLAttributes];
+  },
 
-    addNodeView() {
-        return ReactNodeViewRenderer(ImageGridBlockComponent);
-    },
+  addNodeView() {
+  return ReactNodeViewRenderer(ImageGridBlockComponent);
+  },
 
-    addCommands() {
-        return {
-            setImageGridBlock: (options) => ({ commands }) => {
-                return commands.insertContent({
-                    type: this.name,
-                    attrs: options,
-                });
-            },
-        };
-    },
+  addCommands() {
+  return {
+  setImageGridBlock: (options) => ({ commands }) => {
+ return commands.insertContent({
+ type: this.name,
+ attrs: options,
+ });
+  },
+  };
+  },
 });

@@ -5,480 +5,480 @@ import { toast } from 'sonner';
 import { BlogCanvas } from './BlogCanvas';
 import { BlogContext, type BlogBuilderContextType, type BlogPostData, type ElementData } from './BlogContext';
 import {
-    Save, ArrowLeft, Plus, Settings, Image as ImageIcon,
-    Type, Layout, Square, Link2, MoreVertical, Trash2, Eye, FileText
+  Save, ArrowLeft, Plus, Settings, Image as ImageIcon,
+  Type, Layout, Square, Link2, MoreVertical, Trash2, Eye, FileText
 } from 'lucide-react';
 
 
 // --- MAIN COMPONENT ---
 export function BlogEditor() {
-    const { slug } = useParams();
+  const { slug } = useParams();
 
-    // If no slug, show Dashboard
-    if (!slug) {
-        return <BlogDashboard />;
-    }
+  // If no slug, show Dashboard
+  if (!slug) {
+  return <BlogDashboard />;
+  }
 
-    return <BlogEditorParamsWrapper slug={slug} />;
+  return <BlogEditorParamsWrapper slug={slug} />;
 }
 
 // --- DASHBOARD ---
 function BlogDashboard() {
-    const [posts, setPosts] = useState<BlogPostData[]>([]);
-    const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
+  const [posts, setPosts] = useState<BlogPostData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
-    useEffect(() => {
-        loadPosts();
-    }, []);
+  useEffect(() => {
+  loadPosts();
+  }, []);
 
-    const loadPosts = async () => {
-        setLoading(true);
-        try {
-            const res = await api.request('blog_posts', 'list', {
-                params: {
-                    sort: '-created_at',
-                    pageSize: 50
-                }
-            });
-            setPosts(res.data || []);
-        } catch (e) {
-            console.error(e);
-            toast.error('failed to load posts');
-        } finally {
-            setLoading(false);
-        }
-    };
+  const loadPosts = async () => {
+  setLoading(true);
+  try {
+  const res = await api.request('blog_posts', 'list', {
+ params: {
+ sort: '-created_at',
+ pageSize: 50
+ }
+  });
+  setPosts(res.data || []);
+  } catch (e) {
+  console.error(e);
+  toast.error('failed to load posts');
+  } finally {
+  setLoading(false);
+  }
+  };
 
-    const handleCreate = async () => {
-        // Create a draft immediately or redirect to 'new'?
-        // Let's redirect to 'new' and handle creation purely client-side until save?
-        // Or create draft on server. Server draft is safer.
-        try {
-            const res = await api.createRecord('blog_posts', {
-                title: 'Untitled Post',
-                slug: `draft-${Date.now()}`,
-                content: [],
-                published: false
-            });
-            navigate(`/editor/${res.data.slug}`);
-        } catch (e) {
-            toast.error('failed to create draft');
-        }
-    };
+  const handleCreate = async () => {
+  // Create a draft immediately or redirect to 'new'?
+  // Let's redirect to 'new' and handle creation purely client-side until save?
+  // Or create draft on server. Server draft is safer.
+  try {
+  const res = await api.createRecord('blog_posts', {
+ title: 'Untitled Post',
+ slug: `draft-${Date.now()}`,
+ content: [],
+ published: false
+  });
+  navigate(`/editor/${res.data.slug}`);
+  } catch (e) {
+  toast.error('failed to create draft');
+  }
+  };
 
-    const handleDelete = async (id: string, e: React.MouseEvent) => {
-        e.stopPropagation();
-        if (!confirm('delete this post?')) return;
-        try {
-            await api.deleteRecord('blog_posts', id);
-            toast.success('post deleted');
-            loadPosts();
-        } catch (e) {
-            toast.error('failed to delete');
-        }
-    };
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
+  e.stopPropagation();
+  if (!confirm('delete this post?')) return;
+  try {
+  await api.deleteRecord('blog_posts', id);
+  toast.success('post deleted');
+  loadPosts();
+  } catch (e) {
+  toast.error('failed to delete');
+  }
+  };
 
-    return (
-        <div className="min-h-screen bg-[#0c0c0c] text-white p-8 font-['Varela_Round']">
-            <div className="max-w-5xl mx-auto">
-                <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold">blog dashboard</h1>
-                    <button
-                        onClick={handleCreate}
-                        className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-black rounded-xl font-bold hover:opacity-90 transition-opacity"
-                    >
-                        <Plus size={20} /> new post
-                    </button>
-                </div>
+  return (
+  <div className="min-h-screen bg-[#050505] text-white p-8 font-['Varela_Round']">
+  <div className="max-w-5xl mx-auto">
+ <div className="flex justify-between items-center mb-8">
+ <h1 className="text-3xl font-bold">blog dashboard</h1>
+ <button
+ onClick={handleCreate}
+ className="flex items-center gap-2 px-4 py-2 bg-[var(--primary)] text-black rounded-xl font-bold hover:opacity-90 transition-opacity"
+ >
+ <Plus size={20} /> new post
+ </button>
+ </div>
 
-                {loading ? (
-                    <div className="text-white/50">loading posts...</div>
-                ) : (
-                    <div className="grid gap-4">
-                        {posts.map(post => (
-                            <div
-                                key={post.id}
-                                onClick={() => navigate(`/editor/${post.slug}`)}
-                                className="bg-white/5 border border-white/10 p-4 rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-colors group"
-                            >
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center overflow-hidden">
-                                        {post.banner_image ? (
-                                            <img src={post.banner_image} className="w-full h-full object-cover" />
-                                        ) : (
-                                            <FileText className="text-white/30" />
-                                        )}
-                                    </div>
-                                    <div>
-                                        <h3 className="font-bold text-lg">{post.title || 'Untitled'}</h3>
-                                        <div className="flex gap-2 text-sm text-white/50">
-                                            <span>/{post.slug}</span>
-                                            <span>•</span>
-                                            <span className={post.published ? 'text-green-400' : 'text-yellow-400'}>
-                                                {post.published ? 'published' : 'draft'}
-                                            </span>
-                                            <span>•</span>
-                                            <span>{new Date(post.updated_at || '').toLocaleDateString()}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <button
-                                        onClick={(e) => { e.stopPropagation(); window.open(`/${post.slug}`, '_blank'); }}
-                                        className="p-2 hover:bg-white/10 rounded-lg text-white/70 hover:text-white"
-                                        title="view live"
-                                    >
-                                        <Eye size={18} />
-                                    </button>
-                                    <button
-                                        onClick={(e) => handleDelete(post.id, e)}
-                                        className="p-2 hover:bg-white/10 rounded-lg text-red-400 hover:text-red-300"
-                                        title="delete"
-                                    >
-                                        <Trash2 size={18} />
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                )}
-            </div>
-        </div>
-    );
+ {loading ? (
+ <div className="text-white/50">loading posts...</div>
+ ) : (
+ <div className="grid gap-4">
+ {posts.map(post => (
+   <div
+   key={post.id}
+   onClick={() => navigate(`/editor/${post.slug}`)}
+   className="bg-white/5 border border-white/10 p-4 rounded-xl flex items-center justify-between cursor-pointer hover:bg-white/10 transition-colors group"
+   >
+   <div className="flex items-center gap-4">
+   <div className="w-12 h-12 bg-white/10 rounded-lg flex items-center justify-center overflow-hidden">
+  {post.banner_image ? (
+  <img src={post.banner_image} className="w-full h-full object-cover" />
+  ) : (
+  <FileText className="text-white/30" />
+  )}
+   </div>
+   <div>
+  <h3 className="font-bold text-lg">{post.title || 'Untitled'}</h3>
+  <div className="flex gap-2 text-sm text-white/50">
+  <span>/{post.slug}</span>
+  <span>•</span>
+  <span className={post.published ? 'text-green-400' : 'text-yellow-400'}>
+  {post.published ? 'published' : 'draft'}
+  </span>
+  <span>•</span>
+  <span>{new Date(post.updated_at || '').toLocaleDateString()}</span>
+  </div>
+   </div>
+   </div>
+   <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+   <button
+  onClick={(e) => { e.stopPropagation(); window.open(`/${post.slug}`, '_blank'); }}
+  className="p-2 hover:bg-white/10 rounded-lg text-white/70 hover:text-white"
+  title="view live"
+   >
+  <Eye size={18} />
+   </button>
+   <button
+  onClick={(e) => handleDelete(post.id, e)}
+  className="p-2 hover:bg-white/10 rounded-lg text-red-400 hover:text-red-300"
+  title="delete"
+   >
+  <Trash2 size={18} />
+   </button>
+   </div>
+   </div>
+ ))}
+ </div>
+ )}
+  </div>
+  </div>
+  );
 }
 
 // --- EDITOR WRAPPER ---
 function BlogEditorParamsWrapper({ slug }: { slug: string }) {
-    const [post, setPost] = useState<BlogPostData | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [selectedElementIds, setSelectedElementIds] = useState<string[]>([]);
-    const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile' | 'tablet'>('desktop');
-    const [viewWidth, setViewWidth] = useState(window.innerWidth);
-    const [selectionBox, setSelectionBox] = useState(null);
-    const [showSidebar, setShowSidebar] = useState(true);
+  const [post, setPost] = useState<BlogPostData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedElementIds, setSelectedElementIds] = useState<string[]>([]);
+  const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile' | 'tablet'>('desktop');
+  const [viewWidth, setViewWidth] = useState(window.innerWidth);
+  const [selectionBox, setSelectionBox] = useState(null);
+  const [showSidebar, setShowSidebar] = useState(true);
 
-    // Initial Fetch
-    useEffect(() => {
-        const fetchPost = async () => {
-            setLoading(true);
-            try {
-                if (slug === 'new') {
-                    // Should have been handled by Dashboard, but if hit directly:
-                    setPost({
-                        id: 'temp-new',
-                        title: 'New Post',
-                        slug: '',
-                        content: [],
-                        published: false,
-                        elements: [] // Sync
-                    });
-                } else {
-                    const res = await api.request('blog_posts', 'list', {
-                        params: {
-                            filter: { slug },
-                            pageSize: 1
-                        }
-                    });
-                    const found = res.data?.[0];
-                    if (found) {
-                        // Ensure 'content' is parsed if string, or exists
-                        let elements = found.content;
-                        if (typeof elements === 'string') elements = JSON.parse(elements);
-                        if (!Array.isArray(elements)) elements = [];
+  // Initial Fetch
+  useEffect(() => {
+  const fetchPost = async () => {
+  setLoading(true);
+  try {
+ if (slug === 'new') {
+ // Should have been handled by Dashboard, but if hit directly:
+ setPost({
+ id: 'temp-new',
+ title: 'New Post',
+ slug: '',
+ content: [],
+ published: false,
+ elements: [] // Sync
+ });
+ } else {
+ const res = await api.request('blog_posts', 'list', {
+ params: {
+   filter: { slug },
+   pageSize: 1
+ }
+ });
+ const found = res.data?.[0];
+ if (found) {
+ // Ensure 'content' is parsed if string, or exists
+ let elements = found.content;
+ if (typeof elements === 'string') elements = JSON.parse(elements);
+ if (!Array.isArray(elements)) elements = [];
 
-                        setPost({ ...found, content: elements, elements: elements });
-                    } else {
-                        toast.error('post not found');
-                    }
-                }
-            } catch (e) {
-                console.error(e);
-                toast.error('failed to load post');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchPost();
-    }, [slug]);
+ setPost({ ...found, content: elements, elements: elements });
+ } else {
+ toast.error('post not found');
+ }
+ }
+  } catch (e) {
+ console.error(e);
+ toast.error('failed to load post');
+  } finally {
+ setLoading(false);
+  }
+  };
+  fetchPost();
+  }, [slug]);
 
-    // Update Window Width
-    useEffect(() => {
-        const handleResize = () => setViewWidth(window.innerWidth);
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
+  // Update Window Width
+  useEffect(() => {
+  const handleResize = () => setViewWidth(window.innerWidth);
+  window.addEventListener('resize', handleResize);
+  return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-    // Sync 'elements' and 'content'
-    const updatePost = (updates: Partial<BlogPostData>) => {
-        if (!post) return;
-        setPost({ ...post, ...updates });
-    };
+  // Sync 'elements' and 'content'
+  const updatePost = (updates: Partial<BlogPostData>) => {
+  if (!post) return;
+  setPost({ ...post, ...updates });
+  };
 
-    // --- CONTEXT METHODS ---
-    const updateElements = (batchUpdates: { id: string; updates: Partial<ElementData> }[]) => {
-        if (!post) return;
-        const newElements = post.elements?.map(el => {
-            const update = batchUpdates.find(u => u.id === el.id);
-            if (!update) return el;
-            return { ...el, ...update.updates };
-        }) || [];
-        updatePost({ elements: newElements, content: newElements });
-    };
+  // --- CONTEXT METHODS ---
+  const updateElements = (batchUpdates: { id: string; updates: Partial<ElementData> }[]) => {
+  if (!post) return;
+  const newElements = post.elements?.map(el => {
+  const update = batchUpdates.find(u => u.id === el.id);
+  if (!update) return el;
+  return { ...el, ...update.updates };
+  }) || [];
+  updatePost({ elements: newElements, content: newElements });
+  };
 
-    const updateElement = (id: string, updates: Partial<ElementData>) => {
-        updateElements([{ id, updates }]);
-    };
+  const updateElement = (id: string, updates: Partial<ElementData>) => {
+  updateElements([{ id, updates }]);
+  };
 
-    const deleteElements = (ids: string[]) => {
-        if (!post) return;
-        const newElements = post.elements?.filter(el => !ids.includes(el.id)) || [];
-        updatePost({ elements: newElements, content: newElements });
-        setSelectedElementIds([]);
-    };
+  const deleteElements = (ids: string[]) => {
+  if (!post) return;
+  const newElements = post.elements?.filter(el => !ids.includes(el.id)) || [];
+  updatePost({ elements: newElements, content: newElements });
+  setSelectedElementIds([]);
+  };
 
-    const addElement = (element: Omit<ElementData, 'id' | 'zIndex'> & { zIndex?: number }) => {
-        if (!post) return;
-        const newElement = {
-            ...element,
-            id: crypto.randomUUID(),
-            zIndex: element.zIndex ?? ((post.elements?.length || 0) + 1)
-        };
-        const newElements = [...(post.elements || []), newElement] as ElementData[];
-        updatePost({ elements: newElements, content: newElements });
-        toast.success('added ' + element.type);
-    };
+  const addElement = (element: Omit<ElementData, 'id' | 'zIndex'> & { zIndex?: number }) => {
+  if (!post) return;
+  const newElement = {
+  ...element,
+  id: crypto.randomUUID(),
+  zIndex: element.zIndex ?? ((post.elements?.length || 0) + 1)
+  };
+  const newElements = [...(post.elements || []), newElement] as ElementData[];
+  updatePost({ elements: newElements, content: newElements });
+  toast.success('added ' + element.type);
+  };
 
-    const savePost = async () => {
-        if (!post) return;
-        try {
-            const payload = {
-                ...post,
-                content: JSON.stringify(post.elements),
-                elements: undefined // Don't send this duplicate field to DB if not in schema, or DB ignores it
-            };
+  const savePost = async () => {
+  if (!post) return;
+  try {
+  const payload = {
+ ...post,
+ content: JSON.stringify(post.elements),
+ elements: undefined // Don't send this duplicate field to DB if not in schema, or DB ignores it
+  };
 
-            if (post.id === 'temp-new') {
-                const res = await api.createRecord('blog_posts', payload);
-                setPost({ ...res.data, elements: payload.content ? JSON.parse(payload.content) : [] });
-                toast.success('post created');
-            } else {
-                await api.updateRecord('blog_posts', post.id, payload);
-                toast.success('saved');
-            }
-        } catch (e) {
-            console.error(e);
-            toast.error('failed to save');
-        }
-    };
+  if (post.id === 'temp-new') {
+ const res = await api.createRecord('blog_posts', payload);
+ setPost({ ...res.data, elements: payload.content ? JSON.parse(payload.content) : [] });
+ toast.success('post created');
+  } else {
+ await api.updateRecord('blog_posts', post.id, payload);
+ toast.success('saved');
+  }
+  } catch (e) {
+  console.error(e);
+  toast.error('failed to save');
+  }
+  };
 
-    // Dummy Handlers
-    const handleElementContextMenu = (e: React.MouseEvent, _id: string) => { e.preventDefault(); };
-    const handleGlobalContextMenu = (e: React.MouseEvent) => { e.preventDefault(); };
+  // Dummy Handlers
+  const handleElementContextMenu = (e: React.MouseEvent, _id: string) => { e.preventDefault(); };
+  const handleGlobalContextMenu = (e: React.MouseEvent) => { e.preventDefault(); };
 
-    const contextValue: BlogBuilderContextType = {
-        isAdmin: true,
-        page: post,
-        selectedElementIds,
-        setSelectedElementIds,
-        updateElement,
-        updateElements,
-        deleteElements,
-        addElement,
-        handleElementContextMenu,
-        handleGlobalContextMenu,
-        previewMode,
-        setPreviewMode,
-        viewWidth,
-        selectionBox,
-        setSelectionBox,
-        savePost
-    };
+  const contextValue: BlogBuilderContextType = {
+  isAdmin: true,
+  page: post,
+  selectedElementIds,
+  setSelectedElementIds,
+  updateElement,
+  updateElements,
+  deleteElements,
+  addElement,
+  handleElementContextMenu,
+  handleGlobalContextMenu,
+  previewMode,
+  setPreviewMode,
+  viewWidth,
+  selectionBox,
+  setSelectionBox,
+  savePost
+  };
 
-    if (loading) return <div className="h-screen flex items-center justify-center bg-[#0c0c0c] text-white">loading editor...</div>;
-    if (!post) return <div className="h-screen flex items-center justify-center bg-[#0c0c0c] text-white">post not found</div>;
+  if (loading) return <div className="h-screen flex items-center justify-center bg-[#050505] text-white">loading editor...</div>;
+  if (!post) return <div className="h-screen flex items-center justify-center bg-[#050505] text-white">post not found</div>;
 
-    return (
-        <BlogContext.Provider value={contextValue}>
-            <div className="h-screen flex flex-col bg-[#0c0c0c] font-['Varela_Round'] text-white overflow-hidden">
-                {/* TOP BAR */}
-                <div className="h-14 border-b border-white/10 flex items-center px-4 justify-between bg-[#0c0c0c] z-50">
-                    <div className="flex items-center gap-4">
-                        <button onClick={() => window.location.href = '/editor'} className="p-2 hover:bg-white/10 rounded-lg text-white/50 hover:text-white">
-                            <ArrowLeft size={18} />
-                        </button>
-                        <div className="flex flex-col">
-                            <input
-                                value={post.title}
-                                onChange={(e) => updatePost({ title: e.target.value })}
-                                className="bg-transparent border-none text-sm font-bold focus:outline-none w-64"
-                                placeholder="Post Title"
-                            />
-                            <div className="flex items-center gap-1 text-xs text-white/30">
-                                <span>/</span>
-                                <input
-                                    value={post.slug}
-                                    onChange={(e) => updatePost({ slug: e.target.value })}
-                                    className="bg-transparent border-none focus:outline-none w-32"
-                                    placeholder="slug"
-                                />
-                            </div>
-                        </div>
-                    </div>
+  return (
+  <BlogContext.Provider value={contextValue}>
+  <div className="h-screen flex flex-col bg-[#050505] font-['Varela_Round'] text-white overflow-hidden">
+ {/* TOP BAR */}
+ <div className="h-14 border-b border-white/10 flex items-center px-4 justify-between bg-[#050505] z-50">
+ <div className="flex items-center gap-4">
+ <button onClick={() => window.location.href = '/editor'} className="p-2 hover:bg-white/10 rounded-lg text-white/50 hover:text-white">
+   <ArrowLeft size={18} />
+ </button>
+ <div className="flex flex-col">
+   <input
+   value={post.title}
+   onChange={(e) => updatePost({ title: e.target.value })}
+   className="bg-transparent border-none text-sm font-bold focus:outline-none w-64"
+   placeholder="Post Title"
+   />
+   <div className="flex items-center gap-1 text-xs text-white/30">
+   <span>/</span>
+   <input
+   value={post.slug}
+   onChange={(e) => updatePost({ slug: e.target.value })}
+   className="bg-transparent border-none focus:outline-none w-32"
+   placeholder="slug"
+   />
+   </div>
+ </div>
+ </div>
 
-                    <div className="flex items-center gap-2">
-                        <div className="flex bg-white/5 rounded-lg p-1">
-                            <button onClick={() => setPreviewMode('desktop')} className={`p-1.5 rounded ${previewMode === 'desktop' ? 'bg-white/10 text-[var(--primary)]' : 'text-white/50'}`}><Layout size={16} /></button>
-                            <button onClick={() => setPreviewMode('tablet')} className={`p-1.5 rounded ${previewMode === 'tablet' ? 'bg-white/10 text-[var(--primary)]' : 'text-white/50'}`}><Square size={16} /></button>
-                            <button onClick={() => setPreviewMode('mobile')} className={`p-1.5 rounded ${previewMode === 'mobile' ? 'bg-white/10 text-[var(--primary)]' : 'text-white/50'}`}><Square size={14} /></button>
-                        </div>
-                        <div className="h-6 w-px bg-white/10 mx-2" />
-                        <button
-                            onClick={savePost}
-                            className="bg-[var(--primary)] text-black px-4 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2 hover:opacity-90"
-                        >
-                            <Save size={16} /> Save
-                        </button>
-                        <button onClick={() => setShowSidebar(!showSidebar)} className="p-2 hover:bg-white/10 rounded-lg">
-                            <Settings size={18} />
-                        </button>
-                    </div>
-                </div>
+ <div className="flex items-center gap-2">
+ <div className="flex bg-white/5 rounded-lg p-1">
+   <button onClick={() => setPreviewMode('desktop')} className={`p-1.5 rounded ${previewMode === 'desktop' ? 'bg-white/10 text-[var(--primary)]' : 'text-white/50'}`}><Layout size={16} /></button>
+   <button onClick={() => setPreviewMode('tablet')} className={`p-1.5 rounded ${previewMode === 'tablet' ? 'bg-white/10 text-[var(--primary)]' : 'text-white/50'}`}><Square size={16} /></button>
+   <button onClick={() => setPreviewMode('mobile')} className={`p-1.5 rounded ${previewMode === 'mobile' ? 'bg-white/10 text-[var(--primary)]' : 'text-white/50'}`}><Square size={14} /></button>
+ </div>
+ <div className="h-6 w-px bg-white/10 mx-2" />
+ <button
+   onClick={savePost}
+   className="bg-[var(--primary)] text-black px-4 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2 hover:opacity-90"
+ >
+   <Save size={16} /> Save
+ </button>
+ <button onClick={() => setShowSidebar(!showSidebar)} className="p-2 hover:bg-white/10 rounded-lg">
+   <Settings size={18} />
+ </button>
+ </div>
+ </div>
 
-                {/* MAIN CONTENT AREA */}
-                <div className="flex-1 flex overflow-hidden">
-                    {/* CANVAS */}
-                    <div className="flex-1 relative bg-[#111]">
-                        <BlogCanvas />
+ {/* MAIN CONTENT AREA */}
+ <div className="flex-1 flex overflow-hidden">
+ {/* CANVAS */}
+ <div className="flex-1 relative bg-[#111]">
+ <BlogCanvas />
 
-                        {/* Simple Add Menu (Bottom Center) */}
-                        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-[#0c0c0c] border border-white/10 p-2 rounded-2xl shadow-2xl z-[1000]">
-                            <ToolBtn icon={<Type size={18} />} label="Text" onClick={() => addElement({ type: 'text', content: { html: '<p>New Text</p>' }, width: 300, height: 100, x: 100, y: 100, styles: {} })} />
-                            <ToolBtn icon={<ImageIcon size={18} />} label="Image" onClick={() => {
-                                const url = prompt('Image URL');
-                                if (url) addElement({ type: 'image', content: { url }, width: 300, height: 200, x: 100, y: 100, styles: {} });
-                            }} />
-                            <ToolBtn icon={<Square size={18} />} label="Box" onClick={() => addElement({ type: 'container', content: {}, width: 200, height: 200, x: 100, y: 100, styles: { backgroundColor: '#ffffff10' } })} />
-                            <ToolBtn icon={<Link2 size={18} />} label="Button" onClick={() => addElement({ type: 'button', content: { text: 'Click Me', bgColor: 'var(--primary)', textColor: '#000' }, width: 120, height: 40, x: 100, y: 100, styles: {} })} />
-                            <ToolBtn icon={<MoreVertical size={18} />} label="More" onClick={() => toast.info('More widgets coming soon')} />
-                        </div>
-                    </div>
+ {/* Simple Add Menu (Bottom Center) */}
+ <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-[#050505] border border-white/10 p-2 rounded-2xl shadow-2xl z-[1000]">
+   <ToolBtn icon={<Type size={18} />} label="Text" onClick={() => addElement({ type: 'text', content: { html: '<p>New Text</p>' }, width: 300, height: 100, x: 100, y: 100, styles: {} })} />
+   <ToolBtn icon={<ImageIcon size={18} />} label="Image" onClick={() => {
+   const url = prompt('Image URL');
+   if (url) addElement({ type: 'image', content: { url }, width: 300, height: 200, x: 100, y: 100, styles: {} });
+   }} />
+   <ToolBtn icon={<Square size={18} />} label="Box" onClick={() => addElement({ type: 'container', content: {}, width: 200, height: 200, x: 100, y: 100, styles: { backgroundColor: '#ffffff10' } })} />
+   <ToolBtn icon={<Link2 size={18} />} label="Button" onClick={() => addElement({ type: 'button', content: { text: 'Click Me', bgColor: 'var(--primary)', textColor: '#000' }, width: 120, height: 40, x: 100, y: 100, styles: {} })} />
+   <ToolBtn icon={<MoreVertical size={18} />} label="More" onClick={() => toast.info('More widgets coming soon')} />
+ </div>
+ </div>
 
-                    {/* SIDEBAR PROPERTIES */}
-                    {showSidebar && (
-                        <div className="w-80 bg-[#0c0c0c] border-l border-white/10 p-4 overflow-y-auto">
-                            <h3 className="text-white/50 text-xs font-bold uppercase tracking-wider mb-4">Post Settings</h3>
+ {/* SIDEBAR PROPERTIES */}
+ {showSidebar && (
+ <div className="w-80 bg-[#050505] border-l border-white/10 p-4 overflow-y-auto">
+   <h3 className="text-white/50 text-xs font-bold  mb-4">Post Settings</h3>
 
-                            <div className="space-y-4">
-                                <FormItem label="Publish Status">
-                                    <div className="flex items-center gap-2">
-                                        <button
-                                            onClick={() => updatePost({ published: !post.published })}
-                                            className={`flex-1 py-2 rounded-lg font-bold text-sm transition-colors ${post.published ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'}`}
-                                        >
-                                            {post.published ? 'Published' : 'Draft'}
-                                        </button>
-                                    </div>
-                                </FormItem>
+   <div className="space-y-4">
+   <FormItem label="Publish Status">
+   <div className="flex items-center gap-2">
+  <button
+  onClick={() => updatePost({ published: !post.published })}
+  className={`flex-1 py-2 rounded-lg font-bold text-sm transition-colors ${post.published ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'}`}
+  >
+  {post.published ? 'Published' : 'Draft'}
+  </button>
+   </div>
+   </FormItem>
 
-                                <FormItem label="Excerpt">
-                                    <textarea
-                                        className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm min-h-[80px] focus:outline-none focus:border-[var(--primary)]"
-                                        value={post.description || ''}
-                                        onChange={(e) => updatePost({ description: e.target.value })}
-                                        placeholder="Brief summary..."
-                                    />
-                                </FormItem>
+   <FormItem label="Excerpt">
+   <textarea
+  className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm min-h-[80px] focus:outline-none focus:border-[var(--primary)]"
+  value={post.description || ''}
+  onChange={(e) => updatePost({ description: e.target.value })}
+  placeholder="Brief summary..."
+   />
+   </FormItem>
 
-                                <FormItem label="Banner Image">
-                                    <div className="space-y-2">
-                                        {post.banner_image && (
-                                            <div className="relative aspect-video rounded-lg overflow-hidden border border-white/10 group">
-                                                <img src={post.banner_image} className="w-full h-full object-cover" />
-                                                <button
-                                                    onClick={() => updatePost({ banner_image: '' })}
-                                                    className="absolute top-2 right-2 p-1 bg-black/50 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
-                                                >
-                                                    <Trash2 size={14} />
-                                                </button>
-                                            </div>
-                                        )}
-                                        <button
-                                            onClick={() => {
-                                                const url = prompt('Image URL');
-                                                if (url) updatePost({ banner_image: url });
-                                            }}
-                                            className="w-full py-2 border border-dashed border-white/20 rounded-lg text-white/50 hover:text-white hover:border-white/40 text-sm flex items-center justify-center gap-2"
-                                        >
-                                            <ImageIcon size={16} /> {post.banner_image ? 'Change Image' : 'Add Banner'}
-                                        </button>
-                                    </div>
-                                </FormItem>
+   <FormItem label="Banner Image">
+   <div className="space-y-2">
+  {post.banner_image && (
+  <div className="relative aspect-video rounded-lg overflow-hidden border border-white/10 group">
+  <img src={post.banner_image} className="w-full h-full object-cover" />
+  <button
+    onClick={() => updatePost({ banner_image: '' })}
+    className="absolute top-2 right-2 p-1 bg-black/50 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500"
+  >
+    <Trash2 size={14} />
+  </button>
+  </div>
+  )}
+  <button
+  onClick={() => {
+  const url = prompt('Image URL');
+  if (url) updatePost({ banner_image: url });
+  }}
+  className="w-full py-2 border border-dashed border-white/20 rounded-lg text-white/50 hover:text-white hover:border-white/40 text-sm flex items-center justify-center gap-2"
+  >
+  <ImageIcon size={16} /> {post.banner_image ? 'Change Image' : 'Add Banner'}
+  </button>
+   </div>
+   </FormItem>
 
-                                <FormItem label="Tags (comma separated)">
-                                    <input
-                                        className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:border-[var(--primary)]"
-                                        value={post.tags?.join(', ') || ''}
-                                        onChange={(e) => updatePost({ tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean) })}
-                                        placeholder="tech, life, gaming..."
-                                    />
-                                </FormItem>
+   <FormItem label="Tags (comma separated)">
+   <input
+  className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:border-[var(--primary)]"
+  value={post.tags?.join(', ') || ''}
+  onChange={(e) => updatePost({ tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean) })}
+  placeholder="tech, life, gaming..."
+   />
+   </FormItem>
 
-                                <div className="grid grid-cols-2 gap-4">
-                                    <FormItem label="Mood">
-                                        <select
-                                            value={post.mood || ''}
-                                            onChange={(e) => updatePost({ mood: e.target.value })}
-                                            className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none"
-                                        >
-                                            <option value="">None</option>
-                                            <option value="high">High</option>
-                                            <option value="medium">Medium</option>
-                                            <option value="low">Low</option>
-                                            <option value="wired">Wired</option>
-                                            <option value="tired">Tired</option>
-                                        </select>
-                                    </FormItem>
-                                    <FormItem label="Energy">
-                                        <select
-                                            value={post.energy_level || ''}
-                                            onChange={(e) => updatePost({ energy_level: e.target.value })}
-                                            className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none"
-                                        >
-                                            <option value="">None</option>
-                                            <option value="high">High</option>
-                                            <option value="moderate">Moderate</option>
-                                            <option value="low">Low</option>
-                                            <option value="depleted">Depleted</option>
-                                        </select>
-                                    </FormItem>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-                </div>
-            </div>
-        </BlogContext.Provider>
-    );
+   <div className="grid grid-cols-2 gap-4">
+   <FormItem label="Mood">
+  <select
+  value={post.mood || ''}
+  onChange={(e) => updatePost({ mood: e.target.value })}
+  className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none"
+  >
+  <option value="">None</option>
+  <option value="high">High</option>
+  <option value="medium">Medium</option>
+  <option value="low">Low</option>
+  <option value="wired">Wired</option>
+  <option value="tired">Tired</option>
+  </select>
+   </FormItem>
+   <FormItem label="Energy">
+  <select
+  value={post.energy_level || ''}
+  onChange={(e) => updatePost({ energy_level: e.target.value })}
+  className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none"
+  >
+  <option value="">None</option>
+  <option value="high">High</option>
+  <option value="moderate">Moderate</option>
+  <option value="low">Low</option>
+  <option value="depleted">Depleted</option>
+  </select>
+   </FormItem>
+   </div>
+   </div>
+ </div>
+ )}
+ </div>
+  </div>
+  </BlogContext.Provider>
+  );
 }
 
 function FormItem({ label, children }: { label: string, children: React.ReactNode }) {
-    return (
-        <div className="flex flex-col gap-1.5">
-            <label className="text-xs text-white/40 font-bold uppercase">{label}</label>
-            {children}
-        </div>
-    );
+  return (
+  <div className="flex flex-col gap-1.5">
+  <label className="text-xs text-white/40 font-bold ">{label}</label>
+  {children}
+  </div>
+  );
 }
 
 function ToolBtn({ icon, label, onClick }: { icon: React.ReactNode, label: string, onClick: () => void }) {
-    return (
-        <button
-            onClick={onClick}
-            className="flex flex-col items-center gap-1 p-3 hover:bg-white/10 rounded-xl text-white/70 hover:text-white transition-colors min-w-[60px]"
-        >
-            <div className="mb-0.5">{icon}</div>
-            <span className="text-[10px] font-bold uppercase tracking-wide">{label}</span>
-        </button>
-    );
+  return (
+  <button
+  onClick={onClick}
+  className="flex flex-col items-center gap-1 p-3 hover:bg-white/10 rounded-xl text-white/70 hover:text-white transition-colors min-w-[60px]"
+  >
+  <div className="mb-0.5">{icon}</div>
+  <span className="text-[10px] font-bold tracking-wide">{label}</span>
+  </button>
+  );
 }

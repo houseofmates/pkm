@@ -39,7 +39,7 @@ pkm is a **personal knowledge management system** designed for self-hosted, offl
 **core philosophy**:
 - **yours**: fully self-hosted, no external dependencies beyond optional ai services
 - **lowercase**: aesthetic choice - all ui text is lowercase, using varela round font
-- **glass & void**: design language of dark backgrounds (#050505, #060606) with opaque dark gray panels
+- **glass & void**: design language of dark backgrounds (#050505, #050505) with opaque dark gray panels
 - **omni-protocol**: integrates life aspects: shopping, finance, gaming (minecraft), journaling
 - **identity-aware**: built-in support for plural systems (headmates/alters), tracking who is "fronting"
 
