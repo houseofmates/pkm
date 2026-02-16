@@ -8,278 +8,278 @@ import { RecordContextMenu } from '@/features/records/components/record-context-
 import api from '@/api/nocobase-client';
 
 interface CanvasCardProps {
-    data: any; // NocoBASE row data
-    collection: any;
-    layout: any; // Position/Size data
-    fields: any[]; // Schema definition
-    isSelected?: boolean;
-    onUpdate?: (id: string | number, data: any) => void;
-    style?: React.CSSProperties;
-    className?: string;
+  data: any; // NocoBASE row data
+  collection: any;
+  layout: any; // Position/Size data
+  fields: any[]; // Schema definition
+  isSelected?: boolean;
+  onUpdate?: (id: string | number, data: any) => void;
+  style?: React.CSSProperties;
+  className?: string;
 }
 
 export function CanvasCard({ data, collection, layout: _layout, fields, isSelected, onUpdate, style, className }: CanvasCardProps) {
-    const [localData, setLocalData] = useState(data);
+  const [localData, setLocalData] = useState(data);
 
-    useEffect(() => {
-        setLocalData(data);
-    }, [data]);
+  useEffect(() => {
+  setLocalData(data);
+  }, [data]);
 
-    // --- LIVING DATA: VISUAL DECAY ---
-    const lastWatered = data['last_watered'] || data['updatedAt']; // Fallback
-    const daysSince = lastWatered
-        ? Math.floor((new Date().getTime() - new Date(lastWatered).getTime()) / (1000 * 3600 * 24))
-        : 0;
+  // --- LIVING DATA: VISUAL DECAY ---
+  const lastWatered = data['last_watered'] || data['updatedAt']; // Fallback
+  const daysSince = lastWatered
+  ? Math.floor((new Date().getTime() - new Date(lastWatered).getTime()) / (1000 * 3600 * 24))
+  : 0;
 
-    const isWithered = daysSince > 7;
-    const isThirsty = daysSince > 3 && !isWithered;
+  const isWithered = daysSince > 7;
+  const isThirsty = daysSince > 3 && !isWithered;
 
-    // Dynamic Filter Style
-    const decayStyle = isWithered
-        ? { filter: 'grayscale(0.8) contrast(0.8)', opacity: 0.8 }
-        : isThirsty
-            ? { filter: 'grayscale(0.4)', opacity: 0.95 }
-            : {};
+  // Dynamic Filter Style
+  const decayStyle = isWithered
+  ? { filter: 'grayscale(0.8) contrast(0.8)', opacity: 0.8 }
+  : isThirsty
+  ? { filter: 'grayscale(0.4)', opacity: 0.95 }
+  : {};
 
-    // Helpers to find key fields
-    const titleField = fields.find(f => f.type === 'string' && !f.name.includes('id') && !f.name.includes('date'))?.name || 'title';
-    const imageField = fields.find(f => f.type === 'attachment')?.name || 'cover';
+  // Helpers to find key fields
+  const titleField = fields.find(f => f.type === 'string' && !f.name.includes('id') && !f.name.includes('date'))?.name || 'title';
+  const imageField = fields.find(f => f.type === 'attachment')?.name || 'cover';
 
-    const previewImage = useMemo(() => {
-        // 1. Try 'thumbnail' (Base64)
-        const thumb = localData['thumbnail'];
-        if (thumb && typeof thumb === 'string' && thumb.startsWith('data:image')) return thumb;
+  const previewImage = useMemo(() => {
+  // 1. Try 'thumbnail' (Base64)
+  const thumb = localData['thumbnail'];
+  if (thumb && typeof thumb === 'string' && thumb.startsWith('data:image')) return thumb;
 
-        // 2. Try 'content' if it's an image (raw base64 sometimes stored here for drawing)
-        const content = localData['content'];
-        if (content && typeof content === 'string' && content.startsWith('data:image')) return content;
+  // 2. Try 'content' if it's an image (raw base64 sometimes stored here for drawing)
+  const content = localData['content'];
+  if (content && typeof content === 'string' && content.startsWith('data:image')) return content;
 
-        // 3. Fallback to Attachment
-        const attach = localData[imageField];
-        if (attach) return attach?.url || (Array.isArray(attach) ? attach[0]?.url : null);
+  // 3. Fallback to Attachment
+  const attach = localData[imageField];
+  if (attach) return attach?.url || (Array.isArray(attach) ? attach[0]?.url : null);
 
-        return null;
-    }, [localData, imageField]);
+  return null;
+  }, [localData, imageField]);
 
-    const handleContextMenu = (e: React.MouseEvent) => {
-        e.preventDefault();
-        e.stopPropagation();
-        useContextMenuStore.getState().openMenu(
-            e.clientX,
-            e.clientY,
-            data.id,
-            'dashboard-card',
-            {
-                collection: collection.name,
-                title: localData[titleField] || 'Untitled',
-                color: localData['color'] // Assuming color might be on record
-            }
-        );
-    };
+  const handleContextMenu = (e: React.MouseEvent) => {
+  e.preventDefault();
+  e.stopPropagation();
+  useContextMenuStore.getState().openMenu(
+  e.clientX,
+  e.clientY,
+  data.id,
+  'dashboard-card',
+  {
+ collection: collection.name,
+ title: localData[titleField] || 'Untitled',
+ color: localData['color'] // Assuming color might be on record
+  }
+  );
+  };
 
-    const handleSave = (key: string, value: any) => {
-        const newData = { ...localData, [key]: value };
-        setLocalData(newData);
-        if (onUpdate) onUpdate(data.id, { [key]: value });
-    };
+  const handleSave = (key: string, value: any) => {
+  const newData = { ...localData, [key]: value };
+  setLocalData(newData);
+  if (onUpdate) onUpdate(data.id, { [key]: value });
+  };
 
-    const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-        try {
-            // Upload to NocoBase
-            const uploaded = await api.upload(file);
-            console.log("Uploaded:", uploaded);
+  try {
+  // Upload to NocoBase
+  const uploaded = await api.upload(file);
+  console.log("Uploaded:", uploaded);
 
-            // Structure expected by NocoBase attachment field is usually an array of objects
-            // or just the object depending on the field config. 
-            // Safest default is to append to existing array or create new array.
-            const current = localData[imageField] || [];
-            const newValue = Array.isArray(current) ? [...current, uploaded] : [uploaded];
+  // Structure expected by NocoBase attachment field is usually an array of objects
+  // or just the object depending on the field config.
+  // Safest default is to append to existing array or create new array.
+  const current = localData[imageField] || [];
+  const newValue = Array.isArray(current) ? [...current, uploaded] : [uploaded];
 
-            handleSave(imageField, newValue);
-        } catch (error) {
-            console.error("Upload failed", error);
-            // Optional: Show toast error
-        }
-    };
+  handleSave(imageField, newValue);
+  } catch (error) {
+  console.error("Upload failed", error);
+  // Optional: Show toast error
+  }
+  };
 
-    // Filter fields to show (First 3 relevant ones excluding title/image)
-    // Order based on fields array order
-    const visibleFields = fields
-        .filter(f => !f.hidden && f.name !== titleField && f.name !== imageField && f.interface !== 'attachment' && f.name !== 'id')
-        .slice(0, 3);
+  // Filter fields to show (First 3 relevant ones excluding title/image)
+  // Order based on fields array order
+  const visibleFields = fields
+  .filter(f => !f.hidden && f.name !== titleField && f.name !== imageField && f.interface !== 'attachment' && f.name !== 'id')
+  .slice(0, 3);
 
-    // Selection Style: Use box-shadow instead of ring to respect radius
-    const selectionStyle = isSelected
-        ? { boxShadow: '0 0 0 2px var(--primary-gold), 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' }
-        : {};
+  // Selection Style: Use box-shadow instead of ring to respect radius
+  const selectionStyle = isSelected
+  ? { boxShadow: '0 0 0 2px var(--primary-gold), 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' }
+  : {};
 
-    return (
-        <RecordContextMenu
-            record={data}
-            collection={collection}
-            onUpdate={onUpdate}
-        >
-            {/* INNER CONTENT VESSEL - NOW THE ACTUAL CARD CONTAINER */}
-            <div
-                className={cn(
-                    // OUTER SHADOW BOX CONTAINER - UNIVERSAL ROUNDING
-                    "flex flex-col bg-card/80 backdrop-blur-sm text-card-foreground rounded-xl shadow-lg isolate relative transition-all hover:scale-[1.02]",
-                    // "border-2 border-border/50 overflow-hidden", // REMOVED: Replaced by .card-fix
-                    "card-fix",
-                    "p-0 h-full w-full",
-                    className
-                )}
-                style={{
-                    ...selectionStyle,
-                    outline: 'none',
-                    // Rounded/Border handled by .card-fix
-                    ...style, ...decayStyle
-                }}
-                onContextMenu={handleContextMenu}
-            >
-                <input
-                    type="file"
-                    id={`upload-${data.id}`}
-                    className="hidden"
-                    onChange={handleImageUpload}
-                />
+  return (
+  <RecordContextMenu
+  record={data}
+  collection={collection}
+  onUpdate={onUpdate}
+  >
+  {/* INNER CONTENT VESSEL - NOW THE ACTUAL CARD CONTAINER */}
+  <div
+ className={cn(
+ // OUTER SHADOW BOX CONTAINER - UNIVERSAL ROUNDING
+ "flex flex-col bg-card/80 backdrop-blur-sm text-card-foreground rounded-xl shadow-lg isolate relative transition-all hover:scale-[1.02]",
+ // "border-2 border-border/50 overflow-hidden", // REMOVED: Replaced by .card-fix
+ "card-fix",
+ "p-0 h-full w-full",
+ className
+ )}
+ style={{
+ ...selectionStyle,
+ outline: 'none',
+ // Rounded/Border handled by .card-fix
+ ...style, ...decayStyle
+ }}
+ onContextMenu={handleContextMenu}
+  >
+ <input
+ type="file"
+ id={`upload-${data.id}`}
+ className="hidden"
+ onChange={handleImageUpload}
+ />
 
-                {/* Image Cover */}
-                {(previewImage || (visibleFields.length > 0)) ? (
-                    <div className="flex-1 w-full bg-muted/20 relative min-h-[80px] flex items-center justify-center overflow-hidden group rounded-t-[inherit]">
-                        {previewImage ? (
-                            <img
-                                src={previewImage}
-                                alt="cover"
-                                className="w-full h-full object-cover rounded-t-[inherit]" // Inherit top radius
-                                draggable={false}
-                            />
-                        ) : null}
+ {/* Image Cover */}
+ {(previewImage || (visibleFields.length > 0)) ? (
+ <div className="flex-1 w-full bg-muted/20 relative min-h-[80px] flex items-center justify-center overflow-hidden group rounded-t-[inherit]">
+ {previewImage ? (
+   <img
+   src={previewImage}
+   alt="cover"
+   className="w-full h-full object-cover rounded-t-[inherit]" // Inherit top radius
+   draggable={false}
+   />
+ ) : null}
 
-                        {/* Overlay Drag Handle */}
-                        {previewImage && (
-                            <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing p-1 bg-black/50 rounded-md">
-                                <GripVertical className="h-4 w-4 text-white/70" />
-                            </div>
-                        )}
-                    </div>
-                ) : null}
+ {/* Overlay Drag Handle */}
+ {previewImage && (
+   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing p-1 bg-black/50 rounded-md">
+   <GripVertical className="h-4 w-4 text-white/70" />
+   </div>
+ )}
+ </div>
+ ) : null}
 
-                {/* Content Footer */}
-                <div className="shrink-0 p-3 flex flex-col gap-1.5 bg-card/95 border-t border-transparent pointer-events-auto h-auto rounded-b-[inherit] overflow-hidden">
-                    {/* Drag Handle (if no image) */}
-                    {(!previewImage) && (
-                        <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing p-1 bg-muted rounded-md z-20">
-                            <GripVertical className="h-4 w-4 text-muted-foreground" />
-                        </div>
-                    )}
+ {/* Content Footer */}
+ <div className="shrink-0 p-3 flex flex-col gap-1.5 bg-card/95 border-t border-transparent pointer-events-auto h-auto rounded-b-[inherit] overflow-hidden">
+ {/* Drag Handle (if no image) */}
+ {(!previewImage) && (
+ <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing p-1 bg-muted rounded-md z-20">
+   <GripVertical className="h-4 w-4 text-muted-foreground" />
+ </div>
+ )}
 
-                    {/* Title */}
-                    <div
-                        className="font-bold text-sm leading-tight font-[Varela Round] outline-none truncate pr-6"
-                        contentEditable
-                        suppressContentEditableWarning
-                        onBlur={(e) => handleSave(titleField, e.currentTarget.textContent)}
-                    >
-                        {localData[titleField] || 'Untitled'}
-                    </div>
+ {/* Title */}
+ <div
+ className="font-bold text-sm leading-tight font-[Varela Round] outline-none truncate pr-6"
+ contentEditable
+ suppressContentEditableWarning
+ onBlur={(e) => handleSave(titleField, e.currentTarget.textContent)}
+ >
+ {localData[titleField] || 'Untitled'}
+ </div>
 
-                    {/* Fields */}
-                    {visibleFields.length > 0 && (
-                        <div className="flex flex-col gap-1">
-                            {visibleFields.map(field => {
-                                const val = localData[field.name];
-                                if (val === null || val === undefined || val === '') return null;
+ {/* Fields */}
+ {visibleFields.length > 0 && (
+ <div className="flex flex-col gap-1">
+   {visibleFields.map(field => {
+   const val = localData[field.name];
+   if (val === null || val === undefined || val === '') return null;
 
-                                // Relation/Rollup Logic
-                                if (Array.isArray(val) && val.length > 0) {
-                                    const total = val.length;
-                                    const completed = val.filter((item: any) =>
-                                        item.status === 'Done' || item.done === true || item.checked === true
-                                    ).length;
+   // Relation/Rollup Logic
+   if (Array.isArray(val) && val.length > 0) {
+   const total = val.length;
+   const completed = val.filter((item: any) =>
+  item.status === 'Done' || item.done === true || item.checked === true
+   ).length;
 
-                                    if (total > 0) {
-                                        const percent = Math.round((completed / total) * 100);
-                                        return (
-                                            <div key={field.name} className="flex flex-col gap-0.5 text-[10px] text-muted-foreground">
-                                                <div className="flex justify-between w-full">
-                                                    <span className="opacity-50 uppercase tracking-wider">{field.uiSchema?.title || field.name}</span>
-                                                    <span className="opacity-70">{percent}%</span>
-                                                </div>
-                                                <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
-                                                    <div className="h-full bg-primary transition-all duration-500 ease-out theme-gold" style={{ width: `${percent}%` }} />
-                                                </div>
-                                            </div>
-                                        );
-                                    }
-                                }
+   if (total > 0) {
+  const percent = Math.round((completed / total) * 100);
+  return (
+  <div key={field.name} className="flex flex-col gap-0.5 text-[10px] text-muted-foreground">
+  <div className="flex justify-between w-full">
+    <span className="opacity-50 ">{field.uiSchema?.title || field.name}</span>
+    <span className="opacity-70">{percent}%</span>
+  </div>
+  <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
+    <div className="h-full bg-primary transition-all duration-500 ease-out theme-gold" style={{ width: `${percent}%` }} />
+  </div>
+  </div>
+  );
+   }
+   }
 
-                                return (
-                                    <div key={field.name} className="flex items-center gap-2 text-[10px] text-muted-foreground h-4 overflow-hidden">
-                                        <span className="opacity-50 shrink-0 uppercase tracking-wider">{field.uiSchema?.title || field.name}</span>
-                                        <div className="truncate flex-1 font-medium">
-                                            {field.type === 'boolean' ? (
-                                                <Switch checked={val} onCheckedChange={(c) => {
-                                                    // Burst logic
-                                                    if (c) {
-                                                        const burst = document.createElement('div');
-                                                        burst.className = 'fixed z-[9999] pointer-events-none animate-ping rounded-full bg-primary/50';
-                                                        const rect = (document.activeElement as HTMLElement)?.getBoundingClientRect();
-                                                        if (rect) {
-                                                            burst.style.left = rect.left + 'px';
-                                                            burst.style.top = rect.top + 'px';
-                                                            burst.style.width = '20px';
-                                                            burst.style.height = '20px';
-                                                            document.body.appendChild(burst);
-                                                            setTimeout(() => burst.remove(), 1000);
-                                                        }
-                                                    }
-                                                    handleSave(field.name, c);
-                                                    handleSave('last_watered', new Date().toISOString());
-                                                }} size="sm" />
-                                            ) : (field.type === 'string' && (val.startsWith('http') || field.format === 'url')) ? (
-                                                <a href={val} target="_blank" rel="noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1">
-                                                    {val} <ExternalLink className="h-2 w-2" />
-                                                </a>
-                                            ) : (
-                                                <span>{String(val)}</span>
-                                            )}
-                                        </div>
-                                    </div>
-                                );
-                            })}
-                        </div>
-                    )}
-                </div>
-            </div>
-        </RecordContextMenu >
-    );
+   return (
+   <div key={field.name} className="flex items-center gap-2 text-[10px] text-muted-foreground h-4 overflow-hidden">
+  <span className="opacity-50 shrink-0 ">{field.uiSchema?.title || field.name}</span>
+  <div className="truncate flex-1 font-medium">
+  {field.type === 'boolean' ? (
+  <Switch checked={val} onCheckedChange={(c) => {
+    // Burst logic
+    if (c) {
+    const burst = document.createElement('div');
+    burst.className = 'fixed z-[9999] pointer-events-none animate-ping rounded-full bg-primary/50';
+    const rect = (document.activeElement as HTMLElement)?.getBoundingClientRect();
+    if (rect) {
+    burst.style.left = rect.left + 'px';
+    burst.style.top = rect.top + 'px';
+    burst.style.width = '20px';
+    burst.style.height = '20px';
+    document.body.appendChild(burst);
+    setTimeout(() => burst.remove(), 1000);
+    }
+    }
+    handleSave(field.name, c);
+    handleSave('last_watered', new Date().toISOString());
+  }} size="sm" />
+  ) : (field.type === 'string' && (val.startsWith('http') || field.format === 'url')) ? (
+  <a href={val} target="_blank" rel="noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1">
+    {val} <ExternalLink className="h-2 w-2" />
+  </a>
+  ) : (
+  <span>{String(val)}</span>
+  )}
+  </div>
+   </div>
+   );
+   })}
+ </div>
+ )}
+ </div>
+  </div>
+  </RecordContextMenu >
+  );
 }
 
 // Simple Switch Component (Inline)
 function Switch({ checked, onCheckedChange, size = 'md' }: { checked: boolean; onCheckedChange: (c: boolean) => void; size?: 'sm' | 'md' }) {
-    return (
-        <button
-            onClick={() => onCheckedChange(!checked)}
-            className={cn(
-                "relative inline-flex items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
-                checked ? "bg-primary" : "bg-input",
-                size === 'sm' ? "h-4 w-7" : "h-6 w-11"
-            )}
-        >
-            <span
-                className={cn(
-                    "block rounded-full bg-background shadow-lg ring-0 transition-transform",
-                    checked ? "translate-x-full" : "translate-x-0",
-                    size === 'sm' ? "h-3 w-3 translate-y-[0px] translate-x-[2px]" : "h-5 w-5 translate-x-0.5"
-                )}
-                style={{
-                    transform: checked ? `translateX(${size === 'sm' ? '14px' : '20px'})` : `translateX(${size === 'sm' ? '2px' : '2px'})`
-                }}
-            />
-        </button>
-    )
+  return (
+  <button
+  onClick={() => onCheckedChange(!checked)}
+  className={cn(
+ "relative inline-flex items-center rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+ checked ? "bg-primary" : "bg-input",
+ size === 'sm' ? "h-4 w-7" : "h-6 w-11"
+  )}
+  >
+  <span
+ className={cn(
+ "block rounded-full bg-background shadow-lg ring-0 transition-transform",
+ checked ? "translate-x-full" : "translate-x-0",
+ size === 'sm' ? "h-3 w-3 translate-y-[0px] translate-x-[2px]" : "h-5 w-5 translate-x-0.5"
+ )}
+ style={{
+ transform: checked ? `translateX(${size === 'sm' ? '14px' : '20px'})` : `translateX(${size === 'sm' ? '2px' : '2px'})`
+ }}
+  />
+  </button>
+  )
 }

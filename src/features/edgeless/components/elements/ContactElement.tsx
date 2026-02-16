@@ -5,5 +5,5 @@
 // import { useMemo } from "react";
 
 export function ContactElement({ element }: { element: any }) {
-    return null;
+  return null;
 }

@@ -13,8 +13,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 interface CollectionDetailPageProps {
-    collectionName?: string;
-    onBack?: () => void;
+  collectionName?: string;
+  onBack?: () => void;
 }
 
 
@@ -23,10 +23,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { Star } from 'lucide-react';
 import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
 } from "@/components/ui/dialog";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";

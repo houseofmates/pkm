@@ -1,7 +1,7 @@
 // --- FORM RENDERER (User-facing) ---
 interface FormRendererProps {
-    element: FormElementData;
-    isAdmin?: boolean;
+  element: FormElementData;
+  isAdmin?: boolean;
 }
 
 export function FormRenderer({ element, isAdmin }: FormRendererProps) {
@@ -201,9 +201,9 @@ interface FormElementData {
 
 // --- FORM BUILDER (Admin) ---
 interface FormBuilderProps {
-    onSave: (formElement: Omit<FormElementData, 'id' | 'type'>) => void;
-    onCancel: () => void;
-    initialData?: Partial<FormElementData>;
+  onSave: (formElement: Omit<FormElementData, 'id' | 'type'>) => void;
+  onCancel: () => void;
+  initialData?: Partial<FormElementData>;
 }
 
 export function FormBuilder({ onSave, onCancel, initialData }: FormBuilderProps) {

@@ -1,3 +1,5 @@
+import React from 'react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { renderHook, waitFor } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useCollections } from '@/hooks/use-collections';
@@ -22,7 +24,7 @@ describe('useCollections filtering', () => {
 
     (useAuth as any).mockReturnValue({ client: mockClient, isAuthenticated: true });
 
-    const { result } = renderHook(() => useCollections());
+    const { result } = renderHook(() => useCollections(), { wrapper: ({ children }) => <QueryClientProvider client={new QueryClient()}>{children}</QueryClientProvider> });
     // wait for client.listCollections to be called, then for the collections to populate
     await waitFor(() => expect(mockClient.listCollections).toHaveBeenCalled());
     await waitFor(() => expect(result.current.collections.length).toBeGreaterThan(0));

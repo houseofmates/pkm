@@ -10,41 +10,41 @@ import { GripVertical } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 
 interface PageItem {
-    i: string;
-    x: number;
-    y: number;
-    w: number;
-    h: number;
-    content?: string;
+  i: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+  content?: string;
 }
 
 export function PageCanvas() {
-    const { width } = useWindowSize();
-    // Use state for items for now. Ideally this would sync with a store or backend.
-    const [items, setItems] = useState<PageItem[]>([
-        { i: '1', x: 0, y: 0, w: 10, h: 4, content: '<p>Welcome to your new Page.</p>' },
-    ]);
+  const { width } = useWindowSize();
+  // Use state for items for now. Ideally this would sync with a store or backend.
+  const [items, setItems] = useState<PageItem[]>([
+  { i: '1', x: 0, y: 0, w: 10, h: 4, content: '<p>Welcome to your new Page.</p>' },
+  ]);
 
-    // 10 columns logic
-    const margin = 10;
-    const containerPadding = 20;
-    // Calculate row height or keep it standard
-    const rowHeight = 30;
+  // 10 columns logic
+  const margin = 10;
+  const containerPadding = 20;
+  // Calculate row height or keep it standard
+  const rowHeight = 30;
 
-    const onLayoutChange = (layout: any) => {
-        // Sync layout changes back to state
-        // In a real app, save this to DB
-        // setItems(prev => ... merge layout changes)
-        console.log('Layout changed:', layout);
-    };
+  const onLayoutChange = (layout: any) => {
+  // Sync layout changes back to state
+  // In a real app, save this to DB
+  // setItems(prev => ... merge layout changes)
+  console.log('Layout changed:', layout);
+  };
 
-    const addItem = () => {
-        const id = crypto.randomUUID();
-        setItems(prev => [
-            ...prev,
-            { i: id, x: 0, y: Infinity, w: 10, h: 2, content: '' }
-        ]);
-    };
+  const addItem = () => {
+  const id = crypto.randomUUID();
+  setItems(prev => [
+  ...prev,
+  { i: id, x: 0, y: Infinity, w: 10, h: 2, content: '' }
+  ]);
+  };
 
     return (
         <div className="h-screen bg-[#060606] text-white flex flex-col font-['Varela_Round'] overflow-hidden">
@@ -90,19 +90,19 @@ export function PageCanvas() {
                                     <GripVertical className="w-4 h-4 text-white/30" />
                                 </div>
 
-                                {/* Content Area */}
-                                <div className="flex-1 p-4 overflow-y-auto" style={{ fontFamily: '"Varela Round", sans-serif' }}>
-                                    <BlockEditor
-                                        content={item.content}
-                                        className="min-h-full font-['Varela_Round']"
-                                        placeholder="Type here..."
-                                    />
-                                </div>
-                            </div>
-                        ))}
-                    </GridLayout>
-                </div>
-            </div>
-        </div>
-    );
+   {/* Content Area */}
+   <div className="flex-1 p-4 overflow-y-auto" style={{ fontFamily: '"Varela Round", sans-serif' }}>
+   <BlockEditor
+  content={item.content}
+  className="min-h-full font-['Varela_Round']"
+  placeholder="Type here..."
+   />
+   </div>
+   </div>
+ ))}
+ </GridLayout>
+ </div>
+  </div>
+  </div>
+  );
 }
