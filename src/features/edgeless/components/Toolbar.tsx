@@ -5,314 +5,314 @@ import * as LucideIcons from 'lucide-react'
 
 // Long Press Hook
 function useLongPress(callback: () => void, ms = 500) {
-    const [startLongPress, setStartLongPress] = useState(false)
-    const timerRef = useRef<any>(null)
+  const [startLongPress, setStartLongPress] = useState(false)
+  const timerRef = useRef<any>(null)
 
-    useEffect(() => {
-        if (startLongPress) {
-            timerRef.current = setTimeout(callback, ms)
-        } else {
-            clearTimeout(timerRef.current)
-        }
-        return () => clearTimeout(timerRef.current)
-    }, [startLongPress, callback, ms])
+  useEffect(() => {
+  if (startLongPress) {
+  timerRef.current = setTimeout(callback, ms)
+  } else {
+  clearTimeout(timerRef.current)
+  }
+  return () => clearTimeout(timerRef.current)
+  }, [startLongPress, callback, ms])
 
-    return {
-        onMouseDown: () => setStartLongPress(true),
-        onMouseUp: () => setStartLongPress(false),
-        onMouseLeave: () => setStartLongPress(false),
-        onTouchStart: () => setStartLongPress(true),
-        onTouchEnd: () => setStartLongPress(false)
-    }
+  return {
+  onMouseDown: () => setStartLongPress(true),
+  onMouseUp: () => setStartLongPress(false),
+  onMouseLeave: () => setStartLongPress(false),
+  onTouchStart: () => setStartLongPress(true),
+  onTouchEnd: () => setStartLongPress(false)
+  }
 }
 
 // Tool Button Component
 const ToolBtn = ({ tool, icon: Icon, menuContent, specialModeIcon, store, activeMenu, openMenu, closeMenu, onClickOverride }: any) => {
-    // Determine active state:
-    // If tool is 'pen' or 'eraser', we also need to be in 'draw' mode.
-    // If tool is 'select' or 'hand', we check activeTool.
-    const isActive = store.activeTool === tool && (
-        (tool === 'select' || tool === 'hand') ? true : store.mode === 'draw'
-    );
+  // Determine active state:
+  // If tool is 'pen' or 'eraser', we also need to be in 'draw' mode.
+  // If tool is 'select' or 'hand', we check activeTool.
+  const isActive = store.activeTool === tool && (
+  (tool === 'select' || tool === 'hand') ? true : store.mode === 'draw'
+  );
 
-    const longPressProps = useLongPress(() => {
-        if (menuContent) openMenu(tool)
-    })
+  const longPressProps = useLongPress(() => {
+  if (menuContent) openMenu(tool)
+  })
 
-    const handleClick = () => {
-        // Close any open menu first
-        closeMenu()
+  const handleClick = () => {
+  // Close any open menu first
+  closeMenu()
 
-        if (onClickOverride) {
-            onClickOverride()
-        } else {
-            store.setTool(tool)
-            if (tool === 'pen' || tool === 'eraser' || tool === 'text') {
-                store.setMode('draw')
-            } else if (tool === 'hand') {
-                store.setMode('interact')
-            }
-        }
-    }
+  if (onClickOverride) {
+  onClickOverride()
+  } else {
+  store.setTool(tool)
+  if (tool === 'pen' || tool === 'eraser' || tool === 'text') {
+ store.setMode('draw')
+  } else if (tool === 'hand') {
+ store.setMode('interact')
+  }
+  }
+  }
 
-    return (
-        <div className="relative group">
-            <button
-                {...longPressProps}
-                onDoubleClick={(e) => { e.preventDefault(); if (menuContent) openMenu(tool) }}
-                onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); if (menuContent) openMenu(tool) }}
-                onClick={handleClick}
-                title={tool}
-                className={`h-[48px] w-[48px] flex items-center justify-center rounded-full transition-all relative ${isActive ? 'bg-primary text-primary-foreground' : 'text-primary hover:bg-primary/20'}`}
-            >
-                {specialModeIcon ? specialModeIcon : <Icon size={24} />}
-                {/* Visual indicator for active mode variants */}
-                {activeMenu === tool && <div className="absolute -bottom-1 w-1 h-1 bg-primary rounded-full"></div>}
-            </button>
+  return (
+  <div className="relative group">
+  <button
+ {...longPressProps}
+ onDoubleClick={(e) => { e.preventDefault(); if (menuContent) openMenu(tool) }}
+ onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); if (menuContent) openMenu(tool) }}
+ onClick={handleClick}
+ title={tool}
+ className={`h-[48px] w-[48px] flex items-center justify-center rounded-full transition-all relative ${isActive ? 'bg-primary text-primary-foreground' : 'text-primary hover:bg-primary/20'}`}
+  >
+ {specialModeIcon ? specialModeIcon : <Icon size={24} />}
+ {/* Visual indicator for active mode variants */}
+ {activeMenu === tool && <div className="absolute -bottom-1 w-1 h-1 bg-primary rounded-full"></div>}
+  </button>
 
-            {activeMenu === tool && menuContent && (
-                <div className="absolute bottom-16 left-1/2 -translate-x-1/2 md:top-16 md:bottom-auto bg-black border border-primary p-4 rounded-lg flex flex-col gap-2 min-w-[200px] z-[70] shadow-[0_0_15px_rgba(255,215,0,0.2)]">
-                    {menuContent}
-                    <button onClick={closeMenu} className="text-xs text-red-500 mt-2 lowercase hover:text-red-400 self-center">close</button>
-                </div>
-            )}
-        </div>
-    )
+  {activeMenu === tool && menuContent && (
+ <div className="absolute bottom-16 left-1/2 -translate-x-1/2 md:top-16 md:bottom-auto bg-black border border-primary p-4 rounded-lg flex flex-col gap-2 min-w-[200px] z-[70] shadow-[0_0_15px_rgba(255,215,0,0.2)]">
+ {menuContent}
+ <button onClick={closeMenu} className="text-xs text-red-500 mt-2 lowercase hover:text-red-400 self-center">close</button>
+ </div>
+  )}
+  </div>
+  )
 }
 
 export function Toolbar() {
-    const store = useEdgelessStore()
-    const [activeMenu, setActiveMenu] = useState<string | null>(null)
-    const toolbarRef = useRef<HTMLDivElement>(null)
+  const store = useEdgelessStore()
+  const [activeMenu, setActiveMenu] = useState<string | null>(null)
+  const toolbarRef = useRef<HTMLDivElement>(null)
 
-    const closeMenu = () => setActiveMenu(null)
-    const openMenu = (tool: string) => setActiveMenu(tool)
+  const closeMenu = () => setActiveMenu(null)
+  const openMenu = (tool: string) => setActiveMenu(tool)
 
-    // Click outside handler
-    useEffect(() => {
-        function handleClickOutside(event: MouseEvent) {
-            if (activeMenu && toolbarRef.current && !toolbarRef.current.contains(event.target as Node)) {
-                closeMenu()
-            }
-        }
-        window.addEventListener('mousedown', handleClickOutside)
-        return () => window.removeEventListener('mousedown', handleClickOutside)
-    }, [activeMenu])
+  // Click outside handler
+  useEffect(() => {
+  function handleClickOutside(event: MouseEvent) {
+  if (activeMenu && toolbarRef.current && !toolbarRef.current.contains(event.target as Node)) {
+ closeMenu()
+  }
+  }
+  window.addEventListener('mousedown', handleClickOutside)
+  return () => window.removeEventListener('mousedown', handleClickOutside)
+  }, [activeMenu])
 
-    return (
-        <div ref={toolbarRef} className="fixed bottom-24 left-1/2 -translate-x-1/2 md:top-4 md:right-24 md:left-auto md:translate-x-0 md:bottom-auto bg-black border-2 border-primary rounded-full p-2 flex gap-2 shadow-[4px_4px_0_var(--primary)] z-50 items-center">
+  return (
+  <div ref={toolbarRef} className="fixed bottom-24 left-1/2 -translate-x-1/2 md:top-4 md:right-24 md:left-auto md:translate-x-0 md:bottom-auto bg-black border-2 border-primary rounded-full p-2 flex gap-2 shadow-[4px_4px_0_var(--primary)] z-50 items-center">
 
-            {/* Layers Tool */}
-            <ToolBtn
-                tool="layers"
-                icon={LucideIcons.Layers}
-                store={store}
-                activeMenu={activeMenu}
-                openMenu={openMenu}
-                closeMenu={closeMenu}
-                menuContent={
-                    <div className="flex flex-col gap-2 min-w-[200px]">
-                        <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-bold text-primary">layers</span>
-                            <button onClick={() => store.addLayer(`Layer ${store.layers.length + 1}`)} className="text-xs px-2 py-1 bg-primary/20 hover:bg-primary/40 rounded text-primary">
-                                + add
-                            </button>
-                        </div>
-                        <div className="flex flex-col gap-1 max-h-[200px] overflow-y-auto">
-                            {store.layers.map(layer => (
-                                <div key={layer.id} className={`flex items-center gap-2 p-2 rounded ${store.activeLayerId === layer.id ? 'bg-primary/20 border border-primary/50' : 'hover:bg-white/5'}`}>
-                                    <button onClick={() => store.toggleLayerVisibility(layer.id)} className="text-zinc-400 hover:text-white">
-                                        {layer.visible ? <LucideIcons.Eye size={14} /> : <LucideIcons.EyeOff size={14} />}
-                                    </button>
-                                    <span
-                                        className={`flex-1 text-xs cursor-pointer truncate ${store.activeLayerId === layer.id ? 'text-primary' : 'text-zinc-300'}`}
-                                        onClick={() => store.setActiveLayer(layer.id)}
-                                    >
-                                        {layer.name}
-                                    </span>
-                                    <button onClick={() => {
-                                        if (confirm('Delete layer?')) store.removeLayer(layer.id)
-                                    }} className="text-red-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <LucideIcons.Trash2 size={12} />
-                                    </button>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                }
-            />
+  {/* Layers Tool */}
+  <ToolBtn
+ tool="layers"
+ icon={LucideIcons.Layers}
+ store={store}
+ activeMenu={activeMenu}
+ openMenu={openMenu}
+ closeMenu={closeMenu}
+ menuContent={
+ <div className="flex flex-col gap-2 min-w-[200px]">
+ <div className="flex items-center justify-between mb-2">
+   <span className="text-xs font-bold text-primary">layers</span>
+   <button onClick={() => store.addLayer(`Layer ${store.layers.length + 1}`)} className="text-xs px-2 py-1 bg-primary/20 hover:bg-primary/40 rounded text-primary">
+   + add
+   </button>
+ </div>
+ <div className="flex flex-col gap-1 max-h-[200px] overflow-y-auto">
+   {store.layers.map(layer => (
+   <div key={layer.id} className={`flex items-center gap-2 p-2 rounded ${store.activeLayerId === layer.id ? 'bg-primary/20 border border-primary/50' : 'hover:bg-white/5'}`}>
+   <button onClick={() => store.toggleLayerVisibility(layer.id)} className="text-zinc-400 hover:text-white">
+  {layer.visible ? <LucideIcons.Eye size={14} /> : <LucideIcons.EyeOff size={14} />}
+   </button>
+   <span
+  className={`flex-1 text-xs cursor-pointer truncate ${store.activeLayerId === layer.id ? 'text-primary' : 'text-zinc-300'}`}
+  onClick={() => store.setActiveLayer(layer.id)}
+   >
+  {layer.name}
+   </span>
+   <button onClick={() => {
+  if (confirm('Delete layer?')) store.removeLayer(layer.id)
+   }} className="text-red-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
+  <LucideIcons.Trash2 size={12} />
+   </button>
+   </div>
+   ))}
+ </div>
+ </div>
+ }
+  />
 
-            {/* Select Tool (Dual Mode: Grab vs Cursor) */}
-            <ToolBtn
-                tool="select"
-                icon={Hand}
-                store={store}
-                activeMenu={activeMenu}
-                openMenu={openMenu}
-                closeMenu={closeMenu}
-                onClickOverride={() => {
-                    store.setTool('select')
-                    // Ensure we are in the correct mode for the tool
-                    if (store.selectionMode === 'rect' || store.selectionMode === 'magic' || store.selectionMode === 'free') {
-                        store.setSelectionMode('grab') // Default fallback if weird state
-                    }
-                    store.setMode('draw')
-                }}
-                specialModeIcon={
-                    store.selectionMode === 'cursor' ? <MousePointer2 size={24} /> : <Hand size={24} />
-                }
-                menuContent={
-                    <>
-                        <span className="text-xs text-primary font-bold mb-1 lowercase">cursor mode</span>
-                        <button onClick={() => { store.setSelectionMode('grab'); closeMenu() }} className={`text-sm hover:bg-primary/20 p-2 rounded flex items-center gap-2 lowercase ${store.selectionMode === 'grab' ? 'text-primary font-bold' : 'text-primary'}`}>
-                            <Hand size={16} /> grab (move/scale)
-                        </button>
-                        <button onClick={() => { store.setSelectionMode('cursor'); closeMenu() }} className={`text-sm hover:bg-primary/20 p-2 rounded flex items-center gap-2 lowercase ${store.selectionMode === 'cursor' ? 'text-primary font-bold' : 'text-primary'}`}>
-                            <MousePointer2 size={16} /> cursor (interact)
-                        </button>
-                    </>
-                }
-            />
+  {/* Select Tool (Dual Mode: Grab vs Cursor) */}
+  <ToolBtn
+ tool="select"
+ icon={Hand}
+ store={store}
+ activeMenu={activeMenu}
+ openMenu={openMenu}
+ closeMenu={closeMenu}
+ onClickOverride={() => {
+ store.setTool('select')
+ // Ensure we are in the correct mode for the tool
+ if (store.selectionMode === 'rect' || store.selectionMode === 'magic' || store.selectionMode === 'free') {
+ store.setSelectionMode('grab') // Default fallback if weird state
+ }
+ store.setMode('draw')
+ }}
+ specialModeIcon={
+ store.selectionMode === 'cursor' ? <MousePointer2 size={24} /> : <Hand size={24} />
+ }
+ menuContent={
+ <>
+ <span className="text-xs text-primary font-bold mb-1 lowercase">cursor mode</span>
+ <button onClick={() => { store.setSelectionMode('grab'); closeMenu() }} className={`text-sm hover:bg-primary/20 p-2 rounded flex items-center gap-2 lowercase ${store.selectionMode === 'grab' ? 'text-primary font-bold' : 'text-primary'}`}>
+   <Hand size={16} /> grab (move/scale)
+ </button>
+ <button onClick={() => { store.setSelectionMode('cursor'); closeMenu() }} className={`text-sm hover:bg-primary/20 p-2 rounded flex items-center gap-2 lowercase ${store.selectionMode === 'cursor' ? 'text-primary font-bold' : 'text-primary'}`}>
+   <MousePointer2 size={16} /> cursor (interact)
+ </button>
+ </>
+ }
+  />
 
-            {/* Pen Tool */}
-            <ToolBtn
-                tool="pen"
-                icon={Pencil}
-                store={store}
-                activeMenu={activeMenu}
-                openMenu={openMenu}
-                closeMenu={closeMenu}
-                menuContent={
-                    <>
-                        {/* Size */}
-                        <div className="flex flex-col gap-1 mb-2">
-                            <label className="text-xs text-primary lowercase flex justify-between">
-                                <span>size</span>
-                                <span>{store.penWidth}px</span>
-                            </label>
-                            <input
-                                type="range" min="1" max="50"
-                                value={store.penWidth}
-                                onChange={(e) => store.setPenWidth(Number(e.target.value))}
-                                className="accent-primary"
-                            />
-                        </div>
+  {/* Pen Tool */}
+  <ToolBtn
+ tool="pen"
+ icon={Pencil}
+ store={store}
+ activeMenu={activeMenu}
+ openMenu={openMenu}
+ closeMenu={closeMenu}
+ menuContent={
+ <>
+ {/* Size */}
+ <div className="flex flex-col gap-1 mb-2">
+   <label className="text-xs text-primary lowercase flex justify-between">
+   <span>size</span>
+   <span>{store.penWidth}px</span>
+   </label>
+   <input
+   type="range" min="1" max="50"
+   value={store.penWidth}
+   onChange={(e) => store.setPenWidth(Number(e.target.value))}
+   className="accent-primary"
+   />
+ </div>
 
-                        {/* Stabilizer */}
-                        <div className="flex flex-col gap-1 mb-2">
-                            <label className="text-xs text-primary lowercase flex justify-between">
-                                <span>stabilizer</span>
-                                <span>{store.stabilizerLevel}</span>
-                            </label>
-                            <input
-                                type="range" min="0" max="100" // 0 to 1 implicit mapping later
-                                value={store.stabilizerLevel}
-                                onChange={(e) => store.setStabilizerLevel(Number(e.target.value))}
-                                className="accent-primary"
-                            />
-                        </div>
+ {/* Stabilizer */}
+ <div className="flex flex-col gap-1 mb-2">
+   <label className="text-xs text-primary lowercase flex justify-between">
+   <span>stabilizer</span>
+   <span>{store.stabilizerLevel}</span>
+   </label>
+   <input
+   type="range" min="0" max="100" // 0 to 1 implicit mapping later
+   value={store.stabilizerLevel}
+   onChange={(e) => store.setStabilizerLevel(Number(e.target.value))}
+   className="accent-primary"
+   />
+ </div>
 
-                        {/* Pressure */}
-                        <div className="flex items-center justify-between mb-2">
-                            <label className="text-xs text-primary lowercase">pressure</label>
-                            <input
-                                type="checkbox"
-                                checked={store.pressureEnabled}
-                                onChange={(e) => store.setPressureEnabled(e.target.checked)}
-                                className="accent-primary"
-                            />
-                        </div>
+ {/* Pressure */}
+ <div className="flex items-center justify-between mb-2">
+   <label className="text-xs text-primary lowercase">pressure</label>
+   <input
+   type="checkbox"
+   checked={store.pressureEnabled}
+   onChange={(e) => store.setPressureEnabled(e.target.checked)}
+   className="accent-primary"
+   />
+ </div>
 
-                        <div className="h-px bg-primary/20 my-2"></div>
+ <div className="h-px bg-primary/20 my-2"></div>
 
-                        {/* Colors */}
-                        <div className="grid grid-cols-5 gap-2">
-                            {['var(--primary)', '#ffffff', '#ef4444', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#9ca3af', '#000000', 'custom'].map((color) => {
-                                if (color === 'custom') {
-                                    return (
-                                        <div key={color} className="relative w-6 h-6 rounded-full overflow-hidden border border-white/20 cursor-pointer">
-                                            <input
-                                                type="color"
-                                                value={store.penColor}
-                                                onChange={(e) => store.setPenColor(e.target.value)}
-                                                className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 opacity-0 cursor-pointer"
-                                            />
-                                            <div className="w-full h-full bg-gradient-to-tr from-yellow-500 via-purple-500 to-blue-500" />
-                                        </div>
-                                    )
-                                }
-                                return (
-                                    <button
-                                        key={color}
-                                        onClick={() => store.setPenColor(color)}
-                                        className={`w-6 h-6 rounded-full border border-white/10 ${store.penColor === color ? 'ring-2 ring-primary ring-offset-1 ring-offset-black' : ''}`}
-                                        style={{ backgroundColor: color }}
-                                    />
-                                )
-                            })}
-                        </div>
-                    </>
-                }
-            />
+ {/* Colors */}
+ <div className="grid grid-cols-5 gap-2">
+   {['var(--primary)', '#ffffff', '#ef4444', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#9ca3af', '#000000', 'custom'].map((color) => {
+   if (color === 'custom') {
+   return (
+  <div key={color} className="relative w-6 h-6 rounded-full overflow-hidden border border-white/20 cursor-pointer">
+  <input
+  type="color"
+  value={store.penColor}
+  onChange={(e) => store.setPenColor(e.target.value)}
+  className="absolute inset-0 w-[150%] h-[150%] -top-1/4 -left-1/4 opacity-0 cursor-pointer"
+  />
+  <div className="w-full h-full bg-gradient-to-tr from-yellow-500 via-purple-500 to-blue-500" />
+  </div>
+   )
+   }
+   return (
+   <button
+  key={color}
+  onClick={() => store.setPenColor(color)}
+  className={`w-6 h-6 rounded-full border border-white/10 ${store.penColor === color ? 'ring-2 ring-primary ring-offset-1 ring-offset-black' : ''}`}
+  style={{ backgroundColor: color }}
+   />
+   )
+   })}
+ </div>
+ </>
+ }
+  />
 
-            {/* Eraser Tool */}
-            <ToolBtn
-                tool="eraser"
-                icon={Eraser}
-                store={store}
-                activeMenu={activeMenu}
-                openMenu={openMenu}
-                closeMenu={closeMenu}
-                menuContent={
-                    <>
-                        <label className="text-xs text-primary lowercase">width: {store.eraserWidth}px</label>
-                        <input
-                            type="range" min="5" max="100"
-                            value={store.eraserWidth}
-                            onChange={(e) => store.setEraserWidth(Number(e.target.value))}
-                            className="accent-primary"
-                        />
-                    </>
-                }
-            />
+  {/* Eraser Tool */}
+  <ToolBtn
+ tool="eraser"
+ icon={Eraser}
+ store={store}
+ activeMenu={activeMenu}
+ openMenu={openMenu}
+ closeMenu={closeMenu}
+ menuContent={
+ <>
+ <label className="text-xs text-primary lowercase">width: {store.eraserWidth}px</label>
+ <input
+   type="range" min="5" max="100"
+   value={store.eraserWidth}
+   onChange={(e) => store.setEraserWidth(Number(e.target.value))}
+   className="accent-primary"
+ />
+ </>
+ }
+  />
 
-            {/* Text Tool */}
-            <ToolBtn
-                tool="text"
-                icon={Type}
-                store={store}
-                activeMenu={activeMenu}
-                openMenu={openMenu}
-                closeMenu={closeMenu}
-                menuContent={
-                    <>
-                        <label className="text-xs text-primary lowercase">size: {store.textSize}px</label>
-                        <input
-                            type="range" min="12" max="120"
-                            value={store.textSize}
-                            onChange={(e) => store.setTextSize(Number(e.target.value))}
-                            className="accent-primary"
-                        />
-                        <div className="h-px bg-primary/20 my-2"></div>
-                        <button
-                            onClick={() => store.setIsLinking(!store.isLinking)}
-                            className={`text-sm p-2 rounded flex items-center gap-2 transition-colors lowercase ${store.isLinking ? 'bg-primary text-black' : 'text-primary'}`}
-                        >
-                            <LinkIcon size={16} />
-                            {store.isLinking ? 'linking active...' : 'create link'}
-                        </button>
-                    </>
-                }
-            />
+  {/* Text Tool */}
+  <ToolBtn
+ tool="text"
+ icon={Type}
+ store={store}
+ activeMenu={activeMenu}
+ openMenu={openMenu}
+ closeMenu={closeMenu}
+ menuContent={
+ <>
+ <label className="text-xs text-primary lowercase">size: {store.textSize}px</label>
+ <input
+   type="range" min="12" max="120"
+   value={store.textSize}
+   onChange={(e) => store.setTextSize(Number(e.target.value))}
+   className="accent-primary"
+ />
+ <div className="h-px bg-primary/20 my-2"></div>
+ <button
+   onClick={() => store.setIsLinking(!store.isLinking)}
+   className={`text-sm p-2 rounded flex items-center gap-2 transition-colors lowercase ${store.isLinking ? 'bg-primary text-black' : 'text-primary'}`}
+ >
+   <LinkIcon size={16} />
+   {store.isLinking ? 'linking active...' : 'create link'}
+ </button>
+ </>
+ }
+  />
 
-            {/* Wilson Toggle */}
-            <button
-                onClick={() => store.setChatOpen(!store.isChatOpen)}
-                className={`h-[48px] w-[48px] flex items-center justify-center rounded-full transition-all ${store.isChatOpen ? 'bg-primary text-black' : 'text-primary hover:bg-primary/20'}`}
-            >
-                <MessageCircle size={24} />
-            </button>
+  {/* Wilson Toggle */}
+  <button
+ onClick={() => store.setChatOpen(!store.isChatOpen)}
+ className={`h-[48px] w-[48px] flex items-center justify-center rounded-full transition-all ${store.isChatOpen ? 'bg-primary text-black' : 'text-primary hover:bg-primary/20'}`}
+  >
+ <MessageCircle size={24} />
+  </button>
 
-        </div>
-    )
+  </div>
+  )
 }

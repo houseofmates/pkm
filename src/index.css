@@ -1,11 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=varela+round&display=swap');
 
 @font-face {
-  font-family: 'Varela Round';
+  font-family: 'varela round';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/VarelaRound-Regular.woff2') format('woff2');
+  src: url('/fonts/varelaround-regular.woff2') format('woff2');
 }
 
 @tailwind base;
@@ -13,7 +13,7 @@
 @tailwind utilities;
 
 * {
-  font-family: 'Varela Round', sans-serif !important;
+  font-family: 'varela round', sans-serif !important;
 }
 
 @layer base {
@@ -27,12 +27,12 @@
     --popover: 0 0% 8%;
     --popover-foreground: 0 0% 95%;
 
-    /* THE VOID BLUEPRINT DEFAULT: Orange */
+    /* the void blueprint default: warm yellow */
     --primary: 41 92% 52%;
     --primary-foreground: 0 0% 0%;
     --primary-soft: rgba(245, 175, 18, 0.1) !important;
 
-    /* RECOLORABLE WHITE: Defaults to white, becomes headmate color via useThemeReactor */
+    /* recolorable white: defaults to white, becomes headmate color via usethemereactor */
     --headmate-white: 0 0% 100%;
 
     --secondary: 0 0% 12%;
@@ -50,7 +50,7 @@
     --border: 0 0% 15%;
     --input: 0 0% 15%;
     --ring: 41 92% 52%;
-    /* Match primary default */
+    /* match primary default */
 
     --radius: 0.75rem;
   }
@@ -62,7 +62,7 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
-    font-family: 'Varela Round', sans-serif !important;
+    font-family: 'varela round', sans-serif !important;
   }
 }
 
@@ -72,10 +72,10 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'Varela Round', sans-serif !important;
+  font-family: 'varela round', sans-serif !important;
 }
 
-/* --- OVERRIDE: VISUAL REPAIR V2 --- */
+/* --- override: visual repair v2 --- */
 aside,
 .sidebar,
 nav,
@@ -92,17 +92,17 @@ aside {
 }
 
 .card,
-[class*="Card"] {
+[class*="card"] {
   overflow: hidden !important;
   border-radius: var(--radius) !important;
   border: 1px solid hsl(var(--border));
-  /* Ensure border is visible */
+  /* ensure border is visible */
   box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  /* Restore shadow if border: none removed it? No, shadow-sm class does it. */
+  /* restore shadow if border: none removed it? no, shadow-sm class does it. */
 }
 
 .card-content,
-[class*="CardContent"] {
+[class*="cardcontent"] {
   border-radius: 0 0 var(--radius) var(--radius);
 }
 
@@ -125,38 +125,38 @@ aside {
   background: transparent;
 }
 
-/* --- THE VOID BLUEPRINT OVERRIDES --- */
+/* --- the void blueprint overrides --- */
 
-/* Force Icons to Inherit Variable Directly */
+/* force icons to inherit variable directly */
 svg,
 .lucide,
 [class*="icon"] {
   /* color: var(--primary) !important; */
   /* stroke: var(--primary) !important; */
   fill: none;
-  /* Reset fill mostly, or let it handle itself */
+  /* reset fill mostly, or let it handle itself */
 }
 
-/* Explicitly targeted Selection Logic */
+/* explicitly targeted selection logic */
 .nav-selected,
 [data-selected="true"] {
   background-color: var(--primary-soft) !important;
   color: hsl(var(--primary)) !important;
 }
 
-/* Soft Background Utility */
+/* soft background utility */
 .bg-primary-soft {
   background-color: var(--primary-soft) !important;
 }
 
-/* Ensure focus states use primary */
+/* ensure focus states use primary */
 *:focus,
 *:focus-visible {
   outline-color: hsl(var(--primary)) !important;
   --tw-ring-color: hsl(var(--primary)) !important;
 }
 
-/* Kill generic white text/borders that shouldn't exist */
+/* kill generic white text/borders that shouldn't exist */
 .text-white {
   color: hsl(var(--headmate-white)) !important;
 }
@@ -165,7 +165,7 @@ svg,
   border-color: hsl(var(--headmate-white) / 0.2) !important;
 }
 
-/* --- CRITICAL UI REPAIR SPEC --- */
+/* --- critical ui repair spec --- */
 .card-fix {
   border-radius: 0.75rem;
   /* rounded-xl */
@@ -180,7 +180,7 @@ svg,
   position: relative;
 }
 
-/* Pseudo-element border to sit ON TOP of opaque children */
+/* pseudo-element border to sit on top of opaque children */
 .card-fix::after {
   content: "";
   position: absolute;
@@ -189,15 +189,15 @@ svg,
   box-shadow: inset 0 0 0 2px var(--border-color, hsl(var(--headmate-white) / 0.1));
   pointer-events: none;
   z-index: 50;
-  /* Ensure on top of content */
+  /* ensure on top of content */
 }
 
-/* Spec: Force rounded inherit on children of .card-fix */
+/* spec: force rounded inherit on children of .card-fix */
 .card-fix>* {
   border-radius: inherit;
 }
 
-/* --- UTILITY: HIDE SCROLLBARS --- */
+/* --- utility: hide scrollbars --- */
 .no-scrollbar::-webkit-scrollbar {
   display: none !important;
   width: 0 !important;
@@ -210,37 +210,37 @@ svg,
   scrollbar-width: none !important;
 }
 
-/* --- INTERACTIVE POLISH --- */
+/* --- interactive polish --- */
 .interactive-pop {
   transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease, filter 0.2s ease !important;
 }
 
 .interactive-pop:hover {
-  transform: scale(1.025) translateY(-2px);
+  transform: scale(1.025) translatey(-2px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3) !important;
   filter: brightness(1.1);
   z-index: 50;
 }
 
 .interactive-pop:active {
-  transform: scale(0.98) translateY(0px);
+  transform: scale(0.98) translatey(0px);
   filter: brightness(0.9);
   transition: transform 0.05s linear !important;
 }
 
-/* Specific fix for buttons in components */
+/* specific fix for buttons in components */
 button.interactive-pop:hover {
   filter: brightness(1.2);
 }
 
-/* --- GLOBAL FORCE LOWERCASE (REMOVED) --- */
-/* User requested capitalization preservation. */
+/* --- global force lowercase (removed) --- */
+/* user requested capitalization preservation. */
 /* * {
   text-transform: lowercase !important;
   font-variant: normal !important;
 } */
 
-/* Selected icon styling: color the icon instead of button background */
+/* selected icon styling: color the icon instead of button background */
 .selected-icon-btn {
   background: transparent !important;
   /* keep bold text where used */
@@ -248,8 +248,8 @@ button.interactive-pop:hover {
   color: inherit !important;
 }
 
-/* Strongly enforce icon coloring for selected state, including nested children
-   This overrides inline fills / hardcoded tailwind utility colors on svg or paths. */
+/* strongly enforce icon coloring for selected state, including nested children
+   this overrides inline fills / hardcoded tailwind utility colors on svg or paths. */
 .selected-icon-btn svg,
 .selected-icon-btn svg *,
 .selected-icon-btn .lucide,
@@ -257,49 +257,49 @@ button.interactive-pop:hover {
 .selected-icon-btn .icon,
 .selected-icon-btn .icon * {
   color: hsl(var(--primary)) !important;
-  stroke: currentColor !important;
-  fill: currentColor !important;
-  -webkit-text-fill-color: currentColor !important;
+  stroke: currentcolor !important;
+  fill: currentcolor !important;
+  -webkit-text-fill-color: currentcolor !important;
 }
 
-/* Additional aggressive overrides to neutralize hardcoded yellow utilities
-   and inline SVG fills that are still present in many components/builds. */
+/* additional aggressive overrides to neutralize hardcoded yellow utilities
+   and inline svg fills that are still present in many components/builds. */
 .selected-icon-btn {
   background-color: transparent !important;
   box-shadow: none !important;
 }
 
-/* Override tailwind-like utility classname usages that embed the yellow color */
+/* override tailwind-like utility classname usages that embed the yellow color */
 .selected-icon-btn [class*="text-[var(--primary)]"],
 .selected-icon-btn [class*="bg-[var(--primary)]"],
 .selected-icon-btn [class*="fill-[var(--primary)]"],
 .selected-icon-btn [class*="stroke-[var(--primary)]"] {
   color: hsl(var(--primary)) !important;
   background-color: transparent !important;
-  fill: currentColor !important;
-  stroke: currentColor !important;
+  fill: currentcolor !important;
+  stroke: currentcolor !important;
 }
 
-/* Catch inline SVG attributes and style attributes that reference the hex */
+/* catch inline svg attributes and style attributes that reference the hex */
 
 
 .selected-icon-btn svg [fill="var(--primary)"],
 .selected-icon-btn svg [stroke="var(--primary)"],
 .selected-icon-btn [style*="var(--primary)"] {
-  fill: currentColor !important;
-  stroke: currentColor !important;
+  fill: currentcolor !important;
+  stroke: currentcolor !important;
   color: hsl(var(--primary)) !important;
 }
 
-/* Generic fallback: force any SVG children to use currentColor */
+/* generic fallback: force any svg children to use currentcolor */
 .selected-icon-btn svg,
 .selected-icon-btn svg * {
-  fill: currentColor !important;
-  stroke: currentColor !important;
+  fill: currentcolor !important;
+  stroke: currentcolor !important;
   color: hsl(var(--primary)) !important;
 }
 
-/* --- NUCLEAR OVERRIDE (user request) --- */
+/* --- nuclear override (user request) --- */
 .selected-icon-btn svg,
 .selected-icon-btn path,
 .selected-icon-btn circle {
@@ -315,16 +315,16 @@ button.interactive-pop:hover {
   box-shadow: none !important;
 }
 
-/* Universal nested selector to catch wrappers/spans around svgs */
+/* universal nested selector to catch wrappers/spans around svgs */
 .selected-icon-btn * {
   fill: hsl(var(--primary)) !important;
   stroke: hsl(var(--primary)) !important;
 }
 
-/* --- NUCLEAR UI FIX ROUND 2 (USER REQUEST) --- */
+/* --- nuclear ui fix round 2 (user request) --- */
 
-/* --- NUCLEAR OVERRIDE REFINED --- */
-/* Avoid global border removal, it breaks status widgets and selection outlines. */
+/* --- nuclear override refined --- */
+/* avoid global border removal, it breaks status widgets and selection outlines. */
 .sidebar *,
 .nav-container *,
 header * {
@@ -332,13 +332,13 @@ header * {
   border-bottom: none !important;
 }
 
-/* Restore for header/sidebar only */
+/* restore for header/sidebar only */
 .sidebar-container,
 .nav-header {
   border-bottom: 2px solid hsl(var(--primary)) !important;
 }
 
-/* 2. SIDEBAR ICONS SPECIFIC TARGET */
+/* 2. sidebar icons specific target */
 .sidebar svg,
 .nav-item svg,
 .top-nav svg {
@@ -347,9 +347,9 @@ header * {
   filter: drop-shadow(0 0 0 hsl(var(--primary))) !important;
 }
 
-/* --- HIGH CONTRAST & VISIBILITY RESTORATION (USER REQUEST) --- */
+/* --- high contrast & visibility restoration (user request) --- */
 
-/* 1. THE BACKGROUND: Force Dark #050505 */
+/* 1. the background: force dark #050505 */
 .sidebar,
 .nav-container,
 .nav-item.selected {
@@ -357,9 +357,9 @@ header * {
   background: #050505 !important;
 }
 
-/* --- V5 EMERGENCY FIX (COHERENT) --- */
+/* --- v5 emergency fix (coherent) --- */
 
-/* 1. Header & Sidebar Background (Dark Grey/Black) */
+/* 1. header & sidebar background (dark grey/black) */
 header,
 .nav-header,
 .sidebar,
@@ -369,10 +369,10 @@ aside {
   background-color: #050505 !important;
   background: #050505 !important;
   border-bottom: 2px solid hsl(var(--primary)) !important;
-  /* Restore header separating line */
+  /* restore header separating line */
 }
 
-/* 2. Button Outlines -> Headmate Color */
+/* 2. button outlines -> headmate color */
 button,
 .btn,
 .icon-btn,
@@ -381,7 +381,7 @@ button,
   outline-color: hsl(var(--primary)) !important;
 }
 
-/* 3. Selected Items: Transparent Background, Colored Icon */
+/* 3. selected items: transparent background, colored icon */
 .nav-item.selected,
 .nav-item:hover,
 .nav-button.active,
@@ -393,10 +393,10 @@ button,
   background-color: transparent !important;
   background: transparent !important;
   border: none !important;
-  /* No box border around the item itself */
+  /* no box border around the item itself */
 }
 
-/* 4. Icons: ALWAYS Primary Color & Visible */
+/* 4. icons: always primary color & visible */
 .sidebar svg,
 .nav-item svg,
 .sidebar-icon,
@@ -411,13 +411,13 @@ button,
   visibility: visible !important;
 }
 
-/* Kill random white borders, force them to primary or transparent */
+/* kill random white borders, force them to primary or transparent */
 *[style*="border"],
 [class*="border"] {
   border-color: hsl(var(--primary)) !important;
 }
 
-/* Force cmdk items to always be visible and clickable */
+/* force cmdk items to always be visible and clickable */
 [cmdk-item] {
   display: flex !important;
   opacity: 1 !important;
@@ -436,7 +436,7 @@ button,
   display: block !important;
 }
 
-/* --- BLOG CUSTOM SCROLLBAR --- */
+/* --- blog custom scrollbar --- */
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px;
   height: 8px;

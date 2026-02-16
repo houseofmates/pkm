@@ -15,50 +15,50 @@ import * as React from 'react';
 export type ViewType = 'table' | 'calendar' | 'kanban' | 'gallery' | 'gantt' | 'canvas' | 'chart' | 'network' | 'mindmap' | 'list' | 'journal' | 'contacts';
 
 export type ViewProps = {
-    data: any[];
-    loading?: boolean;
-    collection: any;
-    config?: any;
-    onUpdateRecord?: (id: any, data: any) => Promise<void> | void;
-    onDelete?: (id: any) => Promise<void> | void;
-    onEdit?: (id: any) => void;
-    onConfigChange?: (key: string, value: any) => void;
-    onCreateRecord?: () => void;
-    onCreateField?: () => void;
+  data: any[];
+  loading?: boolean;
+  collection: any;
+  config?: any;
+  onUpdateRecord?: (id: any, data: any) => Promise<void> | void;
+  onDelete?: (id: any) => Promise<void> | void;
+  onEdit?: (id: any) => void;
+  onConfigChange?: (key: string, value: any) => void;
+  onCreateRecord?: () => void;
+  onCreateField?: () => void;
 };
 
 export const VIEW_REGISTRY: Record<ViewType, React.ComponentType<ViewProps>> = {
-    table: RecordTable,
-    calendar: CalendarView,
-    kanban: KanbanView,
-    gallery: GalleryView,
-    gantt: GanttView,
-    canvas: CanvasView,
-    chart: ChartView,
-    network: NetworkView,
-    mindmap: MindMapView,
-    list: ListView,
-    journal: JournalView,
-    contacts: ContactsView,
+  table: RecordTable,
+  calendar: CalendarView,
+  kanban: KanbanView,
+  gallery: GalleryView,
+  gantt: GanttView,
+  canvas: CanvasView,
+  chart: ChartView,
+  network: NetworkView,
+  mindmap: MindMapView,
+  list: ListView,
+  journal: JournalView,
+  contacts: ContactsView,
 };
 
 import {
-    Table, List, BookOpen, Calendar, Kanban as KanbanIcon,
-    LayoutGrid, GitGraph, BarChart3, Network, GitMerge,
-    LayoutDashboard, Users // Added Users icon
+  Table, List, BookOpen, Calendar, Kanban as KanbanIcon,
+  LayoutGrid, GitGraph, BarChart3, Network, GitMerge,
+  LayoutDashboard, Users // Added Users icon
 } from 'lucide-react';
 
 export const VIEW_OPTIONS: { id: ViewType; label: string; icon?: any }[] = [
-    { id: 'table', label: 'table', icon: Table },
-    { id: 'list', label: 'list', icon: List },
-    { id: 'journal', label: 'journal stream', icon: BookOpen },
-    { id: 'calendar', label: 'calendar', icon: Calendar },
-    { id: 'kanban', label: 'kanban', icon: KanbanIcon },
-    { id: 'gallery', label: 'gallery', icon: LayoutGrid },
-    { id: 'gantt', label: 'gantt', icon: GitGraph },
-    { id: 'canvas', label: 'canvas', icon: LayoutDashboard },
-    { id: 'chart', label: 'chart', icon: BarChart3 },
-    { id: 'network', label: 'graph (auto)', icon: Network },
-    { id: 'mindmap', label: 'mind map (manual)', icon: GitMerge },
-    { id: 'contacts', label: 'contacts', icon: Users },
+  { id: 'table', label: 'table', icon: Table },
+  { id: 'list', label: 'list', icon: List },
+  { id: 'journal', label: 'journal stream', icon: BookOpen },
+  { id: 'calendar', label: 'calendar', icon: Calendar },
+  { id: 'kanban', label: 'kanban', icon: KanbanIcon },
+  { id: 'gallery', label: 'gallery', icon: LayoutGrid },
+  { id: 'gantt', label: 'gantt', icon: GitGraph },
+  { id: 'canvas', label: 'canvas', icon: LayoutDashboard },
+  { id: 'chart', label: 'chart', icon: BarChart3 },
+  { id: 'network', label: 'graph (auto)', icon: Network },
+  { id: 'mindmap', label: 'mind map (manual)', icon: GitMerge },
+  { id: 'contacts', label: 'contacts', icon: Users },
 ];

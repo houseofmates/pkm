@@ -4,54 +4,54 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
 export default function DebugCornersPage() {
-    return (
-        <div className="min-h-screen bg-black text-white p-20 space-y-20">
-            <h1 className="text-3xl font-bold mb-10">Forensic Corner Audit</h1>
+  return (
+  <div className="min-h-screen bg-black text-white p-20 space-y-20">
+  <h1 className="text-3xl font-bold mb-10">Forensic Corner Audit</h1>
 
-            <section className="space-y-4">
-                <h2 className="text-xl text-yellow-500 font-mono">TEST 1: THE USER CONTROL (Nuclear Option)</h2>
-                <div className="rounded-xl bg-zinc-900 p-6 border border-zinc-700 w-[600px] h-[400px]">
-                    <p className="text-white">Test content (Control)</p>
-                </div>
-            </section>
+  <section className="space-y-4">
+ <h2 className="text-xl text-yellow-500 font-mono">TEST 1: THE USER CONTROL (Nuclear Option)</h2>
+ <div className="rounded-xl bg-zinc-900 p-6 border border-zinc-700 w-[600px] h-[400px]">
+ <p className="text-white">Test content (Control)</p>
+ </div>
+  </section>
 
-            <section className="space-y-4">
-                <h2 className="text-xl text-red-500 font-mono">TEST 2: DATABASE WIDGET REPLICA</h2>
-                {/* Replicating the exact structure of DatabaseWidget from src/features/databases/components/database-widget.tsx */}
-                {/* Uses inline styles to match what we assume the component renders */}
-                <Card className={cn("w-[600px] h-[400px] flex flex-col shadow-lg border-2 border-zinc-700/50 rounded-xl overflow-hidden isolate bg-card")}>
-                    <CardHeader
-                        className="p-3 border-b flex flex-row items-center justify-between space-y-0 bg-zinc-800/20 handle cursor-move rounded-t-[inherit]"
-                    >
-                        <div className="flex items-center gap-2">
-                            <CardTitle className="text-sm font-bold lowercase flex items-center gap-2">
-                                Bookmarks
-                                <span className="text-muted-foreground opacity-50 font-normal">/ gallery</span>
-                            </CardTitle>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="p-0 flex-1 overflow-hidden relative bg-background rounded-b-[inherit]">
-                        <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                            Content Area (Should be clipped)
-                        </div>
-                    </CardContent>
-                </Card>
-            </section>
+  <section className="space-y-4">
+ <h2 className="text-xl text-red-500 font-mono">TEST 2: DATABASE WIDGET REPLICA</h2>
+ {/* Replicating the exact structure of DatabaseWidget from src/features/databases/components/database-widget.tsx */}
+ {/* Uses inline styles to match what we assume the component renders */}
+ <Card className={cn("w-[600px] h-[400px] flex flex-col shadow-lg border-2 border-zinc-700/50 rounded-xl overflow-hidden isolate bg-card")}>
+ <CardHeader
+ className="p-3 border-b flex flex-row items-center justify-between space-y-0 bg-zinc-800/20 handle cursor-move rounded-t-[inherit]"
+ >
+ <div className="flex items-center gap-2">
+   <CardTitle className="text-sm font-bold lowercase flex items-center gap-2">
+   Bookmarks
+   <span className="text-muted-foreground opacity-50 font-normal">/ gallery</span>
+   </CardTitle>
+ </div>
+ </CardHeader>
+ <CardContent className="p-0 flex-1 overflow-hidden relative bg-background rounded-b-[inherit]">
+ <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+   Content Area (Should be clipped)
+ </div>
+ </CardContent>
+ </Card>
+  </section>
 
-            <section className="space-y-4">
-                <h2 className="text-xl text-blue-500 font-mono">TEST 3: DASHBOARD GRID OUTLINE REPLICA</h2>
-                {/* Replicating the Dashboard Grid Wrapper + Outline */}
-                <div className="relative w-[600px] h-[400px] bg-transparent">
-                    {/* The Widget */}
-                    <Card className={cn("w-full h-full flex flex-col shadow-lg border-2 border-zinc-700/50 rounded-xl overflow-hidden isolate bg-card")}>
-                        <CardHeader className="p-3 border-b rounded-t-[inherit] bg-zinc-800/20"><span className='font-bold'>Widget</span></CardHeader>
-                        <CardContent className="flex-1 bg-black rounded-b-[inherit]">Content</CardContent>
-                    </Card>
+  <section className="space-y-4">
+ <h2 className="text-xl text-blue-500 font-mono">TEST 3: DASHBOARD GRID OUTLINE REPLICA</h2>
+ {/* Replicating the Dashboard Grid Wrapper + Outline */}
+ <div className="relative w-[600px] h-[400px] bg-transparent">
+ {/* The Widget */}
+ <Card className={cn("w-full h-full flex flex-col shadow-lg border-2 border-zinc-700/50 rounded-xl overflow-hidden isolate bg-card")}>
+ <CardHeader className="p-3 border-b rounded-t-[inherit] bg-zinc-800/20"><span className='font-bold'>Widget</span></CardHeader>
+ <CardContent className="flex-1 bg-black rounded-b-[inherit]">Content</CardContent>
+ </Card>
 
-                    {/* The Selection Outline (Sibling) */}
-                    <div className="absolute inset-0 border-2 border-primary z-50 pointer-events-none rounded-xl" />
-                </div>
-            </section>
-        </div>
-    );
+ {/* The Selection Outline (Sibling) */}
+ <div className="absolute inset-0 border-2 border-primary z-50 pointer-events-none rounded-xl" />
+ </div>
+  </section>
+  </div>
+  );
 }

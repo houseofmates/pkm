@@ -3,217 +3,217 @@ import { useEdgelessStore } from '../store';
 import { v4 as uuidv4 } from 'uuid';
 
 export function useCanvasEvents() {
-    const { addElement, viewPort } = useEdgelessStore();
+  const { addElement, viewPort } = useEdgelessStore();
 
-    const handlePaste = useCallback(async (e: ClipboardEvent) => {
-        // Prevent default paste (text) if we handle it
-        // We'll let normal inputs handle paste naturally if focused
-        if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA' || (e.target as HTMLElement).isContentEditable) {
-            return;
-        }
+  const handlePaste = useCallback(async (e: ClipboardEvent) => {
+  // Prevent default paste (text) if we handle it
+  // We'll let normal inputs handle paste naturally if focused
+  if ((e.target as HTMLElement).tagName === 'INPUT' || (e.target as HTMLElement).tagName === 'TEXTAREA' || (e.target as HTMLElement).isContentEditable) {
+  return;
+  }
 
-        e.preventDefault();
-        const items = e.clipboardData?.items;
-        if (!items) return;
+  e.preventDefault();
+  const items = e.clipboardData?.items;
+  if (!items) return;
 
-        for (const item of items) {
-            // 1. Handle Images (Screenshots, File Copies)
-            if (item.type.startsWith('image/')) {
-                const blob = item.getAsFile();
-                if (blob) {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                        const src = event.target?.result as string;
-                        createImageElement(src);
-                    };
-                    reader.readAsDataURL(blob);
-                }
-                return; // Prioritize image if mixed
-            }
+  for (const item of items) {
+  // 1. Handle Images (Screenshots, File Copies)
+  if (item.type.startsWith('image/')) {
+ const blob = item.getAsFile();
+ if (blob) {
+ const reader = new FileReader();
+ reader.onload = (event) => {
+ const src = event.target?.result as string;
+ createImageElement(src);
+ };
+ reader.readAsDataURL(blob);
+ }
+ return; // Prioritize image if mixed
+  }
 
-            // 2. Handle Text (Links, Image URLs)
-            if (item.type === 'text/plain') {
-                item.getAsString(async (text) => {
-                    await processTextContent(text);
-                });
-            }
-        }
-    }, [viewPort]);
+  // 2. Handle Text (Links, Image URLs)
+  if (item.type === 'text/plain') {
+ item.getAsString(async (text) => {
+ await processTextContent(text);
+ });
+  }
+  }
+  }, [viewPort]);
 
-    const handleDrop = useCallback(async (e: React.DragEvent) => {
-        // Don't intercept internal drags (like nodes moving) if managed by Fabric
-        // But do intercept drop from outside or records
-        // Check if dataTransfer has files or specific types
-        if (e.dataTransfer.types.includes('Files') || e.dataTransfer.types.includes('text/plain') || e.dataTransfer.types.includes('text/uri-list')) {
-            e.preventDefault();
-            e.stopPropagation();
+  const handleDrop = useCallback(async (e: React.DragEvent) => {
+  // Don't intercept internal drags (like nodes moving) if managed by Fabric
+  // But do intercept drop from outside or records
+  // Check if dataTransfer has files or specific types
+  if (e.dataTransfer.types.includes('Files') || e.dataTransfer.types.includes('text/plain') || e.dataTransfer.types.includes('text/uri-list')) {
+  e.preventDefault();
+  e.stopPropagation();
 
-            const x = e.clientX;
-            const y = e.clientY;
+  const x = e.clientX;
+  const y = e.clientY;
 
-            // Handle Files
-            if (e.dataTransfer.files?.length > 0) {
-                for (const file of e.dataTransfer.files) {
-                    if (file.type.startsWith('image/')) {
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                            const src = event.target?.result as string;
-                            createImageElement(src, x, y);
-                        };
-                        reader.readAsDataURL(file);
-                    }
-                }
-                return;
-            }
+  // Handle Files
+  if (e.dataTransfer.files?.length > 0) {
+ for (const file of e.dataTransfer.files) {
+ if (file.type.startsWith('image/')) {
+ const reader = new FileReader();
+ reader.onload = (event) => {
+   const src = event.target?.result as string;
+   createImageElement(src, x, y);
+ };
+ reader.readAsDataURL(file);
+ }
+ }
+ return;
+  }
 
-            // Handle Links / Text (URI List often has the image URL if dragged from browser)
-            const text = e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text/uri-list');
-            if (text) {
-                await processTextContent(text, x, y);
-            }
-        }
-    }, [viewPort]);
+  // Handle Links / Text (URI List often has the image URL if dragged from browser)
+  const text = e.dataTransfer.getData('text/plain') || e.dataTransfer.getData('text/uri-list');
+  if (text) {
+ await processTextContent(text, x, y);
+  }
+  }
+  }, [viewPort]);
 
-    // --- Helpers ---
+  // --- Helpers ---
 
-    const createImageElement = (src: string, x?: number, y?: number) => {
-        // Default to center if no coords
-        const { x: vx, y: vy, zoom } = viewPort;
+  const createImageElement = (src: string, x?: number, y?: number) => {
+  // Default to center if no coords
+  const { x: vx, y: vy, zoom } = viewPort;
 
-        // If x,y provided (drop), map to canvas space
-        // Logic: (ScreenX - PanX) / Zoom
-        const canvasX = x !== undefined ? (x - vx) / zoom : (-vx / zoom) + (window.innerWidth / 2 / zoom);
-        const canvasY = y !== undefined ? (y - vy) / zoom : (-vy / zoom) + (window.innerHeight / 2 / zoom);
+  // If x,y provided (drop), map to canvas space
+  // Logic: (ScreenX - PanX) / Zoom
+  const canvasX = x !== undefined ? (x - vx) / zoom : (-vx / zoom) + (window.innerWidth / 2 / zoom);
+  const canvasY = y !== undefined ? (y - vy) / zoom : (-vy / zoom) + (window.innerHeight / 2 / zoom);
 
-        // Pre-load image to get dimensions? For now assume standard
-        const img = new Image();
-        img.onload = () => {
-            // Scale down if massive
-            let width = img.width;
-            let height = img.height;
-            const maxSize = 500;
-            if (width > maxSize || height > maxSize) {
-                const ratio = width / height;
-                if (width > height) {
-                    width = maxSize;
-                    height = maxSize / ratio;
-                } else {
-                    height = maxSize;
-                    width = maxSize * ratio;
-                }
-            }
+  // Pre-load image to get dimensions? For now assume standard
+  const img = new Image();
+  img.onload = () => {
+  // Scale down if massive
+  let width = img.width;
+  let height = img.height;
+  const maxSize = 500;
+  if (width > maxSize || height > maxSize) {
+ const ratio = width / height;
+ if (width > height) {
+ width = maxSize;
+ height = maxSize / ratio;
+ } else {
+ height = maxSize;
+ width = maxSize * ratio;
+ }
+  }
 
-            addElement({
-                type: 'image',
-                x: canvasX,
-                y: canvasY,
-                width,
-                height,
-                data: { src, url: src }
-            });
-        };
-        img.src = src;
-    };
+  addElement({
+ type: 'image',
+ x: canvasX,
+ y: canvasY,
+ width,
+ height,
+ data: { src, url: src }
+  });
+  };
+  img.src = src;
+  };
 
-    const processTextContent = async (text: string, x?: number, y?: number) => {
-        const trimmed = text.trim();
+  const processTextContent = async (text: string, x?: number, y?: number) => {
+  const trimmed = text.trim();
 
-        // 1. Is Image URL?
-        if (trimmed.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || trimmed.includes('images.unsplash.com') || trimmed.includes('media.giphy.com')) {
-            createImageElement(trimmed, x, y);
-            return;
-        }
+  // 1. Is Image URL?
+  if (trimmed.match(/\.(jpeg|jpg|gif|png|webp|svg)$/i) || trimmed.includes('images.unsplash.com') || trimmed.includes('media.giphy.com')) {
+  createImageElement(trimmed, x, y);
+  return;
+  }
 
-        // 2. Is YouTube/Spotify?
-        if (trimmed.includes('youtube.com') || trimmed.includes('youtu.be') || trimmed.includes('spotify.com')) {
-            createEmbedElement(trimmed, 'media', x, y);
-            return;
-        }
+  // 2. Is YouTube/Spotify?
+  if (trimmed.includes('youtube.com') || trimmed.includes('youtu.be') || trimmed.includes('spotify.com')) {
+  createEmbedElement(trimmed, 'media', x, y);
+  return;
+  }
 
-        // 3. Is Shopping (Amazon/Steam)? - "The Harpoon"
-        if (trimmed.includes('amazon.com') || trimmed.includes('steampowered.com')) {
-            createShoppingCard(trimmed, x, y);
-            return;
-        }
+  // 3. Is Shopping (Amazon/Steam)? - "The Harpoon"
+  if (trimmed.includes('amazon.com') || trimmed.includes('steampowered.com')) {
+  createShoppingCard(trimmed, x, y);
+  return;
+  }
 
-        // 4. Fallback: Create Link Card with Void Glyph logic
-        if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-            try {
-                // Try basic fetch? No, CORS will block.
-                // Just assume Glyph logic inside createLinkElement or formatting here.
-                createLinkElement(trimmed, x, y);
-            } catch (e) {
-                createLinkElement(trimmed, x, y);
-            }
-        }
-    };
+  // 4. Fallback: Create Link Card with Void Glyph logic
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+  try {
+ // Try basic fetch? No, CORS will block.
+ // Just assume Glyph logic inside createLinkElement or formatting here.
+ createLinkElement(trimmed, x, y);
+  } catch (e) {
+ createLinkElement(trimmed, x, y);
+  }
+  }
+  };
 
-    const createShoppingCard = (url: string, x?: number, y?: number) => {
-        const { x: vx, y: vy, zoom } = viewPort;
-        const canvasX = x !== undefined ? (x - vx) / zoom : (-vx / zoom) + (window.innerWidth / 2 / zoom);
-        const canvasY = y !== undefined ? (y - vy) / zoom : (-vy / zoom) + (window.innerHeight / 2 / zoom);
+  const createShoppingCard = (url: string, x?: number, y?: number) => {
+  const { x: vx, y: vy, zoom } = viewPort;
+  const canvasX = x !== undefined ? (x - vx) / zoom : (-vx / zoom) + (window.innerWidth / 2 / zoom);
+  const canvasY = y !== undefined ? (y - vy) / zoom : (-vy / zoom) + (window.innerHeight / 2 / zoom);
 
-        let service = 'generic';
-        if (url.includes('amazon')) service = 'amazon';
-        if (url.includes('steam')) service = 'steam';
+  let service = 'generic';
+  if (url.includes('amazon')) service = 'amazon';
+  if (url.includes('steam')) service = 'steam';
 
-        // Void Glyph fallback for title
-        let title = 'Wishlist Item';
-        try {
-            const domain = new URL(url).hostname.replace('www.', '');
-            title = `[${domain.toUpperCase()}] Item`;
-        } catch (e) { }
+  // Void Glyph fallback for title
+  let title = 'Wishlist Item';
+  try {
+  const domain = new URL(url).hostname.replace('www.', '');
+  title = `[${domain.toUpperCase()}] Item`;
+  } catch (e) { }
 
-        addElement({
-            type: 'shopping-card',
-            x: canvasX,
-            y: canvasY,
-            width: 280,
-            height: 320,
-            data: {
-                url,
-                service,
-                status: 'desire',
-                price: 'CHECK PRICE',
-                title
-            }
-        });
-    };
+  addElement({
+  type: 'shopping-card',
+  x: canvasX,
+  y: canvasY,
+  width: 280,
+  height: 320,
+  data: {
+ url,
+ service,
+ status: 'desire',
+ price: 'CHECK PRICE',
+ title
+  }
+  });
+  };
 
-    const createEmbedElement = (url: string, service: string, x?: number, y?: number) => {
-        const { x: vx, y: vy, zoom } = viewPort;
-        const canvasX = x !== undefined ? (x - vx) / zoom : (-vx / zoom) + (window.innerWidth / 2 / zoom);
-        const canvasY = y !== undefined ? (y - vy) / zoom : (-vy / zoom) + (window.innerHeight / 2 / zoom);
+  const createEmbedElement = (url: string, service: string, x?: number, y?: number) => {
+  const { x: vx, y: vy, zoom } = viewPort;
+  const canvasX = x !== undefined ? (x - vx) / zoom : (-vx / zoom) + (window.innerWidth / 2 / zoom);
+  const canvasY = y !== undefined ? (y - vy) / zoom : (-vy / zoom) + (window.innerHeight / 2 / zoom);
 
-        addElement({
-            type: 'embed',
-            x: canvasX,
-            y: canvasY,
-            width: 400,
-            height: 225, // 16:9
-            data: { url, service }
-        });
-    };
+  addElement({
+  type: 'embed',
+  x: canvasX,
+  y: canvasY,
+  width: 400,
+  height: 225, // 16:9
+  data: { url, service }
+  });
+  };
 
-    const createLinkElement = (url: string, x?: number, y?: number) => {
-        const { x: vx, y: vy, zoom } = viewPort;
-        const canvasX = x !== undefined ? (x - vx) / zoom : (-vx / zoom) + (window.innerWidth / 2 / zoom);
-        const canvasY = y !== undefined ? (y - vy) / zoom : (-vy / zoom) + (window.innerHeight / 2 / zoom);
+  const createLinkElement = (url: string, x?: number, y?: number) => {
+  const { x: vx, y: vy, zoom } = viewPort;
+  const canvasX = x !== undefined ? (x - vx) / zoom : (-vx / zoom) + (window.innerWidth / 2 / zoom);
+  const canvasY = y !== undefined ? (y - vy) / zoom : (-vy / zoom) + (window.innerHeight / 2 / zoom);
 
-        addElement({
-            type: 'link-card',
-            x: canvasX,
-            y: canvasY,
-            width: 300,
-            height: 100,
-            data: { url, title: url, description: '' }
-        });
-    };
+  addElement({
+  type: 'link-card',
+  x: canvasX,
+  y: canvasY,
+  width: 300,
+  height: 100,
+  data: { url, title: url, description: '' }
+  });
+  };
 
-    useEffect(() => {
-        window.addEventListener('paste', handlePaste);
-        return () => window.removeEventListener('paste', handlePaste);
-    }, [handlePaste]);
+  useEffect(() => {
+  window.addEventListener('paste', handlePaste);
+  return () => window.removeEventListener('paste', handlePaste);
+  }, [handlePaste]);
 
-    return { handleDrop };
+  return { handleDrop };
 }

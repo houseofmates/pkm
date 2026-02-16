@@ -10,79 +10,79 @@ import { useCollection } from '@/hooks/use-collections';
 import { useRecord } from '@/hooks/use-records';
 
 interface RecordNodeElementProps {
-    element: any;
+  element: any;
 }
 
 export const RecordNodeElement: React.FC<RecordNodeElementProps> = ({ element }) => {
-    const { updateElement } = useEdgelessStore();
-    const { data: collection } = useCollection(element.data.collectionName);
-    const { data: record, updateRecord } = useRecord(element.data.collectionName, element.data.recordId);
+  const { updateElement } = useEdgelessStore();
+  const { data: collection } = useCollection(element.data.collectionName);
+  const { data: record, updateRecord } = useRecord(element.data.collectionName, element.data.recordId);
 
-    // Local state for expansion (or use element.data.mode)
-    const isExpanded = element.data.mode === 'card';
+  // Local state for expansion (or use element.data.mode)
+  const isExpanded = element.data.mode === 'card';
 
-    const toggleExpand = (e: React.MouseEvent) => {
-        e.stopPropagation();
-        updateElement(element.id, {
-            width: isExpanded ? 200 : 400,
-            height: isExpanded ? 60 : 500,
-            data: { ...element.data, mode: isExpanded ? 'node' : 'card' }
-        });
-    };
+  const toggleExpand = (e: React.MouseEvent) => {
+  e.stopPropagation();
+  updateElement(element.id, {
+  width: isExpanded ? 200 : 400,
+  height: isExpanded ? 60 : 500,
+  data: { ...element.data, mode: isExpanded ? 'node' : 'card' }
+  });
+  };
 
-    if (!collection) return <div className="p-2 text-xs text-red-500">Collection not found</div>;
+  if (!collection) return <div className="p-2 text-xs text-red-500">Collection not found</div>;
 
-    return (
-        <div className={cn(
-            "w-full h-full flex flex-col transition-all duration-300",
-            "bg-black/80 backdrop-blur-md border border-primary/50 rounded-lg overflow-hidden shadow-xl", // Modern glassmorphism aesthetic
-            isExpanded ? "z-50" : "z-auto"
-        )}>
-            {/* Header (Node View) */}
-            <div className="h-[60px] flex items-center justify-between px-3 border-b border-primary/20 shrink-0 cursor-move"
-                onMouseDown={(e) => {
-                    // Allow dragging via header? Fabric handles dragging usually.
-                    // But since we are an overlay "pointer-events-auto", we might steal drag.
-                    // If we want Fabric to drag, we need to pass event?
-                    // Or we just let this be the drag handle if we implemented HTML dragging logic?
-                    // Actually, for EdgelessCanvas, dragging is handled by Fabric selection.
-                    // So we should usually let clicks pass through unless it's a button.
-                    // But `pointer-events-auto` blocks fabric.
-                    // Solution: Header should be draggable handle? 
-                    // For now, let's assume the user selects via the "Select Tool" box or clicking edges.
-                }}
-            >
-                <div className="flex items-center gap-2 overflow-hidden">
-                    <div className="w-8 h-8 rounded-full border border-primary/50 flex items-center justify-center bg-primary/10">
-                        {/* Icon placeholder or record icon */}
-                        <span className="text-primary text-xs">R</span>
-                    </div>
-                    <span className="text-sm font-medium text-primary truncate max-w-[120px]">
-                        {record?.title || element.data.title || 'Loading...'}
-                    </span>
-                </div>
-                <div className="flex items-center gap-1">
-                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={toggleExpand}>
-                        {isExpanded ? <Minimize2 className="h-3 w-3" /> : <Maximize2 className="h-3 w-3" />}
-                    </Button>
-                </div>
-            </div>
+  return (
+  <div className={cn(
+  "w-full h-full flex flex-col transition-all duration-300",
+  "bg-black/80 backdrop-blur-md border border-primary/50 rounded-lg overflow-hidden shadow-xl", // Modern glassmorphism aesthetic
+  isExpanded ? "z-50" : "z-auto"
+  )}>
+  {/* Header (Node View) */}
+  <div className="h-[60px] flex items-center justify-between px-3 border-b border-primary/20 shrink-0 cursor-move"
+ onMouseDown={(e) => {
+ // Allow dragging via header? Fabric handles dragging usually.
+ // But since we are an overlay "pointer-events-auto", we might steal drag.
+ // If we want Fabric to drag, we need to pass event?
+ // Or we just let this be the drag handle if we implemented HTML dragging logic?
+ // Actually, for EdgelessCanvas, dragging is handled by Fabric selection.
+ // So we should usually let clicks pass through unless it's a button.
+ // But `pointer-events-auto` blocks fabric.
+ // Solution: Header should be draggable handle?
+ // For now, let's assume the user selects via the "Select Tool" box or clicking edges.
+ }}
+  >
+ <div className="flex items-center gap-2 overflow-hidden">
+ <div className="w-8 h-8 rounded-full border border-primary/50 flex items-center justify-center bg-primary/10">
+ {/* Icon placeholder or record icon */}
+ <span className="text-primary text-xs">R</span>
+ </div>
+ <span className="text-sm font-medium text-primary truncate max-w-[120px]">
+ {record?.title || element.data.title || 'Loading...'}
+ </span>
+ </div>
+ <div className="flex items-center gap-1">
+ <Button variant="ghost" size="icon" className="h-6 w-6" onClick={toggleExpand}>
+ {isExpanded ? <Minimize2 className="h-3 w-3" /> : <Maximize2 className="h-3 w-3" />}
+ </Button>
+ </div>
+  </div>
 
-            {/* Expanded Content (Card View) */}
-            {isExpanded && (
-                <div className="flex-1 overflow-y-auto p-2 bg-background/50">
-                    {/* Reuse RecordForm for full editing power! */}
-                    <RecordForm
-                        collection={collection}
-                        initialData={record}
-                        onSubmit={async (data) => {
-                            await updateRecord(data);
-                            // Visual feedback?
-                        }}
-                        onCancel={() => { }} // Hide cancel button?
-                    />
-                </div>
-            )}
-        </div>
-    );
+  {/* Expanded Content (Card View) */}
+  {isExpanded && (
+ <div className="flex-1 overflow-y-auto p-2 bg-background/50">
+ {/* Reuse RecordForm for full editing power! */}
+ <RecordForm
+ collection={collection}
+ initialData={record}
+ onSubmit={async (data) => {
+   await updateRecord(data);
+   // Visual feedback?
+ }}
+ onCancel={() => { }} // Hide cancel button?
+ />
+ </div>
+  )}
+  </div>
+  );
 };
