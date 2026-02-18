@@ -25,10 +25,10 @@ export function Dashboard() {
 
   return (
   <div className="flex min-h-screen bg-background text-foreground">
-  {/* Mobile Menu Trigger - Visible only on small screens */}
-  {/* Use a Sheet/Drawer here ideally, but for MVP just toggling visibility or using a simple absolute overlay */}
+  {/* mobile menu trigger - visible only on small screens */}
+  {/* use a sheet/drawer here ideally, but for mvp just toggling visibility or using a simple absolute overlay */}
 
-  {/* Sidebar - Hidden on mobile by default (controlled via CSS classes usually, but here 'hidden md:block') */}
+  {/* sidebar - hidden on mobile by default (controlled via css classes usually, but here 'hidden md:block') */}
   <Sidebar
  className="hidden md:block h-screen sticky top-0"
  collections={collections}
@@ -36,7 +36,7 @@ export function Dashboard() {
  onSelect={handleCollectionSelect}
   />
 
-  {/* Main Content */}
+  {/* main content */}
   <div className="flex-1 flex flex-col min-h-screen">
  <header className="border-b-2 bg-background/95 backdrop-blur z-10 sticky top-0 h-14 flex items-center justify-between px-4">
  <div className="flex items-center gap-4">
@@ -70,7 +70,7 @@ export function Dashboard() {
    <p className="text-xl text-muted-foreground max-w-[600px]">
    Select a database from the sidebar to view records.
    </p>
-   {/* Mobile: Show list if Sidebar is hidden */}
+   {/* mobile: show list if sidebar is hidden */}
    <div className="md:hidden w-full max-w-sm text-left border rounded-lg p-4 bg-card">
    <div className="font-medium mb-2">collections ({collections.length})</div>
    <div className="space-y-1">

@@ -47,12 +47,12 @@ interface NavigationProps {
   onSelectCollection: (name: string | null) => void;
   selectedCollection: string | null;
 
-  // Lifted State Props
+  // lifted state props
   items: NavItem[];
   setItems: (items: NavItem[]) => void; // For local updates like folder creation
 }
 
-// --- Sortable Components ---
+// --- sortable components ---
 
 import { DatabaseContextMenu } from '@/features/databases/components/database-context-menu';
 import { useAppSetting } from '@/hooks/use-app-setting';
@@ -61,9 +61,9 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: id, data: { type: item.type, item } });
   const [pickerOpen, setPickerOpen] = useState(false);
 
-  // Global Metadata for Collections
+  // global metadata for collections
   const [metadata] = useAppSetting<Record<string, { color?: string }>>('collection_metadata', {});
-  // Prefer local item color if set (for folders/docs), then metadata color (for collections)
+  // prefer local item color if set (for folders/docs), then metadata color (for collections)
   const metaColor = item.color || (item.type === 'collection' ? metadata[id]?.color : undefined);
 
   const style = {
@@ -75,9 +75,9 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
 
 
 
-  // Render Icon Logic
+  // render icon logic
   const renderIcon = () => {
-    // Use current theme color if no local override
+    // use current theme color if no local override
     // logic: if item.color is set, use it. if generic, use primary.
     const iconColor = metaColor || 'var(--primary)';
 
@@ -90,14 +90,14 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
         if (Icon) return <Icon className="h-4 w-4 mr-2" style={{ color: iconColor }} />;
       }
     }
-    // Fallback
+    // fallback
     if (item.type === 'folder') return <Folder className="h-4 w-4 mr-2" />;
 
-    // Default for collections/documents without explicit icon
+    // default for collections/documents without explicit icon
     return <LucideIcons.Database className="h-4 w-4 mr-2" style={{ color: iconColor }} />;
   };
 
-  // ... (inside SortableItem)
+  // ... (inside sortableitem)
 
   const displayName = formatHeadmateName(item.name);
   const capsClass = getCapitalizationClass(item.name);
@@ -140,10 +140,10 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
         onSelect={(icon, type) => onUpdate(id, { icon, iconType: type })}
       />
 
-      {/* Rename Dialog Removed - using Context Menu Input instead */}
+      {/* rename dialog removed - using context menu input instead */}
 
 
-      {/* Context Menu Logic */}
+      {/* context menu logic */}
       {item.type === 'collection' && collection ? (
         <DatabaseContextMenu collection={collection} onUpdate={() => onUpdate(id, { refresh: true })}>
           {content}
@@ -179,14 +179,14 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
 
-  // Handle updates to specific items (name, icon, refresh, delete)
+  // handle updates to specific items (name, icon, refresh, delete)
   const handleUpdateItem = (id: string, updates: any) => {
     if (updates.refresh) {
       refresh();
       return;
     }
 
-    // Persist Local Documents
+    // persist local documents
     if (id.startsWith('doc_')) {
       const key = `canvas-config-${id.replace('doc_', '')}`;
       try {
@@ -208,7 +208,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       }
     }
 
-    // Persist Local Drawings
+    // persist local drawings
     if (id.startsWith('drawing_')) {
       const key = `drawing-config-${id.replace('drawing_', '')}`;
       try {
@@ -240,9 +240,9 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     ));
   };
 
-  // Initialize/Sync items from collections AND Local Documents/Drawings
+  // initialize/sync items from collections and local documents/drawings
   useEffect(() => {
-    // Load Local Documents (Canvases) and Drawings
+    // load local documents (canvases) and drawings
     const loadLocalItems = () => {
       const items: NavItem[] = [];
       for (let i = 0; i < localStorage.length; i++) {
@@ -285,26 +285,26 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
 
     if (collections.length === 0 && items.length === 0 && localItems.length === 0) return;
 
-    // 0. Aggressive Pruning: Remove names that should NEVER be in the sidebar
+    // 0. aggressive pruning: remove names that should never be in the sidebar
     const FORBIDDEN_COLLECTIONS = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates', 'website', 'dupemates-pages'];
 
-    // Filter out pkm_canvases and others from incoming collections
+    // filter out pkm_canvases and others from incoming collections
     const visibleCollections = collections.filter((c: any) => !FORBIDDEN_COLLECTIONS.includes(String(c.name).toLowerCase()));
     const collectionNames = new Set(visibleCollections.map((c: any) => String(c.name).toLowerCase()));
 
-    // 1. Filter out items that were collections but are no longer in the DB (or are hidden/forbidden)
+    // 1. filter out items that were collections but are no longer in the db (or are hidden/forbidden)
     const filteredItems = items.filter(item => {
       const itemIdLower = String(item.id).toLowerCase();
 
-      // Hard block forbidden collections
+      // hard block forbidden collections
       if (FORBIDDEN_COLLECTIONS.includes(itemIdLower)) return false;
 
       if (item.type === 'collection') {
-        // If it's a doc, keep it if it exists in localItems
+        // if it's a doc, keep it if it exists in localitems
         if (itemIdLower.startsWith('doc_')) {
           return localItems.some(d => d.id === item.id);
         }
-        // If it's a drawing, keep it if it exists in localItems
+        // if it's a drawing, keep it if it exists in localitems
         if (itemIdLower.startsWith('drawing_')) {
           return localItems.some(d => d.id === item.id);
         }
@@ -313,7 +313,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       return true;
     });
 
-    // 2. Add new collections and local items
+    // 2. add new collections and local items
     const existingIds = new Set(filteredItems.map(i => String(i.id).toLowerCase()));
 
     const newCols = visibleCollections
@@ -331,7 +331,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     }
   }, [collections, items, setItems]);
 
-  // Create Folder Logic
+  // create folder logic
   const createFolder = () => {
     if (!newFolderName) return;
     const folderId = `folder_${Date.now()}`;
@@ -347,7 +347,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     setNewFolderName('');
   };
 
-  // Toggle Folder
+  // toggle folder
   const toggleFolder = (id: string) => {
     setItems(items.map(item =>
       item.id === id ? { ...item, collapsed: !item.collapsed } : item
@@ -364,9 +364,9 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* desktop sidebar */}
       <div className={cn("hidden lg:flex flex-col w-64 py-4 sidebar-container", className)} style={{ backgroundColor: '#050505' }}>
-        {/* Top Icons */}
+        {/* top icons */}
         <div className="flex items-center justify-around px-2 mb-2">
           {tabs.map(tab => (
             <Button
@@ -422,14 +422,14 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   }
                 />
                 <DropdownMenuItem onSelect={() => {
-                  // Create new document (canvas)
+                  // create new document (canvas)
                   const id = crypto.randomUUID();
                   const config = { title: 'untitled document' };
                   localStorage.setItem(`canvas-config-${id}`, JSON.stringify(config));
-                  // Force refresh of local docs
+                  // force refresh of local docs
                   navigate(`/page/${id}`);
 
-                  // Manually add to items to ensure immediate sidebar update
+                  // manually add to items to ensure immediate sidebar update
                   setItems([...items, {
                     id: `doc_${id}`,
                     type: 'collection',
@@ -442,13 +442,13 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   <span>new document</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={() => {
-                  // Create new drawing (localStorage like Document)
+                  // create new drawing (localstorage like document)
                   const id = crypto.randomUUID();
                   const config = { title: 'untitled drawing', type: 'drawing' };
                   localStorage.setItem(`drawing-config-${id}`, JSON.stringify(config));
                   navigate(`/drawings/${id}`);
 
-                  // Manually add to items
+                  // manually add to items
                   setItems([...items, {
                     id: `drawing_${id}`,
                     type: 'collection',
@@ -485,7 +485,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
           </Button>
         </div>
 
-        {/* Custom Modal for Folder Creation */}
+        {/* custom modal for folder creation */}
         {folderDialogOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="bg-popover border p-4 rounded-lg shadow-lg w-full max-w-xs">
@@ -507,7 +507,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
 
 
         <ScrollArea className="flex-1 px-2 [&>[data-orientation=vertical]]:!hidden [&>[data-orientation=horizontal]]:!hidden">
-          {/* DndContext REMOVED - controlled by Parent */}
+          {/* dndcontext removed - controlled by parent */}
           <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-0.5">
               {items.map((item) => (
@@ -519,18 +519,18 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   onSelect={(id: string) => {
                     if (item.type === 'collection') {
                       if (id.startsWith('doc_')) {
-                        // Navigate to Canvas
-                        // We need to bypass the standard onSelectCollection logic which expects a DB name
-                        // Parent should ideally handle this, or we hack it here
+                        // navigate to canvas
+                        // we need to bypass the standard onselectcollection logic which expects a db name
+                        // parent should ideally handle this, or we hack it here
                         const docId = id.replace('doc_', '');
                         navigate(`/page/${docId}`); // Navigate to Page Mode
-                        // We don't have navigate here directly, but parent might.
-                        // Actually, better to maintain SPA state.
-                        // But Navigation doesn't have `navigate`.
-                        // Let's use `onSelectCollection('DOC:' + docId)` protocol?
-                        // Or just simple window.location for now (safest)
-                        // Or we can import useNavigate from wrapper?
-                        // Navigation is used in RootLayout which has Router.
+                        // we don't have navigate here directly, but parent might.
+                        // actually, better to maintain spa state.
+                        // but navigation doesn't have `navigate`.
+                        // let's use `onselectcollection('doc:' + docid)` protocol?
+                        // or just simple window.location for now (safest)
+                        // or we can import usenavigate from wrapper?
+                        // navigation is used in rootlayout which has router.
                       } else {
                         onSelectCollection(id);
                       }
@@ -550,7 +550,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             variant="outline"
             className="w-full justify-start gap-2 text-primary border-none hover:bg-white/5 transition-colors"
             onClick={() => {
-              // Capture Context for AI
+              // capture context for ai
               const selection = window.getSelection()?.toString();
               const context = selection && selection.length > 5
                 ? selection
@@ -567,10 +567,10 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         </div>
       </div>
 
-      {/* <GlobalSearchDialog open={searchOpen} onOpenChange={setSearchOpen} /> REMOVED in favor of GlobalCommandPalette */}
+      {/* <globalsearchdialog open={searchopen} onopenchange={setsearchopen} /> removed in favor of globalcommandpalette */}
 
-      {/* Mobile Nav Top Bar - also removed as we use BottomNav now */}
-      {/* Keeping it hidden just in case or if className overrides it, but the parent uses BottomNav for mobile */}
+      {/* mobile nav top bar - also removed as we use bottomnav now */}
+      {/* keeping it hidden just in case or if classname overrides it, but the parent uses bottomnav for mobile */}
     </>
   );
 }

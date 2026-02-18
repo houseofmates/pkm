@@ -23,15 +23,15 @@ export function InfiniteCanvasWrapper({
     const [offset, setOffset] = useState({ x: 0, y: 0 });
     const [scale, setScale] = useState(initialScale);
 
-    // Prevent default browser behaviors
+    // prevent default browser behaviors
     useEffect(() => {
         const container = containerRef.current;
         if (!container) return;
 
         const preventDefault = (e: Event) => e.preventDefault();
-        // Prevent standard scroll
+        // prevent standard scroll
         container.addEventListener('wheel', preventDefault, { passive: false });
-        // Prevent touch defaults if needed
+        // prevent touch defaults if needed
         container.addEventListener('touchstart', preventDefault, { passive: false });
 
         return () => {
@@ -40,7 +40,7 @@ export function InfiniteCanvasWrapper({
         };
     }, []);
 
-    // Gesture Handling
+    // gesture handling
     useGesture(
         {
             onDrag: ({ offset: [ox, oy], down, event }) => {
@@ -53,26 +53,26 @@ export function InfiniteCanvasWrapper({
                 document.body.style.cursor = down ? 'grabbing' : 'grab';
             },
             onWheel: ({ event }: { event: WheelEvent }) => {
-                // Zoom handled separately usually, but useGesture combines?
-                // Let's separate Zoom Logic manually for control.
+                // zoom handled separately usually, but usegesture combines?
+                // let's separate zoom logic manually for control.
                 if (event.ctrlKey || event.metaKey) {
-                    // Zoom
+                    // zoom
                     const newScale = Math.min(Math.max(scale - event.deltaY * 0.001, minScale), maxScale);
                     setScale(newScale);
                 } else {
-                    // Pan (Scroll Wheel)
+                    // pan (scroll wheel)
                     setOffset(prev => ({ x: prev.x - event.deltaX, y: prev.y - event.deltaY }));
                 }
             },
             onPinch: ({ offset: [s] }: { offset: [number, number] }) => {
-                // Touchpad zoom
+                // touchpad zoom
                 setScale(s);
             }
         },
         {
             target: containerRef,
             drag: {
-                // filterTaps: true, 
+                // filtertaps: true, 
                 from: () => [offset.x, offset.y],
                 pointer: { buttons: [1, 2, 4] } // Allow Left(1), Right(2), Middle(4). Re-evaluate Right usually context menu.
             },
@@ -84,7 +84,7 @@ export function InfiniteCanvasWrapper({
         }
     );
 
-    // Manual Wheel/Zoom Handler for precision if useGesture fails on 'wheel'
+    // manual wheel/zoom handler for precision if usegesture fails on 'wheel'
     useEffect(() => {
         const handleWheel = (event: WheelEvent) => {
             event.preventDefault();
@@ -111,18 +111,18 @@ export function InfiniteCanvasWrapper({
             ref={containerRef}
             className={cn("w-full h-full overflow-hidden relative bg-[#050505] cursor-grab active:cursor-grabbing select-none", className)}
             onContextMenu={() => {
-                // Prevent default context menu on background to allow custom or just clean usage
-                // But allow if shift key pressed?
+                // prevent default context menu on background to allow custom or just clean usage
+                // but allow if shift key pressed?
             }}
         >
-            {/* Fixed Header Layer for Alignment */}
+            {/* fixed header layer for alignment */}
             {header && (
                 <div className="absolute top-0 left-0 w-full z-50 pointer-events-none">
                     {header}
                 </div>
             )}
 
-            {/* Infinite Content Layer */}
+            {/* infinite content layer */}
             <div
                 className="w-full h-full origin-top-left will-change-transform"
                 style={{
@@ -132,7 +132,7 @@ export function InfiniteCanvasWrapper({
                 {children}
             </div>
 
-            {/* Controls Overlay (Optional) */}
+            {/* controls overlay (optional) */}
             <div className="absolute bottom-4 right-4 flex flex-col gap-2 z-50">
                 <button onClick={() => setScale(1)} className="bg-muted/80 p-2 rounded-full hover:bg-muted text-xs">reset</button>
                 <div className="bg-muted/80 px-2 py-1 rounded text-xs text-center">{Math.round(scale * 100)}%</div>

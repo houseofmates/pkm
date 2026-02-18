@@ -4,7 +4,7 @@ const playwright = require('playwright');
   const url = process.env.PKM_URL || 'http://localhost:3010/template?mode=private';
   const browser = await playwright.chromium.launch({ headless: true });
   const context = await browser.newContext();
-  // Inject a token so App renders authenticated routes
+  // inject a token so app renders authenticated routes
   await context.addInitScript(() => {
     try { localStorage.setItem('nocobase_token', 'dev-smoke-token'); } catch(e) {}
   });
@@ -22,7 +22,7 @@ const playwright = require('playwright');
 
   try {
     console.log('navigating to', url);
-    // Stub only actual server API calls (paths that begin with /api/) to avoid auth-required network calls
+    // stub only actual server api calls (paths that begin with /api/) to avoid auth-required network calls
     await page.route('**/*', (route) => {
       const request = route.request();
       try {
@@ -37,7 +37,7 @@ const playwright = require('playwright');
       return route.continue();
     });
     await page.goto(url, { waitUntil: 'networkidle' });
-    // Ensure token present: sometimes providers clear tokens early; set and reload
+    // ensure token present: sometimes providers clear tokens early; set and reload
     await page.evaluate(() => { try { localStorage.setItem('nocobase_token', 'dev-smoke-token'); } catch(e) {} });
     await page.reload({ waitUntil: 'networkidle' });
     const tokenNow = await page.evaluate(() => localStorage.getItem('nocobase_token'));
@@ -52,7 +52,7 @@ const playwright = require('playwright');
     // wait for preview area to show
     await page.waitForSelector('text=Preview', { timeout: 5000 });
 
-    // Interact with any color input inside preview (chart controls)
+    // interact with any color input inside preview (chart controls)
     const color = await page.$('input[type="color"]');
     if (color) {
       console.log('found color input, clicking');
@@ -60,7 +60,7 @@ const playwright = require('playwright');
       await page.waitForTimeout(200);
     }
 
-    // Find a form 'Add sample' button inside preview and click it if present
+    // find a form 'add sample' button inside preview and click it if present
     const addSample = await page.$('button:has-text("Add sample")');
     if (addSample) {
       console.log('clicking Add sample in preview form');
@@ -68,14 +68,14 @@ const playwright = require('playwright');
       await page.waitForTimeout(200);
     }
 
-    // Click undo to ensure buttons are interactive
+    // click undo to ensure buttons are interactive
     const undo = await page.$('button:has-text("undo")');
     if (undo) {
       await undo.click();
       await page.waitForTimeout(200);
     }
 
-    // Capture a screenshot for review
+    // capture a screenshot for review
     await page.screenshot({ path: 'smoke-template.png', fullPage: false });
 
     if (consoleErrors.length) {

@@ -35,13 +35,13 @@ export function BlogBuilder() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
-  // Check auth on mount
+  // check auth on mount
   useEffect(() => {
   const key = localStorage.getItem('hom_api_key');
   if (key) setIsAdmin(true);
   }, []);
 
-  // Global keyboard listener for Ctrl+E
+  // global keyboard listener for ctrl+e
   useEffect(() => {
   const handleKeyDown = (e: KeyboardEvent) => {
   if (e.ctrlKey && e.key.toLowerCase() === 'e') {
@@ -84,7 +84,7 @@ export function BlogBuilder() {
   );
   }
 
-  // Load scroll direction preference from localStorage
+  // load scroll direction preference from localstorage
   useEffect(() => {
   const saved = localStorage.getItem('blog-scroll-direction');
   if (saved === 'vertical' || saved === 'horizontal') {
@@ -92,19 +92,19 @@ export function BlogBuilder() {
   }
   }, []);
 
-  // Save scroll direction preference
+  // save scroll direction preference
   const handleScrollDirectionChange = (direction: 'horizontal' | 'vertical') => {
   setScrollDirection(direction);
   localStorage.setItem('blog-scroll-direction', direction);
   };
 
-  // Fetch posts or individual post
+  // fetch posts or individual post
   useEffect(() => {
   const fetchData = async () => {
   setLoading(true);
   try {
  if (slug) {
- // Fetch individual post by slug
+ // fetch individual post by slug
  const response = await api.request('blog_posts', 'list', {
  params: {
    'filter[slug][$eq]': slug,
@@ -119,7 +119,7 @@ export function BlogBuilder() {
  setCurrentPost(null);
  }
  } else {
- // Fetch all published posts for gallery
+ // fetch all published posts for gallery
  const response = await api.request('blog_posts', 'list', {
  params: {
    'filter[published][$eq]': true,
@@ -143,7 +143,7 @@ export function BlogBuilder() {
   fetchData();
   }, [slug]);
 
-  // Increment view count
+  // increment view count
   const handleViewCountUpdate = async (postId: string) => {
   try {
   const post = currentPost || posts.find(p => p.id === postId);

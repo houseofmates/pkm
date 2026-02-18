@@ -53,7 +53,7 @@ async function start() {
       if (!q || typeof q !== 'string') return res.status(400).json({ error: 'invalid query' });
       const embedding = await getEmbedding(q);
       const hits = await indexer.semanticSearch(embedding, Number(topK));
-      // return lowercased safe fields for any AI-generated text (none here), but keep ids and scores
+      // return lowercased safe fields for any ai-generated text (none here), but keep ids and scores
       return res.json({ query: q.toLowerCase(), results: hits });
     } catch (err) {
       console.error('search error', err);

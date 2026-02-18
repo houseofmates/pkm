@@ -5,7 +5,7 @@ export type TiptapRange = { from: number; to: number };
 import { useEdgelessStore } from '@/features/edgeless/store';
 import { toast } from 'sonner';
 
-// Helper to get current fronter from localStorage (to avoid Context dependency injection hell in TipTap extensions)
+// helper to get current fronter from localstorage (to avoid context dependency injection hell in tiptap extensions)
 const getActiveFronter = (): string | null => {
   try {
   const stored = localStorage.getItem('pkm_active_fronters');
@@ -36,12 +36,12 @@ export const CommandActions = {
 
   try {
   // range.from is where the slash command started.
-  // We generally want to grab the text of the block containing the slash command
+  // we generally want to grab the text of the block containing the slash command
   const node = editor.state.doc.nodeAt(range.from);
   if (node && node.isTextblock) {
  content = node.textContent;
   } else {
- // Fallback to selection
+ // fallback to selection
  const slice = editor.state.doc.slice(range.from - 50, range.from); // Grab some context
  content = slice.content.textBetween(0, slice.content.size) || "New Thought";
   }
@@ -67,7 +67,7 @@ export const CommandActions = {
   },
 
   triggerImageUpload: (editor: Editor, range: TiptapRange) => {
-  // Create a hidden file input
+  // create a hidden file input
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'image/*';

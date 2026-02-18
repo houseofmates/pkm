@@ -9,7 +9,7 @@ interface CollectionListProps {
 }
 
 export function CollectionList({ collections, onSelect }: CollectionListProps) {
-  // Sort collections by title/name
+  // sort collections by title/name
   const sorted = [...collections].sort((a, b) => {
   const nameA = a.title || a.displayName || a.name || '';
   const nameB = b.title || b.displayName || b.name || '';

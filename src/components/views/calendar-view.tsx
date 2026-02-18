@@ -33,7 +33,7 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
   const [viewMode, setViewMode] = useState<ViewMode>('month');
   const [activeId, setActiveId] = useState<string | number | null>(null);
 
-  // Unified Property Logic
+  // unified property logic
   const titleField = config?.titleField
   ? collection.fields?.find((f: { name: string; primary?: boolean }) => f.name === config.titleField)
   : collection.fields?.find((f: { name: string; primary?: boolean }) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
@@ -84,12 +84,12 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
   const newDateStr = String(over.id);
   const recordId = active.id;
 
-  // Optimistic / API update
-  // We need to match the format expected by the API. key is Date string.
-  // Convert to ISO string or whatever the field expects.
-  // NocoBase usually likes ISO/UTC.
+  // optimistic / api update
+  // we need to match the format expected by the api. key is date string.
+  // convert to iso string or whatever the field expects.
+  // nocobase usually likes iso/utc.
   const newDate = new Date(newDateStr);
-  // Preserve time? For now, just set date (calendar view usually implies date change)
+  // preserve time? for now, just set date (calendar view usually implies date change)
 
   if (onUpdateRecord && dateField) {
  onUpdateRecord(recordId, { [dateField]: newDate.toISOString() });
@@ -128,7 +128,7 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
   return (
   <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
   <div className="flex flex-col h-full bg-card rounded-lg border shadow-sm overflow-hidden">
- {/* Header */}
+ {/* header */}
  <div className="flex flex-col md:flex-row items-center justify-between p-2 md:p-4 border-b gap-2">
  <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-start">
  <div className="flex items-center gap-1">
@@ -154,7 +154,7 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
  </Tabs>
  </div>
 
- {/* Content Area */}
+ {/* content area */}
  <div className="flex-1 overflow-hidden relative">
  {viewMode === 'year' && <YearView currentDate={currentDate} recordsByDate={recordsByDate} onMonthClick={(date) => { setCurrentDate(date); setViewMode('month'); }} />}
  {viewMode === 'month' && <MonthView currentDate={currentDate} recordsByDate={recordsByDate} collection={collection} onUpdateRecord={onUpdateRecord} onDelete={onDelete} titleField={titleField} visibleFields={visibleFields} config={config} onConfigChange={onConfigChange} />}
@@ -174,7 +174,7 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
   );
 }
 
-// --- Helpers with DND ---
+// --- helpers with dnd ---
 
 function DraggableEvent({ record, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange }: { record: Record<string, unknown>, collection: { name: string }, onUpdateRecord?: (id: string | number, data: Record<string, unknown>) => void, onDelete?: (record: Record<string, unknown>) => void, titleField: { name: string }, visibleFields: Array<{ name: string; uiSchema?: { title?: string } }>, config?: Record<string, unknown>, onConfigChange?: (key: string, value: unknown) => void }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: record.id as string | number });
@@ -402,7 +402,7 @@ function YearView({ currentDate, recordsByDate, onMonthClick }: { currentDate: D
  const daysInMonth = new Date(year, month + 1, 0).getDate();
  const startDay = monthDate.getDay();
 
- // Check activity
+ // check activity
  const hasActivity = Array.from({ length: daysInMonth }, (_, i) => {
  const d = new Date(year, month, i + 1).toDateString();
  return recordsByDate[d]?.length > 0;

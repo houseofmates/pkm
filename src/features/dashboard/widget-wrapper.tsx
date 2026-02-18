@@ -12,14 +12,14 @@ interface WidgetWrapperProps {
   onRemove?: () => void;
   editable?: boolean;
   headerActions?: React.ReactNode;
-  // Props passed by react-grid-layout
+  // props passed by react-grid-layout
   style?: React.CSSProperties;
   onMouseDown?: React.MouseEventHandler;
   onMouseUp?: React.MouseEventHandler;
   onTouchEnd?: React.TouchEventHandler;
 }
 
-// Forward ref is required for react-grid-layout
+// forward ref is required for react-grid-layout
 import { forwardRef } from 'react';
 
 export const WidgetWrapper = forwardRef<HTMLDivElement, WidgetWrapperProps>(({

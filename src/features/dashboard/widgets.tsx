@@ -20,7 +20,7 @@ export function StatWidget({ title, value, trend, trendUp }: { title: string, va
 }
 
 export function RecentActivityWidget() {
-  // Mock Data
+  // mock data
   const activities = [
   { id: 1, text: "Updated 'Project Alpha'", time: "2m ago", icon: <CheckCircle2 className="h-4 w-4 text-green-500" /> },
   { id: 2, text: "New headmate 'Vessel'", time: "1h ago", icon: <CheckCircle2 className="h-4 w-4 text-blue-500" /> },

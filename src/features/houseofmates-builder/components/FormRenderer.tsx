@@ -4,7 +4,7 @@ import { api } from '@/api/nocobase-client';
 import { toast } from 'sonner';
 import { getSubdomain } from '@/utils/subdomain-router';
 
-// --- TYPES ---
+// --- types ---
 interface FormField {
     id: string;
     type: 'text' | 'textarea' | 'number' | 'email' | 'rating' | 'dropdown' | 'checkbox';
@@ -25,7 +25,7 @@ interface FormElementData {
     id: string;
     type: 'form';
     content?: FormContent; // New structure
-    // Legacy support: properties might exist at top level
+    // legacy support: properties might exist at top level
     formName?: string;
     fields?: FormField[];
     submitButtonText?: string;
@@ -33,7 +33,7 @@ interface FormElementData {
     styles?: Record<string, any>;
 }
 
-// --- FORM RENDERER (User-facing) ---
+// --- form renderer (user-facing) ---
 interface FormRendererProps {
     element: FormElementData;
     isAdmin?: boolean;
@@ -47,7 +47,7 @@ export function FormRenderer({ element, isAdmin }: FormRendererProps) {
     const [hoverRating, setHoverRating] = useState(0);
     const site_identifier = getSubdomain() || 'default';
 
-    // Helper to get data from content or top-level (legacy)
+    // helper to get data from content or top-level (legacy)
     const getContent = (): FormContent => {
         const c = element.content;
         return {
@@ -230,7 +230,7 @@ export function FormRenderer({ element, isAdmin }: FormRendererProps) {
     );
 }
 
-// --- FORM BUILDER (Admin) ---
+// --- form builder (admin) ---
 interface FormBuilderProps {
     onSave: (elementUpdates: Partial<FormElementData>) => void;
     onCancel: () => void;
@@ -273,7 +273,7 @@ export function FormBuilder({ onSave, onCancel, initialData }: FormBuilderProps)
     };
 
     const handleSave = () => {
-        // We save to 'content' property to match ElementData structure
+        // we save to 'content' property to match elementdata structure
         onSave({
             content: {
                 formName,
@@ -342,7 +342,7 @@ export function FormBuilder({ onSave, onCancel, initialData }: FormBuilderProps)
                                             required
                                         </label>
                                     </div>
-                                    {/* Dropdown options editor */}
+                                    {/* dropdown options editor */}
                                     {field.type === 'dropdown' && (
                                         <div className="ml-6 mt-2">
                                             <label className="text-white/60 text-xs mb-1 block">dropdown options</label>
@@ -464,6 +464,6 @@ export function FormBuilder({ onSave, onCancel, initialData }: FormBuilderProps)
     );
 }
 
-// Export types
+// export types
 export type { FormField, FormElementData };
 

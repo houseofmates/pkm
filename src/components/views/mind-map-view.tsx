@@ -32,10 +32,10 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
   const [isDraggingCanvas, setIsDraggingCanvas] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
-  // Load saved positions
+  // load saved positions
   useEffect(() => {
-  // In a real app, this would be saved in 'config' prop passed from parent
-  // For now, we'll try to load from config or localStorage fallback
+  // in a real app, this would be saved in 'config' prop passed from parent
+  // for now, we'll try to load from config or localstorage fallback
   const saved = config?.positions || localStorage.getItem(`mindmap_${collection.name}`);
   if (saved) {
   try {
@@ -44,7 +44,7 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
  console.error("Failed to load positions", e);
   }
   } else {
-  // Initial Auto-Layout (Grid)
+  // initial auto-layout (grid)
   const initial: Record<string, NodePosition> = {};
   const cols = Math.ceil(Math.sqrt(data.length));
   data.forEach((record, i) => {
@@ -59,16 +59,16 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
   }, [data, collection.name, config]);
 
   const handleSave = () => {
-  // Save to parent config if possible
+  // save to parent config if possible
   if (onConfigChange) {
   onConfigChange('positions', positions);
   }
-  // Also local backup
+  // also local backup
   localStorage.setItem(`mindmap_${collection.name}`, JSON.stringify(positions));
   toast.success("mind map layout saved");
   };
 
-  // Calculate Edges based on relations
+  // calculate edges based on relations
   const edges = useMemo(() => {
   const links: { source: string; target: string; label: string }[] = [];
   const relationFields = collection.fields?.filter((f: any) => f.interface === 'linkToMany' || f.interface === 'linkToOne') || [];
@@ -80,7 +80,7 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
  const targets = Array.isArray(target) ? target : [target];
  targets.forEach((t: any) => {
  const tId = typeof t === 'object' ? t.id : t;
- // Only draw if both exist in current view
+ // only draw if both exist in current view
  if (data.find(d => d.id === tId)) {
  links.push({ source: src.id, target: tId, label: field.uiSchema?.title });
  }
@@ -90,7 +90,7 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
   return links;
   }, [data, collection]);
 
-  // Node Drag Logic
+  // node drag logic
   const [nodeDrag, setNodeDrag] = useState<{ id: string, startX: number, startY: number, initialX: number, initialY: number } | null>(null);
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -133,28 +133,28 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
   onMouseUp={handleMouseUp}
   onMouseLeave={handleMouseUp}
   >
-  {/* Toolbar */}
+  {/* toolbar */}
   <div className="absolute top-4 right-4 z-20 flex flex-col gap-2 pointer-events-auto">
  <Button size="icon" variant="secondary" onClick={() => setScale(s => Math.min(2, s + 0.1))}><ZoomIn className="h-4 w-4" /></Button>
  <Button size="icon" variant="secondary" onClick={() => setScale(s => Math.max(0.2, s - 0.1))}><ZoomOut className="h-4 w-4" /></Button>
  <Button size="icon" variant="default" onClick={handleSave}><Save className="h-4 w-4" /></Button>
   </div>
 
-  {/* Canvas Content */}
+  {/* canvas content */}
   <div
  className="absolute origin-top-left transition-transform duration-75"
  style={{
  transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`
  }}
   >
- {/* SVG Layer for Edges */}
+ {/* svg layer for edges */}
  <svg className="absolute top-0 left-0 w-[5000px] h-[5000px] pointer-events-none overflow-visible">
  {edges.map((edge, i) => {
  const s = positions[edge.source];
  const t = positions[edge.target];
  if (!s || !t) return null;
 
- // Center of nodes (assuming w=200, h=80 approx)
+ // center of nodes (assuming w=200, h=80 approx)
  const sx = s.x + 100;
  const sy = s.y + 40;
  const tx = t.x + 100;
@@ -174,7 +174,7 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
  })}
  </svg>
 
- {/* Nodes */}
+ {/* nodes */}
  {data.map(record => {
  const pos = positions[record.id] || { x: 0, y: 0 };
  const titleField = config.titleField

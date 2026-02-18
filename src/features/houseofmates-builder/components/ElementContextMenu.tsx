@@ -80,13 +80,13 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
   };
 
   const handleCopy = () => {
-    // Ensure the element is selected before copying
+    // ensure the element is selected before copying
     setSelectedElementIds([element.id]);
     copySelection();
     onClose();
   };
 
-  // Position menu
+  // position menu
   const menuStyle = {
     left: Math.min(x, window.innerWidth - 220),
     top: Math.min(y, window.innerHeight - 450),
@@ -100,10 +100,10 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
         style={menuStyle}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Styling Section */}
+        {/* styling section */}
         <div className="px-3 py-1 text-[10px]  text-white/40 lowercase">styling</div>
 
-        {/* Edit Widget Button */}
+        {/* edit widget button */}
         <button
           onClick={() => setShowWidgetEditor(true)}
           className="w-full px-3 py-2 flex items-center gap-3 text-[var(--primary)] hover:bg-white/10 transition-colors lowercase font-bold"
@@ -114,7 +114,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
 
         <div className="h-px bg-white/10 my-1" />
 
-        {/* Corner Rounding */}
+        {/* corner rounding */}
         <div className="px-3 py-2">
           <div className="text-white/50 text-xs mb-2 lowercase">corner rounding</div>
           <div className="flex gap-2">
@@ -179,7 +179,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
 
         <div className="h-px bg-white/10 my-1" />
 
-        {/* Text specific actions */}
+        {/* text specific actions */}
         {element.type === 'text' && (
           <>
             <button
@@ -196,7 +196,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
           </>
         )}
 
-        {/* Layer Controls */}
+        {/* layer controls */}
         <div className="px-3 py-1 text-[10px]  text-white/40 lowercase">layers</div>
 
         <div className="px-3 py-2 flex gap-2">
@@ -216,10 +216,10 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
 
         <div className="h-px bg-white/10 my-1" />
 
-        {/* Interactions */}
+        {/* interactions */}
         <div className="px-3 py-1 text-[10px]  text-white/40 lowercase">interactions</div>
 
-        {/* Click Action Toggle */}
+        {/* click action toggle */}
         <div className="px-3 py-2 flex gap-1 bg-white/5 rounded-lg mb-2">
           <button
             onClick={() => updateElement(element.id, { clickAction: 'none' })}
@@ -241,7 +241,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
           </button>
         </div>
 
-        {/* Link Input */}
+        {/* link input */}
         {element.clickAction === 'link' && (
           <button
             onClick={handleLinkChange}
@@ -252,7 +252,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
           </button>
         )}
 
-        {/* Copy Content Input */}
+        {/* copy content input */}
         {element.clickAction === 'copy' && (
           <button
             onClick={() => {
@@ -268,7 +268,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
           </button>
         )}
 
-        {/* Database Config */}
+        {/* database config */}
         {element.type === 'database_view' && (
           <>
             <div className="h-px bg-white/10 my-1" />
@@ -287,7 +287,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
 
         <div className="h-px bg-white/10 my-1" />
 
-        {/* Copy */}
+        {/* copy */}
         <button
           onClick={handleCopy}
           className="w-full px-3 py-2 flex items-center gap-3 text-white/80 hover:bg-white/10 transition-colors lowercase"
@@ -298,7 +298,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
 
         <div className="h-px bg-white/10 my-1" />
 
-        {/* Delete */}
+        {/* delete */}
         <button
           onClick={handleDelete}
           className="w-full px-3 py-2 flex items-center gap-3 text-red-500 hover:bg-red-500/10 transition-colors lowercase"
@@ -308,7 +308,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
         </button>
       </div>
 
-      {/* Properties Panel Modal */}
+      {/* properties panel modal */}
       {showPropertiesPanel && (
         <ElementPropertiesPanel
           elementId={element.id}
@@ -319,7 +319,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
         />
       )}
 
-      {/* Database Config Modal */}
+      {/* database config modal */}
       {showDatabasePanel && (
         <DatabaseConfigPanel
           elementId={element.id}
@@ -330,7 +330,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
         />
       )}
 
-      {/* Widget Property Editor Modal */}
+      {/* widget property editor modal */}
       {showWidgetEditor && (
         <WidgetPropertyEditor
           element={element}

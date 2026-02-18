@@ -45,7 +45,7 @@ export function BlogCanvas() {
   setSelectionBox
   } = useBlogBuilder();
 
-  // Global Key Listener for Delete
+  // global key listener for delete
   useEffect(() => {
   const handleGlobalKeyDown = (e: KeyboardEvent) => {
   if (e.key === 'Delete' || e.key === 'Backspace') {
@@ -64,14 +64,14 @@ export function BlogCanvas() {
   return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [selectedElementIds, isAdmin, deleteElements]);
 
-  // Global 'Click Outside' for robust deselection
+  // global 'click outside' for robust deselection
   useEffect(() => {
   if (selectedElementIds.length === 0) return;
 
   const handleGlobalMousedown = (e: MouseEvent) => {
   const target = e.target as HTMLElement;
 
-  // Checks
+  // checks
   const isModifier = e.shiftKey || e.ctrlKey || e.metaKey;
   const isClickingElement = target.closest('[data-element-id]');
   const isClickingHandle = target.classList.contains('resize-handle') || !!target.dataset.handle;
@@ -79,7 +79,7 @@ export function BlogCanvas() {
   const isClickingModal = target.closest('.widget-property-editor') || target.closest('.builder-context-menu') || target.closest('.builder-toolbox');
 
   if (!isModifier && !isClickingElement && !isClickingHandle && !isClickingBubbleMenu && !isClickingModal) {
- // console.log('[BlogCanvas] Global Deselection Triggered (No Modifier)');
+ // console.log('[blogcanvas] global deselection triggered (no modifier)');
  setSelectedElementIds([]);
   }
   };
@@ -88,7 +88,7 @@ export function BlogCanvas() {
   return () => document.removeEventListener('mousedown', handleGlobalMousedown, true);
   }, [selectedElementIds, setSelectedElementIds]);
 
-  // Marquee Selection Logic: Move / End
+  // marquee selection logic: move / end
   useEffect(() => {
   if (!selectionBox || !isAdmin) return;
 
@@ -108,13 +108,13 @@ export function BlogCanvas() {
   };
 
   const handleMouseUp = (e: MouseEvent) => {
-  // Calculate final intersection
+  // calculate final intersection
   const x1 = Math.min(selectionBox.startX, selectionBox.currentX);
   const y1 = Math.min(selectionBox.startY, selectionBox.currentY);
   const x2 = Math.max(selectionBox.startX, selectionBox.currentX);
   const y2 = Math.max(selectionBox.startY, selectionBox.currentY);
 
-  // Important: Threshold for "accidental" marquee vs click
+  // important: threshold for "accidental" marquee vs click
   const dist = Math.hypot(selectionBox.currentX - selectionBox.startX, selectionBox.currentY - selectionBox.startY);
 
   if (dist > 5) {
@@ -132,7 +132,7 @@ export function BlogCanvas() {
  const ex2 = elLayout.x + (elLayout.width || 0);
  const ey2 = elLayout.y + (elLayout.height || 0);
 
- // Standard intersection check
+ // standard intersection check
  const overlap = !(x1 > ex2 || x2 < ex1 || y1 > ey2 || y2 < ey1);
  if (overlap) intersectIds.push(el.id);
  });
@@ -158,7 +158,7 @@ export function BlogCanvas() {
 
   if (!page) return null;
 
-  // Responsive Canvas Styling
+  // responsive canvas styling
   const isDesktop = previewMode === 'desktop';
   const canvasStyle: React.CSSProperties = {
   background: page.background || 'transparent', // Blog posts might not cover full bg
@@ -166,7 +166,7 @@ export function BlogCanvas() {
   minHeight: isDesktop ? '100vh' : '100%',
   };
 
-  // Ensure mobile/tablet matches the wrapper if no overflow
+  // ensure mobile/tablet matches the wrapper if no overflow
   if (!isDesktop) {
   const baseHeight = previewMode === 'mobile' ? 932 : 1112;
   canvasStyle.minHeight = `${Math.max(page.height || 0, baseHeight)}px`;
@@ -182,7 +182,7 @@ export function BlogCanvas() {
   onMouseDown={(e) => {
  const target = e.target as HTMLElement;
 
- // 1. Ignore clicks on known UI components
+ // 1. ignore clicks on known ui components
  if (target.closest('.builder-toolbox') ||
  target.closest('.builder-context-menu') ||
  target.closest('.widget-property-editor') ||
@@ -190,14 +190,14 @@ export function BlogCanvas() {
  return;
  }
 
- // 2. Ignore clicks on actual elements (they handle their own selection)
+ // 2. ignore clicks on actual elements (they handle their own selection)
  if (target.closest('[data-element-id]')) {
  return;
  }
 
  const isModifier = e.shiftKey || e.ctrlKey || e.metaKey;
 
- // 3. Background click -> Handle Marquee Selection
+ // 3. background click -> handle marquee selection
  if (isAdmin) {
  const canvas = document.getElementById('canvas-content');
  if (!canvas) return;
@@ -206,7 +206,7 @@ export function BlogCanvas() {
  const sX = e.clientX - rect.left;
  const sY = e.clientY - rect.top;
 
- // Clear previous selection if no modifier
+ // clear previous selection if no modifier
  if (!isModifier) setSelectedElementIds([]);
 
  setSelectionBox({
@@ -227,7 +227,7 @@ export function BlogCanvas() {
  maxWidth: '100%'
  }}
   >
- {/* The Selection Box Visual */}
+ {/* the selection box visual */}
  {selectionBox && (
  <div
  className="absolute border border-[var(--primary)] bg-[var(--primary)]/10 z-[10000] pointer-events-none"
@@ -301,14 +301,14 @@ interface ElementRendererProps {
 function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onUpdateBatch, onContextMenu }: ElementRendererProps) {
   const { page, previewMode, viewWidth } = useBlogBuilder();
 
-  // Calculate scale factor for mobile/tablet responsive layout
+  // calculate scale factor for mobile/tablet responsive layout
   const designWidth = previewMode === 'mobile' ? 430 : previewMode === 'tablet' ? 834 : viewWidth;
 
-  // In Admin mode (builder), we keep 1:1 scale for precise editing inside the frame.
-  // In Public mode (preview), we scale to fit the actual device width.
+  // in admin mode (builder), we keep 1:1 scale for precise editing inside the frame.
+  // in public mode (preview), we scale to fit the actual device width.
   const scaleFactor = isAdmin ? 1 : (viewWidth / designWidth);
 
-  // Determine active layout with robust fallbacks per field
+  // determine active layout with robust fallbacks per field
   const deviceLayout = previewMode === 'mobile' ? element.mobile : previewMode === 'tablet' ? element.tablet : null;
 
   const posX = deviceLayout?.x ?? element.x ?? 0;
@@ -317,20 +317,20 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   const posH = deviceLayout?.height ?? element.height ?? 100;
   const fontSize = deviceLayout?.fontSize ?? element.styles?.fontSize;
 
-  // Scroll-triggered animation
+  // scroll-triggered animation
   const { ref: inViewRef } = useInView({
   triggerOnce: true,
   threshold: 0.1,
   });
   const elementRef = useRef<HTMLDivElement | null>(null);
 
-  // Merge refs
+  // merge refs
   const setRefs = (node: HTMLDivElement | null) => {
   elementRef.current = node;
   inViewRef(node);
   };
 
-  // Drag state
+  // drag state
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -343,13 +343,13 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   } | null>(null);
   const resizeStart = useRef<{ x: number; y: number; elW: number; elH: number; elX: number; elY: number; baseFontSize: number } | null>(null);
 
-  // Handle drag
+  // handle drag
   useEffect(() => {
   if (!isDragging || !dragStart.current) return;
 
   const { x: startX, y: startY, targets } = dragStart.current;
 
-  // Tracks for commit
+  // tracks for commit
   let finalDelta = { x: 0, y: 0 };
   let snapMode: 'none' | 'grid' | 'cluster' = 'none';
   let lastMouseEvent: MouseEvent | null = null;
@@ -362,8 +362,8 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   let moveY = dy;
 
   if (snapMode !== 'none') {
- // Simplified snapping logic for blog... or keeps full logic?
- // Keeping logic for consistence
+ // simplified snapping logic for blog... or keeps full logic?
+ // keeping logic for consistence
  const GRID_SIZE = 20;
  const primary = targets[0];
 
@@ -415,7 +415,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   setIsDragging(false);
   dragStart.current = null;
 
-  // Commit all to React
+  // commit all to react
   const batch = targets.map(t => ({
  id: t.id,
  updates: { x: t.initialX + finalDelta.x, y: t.initialY + finalDelta.y }
@@ -436,7 +436,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   };
   }, [isDragging, onUpdateBatch, page, isSnapping]);
 
-  // Handle resize
+  // handle resize
   useEffect(() => {
   if (!isResizing || !resizeHandle) return;
 
@@ -448,7 +448,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   const elY = resizeStart.current?.elY || 0;
   const baseFontSize = resizeStart.current?.baseFontSize || 24;
 
-  // Track final state for commit
+  // track final state for commit
   const pendingUpdate: any = {};
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -463,7 +463,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   let newY = elY;
   let newFontSize = baseFontSize;
 
-  // Calculate new dimensions based on direction
+  // calculate new dimensions based on direction
   if (resizeHandle.includes('e')) newWidth = Math.max(50, elW + dx);
   if (resizeHandle.includes('w')) {
  newWidth = Math.max(50, elW - dx);
@@ -475,12 +475,12 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
  newY = elY + dy;
   }
 
-  // SCALING LOGIC (Text, Buttons, Version Badges)
+  // scaling logic (text, buttons, version badges)
   const scalableTypes = ['text', 'button', 'version', 'versionbadge', 'serverip', 'serverstatus'];
   if (scalableTypes.includes(element.type)) {
  const isCorner = ['ne', 'nw', 'se', 'sw'].includes(resizeHandle);
  if (isCorner) {
- // CORNER = SCALE (Uniform)
+ // corner = scale (uniform)
  const ratio = newHeight / elH;
  newFontSize = Math.max(8, Math.round(baseFontSize * ratio));
  newWidth = Math.max(50, Math.round(elW * ratio));
@@ -488,19 +488,19 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
  if (resizeHandle.includes('w')) newX = elX + (elW - newWidth);
  if (resizeHandle.includes('n')) newY = elY + (elH - newHeight);
 
- // Update Font Size Visually
+ // update font size visually
  elementRef.current.style.fontSize = `${newFontSize}px`;
  pendingUpdate.styles = { ...element.styles, fontSize: newFontSize };
  }
   }
 
-  // DOM Updates
+  // dom updates
   elementRef.current.style.width = `${newWidth}px`;
   elementRef.current.style.height = `${newHeight}px`;
   elementRef.current.style.left = `${newX}px`;
   elementRef.current.style.top = `${newY}px`;
 
-  // Store for commit
+  // store for commit
   pendingUpdate.width = newWidth;
   pendingUpdate.height = newHeight;
   if (newX !== elX) pendingUpdate.x = newX;
@@ -512,7 +512,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   setResizeHandle(null);
   resizeStart.current = null;
 
-  // Commit final state
+  // commit final state
   if (Object.keys(pendingUpdate).length > 0) {
  onUpdate(pendingUpdate);
   }
@@ -549,13 +549,13 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
  baseFontSize: fontSize || 24
   };
   } else if (!isEditing) {
-  // Only Drag if NOT editing text
+  // only drag if not editing text
   setIsDragging(true);
 
   let currentSelection = globalSelectedIds;
 
   if (isShift) {
- // Toggle selection
+ // toggle selection
  if (isSelected) {
  currentSelection = globalSelectedIds.filter((id: string) => id !== element.id);
  } else {
@@ -563,12 +563,12 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
  }
  onSelect(true); // multi mode
   } else {
- // Single select mode
+ // single select mode
  if (!isSelected) {
  currentSelection = [element.id];
  onSelect(false); // single mode
  }
- // If already selected, we keep currentSelection to allow dragging group
+ // if already selected, we keep currentselection to allow dragging group
   }
 
   const elements = page?.elements || [];
@@ -611,7 +611,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   return; // handleMouseDown handles election
   }
 
-  // Public Mode Interactions
+  // public mode interactions
   const action = element.clickAction || (element.link ? 'link' : 'none');
 
   if (action === 'link' && element.link) {
@@ -668,7 +668,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
 
   const hexToRgba = (hex: string, alpha: number) => {
   let r = 0, g = 0, b = 0;
-  // Handle hex shorthand
+  // handle hex shorthand
   if (hex.length === 4) {
   r = parseInt("0x" + hex[1] + hex[1]);
   g = parseInt("0x" + hex[2] + hex[2]);
@@ -681,7 +681,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   return `rgba(${r},${g},${b},${alpha})`;
   };
 
-  // Check if element is hidden in current view mode
+  // check if element is hidden in current view mode
   const isHiddenInCurrentView = element.visibility && element.visibility[previewMode] === false;
 
   const baseStyles = {
@@ -899,7 +899,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
    </div>
  </div>
 
- {/* Resize Handles */}
+ {/* resize handles */}
  <div data-handle="n" className="resize-handle absolute -top-1 left-1/2 -translate-x-1/2 w-4 h-2 bg-[var(--primary)] rounded cursor-ns-resize z-50" />
  <div data-handle="s" className="resize-handle absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-2 bg-[var(--primary)] rounded cursor-ns-resize z-50" />
  <div data-handle="e" className="resize-handle absolute top-1/2 -right-1 -translate-y-1/2 w-2 h-4 bg-[var(--primary)] rounded cursor-ew-resize z-50" />
@@ -912,7 +912,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
  </>
  )}
 
- {/* Content Wrapper - Pointer Shield to allow dragging from anywhere */}
+ {/* content wrapper - pointer shield to allow dragging from anywhere */}
  <div className={`w-full h-full ${isAdmin && !isEditing ? 'pointer-events-none' : 'pointer-events-auto'}`}>
  {renderContent()}
  </div>

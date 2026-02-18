@@ -19,7 +19,7 @@ import { generateSlug } from '@/features/blog-builder/utils/blog-utils';
 import type { NavItem } from '@/components/navigation';
 export function TemplatePage() {
   const navigate = useNavigate();
-  // Load saved template from persistent storage
+  // load saved template from persistent storage
   const [savedTemplate, setSavedTemplate] = useAppSetting<string>('saved_template_json', '');
   
   const [json, setJson] = useState(`{
@@ -51,13 +51,13 @@ export function TemplatePage() {
   const [isBuilding, setIsBuilding] = useState(false);
   const [previewState, setPreviewState] = useState<Record<string, any>>({});
   const [previewData, setPreviewData] = useState<Record<string, any[]>>({});
-  // liveColumns holds interactive layout state for preview and persists to JSON
+  // livecolumns holds interactive layout state for preview and persists to json
   const [liveColumns, setLiveColumns] = useState<any[][]>([]);
   
-  // Fullscreen preview dialog state
+  // fullscreen preview dialog state
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
 
-  // persist helper: write columns back into the JSON and push history for undo
+  // persist helper: write columns back into the json and push history for undo
   const persistColumns = (cols:any[][]) => {
     try {
       const parsed = JSON.parse(json);
@@ -80,31 +80,31 @@ export function TemplatePage() {
   };
 
   const updateWidgetConfig = (targetWidget: any, patch: Record<string, any>) => {
-    // shallow-merge patch into the matching widget in liveColumns and persist
+    // shallow-merge patch into the matching widget in livecolumns and persist
     const cols = liveColumns.map(col => col.map(w => w === targetWidget ? ({...w, ...patch}) : w));
     setLiveColumns(cols);
     persistColumns(cols);
   };
 
-  // Load saved template on mount
+  // load saved template on mount
   useEffect(() => {
     if (savedTemplate && savedTemplate.trim()) {
       try {
-        // Validate it's proper JSON before setting
+        // validate it's proper json before setting
         JSON.parse(savedTemplate);
         setJson(savedTemplate);
   
       } catch (e) {
-        // Invalid saved JSON, ignore and use default
+        // invalid saved json, ignore and use default
         console.warn('Saved template is invalid JSON, using default');
       }
     }
   }, []); // Only run on mount
 
-  // Save current JSON to persistent storage
+  // save current json to persistent storage
   const saveTemplate = async () => {
     try {
-      // Validate JSON before saving
+      // validate json before saving
       JSON.parse(json);
       await setSavedTemplate(json);
     } catch (e) {
@@ -115,7 +115,7 @@ export function TemplatePage() {
   useEffect(() => {
     try {
       const parsed = JSON.parse(json);
-      // Seed previewData from parsed.data if present, or from databases rows/sample/records
+      // seed previewdata from parsed.data if present, or from databases rows/sample/records
       const seed: Record<string, any[]> = {};
       if (parsed?.data && typeof parsed.data === 'object') {
         Object.keys(parsed.data).forEach(k => { seed[k] = Array.isArray(parsed.data[k]) ? parsed.data[k] : []; });
@@ -145,7 +145,7 @@ export function TemplatePage() {
     }
   }, [json]);
 
-  // sync liveColumns from JSON when preview is validated or JSON changes
+  // sync livecolumns from json when preview is validated or json changes
   useEffect(() => {
     if (!isValid) return;
     try {
@@ -159,7 +159,7 @@ export function TemplatePage() {
     }
   }, [json, isValid]);
 
-  // Sync previewData into editor JSON (manual apply)
+  // sync previewdata into editor json (manual apply)
   const syncPreviewToJson = () => {
     try {
       const parsed = JSON.parse(json);
@@ -177,7 +177,7 @@ export function TemplatePage() {
   const { client } = useAuth();
   const [sidebarItems, setSidebarItems] = useAppSetting<NavItem[]>('sidebar_items', []);
 
-  // Event modal state (must be top-level hooks to keep hook order stable)
+  // event modal state (must be top-level hooks to keep hook order stable)
   const [editingEvent, setEditingEvent] = useState<any>(null);
   const [eventModalOpen, setEventModalOpen] = useState(false);
   const onEditEvent = (ev:any) => { setEditingEvent(ev); setEventModalOpen(true); };
@@ -213,12 +213,12 @@ export function TemplatePage() {
   const t = toast.loading('initializing workspace engine...');
 
   try {
-  // 1. Create Databases
+  // 1. create databases
   toast.loading('creating databases and fields...', { id: t });
   for (const db of config.databases) {
  const collectionName = `db_${db.key.toLowerCase().replace(/\s+/g, '_')}`;
 
- // Check if exists
+ // check if exists
  let collection;
  try {
  const res = await api.getCollection(collectionName);
@@ -232,25 +232,25 @@ export function TemplatePage() {
  });
  }
 
- // Create Fields
+ // create fields
  for (const prop of db.properties) {
  try {
  await api.createField(collectionName, {
    name: prop.name,
    type: prop.type,
    title: prop.name,
-   // Handle select options if present
+   // handle select options if present
    ...(prop.type === 'select' && {
    dataSource: prop.options?.map((o: string) => ({ label: o, value: o, color: 'default' }))
    })
  });
  } catch (e) {
- // Ignore if exists
+ // ignore if exists
  }
  }
   }
 
-  // 2. Setup Layout
+  // 2. setup layout
   toast.loading('configuring workspace layout...', { id: t });
   const workspaceId = `workspace_${config.meta.name.toLowerCase().replace(/\s+/g, '_')}`;
   const widgets = config.layout.widgets.map((w: any, index: number) => ({
@@ -266,7 +266,7 @@ export function TemplatePage() {
  zIndex: 10
   }));
 
-  // Store layout in pkm_settings
+  // store layout in pkm_settings
   await client.request('pkm_settings', 'create', {
  method: 'POST',
  data: {
@@ -275,7 +275,7 @@ export function TemplatePage() {
  }
   });
 
-  // 3. Update Sidebar
+  // 3. update sidebar
   toast.loading('registering sidebar entry...', { id: t });
   const newNavItem: NavItem = {
  id: workspaceId,
@@ -296,38 +296,38 @@ export function TemplatePage() {
   }
   };
 
-  // Create a document from the JSON template
+  // create a document from the json template
   const createDocument = async () => {
     const config = validateJson();
     if (!config) return;
 
     const t = toast.loading('creating document...');
     try {
-      // Find or create a 'documents' collection
+      // find or create a 'documents' collection
       const collectionName = 'documents';
       let collection;
       try {
         const res = await api.getCollection(collectionName);
         collection = res.data || res;
       } catch (e) {
-        // Create collection if doesn't exist
+        // create collection if doesn't exist
         try {
           await api.createCollection({
             name: collectionName,
             title: 'Documents',
           });
-          // Add basic fields
+          // add basic fields
           await api.createField(collectionName, { name: 'title', type: 'string', title: 'Title' });
           await api.createField(collectionName, { name: 'content', type: 'text', title: 'Content' });
           await api.createField(collectionName, { name: 'layout', type: 'json', title: 'Layout' });
-          // support slug so documents can be referenced by URL if desired
+          // support slug so documents can be referenced by url if desired
           try { await api.createField(collectionName, { name: 'slug', type: 'string', title: 'Slug', unique: true }); } catch(e) { /* ok if not supported */ }
         } catch (createErr) {
-          // Ignore field creation errors (may already exist)
+          // ignore field creation errors (may already exist)
         }
       }
 
-      // Create the document record
+      // create the document record
       const slug = (config.meta && (config.meta.slug || config.meta.name)) ? generateSlug(config.meta.slug || config.meta.name) : undefined;
       const docData: any = {
         title: config.meta?.name || 'Untitled Document',
@@ -342,7 +342,7 @@ export function TemplatePage() {
       
       toast.success('document created', { id: t });
       
-      // Navigate to the document
+      // navigate to the document
       if (docId) {
         navigate(`/databases/${collectionName}/${docId}`);
       }
@@ -367,7 +367,7 @@ export function TemplatePage() {
   </header>
 
   <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
- {/* Editor Zone */}
+ {/* editor zone */}
  <Card className="flex flex-col border-white/5 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden">
  <CardHeader className="py-3 px-4 border-b border-white/5 flex flex-row items-center justify-between space-y-0">
  <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -429,7 +429,7 @@ export function TemplatePage() {
  </CardContent>
  </Card>
 
- {/* Status & Preview Zone */}
+ {/* status & preview zone */}
  <div className="flex flex-col gap-6 overflow-auto pr-2 no-scrollbar">
  <Card className="border-white/5 bg-white/5 backdrop-blur-xl">
  <CardHeader className="py-3 px-4 flex flex-row items-center gap-2">
@@ -481,13 +481,13 @@ export function TemplatePage() {
        ? parsed.layout.columns
        : [parsed?.layout?.widgets || []];
 
-    // liveColumns is managed at component scope and synced from JSON
+    // livecolumns is managed at component scope and synced from json
 
      const colCount = Math.min(Math.max(columns.length || 1, 1), 4);
 
      const findDB = (key: string) => parsed?.databases?.find((d: any) => d.key === key) || null;
     const findRowsForSource = (source: string) => {
-      // Prefer previewData (editable sandbox), then parsed.data, then db fields
+      // prefer previewdata (editable sandbox), then parsed.data, then db fields
       if (previewData && previewData[source]) return previewData[source];
       const db = findDB(source);
       if (!db) return parsed?.data?.[source] || [];
@@ -653,7 +653,7 @@ export function TemplatePage() {
        const xKey = w.chart?.x || w.x || 'timestamp';
        const yKey = w.chart?.y || w.y || 'value';
        const seriesKey = w.chart?.series || w.chart?.groupBy || w.chart?.group || null;
-       // Build data: if seriesKey present, create aggregated series per x
+       // build data: if serieskey present, create aggregated series per x
        let data: any[] = [];
        if (rows.length && seriesKey) {
          const map: Record<string, any> = {};
@@ -671,7 +671,7 @@ export function TemplatePage() {
          data = w.sampleData || [{x:'a',y:10},{x:'b',y:20},{x:'c',y:15}];
        }
 
-       // Pie chart: use aggregated values or field
+       // pie chart: use aggregated values or field
        if (type === 'pie') {
          const pieData = rows.length ? rows.map((r:any)=> ({ name: r.title||r.name||r.id, value: Number(r[yKey]||1) })) : [{name:'a',value:40},{name:'b',value:60}];
          const COLORS = ['#f6b012','#ff7b7b','#7bd389','#6fb3ff','#d7a9ff'];
@@ -694,7 +694,7 @@ export function TemplatePage() {
          );
        }
 
-       // Multi-series bar/area/line
+       // multi-series bar/area/line
        return (
          <div>
           <div className="flex items-center justify-between mb-2">
@@ -773,7 +773,7 @@ export function TemplatePage() {
              ))}
             <div className="pt-2">
               <Button className="text-sm" onClick={() => {
-                // Submit form into previewData
+                // submit form into previewdata
                 const vals = previewState[formId] || {};
                 setPreviewData(d => {
                   const copy = {...d};
@@ -877,7 +877,7 @@ export function TemplatePage() {
        );
      };
 
-     // Helper component for editable widget titles
+     // helper component for editable widget titles
      const EditableTitle = ({ widget, path = 'title' }: { widget: any; path?: string }) => {
        const [editing, setEditing] = useState(false);
        const [value, setValue] = useState(widget[path] || '');
@@ -1090,7 +1090,7 @@ export function TemplatePage() {
           renderWidget={renderWidget}
         />
         
-        {/* Fullscreen Preview Dialog */}
+        {/* fullscreen preview dialog */}
         <Dialog open={fullscreenOpen} onOpenChange={setFullscreenOpen}>
           <DialogContent className="max-w-[95vw] w-[95vw] h-[95vh] max-h-[95vh] p-0 bg-background/95 backdrop-blur-xl border-white/10">
             <DialogHeader className="px-6 py-4 border-b border-white/10 flex flex-row items-center justify-between">
@@ -1127,7 +1127,7 @@ export function TemplatePage() {
         </Dialog>
         <EventModal open={eventModalOpen} event={editingEvent} onClose={() => setEventModalOpen(false)} onSave={(ev:any) => {
           if (!ev) return;
-          // save into previewData
+          // save into previewdata
           const df = ev.dateField || 'date';
           setPreviewData(d => { const copy = {...d}; copy[ev.source] = copy[ev.source] ? [...copy[ev.source]] : []; // replace matching by id/title+date
             let found=false; copy[ev.source] = copy[ev.source].map((x:any)=> { if ((x.title||x.name) === (editingEvent.title||editingEvent.name) && (x[df]||x.date) === (editingEvent[df]||editingEvent.date)) { found=true; return {...x,...ev}; } return x; });

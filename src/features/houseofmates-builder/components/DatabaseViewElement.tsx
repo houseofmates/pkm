@@ -23,13 +23,13 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
   setLoading(true);
   setError(null);
   try {
-  // Fetch collection schema for field info
+  // fetch collection schema for field info
   const colRes = await api.getCollection(collectionName);
   const colData = Array.isArray(colRes) ? undefined : (colRes as { data?: { fields?: any[] } }).data;
   const colFields = colData?.fields || [];
   setFields(colFields.filter((f: any) => !f.hidden && !f.name.startsWith('_')));
 
-  // Fetch records with sort and filter
+  // fetch records with sort and filter
   const res = await api.listRecords(collectionName, {
  pageSize: 50,
  sort,
@@ -55,7 +55,7 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
   fetchData();
   }, [collectionName, JSON.stringify(sort), JSON.stringify(filter)]);
 
-  // Error State
+  // error state
   if (error) {
   return (
   <div
@@ -75,7 +75,7 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
   );
   }
 
-  // Loading State
+  // loading state
   if (loading) {
   return (
   <div
@@ -88,7 +88,7 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
   );
   }
 
-  // Render based on view type
+  // render based on view type
   const renderView = () => {
   switch (viewType) {
   case 'table':
@@ -113,7 +113,7 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
   className="bg-black/20 backdrop-blur-md border border-white/10 rounded-xl overflow-hidden flex flex-col shadow-2xl"
   style={{ width, height }}
   >
-  {/* Header */}
+  {/* header */}
   <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 bg-white/5">
  <div className="flex items-center gap-2 text-[var(--primary)]">
  <Database className="w-4 h-4" />
@@ -129,7 +129,7 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
  </button>
   </div>
 
-  {/* Content */}
+  {/* content */}
   <div className="flex-1 overflow-auto p-2">
  {renderView()}
   </div>
@@ -138,7 +138,7 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
 }
 
 
-// --- VIEWS ---
+// --- views ---
 
 function TableView({ data, fields, visibleFields }: { data: any[], fields: any[], visibleFields?: string[] }) {
   const displayFields = visibleFields && visibleFields.length > 0

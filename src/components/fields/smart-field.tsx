@@ -17,7 +17,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from 'sonner';
 
-// Import Formula Editor
+// import formula editor
 import { FormulaEditor } from '@/components/formula-editor';
 
 import {
@@ -32,11 +32,11 @@ import {
 } from "@/components/ui/context-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-// Helper wrapper for the granular context menu
+// helper wrapper for the granular context menu
 import { useAppSetting } from '@/hooks/use-app-setting';
 
 const FieldContextMenu = ({ children, onEdit, onClear, value, record, collectionName }: any) => {
-  // Row Color Logic
+  // row color logic
   const [recordMeta, setRecordMeta] = useAppSetting<Record<string, any>>(`record_meta_${collectionName || 'unknown'}`, {});
 
   const handleRowColor = (color: string) => {
@@ -53,9 +53,9 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
   return (
   <ContextMenu>
   <ContextMenuTrigger asChild>
- {/* Ensure we stop propagation so we don't trigger the row menu */}
+ {/* ensure we stop propagation so we don't trigger the row menu */}
  <div onContextMenu={() => {
- // onContextMenu handles nesting
+ // oncontextmenu handles nesting
  }}>
  {children}
  </div>
@@ -71,7 +71,7 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
  <Copy className="mr-2 h-3 w-3" /> copy
  </ContextMenuItem>
 
- {/* Row Color Submenu */}
+ {/* row color submenu */}
  {record && collectionName && (
  <>
  <ContextMenuSeparator />
@@ -104,11 +104,11 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
    <HexColorPicker
   color={recordMeta?.[record.id]?.color || '#ffffff'}
   onChange={(c) => {
-  // Debounce or just set?
-  // Setting state in render cycle is bad if not throttled, but onChange is event.
-  // We can just call handleRowColor(c).
-  // But dragging might cause too many updates.
-  // For now, let's just update.
+  // debounce or just set?
+  // setting state in render cycle is bad if not throttled, but onchange is event.
+  // we can just call handlerowcolor(c).
+  // but dragging might cause too many updates.
+  // for now, let's just update.
   handleRowColor(c);
   }}
   style={{ width: '100%', height: '120px' }}
@@ -129,19 +129,19 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
   )
 }
 
-// --- Relation Picker Component ---
+// --- relation picker component ---
 function RelationPicker({ field, value, onChange, onCancel }: any) {
   const { client } = useAuth();
   const [options, setOptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-  // Fetch target records
+  // fetch target records
   const fetchTarget = async () => {
   if (!field.target) return;
   setLoading(true);
   try {
- // Determine target collection
+ // determine target collection
  const res = await client.listRecords(field.target);
  const data = Array.isArray(res.data) ? res.data : (res.data as any)?.data || [];
  setOptions(data);
@@ -151,18 +151,18 @@ function RelationPicker({ field, value, onChange, onCancel }: any) {
   fetchTarget();
   }, [field, client]);
 
-  // Handle Selection
-  // If "many", we usually need a multi-select.
-  // Checking field.interface or type for "many" hint.
+  // handle selection
+  // if "many", we usually need a multi-select.
+  // checking field.interface or type for "many" hint.
   const isMany = field.interface?.includes('Many') || field.type?.includes('Many');
 
   const handleSelect = (recId: string) => {
-  // Find full record or just send ID? NocoBase usually wants ID or object.
-  // Sending object for now to keep local state pretty
+  // find full record or just send id? nocobase usually wants id or object.
+  // sending object for now to keep local state pretty
   const selected = options.find(o => o.id == recId); // loose match
 
   if (isMany) {
-  // If already array, add/remove
+  // if already array, add/remove
   const current = Array.isArray(value) ? value : [];
   const exists = current.find((c: any) => c.id == recId);
   let newVal;
@@ -170,7 +170,7 @@ function RelationPicker({ field, value, onChange, onCancel }: any) {
   else newVal = [...current, selected];
   onChange(newVal);
   } else {
-  // Single select: immediate save
+  // single select: immediate save
   onChange(selected);
   }
   };
@@ -228,7 +228,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   const [fullscreenIndex, setFullscreenIndex] = useState<number | null>(null);
   const [galleryImgs, setGalleryImgs] = useState<string[]>([]);
 
-  // Formula Editor State
+  // formula editor state
   const [showFormulaEditor, setShowFormulaEditor] = useState(false);
 
   const { client } = useAuth();
@@ -247,24 +247,24 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   setIsEditing(false);
   };
 
-  // --- Helper for Type Detection ---
-  // Mapping complex user requests to NocoBase/Generic types
+  // --- helper for type detection ---
+  // mapping complex user requests to nocobase/generic types
   const baseType = field?.interface || field?.type || 'string';
   const name = field?.name?.toLowerCase() || '';
   const strValue = String(value || '');
 
-  // Enhanced Detection: If it's a generic string, check content
+  // enhanced detection: if it's a generic string, check content
   const detectedType = (() => {
   if (baseType !== 'string' && baseType !== 'text' && baseType !== 'input') return baseType;
 
-  // Email detection (even if no .com)
+  // email detection (even if no .com)
   if (/[^\s@]+@[^\s@]+\.[^\s@]+/.test(strValue)) return 'email';
 
-  // Phone detection (10 digits)
+  // phone detection (10 digits)
   const digits = strValue.replace(/\D/g, '');
   if (digits.length === 10) return 'phone';
 
-  // Password/Secret detection (4+ digits, no decimals)
+  // password/secret detection (4+ digits, no decimals)
   if (strValue.length >= 4 && /^\d+$/.test(strValue)) return 'password';
 
   return baseType;
@@ -287,10 +287,10 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   const isId = name === 'id' || name === 'uuid' || detectedType === 'uid' || detectedType === 'uuid';
   const isRelation = detectedType === 'relation' || detectedType === 'linkToAnotherRecord' || (field?.interface === 'linkToAnotherRecord') || detectedType === 'subTable'; // Treat subTable as relation for now
 
-  // JSON/Object fallback
+  // json/object fallback
   const isJson = detectedType === 'json' || detectedType === 'array' || detectedType === 'object' || typeof value === 'object';
 
-  // --- SPECIAL FORMATTERS ---
+  // --- special formatters ---
   const formatPhoneNumber = (val: string) => {
   const d = val.replace(/\D/g, '');
   if (d.length === 10) {
@@ -314,7 +314,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   if (!dateStr) return '';
   try {
   const date = new Date(dateStr);
-  // Format: (lowercase) dec. 25, '93
+  // format: (lowercase) dec. 25, '93
   const month = date.toLocaleString('en-US', { month: 'short' }).toLowerCase() + '.';
   const day = date.getDate();
   const year = "'" + date.getFullYear().toString().slice(-2);
@@ -323,8 +323,8 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   };
 
   const formatTime = (dateStr: string) => {
-  // 12 hour format PST/pacific time and pulls live time to compare to current time
-  // Simplification: Just 12h formatting for now
+  // 12 hour format pst/pacific time and pulls live time to compare to current time
+  // simplification: just 12h formatting for now
   if (!dateStr) return '';
   try {
   return new Date(dateStr).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
@@ -336,9 +336,9 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   return val;
   }
 
-  // --- EDITORS ---
+  // --- editors ---
   if (isEditing) {
-  // ... (Previous Editors: Location, Markdown/Code, Select, Color) ...
+  // ... (previous editors: location, markdown/code, select, color) ...
 
   if (isLocation) {
   return (
@@ -424,7 +424,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
  onChange={e => setLocalValue(e.target.value)}
  className="h-8 text-xs border-none focus-visible:ring-0 rounded-none"
  />
- {/* Mock Upload - In real app, this would use an uploader utils */}
+ {/* mock upload - in real app, this would use an uploader utils */}
  <div className="relative">
  <Input type="file" className="absolute inset-0 opacity-0 cursor-pointer w-6" onChange={() => console.log("File upload not implemented")} />
  <Paperclip className="h-4 w-4 text-muted-foreground" />
@@ -438,12 +438,12 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   return (
  <Popover open={true} onOpenChange={(open) => { if (!open) handleSave(); }}>
  <PopoverTrigger asChild>
- {/* Use visible trigger to ensure correct positioning and prevent cell collapse */}
+ {/* use visible trigger to ensure correct positioning and prevent cell collapse */}
  <div className="nav-button cursor-pointer text-xs min-h-[20px] min-w-[50px] whitespace-nowrap">
    {formatDate(localValue)} {formatTime(localValue) || <span className="opacity-50">Select date...</span>}
  </div>
  </PopoverTrigger>
- {/* Use standard Popover which portals to body */}
+ {/* use standard popover which portals to body */}
  <PopoverContent className="w-auto p-0" align="start" collisionPadding={16}>
  <Calendar
    mode="single"
@@ -451,7 +451,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
    onSelect={(d) => {
    if (d) {
    setLocalValue(d.toISOString());
-   // Slight delay to allow visual feedback before closing
+   // slight delay to allow visual feedback before closing
    setTimeout(() => {
   onChange(d.toISOString());
   setIsEditing(false);
@@ -507,9 +507,9 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   }
 
   if (isRelation) {
-  // Relation Editor: Simple picker that fetches target records
-  // We need to fetch the target collection list.
-  // Assumption: field.target is the collection name of the relation.
+  // relation editor: simple picker that fetches target records
+  // we need to fetch the target collection list.
+  // assumption: field.target is the collection name of the relation.
   return <RelationPicker field={field} value={localValue} onChange={handleSave} onCancel={handleCancel} />;
   }
 
@@ -563,13 +563,13 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   }
 
 
-  // --- VIEW MODE ---
+  // --- view mode ---
 
   const renderView = () => {
   if (isId) return <span className={cn("font-mono opacity-50 select-text font-varela", size === 'lg' ? "text-lg" : "text-[10px]")}>{value?.toString()}</span>;
 
   if (isRelation) {
-  // Prepare display value: if object, show title/name. If array, join them.
+  // prepare display value: if object, show title/name. if array, join them.
   let display = '';
   if (Array.isArray(value)) {
  display = value.map(v => v?.title || v?.name || v?.id || JSON.stringify(v)).join(', ');
@@ -659,7 +659,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   }
 
   if (isFile) {
-  // Normalize to array of urls
+  // normalize to array of urls
   const imgs: string[] = [];
   if (Array.isArray(value)) {
  value.forEach((v: any) => {
@@ -680,11 +680,11 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
    <span className={cn("truncate max-w-[120px] font-varela", size === 'lg' ? "text-lg" : "text-xs")}>{imgs.length} image{imgs.length > 1 ? 's' : ''}</span>
  </div>
 
- {/* Fullscreen Viewer */}
+ {/* fullscreen viewer */}
  {fullscreenIndex !== null && (
    <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-200">
    <div className="absolute top-4 right-4 flex gap-2 z-50">
-   {/* Color Picker */}
+   {/* color picker */}
    <Button
   variant="secondary"
   size="icon"
@@ -707,7 +707,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   <Pipette className="h-4 w-4" />
    </Button>
 
-   {/* Download */}
+   {/* download */}
    <Button
   variant="secondary"
   size="icon"
@@ -723,7 +723,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   <Download className="h-4 w-4" />
    </Button>
 
-   {/* Close */}
+   {/* close */}
    <Button
   variant="destructive"
   size="icon"
@@ -740,7 +740,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   alt="Fullscreen"
    />
 
-   {/* Navigation */}
+   {/* navigation */}
    {galleryImgs.length > 1 && (
   <>
   <Button
@@ -864,7 +864,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   )
   }
 
-  // Default String
+  // default string
   return (
   <div
  onClick={() => setIsEditing(true)}

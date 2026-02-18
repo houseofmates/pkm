@@ -33,7 +33,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
   const [editingRecord, setEditingRecord] = useState<any | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Context Stuffing: Push current data to LLM
+  // context stuffing: push current data to llm
   useEffect(() => {
   if (!loading && records) {
   setContext({
@@ -62,7 +62,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
   const handleUpdate = async (data: any) => {
   if (!editingRecord) return;
   try {
-  // Assume 'id' is the primary key for now
+  // assume 'id' is the primary key for now
   await client.updateRecord(collection.name, editingRecord.id, data);
   setEditingRecord(null);
   refresh();
@@ -87,11 +87,11 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
 
   const handleSearch = (e: React.FormEvent) => {
   e.preventDefault();
-  // Basic search on 'title' or 'name' or first field?
-  // NocoBase filter: { title: { $includes: searchTerm } }
-  // We need to guess a field to search on if schema is generic.
-  // Or just search on 'id' if numeric?
-  // For now, let's try searching on 'title' if it exists, or 'name'.
+  // basic search on 'title' or 'name' or first field?
+  // nocobase filter: { title: { $includes: searchterm } }
+  // we need to guess a field to search on if schema is generic.
+  // or just search on 'id' if numeric?
+  // for now, let's try searching on 'title' if it exists, or 'name'.
 
   const searchField = collection.fields?.find((f: any) => f.name === 'title' || f.name === 'name' || f.type === 'string')?.name || 'id';
 
@@ -152,7 +152,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
  />
   )}
 
-  {/* Create Dialog */}
+  {/* create dialog */}
   <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
  <DialogContent>
  <DialogHeader>
@@ -166,7 +166,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
  </DialogContent>
   </Dialog>
 
-  {/* Edit Dialog */}
+  {/* edit dialog */}
   <Dialog open={!!editingRecord} onOpenChange={(open) => !open && setEditingRecord(null)}>
  <DialogContent>
  <DialogHeader>

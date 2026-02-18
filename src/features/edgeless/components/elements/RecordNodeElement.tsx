@@ -17,7 +17,7 @@ export const RecordNodeElement: React.FC<RecordNodeElementProps> = ({ element })
   const { data: collection } = useCollection(element.data.collectionName);
   const { data: record, updateRecord } = useRecord(element.data.collectionName, element.data.recordId);
 
-  // Local state for expansion (or use element.data.mode)
+  // local state for expansion (or use element.data.mode)
   const isExpanded = element.data.mode === 'card';
 
   const toggleExpand = (_e: React.MouseEvent) => {
@@ -37,23 +37,23 @@ export const RecordNodeElement: React.FC<RecordNodeElementProps> = ({ element })
   "bg-black/80 backdrop-blur-md border border-primary/50 rounded-lg overflow-hidden shadow-xl", // Modern glassmorphism aesthetic
   isExpanded ? "z-50" : "z-auto"
   )}>
-  {/* Header (Node View) */}
+  {/* header (node view) */}
   <div className="h-[60px] flex items-center justify-between px-3 border-b border-primary/20 shrink-0 cursor-move"
  onMouseDown={(_e) => {
- // Allow dragging via header? Fabric handles dragging usually.
- // But since we are an overlay "pointer-events-auto", we might steal drag.
- // If we want Fabric to drag, we need to pass event?
- // Or we just let this be the drag handle if we implemented HTML dragging logic?
- // Actually, for EdgelessCanvas, dragging is handled by Fabric selection.
- // So we should usually let clicks pass through unless it's a button.
- // But `pointer-events-auto` blocks fabric.
- // Solution: Header should be draggable handle?
- // For now, let's assume the user selects via the "Select Tool" box or clicking edges.
+ // allow dragging via header? fabric handles dragging usually.
+ // but since we are an overlay "pointer-events-auto", we might steal drag.
+ // if we want fabric to drag, we need to pass event?
+ // or we just let this be the drag handle if we implemented html dragging logic?
+ // actually, for edgelesscanvas, dragging is handled by fabric selection.
+ // so we should usually let clicks pass through unless it's a button.
+ // but `pointer-events-auto` blocks fabric.
+ // solution: header should be draggable handle?
+ // for now, let's assume the user selects via the "select tool" box or clicking edges.
  }}
   >
  <div className="flex items-center gap-2 overflow-hidden">
  <div className="w-8 h-8 rounded-full border border-primary/50 flex items-center justify-center bg-primary/10">
- {/* Icon placeholder or record icon */}
+ {/* icon placeholder or record icon */}
  <span className="text-primary text-xs">R</span>
  </div>
  <span className="text-sm font-medium text-primary truncate max-w-[120px]">
@@ -67,16 +67,16 @@ export const RecordNodeElement: React.FC<RecordNodeElementProps> = ({ element })
  </div>
   </div>
 
-  {/* Expanded Content (Card View) */}
+  {/* expanded content (card view) */}
   {isExpanded && (
  <div className="flex-1 overflow-y-auto p-2 bg-background/50">
- {/* Reuse RecordForm for full editing power! */}
+ {/* reuse recordform for full editing power! */}
  <RecordForm
  collection={collection}
  initialData={record}
  onSubmit={async (data) => {
    await updateRecord(data);
-   // Visual feedback?
+   // visual feedback?
  }}
  onCancel={() => { }} // Hide cancel button?
  />

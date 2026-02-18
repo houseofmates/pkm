@@ -39,7 +39,7 @@ export function CollectionPickerModal({ onSelect, onClose }: Props) {
   try {
  const res = await api.listCollections();
  const data = Array.isArray(res) ? res : (res as { data?: any[] }).data || [];
- // Filter out system collections
+ // filter out system collections
  const userCollections = data.filter((c: any) =>
  !c.name.startsWith('_') &&
  !['users', 'roles', 'authenticators', 'jobs', 'attachments'].includes(c.name)
@@ -92,7 +92,7 @@ export function CollectionPickerModal({ onSelect, onClose }: Props) {
  </button>
  </div>
 
- {/* Loading State */}
+ {/* loading state */}
  {loading && (
  <div className="flex flex-col items-center justify-center py-12 text-white/60">
  <Loader2 className="w-8 h-8 animate-spin mb-4" />
@@ -100,7 +100,7 @@ export function CollectionPickerModal({ onSelect, onClose }: Props) {
  </div>
  )}
 
- {/* Error State */}
+ {/* error state */}
  {error && (
  <div className="flex flex-col items-center justify-center py-12 text-red-400">
  <AlertCircle className="w-8 h-8 mb-4" />
@@ -114,7 +114,7 @@ export function CollectionPickerModal({ onSelect, onClose }: Props) {
  </div>
  )}
 
- {/* Collection Selection */}
+ {/* collection selection */}
  {!loading && !error && (
  <>
  <div className="mb-4">
@@ -142,7 +142,7 @@ export function CollectionPickerModal({ onSelect, onClose }: Props) {
    </div>
  </div>
 
- {/* View Type Selection */}
+ {/* view type selection */}
  {selectedCollection && (
    <div className="mb-6">
    <label className="block text-white/60 text-sm lowercase mb-2">visualization type</label>
@@ -169,7 +169,7 @@ export function CollectionPickerModal({ onSelect, onClose }: Props) {
    </div>
  )}
 
- {/* Confirm Button */}
+ {/* confirm button */}
  <button
    onClick={handleConfirm}
    disabled={!selectedCollection || !selectedViewType}

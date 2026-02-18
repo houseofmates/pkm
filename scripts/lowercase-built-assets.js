@@ -8,8 +8,8 @@ const roots = [
 ].filter(p => fs.existsSync(p));
 
 function isUiString(s){
-  // Only target strings that start with capital letter and look like labels/tooltips:
-  // letters, numbers, spaces, punctuation common in labels. Skip URLs, code, paths, templates.
+  // only target strings that start with capital letter and look like labels/tooltips:
+  // letters, numbers, spaces, punctuation common in labels. skip urls, code, paths, templates.
   if(!s || s.length===0) return false;
   if(!/^[A-Z]/.test(s)) return false;
   if(/[:\\/<>@=\{\}\$\*]/.test(s)) return false; // skip likely code/URLs/paths
@@ -51,7 +51,7 @@ function walkDir(dir){
     if(ent.isDirectory()){
       results.push(...walkDir(full));
     } else if(ent.isFile()){
-      // Only process typical asset files
+      // only process typical asset files
       if(/\.(js|css|html|json|map)$/i.test(ent.name)) results.push(full);
     }
   }

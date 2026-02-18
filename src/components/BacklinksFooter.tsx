@@ -19,24 +19,24 @@ export function BacklinksFooter({ recordId, collectionName }: { recordId: string
   const fetchBacklinks = async () => {
   setLoading(true);
   try {
- // Search for mentions of this record's ID in common collections
- // We assume links are stored as hrefs containing the ID
+ // search for mentions of this record's id in common collections
+ // we assume links are stored as hrefs containing the id
  const collections = ['notes', 'tasks'];
  const found: Backlink[] = [];
 
  for (const col of collections) {
- // Skip self-collection if needed, but cross-refs are possible
+ // skip self-collection if needed, but cross-refs are possible
  const res = await api.listRecords(col, {
  filter: {
-   // This is a naive text search for the ID.
-   // Robustness depends on NocoBase's ability to search the content field.
-   // Assuming 'content' field exists.
+   // this is a naive text search for the id.
+   // robustness depends on nocobase's ability to search the content field.
+   // assuming 'content' field exists.
    content: { $includes: recordId }
  },
  pageSize: 5
  });
 
- // Handle both array response and { data: { data: [] } } response
+ // handle both array response and { data: { data: [] } } response
  const records = Array.isArray(res) ? res : ((res as { data?: { data?: unknown[] } })?.data?.data || []);
  if (records.length > 0) {
  found.push(...(records as Array<{ id: string; title?: string }>).map((r) => ({
@@ -47,7 +47,7 @@ export function BacklinksFooter({ recordId, collectionName }: { recordId: string
  }
  }
 
- // Filter out self
+ // filter out self
  const filtered = found.filter(b => b.id !== recordId);
  setBacklinks(filtered);
   } catch (e) {

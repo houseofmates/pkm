@@ -16,7 +16,7 @@ function createWindow() {
         },
     });
 
-    // Open links in external browser
+    // open links in external browser
     mainWindow.webContents.setWindowOpenHandler(({ url }) => {
         if (url.startsWith('https:') || url.startsWith('http:')) {
             shell.openExternal(url);
@@ -43,14 +43,14 @@ app.whenReady().then(() => {
         if (BrowserWindow.getAllWindows().length === 0) createWindow();
     });
 
-    // IPC Listener: Receive context updates from Renderer and update Server state
+    // ipc listener: receive context updates from renderer and update server state
     ipcMain.on('context:update', (event, data) => {
         contextServer.updateContext(data);
     });
 });
 
 app.on('window-all-closed', () => {
-    // Stop server when all windows closed
+    // stop server when all windows closed
     contextServer.stop();
     if (process.platform !== 'darwin') app.quit();
 });

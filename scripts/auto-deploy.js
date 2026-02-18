@@ -10,7 +10,7 @@ const PROJECT_ROOT = path.resolve(__dirname, '..');
 let serverProcess = null;
 let backendProcess = null;
 
-// Function to start the server
+// function to start the server
 function startServer() {
     if (serverProcess) return;
 
@@ -63,10 +63,10 @@ function startBackend() {
     });
 }
 
-// Initial start
+// initial start
 startServer();
 
-// Handle cleanup
+// handle cleanup
 process.on('SIGINT', () => {
     if (serverProcess) serverProcess.kill();
     if (backendProcess) backendProcess.kill();

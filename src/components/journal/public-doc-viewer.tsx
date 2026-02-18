@@ -10,7 +10,7 @@ export function PublicDocViewer({ slug }: PublicDocViewerProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch public document
+  // fetch public document
   useState(() => {
   fetch(`/api/public/doc/${slug}`)
   .then(res => {
@@ -51,7 +51,7 @@ export function PublicDocViewer({ slug }: PublicDocViewerProps) {
 
   return (
   <div className="min-h-screen bg-background font-varela">
-  {/* Banner Image */}
+  {/* banner image */}
   {document.banner_image && (
  <div className="w-full h-64 border-b">
  <img
@@ -62,7 +62,7 @@ export function PublicDocViewer({ slug }: PublicDocViewerProps) {
  </div>
   )}
 
-  {/* Centered Content */}
+  {/* centered content */}
   <div className="max-w-3xl mx-auto px-6 py-12">
  <h1
  className="text-5xl font-bold text-center mb-4 font-varela"

@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import LZString from 'lz-string';
 import { useDebounce } from 'react-use';
-// NocoBaseClient import removed - backend sync disabled until collection is configured
+// nocobaseclient import removed - backend sync disabled until collection is configured
 
 export function DrawingPage() {
   const { id } = useParams();
@@ -18,23 +18,23 @@ export function DrawingPage() {
   const [saving, setSaving] = useState(false);
   const initialLoadCompleteRef = useRef(false);
 
-  // Store access
+  // store access
   const { elements } = useEdgelessStore();
 
-  // Load Drawing from localStorage
+  // load drawing from localstorage
   useEffect(() => {
   if (!id) return;
   setLoading(true);
 
   try {
-  // Load config
+  // load config
   const configStr = localStorage.getItem(`drawing-config-${id}`);
   if (configStr) {
  const config = JSON.parse(configStr);
  setTitle(config.title || 'Untitled Drawing');
   }
 
-  // Load content
+  // load content
   const contentStr = localStorage.getItem(`drawing-content-${id}`);
   console.log('[Drawing] Loading - found content:', !!contentStr, 'length:', contentStr?.length || 0);
   if (contentStr) {
@@ -45,10 +45,10 @@ export function DrawingPage() {
  const data = JSON.parse(decompressed);
  console.log('[Drawing] Parsed data:', data?.objects?.length || 0, 'objects');
 
- // Store on window for canvas to pick up when ready
+ // store on window for canvas to pick up when ready
  (window as any).__pkmPendingCanvasData = data;
 
- // Also dispatch event in case canvas is already listening
+ // also dispatch event in case canvas is already listening
  window.dispatchEvent(new CustomEvent('pkm:load-canvas', { detail: data }));
  }
  } catch (e) {
@@ -61,14 +61,14 @@ export function DrawingPage() {
   console.error("Failed to load drawing", e);
   } finally {
   setLoading(false);
-  // Give canvas time to load objects before allowing saves
+  // give canvas time to load objects before allowing saves
   setTimeout(() => {
  initialLoadCompleteRef.current = true;
  console.log('[Drawing] Initial load complete, saves enabled');
   }, 3000);
   }
 
-  // Reset Store on mount
+  // reset store on mount
   useEdgelessStore.setState({
   mode: 'draw',
   activeTool: 'pen',
@@ -77,7 +77,7 @@ export function DrawingPage() {
 
   }, [id]);
 
-  // Auto-Save with debounce
+  // auto-save with debounce
   const historyStack = useEdgelessStore(s => s.history.undoStack);
   useDebounce(() => {
   if (!loading && initialLoadCompleteRef.current && historyStack.length > 0) saveDrawing();
@@ -100,11 +100,11 @@ export function DrawingPage() {
  const jsonStr = JSON.stringify(data);
  const compressed = LZString.compressToUTF16(jsonStr);
 
- // Save to localStorage
+ // save to localstorage
  console.log('[Drawing] Saving - compressed size:', compressed.length, 'chars');
  localStorage.setItem(`drawing-content-${id}`, compressed);
 
- // Also save thumbnail to config
+ // also save thumbnail to config
  const thumbnail = (window as any).pkmGetCanvasThumbnail?.();
  if (thumbnail) {
  try {
@@ -117,9 +117,9 @@ export function DrawingPage() {
  }
  }
 
- // Backend sync disabled - NocoBase collection needs manual setup
- // Data is saved locally in localStorage which works reliably
- // TODO: Configure pkm_canvases collection in NocoBase admin with text fields
+ // backend sync disabled - nocobase collection needs manual setup
+ // data is saved locally in localstorage which works reliably
+ // todo: configure pkm_canvases collection in nocobase admin with text fields
  console.log('[Drawing] Saved locally (backend sync disabled)');
  }
   }
@@ -132,7 +132,7 @@ export function DrawingPage() {
 
   return (
   <div className="w-full h-screen relative overflow-hidden bg-[#090909] flex flex-col">
-  {/* Header */}
+  {/* header */}
   <div className="absolute top-0 left-0 right-0 z-50 flex items-center justify-between p-4 pointer-events-none">
  <div className="flex items-center gap-4 pointer-events-auto bg-black/50 backdrop-blur-sm p-1 shadow-sm card-fix">
  <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="h-8 w-8 text-white hover:bg-white/10 rounded-lg">
@@ -149,11 +149,11 @@ export function DrawingPage() {
 
   <div className="flex-1 relative z-10 pointer-events-none">
  <div className="pointer-events-auto w-full h-full">
- <Toolbar /> {/* Minimal toolbar for drawing */}
+ <Toolbar /> {/* minimal toolbar for drawing */}
  <CanvasControls />
  <EdgelessCanvas
  onLoad={() => {
-   // Initial load handled by effect + event
+   // initial load handled by effect + event
  }}
  />
  </div>

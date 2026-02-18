@@ -20,7 +20,7 @@ export function CodeBlock({ title, language = 'text', children, collapsible = tr
 
   return (
   <div className="my-4 border border-border rounded-lg overflow-hidden bg-muted/10 font-mono">
-  {/* Sticky Title Bar */}
+  {/* sticky title bar */}
   <div className="sticky top-0 bg-muted/80 backdrop-blur-sm border-b border-border px-3 py-2 flex items-center justify-between z-10">
  <div className="flex items-center gap-2">
  {collapsible && (
@@ -50,7 +50,7 @@ export function CodeBlock({ title, language = 'text', children, collapsible = tr
  </Button>
   </div>
 
-  {/* Code Content */}
+  {/* code content */}
   {!isCollapsed && (
  <div className="p-4 overflow-x-auto">
  <pre className="text-xs leading-relaxed">

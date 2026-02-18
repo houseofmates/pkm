@@ -10,7 +10,7 @@ import {
 import { toast } from 'sonner';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip, Cell } from 'recharts';
 
-// --- SERVER IP DISPLAY ---
+// --- server ip display ---
 interface ServerIPProps {
   javaIP: string;
   javaPort?: string;
@@ -43,7 +43,7 @@ export function ServerIPDisplay({ javaIP, bedrockIP, bedrockPort = '19132', show
       </h3>
 
       <div className="space-y-3">
-        {/* Java */}
+        {/* java */}
         <div className="flex items-center gap-3 p-3 rounded-xl">
           <div className="flex flex-col gap-3 w-full">
             <div
@@ -89,7 +89,7 @@ export function ServerIPDisplay({ javaIP, bedrockIP, bedrockPort = '19132', show
   );
 }
 
-// --- SERVER STATUS ---
+// --- server status ---
 interface ServerStatusProps {
   isOnline?: boolean;
   playerCount?: number;
@@ -118,7 +118,7 @@ export function ServerStatus({ isOnline = true, playerCount = 0, maxPlayers = 10
         </div>
       )}
 
-      {/* Discord CTA */}
+      {/* discord cta */}
       <div
         onClick={(e) => {
           e.stopPropagation();
@@ -141,7 +141,7 @@ export function ServerStatus({ isOnline = true, playerCount = 0, maxPlayers = 10
   );
 }
 
-// --- FEATURE CARDS ---
+// --- feature cards ---
 interface FeatureCardProps {
   icon: string; // icon key (lowercase) - mapped in iconMap
   title: string;
@@ -186,7 +186,7 @@ export function FeatureCard({ icon, title, description, color = 'var(--primary)'
   );
 }
 
-// --- STAFF CARD ---
+// --- staff card ---
 interface StaffMemberProps {
   username: string;
   role: string;
@@ -280,7 +280,7 @@ export function StaffCard({ username, role, avatar, color = 'var(--primary)' }: 
   );
 }
 
-// --- RULES LIST ---
+// --- rules list ---
 interface RulesListProps {
   rules: string[];
   title?: string;
@@ -307,7 +307,7 @@ export function RulesList({ rules, title = 'server rules' }: RulesListProps) {
   );
 }
 
-// --- FAQ SECTION ---
+// --- faq section ---
 interface FAQItem {
   question: string;
   answer: string;
@@ -350,7 +350,7 @@ export function FAQSection({ items, title = 'frequently asked questions' }: FAQS
   );
 }
 
-// --- VERSION BADGE ---
+// --- version badge ---
 interface VersionBadgeProps {
   versions: string[];
 }
@@ -360,7 +360,7 @@ export function VersionBadge({ versions }: VersionBadgeProps) {
   const displayVersions = versions && versions.length > 0 ? versions : ['1.10', '1.21.11'];
   return (
     <div className="group relative w-full h-full flex items-center justify-center overflow-hidden cursor-pointer select-none">
-      {/* Version Text (Default State) - Centered & Transitions Out */}
+      {/* version text (default state) - centered & transitions out */}
       <div className="flex items-center gap-[0.5em] transition-all duration-300 ease-in-out group-hover:opacity-0 group-hover:scale-90 group-active:opacity-0 group-active:scale-90 opacity-100 scale-100">
         <Gamepad2 size={previewMode === 'desktop' ? 24 : 16} className="text-[var(--primary)]" />
         <span className={`text-[var(--primary)] font-bold ${previewMode === 'desktop' ? 'text-5xl' : 'text-2xl'} whitespace-nowrap`}>
@@ -368,7 +368,7 @@ export function VersionBadge({ versions }: VersionBadgeProps) {
         </span>
       </div>
 
-      {/* "MC Versions Allowed" (Hover/Click State) - Transitions In */}
+      {/* "mc versions allowed" (hover/click state) - transitions in */}
       <div className="absolute inset-0 flex items-center justify-center transition-all duration-300 ease-in-out group-hover:opacity-100 group-hover:scale-100 group-active:opacity-100 group-active:scale-100 opacity-0 scale-110 pointer-events-none">
         <span className={`text-[var(--primary)] font-bold ${previewMode === 'desktop' ? 'text-4xl' : 'text-2xl'} text-center px-4 leading-tight`}>
           mc versions allowed:
@@ -378,7 +378,7 @@ export function VersionBadge({ versions }: VersionBadgeProps) {
   );
 }
 
-// --- HERO SECTION ---
+// --- hero section ---
 interface HeroSectionProps {
   title: string;
   subtitle?: string;
@@ -399,7 +399,7 @@ export function HeroSection({ title, subtitle, ctaText, ctaLink, backgroundImage
         backgroundPosition: 'center',
       }}
     >
-      {/* Overlay */}
+      {/* overlay */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80" />
 
       <div className="relative z-10 text-center max-w-3xl">
@@ -429,7 +429,7 @@ export function HeroSection({ title, subtitle, ctaText, ctaLink, backgroundImage
   );
 }
 
-// --- SOCIAL LINKS ---
+// --- social links ---
 interface SocialLinksProps {
   discord?: string;
   twitter?: string;
@@ -470,7 +470,7 @@ export function SocialLinks({ discord, twitter, youtube, twitch, github, instagr
   );
 }
 
-// --- COUNTDOWN TIMER ---
+// --- countdown timer ---
 interface CountdownProps {
   targetDate: string; // ISO date string
   title?: string;
@@ -515,7 +515,7 @@ export function CountdownTimer({ targetDate, title }: CountdownProps) {
   );
 }
 
-// --- ABOUT SECTION ---
+// --- about section ---
 interface AboutSectionProps {
   title: string;
   content: string;
@@ -543,7 +543,7 @@ export function AboutSection({ title, content, image, imagePosition = 'left' }: 
   );
 }
 
-// --- GALLERY ---
+// --- gallery ---
 interface GalleryProps {
   images: { src: string; alt?: string }[];
   columns?: number;
@@ -574,7 +574,7 @@ export function Gallery({ images, columns = 3 }: GalleryProps) {
   );
 }
 
-// --- TESTIMONIAL ---
+// --- testimonial ---
 interface TestimonialProps {
   quote: string;
   author: string;
@@ -599,7 +599,7 @@ export function Testimonial({ quote, author, role, avatar }: TestimonialProps) {
   );
 }
 
-// --- DIVIDER ---
+// --- divider ---
 interface DividerProps {
   style?: 'line' | 'dots' | 'gradient';
   spacing?: 'sm' | 'md' | 'lg';
@@ -627,7 +627,7 @@ export function Divider({ style = 'line', spacing = 'md' }: DividerProps) {
   return <hr className={`border-white/10 ${spacingClasses[spacing]}`} />;
 }
 
-// --- FILE EMBED ELEMENTS ---
+// --- file embed elements ---
 
 interface CodeElementProps {
   code: string;
@@ -701,7 +701,7 @@ export function FileElement({ url, filename, size }: FileElementProps) {
     </a>
   );
 }
-// --- MINECRAFT LIVE STATS WIDGET ---
+// --- minecraft live stats widget ---
 
 interface ServerStatus {
   online: boolean;
@@ -728,7 +728,7 @@ export function MinecraftStatsWidget() {
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    // Fetch initial data
+    // fetch initial data
     const fetchData = async () => {
       try {
         const [statsRes, chatRes] = await Promise.all([
@@ -754,42 +754,42 @@ export function MinecraftStatsWidget() {
             timestamp: msg.timestamp
           }))); // Keep order (Oldest -> Newest)
           // actually our backend pushes newest to end of array? no, push adds to end.
-          // Array in memory: [oldest, ..., newest].
+          // array in memory: [oldest, ..., newest].
           // map preserves order.
-          // Message list renders map((msg, i)...) -> top to bottom.
-          // So we want oldest at top.
-          // Let's assume API returns [oldest...newest].
-          // Wait, previous code used `setMessages(prev => [new, ...prev])`.
-          // This creates [newest, ...oldest].
-          // And renders `messages.map`.
-          // If map renders top-to-bottom:
-          //  Row 0: Newest
-          //  Row 1: Older
-          // This is a "Chat Log" style where newest is usually at BOTTOM.
-          // If we want newest at bottom, we should STORE as [oldest, ...newest].
-          // BUT `flex-col` renders 0 first (top).
-          // If we want standard chat (newest at bottom), we need:
+          // message list renders map((msg, i)...) -> top to bottom.
+          // so we want oldest at top.
+          // let's assume api returns [oldest...newest].
+          // wait, previous code used `setmessages(prev => [new, ...prev])`.
+          // this creates [newest, ...oldest].
+          // and renders `messages.map`.
+          // if map renders top-to-bottom:
+          //  row 0: newest
+          //  row 1: older
+          // this is a "chat log" style where newest is usually at bottom.
+          // if we want newest at bottom, we should store as [oldest, ...newest].
+          // but `flex-col` renders 0 first (top).
+          // if we want standard chat (newest at bottom), we need:
           //  render: [oldest, ..., newest] ->
-          // Top: Oldest
-          // Bottom: Newest
-          // And scroll to bottom.
-          // My previous `socket.on` logic: `setMessages(prev => [newItem, ...prev])`
-          // This puts NEW item at INDEX 0 (TOP).
-          // So chat was flowing DOWN? No, Top is Index 0.
-          // If Index 0 is newest, then Newest is at TOP.
-          // Standard chat: Newest is at BOTTOM.
-          // User said "scroll automatically to the bottom when a new message occurs".
-          // This implies Newest should be at BOTTOM.
-          // So I need to fix the storage order AND the fetch order.
+          // top: oldest
+          // bottom: newest
+          // and scroll to bottom.
+          // my previous `socket.on` logic: `setmessages(prev => [newitem, ...prev])`
+          // this puts new item at index 0 (top).
+          // so chat was flowing down? no, top is index 0.
+          // if index 0 is newest, then newest is at top.
+          // standard chat: newest is at bottom.
+          // user said "scroll automatically to the bottom when a new message occurs".
+          // this implies newest should be at bottom.
+          // so i need to fix the storage order and the fetch order.
 
-          // FIXED LOGIC:
-          // 1. Storage: [oldest, ..., newest]
-          // 2. Fetch: returns [oldest, ..., newest] -> Set as is.
-          // 3. Socket: `setMessages(prev => [...prev, newItem])` (Append to end)
+          // fixed logic:
+          // 1. storage: [oldest, ..., newest]
+          // 2. fetch: returns [oldest, ..., newest] -> set as is.
+          // 3. socket: `setmessages(prev => [...prev, newitem])` (append to end)
         }
       } catch (err) {
         console.error('[MinecraftStats] Failed to fetch initial data:', err);
-        // Set default state to prevent infinite loading
+        // set default state to prevent infinite loading
         setStatus({ online: false, count: 0 });
       } finally {
         setIsLoading(false);
@@ -798,7 +798,7 @@ export function MinecraftStatsWidget() {
 
     fetchData();
 
-    // Configure socket with automatic reconnection
+    // configure socket with automatic reconnection
     const socket: Socket = io({
       reconnection: true,
       reconnectionAttempts: Infinity,
@@ -809,7 +809,7 @@ export function MinecraftStatsWidget() {
 
     socketRef.current = socket;
 
-    // Connection state handlers
+    // connection state handlers
     socket.on('connect', () => {
       console.log('[MinecraftStats] Socket connected');
       setConnectionState('connected');
@@ -843,10 +843,10 @@ export function MinecraftStatsWidget() {
       const isOnline = String(data.online) === 'true' || data.online === true;
       const playerCount = Number(data.count) || 0;
 
-      // Update Header Stats (Always update stats from any event)
+      // update header stats (always update stats from any event)
       setStatus({ online: isOnline, count: playerCount });
 
-      // Handle State Change Messages Only (No Spam)
+      // handle state change messages only (no spam)
       if (data.type === 'ping') {
         if (isOnline !== lastStatusRef.current) {
           const statusMsg = {
@@ -855,14 +855,14 @@ export function MinecraftStatsWidget() {
             message: isOnline ? 'server is online' : 'server is offline',
             timestamp: new Date().toISOString()
           };
-          // Append to bottom
+          // append to bottom
           setMessages(prev => [...prev, statusMsg].slice(-50));
           lastStatusRef.current = isOnline;
         }
         return; // Stop here for pings
       }
 
-      // Show other events (chat, join, leave, quit)
+      // show other events (chat, join, leave, quit)
       if (['chat', 'join', 'leave', 'quit'].includes(data.type) && data.player) {
         const isSystemEvent = ['join', 'leave', 'quit'].includes(data.type) ||
           data.message.toLowerCase().includes('joined the') ||
@@ -878,7 +878,7 @@ export function MinecraftStatsWidget() {
             : (data.message || ''),
           timestamp: data.timestamp || new Date().toISOString()
         };
-        // Append to bottom with client-side deduplication check
+        // append to bottom with client-side deduplication check
         setMessages(prev => {
           const isDup = prev.length > 0 &&
             prev[prev.length - 1].player === newMsg.player &&
@@ -909,12 +909,12 @@ export function MinecraftStatsWidget() {
     };
   }, []);
 
-  // V7 Deployment Marker
+  // v7 deployment marker
   useEffect(() => {
     console.log('🚀 [LiveStats] V7 LIVE - HyperSnap Scroll + Forced System (WebsiteElements)');
   }, []);
 
-  // Hyper-Snap Scroll: Multiple attempts to catch layout shifts
+  // hyper-snap scroll: multiple attempts to catch layout shifts
   const scrollToBottom = () => {
     if (scrollContainerRef.current) {
       const el = scrollContainerRef.current;
@@ -925,14 +925,14 @@ export function MinecraftStatsWidget() {
   useEffect(() => {
     if (messages.length > 0) {
       scrollToBottom();
-      // Catch trailing animations/images/dynamic text
+      // catch trailing animations/images/dynamic text
       const intervals = [50, 150, 300, 600, 1000];
       const timers = intervals.map(ms => setTimeout(scrollToBottom, ms));
       return () => timers.forEach(clearTimeout);
     }
   }, [messages]);
 
-  // Force scroll after initial connect and history load
+  // force scroll after initial connect and history load
   useEffect(() => {
     const timer = setTimeout(scrollToBottom, 1500);
     return () => clearTimeout(timer);
@@ -952,7 +952,7 @@ export function MinecraftStatsWidget() {
 
   return (
     <div className="w-full h-full rounded-2xl overflow-hidden flex flex-col group transition-all duration-500 isolate">
-      {/* Glossy Header - Centered & Big */}
+      {/* glossy header - centered & big */}
       <div className={`${isMobile ? 'p-3' : 'p-6'} flex flex-col items-center justify-center ${isMobile ? 'gap-1' : 'gap-2'} text-center rounded-t-2xl`}>
         <div className={`flex items-center ${isMobile ? 'gap-2' : 'gap-3'}`}>
           <div className="relative">
@@ -966,7 +966,7 @@ export function MinecraftStatsWidget() {
           </span>
         </div>
 
-        {/* Player Count Centered */}
+        {/* player count centered */}
         <div className={`flex items-center ${isMobile ? 'gap-1.5' : 'gap-2'} text-white/50`}>
           <span className={`${isMobile ? 'text-xs' : 'text-lg'} font-bold text-[var(--primary)]`}>
             {status.count}
@@ -977,7 +977,7 @@ export function MinecraftStatsWidget() {
         </div>
       </div>
 
-      {/* Event Feed */}
+      {/* event feed */}
       <div
         ref={scrollContainerRef}
         className={`flex-1 overflow-y-auto ${isMobile ? 'px-3 py-2' : 'px-6 py-4'} space-y-3 custom-scrollbar`}
@@ -1023,7 +1023,7 @@ export function MinecraftStatsWidget() {
         )}
       </div>
 
-      {/* Discord CTA */}
+      {/* discord cta */}
       <div
         onClick={(e) => {
           e.stopPropagation();
@@ -1046,7 +1046,7 @@ export function MinecraftStatsWidget() {
   );
 }
 
-// --- FINANCIAL CHART ---
+// --- financial chart ---
 interface FinancialChartProps {
   title?: string;
   data?: { name: string; value: number; color?: string }[];
@@ -1103,7 +1103,7 @@ export function FinancialChartElement({ title, data }: FinancialChartProps) {
   );
 }
 
-// --- TIER LIST ---
+// --- tier list ---
 interface TierListProps {
   rows?: { label: string; color: string; items: string[] }[];
 }
@@ -1139,7 +1139,7 @@ export function TierListElement({ rows }: TierListProps) {
   );
 }
 
-// --- SHOPPING CARD ---
+// --- shopping card ---
 interface ShoppingCardProps {
   title: string;
   price: string;
@@ -1169,7 +1169,7 @@ export function ShoppingCardElement({ title, price, image, description, buttonTe
   );
 }
 
-// --- FLOATING REMINDER ---
+// --- floating reminder ---
 interface ReminderProps {
   content: string;
   color?: string;
@@ -1195,7 +1195,7 @@ export function FloatingReminderElement({ content, color = '#fef08a' }: Reminder
   );
 }
 
-// --- STATS BAR ---
+// --- stats bar ---
 interface StatsBarProps {
   label: string;
   value: number;
@@ -1223,7 +1223,7 @@ export function StatsBarElement({ label, value, max = 100, color = 'var(--primar
   );
 }
 
-// --- PKM VISUALS ---
+// --- pkm visuals ---
 
 export function EternalFlameElement() {
   return (
@@ -1233,7 +1233,7 @@ export function EternalFlameElement() {
       <div className="mt-4 px-4 py-1.5 bg-orange-500/20 text-orange-500 rounded-full text-xs font-bold  border border-orange-500/30">
         eternal flame
       </div>
-      {/* Fire particles simulation with simple CSS animation classes if available, otherwise just pulses */}
+      {/* fire particles simulation with simple css animation classes if available, otherwise just pulses */}
       <div className="absolute w-2 h-2 bg-yellow-500 rounded-full -top-4 opacity-50 animate-bounce" />
       <div className="absolute w-1 h-1 bg-red-500 rounded-full top-0 right-4 animate-ping" />
     </div>
@@ -1277,7 +1277,7 @@ export function SleepRingElement() {
   );
 }
 
-// --- SLICK BUTTON ---
+// --- slick button ---
 export interface SlickButtonProps {
   text: string;
   url?: string;
@@ -1289,7 +1289,7 @@ export interface SlickButtonProps {
 }
 
 export function SlickButton({ text, url, icon, bgColor, textColor, iconColor, borderRadius }: SlickButtonProps) {
-  // Helper to format icon name (e.g. "shopping-cart" -> "ShoppingCart")
+  // helper to format icon name (e.g. "shopping-cart" -> "shoppingcart")
   const formattedIconName = icon ? icon.charAt(0).toUpperCase() + icon.slice(1).replace(/-([a-z])/g, (g: any) => g[1].toUpperCase()) : null;
   const Icon = formattedIconName ? (LucideIcons as any)[formattedIconName] : null;
 
@@ -1319,7 +1319,7 @@ export function SlickButton({ text, url, icon, bgColor, textColor, iconColor, bo
       )}
       <span className="text-xl lowercase relative z-10">{text || 'click here'}</span>
 
-      {/* Subtle glow/shine effect on hover */}
+      {/* subtle glow/shine effect on hover */}
       <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
     </button>
   );

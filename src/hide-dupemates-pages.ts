@@ -1,10 +1,10 @@
-// Script to hide the 'dupemates-pages' collection in NocoBase
-// Usage: Run with node, must have admin API key in localStorage or set up in api-client
+// script to hide the 'dupemates-pages' collection in nocobase
+// usage: run with node, must have admin api key in localstorage or set up in api-client
 import { api } from './api/nocobase-client.js';
 
 async function hideDupematesPages() {
   try {
-    // Try to fetch the collection (handles case-insensitive and fallback logic)
+    // try to fetch the collection (handles case-insensitive and fallback logic)
     const col = await api.getCollection('dupemates-pages');
     const colData = Array.isArray(col) ? undefined : (col as { data?: { name?: string } }).data;
     const realName = colData?.name || (col as { name?: string })?.name || 'dupemates-pages';
@@ -12,7 +12,7 @@ async function hideDupematesPages() {
       console.error("Collection 'dupemates-pages' not found.");
       return { success: false, message: "Collection not found." };
     }
-    // Update to hidden
+    // update to hidden
     await api.updateCollection(realName, { hidden: true });
     console.log(`Collection '${realName}' was successfully hidden.`);
     return { success: true, message: `Collection '${realName}' was successfully hidden.` };

@@ -38,21 +38,21 @@ export function RecordView({ collectionName: propCollection, recordId: propId }:
   const fetchData = async () => {
   setLoading(true);
   try {
- // 1. Fetch Collection Metadata (for fields)
- // In a real app we might cache this or use a hook
+ // 1. fetch collection metadata (for fields)
+ // in a real app we might cache this or use a hook
  const colRes = await client.listCollections();
- // Find our specific collection
+ // find our specific collection
  const col = colRes.data?.find((c: any) => c.name === collectionName) || { name: collectionName, fields: [] };
 
- // If we don't have fields, we might need to fetch them specifically if the listCollections didn't return them
- // Assuming NocoBase client structure based on Recon
+ // if we don't have fields, we might need to fetch them specifically if the listcollections didn't return them
+ // assuming nocobase client structure based on recon
  if (!col.fields || col.fields.length === 0) {
  const fieldRes = await client.request({ url: `collections/${collectionName}/fields` });
  col.fields = fieldRes.data?.data || fieldRes.data || [];
  }
  setCollection(col);
 
- // 2. Fetch Record Data
+ // 2. fetch record data
  const recRes = await client.getRecord(collectionName, recordId);
  setRecord(recRes.data);
   } catch (e) {
@@ -66,13 +66,13 @@ export function RecordView({ collectionName: propCollection, recordId: propId }:
   }, [collectionName, recordId, client]);
 
   const updateRecord = async (data: any) => {
-  // Optimistic update
+  // optimistic update
   setRecord((prev: any) => ({ ...prev, ...data }));
   try {
   await client.updateRecord(collectionName!, recordId!, data);
   } catch (e) {
   console.error("Update failed", e);
-  // Revert on fail?
+  // revert on fail?
   }
   };
 
@@ -100,10 +100,10 @@ export function RecordView({ collectionName: propCollection, recordId: propId }:
   );
   }
 
-  // Identify special fields
-  // We want to separate the "Body" (Content) from the "Properties" (Metadata)
-  // Heuristic: "content", "body", "note", "description" is body. Rest is metadata.
-  // If multiple candidates, usually the Long Text / Markdown one is body.
+  // identify special fields
+  // we want to separate the "body" (content) from the "properties" (metadata)
+  // heuristic: "content", "body", "note", "description" is body. rest is metadata.
+  // if multiple candidates, usually the long text / markdown one is body.
 
   let bodyField = collection.fields.find((f: any) => f.interface === 'markdown' || f.interface === 'richText');
   if (!bodyField) bodyField = collection.fields.find((f: any) => f.name === 'content' || f.name === 'body' || f.name === 'description');
@@ -122,7 +122,7 @@ export function RecordView({ collectionName: propCollection, recordId: propId }:
 
   return (
   <div className="min-h-screen bg-background text-foreground flex flex-col font-varela">
-  {/* Minimal Header */}
+  {/* minimal header */}
   <header className="sticky top-0 z-50 flex items-center justify-between px-4 py-2 bg-background/80 backdrop-blur-sm transition-all">
  <div className="flex items-center gap-2">
  <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground">
@@ -158,10 +158,10 @@ export function RecordView({ collectionName: propCollection, recordId: propId }:
  </div>
   </header>
 
-  {/* Main Content Scroll Area */}
+  {/* main content scroll area */}
   <main className="flex-1 max-w-4xl w-full mx-auto px-12 py-12 flex flex-col gap-8">
 
- {/* 1. Title Area */}
+ {/* 1. title area */}
  <div className="group relative">
  <SmartField
  field={{ type: 'string', interface: 'input' }}
@@ -171,13 +171,13 @@ export function RecordView({ collectionName: propCollection, recordId: propId }:
  />
  </div>
 
- {/* 2. Metadata Properties (Notion Style) */}
+ {/* 2. metadata properties (notion style) */}
  {showProperties && metaFields.length > 0 && (
  <div className="grid grid-cols-[140px_1fr] gap-y-2 gap-x-4 text-sm animate-in fade-in slide-in-from-top-2 duration-200">
  {metaFields.map((field: any) => (
    <div key={field.name} className="contents group">
    <div className="flex items-center gap-2 text-muted-foreground py-1 group-hover:text-foreground transition-colors overflow-hidden">
-   {/* Icons based on type could go here */}
+   {/* icons based on type could go here */}
    <span className="truncate">{field.uiSchema?.title || field.name}</span>
    </div>
    <div className="py-1 min-h-[28px] flex items-center">
@@ -193,10 +193,10 @@ export function RecordView({ collectionName: propCollection, recordId: propId }:
  </div>
  )}
 
- {/* Divider if properties are shown */}
+ {/* divider if properties are shown */}
  {showProperties && <div className="h-px bg-border/40 w-full my-4" />}
 
- {/* 3. The Body (Canvas / Content) */}
+ {/* 3. the body (canvas / content) */}
  <div className="min-h-[500px] pb-32">
  {bodyField ? (
  <SmartField
@@ -205,13 +205,13 @@ export function RecordView({ collectionName: propCollection, recordId: propId }:
    onChange={(val) => updateRecord({ [bodyField.name]: val })}
    className="prose prose-invert max-w-none prose-lg focus:outline-none min-h-[300px]"
    mode="edit" // Force edit mode for the body? Or build a "Click to Edit" wrapper?
- // For now, SmartField handles click-to-edit.
- // In "Vibe" phase 2, we might want a seamless Block Editor.
+ // for now, smartfield handles click-to-edit.
+ // in "vibe" phase 2, we might want a seamless block editor.
  />
  ) : (
  <div className="text-muted-foreground italic opacity-50 flex flex-col items-center justify-center p-12 border border-dashed rounded-lg">
    <p>No content field detected.</p>
-   <Button variant="outline" className="mt-4" onClick={() => {/* Add field logic */ }}>
+   <Button variant="outline" className="mt-4" onClick={() => {/* add field logic */ }}>
    Add Content Property
    </Button>
  </div>
@@ -219,7 +219,7 @@ export function RecordView({ collectionName: propCollection, recordId: propId }:
 
  </div>
 
- {/* 4. Linked Mentions */}
+ {/* 4. linked mentions */}
  <BacklinksFooter recordId={recordId} collectionName={collectionName} />
 
   </main>

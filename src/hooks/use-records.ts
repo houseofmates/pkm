@@ -10,7 +10,7 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   const activeFronterId = activeFronters[0] || null;
   const queryClient = useQueryClient();
 
-  // State for dynamic query parameters (pagination, filtering)
+  // state for dynamic query parameters (pagination, filtering)
   const [queryParams, setQueryParams] = useState<any>({
   page: 1,
   pageSize: 20,
@@ -18,10 +18,10 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   ...initialParams
   });
 
-  // Update queryParams if initialParams change (deep check or just key check? usually simplistic is fine for now)
-  // Actually, we shouldn't overwrite user interaction (pagination) if parent re-renders,
+  // update queryparams if initialparams change (deep check or just key check? usually simplistic is fine for now)
+  // actually, we shouldn't overwrite user interaction (pagination) if parent re-renders,
   // unless we want parent to control it fully.
-  // Let's rely on initialization for now.
+  // let's rely on initialization for now.
 
   const fetchRecords = async () => {
   const response = await client.listRecords(collectionName, queryParams);
@@ -35,11 +35,11 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   placeholderData: (previousData) => previousData, // Keep previous data while fetching new (better UX)
   });
 
-  // Handle both array response and { data: [...], meta: ... } response
+  // handle both array response and { data: [...], meta: ... } response
   const records: any[] = Array.isArray(data) ? data : ((data as { data?: any[] })?.data || []);
   const meta = (data as { meta?: any })?.meta;
 
-  // Refresh wrapper to support updating params
+  // refresh wrapper to support updating params
   const refresh = (newParams?: Record<string, unknown>) => {
   if (newParams) {
   setQueryParams((prev: Record<string, unknown>) => ({ ...prev, ...newParams }));
@@ -48,9 +48,9 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   }
   };
 
-  // --- Mutations ---
+  // --- mutations ---
 
-  // Create
+  // create
   const createMutation = useMutation({
   mutationFn: async (data: Record<string, unknown>) => {
   const payload = { ...data };
@@ -64,7 +64,7 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   },
   });
 
-  // Update (Optimistic)
+  // update (optimistic)
   const updateMutation = useMutation({
   mutationFn: async ({ id, data }: { id: string | number; data: Record<string, unknown> }) => {
   const payload = { ...data };
@@ -74,13 +74,13 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   return client.updateRecord(collectionName, id, payload);
   },
   onMutate: async ({ id, data }: { id: string | number; data: Record<string, unknown> }) => {
-  // Cancel outgoing refetches
+  // cancel outgoing refetches
   await queryClient.cancelQueries({ queryKey: ['records', collectionName] });
 
-  // Snapshot previous value
+  // snapshot previous value
   const previousData = queryClient.getQueryData(['records', collectionName, queryParams]);
 
-  // Optimistically update
+  // optimistically update
   queryClient.setQueryData(['records', collectionName, queryParams], (old: { data?: Array<{ id: string | number } & Record<string, unknown>> } | undefined) => {
  if (!old || !old.data) return old;
  return {
@@ -94,7 +94,7 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   return { previousData };
   },
   onError: (_err, _newRecord, context) => {
-  // Rollback
+  // rollback
   if (context?.previousData) {
  queryClient.setQueryData(['records', collectionName, queryParams], context.previousData);
   }
@@ -104,7 +104,7 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   },
   });
 
-  // Delete
+  // delete
   const deleteMutation = useMutation({
   mutationFn: async (id: string | number) => {
   return client.deleteRecord(collectionName, id);

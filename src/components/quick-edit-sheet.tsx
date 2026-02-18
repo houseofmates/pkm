@@ -42,13 +42,13 @@ export function QuickEditSheet() {
   };
 
   const handleSave = () => {
-  // Optimistic update locally?
-  // In a real app, this would call API.
-  // For this UI demo, we trigger the callback which might update local state in the View.
-  // We also emit a global update event if views are listening.
+  // optimistic update locally?
+  // in a real app, this would call api.
+  // for this ui demo, we trigger the callback which might update local state in the view.
+  // we also emit a global update event if views are listening.
   if (callback) callback(data);
 
-  // Dispatch global update to refresh views
+  // dispatch global update to refresh views
   window.dispatchEvent(new CustomEvent('pkm:record-updated', {
   detail: { collection: collectionName, record: data }
   }));
@@ -63,7 +63,7 @@ export function QuickEditSheet() {
   <Sheet open={open} onOpenChange={setOpen}>
   <SheetContent className="w-[400px] sm:w-[540px] flex flex-col gap-0 p-0 border-l bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
 
- {/* Header */}
+ {/* header */}
  <div className="p-6 pb-2">
  <SheetHeader>
  <SheetTitle className="flex items-center gap-2 text-xl font-serif">
@@ -82,9 +82,9 @@ export function QuickEditSheet() {
  <ScrollArea className="flex-1 px-6">
  <div className="flex flex-col gap-6 pb-6">
 
- {/* Properties Grid */}
+ {/* properties grid */}
  <div className="grid grid-cols-2 gap-4">
-   {/* Auto-detect fields based on keys present in data for this demo */}
+   {/* auto-detect fields based on keys present in data for this demo */}
    {Object.keys(data).map(key => {
    if (key === 'id' || key === 'content' || key === 'children') return null;
 
@@ -118,7 +118,7 @@ export function QuickEditSheet() {
 
  <Separator />
 
- {/* Rich Content Area (Mocking Embed Support) */}
+ {/* rich content area (mocking embed support) */}
  <div className="space-y-2">
    <Label className="flex items-center gap-2">
    <AlignLeft className="h-4 w-4" />
@@ -131,7 +131,7 @@ export function QuickEditSheet() {
    onChange={(html) => handleChange('content', sanitizeHTML(html))}
    placeholder="# Write with markdown..."
    />
-   {/* Quick Embed Actions Helper */}
+   {/* quick embed actions helper */}
    <div className="absolute top-2 right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity bg-background border rounded-md shadow-sm">
    <Button variant="ghost" size="icon" className="h-6 w-6" title="Embed Image" onClick={() => {
   const url = prompt("Image URL:");
@@ -155,7 +155,7 @@ export function QuickEditSheet() {
  </div>
  </ScrollArea>
 
- {/* Footer */}
+ {/* footer */}
  <div className="p-6 border-t bg-muted/10 mt-auto">
  <SheetFooter>
  <Button variant="outline" onClick={() => setOpen(false)}>cancel</Button>

@@ -31,7 +31,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { formatHeadmateName } from '@/utils/text-formatting';
 import { syncHeadmatesToNocoBase } from '@/utils/sync-headmates';
 
-// Helper for strict name capitalization (DELEGATED TO UTILITY)
+// helper for strict name capitalization (delegated to utility)
 const formatName = formatHeadmateName;
 
 interface Member {
@@ -75,12 +75,12 @@ export function HeadmatesPage() {
   const [hasKey, setHasKey] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'contacts'>('grid');
   const [isDragging, setIsDragging] = useState(false);
-  // const [systemId, setSystemId] = useState<string | null>(null); // Unused local state, context handles it.
+  // const [systemid, setsystemid] = usestate<string | null>(null); // unused local state, context handles it.
 
   const members = allMembers.filter(m => !overrides[m.id]?.hidden);
   const activeFrontId = activeFronters[0];
 
-  // Log for debugging
+  // log for debugging
   useEffect(() => {
   console.log('Active fronters:', activeFronters);
   console.log('All member IDs:', allMembers.map(m => ({ id: m.id, name: m.content.name })));
@@ -133,8 +133,8 @@ export function HeadmatesPage() {
   console.log("Fetching SimplyPlural members with key length:", key?.length);
 
   try {
-  // 1. Fetch "Me" to get System ID
-  // Using direct fetch to avoid NocoBase proxy issues on mobile
+  // 1. fetch "me" to get system id
+  // using direct fetch to avoid nocobase proxy issues on mobile
   const meRes = await fetch(SimplyPluralClient.url('/me'), {
  headers: { 'Authorization': key }
   });
@@ -152,10 +152,10 @@ export function HeadmatesPage() {
   }
 
   const sid = meData.id;
-  // setSystemId(sid); // Store system ID
+  // setsystemid(sid); // store system id
   console.log("SimplyPlural System ID:", sid);
 
-  // 2. Fetch Members
+  // 2. fetch members
   const membersRes = await fetch(SimplyPluralClient.url(`/members/${sid}`), {
  headers: { 'Authorization': key }
   });
@@ -170,21 +170,21 @@ export function HeadmatesPage() {
   const rawMembers = Array.isArray(membersData) ? membersData : [];
   console.log("SimplyPlural Members Found:", rawMembers.length);
 
-  // Sanitize members (Aggressive pre-render check)
+  // sanitize members (aggressive pre-render check)
   const sanitizedMembers = rawMembers.map((m: any) => {
  let avatarUrl = m.content?.avatarUrl || "";
 
- // Aggressive check: If it's a discordapp.net link (media or images-ext-2), kill it.
+ // aggressive check: if it's a discordapp.net link (media or images-ext-2), kill it.
  if (avatarUrl.includes('discordapp.net')) {
  avatarUrl = PLACEHOLDER_IMAGE;
  }
 
- // Apply Strict Name Formatting
+ // apply strict name formatting
  const originalName = m.content?.name || "Unknown";
- // We format it here to ensure the state object is clean
+ // we format it here to ensure the state object is clean
  const formattedName = formatName(originalName);
 
- // Extract and format color
+ // extract and format color
  let color = m.content?.color || m.color;
  if (color && !color.startsWith('#')) {
  color = `#${color}`;
@@ -206,8 +206,8 @@ export function HeadmatesPage() {
   setAllMembers(sanitizedMembers);
   cacheMemberColors(sanitizedMembers); // SYNC COLORS TO CONTEXT
 
-  // --- SYNC CHECK: Reconcile External Image Changes ---
-  // If SimplyPlural avatar differs from our Local Override, assume SP is newer and clear Override.
+  // --- sync check: reconcile external image changes ---
+  // if simplyplural avatar differs from our local override, assume sp is newer and clear override.
   const newOverrides = { ...overrides };
   let overridesChanged = false;
 
@@ -219,12 +219,12 @@ export function HeadmatesPage() {
  if (overrideAvatar) {
  let matches = false;
 
- // Case 1: Identical strings
+ // case 1: identical strings
  if (overrideAvatar === spAvatar) matches = true;
 
- // Case 2: Override is relative (local upload path) and SP has specific URL
- // Note: If SP has the NocoBase URL, it might be absolute.
- // We check if spAvatar *contains* the override path if relative.
+ // case 2: override is relative (local upload path) and sp has specific url
+ // note: if sp has the nocobase url, it might be absolute.
+ // we check if spavatar *contains* the override path if relative.
  if (overrideAvatar.startsWith('/')) {
  // e.g. /storage/uploads/xyz.png vs https://db.../storage/uploads/xyz.png
  const nocobaseUrl = import.meta.env.VITE_NOCOBASE_URL || '';
@@ -232,15 +232,15 @@ export function HeadmatesPage() {
  }
 
  if (!matches && spAvatar.length > 0) {
- // SP has a Valid Avatar that DOES NOT match our override.
- // We trust SP as the source of truth for updates.
+ // sp has a valid avatar that does not match our override.
+ // we trust sp as the source of truth for updates.
  console.log(`Sync Logic: Removing stale avatar override for ${m.content.name}. SP: ${spAvatar.slice(-20)} vs Local: ${overrideAvatar.slice(-20)}`);
 
- // Remove avatarUrl from override, keep other fields
+ // remove avatarurl from override, keep other fields
  delete (currentOverride as any).avatarUrl;
 
- // If override is now empty/useless, maybe delete the whole key?
- // For now just removing the avatarUrl property is safer to preserve colors/names.
+ // if override is now empty/useless, maybe delete the whole key?
+ // for now just removing the avatarurl property is safer to preserve colors/names.
  overridesChanged = true;
  }
  }
@@ -252,15 +252,15 @@ export function HeadmatesPage() {
   }
 
   } catch (error: any) {
-  // console.error("Full SimplyPlural Error:", error);
-  // Keep console error minimal or remove if not needed for user debugging
+  // console.error("full simplyplural error:", error);
+  // keep console error minimal or remove if not needed for user debugging
   toast.error(error.message || "Failed to load headmates");
   } finally {
   setLoading(false);
   }
   };
 
-  // Sync Reconciliation Effect
+  // sync reconciliation effect
   useEffect(() => {
   if (allMembers.length === 0) return;
 
@@ -272,27 +272,27 @@ export function HeadmatesPage() {
   const currentOverride = newOverrides[m.id];
   const overrideAvatar = currentOverride?.avatarUrl;
 
-  // Only check if we actually have an override to potentially clear
+  // only check if we actually have an override to potentially clear
   if (overrideAvatar) {
  let matches = false;
 
- // Case 1: Identical strings
+ // case 1: identical strings
  if (overrideAvatar === spAvatar) matches = true;
 
- // Case 2: Override is relative (local upload path) and SP has specific URL
+ // case 2: override is relative (local upload path) and sp has specific url
  // e.g. /storage/uploads/xyz.png vs https://db.../storage/uploads/xyz.png
  if (overrideAvatar.startsWith('/')) {
  if (spAvatar.endsWith(overrideAvatar)) matches = true;
  }
 
- // If SP has a valid avatar that DOES NOT match our override
+ // if sp has a valid avatar that does not match our override
  if (!matches && spAvatar.length > 0) {
  console.log(`Sync Logic: Removing stale avatar override for ${m.content.name}`);
 
- // Remove avatarUrl from override
+ // remove avatarurl from override
  delete (currentOverride as any).avatarUrl;
 
- // If the override object is now effectively empty (only key remains?),
+ // if the override object is now effectively empty (only key remains?),
  // we might ideally delete the key, but keeping the object is safer for now.
  overridesChanged = true;
  }
@@ -420,7 +420,7 @@ export function HeadmatesPage() {
   }
    `}>
   {orderedMembers.map(member => {
-  // Transform member data to match HeadmateCard expected structure
+  // transform member data to match headmatecard expected structure
   const flatMember = {
   id: member.id,
   name: member.content.name,
@@ -442,10 +442,10 @@ export function HeadmatesPage() {
    onClick={isDragging ? undefined : () => toggleFronter(member.id)}
     />
     ) : (
-    // Contacts View Rendering (Reusing HeadmateCard but maybe we can style it differently via className?)
-    // For now, let's just use HeadmateCard but in a list/larger grid.
-    // Ideally we'd have a specific "ContactCard" layout (horizontal?).
-    // Let's stick to HeadmateCard for consistency but bigger.
+    // contacts view rendering (reusing headmatecard but maybe we can style it differently via classname?)
+    // for now, let's just use headmatecard but in a list/larger grid.
+    // ideally we'd have a specific "contactcard" layout (horizontal?).
+    // let's stick to headmatecard for consistency but bigger.
     <HeadmateCard
    member={flatMember}
    onClick={isDragging ? undefined : () => toggleFronter(member.id)}

@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { getContrastColor } from '@/lib/utils';
 
-// Placeholder Data for "Wireframe" mode
+// placeholder data for "wireframe" mode
 const PLACEHOLDER_DATA = [
   { name: 'Category A', value: 40, value2: 24, amt: 2400 },
   { name: 'Category B', value: 30, value2: 13, amt: 2210 },
@@ -50,7 +50,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   const [isReady, setIsReady] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Default Palette - Updated to include var(--primary) as primary
+  // default palette - updated to include var(--primary) as primary
   const DEFAULT_ALTS = ['var(--primary)', '#00C49F', '#0088FE', '#FF8042', '#8884d8', '#ff0055', '#7F00FF', '#00FF00'];
 
   const getColor = (key: string, index: number) => {
@@ -78,13 +78,13 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   const isPlaceholder = !data || data.length === 0;
   const chartData = isPlaceholder ? PLACEHOLDER_DATA : data;
 
-  // Helper to request config change
+  // helper to request config change
   const triggerConfig = (configKey: string, val?: any) => {
   if (!onConfig) return;
   onConfig(configKey, val);
   };
 
-  // Render Overlay for Placeholder instructions
+  // render overlay for placeholder instructions
   const PlaceholderOverlay = ({ label, targetKey }: { label?: string, targetKey?: string }) => {
   if (!isPlaceholder) return null;
 
@@ -114,16 +114,16 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   )
   };
 
-  // Common Axis Props for Placeholders
+  // common axis props for placeholders
   const placeholderAxisProps = isPlaceholder ? {
-  // We can't easily put a Select on Axis click without positioning logic
-  // So we fallback to simple trigger or just let the main overlay handle it
+  // we can't easily put a select on axis click without positioning logic
+  // so we fallback to simple trigger or just let the main overlay handle it
   cursor: "pointer",
   tick: { fill: 'var(--muted-foreground)', opacity: 0.5 }
   } : {};
   const toggle = (k: string) => setHidden(prev => ({ ...prev, [k]: !prev[k] }));
 
-  // Build the ordered keys list (respect seriesOrder if present)
+  // build the ordered keys list (respect seriesorder if present)
   const buildKeys = () => {
   const base = seriesKeys || [];
   if (seriesOrder && seriesOrder.length > 0) {
@@ -133,7 +133,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   return base;
   };
 
-  // Multi-series rendering helper
+  // multi-series rendering helper
   const renderSeries = () => {
   const keys = buildKeys();
   if (!keys || keys.length === 0) return null;
@@ -498,7 +498,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
    )
    }
    const col = getColor(name, index);
-   // Contrast check
+   // contrast check
    const textColor = getContrastColor(col);
 
    return (
@@ -556,7 +556,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
-  // Funnel sort
+  // funnel sort
   const sorted = isPlaceholder ? chartData : [...data].sort((a, b) => (b[yKey] || 0) - (a[yKey] || 0));
   return (
   <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
@@ -570,7 +570,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
    isAnimationActive
    onClick={(data) => onDataClick && !isPlaceholder && onDataClick(data, xKey)}
    onContextMenu={(...args: unknown[]) => {
-   // Funnel might pass different args
+   // funnel might pass different args
    const e = args[args.length - 1] as { preventDefault?: () => void };
    const data = args[0];
    if (e?.preventDefault && onDataContextMenu) onDataContextMenu(e as unknown as Event, data, xKey);
@@ -648,8 +648,8 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
  onClick={() => {
  if (isPlaceholder) triggerConfig('chartY');
  else if (onDataClick) onDataClick({ name: 'All' }, xKey); // Special handling for KPI to signal all?
- // Note: ChartView needs to handle 'All', or we rely on user filtering.
- // For now, let's just trigger it.
+ // note: chartview needs to handle 'all', or we rely on user filtering.
+ // for now, let's just trigger it.
  }}>
  <PlaceholderOverlay label="configure kpi values" targetKey="chartY" />
  <div className={cn("text-sm  mb-2", isPlaceholder ? "text-muted-foreground/50" : "text-muted-foreground")}>
@@ -660,7 +660,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
  </div>
  {!isPlaceholder && (
  <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2 opacity-0">
- {/* Placeholder for future trends */}
+ {/* placeholder for future trends */}
  </div>
  )}
   </div>

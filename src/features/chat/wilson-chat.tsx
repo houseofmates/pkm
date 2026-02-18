@@ -4,14 +4,14 @@ import { Send, X, BrainCircuit } from 'lucide-react'
 import { useEdgelessStore } from '@/features/edgeless/store'
 
 export function WilsonChat() {
-  // We'll use the edgeless store for the "isChatOpen" toggle to keep layout unified,
-  // or we can add it to LLM store. journal-app had it in documentStore.
-  // Let's add it to useEdgelessStore (which is effectively our document store) later.
-  // For now, let's assume useEdgelessStore has it or we pass it as props?
-  // Let's check useEdgelessStore. It doesn't have it yet. We'll add it in the next step.
-  // For now I'll stub it or use local state for testing if needed, but the plan says "Port WilsonChat logic".
+  // we'll use the edgeless store for the "ischatopen" toggle to keep layout unified,
+  // or we can add it to llm store. journal-app had it in documentstore.
+  // let's add it to useedgelessstore (which is effectively our document store) later.
+  // for now, let's assume useedgelessstore has it or we pass it as props?
+  // let's check useedgelessstore. it doesn't have it yet. we'll add it in the next step.
+  // for now i'll stub it or use local state for testing if needed, but the plan says "port wilsonchat logic".
 
-  // Actually, let's update store first? No, let's write this component to use the store field we WILL add.
+  // actually, let's update store first? no, let's write this component to use the store field we will add.
   const isChatOpen = useEdgelessStore((state) => state.isChatOpen)
   const setChatOpen = useEdgelessStore((state) => state.setChatOpen)
 
@@ -19,7 +19,7 @@ export function WilsonChat() {
   const [userInput, setUserInput] = useState('')
   const chatContainerRef = useRef<HTMLDivElement>(null)
 
-  // Auto-scroll
+  // auto-scroll
   useEffect(() => {
   if (chatContainerRef.current) {
   chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
@@ -35,8 +35,8 @@ export function WilsonChat() {
   if (text.trim().toLowerCase().startsWith('/ai')) {
   const prompt = text.replace(/^\/ai\s*/i, '');
 
-  // Capture basic page context
-  // In the future, we can make this smarter by checking the route and pulling specific store data
+  // capture basic page context
+  // in the future, we can make this smarter by checking the route and pulling specific store data
   const context = {
  url: window.location.href,
  pageText: document.body.innerText.substring(0, 5000) // limit to avoid token overflow
@@ -46,7 +46,7 @@ export function WilsonChat() {
 
   await askWilson(prompt || "Analyze this page content.");
 
-  // Clear context to avoid polluting future chats
+  // clear context to avoid polluting future chats
   useLLMStore.getState().setContext(null);
   } else {
   await askWilson(text)
@@ -63,7 +63,7 @@ export function WilsonChat() {
   <div
   className={`fixed inset-y-0 right-0 w-[90vw] md:w-[400px] bg-background border-l-2 border-primary shadow-[-4px_0_0_var(--primary)] z-[60] flex flex-col transition-transform duration-300 transform ${isChatOpen ? 'translate-x-0' : 'translate-x-full'}`}
   >
-  {/* Header */}
+  {/* header */}
   <div className="p-4 border-b border-primary flex justify-between items-center bg-black/50">
  <div className="flex items-center gap-2 text-primary font-bold lowercase">
  <span>wilson</span>
@@ -73,7 +73,7 @@ export function WilsonChat() {
  </button>
   </div>
 
-  {/* Chat Area */}
+  {/* chat area */}
   <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 font-mono text-sm">
  {interactionHistory.length === 0 && (
  <div className="text-primary opacity-50 text-center mt-10 lowercase">
@@ -98,7 +98,7 @@ export function WilsonChat() {
  </div>
  ))}
 
- {/* Thinking Indicator */}
+ {/* thinking indicator */}
  {isThinking && (
  <div className="flex items-center gap-2 text-primary text-xs animate-pulse lowercase">
  <BrainCircuit size={14} />
@@ -107,7 +107,7 @@ export function WilsonChat() {
  )}
   </div>
 
-  {/* Input */}
+  {/* input */}
   <div className="p-4 border-t border-primary bg-background">
  <div className="relative">
  <input

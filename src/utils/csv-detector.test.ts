@@ -2,7 +2,7 @@ import { detectFieldType } from './csv-detector';
 import { describe, it, expect } from 'vitest';
 
 describe('detectFieldType', () => {
-  // 1. Header Pattern Matching
+  // 1. header pattern matching
   it('detects types based on header keywords', () => {
   expect(detectFieldType('User Email', ['test@example.com']).type).toBe('email');
   expect(detectFieldType('Phone Number', ['1234567890']).type).toBe('phone');
@@ -16,7 +16,7 @@ describe('detectFieldType', () => {
   expect(detectFieldType('Profile Pic', ['img.png']).type).toBe('attachment');
   expect(detectFieldType('Img', ['img.png']).type).toBe('attachment');
 
-  // System Specific
+  // system specific
   expect(detectFieldType('Pronouns', ['she/her']).type).toBe('text'); // Override default?
   expect(detectFieldType('Gender', ['Non-binary']).type).toBe('select');
   expect(detectFieldType('Introject Type', ['Fictive']).type).toBe('select');
@@ -29,23 +29,23 @@ describe('detectFieldType', () => {
   it('detects relations matches against existing collections', () => {
   const collections = ['authors', 'books', 'categories'];
 
-  // Exact singular match
+  // exact singular match
   const result1 = detectFieldType('Author', ['Alice'], collections);
   expect(result1.type).toBe('belongsTo');
   expect(result1.target).toBe('authors');
 
-  // Plural match
+  // plural match
   const result2 = detectFieldType('Books', ['123'], collections);
   expect(result2.type).toBe('belongsTo');
   expect(result2.target).toBe('books');
 
-  // Case insensitive match
+  // case insensitive match
   const result3 = detectFieldType('category', ['Fiction'], collections);
   expect(result3.type).toBe('belongsTo');
   expect(result3.target).toBe('categories');
   });
 
-  // 2. Notion Special Cases
+  // 2. notion special cases
   it('handles Notion multi-select format', () => {
   const result = detectFieldType('Keywords', ['productivity, work', 'life, balance']);
   expect(result.type).toBe('multipleSelect');
@@ -58,12 +58,12 @@ describe('detectFieldType', () => {
   });
 
   it('handles Notion rollup/formula patterns if detectable via header', () => {
-  // Though formula detection is tricky without metadata, we map 'count', 'roll' etc if possible
-  // Currently 'count' -> number
+  // though formula detection is tricky without metadata, we map 'count', 'roll' etc if possible
+  // currently 'count' -> number
   expect(detectFieldType('Task Count', ['1', '5']).type).toBe('number');
   });
 
-  // 3. Value Inference (Fallback)
+  // 3. value inference (fallback)
   it('infers email type from values when header is generic', () => {
   expect(detectFieldType('Contact', ['test@example.com', 'foo@bar.com']).type).toBe('email');
   });
@@ -84,7 +84,7 @@ describe('detectFieldType', () => {
   expect(detectFieldType('Website', ['https://google.com', 'http://test.com']).type).toBe('url');
   });
 
-  // 4. Edge Cases
+  // 4. edge cases
   it('defaults to text for empty columns', () => {
   expect(detectFieldType('Mystery', []).type).toBe('text');
   expect(detectFieldType('Mystery', [null, undefined, '']).type).toBe('text');

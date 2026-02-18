@@ -52,7 +52,7 @@ export function PageRenderer() {
     addElement
   } = useBuilder();
 
-  // Global Key Listener for Delete and Hotkeys
+  // global key listener for delete and hotkeys
   useEffect(() => {
     const handleGlobalKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
@@ -70,14 +70,14 @@ export function PageRenderer() {
         return;
       }
 
-      // Canvas Hotkeys
+      // canvas hotkeys
       if (isAdmin) {
         const key = e.key.toLowerCase();
         if (key === 's') {
           setSelectedElementIds([]);
           toast.success('selection tool active', { duration: 1000, icon: '🔍' });
         } else if (key === 't') {
-          // Calculate center of current viewport
+          // calculate center of current viewport
           const canvasContent = document.getElementById('canvas-content');
           const scrollContainer = document.getElementById('builder-canvas');
 
@@ -86,7 +86,7 @@ export function PageRenderer() {
             const viewHeight = window.innerHeight;
             const viewWidth = window.innerWidth;
 
-            // Center in viewport relative to canvas-content
+            // center in viewport relative to canvas-content
             const centerX = (viewWidth / 2) - rect.left;
             const centerY = scrollContainer.scrollTop + (viewHeight / 2) - 60; // 60 for header adjustment
 
@@ -113,14 +113,14 @@ export function PageRenderer() {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [selectedElementIds, isAdmin, deleteElements, setSelectedElementIds, addElement]);
 
-  // Global 'Click Outside' for robust deselection
+  // global 'click outside' for robust deselection
   useEffect(() => {
     if (selectedElementIds.length === 0) return;
 
     const handleGlobalMousedown = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
 
-      // Checks
+      // checks
       const isModifier = e.shiftKey || e.ctrlKey || e.metaKey;
       const isClickingElement = target.closest('[data-element-id]');
       const isClickingHandle = target.classList.contains('resize-handle') || !!target.dataset.handle;
@@ -129,7 +129,7 @@ export function PageRenderer() {
 
       if (!isModifier && !isClickingElement && !isClickingHandle && !isClickingBubbleMenu && !isClickingModal) {
         setSelectedElementIds([]);
-        // Clear any leftover manual styles just in case
+        // clear any leftover manual styles just in case
         document.querySelectorAll('[data-element-id]').forEach(el => {
           (el as HTMLElement).style.outline = 'none';
         });
@@ -140,7 +140,7 @@ export function PageRenderer() {
     return () => document.removeEventListener('mousedown', handleGlobalMousedown, true);
   }, [selectedElementIds, setSelectedElementIds]);
 
-  // Marquee Selection Logic: Move / End
+  // marquee selection logic: move / end
   useEffect(() => {
     if (!selectionBox || !isAdmin) return;
 
@@ -160,13 +160,13 @@ export function PageRenderer() {
     };
 
     const handleMouseUp = (e: MouseEvent) => {
-      // Calculate final intersection
+      // calculate final intersection
       const x1 = Math.min(selectionBox.startX, selectionBox.currentX);
       const y1 = Math.min(selectionBox.startY, selectionBox.currentY);
       const x2 = Math.max(selectionBox.startX, selectionBox.currentX);
       const y2 = Math.max(selectionBox.startY, selectionBox.currentY);
 
-      // Important: Threshold for "accidental" marquee vs click
+      // important: threshold for "accidental" marquee vs click
       const dist = Math.hypot(selectionBox.currentX - selectionBox.startX, selectionBox.currentY - selectionBox.startY);
 
       if (dist > 5) {
@@ -184,7 +184,7 @@ export function PageRenderer() {
           const ex2 = elLayout.x + (elLayout.width || 0);
           const ey2 = elLayout.y + (elLayout.height || 0);
 
-          // Standard intersection check
+          // standard intersection check
           const overlap = !(x1 > ex2 || x2 < ex1 || y1 > ey2 || y2 < ey1);
           if (overlap) intersectIds.push(el.id);
         });
@@ -210,7 +210,7 @@ export function PageRenderer() {
 
   if (!page) return null;
 
-  // Responsive Canvas Styling
+  // responsive canvas styling
   const isDesktop = previewMode === 'desktop';
   const canvasStyle: React.CSSProperties = {
     background: page.background || '#050505',
@@ -218,7 +218,7 @@ export function PageRenderer() {
     minHeight: isDesktop ? '100vh' : '100%',
   };
 
-  // Ensure mobile/tablet matches the wrapper if no overflow
+  // ensure mobile/tablet matches the wrapper if no overflow
   if (!isDesktop) {
     const baseHeight = previewMode === 'mobile' ? 932 : 1112;
     canvasStyle.minHeight = `${Math.max(page.height || 0, baseHeight)}px`;
@@ -234,7 +234,7 @@ export function PageRenderer() {
       onMouseDown={(e) => {
         const target = e.target as HTMLElement;
 
-        // 1. Ignore clicks on known UI components
+        // 1. ignore clicks on known ui components
         if (target.closest('.builder-toolbox') ||
           target.closest('.builder-context-menu') ||
           target.closest('.widget-property-editor') ||
@@ -242,14 +242,14 @@ export function PageRenderer() {
           return;
         }
 
-        // 2. Ignore clicks on actual elements (they handle their own selection)
+        // 2. ignore clicks on actual elements (they handle their own selection)
         if (target.closest('[data-element-id]')) {
           return;
         }
 
         const isModifier = e.shiftKey || e.ctrlKey || e.metaKey;
 
-        // 3. Background click -> Handle Marquee Selection
+        // 3. background click -> handle marquee selection
         if (isAdmin) {
           const canvas = document.getElementById('canvas-content');
           if (!canvas) return;
@@ -258,7 +258,7 @@ export function PageRenderer() {
           const sX = e.clientX - rect.left;
           const sY = e.clientY - rect.top;
 
-          // Clear previous selection if no modifier
+          // clear previous selection if no modifier
           if (!isModifier) setSelectedElementIds([]);
 
           setSelectionBox({
@@ -278,7 +278,7 @@ export function PageRenderer() {
           minWidth: isDesktop ? '1440px' : '100%',
         }}
       >
-        {/* The Selection Box Visual */}
+        {/* the selection box visual */}
         {selectionBox && (
           <div
             className="absolute border border-[var(--primary)] bg-[var(--primary)]/10 z-[10000] pointer-events-none"
@@ -351,16 +351,16 @@ interface ElementRendererProps {
 function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onUpdateBatch, onContextMenu }: ElementRendererProps) {
   const { page, previewMode, viewWidth } = useBuilder();
 
-  // Calculate scale factor for mobile/tablet responsive layout
-  // designWidth for mobile is 430px (iPhone 14/15 Pro Max)
-  // designWidth for tablet is 834px (iPad Air)
+  // calculate scale factor for mobile/tablet responsive layout
+  // designwidth for mobile is 430px (iphone 14/15 pro max)
+  // designwidth for tablet is 834px (ipad air)
   const designWidth = previewMode === 'mobile' ? 430 : previewMode === 'tablet' ? 834 : viewWidth;
 
-  // In Admin mode (builder), we keep 1:1 scale for precise editing inside the frame.
-  // In Public mode (preview), we scale to fit the actual device width.
+  // in admin mode (builder), we keep 1:1 scale for precise editing inside the frame.
+  // in public mode (preview), we scale to fit the actual device width.
   const scaleFactor = isAdmin ? 1 : (viewWidth / designWidth);
 
-  // Determine active layout with robust fallbacks per field
+  // determine active layout with robust fallbacks per field
   const deviceLayout = previewMode === 'mobile' ? element.mobile : previewMode === 'tablet' ? element.tablet : null;
 
   const posX = deviceLayout?.x ?? element.x ?? 0;
@@ -370,20 +370,20 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   const fontSize = deviceLayout?.fontSize ?? element.styles?.fontSize;
 
 
-  // Scroll-triggered animation
+  // scroll-triggered animation
   const { ref: inViewRef } = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
   const elementRef = useRef<HTMLDivElement | null>(null);
 
-  // Merge refs
+  // merge refs
   const setRefs = (node: HTMLDivElement | null) => {
     elementRef.current = node;
     inViewRef(node);
   };
 
-  // Drag state
+  // drag state
   const [isDragging, setIsDragging] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -396,13 +396,13 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   } | null>(null);
   const resizeStart = useRef<{ x: number; y: number; elW: number; elH: number; elX: number; elY: number; baseFontSize: number } | null>(null);
 
-  // Handle drag
+  // handle drag
   useEffect(() => {
     if (!isDragging || !dragStart.current) return;
 
     const { x: startX, y: startY, targets } = dragStart.current;
 
-    // Tracks for commit
+    // tracks for commit
     let finalDelta = { x: 0, y: 0 };
     let snapMode: 'none' | 'grid' | 'cluster' = 'none';
     let lastMouseEvent: MouseEvent | null = null;
@@ -424,7 +424,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
           moveX = snappedX - primary.initialX;
           moveY = snappedY - primary.initialY;
         } else if (snapMode === 'cluster') {
-          // Snap primary element center to nearest element center (or canvas center) for alignment
+          // snap primary element center to nearest element center (or canvas center) for alignment
           try {
             const all = page?.elements || [];
             const primaryData = all.find(a => a.id === primary.id) || { width: primary.dom?.offsetWidth || 0, height: primary.dom?.offsetHeight || 0 };
@@ -434,7 +434,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
             const movingCenterX = primary.initialX + dx + primaryW / 2;
             const movingCenterY = primary.initialY + dy + primaryH / 2;
 
-            // Find nearest center among other elements
+            // find nearest center among other elements
             let nearest: { cx: number; cy: number; dist: number } | null = null;
             for (const other of all) {
               if (targets.some(t => t.id === other.id)) continue;
@@ -444,7 +444,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
               if (!nearest || dist < nearest.dist) nearest = { cx, cy, dist };
             }
 
-            // Also consider canvas center
+            // also consider canvas center
             const canvasRect = document.querySelector('.canvas-background')?.getBoundingClientRect();
             if (!nearest && canvasRect) {
               const canvasCx = (canvasRect.width) / 2;
@@ -462,7 +462,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
               moveY = newPrimaryY - primary.initialY;
             }
           } catch (e) {
-            // Fallback to no cluster snapping on error
+            // fallback to no cluster snapping on error
           }
         }
       }
@@ -511,7 +511,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
       setIsDragging(false);
       dragStart.current = null;
 
-      // Commit all to React
+      // commit all to react
       const batch = targets.map(t => ({
         id: t.id,
         updates: { x: t.initialX + finalDelta.x, y: t.initialY + finalDelta.y }
@@ -532,7 +532,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
     };
   }, [isDragging, onUpdateBatch, page, isSnapping]);
 
-  // Handle resize
+  // handle resize
   useEffect(() => {
     if (!isResizing || !resizeHandle) return;
 
@@ -544,7 +544,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
     const elY = resizeStart.current?.elY || 0;
     const baseFontSize = resizeStart.current?.baseFontSize || 24;
 
-    // Track final state for commit
+    // track final state for commit
     const pendingUpdate: any = {};
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -559,7 +559,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
       let newY = elY;
       let newFontSize = baseFontSize;
 
-      // Calculate new dimensions based on direction
+      // calculate new dimensions based on direction
       if (resizeHandle.includes('e')) newWidth = Math.max(50, elW + dx);
       if (resizeHandle.includes('w')) {
         newWidth = Math.max(50, elW - dx);
@@ -571,12 +571,12 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
         newY = elY + dy;
       }
 
-      // SCALING LOGIC (Text, Buttons, Version Badges)
+      // scaling logic (text, buttons, version badges)
       const scalableTypes = ['text', 'button', 'version', 'versionbadge', 'serverip', 'serverstatus'];
       if (scalableTypes.includes(element.type)) {
         const isCorner = ['ne', 'nw', 'se', 'sw'].includes(resizeHandle);
         if (isCorner) {
-          // CORNER = SCALE (Uniform)
+          // corner = scale (uniform)
           const ratio = newHeight / elH;
           newFontSize = Math.max(8, Math.round(baseFontSize * ratio));
           newWidth = Math.max(50, Math.round(elW * ratio));
@@ -584,19 +584,19 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
           if (resizeHandle.includes('w')) newX = elX + (elW - newWidth);
           if (resizeHandle.includes('n')) newY = elY + (elH - newHeight);
 
-          // Update Font Size Visually
+          // update font size visually
           elementRef.current.style.fontSize = `${newFontSize}px`;
           pendingUpdate.styles = { ...element.styles, fontSize: newFontSize };
         }
       }
 
-      // DOM Updates
+      // dom updates
       elementRef.current.style.width = `${newWidth}px`;
       elementRef.current.style.height = `${newHeight}px`;
       elementRef.current.style.left = `${newX}px`;
       elementRef.current.style.top = `${newY}px`;
 
-      // Store for commit
+      // store for commit
       pendingUpdate.width = newWidth;
       pendingUpdate.height = newHeight;
       if (newX !== elX) pendingUpdate.x = newX;
@@ -608,7 +608,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
       setResizeHandle(null);
       resizeStart.current = null;
 
-      // Commit final state
+      // commit final state
       if (Object.keys(pendingUpdate).length > 0) {
         onUpdate(pendingUpdate);
       }
@@ -645,13 +645,13 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
         baseFontSize: fontSize || 24
       };
     } else if (!isEditing) {
-      // Only Drag if NOT editing text
+      // only drag if not editing text
       setIsDragging(true);
 
       let currentSelection = globalSelectedIds;
 
       if (isShift) {
-        // Toggle selection
+        // toggle selection
         if (isSelected) {
           currentSelection = globalSelectedIds.filter(id => id !== element.id);
         } else {
@@ -659,12 +659,12 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
         }
         onSelect(true); // multi mode
       } else {
-        // Single select mode
+        // single select mode
         if (!isSelected) {
           currentSelection = [element.id];
           onSelect(false); // single mode
         }
-        // If already selected, we keep currentSelection to allow dragging group
+        // if already selected, we keep currentselection to allow dragging group
       }
 
       const targets = (page?.elements || [])
@@ -678,8 +678,8 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
           };
           const dom = document.querySelector(`[data-element-id="${el.id}"]`) as HTMLElement;
 
-          // AUTO-FIT HEIGHT FOR TEXT ELEMENTS ON DRAG START
-          // This fixes the bug where text selection boxes are taller than the text itself
+          // auto-fit height for text elements on drag start
+          // this fixes the bug where text selection boxes are taller than the text itself
           if (el.type === 'text' && dom) {
             const richText = dom.querySelector('.rich-text-wrapper') as HTMLElement;
             if (richText) {
@@ -721,7 +721,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
       return; // handleMouseDown handles election
     }
 
-    // Public Mode Interactions
+    // public mode interactions
     const action = element.clickAction || (element.link ? 'link' : 'none');
 
     if (action === 'link' && element.link) {
@@ -778,7 +778,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
 
   const hexToRgba = (hex: string, alpha: number) => {
     let r = 0, g = 0, b = 0;
-    // Handle hex shorthand
+    // handle hex shorthand
     if (hex.length === 4) {
       r = parseInt("0x" + hex[1] + hex[1]);
       g = parseInt("0x" + hex[2] + hex[2]);
@@ -802,32 +802,32 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
     display: 'block'
   };
 
-  // Apply element-defined background and opacity (use hex->rgba when opacity provided)
+  // apply element-defined background and opacity (use hex->rgba when opacity provided)
   try {
     const bg = element.styles?.backgroundColor ?? element.styles?.background;
     const op = element.styles?.opacity;
 
-    // Styling Fixes: Apply border radius and overflow to container to prevent background bleed
+    // styling fixes: apply border radius and overflow to container to prevent background bleed
     (baseStyles as any).borderRadius = element.styles?.borderRadius ? `${element.styles.borderRadius}px` : '16px'; // Default 16px radius
     (baseStyles as any).overflow = 'hidden';
 
-    // Default Black Outline
+    // default black outline
     (baseStyles as any).border = element.styles?.borderWidth
       ? `${element.styles.borderWidth}px solid ${element.styles.borderColor || '#000000'}`
       : '2px solid #000000';
 
 
     if (bg) {
-      // Apply border radius and overflow to container to prevent background bleed
+      // apply border radius and overflow to container to prevent background bleed
       (baseStyles as any).borderRadius = element.styles?.borderRadius ? `${element.styles.borderRadius}px` : '16px';
       (baseStyles as any).overflow = 'hidden';
-      // Default Black Outline
+      // default black outline
       (baseStyles as any).border = element.styles?.borderWidth
         ? `${element.styles.borderWidth}px solid ${element.styles.borderColor || '#000000'}`
         : '2px solid #000000';
 
       if (typeof bg === 'string' && typeof op === 'number') {
-        // Prefer explicit opacity on the element
+        // prefer explicit opacity on the element
         (baseStyles as any).backgroundColor = hexToRgba(bg, op);
         (baseStyles as any).opacity = 1; // background already encoded
       } else {
@@ -835,7 +835,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
         if (typeof op === 'number') (baseStyles as any).opacity = op;
       }
     } else {
-      // Default Black Outline even if no background
+      // default black outline even if no background
       (baseStyles as any).borderRadius = element.styles?.borderRadius ? `${element.styles.borderRadius}px` : '16px';
       (baseStyles as any).overflow = 'hidden';
       (baseStyles as any).border = element.styles?.borderWidth
@@ -1074,7 +1074,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
               )}
             </div>
 
-            {/* Resize Handles */}
+            {/* resize handles */}
             <div data-handle="n" className="resize-handle absolute -top-1 left-1/2 -translate-x-1/2 w-4 h-2 bg-[var(--primary)] rounded cursor-ns-resize z-50" />
             <div data-handle="s" className="resize-handle absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-2 bg-[var(--primary)] rounded cursor-ns-resize z-50" />
             <div data-handle="e" className="resize-handle absolute top-1/2 -right-1 -translate-y-1/2 w-2 h-4 bg-[var(--primary)] rounded cursor-ew-resize z-50" />
@@ -1087,7 +1087,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
           </>
         )}
 
-        {/* Content Wrapper - Pointer Shield to allow dragging from anywhere */}
+        {/* content wrapper - pointer shield to allow dragging from anywhere */}
         <div className={`w-full h-full ${isAdmin && !isEditing ? 'pointer-events-none' : 'pointer-events-auto'}`}>
           {renderContent()}
         </div>

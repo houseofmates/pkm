@@ -74,22 +74,22 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
  </Button>
   </div>
 
-  {/* Render the search palette here so the button can trigger it */}
-  {/* Note: GlobalCommandPalette is usually rendered at root, but we can control its open state here if we modify it to accept props,
- OR we let it handle its own state via context/events.
- Looking at existing GlobalCommandPalette, it handles its own 'open' state via Ctrl+K.
- We should refactor it to accept an `isOpen` prop or similar, OR trigger the keyboard event manually.
+  {/* render the search palette here so the button can trigger it */}
+  {/* note: globalcommandpalette is usually rendered at root, but we can control its open state here if we modify it to accept props,
+ or we let it handle its own state via context/events.
+ looking at existing globalcommandpalette, it handles its own 'open' state via ctrl+k.
+ we should refactor it to accept an `isopen` prop or similar, or trigger the keyboard event manually.
 
- Better Approach: We'll modify GlobalCommandPalette to be controlled or expose a trigger.
- For now, let's assume we will pass `open={searchOpen}` and `onOpenChange={setSearchOpen}` to it in the next step.
- I won't render it HERE yet, to avoid duplication if it's already in App.tsx.
- Wait, App.tsx renders GlobalCommandPalette.
- If I want this button to open it, I need a shared state or event.
+ better approach: we'll modify globalcommandpalette to be controlled or expose a trigger.
+ for now, let's assume we will pass `open={searchopen}` and `onopenchange={setsearchopen}` to it in the next step.
+ i won't render it here yet, to avoid duplication if it's already in app.tsx.
+ wait, app.tsx renders globalcommandpalette.
+ if i want this button to open it, i need a shared state or event.
 
- Let's update GlobalCommandPalette to listen for a custom event 'pkm:open-search' OR
- Use a simple context.
+ let's update globalcommandpalette to listen for a custom event 'pkm:open-search' or
+ use a simple context.
 
- Simplest for this refactor: Dispatch a keyboard event or custom event.
+ simplest for this refactor: dispatch a keyboard event or custom event.
   */}
   </>
   );

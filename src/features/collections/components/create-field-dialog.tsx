@@ -17,9 +17,9 @@ import { toast } from 'sonner';
 interface CreateFieldDialogProps {
   collectionName: string;
   onFieldCreated: () => void;
-  /** Controlled open state */
+  /** controlled open state */
   open?: boolean;
-  /** Callback when open state changes */
+  /** callback when open state changes */
   onOpenChange?: (open: boolean) => void;
 }
 
@@ -54,7 +54,7 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
   const { client } = useAuth();
   const [internalOpen, setInternalOpen] = useState(false);
 
-  // Use controlled or internal state
+  // use controlled or internal state
   const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setIsOpen = (value: boolean) => {
   if (onOpenChange) onOpenChange(value);

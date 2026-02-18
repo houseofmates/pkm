@@ -46,7 +46,7 @@ export function TextContextMenu({ x, y, onClose, onFormat }: TextContextMenuProp
   style={{ left: x, top: y }}
   >
   <div className="flex flex-col gap-0.5 min-w-[200px]">
- {/* Bold */}
+ {/* bold */}
  <Button
  variant="ghost"
  size="sm"
@@ -57,7 +57,7 @@ export function TextContextMenu({ x, y, onClose, onFormat }: TextContextMenuProp
  bold
  </Button>
 
- {/* Italic */}
+ {/* italic */}
  <Button
  variant="ghost"
  size="sm"
@@ -70,7 +70,7 @@ export function TextContextMenu({ x, y, onClose, onFormat }: TextContextMenuProp
 
  <div className="h-px bg-border my-1" />
 
- {/* Headers */}
+ {/* headers */}
  <Button
  variant="ghost"
  size="sm"
@@ -101,7 +101,7 @@ export function TextContextMenu({ x, y, onClose, onFormat }: TextContextMenuProp
 
  <div className="h-px bg-border my-1" />
 
- {/* Color */}
+ {/* color */}
  <Button
  variant="ghost"
  size="sm"
@@ -127,7 +127,7 @@ export function TextContextMenu({ x, y, onClose, onFormat }: TextContextMenuProp
  </div>
  )}
 
- {/* Link */}
+ {/* link */}
  <Button
  variant="ghost"
  size="sm"

@@ -19,10 +19,10 @@ export function OfferingDrop({ element: _element }: { element: any }) {
   if (files.length > 0) {
   setAbsorbing(true);
 
-  // Simulate Absorption and API Call
+  // simulate absorption and api call
   setTimeout(() => {
  setAbsorbing(false);
- // In real app, create new record in 'offerings' collection
+ // in real app, create new record in 'offerings' collection
   }, 2000);
   }
   };
@@ -37,7 +37,7 @@ export function OfferingDrop({ element: _element }: { element: any }) {
   onDragLeave={handleDragLeave}
   onDrop={handleDrop}
   >
-  {/* Ripple Effects */}
+  {/* ripple effects */}
   <div className="absolute inset-0 bg-gradient-to-t from-primary/20 to-transparent opacity-50 animate-pulse" />
 
   <UploadCloud className={`h-8 w-8 text-primary transition-transform duration-500 ${isHovering ? 'scale-125' : 'opacity-50'}`} />

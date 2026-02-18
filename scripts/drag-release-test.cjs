@@ -30,13 +30,13 @@ const playwright = require('playwright');
     await page.evaluate(() => { try { localStorage.setItem('nocobase_token', 'dev-smoke-token'); } catch(e) {} });
     await page.reload({ waitUntil: 'networkidle' });
 
-    // use the page's default template JSON (already multi-column) and open preview
+    // use the page's default template json (already multi-column) and open preview
     await page.waitForSelector('button:has-text("preview")', { timeout: 5000 });
     await page.click('button:has-text("preview")');
     await page.waitForTimeout(200);
     await page.waitForSelector('#preview-canvas-root', { timeout: 5000 });
 
-    // Instrument preview cards to count click events
+    // instrument preview cards to count click events
     await page.evaluate(() => {
       window.__preview_clicks = 0;
       const handler = (e) => { window.__preview_clicks += 1; };
@@ -61,7 +61,7 @@ const playwright = require('playwright');
     await page.mouse.move(start.x, start.y);
     await page.mouse.down();
 
-    // larger move to ensure dnd-kit activates and shows the DragOverlay
+    // larger move to ensure dnd-kit activates and shows the dragoverlay
     const mid = { x: start.x + 160, y: start.y + 8 };
     await page.mouse.move(mid.x, mid.y, { steps: 12 });
 
@@ -92,7 +92,7 @@ const playwright = require('playwright');
       console.log('PASS: no click fired on drag-release');
     }
 
-    // --- NEW: verify cross-column drop moves the card between columns ---
+    // --- new: verify cross-column drop moves the card between columns ---
     const colCountsBefore = await page.evaluate(() => Array.from(document.querySelectorAll('#preview-canvas-root > .space-y-4')).map(c => c.querySelectorAll('[data-preview-id]').length));
     console.log('[TEST] column counts before manual cross-column drag:', colCountsBefore);
 

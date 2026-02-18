@@ -15,7 +15,7 @@ interface FormulaEditorProps {
   client: any; // NocoBase client
 }
 
-// Mock AI Service until WebSocket is fully confirmed
+// mock ai service until websocket is fully confirmed
 const fetchAIResponse = async (prompt: string, context: any) => {
   try {
   const base = import.meta.env.VITE_OLLAMA_URL || 'http://localhost:11434';
@@ -45,11 +45,11 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
   ]);
   const [isAiLoading, setIsAiLoading] = useState(false);
 
-  // Run Code
+  // run code
   const handleRun = async () => {
   setOutput('Running...');
   try {
-  // Safe(ish) execution wrapper
+  // safe(ish) execution wrapper
   const func = new Function('record', 'api', 'console', `
  try {
  ${code}
@@ -58,7 +58,7 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
  }
   `);
 
-  // Capture console.log
+  // capture console.log
   const logs: string[] = [];
   const mockConsole = {
  log: (...args: any[]) => logs.push(args.map(a => JSON.stringify(a)).join(' ')),
@@ -78,7 +78,7 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
   }
   };
 
-  // Send to AI
+  // send to ai
   const handleSendChat = async () => {
   if (!chatInput.trim()) return;
   const userMsg = chatInput;
@@ -86,7 +86,7 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
   setChatInput('');
   setIsAiLoading(true);
 
-  // Context for AI
+  // context for ai
   const context = {
   recordKeys: Object.keys(record || {}),
   currentCode: code
@@ -100,7 +100,7 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
   return (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 backdrop-blur-sm p-4">
   <div className="w-full max-w-7xl h-[85vh] bg-card border rounded-lg shadow-2xl flex flex-col overflow-hidden">
- {/* Header */}
+ {/* header */}
  <div className="flex items-center justify-between p-3 border-b bg-muted/30">
  <div className="flex items-center gap-2">
  <Terminal className="h-5 w-5 text-primary" />
@@ -120,9 +120,9 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
  </div>
  </div>
 
- {/* Main Content Split */}
+ {/* main content split */}
  <div className="flex-1 flex overflow-hidden">
- {/* Left: AI Chat */}
+ {/* left: ai chat */}
  <div className="w-1/3 border-r flex flex-col bg-muted/10">
  <div className="p-2 border-b text-xs font-semibold text-muted-foreground flex items-center gap-2">
    <Sparkles className="h-3 w-3 text-yellow-500" />
@@ -183,7 +183,7 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
  </div>
  </div>
 
- {/* Right: Code Editor & Output */}
+ {/* right: code editor & output */}
  <div className="flex-1 flex flex-col">
  <div className="flex-1 relative">
    <Editor
@@ -201,7 +201,7 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
    }}
    />
  </div>
- {/* Output Console */}
+ {/* output console */}
  <div className="h-48 border-t bg-black text-green-400 font-mono text-xs p-2 overflow-auto">
    <div className="text-muted-foreground mb-1 select-none">console output:</div>
    <pre className="whitespace-pre-wrap">{output || 'ready to run.'}</pre>
