@@ -3,7 +3,7 @@ const { Client, GatewayIntentBits } = require('discord.js');
 const axios = require('axios');
 require('dotenv').config();
 
-// --- CONFIGURATION ---
+// --- configuration ---
 const BOT_TOKEN = process.env.DISCORD_TOKEN || '';
 const TARGET_CHANNEL_ID = process.env.TARGET_CHANNEL_ID || '1466141847914025022';
 const N8N_WEBHOOK_URL = process.env.N8N_WEBHOOK_URL || 'http://localhost:5678/webhook/minecraft-events';

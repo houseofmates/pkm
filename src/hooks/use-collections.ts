@@ -22,7 +22,7 @@ export function useCollections() {
   const response = await client.listCollections();
   const rawCollections = Array.isArray(response.data) ? response.data : (response?.data as any)?.data || [];
 
-  // Side Effects (Hiding Check)
+  // side effects (hiding check)
   rawCollections.forEach(async (col: Collection) => {
  const nameNorm = (col.name || '').toLowerCase().trim();
  if (nameNorm === 'pkm_settings' && !col.hidden) {

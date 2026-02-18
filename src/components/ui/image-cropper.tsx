@@ -37,7 +37,7 @@ export function ImageCropper({
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const imageRef = useRef<HTMLImageElement>(null);
 
-  // Load image when file changes
+  // load image when file changes
   useEffect(() => {
   if (imageFile) {
   const reader = new FileReader();
@@ -79,19 +79,19 @@ export function ImageCropper({
   canvas.width = cropSize;
   canvas.height = cropSize / aspectRatio;
 
-  // Clear canvas
+  // clear canvas
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Save context state
+  // save context state
   ctx.save();
 
-  // Apply transformations
+  // apply transformations
   ctx.translate(canvas.width / 2, canvas.height / 2);
   ctx.rotate((rotation * Math.PI) / 180);
   ctx.scale(scale, scale);
   ctx.translate(-canvas.width / 2, -canvas.height / 2);
 
-  // Draw image centered with position offset
+  // draw image centered with position offset
   const drawWidth = img.naturalWidth;
   const drawHeight = img.naturalHeight;
   const drawX = (canvas.width - drawWidth) / 2 + position.x;
@@ -100,7 +100,7 @@ export function ImageCropper({
   ctx.drawImage(img, drawX, drawY, drawWidth, drawHeight);
   ctx.restore();
 
-  // Convert canvas to blob
+  // convert canvas to blob
   canvas.toBlob((blob) => {
   if (blob) {
  onCropComplete(blob);
@@ -137,7 +137,7 @@ export function ImageCropper({
  </DialogHeader>
 
  <div className="space-y-4">
- {/* Preview Area */}
+ {/* preview area */}
  <div
  className="relative bg-black/50 flex items-center justify-center overflow-hidden"
  style={{
@@ -176,7 +176,7 @@ export function ImageCropper({
  )}
  </div>
 
- {/* Controls */}
+ {/* controls */}
  <div className="space-y-3 px-4">
  <div className="flex items-center gap-3">
    <ZoomOut className="w-4 h-4 text-white/50" />
@@ -216,7 +216,7 @@ export function ImageCropper({
  <Button onClick={handleCrop}>Crop & Upload</Button>
  </DialogFooter>
 
- {/* Hidden canvas for processing */}
+ {/* hidden canvas for processing */}
  <canvas ref={canvasRef} style={{ display: 'none' }} />
  </DialogPrimitive.Content>
   </DialogPortal>

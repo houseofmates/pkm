@@ -1,7 +1,8 @@
-// @ts-nocheck
 import axios from 'axios';
+import { secureLogger } from './secure-logger';
+import { safeUrl, sanitizeHeaders } from './sanitize-utils';
 
-// Use the production URL directly or env if available
+// api base: prefer the vite environment override, fall back to local backend for dev
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4100/api';
 
 export const apiClient = axios.create({
@@ -14,50 +15,53 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use((config) => {
  const nt = localStorage.getItem('nocobase_token');
  const ht = localStorage.getItem('hom_api_key');
- const gt = localStorage.getItem('hom_guest_key'); // Guest Token Support
+ const gt = localStorage.getItem('hom_guest_key'); // guest token support
 
- // Robust check for truthy token
+ // pick the best token we have: admin > nocobase jwt > guest (trim common placeholders)
  let token = null;
  if (ht && ht !== 'null' && ht !== 'undefined' && ht.trim() !== '') {
   token = ht.trim();
-  // console.debug('[Auth] Using hom_api_key');
+  // hom_api_key (admin-level token)
  } else if (nt && nt !== 'null' && nt !== 'undefined' && nt.trim() !== '') {
   token = nt.trim();
-  // console.debug('[Auth] Using nocobase_token');
+  // nocobase jwt (standard user/session token)
  } else if (gt && gt !== 'null' && gt !== 'undefined' && gt.trim() !== '') {
-  token = gt.trim(); // Use guest token as fallback
-  // console.debug('[Auth] Using hom_guest_key');
+  token = gt.trim();
+  // guest token (read-only fallback)
  }
 
- // Debug log for troubleshooting 401s
+ // friendly warning when no token is present (helps debug unexpected 401s)
  if (!token) {
-  console.warn('[Auth] No token found in localStorage (nocobase_token, hom_api_key, or hom_guest_key). Request will be anonymous.');
- } else {
-  // console.debug('[Auth] Token present:', token.substring(0, 10) + '...');
+  secureLogger.warn('[auth] no token found in localStorage. request will be anonymous');
  }
 
  if (token) {
   const bearerToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+  const hostname = window.location.hostname;
 
-  // Direct assignment to ensure compatibility
+  // attach headers consistently for axios and fetch-like header objects
   config.headers['Authorization'] = bearerToken;
-  config.headers['X-Hostname'] = window.location.hostname;
-
-  // Also try set() if it's an AxiosHeaders object
-  if (config.headers && typeof config.headers.set === 'function') {
- config.headers.set('Authorization', bearerToken);
- config.headers.set('X-Hostname', window.location.hostname);
+  config.headers['X-Hostname'] = hostname;
+  if (config.headers && typeof (config.headers as any).set === 'function') {
+   (config.headers as any).set('Authorization', bearerToken);
+   (config.headers as any).set('X-Hostname', hostname);
   }
  } else {
-  // Anonymous auth is broken in NocoBase - use a hardcoded public access token (member role with view-only perms)
-  const PUBLIC_ACCESS_TOKEN = process.env.PUBLIC_ACCESS_TOKEN || '';
-  token = PUBLIC_ACCESS_TOKEN;
-  const bearerToken = `Bearer ${token}`;
-  config.headers['Authorization'] = bearerToken;
-  config.headers['X-Hostname'] = window.location.hostname;
-  if (config.headers && typeof config.headers.set === 'function') {
- config.headers.set('Authorization', bearerToken);
- config.headers.set('X-Hostname', window.location.hostname);
+  // nocobase rejects anonymous requests; use a read-only public token if configured (vite env)
+  const PUBLIC_ACCESS_TOKEN = import.meta.env.VITE_PUBLIC_ACCESS_TOKEN || '';
+  if (PUBLIC_ACCESS_TOKEN) {
+   token = PUBLIC_ACCESS_TOKEN;
+   const bearerToken = `Bearer ${token}`;
+   const hostname = window.location.hostname;
+   config.headers['Authorization'] = bearerToken;
+   config.headers['X-Hostname'] = hostname;
+   if (config.headers && typeof (config.headers as any).set === 'function') {
+    (config.headers as any).set('Authorization', bearerToken);
+    (config.headers as any).set('X-Hostname', hostname);
+   }
+  } else {
+   // no public access token configured — calls may 401 until user logs in
+   secureLogger.warn('[auth] no public access token configured; anonymous requests may be rejected by nocobase');
   }
  }
 
@@ -68,15 +72,15 @@ apiClient.interceptors.response.use(
  (response) => response,
  (error) => {
   if (error.response?.status === 401) {
- // Clear potentially expired/invalid tokens
- console.warn('[Auth] 401 Unauthorized - clearing stored tokens');
+ // clear potentially expired/invalid tokens
+ secureLogger.warn('[Auth] 401 Unauthorized - clearing stored tokens');
  localStorage.removeItem('hom_api_key');
  localStorage.removeItem('nocobase_token');
 
- // Dispatch event for auth context to handle
+ // dispatch event for auth context to handle
  window.dispatchEvent(new Event('auth-error'));
 
- // Show toast notification
+ // show toast notification
  if (typeof window !== 'undefined' && (window as any).toast) {
   (window as any).toast.error('session expired - please log in as admin to edit');
  }
@@ -85,7 +89,7 @@ apiClient.interceptors.response.use(
  }
 );
 
-export const apiRequest = async (resource, action, options = {}) => {
+export const apiRequest = async (resource: string, action: string, options: Record<string, any> = {}) => {
  const { method = 'GET', data, ...rest } = options;
  try {
   const res = await apiClient({
@@ -96,7 +100,7 @@ export const apiRequest = async (resource, action, options = {}) => {
   });
   return res.data;
  } catch (e) {
-  console.error("API Error:", e);
+  secureLogger.error("API Error:", e);
   throw e;
  }
 };

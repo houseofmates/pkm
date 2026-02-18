@@ -10,7 +10,7 @@ export function PortalElement({ element }: PortalElementProps) {
   const navigate = useNavigate();
   const [targetName, setTargetName] = useState('Loading Portal...');
 
-  // Mock fetching target name - in real app, fetch from collection/NocoBase
+  // mock fetching target name - in real app, fetch from collection/nocobase
   useEffect(() => {
   const id = element.data?.targetId;
   if (id === 'aphrodite-altar') setTargetName('The Altar');
@@ -21,8 +21,8 @@ export function PortalElement({ element }: PortalElementProps) {
   const handleDoubleClick = (e: React.MouseEvent) => {
   e.stopPropagation();
   if (element.data?.targetId) {
-  // In a real implementation this would animate the viewport first
-  // For now, we perform the "Jump"
+  // in a real implementation this would animate the viewport first
+  // for now, we perform the "jump"
   navigate(`/canvas/${element.data.targetId}`);
   }
   };
@@ -32,7 +32,7 @@ export function PortalElement({ element }: PortalElementProps) {
   className="w-full h-full relative group overflow-hidden border-2 border-primary/50 hover:border-primary transition-all bg-black/50 backdrop-blur-sm rounded-lg"
   onDoubleClick={handleDoubleClick}
   >
-  {/* Portal Content / Preview */}
+  {/* portal content / preview */}
   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
  <div className="text-center group-hover:scale-110 transition-transform duration-500">
  <div className="text-4xl mb-2 opacity-50 group-hover:opacity-100 transition-opacity">
@@ -44,7 +44,7 @@ export function PortalElement({ element }: PortalElementProps) {
  </div>
   </div>
 
-  {/* Glass Reflection Overlay */}
+  {/* glass reflection overlay */}
   <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none" />
   </div>
   );

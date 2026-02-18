@@ -35,9 +35,9 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
   const [entry, setEntry] = useState('');
   const [prompt, setPrompt] = useState(PROMPTS[0]);
 
-  // Fields
-  const contentField = collection.fields?.find((f: any) => f.interface === 'markdown' || f.interface === 'textarea' || f.name === 'content') || { name: 'content' };
-  const dateField = collection.fields?.find((f: any) => f.interface === 'date' || f.interface === 'datetime' || f.name === 'created_at');
+  // fields
+  const contentField = collection.fields?.find((f: { interface?: string; name: string }) => f.interface === 'markdown' || f.interface === 'textarea' || f.name === 'content') || { name: 'content' };
+  const dateField = collection.fields?.find((f: { interface?: string; name: string }) => f.interface === 'date' || f.interface === 'datetime' || f.name === 'created_at');
 
   const handleShufflePrompt = () => {
   setPrompt(PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
@@ -46,31 +46,31 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
   const handleSubmit = async () => {
   if (!entry.trim()) return;
 
-  // Emulate creation (in a real app, we'd call onCreate, but ViewProps only has update/edit usually)
-  // We'll need to dispatch a create event or use a hook if passed
-  // For now, let's assume this view is usually used where we can "Quick Add" or it relies on "onUpdateRecord" hack?
-  // Actually, ViewProps doesn't have onCreate. We might need to use the `useCollections` hook here or emit an event?
-  // Let's use the window event we added earlier for Dashboard! 'pkm:add-widget' was for widgets.
-  // We need a proper create record method.
-  // Let's assume the parent might pass it or we use a global store dispatch.
-  // CHECK: collection-detail uses useNocoBase?
+  // emulate creation (in a real app, we'd call oncreate, but viewprops only has update/edit usually)
+  // we'll need to dispatch a create event or use a hook if passed
+  // for now, let's assume this view is usually used where we can "quick add" or it relies on "onupdaterecord" hack?
+  // actually, viewprops doesn't have oncreate. we might need to use the `usecollections` hook here or emit an event?
+  // let's use the window event we added earlier for dashboard! 'pkm:add-widget' was for widgets.
+  // we need a proper create record method.
+  // let's assume the parent might pass it or we use a global store dispatch.
+  // check: collection-detail uses usenocobase?
 
-  // Fallback: Dispatch a custom event specifically for creating a record, which RootLayout or similar could pick up?
-  // Or better: Just warn user this is a UI demo if create isn't wired.
-  // But for "Automatic Journaling", it should work.
+  // fallback: dispatch a custom event specifically for creating a record, which rootlayout or similar could pick up?
+  // or better: just warn user this is a ui demo if create isn't wired.
+  // but for "automatic journaling", it should work.
 
-  // HACK: Dispatch an event that the App knows how to handle?
-  // Or modify ViewProps in registry to include `onCreate`? That's cleaner.
-  // I will modify Registry next.
+  // hack: dispatch an event that the app knows how to handle?
+  // or modify viewprops in registry to include `oncreate`? that's cleaner.
+  // i will modify registry next.
 
-  // Temporary dispatch for now to show intent
+  // temporary dispatch for now to show intent
   const newRecord = {
   [contentField.name]: `**${prompt}**\n\n${entry}`,
   status: 'published', // default
   };
 
-  // We will assume onUpdateRecord with ID='new' might be treated as create? No.
-  // I'll emit a custom event "pkm:create-record"
+  // we will assume onupdaterecord with id='new' might be treated as create? no.
+  // i'll emit a custom event "pkm:create-record"
   window.dispatchEvent(new CustomEvent('pkm:create-record', {
   detail: {
  collection: collection.name,
@@ -79,10 +79,10 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
   }));
 
   setEntry('');
-  toast.success("Entry captured!");
+  toast.success("entry captured!");
   };
 
-  // Group by Date
+  // group by date
   const grouped = useMemo(() => {
   const groups: Record<string, any[]> = {};
   const sorted = [...data].sort((a, b) => {
@@ -100,20 +100,20 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
   return groups;
   }, [data, dateField]);
 
-  // Helper to extract preview
+  // helper to extract preview
   const parseContent = (htmlOrMd: string) => {
   const text = htmlOrMd || '';
-  // If markdown (starts with **), try to split prompt
+  // if markdown (starts with **), try to split prompt
   let promptText = '';
   let bodyText = text;
 
-  // Naive Markdown check for our specific format
+  // naive markdown check for our specific format
   const promptMatch = text.match(/^\*\*(.*?)\*\*\s*\n*(.*)/s);
   if (promptMatch) {
   promptText = promptMatch[1];
   bodyText = promptMatch[2];
   } else if (text.startsWith('<')) {
-  // HTML handling if rich editor saved HTML
+  // html handling if rich editor saved html
   const div = document.createElement('div');
   div.innerHTML = text;
   const strong = div.querySelector('strong');
@@ -124,7 +124,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
   }
   }
 
-  // Preview (First paragraph or truncated)
+  // preview (first paragraph or truncated)
   const tempDiv = document.createElement('div');
   tempDiv.innerHTML = bodyText.startsWith('<') ? bodyText : markdownToHtml(bodyText);
   const firstP = tempDiv.querySelector('p');
@@ -136,7 +136,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
   return (
   <div className="max-w-2xl mx-auto flex flex-col gap-6 p-4">
 
-  {/* Daily Prompt / Entry Area */}
+  {/* daily prompt / entry area */}
   <div className="bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border rounded-2xl p-5 shadow-sm">
  <div className="flex items-center gap-2 mb-3 text-primary/80">
  <Sparkles className="h-4 w-4 text-amber-400" />
@@ -161,7 +161,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
  </div>
   </div>
 
-  {/* Stream */}
+  {/* stream */}
   <div className="space-y-8">
  {Object.keys(grouped).length === 0 && (
  <div className="text-center text-muted-foreground py-10 opacity-50">
@@ -171,13 +171,13 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
 
  {Object.entries(grouped).map(([dateKey, records]) => (
  <div key={dateKey} className="relative pl-6 border-l-2 border-primary/10">
- {/* Date Header */}
+ {/* date header */}
  <div className="absolute -left-[9px] top-0 h-4 w-4 rounded-full bg-background border-4 border-primary/20" />
  <div className="mb-4 text-xs font-bold text-muted-foreground lowercase opacity-70 flex items-center gap-2">
    {format(new Date(dateKey), 'eeee, MMMM do, yyyy')}
  </div>
 
- {/* Entries */}
+ {/* entries */}
  <div className="space-y-3">
    {records.map(rec => {
    const { prompt, preview } = parseContent(String(rec[contentField.name] || ''));
@@ -187,7 +187,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
   record={rec}
   collection={collection}
   onUpdate={_onUpdateRecord}
-  onDelete={() => { /* TODO: implement if needed or relies on onView */ }}
+  onDelete={() => { /* todo: implement if needed or relies on onview */ }}
   config={config}
   onConfigChange={onConfigChange}
    >
@@ -206,8 +206,8 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
   <div className="text-base text-foreground/90 leading-relaxed line-clamp-3">
     {preview}
   </div>
-  {/* Universal Property Visibility */}
-  {collection.fields?.filter((f: any) => config.visibleFields?.includes(f.name)).slice(0, 3).map((f: any) => (
+  {/* universal property visibility */}
+  {collection.fields?.filter((f: { name: string }) => config.visibleFields?.includes(f.name)).slice(0, 3).map((f: { name: string; uiSchema?: { title?: string } }) => (
     <div key={f.name} className="flex flex-col gap-0.5 mt-2 bg-muted/20 p-2 rounded-md">
     <span className="text-[10px] text-muted-foreground  opacity-60">{f.uiSchema?.title || f.name}</span>
     <SmartField
@@ -217,7 +217,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
     collectionName={collection.name}
     size="sm"
     className="h-auto p-0 border-none bg-transparent text-sm"
-    onChange={(val: any) => _onUpdateRecord?.(rec.id, { [f.name]: val })}
+    onChange={(val: unknown) => _onUpdateRecord?.(rec.id, { [f.name]: val })}
     />
     </div>
   ))}

@@ -10,27 +10,27 @@ export interface RichEditorProps {
   showToolbar?: boolean;
 }
 
-// Very small, dependency-free rich editor using contentEditable and document.execCommand
+// very small, dependency-free rich editor using contenteditable and document.execcommand
 export function markdownToHtml(md: string) {
   if (!md) return '';
-  // Very lightweight markdown -> HTML converter for paste/initial import
+  // very lightweight markdown -> html converter for paste/initial import
   let out = md.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  // Code blocks ```
+  // code blocks ```
   out = out.replace(/```([\s\S]*?)```/g, (_, code) => `<pre><code>${code.replace(/</g, '&lt;')}</code></pre>`);
-  // Headings
+  // headings
   out = out.replace(/^### (.*$)/gim, '<h3>$1</h3>');
   out = out.replace(/^## (.*$)/gim, '<h2>$1</h2>');
   out = out.replace(/^# (.*$)/gim, '<h1>$1</h1>');
-  // Blockquote
+  // blockquote
   out = out.replace(/^> (.*$)/gim, '<blockquote>$1</blockquote>');
-  // Images
+  // images
   out = out.replace(/!\[(.*?)\]\((.*?)\)/g, '<img alt="$1" src="$2" />');
-  // Links
+  // links
   out = out.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>');
-  // Lists
+  // lists
   out = out.replace(/^(?:\*|-) +(.*)$/gim, '<li>$1</li>');
   out = out.replace(/(<li>.*<\/li>\s?)+/gms, match => `<ul>${match}</ul>`);
-  // Paragraphs
+  // paragraphs
   out = out.replace(/^(?!<h|<ul|<pre|<blockquote|<img|<p)([^\n]+)$/gim, '<p>$1</p>');
   return out;
 }
@@ -38,7 +38,7 @@ export function markdownToHtml(md: string) {
 // ... imports
 import { useState } from 'react';
 
-// Simplified Command Menu Concept
+// simplified command menu concept
 function SlashMenu({ onSelect, onClose, position }: { onSelect: (cmd: string) => void, onClose: () => void, position: { top: number, left: number } }) {
   const commands = [
   { id: 'h1', label: 'Heading 1', icon: 'H1' },
@@ -82,17 +82,17 @@ export function RichEditor({ value = '', placeholder, className, onChange, uploa
   const ref = useRef<HTMLDivElement | null>(null);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
-  // Slash Menu State
+  // slash menu state
   const [slashMenu, setSlashMenu] = useState<{ open: boolean, top: number, left: number } | null>(null);
 
   useEffect(() => {
-  // Sync html ...
+  // sync html ...
   const html = value || '';
   if (ref.current && html !== ref.current.innerHTML) {
-  // Only update if significantly different to avoid cursor jumping
-  // Actually, with simple contentEditable, updating innerHTML resets cursor.
-  // We should only update if not focused or if empty?
-  // For now, naive implementation.
+  // only update if significantly different to avoid cursor jumping
+  // actually, with simple contenteditable, updating innerhtml resets cursor.
+  // we should only update if not focused or if empty?
+  // for now, naive implementation.
   if (document.activeElement !== ref.current) {
  ref.current.innerHTML = html || '';
   }
@@ -108,8 +108,8 @@ export function RichEditor({ value = '', placeholder, className, onChange, uploa
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
   if (e.key === '/') {
-  // Check if we are at start of line or preceded by space?
-  // For simplicity, just trigger menu at cursor
+  // check if we are at start of line or preceded by space?
+  // for simplicity, just trigger menu at cursor
   const sel = window.getSelection();
   if (sel && sel.rangeCount > 0) {
  const range = sel.getRangeAt(0);
@@ -124,9 +124,9 @@ export function RichEditor({ value = '', placeholder, className, onChange, uploa
   };
 
   const handleSlashSelect = (cmdId: string) => {
-  // Remove the '/' that triggered it?
-  // Since we didn't preventDefault, the '/' is likely in the text.
-  // We might want to remove the last character.
+  // remove the '/' that triggered it?
+  // since we didn't preventdefault, the '/' is likely in the text.
+  // we might want to remove the last character.
   document.execCommand('delete', false); // Delete the '/'
 
   switch (cmdId) {
@@ -141,12 +141,12 @@ export function RichEditor({ value = '', placeholder, className, onChange, uploa
   setSlashMenu(null);
   };
 
-  // ... insertImageFromFile, handlePaste ...
+  // ... insertimagefromfile, handlepaste ...
 
-  // (Copy paste previous helper functions manually if needed or assume they persist if not overwritten widely)
-  // Actually replace_file_content overwrites the range, so I need to include them if I am replacing the component body.
-  // The previous tool call view_file output implies I should preserve them.
-  // I will include them simplified.
+  // (copy paste previous helper functions manually if needed or assume they persist if not overwritten widely)
+  // actually replace_file_content overwrites the range, so i need to include them if i am replacing the component body.
+  // the previous tool call view_file output implies i should preserve them.
+  // i will include them simplified.
 
   const insertImageFromFile = async (file?: File) => {
   if (!file) return;
@@ -180,28 +180,28 @@ export function RichEditor({ value = '', placeholder, className, onChange, uploa
 
   return (
   <div className={cn('w-full relative', className)}>
-  {/* Hidden Input for Images */}
-  <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => {
- const files = e.target.files;
+  {/* hidden input for images */}
+  <input ref={fileRef} type="file" accept="image/*" classname="hidden" onchange={e => {
+ const files = (e.target as htmlinputelement).files;
  if (!files) return;
- Array.from(files).forEach(f => insertImageFromFile(f));
- e.currentTarget.value = '';
+ array.from(files).foreach(f => insertimagefromfile(f));
+ if (e.currenttarget) (e.currenttarget as htmlinputelement).value = '';
   }} multiple />
 
-  {slashMenu && (
- <>
- <div className="fixed inset-0 z-40 bg-transparent" onClick={() => setSlashMenu(null)} />
- <SlashMenu
- onSelect={handleSlashSelect}
- onClose={() => setSlashMenu(null)}
- position={slashMenu}
+{slashmenu && (
+  <>
+  <div classname="fixed inset-0 z-40 bg-transparent" onclick={() => setslashmenu(null)} />
+  <slashmenu
+  onselect={handleslashselect}
+  onclose={() => setslashmenu(null)}
+  position={slashmenu}
  />
  </>
   )}
 
-  {showToolbar && (
- <div className="flex gap-1 mb-2 opacity-20 hover:opacity-100 transition-opacity duration-300">
- {/* ... Toolbar Buttons (Simplified for brevity, or kept) ... */}
+  {showtoolbar && (
+ <div classname="flex gap-1 mb-2 opacity-20 hover:opacity-100 transition-opacity duration-300">
+ {/* ... toolbar buttons (simplified for brevity, or kept) ... */}
  <button type="button" className="btn-ghost btn-sm text-xs" onClick={() => exec('bold')}>B</button>
  <button type="button" className="btn-ghost btn-sm text-xs" onClick={() => exec('italic')}>I</button>
  <button type="button" className="btn-ghost btn-sm text-xs" onClick={() => exec('formatBlock', 'H1')}>H1</button>
@@ -215,7 +215,7 @@ export function RichEditor({ value = '', placeholder, className, onChange, uploa
  suppressContentEditableWarning
  onPaste={handlePaste}
  onInput={() => onChange?.(ref.current?.innerHTML || '')}
- // onBlur={() => onChange?.(ref.current?.innerHTML || '')} // Disabled to allow clicking menu
+ // onblur={() => onchange?.(ref.current?.innerhtml || '')} // disabled to allow clicking menu
  onKeyDown={handleKeyDown}
  className={cn('min-h-[120px] p-2 rounded focus:outline-none prose prose-invert max-w-none', placeholder ? 'placeholder' : '')}
  data-placeholder={placeholder}

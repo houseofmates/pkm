@@ -25,7 +25,7 @@ describe('useCollections filtering', () => {
     (useAuth as any).mockReturnValue({ client: mockClient, isAuthenticated: true });
 
     const { result } = renderHook(() => useCollections(), { wrapper: ({ children }) => <QueryClientProvider client={new QueryClient()}>{children}</QueryClientProvider> });
-    // wait for client.listCollections to be called, then for the collections to populate
+    // wait for client.listcollections to be called, then for the collections to populate
     await waitFor(() => expect(mockClient.listCollections).toHaveBeenCalled());
     await waitFor(() => expect(result.current.collections.length).toBeGreaterThan(0));
 
@@ -37,7 +37,7 @@ describe('useCollections filtering', () => {
     // hidden true should also be excluded
     expect(names).not.toContain('private');
 
-    // Ensure we attempted to hide server collection when returned as visible
+    // ensure we attempted to hide server collection when returned as visible
     await waitFor(() => expect(mockClient.updateCollection).toHaveBeenCalledWith('PKM_SETTINGS ', expect.objectContaining({ hidden: true })));
 
   });

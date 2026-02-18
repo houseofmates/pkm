@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useState, useRef } from 'r
 import { useFronter } from '@/contexts/fronter-context';
 import { useAuth } from '@/contexts/auth-context';
 import type { LLMContextPayload, IdentityContext, AffectiveContext, ActivityContext } from '@/types/llm-context';
-// import { useCollections } from '@/hooks/use-collections';
+// import { usecollections } from '@/hooks/use-collections';
 import { debounce } from 'lodash';
 import { formatHeadmateName } from '@/utils/text-formatting';
 
@@ -11,31 +11,31 @@ const LLMContext = createContext<LLMContextPayload | null>(null);
 export function LLMContextProvider({ children }: { children: React.ReactNode }) {
   const { activeFronters, overrides } = useFronter();
   const { client, isAuthenticated } = useAuth();
-  // const { collections } = useCollections(); // Not used currently
+  // const { collections } = usecollections(); // not used currently
 
-  // Local state for aggregated context
+  // local state for aggregated context
   const [context, setContext] = useState<LLMContextPayload | null>(null);
 
-  // Ref to track last pushed context to avoid spamming the main process
+  // ref to track last pushed context to avoid spamming the main process
   const lastPushedRef = useRef<string | null>(null);
 
-  // --- 1. Identity Context ---
+  // --- 1. identity context ---
   const getIdentityContext = (): IdentityContext => {
-  // In a real app, we might fetch the full member details from a cache or NocoBase
-  // For now, we use the active ID and any local overrides
+  // in a real app, we might fetch the full member details from a cache or nocobase
+  // for now, we use the active id and any local overrides
   if (!activeFronters || activeFronters.length === 0) return { activeFronter: null };
 
   const primaryId = activeFronters[0];
   const override = overrides[primaryId] || {};
 
-  // We'd ideally want the name. If we only have ID, we might need to look it up in a "members" list if we have it active.
-  // For now, let's assume we can get it or fallback to ID.
-  // If the FronterContext exposed the full list, that would be better.
-  // If the FronterContext exposed the full list, that would be better.
-  // We do have access to SimplyPlural data in HeadmatesPage, but maybe not globally.
-  // Let's try to get it from a local cache if possible, or just expose ID for now.
-  // Actually, HeadmateCard uses proper names.
-  // We will expose what we have.
+  // we'd ideally want the name. if we only have id, we might need to look it up in a "members" list if we have it active.
+  // for now, let's assume we can get it or fallback to id.
+  // if the frontercontext exposed the full list, that would be better.
+  // if the frontercontext exposed the full list, that would be better.
+  // we do have access to simplyplural data in headmatespage, but maybe not globally.
+  // let's try to get it from a local cache if possible, or just expose id for now.
+  // actually, headmatecard uses proper names.
+  // we will expose what we have.
 
   return {
   activeFronter: {
@@ -47,7 +47,7 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
   };
   };
 
-  // --- 0. Collection Availability Check ---
+  // --- 0. collection availability check ---
   const [availableCollections, setAvailableCollections] = useState<string[]>([]);
 
   useEffect(() => {
@@ -60,16 +60,16 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
   }).catch(() => { });
   }, [client, isAuthenticated]);
 
-  // --- 2. Affective Context ---
+  // --- 2. affective context ---
   const [moodState, setMoodState] = useState<AffectiveContext['currentMood']>(null);
 
   useEffect(() => {
   if (!isAuthenticated) return;
   if (!availableCollections.includes('moods')) return;
 
-  // Strategy: Look for a 'moods' or 'journal' collection
+  // strategy: look for a 'moods' or 'journal' collection
   const checkMood = async () => {
-  // Try 'moods' collection first
+  // try 'moods' collection first
   try {
  const res = await client.listRecords('moods', { pageSize: 1, sort: ['-createdAt'] });
  const data = Array.isArray(res?.data) ? res.data : (res?.data as any)?.data;
@@ -84,17 +84,17 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
  }
   } catch (e) { /* ignore */ }
 
-  // Fallback: Check for 'pkm_settings' -> 'current_mood'
-  // (We could implement this if 'moods' fails)
+  // fallback: check for 'pkm_settings' -> 'current_mood'
+  // (we could implement this if 'moods' fails)
   };
 
   checkMood();
-  // Poll every minute? Or just on mount/change.
+  // poll every minute? or just on mount/change.
   const interval = setInterval(checkMood, 60000);
   return () => clearInterval(interval);
   }, [client, isAuthenticated, availableCollections]);
 
-  // --- 3. Activity Context ---
+  // --- 3. activity context ---
   const [recentActivity, setRecentActivity] = useState<ActivityContext['recentActions']>([]);
 
   useEffect(() => {
@@ -102,8 +102,8 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
   if (!availableCollections.includes('journal')) return;
 
   const checkActivity = async () => {
-  // Check 'journal' or just generic audit logs?
-  // Let's look for 'journal'
+  // check 'journal' or just generic audit logs?
+  // let's look for 'journal'
   try {
  const res = await client.listRecords('journal', { pageSize: 3, sort: ['-createdAt'] });
  const data = Array.isArray(res?.data) ? res.data : (res?.data as any)?.data;
@@ -122,9 +122,9 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
   }, [client, isAuthenticated, availableCollections]);
 
 
-  // --- Aggregation & Push ---
+  // --- aggregation & push ---
 
-  // Debounced Push function
+  // debounced push function
   const pushContext = useRef(debounce((payload: LLMContextPayload) => {
   const str = JSON.stringify(payload);
   if (str !== lastPushedRef.current) {

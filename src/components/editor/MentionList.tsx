@@ -1,11 +1,17 @@
 
-import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
+import { forwardRef, useLayoutEffect, useImperativeHandle, useState } from 'react';
 import { cn } from '@/lib/utils';
-import { Database, FileText } from 'lucide-react';
+import { Database } from 'lucide-react';
+
+interface MentionItem {
+  id: string;
+  title?: string;
+  name?: string;
+}
 
 interface MentionListProps {
-  items: any[];
-  command: (item: any) => void;
+  items: MentionItem[];
+  command: (item: { id: string; label: string }) => void;
 }
 
 export const MentionList = forwardRef((props: MentionListProps, ref) => {
@@ -14,11 +20,12 @@ export const MentionList = forwardRef((props: MentionListProps, ref) => {
   const selectItem = (index: number) => {
   const item = props.items[index];
   if (item) {
-  props.command({ id: item.id, label: item.title || item.name || 'Untitled' });
+  props.command({ id: item.id, label: item.title || item.name || 'untitled' });
   }
   };
 
-  useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useLayoutEffect(() => {
   setSelectedIndex(0);
   }, [props.items]);
 
@@ -59,7 +66,7 @@ export const MentionList = forwardRef((props: MentionListProps, ref) => {
  <span className="mr-2 opacity-70 theme-gold">
  <Database className="w-3 h-3" />
  </span>
- <span className="truncate">{item.title || item.name || 'Untitled'}</span>
+ <span className="truncate">{item.title || item.name || 'untitled'}</span>
  </button>
   ))}
   </div>

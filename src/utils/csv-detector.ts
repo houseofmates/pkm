@@ -22,12 +22,12 @@ export interface DetectionResult {
 }
 
 const HEADER_PATTERNS: Record<string, FieldType> = {
-  // Color
+  // color
   color: 'color',
   colour: 'color',
   background: 'color',
 
-  // Date
+  // date
   date: 'datetime',
   created: 'datetime',
   updated: 'datetime',
@@ -35,23 +35,23 @@ const HEADER_PATTERNS: Record<string, FieldType> = {
   deadline: 'datetime',
   time: 'datetime',
 
-  // Email
+  // email
   email: 'email',
   mail: 'email',
 
-  // URL
+  // url
   url: 'url',
   link: 'url',
   website: 'url',
   web: 'url',
 
-  // Phone
+  // phone
   phone: 'phone',
   tel: 'phone',
   mobile: 'phone',
   cell: 'phone',
 
-  // Number
+  // number
   price: 'number',
   cost: 'number',
   amount: 'number',
@@ -63,7 +63,7 @@ const HEADER_PATTERNS: Record<string, FieldType> = {
   percent: 'number',
   age: 'number', // Explicit user request
 
-  // Attachment
+  // attachment
   image: 'attachment',
   photo: 'attachment',
   avatar: 'attachment',
@@ -73,20 +73,20 @@ const HEADER_PATTERNS: Record<string, FieldType> = {
   img: 'attachment',
   pic: 'attachment',
 
-  // Select / Status
+  // select / status
   status: 'select',
   state: 'select',
   stage: 'select',
   type: 'select',
   category: 'select',
 
-  // Multi-select
+  // multi-select
   tags: 'multipleSelect',
   labels: 'multipleSelect',
   keywords: 'multipleSelect',
   categories: 'multipleSelect',
 
-  // Checkbox
+  // checkbox
   checkbox: 'checkbox',
   completed: 'checkbox',
   done: 'checkbox',
@@ -94,7 +94,7 @@ const HEADER_PATTERNS: Record<string, FieldType> = {
   is_: 'checkbox', // Matches is_active, is_valid etc
   has_: 'checkbox',
 
-  // Text
+  // text
   description: 'text',
   notes: 'text',
   content: 'text',
@@ -102,12 +102,12 @@ const HEADER_PATTERNS: Record<string, FieldType> = {
   summary: 'text',
   comment: 'text',
   message: 'text',
-  // Plural System Special
+  // plural system special
   front: 'datetime',
   fronting: 'datetime',
   last_fronted: 'datetime', // Handles 'last fronted', 'dynamic last fronted'
 
-  // Select / Demographics
+  // select / demographics
   gender: 'select',
   sexuality: 'select',
   orientation: 'select',
@@ -115,18 +115,18 @@ const HEADER_PATTERNS: Record<string, FieldType> = {
   introject: 'select', // 'introject type'
   role: 'multipleSelect', // 'role' often has multiple values
 
-  // Tracking
+  // tracking
   frequency: 'select', // 'fronting frequency'
   communication: 'text', // 'communication style'
   boundaries: 'text', // Long text
   triggers: 'text', // 'pos. triggers'
 
-  // Interests
+  // interests
   likes: 'multipleSelect',
   dislikes: 'multipleSelect',
   interests: 'multipleSelect',
 
-  // Text Fallbacks for Specific Names
+  // text fallbacks for specific names
   name: 'text',
   title: 'text',
   source: 'text', // 'introject/sourced from'
@@ -136,22 +136,22 @@ export function detectFieldType(header: string, values: any[], existingCollectio
   const normalizedHeader = header.toLowerCase().trim();
   const nonNullValues = values.filter(v => v !== null && v !== undefined && String(v).trim() !== '');
 
-  // 0. Check for Relations (User Request: "obvious references to other titles")
-  // We check this BEFORE patterns in case the column name literally matches a collection name
-  // (e.g. column "Category" matching collection "categories" should be a relation, not just a select)
+  // 0. check for relations (user request: "obvious references to other titles")
+  // we check this before patterns in case the column name literally matches a collection name
+  // (e.g. column "category" matching collection "categories" should be a relation, not just a select)
   if (existingCollections.length > 0) {
   const h = normalizedHeader.replace(/_/g, ' ');
 
   for (const colName of existingCollections) {
   const c = colName.toLowerCase().replace(/_/g, ' ');
 
-  // Check for match
+  // check for match
   let match = false;
-  // 1. Exact
+  // 1. exact
   if (h === c) match = true;
-  // 2. Simple plural (Author <-> Authors)
+  // 2. simple plural (author <-> authors)
   else if (h + 's' === c || c + 's' === h) match = true;
-  // 3. ties/y (Category <-> Categories)
+  // 3. ties/y (category <-> categories)
   else if (h.endsWith('y') && h.slice(0, -1) + 'ies' === c) match = true;
   else if (c.endsWith('y') && c.slice(0, -1) + 'ies' === h) match = true;
 
@@ -161,17 +161,17 @@ export function detectFieldType(header: string, values: any[], existingCollectio
   }
   }
 
-  // 1. Check Header Patterns
-  // Sort patterns by length (descending) to ensure specific matches (e.g. "last fronted")
+  // 1. check header patterns
+  // sort patterns by length (descending) to ensure specific matches (e.g. "last fronted")
   // catch before generic ones if necessary, though our map is flat.
   for (const [pattern, type] of Object.entries(HEADER_PATTERNS)) {
   if (normalizedHeader.includes(pattern)) {
-  // Special handling: 'front' keywords might be number (days fronted) or date (last fronted)
-  // If header contains 'days', 'hours', 'count' -> Number
+  // special handling: 'front' keywords might be number (days fronted) or date (last fronted)
+  // if header contains 'days', 'hours', 'count' -> number
   if (normalizedHeader.includes('days') || normalizedHeader.includes('hours') || normalizedHeader.includes('count')) {
  if (validateNumber(nonNullValues)) return { type: 'number', confidence: 'high', reason: 'matched "days/hours" keyword' };
   }
-  // Additional validations for specific types to avoid false positives
+  // additional validations for specific types to avoid false positives
   if (type === 'multipleSelect' && !validateMultiSelect(nonNullValues)) {
  continue;
   }
@@ -182,41 +182,41 @@ export function detectFieldType(header: string, values: any[], existingCollectio
   }
   }
 
-  // 2. Inference based on values
+  // 2. inference based on values
   if (nonNullValues.length === 0) {
   return { type: 'text', confidence: 'low', reason: 'empty column' };
   }
 
-  // Check for Email
+  // check for email
   if (nonNullValues.every(isEmail)) {
   return { type: 'email', confidence: 'high', reason: 'all values look like emails' };
   }
 
-  // Check for URL
+  // check for url
   if (nonNullValues.every(isUrl)) {
   return { type: 'url', confidence: 'high', reason: 'all values look like urls' };
   }
 
-  // Check for Date
+  // check for date
   if (nonNullValues.every(isDate)) {
   return { type: 'datetime', confidence: 'high', reason: 'values are valid dates' };
   }
 
-  // Check for Boolean
+  // check for boolean
   if (nonNullValues.every(isBoolean)) {
   return { type: 'checkbox', confidence: 'high', reason: 'values are booleans' };
   }
 
-  // Check for Number
+  // check for number
   if (nonNullValues.every(isNumber)) {
   return { type: 'number', confidence: 'high', reason: 'values are numbers' };
   }
 
-  // Check for Multi-select (comma separated values)
+  // check for multi-select (comma separated values)
   if (nonNullValues.some(v => String(v).includes(',') && !String(v).includes('\n'))) {
-  // Heuristic: if it has commas and fits a pattern, it might be tags
-  // But sentences have commas too.
-  // Check if parts match known tag-like length (short items)
+  // heuristic: if it has commas and fits a pattern, it might be tags
+  // but sentences have commas too.
+  // check if parts match known tag-like length (short items)
   const isTags = nonNullValues.every(v => {
   const parts = String(v).split(',');
   return parts.every(p => p.trim().length < 50); // Tags are usually short
@@ -224,18 +224,18 @@ export function detectFieldType(header: string, values: any[], existingCollectio
   if (isTags) return { type: 'multipleSelect', confidence: 'medium', reason: 'comma-separated short values' };
   }
 
-  // Check for short repeated strings (Select)
+  // check for short repeated strings (select)
   const uniqueValues = new Set(nonNullValues.map(String));
   if (uniqueValues.size < nonNullValues.length * 0.5 && uniqueValues.size < 20) {
-  // High repetition, low cardinality
+  // high repetition, low cardinality
   return { type: 'select', confidence: 'medium', reason: 'low cardinality' };
   }
 
-  // Default to text
+  // default to text
   return { type: 'text', confidence: 'low', reason: 'default fallback' };
 }
 
-// Helpers
+// helpers
 const isEmail = (v: any) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v));
 const isUrl = (v: any) => /^(https?:\/\/[^\s]+|www\.[^\s]+)/.test(String(v));
 const isDate = (v: any) => {
@@ -252,8 +252,8 @@ const isNumber = (v: any) => {
 };
 
 const validateMultiSelect = (values: any[]) => {
-  // If we think it's tags, values should behave like tags (strings, maybe commas)
-  // Just ensure they aren't massive blobs of text
+  // if we think it's tags, values should behave like tags (strings, maybe commas)
+  // just ensure they aren't massive blobs of text
   return values.every(v => String(v).length < 1000);
 };
 

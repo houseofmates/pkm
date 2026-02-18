@@ -1,19 +1,19 @@
 export const SimplyPluralClient = {
   /**
- * Returns the base URL for the SimplyPlural API.
- * In DEV mode (Vite), it returns the local proxy path '/api/simplyplural' to avoid CORS.
- * In PROD/Electron, it returns the direct API URL 'https://api.apparyllis.com/v1'.
+ * returns the base url for the simplyplural api.
+ * in dev mode (vite), it returns the local proxy path '/api/simplyplural' to avoid cors.
+ * in prod/electron, it returns the direct api url 'https://api.apparyllis.com/v1'.
  */
   get baseUrl(): string {
-  // @ts-ignore - import.meta.env is a Vite feature
+  // @ts-ignore - import.meta.env is a vite feature
   return import.meta.env.DEV
   ? '/api/simplyplural'
   : 'https://api.apparyllis.com/v1';
   },
 
   /**
- * Constructs a full API URL for a given endpoint.
- * @param endpoint The endpoint path (e.g., '/me', '/members/...')
+ * constructs a full api url for a given endpoint.
+ * @param endpoint the endpoint path (e.g., '/me', '/members/...')
  */
   url(endpoint: string): string {
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;

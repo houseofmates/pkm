@@ -1,4 +1,4 @@
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ReferenceLine, ComposedChart, Line } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 import { useFronter } from '@/contexts/fronter-context';
 import { useMemo } from 'react';
 import { format } from 'date-fns';
@@ -7,13 +7,13 @@ export function FrontingLogGraph() {
   const { history, members } = useFronter();
 
   const data = useMemo(() => {
-  // Transform history into graph data
-  // We want a timeline.
-  // For simple bar chart: show duration per day?
-  // Or Gantt? Recharts is hard for Gantt.
-  // Let's do a Stacked Bar Chart by Day for "Time Fronted".
+  // transform history into graph data
+  // we want a timeline.
+  // for simple bar chart: show duration per day?
+  // or gantt? recharts is hard for gantt.
+  // let's do a stacked bar chart by day for "time fronted".
 
-  // 1. Group by Day
+  // 1. group by day
   const days: Record<string, Record<string, number>> = {};
 
   history.forEach(entry => {
@@ -30,14 +30,14 @@ export function FrontingLogGraph() {
   });
   });
 
-  // Convert to array and sort
+  // convert to array and sort
   return Object.entries(days)
   .map(([k, v]) => ({ date: k, ...v }))
   .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
   .slice(-14); // Last 14 days
   }, [history]);
 
-  // Get unique members in this period
+  // get unique members in this period
   const activeMemberIds = useMemo(() => {
   const ids = new Set<string>();
   data.forEach(d => {

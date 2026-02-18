@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Calendar, Droplet, User, Save, Link as LinkIcon, Plus, Upload, Image as ImageIcon } from 'lucide-react';
+import { X, Calendar, Droplet, Save, Upload } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFronter } from '@/contexts/fronter-context';
 import { formatHeadmateName } from '@/utils/text-formatting';
 import { PLACEHOLDER_IMAGE } from '@/lib/discord-utils';
-import { API_URL } from '@/lib/api-client';
 import { api } from '@/api/nocobase-client';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
@@ -20,12 +19,12 @@ interface ContactProfileViewProps {
 export function ContactProfileView({ member, onClose, isOpen }: ContactProfileViewProps) {
   const { refresh } = useFronter();
 
-  // Local state for editing
+  // local state for editing
   const [isEditing, setIsEditing] = useState(false);
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
-  // Fields
-  // Use extended fields if available on member, or defaults
+  // fields
+  // use extended fields if available on member, or defaults
   const [name, setName] = useState(member.name);
   const [bannerUrl, setBannerUrl] = useState((member as any).banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070&auto=format&fit=crop');
   const [birthday, setBirthday] = useState((member as any).birthday || '');
@@ -35,7 +34,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
   const [role, setRole] = useState((member as any).role || '');
   const [status, setStatus] = useState((member as any).status || 'Active');
 
-  // Reset state when member changes
+  // reset state when member changes
   useEffect(() => {
   if (member) {
   setName(member.name);
@@ -66,7 +65,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
   }
   }, [birthday]);
 
-  // Handle banner upload
+  // handle banner upload
   const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (!file) return;
@@ -75,9 +74,14 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
   const formData = new FormData();
   formData.append('file', file);
 
-  const res = await api.uploadFile(formData);
-  if (res.data?.url) {
- setBannerUrl(res.data.url);
+  // use fetch directly for file upload since uploadfile may not exist on api client
+  const res = await fetch('/api/upload', {
+    method: 'POST',
+    body: formData
+  });
+  const data = await res.json();
+  if (data?.url) {
+ setBannerUrl(data.url);
  toast.success('banner uploaded');
   }
   } catch (e) {
@@ -86,7 +90,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
   }
   };
 
-  // Handle save
+  // handle save
   const handleSave = async () => {
   try {
   await api.updateRecord('headmates', member.id, {
@@ -127,7 +131,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
  exit={{ scale: 0.9, opacity: 0, y: 20 }}
  className="w-full max-w-4xl bg-[#0a0a0a] border border-white/10 rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh] relative"
  >
- {/* Close Button */}
+ {/* close button */}
  <button
  onClick={onClose}
  className="absolute top-4 right-4 z-50 p-2 bg-black/50 rounded-full hover:bg-white/20 transition-colors text-white"
@@ -135,7 +139,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
  <X size={20} />
  </button>
 
- {/* Banner */}
+ {/* banner */}
  <div className="h-48 md:h-64 w-full relative group">
  <img
    src={bannerUrl}
@@ -150,29 +154,29 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
    ref={bannerInputRef}
    type="file"
    accept="image/*"
-   onChange={handleBannerUpload}
-   className="hidden"
+   onchange={handlebannerupload}
+   classname="hidden"
    />
    <button
-   onClick={() => bannerInputRef.current?.click()}
-   className="bg-white/20 hover:bg-white/30 border border-white/40 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+   onclick={() => bannerinputref.current?.click()}
+   classname="bg-white/20 hover:bg-white/30 border border-white/40 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
    >
-   <Upload size={18} />
-   Upload Image
+   <upload size={18} />
+   upload image
    </button>
-   <div className="text-white/60 text-xs">or</div>
+   <div classname="text-white/60 text-xs">or</div>
    <input
    type="text"
-   value={bannerUrl}
-   onChange={(e) => setBannerUrl(e.target.value)}
-   className="bg-black/80 border border-white/30 p-2 rounded text-white text-sm w-3/4"
-   placeholder="Enter URL..."
+   value={bannerurl}
+   onchange={(e) => setbannerurl(e.target.value)}
+   classname="bg-black/80 border border-white/30 p-2 rounded text-white text-sm w-3/4"
+   placeholder="enter url..."
    />
    </div>
  )}
  </div>
 
- {/* Profile Header (Avatar overlap) */}
+ {/* profile header (avatar overlap) */}
  <div className="px-8 -mt-16 flex flex-col md:flex-row items-end md:items-end gap-6 relative z-10">
  <div className="relative group">
    <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-[#0a0a0a] overflow-hidden bg-black shadow-xl">
@@ -227,9 +231,9 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
  </div>
  </div>
 
- {/* Body Content */}
+ {/* body content */}
  <div className="flex-1 overflow-y-auto p-8 space-y-8">
- {/* About Section */}
+ {/* about section */}
  <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
    <div className="space-y-4">
    <h2 className="text-lg font-semibold text-white/80 border-b border-white/10 pb-2">Details</h2>
@@ -299,7 +303,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
    </div>
  </section>
 
- {/* Tracking / Properties Section */}
+ {/* tracking / properties section */}
  <section>
    <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-4">
    <h2 className="text-lg font-semibold text-white/80">Properties</h2>
@@ -342,4 +346,4 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
   );
 }
 
-// Add these types to fronter context if not exists or ignore for now as 'any' is used in prop
+// add these types to fronter context if not exists or ignore for now as 'any' is used in prop

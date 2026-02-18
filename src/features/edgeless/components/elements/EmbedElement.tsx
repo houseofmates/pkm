@@ -11,7 +11,7 @@ export function EmbedElement({ element }: EmbedElementProps) {
  {element.data.title || 'Table View'}
  </div>
  <div className="w-full h-[calc(100%-1.5rem)] bg-muted/20 animate-pulse rounded">
- {/* Placeholder for actual NocoBase View */}
+ {/* placeholder for actual nocobase view */}
  <p className="p-4 text-center text-sm text-muted-foreground">
  NocoBase Collection: {element.data.collection}
  </p>

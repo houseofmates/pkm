@@ -141,15 +141,15 @@ export function RichTextEditor({ content, onChange, editable, className = '' }: 
 
  .ProseMirror, .ProseMirror * {
  font-family: 'Varela Round', sans-serif !important;
- line-height: 1.0 !important; /* Tighter for snug fit */
+ line-height: 1.0 !important; /* tighter for snug fit */
  margin: 0 !important;
  padding: 0 !important;
  min-height: 1em !important;
  min-width: 0 !important;
  vertical-align: top !important;
- font-weight: 700 !important; /* Bold */
- -webkit-text-stroke: 0.025em black !important; /* Thinner, uniform outline */
- text-shadow: 0 2px 8px rgba(0,0,0,0.15) !important; /* Subtle realistic shadow */
+ font-weight: 700 !important; /* bold */
+ -webkit-text-stroke: 0.025em black !important; /* thinner, uniform outline */
+ text-shadow: 0 2px 8px rgba(0,0,0,0.15) !important; /* subtle realistic shadow */
  }
  .ProseMirror {
  outline: none !important;
@@ -168,7 +168,7 @@ export function RichTextEditor({ content, onChange, editable, className = '' }: 
  }
  .ProseMirror > *:first-child {
  margin-top: 0 !important;
- margin-block-start: 0 !important; /* Explicit zeroing as requested */
+ margin-block-start: 0 !important; /* explicit zeroing as requested */
  padding-top: 0 !important;
  }
  .ProseMirror h1, .ProseMirror h2, .ProseMirror h3 {

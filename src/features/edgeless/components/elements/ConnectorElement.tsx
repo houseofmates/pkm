@@ -10,18 +10,18 @@ export function ConnectorElement({ element }: { element: any }) {
 
   if (!startNode || !endNode || !connectorData) return null;
 
-  // Calculate positions in SCREEN coordinates
-  // The render loop in EdgelessCanvas usually handles the per-element transform,
+  // calculate positions in screen coordinates
+  // the render loop in edgelesscanvas usually handles the per-element transform,
   // but for a linker that spans two objects, we need absolute canvas coordinates.
-  // However, EdgelessCanvas renders elements relative to the container.
-  // We should probably render this SVG relative to the global container (0,0) with width/height 100%.
-  // BUT, the map loop in EdgelessCanvas wants to wrap us.
-  // We will handle the wrapper special case in EdgelessCanvas.
-  // Here we just calculate the SVG path assuming we are in a container that covers the viewport (or the whole canvas universe).
+  // however, edgelesscanvas renders elements relative to the container.
+  // we should probably render this svg relative to the global container (0,0) with width/height 100%.
+  // but, the map loop in edgelesscanvas wants to wrap us.
+  // we will handle the wrapper special case in edgelesscanvas.
+  // here we just calculate the svg path assuming we are in a container that covers the viewport (or the whole canvas universe).
 
-  // Actually, to keep it simple with zoom/pan:
-  // If we place this component at 0,0 of the container, we can use the same logic as other elements:
-  // x * zoom + panX
+  // actually, to keep it simple with zoom/pan:
+  // if we place this component at 0,0 of the container, we can use the same logic as other elements:
+  // x * zoom + panx
 
   const { zoom, x: panX, y: panY } = viewPort;
 
@@ -56,7 +56,7 @@ export function ConnectorElement({ element }: { element: any }) {
  strokeDasharray="5,5"
  strokeLinecap="round"
   />
-  {/* Arrowhead or endpoint decoration could go here */}
+  {/* arrowhead or endpoint decoration could go here */}
   <circle cx={sx} cy={sy} r={4} fill={color} />
   <circle cx={ex} cy={ey} r={4} fill={color} />
   </svg>

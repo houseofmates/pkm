@@ -1,7 +1,7 @@
-// Blog utility functions
+// blog utility functions
 
 export function generateSlug(title: string, existingSlugs: string[] = []): string {
-  // Convert to lowercase and replace non-alphanumeric with hyphens
+  // convert to lowercase and replace non-alphanumeric with hyphens
   let baseSlug = title
   .toLowerCase()
   .replace(/[^a-z0-9]+/g, '-')
@@ -10,7 +10,7 @@ export function generateSlug(title: string, existingSlugs: string[] = []): strin
   let slug = baseSlug;
   let counter = 2;
 
-  // Handle duplicates
+  // handle duplicates
   while (existingSlugs.includes(slug)) {
   slug = `${baseSlug}-${counter}`;
   counter++;
@@ -20,7 +20,7 @@ export function generateSlug(title: string, existingSlugs: string[] = []): strin
 }
 
 export function generateExcerpt(content: any, maxLength: number = 150): string {
-  // Extract text from page elements
+  // extract text from page elements
   let text = '';
 
   if (Array.isArray(content)) {
@@ -31,11 +31,11 @@ export function generateExcerpt(content: any, maxLength: number = 150): string {
   }
   }
 
-  // Trim and cut at sentence boundary
+  // trim and cut at sentence boundary
   text = text.trim();
   if (text.length <= maxLength) return text;
 
-  // Try to cut at last sentence within limit
+  // try to cut at last sentence within limit
   const cutText = text.substring(0, maxLength);
   const lastPeriod = cutText.lastIndexOf('.');
   const lastQuestion = cutText.lastIndexOf('?');
@@ -47,13 +47,13 @@ export function generateExcerpt(content: any, maxLength: number = 150): string {
   return text.substring(0, lastSentence + 1);
   }
 
-  // Otherwise cut at last space
+  // otherwise cut at last space
   const lastSpace = cutText.lastIndexOf(' ');
   return text.substring(0, lastSpace) + '...';
 }
 
 export function calculateReadingTime(content: any): number {
-  // Count words in content
+  // count words in content
   let wordCount = 0;
 
   if (Array.isArray(content)) {
@@ -64,7 +64,7 @@ export function calculateReadingTime(content: any): number {
   }
   }
 
-  // Average reading speed: 200 words per minute
+  // average reading speed: 200 words per minute
   const minutes = Math.ceil(wordCount / 200);
   return Math.max(1, minutes); // Minimum 1 minute
 }

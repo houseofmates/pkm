@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 
-export function EternalFlame({ element }: { element: any }) {
+export function EternalFlame({ element: _element }: { element: any }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fuel, setFuel] = useState(100);
 
-  // Particle System
+  // particle system
   useEffect(() => {
   const canvas = canvasRef.current;
   if (!canvas) return;
@@ -20,7 +20,7 @@ export function EternalFlame({ element }: { element: any }) {
   const size = Math.random() * 20 + 10;
   const speedY = Math.random() * 2 + 1;
   const life = Math.random() * 60 + 30;
-  // Colors: Gold to Red to Smoke
+  // colors: gold to red to smoke
   const colors = ['var(--primary)', '#ff4500', '#555555'];
   const color = colors[Math.floor(Math.random() * colors.length)];
 
@@ -30,11 +30,11 @@ export function EternalFlame({ element }: { element: any }) {
   const animate = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Refuel glow
+  // refuel glow
   ctx.shadowBlur = 20;
   ctx.shadowColor = `rgba(246, 176, 18, ${fuel / 100})`;
 
-  // Create particles based on fuel
+  // create particles based on fuel
   if (fuel > 0 && Math.random() > (1 - fuel / 100)) {
  createParticle();
   }
@@ -44,7 +44,7 @@ export function EternalFlame({ element }: { element: any }) {
  p.size *= 0.95; // shrink
  p.life--;
 
- // Sway
+ // sway
  p.x += Math.sin(p.life / 10) * 0.5;
 
  ctx.globalAlpha = p.life / p.maxLife;
@@ -64,7 +64,7 @@ export function EternalFlame({ element }: { element: any }) {
   return () => cancelAnimationFrame(animationFrame);
   }, [fuel]);
 
-  // Fuel Decay
+  // fuel decay
   useEffect(() => {
   const interval = setInterval(() => {
   setFuel(prev => Math.max(0, prev - 1));
@@ -80,7 +80,7 @@ export function EternalFlame({ element }: { element: any }) {
   >
   <canvas ref={canvasRef} width={200} height={300} className="w-full h-full" />
 
-  {/* Fuel Bar */}
+  {/* fuel bar */}
   <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-3/4 h-1 bg-white/10 rounded-full overflow-hidden opacity-0 group-hover:opacity-100 transition-opacity">
  <div
  className="h-full bg-primary transition-all duration-1000"

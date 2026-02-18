@@ -1,5 +1,5 @@
 
-// Simple hash function to generate a consistent number from a string
+// simple hash function to generate a consistent number from a string
 function hashCode(str: string): number {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
@@ -11,47 +11,47 @@ function hashCode(str: string): number {
 }
 
 /**
- * Generates a consistent HSL color string for a given text.
- * Uses a predefined set of pleasing hues or continuous space.
+ * generates a consistent hsl color string for a given text.
+ * uses a predefined set of pleasing hues or continuous space.
  */
 export function getStringColor(str: string): string {
   if (!str) return '#888888';
 
   const hash = Math.abs(hashCode(str));
-  // Generate hue: 0-360
+  // generate hue: 0-360
   const hue = hash % 360;
-  // Generate saturation: 60-90% for vibrancy
+  // generate saturation: 60-90% for vibrancy
   const saturation = 60 + (hash % 30);
-  // Generate lightness: 45-65% for readability
+  // generate lightness: 45-65% for readability
   const lightness = 45 + (hash % 20);
 
   return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
 }
 
 /**
- * Calculates a "darker, more vibrant, slightly cooler" outline color
- * based on the input HSL or Hex. 
- * Note: For simplicity with CSS usage, this might return a CSS color-mix string
- * or we calculate it manually if we have the HSL components.
+ * calculates a "darker, more vibrant, slightly cooler" outline color
+ * based on the input hsl or hex. 
+ * note: for simplicity with css usage, this might return a css color-mix string
+ * or we calculate it manually if we have the hsl components.
  * 
- * Since we generate HSL above, we can manually manipulate it.
+ * since we generate hsl above, we can manually manipulate it.
  */
 export function getOutlineColorFromHsl(hue: number, saturation: number, lightness: number): string {
-  // "Darker": reduce lightness significantly (keep it readable but dark)
-  // User requested "25% darker" -> Increase reduction from 40 to 50
+  // "darker": reduce lightness significantly (keep it readable but dark)
+  // user requested "25% darker" -> increase reduction from 40 to 50
   const newL = Math.max(5, lightness - 50);
 
-  // "More vibrant": increase saturation
+  // "more vibrant": increase saturation
   const newS = Math.min(100, saturation + 20);
 
-  // "Base Color Only": NO Hue shift (User said "not blue... just darker base")
+  // "base color only": no hue shift (user said "not blue... just darker base")
   const newH = hue;
 
   return `hsl(${newH}, ${newS}%, ${newL}%)`;
 }
 
 /**
- * Helper to get both base and outline styles for a string
+ * helper to get both base and outline styles for a string
  */
 export function getColorStyles(str: string) {
   const hash = Math.abs(hashCode(str));
@@ -65,8 +65,8 @@ export function getColorStyles(str: string) {
   return {
   color: base,
   outlineColor: outline,
-  // Helper for CSS text-stroke
-  // Use the calculated specific darker/vibrant outline
+  // helper for css text-stroke
+  // use the calculated specific darker/vibrant outline
   WebkitTextStroke: `3.5px ${outline}`,
   paintOrder: 'stroke fill'
   };

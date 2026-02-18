@@ -17,8 +17,8 @@ export default function DebugCornersPage() {
 
   <section className="space-y-4">
  <h2 className="text-xl text-red-500 font-mono">TEST 2: DATABASE WIDGET REPLICA</h2>
- {/* Replicating the exact structure of DatabaseWidget from src/features/databases/components/database-widget.tsx */}
- {/* Uses inline styles to match what we assume the component renders */}
+ {/* replicating the exact structure of databasewidget from src/features/databases/components/database-widget.tsx */}
+ {/* uses inline styles to match what we assume the component renders */}
  <Card className={cn("w-[600px] h-[400px] flex flex-col shadow-lg border-2 border-zinc-700/50 rounded-xl overflow-hidden isolate bg-card")}>
  <CardHeader
  className="p-3 border-b flex flex-row items-center justify-between space-y-0 bg-zinc-800/20 handle cursor-move rounded-t-[inherit]"
@@ -40,15 +40,15 @@ export default function DebugCornersPage() {
 
   <section className="space-y-4">
  <h2 className="text-xl text-blue-500 font-mono">TEST 3: DASHBOARD GRID OUTLINE REPLICA</h2>
- {/* Replicating the Dashboard Grid Wrapper + Outline */}
+ {/* replicating the dashboard grid wrapper + outline */}
  <div className="relative w-[600px] h-[400px] bg-transparent">
- {/* The Widget */}
+ {/* the widget */}
  <Card className={cn("w-full h-full flex flex-col shadow-lg border-2 border-zinc-700/50 rounded-xl overflow-hidden isolate bg-card")}>
  <CardHeader className="p-3 border-b rounded-t-[inherit] bg-zinc-800/20"><span className='font-bold'>Widget</span></CardHeader>
  <CardContent className="flex-1 bg-black rounded-b-[inherit]">Content</CardContent>
  </Card>
 
- {/* The Selection Outline (Sibling) */}
+ {/* the selection outline (sibling) */}
  <div className="absolute inset-0 border-2 border-primary z-50 pointer-events-none rounded-xl" />
  </div>
   </section>

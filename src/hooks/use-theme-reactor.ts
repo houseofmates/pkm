@@ -6,32 +6,32 @@ export function useThemeReactor() {
   const { activeFronters, overrides, members } = useFronter();
 
   useEffect(() => {
-  // 1. Electron-specific zoom (1.15x)
+  // 1. electron-specific zoom (1.15x)
   const isElectron = (window as any).electron?.isElectron;
   if (isElectron) {
   document.documentElement.style.zoom = "1.15";
   }
 
-  // Strategy: Use the FIRST active fronter's color.
-  // Fallback: Use the FIRST headmate's color in the system list.
+  // strategy: use the first active fronter's color.
+  // fallback: use the first headmate's color in the system list.
   let primaryFronterId = activeFronters[0];
   let color: string | undefined;
 
   if (!primaryFronterId && members.length > 0) {
-  // No one is fronting, use the first member
+  // no one is fronting, use the first member
   color = members[0].color;
   } else if (primaryFronterId) {
-  // Check overrides first, then members array, then cached colors
+  // check overrides first, then members array, then cached colors
   color = overrides[primaryFronterId]?.color;
 
   if (!color) {
- // Check members array from context
+ // check members array from context
  const member = members.find(m => m.id === primaryFronterId);
  color = member?.color;
   }
 
   if (!color) {
- // Check localStorage cache as last resort
+ // check localstorage cache as last resort
  try {
  const colorCache = JSON.parse(localStorage.getItem('member_colors') || '{}');
  color = colorCache[primaryFronterId];
@@ -42,22 +42,22 @@ export function useThemeReactor() {
   }
 
   if (color) {
-  // Special case: If color is very dark (like black), use white instead
+  // special case: if color is very dark (like black), use white instead
   const hsl = hexToHsl(color);
   if (hsl) {
- // Parse lightness from "H S% L%" format
+ // parse lightness from "h s% l%" format
  const lightnessMatch = hsl.match(/(\d+)%$/);
  const lightness = lightnessMatch ? parseInt(lightnessMatch[1]) : 50;
 
- // High-Contrast detection: If color is very dark, add a helper class
- // to the body so CSS can apply outlines to accent elements.
+ // high-contrast detection: if color is very dark, add a helper class
+ // to the body so css can apply outlines to accent elements.
  if (lightness < 30) {
  document.body.classList.add('high-contrast-outline');
  } else {
  document.body.classList.remove('high-contrast-outline');
  }
 
- // If very dark color (like black), override to white
+ // if very dark color (like black), override to white
  let finalColor = color;
  if (lightness < 25) {
  finalColor = '#ffffff';
@@ -66,21 +66,21 @@ export function useThemeReactor() {
 
  const finalHsl = hexToHsl(finalColor);
  if (finalHsl) {
- // Force injection on BOTH documentElement and body for max coverage
+ // force injection on both documentelement and body for max coverage
  document.documentElement.style.setProperty('--primary', finalHsl);
  document.documentElement.style.setProperty('--ring', finalHsl);
 
- // User Request: recolor white elements to headmate color
+ // user request: recolor white elements to headmate color
  document.documentElement.style.setProperty('--headmate-white', finalHsl);
 
- // Also force body style as backup for portals outside root
+ // also force body style as backup for portals outside root
  document.body.style.setProperty('--primary', finalHsl, 'important');
  document.body.style.setProperty('--ring', finalHsl, 'important');
  document.body.style.setProperty('--headmate-white', finalHsl, 'important');
  }
   }
   } else {
-  // No color found, revert to default (will use index.css default which is yellow)
+  // no color found, revert to default (will use index.css default which is yellow)
   document.documentElement.style.removeProperty('--primary');
   document.documentElement.style.removeProperty('--ring');
   document.documentElement.style.removeProperty('--headmate-white');
@@ -92,12 +92,12 @@ export function useThemeReactor() {
   }, [activeFronters, overrides, members]);
 }
 
-// Helper: Hex to HSL string "H S% L%"
+// helper: hex to hsl string "h s% l%"
 export function hexToHsl(hex: string): string | null {
-  // Remove #
+  // remove #
   hex = hex.replace(/^#/, '');
 
-  // Parse
+  // parse
   if (hex.length === 3) hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
   if (hex.length !== 6) return null;
 
@@ -119,7 +119,7 @@ export function hexToHsl(hex: string): string | null {
   h /= 6;
   }
 
-  // Format for Tailwind/Shadcn: "H S% L%" (no commas)
-  // H is 0-360, S/L are 0-100
+  // format for tailwind/shadcn: "h s% l%" (no commas)
+  // h is 0-360, s/l are 0-100
   return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
 }

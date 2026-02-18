@@ -37,27 +37,31 @@ export function CreateRecordDialog({ collectionName, fields, onRecordCreated, op
 
   const dataToSubmit = { ...formData };
 
-  // Auto-inject fronter if applicable
+  // auto-inject fronter if applicable
   if (activeFronterId) {
-  // Check if collection has a 'fronter' field
-  // Note: NocoBase fields sometimes use 'name' key.
+  // check if collection has a 'fronter' field
+  // note: nocobase fields sometimes use 'name' key.
   const hasFronterField = fields.some(f => f.name === 'fronter');
   if (hasFronterField) {
- // If it's a text field, just save ID (or name if we had it, but ID is safer for ref)
+ // if it's a text field, just save id (or name if we had it, but id is safer for ref)
  // ideally this would be a relationship, but text is simpler for now as requested "metadata"
  dataToSubmit['fronter'] = activeFronterId;
   }
   }
 
   try {
+  // enforce entity_type for notes
+  if (collectionName.toLowerCase().includes('note')) {
+    dataToSubmit.entity_type = dataToSubmit.entity_type || 'note'
+  }
   await client.createRecord(collectionName, dataToSubmit);
-  toast.success("Record created");
+  toast.success("record created");
   setOpen(false);
   setFormData({});
   if (onRecordCreated) onRecordCreated();
   } catch (error: any) {
   console.error(error);
-  toast.error("Failed to create record");
+  toast.error("failed to create record");
   } finally {
   setLoading(false);
   }
@@ -67,8 +71,8 @@ export function CreateRecordDialog({ collectionName, fields, onRecordCreated, op
   setFormData(prev => ({ ...prev, [fieldName]: value }));
   };
 
-  // Filter editable fields
-  // Exclude system fields and the 'fronter' field (auto-filled)
+  // filter editable fields
+  // exclude system fields and the 'fronter' field (auto-filled)
   const editableFields = (fields || []).filter(f =>
   !['id', 'createdAt', 'updatedAt', 'fronter', 'sort'].includes(f.name) &&
   !f.hidden &&
@@ -90,8 +94,8 @@ export function CreateRecordDialog({ collectionName, fields, onRecordCreated, op
  <DialogTitle>new item</DialogTitle>
  </DialogHeader>
  <form onSubmit={handleSubmit} className="space-y-4 py-4">
- {/* {editableFields.length === 0 && (
- <p className="text-muted-foreground">no editable fields found.</p>
+ {/* {editablefields.length === 0 && (
+ <p classname="text-muted-foreground">no editable fields found.</p>
  )} */}
  {editableFields.map(field => (
  <div key={field.name} className="space-y-2">

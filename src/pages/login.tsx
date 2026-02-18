@@ -18,10 +18,10 @@ export function LoginPage() {
   setIsValidating(true);
   setError(null);
   try {
- // Save token directly - it will be validated on first actual API call
- // This avoids timeout issues during login
+ // save token directly - it will be validated on first actual api call
+ // this avoids timeout issues during login
  login(trimmedToken);
- // Give a brief moment for the state to update
+ // give a brief moment for the state to update
  await new Promise(resolve => setTimeout(resolve, 100));
   } catch (err: any) {
  console.error("token validation failed:", err);

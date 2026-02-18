@@ -24,7 +24,7 @@ export function SmartTextElement({ element }: SmartTextElementProps) {
  editable={true}
  className={cn(
  "min-h-[50px] bg-transparent focus:ring-0 border-none px-0 py-0",
- // Remove default prose max-width and background
+ // remove default prose max-width and background
  "prose-p:my-1 prose-headings:my-2"
  )}
  placeholder="Type anything..."

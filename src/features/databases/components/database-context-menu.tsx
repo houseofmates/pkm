@@ -42,7 +42,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
   const [proposedTitle, setProposedTitle] = useState<string | undefined>(undefined);
   const [imageOpen, setImageOpen] = useState(false);
 
-  // Metadata for cosmetics
+  // metadata for cosmetics
   const [metadata, setMetadata] = useAppSetting<Record<string, { image?: string; color?: string }>>('collection_metadata', {});
 
   const updateMeta = (key: 'image' | 'color', value: string | undefined) => {
@@ -81,13 +81,13 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
  if (updates.iconType) newMeta.iconType = updates.iconType;
 
  try {
-   // Handle Name Change Directly
+   // handle name change directly
    if (updates.name && updates.name !== (collection.title || collection.name)) {
    await client.updateCollection(collection.name, { title: updates.name });
    toast.success(`renamed to ${updates.name}`);
    }
 
-   // Update Metadata
+   // update metadata
    if (Object.keys(newMeta).length > 0) {
    setMetadata({
    ...metadata,
@@ -134,7 +134,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
  initialTitle={proposedTitle}
   />
 
-  {/* Color Dialog */}
+  {/* color dialog */}
   <Dialog open={colorOpen} onOpenChange={setColorOpen}>
  <DialogContent>
  <DialogHeader>
@@ -159,7 +159,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
  </DialogContent>
   </Dialog>
 
-  {/* Image Dialog */}
+  {/* image dialog */}
   <Dialog open={imageOpen} onOpenChange={setImageOpen}>
  <DialogContent>
  <DialogHeader>
@@ -177,7 +177,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
    }}
  />
  <Button onClick={() => {
-   // This relies on the input value being set, simpler to just use onKeyDown or controlled state
+   // this relies on the input value being set, simpler to just use onkeydown or controlled state
    // but for brevity in this replace block:
    const input = document.querySelector('input[placeholder="https://..."]') as HTMLInputElement;
    if (input) {
@@ -189,7 +189,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
  </DialogContent>
   </Dialog>
 
-  {/* Delete Alert */}
+  {/* delete alert */}
   <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
  <AlertDialogContent>
  <AlertDialogHeader>

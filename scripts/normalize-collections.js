@@ -2,10 +2,10 @@
 /*
   normalize-collections.js
 
-  Usage:
-    NOCOBASE_URL=http://localhost:4100/api ADMIN_API_KEY="$ADMIN_API_KEY" node scripts/normalize-collections.js [--dry-run]
+  usage:
+    nocobase_url=http://localhost:4100/api admin_api_key="$admin_api_key" node scripts/normalize-collections.js [--dry-run]
 
-  The script will find collections whose title or name matches the target list
+  the script will find collections whose title or name matches the target list
   and will set their `title` to the exact lowercase string and `hidden: true`.
 */
 
@@ -66,7 +66,7 @@ function normalizeNameVariants(s) {
           break;
         }
 
-        // Also match loose contains (in case of e.g., "Dupe Mates Pages - extra")
+        // also match loose contains (in case of e.g., "dupe mates pages - extra")
         if (title.includes(desired) || variants.some(v => name.includes(v))) {
           updates.push({ col, desired });
           break;

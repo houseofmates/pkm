@@ -26,16 +26,17 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
   <div className="space-y-3">
   {data.map((record) => {
  const titleField = config.titleField
- ? collection.fields?.find((f: any) => f.name === config.titleField)
- : collection.fields?.find((f: any) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
+ ? collection.fields?.find((f: { name: string; primary?: boolean }) => f.name === config.titleField)
+ : collection.fields?.find((f: { name: string; primary?: boolean }) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
 
  const visibleFieldNames = config.visibleFields || [];
- const visibleFields = collection?.fields?.filter((f: any) => visibleFieldNames.includes(f.name)) || [];
+ const visibleFields = collection?.fields?.filter((f: { name: string }) => visibleFieldNames.includes(f.name)) || [];
 
- // Cover logic
- const coverField = config.coverField ? collection.fields?.find((f: any) => f.name === config.coverField) : null;
+ // cover logic
+ const coverField = config.coverField ? collection.fields?.find((f: { name: string }) => f.name === config.coverField) : null;
  const coverValue = coverField ? record[coverField.name] : null;
- const firstImage = coverValue || (collection.fields?.find((f: any) => f.interface === 'attachment') ? record[collection.fields.find((f: any) => f.interface === 'attachment').name] : null);
+ const attachmentField = collection.fields?.find((f: { interface?: string; name: string }) => f.interface === 'attachment');
+ const firstImage = coverValue || (attachmentField ? record[attachmentField.name] : null);
  const imageUrl = Array.isArray(firstImage) ? firstImage[0]?.url : (firstImage?.url || null);
 
  return (
@@ -53,7 +54,7 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
    className="group flex flex-col md:flex-row md:items-center justify-between p-4 bg-card hover:bg-muted/50 border rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer gap-4"
  >
    <div className="flex items-center gap-4 flex-1 min-w-0">
-   {/* Optional Image Preview */}
+   {/* optional image preview */}
    {imageUrl && (
    <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border bg-muted">
   <img src={imageUrl} alt="" className="w-full h-full object-cover" />
@@ -80,7 +81,7 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
 
    {visibleFields.length > 0 && (
   <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1">
-  {visibleFields.map((f: any) => (
+  {visibleFields.map((f: { name: string; uiSchema?: { title?: string } }) => (
   <div key={f.name} className="flex items-center gap-1.5 min-w-0 max-w-[200px]">
     <span className="text-[10px] text-muted-foreground lowercase shrink-0">{f.uiSchema?.title || f.name}:</span>
     <SmartField

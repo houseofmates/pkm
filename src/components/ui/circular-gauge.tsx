@@ -3,8 +3,8 @@ import { cn } from '@/lib/utils';
 import { Play, Pause, RotateCcw } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
-// Google Font: Varela Round should be loaded in index.html or global css
-// Assuming it is available as 'font-varela' or similar utility.
+// google font: varela round should be loaded in index.html or global css
+// assuming it is available as 'font-varela' or similar utility.
 
 interface CircularGaugeProps {
   title: string;
@@ -51,7 +51,7 @@ export function CircularGauge({ title, totalSeconds, color = 'var(--primary)', c
   return (
   <div className={cn("flex flex-col items-center justify-center p-4 bg-black/60 backdrop-blur-sm rounded-xl border border-white/10 w-fit", className)}>
   <div className="relative w-32 h-32 flex items-center justify-center">
- {/* Track */}
+ {/* track */}
  <svg className="w-full h-full transform -rotate-90">
  <circle
  cx="64"
@@ -62,7 +62,7 @@ export function CircularGauge({ title, totalSeconds, color = 'var(--primary)', c
  fill="transparent"
  className="text-white/10"
  />
- {/* Progress */}
+ {/* progress */}
  <motion.circle
  cx="64"
  cy="64"
@@ -77,14 +77,14 @@ export function CircularGauge({ title, totalSeconds, color = 'var(--primary)', c
  />
  </svg>
 
- {/* Time Display */}
+ {/* time display */}
  <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
  <span className="text-2xl font-bold font-varela ">{formatTime(timeLeft)}</span>
  <span className="text-[10px] text-white/50 ">{title}</span>
  </div>
   </div>
 
-  {/* Controls */}
+  {/* controls */}
   <div className="flex items-center gap-4 mt-2">
  <button
  onClick={toggleTimer}

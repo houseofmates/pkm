@@ -19,21 +19,21 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
   </div>
   );
   }
-  const dateFields = collection.fields?.filter((f: any) => f.interface === 'datetime' || f.interface === 'date') || [];
+  const dateFields = collection.fields?.filter((f: { interface?: string }) => f.interface === 'datetime' || f.interface === 'date') || [];
 
-  // Configurable start/end fields
+  // configurable start/end fields
   const startField = config?.ganttStartField || dateFields[0]?.name;
   const endField = config?.ganttEndField || dateFields[1]?.name || startField;
 
-  // Unified Property Logic
+  // unified property logic
   const titleField = config?.titleField
-  ? collection.fields?.find((f: any) => f.name === config.titleField)
-  : collection.fields?.find((f: any) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
+  ? collection.fields?.find((f: { name: string; primary?: boolean }) => f.name === config.titleField)
+  : collection.fields?.find((f: { name: string; primary?: boolean }) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
 
   const visibleFieldNames = config?.visibleFields || [];
-  const visibleFields = collection?.fields?.filter((f: any) => visibleFieldNames.includes(f.name)) || [];
+  const visibleFields = collection?.fields?.filter((f: { name: string }) => visibleFieldNames.includes(f.name)) || [];
 
-  // Determine Timeline Range based on data
+  // determine timeline range based on data
   const { startDate, timelineDays } = useMemo(() => {
   if (!data.length || !startField) {
   const now = new Date();
@@ -46,7 +46,7 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
   };
   }
 
-  // Find min start and max end
+  // find min start and max end
   let min = new Date();
   let max = new Date();
   let hasDates = false;
@@ -63,7 +63,7 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
   }
   });
 
-  // Add buffer
+  // add buffer
   const start = addDays(min, -5);
   const end = addDays(max, 10);
 
@@ -80,7 +80,7 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
 
   const colWidth = 40; // px per day
 
-  // Interaction Handlers
+  // interaction handlers
   const handleBarClick = (record: any) => {
   window.dispatchEvent(new CustomEvent('pkm:edit-record', {
   detail: { record: record, collectionName: collection.name }
@@ -89,7 +89,7 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
 
   return (
   <div className="h-full flex flex-col bg-card rounded-lg border shadow-sm overflow-hidden select-none">
-  {/* Header Timeline */}
+  {/* header timeline */}
   <div className="flex border-b bg-muted/20">
  <div className="w-48 p-2 border-r font-bold text-xs sticky left-0 bg-background z-20 shrink-0 shadow-sm flex items-center">
  task name
@@ -115,7 +115,7 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
  const sDate = record[startField] ? new Date(record[startField]) : null;
  const eDate = record[endField] ? new Date(record[endField]) : sDate;
 
- // Calculate position
+ // calculate position
  let left = 0;
  let width = 0;
  let visible = false;
@@ -143,7 +143,7 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
    >
    <div className="flex border-b hover:bg-muted/10 items-center min-h-[40px] py-1 group relative">
    <div className="w-48 p-2 border-r text-xs font-medium sticky left-0 bg-background z-10 shrink-0 truncate flex items-center gap-2">
-  {/* Status Indicator */}
+  {/* status indicator */}
   <div className="w-2 h-2 rounded-full bg-primary/50 shrink-0" />
   <div className="flex-1 min-w-0">
   <SmartField
@@ -156,10 +156,10 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
   className="h-auto p-0 border-none bg-transparent hover:bg-muted/30 rounded px-1 font-black text-sm w-full"
   />
 
-  {/* Universal Property Visibility */}
+  {/* universal property visibility */}
   {visibleFields.length > 0 && (
   <div className="flex flex-col gap-0.5 mt-1">
-    {visibleFields.slice(0, 3).map((f: any) => (
+    {visibleFields.slice(0, 3).map((f: { name: string; uiSchema?: { title?: string } }) => (
     <div key={f.name} className="flex items-center gap-1 min-w-0">
     <span className="text-[9px] text-muted-foreground lowercase shrink-0 opacity-50">{f.uiSchema?.title || f.name}:</span>
     <SmartField
@@ -178,14 +178,14 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
   </div>
    </div>
    <div className="flex-1 relative h-full">
-  {/* Background Grid Lines */}
+  {/* background grid lines */}
   <div className="absolute inset-0 flex pointer-events-none">
   {timelineDays.map((d, i) => (
   <div key={i} className={cn("border-r shrink-0 h-full", d.getDay() === 0 || d.getDay() === 6 ? "bg-muted/10" : "")} style={{ width: `${colWidth}px` }} />
   ))}
   </div>
 
-  {/* Task Bar */}
+  {/* task bar */}
   {visible && (
   <div
   className="absolute top-2 bottom-2 bg-blue-500/20 border border-blue-500 text-blue-700 dark:text-blue-300 rounded-md flex items-center px-2 text-[10px] whitespace-nowrap overflow-hidden shadow-sm hover:brightness-110 cursor-pointer transition-all hover:scale-[1.01]"

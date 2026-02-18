@@ -23,7 +23,7 @@ export function NetworkView(props: ViewProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [virtualMenu, setVirtualMenu] = useState<{ x: number, y: number, record: any } | null>(null);
 
-  // Resize Observer
+  // resize observer
   useEffect(() => {
   if (!containerRef.current) return;
   const obs = new ResizeObserver(entries => {
@@ -34,17 +34,17 @@ export function NetworkView(props: ViewProps) {
   return () => obs.disconnect();
   }, []);
 
-  // Data Transformation
-  // We need to find "Relation" fields to build links.
-  // Nodes = Records
-  // Links = Record[RelationField] -> OtherRecord
+  // data transformation
+  // we need to find "relation" fields to build links.
+  // nodes = records
+  // links = record[relationfield] -> otherrecord
 
-  // For V1 (robust but simple):
-  // 1. All records in 'data' are Nodes.
-  // 2. Scan relation fields. If a record points to another ID that exists in 'data', create a link.
-  // NOTE: This only works for self-referencing or if we fetch related data.
-  // Pivot 4.0: "Interconnectivity".
-  // If this is the "Headmates" collection, and they have "friends" relations (to Headmates), it works beautifully.
+  // for v1 (robust but simple):
+  // 1. all records in 'data' are nodes.
+  // 2. scan relation fields. if a record points to another id that exists in 'data', create a link.
+  // note: this only works for self-referencing or if we fetch related data.
+  // pivot 4.0: "interconnectivity".
+  // if this is the "headmates" collection, and they have "friends" relations (to headmates), it works beautifully.
 
   const { nodes, links } = useMemo(() => {
   const titleField = config.titleField
@@ -74,15 +74,15 @@ export function NetworkView(props: ViewProps) {
  const target = src[field.name];
  if (!target) return;
 
- // Handle array (linkToMany) or single (linkToOne)
+ // handle array (linktomany) or single (linktoone)
  const targets = Array.isArray(target) ? target : [target];
 
  targets.forEach((t: any) => {
- // target t might be an object { id: ... } or just ID
+ // target t might be an object { id: ... } or just id
  const tId = typeof t === 'object' ? t.id : t;
 
- // Check if target node exists in our dataset
- // If not, maybe create a "ghost" node? For now, only internal links.
+ // check if target node exists in our dataset
+ // if not, maybe create a "ghost" node? for now, only internal links.
  if (nodes.find(n => n.id === tId)) {
  links.push({
    source: src.id,
@@ -101,7 +101,7 @@ export function NetworkView(props: ViewProps) {
 
   return (
   <div ref={containerRef} className="h-full w-full relative bg-card rounded-lg border overflow-hidden">
-  {/* Controls Overlay */}
+  {/* controls overlay */}
   <div className="absolute top-4 right-4 z-10 flex flex-col gap-2">
  <Button size="icon" variant="secondary" onClick={() => graphRef.current?.zoomIn()}><ZoomIn className="h-4 w-4" /></Button>
  <Button size="icon" variant="secondary" onClick={() => graphRef.current?.zoomOut()}><ZoomOut className="h-4 w-4" /></Button>
@@ -112,12 +112,12 @@ export function NetworkView(props: ViewProps) {
  }}><RefreshCw className="h-4 w-4" /></Button>
   </div>
 
-  {/* Graph Stats Overlay */}
+  {/* graph stats overlay */}
   <div className="absolute bottom-4 left-4 z-10 bg-background/80 backdrop-blur p-2 rounded text-xs text-muted-foreground border pointer-events-none">
  {nodes.length} Nodes &bull; {links.length} Relations
   </div>
 
-  {/* Force Graph */}
+  {/* force graph */}
   {dimensions.w > 0 && (
  <ForceGraph2D
  ref={graphRef}

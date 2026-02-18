@@ -8,8 +8,8 @@ interface IconPickerProps {
   onClose: () => void;
 }
 
-// Curated, deduplicated list of useful icons for feature widgets.
-// Includes drawing/editing icons (Pencil, Palette, Paintbrush, PaintBucket, FileText, Clipboard)
+// curated, deduplicated list of useful icons for feature widgets.
+// includes drawing/editing icons (pencil, palette, paintbrush, paintbucket, filetext, clipboard)
 const CURATED_ICONS = [
   'Shield', 'Zap', 'Crown', 'MessageCircle', 'Gamepad2', 'Wifi', 'Server', 'Monitor',
   'Users', 'User', 'Heart', 'Star', 'Trophy', 'Target', 'Activity',
@@ -18,7 +18,7 @@ const CURATED_ICONS = [
   'Layout', 'Search', 'Home', 'Compass', 'Map', 'Navigation', 'Globe', 'Lock',
   'Unlock', 'Eye', 'EyeOff', 'Camera', 'Image', 'Video', 'Music', 'Volume2',
   'Github', 'Twitter', 'Youtube', 'Twitch', 'Facebook', 'Instagram', 'Dribbble',
-  // Editing / design icons
+  // editing / design icons
   'Pencil', 'Edit', 'Edit2', 'Pen', 'Palette', 'Paintbrush', 'PaintBucket',
   'FileText', 'Clipboard', 'Paperclip'
 ];
@@ -33,7 +33,7 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
 
   return (
   <div className="flex flex-col h-[400px] w-[320px] bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden shadow-2xl animate-bounce-up builder-modal">
-  {/* Header */}
+  {/* header */}
   <div className="p-3 border-b border-white/10 flex items-center justify-between gap-2">
  <div className="relative flex-1">
  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
@@ -51,7 +51,7 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
  </button>
   </div>
 
-  {/* Grid */}
+  {/* grid */}
   <div className="flex-1 overflow-y-auto p-3 custom-scrollbar">
  <div className="grid grid-cols-4 gap-2">
  {filteredIcons.map((iconName) => {
@@ -89,7 +89,7 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
  )}
   </div>
 
-  {/* Footer */}
+  {/* footer */}
   <div className="p-2 px-3 bg-black/30 border-t border-white/10 text-[10px] text-white/30  font-bold">
  {filteredIcons.length} icons available
   </div>

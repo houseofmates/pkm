@@ -21,7 +21,7 @@ function GalleryItem({ record, collection, onUpdate, onDelete }: { record: any, 
   }
   });
 
-  // Color from record or collection
+  // color from record or collection
   const itemColor = record.color || collection.metadata?.color || 'var(--primary)';
 
   const style = {
@@ -32,7 +32,7 @@ function GalleryItem({ record, collection, onUpdate, onDelete }: { record: any, 
   boxShadow: isDragging ? `0 0 20px ${itemColor}40` : undefined,
   };
 
-  // Extract image if any
+  // extract image if any
   const imageUrl = record.image || record.url || (record.content && record.content.match(/\.(jpeg|jpg|gif|png|webp)$/) ? record.content : null);
 
   return (
@@ -63,7 +63,7 @@ function GalleryItem({ record, collection, onUpdate, onDelete }: { record: any, 
  </div>
  )}
 
- {/* Visual indicator of source/type if needed */}
+ {/* visual indicator of source/type if needed */}
  <div
  className="absolute bottom-1 right-1 w-2 h-2 rounded-full"
  style={{ backgroundColor: itemColor }}

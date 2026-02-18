@@ -12,7 +12,7 @@ import { IconPicker } from '@/components/icon-picker-dialog';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
-// Color Palette
+// color palette
 const COLORS = [
   'var(--primary)', '#EF4444', '#F97316', '#F59E0B', '#84CC16', '#10B981',
   '#06B6D4', '#3B82F6', '#6366F1', '#8B5CF6', '#D946EF', '#F43F5E',
@@ -48,10 +48,10 @@ export function DatabaseSettingsForm({
   const [localName, setLocalName] = useState(title || info.title || collectionName);
   const [iconPickerOpen, setIconPickerOpen] = useState(false);
 
-  // Filter/Sort State
+  // filter/sort state
   const currentSort = viewConfig.sort?.[0] || '';
 
-  // Helpers
+  // helpers
   const updateMeta = (key: string, val: any) => {
   const next = { ...metadata, [collectionName]: { ...metadata[collectionName], [key]: val } };
   setMetadata(next);
@@ -89,7 +89,7 @@ export function DatabaseSettingsForm({
  )}
   </div>
 
-  {/* General Meta */}
+  {/* general meta */}
   <div className="space-y-3">
  <div className="space-y-1">
  <Label className="text-xs text-muted-foreground ">name</Label>
@@ -107,7 +107,7 @@ export function DatabaseSettingsForm({
  <div className="space-y-1">
  <Label className="text-xs text-muted-foreground ">icon</Label>
  <div className="flex gap-1">
-   {/* Icon Picker Trigger - Assume generic Icon Picker available or simple usage */}
+   {/* icon picker trigger - assume generic icon picker available or simple usage */}
    <Button variant="outline" size="sm" className="w-full justify-start gap-2 h-8" onClick={() => setIconPickerOpen(true)}>
    {info.iconType === 'image' ? (
    <img src={info.icon} className="h-4 w-4 object-contain" />
@@ -115,54 +115,54 @@ export function DatabaseSettingsForm({
    <span className="text-xs">{info.icon || 'Select'}</span>
    )}
    </Button>
-   {/* Hidden Upload for Icon */}
-   <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={(e) => handleUpload(e, 'icon')} />
-   <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => fileInputRef.current?.click()} title="upload icon">
-   <Upload className="h-3 w-3" />
-   </Button>
+   {/* hidden upload for icon */}
+   <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onchange={(e) => handleupload(e, 'icon')} />
+   <button variant="ghost" size="icon" classname="h-8 w-8" onclick={() => fileinputref.current?.click()} title="upload icon">
+   <upload classname="h-3 w-3" />
+   </button>
  </div>
  </div>
 
- <div className="space-y-1">
- <Label className="text-xs text-muted-foreground ">color</Label>
- <Popover>
-   <PopoverTrigger asChild>
-   <Button variant="outline" size="sm" className="w-full h-8 px-2 flex gap-2">
-   <div className="h-3 w-3 rounded-full" style={{ backgroundColor: info.color || 'var(--primary)' }} />
-   <span className="text-xs opacity-50">Pick</span>
-   </Button>
-   </PopoverTrigger>
-   <PopoverContent className="w-64 p-2">
-   <div className="grid grid-cols-7 gap-1">
-   {COLORS.map(c => (
+ <div classname="space-y-1">
+ <label classname="text-xs text-muted-foreground ">color</label>
+ <popover>
+   <popovertrigger aschild>
+   <button variant="outline" size="sm" classname="w-full h-8 px-2 flex gap-2">
+   <div classname="h-3 w-3 rounded-full" style={{ backgroundcolor: info.color || 'var(--primary)' }} />
+   <span classname="text-xs opacity-50">pick</span>
+   </button>
+   </popovertrigger>
+   <popovercontent classname="w-64 p-2">
+   <div classname="grid grid-cols-7 gap-1">
+   {colors.map(c => (
   <button
   key={c}
-  className="h-6 w-6 rounded-full border border-border/50 hover:scale-110 transition-transform"
-  style={{ backgroundColor: c }}
-  onClick={() => updateMeta('color', c)}
+  classname="h-6 w-6 rounded-full border border-border/50 hover:scale-110 transition-transform"
+  style={{ backgroundcolor: c }}
+  onclick={() => updatemeta('color', c)}
   />
    ))}
    </div>
-   </PopoverContent>
- </Popover>
+   </popovercontent>
+ </popover>
  </div>
  </div>
 
- <div className="space-y-1">
- <Label className="text-xs text-muted-foreground ">associated image</Label>
- <div className="flex gap-2">
- <Input disabled value={info.image ? 'Image Set' : 'None'} className="h-8 text-xs flex-1" />
- <input type="file" ref={coverInputRef} className="hidden" accept="image/*" onChange={(e) => handleUpload(e, 'image')} />
- <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => coverInputRef.current?.click()} title="upload cover">
-   <ImageIcon className="h-3 w-3" />
- </Button>
+ <div classname="space-y-1">
+ <label classname="text-xs text-muted-foreground ">associated image</label>
+ <div classname="flex gap-2">
+ <input disabled value={info.image ? 'image set' : 'none'} classname="h-8 text-xs flex-1" />
+ <input type="file" ref={coverinputref} classname="hidden" accept="image/*" onchange={(e) => handleupload(e, 'image')} />
+ <button variant="outline" size="icon" classname="h-8 w-8" onclick={() => coverinputref.current?.click()} title="upload cover">
+   <imageicon classname="h-3 w-3" />
+ </button>
  </div>
  </div>
   </div>
 
-  <Separator />
+  <separator />
 
-  {/* Default View Setting */}
+  {/* default view setting */}
   {currentView && (
  <div className="space-y-2">
  <Label className="text-xs text-muted-foreground ">default view</Label>
@@ -182,7 +182,7 @@ export function DatabaseSettingsForm({
 
   <Separator />
 
-  {/* View Config (Sort/Filter etc) */}
+  {/* view config (sort/filter etc) */}
   {!isPage && onUpdateConfig && (
  <div className="space-y-3">
  <div className="space-y-1">
@@ -214,12 +214,12 @@ export function DatabaseSettingsForm({
 
   <Separator />
 
-  {/* View Specific Settings */}
+  {/* view specific settings */}
   {(['gallery', 'list', 'calendar', 'timeline', 'gantt'].includes(currentView || '')) && onUpdateConfig && (
  <div className="space-y-3">
  <Label className="text-xs text-muted-foreground ">{currentView} appearance</Label>
 
- {/* Cover Image Field (Gallery/List) */}
+ {/* cover image field (gallery/list) */}
  {(currentView === 'gallery' || currentView === 'list') && (
  <div className="space-y-1">
    <Label className="text-[10px] text-muted-foreground">cover image / icon</Label>
@@ -238,7 +238,7 @@ export function DatabaseSettingsForm({
  </div>
  )}
 
- {/* Date Field (Calendar/Timeline/Gantt) */}
+ {/* date field (calendar/timeline/gantt) */}
  {(currentView === 'calendar' || currentView === 'timeline' || currentView === 'gantt') && (
  <div className="space-y-1">
    <Label className="text-[10px] text-muted-foreground">primary date field</Label>
@@ -257,7 +257,7 @@ export function DatabaseSettingsForm({
  </div>
  )}
 
- {/* Title Field */}
+ {/* title field */}
  <div className="space-y-1">
  <Label className="text-[10px] text-muted-foreground">display title</Label>
  <Select
@@ -274,7 +274,7 @@ export function DatabaseSettingsForm({
  </Select>
  </div>
 
- {/* Visible Properties */}
+ {/* visible properties */}
  <div className="space-y-2 pt-1">
  <Label className="text-[10px] text-muted-foreground">visible properties / metadata</Label>
  <div className="max-h-32 overflow-y-auto space-y-1 border rounded p-1">

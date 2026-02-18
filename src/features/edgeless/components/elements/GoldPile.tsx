@@ -7,7 +7,7 @@ export function GoldPile({ element }: { element: any }) {
   const [multiplier, setMultiplier] = useState(1);
 
   useEffect(() => {
-  // Optimization: Cap at 50 coins
+  // optimization: cap at 50 coins
   let numCoins = Math.floor(current_amount / 10);
   let mult = 1;
 
@@ -42,7 +42,7 @@ export function GoldPile({ element }: { element: any }) {
   const animate = () => {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  // Draw Container (Glass Jar)
+  // draw container (glass jar)
   ctx.strokeStyle = 'rgba(255,255,255,0.2)';
   ctx.lineWidth = 2;
   ctx.beginPath();
@@ -52,16 +52,16 @@ export function GoldPile({ element }: { element: any }) {
   ctx.lineTo(250, 50);
   ctx.stroke();
 
-  // Fill Level Indicator
+  // fill level indicator
   const fillHeight = (current_amount / target_amount) * 230;
   ctx.fillStyle = 'rgba(246, 176, 18, 0.1)';
   ctx.fillRect(55, 280 - fillHeight, 190, fillHeight);
 
-  // Draw Coins
+  // draw coins
   coins.forEach(coin => {
  if (coin.y < 280 - coin.r) {
  coin.y += coin.vy;
- // Simple bounce/stack simulation
+ // simple bounce/stack simulation
  if (coin.y > 280 - Math.random() * 10) {
  coin.y = 280 - Math.random() * 10;
  coin.vy = 0;
