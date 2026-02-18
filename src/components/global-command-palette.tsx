@@ -14,6 +14,7 @@ import { useCollections } from "@/hooks/use-collections";
 import { api } from "@/api/nocobase-client";
 import { useEdgelessStore } from '@/features/edgeless/store';
 import { useFronter } from '@/contexts/fronter-context';
+import { getOllamaGenerateUrl } from '@/lib/llm-config';
 
 // interface for search result
 interface SearchResult {
@@ -193,8 +194,8 @@ user question: ${userQuery}
 
 your response (all lowercase):`;
 
-  const base = import.meta.env.VITE_OLLAMA_URL || 'http://localhost:11434';
-  const res = await fetch(`${base.replace(/\/$/, '')}/api/generate`, {
+  const url = getOllamaGenerateUrl();
+  const res = await fetch(url, {
  method: 'POST',
  headers: { 'Content-Type': 'application/json' },
  body: JSON.stringify({

@@ -317,7 +317,7 @@ export function HeadmatesPage() {
   if (!apiKey) return;
   localStorage.setItem('pk_api_key', apiKey);
   setHasKey(true);
-  toast.success("API Key saved locally");
+  toast.success("api key saved locally");
   fetchMembers(apiKey);
   };
 

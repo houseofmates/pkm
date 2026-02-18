@@ -1,83 +1,51 @@
 import { useEffect, useState } from 'react';
-import { api } from '@/api/nocobase-client';
 import { Link } from 'react-router-dom';
+import { registry, type linkentry } from '@/lib/link-registry';
+import { Badge } from '@/components/ui/badge';
+import { FileText, Link as LinkIcon } from 'lucide-react';
 
-interface Backlink {
-  id: string;
-  title: string;
-  collection: string;
-  snippet?: string;
-}
-
-export function BacklinksFooter({ recordId, collectionName }: { recordId: string, collectionName: string }) {
-  const [backlinks, setBacklinks] = useState<Backlink[]>([]);
-  const [loading, setLoading] = useState(false);
+export function BacklinksFooter({ recordId }: { recordId: string, collectionName: string }) {
+  const [backlinks, setBacklinks] = useState<linkentry[]>([]);
 
   useEffect(() => {
-  if (!recordId) return;
+    if (!recordId) return;
+    setBacklinks(registry.getbacklinks(recordId));
+  }, [recordId]);
 
-  const fetchBacklinks = async () => {
-  setLoading(true);
-  try {
- // search for mentions of this record's id in common collections
- // we assume links are stored as hrefs containing the id
- const collections = ['notes', 'tasks'];
- const found: Backlink[] = [];
-
- for (const col of collections) {
- // skip self-collection if needed, but cross-refs are possible
- const res = await api.listRecords(col, {
- filter: {
-   // this is a naive text search for the id.
-   // robustness depends on nocobase's ability to search the content field.
-   // assuming 'content' field exists.
-   content: { $includes: recordId }
- },
- pageSize: 5
- });
-
- // handle both array response and { data: { data: [] } } response
- const records = Array.isArray(res) ? res : ((res as { data?: { data?: unknown[] } })?.data?.data || []);
- if (records.length > 0) {
- found.push(...(records as Array<{ id: string; title?: string }>).map((r) => ({
-   id: r.id,
-   title: r.title || 'untitled',
-   collection: col
- })));
- }
- }
-
- // filter out self
- const filtered = found.filter(b => b.id !== recordId);
- setBacklinks(filtered);
-  } catch (e) {
- console.error("Failed to fetch backlinks", e);
-  } finally {
- setLoading(false);
-  }
-  };
-
-  fetchBacklinks();
-  }, [recordId, collectionName]);
-
-  if (loading) return <div className="text-muted-foreground text-xs mt-8 pl-4">loading mentions...</div>; 
   if (backlinks.length === 0) return null;
 
   return (
-  <div className="mt-12 pt-6 border-t border-border">
-  <h3 className="text-sm font-bold text-muted-foreground mb-4 ">linked mentions</h3>
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
- {backlinks.map(link => (
- <Link
- key={`${link.collection}-${link.id}`}
- to={`/databases/${link.collection}/${link.id}`}
- className="block p-3 rounded-lg border border-border bg-card/50 hover:bg-card hover:border-primary/50 transition-all"
- >
- <div className="text-sm font-medium">{link.title}</div>
- <div className="text-xs text-muted-foreground ">{link.collection}</div>
- </Link>
- ))}
-  </div>
-  </div>
+    <div className="mt-12 pt-8 border-t border-primary/10">
+      <div className="flex items-center gap-2 mb-6">
+        <LinkIcon className="h-4 w-4 text-primary/60" />
+        <h3 className="text-xs font-bold text-primary/60 tracking-wider lowercase">linked mentions</h3>
+        <Badge variant="outline" className="ml-2 h-4 px-1.5 text-[10px] border-primary/20 text-primary/50">
+          {backlinks.length}
+        </Badge>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {backlinks.map(link => (
+          <Link
+            key={`${link.sourcecollection}-${link.sourceid}`}
+            to={`/databases/${link.sourcecollection}/${link.sourceid}`}
+            className="group flex flex-col p-4 rounded-xl border border-primary/10 bg-primary/5 hover:bg-primary/10 hover:border-primary/20 transition-all shadow-sm active:scale-[0.98]"
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <FileText className="h-3.5 w-3.5 text-primary/70" />
+              <span className="text-sm font-medium text-foreground/90 group-hover:text-primary transition-colors lowercase truncate">
+                {link.label || 'untitled'}
+              </span>
+            </div>
+            <div className="flex items-center gap-2 text-[10px] text-muted-foreground/60 lowercase">
+              <span className="px-1.5 py-0.5 rounded-md bg-primary/5 border border-primary/5">
+                {link.sourcecollection}
+              </span>
+              <span className="opacity-0 group-hover:opacity-100 transition-opacity">→ click to jump</span>
+            </div>
+          </Link>
+        ))}
+      </div>
+    </div>
   );
 }

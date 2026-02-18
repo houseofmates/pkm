@@ -360,7 +360,7 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
    }} />
    <ToolBtn icon={<Square size={18} />} label="Box" onClick={() => addElement({ type: 'container', content: {}, width: 200, height: 200, x: 100, y: 100, styles: { backgroundColor: '#ffffff10' } })} />
    <ToolBtn icon={<Link2 size={18} />} label="Button" onClick={() => addElement({ type: 'button', content: { text: 'Click Me', bgColor: 'var(--primary)', textColor: '#000' }, width: 120, height: 40, x: 100, y: 100, styles: {} })} />
-   <ToolBtn icon={<MoreVertical size={18} />} label="More" onClick={() => toast.info('More widgets coming soon')} />
+   <ToolBtn icon={<MoreVertical size={18} />} label="More" onClick={() => toast.info('more widgets coming soon')} />
  </div>
  </div>
 

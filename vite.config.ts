@@ -117,11 +117,33 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-slot', '@radix-ui/react-popover'],
-          'util-vendor': ['clsx', 'date-fns', 'leaflet'],
-          'dnd-vendor': ['@dnd-kit/core', '@dnd-kit/utilities']
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-vendor': [
+            '@radix-ui/react-dialog',
+            '@radix-ui/react-slot',
+            '@radix-ui/react-popover',
+            '@radix-ui/react-dropdown-menu',
+            '@radix-ui/react-tabs',
+            '@radix-ui/react-select'
+          ],
+          'canvas-vendor': ['fabric'],
+          'editor-vendor': [
+            '@tiptap/react',
+            '@tiptap/starter-kit',
+            '@tiptap/extension-mention',
+            '@tiptap/extension-image',
+            '@tiptap/extension-placeholder'
+          ],
+          'motion-vendor': ['framer-motion'],
+          'viz-vendor': ['recharts', 'react-force-graph-2d'],
+          'util-vendor': ['clsx', 'date-fns', 'leaflet', 'lodash', 'axios', 'uuid', 'zod'],
+          'dnd-vendor': ['@dnd-kit/core', '@dnd-kit/utilities', '@dnd-kit/sortable'],
+          'monaco-vendor': ['@monaco-editor/react'],
+          'pdf-vendor': ['pdfjs-dist', 'jspdf'],
+          'lucide-vendor': ['lucide-react']
         }
+
+
       }
     }
   },

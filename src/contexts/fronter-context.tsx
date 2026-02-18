@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { api } from '@/api/nocobase-client';
 import { toast } from 'sonner';
+import { secureLogger } from '@/lib/secure-logger';
 
 export interface Headmate {
   id: string;
@@ -117,7 +118,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
  const res = await api.listRecords('headmates', { sort: 'name', pageSize: 100 });
  headmatesData = Array.isArray(res) ? res : ((res as { data?: any[] })?.data || []);
   } catch (e) {
- console.warn("Headmates collection missing?", e);
+ secureLogger.warn("Headmates collection missing?", e);
  // create if missing?
  // for now, assume schema creation is a separate step or handled via ui.
  // but the user asked for "schema strategy". i should perhaps ensure they exist here?
@@ -130,7 +131,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
  const res = await api.listRecords('front_history', { sort: '-startTime', pageSize: 50 });
  historyData = Array.isArray(res) ? res : ((res as { data?: any[] })?.data || []);
   } catch (e) {
- console.warn("Front history missing?", e);
+ secureLogger.warn("Front history missing?", e);
   }
 
   // parse members
@@ -157,39 +158,39 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   // derive active fronters
   // find most recent entry with no endtime
   const latest = parsedHistory[0];
-  console.log('Latest front history entry:', latest);
-  console.log('All history entries:', parsedHistory);
+  secureLogger.info('Latest front history entry:', latest);
+  secureLogger.info('All history entries:', parsedHistory);
   if (latest && !latest.endTime) {
  const fronterIds = latest.members.map(m => m.id);
- console.log('Setting active fronters from history:', fronterIds);
+ secureLogger.info('Setting active fronters from history:', fronterIds);
  setActiveFronters(fronterIds);
 
  // also cache to localstorage as backup
  try {
  localStorage.setItem('pkm_active_fronters', JSON.stringify(fronterIds));
  } catch (e) {
- console.warn('Failed to cache fronters to localStorage:', e);
+ secureLogger.warn('Failed to cache fronters to localStorage:', e);
  }
   } else {
- console.log('No active front found in history, checking localStorage backup');
+ secureLogger.info('No active front found in history, checking localStorage backup');
  // try to restore from localstorage if database has no active front
  try {
  const cached = localStorage.getItem('pkm_active_fronters');
  if (cached) {
  const cachedIds = JSON.parse(cached);
- console.log('Restoring fronters from localStorage:', cachedIds);
+ secureLogger.info('Restoring fronters from localStorage:', cachedIds);
  setActiveFronters(cachedIds);
  } else {
  setActiveFronters([]);
  }
  } catch (e) {
- console.warn('Failed to restore from localStorage:', e);
+ secureLogger.warn('Failed to restore from localStorage:', e);
  setActiveFronters([]);
  }
   }
 
   } catch (e) {
-  console.error("Failed to refresh fronter data", e);
+  secureLogger.error("Failed to refresh fronter data", e);
   toast.error("failed to load system core data");
   } finally {
   setLoading(false);
@@ -205,18 +206,18 @@ export function FronterProvider({ children }: { children: ReactNode }) {
 
   const registerFrontChange = async (memberIds: string[], comment?: string) => {
   const timestamp = new Date().toISOString();
-  console.log('registerFrontChange called with:', { memberIds, timestamp });
+  secureLogger.info('registerFrontChange called with:', { memberIds, timestamp });
 
   try {
   // 1. close current front if exists
   const currentActive = history.find(h => !h.endTime);
-  console.log('Current active front:', currentActive);
+  secureLogger.info('Current active front:', currentActive);
   if (currentActive) {
- console.log('Closing current front:', currentActive.id);
+ secureLogger.info('Closing current front:', currentActive.id);
  const updateResult = await api.updateRecord('front_history', currentActive.id, {
  endTime: timestamp
  });
- console.log('Current front closed, result:', updateResult);
+ secureLogger.info('Current front closed, result:', updateResult);
   }
 
   // 2. create new front
@@ -230,21 +231,21 @@ export function FronterProvider({ children }: { children: ReactNode }) {
  })),
  comment
  };
- console.log('Creating new front entry:', newEntry);
+ secureLogger.info('Creating new front entry:', newEntry);
  const createResult = await api.createRecord('front_history', newEntry);
- console.log('New front entry created, result:', createResult);
+ secureLogger.info('New front entry created, result:', createResult);
   } else {
- console.log('No members specified, just closing previous front');
+ secureLogger.info('No members specified, just closing previous front');
   }
 
   // 3. refresh
-  console.log('Calling refresh...');
+  secureLogger.info('Calling refresh...');
   await refresh();
-  console.log('Refresh complete');
+  secureLogger.info('Refresh complete');
   toast.success("front updated");
 
   } catch (e) {
-  console.error('registerFrontChange error:', e);
+  secureLogger.error('registerFrontChange error:', e);
   toast.error("failed to update front");
   }
   };
@@ -256,7 +257,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   const newIds = isCnt
   ? activeFronters.filter(fid => String(fid) !== stringId)
   : [...activeFronters, stringId];
-  console.log('toggleFronter:', { id: stringId, wasFronting: isCnt, newFronters: newIds });
+  secureLogger.info('toggleFronter:', { id: stringId, wasFronting: isCnt, newFronters: newIds });
 
   // optimistic update: set state immediately
   setActiveFronters(newIds);
@@ -264,14 +265,14 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   // cache to localstorage immediately
   try {
   localStorage.setItem('pkm_active_fronters', JSON.stringify(newIds));
-  console.log('Cached to localStorage:', newIds);
+  secureLogger.info('Cached to localStorage:', newIds);
   } catch (e) {
-  console.warn('Failed to cache fronters:', e);
+  secureLogger.warn('Failed to cache fronters:', e);
   }
 
   // then sync to backend (don't await, it refreshes internally)
   registerFrontChange(newIds).catch(err => {
-  console.error('Failed to register front change:', err);
+  secureLogger.error('Failed to register front change:', err);
   // revert optimistic update on failure
   setActiveFronters(activeFronters);
   });

@@ -41,8 +41,8 @@ export interface NavItem {
 }
 
 interface NavigationProps {
-  activeTab: 'databases' | 'home' | 'headmates' | 'captures';
-  onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'captures') => void;
+  activeTab: 'databases' | 'home' | 'headmates' | 'board' | 'captures';
+  onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'board' | 'captures') => void;
   className?: string;
   onSelectCollection: (name: string | null) => void;
   selectedCollection: string | null;
@@ -50,7 +50,9 @@ interface NavigationProps {
   // lifted state props
   items: NavItem[];
   setItems: (items: NavItem[]) => void; // For local updates like folder creation
+  onOpenSettings?: () => void;
 }
+
 
 // --- sortable components ---
 
@@ -171,7 +173,8 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   );
 }
 
-export function Navigation({ activeTab, onTabChange, className, onSelectCollection, selectedCollection, items, setItems }: NavigationProps) {
+export function Navigation({ activeTab, onTabChange, className, onSelectCollection, selectedCollection, items, setItems, onOpenSettings }: NavigationProps) {
+
 
   const { collections, refresh } = useCollections();
   const navigate = useNavigate();
@@ -564,8 +567,20 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             <Search className="h-4 w-4" />
             <span className="text-xs">search / ask ai...</span>
           </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="w-full justify-start gap-2 px-3 mt-1 text-muted-foreground hover:text-primary hover:bg-white/5 transition-colors border-none shadow-none"
+            onClick={onOpenSettings}
+            title="settings"
+          >
+            <LucideIcons.Settings className="h-4 w-4" />
+            <span className="text-xs">settings</span>
+          </Button>
         </div>
       </div>
+
 
       {/* <globalsearchdialog open={searchopen} onopenchange={setsearchopen} /> removed in favor of globalcommandpalette */}
 

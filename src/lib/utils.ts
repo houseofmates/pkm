@@ -21,7 +21,7 @@ export function getContrastColor(hex: string): string {
   g = parseInt(cleanHex.substring(2, 4), 16);
   b = parseInt(cleanHex.substring(4, 6), 16);
   } else {
-  return '#ffffff'; // Default to white if invalid
+  return '#ffffff'; // default to white if invalid
   }
 
   // calculate relative luminance (using rec. 601 for simplicity as requested/analyzed)

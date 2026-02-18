@@ -41,6 +41,49 @@ interface ChartProps {
   onDataContextMenu?: (e: any, data: any, xKey: string, seriesKey?: string) => void;
 }
 
+// extracted placeholder overlay component to avoid recreation on render
+interface PlaceholderOverlayProps {
+  label?: string;
+  targetKey?: string;
+  isPlaceholder: boolean;
+  columns?: { label: string; value: string }[];
+  onConfig?: (key: string, value?: any) => void;
+}
+
+function PlaceholderOverlay({ label, targetKey, isPlaceholder, columns, onConfig }: PlaceholderOverlayProps) {
+  if (!isPlaceholder) return null;
+
+  const triggerConfig = (key: string, val?: any) => {
+    if (!onConfig) return;
+    onConfig(key, val);
+  };
+
+  if (targetKey && columns && columns.length > 0) {
+    return (
+      <div className="absolute inset-0 flex items-center justify-center z-10" onClick={(e) => e.stopPropagation()}>
+        <Select onValueChange={(v) => triggerConfig(targetKey, v)}>
+          <SelectTrigger className="w-[200px] bg-background/90 backdrop-blur shadow-lg border-dashed border-primary/50">
+            <PlusCircle className="mr-2 h-4 w-4 text-primary" />
+            <SelectValue placeholder={label || "configure data"} />
+          </SelectTrigger>
+          <SelectContent>
+            {columns.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
+          </SelectContent>
+        </Select>
+      </div>
+    );
+  }
+
+  return (
+    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+      <div className="bg-background/80 backdrop-blur-sm border border-dashed border-primary/50 text-primary px-4 py-2 rounded-full shadow-lg flex items-center gap-2 animate-in fade-in zoom-in duration-300">
+        <PlusCircle className="h-4 w-4" />
+        <span className="text-xs font-semibold">{label || "Configure Chart Data"}</span>
+      </div>
+    </div>
+  );
+}
+
 export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'value', color = 'var(--primary)', seriesKeys, stacked, seriesType, seriesTypes, seriesOrder, seriesColors, legendCollapsed, onConfig, columns, onDataClick, onDataContextMenu }: ChartProps) {
   const [hidden, setHidden] = useState<Record<string, boolean>>({});
   const [hoverKey, setHoverKey] = useState<string | null>(null);
@@ -82,36 +125,6 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   const triggerConfig = (configKey: string, val?: any) => {
   if (!onConfig) return;
   onConfig(configKey, val);
-  };
-
-  // render overlay for placeholder instructions
-  const PlaceholderOverlay = ({ label, targetKey }: { label?: string, targetKey?: string }) => {
-  if (!isPlaceholder) return null;
-
-  if (targetKey && columns && columns.length > 0) {
-  return (
- <div className="absolute inset-0 flex items-center justify-center z-10" onClick={(e) => e.stopPropagation()}>
- <Select onValueChange={(v) => triggerConfig(targetKey, v)}>
- <SelectTrigger className="w-[200px] bg-background/90 backdrop-blur shadow-lg border-dashed border-primary/50">
-   <PlusCircle className="mr-2 h-4 w-4 text-primary" />
-   <SelectValue placeholder={label || "configure data"} />
- </SelectTrigger>
- <SelectContent>
-   {columns.map(c => <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>)}
- </SelectContent>
- </Select>
- </div>
-  )
-  }
-
-  return (
-  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
- <div className="bg-background/80 backdrop-blur-sm border border-dashed border-primary/50 text-primary px-4 py-2 rounded-full shadow-lg flex items-center gap-2 animate-in fade-in zoom-in duration-300">
- <PlusCircle className="h-4 w-4" />
- <span className="text-xs font-semibold">{label || "Configure Chart Data"}</span>
- </div>
-  </div>
-  )
   };
 
   // common axis props for placeholders
@@ -213,7 +226,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
 
   return (
   <div ref={containerRef} className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay label="Select Group By" targetKey="chartX" />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="Select Group By" targetKey="chartX" />
  <ResponsiveContainer width="100%" height="100%">
  <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
  <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={isPlaceholder ? 0.1 : 0.2} />
@@ -296,7 +309,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
 
   return (
   <div ref={containerRef} className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay label="Select Group By" targetKey="chartX" />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="Select Group By" targetKey="chartX" />
  <ResponsiveContainer width="100%" height="100%">
  <AreaChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
  <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
@@ -324,7 +337,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
 
   return (
   <div ref={containerRef} className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay label="Select X Axis" targetKey="chartX" />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="Select X Axis" targetKey="chartX" />
  <ResponsiveContainer width="100%" height="100%">
  <ScatterChart>
  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
@@ -383,7 +396,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
 
   return (
   <div className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay label="Select Group By" targetKey="chartX" />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="Select Group By" targetKey="chartX" />
  <ResponsiveContainer width="100%" height="100%">
  <BarChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
  <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
@@ -410,7 +423,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
 
   return (
   <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay label="Select Category" targetKey="chartX" />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="Select Category" targetKey="chartX" />
  <ResponsiveContainer width="100%" height="100%">
  <PieChart>
  <Pie
@@ -450,7 +463,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
 
   return (
   <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay label="Select Dimensions" targetKey="chartX" />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="Select Dimensions" targetKey="chartX" />
  <ResponsiveContainer width="100%" height="100%">
  <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
  <PolarGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
@@ -479,7 +492,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
 
   return (
   <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay label="Select Grouping" targetKey="chartX" />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="Select Grouping" targetKey="chartX" />
  <ResponsiveContainer width="100%" height="100%">
  <Treemap
  data={chartData}
@@ -560,7 +573,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   const sorted = isPlaceholder ? chartData : [...data].sort((a, b) => (b[yKey] || 0) - (a[yKey] || 0));
   return (
   <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay label="Select Stage" targetKey="chartX" />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="Select Stage" targetKey="chartX" />
  <ResponsiveContainer width="100%" height="100%">
  <RechartsFunnelChart>
  {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
@@ -599,7 +612,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
 
   return (
   <div ref={containerRef} className="relative w-full h-full flex items-center justify-center p-2 group" onClick={() => isPlaceholder && triggerConfig('chartY')}>
- <PlaceholderOverlay label="Select Metric" targetKey="chartY" />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="Select Metric" targetKey="chartY" />
  <ResponsiveContainer width="100%" height="100%">
  <PieChart>
  <Pie
@@ -651,7 +664,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
  // note: chartview needs to handle 'all', or we rely on user filtering.
  // for now, let's just trigger it.
  }}>
- <PlaceholderOverlay label="configure kpi values" targetKey="chartY" />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="configure kpi values" targetKey="chartY" />
  <div className={cn("text-sm  mb-2", isPlaceholder ? "text-muted-foreground/50" : "text-muted-foreground")}>
  {isPlaceholder ? "total metric" : (xKey + ' total')}
  </div>
@@ -674,7 +687,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
 
   return (
   <div ref={containerRef} className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
- <PlaceholderOverlay />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} />
  <ResponsiveContainer width="100%" height="100%">
  <ScatterChart>
  <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />

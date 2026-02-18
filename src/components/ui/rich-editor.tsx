@@ -182,19 +182,19 @@ export function RichEditor({ value = '', placeholder, className, onChange, uploa
   <div className={cn('w-full relative', className)}>
   {/* hidden input for images */}
   <input ref={fileRef} type="file" accept="image/*" classname="hidden" onchange={e => {
- const files = e.target.files;
+ const files = (e.target as htmlinputelement).files;
  if (!files) return;
  array.from(files).foreach(f => insertimagefromfile(f));
- e.currenttarget.value = '';
+ if (e.currenttarget) (e.currenttarget as htmlinputelement).value = '';
   }} multiple />
 
-  {slashmenu && (
- <>
- <div classname="fixed inset-0 z-40 bg-transparent" onclick={() => setslashmenu(null)} />
- <slashmenu
- onselect={handleslashselect}
- onclose={() => setslashmenu(null)}
- position={slashmenu}
+{slashmenu && (
+  <>
+  <div classname="fixed inset-0 z-40 bg-transparent" onclick={() => setslashmenu(null)} />
+  <slashmenu
+  onselect={handleslashselect}
+  onclose={() => setslashmenu(null)}
+  position={slashmenu}
  />
  </>
   )}

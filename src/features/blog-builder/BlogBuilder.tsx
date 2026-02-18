@@ -56,11 +56,6 @@ export function BlogBuilder() {
   }
   };
   window.addEventListener('keydown', handleKeyDown);
-  <style dangerouslySetInnerHTML={{
- __html: `
- body { font-family: "Varela Round", sans-serif; }
- `
-  }} />
   return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
@@ -72,11 +67,6 @@ export function BlogBuilder() {
   };
 
   if (isAdmin) {
-  <style dangerouslySetInnerHTML={{
- __html: `
- body { font-family: "Varela Round", sans-serif; }
- `
-  }} />
   return (
   <Suspense fallback={<div className="h-screen w-full flex items-center justify-center bg-[#050505] text-white">loading editor...</div>}>
  <BlogEditor />
@@ -187,11 +177,6 @@ export function BlogBuilder() {
   );
   }
 
-  <style dangerouslySetInnerHTML={{
- __html: `
- body { font-family: "Varela Round", sans-serif; }
- `
-  }} />
   return (
   <>
   {content}

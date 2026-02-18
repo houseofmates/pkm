@@ -809,7 +809,7 @@ export function HouseofmatesBuilder() {
     e.preventDefault();
 
     if (!isAdmin) {
-      toast.info('Press Ctrl+E to enter admin mode');
+      toast.info('press ctrl+e to enter admin mode');
       return;
     }
 

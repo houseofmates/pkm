@@ -94,7 +94,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   console.warn('Failed to flush overrides:', flushError);
   }
 
-  toast.success("Image link saved");
+  toast.success("image link saved");
   setImageUrl(''); // Clear input after saving
   setImageOpen(false);
   };

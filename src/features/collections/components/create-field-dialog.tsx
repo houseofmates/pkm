@@ -90,14 +90,14 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
 
   await client.createField(collectionName, fieldConfig);
 
-  toast.success("Field created");
+  toast.success("field created");
   setIsOpen(false);
   setTitle('');
   setName('');
   onFieldCreated();
   } catch (error: any) {
   console.error(error);
-  toast.error(error.message || "Failed to create field");
+  toast.error(error.message || "failed to create field");
   } finally {
   setLoading(false);
   }

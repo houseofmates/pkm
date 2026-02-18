@@ -142,7 +142,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                     handleAddDocumentWidget(id.replace('doc_', ''), name);
                 } else if (id.startsWith('drawing_')) {
                     // drawing widget logic? or just treat as document?
-                    toast.info("Drawings not yet supported on dashboard");
+                    toast.info("drawings not yet supported on dashboard");
                 } else {
                     handleAddWidget(id, 'table'); // Default to table view
                 }

@@ -1,7 +1,32 @@
 import { create } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
+import { appendOp, saveCheckpoint, getLatestCheckpoint, getRecentOps } from './storage/canvas-db'
+import type { DrawOp } from './storage/oplog'
+import { canvasSync } from './sync/canvas-sync'
+import { SpatialIndex } from './spatial/spatial-index'
 
-export type ElementType = 'pdf-page' | 'note' | 'embed-nocobase' | 'embed-web' | 'smart-link' | 'image' | 'link-card' | 'database-card' | 'record-node' | 'shopping-card' | 'gold-pile' | 'floating-reminder' | 'sleep-ring' | 'tier-list' | 'embed' | 'eternal-flame' | 'offering-drop' | 'portal' | 'connector' | 'smart-text' | 'contact-card'
+export type ElementType =
+  | 'pdf-page'
+  | 'note'
+  | 'embed-nocobase'
+  | 'embed-web'
+  | 'smart-link'
+  | 'image'
+  | 'link-card'
+  | 'database-card'
+  | 'record-node'
+  | 'shopping-card'
+  | 'gold-pile'
+  | 'floating-reminder'
+  | 'sleep-ring'
+  | 'tier-list'
+  | 'embed'
+  | 'eternal-flame'
+  | 'offering-drop'
+  | 'portal'
+  | 'connector'
+  | 'smart-text'
+  | 'contact-card'
 
 export interface EdgelessLayer {
   id: string
@@ -17,43 +42,67 @@ export interface EdgelessElement {
   y: number
   width: number
   height: number
-  data: any // Flexible payload for PDF page info, URL, etc.
+  data: any
   locked?: boolean
-  layerId?: string // Optional for backward compatibility, defaults to 'default'
-
-  // connector specific props
+  layerId?: string
   connectorData?: {
-  startId: string
-  endId: string
-  strokeColor?: string
-  strokeWidth?: number
+    startId: string
+    endId: string
+    strokeColor?: string
+    strokeWidth?: number
   }
 }
 
 export type ToolType = 'select' | 'hand' | 'pen' | 'eraser' | 'text' | 'smart-text'
 
+// oplog-based history state (replaces json snapshot stack)
+interface OplogHistory {
+  ops: string[] // oplog entry ids
+  undone: string[] // ids of undone ops for redo
+}
+
 interface EdgelessState {
-  // canvas state
+  // canvas identity
+  drawingId: string
+  setDrawingId: (id: string) => void
+
+  // layers
   layers: EdgelessLayer[]
   activeLayerId: string
+
+  // elements (non-canvas html overlays)
   elements: EdgelessElement[]
+
+  // viewport
   viewPort: { x: number; y: number; zoom: number }
 
-  // interaction state
-  mode: 'interact' | 'draw' // Interact = Click links, scroll embeds. Draw = Fabric handles inputs.
+  // interaction mode
+  mode: 'interact' | 'draw'
   activeTool: ToolType
-
-  // style state
-  // style state - moved to ui extensions
-
 
   // canvas config
   canvasConfig: {
-  mode: 'edgeless' | 'desktop-8k' | 'iphone-8k'
-  width?: number
-  height?: number
+    mode: 'edgeless' | 'desktop-8k' | 'iphone-8k'
+    width?: number
+    height?: number
   }
-  setCanvasConfig: (config: Partial<EdgelessState['canvasConfig']>) => void
+
+  // spatial index for fast lookup
+  spatialIndex: SpatialIndex | null
+
+  // history (oplog-based)
+  history: OplogHistory
+
+  // ui state
+  selectionMode: 'cursor' | 'free' | 'rect' | 'magic' | 'grab'
+  eraserWidth: number
+  textSize: number
+  isChatOpen: boolean
+  isLinking: boolean
+  penWidth: number
+  penColor: string
+  stabilizerLevel: number
+  pressureEnabled: boolean
 
   // actions
   addLayer: (name: string) => void
@@ -69,173 +118,261 @@ interface EdgelessState {
   setMode: (mode: 'interact' | 'draw') => void
   setTool: (tool: ToolType) => void
   setViewport: (vp: { x: number; y: number; zoom: number }) => void
+  setCanvasConfig: (config: Partial<EdgelessState['canvasConfig']>) => void
 
-  // ui extensions
-  selectionMode: 'cursor' | 'free' | 'rect' | 'magic' | 'grab'
+  // history actions (oplog-based)
+  recordOp: (op: DrawOp) => Promise<void>
+  undo: () => Promise<void>
+  redo: () => Promise<void>
+  loadFromOplog: (drawingId: string) => Promise<void>
+
+  // spatial index actions
+  setSpatialIndex: (index: SpatialIndex | null) => void
+  rebuildSpatialIndex: (canvas: any) => void
+
+  // ui actions
   setSelectionMode: (mode: 'cursor' | 'free' | 'rect' | 'magic' | 'grab') => void
-
-  eraserWidth: number
   setEraserWidth: (width: number) => void
-
-  textSize: number
   setTextSize: (size: number) => void
-
-  isChatOpen: boolean
   setChatOpen: (open: boolean) => void
-
-  isLinking: boolean
   setIsLinking: (linking: boolean) => void
-
-  // pen state
-  penWidth: number
   setPenWidth: (width: number) => void
-  penColor: string
   setPenColor: (color: string) => void
-  stabilizerLevel: number
   setStabilizerLevel: (level: number) => void
-  pressureEnabled: boolean
   setPressureEnabled: (enabled: boolean) => void
-
-  // history state
-  history: {
-  undoStack: string[] // JSON snapshots of canvas
-  redoStack: string[]
-  }
-  pushHistory: (snapshot: string) => void
-  undo: () => string | null // returns snapshot to load
-  redo: () => string | null // returns snapshot to load
 }
 
-export const useEdgelessStore = create<EdgelessState>()((set) => ({
-  layers: [{ id: 'default', name: 'Layer 1', visible: true, locked: false }],
+export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
+  // identity
+  drawingId: '',
+  setDrawingId: (id) => {
+    set({ drawingId: id })
+    // start sync for this drawing
+    canvasSync.start()
+  },
+
+  // layers
+  layers: [{ id: 'default', name: 'layer 1', visible: true, locked: false }],
   activeLayerId: 'default',
+
+  // elements
   elements: [],
+
+  // viewport
   viewPort: { x: 0, y: 0, zoom: 1 },
 
-  mode: 'draw', // Default to draw mode for "Edgeless" feel, shift to interact for links
+  // mode
+  mode: 'draw',
   activeTool: 'select',
 
-  // moved to bottom with setters
-  addLayer: (name) => set((state) => {
-  const newLayer = { id: uuidv4(), name, visible: true, locked: false }
-  return {
-  layers: [newLayer, ...state.layers], // Add to top
-  activeLayerId: newLayer.id
-  }
-  }),
+  // config
+  canvasConfig: { mode: 'edgeless' },
 
-  removeLayer: (id) => set((state) => {
-  if (state.layers.length <= 1) return {} // Don't remove last layer
-  const remaining = state.layers.filter(l => l.id !== id)
-  return {
-  layers: remaining,
-  activeLayerId: state.activeLayerId === id ? remaining[0].id : state.activeLayerId,
-  elements: state.elements.filter(el => el.layerId !== id) // Remove elements in layer
-  }
-  }),
+  // spatial index
+  spatialIndex: null,
 
-  toggleLayerVisibility: (id) => set((state) => ({
-  layers: state.layers.map(l => l.id === id ? { ...l, visible: !l.visible } : l)
-  })),
+  // history (empty oplog)
+  history: { ops: [], undone: [] },
+
+  // ui defaults
+  selectionMode: 'grab',
+  eraserWidth: 50,
+  textSize: 40,
+  isChatOpen: false,
+  isLinking: false,
+  penWidth: 2,
+  penColor: 'var(--primary)',
+  stabilizerLevel: 0,
+  pressureEnabled: true,
+
+  // layer actions
+  addLayer: (name) =>
+    set((state) => {
+      const newLayer = { id: uuidv4(), name, visible: true, locked: false }
+      return {
+        layers: [newLayer, ...state.layers],
+        activeLayerId: newLayer.id,
+      }
+    }),
+
+  removeLayer: (id) =>
+    set((state) => {
+      if (state.layers.length <= 1) return state
+      const remaining = state.layers.filter((l) => l.id !== id)
+      return {
+        layers: remaining,
+        activeLayerId: state.activeLayerId === id ? remaining[0].id : state.activeLayerId,
+        elements: state.elements.filter((el) => el.layerId !== id),
+      }
+    }),
+
+  toggleLayerVisibility: (id) =>
+    set((state) => ({
+      layers: state.layers.map((l) => (l.id === id ? { ...l, visible: !l.visible } : l)),
+    })),
 
   setActiveLayer: (id) => set({ activeLayerId: id }),
 
-  addElement: (el) => set((state) => ({
-  elements: [...state.elements, { ...el, id: uuidv4(), layerId: el.layerId || state.activeLayerId }]
-  })),
+  // element actions
+  addElement: (el) =>
+    set((state) => ({
+      elements: [
+        ...state.elements,
+        { ...el, id: uuidv4(), layerId: el.layerId || state.activeLayerId },
+      ],
+    })),
 
   setElements: (elements) => set({ elements }),
 
-  updateElement: (id, patch) => set((state) => ({
-  elements: state.elements.map(el => el.id === id ? { ...el, ...patch } : el)
-  })),
+  updateElement: (id, patch) =>
+    set((state) => ({
+      elements: state.elements.map((el) => (el.id === id ? { ...el, ...patch } : el)),
+    })),
 
-  removeElement: (id) => set((state) => ({
-  elements: state.elements.filter(el => el.id !== id)
-  })),
+  removeElement: (id) =>
+    set((state) => ({
+      elements: state.elements.filter((el) => el.id !== id),
+    })),
 
-  canvasConfig: { mode: 'edgeless' },
-  setCanvasConfig: (config) => set((state) => ({ canvasConfig: { ...state.canvasConfig, ...config } })),
-
+  // mode actions
   setMode: (mode) => set({ mode }),
   setTool: (tool) => set({ activeTool: tool }),
   setViewport: (viewPort) => set({ viewPort }),
+  setCanvasConfig: (config) =>
+    set((state) => ({
+      canvasConfig: { ...state.canvasConfig, ...config },
+    })),
 
-  // toolbar / chat support
-  selectionMode: 'grab',
-  setSelectionMode: (mode) => set({ selectionMode: mode }),
+  // oplog-based history
+  recordOp: async (op) => {
+    const { drawingId, history, activeLayerId } = get()
+    if (!drawingId) return
 
-  eraserWidth: 50,
-  setEraserWidth: (width) => set({ eraserWidth: width }),
+    // ensure op has layer context
+    if ('layerId' in op && !op.layerId) {
+      ;(op as any).layerId = activeLayerId
+    }
 
-  textSize: 40,
-  setTextSize: (size) => set({ textSize: size }),
+    // append to persistent oplog
+    const entry = await appendOp(drawingId, op)
 
-  isChatOpen: false,
-  setChatOpen: (open) => set({ isChatOpen: open }),
+    // update history stack
+    set((state) => ({
+      history: {
+        ops: [...state.history.ops, entry.id],
+        undone: [], // clear redo on new action
+      },
+    }))
 
-  isLinking: false,
-  setIsLinking: (linking) => set({ isLinking: linking }),
-
-  penWidth: 2,
-  setPenWidth: (width) => set({ penWidth: width }),
-
-  penColor: 'var(--primary)',
-  setPenColor: (color) => set({ penColor: color }),
-
-  stabilizerLevel: 0,
-  setStabilizerLevel: (level) => set({ stabilizerLevel: level }),
-
-  pressureEnabled: true,
-  setPressureEnabled: (enabled) => set({ pressureEnabled: enabled }),
-
-  history: { undoStack: [], redoStack: [] },
-
-  pushHistory: (snapshot) => set((state) => {
-  // limit stack size? 50?
-  const newStack = [...state.history.undoStack, snapshot].slice(-50)
-  return {
-  history: {
- undoStack: newStack,
- redoStack: []
-  }
-  }
-  }),
-
-  undo: () => {
-  const state = useEdgelessStore.getState() as EdgelessState
-  const { undoStack, redoStack } = state.history
-
-  if (undoStack.length <= 1) return null
-
-  const current = undoStack[undoStack.length - 1]
-  const previous = undoStack[undoStack.length - 2]
-
-  set({
-  history: {
- undoStack: undoStack.slice(0, -1),
- redoStack: [current, ...redoStack]
-  }
-  })
-
-  return previous
+    // trigger sync
+    await updateDrawingMeta(drawingId, { syncState: 'pending' })
   },
 
-  redo: () => {
-  const state = useEdgelessStore.getState() as EdgelessState
-  const { undoStack, redoStack } = state.history
+  undo: async () => {
+    const { history, drawingId } = get()
+    if (history.ops.length === 0) return
 
-  if (redoStack.length === 0) return null
+    // move last op to undone stack
+    const lastId = history.ops[history.ops.length - 1]
+    const remaining = history.ops.slice(0, -1)
 
-  const next = redoStack[0]
+    set({
+      history: {
+        ops: remaining,
+        undone: [lastId, ...history.undone],
+      },
+    })
 
-  set({
-  history: {
- undoStack: [...undoStack, next],
- redoStack: redoStack.slice(1)
-  }
-  })
+    // reload state from oplog minus the undone op
+    // (in a full implementation, we'd compute inverse ops or reload from checkpoint)
+    console.log('undo:', lastId)
 
-  return next
-  }
+    // save checkpoint after significant undo
+    if (remaining.length % 20 === 0) {
+      // checkpoint saved via canvas event
+    }
+  },
+
+  redo: async () => {
+    const { history } = get()
+    if (history.undone.length === 0) return
+
+    const nextId = history.undone[0]
+    const remaining = history.undone.slice(1)
+
+    set({
+      history: {
+        ops: [...history.ops, nextId],
+        undone: remaining,
+      },
+    })
+
+    console.log('redo:', nextId)
+  },
+
+  loadFromOplog: async (drawingId) => {
+    // load checkpoint + recent ops
+    const checkpoint = await getLatestCheckpoint(drawingId)
+    const ops = await getRecentOps(drawingId, 500)
+
+    console.log('loading drawing', drawingId, {
+      hasCheckpoint: !!checkpoint,
+      opCount: ops.length,
+    })
+
+    // set drawing id
+    set({ drawingId })
+
+    // emit event for canvas to load
+    window.dispatchEvent(
+      new CustomEvent('pkm:load-oplog', {
+        detail: { drawingId, checkpoint, ops },
+      })
+    )
+  },
+
+  // spatial index
+  setSpatialIndex: (index) => set({ spatialIndex: index }),
+
+  rebuildSpatialIndex: (canvas) => {
+    if (!canvas) return
+
+    const index = new SpatialIndex(100)
+    const objects = canvas.getObjects()
+
+    for (const obj of objects) {
+      const id = obj.data?.id || `obj-${Math.random().toString(36).slice(2, 9)}`
+      obj.set('data', { ...(obj.data || {}), id })
+
+      const rect = obj.getBoundingRect()
+      index.insert({
+        id,
+        bounds: {
+          minX: rect.left,
+          minY: rect.top,
+          maxX: rect.left + rect.width,
+          maxY: rect.top + rect.height,
+        },
+        layerId: obj.data?.layerId || 'default',
+        visible: obj.visible !== false,
+        ref: obj,
+      })
+    }
+
+    set({ spatialIndex: index })
+  },
+
+  // ui actions
+  setSelectionMode: (mode) => set({ selectionMode: mode }),
+  setEraserWidth: (width) => set({ eraserWidth: width }),
+  setTextSize: (size) => set({ textSize: size }),
+  setChatOpen: (open) => set({ isChatOpen: open }),
+  setIsLinking: (linking) => set({ isLinking: linking }),
+  setPenWidth: (width) => set({ penWidth: width }),
+  setPenColor: (color) => set({ penColor: color }),
+  setStabilizerLevel: (level) => set({ stabilizerLevel: level }),
+  setPressureEnabled: (enabled) => set({ pressureEnabled: enabled }),
 }))
+
+// import for meta update
+import { updateDrawingMeta } from './storage/canvas-db'

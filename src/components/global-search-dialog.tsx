@@ -2,10 +2,12 @@ import { useState, useRef, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Search, Bot, Sparkles, Database, FileText } from 'lucide-react';
 import { OllamaClient } from '@/api/ollama-client';
+import { getOllamaBase } from '@/lib/llm-config';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import usePkmStore from '@/store/usePkmStore';
 import SearchBar from './search/SearchBar';
+import { secureLogger } from '@/lib/secure-logger';
 
 const ollama = new OllamaClient();
 
@@ -55,7 +57,7 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
       const answer = await ollama.ask(q, context.toLowerCase());
       setResponse(String(answer).toLowerCase());
     } catch (err) {
-      console.error('ai ask error', err);
+      secureLogger.error('ai ask error', err);
       setResponse('error connecting to ai.');
     } finally {
       setLoading(false);
@@ -142,7 +144,7 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
 
         <div className="p-2 border-t bg-muted/10 flex justify-between items-center text-[10px] text-muted-foreground px-4 lowercase">
           <span><strong>enter</strong> to search</span>
-          <span>powered by <strong>qwen2.5:7b</strong> @ {import.meta.env.VITE_OLLAMA_URL || 'localhost:11434'}</span>
+          <span>powered by <strong>qwen2.5:7b</strong> @ {getOllamaBase()}</span>
         </div>
       </DialogContent>
     </Dialog>
