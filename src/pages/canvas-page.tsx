@@ -7,6 +7,7 @@ import { CanvasControls } from '@/features/edgeless/components/CanvasControls'
 import { WilsonChat } from '@/features/chat/wilson-chat'
 import { DatabaseSettingsForm } from '@/features/databases/components/database-settings-form'
 import { Button } from '@/components/ui/button'
+import PreviewCanvas from '@/components/preview-canvas'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Settings, ArrowLeft } from 'lucide-react'
 import { useAppSetting } from '@/hooks/use-app-setting'
@@ -25,7 +26,7 @@ export function CanvasPage() {
   setMetadata(next);
   }
 
-  // PDF Handling
+  // pdf handling
   const handlePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (file) {
@@ -41,27 +42,27 @@ export function CanvasPage() {
   const pdfInputRef = useRef<HTMLInputElement>(null);
 
 
-    // --- Header Structure Aligned with Sidebar / Page ---
+    // --- header structure aligned with sidebar / page ---
     return (
         <div className="w-full h-screen relative overflow-hidden bg-background flex flex-col">
-            {/* PDF Layer (Background / Full Screen) */}
+            {/* pdf layer (background / full screen) */}
             {pdfUrl && (
                 <div className="absolute inset-0 z-0 pointer-events-none">
-                    {/* If it's a data URL, iframe might treat it as download. Embed is better. */}
+                    {/* if it's a data url, iframe might treat it as download. embed is better. */}
                     <object data={pdfUrl} type="application/pdf" className="w-full h-full pointer-events-auto">
                         <p>PDF cannot be displayed.</p>
                     </object>
-                    {/* Button to remove PDF */}
+                    {/* button to remove pdf */}
                     <div className="absolute top-20 right-4 pointer-events-auto z-50">
                         <Button variant="destructive" size="sm" onClick={() => updatePdf('')}>Remove PDF</Button>
                     </div>
                 </div>
             )}
 
-            {/* Fixed Top Header (Sidebar Alignment) */}
-            <div className="pt-4 shrink-0 bg-background z-50 pointer-events-auto flex flex-col">
+            {/* fixed top header (sidebar alignment) */}
+            <div className="pt-4 shrink-0 bg-background z-50 pointer-events-auto flex flex-col nav-header">
                 <div className="px-5 mb-2 h-10 flex items-center justify-between">
-                    {/* Left: Back + Title */}
+                    {/* left: back + title */}
                     <div className="flex items-center gap-4">
                         <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="h-10 w-10">
                             <ArrowLeft className="h-5 w-5" />
@@ -72,7 +73,7 @@ export function CanvasPage() {
                         </div>
                     </div>
 
-                    {/* Right: Settings + PDF Upload */}
+                    {/* right: settings + pdf upload */}
                     <div className="flex items-center gap-2">
                         <Popover>
                             <PopoverTrigger asChild>
@@ -86,11 +87,11 @@ export function CanvasPage() {
                                     title={title}
                                     isPage={true}
                                     onDelete={() => {
-                                        // Handle delete?
+                                        // handle delete?
                                         console.log("Delete page", id)
                                     }}
                                 />
-                                {/* PDF Upload Section injected here or inside form? Injected here is easier for now without huge refactor */}
+                                {/* pdf upload section injected here or inside form? injected here is easier for now without huge refactor */}
                                 <div className="mt-4 pt-4 border-t space-y-2">
                                     <span className="text-xs font-semibold uppercase text-muted-foreground">Document PDF</span>
                                     <div className="flex gap-2">
@@ -110,14 +111,22 @@ export function CanvasPage() {
                         </Popover>
                     </div>
                 </div>
-                <Separator className="mb-2 bg-primary" />
+                {/* separator removed: nav-header has border-bottom using --header-sep for exact match */}
             </div>
 
-            {/* Main Canvas Area */}
+            {/* main canvas area */}
             <div className="flex-1 relative overflow-hidden z-10">
-                {/* Canvas elements should be interactive */}
+                {/* canvas elements should be interactive */}
                 <div className="pointer-events-auto w-full h-full">
-                    {/* Toolbar might need z-index adjustment if it overlaps header */}
+                    {/* small demo: multi-column layout overlay for documents */}
+                    <div className="px-5 pb-4">
+                        <PreviewCanvas
+                            columns={[[{ view_type: 'text', title: 'Column A' }, { view_type: 'embed', title: 'PDF Layer' }], [{ view_type: 'notes', title: 'Column B' }]]}
+                            columnWidths={[60,40]}
+                            renderWidget={(w:any)=> <div className="p-2 text-sm">{w.title}</div>}
+                        />
+                    </div>
+                    {/* toolbar might need z-index adjustment if it overlaps header */}
                     <Toolbar />
                     <CanvasControls />
                     <WilsonChat />

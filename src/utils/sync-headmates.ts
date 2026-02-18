@@ -14,12 +14,12 @@ export interface SimplyPluralMember {
 }
 
 /**
- * Syncs SimplyPlural headmates to the NocoBase 'headmates' collection
- * Creates/updates records to match SimplyPlural data
+ * syncs simplyplural headmates to the nocobase 'headmates' collection
+ * creates/updates records to match simplyplural data
  */
 export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
   try {
-  // 1. Fetch SimplyPlural members
+  // 1. fetch simplyplural members
   const meRes = await fetch(SimplyPluralClient.url('/me'), {
   headers: { 'Authorization': apiKey }
   });
@@ -42,7 +42,7 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
   const members: SimplyPluralMember[] = await membersRes.json();
   console.log(`Found ${members.length} SimplyPlural members to sync`);
 
-  // 2. Fetch existing NocoBase headmates
+  // 2. fetch existing nocobase headmates
   const existing = await api.listRecords('headmates', { pageSize: 500 });
   const existingMap = new Map();
   const existingArray = Array.isArray(existing) ? existing : (existing?.data || []);
@@ -54,12 +54,12 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
 
   console.log(`Found ${existingMap.size} existing headmates in NocoBase`);
 
-  // 3. Sync each member
+  // 3. sync each member
   let created = 0;
   let updated = 0;
 
   for (const member of members) {
-  // Format color
+  // format color
   let color = member.content?.color || member.color;
   if (color && !color.startsWith('#')) {
  color = `#${color}`;
@@ -77,7 +77,7 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
   const existing = existingMap.get(member.id);
 
   if (existing) {
- // Update if data changed
+ // update if data changed
  const needsUpdate =
  existing.name !== headmateData.name ||
  existing.color !== headmateData.color ||
@@ -91,7 +91,7 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
  console.log(`Updated headmate: ${headmateData.name}`);
  }
   } else {
- // Create new
+ // create new
  await api.createRecord('headmates', headmateData);
  created++;
  console.log(`Created headmate: ${headmateData.name}`);
@@ -99,11 +99,11 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
   }
 
   console.log(`Sync complete: ${created} created, ${updated} updated`);
-  toast.success(`Synced ${members.length} headmates (${created} new, ${updated} updated)`);
+  toast.success(`synced ${members.length} headmates (${created} new, ${updated} updated)`);
 
   } catch (error: any) {
   console.error('Failed to sync headmates:', error);
-  toast.error('Failed to sync headmates: ' + error.message);
+  toast.error('failed to sync headmates: ' + error.message);
   throw error;
   }
 }

@@ -4,7 +4,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { useAuth } from '@/contexts/auth-context';
 
-// Simple component to use the hook
+// simple component to use the hook
 function TestComp({ settingKey, debounceMs }: { settingKey: string; debounceMs?: number }) {
   const [value, setValue] = useAppSetting(settingKey, null, { debounceMs });
   return (
@@ -15,8 +15,8 @@ function TestComp({ settingKey, debounceMs }: { settingKey: string; debounceMs?:
   );
 }
 
-// Check lines 15 in use-app-setting.ts: const { isAuthenticated, token, client } = useAuth();
-// We need to mock useAuth to return a client with a request method.
+// check lines 15 in use-app-setting.ts: const { isauthenticated, token, client } = useauth();
+// we need to mock useauth to return a client with a request method.
 const mockRequest = vi.fn();
 
 vi.mock('@/contexts/auth-context', () => ({
@@ -30,21 +30,21 @@ vi.mock('@/contexts/auth-context', () => ({
 describe('useAppSetting upsert behaviors', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Ensure localStorage has a token so the hooks don't skip fetch/save
+    // ensure localstorage has a token so the hooks don't skip fetch/save
     localStorage.setItem('nocobase_token', 'tok');
 
-    // Default mock response: empty list for initial fetch
+    // default mock response: empty list for initial fetch
     mockRequest.mockResolvedValue({ data: [] });
   });
 
   it('tries to UPDATE first, and if succesful, does not create', async () => {
-    // 1. Initial fetch returns nothing (handled in beforeEach)
+    // 1. initial fetch returns nothing (handled in beforeeach)
 
-    // 2. Setup mock for Update to succeed
+    // 2. setup mock for update to succeed
     mockRequest.mockImplementation(async (resource, action, options) => {
       if (action === 'list') return { data: [] }; // initial load
       if (action === 'update' && resource === 'pkm_settings') {
-        // Simulate successful update returning the updated record
+        // simulate successful update returning the updated record
         return { data: [{ id: 123, key: 'x', value: { foo: 'bar' } }] };
       }
       return {};
@@ -54,16 +54,16 @@ describe('useAppSetting upsert behaviors', () => {
     const btn = screen.getByText('set');
     btn.click(); // Trigger updateValue
 
-    // Wait for async actions
+    // wait for async actions
     await waitFor(() => {
-      // Should call update
+      // should call update
       expect(mockRequest).toHaveBeenCalledWith('pkm_settings', 'update', expect.objectContaining({
         method: 'POST', // The hook uses POST for update with filter
         params: { filter: { key: { $eq: 'x' } } },
         data: { value: { foo: 'bar' } }
       }));
 
-      // Should NOT call create
+      // should not call create
       expect(mockRequest).not.toHaveBeenCalledWith('pkm_settings', 'create', expect.anything());
     });
   });
@@ -72,7 +72,7 @@ describe('useAppSetting upsert behaviors', () => {
     mockRequest.mockImplementation(async (resource, action, options) => {
       if (action === 'list') return { data: [] };
       if (action === 'update') {
-        // Simulate update returning empty/no match (so logic proceeds to create)
+        // simulate update returning empty/no match (so logic proceeds to create)
         return { data: [] };
       }
       if (action === 'create') {
@@ -86,10 +86,10 @@ describe('useAppSetting upsert behaviors', () => {
     btn.click();
 
     await waitFor(() => {
-      // Should call update first
+      // should call update first
       expect(mockRequest).toHaveBeenCalledWith('pkm_settings', 'update', expect.anything());
 
-      // Should call create second
+      // should call create second
       expect(mockRequest).toHaveBeenCalledWith('pkm_settings', 'create', expect.objectContaining({
         method: 'POST',
         data: { key: 'y', value: { foo: 'bar' } }

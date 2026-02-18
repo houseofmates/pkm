@@ -73,18 +73,18 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
 
   useEffect(() => {
   if (!open) {
-  // Reset to select screen on close if creating
+  // reset to select screen on close if creating
   if (!isEdit) setTimeout(() => setStep('type-select'), 300);
   } else {
   if (isEdit) setStep('database-form');
-  // If already open and not edit, ensure select
+  // if already open and not edit, ensure select
   else if (step === 'database-form' && !displayName) setStep('type-select');
   }
   }, [open, isEdit]);
 
   const handleCreateDocument = (mode: 'edgeless' | 'desktop-8k' | 'iphone-8k') => {
   const id = Math.random().toString(36).substring(7);
-  // Stash config
+  // stash config
   localStorage.setItem(`canvas-config-${id}`, JSON.stringify({ title: "untitled document", mode }));
   navigate(`/canvas/${id}`);
   if (setOpen) setOpen(false);
@@ -94,14 +94,14 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
   if (template) {
   setDisplayName(template.label);
   setColor(template.metadata.color);
-  // Map template fields to the internal schema format
+  // map template fields to the internal schema format
   setCsvFields(template.fields.map(f => ({
  ...f,
  detectionReason: 'Template',
  detectionConfidence: 'high' as const
   })));
   } else {
-  // Blank
+  // blank
   setDisplayName('');
   setCsvFields([]);
   }
@@ -124,24 +124,26 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
 
   useEffect(() => {
   if (open) {
-  // Fetch collections list for relation targets
+  // fetch collections list for relation targets
   client.listCollections().then(res => {
- // Filter out system and backend collections
+ // normalize response - could be array or { data: [...] }
+ const collectionsData: Collection[] = Array.isArray(res) ? res : ((res as { data?: Collection[] })?.data || []);
+ // filter out system and backend collections
  const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers', 'site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates', 'website'];
- const filteredCollections = res.data.filter((col: Collection) => {
+ const filteredCollections = collectionsData.filter((col: Collection) => {
  const name = (col.name || '').toLowerCase().trim();
  const title = (col.title || '').toLowerCase().trim();
 
- // Exclude system collections
+ // exclude system collections
  if (systemCollections.includes(name)) return false;
 
- // Exclude pkm_settings
+ // exclude pkm_settings
  if (name === 'pkm_settings' || title === 'pkm settings') return false;
 
- // Hide anything with "backend" in the name or title
+ // hide anything with "backend" in the name or title
  if (name.includes('backend') || title.includes('backend')) return false;
 
- // Exclude hidden collections
+ // exclude hidden collections
  if (col.hidden) return false;
 
  return true;
@@ -162,7 +164,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
  setColor('#666666');
  setCsvData([]);
  setCsvFields([]);
- // Auto-focus title on create
+ // auto-focus title on create
  setTimeout(() => titleInputRef.current?.focus(), 100);
   }
   }
@@ -230,31 +232,31 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
  title: displayName,
  });
   } else {
- // 1. Create Collection
+ // 1. create collection
  await client.createCollection({
  title: displayName,
  name: finalName,
  });
 
- // 2. If CSV/Templates, Create Fields
+ // 2. if csv/templates, create fields
  if (csvFields.length > 0) {
  toast.info(`creating ${csvFields.length} fields...`);
- // We must create fields sequentially or carefully to avoid NocoBase race conditions
+ // we must create fields sequentially or carefully to avoid nocobase race conditions
  for (const field of csvFields) {
  const fieldType = FIELD_TYPES.find(t => t.interface === field.interface);
 
- // Intelligent Type/UI Management: Prevent varchar(255) overflow
+ // intelligent type/ui management: prevent varchar(255) overflow
  let dbType: string = fieldType?.type || 'string';
  let xComponent = 'Input';
 
- // Check if data contains long strings (> 200 chars)
+ // check if data contains long strings (> 200 chars)
  const isLong = csvData.some(row => String(row[field.title] || '').length > 200);
 
  if (isLong && (dbType === 'string' || field.interface === 'text')) {
    dbType = 'text';
    xComponent = 'Input.TextArea';
  } else {
-   // Default component mapping
+   // default component mapping
    switch (field.interface) {
    case 'number': xComponent = 'InputNumber'; break;
    case 'checkbox': xComponent = 'Checkbox'; break;
@@ -269,7 +271,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
    'x-component': xComponent,
  };
 
- // Extract options for Select / Multi-Select (CSV only)
+ // extract options for select / multi-select (csv only)
  if (csvData.length > 0 && (field.interface === 'select' || field.interface === 'multipleSelect')) {
    const uniqueValues = new Set<string>();
    csvData.forEach(row => {
@@ -288,7 +290,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
    }
  }
 
- // Use Template UI Schema if available
+ // use template ui schema if available
  if (field.uiSchema) {
    uiSchema = {
    ...uiSchema,
@@ -315,7 +317,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
  await client.createField(finalName, fieldConfig);
  }
 
- // 3. Batch Create Records
+ // 3. batch create records
  if (csvData.length > 0) {
  toast.info(`importing ${csvData.length} records...`);
  const batchSize = 10;
@@ -341,7 +343,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
  }
   }
 
-  // Save metadata
+  // save metadata
   const collectionKey = isEdit ? collection.name : finalName;
   setMetadata(prev => ({
  ...prev,
@@ -357,7 +359,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
   onSuccess();
   } catch (error: any) {
   console.error(error);
-  toast.error(error.message || `Failed to ${isEdit ? 'update' : 'create'} database`);
+  toast.error(error.message || `failed to ${isEdit ? 'update' : 'create'} database`);
   } finally {
   setLoading(false);
   }
@@ -403,7 +405,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
  </DialogDescription>
  </DialogHeader>
 
- {/* Step 1: Type Selection */}
+ {/* step 1: type selection */}
  {step === 'type-select' && (
  <div className="grid grid-cols-2 gap-4 py-4">
  <Card
@@ -430,7 +432,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
  </div>
  )}
 
- {/* Step 1.5: Template Selection */}
+ {/* step 1.5: template selection */}
  {step === 'template-select' && (
  <div className="space-y-4">
  <Button variant="ghost" size="sm" className="pl-0 gap-1" onClick={() => setStep('type-select')}>
@@ -455,10 +457,10 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
    style={{ borderColor: template.metadata.color ? `${template.metadata.color}40` : undefined }}
    >
    <CardContent className="flex flex-col items-center justify-center p-4 gap-1 text-center h-24 relative overflow-hidden">
-  {/* Color accent */}
+  {/* color accent */}
   <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: template.metadata.color }} />
 
-  {/* Icon (dynamic string to component mapping would be ideal, but for now generic Zap) */}
+  {/* icon (dynamic string to component mapping would be ideal, but for now generic zap) */}
   <Zap className="w-5 h-5" style={{ color: template.metadata.color }} />
 
   <div className="font-semibold text-xs lowercase truncate w-full">{template.label}</div>
@@ -473,7 +475,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
  )}
 
 
- {/* Step 2b: Document Selection */}
+ {/* step 2b: document selection */}
  {step === 'document-select' && (
  <div className="space-y-4">
  <Button variant="ghost" size="sm" className="pl-0 gap-1" onClick={() => setStep('type-select')}>
@@ -517,7 +519,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
  )}
 
 
- {/* Step 2a: Database Form (Existing) */}
+ {/* step 2a: database form (existing) */}
  {step === 'database-form' && (
  <form onSubmit={handleSubmit} className="space-y-4">
  {!isEdit && (

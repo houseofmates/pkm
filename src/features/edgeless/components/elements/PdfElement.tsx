@@ -35,14 +35,14 @@ export function PdfElement({ element, pdfDocument }: PdfElementProps) {
 
  setRendered(true)
 
- // Render Annotation Layer
+ // render annotation layer
  if (annotationLayerRef.current) {
  annotationLayerRef.current.innerHTML = '' // Clear
- // Simplified Annotation Layer for Links
- // const annotations = await page.getAnnotations()
+ // simplified annotation layer for links
+ // const annotations = await page.getannotations()
 
- // Custom simplified renderer for links
- // ... We will implement this more fully in the next step
+ // custom simplified renderer for links
+ // ... we will implement this more fully in the next step
  }
   }
   }
@@ -65,12 +65,12 @@ export function PdfElement({ element, pdfDocument }: PdfElementProps) {
  className="absolute top-0 left-0 w-full h-full"
  style={{ pointerEvents: 'none' }}
   />
-  {/* Annotation Layer - Renders strictly on top of everything when in interact mode */}
+  {/* annotation layer - renders strictly on top of everything when in interact mode */}
   <div
  ref={annotationLayerRef}
  className="annotationLayer absolute top-0 left-0 w-full h-full"
  style={{
- // We need to scale this effectively to match the canvas
+ // we need to scale this effectively to match the canvas
  }}
   >
   </div>

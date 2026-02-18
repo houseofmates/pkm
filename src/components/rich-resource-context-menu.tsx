@@ -16,11 +16,11 @@ interface RichResourceContextMenuProps {
   children?: React.ReactNode;
 }
 
-// Full Icon List derived from Lucide
-// We filter out:
-// 1. 'icons', 'createLucideIcon', 'default' (internal exports)
-// 2. Keys starting with 'Lucide' (duplicates of base names)
-// 3. Keys ending with 'Icon' (duplicates of base names, e.g. 'AppleIcon' vs 'Apple')
+// full icon list derived from lucide
+// we filter out:
+// 1. 'icons', 'createlucideicon', 'default' (internal exports)
+// 2. keys starting with 'lucide' (duplicates of base names)
+// 3. keys ending with 'icon' (duplicates of base names, e.g. 'appleicon' vs 'apple')
 const ALL_ICONS = Object.keys(LucideIcons).filter(key =>
   key !== 'icons' &&
   key !== 'createLucideIcon' &&
@@ -30,47 +30,47 @@ const ALL_ICONS = Object.keys(LucideIcons).filter(key =>
   /^[A-Z]/.test(key)
 );
 
-// Semantic Keywords for "Smart Search"
+// semantic keywords for "smart search"
 const ICON_KEYWORDS: Record<string, string[]> = {
-  // Food & Drink
+  // food & drink
   'food': ['Apple', 'Banana', 'Cherry', 'Citrus', 'Coffee', 'Cookie', 'Croissant', 'CupSoda', 'Donut', 'Egg', 'Fish', 'Grape', 'IceCream', 'Lollipop', 'Martini', 'Milk', 'Nut', 'Pizza', 'Popcorn', 'Potato', 'Sandwich', 'Soup', 'Utensils', 'Wheat', 'Wine', 'Beef', 'Beer', 'Candy', 'Carrot', 'Vegan', 'Cake', 'IceCream2'],
   'drink': ['Beer', 'Coffee', 'CupSoda', 'Martini', 'Milk', 'Wine', 'GlassWater'],
 
-  // Nature & Environment
+  // nature & environment
   'nature': ['Cloud', 'Sun', 'Moon', 'Tree', 'Flower', 'Leaf', 'Mountain', 'Snowflake', 'Flame', 'Zap', 'Droplets', 'Waves', 'Wind', 'Cat', 'Dog', 'Bird', 'Fish', 'Rabbit', 'Squirrel', 'Bug', 'Palmtree', 'Tent', 'Flower2'],
   'weather': ['Cloud', 'CloudRain', 'CloudSnow', 'CloudLightning', 'Sun', 'Moon', 'Thermometer', 'Umbrella', 'Wind', 'Rainbow', 'Sunset', 'Sunrise'],
   'beach': ['Palmtree', 'Umbrella', 'Sun', 'Waves', 'Shell', 'Fish'],
   'garden': ['Flower', 'Shovel', 'Sprout', 'Tree', 'Fence'],
 
-  // Tech & Electronics
+  // tech & electronics
   'tech': ['Cpu', 'Database', 'HardDrive', 'Keyboard', 'Laptop', 'Monitor', 'Mouse', 'Phone', 'Server', 'Smartphone', 'Tablet', 'Tv', 'Watch', 'Wifi', 'Battery', 'Bluetooth', 'Camera', 'Headphones', 'Speaker', 'Radio', 'Gamepad', 'Printer', 'Scanner'],
   'computer': ['Monitor', 'Laptop', 'Cpu', 'Keyboard', 'Mouse', 'HardDrive', 'Server', 'Code', 'Terminal'],
   'gaming': ['Gamepad', 'Gamepad2', 'Joystick', 'Dice', 'Sword', 'Ghost', 'Skull', 'Trophy', 'Crown'],
   'xbox': ['Gamepad', 'Gamepad2'], // Specific Request
   'boombox': ['BoomBox', 'Speaker', 'Radio'], // Specific Request
 
-  // Money & Finance
+  // money & finance
   'money': ['Banknote', 'CircleDollarSign', 'Coins', 'CreditCard', 'DollarSign', 'Gem', 'Landmark', 'PiggyBank', 'Receipt', 'Wallet', 'BadgeDollarSign', 'HandCoins', 'CircleDollarSign'],
   'finance': ['TrendingUp', 'TrendingDown', 'BarChart', 'PieChart', 'LineChart', 'Activity', 'BadgePercent', 'Calculator'],
 
-  // Objects & Life
+  // objects & life
   'life': ['Home', 'Bed', 'Bath', 'Briefcase', 'ShoppingBag', 'ShoppingCart', 'Ticket', 'Key', 'Lock', 'Map', 'Compass', 'Gift', 'Tag', 'Bookmark'],
   'home': ['Home', 'Bed', 'AppWindow', 'Armchair', 'Bath', 'ConciergeBell', 'DoorOpen', 'Fan', 'Lamp', 'Refrigerator', 'Sofa', 'Tv', 'WashingMachine'],
   'minecraft': ['Box', 'Cuboid', 'Ghost', 'Pickaxe', 'Axe', 'Shovel', 'Sword'], // Specific Request
 
-  // Office & Work
+  // office & work
   'office': ['Folder', 'File', 'Archive', 'Briefcase', 'Calculator', 'Clipboard', 'Paperclip', 'Printer', 'Scissors', 'Stapler', 'Trash', 'Briefcase', 'Calendar'],
 
-  // Transport
+  // transport
   'transport': ['Bike', 'Bus', 'Car', 'Plane', 'Rocket', 'Ship', 'Train', 'Truck', 'Anchor', 'Sailboat', 'TramFront'],
 
-  // Misc Specific Requests
+  // misc specific requests
   'cane': ['CandyCane', 'Accessibility', 'Crutch'], // "cane"
   'umbrella': ['Umbrella'],
   'cart': ['ShoppingCart', 'ShoppingBag'],
 };
 
-// Fallback Emoji List (Common)
+// fallback emoji list (common)
 const DEFAULT_EMOJIS = [
   { unified: '1f600', short_name: 'grinning face' },
   { unified: '1f603', short_name: 'grinning face with big eyes' },
@@ -296,31 +296,31 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   const [localName, setLocalName] = useState(currentName || '');
   const [search, setSearch] = useState('');
 
-  // Sync local name if prop changes
+  // sync local name if prop changes
   useEffect(() => {
   if (currentName) setLocalName(currentName);
   }, [currentName]);
 
-  // Emoji State
+  // emoji state
   const [emojis, setEmojis] = useState<any[]>(DEFAULT_EMOJIS);
   const [loadingEmojis, setLoadingEmojis] = useState(false);
 
-  // Load Emojis (Twemoji based source or standard list)
-  // Load Emojis (Twemoji based source or standard list)
+  // load emojis (twemoji based source or standard list)
+  // load emojis (twemoji based source or standard list)
   useEffect(() => {
   if (activeTab === 'emojis' && emojis.length === DEFAULT_EMOJIS.length) {
   setLoadingEmojis(true);
-  // Fetch a comprehensive emoji list
+  // fetch a comprehensive emoji list
   fetch('https://unpkg.com/emoji-datasource-twitter@15.0.0/emoji.json')
  .then(res => res.json())
  .then((data: any[]) => {
- // Sort by sort_order to ensure Smileys are first (fixing the "flags only" issue)
+ // sort by sort_order to ensure smileys are first (fixing the "flags only" issue)
  const sorted = data.sort((a, b) => a.sort_order - b.sort_order);
  setEmojis(sorted);
  setLoadingEmojis(false);
  })
  .catch(() => {
- // Fail silently, we have defaults
+ // fail silently, we have defaults
  setLoadingEmojis(false);
  });
   }
@@ -336,26 +336,26 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
 
   const lowerSearch = search.toLowerCase();
 
-  // 1. Direct Search
+  // 1. direct search
   const directMatches = ALL_ICONS.filter(name => name.toLowerCase().includes(lowerSearch));
 
-  // 2. Keyword Search
+  // 2. keyword search
   const keywordMatches = Object.entries(ICON_KEYWORDS)
   .filter(([key]) => key.includes(lowerSearch))
   .flatMap(([, icons]) => icons);
 
-  // Combine and Dedup
+  // combine and dedup
   const unique = Array.from(new Set([...directMatches, ...keywordMatches]));
   return unique.slice(0, 100);
   }, [search]);
 
-  // Twemoji URL Helper
+  // twemoji url helper
   const getTwemojiUrl = (unified: string) => {
   const code = unified.toLowerCase().replace(/-fe0f/g, '');
   return `https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/${code}.png`;
   };
 
-  // File Upload
+  // file upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (file) {
@@ -369,7 +369,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
 
   return (
   <ContextMenuContent className="w-[90vw] sm:w-[360px] p-0 overflow-hidden bg-[#050505] border-border/50 flex flex-col transition-all duration-300">
-  {/* Header: Name & Color Toggle */}
+  {/* header: name & color toggle */}
   <div className="p-4 border-b shrink-0 relative flex items-center gap-3">
  <div className="flex-1 space-y-1.5">
  <Label className="text-[10px] font-bold  text-muted-foreground/70">name</Label>
@@ -391,9 +391,9 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
 
   </div>
 
-  {/* Color Dot Toggle Removed - Moved to Tabs */}
+  {/* color dot toggle removed - moved to tabs */}
 
-  {/* Main Content Area */}
+  {/* main content area */}
   <div className="h-[400px] relative">
  <Tabs defaultValue="icons" className="w-full h-full flex flex-col" onValueChange={setActiveTab}>
  <div className="px-0 border-b bg-muted/30 shrink-0 flex items-center">
@@ -420,7 +420,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
  </TabsList>
  </div>
 
- {/* Search Bar - Moved below tabs to prevent overlap */}
+ {/* search bar - moved below tabs to prevent overlap */}
  {(activeTab === 'icons' || activeTab === 'emojis') && (
  <div className="p-2 border-b bg-muted/10 shrink-0 relative">
    <div className="relative">
@@ -517,7 +517,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
  </Tabs>
   </div>
 
-  {/* Footer: Upload */}
+  {/* footer: upload */}
   <div className="p-3 border-t bg-muted/30 shrink-0">
  <Button
  variant="outline"
@@ -526,7 +526,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
  >
  <Upload className="h-4 w-4 mr-2" /> upload custom icon
  </Button>
- {/* Hidden Children or Separator logic if needed, but 'children' props seemed unused in snippet view context or just generic actions */}
+ {/* hidden children or separator logic if needed, but 'children' props seemed unused in snippet view context or just generic actions */}
  {children && (
  <div className="mt-2 pt-2 border-t border-border/50 flex flex-col gap-1">
  {children}

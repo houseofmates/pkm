@@ -3,14 +3,14 @@ import { spawn } from 'child_process';
 import axios from 'axios';
 import fs from 'fs';
 
-// --- CONFIGURATION ---
+// --- configuration ---
 const LOG_FILE = '/home/house/Documents/docker/dupemates/data/logs/latest.log';
-// DIRECT TO BACKEND (Bypassing n8n to fix payload corruption)
+// direct to backend (bypass n8n to avoid payload corruption)
 const N8N_URL = 'http://localhost:4100/api/broadcast';
 const AUTH_KEY = process.env.BROADCAST_AUTH_KEY;
-// Removed blocklist per user request
+// removed blocklist per user request
 const BLOCKED_USERS = [];
-// De-dup window to prevent double join/leave (ms)
+// de-dup window to prevent double join/leave (ms)
 const DEDUPE_WINDOW_MS = 5000;
 const lastEventAt = new Map();
 
@@ -18,11 +18,11 @@ console.log(`[LogBridge] Starting Log Tail...`);
 console.log(`[LogBridge] Target: ${LOG_FILE}`);
 console.log(`[LogBridge] Direct Backend: ${N8N_URL}`);
 
-// Helper to send authenticated request to backend
+// helper to send authenticated request to backend
 async function sendToBackend(payload) {
     try {
         console.log(`[LogBridge] SENDING: ${JSON.stringify(payload)}`);
-        // Send flat payload directly to backend
+        // send flat payload directly to backend
         await axios.post(N8N_URL, payload, {
             headers: {
                 'x-api-key': AUTH_KEY,
@@ -34,7 +34,7 @@ async function sendToBackend(payload) {
     }
 }
 
-// Check if file exists
+// check if file exists
 if (!fs.existsSync(LOG_FILE)) {
     console.error(`[LogBridge] ERROR: Log file not found at ${LOG_FILE}`);
     process.exit(1);
@@ -48,7 +48,7 @@ tail.stdout.on('data', async (data) => {
     for (const line of lines) {
         if (!line.trim()) continue;
 
-        // DiscordSRV Chat Logic
+        // discordsrv chat logic
         if (line.includes('[DiscordSRV] Chat:')) {
             const discordMatch = line.match(/Chat: \[.*?\] (.*?) > (.*)/);
             if (discordMatch) {
@@ -67,7 +67,7 @@ tail.stdout.on('data', async (data) => {
             }
         }
 
-        // PARSING LOGIC - Chat
+        // parsing logic - chat
         if (line.includes('[Async Chat Thread') || (line.includes('<') && line.includes('>'))) {
             const chatMatch = line.match(/<(\w+)>\s+(.*)/);
             if (chatMatch) {
@@ -85,11 +85,11 @@ tail.stdout.on('data', async (data) => {
         }
 
 
-        // Technical Join/Leave detection (Most reliable, only fires ONCE per session)
-        //regex for 1.21: [Server thread/INFO]: PlayerName[/IP] logged in
-        //regex for leave: [Server thread/INFO]: PlayerName lost connection: 
+        // technical join/leave detection (most reliable, only fires once per session)
+        //regex for 1.21: [server thread/info]: playername[/ip] logged in
+        //regex for leave: [server thread/info]: playername lost connection: 
 
-        // We use \s* after INFO]: to capture potential spaces
+        // we use \s* after info]: to capture potential spaces
         const techJoin = line.match(/INFO\]:\s*(\w+)\[.*\] logged in/);
         const chatJoin = line.match(/INFO\]:\s*(\w+) joined the game/); // Faster event
         const techLeave = line.match(/INFO\]:\s*(\w+) lost connection:/);

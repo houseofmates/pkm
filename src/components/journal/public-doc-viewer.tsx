@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { format } from 'date-fns';
+import { sanitizeHTML } from '@/lib/utils';
 
 interface PublicDocViewerProps {
   slug: string;
@@ -10,8 +11,8 @@ export function PublicDocViewer({ slug }: PublicDocViewerProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch public document
-  useState(() => {
+  // fetch public document
+  useEffect(() => {
   fetch(`/api/public/doc/${slug}`)
   .then(res => {
  if (!res.ok) throw new Error('Document not found or not public');
@@ -24,7 +25,7 @@ export function PublicDocViewer({ slug }: PublicDocViewerProps) {
   .catch(err => {
  setError(err.message);
  setLoading(false);
-  });
+  }, [slug]);
   });
 
   if (loading) {
@@ -51,7 +52,7 @@ export function PublicDocViewer({ slug }: PublicDocViewerProps) {
 
   return (
   <div className="min-h-screen bg-background font-varela">
-  {/* Banner Image */}
+  {/* banner image */}
   {document.banner_image && (
  <div className="w-full h-64 border-b">
  <img
@@ -62,7 +63,7 @@ export function PublicDocViewer({ slug }: PublicDocViewerProps) {
  </div>
   )}
 
-  {/* Centered Content */}
+  {/* centered content */}
   <div className="max-w-3xl mx-auto px-6 py-12">
  <h1
  className="text-5xl font-bold text-center mb-4 font-varela"
@@ -79,7 +80,7 @@ export function PublicDocViewer({ slug }: PublicDocViewerProps) {
 
  <div
  className="prose prose-lg max-w-none font-varela"
- dangerouslySetInnerHTML={{ __html: document.content || '' }}
+ dangerouslySetInnerHTML={{ __html: sanitizeHTML(document.content) }}
  />
   </div>
   </div>

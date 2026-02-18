@@ -16,19 +16,19 @@ class ContextServer {
         this.app.use(cors());
         this.app.use(express.json());
 
-        // Middleware for API Key (Simple check)
+        // middleware to validate the api key (lightweight check)
         this.app.use((req, res, next) => {
-            // Allow health check without key
+            // allow health check without key
             if (req.path === '/health') return next();
 
             const authHeader = req.headers.authorization;
             const key = process.env.PKM_LLM_KEY || 'default-dev-key'; // Fallback for dev
 
             if (!authHeader || !authHeader.includes(key)) {
-                // Relaxed check for now: just check if header exists or if dev mode
-                // Ideally: const token = authHeader.split(' ')[1]; if (token !== key) ...
-                // For now, let's just log and proceed or fail if strict.
-                // User requested "read-only api key".
+                // relaxed check for now: just check if header exists or if dev mode
+                // ideally: const token = authheader.split(' ')[1]; if (token !== key) ...
+                // for now, let's just log and proceed or fail if strict.
+                // user requested "read-only api key".
                 if (process.env.NODE_ENV !== 'development' && (!authHeader || !authHeader.includes(key))) {
                     return res.status(401).json({ error: 'Unauthorized' });
                 }
@@ -36,12 +36,12 @@ class ContextServer {
             next();
         });
 
-        // GET /context - The main endpoint for LLM
+        // get /context - the main endpoint for llm
         this.app.get('/context', (req, res) => {
             res.json(this.currentContext);
         });
 
-        // GET /health
+        // get /health
         this.app.get('/health', (req, res) => {
             res.json({ status: 'ok', uptime: process.uptime() });
         });

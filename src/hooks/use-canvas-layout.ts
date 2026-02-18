@@ -24,16 +24,16 @@ export function useCanvasLayout(tableName: string) {
   const [isLoading, setIsLoading] = useState(false);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  // Fetch Layout
+  // fetch layout
   useEffect(() => {
   if (!tableName || !isAuthenticated) return;
 
   const fetchLayout = async () => {
   setIsLoading(true);
   try {
- // Determine layout ID based on tableName
- // We store layouts in a 'canvas_layouts' table
- // Schema: id, name (unique), layout_data (json)
+ // determine layout id based on tablename
+ // we store layouts in a 'canvas_layouts' table
+ // schema: id, name (unique), layout_data (json)
 
  const res = await apiClient.get('/canvas_layouts', {
  params: {
@@ -63,12 +63,12 @@ export function useCanvasLayout(tableName: string) {
   fetchLayout();
   }, [tableName, isAuthenticated]);
 
-  // Save Layout (Debounced)
+  // save layout (debounced)
   const saveLayout = useCallback(async (currentLayoutMs: CanvasLayoutData) => {
   if (!tableName) return;
 
   try {
-  // Check if exists first
+  // check if exists first
   const res = await apiClient.get('/canvas_layouts', {
  params: {
  filter: { name: tableName }

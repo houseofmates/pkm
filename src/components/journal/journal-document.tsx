@@ -18,7 +18,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
   const [showCheatSheet, setShowCheatSheet] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
-  // Ctrl+M keyboard shortcut for cheat sheet
+  // ctrl+m keyboard shortcut for cheat sheet
   useEffect(() => {
   const handleKeyDown = (e: KeyboardEvent) => {
   if (e.ctrlKey && e.key === 'm') {
@@ -31,7 +31,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
   return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // Handle text selection and context menu
+  // handle text selection and context menu
   const handleContextMenu = (e: React.MouseEvent) => {
   if (readOnly) return;
 
@@ -39,7 +39,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
   const selection = window.getSelection();
   let selectedText = selection?.toString() || '';
 
-  // If no selection, select the word under cursor
+  // if no selection, select the word under cursor
   if (!selectedText && selection) {
   const range = document.caretRangeFromPoint(e.clientX, e.clientY);
   if (range) {
@@ -48,7 +48,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
  const text = textNode.textContent || '';
  const offset = range.startOffset;
 
- // Find word boundaries
+ // find word boundaries
  let start = offset;
  let end = offset;
  while (start > 0 && /\w/.test(text[start - 1])) start--;
@@ -56,7 +56,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
 
  selectedText = text.substring(start, end);
 
- // Select the word
+ // select the word
  const newRange = document.createRange();
  newRange.setStart(textNode, start);
  newRange.setEnd(textNode, end);
@@ -111,7 +111,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
   };
 
   const handleBannerUpload = async (file: File) => {
-  // TODO: Implement banner upload to backend
+  // todo: implement banner upload to backend
   const formData = new FormData();
   formData.append('file', file);
 
@@ -139,7 +139,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
 
   return (
   <div className="min-h-screen bg-background font-varela">
-  {/* Banner Image Area */}
+  {/* banner image area */}
   <div
  className="relative w-full h-64 bg-muted/20 border-b border-primary cursor-pointer group"
  onClick={handleBannerClick}
@@ -174,30 +174,30 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
    <input
    type="file"
    accept="image/*"
-   onChange={(e) => {
+   onchange={(e) => {
    const file = e.target.files?.[0];
-   if (file) handleBannerUpload(file);
+   if (file) handlebannerupload(file);
    }}
-   className="w-full"
+   classname="w-full"
    />
-   <div className="flex gap-2 mt-4">
-   <Button
+   <div classname="flex gap-2 mt-4">
+   <button
    variant="outline"
    size="sm"
-   onClick={() => setShowBannerUpload(false)}
-   className="flex-1 lowercase"
+   onclick={() => setshowbannerupload(false)}
+   classname="flex-1 lowercase"
    >
    cancel
-   </Button>
+   </button>
    </div>
  </div>
  </div>
  )}
   </div>
 
-  {/* Centered Content Container */}
+  {/* centered content container */}
   <div className="max-w-3xl mx-auto px-6 py-12">
- {/* Title */}
+ {/* title */}
  <h1
  className="text-5xl font-bold text-center mb-4 font-varela"
  style={{ color: documentColor }}
@@ -212,15 +212,15 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
  {document.title || 'Untitled Journal Entry'}
  </h1>
 
- {/* Date */}
+ {/* date */}
  <div className="text-center text-muted-foreground text-lg mb-8 font-varela">
  {format(createdDate, 'MMMM d, yyyy')}
  </div>
 
- {/* Divider */}
+ {/* divider */}
  <div className="w-24 h-0.5 bg-primary mx-auto mb-12" />
 
- {/* Content Editor */}
+ {/* content editor */}
  <div
  ref={contentRef}
  className="prose prose-lg max-w-none font-varela"
@@ -235,7 +235,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
  </div>
   </div>
 
-  {/* Context Menu */}
+  {/* context menu */}
   {contextMenu && (
  <TextContextMenu
  x={contextMenu.x}
@@ -246,7 +246,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
  />
   )}
 
-  {/* Markdown Cheat Sheet */}
+  {/* markdown cheat sheet */}
   <MarkdownCheatSheet
  open={showCheatSheet}
  onClose={() => setShowCheatSheet(false)}

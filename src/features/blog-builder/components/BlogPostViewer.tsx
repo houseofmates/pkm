@@ -31,13 +31,13 @@ export function BlogPostViewer({ post, onViewCountUpdate }: BlogPostViewerProps)
   const [showWarnings, setShowWarnings] = useState(true);
 
   useEffect(() => {
-  // Increment view count
+  // increment view count
   onViewCountUpdate?.(post.id);
   }, [post.id, onViewCountUpdate]);
 
   return (
   <div className="min-h-screen bg-[#050505] text-white">
-  {/* Back Button */}
+  {/* back button */}
   <button
  onClick={() => navigate('/')}
  className="fixed top-8 left-8 z-50 p-3 rounded-full bg-black/60 backdrop-blur-sm border border-white/20 hover:bg-black/80 hover:border-[var(--primary)]/50 transition-all interactive-pop"
@@ -45,7 +45,7 @@ export function BlogPostViewer({ post, onViewCountUpdate }: BlogPostViewerProps)
  <ArrowLeft size={20} className="text-white" />
   </button>
 
-  {/* Banner Image */}
+  {/* banner image */}
   {post.banner_image && (
  <div className="relative w-full h-[50vh] overflow-hidden">
  <img
@@ -57,14 +57,14 @@ export function BlogPostViewer({ post, onViewCountUpdate }: BlogPostViewerProps)
  </div>
   )}
 
-  {/* Content Container */}
+  {/* content container */}
   <div className="max-w-4xl mx-auto px-8 py-12 -mt-32 relative z-10">
- {/* Title */}
+ {/* title */}
  <h1 className="text-6xl font-black lowercase mb-6 leading-tight">
  {post.title}
  </h1>
 
- {/* Metadata */}
+ {/* metadata */}
  <div className="flex flex-wrap items-center gap-4 mb-8 text-sm text-white/60">
  {post.published_date && (
  <div className="flex items-center gap-2">
@@ -120,7 +120,7 @@ export function BlogPostViewer({ post, onViewCountUpdate }: BlogPostViewerProps)
  )}
  </div>
 
- {/* Content Warnings */}
+ {/* content warnings */}
  {post.content_warnings && post.content_warnings.length > 0 && (
  <div className="mb-8 p-6 rounded-2xl bg-yellow-500/10 border border-yellow-500/30">
  <button
@@ -140,7 +140,7 @@ export function BlogPostViewer({ post, onViewCountUpdate }: BlogPostViewerProps)
  </div>
  )}
 
- {/* Tags */}
+ {/* tags */}
  {post.tags && post.tags.length > 0 && (
  <div className="flex flex-wrap items-center gap-2 mb-8">
  <Tag size={16} className="text-white/40" />
@@ -155,7 +155,7 @@ export function BlogPostViewer({ post, onViewCountUpdate }: BlogPostViewerProps)
  </div>
  )}
 
- {/* Post Content */}
+ {/* post content */}
  <div className="prose prose-invert prose-lg max-w-none">
  {post.content && Array.isArray(post.content) ? (
  <SimpleContentRenderer elements={post.content} />
@@ -166,7 +166,7 @@ export function BlogPostViewer({ post, onViewCountUpdate }: BlogPostViewerProps)
  )}
  </div>
 
- {/* Footer */}
+ {/* footer */}
  <div className="mt-16 pt-8 border-t border-white/10 text-white/40 text-sm lowercase">
  <p>views: {post.view_count || 0}</p>
  </div>

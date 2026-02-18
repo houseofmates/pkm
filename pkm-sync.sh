@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # pkm auto-sync script
-# stages all changes, commits with a timestamped message, and pushes to houseofmates/pkm
+# stage changes, commit with a timestamped message, and push to the repo
 
 echo "--- pkm sync starting ---"
 

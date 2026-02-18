@@ -1,9 +1,9 @@
 import { useRef, useState, useEffect } from 'react'
 import { useEdgelessStore } from '../store'
-import { MousePointer2, Pencil, Eraser, Type, Link as LinkIcon, MessageCircle, Hand } from 'lucide-react'
+import { MousePointer2, Pencil, Eraser, Type, Link as LinkIcon, MessageCircle, Hand, BrainCircuit } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
 
-// Long Press Hook
+// long press hook
 function useLongPress(callback: () => void, ms = 500) {
   const [startLongPress, setStartLongPress] = useState(false)
   const timerRef = useRef<any>(null)
@@ -26,11 +26,11 @@ function useLongPress(callback: () => void, ms = 500) {
   }
 }
 
-// Tool Button Component
+// tool button component
 const ToolBtn = ({ tool, icon: Icon, menuContent, specialModeIcon, store, activeMenu, openMenu, closeMenu, onClickOverride }: any) => {
-  // Determine active state:
-  // If tool is 'pen' or 'eraser', we also need to be in 'draw' mode.
-  // If tool is 'select' or 'hand', we check activeTool.
+  // determine active state:
+  // if tool is 'pen' or 'eraser', we also need to be in 'draw' mode.
+  // if tool is 'select' or 'hand', we check activetool.
   const isActive = store.activeTool === tool && (
   (tool === 'select' || tool === 'hand') ? true : store.mode === 'draw'
   );
@@ -40,7 +40,7 @@ const ToolBtn = ({ tool, icon: Icon, menuContent, specialModeIcon, store, active
   })
 
   const handleClick = () => {
-  // Close any open menu first
+  // close any open menu first
   closeMenu()
 
   if (onClickOverride) {
@@ -66,7 +66,7 @@ const ToolBtn = ({ tool, icon: Icon, menuContent, specialModeIcon, store, active
  className={`h-[48px] w-[48px] flex items-center justify-center rounded-full transition-all relative ${isActive ? 'bg-primary text-primary-foreground' : 'text-primary hover:bg-primary/20'}`}
   >
  {specialModeIcon ? specialModeIcon : <Icon size={24} />}
- {/* Visual indicator for active mode variants */}
+ {/* visual indicator for active mode variants */}
  {activeMenu === tool && <div className="absolute -bottom-1 w-1 h-1 bg-primary rounded-full"></div>}
   </button>
 
@@ -88,7 +88,7 @@ export function Toolbar() {
   const closeMenu = () => setActiveMenu(null)
   const openMenu = (tool: string) => setActiveMenu(tool)
 
-  // Click outside handler
+  // click outside handler
   useEffect(() => {
   function handleClickOutside(event: MouseEvent) {
   if (activeMenu && toolbarRef.current && !toolbarRef.current.contains(event.target as Node)) {
@@ -102,7 +102,7 @@ export function Toolbar() {
   return (
   <div ref={toolbarRef} className="fixed bottom-24 left-1/2 -translate-x-1/2 md:top-4 md:right-24 md:left-auto md:translate-x-0 md:bottom-auto bg-black border-2 border-primary rounded-full p-2 flex gap-2 shadow-[4px_4px_0_var(--primary)] z-50 items-center">
 
-  {/* Layers Tool */}
+  {/* layers tool */}
   <ToolBtn
  tool="layers"
  icon={LucideIcons.Layers}
@@ -142,7 +142,7 @@ export function Toolbar() {
  }
   />
 
-  {/* Select Tool (Dual Mode: Grab vs Cursor) */}
+  {/* select tool (dual mode: grab vs cursor) */}
   <ToolBtn
  tool="select"
  icon={Hand}
@@ -152,7 +152,7 @@ export function Toolbar() {
  closeMenu={closeMenu}
  onClickOverride={() => {
  store.setTool('select')
- // Ensure we are in the correct mode for the tool
+ // ensure we are in the correct mode for the tool
  if (store.selectionMode === 'rect' || store.selectionMode === 'magic' || store.selectionMode === 'free') {
  store.setSelectionMode('grab') // Default fallback if weird state
  }
@@ -174,7 +174,7 @@ export function Toolbar() {
  }
   />
 
-  {/* Pen Tool */}
+  {/* pen tool */}
   <ToolBtn
  tool="pen"
  icon={Pencil}
@@ -184,7 +184,7 @@ export function Toolbar() {
  closeMenu={closeMenu}
  menuContent={
  <>
- {/* Size */}
+ {/* size */}
  <div className="flex flex-col gap-1 mb-2">
    <label className="text-xs text-primary lowercase flex justify-between">
    <span>size</span>
@@ -198,7 +198,7 @@ export function Toolbar() {
    />
  </div>
 
- {/* Stabilizer */}
+ {/* stabilizer */}
  <div className="flex flex-col gap-1 mb-2">
    <label className="text-xs text-primary lowercase flex justify-between">
    <span>stabilizer</span>
@@ -212,7 +212,7 @@ export function Toolbar() {
    />
  </div>
 
- {/* Pressure */}
+ {/* pressure */}
  <div className="flex items-center justify-between mb-2">
    <label className="text-xs text-primary lowercase">pressure</label>
    <input
@@ -225,7 +225,7 @@ export function Toolbar() {
 
  <div className="h-px bg-primary/20 my-2"></div>
 
- {/* Colors */}
+ {/* colors */}
  <div className="grid grid-cols-5 gap-2">
    {['var(--primary)', '#ffffff', '#ef4444', '#22c55e', '#3b82f6', '#a855f7', '#ec4899', '#9ca3af', '#000000', 'custom'].map((color) => {
    if (color === 'custom') {
@@ -255,7 +255,7 @@ export function Toolbar() {
  }
   />
 
-  {/* Eraser Tool */}
+  {/* eraser tool */}
   <ToolBtn
  tool="eraser"
  icon={Eraser}
@@ -276,7 +276,7 @@ export function Toolbar() {
  }
   />
 
-  {/* Text Tool */}
+  {/* text tool */}
   <ToolBtn
  tool="text"
  icon={Type}
@@ -305,13 +305,33 @@ export function Toolbar() {
  }
   />
 
-  {/* Wilson Toggle */}
+  {/* wilson / ai helpers */}
+  <div className="flex items-center gap-2">
   <button
- onClick={() => store.setChatOpen(!store.isChatOpen)}
- className={`h-[48px] w-[48px] flex items-center justify-center rounded-full transition-all ${store.isChatOpen ? 'bg-primary text-black' : 'text-primary hover:bg-primary/20'}`}
+    onClick={async () => {
+      // collect canvas state (falls back to element list)
+      const canvasState = (window as any).pkmGetCanvasJSON?.() || useEdgelessStore.getState().elements || {};
+      const q = window.prompt('ask wilson about the canvas (context will be included):');
+      if (!q) return;
+      // set background context for wilson, open chat, and ask
+      (await import('@/stores/llm-store')).useLLMStore.getState().setContext({ canvas: canvasState });
+      useEdgelessStore.getState().setChatOpen(true);
+      await (await import('@/stores/llm-store')).useLLMStore.getState().askWilson(q);
+      (await import('@/stores/llm-store')).useLLMStore.getState().setContext(null);
+    }}
+    title="ask wilson about canvas"
+    className={`h-[48px] w-[48px] flex items-center justify-center rounded-full transition-all text-primary hover:bg-primary/20`}
   >
- <MessageCircle size={24} />
+    <BrainCircuit size={20} />
   </button>
+
+  <button
+    onClick={() => store.setChatOpen(!store.isChatOpen)}
+    className={`h-[48px] w-[48px] flex items-center justify-center rounded-full transition-all ${store.isChatOpen ? 'bg-primary text-black' : 'text-primary hover:bg-primary/20'}`}
+  >
+    <MessageCircle size={24} />
+  </button>
+  </div>
 
   </div>
   )

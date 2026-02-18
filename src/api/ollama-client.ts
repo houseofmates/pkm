@@ -1,4 +1,6 @@
 
+import { getOllamaChatUrl } from '@/lib/llm-config';
+
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
   content: string;
@@ -16,48 +18,78 @@ export const OLLAMA_MODEL = 'qwen2.5:7b';
 
 export class OllamaClient {
 
-  async chat(messages: ChatMessage[]): Promise<ChatResponse> {
-  // Direct call to Ollama endpoint (via Vite proxy or direct URL)
-  // Using fetch to avoid conflicting with the NocoBase apiClient axios instance
-  try {
-  const response = await fetch('http://192.168.4.232:11434/api/chat', {
- method: 'POST',
- headers: {
- 'Content-Type': 'application/json',
- },
- body: JSON.stringify({
- model: OLLAMA_MODEL,
- messages,
- stream: false // Enforce false for this simple client
- })
-  });
+  async chat(messages: ChatMessage[], onStream?: (content: string) => void): Promise<ChatResponse> {
+    try {
+      const url = getOllamaChatUrl();
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: OLLAMA_MODEL,
+          messages,
+          stream: !!onStream
+        })
+      });
 
-  if (!response.ok) {
- throw new Error(`Ollama API Error: ${response.statusText}`);
+      if (!response.ok) {
+        throw new Error(`Ollama API Error: ${response.statusText}`);
+      }
+
+      if (onStream) {
+        const reader = response.body?.getReader();
+        const decoder = new TextDecoder();
+        let fullContent = '';
+
+        if (!reader) throw new Error("Could not get stream reader");
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          const lines = chunk.split('\n');
+
+          for (const line of lines) {
+            if (!line.trim()) continue;
+            try {
+              const json = JSON.parse(line);
+              if (json.message?.content) {
+                fullContent += json.message.content;
+                onStream(fullContent);
+              }
+              if (json.done) {
+                return json;
+              }
+            } catch (e) {
+              // ignore partial json
+            }
+          }
+        }
+        return { model: OLLAMA_MODEL, created_at: new Date().toISOString(), message: { role: 'assistant', content: fullContent }, done: true };
+      } else {
+        const data = await response.json();
+        return data;
+      }
+    } catch (error) {
+      console.error("Ollama Chat Error:", error);
+      throw error;
+    }
   }
 
-  const data = await response.json();
-  return data;
-  } catch (error) {
-  console.error("Ollama Chat Error:", error);
-  throw error;
-  }
-  }
+  async ask(query: string, context?: string, onStream?: (content: string) => void): Promise<string> {
+    const systemPrompt = context
+      ? `you are wilson, a helpful ai assistant for a personal knowledge management system. you must respond entirely in lowercase with no capital letters at all. be concise, friendly, and helpful. answer the user's question based on the following context:\n\n${context}`
+      : `you are wilson, a helpful ai assistant for a personal knowledge management system. you must respond entirely in lowercase with no capital letters at all. be concise, friendly, and accurate.`;
 
-  // "Other quick accurate search functions"
-  // We can use this to generate embeddings or semantic search types later.
-  // For now, let's add a robust "ask" method that frames the user query.
-  async ask(query: string, context?: string): Promise<string> {
-  const systemPrompt = context
-  ? `you are wilson, a helpful ai assistant for a personal knowledge management system. you must respond entirely in lowercase with no capital letters at all. be concise, friendly, and helpful. answer the user's question based on the following context:\n\n${context}`
-  : `you are wilson, a helpful ai assistant for a personal knowledge management system. you must respond entirely in lowercase with no capital letters at all. be concise, friendly, and accurate.`;
+    const response = await this.chat([
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: query }
+    ], (content) => {
+      if (onStream) onStream(content.toLowerCase());
+    });
 
-  const response = await this.chat([
-  { role: 'system', content: systemPrompt },
-  { role: 'user', content: query }
-  ]);
-
-  // Ensure response is lowercase
-  return response.message.content.toLowerCase();
+    return response.message.content.toLowerCase();
   }
 }

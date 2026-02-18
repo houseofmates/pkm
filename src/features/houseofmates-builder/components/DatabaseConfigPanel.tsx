@@ -15,16 +15,16 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
 
   const [fields, setFields] = useState<any[]>([]);
 
-  // Visible Fields
+  // visible fields
   const [visibleFields, setVisibleFields] = useState<string[]>(element?.content?.visibleFields || []);
 
-  // Sort State
+  // sort state
   const [sortField, setSortField] = useState(element?.content?.sort?.[0]?.replace('-', '') || '');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(
   element?.content?.sort?.[0]?.startsWith('-') ? 'desc' : 'asc'
   );
 
-  // Filter State (Simple single filter for now)
+  // filter state (simple single filter for now)
   const [filterField, setFilterField] = useState('');
   const [filterOp, setFilterOp] = useState('$eq');
   const [filterValue, setFilterValue] = useState('');
@@ -38,7 +38,7 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
  const validFields = colFields.filter((f: any) => !f.hidden && !f.name.startsWith('_'));
  setFields(validFields);
 
- // If no visible fields set, default to first 5
+ // if no visible fields set, default to first 5
  if (!element?.content?.visibleFields || element.content.visibleFields.length === 0) {
  setVisibleFields(validFields.slice(0, 5).map((f: any) => f.name));
  }
@@ -49,7 +49,7 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
   fetchFields();
   }, [element?.content?.collectionName]);
 
-  // Initial Filter Load (Naive)
+  // initial filter load (naive)
   useEffect(() => {
   const f = element?.content?.filter;
   if (f && typeof f === 'object') {
@@ -102,7 +102,7 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
  </div>
 
  <div className="space-y-6">
- {/* View Fields Selection */}
+ {/* view fields selection */}
  <div>
  <label className="block text-white/40 text-[10px]  mb-3 flex items-center gap-2">
    <Database className="w-3 h-3" />
@@ -130,7 +130,7 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
  </div>
 
  <div className="h-px bg-white/5" />
- {/* Sort Section */}
+ {/* sort section */}
  <div>
  <label className="block text-white/40 text-[10px]  mb-3 flex items-center gap-2">
    <ArrowUpDown className="w-3 h-3" />
@@ -174,7 +174,7 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
 
  <div className="h-px bg-white/5" />
 
- {/* Filter Section */}
+ {/* filter section */}
  <div>
  <label className="block text-white/40 text-[10px]  mb-3 flex items-center gap-2">
    <Filter className="w-3 h-3" />

@@ -12,7 +12,7 @@ export const WIDGET_TYPES = {
 
 export type WidgetType = typeof WIDGET_TYPES[keyof typeof WIDGET_TYPES];
 
-// ... (WidgetDefinition stays same)
+// ... (widgetdefinition stays same)
 
 export const COMPONENT_MAP: Record<WidgetType, React.ComponentType<any>> = {
   [WIDGET_TYPES.STAT]: StatWidget,

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Pre-migration system check
+# pre-migration system check — quick validations before upgrades
 
 echo "╔════════════════════════════════════════════════════════════════╗"
 echo "║        PKM Stack Pre-Migration System Check                    ║"

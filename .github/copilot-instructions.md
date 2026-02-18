@@ -2,7 +2,7 @@
 
 ## Project Overview
 - **pkm/**: Personal Knowledge Management system for a neurodivergent user. Emphasizes safety, low friction, and a calming UI. Integrates with NocoBase and SimplyPlural.
-- **discord-qwen-bot/**: Discord bot using Qwen LLM via Ollama, with custom slash commands and channel integration. Includes Minecraft mod bridge (chestray-mod/).
+- **discord-qwen-bot/**: Discord bot using Qwen LLM via Ollama, with custom slash commands and channel integration. used to include Minecraft mod bridge (chestray-mod/).
 
 ## Architecture & Key Patterns
 - **Frontend**: Vite (port 3010)

@@ -1,5 +1,5 @@
-// Standalone Node script to hide the 'dupemates-pages' collection in NocoBase
-// Uses direct axios call to the API, not the app's client
+// standalone node script to hide the 'dupemates-pages' collection in nocobase
+// uses direct axios call to the api, not the app's client
 import axios from 'axios';
 
 const API_URL = process.env.NOCOBASE_URL || 'http://localhost:4100/api';
@@ -20,7 +20,7 @@ const api = axios.create({
 
 async function hideDupematesPages() {
   try {
-    // Try to fetch the collection (case-insensitive search)
+    // try to fetch the collection (case-insensitive search)
     let res = await api.get('/collections:list');
     let list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
     let found = list.find(c => (c.name || '').toLowerCase() === 'dupemates-pages');
@@ -28,7 +28,7 @@ async function hideDupematesPages() {
       console.error("Collection 'dupemates-pages' not found.");
       return { success: false, message: "Collection not found." };
     }
-    // Update to hidden
+    // update to hidden
     await api.post(`/collections/${found.name}:update`, { hidden: true });
     console.log(`Collection '${found.name}' was successfully hidden.`);
     return { success: true, message: `Collection '${found.name}' was successfully hidden.` };

@@ -34,7 +34,7 @@ export function BlogPostCard({ post, onClick }: BlogPostCardProps) {
  "flex flex-col h-full"
   )}
   >
-  {/* Banner Image */}
+  {/* banner image */}
   {post.banner_image && !imageError ? (
  <div className="relative w-full aspect-[16/9] overflow-hidden bg-black/20">
  <img
@@ -43,7 +43,7 @@ export function BlogPostCard({ post, onClick }: BlogPostCardProps) {
  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
  onError={() => setImageError(true)}
  />
- {/* Gradient Overlay */}
+ {/* gradient overlay */}
  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
  </div>
   ) : (
@@ -52,23 +52,23 @@ export function BlogPostCard({ post, onClick }: BlogPostCardProps) {
  </div>
   )}
 
-  {/* Content */}
+  {/* content */}
   <div className="p-6 flex flex-col flex-1">
- {/* Title */}
+ {/* title */}
  <h3 className="text-2xl font-black text-white mb-3 lowercase line-clamp-2 group-hover:text-[var(--primary)] transition-colors">
  {post.title}
  </h3>
 
- {/* Excerpt */}
+ {/* excerpt */}
  {post.excerpt && (
  <p className="text-white/60 text-sm leading-relaxed mb-4 line-clamp-3 flex-1">
  {post.excerpt}
  </p>
  )}
 
- {/* Metadata Footer */}
+ {/* metadata footer */}
  <div className="flex flex-wrap items-center gap-3 text-xs text-white/40 mt-auto">
- {/* Date */}
+ {/* date */}
  {post.published_date && (
  <span className="lowercase">
    {new Date(post.published_date).toLocaleDateString('en-US', {
@@ -79,14 +79,14 @@ export function BlogPostCard({ post, onClick }: BlogPostCardProps) {
  </span>
  )}
 
- {/* Reading Time */}
+ {/* reading time */}
  {post.reading_time && (
  <span className="lowercase">
    {post.reading_time} min read
  </span>
  )}
 
- {/* Mood Indicator */}
+ {/* mood indicator */}
  {post.mood && (
  <span
    className="px-2 py-1 rounded-full text-xs font-bold lowercase"
@@ -100,7 +100,7 @@ export function BlogPostCard({ post, onClick }: BlogPostCardProps) {
  </span>
  )}
 
- {/* Energy Indicator */}
+ {/* energy indicator */}
  {post.energy_level && (
  <span
    className="px-2 py-1 rounded-full text-xs font-bold lowercase"
@@ -115,7 +115,7 @@ export function BlogPostCard({ post, onClick }: BlogPostCardProps) {
  )}
  </div>
 
- {/* Tags */}
+ {/* tags */}
  {post.tags && post.tags.length > 0 && (
  <div className="flex flex-wrap gap-2 mt-3">
  {post.tags.slice(0, 3).map((tag, idx) => (

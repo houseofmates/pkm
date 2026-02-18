@@ -5,7 +5,7 @@ import 'leaflet/dist/leaflet.css';
 import { Button } from '@/components/ui/button';
 import L from 'leaflet';
 
-// Fix for default marker icon in React Leaflet
+// fix for default marker icon in react leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -38,7 +38,7 @@ function LocationMarker({ position, onChange, readOnly }: { position: L.LatLng |
 }
 
 export function LocationField({ value, onChange, readOnly }: LocationFieldProps) {
-  // Parse value
+  // parse value
   const parsePos = (str: string): L.LatLng | null => {
   if (!str) return null;
   try {
@@ -71,7 +71,7 @@ export function LocationField({ value, onChange, readOnly }: LocationFieldProps)
  <LocationMarker position={position} onChange={handleUpdate} readOnly={readOnly} />
   </MapContainer>
 
-  {/* View Button Overlay (If we want to open external map) */}
+  {/* view button overlay (if we want to open external map) */}
   <div className="absolute bottom-1 right-1 z-[400] opacity-0 group-hover:opacity-100 transition-opacity">
  <Button size="sm" variant="secondary" className="text-xs h-6" onClick={(e) => {
  e.stopPropagation();

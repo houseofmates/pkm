@@ -19,7 +19,7 @@ export function ShareDialog({ documentId, isPublic, onTogglePublic }: ShareDialo
 
   const handleCopyLink = () => {
   navigator.clipboard.writeText(publicUrl);
-  toast.success('Link copied to clipboard');
+  toast.success('link copied to clipboard');
   };
 
   return (
@@ -41,7 +41,7 @@ export function ShareDialog({ documentId, isPublic, onTogglePublic }: ShareDialo
  </DialogHeader>
 
  <div className="space-y-4">
- {/* Privacy Toggle */}
+ {/* privacy toggle */}
  <div className="flex items-center justify-between p-4 bg-muted/20 rounded-lg">
    <div className="flex items-center gap-3">
    {isPublic ? (
@@ -66,7 +66,7 @@ export function ShareDialog({ documentId, isPublic, onTogglePublic }: ShareDialo
    />
  </div>
 
- {/* Public Link */}
+ {/* public link */}
  {isPublic && (
    <div className="space-y-2">
    <Label className="lowercase">public link</Label>

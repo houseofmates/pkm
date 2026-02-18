@@ -25,7 +25,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
   setLocalData(data);
   }, [data]);
 
-  // --- LIVING DATA: VISUAL DECAY ---
+  // --- living data: visual decay ---
   const lastWatered = data['last_watered'] || data['updatedAt']; // Fallback
   const daysSince = lastWatered
   ? Math.floor((new Date().getTime() - new Date(lastWatered).getTime()) / (1000 * 3600 * 24))
@@ -34,27 +34,27 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
   const isWithered = daysSince > 7;
   const isThirsty = daysSince > 3 && !isWithered;
 
-  // Dynamic Filter Style
+  // dynamic filter style
   const decayStyle = isWithered
   ? { filter: 'grayscale(0.8) contrast(0.8)', opacity: 0.8 }
   : isThirsty
   ? { filter: 'grayscale(0.4)', opacity: 0.95 }
   : {};
 
-  // Helpers to find key fields
+  // helpers to find key fields
   const titleField = fields.find(f => f.type === 'string' && !f.name.includes('id') && !f.name.includes('date'))?.name || 'title';
   const imageField = fields.find(f => f.type === 'attachment')?.name || 'cover';
 
   const previewImage = useMemo(() => {
-  // 1. Try 'thumbnail' (Base64)
+  // 1. try 'thumbnail' (base64)
   const thumb = localData['thumbnail'];
   if (thumb && typeof thumb === 'string' && thumb.startsWith('data:image')) return thumb;
 
-  // 2. Try 'content' if it's an image (raw base64 sometimes stored here for drawing)
+  // 2. try 'content' if it's an image (raw base64 sometimes stored here for drawing)
   const content = localData['content'];
   if (content && typeof content === 'string' && content.startsWith('data:image')) return content;
 
-  // 3. Fallback to Attachment
+  // 3. fallback to attachment
   const attach = localData[imageField];
   if (attach) return attach?.url || (Array.isArray(attach) ? attach[0]?.url : null);
 
@@ -88,30 +88,30 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
   if (!file) return;
 
   try {
-  // Upload to NocoBase
+  // upload to nocobase
   const uploaded = await api.upload(file);
   console.log("Uploaded:", uploaded);
 
-  // Structure expected by NocoBase attachment field is usually an array of objects
+  // structure expected by nocobase attachment field is usually an array of objects
   // or just the object depending on the field config.
-  // Safest default is to append to existing array or create new array.
+  // safest default is to append to existing array or create new array.
   const current = localData[imageField] || [];
   const newValue = Array.isArray(current) ? [...current, uploaded] : [uploaded];
 
   handleSave(imageField, newValue);
   } catch (error) {
   console.error("Upload failed", error);
-  // Optional: Show toast error
+  // optional: show toast error
   }
   };
 
-  // Filter fields to show (First 3 relevant ones excluding title/image)
-  // Order based on fields array order
+  // filter fields to show (first 3 relevant ones excluding title/image)
+  // order based on fields array order
   const visibleFields = fields
   .filter(f => !f.hidden && f.name !== titleField && f.name !== imageField && f.interface !== 'attachment' && f.name !== 'id')
   .slice(0, 3);
 
-  // Selection Style: Use box-shadow instead of ring to respect radius
+  // selection style: use box-shadow instead of ring to respect radius
   const selectionStyle = isSelected
   ? { boxShadow: '0 0 0 2px var(--primary-gold), 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' }
   : {};
@@ -122,12 +122,12 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
   collection={collection}
   onUpdate={onUpdate}
   >
-  {/* INNER CONTENT VESSEL - NOW THE ACTUAL CARD CONTAINER */}
+  {/* inner content vessel - now the actual card container */}
   <div
  className={cn(
- // OUTER SHADOW BOX CONTAINER - UNIVERSAL ROUNDING
+ // outer shadow box container - universal rounding
  "flex flex-col bg-card/80 backdrop-blur-sm text-card-foreground rounded-xl shadow-lg isolate relative transition-all hover:scale-[1.02]",
- // "border-2 border-border/50 overflow-hidden", // REMOVED: Replaced by .card-fix
+ // "border-2 border-border/50 overflow-hidden", // removed: replaced by .card-fix
  "card-fix",
  "p-0 h-full w-full",
  className
@@ -135,7 +135,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
  style={{
  ...selectionStyle,
  outline: 'none',
- // Rounded/Border handled by .card-fix
+ // rounded/border handled by .card-fix
  ...style, ...decayStyle
  }}
  onContextMenu={handleContextMenu}
@@ -147,7 +147,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
  onChange={handleImageUpload}
  />
 
- {/* Image Cover */}
+ {/* image cover */}
  {(previewImage || (visibleFields.length > 0)) ? (
  <div className="flex-1 w-full bg-muted/20 relative min-h-[80px] flex items-center justify-center overflow-hidden group rounded-t-[inherit]">
  {previewImage ? (
@@ -159,7 +159,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
    />
  ) : null}
 
- {/* Overlay Drag Handle */}
+ {/* overlay drag handle */}
  {previewImage && (
    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing p-1 bg-black/50 rounded-md">
    <GripVertical className="h-4 w-4 text-white/70" />
@@ -168,16 +168,16 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
  </div>
  ) : null}
 
- {/* Content Footer */}
+ {/* content footer */}
  <div className="shrink-0 p-3 flex flex-col gap-1.5 bg-card/95 border-t border-transparent pointer-events-auto h-auto rounded-b-[inherit] overflow-hidden">
- {/* Drag Handle (if no image) */}
+ {/* drag handle (if no image) */}
  {(!previewImage) && (
  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing p-1 bg-muted rounded-md z-20">
    <GripVertical className="h-4 w-4 text-muted-foreground" />
  </div>
  )}
 
- {/* Title */}
+ {/* title */}
  <div
  className="font-bold text-sm leading-tight font-[Varela Round] outline-none truncate pr-6"
  contentEditable
@@ -187,14 +187,14 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
  {localData[titleField] || 'Untitled'}
  </div>
 
- {/* Fields */}
+ {/* fields */}
  {visibleFields.length > 0 && (
  <div className="flex flex-col gap-1">
    {visibleFields.map(field => {
    const val = localData[field.name];
    if (val === null || val === undefined || val === '') return null;
 
-   // Relation/Rollup Logic
+   // relation/rollup logic
    if (Array.isArray(val) && val.length > 0) {
    const total = val.length;
    const completed = val.filter((item: any) =>
@@ -223,7 +223,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
   <div className="truncate flex-1 font-medium">
   {field.type === 'boolean' ? (
   <Switch checked={val} onCheckedChange={(c) => {
-    // Burst logic
+    // burst logic
     if (c) {
     const burst = document.createElement('div');
     burst.className = 'fixed z-[9999] pointer-events-none animate-ping rounded-full bg-primary/50';
@@ -259,7 +259,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
   );
 }
 
-// Simple Switch Component (Inline)
+// simple switch component (inline)
 function Switch({ checked, onCheckedChange, size = 'md' }: { checked: boolean; onCheckedChange: (c: boolean) => void; size?: 'sm' | 'md' }) {
   return (
   <button

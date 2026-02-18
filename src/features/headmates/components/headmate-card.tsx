@@ -2,15 +2,14 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useFronter } from "@/contexts/fronter-context";
-import { forwardRef, useMemo, useState, useEffect } from 'react';
-import { API_URL } from '@/lib/api-client';
+import { forwardRef, useMemo, useState } from 'react';
 import { formatHeadmateName, getCapitalizationClass } from '@/utils/text-formatting';
 import { getStringColor } from '@/utils/color-generator';
 import { PLACEHOLDER_IMAGE } from '@/lib/discord-utils';
 
 import { ContactProfileView } from './contact-profile-view';
 
-// Unified Headmate Interface
+// unified headmate interface
 export interface Headmate {
   id: string;
   name: string;
@@ -31,7 +30,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
   const { activeFronters } = useFronter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  const handleCardClick = (e: React.MouseEvent) => {
+  const handleCardClick = (_e: React.MouseEvent) => {
   console.log('CLICK REGISTERED:', member.name, member.id);
   if (onClick) {
   console.log('Calling onClick handler');
@@ -46,34 +45,34 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
   setIsProfileOpen(true);
   };
 
-  // Ensure both IDs are strings for comparison
+  // ensure both ids are strings for comparison
   const memberId = String(member.id);
   const isActive = activeFronters.map(String).includes(memberId);
 
   console.log(`RENDER ${member.name}: isActive=${isActive}, memberId=${memberId}, activeFronters=`, activeFronters);
 
-  // Render Logic
+  // render logic
   const rawName = member.name;
   const displayName = formatHeadmateName(rawName);
   const capsClass = getCapitalizationClass(rawName);
 
   const displayTextColor = member.textColor || member.color || getStringColor(member.name);
 
-  // No faded color - use solid colors for borders
+  // no faded color - use solid colors for borders
   const borderColor = member.color || getStringColor(member.name);
 
-  // Image Resolution
+  // image resolution
   const finalImageSrc = useMemo(() => {
   let raw = member.avatar;
   if (!raw) return PLACEHOLDER_IMAGE || null;
 
   if (raw.startsWith('data:') || raw.startsWith('http')) return raw;
 
-  // Handle NocoBase attachments
-  // If it's a URL path, append API_URL (maybe?)
-  // NocoBase usually returns full URL or relative.
-  // If relative...
-  // For now assume absolute or working relative.
+  // handle nocobase attachments
+  // if it's a url path, append api_url (maybe?)
+  // nocobase usually returns full url or relative.
+  // if relative...
+  // for now assume absolute or working relative.
   return raw;
   }, [member.avatar]);
 
@@ -103,7 +102,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
  "aspect-square relative overflow-hidden w-full rounded-none shadow-none"
  )}
   >
- {/* Background Image */}
+ {/* background image */}
  <div className="absolute inset-0 bg-muted/30">
  {finalImageSrc ? (
  <img
@@ -119,7 +118,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
  )}
  </div>
 
- {/* Name at absolute bottom */}
+ {/* name at absolute bottom */}
  <div className="absolute inset-x-0 bottom-0 flex flex-col items-center justify-end text-center pb-1 z-10">
  <h3
  className={cn(
@@ -138,7 +137,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
  </div>
   </Card>
 
-  {/* Pronouns Below Card */}
+  {/* pronouns below card */}
   {member.pronouns && (
  <p className="text-[10px] text-[#252525] font-bold text-center lowercase tracking-wide">
  {member.pronouns}

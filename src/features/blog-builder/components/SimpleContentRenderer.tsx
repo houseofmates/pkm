@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils';
+import { cn, sanitizeHTML } from '@/lib/utils';
 
 interface ContentElement {
   id: string;
@@ -29,7 +29,7 @@ export function SimpleContentRenderer({ elements }: SimpleContentRendererProps) 
    <div
    key={element.id}
    className="prose prose-invert prose-lg max-w-none"
-   dangerouslySetInnerHTML={{ __html: element.content?.html || '' }}
+   dangerouslySetInnerHTML={{ __html: sanitizeHTML(element.content?.html) }}
    />
  );
 

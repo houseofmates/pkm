@@ -2,25 +2,25 @@
 import fs from 'fs';
 import path from 'path';
 
-// PLACEHOLDER IMAGE URL
+// placeholder image url for expired links
 const PLACEHOLDER_URL = "https://placehold.co/400x400?text=expired+link";
-// REGEX TO MATCH DISCORD MEDIA LINKS
+// regex to find discord media links (used to detect expired tokens)
 const DISCORD_LINK_REGEX = /https:\/\/media\.discordapp\.net\/attachments\/[^"'\s]+/;
 
 function scanAndReplace(obj, stats) {
     if (typeof obj === 'string') {
         if (DISCORD_LINK_REGEX.test(obj)) {
-            // Check for expiration if needed, but user asked to identify and replace.
-            // We assume mostly all of them are the problem if the user is running this.
-            // Specifically looking for "ex=" might be safer if some contain it and some don't.
+            // check for expiration if needed, but user asked to identify and replace.
+            // we assume mostly all of them are the problem if the user is running this.
+            // specifically looking for "ex=" might be safer if some contain it and some don't.
             if (obj.includes('ex=')) {
                 stats.found++;
-                // Replace
+                // replace
                 return PLACEHOLDER_URL;
             } else {
-                // If it doesn't have expiration, it might be permanent or proxied differently?
-                // For now, we'll only target those with 'ex=' as specifically mentioned "expired access tokens (e.g., ex=665667a7)"
-                // If you want to replace ALL discord links, remove the inner check.
+                // if it doesn't have expiration, it might be permanent or proxied differently?
+                // for now, we'll only target those with 'ex=' as specifically mentioned "expired access tokens (e.g., ex=665667a7)"
+                // if you want to replace all discord links, remove the inner check.
                 // stats.skipped++;
             }
         }
@@ -42,12 +42,12 @@ const dryRun = args.includes('--dry-run');
 let targetFile = args.find(arg => !arg.startsWith('--'));
 
 if (!targetFile) {
-    // Default fallback
+    // default fallback
     targetFile = 'storage/data/db.json'; // Common NocoBase path example
     console.log(`No file specified, defaulting to attempt: ${targetFile}`);
 }
 
-// Resolve absolute path
+// resolve absolute path
 targetFile = path.resolve(process.cwd(), targetFile);
 
 if (!fs.existsSync(targetFile)) {
@@ -75,7 +75,7 @@ try {
     console.log(`Found ${stats.found} expired Discord links.`);
 
     if (stats.found > 0 && !dryRun) {
-        // Create backup
+        // create backup
         const backupPath = targetFile + '.bak';
         fs.writeFileSync(backupPath, rawData);
         console.log(`Backup saved to ${backupPath}`);

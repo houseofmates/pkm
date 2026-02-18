@@ -15,38 +15,38 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
   );
   }
 
-  // Helper to get image URL from a record field
-  const getImageUrl = (record: any, field: any) => {
+  // helper to get image url from a record field
+  const getImageUrl = (record: Record<string, unknown>, field: { name: string } | null) => {
   if (!field) return null;
   const value = record[field.name];
   if (!value) return null;
 
-  // Handle NocoBase attachment array
+  // handle nocobase attachment array
   if (Array.isArray(value) && value.length > 0) {
   return value[0].url || value[0].url_thumbnail || null;
   }
-  // Handle string URL
+  // handle string url
   if (typeof value === 'string' && (value.startsWith('http') || value.startsWith('/'))) {
   return value;
   }
   return null;
   };
 
-  // Detect fields if not configured
-  // Priority: Config -> Explicit 'attachment' interface -> name includes 'image'/'cover'
+  // detect fields if not configured
+  // priority: config -> explicit 'attachment' interface -> name includes 'image'/'cover'
   const imageField = config.coverField
-  ? collection?.fields?.find((f: any) => f.name === config.coverField)
-  : (collection?.fields?.find((f: any) => f.interface === 'attachment')
-  || collection?.fields?.find((f: any) => f.name.toLowerCase().includes('image') || f.name.toLowerCase().includes('cover')));
+  ? collection?.fields?.find((f: { name: string; interface?: string }) => f.name === config.coverField)
+  : (collection?.fields?.find((f: { name: string; interface?: string }) => f.interface === 'attachment')
+  || collection?.fields?.find((f: { name: string }) => f.name.toLowerCase().includes('image') || f.name.toLowerCase().includes('cover')));
 
-  // Priority: Config -> 'title'/'name' -> First input field
+  // priority: config -> 'title'/'name' -> first input field
   const titleField = config.titleField
-  ? collection?.fields?.find((f: any) => f.name === config.titleField)
-  : (collection?.fields?.find((f: any) => f.name === 'title' || f.name === 'name')
-  || collection?.fields?.find((f: any) => f.interface === 'input'));
+  ? collection?.fields?.find((f: { name: string; interface?: string }) => f.name === config.titleField)
+  : (collection?.fields?.find((f: { name: string }) => f.name === 'title' || f.name === 'name')
+  || collection?.fields?.find((f: { interface?: string }) => f.interface === 'input'));
 
   const visibleFieldNames = config.visibleFields || [];
-  const visibleFields = collection?.fields?.filter((f: any) => visibleFieldNames.includes(f.name)) || [];
+  const visibleFields = collection?.fields?.filter((f: { name: string }) => visibleFieldNames.includes(f.name)) || [];
 
   return (
   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -66,7 +66,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
  onConfigChange={onConfigChange}
  >
  <Card className="rounded-xl shadow-lg border-2 border-transparent p-0 relative hover:scale-[1.02] transition-all bg-card overflow-hidden flex flex-col group/card">
-   {/* INNER CONTENT VESSEL */}
+   {/* inner content vessel */}
    <div className="flex flex-col h-full w-full rounded-[inherit] overflow-hidden">
    {imageUrl && (
    <div className="aspect-square bg-muted/30 flex items-center justify-center relative overflow-hidden rounded-t-[inherit]">
@@ -76,7 +76,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 rounded-t-[inherit]"
   />
 
-  {/* Hover Overlay */}
+  {/* hover overlay */}
   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-t-[inherit]">
   <span className="text-white text-xs font-bold px-2 py-1 border border-primary bg-primary/20 rounded-full lowercase">
   View Details
@@ -85,7 +85,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
    </div>
    )}
    <CardContent className="p-3 bg-card/95 rounded-b-[inherit]">
-   {/* Editable Title */}
+   {/* editable title */}
    <div className="font-black text-xl mb-1 text-center" onClick={(e) => e.stopPropagation()}>
   {titleField ? (
   <SmartField
@@ -105,10 +105,10 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
   <span className="px-1 truncate block">{typeof title === 'string' ? title : String(title)}</span>
   )}
    </div>
-   {/* Editable Properties (Max 3) */}
+   {/* editable properties (max 3) */}
    {visibleFields.length > 0 && (
   <div className="mt-2 space-y-1 text-center" onClick={(e) => e.stopPropagation()}>
-  {visibleFields.slice(0, 3).map((f: any) => (
+  {visibleFields.slice(0, 3).map((f: { name: string; uiSchema?: { title?: string } }) => (
   <div key={f.name} className="text-xs text-muted-foreground truncate flex flex-col items-center gap-0.5">
     <span className="opacity-50 lowercase text-[10px] ">{f.uiSchema?.title || f.name}:</span>
     <div className="w-full">

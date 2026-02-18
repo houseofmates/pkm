@@ -30,7 +30,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
   const [pages, setPages] = useState<PageOption[]>([]);
   const [loadingPages, setLoadingPages] = useState(false);
 
-  // Fetch available pages for the internal link dropdown
+  // fetch available pages for the internal link dropdown
   useEffect(() => {
   const fetchPages = async () => {
   setLoadingPages(true);
@@ -40,8 +40,8 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
  fields: ['slug', 'title'],
  pageSize: 100
  });
- const data = res?.data || res?.data?.data || [];
- setPages(data.map((p: any) => ({ slug: p.slug, title: p.title })));
+ const records = Array.isArray(res) ? res : (res as { data?: any[] }).data || [];
+ setPages(records.map((p: any) => ({ slug: p.slug, title: p.title })));
   } catch (e) {
  console.error('Failed to fetch pages:', e);
  setPages([]);
@@ -60,7 +60,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
   let link: string | undefined;
 
   if (linkType === 'external' && externalUrl.trim()) {
-  // Ensure URL has protocol
+  // ensure url has protocol
   link = externalUrl.startsWith('http') ? externalUrl : `https://${externalUrl}`;
   } else if (linkType === 'internal' && internalPage) {
   link = `/${internalPage}`;
@@ -97,7 +97,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
  </button>
  </div>
 
- {/* Link Type Selection */}
+ {/* link type selection */}
  <div className="space-y-3 mb-6">
  <label className="block text-white/60 text-sm lowercase">link type</label>
  <div className="flex gap-2">
@@ -131,7 +131,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
  </div>
  </div>
 
- {/* External URL Input */}
+ {/* external url input */}
  {linkType === 'external' && (
  <div className="mb-6">
  <label className="block text-white/60 text-sm lowercase mb-2 flex items-center gap-2">
@@ -148,7 +148,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
  </div>
  )}
 
- {/* Internal Page Dropdown */}
+ {/* internal page dropdown */}
  {linkType === 'internal' && (
  <div className="mb-6">
  <label className="block text-white/60 text-sm lowercase mb-2 flex items-center gap-2">
@@ -179,7 +179,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
  </div>
  )}
 
- {/* Preview */}
+ {/* preview */}
  {(linkType === 'external' && externalUrl) || (linkType === 'internal' && internalPage) ? (
  <div className="mb-6 p-3 rounded-xl bg-white/5 border border-white/10">
  <p className="text-xs text-white/40 lowercase mb-1">link preview</p>
@@ -192,7 +192,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
  </div>
  ) : null}
 
- {/* Actions */}
+ {/* actions */}
  <div className="flex gap-3">
  {element.link && (
  <button

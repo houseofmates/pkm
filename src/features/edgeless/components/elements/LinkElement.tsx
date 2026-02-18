@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
-import { ExternalLink, MoreHorizontal, Image as ImageIcon, Type, Eye } from 'lucide-react';
+import { ExternalLink, Type, Eye } from 'lucide-react';
 import { useEdgelessStore } from '../../store';
 import {
   ContextMenu,
@@ -22,7 +21,7 @@ export function LinkElement({ element }: LinkElementProps) {
   const data = element.data || {};
   const { title, url, icon, iconType, variant = 'card' } = data; // variant: 'card' | 'simple'
 
-  // Icon Rendering
+  // icon rendering
   const renderIcon = (className = "h-6 w-6") => {
   if (iconType === 'emoji') return <span className="text-2xl leading-none">{icon}</span>;
   if (iconType === 'image') return <img src={icon} alt="" className={className + " object-contain"} />;
@@ -35,7 +34,7 @@ export function LinkElement({ element }: LinkElementProps) {
 
   const handleOpen = () => {
   if (url) {
-  // Handle internal navigation vs external
+  // handle internal navigation vs external
   if (url.startsWith('http') && !url.includes(window.location.host)) {
  window.open(url, '_blank');
   } else {
@@ -44,7 +43,7 @@ export function LinkElement({ element }: LinkElementProps) {
   }
   };
 
-  // Card Variant (Preview Screenshot style - using big icon/color)
+  // card variant (preview screenshot style - using big icon/color)
   if (variant === 'card') {
   return (
   <ContextMenu>
@@ -53,9 +52,9 @@ export function LinkElement({ element }: LinkElementProps) {
  className="w-full h-full bg-card/80 backdrop-blur border rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow group flex flex-col cursor-pointer"
  onClick={handleOpen}
  >
- {/* Preview / Cover Generic Area (Since we don't have real screenshots yet) */}
+ {/* preview / cover generic area (since we don't have real screenshots yet) */}
  <div className="flex-1 bg-muted/30 flex items-center justify-center relative min-h-0">
-   {/* "Screenshot" placeholder: Big Icon */}
+   {/* "screenshot" placeholder: big icon */}
    <div className="transform scale-150 opacity-80 group-hover:scale-175 transition-transform duration-500">
    {renderIcon("h-12 w-12 text-muted-foreground/50")}
    </div>
@@ -63,7 +62,7 @@ export function LinkElement({ element }: LinkElementProps) {
    <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
  </div>
 
- {/* Footer Info */}
+ {/* footer info */}
  <div className="p-3 border-t bg-card flex items-center gap-3 shrink-0">
    <div className="shrink-0 opacity-80">
    {renderIcon("h-4 w-4")}
@@ -92,7 +91,7 @@ export function LinkElement({ element }: LinkElementProps) {
   );
   }
 
-  // Simple Variant
+  // simple variant
   return (
   <ContextMenu>
   <ContextMenuTrigger>

@@ -2,19 +2,24 @@ import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recha
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const mockData = [
-  { name: 'Groceries', value: 400 },
-  { name: 'Rent', value: 1200 },
-  { name: 'Utilities', value: 300 },
-  { name: 'Entertainment', value: 200 },
-  { name: 'Savings', value: 500 },
+  { name: 'groceries', value: 400 },
+  { name: 'rent', value: 1200 },
+  { name: 'utilities', value: 300 },
+  { name: 'entertainment', value: 200 },
+  { name: 'savings', value: 500 },
 ];
+
+interface ChartDataItem {
+  name: string;
+  value: number;
+}
 
 interface FinancialChartProps {
   title?: string;
-  data?: any[];
+  data?: ChartDataItem[];
 }
 
-export function FinancialChart({ title = "Monthly Expenses", data = mockData }: FinancialChartProps) {
+export function FinancialChart({ title = 'monthly expenses', data = mockData }: FinancialChartProps) {
   return (
   <Card className="w-full h-[300px] border-border bg-card">
   <CardHeader className="pb-2">

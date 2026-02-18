@@ -21,8 +21,8 @@ export function RecordForm({ collection, initialData, onSubmit, onCancel }: Reco
   defaultValues: initialData || {}
   });
 
-  // Reactive Formulas (Phase 3: Pure Data Power)
-  // Listens for 'price' and 'quantity' fields and updates 'total' instantly
+  // reactive formulas (phase 3: pure data power)
+  // listens for 'price' and 'quantity' fields and updates 'total' instantly
   const price = watch('price');
   const quantity = watch('quantity');
   const qty = watch('qty'); // handle alias
@@ -32,12 +32,12 @@ export function RecordForm({ collection, initialData, onSubmit, onCancel }: Reco
   const q = parseFloat(quantity || qty);
   if (!isNaN(p) && !isNaN(q)) {
   const total = (p * q).toFixed(2);
-  // Only update if current value is different to avoid loops (though setValue handles it usually)
+  // only update if current value is different to avoid loops (though setvalue handles it usually)
   setValue('total', total);
   }
   }, [price, quantity, qty, setValue]);
 
-  // If fields is undefined, we are likely still loading the collection meta
+  // if fields is undefined, we are likely still loading the collection meta
   if (!collection.fields) {
   return <div className="p-4 text-center text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin inline mr-2" /> loading fields...</div>;
   }
@@ -49,7 +49,7 @@ export function RecordForm({ collection, initialData, onSubmit, onCancel }: Reco
   {fields.length > 0 ? (
  <div className="grid grid-cols-1 gap-4">
  {fields.map((field: any) => {
- // Check if it's a relationship field
+ // check if it's a relationship field
  if (field.interface === 'linkTo' || field.interface === 'm2o') {
    const targetCollection = field.target; // Assuming 'target' property holds the related collection name
    return (

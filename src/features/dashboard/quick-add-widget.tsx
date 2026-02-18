@@ -17,7 +17,7 @@ export function QuickAddWidget() {
 
   return (
   <div className="h-full flex flex-col gap-2 p-2 overflow-y-auto">
-  {collections.map(col => (
+  {collections.map((col: { name: string; title?: string; fields?: any[] }) => (
  <Button
  key={col.name}
  variant="outline"
@@ -32,9 +32,9 @@ export function QuickAddWidget() {
   {selectedCollection && (
  <CreateRecordDialog
  collectionName={selectedCollection}
- fields={collections.find(c => c.name === selectedCollection)?.fields || []}
+ fields={collections.find((c: { name: string; fields?: any[] }) => c.name === selectedCollection)?.fields || []}
  open={open}
- onOpenChange={(v) => { setOpen(v); if (!v) setSelectedCollection(null); }}
+ onOpenChange={(v: boolean) => { setOpen(v); if (!v) setSelectedCollection(null); }}
  trigger={<></>}
  />
   )}

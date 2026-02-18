@@ -33,7 +33,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
   const [editingRecord, setEditingRecord] = useState<any | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Context Stuffing: Push current data to LLM
+  // context stuffing: push current data to llm
   useEffect(() => {
   if (!loading && records) {
   setContext({
@@ -49,27 +49,30 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
 
   const handleCreate = async (data: any) => {
   try {
+  if (collection.name.toLowerCase().includes('note')) {
+    data.entity_type = data.entity_type || 'note'
+  }
   await client.createRecord(collection.name, data);
   setIsCreateOpen(false);
   refresh();
-  toast.success("Record created successfully");
+  toast.success("record created successfully");
   } catch (err) {
   console.error("Failed to create record", err);
-  toast.error("Failed to create record");
+  toast.error("failed to create record");
   }
   };
 
   const handleUpdate = async (data: any) => {
   if (!editingRecord) return;
   try {
-  // Assume 'id' is the primary key for now
+  // assume 'id' is the primary key for now
   await client.updateRecord(collection.name, editingRecord.id, data);
   setEditingRecord(null);
   refresh();
-  toast.success("Record updated successfully");
+  toast.success("record updated successfully");
   } catch (err) {
   console.error("Failed to update record", err);
-  toast.error("Failed to update record");
+  toast.error("failed to update record");
   }
   };
 
@@ -78,20 +81,20 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
   try {
   await client.deleteRecord(collection.name, record.id);
   refresh();
-  toast.success("Record deleted successfully");
+  toast.success("record deleted successfully");
   } catch (err) {
   console.error("Failed to delete record", err);
-  toast.error("Failed to delete record");
+  toast.error("failed to delete record");
   }
   };
 
   const handleSearch = (e: React.FormEvent) => {
   e.preventDefault();
-  // Basic search on 'title' or 'name' or first field?
-  // NocoBase filter: { title: { $includes: searchTerm } }
-  // We need to guess a field to search on if schema is generic.
-  // Or just search on 'id' if numeric?
-  // For now, let's try searching on 'title' if it exists, or 'name'.
+  // basic search on 'title' or 'name' or first field?
+  // nocobase filter: { title: { $includes: searchterm } }
+  // we need to guess a field to search on if schema is generic.
+  // or just search on 'id' if numeric?
+  // for now, let's try searching on 'title' if it exists, or 'name'.
 
   const searchField = collection.fields?.find((f: any) => f.name === 'title' || f.name === 'name' || f.type === 'string')?.name || 'id';
 
@@ -152,7 +155,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
  />
   )}
 
-  {/* Create Dialog */}
+  {/* create dialog */}
   <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
  <DialogContent>
  <DialogHeader>
@@ -166,7 +169,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
  </DialogContent>
   </Dialog>
 
-  {/* Edit Dialog */}
+  {/* edit dialog */}
   <Dialog open={!!editingRecord} onOpenChange={(open) => !open && setEditingRecord(null)}>
  <DialogContent>
  <DialogHeader>

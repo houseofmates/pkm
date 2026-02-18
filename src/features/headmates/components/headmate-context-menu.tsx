@@ -20,7 +20,7 @@ import { MemberService } from '@/api/member-service';
 
 import { formatHeadmateName, getCapitalizationClass } from '@/utils/text-formatting';
 
-// Local formatting removed in favor of global usage
+// local formatting removed in favor of global usage
 
 interface HeadmateContextMenuProps {
   memberId: string;
@@ -37,14 +37,14 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   const [imageOpen, setImageOpen] = useState(false);
   const [nameOpen, setNameOpen] = useState(false);
 
-  // Edit State
+  // edit state
   const [desc, setDesc] = useState('');
   const [visualName, setVisualName] = useState('');
 
-  // Image State
+  // image state
   const [imageUrl, setImageUrl] = useState('');
 
-  // Color State
+  // color state
   const [color, setColor] = useState('#ffffff');
   const [textColor, setTextColor] = useState('#ffffff');
 
@@ -57,18 +57,18 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   toast.info(isHidden ? "Headmate restored" : "Headmate hidden");
   };
 
-  // --- Image Handling ---
-  // --- Image Handling ---
+  // --- image handling ---
+  // --- image handling ---
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (!file) return;
 
-  // Use the new MemberService to handle upload & sync
-  // We pass the updateOverride function as the callback
+  // use the new memberservice to handle upload & sync
+  // we pass the updateoverride function as the callback
   await MemberService.updateMemberAvatar(memberId, file, async (id, data) => {
   updateOverride(id, data);
 
-  // Flush to persist the local override immediately
+  // flush to persist the local override immediately
   try {
  await flushOverrides();
   } catch (flushError) {
@@ -76,7 +76,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   }
   });
 
-  // Reset file input and close dialog
+  // reset file input and close dialog
   if (fileInputRef.current) {
   fileInputRef.current.value = '';
   }
@@ -87,19 +87,19 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   if (!imageUrl.trim()) return;
   updateOverride(memberId, { avatarUrl: imageUrl.trim() });
 
-  // Flush immediately to ensure persistence
+  // flush immediately to ensure persistence
   try {
   await flushOverrides();
   } catch (flushError) {
   console.warn('Failed to flush overrides:', flushError);
   }
 
-  toast.success("Image link saved");
+  toast.success("image link saved");
   setImageUrl(''); // Clear input after saving
   setImageOpen(false);
   };
 
-  // --- Name/Desc ---
+  // --- name/desc ---
   const openEdit = () => {
   setDesc(currentOverride.description || '');
   setEditOpen(true);
@@ -122,7 +122,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   toast.success("visual name saved");
   };
 
-  // --- Colors ---
+  // --- colors ---
   const openColor = () => {
   setColor(currentOverride.color || '#cccccc');
   setTextColor(currentOverride.textColor || '#ffffff');
@@ -135,7 +135,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   toast.success("colors saved");
   };
 
-  // --- Front with Status ---
+  // --- front with status ---
   const [frontStatusOpen, setFrontStatusOpen] = useState(false);
   const [customFrontStatus, setCustomFrontStatus] = useState('');
 
@@ -145,13 +145,13 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   };
 
   const handleFrontWithStatus = async () => {
-  // Add to active fronters if not already there
+  // add to active fronters if not already there
   let newFronters = [...activeFronters];
   if (!newFronters.includes(memberId)) {
   newFronters.push(memberId);
   }
 
-  // Update local state and sync
+  // update local state and sync
   updateFronters(newFronters);
   await registerFrontChange(newFronters, customFrontStatus);
 
@@ -208,10 +208,10 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
  </ContextMenuContent>
   </ContextMenu>
 
-  {/* Hidden File Input for direct click if needed, but using dialog now mostly */}
-  <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
+  {/* hidden file input for direct click if needed, but using dialog now mostly */}
+  <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onchange={handlefilechange} />
 
-  {/* Visual Name Dialog */}
+  {/* visual name dialog */}
   <Dialog open={nameOpen} onOpenChange={setNameOpen}>
  <DialogContent>
  <DialogHeader><DialogTitle>edit visual name</DialogTitle></DialogHeader>
@@ -223,7 +223,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
  </DialogContent>
   </Dialog>
 
-  {/* Image Source Dialog */}
+  {/* image source dialog */}
   <Dialog open={imageOpen} onOpenChange={setImageOpen}>
  <DialogContent>
  <DialogHeader><DialogTitle>change image</DialogTitle></DialogHeader>
@@ -234,7 +234,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
    upload from device
    </Button>
 
-   {/* Simple visual separator or just standard layout */}
+   {/* simple visual separator or just standard layout */}
    <div className="col-span-2 border-t pt-4">
    <Label>or paste image link</Label>
    <div className="flex gap-2 mt-2">
@@ -247,7 +247,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
  </DialogContent>
   </Dialog>
 
-  {/* Edit Description Dialog (Existing) */}
+  {/* edit description dialog (existing) */}
   <Dialog open={editOpen} onOpenChange={setEditOpen}>
  <DialogContent>
  <DialogHeader><DialogTitle>edit details</DialogTitle></DialogHeader>
@@ -266,7 +266,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
  </DialogContent>
   </Dialog>
 
-  {/* Edit Color Dialog (Existing) */}
+  {/* edit color dialog (existing) */}
   <Dialog open={colorOpen} onOpenChange={setColorOpen}>
  <DialogContent>
  <DialogHeader><DialogTitle>customize colors</DialogTitle></DialogHeader>
@@ -290,7 +290,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
  </DialogContent>
   </Dialog>
 
-  {/* Front with Status Dialog */}
+  {/* front with status dialog */}
   <Dialog open={frontStatusOpen} onOpenChange={setFrontStatusOpen}>
  <DialogContent>
  <DialogHeader><DialogTitle>front with status</DialogTitle></DialogHeader>
