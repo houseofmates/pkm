@@ -5,12 +5,12 @@ import { BottomNav } from '@/components/bottom-nav';
 import { GlobalCommandPalette } from '@/components/global-command-palette';
 import { QuickEditSheet } from '@/components/quick-edit-sheet';
 
-// Convert hex color to HSL format for Tailwind
+// convert hex color to hsl format for tailwind
 function hexToHSL(hex: string): string {
-  // Remove # if present
+  // remove # if present
   hex = hex.replace(/^#/, '');
 
-  // Parse hex values
+  // parse hex values
   const r = parseInt(hex.substring(0, 2), 16) / 255;
   const g = parseInt(hex.substring(2, 4), 16) / 255;
   const b = parseInt(hex.substring(4, 6), 16) / 255;
@@ -77,43 +77,43 @@ export function RootLayout() {
   useThemeReactor(); // Activate Dynamic Theming
   const { activeFronters, overrides, members, registerFrontChange } = useFronter();
 
-  // --- PHASE 5: THE PRISM (Identity & Subdomains) ---
+  // --- phase 5: the prism (identity & subdomains) ---
   const hostname = window.location.hostname;
   const subdomain = hostname.split('.')[0];
   const isAphrodite = subdomain === 'aphrodite';
 
-  // Auto-switch Identity based on Subdomain
+  // auto-switch identity based on subdomain
   useEffect(() => {
   if (isAphrodite && !activeFronters.includes('aphrodite')) {
-  // Force front aphrodite if visiting her temple
-  // We might need a method to 'force' set fronter without UI toggle if strictly routing
-  // For now, we visually override:
+  // force front aphrodite if visiting her temple
+  // we might need a method to 'force' set fronter without ui toggle if strictly routing
+  // for now, we visually override:
   }
   }, [isAphrodite, activeFronters]);
 
   const isHouseFronting = activeFronters.length > 0;
 
-  // Get the color from the fronting member
+  // get the color from the fronting member
   let activeColor = "#f5af12"; // Default color
   if (activeFronters.length > 0) {
   const fronterId = activeFronters[0];
   console.log('Getting color for fronter:', fronterId);
   console.log('Overrides:', overrides[fronterId]);
   console.log('Member from list:', members.find(m => m.id === fronterId));
-  // Try to get color from overrides first, then from members data
+  // try to get color from overrides first, then from members data
   activeColor = overrides[fronterId]?.color || members.find(m => m.id === fronterId)?.color || "#f5af12";
   console.log('Final active color:', activeColor);
   } else {
   console.log('No fronters, using default color:', activeColor);
   }
 
-  // PRISM OVERRIDE
+  // prism override
   if (isAphrodite) {
   activeColor = "#e0a6b5"; // Seafoam/Rose blend (Rose dominate)
-  // Adjust for Aphrodite specific palette
+  // adjust for aphrodite specific palette
   }
 
-  // --- THE VOID BLUEPRINT: IMMEDIATE JS BRIDGE ---
+  // --- the void blueprint: immediate js bridge ---
   useEffect(() => {
   console.log('Theme effect running. Active color:', activeColor);
   const root = document.documentElement;
@@ -123,8 +123,8 @@ export function RootLayout() {
   root.style.setProperty('--primary', hslColor);
   root.style.setProperty('--ring', hslColor);
 
-  // Calculate Soft Color (10% opacity) manually for robustness
-  // If hex
+  // calculate soft color (10% opacity) manually for robustness
+  // if hex
   if (activeColor.startsWith('#')) {
  root.style.setProperty('--primary-soft', activeColor + '1A'); // 1A is ~10%
   } else {
@@ -137,7 +137,7 @@ export function RootLayout() {
   root.style.setProperty('--card', '#2a1a1f');
   root.style.setProperty('--border', '#4a2a35');
   } else {
-  // Reset to default Void if not Aphrodite (important for SPA navigation)
+  // reset to default void if not aphrodite (important for spa navigation)
   root.style.setProperty('--background', '#050505');
   root.style.removeProperty('--card'); // Allow default fallback
   root.style.removeProperty('--border');
@@ -145,7 +145,7 @@ export function RootLayout() {
 
   }, [activeColor, isAphrodite]);
 
-  // --- PHASE 6: AUTOMATED REALTOR (Fronter Homes) ---
+  // --- phase 6: automated realtor (fronter homes) ---
   const { client } = useAuth();
   useEffect(() => {
   if (!activeFronters || activeFronters.length === 0) return;
@@ -154,15 +154,15 @@ export function RootLayout() {
   const fronterId = activeFronters[0];
   const homeId = `fronter-home-${fronterId}`;
 
-  // Check if we already checked this session to avoid spam
+  // check if we already checked this session to avoid spam
   if (sessionStorage.getItem(`checked_home_${fronterId}`)) return;
   sessionStorage.setItem(`checked_home_${fronterId}`, 'true');
 
   try {
- // Try to fetch existing canvas/doc
+ // try to fetch existing canvas/doc
  // specific collection for canvases? 'pkm_settings' with type 'canvas'?
- // Based on CanvasPage, let's assume we store in 'canvases' or 'docs'.
- // Let's use 'pkm_settings' as it serves as a registry often.
+ // based on canvaspage, let's assume we store in 'canvases' or 'docs'.
+ // let's use 'pkm_settings' as it serves as a registry often.
 
  const res = await client.listRecords('pkm_settings', {
  filter: { name: homeId }
@@ -170,7 +170,7 @@ export function RootLayout() {
 
  if (res.data?.length === 0 && res.data?.data?.length === 0) {
  console.log("Creating home base for", fronterId);
- // Create new Home
+ // create new home
  await client.createRecord('pkm_settings', {
  name: homeId,
  title: `Home: ${fronterId}`,
@@ -227,8 +227,8 @@ export function RootLayout() {
  })
  });
 
- // Add to Sidebar?
- // We rely on sidebar sync or manual add.
+ // add to sidebar?
+ // we rely on sidebar sync or manual add.
  }
   } catch (e) {
  console.error("Auto-realtor failed", e);
@@ -246,17 +246,17 @@ export function RootLayout() {
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // Swipe to Open Sidebar (Right Swipe on left edge)
-  // Swipe to Open Sidebar (Right Swipe on left edge)
-  // Swipe to Open Sidebar (Removed per user request)
-  // const { activeTool } = useEdgelessStore();
-  // const isDrawing = activeTool === 'pen' || activeTool === 'eraser';
-  // const bindSwipe = ...
+  // swipe to open sidebar (right swipe on left edge)
+  // swipe to open sidebar (right swipe on left edge)
+  // swipe to open sidebar (removed per user request)
+  // const { activetool } = useedgelessstore();
+  // const isdrawing = activetool === 'pen' || activetool === 'eraser';
+  // const bindswipe = ...
 
   const navigate = useNavigate();
 
-  // --- Global Drag State (Lifted from Navigation) ---
-  // Synced with NocoBase 'pkm_settings' collection
+  // --- global drag state (lifted from navigation) ---
+  // synced with nocobase 'pkm_settings' collection
   const [sidebarItems, setSidebarItems] = useAppSetting<NavItem[]>('sidebar_items', []);
 
   const [activeDragItem, setActiveDragItem] = useState<NavItem | null>(null);
@@ -266,15 +266,15 @@ export function RootLayout() {
   useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   );
 
-  // Filter out pkm_settings from sidebar persisted state
-  // This cleans up legacy state where it might have been added
+  // filter out pkm_settings from sidebar persisted state
+  // this cleans up legacy state where it might have been added
   useEffect(() => {
   if (sidebarItems.length === 0) return;
 
   const filtered = sidebarItems.filter(i => {
   const name = (i.name || '').toLowerCase();
   const id = i.id.toLowerCase();
-  // Check ID (collection name) and display name
+  // check id (collection name) and display name
   if (id.includes('pkm_settings') || name.includes('pkm settings')) return false;
   return true;
   });
@@ -297,8 +297,8 @@ export function RootLayout() {
 
   if (!over) return;
 
-  // 1. Handle Sidebar Reorder
-  // We know it's a sidebar reorder if both active and over are in sidebarItems
+  // 1. handle sidebar reorder
+  // we know it's a sidebar reorder if both active and over are in sidebaritems
   const activeId = active.id as string;
   const overId = over.id as string;
   const activeIsSidebar = sidebarItems.some(i => i.id === activeId);
@@ -313,12 +313,12 @@ export function RootLayout() {
   return;
   }
 
-  // 2. Handle Drop onto Dashboard/Canvas
-  // We use 'canvas-droppable' id now
+  // 2. handle drop onto dashboard/canvas
+  // we use 'canvas-droppable' id now
   if (activeIsSidebar && (overId === 'dashboard-canvas' || overId === 'canvas-droppable')) {
   const item = sidebarItems.find(i => i.id === activeId);
   if (item) {
- // Dispatch event for Dashboard to pick up
+ // dispatch event for dashboard to pick up
  const event = new CustomEvent('pkm:add-widget', {
  detail: {
  id: item.id,
@@ -333,17 +333,17 @@ export function RootLayout() {
   }
   };
 
-  // --- Search State (Lifted for BottomNav FAB) ---
+  // --- search state (lifted for bottomnav fab) ---
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchContext, setSearchContext] = useState<string | null>(null);
 
-  // --- Tab Handling with Search Trigger ---
-  // --- Tab Handling with Search Trigger ---
+  // --- tab handling with search trigger ---
+  // --- tab handling with search trigger ---
   const handleTabChange = (tab: 'databases' | 'home' | 'headmates' | 'board' | 'captures') => {
   if (tab === 'home') navigate('/');
   if (tab === 'captures') navigate('/captures');
 
-  // PRISM ROUTING
+  // prism routing
   if (tab === 'home' && isAphrodite) {
   navigate('/canvas/aphrodite-altar');
   return;
@@ -359,7 +359,7 @@ export function RootLayout() {
   if (tab !== 'databases') setSelectedCollection(null);
   };
 
-  // Initial Route check
+  // initial route check
   useEffect(() => {
   if (isAphrodite && window.location.pathname === '/') {
   navigate('/canvas/aphrodite-altar', { replace: true });
@@ -372,7 +372,7 @@ export function RootLayout() {
   return;
   }
 
-  // Handle custom workspaces
+  // handle custom workspaces
   if (name.startsWith('workspace_')) {
   navigate(`/workspace/${name}`);
   setActiveTab('databases');
@@ -380,7 +380,7 @@ export function RootLayout() {
   return;
   }
 
-  // Handle local documents
+  // handle local documents
   if (name.startsWith('doc_')) {
   const id = name.replace('doc_', '');
   console.log('Navigating to document:', id);
@@ -390,7 +390,7 @@ export function RootLayout() {
   return;
   }
 
-  // Handle local drawings
+  // handle local drawings
   if (name.startsWith('drawing_')) {
   const id = name.replace('drawing_', '');
   navigate(`/drawings/${id}`);
@@ -399,7 +399,7 @@ export function RootLayout() {
   return;
   }
 
-  // Handle database collections
+  // handle database collections
   setSelectedCollection(name);
   if (name) {
   navigate('/databases/' + encodeURIComponent(name), { state: { fromSidebar: true } });
@@ -409,7 +409,7 @@ export function RootLayout() {
   }
   };
 
-  // Listen for custom search event if needed (or just use prop)
+  // listen for custom search event if needed (or just use prop)
   useEffect(() => {
   const handleSearchEvent = (e: any) => {
   setSearchContext(e.detail?.context || null);
@@ -419,7 +419,7 @@ export function RootLayout() {
   return () => window.removeEventListener('pkm:open-search', handleSearchEvent);
   }, []);
 
-  // Also wire up global keyboard shortcut to sync state
+  // also wire up global keyboard shortcut to sync state
   useEffect(() => {
   const down = (e: KeyboardEvent) => {
   if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
@@ -444,7 +444,7 @@ export function RootLayout() {
  className="flex flex-col lg:flex-row h-screen w-full bg-background overflow-hidden transition-colors duration-700"
   >
 
- {/* Desktop Sidebar */}
+ {/* desktop sidebar */}
  <Navigation
  className="hidden lg:flex"
  activeTab={activeTab as any}
@@ -455,8 +455,8 @@ export function RootLayout() {
  setItems={setSidebarItems}
  />
 
- {/* Mobile Drawer (Swipe Controlled) */}
- {/* We use a simple overlay logic or reusing Sheet if available, but for swipe gesture: */}
+ {/* mobile drawer (swipe controlled) */}
+ {/* we use a simple overlay logic or reusing sheet if available, but for swipe gesture: */}
  <MobileSidebarDrawer
  isOpen={sidebarOpen}
  onClose={() => setSidebarOpen(false)}
@@ -466,30 +466,30 @@ export function RootLayout() {
  items={sidebarItems}
  />
 
- {/* Main Content Area */}
+ {/* main content area */}
  <main
  className="flex-1 overflow-hidden h-full relative pb-20 lg:pb-0"
- // Swipe handler removed
+ // swipe handler removed
  style={{ touchAction: 'pan-y' }} // Allow vertical scroll but capture horizontal
  >
  <Outlet />
  </main>
 
- {/* Mobile Bottom Navigation (Hidden on Desktop) */}
+ {/* mobile bottom navigation (hidden on desktop) */}
  <BottomNav
  className="lg:hidden"
  activeTab={activeTab as any}
  onTabChange={handleTabChange}
  />
 
- {/* Global Command Palette (Controlled) */}
+ {/* global command palette (controlled) */}
  <GlobalCommandPalette
  open={searchOpen}
  onOpenChange={setSearchOpen}
  externalContext={searchContext}
  />
 
- {/* Drag Overlay */}
+ {/* drag overlay */}
  <DragOverlay>
  {activeDragItem ? (
  <div className="bg-card border rounded shadow-lg p-2 flex items-center opacity-80 w-48 pointer-events-none">
@@ -499,8 +499,8 @@ export function RootLayout() {
  ) : null}
  </DragOverlay>
   </div>
-  {/* Identity Widget Removed */}
-  <QuickEditSheet /> {/* Global Edit Panel */}
+  {/* identity widget removed */}
+  <QuickEditSheet /> {/* global edit panel */}
   </DndContext>
   );
 }

@@ -18,7 +18,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
   if (!collectionName) return;
   setLoading(true);
   try {
- // Parse filter if it's a string (coming from Tiptap attributes)
+ // parse filter if it's a string (coming from tiptap attributes)
  let queryFilter = filter;
  if (typeof filter === 'string') {
  try {
@@ -46,7 +46,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
 
   fetchData();
 
-  // Refresh every minute
+  // refresh every minute
   const interval = setInterval(fetchData, 60000);
   return () => clearInterval(interval);
   }, [collectionName, filter]);
@@ -73,7 +73,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
  className="p-3 border rounded-md bg-background hover:bg-accent/50 transition-colors cursor-pointer"
  style={{ fontFamily: '"Varela Round", sans-serif' }}
  onClick={() => {
-   // Ideally open a drawer or navigate
+   // ideally open a drawer or navigate
    console.log('Clicked item', item);
  }}
  >

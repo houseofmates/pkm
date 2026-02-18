@@ -32,7 +32,7 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
  const visibleFieldNames = config.visibleFields || [];
  const visibleFields = collection?.fields?.filter((f: { name: string }) => visibleFieldNames.includes(f.name)) || [];
 
- // Cover logic
+ // cover logic
  const coverField = config.coverField ? collection.fields?.find((f: { name: string }) => f.name === config.coverField) : null;
  const coverValue = coverField ? record[coverField.name] : null;
  const attachmentField = collection.fields?.find((f: { interface?: string; name: string }) => f.interface === 'attachment');
@@ -54,7 +54,7 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
    className="group flex flex-col md:flex-row md:items-center justify-between p-4 bg-card hover:bg-muted/50 border rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer gap-4"
  >
    <div className="flex items-center gap-4 flex-1 min-w-0">
-   {/* Optional Image Preview */}
+   {/* optional image preview */}
    {imageUrl && (
    <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border bg-muted">
   <img src={imageUrl} alt="" className="w-full h-full object-cover" />

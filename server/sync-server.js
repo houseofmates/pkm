@@ -11,31 +11,31 @@ const io = new Server(server, {
     }
 });
 
-// Store active users per room for presence
+// store active users per room for presence
 const presence = {}; // { recordId: { socketId: lastActive } }
 
 io.on("connection", (socket) => {
     console.log("Client connected:", socket.id);
 
-    // Join a record's room
+    // join a record's room
     socket.on("join_room", (recordId) => {
         socket.join(recordId);
         console.log(`Socket ${socket.id} joined room ${recordId}`);
 
-        // Notify others of new presence
+        // notify others of new presence
         socket.to(recordId).emit("presence_update", { count: countUsers(recordId), action: "joined" });
     });
 
-    // Leave room
+    // leave room
     socket.on("leave_room", (recordId) => {
         socket.leave(recordId);
         console.log(`Socket ${socket.id} left room ${recordId}`);
         socket.to(recordId).emit("presence_update", { count: countUsers(recordId), action: "left" });
     });
 
-    // Handle Updates
+    // handle updates
     socket.on("update_record", ({ recordId, content, senderId }) => {
-        // Broadcast to everyone ELSE in the room
+        // broadcast to everyone else in the room
         socket.to(recordId).emit("receive_update", {
             content,
             senderId,
@@ -43,16 +43,16 @@ io.on("connection", (socket) => {
         });
     });
 
-    // Handle Typing/Cursor Presence (Ephemeral)
+    // handle typing/cursor presence (ephemeral)
     socket.on("typing", ({ recordId, isTyping }) => {
         socket.to(recordId).emit("remote_typing", { isTyping, senderId: socket.id });
     });
 
     socket.on("disconnect", () => {
         console.log("Client disconnected:", socket.id);
-        // Ideally we'd track which rooms they were in and notify, 
+        // ideally we'd track which rooms they were in and notify, 
         // but socket.io handles room auto-leave. 
-        // We would need a custom tracker if we want to emit "left" for specific rooms on disconnect.
+        // we would need a custom tracker if we want to emit "left" for specific rooms on disconnect.
     });
 });
 

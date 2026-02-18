@@ -9,7 +9,7 @@ import { PageRenderer } from './components/PageRenderer';
 import { GlobalContextMenu } from './components/GlobalContextMenu';
 import { ElementContextMenu } from './components/ElementContextMenu';
 
-// --- TYPES ---
+// --- types ---
 export interface PageData {
   id: string;
   title: string;
@@ -64,7 +64,7 @@ export interface ElementStyles {
   fitHeight?: boolean;
 }
 
-// --- CONTEXT ---
+// --- context ---
 interface BuilderContextType {
   isAdmin: boolean;
   page: PageData | null;
@@ -98,13 +98,13 @@ export const useBuilder = () => {
   return ctx;
 };
 
-// --- STATE TYPES ---
+// --- state types ---
 type ContextMenuState =
   | { type: 'global'; x: number; y: number }
   | { type: 'element'; x: number; y: number; elementId: string }
   | null;
 
-// --- MAIN COMPONENT ---
+// --- main component ---
 export function HouseofmatesBuilder() {
   const { slug = 'home' } = useParams();
   const site_identifier = getSubdomain() || 'home';
@@ -131,7 +131,7 @@ export function HouseofmatesBuilder() {
   const [viewWidth, setViewWidth] = useState(window.innerWidth);
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile' | 'tablet'>('desktop');
 
-  // --- DEVICE DETECTION ---
+  // --- device detection ---
   useEffect(() => {
     const detectDevice = () => {
       const width = window.innerWidth;
@@ -150,7 +150,7 @@ export function HouseofmatesBuilder() {
     return () => window.removeEventListener('resize', detectDevice);
   }, []);
 
-  // --- GLOBAL DESELECTION ---
+  // --- global deselection ---
   useEffect(() => {
     const handleGlobalMousedown = (e: MouseEvent) => {
       if (selectedElementIds.length === 0) return;
@@ -158,14 +158,14 @@ export function HouseofmatesBuilder() {
       const target = e.target as HTMLElement;
       const isModifier = e.shiftKey || e.ctrlKey || e.metaKey;
 
-      // 1. Check if we clicked "Canvas Background" directly
+      // 1. check if we clicked "canvas background" directly
       const isBackground = target.id === 'builder-canvas' || target.dataset.canvasBackground === 'true';
 
-      // 2. Check if we clicked an element or handle
+      // 2. check if we clicked an element or handle
       const isClickingElement = !!target.closest('[data-element-id]');
       const isClickingHandle = target.classList.contains('resize-handle') || !!target.dataset.handle;
 
-      // 3. Check if we clicked any Builder UI
+      // 3. check if we clicked any builder ui
       const isClickingUI = !!(
         target.closest('.builder-toolbox') ||
         target.closest('.builder-context-menu') ||
@@ -174,7 +174,7 @@ export function HouseofmatesBuilder() {
         target.closest('.BubbleMenu')
       );
 
-      // Logic: If (on background OR (not element AND not handle AND not UI)) AND NO MODIFIER
+      // logic: if (on background or (not element and not handle and not ui)) and no modifier
       if (!isModifier && (isBackground || (!isClickingElement && !isClickingHandle && !isClickingUI))) {
         console.log('[HouseofmatesBuilder] Context/Background Deselection');
         setSelectedElementIds([]);
@@ -186,14 +186,14 @@ export function HouseofmatesBuilder() {
     return () => window.removeEventListener('mousedown', handleGlobalMousedown, true);
   }, [selectedElementIds]);
 
-  // --- UNDO HISTORY ---
+  // --- undo history ---
   const [history, setHistory] = useState<PageData[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
 
   const addToHistory = useCallback((newPage: PageData) => {
-    // If we are in the middle of history, discard future
+    // if we are in the middle of history, discard future
     const newHistory = [...history.slice(0, historyIndex + 1), newPage];
-    // Limit history size (e.g., 50)
+    // limit history size (e.g., 50)
     if (newHistory.length > 50) newHistory.shift();
 
     setHistory(newHistory);
@@ -208,7 +208,7 @@ export function HouseofmatesBuilder() {
       setHistoryIndex(newIndex);
       toast.info('undo', { duration: 1000 });
 
-      // Sync with backend (debounced ideally, but here direct)
+      // sync with backend (debounced ideally, but here direct)
       api.updateRecord(collectionNames.website, previousPage.id, {
         ...previousPage,
         elements: JSON.stringify(previousPage.elements)
@@ -216,7 +216,7 @@ export function HouseofmatesBuilder() {
     }
   }, [history, historyIndex, collectionNames]);
 
-  // --- FETCH PAGE ---
+  // --- fetch page ---
   const fetchPage = useCallback(async () => {
     console.log('[HouseofmatesBuilder] fetchPage called', { slug, site_identifier });
     console.log('[HouseofmatesBuilder] collectionNames:', collectionNames);
@@ -256,7 +256,7 @@ export function HouseofmatesBuilder() {
       let foundPage = pageRes?.data?.[0] || pageRes?.data?.data?.[0];
       console.log('[HouseofmatesBuilder] foundPage:', foundPage);
 
-      // If no page found and we're looking for home, try is_home AND site_identifier
+      // if no page found and we're looking for home, try is_home and site_identifier
       if (!foundPage && (slug === 'home' || !slug)) {
         console.log('[HouseofmatesBuilder] No page found with slug, trying is_home filter');
         pageRes = await api.request(collectionNames.website, 'list', {
@@ -282,7 +282,7 @@ export function HouseofmatesBuilder() {
         console.log('[HouseofmatesBuilder] loaded page:', loadedPage);
         setPage(loadedPage);
 
-        // Init history
+        // init history
         setHistory([loadedPage]);
         setHistoryIndex(0);
       } else {
@@ -299,7 +299,7 @@ export function HouseofmatesBuilder() {
         console.error('Error response data:', error.response.data);
         console.error('Error response status:', error.response.status);
 
-        // Handle 401 specifically
+        // handle 401 specifically
         if (error.response.status === 401) {
           console.warn('[HouseofmatesBuilder] 401 Unauthorized - prompting for login');
           toast.error('you need to log in as admin to create/edit pages');
@@ -316,7 +316,7 @@ export function HouseofmatesBuilder() {
   const hasFetchedRef = useRef(false);
 
   useEffect(() => {
-    // Only fetch once on mount
+    // only fetch once on mount
     if (hasFetchedRef.current) {
       console.log('[HouseofmatesBuilder] Skipping duplicate fetch');
       return;
@@ -329,7 +329,7 @@ export function HouseofmatesBuilder() {
       const key = localStorage.getItem('hom_api_key');
       if (key && key !== 'null' && key !== 'undefined') {
         setIsAdmin(true);
-        // Run collection ensures
+        // run collection ensures
         try {
           await ensureWebsiteCollection();
           await ensureFormsCollection();
@@ -344,18 +344,18 @@ export function HouseofmatesBuilder() {
   }, []);
 
 
-  // --- ADMIN LOGIN HANDLER ---
+  // --- admin login handler ---
   const handleAdminLogin = async (apiKey: string) => {
     try {
-      // Save token directly - it will be validated on first actual API call
-      // This avoids timeout issues during login
+      // save token directly - it will be validated on first actual api call
+      // this avoids timeout issues during login
       localStorage.setItem('hom_api_key', apiKey);
 
       setIsAdmin(true);
       setShowLoginModal(false);
       toast.success('admin mode enabled');
 
-      // Run these in the background without blocking login
+      // run these in the background without blocking login
       Promise.all([
         ensureWebsiteCollection(),
         ensureFormsCollection(),
@@ -370,7 +370,7 @@ export function HouseofmatesBuilder() {
     }
   };
 
-  // --- ENSURE WEBSITE COLLECTION EXISTS ---
+  // --- ensure website collection exists ---
   const ensureWebsiteCollection = async () => {
     const colName = collectionNames.website;
     const colTitle = site_identifier === 'dupe' ? 'dupe mates pages' : 'website pages';
@@ -404,7 +404,7 @@ export function HouseofmatesBuilder() {
           fields
         });
       } else {
-        // IMPORTANT: Check for broken inheritance (often cause of 500 errors)
+        // important: check for broken inheritance (often cause of 500 errors)
         if (col.inherits && col.inherits.length > 0) {
           const parentRes = await api.listCollections();
           const parentData = Array.isArray(parentRes) ? parentRes : (parentRes as { data?: any[] }).data;
@@ -419,7 +419,7 @@ export function HouseofmatesBuilder() {
           }
         }
 
-        // Ensure metadata (title/hidden) normalized
+        // ensure metadata (title/hidden) normalized
         try {
           await api.updateCollection(colName, { title: colTitle, hidden: true }).catch((err) => {
             console.warn(`Primary update metadata failed for ${colName}, trying fallback:`, err.message);
@@ -433,7 +433,7 @@ export function HouseofmatesBuilder() {
           console.warn(`Failed to normalize collection metadata for ${colName}:`, e);
         }
 
-        // Check fields - try to use list if get fails
+        // check fields - try to use list if get fails
         let existingFields = [];
         try {
           const colDetail = await api.getCollection(colName);
@@ -473,7 +473,7 @@ export function HouseofmatesBuilder() {
     }
   };
 
-  // --- ENSURE FORMS COLLECTION EXISTS ---
+  // --- ensure forms collection exists ---
   const ensureFormsCollection = async () => {
     const colName = collectionNames.forms;
     const colTitle = site_identifier === 'dupe' ? 'dupe forms' : 'form submissions';
@@ -501,7 +501,7 @@ export function HouseofmatesBuilder() {
           fields
         });
       } else {
-        // Check inheritance
+        // check inheritance
         if (col.inherits && col.inherits.length > 0) {
           const parentRes = await api.listCollections();
           const parentData = Array.isArray(parentRes) ? parentRes : (parentRes as { data?: any[] }).data;
@@ -511,7 +511,7 @@ export function HouseofmatesBuilder() {
           }
         }
 
-        // Ensure metadata (title/hidden) normalized
+        // ensure metadata (title/hidden) normalized
         try {
           await api.updateCollection(colName, { title: colTitle, hidden: true }).catch(err => {
             console.warn(`Metadata update fail for ${colName}:`, err.message);
@@ -520,7 +520,7 @@ export function HouseofmatesBuilder() {
           console.warn(`Failed to normalize collection metadata for ${colName}:`, e);
         }
 
-        // Try to get fields more reliably
+        // try to get fields more reliably
         let existingFields = [];
         try {
           const colDetail = await api.getCollection(colName);
@@ -544,7 +544,7 @@ export function HouseofmatesBuilder() {
     }
   };
 
-  // --- CRUD OPERATIONS ---
+  // --- crud operations ---
   const updateElements = useCallback((batchUpdates: { id: string; updates: Partial<ElementData> }[]) => {
     if (!page) return;
     const newElements = page.elements.map(el => {
@@ -553,7 +553,7 @@ export function HouseofmatesBuilder() {
 
       const mode = previewMode; // desktop, tablet, or mobile
       if (mode === 'desktop') {
-        // Deep merge styles to prevent losing existing style properties
+        // deep merge styles to prevent losing existing style properties
         const mergedUpdates = { ...update.updates };
         if (mergedUpdates.styles) {
           mergedUpdates.styles = { ...el.styles, ...mergedUpdates.styles };
@@ -563,7 +563,7 @@ export function HouseofmatesBuilder() {
         }
         return { ...el, ...mergedUpdates };
       } else {
-        // Device-specific layout update
+        // device-specific layout update
         const layoutUpdates = {
           x: update.updates.x ?? (el[mode]?.x ?? el.x),
           y: update.updates.y ?? (el[mode]?.y ?? el.y),
@@ -572,10 +572,10 @@ export function HouseofmatesBuilder() {
           fontSize: update.updates.styles?.fontSize ?? el[mode]?.fontSize,
         };
 
-        // Merge non-layout updates (content, styles, etc.)
+        // merge non-layout updates (content, styles, etc.)
         const filteredUpdates = { ...update.updates };
 
-        // Redirection Logic: If fontSize is in styles, it moves to deviceLayout
+        // redirection logic: if fontsize is in styles, it moves to devicelayout
         if (filteredUpdates.styles && 'fontSize' in filteredUpdates.styles) {
           const { fontSize, ...otherStyles } = filteredUpdates.styles;
           if (Object.keys(otherStyles).length > 0) {
@@ -584,7 +584,7 @@ export function HouseofmatesBuilder() {
             delete filteredUpdates.styles;
           }
         } else if (filteredUpdates.styles) {
-          // Just merge other styles
+          // just merge other styles
           filteredUpdates.styles = { ...el.styles, ...filteredUpdates.styles };
         }
 
@@ -633,10 +633,10 @@ export function HouseofmatesBuilder() {
     const newElement: ElementData = {
       ...element,
       id: crypto.randomUUID(),
-      // Initialize layouts with desktop values
+      // initialize layouts with desktop values
       tablet: element.tablet || { x: element.x, y: element.y, width: element.width, height: element.height, fontSize: element.styles?.fontSize },
       mobile: element.mobile || { x: element.x, y: element.y, width: element.width, height: element.height, fontSize: element.styles?.fontSize },
-      // Ensure sensible defaults for styles on new elements
+      // ensure sensible defaults for styles on new elements
       styles: { ...(element.styles || {}), backgroundColor: (element.styles && element.styles.backgroundColor) || '#03000c', opacity: (element.styles && typeof element.styles.opacity === 'number') ? element.styles.opacity : 0.75 },
       visibility: element.visibility || {
         desktop: previewMode === 'desktop',
@@ -669,7 +669,7 @@ export function HouseofmatesBuilder() {
     const newElements = [...page.elements];
     const newIds: string[] = [];
 
-    // If specific coordinates are provided (e.g. from context menu),
+    // if specific coordinates are provided (e.g. from context menu),
     // we use them as the top-left of the bounding box of the clipboard elements.
     let offsetX = offset;
     let offsetY = offset;
@@ -690,7 +690,7 @@ export function HouseofmatesBuilder() {
         id: newId,
         x: el.x + offsetX,
         y: el.y + offsetY,
-        // Update device specific layouts too
+        // update device specific layouts too
         tablet: el.tablet ? { ...el.tablet, x: el.tablet.x + offsetX, y: el.tablet.y + offsetY } : undefined,
         mobile: el.mobile ? { ...el.mobile, x: el.mobile.x + offsetX, y: el.mobile.y + offsetY } : undefined,
         zIndex: (page.elements.length || 0) + 10
@@ -726,7 +726,7 @@ export function HouseofmatesBuilder() {
     addToHistory(newPage);
     setPage(newPage);
 
-    // Don't stringify elements if they're already in the page
+    // don't stringify elements if they're already in the page
     const { elements, ...pageUpdates } = updates;
     const payload = elements ? { ...pageUpdates, elements: JSON.stringify(elements) } : pageUpdates;
 
@@ -749,17 +749,17 @@ export function HouseofmatesBuilder() {
       });
   }, [page, collectionNames, isAdmin]);
 
-  // --- GLOBAL KEYBOARD LISTENER ---
+  // --- global keyboard listener ---
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Undo: Ctrl+Z
+      // undo: ctrl+z
       if (e.ctrlKey && e.key.toLowerCase() === 'z') {
         e.preventDefault();
         undo();
         return;
       }
 
-      // Copy: Ctrl+C
+      // copy: ctrl+c
       if (e.ctrlKey && e.key.toLowerCase() === 'c') {
         const target = e.target as HTMLElement;
         if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
@@ -768,7 +768,7 @@ export function HouseofmatesBuilder() {
         return;
       }
 
-      // Paste: Ctrl+V
+      // paste: ctrl+v
       if (e.ctrlKey && e.key.toLowerCase() === 'v') {
         const target = e.target as HTMLElement;
         if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
@@ -777,7 +777,7 @@ export function HouseofmatesBuilder() {
         return;
       }
 
-      // Ctrl+E: Admin Login
+      // ctrl+e: admin login
       if (e.ctrlKey && e.key.toLowerCase() === 'e') {
         e.preventDefault();
         if (!isAdmin) {
@@ -789,7 +789,7 @@ export function HouseofmatesBuilder() {
         return;
       }
 
-      // ESC: Deselect
+      // esc: deselect
       if (e.key === 'Escape') {
         setSelectedElementIds([]);
         setContextMenu(null);
@@ -800,12 +800,12 @@ export function HouseofmatesBuilder() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isAdmin, undo, copySelection, paste]);
 
-  // --- CONTEXT MENU ---
+  // --- context menu ---
   const handleContextMenu = (e: React.MouseEvent) => {
-    // toast.success('debug: right click detected'); // Removed to avoid spam, uncomment if needed
+    // toast.success('debug: right click detected'); // removed to avoid spam, uncomment if needed
     console.log('Context menu event triggered', { isAdmin, target: e.target });
 
-    // Always prevent default to take control
+    // always prevent default to take control
     e.preventDefault();
 
     if (!isAdmin) {
@@ -813,7 +813,7 @@ export function HouseofmatesBuilder() {
       return;
     }
 
-    // Don't show if clicking interactive elements inside elements
+    // don't show if clicking interactive elements inside elements
     if ((e.target as HTMLElement).closest('button, input, select, textarea')) {
       console.log('Context menu suppressed by interactive element');
       return;
@@ -823,15 +823,15 @@ export function HouseofmatesBuilder() {
     setContextMenu({ type: 'global', x: e.clientX, y: e.clientY });
   };
 
-  // --- LOADING STATE ---
-  // (Rendered in main block)
+  // --- loading state ---
+  // (rendered in main block)
 
-  // --- NO PAGE FOUND ---
-  // (Rendered in main block)
+  // --- no page found ---
+  // (rendered in main block)
 
-  // (Page not found rendered in main block)
+  // (page not found rendered in main block)
 
-  // --- DRAG & DROP FILE HANDLER ---
+  // --- drag & drop file handler ---
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
@@ -845,13 +845,13 @@ export function HouseofmatesBuilder() {
     if (files.length === 0) return;
 
     const { clientX, clientY } = e;
-    // Simple uuid generator if not imported
+    // simple uuid generator if not imported
     const genId = () => Math.random().toString(36).substring(2, 9);
 
     for (const file of files) {
       toast.info(`uploading ${file.name}...`);
       try {
-        // Upload file
+        // upload file
         const uploaded = await api.upload(file);
         const fileUrl = uploaded?.url || uploaded?.data?.url;
 
@@ -866,7 +866,7 @@ export function HouseofmatesBuilder() {
           size: `${(file.size / 1024).toFixed(1)} KB`
         };
 
-        // Smart Type Detection
+        // smart type detection
         if (file.type.startsWith('image/')) {
           type = 'image';
           content = { url: fileUrl, alt: file.name };
@@ -890,7 +890,7 @@ export function HouseofmatesBuilder() {
           };
         }
 
-        // Add Element
+        // add element
         const newElement: ElementData = {
           id: genId(),
           type,
@@ -912,7 +912,7 @@ export function HouseofmatesBuilder() {
     }
   };
 
-  // --- RENDER ---
+  // --- render ---
   return (
     <BuilderContext.Provider value={{
       isAdmin,
@@ -988,7 +988,7 @@ export function HouseofmatesBuilder() {
 
           const target = e.target as HTMLElement;
 
-          // Do not start selection if clicking interactive builder UI
+          // do not start selection if clicking interactive builder ui
           const clickedUI = !!(
             target.closest('.builder-toolbox') ||
             target.closest('.builder-context-menu') ||
@@ -1000,9 +1000,9 @@ export function HouseofmatesBuilder() {
 
           if (clickedUI || clickedHandle) return;
 
-          // Restore clicking on background logic?
-          // No, the PageRenderer handles this now.
-          // But we keep the relative overflow-hidden container.
+          // restore clicking on background logic?
+          // no, the pagerenderer handles this now.
+          // but we keep the relative overflow-hidden container.
         }}
         onClick={(e) => {
           const isCanvas = e.target === e.currentTarget ||
@@ -1089,10 +1089,10 @@ export function HouseofmatesBuilder() {
                 <div
                   className="preview-sandbox-wrapper relative transition-all duration-500 flex-shrink-0"
                   style={(() => {
-                    // In public view (non-admin), always fill the screen
+                    // in public view (non-admin), always fill the screen
                     if (!isAdmin) return { width: '100%', minHeight: '100vh', position: 'relative' as const };
 
-                    // In builder view, constrain width for layout context but keep it clean
+                    // in builder view, constrain width for layout context but keep it clean
                     if (previewMode === 'mobile') return {
                       width: 430,
                       height: 932,
@@ -1123,7 +1123,7 @@ export function HouseofmatesBuilder() {
           </>
         )}
 
-        {/* Always rendered if admin - Very high z-index for menus */}
+        {/* always rendered if admin - very high z-index for menus */}
         {isAdmin && contextMenu?.type === 'global' && (
           <GlobalContextMenu
             x={contextMenu.x}
@@ -1148,7 +1148,7 @@ export function HouseofmatesBuilder() {
         onLogin={handleAdminLogin}
       />
 
-      {/* Global Styles */}
+      {/* global styles */}
       <style dangerouslySetInnerHTML={{
         __html: `
  body { font-family: 'Varela Round', sans-serif; }
@@ -1167,7 +1167,7 @@ export function HouseofmatesBuilder() {
  animation: bounceUp 0.5s ease-out forwards;
  }
 
- /* Preview sandbox overrides */
+ /* preview sandbox overrides */
  .preview-sandbox { display: block; }
  .preview-sandbox .canvas-background { min-height: unset !important; height: 100% !important; }
   `}} />

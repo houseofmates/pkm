@@ -32,7 +32,7 @@ async function setupPublicCollections() {
  }
   ]
   },
-  // Core collections
+  // core collections
   {
   name: 'headmates',
   title: 'Headmates',
@@ -58,7 +58,7 @@ async function setupPublicCollections() {
 
   for (const colReq of collectionsToCreate) {
 
-  // 1. Check PHYSICAL Table Existence via List
+  // 1. check physical table existence via list
   let tableExists = false;
   try {
   await api.request(colReq.name, 'list', { params: { pageSize: 1 } });
@@ -69,7 +69,7 @@ async function setupPublicCollections() {
   console.warn(`[Setup] Table ${colReq.name} check failed (Status: ${err.response?.status}). Assuming missing/broken.`);
   }
 
-  // 2. If table missing, DESTROY METADATA first (Scorched Earth)
+  // 2. if table missing, destroy metadata first (scorched earth)
   if (!tableExists) {
   console.log(`[Setup] Nuking metadata for ${colReq.name}...`);
   try {
@@ -77,13 +77,13 @@ async function setupPublicCollections() {
  params: { filterByTk: colReq.name }
  });
  console.log(`[Setup] Metadata destroyed for ${colReq.name}.`);
- // Wait a moment for NocoBase to process
+ // wait a moment for nocobase to process
  await new Promise(r => setTimeout(r, 1000));
   } catch (_destroyErr) {
  // validation error usually means it didn't exist, which is good
   }
 
-  // 3. Create Collection Fresh
+  // 3. create collection fresh
   console.log(`[Setup] Creating fresh collection ${colReq.name}...`);
  try {
  await api.request('collections', 'create', {
@@ -101,7 +101,7 @@ async function setupPublicCollections() {
   }
   }
 
-  // 4. Ensure Fields Exist (Idempotent)
+  // 4. ensure fields exist (idempotent)
   if (colReq.fields) {
   console.log(`[Setup] Ensuring fields for ${colReq.name}...`);
   for (const field of colReq.fields) {
@@ -110,9 +110,9 @@ async function setupPublicCollections() {
  method: 'POST',
  data: field
  });
- // Success = Created
+ // success = created
  } catch (_e: unknown) {
- // 400 = Already exists, usually
+ // 400 = already exists, usually
  }
   }
   }

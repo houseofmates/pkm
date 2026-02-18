@@ -56,7 +56,7 @@ function startServer(port = 3030) {
 
 function updateState(key, value) {
     state[key] = value;
-    // console.log(`State updated: ${key} = ${value}`);
+    // console.log(`state updated: ${key} = ${value}`);
 }
 
 async function buildContext() {
@@ -67,12 +67,12 @@ async function buildContext() {
         }
     });
 
-    // Helper to find collection name
+    // helper to find collection name
     // caching this would be better but for now we fetch list if needed or just try known names
-    // To minimize latency, let's assume standard names for now or do a quick check?
-    // Let's do a quick lookup of collections first to map them.
-    // Optimization: Cache collection mapping?
-    // For this MVP, let's just fetch collections first.
+    // to minimize latency, let's assume standard names for now or do a quick check?
+    // let's do a quick lookup of collections first to map them.
+    // optimization: cache collection mapping?
+    // for this mvp, let's just fetch collections first.
     let collections = [];
     try {
         const res = await client.get('/collections:list', { params: { paginate: false } });
@@ -104,13 +104,13 @@ async function buildContext() {
         }
     };
 
-    // 1. Identity
+    // 1. identity
     if (state.activeFronterId) {
-        // Fetch specific member
+        // fetch specific member
         try {
-            // If activeFronterId is an ID, fetch it.
-            // But checking if it's a UUID or just a name?
-            // Assuming ID.
+            // if activefronterid is an id, fetch it.
+            // but checking if it's a uuid or just a name?
+            // assuming id.
             const res = await client.get(`/${membersCol}/${state.activeFronterId}`);
             const member = res.data.data;
             context.identity_context = {
@@ -123,11 +123,11 @@ async function buildContext() {
             console.warn("Failed to fetch active fronter", e.message);
         }
     } else {
-        // Try to fetch 'Front' or 'Active' status from somewhere? 
-        // For now, if no local state, it's unknown.
+        // try to fetch 'front' or 'active' status from somewhere? 
+        // for now, if no local state, it's unknown.
     }
 
-    // 2. Affect (Mood)
+    // 2. affect (mood)
     try {
         const res = await client.get(`/${moodsCol}`, {
             params: {
@@ -147,7 +147,7 @@ async function buildContext() {
         // ignore
     }
 
-    // 3. Activity
+    // 3. activity
     try {
         const res = await client.get(`/${activitiesCol}`, {
             params: {

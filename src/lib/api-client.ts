@@ -1,7 +1,7 @@
 // @ts-nocheck
 import axios from 'axios';
 
-// Use the production URL directly or env if available
+// use the production url directly or env if available
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4100/api';
 
 export const apiClient = axios.create({
@@ -16,40 +16,40 @@ apiClient.interceptors.request.use((config) => {
  const ht = localStorage.getItem('hom_api_key');
  const gt = localStorage.getItem('hom_guest_key'); // Guest Token Support
 
- // Robust check for truthy token
+ // robust check for truthy token
  let token = null;
  if (ht && ht !== 'null' && ht !== 'undefined' && ht.trim() !== '') {
   token = ht.trim();
-  // console.debug('[Auth] Using hom_api_key');
+  // console.debug('[auth] using hom_api_key');
  } else if (nt && nt !== 'null' && nt !== 'undefined' && nt.trim() !== '') {
   token = nt.trim();
-  // console.debug('[Auth] Using nocobase_token');
+  // console.debug('[auth] using nocobase_token');
  } else if (gt && gt !== 'null' && gt !== 'undefined' && gt.trim() !== '') {
   token = gt.trim(); // Use guest token as fallback
-  // console.debug('[Auth] Using hom_guest_key');
+  // console.debug('[auth] using hom_guest_key');
  }
 
- // Debug log for troubleshooting 401s
+ // debug log for troubleshooting 401s
  if (!token) {
   console.warn('[Auth] No token found in localStorage (nocobase_token, hom_api_key, or hom_guest_key). Request will be anonymous.');
  } else {
-  // console.debug('[Auth] Token present:', token.substring(0, 10) + '...');
+  // console.debug('[auth] token present:', token.substring(0, 10) + '...');
  }
 
  if (token) {
   const bearerToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
 
-  // Direct assignment to ensure compatibility
+  // direct assignment to ensure compatibility
   config.headers['Authorization'] = bearerToken;
   config.headers['X-Hostname'] = window.location.hostname;
 
-  // Also try set() if it's an AxiosHeaders object
+  // also try set() if it's an axiosheaders object
   if (config.headers && typeof config.headers.set === 'function') {
  config.headers.set('Authorization', bearerToken);
  config.headers.set('X-Hostname', window.location.hostname);
   }
  } else {
-  // Anonymous auth is broken in NocoBase - use a hardcoded public access token (member role with view-only perms)
+  // anonymous auth is broken in nocobase - use a hardcoded public access token (member role with view-only perms)
   const PUBLIC_ACCESS_TOKEN = process.env.PUBLIC_ACCESS_TOKEN || '';
   token = PUBLIC_ACCESS_TOKEN;
   const bearerToken = `Bearer ${token}`;
@@ -68,15 +68,15 @@ apiClient.interceptors.response.use(
  (response) => response,
  (error) => {
   if (error.response?.status === 401) {
- // Clear potentially expired/invalid tokens
+ // clear potentially expired/invalid tokens
  console.warn('[Auth] 401 Unauthorized - clearing stored tokens');
  localStorage.removeItem('hom_api_key');
  localStorage.removeItem('nocobase_token');
 
- // Dispatch event for auth context to handle
+ // dispatch event for auth context to handle
  window.dispatchEvent(new Event('auth-error'));
 
- // Show toast notification
+ // show toast notification
  if (typeof window !== 'undefined' && (window as any).toast) {
   (window as any).toast.error('session expired - please log in as admin to edit');
  }

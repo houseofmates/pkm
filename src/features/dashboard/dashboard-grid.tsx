@@ -12,10 +12,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DatabaseWidget } from '@/features/databases/components/database-widget';
 import { useFronter } from '@/contexts/fronter-context';
 import { HeadmateCard } from '@/features/headmates/components/headmate-card';
-// import { InfiniteCanvasWrapper } from '@/components/ui/infinite-canvas-wrapper';
+// import { infinitecanvaswrapper } from '@/components/ui/infinite-canvas-wrapper';
 import { EdgelessCanvas } from '@/features/edgeless/components/EdgelessCanvas';
 import { Toolbar } from '@/features/edgeless/components/Toolbar';
-// import { Separator } from '@/components/ui/separator';
+// import { separator } from '@/components/ui/separator';
 import type { ViewType } from '@/components/views/registry';
 
 type WidgetType = 'view' | 'document' | 'contact';
@@ -38,17 +38,17 @@ interface WidgetDefinition {
 }
 
 export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKey?: string }) {
-    // --- State ---
+    // --- state ---
     const [widgets, setWidgets] = useAppSetting<WidgetDefinition[]>(layoutKey, []);
     const { collections } = useCollections();
-    // const { client, token, isAuthenticated, login } = useAuth(); // Unused
+    // const { client, token, isauthenticated, login } = useauth(); // unused
     const [isEditMode, setIsEditMode] = useState(true);
     const [addMenuOpen, setAddMenuOpen] = useState(false);
     const [localDocs, setLocalDocs] = useState<{ id: string, title: string }[]>([]);
     const [wizardTab, setWizardTab] = useState<'databases' | 'documents' | 'contacts'>('databases');
     const { members } = useFronter();
 
-    // Load Local Docs
+    // load local docs
     useEffect(() => {
         if (!addMenuOpen) return;
         const docs: { id: string, title: string }[] = [];
@@ -65,7 +65,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
         setLocalDocs(docs);
     }, [addMenuOpen]);
 
-    // Widget Handlers
+    // widget handlers
     const handleAddWidget = (collectionName: string, viewType: ViewType) => {
         const col = collections.find((c: { name: string; title?: string }) => c.name === collectionName);
         const newWidget: WidgetDefinition = {
@@ -127,21 +127,21 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
         });
     };
 
-    // --- Droppable for Sidebar Drag ---
+    // --- droppable for sidebar drag ---
     const { setNodeRef } = useDroppable({
         id: 'dashboard-canvas',
     });
 
-    // Listen to drop events from RootLayout (via CustomEvent as DnD Kit context is shared but handling is separate)
+    // listen to drop events from rootlayout (via customevent as dnd kit context is shared but handling is separate)
     useEffect(() => {
         const handleAdd = (e: any) => {
             const { id, type, name } = e.detail;
             if (type === 'collection') {
-                // Check if it's a document or real collection
+                // check if it's a document or real collection
                 if (id.startsWith('doc_')) {
                     handleAddDocumentWidget(id.replace('doc_', ''), name);
                 } else if (id.startsWith('drawing_')) {
-                    // Drawing widget logic? Or just treat as document?
+                    // drawing widget logic? or just treat as document?
                     toast.info("Drawings not yet supported on dashboard");
                 } else {
                     handleAddWidget(id, 'table'); // Default to table view
@@ -153,8 +153,8 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
     }, []);
 
 
-    // --- Header Alignment Content ---
-    // Placed absolute to overlay canvas
+    // --- header alignment content ---
+    // placed absolute to overlay canvas
     const HeaderControl = (
         <div className="absolute top-0 left-0 w-full z-50 pointer-events-none flex flex-col">
             <div className="h-16 flex items-center px-4 justify-between bg-background/0 pointer-events-none">
@@ -170,12 +170,12 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                     </Button>
                 </div>
             </div>
-            {/* Separator removed from header logic if we want transparent blend, 
-                but user wanted alignment. We keep it if needed. 
-                Sidebar has a border-bottom. We should match or omit.
-                If we use border-bottom on sidebar, we might want one here.
-                But user "Remove persistent bottom border line on sidebar" might imply no border.
-                We'll keep visual consistency with whatever sidebar has.
+            {/* separator removed from header logic if we want transparent blend, 
+                but user wanted alignment. we keep it if needed. 
+                sidebar has a border-bottom. we should match or omit.
+                if we use border-bottom on sidebar, we might want one here.
+                but user "remove persistent bottom border line on sidebar" might imply no border.
+                we'll keep visual consistency with whatever sidebar has.
             */}
         </div>
     );
@@ -184,10 +184,10 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
         <div className="w-full h-full relative bg-[#050505] text-foreground overflow-hidden flex flex-col">
             {HeaderControl}
 
-            {/* Edgeless Canvas as Background & Interaction Layer */}
+            {/* edgeless canvas as background & interaction layer */}
             <div className="flex-1 w-full h-full relative overflow-hidden">
                 <EdgelessCanvas className="bg-[#050505]">
-                    {/* Render Widgets inside Canvas (Synced Transform) */}
+                    {/* render widgets inside canvas (synced transform) */}
                     <div ref={setNodeRef} className="relative w-[5000px] h-[5000px]">
                         {widgets.map(widget => (
                             <div
@@ -209,19 +209,19 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                                 <Card className="w-full h-full flex flex-col overflow-hidden border-border/50 bg-background/80 backdrop-blur">
                                     <CardHeader className="p-3 py-2 flex flex-row items-center justify-between space-y-0 border-b cursor-move ui-drag-handle"
                                         onMouseDown={(e) => {
-                                            // Allow dragging via dnd-kit or custom? 
-                                            // Current implementation uses custom resize but drag?
-                                            // InfiniteCanvasWrapper didn't handle widget drag, did it?
-                                            // Widgets are absolute. They need a drag handler.
-                                            // The previous code didn't show a drag handler logic for widgets, 
-                                            // except `onMouseDown` to bring to front.
-                                            // Ah, `InfiniteCanvasWrapper` does NOT handle element dragging.
-                                            // DnD Kit `useDraggable`? usage?
-                                            // I only see `useDroppable`.
-                                            // Maybe `ui-drag-handle` class signals something?
-                                            // Or maybe I missed the drag logic in the previous view.
-                                            // Let's assume standard drag logic is needed or existing draggable lib handles `.ui-drag-handle`.
-                                            // But I should persist the `onMouseDown` for bringToFront.
+                                            // allow dragging via dnd-kit or custom? 
+                                            // current implementation uses custom resize but drag?
+                                            // infinitecanvaswrapper didn't handle widget drag, did it?
+                                            // widgets are absolute. they need a drag handler.
+                                            // the previous code didn't show a drag handler logic for widgets, 
+                                            // except `onmousedown` to bring to front.
+                                            // ah, `infinitecanvaswrapper` does not handle element dragging.
+                                            // dnd kit `usedraggable`? usage?
+                                            // i only see `usedroppable`.
+                                            // maybe `ui-drag-handle` class signals something?
+                                            // or maybe i missed the drag logic in the previous view.
+                                            // let's assume standard drag logic is needed or existing draggable lib handles `.ui-drag-handle`.
+                                            // but i should persist the `onmousedown` for bringtofront.
                                             e.stopPropagation();
                                             bringToFront(widget.id);
                                         }}
@@ -268,12 +268,12 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                                             })()
                                         )}
 
-                                        {/* Interaction Overlay for Canvas Tools (e.g. Drawing over widgets?) 
-                                            If strict layering is needed. For now, content is interactive.
+                                        {/* interaction overlay for canvas tools (e.g. drawing over widgets?) 
+                                            if strict layering is needed. for now, content is interactive.
                                         */}
                                     </CardContent>
 
-                                    {/* Resize Handle */}
+                                    {/* resize handle */}
                                     {isEditMode && (
                                         <div
                                             className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize bg-primary/20 hover:bg-primary/50 rounded-tl"
@@ -306,19 +306,19 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                     </div>
                 </EdgelessCanvas>
 
-                {/* Tools Overlay */}
+                {/* tools overlay */}
                 <div className="pointer-events-auto">
                     <Toolbar />
-                    {/* <CanvasControls /> */}
-                    {/* CanvasControls might be redundant if Toolbar has everything, 
-                       but usually Controls has Zoom/Fit. 
-                       If it's missing from import, we skip. 
-                       User said "buttons", Toolbar has the main tools. 
+                    {/* <canvascontrols /> */}
+                    {/* canvascontrols might be redundant if toolbar has everything, 
+                       but usually controls has zoom/fit. 
+                       if it's missing from import, we skip. 
+                       user said "buttons", toolbar has the main tools. 
                    */}
                 </div>
             </div>
 
-            {/* Add Widget Modal/Wizard (Overlay) */}
+            {/* add widget modal/wizard (overlay) */}
             {addMenuOpen && (
                 <div className="absolute inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
                     <Card className="w-full max-w-2xl h-[500px] flex flex-col bg-[#0a0a0a] border-border">

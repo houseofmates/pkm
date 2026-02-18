@@ -13,13 +13,13 @@ import { snapCenterToCursor } from '@dnd-kit/modifiers';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-// Custom sensor that ignores clicks on editable elements (inputs, textareas, contenteditable)
+// custom sensor that ignores clicks on editable elements (inputs, textareas, contenteditable)
 class SmartPointerSensor extends PointerSensor {
   static activators = [
     {
       eventName: 'onPointerDown' as const,
       handler: ({ nativeEvent: event }: { nativeEvent: PointerEvent }) => {
-        // Don't start drag if clicking on an editable element
+        // don't start drag if clicking on an editable element
         const target = event.target as HTMLElement;
         if (
           target.tagName === 'INPUT' ||
@@ -41,7 +41,7 @@ class SmartPointerSensor extends PointerSensor {
 
 type Widget = any;
 
-// Droppable column
+// droppable column
 function DroppableColumn({ ci, children }: { ci: number; children: React.ReactNode }) {
   const { setNodeRef, isOver } = useDroppable({ id: `col-${ci}`, data: { columnIndex: ci } });
   return (
@@ -54,7 +54,7 @@ function DroppableColumn({ ci, children }: { ci: number; children: React.ReactNo
   );
 }
 
-// Individual sortable item
+// individual sortable item
 function SortableItem({ id, render }: { id: string; render: () => React.ReactNode }) {
   const {
     attributes,
@@ -203,7 +203,7 @@ export default function PreviewCanvas({
     setLocalCols(newCols);
     onColumnsChange?.(newCols);
 
-    // clear activeId after DOM/state update so DragOverlay drop animation doesn't jump
+    // clear activeid after dom/state update so dragoverlay drop animation doesn't jump
     setActiveId(null);
   };
   const handleResize = (ci: number, e: React.MouseEvent) => {

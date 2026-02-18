@@ -2,10 +2,10 @@
 /*
   normalize-collections.cjs
 
-  Usage:
-    NOCOBASE_URL=http://localhost:4100/api ADMIN_API_KEY="$ADMIN_API_KEY" node scripts/normalize-collections.cjs [--dry-run]
+  usage:
+    nocobase_url=http://localhost:4100/api admin_api_key="$admin_api_key" node scripts/normalize-collections.cjs [--dry-run]
 
-  The script will find collections whose title or name matches the target list
+  the script will find collections whose title or name matches the target list
   and will set their `title` to the exact lowercase string and `hidden: true`.
 */
 
@@ -66,7 +66,7 @@ function normalizeNameVariants(s) {
           break;
         }
 
-        // Also match loose contains (in case of e.g., "Dupe Mates Pages - extra")
+        // also match loose contains (in case of e.g., "dupe mates pages - extra")
         if (title.includes(desired) || variants.some(v => name.includes(v))) {
           updates.push({ col, desired });
           break;
@@ -92,7 +92,7 @@ function normalizeNameVariants(s) {
       const baseUrl = base.replace(/\/$/, '');
       const tried = [];
 
-      // try multiple possible endpoints: by name, by id, and with filterByTk
+      // try multiple possible endpoints: by name, by id, and with filterbytk
       const candidates = [
         `${baseUrl}/collections/${encodeURIComponent(col.name)}:update`,
         `${baseUrl}/collections/${encodeURIComponent(col.id)}:update`,
@@ -110,7 +110,7 @@ function normalizeNameVariants(s) {
           break;
         } catch (err) {
           const msg = err.response?.data || err.message || err;
-          // If 404/Not Found, keep trying other endpoints
+          // if 404/not found, keep trying other endpoints
           console.warn(`  Attempt failed for ${url}:`, msg);
         }
       }

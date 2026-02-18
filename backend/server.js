@@ -11,18 +11,18 @@ const io = new Server(server, {
         origin: "*", // Adjust to your frontend URL in production
         methods: ["GET", "POST"]
     },
-    // Reliability settings
+    // reliability settings
     pingTimeout: 60000,
     pingInterval: 25000,
     connectTimeout: 45000,
-    // Allow reconnection
+    // allow reconnection
     allowEIO3: true,
     transports: ['websocket', 'polling']
 });
 
 app.use(express.json());
 
-// Configure multer for background image uploads
+// configure multer for background image uploads
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const uploadDir = path.join(process.cwd(), 'public');
@@ -55,14 +55,14 @@ console.log('  - Ping Timeout: 60s');
 console.log('  - Ping Interval: 25s');
 console.log('  - Auto-reconnection enabled');
 
-// Shared secret to verify requests from n8n
+// shared secret to verify requests from n8n
 const SHARED_SECRET = process.env.BROADCAST_AUTH_KEY;
 
 import fs from 'fs';
 
 const DATA_FILE = path.join(process.cwd(), 'server-data.json');
 
-// Initial State (Default)
+// initial state (default)
 let chatHistory = [];
 let lastServerStats = {
     online: false,
@@ -73,13 +73,13 @@ let lastServerStats = {
     lastUpdated: new Date().toISOString()
 };
 
-// Load Data from Disk with validation
+// load data from disk with validation
 try {
     if (fs.existsSync(DATA_FILE)) {
         const raw = fs.readFileSync(DATA_FILE, 'utf8');
         const data = JSON.parse(raw);
 
-        // Validate data structure
+        // validate data structure
         if (data && typeof data === 'object') {
             if (Array.isArray(data.chatHistory)) {
                 chatHistory = data.chatHistory;
@@ -95,7 +95,7 @@ try {
     }
 } catch (err) {
     console.error('[Backend] Failed to load data file:', err);
-    // Try to load backup if main file is corrupted
+    // try to load backup if main file is corrupted
     const BACKUP_FILE = DATA_FILE + '.backup';
     try {
         if (fs.existsSync(BACKUP_FILE)) {
@@ -111,10 +111,10 @@ try {
     }
 }
 
-// Save Data Helper with validation and backup
+// save data helper with validation and backup
 const saveData = () => {
     try {
-        // Validate data before saving
+        // validate data before saving
         if (!Array.isArray(chatHistory)) {
             console.error('[Backend] Invalid chatHistory, skipping save');
             return;
@@ -127,13 +127,13 @@ const saveData = () => {
         const dataToSave = { chatHistory, lastServerStats };
         const jsonData = JSON.stringify(dataToSave, null, 2);
 
-        // Create backup of existing file before overwriting
+        // create backup of existing file before overwriting
         if (fs.existsSync(DATA_FILE)) {
             const BACKUP_FILE = DATA_FILE + '.backup';
             fs.copyFileSync(DATA_FILE, BACKUP_FILE);
         }
 
-        // Write new data
+        // write new data
         fs.writeFileSync(DATA_FILE, jsonData);
         console.log('[Backend] Data saved successfully');
     } catch (err) {
@@ -142,8 +142,8 @@ const saveData = () => {
 };
 
 /**
- * Broadcast Endpoint
- * n8n hits this endpoint to push new Minecraft data
+ * broadcast endpoint
+ * n8n hits this endpoint to push new minecraft data
  */
 app.post('/api/broadcast', async (req, res) => {
     const authKey = req.headers['x-api-key'];
@@ -153,13 +153,13 @@ app.post('/api/broadcast', async (req, res) => {
         return res.status(403).json({ error: 'Unauthorized broadcast attempt' });
     }
 
-    // DEBUG: Log incoming payload
+    // debug: log incoming payload
     console.log('[DEBUG] Incoming Broadcast Payload:', JSON.stringify(req.body, null, 2));
 
-    // Ultra-resilient data extraction
+    // ultra-resilient data extraction
     let payload = req.body;
 
-    // Case 1: JSON-in-a-key (happens when Content-Type is missing and n8n sends raw JSON)
+    // case 1: json-in-a-key (happens when content-type is missing and n8n sends raw json)
     if (Object.keys(payload).length === 1 && Object.values(payload)[0] === "") {
         const potentialJson = Object.keys(payload)[0];
         if (potentialJson.startsWith('{')) {
@@ -170,7 +170,7 @@ app.post('/api/broadcast', async (req, res) => {
         }
     }
 
-    // Case 2: Nested 'body' (common in n8n HTTP node responses)
+    // case 2: nested 'body' (common in n8n http node responses)
     if (payload.body) {
         if (typeof payload.body === 'string') {
             try { payload = JSON.parse(payload.body); } catch (e) { }
@@ -179,7 +179,7 @@ app.post('/api/broadcast', async (req, res) => {
         }
     }
 
-    // Support both flat and nested (n8n) payloads
+    // support both flat and nested (n8n) payloads
     let type = payload.type;
     let player = payload.player;
     let message = payload.message;
@@ -192,7 +192,7 @@ app.post('/api/broadcast', async (req, res) => {
     let uuid = payload.uuid;
     let displayName = payload.displayName;
 
-    // If missing, try to extract from nested 'body' (n8n webhook style)
+    // if missing, try to extract from nested 'body' (n8n webhook style)
     if ((!type || !player || !message) && payload.body) {
         const b = payload.body;
         type = b.type || type;
@@ -208,31 +208,31 @@ app.post('/api/broadcast', async (req, res) => {
         if (b.displayName !== undefined) displayName = b.displayName;
     }
 
-    // PROTECTION: Filter out spammy/invalid pings (e.g. from n8n monitoring nodes)
-    // Only accept pings that match our Skript signature (player: 'system')
+    // protection: filter out spammy/invalid pings (e.g. from n8n monitoring nodes)
+    // only accept pings that match our skript signature (player: 'system')
     if (type === 'ping' && player !== 'system') {
-        // Silently ignore foreign pings to prevent status flapping
+        // silently ignore foreign pings to prevent status flapping
         return res.status(200).json({ status: 'ignored' });
     }
 
-    // Resilient Status Mapping
+    // resilient status mapping
     let safeOnline = lastServerStats.online;
     if (online !== undefined && online !== null) {
         safeOnline = String(online) === 'true' || online === true;
     }
 
-    // PROTECTION: If this is a 'ping' and it says offline, check if we've had recent activity
+    // protection: if this is a 'ping' and it says offline, check if we've had recent activity
     const now = Date.now();
-    // We'll use a globally shared variable to track the last "Real" event
+    // we'll use a globally shared variable to track the last "real" event
     global.lastActivityTime = global.lastActivityTime || 0;
     const lastActivityAge = now - global.lastActivityTime;
 
     if (type === 'ping' && !safeOnline && lastActivityAge < 60000) {
-        // console.log(`[Broadcast] IGNORED 'offline' ping (recent activity ${lastActivityAge}ms ago)`);
+        // console.log(`[broadcast] ignored 'offline' ping (recent activity ${lastactivityage}ms ago)`);
         safeOnline = true; // Stay online
     }
 
-    // Update activity time for non-ping events
+    // update activity time for non-ping events
     if (type !== 'ping') {
         global.lastActivityTime = now;
     }
@@ -241,7 +241,7 @@ app.post('/api/broadcast', async (req, res) => {
     if (count !== undefined && count !== null) {
         safeCount = Number(count);
     } else {
-        // Auto-increment/decrement based on event type if count not provided
+        // auto-increment/decrement based on event type if count not provided
         if (type === 'join') {
             safeCount++;
         } else if (type === 'leave' || type === 'quit') {
@@ -249,27 +249,27 @@ app.post('/api/broadcast', async (req, res) => {
         }
     }
 
-    // Force 0 if offline
+    // force 0 if offline
     if (!safeOnline) {
         safeCount = 0;
     }
 
-    // PROTECTION: Confidence Window for Player Count
-    // If we've had a join/leave event in the last 90 seconds, trust our internal logic over pings
-    // External APIs (like mcapi.us) often cache stats for 60-90s, causing "phantom players".
+    // protection: confidence window for player count
+    // if we've had a join/leave event in the last 90 seconds, trust our internal logic over pings
+    // external apis (like mcapi.us) often cache stats for 60-90s, causing "phantom players".
     const COUNT_LOCK_WINDOW = 90000;
     if (type === 'ping' && lastActivityAge < COUNT_LOCK_WINDOW) {
-        // If it's a "ping" (external poll), don't let it override our internal count while active
+        // if it's a "ping" (external poll), don't let it override our internal count while active
         safeCount = lastServerStats.players;
     }
 
     const msgTimestamp = timestamp || new Date().toISOString();
 
-    // SANITIZER: If player is 'system' but message contains a real join/leave, extract the name
+    // sanitizer: if player is 'system' but message contains a real join/leave, extract the name
     let finalPlayer = player;
     if (player === 'system' && (type === 'join' || type === 'leave' || type === 'quit')) {
-        // "HouseOfMates joined the game"
-        // Try to grab first word
+        // "houseofmates joined the game"
+        // try to grab first word
         if (message) {
             const firstWord = message.split(' ')[0];
             if (firstWord && firstWord !== 'system') {
@@ -279,26 +279,26 @@ app.post('/api/broadcast', async (req, res) => {
         }
     }
 
-    // Fallback: If we still have 'system' for a join/leave, DO NOT SAVE IT as 'system' if possible
-    // (But we want to update the vars for the rest of the function)
+    // fallback: if we still have 'system' for a join/leave, do not save it as 'system' if possible
+    // (but we want to update the vars for the rest of the function)
 
-    // Update local scope player variable
-    // We can't reassign const 'player', so we use 'finalPlayer' downstream
-
-
+    // update local scope player variable
+    // we can't reassign const 'player', so we use 'finalplayer' downstream
 
 
 
 
-    // Always keep history tidy
+
+
+    // always keep history tidy
     const normalizedType = type;
 
-    // PROTECTION: For UI purposes, joins and leaves should ALWAYS be 'system'
+    // protection: for ui purposes, joins and leaves should always be 'system'
     const displayPlayer = (normalizedType === 'join' || normalizedType === 'leave' || normalizedType === 'quit')
         ? 'system'
         : finalPlayer;
 
-    // NORMALIZE PAYLOAD FOR EMISSION
+    // normalize payload for emission
     const emitPayload = {
         type: normalizedType,
         player: displayPlayer, // UI uses this to style system messages
@@ -323,8 +323,8 @@ app.post('/api/broadcast', async (req, res) => {
     console.log(`[DEBUG] EMITTING LIVE: ${JSON.stringify(emitPayload)}`);
     io.emit('minecraft_update', emitPayload);
 
-    // PERSISTENCE (Done after emit for speed)
-    // Update Stats
+    // persistence (done after emit for speed)
+    // update stats
     if (normalizedType !== 'chat') {
         lastServerStats = {
             online: safeOnline,
@@ -338,7 +338,7 @@ app.post('/api/broadcast', async (req, res) => {
 
     const currentGeneratedMsg = (normalizedType === 'chat') ? message : `${finalPlayer} ${normalizedType === 'join' ? 'joined' : 'left'} the game`;
 
-    // AGGRESSIVE DEDUPLICATION: Check last 3 messages for similarity if it's a join/leave
+    // aggressive deduplication: check last 3 messages for similarity if it's a join/leave
     const isDuplicate = chatHistory.length > 0 && chatHistory.slice(-3).some(past => {
         const timeDiff = Math.abs(now - new Date(past.timestamp).getTime());
         return past.message === currentGeneratedMsg && past.type === normalizedType && timeDiff < 10000;
@@ -353,7 +353,7 @@ app.post('/api/broadcast', async (req, res) => {
             chatHistory.push({ type: 'leave', player: 'system', message: `${finalPlayer} left the game`, timestamp: msgTimestamp });
         }
 
-        // Send join/leave event to n8n webhook with flat structure
+        // send join/leave event to n8n webhook with flat structure
         if (normalizedType === 'join' || normalizedType === 'leave' || normalizedType === 'quit') {
             try {
                 const axios = (await import('axios')).default;
@@ -372,7 +372,7 @@ app.post('/api/broadcast', async (req, res) => {
                 console.error('[Backend] Failed to forward event to n8n webhook:', err);
             }
         }
-        // Send join/leave event to n8n webhook with Discord-style structure
+        // send join/leave event to n8n webhook with discord-style structure
         if (normalizedType === 'join' || normalizedType === 'leave' || normalizedType === 'quit') {
             try {
                 const axios = (await import('axios')).default;
@@ -399,7 +399,7 @@ app.post('/api/broadcast', async (req, res) => {
                 console.error('[Backend] Failed to forward event to n8n webhook:', err);
             }
         }
-        // Send join/leave event to n8n webhook with correct keys
+        // send join/leave event to n8n webhook with correct keys
         if (normalizedType === 'join' || normalizedType === 'leave' || normalizedType === 'quit') {
             try {
                 const axios = (await import('axios')).default;
@@ -418,11 +418,11 @@ app.post('/api/broadcast', async (req, res) => {
         }
     } else {
         console.log(`[Deduper] Ignored duplicate ${normalizedType}: "${currentGeneratedMsg}"`);
-        // If it's a duplicate history entry, we still emit the socket event for real-time jitter fix,
-        // but we've already done that above. This block just prevents history bloat.
+        // if it's a duplicate history entry, we still emit the socket event for real-time jitter fix,
+        // but we've already done that above. this block just prevents history bloat.
     }
 
-    // Always keep history tidy
+    // always keep history tidy
     if (chatHistory.length > 50) {
         chatHistory = chatHistory.slice(-50);
     }
@@ -433,12 +433,12 @@ app.post('/api/broadcast', async (req, res) => {
     res.status(200).json({ status: 'broadcasted' });
 });
 
-// WebSocket connection handling with comprehensive monitoring
+// websocket connection handling with comprehensive monitoring
 io.on('connection', (socket) => {
     console.log('[Socket] Client connected:', socket.id);
     console.log('[Socket] Total clients:', io.engine.clientsCount);
 
-    // Send current state immediately on connection
+    // send current state immediately on connection
     socket.emit('minecraft_update', {
         type: 'ping',
         online: lastServerStats.online,
@@ -493,7 +493,7 @@ app.get('/api/players', async (req, res) => {
     }
 });
 
-// Background// Banner upload endpoint for journal documents
+// background// banner upload endpoint for journal documents
 app.post('/api/upload/banner', upload.single('file'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
@@ -502,12 +502,12 @@ app.post('/api/upload/banner', upload.single('file'), (req, res) => {
     res.json({ url: fileUrl, filename: req.file.filename });
 });
 
-// Public document endpoint for sharing
+// public document endpoint for sharing
 app.get('/api/public/doc/:slug', (req, res) => {
     const { slug } = req.params;
 
-    // TODO: Replace with actual database query
-    // For now, return mock data
+    // todo: replace with actual database query
+    // for now, return mock data
     const mockDocument = {
         id: slug,
         title: 'Sample Journal Entry',
@@ -518,14 +518,14 @@ app.get('/api/public/doc/:slug', (req, res) => {
         public: true
     };
 
-    // Check if document is public
+    // check if document is public
     if (!mockDocument.public) {
         return res.status(404).json({ error: 'Document not found or not public' });
     }
 
     res.json(mockDocument);
 });
-// Background Image Upload Endpoint
+// background image upload endpoint
 app.post('/api/upload-background', upload.single('file'), (req, res) => {
     try {
         if (!req.file) {
@@ -548,7 +548,7 @@ app.post('/api/upload-background', upload.single('file'), (req, res) => {
     }
 });
 
-// Serve static files from public directory
+// serve static files from public directory
 app.use('/public', express.static(path.join(process.cwd(), 'public')));
 
 const PORT = process.env.PORT || 4100;

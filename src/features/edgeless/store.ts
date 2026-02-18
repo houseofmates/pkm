@@ -21,7 +21,7 @@ export interface EdgelessElement {
   locked?: boolean
   layerId?: string // Optional for backward compatibility, defaults to 'default'
 
-  // Connector specific props
+  // connector specific props
   connectorData?: {
   startId: string
   endId: string
@@ -33,21 +33,21 @@ export interface EdgelessElement {
 export type ToolType = 'select' | 'hand' | 'pen' | 'eraser' | 'text' | 'smart-text'
 
 interface EdgelessState {
-  // Canvas State
+  // canvas state
   layers: EdgelessLayer[]
   activeLayerId: string
   elements: EdgelessElement[]
   viewPort: { x: number; y: number; zoom: number }
 
-  // Interaction State
+  // interaction state
   mode: 'interact' | 'draw' // Interact = Click links, scroll embeds. Draw = Fabric handles inputs.
   activeTool: ToolType
 
-  // Style State
-  // Style State - Moved to UI Extensions
+  // style state
+  // style state - moved to ui extensions
 
 
-  // Canvas Config
+  // canvas config
   canvasConfig: {
   mode: 'edgeless' | 'desktop-8k' | 'iphone-8k'
   width?: number
@@ -55,7 +55,7 @@ interface EdgelessState {
   }
   setCanvasConfig: (config: Partial<EdgelessState['canvasConfig']>) => void
 
-  // Actions
+  // actions
   addLayer: (name: string) => void
   removeLayer: (id: string) => void
   toggleLayerVisibility: (id: string) => void
@@ -70,7 +70,7 @@ interface EdgelessState {
   setTool: (tool: ToolType) => void
   setViewport: (vp: { x: number; y: number; zoom: number }) => void
 
-  // UI Extensions
+  // ui extensions
   selectionMode: 'cursor' | 'free' | 'rect' | 'magic' | 'grab'
   setSelectionMode: (mode: 'cursor' | 'free' | 'rect' | 'magic' | 'grab') => void
 
@@ -86,7 +86,7 @@ interface EdgelessState {
   isLinking: boolean
   setIsLinking: (linking: boolean) => void
 
-  // Pen State
+  // pen state
   penWidth: number
   setPenWidth: (width: number) => void
   penColor: string
@@ -96,7 +96,7 @@ interface EdgelessState {
   pressureEnabled: boolean
   setPressureEnabled: (enabled: boolean) => void
 
-  // History State
+  // history state
   history: {
   undoStack: string[] // JSON snapshots of canvas
   redoStack: string[]
@@ -115,7 +115,7 @@ export const useEdgelessStore = create<EdgelessState>()((set) => ({
   mode: 'draw', // Default to draw mode for "Edgeless" feel, shift to interact for links
   activeTool: 'select',
 
-  // Moved to bottom with setters
+  // moved to bottom with setters
   addLayer: (name) => set((state) => {
   const newLayer = { id: uuidv4(), name, visible: true, locked: false }
   return {
@@ -161,7 +161,7 @@ export const useEdgelessStore = create<EdgelessState>()((set) => ({
   setTool: (tool) => set({ activeTool: tool }),
   setViewport: (viewPort) => set({ viewPort }),
 
-  // Toolbar / Chat Support
+  // toolbar / chat support
   selectionMode: 'grab',
   setSelectionMode: (mode) => set({ selectionMode: mode }),
 
@@ -192,7 +192,7 @@ export const useEdgelessStore = create<EdgelessState>()((set) => ({
   history: { undoStack: [], redoStack: [] },
 
   pushHistory: (snapshot) => set((state) => {
-  // Limit stack size? 50?
+  // limit stack size? 50?
   const newStack = [...state.history.undoStack, snapshot].slice(-50)
   return {
   history: {

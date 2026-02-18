@@ -17,8 +17,8 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
  }
 
  componentDidCatch() {
-  // We let ErrorBoundary handle the UI, but we can log for debugging if needed.
-  // console.error("Uncaught error:", error, errorInfo);
+  // we let errorboundary handle the ui, but we can log for debugging if needed.
+  // console.error("uncaught error:", error, errorinfo);
  }
 
  render() {

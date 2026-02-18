@@ -4,7 +4,7 @@ export function ProtocolShift() {
   const [shifted, setShifted] = useState(false);
   const [sequence, setSequence] = useState<string[]>([]);
 
-  // Konami Code: Up Up Down Down Left Right Left Right B A
+  // konami code: up up down down left right left right b a
   const KONAMI_CODE = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
 
   useEffect(() => {
@@ -29,7 +29,7 @@ export function ProtocolShift() {
   }
   }, [sequence]);
 
-  // Escape to exit
+  // escape to exit
   useEffect(() => {
   const handleEsc = (e: KeyboardEvent) => {
   if (e.key === 'Escape') setShifted(false);
@@ -50,10 +50,10 @@ export function ProtocolShift() {
 
   return (
   <div className="fixed inset-0 z-[99999] pointer-events-none">
-  {/* Aurora Background Overlay */}
+  {/* aurora background overlay */}
   <div className="absolute inset-0 bg-gradient-to-tr from-[#050505] via-[#1a0b1a] to-[#001f3f] opacity-80 animate-pulse mix-blend-screen" />
 
-  {/* Stars / Dust */}
+  {/* stars / dust */}
   <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30" />
 
   <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/20 text-xs tracking-[1em] font-light animate-pulse">
@@ -63,7 +63,7 @@ export function ProtocolShift() {
   );
 }
 
-// Add Global Styles for "Shattering" UI
+// add global styles for "shattering" ui
 const style = document.createElement('style');
 style.textContent = `
   body.protocol-shift .sidebar-container,

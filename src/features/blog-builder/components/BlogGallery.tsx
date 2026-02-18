@@ -38,7 +38,7 @@ export function BlogGallery({ posts, scrollDirection = 'horizontal', onScrollDir
   setContextMenu(null);
   };
 
-  // Close context menu on click outside
+  // close context menu on click outside
   useEffect(() => {
   const handleClick = () => setContextMenu(null);
   document.addEventListener('click', handleClick);
@@ -62,7 +62,7 @@ export function BlogGallery({ posts, scrollDirection = 'horizontal', onScrollDir
   onContextMenu={handleContextMenu}
   className="relative w-full h-screen overflow-hidden bg-[#050505]"
   >
-  {/* Header */}
+  {/* header */}
   <div className="absolute top-0 left-0 right-0 z-10 p-8 bg-gradient-to-b from-black/80 to-transparent">
  <h1 className="text-5xl font-black text-white lowercase mb-2">
  blog
@@ -72,7 +72,7 @@ export function BlogGallery({ posts, scrollDirection = 'horizontal', onScrollDir
  </p>
   </div>
 
-  {/* Scrollable Gallery */}
+  {/* scrollable gallery */}
   <div
  className={cn(
  "absolute inset-0 pt-32 pb-8",
@@ -108,12 +108,12 @@ export function BlogGallery({ posts, scrollDirection = 'horizontal', onScrollDir
  </div>
   </div>
 
-  {/* Scroll Direction Indicator */}
+  {/* scroll direction indicator */}
   <div className="absolute bottom-8 right-8 z-10 px-4 py-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 text-white/40 text-xs lowercase">
  {scrollDirection} scroll (right-click to toggle)
   </div>
 
-  {/* Context Menu */}
+  {/* context menu */}
   {contextMenu && (
  <div
  className="fixed z-50 bg-black/90 backdrop-blur-md border border-white/20 rounded-xl overflow-hidden shadow-2xl"

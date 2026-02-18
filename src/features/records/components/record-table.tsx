@@ -37,7 +37,7 @@ interface RecordTableProps {
   config?: any;
 }
 
-// Draggable Row Wrapper
+// draggable row wrapper
 import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
 
@@ -81,7 +81,7 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
  !rowColor && "hover:bg-muted/50"
  )}
   >
- {/* Empty cell to match the add-field column */}
+ {/* empty cell to match the add-field column */}
  {onCreateField && <TableCell className="w-10 border-r border-border/50" />}
  {row.getVisibleCells().map((cell: any) => (
  <TableCell
@@ -104,7 +104,7 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
 }
 
 export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateRecord, onCreateField, loading }: RecordTableProps) {
-  // Hidden Columns State Persistence
+  // hidden columns state persistence
   const [hiddenColumns, setHiddenColumns] = useAppSetting<string[]>(
   `hidden_columns_${collection?.name || 'unknown'}`,
   [] // Default visible
@@ -112,14 +112,14 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
 
 
-  // Record Meta for Colors
+  // record meta for colors
   const [recordMeta] = useAppSetting<Record<string, any>>(`record_meta_${collection?.name || 'unknown'}`, {});
 
-  // Get Collection Color from Metadata (Source of Truth)
+  // get collection color from metadata (source of truth)
   const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
   const collectionColor = metadata[collection?.name]?.color || 'hsl(var(--border))';
 
-  // Column Sizing State (stored in metadata)
+  // column sizing state (stored in metadata)
   const columnSizing = metadata[collection?.name]?.columnWidths || {};
 
   const setColumnSizing = (updater: any) => {
@@ -145,11 +145,11 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   }
   const columnHelper = createColumnHelper<any>();
 
-  // Dynamically generate columns based on collection fields or data keys
+  // dynamically generate columns based on collection fields or data keys
   const columns = React.useMemo(() => {
   let cols: any[] = [];
 
-  // If collection has fields definition, use that
+  // if collection has fields definition, use that
   if (collection.fields && collection.fields.length > 0) {
   cols = (collection.fields || [])
  .filter((f: any) => !f.hidden) // Filter out system hidden fields
@@ -164,7 +164,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
    collectionName={collection.name} // Pass collection name
    size="lg"
    onChange={(val) => {
-   // Call update callback
+   // call update callback
    if (onUpdateRecord) {
    onUpdateRecord(info.row.original.id, { [field.name]: val });
    }
@@ -173,7 +173,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
  )
  }));
   } else if (data.length > 0) {
-  // Fallback: infer (use string field for now)
+  // fallback: infer (use string field for now)
   cols = Object.keys(data[0])
  .filter(key => !hiddenColumns.includes(key)) // Filter user hidden
  .map((key) =>
@@ -214,7 +214,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
    <h4 className="font-medium text-sm leading-none border-b pb-2 mb-2 lowercase">view settings</h4>
    <div className="text-xs text-muted-foreground mb-2 lowercase">check to unhide properties</div>
    <div className="max-h-60 overflow-y-auto space-y-1">
-  {/* List all potential fields to allow unhiding */}
+  {/* list all potential fields to allow unhiding */}
   {(collection.fields || Object.keys(data[0] || {})).map((f: any) => {
   const fieldName = f.name || f;
   const isHidden = hiddenColumns.includes(fieldName);
@@ -288,7 +288,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   );
   }
 
-  // Get column count for add-row cell span
+  // get column count for add-row cell span
   const columnCount = table.getHeaderGroups()[0]?.headers.length || 1;
 
 
@@ -305,7 +305,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
  <TableHeader>
  {table.getHeaderGroups().map((headerGroup) => (
    <TableRow key={headerGroup.id}>
-   {/* Add Field button at the start */}
+   {/* add field button at the start */}
    {onCreateField && (
    <TableHead className="w-10 border-r border-border/50 p-0 overflow-hidden">
   <Button
@@ -337,14 +337,14 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     header.getContext()
   )}
   </div>
-  {/* Resize Handler */}
+  {/* resize handler */}
   <div
   onMouseDown={header.getResizeHandler()}
   onTouchStart={header.getResizeHandler()}
-  // Increased touch target width for mobile (w-4 instead of w-px)
+  // increased touch target width for mobile (w-4 instead of w-px)
   className={`absolute -right-2 top-0 h-full w-4 z-20 cursor-col-resize touch-none select-none lg:hover:bg-primary lg:hover:opacity-10 transition-opacity ${header.column.getIsResizing() ? 'opacity-100 bg-primary shadow-[0_4000px_0_0_currentColor]' : 'opacity-0'
   }`}
-  // Ensure color is always set for shadow usage
+  // ensure color is always set for shadow usage
   style={{ color: 'var(--primary)' }}
   />
    </TableHead>
@@ -364,7 +364,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
    recordMeta={recordMeta}
    />
  ))}
- {/* Add Row Button at the bottom - border-t ensures separation from last row, no border-b to avoid container overlap */}
+ {/* add row button at the bottom - border-t ensures separation from last row, no border-b to avoid container overlap */}
  <TableRow className="hover:bg-transparent !border-b-0 ring-0 h-10">
    <TableCell colSpan={columnCount + (onCreateField ? 1 : 0)} className="p-0 border-t border-border/50 !border-b-0">
    <Button

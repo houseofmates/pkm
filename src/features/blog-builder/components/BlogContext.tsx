@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'react';
 
-// --- TYPES ---
+// --- types ---
 export interface BlogPostData {
   id: string;
   title: string;
@@ -16,7 +16,7 @@ export interface BlogPostData {
   blocks?: any;
   created_at?: string;
   updated_at?: string;
-  // Compatibility with PageData for Canvas
+  // compatibility with pagedata for canvas
   elements?: ElementData[];
   theme_color?: string;
   background?: string;
@@ -44,7 +44,7 @@ export interface ElementData {
   copyContent?: string;
 }
 
-// --- CONTEXT ---
+// --- context ---
 export interface BlogBuilderContextType {
   isAdmin: boolean;
   page: BlogPostData | null;

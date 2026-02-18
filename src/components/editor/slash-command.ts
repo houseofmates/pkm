@@ -32,9 +32,9 @@ export const SlashCommand = Extension.create({
 });
 
 export const getSuggestionItems = async ({ query }: { query: string }) => {
-  // 1. Static Commands
+  // 1. static commands
   const commands = [
-  // --- Core Text Blocks ---
+  // --- core text blocks ---
   {
   title: 'Text',
   description: 'Just start writing.',
@@ -64,7 +64,7 @@ export const getSuggestionItems = async ({ query }: { query: string }) => {
   },
   },
 
-  // --- Lists & Tasks ---
+  // --- lists & tasks ---
   {
   title: 'Bullet List',
   description: 'Simple bulleted list.',
@@ -80,7 +80,7 @@ export const getSuggestionItems = async ({ query }: { query: string }) => {
   },
   },
 
-  // --- Special Actions (Void Extensions) ---
+  // --- special actions (void extensions) ---
   {
   title: 'Front',
   description: 'Stamp current fronter.',
@@ -103,7 +103,7 @@ export const getSuggestionItems = async ({ query }: { query: string }) => {
   },
   },
 
-  // --- Formatting ---
+  // --- formatting ---
   {
   title: 'Quote',
   description: 'Capture a quote.',
@@ -154,7 +154,7 @@ export const getSuggestionItems = async ({ query }: { query: string }) => {
  const query = window.prompt('Ask AI (Context will be included):');
  if (!query) return;
 
- // Insert placeholder
+ // insert placeholder
  const startPos = range.from;
  editor.chain().focus().deleteRange(range).insertContent('Thinking...').run();
 
@@ -163,7 +163,7 @@ export const getSuggestionItems = async ({ query }: { query: string }) => {
  const context = editor.getText();
  const response = await generateResponse(context, query);
 
- // Replace placeholder with response
+ // replace placeholder with response
  editor.chain().focus()
  .deleteRange({ from: startPos, to: startPos + 11 }) // 'Thinking...' length
  .insertContent(response)
@@ -179,11 +179,11 @@ export const getSuggestionItems = async ({ query }: { query: string }) => {
   },
   ].filter(item => item.title.toLowerCase().includes(query.toLowerCase()));
 
-  // 2. Dynamic Search (if query exists)
+  // 2. dynamic search (if query exists)
   if (query.length > 2) {
   try {
-  // Quick search on 'notes' collection as a primary target
-  // In a real app we might search multiple or use a search index
+  // quick search on 'notes' collection as a primary target
+  // in a real app we might search multiple or use a search index
   const res = await api.listRecords('notes', {
  filter: {
  title: { $includes: query }
@@ -197,7 +197,7 @@ export const getSuggestionItems = async ({ query }: { query: string }) => {
  title: note.title || "Untitled Note",
  description: `Link to note`,
  command: ({ editor, range }: any) => {
- // Insert a link to the note
+ // insert a link to the note
  editor.chain().focus().deleteRange(range)
    .setLink({ href: `/databases/notes/${note.id}` })
    .insertContent(note.title || "Untitled Note")

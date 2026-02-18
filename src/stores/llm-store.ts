@@ -8,20 +8,20 @@ export interface ChatMessage {
 }
 
 interface LLMState {
-  // Core State
+  // core state
   isConnected: boolean
   activeModel: string
   apiUrl: string
 
-  // Chat History
+  // chat history
   interactionHistory: ChatMessage[]
   isThinking: boolean
 
-  // Context State
+  // context state
   currentContext: any
   setContext: (data: any) => void
 
-  // Actions
+  // actions
   setApiUrl: (url: string) => void
   toggleConnection: () => void
   askWilson: (text: string, isBackground?: boolean) => Promise<string | null>
@@ -51,7 +51,7 @@ export const useLLMStore = create<LLMState>((set, get) => ({
   askWilson: async (text, isBackground = false) => {
   if (!text.trim()) return null
 
-  // Add User Message
+  // add user message
   if (!isBackground) {
   set((state) => ({
  interactionHistory: [...state.interactionHistory, {
@@ -66,7 +66,7 @@ export const useLLMStore = create<LLMState>((set, get) => ({
 
   const { currentContext } = get()
 
-  // Get fronting info from localStorage or context
+  // get fronting info from localstorage or context
   let fronterName = 'friend'
   try {
   const fronterData = localStorage.getItem('active_fronters')
@@ -106,7 +106,7 @@ important rules:
  return null
   }
 
-  // Add Wilson Message
+  // add wilson message
   set((state) => ({
  interactionHistory: [...state.interactionHistory, {
  id: Date.now() + 1,

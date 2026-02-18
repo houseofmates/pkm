@@ -2,13 +2,13 @@
 export function SleepRing({ element }: { element: any }) {
   const { start = "23:00", end = "07:00" } = element.data;
 
-  // Convert time string to angle
+  // convert time string to angle
   const timeToAngle = (time: string) => {
   const [h, m] = time.split(':').map(Number);
   return ((h + m / 60) / 24) * 360; // 0-360 degrees
   };
 
-  // Calculate arc path
+  // calculate arc path
   const describeArc = (x: number, y: number, radius: number, startAngle: number, endAngle: number) => {
   const start = polarToCartesian(x, y, radius, endAngle - 90);
   const end = polarToCartesian(x, y, radius, startAngle - 90);
@@ -29,16 +29,16 @@ export function SleepRing({ element }: { element: any }) {
 
   const sAngle = timeToAngle(start);
   const eAngle = timeToAngle(end);
-  // Handle crossing midnight
+  // handle crossing midnight
   const adjustedEnd = eAngle < sAngle ? eAngle + 360 : eAngle;
 
   return (
   <div className="w-full h-full relative flex items-center justify-center select-none bg-black/60 rounded-full border border-white/10 backdrop-blur-md">
   <svg viewBox="0 0 100 100" className="w-full h-full p-2">
- {/* Background Ring */}
+ {/* background ring */}
  <circle cx="50" cy="50" r="40" stroke="#333" strokeWidth="10" fill="none" />
 
- {/* Current Sleep Arc (Dream Wheel) */}
+ {/* current sleep arc (dream wheel) */}
  <path
  d={describeArc(50, 50, 40, sAngle, adjustedEnd)}
  stroke="var(--primary)"
@@ -48,7 +48,7 @@ export function SleepRing({ element }: { element: any }) {
  className="filter drop-shadow-[0_0_5px_var(--primary)]"
  />
 
- {/* History Overlays (Faint) */}
+ {/* history overlays (faint) */}
  {[...Array(3)].map((_, i) => (
  <circle
  key={i}
@@ -62,14 +62,14 @@ export function SleepRing({ element }: { element: any }) {
  />
  ))}
 
- {/* Center Text */}
+ {/* center text */}
  <text x="50" y="45" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">SLEEP</text>
  <text x="50" y="60" textAnchor="middle" fill="var(--primary)" fontSize="12" fontWeight="bold">8h 20m</text>
   </svg>
 
-  {/* Paint Handles (Visual Only for now) */}
+  {/* paint handles (visual only for now) */}
   <div className="absolute inset-0 pointer-events-none">
- {/* Would implement drag handles here for actual editing */}
+ {/* would implement drag handles here for actual editing */}
   </div>
   </div>
   );

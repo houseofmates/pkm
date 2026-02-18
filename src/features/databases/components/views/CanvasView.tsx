@@ -5,7 +5,7 @@ import { CanvasCard } from '../canvas/CanvasCard';
 import type { ViewProps } from '@/components/views/registry';
 import { apiClient } from '@/lib/api-client';
 
-// Use simple resize observer hook if not available
+// use simple resize observer hook if not available
 function useDimensions(ref: React.RefObject<HTMLDivElement | null>) {
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   useEffect(() => {
@@ -25,10 +25,10 @@ export function CanvasView({ data: rows, collection, loading, config: _config }:
   const canvasEl = useRef<HTMLCanvasElement>(null);
   const [fabricCanvas, setFabricCanvas] = useState<Canvas | null>(null);
 
-  // Fields - fetch them if not provided? ViewProps doesn't have fields usually.
-  // We can fetch fields inside here or rely on parent.
-  // Standard views usually fetch fields or use collection context.
-  // Let's fetch local fields for now to be safe.
+  // fields - fetch them if not provided? viewprops doesn't have fields usually.
+  // we can fetch fields inside here or rely on parent.
+  // standard views usually fetch fields or use collection context.
+  // let's fetch local fields for now to be safe.
   const [fields, setFields] = useState<any[]>([]);
 
   useEffect(() => {
@@ -38,14 +38,14 @@ export function CanvasView({ data: rows, collection, loading, config: _config }:
   });
   }, [collection?.name]);
 
-  // Layout
+  // layout
   const { layout, updateLayoutItem } = useCanvasLayout(collection?.name || '');
 
-  // Viewport
+  // viewport
   const [_viewport, setViewport] = useState({ x: 0, y: 0, zoom: 1 });
   const { width, height } = useDimensions(containerRef);
 
-  // Init Canvas
+  // init canvas
   useEffect(() => {
   if (!canvasEl.current || fabricCanvas) return;
 
@@ -57,7 +57,7 @@ export function CanvasView({ data: rows, collection, loading, config: _config }:
   preserveObjectStacking: true
   });
 
-  // Panning Logic
+  // panning logic
   let isDragging = false;
   let lastPosX = 0;
   let lastPosY = 0;
@@ -94,7 +94,7 @@ export function CanvasView({ data: rows, collection, loading, config: _config }:
   canvas.defaultCursor = 'default';
   });
 
-  // Zoom Logic
+  // zoom logic
   canvas.on('mouse:wheel', (opt: any) => {
   const delta = opt.e.deltaY;
   let zoom = canvas.getZoom();
@@ -113,7 +113,7 @@ export function CanvasView({ data: rows, collection, loading, config: _config }:
   });
   });
 
-  // Sync Updates
+  // sync updates
   canvas.on('object:modified', (e: any) => {
   const obj = e.target as any;
   if (!obj || !obj.data?.id) return;
@@ -134,14 +134,14 @@ export function CanvasView({ data: rows, collection, loading, config: _config }:
   }
   }, []);
 
-  // Resize
+  // resize
   useEffect(() => {
   if (fabricCanvas && width && height) {
   fabricCanvas.setDimensions({ width, height });
   }
   }, [fabricCanvas, width, height]);
 
-  // Sync Rows
+  // sync rows
   useEffect(() => {
   if (!fabricCanvas || loading || !rows || rows.length === 0) return;
 
@@ -149,7 +149,7 @@ export function CanvasView({ data: rows, collection, loading, config: _config }:
   const exists = fabricCanvas.getObjects().find((o: any) => o.data?.id === row.id);
   const layoutItem = layout.items[row.id];
 
-  // Default Grid
+  // default grid
   const defaultX = (i % 4) * 350 + 50;
   const defaultY = Math.floor(i / 4) * 400 + 50;
 
@@ -175,7 +175,7 @@ export function CanvasView({ data: rows, collection, loading, config: _config }:
  exists.set({ left: x, top: y, width: w, height: h });
  exists.setCoords();
  }
- // Update data ref
+ // update data ref
  exists.data = { id: row.id, ...row };
   }
   });
@@ -187,8 +187,8 @@ export function CanvasView({ data: rows, collection, loading, config: _config }:
   if (!collection?.name) return;
   try {
   await apiClient.put(`/${collection.name}:update?filterByTk=${id}`, patch);
-  // Parent view should refresh automatically if using useRecords or similar,
-  // but manual refresh or optimistic UI might be needed depending on parent.
+  // parent view should refresh automatically if using userecords or similar,
+  // but manual refresh or optimistic ui might be needed depending on parent.
   } catch (e) {
   console.error("Failed to update row", e);
   }
@@ -199,7 +199,7 @@ export function CanvasView({ data: rows, collection, loading, config: _config }:
   <div ref={containerRef} className="w-full h-full relative">
  <canvas ref={canvasEl} />
 
- {/* React Overlay Layer */}
+ {/* react overlay layer */}
  {fabricCanvas && rows && rows.map(row => {
  const obj = fabricCanvas.getObjects().find((o: any) => o.data?.id === row.id);
  if (!obj) return null;

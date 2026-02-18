@@ -34,15 +34,15 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
   const navigate = useNavigate();
   const [metadata, setMetadata] = useAppSetting<Record<string, { color?: string }>>(`record_meta_${collection?.name || 'unknown'}`, {});
 
-  // Identify title field once
+  // identify title field once
   const titleField = customTitleField || collection.fields?.find((f: any) => f.name === 'title' || f.name === 'name') || collection.fields?.find((f: any) => f.interface === 'input');
 
   const [title, setTitle] = useState<string>(record[titleField?.name || 'title'] || '');
 
-  // Color State
+  // color state
   const [color, setColor] = useState(metadata[record.id]?.color || '');
 
-  // Update Metadata (Color)
+  // update metadata (color)
   const handleColorChange = (newColor: string) => {
   setColor(newColor);
   setMetadata({
@@ -51,7 +51,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
   });
   };
 
-  // Update Record Title
+  // update record title
   const handleTitleChange = async (newTitle: string) => {
   setTitle(newTitle);
   if (titleField && onUpdate) {
@@ -59,7 +59,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
   }
   };
 
-  // Fields to show in quick edit - allow all text-capable fields including IDs
+  // fields to show in quick edit - allow all text-capable fields including ids
   const visibleFields = useMemo(() => {
   if (!collection?.fields) return [];
   return collection.fields.filter((f: any) =>
@@ -82,7 +82,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
 
   return (
   <div className="flex flex-col h-full max-h-full">
-  {/* Header: Title & Appearance */}
+  {/* header: title & appearance */}
   <div className="p-4 border-b space-y-4 bg-neutral-900/50">
  <div className="flex items-start gap-4">
  <div className="flex-1 space-y-1">
@@ -106,7 +106,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
  </div>
  </div>
 
- {/* Color Swatches */}
+ {/* color swatches */}
  <div className="flex flex-wrap gap-1.5 justify-end">
  {['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#a855f7', '#ec4899', '#64748b'].map(c => (
  <button
@@ -124,10 +124,10 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
  </div>
   </div>
 
-  {/* Body: Fields List */}
+  {/* body: fields list */}
   <ScrollArea className="flex-1 p-2">
  <div className="space-y-3 p-1">
- {/* View Properties Management (Max 3) - Only if config and onConfigChange provided */}
+ {/* view properties management (max 3) - only if config and onconfigchange provided */}
  {onConfigChange && (
  <div className="mb-4 p-2 border rounded-md bg-muted/20 space-y-2">
    <Label className="text-[10px] font-bold text-muted-foreground mb-2 block">display properties (max 3)</Label>
@@ -248,7 +248,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
  </div>
   </ScrollArea>
 
-  {/* Footer: Actions */}
+  {/* footer: actions */}
   <div className="p-2 border-t bg-muted/30 flex items-center justify-between gap-2">
  <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 px-2 lowercase" title="Delete" onClick={() => onDelete?.(record)}>
  <Trash2 className="w-3 h-3 mr-1.5" /> delete

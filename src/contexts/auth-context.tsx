@@ -15,27 +15,27 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(localStorage.getItem('nocobase_token'));
 
-  // Initialize client with a function to get the current token
-  // This ensures the client always uses the latest token from the closure/state if we adjusted the client implementation,
+  // initialize client with a function to get the current token
+  // this ensures the client always uses the latest token from the closure/state if we adjusted the client implementation,
   // but here we are passing a fresh client or using the ref pattern.
-  // Actually, simplest is to re-create client or pass a token getter.
-  // The client implementation I wrote takes `getToken` callback.
-  // Actually, simplest is to re-create client or pass a token getter.
-  // The client uses the singleton apiClient which handles tokens via interceptors.
+  // actually, simplest is to re-create client or pass a token getter.
+  // the client implementation i wrote takes `gettoken` callback.
+  // actually, simplest is to re-create client or pass a token getter.
+  // the client uses the singleton apiclient which handles tokens via interceptors.
   const [client] = useState(() => new NocoBaseClient());
 
 
 
-  // Listen for 401s from api-client
+  // listen for 401s from api-client
   useEffect(() => {
   const handleAuthError = () => {
-  // Token already cleared by api-client; just update React state
+  // token already cleared by api-client; just update react state
   setToken(null);
-  // Reliance on React state reset is smoother than reload
+  // reliance on react state reset is smoother than reload
   };
   window.addEventListener('auth-error', handleAuthError);
 
-  // Initial sync
+  // initial sync
   const electron = (window as any).electron;
   if (electron?.syncState && token) {
   electron.syncState({ token });
@@ -44,18 +44,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   return () => window.removeEventListener('auth-error', handleAuthError);
   }, []);
 
-  // Sync changes to localStorage is handled in login/logout to avoid race conditions with API clients
+  // sync changes to localstorage is handled in login/logout to avoid race conditions with api clients
   const login = (newToken: string) => {
   localStorage.setItem('nocobase_token', newToken);
   setToken(newToken);
 
-  // Sync to Electron
+  // sync to electron
   const electron = (window as any).electron;
   if (electron?.syncState) {
   electron.syncState({ token: newToken });
   }
 
-  // Ensure backend collection exists after login
+  // ensure backend collection exists after login
   setTimeout(async () => {
   try {
  await client.ensureBackendCollection();
@@ -69,7 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   localStorage.removeItem('nocobase_token');
   setToken(null);
 
-  // Sync to Electron
+  // sync to electron
   const electron = (window as any).electron;
   if (electron?.syncState) {
   electron.syncState({ token: null });

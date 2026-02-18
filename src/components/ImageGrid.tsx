@@ -1,12 +1,12 @@
-// Used pure CSS columns instead of MUI Masonry for lightweight implementation
-// User requested "masonry layout (like pinterest)".
-// CSS columns are the easiest.
+// used pure css columns instead of mui masonry for lightweight implementation
+// user requested "masonry layout (like pinterest)".
+// css columns are the easiest.
 
 interface ImageGridProps {
   images?: Array<{ src: string; alt?: string; aspectRatio?: number }>;
 }
 
-// Mock Data
+// mock data
 const mockImages = [
   { src: 'https://images.unsplash.com/photo-1682687220742-aba13b6e50ba', alt: 'Mountain', aspectRatio: 1.5 },
   { src: 'https://images.unsplash.com/photo-1682686581854-5e71f58e7e3f', alt: 'Dessert', aspectRatio: 0.8 },
@@ -22,7 +22,7 @@ export function ImageGrid({ images = mockImages }: ImageGridProps) {
   <div className="columns-1 md:columns-2 lg:columns-3 gap-4 space-y-4">
  {images.map((img, idx) => (
  <div key={idx} className="break-inside-avoid relative group rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-[1.02] isolate border border-border bg-card p-0">
- {/* INNER VESSEL */}
+ {/* inner vessel */}
  <div className="contents rounded-[inherit] overflow-hidden">
    <img
    src={img.src}

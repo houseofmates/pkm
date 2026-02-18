@@ -10,7 +10,7 @@ import { lazy, Suspense } from "react"
 import { FronterProvider } from "@/contexts/fronter-context"
 import { LLMContextProvider } from "@/contexts/llm-context"
 
-// Lazy load heavy components
+// lazy load heavy components
 const GlobalCommandPalette = lazy(() => import("@/components/global-command-palette").then(m => ({ default: m.GlobalCommandPalette })));
 const WilsonChat = lazy(() => import("@/features/chat/wilson-chat").then(m => ({ default: m.WilsonChat })));
 const SetupRequired = lazy(() => import("@/components/setup-required").then(m => ({ default: m.SetupRequired })));
@@ -36,14 +36,14 @@ const PublicDocViewer = lazy(() => import("@/components/journal/public-doc-viewe
 
 const queryClient = new QueryClient()
 
-// Check public mode early
+// check public mode early
 const isPublicByDomain = isPublicDomain();
 const isPkmDomain = window.location.hostname.startsWith('pkm.');
 const isPublic = isPublicByDomain && !isPkmDomain;
 
 console.log(`[Router] Host: ${window.location.hostname}, isPublicByDomain: ${isPublicByDomain}, isPkm: ${isPkmDomain}, Result Public: ${isPublic}`);
 
-// Set branding immediately (before React mounts)
+// set branding immediately (before react mounts)
 if (typeof document !== 'undefined') {
  const hostname = window.location.hostname;
  if (hostname.includes('dupe')) {
@@ -82,7 +82,7 @@ function AppContent() {
   </div>
  );
 
- // Check for critical configuration
+ // check for critical configuration
  const isConfigured = !!import.meta.env.VITE_API_URL;
  if (!isConfigured && !isPublic) {
   return (
@@ -92,7 +92,7 @@ function AppContent() {
   );
  }
 
- // Public Site Router - Bypass standard App for public domains
+ // public site router - bypass standard app for public domains
  if (isPublic) {
   const isBlog = window.location.hostname.includes('blog');
 
@@ -158,11 +158,11 @@ function AppContent() {
 }
 
 function App() {
- // Check if public domain
+ // check if public domain
  const isPublic = isPublicDomain();
 
  if (isPublic) {
-  // Public site doesn't need FronterProvider or LLMContextProvider
+  // public site doesn't need fronterprovider or llmcontextprovider
   return (
  <AuthProvider>
   <QueryClientProvider client={queryClient}>
@@ -172,7 +172,7 @@ function App() {
   );
  }
 
- // Private PKM site needs all providers
+ // private pkm site needs all providers
  return (
   <AuthProvider>
  <QueryClientProvider client={queryClient}>

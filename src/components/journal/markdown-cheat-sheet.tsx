@@ -15,7 +15,7 @@ export function MarkdownCheatSheet({ open, onClose }: MarkdownCheatSheetProps) {
  </DialogHeader>
  <ScrollArea className="h-[600px] pr-4">
  <div className="space-y-6 text-sm">
- {/* Headers */}
+ {/* headers */}
  <section>
    <h3 className="text-lg font-semibold mb-2 lowercase">headers</h3>
    <div className="bg-muted/20 p-3 rounded font-mono text-xs space-y-1">
@@ -25,7 +25,7 @@ export function MarkdownCheatSheet({ open, onClose }: MarkdownCheatSheetProps) {
    </div>
  </section>
 
- {/* Emphasis */}
+ {/* emphasis */}
  <section>
    <h3 className="text-lg font-semibold mb-2 lowercase">emphasis</h3>
    <div className="bg-muted/20 p-3 rounded font-mono text-xs space-y-1">
@@ -37,7 +37,7 @@ export function MarkdownCheatSheet({ open, onClose }: MarkdownCheatSheetProps) {
    </div>
  </section>
 
- {/* Lists */}
+ {/* lists */}
  <section>
    <h3 className="text-lg font-semibold mb-2 lowercase">lists</h3>
    <div className="bg-muted/20 p-3 rounded font-mono text-xs space-y-1">
@@ -50,7 +50,7 @@ export function MarkdownCheatSheet({ open, onClose }: MarkdownCheatSheetProps) {
    </div>
  </section>
 
- {/* Links & Images */}
+ {/* links & images */}
  <section>
    <h3 className="text-lg font-semibold mb-2 lowercase">links & images</h3>
    <div className="bg-muted/20 p-3 rounded font-mono text-xs space-y-1">
@@ -60,7 +60,7 @@ export function MarkdownCheatSheet({ open, onClose }: MarkdownCheatSheetProps) {
    </div>
  </section>
 
- {/* Code */}
+ {/* code */}
  <section>
    <h3 className="text-lg font-semibold mb-2 lowercase">code</h3>
    <div className="bg-muted/20 p-3 rounded font-mono text-xs space-y-1">
@@ -71,7 +71,7 @@ export function MarkdownCheatSheet({ open, onClose }: MarkdownCheatSheetProps) {
    </div>
  </section>
 
- {/* Blockquotes */}
+ {/* blockquotes */}
  <section>
    <h3 className="text-lg font-semibold mb-2 lowercase">blockquotes</h3>
    <div className="bg-muted/20 p-3 rounded font-mono text-xs space-y-1">
@@ -80,7 +80,7 @@ export function MarkdownCheatSheet({ open, onClose }: MarkdownCheatSheetProps) {
    </div>
  </section>
 
- {/* Tables */}
+ {/* tables */}
  <section>
    <h3 className="text-lg font-semibold mb-2 lowercase">tables</h3>
    <div className="bg-muted/20 p-3 rounded font-mono text-xs space-y-1">
@@ -90,7 +90,7 @@ export function MarkdownCheatSheet({ open, onClose }: MarkdownCheatSheetProps) {
    </div>
  </section>
 
- {/* Task Lists */}
+ {/* task lists */}
  <section>
    <h3 className="text-lg font-semibold mb-2 lowercase">task lists</h3>
    <div className="bg-muted/20 p-3 rounded font-mono text-xs space-y-1">
@@ -99,7 +99,7 @@ export function MarkdownCheatSheet({ open, onClose }: MarkdownCheatSheetProps) {
    </div>
  </section>
 
- {/* Horizontal Rule */}
+ {/* horizontal rule */}
  <section>
    <h3 className="text-lg font-semibold mb-2 lowercase">horizontal rule</h3>
    <div className="bg-muted/20 p-3 rounded font-mono text-xs space-y-1">
@@ -109,7 +109,7 @@ export function MarkdownCheatSheet({ open, onClose }: MarkdownCheatSheetProps) {
    </div>
  </section>
 
- {/* Advanced */}
+ {/* advanced */}
  <section>
    <h3 className="text-lg font-semibold mb-2 lowercase">advanced</h3>
    <div className="bg-muted/20 p-3 rounded font-mono text-xs space-y-1">
@@ -121,7 +121,7 @@ export function MarkdownCheatSheet({ open, onClose }: MarkdownCheatSheetProps) {
    </div>
  </section>
 
- {/* Keyboard Shortcut */}
+ {/* keyboard shortcut */}
  <section className="pt-4 border-t">
    <p className="text-muted-foreground text-xs lowercase">
    press <kbd className="px-2 py-1 bg-muted rounded text-xs">ctrl+m</kbd> anytime to open this cheat sheet

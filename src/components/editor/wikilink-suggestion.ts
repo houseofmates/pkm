@@ -6,23 +6,23 @@ import { SlashMenu } from './SlashMenu';
 import { api } from '@/api/nocobase-client';
 
 export const getWikilinkItems = async ({ query }: { query: string }) => {
-  // We only trigger if the query starts with [ which implies [[ (since char is [)
-  // Wait, the 'char' option strips the char from the query?
-  // If char is [, and user types [, query is empty.
-  // If user types [[, query is [.
+  // we only trigger if the query starts with [ which implies [[ (since char is [)
+  // wait, the 'char' option strips the char from the query?
+  // if char is [, and user types [, query is empty.
+  // if user types [[, query is [.
 
-  // Actually, handling [[ is tricky with standard Suggestion.
-  // Let's assume we trigger on `[` and filtering happens in the UI or we use a custom matcher.
-  // For now, let's just search for records matching the query.
-  // If query is empty, show recent.
+  // actually, handling [[ is tricky with standard suggestion.
+  // let's assume we trigger on `[` and filtering happens in the ui or we use a custom matcher.
+  // for now, let's just search for records matching the query.
+  // if query is empty, show recent.
 
-  // We search standard collections: 'notes', 'tasks', 'research'
-  // This is a "Universal" search.
+  // we search standard collections: 'notes', 'tasks', 'research'
+  // this is a "universal" search.
 
   try {
   const results = [];
 
-  // 1. Search Notes
+  // 1. search notes
   const notes = await api.listRecords('notes', {
   filter: { title: { $includes: query } },
   pageSize: 5
@@ -37,7 +37,7 @@ export const getWikilinkItems = async ({ query }: { query: string }) => {
   })));
   }
 
-  // 2. Search Tasks
+  // 2. search tasks
   const tasks = await api.listRecords('tasks', {
   filter: { title: { $includes: query } },
   pageSize: 3
@@ -52,12 +52,12 @@ export const getWikilinkItems = async ({ query }: { query: string }) => {
   })));
   }
 
-  // Map to SlashMenu-compatible structure if reusing, or custom.
-  // SlashMenu expects: { title, description, command }
-  // We will adapt the command in the render or extensions.
+  // map to slashmenu-compatible structure if reusing, or custom.
+  // slashmenu expects: { title, description, command }
+  // we will adapt the command in the render or extensions.
 
   return results.map(item => ({
-  // Command is handled by the extension's 'command' handler using these props
+  // command is handled by the extension's 'command' handler using these props
   ...item
   }));
 

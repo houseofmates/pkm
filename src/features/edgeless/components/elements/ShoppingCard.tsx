@@ -11,13 +11,13 @@ export function ShoppingCard({ element }: { element: any }) {
   const newStatus = localStatus === 'desire' ? 'bought' : 'desire';
   setLocalStatus(newStatus);
 
-  // Update store
+  // update store
   updateElement(element.id, {
   data: { ...element.data, status: newStatus }
   });
 
-  // Loop Logic: If bought, drop to "Inventory" (visual interaction)
-  // For now, we just change visual style
+  // loop logic: if bought, drop to "inventory" (visual interaction)
+  // for now, we just change visual style
   };
 
   const isAmazon = service === 'amazon';
@@ -32,7 +32,7 @@ export function ShoppingCard({ element }: { element: any }) {
  }
   `}
   >
-  {/* DESIRE MODE (Bubble) */}
+  {/* desire mode (bubble) */}
   {localStatus === 'desire' && (
  <>
  <div className="absolute -top-2 -right-2 bg-primary text-black text-xs font-bold px-2 py-1 rounded-full animate-bounce">
@@ -69,7 +69,7 @@ export function ShoppingCard({ element }: { element: any }) {
  </>
   )}
 
-  {/* BOUGHT MODE (Inventory Card) */}
+  {/* bought mode (inventory card) */}
   {localStatus === 'bought' && (
  <div className="p-4 flex flex-col h-full">
  <div className="flex justify-between items-start mb-2">

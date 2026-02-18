@@ -25,7 +25,7 @@ import { CanvasCard } from '@/features/databases/components/canvas/CanvasCard'
 import { useCanvasEvents } from '../hooks/use-canvas-events'
 import * as pdfjsLib from 'pdfjs-dist'
 
-// Worker setup
+// worker setup
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs`
 
 export interface EdgelessCanvasProps {
@@ -35,8 +35,8 @@ export interface EdgelessCanvasProps {
   children?: React.ReactNode;
 }
 
-// --- CUSTOM SELECTION STYLE (Global Override) ---
-// Must run before any canvas instantiation
+// --- custom selection style (global override) ---
+// must run before any canvas instantiation
 fabric.Object.prototype.set({
   transparentCorners: false, // Force "filled" mode so we can control fill color
   cornerColor: 'rgba(0,0,0,0)', // Invisible fill
@@ -54,7 +54,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
   const containerRef = useRef<HTMLDivElement>(null)
   const { width, height } = useWindowSize()
 
-  // Drop Target Logic
+  // drop target logic
   const { setNodeRef } = useDroppable({
     id: 'canvas-droppable',
   });
@@ -72,18 +72,18 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         const canvas = fabricCanvas;
         if (!canvas) return;
 
-        // Calculate drop position
+        // calculate drop position
         const rect = containerRef.current?.getBoundingClientRect();
         if (!rect) return;
 
         const clientX = e.clientX;
         const clientY = e.clientY;
 
-        // Convert to canvas coordinates
+        // convert to canvas coordinates
         const vpt = canvas.viewportTransform || [1, 0, 0, 1, 0, 0];
         const zoom = canvas.getZoom();
 
-        // x = (clientX - rect.left - vpt[4]) / zoom
+        // x = (clientx - rect.left - vpt[4]) / zoom
         const x = (clientX - rect.left - vpt[4]) / zoom;
         const y = (clientY - rect.top - vpt[5]) / zoom;
 
@@ -107,7 +107,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
   };
 
 
-  // Merge refs for container
+  // merge refs for container
   const setRefs = (node: HTMLDivElement) => {
     containerRef.current = node;
     setNodeRef(node);
@@ -117,7 +117,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set()) // Track selected items for pointer-events
   const [pdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null)
 
-  // Store State
+  // store state
   const {
     elements,
     mode,
@@ -138,7 +138,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     setSelectionMode
   } = useEdgelessStore()
 
-  // --- HOTKEYS ---
+  // --- hotkeys ---
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
@@ -170,7 +170,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [setTool, setSelectionMode]);
 
-  // 1. Initialize Canvas
+  // 1. initialize canvas
   useEffect(() => {
     if (!canvasEl.current || fabricCanvas) return
 
@@ -187,7 +187,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     })
 
 
-    // Scroll wheel: Pan by default, Zoom with Ctrl
+    // scroll wheel: pan by default, zoom with ctrl
     canvas.on('mouse:wheel', (opt: any) => {
       const evt = opt.e
       evt.preventDefault()
@@ -195,9 +195,9 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
 
       console.log('Mouse wheel:', { ctrl: evt.ctrlKey, meta: evt.metaKey, deltaY: evt.deltaY });
 
-      // Check for Ctrl/Cmd key for Zooming
+      // check for ctrl/cmd key for zooming
       if (evt.ctrlKey || evt.metaKey) {
-        // Zoom Logic
+        // zoom logic
         const delta = evt.deltaY
         let zoom = canvas.getZoom()
         zoom *= 0.999 ** delta
@@ -208,7 +208,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
 
         canvas.zoomToPoint(new Point(evt.offsetX, evt.offsetY), zoom)
       } else {
-        // Pan Logic (Standard Scroll / 2-Finger Drag)
+        // pan logic (standard scroll / 2-finger drag)
         const vpt = canvas.viewportTransform
         if (vpt) {
           vpt[4] -= evt.deltaX
@@ -220,7 +220,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       setViewport({ x: (canvas.viewportTransform?.[4] || 0), y: (canvas.viewportTransform?.[5] || 0), zoom: canvas.getZoom() })
     })
 
-    // Panning Logic (Mouse)
+    // panning logic (mouse)
     let isDragging = false
     let lastPosX = 0;
     let lastPosY = 0;
@@ -266,11 +266,11 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     }
   }, [])
 
-  // Expose Helpers & Listen for Load
+  // expose helpers & listen for load
   useEffect(() => {
     if (!fabricCanvas) return;
 
-    // Load Handler
+    // load handler
     const handleLoad = (e: CustomEvent) => {
       const data = e.detail;
       console.log('[Canvas] Received load event, objects:', data?.objects?.length || 0);
@@ -284,7 +284,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     };
     window.addEventListener('pkm:load-canvas', handleLoad as any);
 
-    // Check for pending data that was stored before canvas mounted
+    // check for pending data that was stored before canvas mounted
     const pendingData = (window as any).__pkmPendingCanvasData;
     if (pendingData) {
       console.log('[Canvas] Found pending data, loading:', pendingData?.objects?.length || 0, 'objects');
@@ -293,16 +293,16 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         fabricCanvas.requestRenderAll();
         if (onLoad) onLoad();
       });
-      // Clear pending data
+      // clear pending data
       delete (window as any).__pkmPendingCanvasData;
     }
 
-    // Expose Getters
+    // expose getters
     (window as any).pkmGetCanvasJSON = () => {
       return fabricCanvas.toJSON();
     };
     (window as any).pkmGetCanvasThumbnail = () => {
-      // Generate low-res thumbnail
+      // generate low-res thumbnail
       return fabricCanvas.toDataURL({
         format: 'png',
         multiplier: 0.2,
@@ -317,11 +317,11 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     }
   }, [fabricCanvas]);
 
-  // 2. Sync Elements from Store to Fabric
-  // For non-canvas elements (like embeds), we overlay them using absolute positioning HTML.
-  // For Fabric native objects (ink), we let Fabric handle it.
+  // 2. sync elements from store to fabric
+  // for non-canvas elements (like embeds), we overlay them using absolute positioning html.
+  // for fabric native objects (ink), we let fabric handle it.
 
-  // 3. Handle Tools
+  // 3. handle tools
   useEffect(() => {
     if (!fabricCanvas) return
 
@@ -333,30 +333,30 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       fabricCanvas.freeDrawingBrush = brush
       fabricCanvas.defaultCursor = 'default'
     } else if (mode === 'draw' && activeTool === 'eraser') {
-      // True Eraser
+      // true eraser
       fabricCanvas.isDrawingMode = false
       fabricCanvas.defaultCursor = 'none'
     } else if (activeTool === 'select') {
       const selMode = useEdgelessStore.getState().selectionMode
 
       if (selMode === 'cursor') {
-        // Cursor Mode: Interact only, no modification
+        // cursor mode: interact only, no modification
         fabricCanvas.isDrawingMode = false
         fabricCanvas.defaultCursor = 'default'
         fabricCanvas.selection = false
-        // We'll handle object lock in a separate effect or here
+        // we'll handle object lock in a separate effect or here
       } else if (selMode === 'rect') {
         fabricCanvas.isDrawingMode = false
         fabricCanvas.defaultCursor = 'default'
         fabricCanvas.selection = true // Enable native box selection
       } else {
-        // Lasso / Magic / Free
+        // lasso / magic / free
         fabricCanvas.isDrawingMode = false
         fabricCanvas.defaultCursor = 'crosshair'
         fabricCanvas.selection = false // We use custom lasso, not default rect
       }
     } else {
-      // Fallback
+      // fallback
       fabricCanvas.isDrawingMode = false
       fabricCanvas.defaultCursor = 'default'
       fabricCanvas.selection = true
@@ -364,28 +364,28 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
 
   }, [fabricCanvas, mode, activeTool, penColor, penWidth, useEdgelessStore.getState().selectionMode]) // NOTE: We might need to depend on store values more reactively if we want live updates, but usually tool change triggers this.
 
-  // 3a. React to Pen Settings Changes (Live Update)
+  // 3a. react to pen settings changes (live update)
   const { stabilizerLevel, pressureEnabled } = useEdgelessStore()
   useEffect(() => {
     if (!fabricCanvas || activeTool !== 'pen' || mode !== 'draw') return
 
-    // Update Brush
+    // update brush
     const brush = fabricCanvas.freeDrawingBrush as PencilBrush
     if (brush) {
       brush.width = penWidth
       brush.color = penColor
 
-      // Decimate ~ Stabilizer (higher decimate = smoother but less detail)
-      // But 'decimate' is about pixel distance.
-      // Better stabilizer is usually tracking point average.
-      // Fabric 6/7 might have better brush options, but let's use decimate for now as proxy or implement custom if needed.
-      // Let's use a weak proxy: decimate ranges from 0.4 (raw) to maybe 4 (smooth).
+      // decimate ~ stabilizer (higher decimate = smoother but less detail)
+      // but 'decimate' is about pixel distance.
+      // better stabilizer is usually tracking point average.
+      // fabric 6/7 might have better brush options, but let's use decimate for now as proxy or implement custom if needed.
+      // let's use a weak proxy: decimate ranges from 0.4 (raw) to maybe 4 (smooth).
       brush.decimate = 0.4 + (stabilizerLevel / 100) * 5
     }
 
   }, [fabricCanvas, activeTool, mode, penWidth, penColor, stabilizerLevel, pressureEnabled])
 
-  // 3b. Handle Interact / Cursor Mode (Lock Selection)
+  // 3b. handle interact / cursor mode (lock selection)
   useEffect(() => {
     if (!fabricCanvas) return
 
@@ -394,28 +394,28 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     const isInteractMode = mode === 'interact'
 
     if (isInteractMode || isCursorMode) {
-      // Interact/Cursor Mode: No fabric dragging, pass events to content
+      // interact/cursor mode: no fabric dragging, pass events to content
       fabricCanvas.selection = false // No selection box
       fabricCanvas.defaultCursor = 'default'
 
       fabricCanvas.forEachObject((obj) => {
         obj.selectable = false // Cannot select/move fabric objects
 
-        // For "Cursor" mode, we want to allow clicking INSIDE the object (like links in HTML/SVG).
-        // If the object is just a wrapper, we might need it to be evented=false so the DOM overlay receives events?
-        // OR if we are using Fabric 6/7 controls, evented=true is needed?
-        // Usually for "Interact" (Browse), we want `evented: false` so pointer-events go through canvas to the HTML overlay below/above?
-        // The current implementation seems to assume HTML overlays based on "EdgelessCanvas.tsx" structure not fully visible but common pattern.
-        // IF overlays are on top, `evented: false` is good.
+        // for "cursor" mode, we want to allow clicking inside the object (like links in html/svg).
+        // if the object is just a wrapper, we might need it to be evented=false so the dom overlay receives events?
+        // or if we are using fabric 6/7 controls, evented=true is needed?
+        // usually for "interact" (browse), we want `evented: false` so pointer-events go through canvas to the html overlay below/above?
+        // the current implementation seems to assume html overlays based on "edgelesscanvas.tsx" structure not fully visible but common pattern.
+        // if overlays are on top, `evented: false` is good.
 
-        // User said: "cursor that is for interacting with database content inline"
-        // This usually implies clicking buttons/inputs on the card.
-        // So we want the Canvas to NOT consume the event.
+        // user said: "cursor that is for interacting with database content inline"
+        // this usually implies clicking buttons/inputs on the card.
+        // so we want the canvas to not consume the event.
         obj.evented = false
       })
       fabricCanvas.requestRenderAll()
     } else if (activeTool === 'select' && selMode === 'grab') {
-      // Grab Mode: Default Fabric behavior
+      // grab mode: default fabric behavior
       // "simulating grabbing which... allows for rescaling and moving cards"
       fabricCanvas.selection = true // Allow multi-select with box
       fabricCanvas.defaultCursor = 'grab' // Or default, but grab hints behavior
@@ -426,9 +426,9 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       })
       fabricCanvas.requestRenderAll()
     } else if (activeTool === 'select' && (selMode === 'free' || selMode === 'magic')) {
-      // Logic for Lasso handled in "Magic Lasso Tracking" effect?
-      // "moving cards... is only done with the lasso tool" -> Current user wants "Grab" tool to do it too.
-      // So we keep Lasso logic specific to Lasso.
+      // logic for lasso handled in "magic lasso tracking" effect?
+      // "moving cards... is only done with the lasso tool" -> current user wants "grab" tool to do it too.
+      // so we keep lasso logic specific to lasso.
 
       fabricCanvas.forEachObject((obj) => {
         obj.selectable = false // Disable direct click selection
@@ -436,7 +436,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       })
     }
     else {
-      // Fallback
+      // fallback
       fabricCanvas.selection = false
       fabricCanvas.forEachObject((obj) => {
         obj.selectable = false
@@ -445,7 +445,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     }
   }, [fabricCanvas, mode, activeTool, useEdgelessStore.getState().selectionMode])
 
-  // 3c. Implement Pressure Sensitivity for stylus/pen input
+  // 3c. implement pressure sensitivity for stylus/pen input
   useEffect(() => {
     if (!fabricCanvas) return
 
@@ -454,22 +454,22 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
 
     const basePenWidth = penWidth
 
-    // Track pressure during drawing
+    // track pressure during drawing
     const handlePointerMove = (e: PointerEvent) => {
-      // Only apply when drawing with pen tool and pressure is enabled
+      // only apply when drawing with pen tool and pressure is enabled
       const state = useEdgelessStore.getState()
       if (state.mode !== 'draw' || state.activeTool !== 'pen' || !state.pressureEnabled) return
       if (!fabricCanvas.isDrawingMode) return
 
-      // Get pressure (0.0 to 1.0, 0.5 is default for mouse/touch without pressure)
+      // get pressure (0.0 to 1.0, 0.5 is default for mouse/touch without pressure)
       const pressure = e.pressure || 0.5
 
-      // Only vary width if we have actual pressure data (not default 0.5 from mouse)
-      // Pen/stylus typically report values other than 0.5
+      // only vary width if we have actual pressure data (not default 0.5 from mouse)
+      // pen/stylus typically report values other than 0.5
       if (e.pointerType === 'pen' || e.pointerType === 'touch') {
         const brush = fabricCanvas.freeDrawingBrush
         if (brush) {
-          // Scale width: min 20% of base, max 150% of base
+          // scale width: min 20% of base, max 150% of base
           const minScale = 0.2
           const maxScale = 1.5
           const scale = minScale + pressure * (maxScale - minScale)
@@ -478,7 +478,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       }
     }
 
-    // Reset width when stroke ends
+    // reset width when stroke ends
     const handlePointerUp = () => {
       const brush = fabricCanvas.freeDrawingBrush
       if (brush) {
@@ -486,7 +486,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       }
     }
 
-    // Use 'passive: false' to ensure we get accurate pressure readings
+    // use 'passive: false' to ensure we get accurate pressure readings
     canvasEl.addEventListener('pointermove', handlePointerMove, { passive: true })
     canvasEl.addEventListener('pointerup', handlePointerUp)
     canvasEl.addEventListener('pointerleave', handlePointerUp)
@@ -498,7 +498,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     }
   }, [fabricCanvas, penWidth])
 
-  // --- Sync Selection State (for Pointer Events) ---
+  // --- sync selection state (for pointer events) ---
   useEffect(() => {
     if (!fabricCanvas) return
 
@@ -519,12 +519,12 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     }
   }, [fabricCanvas])
 
-  // --- Selection Safeguards (Right-Click / Long-Press to Deselect) ---
-  // User Request: "switch from a double click to a right click"
-  // Logic:
-  // - Left Click Background -> Restore Selection (Ignored)
-  // - Right Click Background -> Deselect
-  // - Long Press Background -> Deselect
+  // --- selection safeguards (right-click / long-press to deselect) ---
+  // user request: "switch from a double click to a right click"
+  // logic:
+  // - left click background -> restore selection (ignored)
+  // - right click background -> deselect
+  // - long press background -> deselect
   const longPressTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
@@ -535,18 +535,18 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       const isRightClick = (evt.button === 2 || evt.which === 3)
       const isBackground = !opt.target
 
-      // 1. Right Click Background -> Deselect
+      // 1. right click background -> deselect
       if (isRightClick && isBackground) {
         fabricCanvas.discardActiveObject()
         fabricCanvas.requestRenderAll()
         return
       }
 
-      // 2. Long Press Logic (Left Click Background only)
+      // 2. long press logic (left click background only)
       if (isBackground && !isRightClick) {
         if (longPressTimerRef.current) clearTimeout(longPressTimerRef.current)
         longPressTimerRef.current = setTimeout(() => {
-          // Valid Long Press -> Deselect (Programmatic)
+          // valid long press -> deselect (programmatic)
           fabricCanvas.discardActiveObject()
           fabricCanvas.requestRenderAll()
           if (navigator.vibrate) navigator.vibrate(50)
@@ -562,16 +562,16 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     }
 
     const handleSelectionCleared = (e: any) => {
-      // 1. If no user event (programmatic deselect like Long Press / Right Click / Code), allow it.
+      // 1. if no user event (programmatic deselect like long press / right click / code), allow it.
       if (!e.e) return
 
-      // 2. Did we click another object? (Switching active selection to new object)
-      // findTarget checks if the user event actually hit a valid target.
-      // If yes, we allow the "clear" because a "created" event will follow for the new selection.
+      // 2. did we click another object? (switching active selection to new object)
+      // findtarget checks if the user event actually hit a valid target.
+      // if yes, we allow the "clear" because a "created" event will follow for the new selection.
       if (fabricCanvas.findTarget(e.e, false)) return
 
-      // 3. Background Click (Left) -> RESTORE Selection
-      // We consciously BLOCK single (and double) left clicks on background from clearing selection.
+      // 3. background click (left) -> restore selection
+      // we consciously block single (and double) left clicks on background from clearing selection.
       const items = e.deselected || []
       if (items.length > 0) {
         if (items.length === 1) {
@@ -584,7 +584,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       }
     }
 
-    // Suppress Context Menu on Canvas if clicking background
+    // suppress context menu on canvas if clicking background
     const handleContextMenu = (e: MouseEvent) => {
       if (e.target === fabricCanvas.upperCanvasEl) {
         e.preventDefault()
@@ -611,8 +611,8 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
   useEffect(() => {
     if (!fabricCanvas) return
 
-    // Only active if Magic Mode
-    // We need component state to track the active line being drawn
+    // only active if magic mode
+    // we need component state to track the active line being drawn
     let isLassoing = false
     let points: Point[] = []
     let activeLine: any = null
@@ -625,8 +625,8 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         const ptr = fabricCanvas.getScenePoint(opt.e)
         points.push(ptr)
 
-        // Create visual line
-        // We use a Polyline for preview
+        // create visual line
+        // we use a polyline for preview
         activeLine = new fabric.Polyline(points, {
           stroke: 'hsl(var(--primary))',
           strokeWidth: 2,
@@ -660,10 +660,10 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
 
       if (points.length < 5) return // Too small
 
-      // 1. Create a Polygon for "Inside" check
+      // 1. create a polygon for "inside" check
       const polygon = new fabric.Polygon(points, {})
 
-      // 2. Buffer Logic: "Goes a pixel outside"
+      // 2. buffer logic: "goes a pixel outside"
       const objects = fabricCanvas.getObjects()
       const toSelect: any[] = []
       const buffer = 10 // 10px tolerance
@@ -672,19 +672,19 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         if (!obj.selectable && obj.type !== 'path' && obj.type !== 'group') return
         if (obj === activeLine) return
 
-        // Check A: Centroid contained (Classic Lasso)
+        // check a: centroid contained (classic lasso)
         if (polygon.containsPoint(obj.getCenterPoint())) {
           toSelect.push(obj)
           return
         }
 
-        // Check B: Proper Intersection (Touching)
+        // check b: proper intersection (touching)
         if (polygon.intersectsWithObject(obj)) {
           toSelect.push(obj)
           return
         }
 
-        // Check C: Buffer / Near Miss
+        // check c: buffer / near miss
         const rect = obj.getBoundingRect()
         const tl = new Point(rect.left - buffer, rect.top - buffer)
         const br = new Point(rect.left + rect.width + buffer, rect.top + rect.height + buffer)
@@ -695,7 +695,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       })
 
       if (toSelect.length > 0) {
-        // UNLOCK SELECTED OBJECTS so they can be moved/grouped
+        // unlock selected objects so they can be moved/grouped
         toSelect.forEach(obj => {
           obj.selectable = true
           obj.evented = true
@@ -708,23 +708,23 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         fabricCanvas.requestRenderAll()
 
         console.log('Lasso selection made, switching to grab mode');
-        // Auto-switch to Move Mode (Lasso matches Free)
+        // auto-switch to move mode (lasso matches free)
         useEdgelessStore.getState().setSelectionMode('grab');
 
-        // Auto-switch to Move Mode (Lasso matches Free)
-        // We stay in 'select' tool, 'free' mode, but now we have a selection.
-        // The selection itself handles the dragging/resizing.
+        // auto-switch to move mode (lasso matches free)
+        // we stay in 'select' tool, 'free' mode, but now we have a selection.
+        // the selection itself handles the dragging/resizing.
 
-        // IMPORTANT: When selection is cleared, we must re-lock them?
-        // Fabric's 'selection:cleared' event should handle that.
-        // We need to add a listener for that.
+        // important: when selection is cleared, we must re-lock them?
+        // fabric's 'selection:cleared' event should handle that.
+        // we need to add a listener for that.
       }
 
       points = []
     }
 
     const handleSelectionCleared = (e: any) => {
-      // When selection is cleared, re-lock everything if we are in a locking mode (which we are if we used lasso)
+      // when selection is cleared, re-lock everything if we are in a locking mode (which we are if we used lasso)
       const objs = e.deselected || []
       objs.forEach((obj: any) => {
         obj.selectable = false
@@ -745,11 +745,11 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     }
   }, [fabricCanvas]) // We read store state inside handlers to avoid re-bind loops
 
-  // --- Eraser & Cursor Tracking ---
+  // --- eraser & cursor tracking ---
   const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 })
   const isErasingRef = useRef(false)
 
-  // Track cursor via native DOM events for reliable display
+  // track cursor via native dom events for reliable display
   useEffect(() => {
     if (activeTool !== 'eraser') {
       setCursorPos({ x: -100, y: -100 })
@@ -778,7 +778,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
   useEffect(() => {
     if (!fabricCanvas) return
 
-    // Helper: Sample points along a quadratic bezier curve
+    // helper: sample points along a quadratic bezier curve
     const sampleQuadratic = (p0: { x: number, y: number }, p1: { x: number, y: number }, p2: { x: number, y: number }, steps = 10) => {
       const points: { x: number, y: number }[] = [];
       for (let i = 0; i <= steps; i++) {
@@ -810,8 +810,8 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       if (activeTool !== 'eraser' || mode !== 'draw' || !isErasingRef.current) return;
 
       const pointer = fabricCanvas.getScenePoint(e);
-      // Visual cursor has 3px border, so actual visible radius is (width/2 - 1.5px)
-      // Use exactly the visible circle size for precision erasing
+      // visual cursor has 3px border, so actual visible radius is (width/2 - 1.5px)
+      // use exactly the visible circle size for precision erasing
       const r = (useEdgelessStore.getState().eraserWidth / 2) - 1.5;
 
 
@@ -820,7 +820,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       const toRemove: fabric.Object[] = [];
       const toAdd: fabric.Object[] = [];
 
-      // Helper: Split quadratic bezier at t
+      // helper: split quadratic bezier at t
       const splitQuadAt = (p0: { x: number, y: number }, p1: { x: number, y: number }, p2: { x: number, y: number }, t: number) => {
         const q0 = { x: p0.x + t * (p1.x - p0.x), y: p0.y + t * (p1.y - p0.y) };
         const q1 = { x: p1.x + t * (p2.x - p1.x), y: p1.y + t * (p2.y - p1.y) };
@@ -831,7 +831,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         };
       };
 
-      // Helper: Point on quadratic at t
+      // helper: point on quadratic at t
       const quadAt = (p0: { x: number, y: number }, p1: { x: number, y: number }, p2: { x: number, y: number }, t: number) => {
         const x = (1 - t) * (1 - t) * p0.x + 2 * (1 - t) * t * p1.x + t * t * p2.x;
         const y = (1 - t) * (1 - t) * p0.y + 2 * (1 - t) * t * p1.y + t * t * p2.y;
@@ -853,7 +853,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         const pathData = path.path;
         if (!pathData || pathData.length < 2) continue;
 
-        // For each path, we'll build new path commands, splitting where eraser touches
+        // for each path, we'll build new path commands, splitting where eraser touches
         const newPaths: any[][] = [];
         let currentPath: any[] = [];
         let currentPt = { x: 0, y: 0 };
@@ -864,7 +864,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
           const type = cmd[0] as string;
 
           if (type === 'M') {
-            // If we have accumulated commands, save them
+            // if we have accumulated commands, save them
             if (currentPath.length >= 2) {
               newPaths.push([...currentPath]);
             }
@@ -874,7 +874,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
             const ctrlPt = { x: cmd[1] as number, y: cmd[2] as number };
             const endPt = { x: cmd[3] as number, y: cmd[4] as number };
 
-            // Sample finely to find intersection regions
+            // sample finely to find intersection regions
             const samples = 50;
             let lastInside = Math.hypot(currentPt.x - pointer.x, currentPt.y - pointer.y) < r;
             let entryT = -1, exitT = -1;
@@ -893,12 +893,12 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
               lastInside = inside;
             }
 
-            // Check if entirely inside
+            // check if entirely inside
             const startInside = Math.hypot(currentPt.x - pointer.x, currentPt.y - pointer.y) < r;
             const endInside = Math.hypot(endPt.x - pointer.x, endPt.y - pointer.y) < r;
 
             if (startInside && endInside && entryT < 0) {
-              // Entire segment is erased
+              // entire segment is erased
               pathModified = true;
               if (currentPath.length >= 2) {
                 newPaths.push([...currentPath]);
@@ -906,11 +906,11 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
               currentPath = [];
               currentPt = endPt;
             } else if (entryT >= 0 || exitT >= 0) {
-              // Partial erase - split the curve
+              // partial erase - split the curve
               pathModified = true;
 
               if (entryT >= 0 && entryT > 0.01) {
-                // Keep part before entry
+                // keep part before entry
                 const split = splitQuadAt(currentPt, ctrlPt, endPt, entryT);
                 if (currentPath.length === 0) {
                   currentPath.push(['M', currentPt.x, currentPt.y]);
@@ -924,7 +924,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
               }
 
               if (exitT >= 0 && exitT < 0.99) {
-                // Keep part after exit
+                // keep part after exit
                 const split = splitQuadAt(currentPt, ctrlPt, endPt, exitT);
                 currentPath = [['M', split.right.p0.x, split.right.p0.y]];
                 currentPath.push(['Q', split.right.p1.x, split.right.p1.y, split.right.p2.x, split.right.p2.y]);
@@ -932,7 +932,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
 
               currentPt = endPt;
             } else {
-              // No intersection, keep as is
+              // no intersection, keep as is
               if (currentPath.length === 0) {
                 currentPath.push(['M', currentPt.x, currentPt.y]);
               }
@@ -941,7 +941,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
             }
           } else if (type === 'L') {
             const endPt = { x: cmd[1] as number, y: cmd[2] as number };
-            // Simple line - check if it intersects
+            // simple line - check if it intersects
             let hit = false;
             for (let t = 0; t <= 20; t++) {
               const px = currentPt.x + (endPt.x - currentPt.x) * (t / 20);
@@ -966,7 +966,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
             currentPt = endPt;
           } else if (type === 'C') {
             const endPt = { x: cmd[5] as number, y: cmd[6] as number };
-            // Cubic - check if it intersects (simplified)
+            // cubic - check if it intersects (simplified)
             let hit = false;
             for (let t = 0; t <= 20; t++) {
               const tt = t / 20;
@@ -993,7 +993,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
           }
         }
 
-        // Final accumulated path
+        // final accumulated path
         if (currentPath.length >= 2) {
           newPaths.push(currentPath);
         }
@@ -1041,12 +1041,12 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       opt.e.preventDefault();
       const target = opt.target;
 
-      // If clicked on empty space, we might want a global menu?
-      // For now, only objects.
+      // if clicked on empty space, we might want a global menu?
+      // for now, only objects.
       setTimeout(() => { // small delay to allow selection update
         const activeObj = fabricCanvas.getActiveObject();
         if (activeObj) {
-          // Get object data
+          // get object data
           const data = (activeObj as any).data || {};
           const id = data.id || activeObj.name; // Fallback
 
@@ -1063,26 +1063,26 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       }, 10);
     };
 
-    // Fabric "contextmenu" event is not standard, use 'mouse:down' with button checks?
-    // Fabric handles right click as 'mouse:down' with button: 3.
-    // But native contextmenu event is also fired.
-    // Let's attach to the wrapper div or use fabric's internal handling if available?
-    // Actually, preventing default on the container/canvas is best.
+    // fabric "contextmenu" event is not standard, use 'mouse:down' with button checks?
+    // fabric handles right click as 'mouse:down' with button: 3.
+    // but native contextmenu event is also fired.
+    // let's attach to the wrapper div or use fabric's internal handling if available?
+    // actually, preventing default on the container/canvas is best.
 
-    // Fabric doesn't expose 'contextmenu' event directly in all versions.
-    // We can add a standard DOM listener to the canvas element.
+    // fabric doesn't expose 'contextmenu' event directly in all versions.
+    // we can add a standard dom listener to the canvas element.
     const canvasEl = fabricCanvas.getElement(); // This is the UPPER canvas
     const upperCanvas = fabricCanvas.getSelectionElement();
 
     upperCanvas.addEventListener('contextmenu', (e: MouseEvent) => {
       e.preventDefault();
-      // We need to find what was clicked. Fabric provides `findTarget`.
+      // we need to find what was clicked. fabric provides `findtarget`.
       const pointer = fabricCanvas.getPointer(e);
 
-      // Fabric 6/7 api might differ slightly for findTarget.
-      // But let's rely on selection: The user usually right clicks AFTER selecting or right click SELECTS.
-      // Right click usually doesn't select in Fabric by default.
-      // We should manually check target.
+      // fabric 6/7 api might differ slightly for findtarget.
+      // but let's rely on selection: the user usually right clicks after selecting or right click selects.
+      // right click usually doesn't select in fabric by default.
+      // we should manually check target.
 
       const target = fabricCanvas.findTarget(e, false);
       if (target) {
@@ -1105,15 +1105,15 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     fabricCanvas.on('mouse:move', handleMove)
 
     return () => {
-      // Cleanup if we could removeEventListener easily...
-      // upperCanvas ref might change but effect depends on fabricCanvas which changes rarely.
+      // cleanup if we could removeeventlistener easily...
+      // uppercanvas ref might change but effect depends on fabriccanvas which changes rarely.
       fabricCanvas.off('mouse:move', handleMove)
       fabricCanvas.off('mouse:down', handleDown)
       fabricCanvas.off('mouse:up', handleUp)
     }
   }, [fabricCanvas, activeTool, mode])
 
-  // Monitor canvas changes for history (enables auto-save via historyStack)
+  // monitor canvas changes for history (enables auto-save via historystack)
   useEffect(() => {
     if (!fabricCanvas) return
     const handleChange = () => {
@@ -1121,27 +1121,27 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       pushHistory(json)
     }
 
-    // Track all types of changes for auto-save
+    // track all types of changes for auto-save
     fabricCanvas.on('object:added', handleChange)
     fabricCanvas.on('object:removed', handleChange)
     fabricCanvas.on('object:modified', (e) => {
       handleChange()
 
-      // Handle External Sync
+      // handle external sync
       if (onObjectModified) {
         const target = e.target as any
         if (target) {
-          // If it's a group, we might need to handle each object, but for now let's assume single object or ActiveSelection handling later
-          // Fabric's ActiveSelection doesn't always have data.id directly on it if it's a temporary group.
-          // But if it's a single object:
+          // if it's a group, we might need to handle each object, but for now let's assume single object or activeselection handling later
+          // fabric's activeselection doesn't always have data.id directly on it if it's a temporary group.
+          // but if it's a single object:
           if (target.data?.id) {
             onObjectModified(target.data.id, {
               x: target.left,
               y: target.top,
               width: target.getScaledWidth(),
               height: target.getScaledHeight(),
-              // Fabric uses scaleX/scaleY, but our store/DB might expect width/height at scale=1 or explicit scale
-              // Let's send what we can.
+              // fabric uses scalex/scaley, but our store/db might expect width/height at scale=1 or explicit scale
+              // let's send what we can.
             })
           }
         }
@@ -1157,7 +1157,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     }
   }, [fabricCanvas, pushHistory])
 
-  // Shortcuts: Ctrl+Z (Undo), Ctrl+X (Redo)
+  // shortcuts: ctrl+z (undo), ctrl+x (redo)
   useEffect(() => {
     const handleDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
@@ -1183,13 +1183,13 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     return () => window.removeEventListener('keydown', handleDown)
   }, [fabricCanvas, undo, redo])
 
-  // Shortcuts: Ctrl+Z // Handle Delete/Backspace key
+  // shortcuts: ctrl+z // handle delete/backspace key
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Delete' || e.key === 'Backspace') {
-        // const activeElement = document.activeElement as HTMLElement;
-        // if (activeElement && (activeElement.tagName === 'INPUT' || activeElement.tagName === 'TEXTAREA' || activeElement.isContentEditable)) {
-        // return; // Ignore if typing in an input
+        // const activeelement = document.activeelement as htmlelement;
+        // if (activeelement && (activeelement.tagname === 'input' || activeelement.tagname === 'textarea' || activeelement.iscontenteditable)) {
+        // return; // ignore if typing in an input
         // }
 
         const activeObjects = fabricCanvas?.getActiveObjects();
@@ -1210,7 +1210,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     return () => document.removeEventListener('keydown', handleKeyDown, true);
   }, [fabricCanvas, removeElement]);
 
-  // Gestures: 2-finger Pan, Pinch Zoom, 2-finger Undo, 3-finger Redo
+  // gestures: 2-finger pan, pinch zoom, 2-finger undo, 3-finger redo
   useEffect(() => {
     if (!fabricCanvas) return
 
@@ -1221,7 +1221,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     let startFingers = 0
     let hasMoved = false
 
-    // Helper to get center of touches
+    // helper to get center of touches
     const getCenter = (touches: TouchList) => {
       if (touches.length < 2) return null
       const t1 = touches[0]
@@ -1232,7 +1232,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       }
     }
 
-    // Helper to get distance between two touches
+    // helper to get distance between two touches
     const getDistance = (touches: TouchList) => {
       if (touches.length < 2) return null
       const t1 = touches[0]
@@ -1252,7 +1252,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         isPanning = true
         lastCenter = getCenter(e.touches)
         lastDistance = getDistance(e.touches)
-        // Disable selection/drawing while panning
+        // disable selection/drawing while panning
         fabricCanvas.selection = false
         fabricCanvas.isDrawingMode = false
       }
@@ -1267,29 +1267,29 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
           const dx = newCenter.x - lastCenter.x
           const dy = newCenter.y - lastCenter.y
 
-          // Pinch zoom calculation
+          // pinch zoom calculation
           const scale = newDistance / lastDistance
 
-          // Threshold to consider it a move/zoom
+          // threshold to consider it a move/zoom
           if (Math.abs(dx) > 2 || Math.abs(dy) > 2 || Math.abs(scale - 1) > 0.01 || hasMoved) {
             hasMoved = true
 
             const vpt = fabricCanvas.viewportTransform
             if (vpt) {
-              // Apply zoom centered on pinch point
+              // apply zoom centered on pinch point
               if (Math.abs(scale - 1) > 0.005) {
                 let zoom = fabricCanvas.getZoom() * scale
                 if (zoom > 20) zoom = 20
                 if (zoom < 0.1) zoom = 0.1
 
-                // Zoom to pinch center
+                // zoom to pinch center
                 const rect = canvasContainer?.getBoundingClientRect()
                 const offsetX = newCenter.x - (rect?.left || 0)
                 const offsetY = newCenter.y - (rect?.top || 0)
                 fabricCanvas.zoomToPoint(new Point(offsetX, offsetY), zoom)
               }
 
-              // Apply pan
+              // apply pan
               vpt[4] += dx
               vpt[5] += dy
               fabricCanvas.requestRenderAll()
@@ -1305,7 +1305,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     }
 
     const handleTouchEnd = (e: TouchEvent) => {
-      // Check for Taps (Undo/Redo) if NOT moved
+      // check for taps (undo/redo) if not moved
       if (!hasMoved) {
         if (startFingers === 2) {
           const json = undo()
@@ -1317,12 +1317,12 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         }
       }
 
-      // Reset
+      // reset
       if (e.touches.length < 2) {
         isPanning = false
         lastCenter = null
 
-        // Restore state
+        // restore state
         if (mode === 'draw') {
           fabricCanvas.isDrawingMode = true
         } else {
@@ -1348,31 +1348,31 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     }
   }, [fabricCanvas, undo, redo, mode])
 
-  // Resize Handler
+  // resize handler
   useEffect(() => {
     if (fabricCanvas) {
       fabricCanvas.setDimensions({ width, height })
     }
   }, [width, height, fabricCanvas])
 
-  // Load PDF Test
-  // This would normally come from props or route
+  // load pdf test
+  // this would normally come from props or route
   useEffect(() => {
-    // Mock load
+    // mock load
     const load = async () => {
-      // If we had a URL...
+      // if we had a url...
     }
     load()
   }, [])
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  // 4. Handle Paste
+  // 4. handle paste
   useEffect(() => {
     const handlePaste = (e: ClipboardEvent) => {
       const text = e.clipboardData?.getData('text')
       if (text && (text.startsWith('http://') || text.startsWith('https://'))) {
-        // Create Embed
+        // create embed
         const { x, y } = viewPort
         addElement({
           type: 'embed-web',
@@ -1412,7 +1412,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     useEdgelessStore.setState({ activeTool: 'select' })
   }
 
-  // 5. Handle pkm:add-widget (Drag & Drop from Sidebar)
+  // 5. handle pkm:add-widget (drag & drop from sidebar)
   return (
     <div
       className={`relative w-full h-full overflow-hidden ${className || ''}`}
@@ -1420,17 +1420,17 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       onDrop={handleDrop}
       onDragOver={(e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; }}
       onContextMenu={(e) => {
-        // FORCE Deselect on Right Click (Native Override)
+        // force deselect on right click (native override)
         e.preventDefault()
-        // Only deselect if we are clicking the canvas/background, not dragging an overlay?
-        // Using fabricCanvas reference from closure
+        // only deselect if we are clicking the canvas/background, not dragging an overlay?
+        // using fabriccanvas reference from closure
         if (fabricCanvas) {
           fabricCanvas.discardActiveObject()
           fabricCanvas.requestRenderAll()
         }
       }}
     >
-      {/* Upload Button */}
+      {/* upload button */}
       <div className="absolute top-4 right-4 z-50 flex gap-2">
         <button
           className="p-2 bg-black border border-white/20 rounded-md shadow hover:bg-white/10 transition-colors text-foreground"
@@ -1448,10 +1448,10 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         />
       </div>
 
-      {/* 1. Fabric Canvas (Base Layer) */}
+      {/* 1. fabric canvas (base layer) */}
       < canvas ref={canvasEl} />
 
-      {/* Fixed Mode Page Boundary Indicator (Visual Only) */}
+      {/* fixed mode page boundary indicator (visual only) */}
       {
         (() => {
           if (canvasConfig.mode === 'edgeless') return null
@@ -1482,7 +1482,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         })()
       }
 
-      {/* 3. Children Layer (Synced with Canvas Transform) */}
+      {/* 3. children layer (synced with canvas transform) */}
       <div
         className="absolute inset-0 pointer-events-none origin-top-left"
         style={{
@@ -1496,7 +1496,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         </div>
       </div>
 
-      {/* 4. React Overlay Layer (for Embeds & PDF Rendering) */}
+      {/* 4. react overlay layer (for embeds & pdf rendering) */}
       {
         fabricCanvas && elements.map((el: any) => {
           const vpt = fabricCanvas.viewportTransform || [1, 0, 0, 1, 0, 0]
@@ -1509,7 +1509,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
           const screenW = el.width * zoom
           const screenH = el.height * zoom
 
-          // FIX: If selected, disable pointer events on HTML overlay to allow Fabric Drag/Resize
+          // fix: if selected, disable pointer events on html overlay to allow fabric drag/resize
           const isSelected = selectedIds.has(el.id)
           const bgPointerEvents = isSelected ? 'pointer-events-none select-none' : 'pointer-events-auto'
 
@@ -1604,7 +1604,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
           }
 
           if (el.type === 'database-card') {
-            // Expect data to contain row data and collection info
+            // expect data to contain row data and collection info
             return (
               <div
                 key={el.id}
@@ -1749,7 +1749,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         })
       }
 
-      {/* Eraser Cursor Indicator - Outline Ring */}
+      {/* eraser cursor indicator - outline ring */}
       {
         activeTool === 'eraser' && (
           <div

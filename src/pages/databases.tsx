@@ -116,12 +116,12 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location, navigate]);
 
-  // 1. Filter out internal collections from grid
+  // 1. filter out internal collections from grid
   const FORBIDDEN_COLLECTIONS = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates', 'website', 'dupemates-pages'];
   const filteredCollections = collections.filter((c: Collection) => !FORBIDDEN_COLLECTIONS.includes(String(c.name).toLowerCase()));
 
-  // 2. Extract Docs and Drawings from Sidebar Items
-  // We treat them as "Pseudo Collections" so they can live in the grid
+  // 2. extract docs and drawings from sidebar items
+  // we treat them as "pseudo collections" so they can live in the grid
   const sidebarDocs = sidebarItems
   .filter(item => (item.id.startsWith('doc_') || item.id.startsWith('drawing_')))
   .map(item => ({
@@ -132,7 +132,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   meta: { color: item.color } // Inject color for CollectionCard to pick up
   })) as unknown as Collection[];
 
-  // 3. Merge Lists
+  // 3. merge lists
   const allItems = [...filteredCollections, ...sidebarDocs];
 
   const sortedCollections = [...allItems].sort((a, b) => {
@@ -158,7 +158,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   if (onSelect) {
   onSelect(name);
   } else {
-  // Check for Docs/Drawings
+  // check for docs/drawings
   if (name.startsWith('doc_')) {
  navigate(`/canvas/${name.replace('doc_', '')}`, { state: { fromSidebar: true } });
  return;
@@ -168,7 +168,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
  return;
   }
 
-  // Default Database Navigation
+  // default database navigation
   navigate(`/databases/${encodeURIComponent(name)}`, { state: { fromSidebar: true } });
   }
   };
@@ -184,12 +184,12 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   setValidating(true);
   console.log('[DatabasesPage] saving token...');
   try {
-  // Save token directly - it will be validated on first actual API call
-  // This avoids timeout issues during login
+  // save token directly - it will be validated on first actual api call
+  // this avoids timeout issues during login
   login(apiKey);
   toast.success("connected to nocobase");
   console.log('[DatabasesPage] refreshing collections...');
-  // Give a brief moment for the state to update
+  // give a brief moment for the state to update
   await new Promise(resolve => setTimeout(resolve, 100));
   await refresh();
   } catch (error: any) {
@@ -244,11 +244,11 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   return <div className="p-8 text-muted-foreground">loading databases...</div>;
   }
 
-  // Only exclude if truly empty (no collections AND no sidebar docs)
+  // only exclude if truly empty (no collections and no sidebar docs)
   if (allItems.length === 0) {
   return (
   <div className="p-4 md:p-8 space-y-6 h-full overflow-auto">
- {/* Still show the add button even if empty */}
+ {/* still show the add button even if empty */}
  <div className="flex items-center justify-end mb-4">
  <div className="flex items-center gap-2">
  <CollectionDialog onSuccess={refresh} trigger={

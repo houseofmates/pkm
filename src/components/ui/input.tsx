@@ -1,5 +1,5 @@
 
-// Input
+// input
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
@@ -25,7 +25,7 @@ Input.displayName = "Input"
 
 export { Input }
 
-// Label
+// label
 import * as LabelPrimitive from "@radix-ui/react-label"
 import { cva, type VariantProps } from "class-variance-authority"
 

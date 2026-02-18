@@ -20,7 +20,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-// Icons mapping for dynamic items
+// icons mapping for dynamic items
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   'Text': Text,
   'Heading 1': Heading1,
@@ -94,7 +94,7 @@ export const SlashMenu = forwardRef((props: SlashMenuProps, ref) => {
   style={{ fontFamily: '"Varela Round", sans-serif' }}
   >
   <div className="flex flex-col gap-1">
- {/* Optional: Add Category Headers later if needed */}
+ {/* optional: add category headers later if needed */}
  <div className="px-2 py-1 text-[10px]  text-[#87CEEB] opacity-50 font-bold">
  Void Commands
  </div>

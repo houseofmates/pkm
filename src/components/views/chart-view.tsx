@@ -41,12 +41,12 @@ export function ChartView(props: ViewProps) {
   const stacked = !!config?.chartStacked;
   const seriesType = config?.chartSeriesType || null; // global series display override (bar/line/area)
 
-  // Data Transformation for Charts
+  // data transformation for charts
   const chartData = useMemo(() => {
   if (type === 'network' || type === 'mindmap') return []; // Handled by their own views
 
-  // Multi-series: build nested map: x -> seriesVal -> { value, records }
-  // Simple single-series aggregation by X
+  // multi-series: build nested map: x -> seriesval -> { value, records }
+  // simple single-series aggregation by x
   if (!seriesField) {
   const map = new Map<string, { value: number, records: any[] }>();
   data.forEach(rec => {
@@ -67,7 +67,7 @@ export function ChartView(props: ViewProps) {
   return Array.from(map.entries()).map(([name, data]) => ({ name, value: data.value, records: data.records }));
   }
 
-  // Multi-series aggregation
+  // multi-series aggregation
   const xMap = new Map<string, Map<string, { value: number, records: any[] }>>();
   const seriesSet = new Set<string>();
 
@@ -92,7 +92,7 @@ export function ChartView(props: ViewProps) {
   }
   });
 
-  // Limit to top series
+  // limit to top series
   const seriesList = Array.from(seriesSet).slice(0, 8);
 
   const rows: any[] = [];
@@ -117,7 +117,7 @@ export function ChartView(props: ViewProps) {
 
   return (
   <div className="h-full flex flex-col gap-4 relative">
-  {/* Minimal Config Button */}
+  {/* minimal config button */}
   <div className="absolute top-4 right-4 z-50">
  <Popover>
  <PopoverTrigger asChild>
@@ -229,9 +229,9 @@ export function ChartView(props: ViewProps) {
    <div className="space-y-1 pt-2 border-t">
   <Label className="text-[10px]  text-muted-foreground font-semibold">color customization</Label>
   <div className="grid grid-cols-5 gap-2">
-  {/* Main Color / Series Colors */}
+  {/* main color / series colors */}
   {(seriesField || type === 'pie' || type === 'radar') && chartData.length > 0 ? (
-  // Dynamic Series Colors (limited to top 5-8 for UI sanity)
+  // dynamic series colors (limited to top 5-8 for ui sanity)
   chartData[0] && Object.keys(chartData[0])
     .filter(k => k !== 'name' && k !== 'value') // Assuming transformed keys
     .slice(0, 10)
@@ -279,8 +279,8 @@ export function ChartView(props: ViewProps) {
  </Popover>
   </div>
 
-  {/* Content Area */}
-  {/* FORCE DARK background and disable any hover brightness shifts */}
+  {/* content area */}
+  {/* force dark background and disable any hover brightness shifts */}
   <div
  className="flex-1 min-h-0 rounded-lg p-0 overflow-hidden relative group"
  style={{ backgroundColor: '#090909', border: '1px solid #1a1a1a' }}
@@ -302,21 +302,21 @@ export function ChartView(props: ViewProps) {
    onConfig={handleConfig}
    columns={collection.fields?.map((f: any) => ({ label: (f.uiSchema?.title || f.name).toLowerCase(), value: f.name }))}
    onDataClick={(data, _, seriesKey) => {
-   // data is payload. For bar/line it might be the full row object
+   // data is payload. for bar/line it might be the full row object
    // or specific point data.
-   // We rely on xKey/seriesKey to locate it in our chartData to be safe/reactive
-   // Recharts payload usually has the 'name' (x value).
-   // But data argument from our ChartWidget onClick aggregator might vary.
-   // Let's use the arguments passed: xKey (the group name), seriesKey.
-   // If seriesKey is present (multi-series), we use that.
-   // Actually, in ChartWidget we passed: onDataClick(data, xKey, key) where key is seriesKey.
-   // But 'xKey' arg in ChartWidget is the PROPERTY NAME of x (e.g. 'status').
-   // We need the VALUE of x (e.g. 'Done').
+   // we rely on xkey/serieskey to locate it in our chartdata to be safe/reactive
+   // recharts payload usually has the 'name' (x value).
+   // but data argument from our chartwidget onclick aggregator might vary.
+   // let's use the arguments passed: xkey (the group name), serieskey.
+   // if serieskey is present (multi-series), we use that.
+   // actually, in chartwidget we passed: ondataclick(data, xkey, key) where key is serieskey.
+   // but 'xkey' arg in chartwidget is the property name of x (e.g. 'status').
+   // we need the value of x (e.g. 'done').
    // data payload usually contains it.
-   // If type=bar single series, data is { name: 'Done', value: 10, records: ... }
-   // So data.name is the X value.
-   // If type=bar multi series, data is { name: 'Done', 'Low': 5, 'High': 2, ... }
-   // So data.name is X value.
+   // if type=bar single series, data is { name: 'done', value: 10, records: ... }
+   // so data.name is the x value.
+   // if type=bar multi series, data is { name: 'done', 'low': 5, 'high': 2, ... }
+   // so data.name is x value.
    const xVal = data?.name;
    if (xVal) {
    setDrillDown({ xKey: xVal, seriesKey });
@@ -327,8 +327,8 @@ export function ChartView(props: ViewProps) {
    const xVal = data?.name;
    if (!xVal) return;
 
-   // Find records for this point
-   // Logic similar to DrillDown derivation
+   // find records for this point
+   // logic similar to drilldown derivation
    const row = chartData.find(r => r.name === xVal);
    let records = [];
    if (row) {
@@ -337,19 +337,19 @@ export function ChartView(props: ViewProps) {
    }
 
    if (records.length === 1) {
-   // Single record -> Show Virtual Context Menu (Popover at cursor)
-   // We'll use a portal-like approach relative to view or just fixed
-   // But Popover needs a trigger or anchor.
-   // Helper: Set virtual menu state
-   // Adjust coordinates to be relative to viewport if using fixed overlay
-   // e.clientX/Y are viewport coordinates
+   // single record -> show virtual context menu (popover at cursor)
+   // we'll use a portal-like approach relative to view or just fixed
+   // but popover needs a trigger or anchor.
+   // helper: set virtual menu state
+   // adjust coordinates to be relative to viewport if using fixed overlay
+   // e.clientx/y are viewport coordinates
    setVirtualMenu({
   x: e.clientX,
   y: e.clientY,
   records: records
    });
    } else if (records.length > 1) {
-   // Multiple records -> Drill Down Table
+   // multiple records -> drill down table
    setDrillDown({ xKey: xVal, seriesKey });
    }
    }}
@@ -361,7 +361,7 @@ export function ChartView(props: ViewProps) {
  <MindMapView {...props} />
  ) : null}
   </div>
-  {/* Drill Down Dialog */}
+  {/* drill down dialog */}
   <Dialog open={!!drillDown} onOpenChange={(open) => !open && setDrillDown(null)}>
  <DialogContent className="max-w-4xl max-h-[80vh] flex flex-col">
  <DialogHeader>
@@ -373,15 +373,15 @@ export function ChartView(props: ViewProps) {
  {drillDown && (
    <RecordTable
    data={(() => {
-   // Derive records from current chartData
+   // derive records from current chartdata
    const row = chartData.find(r => r.name === drillDown.xKey);
    if (!row) return [];
    if (drillDown.seriesKey && row._records) return row._records[drillDown.seriesKey] || [];
    if (row.records) return row.records;
-   // Fallback for aggregations that might not strictly follow structure (e.g. single series)
-   // If we are in single series mode, records are attached to the row object mapping iteration found in 'name'
-   // Wait, in single series, map values are {value, records}.
-   // And we mapped to {name, value, records}.
+   // fallback for aggregations that might not strictly follow structure (e.g. single series)
+   // if we are in single series mode, records are attached to the row object mapping iteration found in 'name'
+   // wait, in single series, map values are {value, records}.
+   // and we mapped to {name, value, records}.
    return row.records || [];
    })()}
    collection={collection}
@@ -394,7 +394,7 @@ export function ChartView(props: ViewProps) {
  </DialogContent>
   </Dialog>
 
-  {/* Virtual Context Menu (Single Record) */}
+  {/* virtual context menu (single record) */}
   {
  virtualMenu && (
  <div

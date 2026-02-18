@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-// import { InfiniteCanvasWrapper } from '@/components/ui/infinite-canvas-wrapper'; // Removed in favor of native EdgelessCanvas
+// import { infinitecanvaswrapper } from '@/components/ui/infinite-canvas-wrapper'; // removed in favor of native edgelesscanvas
 import { EdgelessCanvas } from '@/features/edgeless/components/EdgelessCanvas';
 import { Toolbar } from '@/features/edgeless/components/Toolbar';
 import { CanvasControls } from '@/features/edgeless/components/CanvasControls';
@@ -26,7 +26,7 @@ export function DatabaseCanvasView() {
   const [viewType, setViewType] = useState<ViewType>('table');
   const store = useEdgelessStore();
 
-  // Load last selected collection
+  // load last selected collection
   useEffect(() => {
     const last = localStorage.getItem('last_db_canvas_collection');
     if (last) setSelectedCollection(last);
@@ -36,21 +36,21 @@ export function DatabaseCanvasView() {
     if (selectedCollection) localStorage.setItem('last_db_canvas_collection', selectedCollection);
   }, [selectedCollection]);
 
-  // Data Loading Logic (Restored from previous implementation to ensure canvas has content)
+  // data loading logic (restored from previous implementation to ensure canvas has content)
   useEffect(() => {
     if (!selectedCollection) return;
     const load = async () => {
       try {
-        // We might want to clear the canvas first or load specific "Canvas View" data
-        // For now, preserving the user's request to "add back the tools" implies
+        // we might want to clear the canvas first or load specific "canvas view" data
+        // for now, preserving the user's request to "add back the tools" implies
         // they want the drawing canvas back.
       } catch (e) { console.error(e); }
     };
     load();
   }, [selectedCollection]);
 
-  // Header Control for Alignment
-  // Placed ABSOLUTE over the canvas capabilities
+  // header control for alignment
+  // placed absolute over the canvas capabilities
   const HeaderControl = (
     <div className="absolute top-0 left-0 w-full z-50 pointer-events-none flex flex-col">
       <div className="h-16 flex items-center px-4 justify-between bg-background/80 backdrop-blur pointer-events-auto">
@@ -100,26 +100,26 @@ export function DatabaseCanvasView() {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* Additional Controls */}
+          {/* additional controls */}
         </div>
       </div>
-      {/* Opaque Primary Separator */}
+      {/* opaque primary separator */}
       <Separator className="bg-primary" />
     </div>
   );
 
-  // Resolve Collection Object
+  // resolve collection object
   const activeCollection = collections.find(c => c.name === selectedCollection);
 
   return (
     <div className="w-full h-full relative bg-[#050505] text-foreground overflow-hidden flex flex-col">
       {HeaderControl}
 
-      {/* Main Canvas Area - Pushes down by header height or sits behind?
-            If Header is absolute, Canvas is behind.
-            We should probably pad the canvas or let it pan infinitely underneath.
-            "Align header separator... pannable canvas"
-            Usually canvas flows Under header.
+      {/* main canvas area - pushes down by header height or sits behind?
+            if header is absolute, canvas is behind.
+            we should probably pad the canvas or let it pan infinitely underneath.
+            "align header separator... pannable canvas"
+            usually canvas flows under header.
         */}
       <div className="flex-1 w-full h-full relative overflow-hidden">
         <EdgelessCanvas

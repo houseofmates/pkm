@@ -34,7 +34,7 @@ export function MoodboardPage() {
   const { collections } = useCollections();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Load/Save
+  // load/save
   useEffect(() => {
   const saved = localStorage.getItem('moodboard_data');
   if (saved) {
@@ -47,7 +47,7 @@ export function MoodboardPage() {
   toast.success("Moodboard saved");
   };
 
-  // --- Element Operations ---
+  // --- element operations ---
 
   const addElement = (type: ElementType, content?: string, extra?: any) => {
   const center = {
@@ -90,7 +90,7 @@ export function MoodboardPage() {
   setElements(prev => prev.filter(el => el.id !== id));
   };
 
-  // --- Interaction Logic ---
+  // --- interaction logic ---
   const [dragState, setDragState] = useState<{ id: string, mode: 'move' | 'resize', startX: number, startY: number, initial: any } | null>(null);
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -137,7 +137,7 @@ export function MoodboardPage() {
  ref={containerRef}
  onMouseDown={(e) => {
  if (e.button === 0 && !dragState) {
-   // Only drag canvas if clicking background
+   // only drag canvas if clicking background
    if ((e.target as HTMLElement).classList.contains('canvas-area')) {
    setIsDraggingCanvas(true);
    setDragStart({ x: e.clientX - offset.x, y: e.clientY - offset.y });
@@ -148,7 +148,7 @@ export function MoodboardPage() {
  onMouseUp={handleMouseUp}
  onMouseLeave={handleMouseUp}
  >
- {/* Infinite Canvas Content */}
+ {/* infinite canvas content */}
  <div
  className="absolute origin-top-left canvas-area w-[10000px] h-[10000px]"
  style={{
@@ -180,7 +180,7 @@ export function MoodboardPage() {
    }
    }}
    >
-   {/* Render Content */}
+   {/* render content */}
    {el.type === 'image' && (
    <img src={el.content} alt="" className="w-full h-full object-cover rounded-lg pointer-events-none" />
    )}
@@ -200,7 +200,7 @@ export function MoodboardPage() {
   value={el.content}
   onChange={(e) => updateElement(el.id, { content: e.target.value })}
   onMouseDown={(e) => e.stopPropagation()} // Allow text selection? No, we want drag usually. Maybe double click to edit?
-   // Simple hack: if focused, don't drag.
+   // simple hack: if focused, don't drag.
    />
    )}
 
@@ -208,20 +208,20 @@ export function MoodboardPage() {
    <div className="w-full h-full bg-background border rounded-lg overflow-hidden flex flex-col shadow-sm">
   <div className="bg-muted px-2 py-1 text-xs font-bold ">{el.content}</div>
   <div className="flex-1 overflow-auto relative">
-  {/* We can reuse Dashboard View Components */}
-  {/* Using a simplified Generic Helper or specific view */}
-  {/* For moodboard, maybe just Table or Gallery is best? */}
-  {/* Let's default to Gallery for visuals */}
+  {/* we can reuse dashboard view components */}
+  {/* using a simplified generic helper or specific view */}
+  {/* for moodboard, maybe just table or gallery is best? */}
+  {/* let's default to gallery for visuals */}
   {(() => {
-  // We need data. Moodboard doesn't fetch on its own efficiently yet.
-  // Simple Placeholder for now or efficient fetch?
+  // we need data. moodboard doesn't fetch on its own efficiently yet.
+  // simple placeholder for now or efficient fetch?
   return <div className="p-4 text-xs text-muted-foreground">database view: {el.content}</div>
   })()}
   </div>
    </div>
    )}
 
-   {/* Hover Controls */}
+   {/* hover controls */}
    <div className="absolute -top-8 left-0 hidden group-hover:flex gap-1 bg-black/80 rounded p-1 z-50">
    <Button size="icon" variant="ghost" className="h-6 w-6 text-white" onClick={() => deleteElement(el.id)}><Trash2 className="h-3 w-3" /></Button>
    {el.type === 'text' && (
@@ -248,7 +248,7 @@ export function MoodboardPage() {
    )}
    </div>
 
-   {/* Resize Handle */}
+   {/* resize handle */}
    <div
    className="absolute bottom-0 right-0 w-4 h-4 bg-primary/50 cursor-se-resize rounded-tl opacity-0 group-hover:opacity-100"
    onMouseDown={(e) => {
@@ -266,7 +266,7 @@ export function MoodboardPage() {
  ))}
  </div>
 
- {/* Floating HUD */}
+ {/* floating hud */}
  <div className="absolute top-4 right-4 flex gap-2">
  <Button variant="secondary" onClick={handleSave} size="icon" title="save board"><Save className="h-4 w-4" /></Button>
  <Button variant="outline" size="icon" onClick={() => setScale(s => s + 0.1)}><ZoomIn className="h-4 w-4" /></Button>

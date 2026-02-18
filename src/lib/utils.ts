@@ -6,10 +6,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getContrastColor(hex: string): string {
-  // Remove hash if present
+  // remove hash if present
   const cleanHex = hex.replace('#', '');
 
-  // Parse input
+  // parse input
   let r = 0, g = 0, b = 0;
 
   if (cleanHex.length === 3) {
@@ -24,18 +24,18 @@ export function getContrastColor(hex: string): string {
   return '#ffffff'; // Default to white if invalid
   }
 
-  // Calculate relative luminance (using Rec. 601 for simplicity as requested/analyzed)
-  // Formula: 0.299*R + 0.587*G + 0.114*B
+  // calculate relative luminance (using rec. 601 for simplicity as requested/analyzed)
+  // formula: 0.299*r + 0.587*g + 0.114*b
   const title = (r * 299 + g * 587 + b * 114) / 1000;
 
-  // Threshold ~117 (based on #737679 analysis)
+  // threshold ~117 (based on #737679 analysis)
   // #737679 => 117.4
   // > 117 means light background => black text
   // <= 117 means dark background => white text
   return title > 117 ? '#000000' : '#ffffff';
 }
 
-// Basic HTML sanitizer: remove <script> and on* attributes (not a replacement for a full HTML sanitizer)
+// basic html sanitizer: remove <script> and on* attributes (not a replacement for a full html sanitizer)
 export function sanitizeHTML(html: string) {
   if (!html) return '';
   try {
@@ -52,7 +52,7 @@ export function sanitizeHTML(html: string) {
  toRemoveAttrs.push(`${el.tagName}->${attr.name}`);
  el.removeAttribute(attr.name);
  }
- // disallow javascript: URIs
+ // disallow javascript: uris
  if (attr.value && attr.value.toLowerCase().includes('javascript:')) {
  el.removeAttribute(attr.name);
  }

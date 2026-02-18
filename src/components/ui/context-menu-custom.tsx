@@ -14,12 +14,12 @@ export function ContextMenu() {
   const menuRef = useRef<HTMLDivElement>(null);
   const { client } = useAuth();
 
-  // Local state for edit workflows
+  // local state for edit workflows
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState('');
   const [showColorPicker, setShowColorPicker] = useState(false);
 
-  // Sync rename value when menu opens
+  // sync rename value when menu opens
   useEffect(() => {
   if (isOpen && data?.title) {
   setRenameValue(data.title);
@@ -28,7 +28,7 @@ export function ContextMenu() {
   setShowColorPicker(false);
   }, [isOpen, data]);
 
-  // Close on click outside
+  // close on click outside
   useEffect(() => {
   const handleClick = (e: MouseEvent) => {
   if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
@@ -41,22 +41,22 @@ export function ContextMenu() {
 
   if (!isOpen) return null;
 
-  // --- Actions ---
+  // --- actions ---
 
   const handleColorChange = (color: string) => {
   if (targetType === 'canvas-object') {
   useEdgelessStore.getState().updateElement(targetId!, {
  data: { ...data, stroke: color, fill: color }
- // Note: Logic depends on object type.
- // Connector: stroke
- // Shape: fill/stroke
- // We might need to be smarter.
+ // note: logic depends on object type.
+ // connector: stroke
+ // shape: fill/stroke
+ // we might need to be smarter.
   });
-  // Update local data reference if needed, or rely on re-render?
-  // Canvas updates usually don't trigger re-render of THIS component unless we subscribe.
+  // update local data reference if needed, or rely on re-render?
+  // canvas updates usually don't trigger re-render of this component unless we subscribe.
   } else if (targetType === 'dashboard-card') {
-  // Update NocoBase record
-  // Collection? We need collection name in data
+  // update nocobase record
+  // collection? we need collection name in data
   if (data?.collection) {
  client.updateRecord(data.collection, targetId!, { color }); // Assuming 'color' field exists
   }
@@ -67,9 +67,9 @@ export function ContextMenu() {
   if (!renameValue.trim()) return;
 
   if (targetType === 'canvas-object') {
-  // Does canvas object have a title?
-  // Maybe 'text' tool objects do.
-  // Or we add a title property to data.
+  // does canvas object have a title?
+  // maybe 'text' tool objects do.
+  // or we add a title property to data.
   useEdgelessStore.getState().updateElement(targetId!, {
  data: { ...data, title: renameValue }
   });
@@ -88,15 +88,15 @@ export function ContextMenu() {
   };
 
   const handlePromote = () => {
-  // "Promote to Record" logic
-  // This likely needs a full dialog flow.
-  // For now, let's just create a basic Note with the content.
+  // "promote to record" logic
+  // this likely needs a full dialog flow.
+  // for now, let's just create a basic note with the content.
 
   const content = data?.text || data?.title || "New Record from Canvas";
 
-  // We'll dispatch an event or use a dialog store
-  // Simplicity: Prompt user for collection? Or just dump to 'notes'?
-  // The plan mentioned "Prompt for collection".
+  // we'll dispatch an event or use a dialog store
+  // simplicity: prompt user for collection? or just dump to 'notes'?
+  // the plan mentioned "prompt for collection".
 
   const collection = window.prompt("Target Collection (e.g. notes):", "notes");
   if (collection) {
@@ -114,8 +114,8 @@ export function ContextMenu() {
   if (confirm("Delete this record?")) {
  await client.deleteRecord(data.collection, targetId!);
  toast.success("deleted");
- // Trigger refresh? DashboardCard relies on parent list update.
- // We might need to dispatch an event.
+ // trigger refresh? dashboardcard relies on parent list update.
+ // we might need to dispatch an event.
  window.dispatchEvent(new CustomEvent('pkm:record-deleted', { detail: { id: targetId, collection: data.collection } }));
   }
   }
@@ -124,13 +124,13 @@ export function ContextMenu() {
 
   const handleEditMetadata = () => {
   if (targetType === 'dashboard-card' && data?.collection) {
-  // Navigate to record view
-  // Using window.location for simplicity or need router hook (not available in portal easily without wrapper)
-  // But we are inside React component tree if creating Portal properly.
-  // Let's assume we can navigate.
+  // navigate to record view
+  // using window.location for simplicity or need router hook (not available in portal easily without wrapper)
+  // but we are inside react component tree if creating portal properly.
+  // let's assume we can navigate.
   window.location.hash = `/databases/${data.collection}/${targetId}`; // Hash router? No, we use Browser router.
-  // We need `useNavigate` but we might not be inside Router context if rendered at root?
-  // Actually, if we put <ContextMenu /> in RootLayout (inside Router), we are good.
+  // we need `usenavigate` but we might not be inside router context if rendered at root?
+  // actually, if we put <contextmenu /> in rootlayout (inside router), we are good.
   }
   closeMenu();
   }
@@ -141,7 +141,7 @@ export function ContextMenu() {
   className="fixed z-50 min-w-[200px] bg-popover/95 backdrop-blur-md border border-border text-popover-foreground rounded-lg shadow-xl animate-in fade-in zoom-in-95 duration-100 flex flex-col p-1 overflow-hidden"
   style={{ top: Math.min(y, window.innerHeight - 300), left: Math.min(x, window.innerWidth - 220) }}
   >
-  {/* Header / Rename */}
+  {/* header / rename */}
   <div className="px-2 py-1.5 border-b border-border/50 mb-1">
  {isRenaming ? (
  <div className="flex gap-1">
@@ -174,7 +174,7 @@ export function ContextMenu() {
  </div>
   </div>
 
-  {/* Color Palette Toggle */}
+  {/* color palette toggle */}
   <Button
  variant="ghost"
  size="sm"
@@ -191,7 +191,7 @@ export function ContextMenu() {
  </div>
   )}
 
-  {/* Metadata / Full Edit */}
+  {/* metadata / full edit */}
   {targetType === 'dashboard-card' && (
  <Button
  variant="ghost"
@@ -239,7 +239,7 @@ export function ContextMenu() {
 
   <div className="h-px bg-border/50 my-1" />
 
-  {/* Destructive */}
+  {/* destructive */}
   <Button
  variant="ghost"
  size="sm"

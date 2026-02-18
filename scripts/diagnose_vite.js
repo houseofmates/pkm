@@ -8,10 +8,10 @@ const cwd = process.cwd();
 const viteConfigPath = path.join(cwd, 'vite.config.ts');
 const storagePath = path.join(cwd, 'storage');
 
-// 1. Check if 'storage' folder exists locally
+// 1. check if 'storage' folder exists locally
 if (fs.existsSync(storagePath)) {
     console.log(`[PASS] Local 'storage' directory found at: ${storagePath}`);
-    // Check permissions roughly (on unix)
+    // check permissions roughly (on unix)
     try {
         const stats = fs.statSync(storagePath);
         console.log(`[INFO] Storage permissions: ${(stats.mode & 0o777).toString(8)}`);
@@ -27,7 +27,7 @@ if (fs.existsSync(storagePath)) {
 if (fs.existsSync(viteConfigPath)) {
     const viteConfig = fs.readFileSync(viteConfigPath, 'utf8');
 
-    // Simple string check for now
+    // simple string check for now
     if (viteConfig.includes("'/storage':")) {
         console.log(`[WARN] Vite config has a proxy defined for '/storage'.`);
         const match = viteConfig.match(/'\/storage':\s*\{\s*target:\s*['"]([^'"]+)['"]/);

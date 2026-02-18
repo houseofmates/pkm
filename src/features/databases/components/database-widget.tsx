@@ -25,7 +25,7 @@ interface DatabaseWidgetProps {
 }
 
 export function DatabaseWidget({ collection, onRemove, className, initialView, viewConfig = {}, onConfigChange, onHeaderMouseDown }: DatabaseWidgetProps) {
-  // Merge initial view with config view type
+  // merge initial view with config view type
   const currentView = viewConfig.viewType || initialView;
 
   const { records, loading, refresh } = useRecords(collection.name, {
@@ -33,14 +33,14 @@ export function DatabaseWidget({ collection, onRemove, className, initialView, v
   filter: viewConfig.filter
   });
 
-  // Sync config changes to useRecords
+  // sync config changes to userecords
   useEffect(() => {
   refresh({ sort: viewConfig.sort, filter: viewConfig.filter });
   }, [viewConfig.sort, JSON.stringify(viewConfig.filter)]);
 
   const CurrentViewComponent = VIEW_REGISTRY[currentView] || VIEW_REGISTRY['table'];
 
-  // Helper to update config
+  // helper to update config
   const updateConfig = (key: string, value: any) => {
   if (onConfigChange) {
   onConfigChange({ ...viewConfig, [key]: value });
@@ -75,7 +75,7 @@ export function DatabaseWidget({ collection, onRemove, className, initialView, v
    onUpdateConfig={(k, v) => updateConfig(k, v)}
    onDelete={onRemove}
    onUpdateMetadata={() => {
-   // Trigger refresh or UI update if needed, typically auto-handled by useAppSetting binding
+   // trigger refresh or ui update if needed, typically auto-handled by useappsetting binding
    // but we might want to force re-render title
    }}
    />

@@ -47,9 +47,9 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     const [fieldDialogOpen, setFieldDialogOpen] = useState(false);
     const { activeFronters } = useFronter();
 
-    // Metadata for cosmetics and defaults
+    // metadata for cosmetics and defaults
     const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
-    // Get Collection Color for Header using Metadata (Source of Truth)
+    // get collection color for header using metadata (source of truth)
     const collectionColor = metadata[collectionName]?.color;
     const defaultView = metadata[collectionName]?.default_view as ViewType | undefined;
     const [defaultPickerOpen, setDefaultPickerOpen] = useState(false);
@@ -57,13 +57,13 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     const [currentView, setCurrentView] = useState<ViewType>('table');
     const [viewConfig, setViewConfig] = useState<Record<string, any>>({});
 
-    // Sync currentView with URL, state, or defaultView
+    // sync currentview with url, state, or defaultview
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
         const viewFromUrl = queryParams.get('view');
         const viewFromState = (location.state as any)?.view;
 
-        // Priority: URL Param > Location State > User Default > 'table'
+        // priority: url param > location state > user default > 'table'
         const targetView = viewFromUrl || viewFromState || defaultView || 'table';
 
         if (targetView && targetView in VIEW_REGISTRY) {
@@ -71,10 +71,10 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         }
     }, [location.search, location.state, defaultView, collectionName]);
 
-    // Keyboard shortcut 'v' and Right-Click for default view picker
+    // keyboard shortcut 'v' and right-click for default view picker
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            // Lowercase 'v' only, no modifiers
+            // lowercase 'v' only, no modifiers
             if (e.key.toLowerCase() === 'v' && !e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey) {
                 const target = e.target as HTMLElement;
                 const isInput = target.tagName === 'INPUT' ||
@@ -91,7 +91,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
 
         const handleContextMenu = (e: MouseEvent) => {
             const target = e.target as HTMLElement;
-            // Detect if right-clicked on our view switcher component
+            // detect if right-clicked on our view switcher component
             if (target.closest('[data-view-switcher="true"]')) {
                 e.preventDefault();
                 e.stopPropagation();
@@ -119,7 +119,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         setDefaultPickerOpen(false);
     };
 
-    // Get collections list early - this is already loaded from databases page
+    // get collections list early - this is already loaded from databases page
     const { collections: availableCollections, loading: collectionsLoading } = useCollections();
 
     const handleLogin = () => {
@@ -127,25 +127,25 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         login(apiKey);
         toast.success("nocobase api key saved");
         // refresh triggered by auth context change or we manually re-fetch?
-        // fetchData depends on client/collectionName. 
+        // fetchdata depends on client/collectionname. 
         // client will be updated if it depends on token? 
-        // AuthProvider re-renders, causing this to re-render.
+        // authprovider re-renders, causing this to re-render.
     };
 
     const handleDirectCreate = async () => {
         try {
             const dataToSubmit: any = {};
-            // Auto-inject fronter
+            // auto-inject fronter
             if (activeFronters && activeFronters.length > 0) {
-                // Check if collection has fronter field (from collection schema)
+                // check if collection has fronter field (from collection schema)
                 const hasFronter = collection?.fields?.some((f: any) => f.name === 'fronter');
                 if (hasFronter) {
                     dataToSubmit['fronter'] = activeFronters[0];
                 }
             }
 
-            // Optional: Set default title if needed, or let backend handle it.
-            // dataToSubmit['title'] = 'Untitled'; 
+            // optional: set default title if needed, or let backend handle it.
+            // datatosubmit['title'] = 'untitled'; 
 
             await client.createRecord(collectionName, dataToSubmit);
             toast.success("Record created");
@@ -161,8 +161,8 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         setLoading(true);
         setFetchError(null);
         try {
-            // 1. Try to find collection in already-loaded list first (from useCollections)
-            // This fixes mobile issue where getCollection API call fails but listCollections works
+            // 1. try to find collection in already-loaded list first (from usecollections)
+            // this fixes mobile issue where getcollection api call fails but listcollections works
             let colData: any = null;
             const preloaded = availableCollections.find(
                 (c: any) => (c.name || '').toLowerCase() === (collectionName || '').toLowerCase()
@@ -173,14 +173,14 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                 colData = preloaded;
             }
 
-            // 2. If no preloaded or preloaded lacks fields, try to fetch full schema
+            // 2. if no preloaded or preloaded lacks fields, try to fetch full schema
             if (!colData?.fields) {
                 try {
                     const colRes = await client.getCollection(collectionName);
                     colData = colRes.data;
                 } catch (e: any) {
                     console.warn("getCollection failed, using preloaded if available:", e.message);
-                    // If API fails but we have preloaded data, use it
+                    // if api fails but we have preloaded data, use it
                     if (preloaded) {
                         colData = preloaded;
                     } else {
@@ -191,7 +191,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
 
             setCollection(colData);
 
-            // Auto-Create 'fronter' field if missing
+            // auto-create 'fronter' field if missing
             if (colData && colData.fields) {
                 const hasFronter = colData.fields.some((f: any) => f.name === 'fronter');
                 if (!hasFronter) {
@@ -208,7 +208,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                 }
             }
 
-            // 3. Fetch Records
+            // 3. fetch records
             const recRes = await client.listRecords(collectionName);
             const recData = Array.isArray(recRes.data) ? recRes.data : (recRes.data as any)?.data || [];
             setRecords(recData);
@@ -222,7 +222,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         }
     }, [client, collectionName, availableCollections]);
 
-    // --- Event Listeners ---
+    // --- event listeners ---
     useEffect(() => {
         const handleCreate = async (evt: Event) => {
             const e = evt as CustomEvent<any>;
@@ -231,7 +231,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                 try {
                     await client.createRecord(collectionName, e.detail.data);
                     toast.success("record created!");
-                    // Refresh
+                    // refresh
                     const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
                     setRecords(res.data?.data || res.data || []);
                 } catch (err) {
@@ -245,15 +245,15 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         return () => window.removeEventListener('pkm:create-record', handleCreate);
     }, [collectionName, client]);
 
-    // Only fetch data when collections are loaded (or if they fail to load, proceed anyway)
-    // This ensures availableCollections is populated before we try to use it
+    // only fetch data when collections are loaded (or if they fail to load, proceed anyway)
+    // this ensures availablecollections is populated before we try to use it
     useEffect(() => {
         if (!collectionsLoading) {
             fetchData();
         }
     }, [fetchData, collectionsLoading]);
 
-    // Retry if collection still not found after initial load and collections become available
+    // retry if collection still not found after initial load and collections become available
     useEffect(() => {
         if (!collection && !loading && availableCollections.length > 0) {
             const found = availableCollections.find(
@@ -262,7 +262,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             if (found) {
                 console.log("Late-rescue: Found collection in availableCollections:", found.name);
                 setCollection(found);
-                // Fetch records for this collection
+                // fetch records for this collection
                 client.listRecords(collectionName).then(res => {
                     const recData = Array.isArray(res.data) ? res.data : (res.data as any)?.data || [];
                     setRecords(recData);
@@ -271,7 +271,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         }
     }, [collection, loading, availableCollections, collectionName, client]);
 
-    // Load view config on view change or collection load
+    // load view config on view change or collection load
     useEffect(() => {
         const key = `view_config_${collectionName}_${currentView}`;
         try {
@@ -322,11 +322,11 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
 
     const handleUpdateRecord = useCallback(async (id: string | number, data: any) => {
         try {
-            // Optimistic update locally? 
-            // For now, simple await and refetch
+            // optimistic update locally? 
+            // for now, simple await and refetch
             setRecords(prev => prev.map(r => r.id === id ? { ...r, ...data } : r)); // Optimistic UI
             await client.updateRecord(collectionName, id, data);
-            // fetchData(); // Optional: if we trust the return or optimistic update
+            // fetchdata(); // optional: if we trust the return or optimistic update
         } catch (error) {
             console.error("failed to update record", error);
             toast.error("failed to update record");
@@ -334,7 +334,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         }
     }, [client, collectionName, fetchData]);
 
-    // Undo Stack
+    // undo stack
     const [deletedStack, setDeletedStack] = useState<any[]>([]);
 
     useEffect(() => {
@@ -355,16 +355,16 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         if (!lastDeleted) return;
 
         try {
-            // Remove 'id' maybe? Or keep it if trying to force restore?
-            // NocoDB might ignore ID on create, but let's try pushing the data back.
-            // Ideally we omit 'id', 'created_at', 'updated_at'
+            // remove 'id' maybe? or keep it if trying to force restore?
+            // nocodb might ignore id on create, but let's try pushing the data back.
+            // ideally we omit 'id', 'created_at', 'updated_at'
             const { id, created_at, updated_at, ...rest } = lastDeleted;
             await client.createRecord(collectionName, rest);
 
             setDeletedStack(prev => prev.slice(0, -1));
             toast.success("deletion undone");
 
-            // Refresh
+            // refresh
             const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
             setRecords(res.data?.data || res.data || []);
         } catch (e) {
@@ -374,22 +374,22 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     };
 
     const handleDeleteRecord = useCallback(async (record: any) => {
-        // Removed confirmation as requested
+        // removed confirmation as requested
         try {
             await client.deleteRecord(collectionName, record.id);
 
-            // Add to stack
+            // add to stack
             setDeletedStack(prev => [...prev, record]);
 
             toast.success("record deleted", {
                 action: {
                     label: "undo",
                     onClick: () => handleUndoDelete() // This might refer to stale closure if not careful, but state updates via prev are fine. 
-                    // Actually handleUndoDelete needs access to latest state? 
-                    // We better use a ref or ensure this closure captures the needed info.
-                    // But handleUndoDelete depends on deletedStack. 
-                    // This closure might capture OLD handleUndoDelete.
-                    // Simplification: trigger the SAME undo logic. 
+                    // actually handleundodelete needs access to latest state? 
+                    // we better use a ref or ensure this closure captures the needed info.
+                    // but handleundodelete depends on deletedstack. 
+                    // this closure might capture old handleundodelete.
+                    // simplification: trigger the same undo logic. 
                 }
             });
             setRecords(prev => prev.filter(r => r.id !== record.id));
@@ -398,10 +398,10 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             toast.error("failed to delete record");
         }
     }, [client, collectionName, deletedStack]); // Added deletedStack dependency to update closure? No, that causes re-renders of list.
-    // Better: Helper function for restore that takes the record as arg, valid for Toast.
-    // For Ctrl+Z, we need state. 
+    // better: helper function for restore that takes the record as arg, valid for toast.
+    // for ctrl+z, we need state. 
 
-    // Refactor to ensure Toast works:
+    // refactor to ensure toast works:
     const restoreRecord = async (recordToRestore: any) => {
         try {
             const { id, created_at, updated_at, ...rest } = recordToRestore;
@@ -418,11 +418,11 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
 
 
 
-    // Re-bind undo for keyboard
+    // re-bind undo for keyboard
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
-                // Get latest stack
+                // get latest stack
                 setDeletedStack(currentStack => {
                     if (currentStack.length > 0) {
                         const last = currentStack[currentStack.length - 1];
@@ -437,7 +437,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, [collectionName]); // minimalist deps
 
-    // Rescue logic is now integrated into fetchData, no separate effect needed
+    // rescue logic is now integrated into fetchdata, no separate effect needed
 
     if (!collection) {
         if (loading) return <div className="p-10 text-center animate-pulse">loading {collectionName}...</div>;
@@ -468,8 +468,8 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         );
     }
 
-    // Fix "No Fields" flash: If we rescued a collection object but it has no fields (and we are loading),
-    // we should wait. The rescued object from sidebar list often lacks 'fields'.
+    // fix "no fields" flash: if we rescued a collection object but it has no fields (and we are loading),
+    // we should wait. the rescued object from sidebar list often lacks 'fields'.
     if (!collection.fields && loading) {
         return <div className="p-10 text-center animate-pulse">loading schema for {collectionName}...</div>;
     }
@@ -480,7 +480,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
 
     return (
         <div className="flex flex-col h-full bg-background animate-in fade-in duration-500">
-            {/* Header — Row 1 (title) + Separator aligned to Sidebar */}
+            {/* header — row 1 (title) + separator aligned to sidebar */}
             <div className="pt-4 shrink-0 bg-card/50 backdrop-blur-sm sticky top-0 z-10 flex flex-col">
                 <div className="flex items-center justify-between px-4 mb-2 h-10">
                     <div className="flex items-center gap-4">
@@ -517,7 +517,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                 <Separator className="mb-2 bg-primary" />
             </div>
 
-            {/* Row 2: View Selector (below separator) */}
+            {/* row 2: view selector (below separator) */}
             <div className="px-4 pb-2 shrink-0">
                 <Select value={currentView} onValueChange={(v) => setCurrentView(v as ViewType)}>
                     <SelectTrigger
@@ -540,7 +540,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                 </Select>
             </div>
 
-            {/* Default View Picker Dialog (Triggered by right-click or 'v') */}
+            {/* default view picker dialog (triggered by right-click or 'v') */}
             <Dialog open={defaultPickerOpen} onOpenChange={setDefaultPickerOpen}>
                 <DialogContent className="sm:max-w-[300px] p-0 overflow-hidden border-none bg-popover/90 backdrop-blur-xl shadow-2xl">
                     <DialogHeader className="p-4 pb-2">
@@ -563,7 +563,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                 </DialogContent>
             </Dialog>
 
-            {/* Content */}
+            {/* content */}
             <div className="flex-1 overflow-auto p-4 md:p-8">
                 <CurrentViewComponent
                     data={records}
@@ -578,7 +578,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                 />
             </div>
 
-            {/* Field creation dialog - controlled by onCreateField callback */}
+            {/* field creation dialog - controlled by oncreatefield callback */}
             <CreateFieldDialog
                 collectionName={collectionName}
                 onFieldCreated={fetchData}

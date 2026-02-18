@@ -10,11 +10,11 @@ import {
 } from 'lucide-react';
 
 
-// --- MAIN COMPONENT ---
+// --- main component ---
 export function BlogEditor() {
   const { slug } = useParams();
 
-  // If no slug, show Dashboard
+  // if no slug, show dashboard
   if (!slug) {
   return <BlogDashboard />;
   }
@@ -22,7 +22,7 @@ export function BlogEditor() {
   return <BlogEditorParamsWrapper slug={slug} />;
 }
 
-// --- DASHBOARD ---
+// --- dashboard ---
 function BlogDashboard() {
   const [posts, setPosts] = useState<BlogPostData[]>([]);
   const [loading, setLoading] = useState(true);
@@ -51,9 +51,9 @@ function BlogDashboard() {
   };
 
   const handleCreate = async () => {
-  // Create a draft immediately or redirect to 'new'?
-  // Let's redirect to 'new' and handle creation purely client-side until save?
-  // Or create draft on server. Server draft is safer.
+  // create a draft immediately or redirect to 'new'?
+  // let's redirect to 'new' and handle creation purely client-side until save?
+  // or create draft on server. server draft is safer.
   try {
   const res = await api.createRecord('blog_posts', {
  title: 'Untitled Post',
@@ -148,7 +148,7 @@ function BlogDashboard() {
   );
 }
 
-// --- EDITOR WRAPPER ---
+// --- editor wrapper ---
 function BlogEditorParamsWrapper({ slug }: { slug: string }) {
   const [post, setPost] = useState<BlogPostData | null>(null);
   const [loading, setLoading] = useState(true);
@@ -158,13 +158,13 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
   const [selectionBox, setSelectionBox] = useState(null);
   const [showSidebar, setShowSidebar] = useState(true);
 
-  // Initial Fetch
+  // initial fetch
   useEffect(() => {
   const fetchPost = async () => {
   setLoading(true);
   try {
  if (slug === 'new') {
- // Should have been handled by Dashboard, but if hit directly:
+ // should have been handled by dashboard, but if hit directly:
  setPost({
  id: 'temp-new',
  title: 'New Post',
@@ -182,7 +182,7 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
  });
  const found = res.data?.[0];
  if (found) {
- // Ensure 'content' is parsed if string, or exists
+ // ensure 'content' is parsed if string, or exists
  let elements = found.content;
  if (typeof elements === 'string') elements = JSON.parse(elements);
  if (!Array.isArray(elements)) elements = [];
@@ -202,20 +202,20 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
   fetchPost();
   }, [slug]);
 
-  // Update Window Width
+  // update window width
   useEffect(() => {
   const handleResize = () => setViewWidth(window.innerWidth);
   window.addEventListener('resize', handleResize);
   return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Sync 'elements' and 'content'
+  // sync 'elements' and 'content'
   const updatePost = (updates: Partial<BlogPostData>) => {
   if (!post) return;
   setPost({ ...post, ...updates });
   };
 
-  // --- CONTEXT METHODS ---
+  // --- context methods ---
   const updateElements = (batchUpdates: { id: string; updates: Partial<ElementData> }[]) => {
   if (!post) return;
   const newElements = post.elements?.map(el => {
@@ -272,7 +272,7 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
   }
   };
 
-  // Dummy Handlers
+  // dummy handlers
   const handleElementContextMenu = (e: React.MouseEvent, _id: string) => { e.preventDefault(); };
   const handleGlobalContextMenu = (e: React.MouseEvent) => { e.preventDefault(); };
 
@@ -301,7 +301,7 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
   return (
   <BlogContext.Provider value={contextValue}>
   <div className="h-screen flex flex-col bg-[#050505] font-['Varela_Round'] text-white overflow-hidden">
- {/* TOP BAR */}
+ {/* top bar */}
  <div className="h-14 border-b border-white/10 flex items-center px-4 justify-between bg-[#050505] z-50">
  <div className="flex items-center gap-4">
  <button onClick={() => window.location.href = '/editor'} className="p-2 hover:bg-white/10 rounded-lg text-white/50 hover:text-white">
@@ -345,13 +345,13 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
  </div>
  </div>
 
- {/* MAIN CONTENT AREA */}
+ {/* main content area */}
  <div className="flex-1 flex overflow-hidden">
- {/* CANVAS */}
+ {/* canvas */}
  <div className="flex-1 relative bg-[#111]">
  <BlogCanvas />
 
- {/* Simple Add Menu (Bottom Center) */}
+ {/* simple add menu (bottom center) */}
  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-[#050505] border border-white/10 p-2 rounded-2xl shadow-2xl z-[1000]">
    <ToolBtn icon={<Type size={18} />} label="Text" onClick={() => addElement({ type: 'text', content: { html: '<p>New Text</p>' }, width: 300, height: 100, x: 100, y: 100, styles: {} })} />
    <ToolBtn icon={<ImageIcon size={18} />} label="Image" onClick={() => {
@@ -364,7 +364,7 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
  </div>
  </div>
 
- {/* SIDEBAR PROPERTIES */}
+ {/* sidebar properties */}
  {showSidebar && (
  <div className="w-80 bg-[#050505] border-l border-white/10 p-4 overflow-y-auto">
    <h3 className="text-white/50 text-xs font-bold  mb-4">Post Settings</h3>

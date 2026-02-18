@@ -8,16 +8,16 @@ export function FloatingReminder({ element }: { element: any }) {
   const requestRef = useRef<number | undefined>(undefined);
   const updateElement = useEdgelessStore(state => state.updateElement);
 
-  // Calculate Urgency
+  // calculate urgency
   const now = new Date().getTime();
   const due = deadline ? new Date(deadline).getTime() : now + 86400000;
   const hoursLeft = (due - now) / 3600000;
 
-  // Speed increases as deadline approaches
+  // speed increases as deadline approaches
   const speed = Math.max(0.2, 5 - Math.max(0, hoursLeft / 24)); // Max speed 5, min 0.2
 
   useEffect(() => {
-  // Random start direction
+  // random start direction
   setVelocity({
   dx: (Math.random() - 0.5) * speed,
   dy: (Math.random() - 0.5) * speed
@@ -30,13 +30,13 @@ export function FloatingReminder({ element }: { element: any }) {
  let nextX = prev.x + velocity.dx;
  let nextY = prev.y + velocity.dy;
 
- // Bounce locally within its "box" (which is the element size on canvas)
- // Actually, drifting elements often want to drift across screen.
- // But we are rendered inside a absolute div positioned by the Canvas.
- // To drift *across* limits, we'd need to update the Canvas Element position (x, y) in the store.
- // Doing that every frame is expensive (Zustand updates).
- // "Float" usually implies local animation or overlay independent of canvas pan.
- // Let's make it float relative to its anchor point in a radius.
+ // bounce locally within its "box" (which is the element size on canvas)
+ // actually, drifting elements often want to drift across screen.
+ // but we are rendered inside a absolute div positioned by the canvas.
+ // to drift *across* limits, we'd need to update the canvas element position (x, y) in the store.
+ // doing that every frame is expensive (zustand updates).
+ // "float" usually implies local animation or overlay independent of canvas pan.
+ // let's make it float relative to its anchor point in a radius.
 
  const bound = 50;
  if (Math.abs(nextX) > bound) setVelocity(v => ({ ...v, dx: -v.dx }));
@@ -51,9 +51,9 @@ export function FloatingReminder({ element }: { element: any }) {
   }, [velocity]);
 
   const handleDismiss = () => {
-  // Pop animation then delete
+  // pop animation then delete
   updateElement(element.id, { data: { ...element.data, done: true } });
-  // In real app, remove from list or mark done
+  // in real app, remove from list or mark done
   };
 
   if (element.data.done) return null;

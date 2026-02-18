@@ -15,7 +15,7 @@ import { api } from "@/api/nocobase-client";
 import { useEdgelessStore } from '@/features/edgeless/store';
 import { useFronter } from '@/contexts/fronter-context';
 
-// Interface for search result
+// interface for search result
 interface SearchResult {
   id: string;
   collection: string;
@@ -33,7 +33,7 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   const [internalOpen, setInternalOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
-  // Fix: Explicitly handle boolean update or function update logic if needed,
+  // fix: explicitly handle boolean update or function update logic if needed,
   // but here we just need to route the boolean value to the correct setter.
   const setOpen = (value: boolean | ((prev: boolean) => boolean)) => {
   const newValue = typeof value === 'function' ? value(open!) : value;
@@ -50,22 +50,22 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   const setChatOpen = useEdgelessStore(state => state.setChatOpen);
   const { activeFronters, members } = useFronter();
 
-  // Search State
+  // search state
   const [query, setQuery] = useState("");
   const [dbResults, setDbResults] = useState<SearchResult[]>([]);
   const [aiInsight, setAiInsight] = useState<string | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isReasoning, setIsReasoning] = useState(false);
 
-  // Quick Capture
+  // quick capture
   const [_createDialogOpen, _setCreateDialogOpen] = useState(false);
   const [_selectedCollection, _setSelectedCollection] = useState<string | null>(null);
 
-  // Keyboard Shortcut (` or ~)
+  // keyboard shortcut (` or ~)
   useEffect(() => {
   const down = (e: KeyboardEvent) => {
-  // Toggle on Backtick/Tilde
-  // Ensure we aren't typing in an input
+  // toggle on backtick/tilde
+  // ensure we aren't typing in an input
   const target = e.target as HTMLElement;
   const isInput = target.matches('input, textarea, [contenteditable]');
 
@@ -73,7 +73,7 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
  e.preventDefault();
  setOpen((prev) => !prev);
   }
-  // Keep Cmd+K as fallback
+  // keep cmd+k as fallback
   if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
  e.preventDefault();
  setOpen((prev) => !prev);
@@ -91,7 +91,7 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   };
   }, [setOpen]);
 
-  // --- Search Logic ---
+  // --- search logic ---
   const handleSearch = useCallback(async (value: string) => {
   setQuery(value);
   if (!value || value.length < 2) {
@@ -103,20 +103,20 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   setIsSearching(true);
   setAiInsight(null); // Clear previous insight
 
-  // 1. Database Retrieval (Simulated Global Search)
-  // Ideally we hit a specific endpoint.
-  // For now, let's search 'notes' and 'tasks' or just iterate known collections?
-  // Iterating client-side is heavy. Do we have a global search endpoint?
-  // Checking conversation history: "AI-Powered Global Search" was discussed.
-  // Assuming we need to implement the client-side aggregation if no endpoint exists.
+  // 1. database retrieval (simulated global search)
+  // ideally we hit a specific endpoint.
+  // for now, let's search 'notes' and 'tasks' or just iterate known collections?
+  // iterating client-side is heavy. do we have a global search endpoint?
+  // checking conversation history: "ai-powered global search" was discussed.
+  // assuming we need to implement the client-side aggregation if no endpoint exists.
 
-  // Let's implement a heuristic search: Search top 3 text-heavy collections
-  // Or specific ones: 'notes', 'tasks', 'journal'.
+  // let's implement a heuristic search: search top 3 text-heavy collections
+  // or specific ones: 'notes', 'tasks', 'journal'.
   const targets = collections.filter((c: any) => ['notes', 'tasks', 'journal', 'ideas'].includes(c.name) || c.title?.toLowerCase().includes('note'));
 
   try {
-  // PROTOTYPE: Quick parallel fetch for demonstration
-  // In producton: Use a backend search index
+  // prototype: quick parallel fetch for demonstration
+  // in producton: use a backend search index
   const promises = targets.map(async (col: any) => {
  try {
  const res = await api.listRecords(col.name, {
@@ -146,8 +146,8 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   const flat = fetched.flat();
   setDbResults(flat.slice(0, 10));
 
-  // 2. AI Synthesis (Background)
-  // If we have an external context OR results, generate insight
+  // 2. ai synthesis (background)
+  // if we have an external context or results, generate insight
   if (flat.length > 0 || externalContext) {
  setIsReasoning(true);
  generateInsight(value, flat.slice(0, 5));
@@ -162,19 +162,19 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
 
   const generateInsight = async (userQuery: string, contextDocs: SearchResult[]) => {
   try {
-  // Build rich context
+  // build rich context
   const dbContext = contextDocs.map(d => `[${d.collection}] ${d.title}: ${d.snippet}`).join('\n');
   const pageContext = externalContext ? `\n\ncurrent page context:\n${externalContext}\n\n` : '';
 
-  // Get current page path
+  // get current page path
   const currentPath = location.pathname;
   const currentPageInfo = `current page: ${currentPath}\n`;
 
-  // Get available collections
+  // get available collections
   const collectionsList = collections.map((c: any) => c.title || c.name).join(', ');
   const collectionsInfo = `available databases/collections: ${collectionsList}\n`;
 
-  // Get fronting headmates
+  // get fronting headmates
   const frontingHeadmates = activeFronters
  .map(id => members.find(m => m.id === id))
  .filter(Boolean)
@@ -204,7 +204,7 @@ your response (all lowercase):`;
  })
   });
   const data = await res.json();
-  // Ensure response is lowercase
+  // ensure response is lowercase
   const response = data.response?.toLowerCase() || data.response;
   setAiInsight(response);
   } catch (e) {
@@ -242,7 +242,7 @@ your response (all lowercase):`;
  <CommandList className="flex-1 overflow-y-auto">
  <CommandEmpty>{isSearching ? "searching..." : "no results found."}</CommandEmpty>
 
- {/* Database Results */}
+ {/* database results */}
  {dbResults.length > 0 && (
    <CommandGroup heading="database matches">
    {dbResults.map((res) => (
@@ -257,7 +257,7 @@ your response (all lowercase):`;
    </CommandGroup>
  )}
 
- {/* AI Insight Box */}
+ {/* ai insight box */}
  {(aiInsight || isReasoning) && query.length > 2 && (
    <div className="p-4 m-2 bg-muted/50 rounded-lg border border-dashed border-primary/20">
    <div className="flex items-center gap-2 mb-2 text-primary font-bold text-xs lowercase ">

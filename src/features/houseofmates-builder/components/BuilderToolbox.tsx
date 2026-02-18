@@ -12,7 +12,7 @@ import { api } from '@/api/nocobase-client';
 
 import { FormBuilder } from './FormRenderer';
 
-// Unsplash & Giphy keys will be stored in localStorage under 'unsplash_key' and 'giphy_key'
+// unsplash & giphy keys will be stored in localstorage under 'unsplash_key' and 'giphy_key'
 
 type TabType = 'basic' | 'home' | 'website' | 'minecraft' | 'media' | 'integrations' | 'embeds';
 
@@ -38,13 +38,13 @@ export function BuilderToolbox() {
   zIndex: page?.elements.length || 0,
   });
 
-  // Generic handler for new widgets
+  // generic handler for new widgets
   const handleAddElement = (type: ElementData['type'], content: any = {}) => {
   addElement(createDefaultElement(type, content));
   setIsOpen(false);
   };
 
-  // --- BASIC ELEMENTS ---
+  // --- basic elements ---
   const handleAddText = () => {
   addElement(createDefaultElement('text', {
   html: '<p style="color: white; font-size: 18px;">new text block</p>',
@@ -81,7 +81,7 @@ export function BuilderToolbox() {
   setIsOpen(false);
   };
 
-  // --- WEBSITE ELEMENTS ---
+  // --- website elements ---
   const handleAddHero = () => {
   addElement({
   ...createDefaultElement('hero', {
@@ -196,7 +196,7 @@ export function BuilderToolbox() {
   setIsOpen(false);
   };
 
-  // --- MINECRAFT ELEMENTS ---
+  // --- minecraft elements ---
   const handleAddServerIP = () => {
   addElement({
   ...createDefaultElement('serverip', {
@@ -297,7 +297,7 @@ export function BuilderToolbox() {
   setIsOpen(false);
   };
 
-  // --- HOME ELEMENTS ---
+  // --- home elements ---
   const handleAddLinkCard = () => {
   addElement({
   ...createDefaultElement('linkcard', {
@@ -326,7 +326,7 @@ export function BuilderToolbox() {
   setIsOpen(false);
   };
 
-  // --- FORM ---
+  // --- form ---
   const handleFormSave = (formData: any) => {
   addElement({
   ...createDefaultElement('form', formData),
@@ -337,13 +337,13 @@ export function BuilderToolbox() {
   setIsOpen(false);
   };
 
-  // --- MEDIA ---
+  // --- media ---
   const handleImageUpload = () => {
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'image/*';
   input.onchange = async (e) => {
-  const file = (e.target as HTMLInputElement).files?.[0];
+  const file = (e.target as htmlinputelement).files?.[0];
   if (!file) return;
 
   toast.info('uploading image...');
@@ -351,24 +351,24 @@ export function BuilderToolbox() {
  const uploaded = await api.upload(file);
  const url = uploaded?.url || uploaded?.data?.url;
  if (url) {
- addElement(createDefaultElement('image', { url, alt: file.name }));
+ addelement(createdefaultelement('image', { url, alt: file.name }));
  toast.success('image uploaded');
  }
   } catch (err) {
  console.error(err);
  toast.error('upload failed');
   }
-  setIsOpen(false);
+  setisopen(false);
   };
   input.click();
   };
 
-  const handleVideoUpload = () => {
-  const input = document.createElement('input');
+  const handlevideoupload = () => {
+  const input = document.createelement('input');
   input.type = 'file';
   input.accept = 'video/*';
   input.onchange = async (e) => {
-  const file = (e.target as HTMLInputElement).files?.[0];
+  const file = (e.target as htmlinputelement).files?.[0];
   if (!file) return;
 
   toast.info('uploading video...');
@@ -376,7 +376,7 @@ export function BuilderToolbox() {
  const uploaded = await api.upload(file);
  const url = uploaded?.url || uploaded?.data?.url;
  if (url) {
- addElement(createDefaultElement('video', {
+ addelement(createdefaultelement('video', {
  url,
  autoplay: false,
  loop: false,
@@ -389,90 +389,90 @@ export function BuilderToolbox() {
  console.error(err);
  toast.error('upload failed');
   }
-  setIsOpen(false);
+  setisopen(false);
   };
   input.click();
   };
 
-  const handleAddEmbed = () => {
+  const handleaddembed = () => {
   const url = prompt('enter embed url (youtube, spotify, etc.):');
   if (!url) return;
 
-  let embedUrl = url;
+  let embedurl = url;
   if (url.includes('youtube.com/watch')) {
-  const videoId = new URL(url).searchParams.get('v');
-  embedUrl = `https://www.youtube.com/embed/${videoId}`;
+  const videoid = new url(url).searchparams.get('v');
+  embedurl = `https://www.youtube.com/embed/${videoid}`;
   } else if (url.includes('youtu.be/')) {
-  const videoId = url.split('youtu.be/')[1]?.split('?')[0];
-  embedUrl = `https://www.youtube.com/embed/${videoId}`;
+  const videoid = url.split('youtu.be/')[1]?.split('?')[0];
+  embedurl = `https://www.youtube.com/embed/${videoid}`;
   }
 
-  addElement({
-  ...createDefaultElement('embed', { url: embedUrl }),
+  addelement({
+  ...createdefaultelement('embed', { url: embedurl }),
   width: 560,
   height: 315,
   });
-  setIsOpen(false);
+  setisopen(false);
   };
 
-  // Unsplash Search
-  const searchUnsplash = async () => {
-  if (!searchQuery.trim()) return;
-  setSearching(true);
+  // unsplash search
+  const searchunsplash = async () => {
+  if (!searchquery.trim()) return;
+  setsearching(true);
   try {
-  let key = localStorage.getItem('unsplash_key');
+  let key = localstorage.getitem('unsplash_key');
   if (!key) {
- key = prompt('Enter your Unsplash Access Key (will be saved locally):') || '';
- if (key) localStorage.setItem('unsplash_key', key);
+ key = prompt('enter your unsplash access key (will be saved locally):') || '';
+ if (key) localstorage.setitem('unsplash_key', key);
   }
-  if (!key) throw new Error('unsplash key missing');
+  if (!key) throw new error('unsplash key missing');
 
   const res = await fetch(
- `https://api.unsplash.com/search/photos?query=${encodeURIComponent(searchQuery)}&per_page=12&client_id=${key}`
+ `https://api.unsplash.com/search/photos?query=${encodeuricomponent(searchquery)}&per_page=12&client_id=${key}`
   );
   const data = await res.json();
-  setSearchResults(data.results || []);
+  setsearchresults(data.results || []);
   } catch (e) {
   toast.error('unsplash search failed');
   } finally {
-  setSearching(false);
+  setsearching(false);
   }
   };
 
-  // Giphy Search
-  const searchGiphy = async () => {
-  if (!searchQuery.trim()) return;
-  setSearching(true);
+  // giphy search
+  const searchgiphy = async () => {
+  if (!searchquery.trim()) return;
+  setsearching(true);
   try {
-  let key = localStorage.getItem('giphy_key');
+  let key = localstorage.getitem('giphy_key');
   if (!key) {
- key = prompt('Enter your Giphy API Key (will be saved locally):') || '';
- if (key) localStorage.setItem('giphy_key', key);
+ key = prompt('enter your giphy api key (will be saved locally):') || '';
+ if (key) localstorage.setitem('giphy_key', key);
   }
-  if (!key) throw new Error('giphy key missing');
+  if (!key) throw new error('giphy key missing');
 
   const res = await fetch(
- `https://api.giphy.com/v1/gifs/search?q=${encodeURIComponent(searchQuery)}&limit=12&api_key=${key}`
+ `https://api.giphy.com/v1/gifs/search?q=${encodeuricomponent(searchquery)}&limit=12&api_key=${key}`
   );
   const data = await res.json();
-  setSearchResults(data.data || []);
+  setsearchresults(data.data || []);
   } catch (e) {
   toast.error('giphy search failed');
   } finally {
-  setSearching(false);
+  setsearching(false);
   }
   };
 
-  const handleSelectMedia = (url: string, type: 'image' | 'video' = 'image') => {
-  addElement(createDefaultElement(type, { url }));
-  setIsOpen(false);
-  setSearchResults([]);
-  setSearchQuery('');
+  const handleselectmedia = (url: string, type: 'image' | 'video' = 'image') => {
+  addelement(createdefaultelement(type, { url }));
+  setisopen(false);
+  setsearchresults([]);
+  setsearchquery('');
   };
 
   return (
   <>
-  {/* Form Builder Modal */}
+  {/* form builder modal */}
   {showFormBuilder && (
  <FormBuilder
  onSave={handleFormSave}
@@ -480,7 +480,7 @@ export function BuilderToolbox() {
  />
   )}
 
-  {/* Floating Add Button */}
+  {/* floating add button */}
   <button
  onClick={() => setIsOpen(!isOpen)}
  className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-[var(--primary)] flex items-center justify-center z-[40001] transition-all duration-150"
@@ -489,10 +489,10 @@ export function BuilderToolbox() {
  {isOpen ? <X className="w-6 h-6" /> : <span className="text-3xl font-bold">+</span>}
   </button>
 
-  {/* Toolbox Panel */}
+  {/* toolbox panel */}
   {isOpen && (
  <div className="fixed bottom-24 right-8 w-96 bg-[#050505] border border-white/10 rounded-2xl overflow-hidden z-[40000]">
- {/* Tabs */}
+ {/* tabs */}
  <div className="flex border-b border-white/10 overflow-x-auto">
  {(['basic', 'home', 'website', 'minecraft', 'media', 'integrations', 'embeds'] as TabType[]).map((tab) => (
    <button
@@ -506,14 +506,14 @@ export function BuilderToolbox() {
  ))}
  </div>
 
- {/* Preview mode controls */}
+ {/* preview mode controls */}
  <div className="flex gap-2 p-3 border-b border-white/10">
  <button onClick={() => setPreviewMode('desktop')} className={`px-2 py-1 text-xs rounded ${previewMode === 'desktop' ? 'bg-white/10 text-[var(--primary)]' : 'text-white/60'}`}>desktop</button>
  <button onClick={() => setPreviewMode('mobile')} className={`px-2 py-1 text-xs rounded ${previewMode === 'mobile' ? 'bg-white/10 text-[var(--primary)]' : 'text-white/60'}`}>mobile</button>
  <button onClick={() => setPreviewMode('tablet')} className={`px-2 py-1 text-xs rounded ${previewMode === 'tablet' ? 'bg-white/10 text-[var(--primary)]' : 'text-white/60'}`}>tablet</button>
  </div>
 
- {/* Tab Content */}
+ {/* tab content */}
  <div className="p-4 max-h-[450px] overflow-y-auto">
  {activeTab === 'basic' && (
    <div className="grid grid-cols-2 gap-3">
@@ -654,7 +654,7 @@ export function BuilderToolbox() {
 
  {activeTab === 'integrations' && (
    <div className="space-y-4">
-   {/* Search */}
+   {/* search */}
    <div className="flex gap-2">
    <input
   type="text"
@@ -687,7 +687,7 @@ export function BuilderToolbox() {
    </button>
    </div>
 
-   {/* Results */}
+   {/* results */}
    {searching && <div className="text-center text-white/50 py-4">searching...</div>}
 
    {searchResults.length > 0 && (

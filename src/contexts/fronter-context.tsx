@@ -28,7 +28,7 @@ interface FronterContextType {
   refresh: () => Promise<void>;
   registerFrontChange: (memberIds: string[], comment?: string) => Promise<void>;
 
-  // Legacy support (to be refactored out)
+  // legacy support (to be refactored out)
   overrides: Record<string, any>;
   updateOverride: (id: string, data: any) => void;
   setOverrides: (overrides: Record<string, any>) => void;
@@ -37,7 +37,7 @@ interface FronterContextType {
   updateFronters: (fronters: string[]) => void;
   toggleFronter: (id: string) => void; // Convenience
   
-  // Member colors from SimplyPlural
+  // member colors from simplyplural
   memberColors: Record<string, string>;
 }
 
@@ -49,7 +49,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   const [activeFronters, setActiveFronters] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Member colors state
+  // member colors state
   const [memberColors, setMemberColors] = useState<Record<string, string>>(() => {
     try {
       const stored = localStorage.getItem('member_colors');
@@ -59,7 +59,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
     }
   });
 
-  // Overrides for SimplyPlural integration
+  // overrides for simplyplural integration
   const [overrides, setOverridesState] = useState<Record<string, any>>(() => {
   try {
   const stored = localStorage.getItem('headmate_overrides');
@@ -83,12 +83,12 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   };
 
   const flushOverrides = async () => {
-  // Save to localStorage (already done in setOverrides)
+  // save to localstorage (already done in setoverrides)
   return Promise.resolve();
   };
 
   const cacheMemberColors = (members: any[]) => {
-  // Store member colors from SimplyPlural
+  // store member colors from simplyplural
   const colorCache: Record<string, string> = {};
   members.forEach((m: any) => {
   if (m.content?.color) {
@@ -106,25 +106,25 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   const refresh = async () => {
   setLoading(true);
   try {
-  // 1. Ensure Collections Exist (Lazy Init)
-  // Ideally this runs once, but for safety in dev:
+  // 1. ensure collections exist (lazy init)
+  // ideally this runs once, but for safety in dev:
   // catch errors? assuming they exist or we create them.
-  // Let's just try list.
+  // let's just try list.
 
-  // Fetch Headmates
+  // fetch headmates
   let headmatesData: any[] = [];
   try {
  const res = await api.listRecords('headmates', { sort: 'name', pageSize: 100 });
  headmatesData = Array.isArray(res) ? res : ((res as { data?: any[] })?.data || []);
   } catch (e) {
  console.warn("Headmates collection missing?", e);
- // Create if missing?
- // For now, assume schema creation is a separate step or handled via UI.
- // But the user asked for "Schema Strategy". I should perhaps ensure they exist here?
- // I'll leave empty if missing.
+ // create if missing?
+ // for now, assume schema creation is a separate step or handled via ui.
+ // but the user asked for "schema strategy". i should perhaps ensure they exist here?
+ // i'll leave empty if missing.
   }
 
-  // Fetch History
+  // fetch history
   let historyData: any[] = [];
   try {
  const res = await api.listRecords('front_history', { sort: '-startTime', pageSize: 50 });
@@ -133,7 +133,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
  console.warn("Front history missing?", e);
   }
 
-  // Parse Members
+  // parse members
   const parsedMembers: Headmate[] = headmatesData.map((m: any) => ({
  id: m.id?.toString(), // Ensure string ID
  name: m.name || 'Unnamed',
@@ -144,7 +144,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   }));
   setMembers(parsedMembers);
 
-  // Parse History
+  // parse history
   const parsedHistory: FrontEntry[] = historyData.map((h: any) => ({
  id: h.id?.toString(),
  startTime: h.startTime || h.createdAt,
@@ -154,8 +154,8 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   }));
   setHistory(parsedHistory);
 
-  // Derive Active Fronters
-  // Find most recent entry with NO endTime
+  // derive active fronters
+  // find most recent entry with no endtime
   const latest = parsedHistory[0];
   console.log('Latest front history entry:', latest);
   console.log('All history entries:', parsedHistory);
@@ -164,7 +164,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
  console.log('Setting active fronters from history:', fronterIds);
  setActiveFronters(fronterIds);
 
- // Also cache to localStorage as backup
+ // also cache to localstorage as backup
  try {
  localStorage.setItem('pkm_active_fronters', JSON.stringify(fronterIds));
  } catch (e) {
@@ -172,7 +172,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
  }
   } else {
  console.log('No active front found in history, checking localStorage backup');
- // Try to restore from localStorage if database has no active front
+ // try to restore from localstorage if database has no active front
  try {
  const cached = localStorage.getItem('pkm_active_fronters');
  if (cached) {
@@ -196,7 +196,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   }
   };
 
-  // Initial Load & Poll
+  // initial load & poll
   useEffect(() => {
   refresh();
   const interval = setInterval(refresh, 60000); // Poll every minute
@@ -208,7 +208,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   console.log('registerFrontChange called with:', { memberIds, timestamp });
 
   try {
-  // 1. Close current front if exists
+  // 1. close current front if exists
   const currentActive = history.find(h => !h.endTime);
   console.log('Current active front:', currentActive);
   if (currentActive) {
@@ -219,7 +219,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
  console.log('Current front closed, result:', updateResult);
   }
 
-  // 2. Create new front
+  // 2. create new front
   if (memberIds.length > 0) {
  const newEntry = {
  startTime: timestamp,
@@ -237,7 +237,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
  console.log('No members specified, just closing previous front');
   }
 
-  // 3. Refresh
+  // 3. refresh
   console.log('Calling refresh...');
   await refresh();
   console.log('Refresh complete');
@@ -258,10 +258,10 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   : [...activeFronters, stringId];
   console.log('toggleFronter:', { id: stringId, wasFronting: isCnt, newFronters: newIds });
 
-  // OPTIMISTIC UPDATE: Set state immediately
+  // optimistic update: set state immediately
   setActiveFronters(newIds);
 
-  // Cache to localStorage immediately
+  // cache to localstorage immediately
   try {
   localStorage.setItem('pkm_active_fronters', JSON.stringify(newIds));
   console.log('Cached to localStorage:', newIds);
@@ -269,10 +269,10 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   console.warn('Failed to cache fronters:', e);
   }
 
-  // Then sync to backend (don't await, it refreshes internally)
+  // then sync to backend (don't await, it refreshes internally)
   registerFrontChange(newIds).catch(err => {
   console.error('Failed to register front change:', err);
-  // Revert optimistic update on failure
+  // revert optimistic update on failure
   setActiveFronters(activeFronters);
   });
   };

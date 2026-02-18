@@ -46,9 +46,9 @@ export class OllamaClient {
   }
   }
 
-  // "Other quick accurate search functions"
-  // We can use this to generate embeddings or semantic search types later.
-  // For now, let's add a robust "ask" method that frames the user query.
+  // "other quick accurate search functions"
+  // we can use this to generate embeddings or semantic search types later.
+  // for now, let's add a robust "ask" method that frames the user query.
   async ask(query: string, context?: string): Promise<string> {
   const systemPrompt = context
   ? `you are wilson, a helpful ai assistant for a personal knowledge management system. you must respond entirely in lowercase with no capital letters at all. be concise, friendly, and helpful. answer the user's question based on the following context:\n\n${context}`
@@ -59,7 +59,7 @@ export class OllamaClient {
   { role: 'user', content: query }
   ]);
 
-  // Ensure response is lowercase
+  // ensure response is lowercase
   return response.message.content.toLowerCase();
   }
 }
