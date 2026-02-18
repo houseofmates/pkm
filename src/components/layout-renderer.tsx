@@ -11,20 +11,20 @@ interface LayoutRendererProps {
     onUpdateWidget?: (targetWidget: any, patch: any) => void;
     onUpdateData?: (source: string, rowIndex: number, patch: any) => void;
     onAddData?: (source: string, vals: any) => void;
-    className?: string;
+    classname?: string;
 }
 
-export function LayoutRenderer({
+export function layoutrenderer({
     layout,
     data,
-    onUpdateWidget,
-    onUpdateData,
-    onAddData,
-    className
-}: LayoutRendererProps) {
+    onupdatewidget,
+    onupdatedata,
+    onadddata,
+    classname
+}: layoutrendererprops) {
     const columns = layout.columns || [[]];
-    const colCount = Math.max(1, Math.min(columns.length, 4));
-    const widths = layout.columnWidths || Array(colCount).fill(100 / colCount);
+    const colcount = math.max(1, math.min(columns.length, 4));
+    const widths = layout.columnwidths || array(colcount).fill(100 / colcount);
 
     return (
         <div

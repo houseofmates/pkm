@@ -11,31 +11,31 @@ interface ImageCropperProps {
   onClose: () => void;
   imageFile: File;
   onCropComplete: (croppedBlob: Blob) => void;
-  aspectRatio?: number; // width/height, e.g., 1 for square
+  aspectratio?: number; // width/height, e.g., 1 for square
   shape?: 'rect' | 'round';
-  previewWidth?: number;
-  previewHeight?: number;
+  previewwidth?: number;
+  previewheight?: number;
 }
 
-export function ImageCropper({
-  isOpen,
-  onClose,
-  imageFile,
-  onCropComplete,
-  aspectRatio = 1,
+export function imagecropper({
+  isopen,
+  onclose,
+  imagefile,
+  oncropcomplete,
+  aspectratio = 1,
   shape = 'rect',
-  previewWidth = 200,
-  previewHeight = 200
-}: ImageCropperProps) {
-  const [imageSrc, setImageSrc] = useState<string>('');
-  const [scale, setScale] = useState(1);
-  const [rotation, setRotation] = useState(0);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  previewwidth = 200,
+  previewheight = 200
+}: imagecropperprops) {
+  const [imagesrc, setimagesrc] = usestate<string>('');
+  const [scale, setscale] = usestate(1);
+  const [rotation, setrotation] = usestate(0);
+  const [position, setposition] = usestate({ x: 0, y: 0 });
+  const [isdragging, setisdragging] = usestate(false);
+  const [dragstart, setdragstart] = usestate({ x: 0, y: 0 });
 
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
+  const canvasref = useref<HTMLCanvasElement>(null);
+  const imageref = useref<HTMLImageElement>(null);
 
   // load image when file changes
   useEffect(() => {
@@ -103,11 +103,11 @@ export function ImageCropper({
   // convert canvas to blob
   canvas.toBlob((blob) => {
   if (blob) {
- onCropComplete(blob);
- onClose();
+ oncropcomplete(blob);
+ onclose();
   }
   }, 'image/png');
-  }, [scale, rotation, position, aspectRatio, previewWidth, previewHeight, onCropComplete, onClose]);
+  }, [scale, rotation, position, aspectratio, previewwidth, previewheight, oncropcomplete, onclose]);
 
   return (
   <Dialog open={isOpen} onOpenChange={onClose}>
@@ -133,7 +133,7 @@ export function ImageCropper({
  </DialogPrimitive.Close>
 
  <DialogHeader>
- <DialogTitle className="text-white">Crop Image</DialogTitle>
+ <DialogTitle className="text-white">crop image</DialogTitle>
  </DialogHeader>
 
  <div className="space-y-4">
@@ -152,12 +152,12 @@ export function ImageCropper({
  onMouseUp={handleMouseUp}
  onMouseLeave={handleMouseUp}
  >
- {imageSrc && (
+ {imagesrc && (
    <>
    <img
    ref={imageRef}
    src={imageSrc}
-   alt="Crop preview"
+   alt="crop preview"
    style={{
   transform: `translate(${position.x}px, ${position.y}px) scale(${scale}) rotate(${rotation}deg)`,
   maxWidth: '100%',
@@ -207,13 +207,13 @@ export function ImageCropper({
  </div>
 
  <p className="text-xs text-white/40 text-center">
- Drag to reposition • Use sliders to zoom and rotate
+ drag to reposition • use sliders to zoom and rotate
  </p>
  </div>
 
  <DialogFooter>
- <Button variant="outline" onClick={onClose}>Cancel</Button>
- <Button onClick={handleCrop}>Crop & Upload</Button>
+ <Button variant="outline" onClick={onClose}>cancel</Button>
+ <Button onClick={handleCrop}>crop & upload</Button>
  </DialogFooter>
 
  {/* hidden canvas for processing */}

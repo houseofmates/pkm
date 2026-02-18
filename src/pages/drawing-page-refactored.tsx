@@ -159,9 +159,9 @@ export function DrawingPage() {
 
   // title update
   const updateTitle = async (newTitle: string) => {
-    setTitle(newTitle)
+    settitle(newtitle)
     if (id) {
-      await updateDrawingMeta(id, { title: newTitle })
+      await updatedrawingmeta(id, { title: newtitle })
     }
   }
 
@@ -198,7 +198,7 @@ export function DrawingPage() {
                     : 'text-yellow-500'
                 }`}
               >
-                {syncStatus}
+                {syncstatus}
                 {saving && ' · saving...'}
               </span>
             </div>

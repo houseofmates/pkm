@@ -13,13 +13,13 @@ interface Props {
   onClose: () => void;
 }
 
-export function WidgetPropertyEditor({ element, onUpdate, onClose }: Props) {
-  const [content, setContent] = useState<any>(element.content || {});
-  const [styles, setStyles] = useState<any>(element.styles || {});
-  const [showIconPicker, setShowIconPicker] = useState(false);
-  const [cropperOpen, setCropperOpen] = useState(false);
-  const [cropperFile, setCropperFile] = useState<File | null>(null);
-  const [cropperField, setCropperField] = useState<string>('');
+export function widgetpropertyeditor({ element, onupdate, onclose }: props) {
+  const [content, setcontent] = usestate<any>(element.content || {});
+  const [styles, setstyles] = usestate<any>(element.styles || {});
+  const [showiconpicker, setshowiconpicker] = usestate(false);
+  const [cropperopen, setcropperopen] = usestate(false);
+  const [cropperfile, setcropperfile] = usestate<File | null>(null);
+  const [cropperfield, setcropperfield] = usestate<string>('');
   const [cropperConfig, setCropperConfig] = useState({ aspectRatio: 1, shape: 'rect' as 'rect' | 'round', width: 200, height: 200 });
 
   useEffect(() => {
@@ -657,7 +657,7 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: Props) {
               </div>
               <div className="flex flex-col gap-2 w-full">
                 <div className="flex justify-between items-center text-xs text-white/70 font-bold mb-1">
-                  <span>Opacity</span>
+                  <span>opacity</span>
                   <span className="text-[var(--primary)]">{Math.round((styles.opacity ?? 0.75) * 100)}%</span>
                 </div>
                 <input
@@ -676,21 +676,21 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: Props) {
               <h4 className="text-[var(--primary)] text-xs font-black mb-2 lowercase">border styles</h4>
               <div className="grid grid-cols-2 gap-4">
                 <Input
-                  label="Width (px)"
+                  label="width (px)"
                   type="number"
                   value={styles.borderWidth}
                   onChange={(v: number) => updateStyle('borderWidth', Number(v))}
                   placeholder="0"
                 />
                 <Input
-                  label="Radius (px)"
+                  label="radius (px)"
                   type="number"
                   value={styles.borderRadius}
                   onChange={(v: number) => updateStyle('borderRadius', Number(v))}
                   placeholder="16"
                 />
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-white/70 text-xs font-bold">Color</label>
+                  <label className="text-white/70 text-xs font-bold">color</label>
                   <div className="flex items-center gap-2 bg-black/50 p-1 rounded-lg border border-white/10">
                     <input
                       type="color"
@@ -711,7 +711,7 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: Props) {
               </div>
             </div>
           </div>
-          {cropperOpen && (
+          {cropperopen && (
             <ImageCropper
               open={cropperOpen}
               onClose={() => {

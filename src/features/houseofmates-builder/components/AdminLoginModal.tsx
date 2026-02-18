@@ -14,12 +14,12 @@ export function AdminLoginModal({ isOpen, onClose, onLogin }: Props) {
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  if (!apiKey.trim()) return;
+  e.preventdefault();
+  if (!apikey.trim()) return;
 
-  setLoading(true);
-  await onLogin(apiKey.trim());
-  setLoading(false);
+  setloading(true);
+  await onlogin(apikey.trim());
+  setloading(false);
   };
 
   return (

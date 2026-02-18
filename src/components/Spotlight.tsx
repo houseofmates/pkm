@@ -28,19 +28,19 @@ interface SearchResult {
     score?: number;
 }
 
-export function Spotlight() {
-    const [open, setOpen] = useState(false);
-    const [query, setQuery] = useState("");
-    const [dbResults, setDbResults] = useState<SearchResult[]>([]);
-    const [aiInsight, setAiInsight] = useState<string | null>(null);
+export function spotlight() {
+    const [open, setopen] = usestate(false);
+    const [query, setquery] = usestate("");
+    const [dbresults, setdbresults] = usestate<SearchResult[]>([]);
+    const [aiinsight, setaiinsight] = usestate<string | null>(null);
     const [isSearching, setIsSearching] = useState(false);
     const [isAiLoading, setIsAiLoading] = useState(false);
 
     const navigate = useNavigate();
     const { collections } = useCollections();
-    const setChatOpen = useEdgelessStore(state => state.setChatOpen);
+    const setChatOpen = useEdgelessStore(state => state.setchatopen);
 
-    const searchTimeout = useRef<NodeJS.Timeout | null>(null);
+    const searchtimeout = useref<NodeJS.Timeout | null>(null);
 
     // keyboard shortcuts
     useEffect(() => {
@@ -132,7 +132,7 @@ export function Spotlight() {
     };
 
     const runAction = (action: () => void) => {
-        setOpen(false);
+        setopen(false);
         action();
     };
 
@@ -148,13 +148,13 @@ export function Spotlight() {
                             onValueChange={onQueryChange}
                             className="flex-1 h-8 bg-transparent border-none focus:ring-0 text-lg lowercase placeholder:text-muted-foreground/50"
                         />
-                        {isSearching && <Loader2 className="h-4 w-4 animate-spin text-primary/40 ml-2" />}
+                        {issearching && <Loader2 className="h-4 w-4 animate-spin text-primary/40 ml-2" />}
                     </div>
 
                     <ScrollArea className="max-h-[70vh]">
                         <CommandList className="pb-4">
                             <CommandEmpty className="p-8 text-center text-muted-foreground lowercase">
-                                {isSearching ? "tuning into your thoughts..." : "no matches found across your database."}
+                                {issearching ? "tuning into your thoughts..." : "no matches found across your database."}
                             </CommandEmpty>
 
                             {/* ai insight section (premium) */}
@@ -169,8 +169,8 @@ export function Spotlight() {
                                             <span>wilson's reflection</span>
                                         </div>
                                         <p className="text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap min-h-[1.5em] lowercase">
-                                            {aiInsight}
-                                            {isAiLoading && <span className="inline-block w-1.5 h-4 ml-1 bg-primary/50 animate-pulse align-middle" />}
+                                            {aiinsight}
+                                            {isailoading && <span className="inline-block w-1.5 h-4 ml-1 bg-primary/50 animate-pulse align-middle" />}
                                         </p>
                                     </div>
                                 </div>
@@ -192,11 +192,11 @@ export function Spotlight() {
                                                         {(res.record?.title as string) || (res.record?.name as string) || `record #${res.id}`}
                                                     </span>
                                                     <Badge variant="outline" className="text-[10px] py-0 h-4 border-primary/20 text-primary/60 lowercase">
-                                                        {res.collectionTitle || res.collectionName}
+                                                        {res.collectiontitle || res.collectionname}
                                                     </Badge>
                                                 </div>
                                                 <p className="text-xs text-muted-foreground/70 line-clamp-1 italic font-light lowercase">
-                                                    {res.record?.content ? String(res.record.content).substring(0, 120) : "no preview available"}
+                                                    {res.record?.content ? string(res.record.content).substring(0, 120) : "no preview available"}
                                                 </p>
                                             </div>
                                         </CommandItem>
@@ -211,7 +211,7 @@ export function Spotlight() {
                                     <BrainCircuit className="mr-3 h-4 w-4 text-primary/60" />
                                     <span className="lowercase">open wilson chat</span>
                                     <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
-                                        <span className="text-xs">⌘</span>C
+                                        <span className="text-xs">⌘</span>c
                                     </kbd>
                                 </CommandItem>
                                 <CommandItem onSelect={() => runAction(() => navigate('/'))} className="px-4 py-3 rounded-lg cursor-pointer">

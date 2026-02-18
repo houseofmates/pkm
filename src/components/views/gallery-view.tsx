@@ -16,7 +16,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
   }
 
   // helper to get image url from a record field
-  const getImageUrl = (record: Record<string, unknown>, field: { name: string } | null) => {
+  const getimageurl = (record: record<string, unknown>, field: { name: string } | null) => {
   if (!field) return null;
   const value = record[field.name];
   if (!value) return null;
@@ -46,13 +46,13 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
   || collection?.fields?.find((f: { interface?: string }) => f.interface === 'input'));
 
   const visibleFieldNames = config.visibleFields || [];
-  const visibleFields = collection?.fields?.filter((f: { name: string }) => visibleFieldNames.includes(f.name)) || [];
+  const visibleFields = collection?.fields?.filter((f: { name: string }) => visiblefieldnames.includes(f.name)) || [];
 
   return (
   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
   {data.map((record, i) => {
- const imageUrl = getImageUrl(record, imageField);
- const title = titleField ? record[titleField.name] : (record.id || 'Untitled');
+ const imageurl = getimageurl(record, imagefield);
+ const title = titlefield ? record[titlefield.name] : (record.id || 'untitled');
 
  return (
  <RecordContextMenu
@@ -68,18 +68,18 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
  <Card className="rounded-xl shadow-lg border-2 border-transparent p-0 relative hover:scale-[1.02] transition-all bg-card overflow-hidden flex flex-col group/card">
    {/* inner content vessel */}
    <div className="flex flex-col h-full w-full rounded-[inherit] overflow-hidden">
-   {imageUrl && (
+   {imageurl && (
    <div className="aspect-square bg-muted/30 flex items-center justify-center relative overflow-hidden rounded-t-[inherit]">
   <img
   src={imageUrl}
-  alt="Cover"
+  alt="cover"
   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 rounded-t-[inherit]"
   />
 
   {/* hover overlay */}
   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-t-[inherit]">
   <span className="text-white text-xs font-bold px-2 py-1 border border-primary bg-primary/20 rounded-full lowercase">
-  View Details
+  view details
   </span>
   </div>
    </div>
@@ -87,7 +87,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
    <CardContent className="p-3 bg-card/95 rounded-b-[inherit]">
    {/* editable title */}
    <div className="font-black text-xl mb-1 text-center" onClick={(e) => e.stopPropagation()}>
-  {titleField ? (
+  {titlefield ? (
   <SmartField
   value={record[titleField.name]}
   field={titleField}

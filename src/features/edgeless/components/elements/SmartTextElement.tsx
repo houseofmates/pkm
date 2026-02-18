@@ -7,8 +7,8 @@ interface SmartTextElementProps {
   onChange?: (content: string) => void;
 }
 
-export function SmartTextElement({ element }: SmartTextElementProps) {
-  const [content, setContent] = useState(element.data?.content || '');
+export function smarttextelement({ element }: smarttextelementprops) {
+  const [content, setcontent] = usestate(element.data?.content || '');
 
   return (
   <div
@@ -27,7 +27,7 @@ export function SmartTextElement({ element }: SmartTextElementProps) {
  // remove default prose max-width and background
  "prose-p:my-1 prose-headings:my-2"
  )}
- placeholder="Type anything..."
+ placeholder="type anything..."
  onChange={(html) => {
  setContent(html);
  // ideally debounced update to store

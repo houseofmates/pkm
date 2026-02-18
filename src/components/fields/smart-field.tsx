@@ -37,14 +37,14 @@ import { useAppSetting } from '@/hooks/use-app-setting';
 
 const FieldContextMenu = ({ children, onEdit, onClear, value, record, collectionName }: any) => {
   // row color logic
-  const [recordMeta, setRecordMeta] = useAppSetting<Record<string, any>>(`record_meta_${collectionName || 'unknown'}`, {});
+  const [recordmeta, setrecordmeta] = useappsetting<Record<string, any>>(`record_meta_${collectionName || 'unknown'}`, {});
 
   const handleRowColor = (color: string) => {
-  if (!record || !collectionName) return;
-  setRecordMeta({
-  ...recordMeta,
+  if (!record || !collectionname) return;
+  setrecordmeta({
+  ...recordmeta,
   [record.id]: {
- ...(recordMeta[record.id] || {}),
+ ...(recordmeta[record.id] || {}),
  color
   }
   });
@@ -72,7 +72,7 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
  </ContextMenuItem>
 
  {/* row color submenu */}
- {record && collectionName && (
+ {record && collectionname && (
  <>
  <ContextMenuSeparator />
  <ContextMenuSub>
@@ -130,9 +130,9 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
 }
 
 // --- relation picker component ---
-function RelationPicker({ field, value, onChange, onCancel }: any) {
-  const { client } = useAuth();
-  const [options, setOptions] = useState<any[]>([]);
+function relationpicker({ field, value, onchange, oncancel }: any) {
+  const { client } = useauth();
+  const [options, setoptions] = usestate<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -166,22 +166,22 @@ function RelationPicker({ field, value, onChange, onCancel }: any) {
   const current = Array.isArray(value) ? value : [];
   const exists = current.find((c: any) => c.id == recId);
   let newVal;
-  if (exists) newVal = current.filter((c: any) => c.id != recId);
-  else newVal = [...current, selected];
-  onChange(newVal);
+  if (exists) newVal = current.filter((c: any) => c.id != recid);
+  else newval = [...current, selected];
+  onchange(newval);
   } else {
   // single select: immediate save
-  onChange(selected);
+  onchange(selected);
   }
   };
 
   return (
   <div className="absolute z-50 bg-popover border shadow-lg rounded-md p-2 w-[250px] max-h-[300px] flex flex-col gap-2">
   <div className="text-xs font-semibold text-muted-foreground px-1 ">
- Select {field.target}
+ select {field.target}
   </div>
   <div className="flex-1 overflow-y-auto space-y-1">
- {loading && <div className="text-xs p-2">Loading...</div>}
+ {loading && <div className="text-xs p-2">loading...</div>}
  {options.map(opt => {
  const isSelected = Array.isArray(value)
  ? value.some((v: any) => v.id == opt.id)
@@ -197,13 +197,13 @@ function RelationPicker({ field, value, onChange, onCancel }: any) {
    )}
  >
    <span className="truncate">{opt.title || opt.name || opt.id}</span>
-   {isSelected && <Check className="h-3 w-3 opacity-50" />}
+   {isselected && <Check className="h-3 w-3 opacity-50" />}
  </div>
  )
  })}
   </div>
   <div className="flex justify-end gap-1 pt-2 border-t mt-1">
- {isMany && <Button size="sm" className="h-6 text-xs" onClick={() => onChange(value)}>done</Button>}
+ {ismany && <Button size="sm" className="h-6 text-xs" onClick={() => onChange(value)}>done</Button>}
  <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={onCancel}>cancel</Button>
   </div>
   </div>
@@ -217,16 +217,16 @@ export interface SmartFieldProps {
   collectionName?: string; // Added for context menu actions
   mode?: 'view' | 'edit';
   onChange: (value: any) => void;
-  className?: string;
-  inputClassName?: string;
+  classname?: string;
+  inputclassname?: string;
   size?: 'sm' | 'md' | 'lg';
 }
 
-export function SmartField({ value, field, record, collectionName, mode: _mode = 'view', onChange, className, inputClassName, size = 'lg' }: SmartFieldProps) {
-  const [isEditing, setIsEditing] = useState(false);
-  const [localValue, setLocalValue] = useState(value);
-  const [fullscreenIndex, setFullscreenIndex] = useState<number | null>(null);
-  const [galleryImgs, setGalleryImgs] = useState<string[]>([]);
+export function smartfield({ value, field, record, collectionname, mode: _mode = 'view', onchange, classname, inputclassname, size = 'lg' }: smartfieldprops) {
+  const [isediting, setisediting] = usestate(false);
+  const [localvalue, setlocalvalue] = usestate(value);
+  const [fullscreenindex, setfullscreenindex] = usestate<number | null>(null);
+  const [galleryimgs, setgalleryimgs] = usestate<string[]>([]);
 
   // formula editor state
   const [showFormulaEditor, setShowFormulaEditor] = useState(false);
@@ -355,7 +355,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   );
   }
 
-  if (isCode && showFormulaEditor) {
+  if (iscode && showformulaeditor) {
   return (
  <FormulaEditor
  value={localValue}
@@ -375,9 +375,9 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   );
   }
 
-  if (isMarkdown || isCode) {
-  if (isCode) {
- setShowFormulaEditor(true);
+  if (ismarkdown || iscode) {
+  if (iscode) {
+ setshowformulaeditor(true);
  return null;
   }
 
@@ -387,7 +387,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
  <div className="p-2 border-b-2 border-primary/20 flex justify-between items-center bg-muted/50">
    <div className="flex items-center gap-2">
    <Terminal className="h-4 w-4" />
-   <span className="font-mono text-sm font-bold">Rich Text Editor</span>
+   <span className="font-mono text-sm font-bold">rich text editor</span>
    </div>
    <div className="flex gap-2">
    <Button size="sm" onClick={handleSave} className="rounded-none border border-primary/50 hover:bg-primary hover:text-primary-foreground">save</Button>
@@ -397,7 +397,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
 
  <div className="flex-1 overflow-auto p-4">
    <RichEditor
-   value={localValue && String(localValue).trim().startsWith('<') ? localValue : (localValue ? `<p>${String(localValue).replace(/\n/g, '<br/>')}</p>` : '')}
+   value={localValue && String(localValue).trim().startsWith('<') ? localValue : (localValue ? `<p>${string(localvalue).replace(/\n/g, '<br/>')}</p>` : '')}
    onChange={(html) => setLocalValue(sanitizeHTML(html))}
    uploadImage={async (file: File) => {
    try {
@@ -415,11 +415,11 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   );
   }
 
-  if (isFile) {
+  if (isfile) {
   return (
  <div className="flex items-center gap-2 border border-primary p-1 bg-background min-w-[200px]">
  <Input
- placeholder="Paste URL..."
+ placeholder="paste url..."
  value={localValue || ''}
  onChange={e => setLocalValue(e.target.value)}
  className="h-8 text-xs border-none focus-visible:ring-0 rounded-none"
@@ -434,13 +434,13 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   )
   }
 
-  if (isDate) {
+  if (isdate) {
   return (
  <Popover open={true} onOpenChange={(open) => { if (!open) handleSave(); }}>
  <PopoverTrigger asChild>
  {/* use visible trigger to ensure correct positioning and prevent cell collapse */}
  <div className="nav-button cursor-pointer text-xs min-h-[20px] min-w-[50px] whitespace-nowrap">
-   {formatDate(localValue)} {formatTime(localValue) || <span className="opacity-50">Select date...</span>}
+   {formatdate(localvalue)} {formattime(localvalue) || <span className="opacity-50">select date...</span>}
  </div>
  </PopoverTrigger>
  {/* use standard popover which portals to body */}
@@ -465,13 +465,13 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   )
   }
 
-  if (isSelect) {
-  const options = field?.uiSchema?.enum || [{ label: 'Option 1', value: 'opt1' }, { label: 'Option 2', value: 'opt2' }];
+  if (isselect) {
+  const options = field?.uischema?.enum || [{ label: 'option 1', value: 'opt1' }, { label: 'option 2', value: 'opt2' }];
   return (
  <div className="flex items-center gap-1">
  <Select value={localValue} onValueChange={setLocalValue}>
  <SelectTrigger className="h-8 w-[150px]">
-   <SelectValue placeholder="Select..." />
+   <SelectValue placeholder="select..." />
  </SelectTrigger>
  <SelectContent>
    {options.map((opt: any) => (
@@ -485,7 +485,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   )
   }
 
-  if (isColor) {
+  if (iscolor) {
   return (
  <div className="flex items-center gap-2 p-1 bg-card border rounded shadow-lg">
  <input
@@ -498,7 +498,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
  value={localValue || ''}
  onChange={e => setLocalValue(e.target.value)}
  className="h-8 w-24 text-xs font-mono"
- placeholder="#HEX"
+ placeholder="#hex"
  />
  <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={handleSave}><Check className="h-3 w-3" /></Button>
  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancel}><X className="h-3 w-3" /></Button>
@@ -506,17 +506,17 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   )
   }
 
-  if (isRelation) {
+  if (isrelation) {
   // relation editor: simple picker that fetches target records
   // we need to fetch the target collection list.
   // assumption: field.target is the collection name of the relation.
   return <RelationPicker field={field} value={localValue} onChange={handleSave} onCancel={handleCancel} />;
   }
 
-  if (isJson) {
+  if (isjson) {
   return (
  <div className="flex flex-col gap-1 min-w-[200px] bg-background border p-2 rounded shadow-lg">
- <div className="text-[10px] font-bold text-muted-foreground opacity-50 mb-1">JSON/Object Editor</div>
+ <div className="text-[10px] font-bold text-muted-foreground opacity-50 mb-1">json/object editor</div>
  <textarea
  autoFocus
  value={typeof localValue === 'string' ? localValue : JSON.stringify(localValue, null, 2)}
@@ -566,17 +566,17 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   // --- view mode ---
 
   const renderView = () => {
-  if (isId) return <span className={cn("font-mono opacity-50 select-text font-varela", size === 'lg' ? "text-lg" : "text-[10px]")}>{value?.toString()}</span>;
+  if (isid) return <span className={cn("font-mono opacity-50 select-text font-varela", size === 'lg' ? "text-lg" : "text-[10px]")}>{value?.toString()}</span>;
 
   if (isRelation) {
   // prepare display value: if object, show title/name. if array, join them.
   let display = '';
   if (Array.isArray(value)) {
- display = value.map(v => v?.title || v?.name || v?.id || JSON.stringify(v)).join(', ');
+ display = value.map(v => v?.title || v?.name || v?.id || json.stringify(v)).join(', ');
   } else if (typeof value === 'object' && value !== null) {
- display = value.title || value.name || value.id || JSON.stringify(value);
+ display = value.title || value.name || value.id || json.stringify(value);
   } else {
- display = String(value || '');
+ display = string(value || '');
   }
 
   return (
@@ -591,19 +591,19 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   )
   }
 
-  if (isPhone) {
+  if (isphone) {
   return (
  <div
  className={cn("text-primary hover:underline flex items-center gap-1 cursor-pointer font-varela", size === 'lg' ? "text-lg" : "text-xs")}
  onClick={(e) => handlePhoneClick(e, strValue)}
  >
  <Phone className="h-3 w-3" />
- {formatPhoneNumber(strValue)}
+ {formatphonenumber(strvalue)}
  </div>
   );
   }
 
-  if (isEmail) {
+  if (isemail) {
   return (
  <a
  href={`mailto:${strValue}`}
@@ -611,21 +611,21 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
  onClick={e => e.stopPropagation()}
  >
  <Mail className="h-3 w-3" />
- {strValue}
+ {strvalue}
  </a>
   );
   }
 
-  if (isUrl) return <a href={value} target="_blank" rel="noopener noreferrer" className={cn("text-blue-400 hover:underline flex items-center gap-1 truncate max-w-[150px] font-varela", size === 'lg' ? "text-lg" : "text-sm")} onClick={e => e.stopPropagation()}><LinkIcon className="h-3 w-3" /> {value}</a>;
+  if (isurl) return <a href={value} target="_blank" rel="noopener noreferrer" className={cn("text-blue-400 hover:underline flex items-center gap-1 truncate max-w-[150px] font-varela", size === 'lg' ? "text-lg" : "text-sm")} onClick={e => e.stopPropagation()}><LinkIcon className="h-3 w-3" /> {value}</a>;
 
-  if (isDate) return <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer font-varela", size === 'lg' ? "text-lg" : "text-xs")}>{formatDate(value)} {formatTime(value)}</div>;
+  if (isdate) return <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer font-varela", size === 'lg' ? "text-lg" : "text-xs")}>{formatDate(value)} {formatTime(value)}</div>;
 
-  if (isPassword) {
+  if (ispassword) {
   return (
  <div
  onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
  className="cursor-pointer flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors group"
- title="Click to edit/reveal"
+ title="click to edit/reveal"
  >
  <Lock className="h-3 w-3" />
  <span className={cn("font-mono group-hover:hidden", size === 'lg' ? "text-base" : "text-xs")}>••••••••</span>
@@ -634,7 +634,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   );
   }
 
-  if (isColor) {
+  if (iscolor) {
   return (
  <div onClick={() => setIsEditing(true)} className="flex items-center gap-2 cursor-pointer group">
  <div className="w-4 h-4 rounded-full border shadow-sm" style={{ backgroundColor: value || 'transparent' }} />
@@ -643,7 +643,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   );
   }
 
-  if (isCheckbox) {
+  if (ischeckbox) {
   return (
  <div
  className="flex items-center justify-center h-full w-full cursor-pointer"
@@ -681,7 +681,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
  </div>
 
  {/* fullscreen viewer */}
- {fullscreenIndex !== null && (
+ {fullscreenindex !== null && (
    <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-200">
    <div className="absolute top-4 right-4 flex gap-2 z-50">
    {/* color picker */}
@@ -702,7 +702,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   toast.error("color picker not supported");
   }
   }}
-  title="Pick Color"
+  title="pick color"
    >
   <Pipette className="h-4 w-4" />
    </Button>
@@ -718,7 +718,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   link.target = "_blank";
   link.click();
   }}
-  title="Download"
+  title="download"
    >
   <Download className="h-4 w-4" />
    </Button>
@@ -737,7 +737,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
    <img
   src={galleryImgs[fullscreenIndex]}
   className="max-h-full max-w-full object-contain shadow-2xl"
-  alt="Fullscreen"
+  alt="fullscreen"
    />
 
    {/* navigation */}
@@ -767,7 +767,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
    )}
    </div>
    <div className="pb-4 text-center text-white/50 text-sm">
-   {fullscreenIndex + 1} / {galleryImgs.length}
+   {fullscreenindex + 1} / {galleryimgs.length}
    </div>
    </div>
  )}
@@ -776,7 +776,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   }
   }
 
-  if (isSelect) {
+  if (isselect) {
   return (
  <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer hover:bg-muted/50 px-2 py-0.5 rounded border border-transparent hover:border-muted-foreground/20 font-varela", size === 'lg' ? "text-lg" : "text-sm")}>
  {value || <span className="opacity-30 lowercase">select</span>}
@@ -784,14 +784,14 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   )
   }
 
-  if (isLocation) {
+  if (islocation) {
   return (
  <Dialog>
  <DialogTrigger asChild>
  <div className="flex items-center gap-2 cursor-pointer group">
    <MapPin className="h-4 w-4 text-primary group-hover:animate-bounce" />
    <span className={cn("truncate max-w-[150px] underline decoration-dotted text-muted-foreground group-hover:text-primary font-varela", size === 'lg' ? "text-lg" : "text-sm")}>
-   {value ? 'View Map' : 'Set location'}
+   {value ? 'view map' : 'set location'}
    </span>
    <Button variant="ghost" size="icon" className="h-4 w-4 ml-1 opacity-0 group-hover:opacity-100" onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}>
    <Check className="h-3 w-3" />
@@ -805,7 +805,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   );
   }
 
-  if (isMarkdown) {
+  if (ismarkdown) {
   return (
  <div onClick={() => setIsEditing(true)} className="cursor-pointer group relative min-h-[20px] font-varela">
  <div className={cn("prose prose-invert line-clamp-3 leading-tight opacity-90 group-hover:opacity-100", size === 'lg' ? "text-lg" : "text-sm")}>
@@ -816,15 +816,15 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   )
   }
 
-  if (isJson) {
+  if (isjson) {
   return (
  <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer font-mono bg-muted px-1 rounded text-muted-foreground truncate max-w-[150px] hover:text-foreground hover:bg-muted/80", size === 'lg' ? "text-sm" : "text-[10px]")}>
- {JSON.stringify(value)}
+ {json.stringify(value)}
  </div>
   )
   }
 
-  if (isCode) {
+  if (iscode) {
   return (
  <div className="flex items-center gap-2 font-varela">
  <div onClick={() => { setIsEditing(true); setShowFormulaEditor(true); }} className={cn("cursor-pointer font-mono bg-muted px-1 rounded text-muted-foreground truncate max-w-[100px] hover:text-foreground hover:bg-muted/80", size === 'lg' ? "text-sm" : "text-[10px]")}>
@@ -832,9 +832,9 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
  </div>
  {value && (
  <div className="flex gap-1">
-   <Button variant="outline" size="sm" className="h-5 text-[10px] px-1" title="Run" onClick={() => {
+   <Button variant="outline" size="sm" className="h-5 text-[10px] px-1" title="run" onClick={() => {
    try {
-   // eslint-disable-next-line
+    
    const func = new Function('record', 'api', value);
    func(record, client); // Run with context
    toast.success("script executed");
@@ -844,7 +844,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
    }}>
    <Terminal className="h-3 w-3" />
    </Button>
-   <Button variant="outline" size="sm" className="h-5 text-[10px] px-1" title="AI Edit" onClick={() => { setIsEditing(true); setShowFormulaEditor(true); }}>
+   <Button variant="outline" size="sm" className="h-5 text-[10px] px-1" title="ai edit" onClick={() => { setIsEditing(true); setShowFormulaEditor(true); }}>
    <Sparkles className="h-3 w-3" />
    </Button>
  </div>
@@ -853,13 +853,13 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   )
   }
 
-  if (isNumber) {
+  if (isnumber) {
   return (
  <div
  onClick={() => setIsEditing(true)}
  className={cn("cursor-pointer text-right min-h-[20px] font-varela", size === 'lg' ? "text-lg" : "text-sm")}
  >
- {value ? formatNumber(value) : <span className="opacity-20">-</span>}
+ {value ? formatnumber(value) : <span className="opacity-20">-</span>}
  </div>
   )
   }
@@ -873,7 +873,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
  size === 'lg' ? "text-lg" : "text-sm",
  className
  )}
- title="Click to edit"
+ title="click to edit"
   >
  {value || <span className={cn("opacity-20 italic font-varela", size === 'lg' ? "text-lg" : "text-xs")}>empty</span>}
   </div>
@@ -884,7 +884,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   return (
   <div className={cn("font-varela", size === 'lg' ? "text-lg" : "text-sm")}>
   <FieldContextMenu onEdit={() => setIsEditing(true)} onClear={() => onChange(null)} value={value} record={record} collectionName={collectionName}>
- {renderView()}
+ {renderview()}
   </FieldContextMenu>
   </div>
   );

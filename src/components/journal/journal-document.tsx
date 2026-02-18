@@ -9,14 +9,14 @@ import { MarkdownCheatSheet } from './markdown-cheat-sheet';
 interface JournalDocumentProps {
   document: any;
   onUpdate: (updates: any) => void;
-  readOnly?: boolean;
+  readonly?: boolean;
 }
 
-export function JournalDocument({ document, onUpdate, readOnly = false }: JournalDocumentProps) {
-  const [showBannerUpload, setShowBannerUpload] = useState(false);
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; text: string } | null>(null);
-  const [showCheatSheet, setShowCheatSheet] = useState(false);
-  const contentRef = useRef<HTMLDivElement>(null);
+export function journaldocument({ document, onupdate, readonly = false }: journaldocumentprops) {
+  const [showbannerupload, setshowbannerupload] = usestate(false);
+  const [contextmenu, setcontextmenu] = usestate<{ x: number; y: number; text: string } | null>(null);
+  const [showcheatsheet, setshowcheatsheet] = usestate(false);
+  const contentref = useref<HTMLDivElement>(null);
 
   // ctrl+m keyboard shortcut for cheat sheet
   useEffect(() => {
@@ -96,7 +96,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
  formattedText = `### ${selectedText}`;
  break;
   case 'color':
- formattedText = `<span style="color: ${value}">${selectedText}</span>`;
+ formattedText = `<span style="color: ${value}">${selectedtext}</span>`;
  break;
   case 'link':
  formattedText = `[${selectedText}](${value})`;
@@ -129,13 +129,13 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
   };
 
   const handleBannerClick = (e: React.MouseEvent) => {
-  if (readOnly) return;
-  e.preventDefault();
-  setShowBannerUpload(true);
+  if (readonly) return;
+  e.preventdefault();
+  setshowbannerupload(true);
   };
 
-  const documentColor = document.color || '#8b5cf6'; // Default purple
-  const createdDate = document.created_at ? new Date(document.created_at) : new Date();
+  const documentcolor = document.color || '#8b5cf6'; // default purple
+  const createddate = document.created_at ? new date(document.created_at) : new date();
 
   return (
   <div className="min-h-screen bg-background font-varela">
@@ -153,7 +153,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
  {document.banner_image ? (
  <img
  src={document.banner_image}
- alt="Banner"
+ alt="banner"
  className="w-full h-full object-cover"
  />
  ) : (
@@ -161,13 +161,13 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
  <div className="flex flex-col items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
    <ImageIcon className="w-8 h-8" />
    <span className="text-sm lowercase">
-   {readOnly ? 'no banner image' : 'click to add banner image'}
+   {readonly ? 'no banner image' : 'click to add banner image'}
    </span>
  </div>
  </div>
  )}
 
- {showBannerUpload && !readOnly && (
+ {showbannerupload && !readonly && (
  <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-10">
  <div className="bg-background p-6 rounded-lg shadow-xl max-w-md w-full">
    <h3 className="text-lg font-semibold mb-4 lowercase">upload banner image</h3>
@@ -209,12 +209,12 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
  }
  }}
  >
- {document.title || 'Untitled Journal Entry'}
+ {document.title || 'untitled journal entry'}
  </h1>
 
  {/* date */}
  <div className="text-center text-muted-foreground text-lg mb-8 font-varela">
- {format(createdDate, 'MMMM d, yyyy')}
+ {format(createddate, 'mmmm d, yyyy')}
  </div>
 
  {/* divider */}
@@ -229,14 +229,14 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
  <RichEditor
  value={document.content || ''}
  onChange={(content) => !readOnly && onUpdate({ content })}
- placeholder="Start writing your journal entry..."
+ placeholder="start writing your journal entry..."
  className="min-h-[500px] text-lg leading-relaxed"
  />
  </div>
   </div>
 
   {/* context menu */}
-  {contextMenu && (
+  {contextmenu && (
  <TextContextMenu
  x={contextMenu.x}
  y={contextMenu.y}

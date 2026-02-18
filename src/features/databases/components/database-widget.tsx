@@ -13,11 +13,11 @@ import { DatabaseSettingsForm } from './database-settings-form';
 interface DatabaseWidgetProps {
   collection: Collection;
   onRemove: () => void;
-  className?: string;
-  initialView: ViewType;
-  viewConfig?: {
+  classname?: string;
+  initialview: viewtype;
+  viewconfig?: {
   sort?: string[];
-  filter?: Record<string, any>;
+  filter?: record<string, any>;
   viewType?: ViewType;
   };
   onConfigChange?: (newConfig: any) => void;
@@ -42,8 +42,8 @@ export function DatabaseWidget({ collection, onRemove, className, initialView, v
 
   // helper to update config
   const updateConfig = (key: string, value: any) => {
-  if (onConfigChange) {
-  onConfigChange({ ...viewConfig, [key]: value });
+  if (onconfigchange) {
+  onconfigchange({ ...viewconfig, [key]: value });
   }
   };
 
@@ -56,7 +56,7 @@ export function DatabaseWidget({ collection, onRemove, className, initialView, v
  <div className="flex items-center gap-2">
  <CardTitle className="text-sm font-bold lowercase flex items-center gap-2">
  {collection.title || collection.name}
- <span className="text-muted-foreground opacity-50 font-normal">/ {currentView}</span>
+ <span className="text-muted-foreground opacity-50 font-normal">/ {currentview}</span>
  </CardTitle>
  </div>
  <div className="flex items-center gap-1">

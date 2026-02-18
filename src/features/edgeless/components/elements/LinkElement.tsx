@@ -23,10 +23,10 @@ export function LinkElement({ element }: LinkElementProps) {
 
   // icon rendering
   const renderIcon = (className = "h-6 w-6") => {
-  if (iconType === 'emoji') return <span className="text-2xl leading-none">{icon}</span>;
-  if (iconType === 'image') return <img src={icon} alt="" className={className + " object-contain"} />;
-  if (iconType === 'lucide') {
-  const Icon = (LucideIcons as any)[icon] || LucideIcons.File;
+  if (icontype === 'emoji') return <span className="text-2xl leading-none">{icon}</span>;
+  if (icontype === 'image') return <img src={icon} alt="" className={className + " object-contain"} />;
+  if (icontype === 'lucide') {
+  const icon = (lucideicons as any)[icon] || lucideicons.file;
   return <Icon className={className} />;
   }
   return <LucideIcons.File className={className} />;
@@ -35,10 +35,10 @@ export function LinkElement({ element }: LinkElementProps) {
   const handleOpen = () => {
   if (url) {
   // handle internal navigation vs external
-  if (url.startsWith('http') && !url.includes(window.location.host)) {
+  if (url.startswith('http') && !url.includes(window.location.host)) {
  window.open(url, '_blank');
   } else {
- navigate(url.replace(window.location.origin, '')); // Naive relative
+ navigate(url.replace(window.location.origin, '')); // naive relative
   }
   }
   };
@@ -56,7 +56,7 @@ export function LinkElement({ element }: LinkElementProps) {
  <div className="flex-1 bg-muted/30 flex items-center justify-center relative min-h-0">
    {/* "screenshot" placeholder: big icon */}
    <div className="transform scale-150 opacity-80 group-hover:scale-175 transition-transform duration-500">
-   {renderIcon("h-12 w-12 text-muted-foreground/50")}
+   {rendericon("h-12 w-12 text-muted-foreground/50")}
    </div>
 
    <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
@@ -65,7 +65,7 @@ export function LinkElement({ element }: LinkElementProps) {
  {/* footer info */}
  <div className="p-3 border-t bg-card flex items-center gap-3 shrink-0">
    <div className="shrink-0 opacity-80">
-   {renderIcon("h-4 w-4")}
+   {rendericon("h-4 w-4")}
    </div>
    <div className="flex-1 min-w-0">
    <div className="font-medium text-sm truncate leading-tight">{title}</div>
@@ -75,16 +75,16 @@ export function LinkElement({ element }: LinkElementProps) {
  </div>
  </ContextMenuTrigger>
  <ContextMenuContent>
- <ContextMenuLabel>Link Options</ContextMenuLabel>
+ <ContextMenuLabel>link options</ContextMenuLabel>
  <ContextMenuItem onClick={() => updateElement(element.id, { data: { ...data, variant: 'simple' }, height: 40 })}>
- <Type className="h-4 w-4 mr-2" /> Show as Simple Link
+ <Type className="h-4 w-4 mr-2" /> show as simple link
  </ContextMenuItem>
  <ContextMenuItem onClick={() => updateElement(element.id, { data: { ...data, variant: 'card' }, height: 200 })}>
- <Eye className="h-4 w-4 mr-2" /> Show as Card Preview
+ <Eye className="h-4 w-4 mr-2" /> show as card preview
  </ContextMenuItem>
  <ContextMenuSeparator />
  <ContextMenuItem onClick={handleOpen}>
- <ExternalLink className="h-4 w-4 mr-2" /> Open Link
+ <ExternalLink className="h-4 w-4 mr-2" /> open link
  </ContextMenuItem>
  </ContextMenuContent>
   </ContextMenu>
@@ -106,7 +106,7 @@ export function LinkElement({ element }: LinkElementProps) {
   </ContextMenuTrigger>
   <ContextMenuContent>
  <ContextMenuItem onClick={() => updateElement(element.id, { data: { ...data, variant: 'card' }, height: 200 })}>
- <Eye className="h-4 w-4 mr-2" /> Show as Card Preview
+ <Eye className="h-4 w-4 mr-2" /> show as card preview
  </ContextMenuItem>
   </ContextMenuContent>
   </ContextMenu>

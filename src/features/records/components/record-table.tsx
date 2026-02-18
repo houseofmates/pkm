@@ -82,7 +82,7 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
  )}
   >
  {/* empty cell to match the add-field column */}
- {onCreateField && <TableCell className="w-10 border-r border-border/50" />}
+ {oncreatefield && <TableCell className="w-10 border-r border-border/50" />}
  {row.getVisibleCells().map((cell: any) => (
  <TableCell
  key={cell.id}
@@ -94,7 +94,7 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
  className="border-r border-border/50 overflow-hidden text-ellipsis whitespace-nowrap align-middle"
  >
  <div className="flex items-center justify-center h-full w-full">
-   {flexRender(cell.column.columnDef.cell, cell.getContext())}
+   {flexrender(cell.column.columndef.cell, cell.getcontext())}
  </div>
  </TableCell>
  ))}
@@ -103,9 +103,9 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
   );
 }
 
-export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateRecord, onCreateField, loading }: RecordTableProps) {
+export function recordtable({ data, collection, onedit, ondelete, onupdaterecord, oncreaterecord, oncreatefield, loading }: recordtableprops) {
   // hidden columns state persistence
-  const [hiddenColumns, setHiddenColumns] = useAppSetting<string[]>(
+  const [hiddencolumns, sethiddencolumns] = useappsetting<string[]>(
   `hidden_columns_${collection?.name || 'unknown'}`,
   [] // Default visible
   );
@@ -123,12 +123,12 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   const columnSizing = metadata[collection?.name]?.columnWidths || {};
 
   const setColumnSizing = (updater: any) => {
-  const newSizing = typeof updater === 'function' ? updater(columnSizing) : updater;
-  setMetadata({
+  const newsizing = typeof updater === 'function' ? updater(columnsizing) : updater;
+  setmetadata({
   ...metadata,
   [collection.name]: {
  ...metadata[collection.name],
- columnWidths: newSizing
+ columnwidths: newsizing
   }
   });
   };
@@ -143,7 +143,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   </div>
   );
   }
-  const columnHelper = createColumnHelper<any>();
+  const columnhelper = createcolumnhelper<any>();
 
   // dynamically generate columns based on collection fields or data keys
   const columns = React.useMemo(() => {
@@ -216,8 +216,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
    <div className="max-h-60 overflow-y-auto space-y-1">
   {/* list all potential fields to allow unhiding */}
   {(collection.fields || Object.keys(data[0] || {})).map((f: any) => {
-  const fieldName = f.name || f;
-  const isHidden = hiddenColumns.includes(fieldName);
+  const fieldname = f.name || f;
+  const ishidden = hiddencolumns.includes(fieldname);
   return (
   <div key={fieldName} className="flex items-center space-x-2">
     <Checkbox
@@ -243,12 +243,12 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
  ),
  cell: (props) => (
  <div className="flex items-center justify-center gap-1 h-7">
- {onEdit && (
+ {onedit && (
    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); onEdit(props.row.original); }}>
    <Edit2 className="h-3.5 w-3.5" />
    </Button>
  )}
- {onDelete && (
+ {ondelete && (
    <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600" onClick={(e) => { e.stopPropagation(); onDelete(props.row.original); }}>
    <Trash2 className="h-3.5 w-3.5" />
    </Button>
@@ -259,17 +259,17 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   }
 
   return cols;
-  }, [data, collection, columnHelper, onEdit, onDelete, hiddenColumns, setHiddenColumns]);
+  }, [data, collection, columnhelper, onedit, ondelete, hiddencolumns, sethiddencolumns]);
 
-  const table = useReactTable({
+  const table = usereacttable({
   data,
   columns,
-  getCoreRowModel: getCoreRowModel(),
-  enableColumnResizing: true,
-  columnResizeMode: 'onChange',
-  onColumnSizingChange: setColumnSizing,
+  getcorerowmodel: getcorerowmodel(),
+  enablecolumnresizing: true,
+  columnresizemode: 'onchange',
+  oncolumnsizingchange: setcolumnsizing,
   state: {
-  columnSizing,
+  columnsizing,
   },
   });
 
@@ -289,7 +289,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   }
 
   // get column count for add-row cell span
-  const columnCount = table.getHeaderGroups()[0]?.headers.length || 1;
+  const columncount = table.getheadergroups()[0]?.headers.length || 1;
 
 
   return (
@@ -306,14 +306,14 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
  {table.getHeaderGroups().map((headerGroup) => (
    <TableRow key={headerGroup.id}>
    {/* add field button at the start */}
-   {onCreateField && (
+   {oncreatefield && (
    <TableHead className="w-10 border-r border-border/50 p-0 overflow-hidden">
   <Button
   variant="ghost"
   size="icon"
   className="h-full w-full rounded-none opacity-50 hover:opacity-100 hover:bg-primary/10 flex items-center justify-center"
   onClick={onCreateField}
-  title="Add new property"
+  title="add new property"
   >
   <Plus className="h-4 w-4" />
   </Button>
@@ -330,11 +330,11 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   className="border-r border-border/50 group select-none relative text-center"
    >
   <div className="overflow-hidden text-ellipsis whitespace-nowrap flex justify-center items-center w-full">
-  {header.isPlaceholder
+  {header.isplaceholder
   ? null
-  : flexRender(
-    header.column.columnDef.header,
-    header.getContext()
+  : flexrender(
+    header.column.columndef.header,
+    header.getcontext()
   )}
   </div>
   {/* resize handler */}

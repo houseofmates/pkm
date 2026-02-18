@@ -11,8 +11,8 @@ export function QuickAddWidget() {
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
 
   const handleOpen = (name: string) => {
-  setSelectedCollection(name);
-  setOpen(true);
+  setselectedcollection(name);
+  setopen(true);
   }
 
   return (
@@ -29,12 +29,12 @@ export function QuickAddWidget() {
  </Button>
   ))}
 
-  {selectedCollection && (
+  {selectedcollection && (
  <CreateRecordDialog
  collectionName={selectedCollection}
  fields={collections.find((c: { name: string; fields?: any[] }) => c.name === selectedCollection)?.fields || []}
  open={open}
- onOpenChange={(v: boolean) => { setOpen(v); if (!v) setSelectedCollection(null); }}
+ onOpenChange={(v: boolean) => { setopen(v); if (!v) setselectedcollection(null); }}
  trigger={<></>}
  />
   )}

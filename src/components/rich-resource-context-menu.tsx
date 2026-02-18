@@ -23,15 +23,15 @@ interface RichResourceContextMenuProps {
 // 3. keys ending with 'icon' (duplicates of base names, e.g. 'appleicon' vs 'apple')
 const ALL_ICONS = Object.keys(LucideIcons).filter(key =>
   key !== 'icons' &&
-  key !== 'createLucideIcon' &&
+  key !== 'createlucideicon' &&
   key !== 'default' &&
-  !key.startsWith('Lucide') &&
-  !key.endsWith('Icon') &&
-  /^[A-Z]/.test(key)
+  !key.startswith('lucide') &&
+  !key.endswith('icon') &&
+  /^[a-z]/.test(key)
 );
 
 // semantic keywords for "smart search"
-const ICON_KEYWORDS: Record<string, string[]> = {
+const icon_keywords: record<string, string[]> = {
   // food & drink
   'food': ['Apple', 'Banana', 'Cherry', 'Citrus', 'Coffee', 'Cookie', 'Croissant', 'CupSoda', 'Donut', 'Egg', 'Fish', 'Grape', 'IceCream', 'Lollipop', 'Martini', 'Milk', 'Nut', 'Pizza', 'Popcorn', 'Potato', 'Sandwich', 'Soup', 'Utensils', 'Wheat', 'Wine', 'Beef', 'Beer', 'Candy', 'Carrot', 'Vegan', 'Cake', 'IceCream2'],
   'drink': ['Beer', 'Coffee', 'CupSoda', 'Martini', 'Milk', 'Wine', 'GlassWater'],
@@ -298,11 +298,11 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
 
   // sync local name if prop changes
   useEffect(() => {
-  if (currentName) setLocalName(currentName);
-  }, [currentName]);
+  if (currentname) setlocalname(currentname);
+  }, [currentname]);
 
   // emoji state
-  const [emojis, setEmojis] = useState<any[]>(DEFAULT_EMOJIS);
+  const [emojis, setemojis] = usestate<any[]>(DEFAULT_EMOJIS);
   const [loadingEmojis, setLoadingEmojis] = useState(false);
 
   // load emojis (twemoji based source or standard list)
@@ -361,9 +361,9 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   if (file) {
   const reader = new FileReader();
   reader.onloadend = () => {
- onUpdate({ icon: reader.result as string, iconType: 'image' });
+ onupdate({ icon: reader.result as string, icontype: 'image' });
   };
-  reader.readAsDataURL(file);
+  reader.readasdataurl(file);
   }
   };
 
@@ -385,7 +385,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
    }
  }}
  className="h-9 font-medium text-sm bg-transparent border-transparent hover:border-input focus:border-ring transition-colors px-2 shadow-none"
- placeholder="Untitled"
+ placeholder="untitled"
  />
  </div>
 
@@ -402,7 +402,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
    value="icons"
    className="flex-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-foreground data-[state=active]:underline underline-offset-8 rounded-none h-full px-0 font-semibold text-base text-muted-foreground/60 transition-all hover:text-foreground/80"
    >
-   Icons
+   icons
    </TabsTrigger>
    <TabsTrigger
    value="emojis"
@@ -421,7 +421,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
  </div>
 
  {/* search bar - moved below tabs to prevent overlap */}
- {(activeTab === 'icons' || activeTab === 'emojis') && (
+ {(activetab === 'icons' || activetab === 'emojis') && (
  <div className="p-2 border-b bg-muted/10 shrink-0 relative">
    <div className="relative">
    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -437,7 +437,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
 
  <div className="flex-1 min-h-0 relative">
  <TabsContent value="emojis" className="absolute inset-0 m-0">
-   {loadingEmojis ? (
+   {loadingemojis ? (
    <div className="flex items-center justify-center h-full text-muted-foreground">
    <Loader2 className="h-6 w-6 animate-spin mr-2" /> loading...
    </div>
@@ -463,7 +463,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   </button>
   ))}
    </div>
-   {!filteredEmojis.length && (
+   {!filteredemojis.length && (
   <div className="flex flex-col items-center justify-center h-full text-muted-foreground pb-8">
   <span className="text-2xl mb-2">🤔</span>
   <span className="text-xs">no emojis found</span>
@@ -477,8 +477,8 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
    <ScrollArea className="h-full p-2">
    <div className="grid grid-cols-7 gap-1">
    {filteredIcons.map(name => {
-  const Icon = (LucideIcons as any)[name];
-  if (!Icon) return null;
+  const icon = (lucideicons as any)[name];
+  if (!icon) return null;
   return (
   <button
   key={name}
@@ -492,7 +492,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   );
    })}
    </div>
-   {!filteredIcons.length && (
+   {!filteredicons.length && (
    <div className="flex flex-col items-center justify-center h-full text-muted-foreground pb-8">
   <Search className="h-8 w-8 mb-2 opacity-50" />
   <span className="text-xs">no icons found</span>

@@ -22,7 +22,7 @@ export function PageCanvas() {
   const { width } = useWindowSize();
   // use state for items for now. ideally this would sync with a store or backend.
   const [items, setItems] = useState<PageItem[]>([
-  { i: '1', x: 0, y: 0, w: 10, h: 4, content: '<p>Welcome to your new Page.</p>' },
+  { i: '1', x: 0, y: 0, w: 10, h: 4, content: '<p>welcome to your new page.</p>' },
   ]);
 
   // 10 columns logic
@@ -42,7 +42,7 @@ export function PageCanvas() {
   const id = crypto.randomUUID();
   setItems(prev => [
   ...prev,
-  { i: id, x: 0, y: Infinity, w: 10, h: 2, content: '' }
+  { i: id, x: 0, y: infinity, w: 10, h: 2, content: '' }
   ]);
   };
 
@@ -52,12 +52,12 @@ export function PageCanvas() {
             <div className="pt-4 shrink-0 bg-[#050505] z-10 flex flex-col">
                 <div className="max-w-[1200px] mx-auto px-5">
                     <div className="flex justify-between items-center mb-2 h-10">
-                        <h1 className="text-3xl font-bold text-[var(--primary)]">Page Mode</h1>
+                        <h1 className="text-3xl font-bold text-[var(--primary)]">page mode</h1>
                         <button
                             onClick={addItem}
                             className="px-4 py-2 bg-[var(--primary)] text-black font-bold rounded hover:bg-[#e5a010] transition-colors"
                         >
-                            + Add Block
+                            + add block
                         </button>
                     </div>
                 </div>
@@ -95,7 +95,7 @@ export function PageCanvas() {
    <BlockEditor
   content={item.content}
   className="min-h-full font-['Varela_Round']"
-  placeholder="Type here..."
+  placeholder="type here..."
    />
    </div>
    </div>

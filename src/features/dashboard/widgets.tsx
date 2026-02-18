@@ -10,7 +10,7 @@ export function StatWidget({ title, value, trend, trendUp }: { title: string, va
  <span className="text-3xl font-bold">{value}</span>
  {trend && (
  <span className={`text-xs flex items-center mb-1 ${trendUp ? 'text-green-500' : 'text-red-500'}`}>
- {trendUp ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowDownRight className="h-3 w-3 mr-1" />}
+ {trendup ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowDownRight className="h-3 w-3 mr-1" />}
  {trend}
  </span>
  )}
@@ -19,13 +19,13 @@ export function StatWidget({ title, value, trend, trendUp }: { title: string, va
   );
 }
 
-export function RecentActivityWidget() {
+export function recentactivitywidget() {
   // mock data
   const activities = [
-  { id: 1, text: "Updated 'Project Alpha'", time: "2m ago", icon: <CheckCircle2 className="h-4 w-4 text-green-500" /> },
-  { id: 2, text: "New headmate 'Vessel'", time: "1h ago", icon: <CheckCircle2 className="h-4 w-4 text-blue-500" /> },
-  { id: 3, text: "Completed task 'Buy milk'", time: "3h ago", icon: <CheckCircle2 className="h-4 w-4 text-yellow-500" /> },
-  { id: 4, text: "Created folder 'Ideas'", time: "5h ago", icon: <Clock className="h-4 w-4 text-muted-foreground" /> },
+  { id: 1, text: "updated 'project alpha'", time: "2m ago", icon: <CheckCircle2 className="h-4 w-4 text-green-500" /> },
+  { id: 2, text: "new headmate 'vessel'", time: "1h ago", icon: <CheckCircle2 className="h-4 w-4 text-blue-500" /> },
+  { id: 3, text: "completed task 'buy milk'", time: "3h ago", icon: <CheckCircle2 className="h-4 w-4 text-yellow-500" /> },
+  { id: 4, text: "created folder 'ideas'", time: "5h ago", icon: <Clock className="h-4 w-4 text-muted-foreground" /> },
   ];
 
   return (

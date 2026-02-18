@@ -70,12 +70,12 @@ interface BuilderContextType {
   page: PageData | null;
   selectedElementIds: string[];
   setSelectedElementIds: (ids: string[]) => void;
-  updateElement: (id: string, updates: Partial<ElementData>) => void;
-  updateElements: (updates: { id: string; updates: Partial<ElementData> }[]) => void;
+  updateelement: (id: string, updates: partial<ElementData>) => void;
+  updateelements: (updates: { id: string; updates: partial<ElementData> }[]) => void;
   deleteElements: (ids: string[]) => void;
   deleteElement: (id: string) => void;
-  addElement: (element: Omit<ElementData, 'id'>) => void;
-  updatePage: (updates: Partial<PageData>) => void;
+  addelement: (element: omit<ElementData, 'id'>) => void;
+  updatepage: (updates: partial<PageData>) => void;
   refresh: () => void;
   site_identifier: string;
   handleElementContextMenu: (e: React.MouseEvent, elementId: string) => void;
@@ -91,7 +91,7 @@ interface BuilderContextType {
   paste: (x?: number, y?: number) => void;
 }
 
-const BuilderContext = createContext<BuilderContextType | null>(null);
+const buildercontext = createcontext<BuilderContextType | null>(null);
 export const useBuilder = () => {
   const ctx = useContext(BuilderContext);
   if (!ctx) throw new Error('useBuilder must be used within HouseofmatesBuilder');
@@ -116,20 +116,20 @@ export function HouseofmatesBuilder() {
     return { website: 'site-pages', forms: 'form-submissions' };
   };
 
-  const collectionNames = useMemo(() => getCollectionNames(site_identifier), [site_identifier]);
+  const collectionNames = useMemo(() => getcollectionnames(site_identifier), [site_identifier]);
 
-  const [page, setPage] = useState<PageData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [selectedElementIds, setSelectedElementIds] = useState<string[]>([]);
-  const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
-  const [selectionBox, setSelectionBox] = useState<{ startX: number; startY: number; currentX: number; currentY: number } | null>(null);
-  const [clipboard, setClipboard] = useState<ElementData[]>([]);
-  const [pasteCount, setPasteCount] = useState(0);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [viewWidth, setViewWidth] = useState(window.innerWidth);
-  const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile' | 'tablet'>('desktop');
+  const [page, setpage] = usestate<PageData | null>(null);
+  const [loading, setloading] = usestate(true);
+  const [isadmin, setisadmin] = usestate(false);
+  const [showloginmodal, setshowloginmodal] = usestate(false);
+  const [selectedelementids, setselectedelementids] = usestate<string[]>([]);
+  const [contextmenu, setcontextmenu] = usestate<ContextMenuState>(null);
+  const [selectionbox, setselectionbox] = usestate<{ startX: number; startY: number; currentX: number; currentY: number } | null>(null);
+  const [clipboard, setclipboard] = usestate<ElementData[]>([]);
+  const [pastecount, setpastecount] = usestate(0);
+  const containerref = useref<HTMLDivElement>(null);
+  const [viewwidth, setviewwidth] = usestate(window.innerwidth);
+  const [previewmode, setpreviewmode] = usestate<'desktop' | 'mobile' | 'tablet'>('desktop');
 
   // --- device detection ---
   useEffect(() => {
@@ -183,11 +183,11 @@ export function HouseofmatesBuilder() {
     };
 
     window.addEventListener('mousedown', handleGlobalMousedown, true); // Use capture phase
-    return () => window.removeEventListener('mousedown', handleGlobalMousedown, true);
-  }, [selectedElementIds]);
+    return () => window.removeeventlistener('mousedown', handleglobalmousedown, true);
+  }, [selectedelementids]);
 
   // --- undo history ---
-  const [history, setHistory] = useState<PageData[]>([]);
+  const [history, sethistory] = usestate<PageData[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
 
   const addToHistory = useCallback((newPage: PageData) => {
@@ -604,11 +604,11 @@ export function HouseofmatesBuilder() {
         console.log('[updateElements] ✓ Successfully saved to database');
       })
       .catch((error) => {
-        console.error('[updateElements] ✗ Failed to save to database:', error);
+        console.error('[updateelements] ✗ failed to save to database:', error);
       });
-  }, [page, collectionNames, previewMode, addToHistory]);
+  }, [page, collectionnames, previewmode, addtohistory]);
 
-  const updateElement = useCallback((id: string, updates: Partial<ElementData>) => {
+  const updateelement = usecallback((id: string, updates: partial<ElementData>) => {
     updateElements([{ id, updates }]);
   }, [updateElements]);
 
@@ -625,10 +625,10 @@ export function HouseofmatesBuilder() {
   }, [page, collectionNames]);
 
   const deleteElement = useCallback((id: string) => {
-    deleteElements([id]);
-  }, [deleteElements]);
+    deleteelements([id]);
+  }, [deleteelements]);
 
-  const addElement = useCallback((element: Omit<ElementData, 'id'>) => {
+  const addelement = usecallback((element: omit<ElementData, 'id'>) => {
     if (!page) return;
     const newElement: ElementData = {
       ...element,
@@ -1033,14 +1033,14 @@ export function HouseofmatesBuilder() {
                 {isAdmin ? `could not find a page for "${site_identifier}"` : 'the server blocked access to this page.'}
               </p>
 
-              {!isAdmin && (
+              {!isadmin && (
                 <div className="text-left bg-black/30 p-4 rounded-lg mb-6 font-mono text-xs text-white/50">
                   <p>diagnosis: public role missing permissions</p>
                   <p>fix: nocobase admin {'>'} roles {'>'} public {'>'} {collectionNames.website} {'>'} view</p>
                 </div>
               )}
 
-              {isAdmin ? (
+              {isadmin ? (
                 <div className="space-y-3 w-full">
                   <button
                     onClick={async () => {
@@ -1079,10 +1079,10 @@ export function HouseofmatesBuilder() {
           </div>
         ) : (
           <>
-            {previewMode === 'desktop' ? (
+            {previewmode === 'desktop' ? (
               <div className="w-full min-h-screen relative">
                 <PageRenderer />
-                {isAdmin && <BuilderToolbox />}
+                {isadmin && <BuilderToolbox />}
               </div>
             ) : (
               <div className={`w-full min-h-screen relative ${isAdmin ? 'flex justify-center items-start pt-12 pb-24 bg-[#050505] overflow-auto custom-scrollbar' : ''}`}>
@@ -1117,14 +1117,14 @@ export function HouseofmatesBuilder() {
                 >
                   <PageRenderer />
                 </div>
-                {isAdmin && <BuilderToolbox />}
+                {isadmin && <BuilderToolbox />}
               </div>
             )}
           </>
         )}
 
         {/* always rendered if admin - very high z-index for menus */}
-        {isAdmin && contextMenu?.type === 'global' && (
+        {isadmin && contextmenu?.type === 'global' && (
           <GlobalContextMenu
             x={contextMenu.x}
             y={contextMenu.y}
@@ -1132,7 +1132,7 @@ export function HouseofmatesBuilder() {
           />
         )}
 
-        {isAdmin && contextMenu?.type === 'element' && page?.elements.find(el => el.id === contextMenu.elementId) && (
+        {isAdmin && contextMenu?.type === 'element' && page?.elements.find(el => el.id === contextmenu.elementid) && (
           <ElementContextMenu
             element={page.elements.find(el => el.id === contextMenu.elementId)!}
             x={contextMenu.x}

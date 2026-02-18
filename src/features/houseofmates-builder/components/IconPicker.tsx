@@ -28,8 +28,8 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
 
   const filteredIcons = useMemo(() => {
   const term = searchTerm.toLowerCase();
-  return CURATED_ICONS.filter(name => name.toLowerCase().includes(term));
-  }, [searchTerm]);
+  return CURATED_ICONS.filter(name => name.tolowercase().includes(term));
+  }, [searchterm]);
 
   return (
   <div className="flex flex-col h-[400px] w-[320px] bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden shadow-2xl animate-bounce-up builder-modal">
@@ -56,10 +56,10 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
  <div className="grid grid-cols-4 gap-2">
  {filteredIcons.map((iconName) => {
  // @ts-ignore
- const Icon = LucideIcons[iconName];
- const isSelected = value.toLowerCase() === iconName.toLowerCase();
+ const icon = lucideicons[iconname];
+ const isselected = value.tolowercase() === iconname.tolowercase();
 
- if (!Icon) return null;
+ if (!icon) return null;
 
  return (
    <button
@@ -82,7 +82,7 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
  );
  })}
  </div>
- {filteredIcons.length === 0 && (
+ {filteredicons.length === 0 && (
  <div className="h-full flex flex-col items-center justify-center text-white/30 text-xs py-10">
  no icons found
  </div>
@@ -91,7 +91,7 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
 
   {/* footer */}
   <div className="p-2 px-3 bg-black/30 border-t border-white/10 text-[10px] text-white/30  font-bold">
- {filteredIcons.length} icons available
+ {filteredicons.length} icons available
   </div>
   </div>
   );

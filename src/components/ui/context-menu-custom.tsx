@@ -134,10 +134,10 @@ export function ContextMenu() {
   // we need `usenavigate` but we might not be inside router context if rendered at root?
   // actually, if we put <contextmenu /> in rootlayout (inside router), we are good.
   }
-  closeMenu();
+  closemenu();
   }
 
-  return createPortal(
+  return createportal(
   <div
   ref={menuRef}
   className="fixed z-50 min-w-[200px] bg-popover/95 backdrop-blur-md border border-border text-popover-foreground rounded-lg shadow-xl animate-in fade-in zoom-in-95 duration-100 flex flex-col p-1 overflow-hidden"
@@ -145,7 +145,7 @@ export function ContextMenu() {
   >
   {/* header / rename */}
   <div className="px-2 py-1.5 border-b border-border/50 mb-1">
- {isRenaming ? (
+ {isrenaming ? (
  <div className="flex gap-1">
  <Input
    value={renameValue}
@@ -159,7 +159,7 @@ export function ContextMenu() {
  ) : (
  <div className="flex items-center justify-between group">
  <span className="text-xs font-semibold truncate max-w-[150px] opacity-80">
-   {renameValue || 'Untitled'}
+   {renamevalue || 'untitled'}
  </span>
  <Button
    size="icon"
@@ -172,7 +172,7 @@ export function ContextMenu() {
  </div>
  )}
  <div className="text-[10px] text-muted-foreground  mt-0.5">
- {targetType?.replace('-', ' ')}
+ {targettype?.replace('-', ' ')}
  </div>
   </div>
 
@@ -184,17 +184,17 @@ export function ContextMenu() {
  onClick={() => setShowColorPicker(!showColorPicker)}
   >
  <Palette className="h-3.5 w-3.5 mr-2 opacity-70" />
- Appearance
+ appearance
   </Button>
 
-  {showColorPicker && (
+  {showcolorpicker && (
  <div className="p-2 bg-muted/50 rounded-md my-1">
  <HexColorPicker color={data?.color || "var(--primary)"} onChange={handleColorChange} style={{ width: '100%', height: '120px' }} />
  </div>
   )}
 
   {/* metadata / full edit */}
-  {targetType === 'dashboard-card' && (
+  {targettype === 'dashboard-card' && (
  <Button
  variant="ghost"
  size="sm"
@@ -202,12 +202,12 @@ export function ContextMenu() {
  onClick={handleEditMetadata}
  >
  <ExternalLink className="h-3.5 w-3.5 mr-2 opacity-70" />
- Open Record
+ open record
  </Button>
   )}
 
   {/* ask ai (canvas/object) */}
-  {targetType === 'canvas-object' && (
+  {targettype === 'canvas-object' && (
   <>
   <Button
     variant="ghost"
@@ -234,7 +234,7 @@ export function ContextMenu() {
     onClick={handlePromote}
   >
     <BoxSelect className="h-3.5 w-3.5 mr-2 opacity-70" />
-    Promote to Record
+    promote to record
   </Button>
   </>
   )} 
@@ -249,7 +249,7 @@ export function ContextMenu() {
  onClick={handleDelete}
   >
  <Trash2 className="h-3.5 w-3.5 mr-2 opacity-70" />
- Delete
+ delete
   </Button>
 
   </div>,

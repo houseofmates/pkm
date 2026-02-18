@@ -26,9 +26,9 @@ interface PlayerDataMap {
 
 export function LiveServerWidget() {
   const [stats, setStats] = useState<ServerStats | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [chatMessages, setChatMessages] = useState<any[]>([]);
-  const [playerData, setPlayerData] = useState<PlayerDataMap>({});
+  const [loading, setloading] = usestate(true);
+  const [chatmessages, setchatmessages] = usestate<any[]>([]);
+  const [playerdata, setplayerdata] = usestate<PlayerDataMap>({});
 
   useEffect(() => {
   // initial stats fetch from local backend (fast)
@@ -150,7 +150,7 @@ export function LiveServerWidget() {
 
   const isLowTps = (stats?.tps || 20) < 18;
 
-  if (loading && !stats) return <div className="p-4 text-xs text-muted-foreground">Connecting to Dupemates...</div>;
+  if (loading && !stats) return <div className="p-4 text-xs text-muted-foreground">connecting to dupemates...</div>;
 
   return (
   <div className={cn(
@@ -161,7 +161,7 @@ export function LiveServerWidget() {
   <div className="flex items-center justify-between">
  <div className="flex items-center gap-2">
  <Activity className={cn("h-4 w-4", stats?.online ? "text-green-400" : "text-red-400")} />
- <span className="font-bold text-primary  text-xs">Dupemates SMP</span>
+ <span className="font-bold text-primary  text-xs">dupemates smp</span>
  </div>
  <div className="flex items-center gap-1">
  <div className={cn("w-2 h-2 rounded-full animate-pulse", stats?.online ? "bg-green-500" : "bg-red-500")} />
@@ -177,48 +177,48 @@ export function LiveServerWidget() {
  isLowTps ? "text-red-400" : "text-green-400"
  )}>
  <span className="text-xl font-mono font-bold">{stats?.tps.toFixed(1)}</span>
- <span className="text-[10px] opacity-50">TPS</span>
+ <span className="text-[10px] opacity-50">tps</span>
  </div>
 
  {/* players */}
  <div className="flex flex-col items-center justify-center p-2 rounded bg-white/5 text-blue-400">
  <span className="text-xl font-mono font-bold">{stats?.players}/{stats?.maxPlayers}</span>
- <span className="text-[10px] opacity-50">Players</span>
+ <span className="text-[10px] opacity-50">players</span>
  </div>
 
  {/* ping/uptime */}
  <div className="flex flex-col items-center justify-center p-2 rounded bg-white/5 text-purple-400">
  <span className="text-xl font-mono font-bold text-xs">{stats?.uptime}</span>
- <span className="text-[10px] opacity-50">Uptime</span>
+ <span className="text-[10px] opacity-50">uptime</span>
  </div>
   </div>
 
   {/* warning message */}
-  {isLowTps && (
+  {islowtps && (
  <div className="flex items-center gap-2 text-red-500 bg-red-500/10 p-2 rounded text-xs">
  <AlertTriangle size={14} />
- <span>Server performance degraded</span>
+ <span>server performance degraded</span>
  </div>
   )}
 
   {/* chat list */}
   <div className="mt-2 space-y-1 relative">
  <div className="text-[10px] opacity-50 mb-1 flex items-center gap-1">
- <Users size={10} /> Live Chat
+ <Users size={10} /> live chat
  </div>
  <div className="h-[120px] overflow-y-auto space-y-2 pr-1 font-mono text-[10px] custom-scrollbar flex flex-col-reverse">
- {chatMessages.length === 0 ? (
- <div className="text-muted-foreground italic opacity-50">No recent messages</div>
+ {chatmessages.length === 0 ? (
+ <div className="text-muted-foreground italic opacity-50">no recent messages</div>
  ) : (
  [...chatMessages].reverse().map((msg, i) => {
-   const isSystemMessage = msg.player === 'Server' || msg.player === 'system';
-   const playerDisplay = isSystemMessage
+   const issystemmessage = msg.player === 'server' || msg.player === 'system';
+   const playerdisplay = issystemmessage
    ? { name: msg.player, color: '#a855f7', style: { color: '#a855f7' } }
-   : getPlayerDisplay(msg.player);
+   : getplayerdisplay(msg.player);
 
    // format timestamp in user's local timezone (date + time)
    const timestamp = msg.timestamp
-   ? new Date(msg.timestamp).toLocaleString()
+   ? new date(msg.timestamp).tolocalestring()
    : '';
 
    return (
@@ -232,7 +232,7 @@ export function LiveServerWidget() {
   className="font-bold mr-1"
   style={playerDisplay.style}
    >
-  {playerDisplay.name}:
+  {playerdisplay.name}:
    </span>
    <span className="text-gray-300">{msg.message}</span>
    </div>
@@ -243,7 +243,7 @@ export function LiveServerWidget() {
   </div>
 
   <div className="text-[9px] text-right text-muted-foreground opacity-50">
- Last heartbeat: {stats?.lastUpdated ? new Date(stats.lastUpdated).toLocaleString() : '--:--:--'}
+ last heartbeat: {stats?.lastupdated ? new date(stats.lastupdated).tolocalestring() : '--:--:--'}
   </div>
   </div>
   );

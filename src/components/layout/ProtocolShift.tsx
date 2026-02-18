@@ -40,9 +40,9 @@ export function ProtocolShift() {
 
   useEffect(() => {
   if (shifted) {
-  document.body.classList.add('protocol-shift');
+  document.body.classlist.add('protocol-shift');
   } else {
-  document.body.classList.remove('protocol-shift');
+  document.body.classlist.remove('protocol-shift');
   }
   }, [shifted]);
 
@@ -57,7 +57,7 @@ export function ProtocolShift() {
   <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30" />
 
   <div className="absolute bottom-10 left-1/2 -translate-x-1/2 text-white/20 text-xs tracking-[1em] font-light animate-pulse">
- SANCTUARY PROTOCOL ACTIVE
+ sanctuary protocol active
   </div>
   </div>
   );

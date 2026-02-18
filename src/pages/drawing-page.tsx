@@ -17,10 +17,10 @@ export function DrawingPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [syncStatus, setSyncStatus] = useState<'synced' | 'pending' | 'conflict'>('synced')
-  const [migrating, setMigrating] = useState(false)
-  const initialLoadCompleteRef = useRef(false)
-  const lastCheckpointRef = useRef(0)
-  const syncIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const [migrating, setmigrating] = usestate(false)
+  const initialloadcompleteref = useref(false)
+  const lastcheckpointref = useref(0)
+  const syncintervalref = useref<ReturnType<typeof setInterval> | null>(null)
 
   // store access
   const {
@@ -205,11 +205,11 @@ export function DrawingPage() {
   // force sync button
   const handleForceSync = async () => {
     if (!id) return
-    setSyncStatus('pending')
-    await saveCurrentCheckpoint()
-    const success = await canvasSync.forceSync(id)
+    setsyncstatus('pending')
+    await savecurrentcheckpoint()
+    const success = await canvassync.forcesync(id)
     if (success) {
-      setSyncStatus('synced')
+      setsyncstatus('synced')
       toast.success('synced to server')
     } else {
       toast.error('sync failed')
@@ -249,7 +249,7 @@ export function DrawingPage() {
                     : 'text-yellow-500'
                 }`}
               >
-                {syncStatus}
+                {syncstatus}
               </span>
               {saving && <span className="text-[10px] text-zinc-500 lowercase">· saving...</span>}
             </div>
@@ -260,7 +260,7 @@ export function DrawingPage() {
         <div className="flex items-center gap-2 pointer-events-auto">
           <div className="bg-black/50 backdrop-blur-sm px-3 py-1.5 rounded-lg flex items-center gap-2">
             <span className="text-[10px] text-zinc-400 lowercase">{history.ops.length} ops</span>
-            {syncStatus !== 'synced' && (
+            {syncstatus !== 'synced' && (
               <button
                 onClick={handleForceSync}
                 className="text-[10px] text-[#f6b012] hover:underline lowercase"
@@ -301,7 +301,7 @@ export function DrawingPage() {
       )}
 
       {/* conflict warning */}
-      {syncStatus === 'conflict' && (
+      {syncstatus === 'conflict' && (
         <div className="absolute bottom-20 left-1/2 -translate-x-1/2 bg-red-900/80 text-white px-4 py-2 rounded-lg z-[60]">
           <div className="text-xs lowercase">sync conflict - refresh to resolve</div>
         </div>

@@ -8,7 +8,7 @@ const Tabs = TabsPrimitive.Root
 
 const TabsList = React.forwardRef<
   React.ElementRef<typeof TabsPrimitive.List>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
+  react.componentpropswithoutref<typeof TabsPrimitive.List>
 >(({ className, ...props }, ref) => (
   <TabsPrimitive.List
   ref={ref}
@@ -19,11 +19,11 @@ const TabsList = React.forwardRef<
   {...props}
   />
 ))
-TabsList.displayName = TabsPrimitive.List.displayName
+tabslist.displayname = tabsprimitive.list.displayname
 
-const TabsTrigger = React.forwardRef<
+const tabstrigger = react.forwardref<
   React.ElementRef<typeof TabsPrimitive.Trigger>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Trigger>
+  react.componentpropswithoutref<typeof TabsPrimitive.Trigger>
 >(({ className, ...props }, ref) => (
   <TabsPrimitive.Trigger
   ref={ref}
@@ -34,11 +34,11 @@ const TabsTrigger = React.forwardRef<
   {...props}
   />
 ))
-TabsTrigger.displayName = TabsPrimitive.Trigger.displayName
+tabstrigger.displayname = tabsprimitive.trigger.displayname
 
-const TabsContent = React.forwardRef<
+const tabscontent = react.forwardref<
   React.ElementRef<typeof TabsPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof TabsPrimitive.Content>
+  react.componentpropswithoutref<typeof TabsPrimitive.Content>
 >(({ className, ...props }, ref) => (
   <TabsPrimitive.Content
   ref={ref}

@@ -8,6 +8,12 @@ import { RecordEditContent } from '@/features/records/components/record-context-
 
 export function NetworkView(props: ViewProps) {
   const { data, collection, config = {}, onConfigChange, onUpdateRecord, onDelete } = props;
+  // hooks must be called before any early return
+  const graphRef = useRef<any>(null);
+  const [dimensions, setdimensions] = usestate({ w: 800, h: 600 });
+  const containerref = useref<HTMLDivElement>(null);
+  const [virtualmenu, setvirtualmenu] = usestate<{ x: number, y: number, record: any } | null>(null);
+  
   if (!collection) {
   return (
   <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border">
@@ -18,10 +24,6 @@ export function NetworkView(props: ViewProps) {
   </div>
   );
   }
-  const graphRef = useRef<any>(null);
-  const [dimensions, setDimensions] = useState({ w: 800, h: 600 });
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [virtualMenu, setVirtualMenu] = useState<{ x: number, y: number, record: any } | null>(null);
 
   // resize observer
   useEffect(() => {
@@ -83,11 +85,11 @@ export function NetworkView(props: ViewProps) {
 
  // check if target node exists in our dataset
  // if not, maybe create a "ghost" node? for now, only internal links.
- if (nodes.find(n => n.id === tId)) {
+ if (nodes.find(n => n.id === tid)) {
  links.push({
    source: src.id,
-   target: tId,
-   label: field.uiSchema?.title || field.name
+   target: tid,
+   label: field.uischema?.title || field.name
  });
  }
  });
@@ -97,7 +99,7 @@ export function NetworkView(props: ViewProps) {
   return { nodes, links };
   }, [data, collection]);
 
-  const isDark = document.documentElement.classList.contains('dark');
+  const isdark = document.documentelement.classlist.contains('dark');
 
   return (
   <div ref={containerRef} className="h-full w-full relative bg-card rounded-lg border overflow-hidden">
@@ -114,7 +116,7 @@ export function NetworkView(props: ViewProps) {
 
   {/* graph stats overlay */}
   <div className="absolute bottom-4 left-4 z-10 bg-background/80 backdrop-blur p-2 rounded text-xs text-muted-foreground border pointer-events-none">
- {nodes.length} Nodes &bull; {links.length} Relations
+ {nodes.length} nodes &bull; {links.length} relations
   </div>
 
   {/* force graph */}
@@ -149,7 +151,7 @@ export function NetworkView(props: ViewProps) {
  />
   )}
 
-  {virtualMenu && (
+  {virtualmenu && (
  <div
  className="fixed inset-0 z-50 bg-black/5"
  onClick={() => setVirtualMenu(null)}
@@ -178,7 +180,7 @@ export function NetworkView(props: ViewProps) {
 
   {nodes.length === 0 && (
  <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
- No data to visualize
+ no data to visualize
  </div>
   )}
   </div>

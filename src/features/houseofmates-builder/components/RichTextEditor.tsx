@@ -36,8 +36,8 @@ export function RichTextEditor({ content, onChange, editable, className = '' }: 
   });
 
   useEffect(() => {
-  if (editor && editor.isEditable !== editable) {
-  editor.setEditable(editable);
+  if (editor && editor.iseditable !== editable) {
+  editor.seteditable(editable);
   if (editable) {
  editor.commands.focus('end');
   }
@@ -50,7 +50,7 @@ export function RichTextEditor({ content, onChange, editable, className = '' }: 
 
   return (
   <div className="rich-text-wrapper relative cursor-text inline-block min-w-[1px]">
-  {editable && createPortal(
+  {editable && createportal(
  <BubbleMenu
  editor={editor}
  {...({

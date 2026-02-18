@@ -10,9 +10,9 @@ export function SleepRing({ element }: { element: any }) {
 
   // calculate arc path
   const describeArc = (x: number, y: number, radius: number, startAngle: number, endAngle: number) => {
-  const start = polarToCartesian(x, y, radius, endAngle - 90);
-  const end = polarToCartesian(x, y, radius, startAngle - 90);
-  const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+  const start = polartocartesian(x, y, radius, endangle - 90);
+  const end = polartocartesian(x, y, radius, startangle - 90);
+  const largearcflag = endangle - startangle <= 180 ? "0" : "1";
   return [
   "M", start.x, start.y,
   "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y
@@ -20,17 +20,17 @@ export function SleepRing({ element }: { element: any }) {
   };
 
   const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => {
-  const angleInRadians = (angleInDegrees) * Math.PI / 180.0;
+  const angleinradians = (angleindegrees) * math.pi / 180.0;
   return {
-  x: centerX + (radius * Math.cos(angleInRadians)),
-  y: centerY + (radius * Math.sin(angleInRadians))
+  x: centerx + (radius * math.cos(angleinradians)),
+  y: centery + (radius * math.sin(angleinradians))
   };
   };
 
-  const sAngle = timeToAngle(start);
-  const eAngle = timeToAngle(end);
+  const sangle = timetoangle(start);
+  const eangle = timetoangle(end);
   // handle crossing midnight
-  const adjustedEnd = eAngle < sAngle ? eAngle + 360 : eAngle;
+  const adjustedend = eangle < sAngle ? eAngle + 360 : eAngle;
 
   return (
   <div className="w-full h-full relative flex items-center justify-center select-none bg-black/60 rounded-full border border-white/10 backdrop-blur-md">
@@ -63,7 +63,7 @@ export function SleepRing({ element }: { element: any }) {
  ))}
 
  {/* center text */}
- <text x="50" y="45" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">SLEEP</text>
+ <text x="50" y="45" textAnchor="middle" fill="#fff" fontSize="10" fontWeight="bold">sleep</text>
  <text x="50" y="60" textAnchor="middle" fill="var(--primary)" fontSize="12" fontWeight="bold">8h 20m</text>
   </svg>
 

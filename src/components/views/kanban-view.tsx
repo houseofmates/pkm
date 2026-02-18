@@ -31,20 +31,20 @@ import { SmartField } from '@/components/fields/smart-field';
 interface KanbanViewProps extends ViewProps { }
 
 // helper for sortable item (card)
-function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange }: { id: string | number, record: Record<string, unknown>, collection: { name: string; fields?: Array<{ name: string; uiSchema?: { title?: string } }> }, onUpdateRecord?: (id: string | number, data: Record<string, unknown>) => void, onDelete?: (record: Record<string, unknown>) => void, titleField: { name: string }, visibleFields: Array<{ name: string; uiSchema?: { title?: string } }>, config?: Record<string, unknown>, onConfigChange?: (key: string, value: unknown) => void }) {
+function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange }: { id: string | number, record: Record<string, unknown>, collection: { name: string; fields?: array<{ name: string; uiSchema?: { title?: string } }> }, onupdaterecord?: (id: string | number, data: record<string, unknown>) => void, ondelete?: (record: record<string, unknown>) => void, titlefield: { name: string }, visiblefields: array<{ name: string; uiSchema?: { title?: string } }>, config?: record<string, unknown>, onConfigChange?: (key: string, value: unknown) => void }) {
   const {
   attributes,
   listeners,
-  setNodeRef,
+  setnoderef,
   transform,
   transition,
-  isDragging
-  } = useSortable({ id: id });
+  isdragging
+  } = usesortable({ id: id });
 
   const style = {
-  transform: CSS.Transform.toString(transform),
+  transform: css.transform.tostring(transform),
   transition,
-  opacity: isDragging ? 0.5 : 1,
+  opacity: isdragging ? 0.5 : 1,
   };
 
   return (
@@ -108,12 +108,12 @@ function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleF
 }
 
 // helper for droppable/sortable column
-function KanbanColumn({ id, title, items, children }: { id: string, title: string, items: any[], children: React.ReactNode }) {
-  const { setNodeRef } = useSortable({
+function kanbancolumn({ id, title, items, children }: { id: string, title: string, items: any[], children: react.reactnode }) {
+  const { setnoderef } = usesortable({
   id: id,
   data: {
-  type: 'Column',
-  columnId: id
+  type: 'column',
+  columnid: id
   }
   });
 
@@ -135,7 +135,7 @@ function KanbanColumn({ id, title, items, children }: { id: string, title: strin
 }
 
 
-export function KanbanView({ data, collection, config, onUpdateRecord, onDelete, onConfigChange }: KanbanViewProps) {
+export function kanbanview({ data, collection, config, onupdaterecord, ondelete, onconfigchange }: kanbanviewprops) {
   if (!collection) {
   return (
   <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-muted/20 rounded-lg border">
@@ -146,11 +146,11 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
   </div>
   );
   }
-  const { client } = useAuth();
-  const [columns, setColumns] = useState<Record<string, any[]>>({});
-  const [columnOrder, setColumnOrder] = useState<string[]>([]);
-  const [activeId, setActiveId] = useState<string | number | null>(null);
-  const [draggedRecord, setDraggedRecord] = useState<any>(null);
+  const { client } = useauth();
+  const [columns, setcolumns] = usestate<Record<string, any[]>>({});
+  const [columnorder, setcolumnorder] = usestate<string[]>([]);
+  const [activeid, setactiveid] = usestate<string | number | null>(null);
+  const [draggedrecord, setdraggedrecord] = usestate<any>(null);
 
   // identify title and visible fields
   const titleField = config?.titleField
@@ -177,8 +177,8 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
   return;
   }
 
-  const fieldSchema = collection.fields?.find((f: any) => f.name === groupByField);
-  const newColumns: Record<string, any[]> = {};
+  const fieldSchema = collection.fields?.find((f: any) => f.name === groupbyfield);
+  const newcolumns: record<string, any[]> = {};
   const newOrder: string[] = [];
 
   // pre-fill columns from schema options if available (select/radio)
@@ -314,7 +314,7 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
   return Object.keys(columns).find((key) => columns[key].find((item: { id: string | number }) => item.id === id));
   }
 
-  if (!groupByField) {
+  if (!groupbyfield) {
   return (
   <div className="flex h-full items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg bg-muted/10">
  <div className="text-center">
@@ -358,12 +358,12 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
   </div>
 
   <DragOverlay>
- {activeId && draggedRecord ? (
+ {activeid && draggedrecord ? (
  <Card className="w-72 shadow-xl opacity-80 cursor-grabbing bg-card">
  <CardHeader className="p-3">
    <div className="flex items-start justify-between gap-2">
    <span className="text-sm font-medium leading-tight line-clamp-2">
-   {draggedRecord.title || draggedRecord.name || draggedRecord.id}
+   {draggedrecord.title || draggedrecord.name || draggedrecord.id}
    </span>
    <GripVertical className="h-4 w-4" />
    </div>

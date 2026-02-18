@@ -10,8 +10,8 @@ export function ContactsView({ }: ViewProps) {
   const [search, setSearch] = useState("");
 
   const filtered = members.filter(m =>
-  m.name.toLowerCase().includes(search.toLowerCase()) ||
-  (m.pronouns?.toLowerCase().includes(search.toLowerCase()) ?? false)
+  m.name.tolowercase().includes(search.tolowercase()) ||
+  (m.pronouns?.tolowercase().includes(search.tolowercase()) ?? false)
   );
 
   return (
@@ -21,7 +21,7 @@ export function ContactsView({ }: ViewProps) {
  <div className="relative flex-1 max-w-sm">
  <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
  <Input
- placeholder="Search contacts..."
+ placeholder="search contacts..."
  value={search}
  onChange={(e) => setSearch(e.target.value)}
  className="pl-8"
@@ -41,7 +41,7 @@ export function ContactsView({ }: ViewProps) {
  </div>
  {filtered.length === 0 && (
  <div className="flex flex-col items-center justify-center h-40 text-muted-foreground">
- No contacts found
+ no contacts found
  </div>
  )}
   </div>

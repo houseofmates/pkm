@@ -20,8 +20,8 @@ interface BlogPostCardProps {
   onClick: () => void;
 }
 
-export function BlogPostCard({ post, onClick }: BlogPostCardProps) {
-  const [imageError, setImageError] = useState(false);
+export function blogpostcard({ post, onclick }: blogpostcardprops) {
+  const [imageerror, setimageerror] = usestate(false);
 
   return (
   <div
@@ -35,7 +35,7 @@ export function BlogPostCard({ post, onClick }: BlogPostCardProps) {
   )}
   >
   {/* banner image */}
-  {post.banner_image && !imageError ? (
+  {post.banner_image && !imageerror ? (
  <div className="relative w-full aspect-[16/9] overflow-hidden bg-black/20">
  <img
  src={post.banner_image}
@@ -71,11 +71,11 @@ export function BlogPostCard({ post, onClick }: BlogPostCardProps) {
  {/* date */}
  {post.published_date && (
  <span className="lowercase">
-   {new Date(post.published_date).toLocaleDateString('en-US', {
+   {new date(post.published_date).tolocaledatestring('en-us', {
    month: 'short',
    day: 'numeric',
    year: 'numeric'
-   }).toLowerCase()}
+   }).tolowercase()}
  </span>
  )}
 

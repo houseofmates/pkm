@@ -9,8 +9,8 @@ interface PdfElementProps {
 
 export function PdfElement({ element, pdfDocument }: PdfElementProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const annotationLayerRef = useRef<HTMLDivElement>(null)
+  const canvasref = useref<HTMLCanvasElement>(null)
+  const annotationlayerref = useref<HTMLDivElement>(null)
   const [rendered, setRendered] = useState(false)
   const { mode } = useEdgelessStore()
 
@@ -18,26 +18,26 @@ export function PdfElement({ element, pdfDocument }: PdfElementProps) {
   if (!pdfDocument || rendered) return
 
   const renderPage = async () => {
-  const pageNum = element.data.pageNumber
-  const page = await pdfDocument.getPage(pageNum)
+  const pagenum = element.data.pagenumber
+  const page = await pdfdocument.getpage(pagenum)
 
-  const viewport = page.getViewport({ scale: 1.5 }) // Render at higher res
+  const viewport = page.getviewport({ scale: 1.5 }) // render at higher res
 
-  if (canvasRef.current) {
- const context = canvasRef.current.getContext('2d')
- canvasRef.current.width = viewport.width
- canvasRef.current.height = viewport.height
+  if (canvasref.current) {
+ const context = canvasref.current.getcontext('2d')
+ canvasref.current.width = viewport.width
+ canvasref.current.height = viewport.height
 
  await page.render({
- canvasContext: context!,
+ canvascontext: context!,
  viewport: viewport
  }).promise
 
- setRendered(true)
+ setrendered(true)
 
  // render annotation layer
- if (annotationLayerRef.current) {
- annotationLayerRef.current.innerHTML = '' // Clear
+ if (annotationlayerref.current) {
+ annotationlayerref.current.innerhtml = '' // clear
  // simplified annotation layer for links
  // const annotations = await page.getannotations()
 
@@ -47,8 +47,8 @@ export function PdfElement({ element, pdfDocument }: PdfElementProps) {
   }
   }
 
-  renderPage()
-  }, [pdfDocument, element, rendered])
+  renderpage()
+  }, [pdfdocument, element, rendered])
 
   return (
   <div

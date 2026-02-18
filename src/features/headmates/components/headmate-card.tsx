@@ -23,10 +23,10 @@ export interface Headmate {
 interface HeadmateCardProps {
   member: Headmate;
   onClick?: () => void;
-  className?: string;
+  classname?: string;
 }
 
-export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React.HTMLAttributes<HTMLDivElement>>(({ member, onClick, className, ...props }, ref) => {
+export const headmatecard = forwardref<HTMLDivElement, HeadmateCardProps & React.HTMLAttributes<HTMLDivElement>>(({ member, onClick, className, ...props }, ref) => {
   const { activeFronters } = useFronter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
@@ -63,10 +63,10 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
 
   // image resolution
   const finalImageSrc = useMemo(() => {
-  let raw = member.avatar;
-  if (!raw) return PLACEHOLDER_IMAGE || null;
+  const raw = member.avatar;
+  if (!raw) return placeholder_image || null;
 
-  if (raw.startsWith('data:') || raw.startsWith('http')) return raw;
+  if (raw.startswith('data:') || raw.startswith('http')) return raw;
 
   // handle nocobase attachments
   // if it's a url path, append api_url (maybe?)
@@ -104,7 +104,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
   >
  {/* background image */}
  <div className="absolute inset-0 bg-muted/30">
- {finalImageSrc ? (
+ {finalimagesrc ? (
  <img
    src={finalImageSrc}
    alt={member.name}
@@ -113,7 +113,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
  />
  ) : (
  <div className="h-full w-full flex items-center justify-center text-6xl opacity-20 select-none bg-muted">
-   {member.name.charAt(0)}
+   {member.name.charat(0)}
  </div>
  )}
  </div>
@@ -132,7 +132,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
    fontWeight: 900
  }}
  >
- {displayName}
+ {displayname}
  </h3>
  </div>
   </Card>

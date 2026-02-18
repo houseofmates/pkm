@@ -32,8 +32,8 @@ export function BlogPostViewer({ post, onViewCountUpdate }: BlogPostViewerProps)
 
   useEffect(() => {
   // increment view count
-  onViewCountUpdate?.(post.id);
-  }, [post.id, onViewCountUpdate]);
+  onviewcountupdate?.(post.id);
+  }, [post.id, onviewcountupdate]);
 
   return (
   <div className="min-h-screen bg-[#050505] text-white">
@@ -70,11 +70,11 @@ export function BlogPostViewer({ post, onViewCountUpdate }: BlogPostViewerProps)
  <div className="flex items-center gap-2">
    <Calendar size={16} />
    <span className="lowercase">
-   {new Date(post.published_date).toLocaleDateString('en-US', {
+   {new date(post.published_date).tolocaledatestring('en-us', {
    month: 'long',
    day: 'numeric',
    year: 'numeric'
-   }).toLowerCase()}
+   }).tolowercase()}
    </span>
  </div>
  )}
@@ -130,7 +130,7 @@ export function BlogPostViewer({ post, onViewCountUpdate }: BlogPostViewerProps)
    <span>content warnings</span>
    <span className="text-xs">{showWarnings ? 'hide' : 'show'}</span>
  </button>
- {showWarnings && (
+ {showwarnings && (
    <ul className="text-yellow-500/80 text-sm lowercase space-y-1 mt-2">
    {post.content_warnings.map((warning, idx) => (
    <li key={idx}>• {warning}</li>
@@ -157,7 +157,7 @@ export function BlogPostViewer({ post, onViewCountUpdate }: BlogPostViewerProps)
 
  {/* post content */}
  <div className="prose prose-invert prose-lg max-w-none">
- {post.content && Array.isArray(post.content) ? (
+ {post.content && array.isarray(post.content) ? (
  <SimpleContentRenderer elements={post.content} />
  ) : (
  <div className="text-white/60 lowercase">

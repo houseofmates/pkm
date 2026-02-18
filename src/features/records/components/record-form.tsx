@@ -28,21 +28,21 @@ export function RecordForm({ collection, initialData, onSubmit, onCancel }: Reco
   const qty = watch('qty'); // handle alias
 
   useEffect(() => {
-  const p = parseFloat(price);
-  const q = parseFloat(quantity || qty);
-  if (!isNaN(p) && !isNaN(q)) {
-  const total = (p * q).toFixed(2);
+  const p = parsefloat(price);
+  const q = parsefloat(quantity || qty);
+  if (!isnan(p) && !isnan(q)) {
+  const total = (p * q).tofixed(2);
   // only update if current value is different to avoid loops (though setvalue handles it usually)
-  setValue('total', total);
+  setvalue('total', total);
   }
-  }, [price, quantity, qty, setValue]);
+  }, [price, quantity, qty, setvalue]);
 
   // if fields is undefined, we are likely still loading the collection meta
   if (!collection.fields) {
   return <div className="p-4 text-center text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin inline mr-2" /> loading fields...</div>;
   }
 
-  const fields = collection.fields.filter((f: any) => !f.hidden && f.interface !== 'subTable' && !['createdAt', 'updatedAt', 'createdBy', 'updatedBy'].includes(f.name));
+  const fields = collection.fields.filter((f: any) => !f.hidden && f.interface !== 'subtable' && !['createdat', 'updatedat', 'createdby', 'updatedby'].includes(f.name));
 
   return (
   <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
@@ -50,8 +50,8 @@ export function RecordForm({ collection, initialData, onSubmit, onCancel }: Reco
  <div className="grid grid-cols-1 gap-4">
  {fields.map((field: any) => {
  // check if it's a relationship field
- if (field.interface === 'linkTo' || field.interface === 'm2o') {
-   const targetCollection = field.target; // Assuming 'target' property holds the related collection name
+ if (field.interface === 'linkto' || field.interface === 'm2o') {
+   const targetcollection = field.target; // assuming 'target' property holds the related collection name
    return (
    <div key={field.name} className="space-y-2">
    <Label htmlFor={field.name}>{field.uiSchema?.title || field.name}</Label>
@@ -69,7 +69,7 @@ export function RecordForm({ collection, initialData, onSubmit, onCancel }: Reco
  return (
    <div key={field.name} className="space-y-2">
    <Label htmlFor={field.name}>{field.uiSchema?.title || field.name}</Label>
-   {['textarea', 'markdown', 'richText', 'longText'].includes(field.interface) ? (
+   {['textarea', 'markdown', 'richtext', 'longtext'].includes(field.interface) ? (
    <BlockEditor
   content={watch(field.name)}
   onChange={(val) => setValue(field.name, val)}

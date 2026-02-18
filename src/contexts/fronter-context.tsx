@@ -26,51 +26,51 @@ interface FronterContextType {
   members: Headmate[];
   history: FrontEntry[];
   loading: boolean;
-  refresh: () => Promise<void>;
-  registerFrontChange: (memberIds: string[], comment?: string) => Promise<void>;
+  refresh: () => promise<void>;
+  registerFrontChange: (memberIds: string[], comment?: string) => promise<void>;
 
   // legacy support (to be refactored out)
-  overrides: Record<string, any>;
+  overrides: record<string, any>;
   updateOverride: (id: string, data: any) => void;
-  setOverrides: (overrides: Record<string, any>) => void;
-  flushOverrides: () => Promise<void>;
+  setoverrides: (overrides: record<string, any>) => void;
+  flushOverrides: () => promise<void>;
   cacheMemberColors: (members: any[]) => void;
   updateFronters: (fronters: string[]) => void;
-  toggleFronter: (id: string) => void; // Convenience
+  toggleFronter: (id: string) => void; // convenience
   
   // member colors from simplyplural
-  memberColors: Record<string, string>;
+  membercolors: record<string, string>;
 }
 
-const FronterContext = createContext<FronterContextType | undefined>(undefined);
+const frontercontext = createcontext<FronterContextType | undefined>(undefined);
 
-export function FronterProvider({ children }: { children: ReactNode }) {
-  const [members, setMembers] = useState<Headmate[]>([]);
-  const [history, setHistory] = useState<FrontEntry[]>([]);
-  const [activeFronters, setActiveFronters] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+export function fronterprovider({ children }: { children: reactnode }) {
+  const [members, setmembers] = usestate<Headmate[]>([]);
+  const [history, sethistory] = usestate<FrontEntry[]>([]);
+  const [activefronters, setactivefronters] = usestate<string[]>([]);
+  const [loading, setloading] = usestate(true);
   
   // member colors state
-  const [memberColors, setMemberColors] = useState<Record<string, string>>(() => {
+  const [membercolors, setmembercolors] = usestate<Record<string, string>>(() => {
     try {
-      const stored = localStorage.getItem('member_colors');
-      return stored ? JSON.parse(stored) : {};
+      const stored = localstorage.getitem('member_colors');
+      return stored ? json.parse(stored) : {};
     } catch {
       return {};
     }
   });
 
   // overrides for simplyplural integration
-  const [overrides, setOverridesState] = useState<Record<string, any>>(() => {
+  const [overrides, setoverridesstate] = usestate<Record<string, any>>(() => {
   try {
-  const stored = localStorage.getItem('headmate_overrides');
-  return stored ? JSON.parse(stored) : {};
+  const stored = localstorage.getitem('headmate_overrides');
+  return stored ? json.parse(stored) : {};
   } catch {
   return {};
   }
   });
 
-  const setOverrides = (newOverrides: Record<string, any>) => {
+  const setoverrides = (newoverrides: record<string, any>) => {
   setOverridesState(newOverrides);
   localStorage.setItem('headmate_overrides', JSON.stringify(newOverrides));
   };
@@ -90,7 +90,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
 
   const cacheMemberColors = (members: any[]) => {
   // store member colors from simplyplural
-  const colorCache: Record<string, string> = {};
+  const colorcache: record<string, string> = {};
   members.forEach((m: any) => {
   if (m.content?.color) {
  colorCache[m.id] = m.content.color;
@@ -272,9 +272,9 @@ export function FronterProvider({ children }: { children: ReactNode }) {
 
   // then sync to backend (don't await, it refreshes internally)
   registerFrontChange(newIds).catch(err => {
-  secureLogger.error('Failed to register front change:', err);
+  securelogger.error('failed to register front change:', err);
   // revert optimistic update on failure
-  setActiveFronters(activeFronters);
+  setactivefronters(activefronters);
   });
   };
 

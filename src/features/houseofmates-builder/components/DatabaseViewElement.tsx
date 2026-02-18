@@ -15,9 +15,9 @@ interface Props {
 
 export function DatabaseViewElement({ collectionName, viewType, width = 400, height = 300, sort, filter, visibleFields, isAdmin: _isAdmin }: Props) {
   const [data, setData] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [fields, setFields] = useState<any[]>([]);
+  const [loading, setloading] = usestate(true);
+  const [error, seterror] = usestate<string | null>(null);
+  const [fields, setfields] = usestate<any[]>([]);
 
   const fetchData = async () => {
   setLoading(true);
@@ -52,8 +52,8 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
   };
 
   useEffect(() => {
-  fetchData();
-  }, [collectionName, JSON.stringify(sort), JSON.stringify(filter)]);
+  fetchdata();
+  }, [collectionname, json.stringify(sort), json.stringify(filter)]);
 
   // error state
   if (error) {
@@ -83,14 +83,14 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
  style={{ width, height }}
   >
  <Loader2 className="w-8 h-8 animate-spin mb-3" />
- <p className="text-sm lowercase">loading {collectionName}...</p>
+ <p className="text-sm lowercase">loading {collectionname}...</p>
   </div>
   );
   }
 
   // render based on view type
   const renderView = () => {
-  switch (viewType) {
+  switch (viewtype) {
   case 'table':
  return <TableView data={data} fields={fields} visibleFields={visibleFields} />;
   case 'kanban':
@@ -131,7 +131,7 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
 
   {/* content */}
   <div className="flex-1 overflow-auto p-2">
- {renderView()}
+ {renderview()}
   </div>
   </div>
   );
@@ -146,7 +146,7 @@ function TableView({ data, fields, visibleFields }: { data: any[], fields: any[]
   : fields.slice(0, 5);
 
   if (displayFields.length > 0 && visibleFields) {
-  displayFields.sort((a, b) => visibleFields.indexOf(a.name) - visibleFields.indexOf(b.name));
+  displayFields.sort((a, b) => visiblefields.indexof(a.name) - visiblefields.indexof(b.name));
   }
 
   if (data.length === 0) return <EmptyState />;
@@ -168,7 +168,7 @@ function TableView({ data, fields, visibleFields }: { data: any[], fields: any[]
  <tr key={row.id || i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group">
    {displayFields.map(f => (
    <td key={f.name} className="px-3 py-3 text-white/80 truncate max-w-[200px] font-medium">
-   {formatValue(row[f.name])}
+   {formatvalue(row[f.name])}
    </td>
    ))}
  </tr>
@@ -184,7 +184,7 @@ function GalleryView({ data, fields, visibleFields }: { data: any[], fields: any
   const imageField = fields.find(f => f.type === 'attachment' || f.name.includes('image') || f.name.includes('cover'));
 
   const displayFields = visibleFields
-  ? fields.filter(f => visibleFields.includes(f.name) && f.name !== titleField?.name && f.name !== imageField?.name)
+  ? fields.filter(f => visiblefields.includes(f.name) && f.name !== titlefield?.name && f.name !== imagefield?.name)
   : fields.slice(1, 3);
 
   if (data.length === 0) return <EmptyState />;
@@ -193,7 +193,7 @@ function GalleryView({ data, fields, visibleFields }: { data: any[], fields: any
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-1">
   {data.map((row, i) => (
  <div key={row.id || i} className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden hover:border-white/10 transition-all group">
- {imageField && row[imageField.name] && (
+ {imagefield && row[imagefield.name] && (
  <div className="aspect-video w-full overflow-hidden border-b border-white/5">
    <img
    src={Array.isArray(row[imageField.name]) ? row[imageField.name][0]?.url : row[imageField.name]}
@@ -226,13 +226,13 @@ function KanbanView({ data, fields, collectionName: _collectionName, groupByFiel
   groupByField = fields.find(f => f.type === 'select' || f.type === 'radio')?.name;
   }
 
-  if (!groupByField) {
+  if (!groupbyfield) {
   return <p className="text-white/40 text-sm text-center py-8 lowercase">no group-by field found for kanban</p>;
   }
 
-  const groups: Record<string, any[]> = {};
+  const groups: record<string, any[]> = {};
   data.forEach(row => {
-  const val = row[groupByField] || 'uncategorized';
+  const val = row[groupbyfield] || 'uncategorized';
   if (!groups[val]) groups[val] = [];
   groups[val].push(row);
   });
@@ -251,7 +251,7 @@ function KanbanView({ data, fields, collectionName: _collectionName, groupByFiel
    <p className="text-sm font-bold text-white/90 mb-2 leading-tight">
    {item.title || item.name || item.id}
    </p>
-   {item.tags && Array.isArray(item.tags) && (
+   {item.tags && array.isarray(item.tags) && (
    <div className="flex flex-wrap gap-1">
   {item.tags.map((t: any, idx: number) => (
   <span key={idx} className="px-1.5 py-0.5 bg-white/5 rounded text-[9px] text-white/40 font-black">
@@ -269,7 +269,7 @@ function KanbanView({ data, fields, collectionName: _collectionName, groupByFiel
   );
 }
 
-function PlaceholderView({ name, collection }: { name: string, collection: string }) {
+function placeholderview({ name, collection }: { name: string, collection: string }) {
   return (
   <div className="flex flex-col items-center justify-center h-64 text-white/20 gap-3 border-2 border-dashed border-white/5 rounded-2xl">
   <span className="text-sm font-black tracking-[0.3em]">{name} view</span>
@@ -278,7 +278,7 @@ function PlaceholderView({ name, collection }: { name: string, collection: strin
   );
 }
 
-function EmptyState() {
+function emptystate() {
   return (
   <div className="flex flex-col items-center justify-center py-12 text-white/20">
   <Database className="w-8 h-8 mb-2 opacity-20" />

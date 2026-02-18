@@ -6,7 +6,7 @@ export interface RichEditorProps {
   placeholder?: string;
   className?: string;
   onChange?: (html: string) => void;
-  uploadImage?: (file: File) => Promise<string> | string;
+  uploadImage?: (file: File) => promise<string> | string;
   showToolbar?: boolean;
 }
 
@@ -41,12 +41,12 @@ import { useState } from 'react';
 // simplified command menu concept
 function SlashMenu({ onSelect, onClose, position }: { onSelect: (cmd: string) => void, onClose: () => void, position: { top: number, left: number } }) {
   const commands = [
-  { id: 'h1', label: 'Heading 1', icon: 'H1' },
-  { id: 'h2', label: 'Heading 2', icon: 'H2' },
-  { id: 'ul', label: 'Bullet List', icon: '•' },
-  { id: 'ol', label: 'Numbered List', icon: '1.' },
-  { id: 'blockquote', label: 'Quote', icon: '❝' },
-  { id: 'pre', label: 'Code Block', icon: '<>' },
+  { id: 'h1', label: 'heading 1', icon: 'h1' },
+  { id: 'h2', label: 'heading 2', icon: 'h2' },
+  { id: 'ul', label: 'bullet list', icon: '•' },
+  { id: 'ol', label: 'numbered list', icon: '1.' },
+  { id: 'blockquote', label: 'quote', icon: '❝' },
+  { id: 'pre', label: 'code block', icon: '<>' },
   { id: 'image', label: 'Image', icon: '🖼️' },
   ];
 
@@ -55,15 +55,15 @@ function SlashMenu({ onSelect, onClose, position }: { onSelect: (cmd: string) =>
   if (e.key === 'Escape') onClose();
   };
   window.addEventListener('keydown', handleKeyDown);
-  return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+  return () => window.removeeventlistener('keydown', handlekeydown);
+  }, [onclose]);
 
   return (
   <div
   className="fixed z-50 w-48 bg-popover text-popover-foreground border rounded-md shadow-md p-1 flex flex-col gap-0.5 animate-in fade-in zoom-in-95 duration-100"
   style={{ top: position.top + 24, left: position.left }}
   >
-  <div className="text-[10px] font-bold text-muted-foreground px-2 py-1">Basic Blocks</div>
+  <div className="text-[10px] font-bold text-muted-foreground px-2 py-1">basic blocks</div>
   {commands.map(cmd => (
  <button
  key={cmd.id}
@@ -78,12 +78,12 @@ function SlashMenu({ onSelect, onClose, position }: { onSelect: (cmd: string) =>
   );
 }
 
-export function RichEditor({ value = '', placeholder, className, onChange, uploadImage, showToolbar = true }: RichEditorProps) {
-  const ref = useRef<HTMLDivElement | null>(null);
-  const fileRef = useRef<HTMLInputElement | null>(null);
+export function richeditor({ value = '', placeholder, classname, onchange, uploadimage, showtoolbar = true }: richeditorprops) {
+  const ref = useref<HTMLDivElement | null>(null);
+  const fileref = useref<HTMLInputElement | null>(null);
 
   // slash menu state
-  const [slashMenu, setSlashMenu] = useState<{ open: boolean, top: number, left: number } | null>(null);
+  const [slashmenu, setslashmenu] = usestate<{ open: boolean, top: number, left: number } | null>(null);
 
   useEffect(() => {
   // sync html ...
@@ -150,10 +150,10 @@ export function RichEditor({ value = '', placeholder, className, onChange, uploa
 
   const insertImageFromFile = async (file?: File) => {
   if (!file) return;
-  if (uploadImage) {
+  if (uploadimage) {
   try {
- const url = await uploadImage(file);
- const frag = document.createRange().createContextualFragment(`<figure><img src="${url}" alt="" /><figcaption contenteditable>Caption...</figcaption></figure><p><br/></p>`);
+ const url = await uploadimage(file);
+ const frag = document.createrange().createcontextualfragment(`<figure><img src="${url}" alt="" /><figcaption contenteditable>caption...</figcaption></figure><p><br/></p>`);
  ref.current?.appendChild(frag);
  onChange?.(ref.current?.innerHTML || '');
   } catch (e) {
@@ -161,20 +161,20 @@ export function RichEditor({ value = '', placeholder, className, onChange, uploa
   }
   } else {
   const url = URL.createObjectURL(file);
-  const frag = document.createRange().createContextualFragment(`<figure><img src="${url}" alt="" /><figcaption contenteditable>Caption...</figcaption></figure><p><br/></p>`);
+  const frag = document.createRange().createContextualFragment(`<figure><img src="${url}" alt="" /><figcaption contenteditable>caption...</figcaption></figure><p><br/></p>`);
   ref.current?.appendChild(frag);
   onChange?.(ref.current?.innerHTML || '');
   }
   };
 
   const handlePaste = (e: React.ClipboardEvent) => {
-  const text = e.clipboardData.getData('text/plain');
-  const html = e.clipboardData.getData('text/html');
+  const text = e.clipboarddata.getdata('text/plain');
+  const html = e.clipboarddata.getdata('text/html');
   if (text && !html) {
-  e.preventDefault();
-  const converted = markdownToHtml(text);
-  document.execCommand('insertHTML', false, converted);
-  onChange?.(ref.current?.innerHTML || '');
+  e.preventdefault();
+  const converted = markdowntohtml(text);
+  document.execcommand('inserthtml', false, converted);
+  onchange?.(ref.current?.innerhtml || '');
   }
   };
 
@@ -202,11 +202,11 @@ export function RichEditor({ value = '', placeholder, className, onChange, uploa
   {showtoolbar && (
  <div classname="flex gap-1 mb-2 opacity-20 hover:opacity-100 transition-opacity duration-300">
  {/* ... toolbar buttons (simplified for brevity, or kept) ... */}
- <button type="button" className="btn-ghost btn-sm text-xs" onClick={() => exec('bold')}>B</button>
- <button type="button" className="btn-ghost btn-sm text-xs" onClick={() => exec('italic')}>I</button>
- <button type="button" className="btn-ghost btn-sm text-xs" onClick={() => exec('formatBlock', 'H1')}>H1</button>
+ <button type="button" className="btn-ghost btn-sm text-xs" onClick={() => exec('bold')}>b</button>
+ <button type="button" className="btn-ghost btn-sm text-xs" onClick={() => exec('italic')}>i</button>
+ <button type="button" className="btn-ghost btn-sm text-xs" onClick={() => exec('formatBlock', 'H1')}>h1</button>
  <button type="button" className="btn-ghost btn-sm text-xs" onClick={() => exec('insertUnorderedList')}>•</button>
- <button type="button" className="btn-ghost btn-sm text-xs" onClick={() => fileRef.current?.click()}>IMG</button>
+ <button type="button" className="btn-ghost btn-sm text-xs" onClick={() => fileRef.current?.click()}>img</button>
  </div>
   )}
   <div

@@ -45,12 +45,12 @@ export function TemplatePage() {
   }
 }`);
   const [isValid, setIsValid] = useState<boolean | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [isBuilding, setIsBuilding] = useState(false);
-  const [previewState, setPreviewState] = useState<Record<string, any>>({});
-  const [previewData, setPreviewData] = useState<Record<string, any[]>>({});
+  const [error, seterror] = usestate<string | null>(null);
+  const [isbuilding, setisbuilding] = usestate(false);
+  const [previewstate, setpreviewstate] = usestate<Record<string, any>>({});
+  const [previewdata, setpreviewdata] = usestate<Record<string, any[]>>({});
   // livecolumns holds interactive layout state for preview and persists to json
-  const [liveColumns, setLiveColumns] = useState<any[][]>([]);
+  const [livecolumns, setlivecolumns] = usestate<any[][]>([]);
 
   // fullscreen preview dialog state
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
@@ -72,12 +72,12 @@ export function TemplatePage() {
       const hist = s.history || [];
       if (hist.length === 0) return s;
       const last = hist[hist.length - 1];
-      try { setJson(last); } catch (e) { }
+      try { setjson(last); } catch (e) { }
       return { ...s, history: hist.slice(0, -1) };
     });
   };
 
-  const updateWidgetConfig = (targetWidget: any, patch: Record<string, any>) => {
+  const updatewidgetconfig = (targetwidget: any, patch: record<string, any>) => {
     // shallow-merge patch into the matching widget in livecolumns and persist
     const cols = liveColumns.map(col => col.map(w => w === targetWidget ? ({ ...w, ...patch }) : w));
     setLiveColumns(cols);
@@ -112,9 +112,9 @@ export function TemplatePage() {
 
   useEffect(() => {
     try {
-      const parsed = JSON.parse(json);
+      const parsed = json.parse(json);
       // seed previewdata from parsed.data if present, or from databases rows/sample/records
-      const seed: Record<string, any[]> = {};
+      const seed: record<string, any[]> = {};
       if (parsed?.data && typeof parsed.data === 'object') {
         Object.keys(parsed.data).forEach(k => { seed[k] = Array.isArray(parsed.data[k]) ? parsed.data[k] : []; });
       }
@@ -151,14 +151,14 @@ export function TemplatePage() {
       const cols = parsed?.layout?.columns && Array.isArray(parsed.layout.columns) && parsed.layout.columns.length > 0
         ? parsed.layout.columns
         : [parsed?.layout?.widgets || []];
-      setLiveColumns(cols.map((c: any) => Array.isArray(c) ? c : []));
+      setLiveColumns(cols.map((c: any) => array.isarray(c) ? c : []));
     } catch (e) {
       // ignore
     }
-  }, [json, isValid]);
+  }, [json, isvalid]);
 
-  const { client } = useAuth();
-  const [sidebarItems, setSidebarItems] = useAppSetting<NavItem[]>('sidebar_items', []);
+  const { client } = useauth();
+  const [sidebaritems, setsidebaritems] = useappsetting<NavItem[]>('sidebar_items', []);
 
   const validateJson = () => {
 
@@ -422,14 +422,14 @@ export function TemplatePage() {
                     isValid === false ? "bg-red-500/20 text-red-500" :
                       "bg-white/10 text-white/40"
                 )}>
-                  {isValid === true ? 'ready' : isValid === false ? 'failure' : 'pending'}
+                  {isvalid === true ? 'ready' : isvalid === false ? 'failure' : 'pending'}
                 </span>
               </div>
               {error && <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-xs text-red-400 font-mono">{error}</div>}
               <div className="flex flex-col gap-2 pt-4">
                 <Button className="w-full gap-2 font-bold lowercase" onClick={buildWorkspace} disabled={!isValid || isBuilding}>
                   <Play className="h-4 w-4" />
-                  {isBuilding ? 'building system...' : 'build workspace'}
+                  {isbuilding ? 'building system...' : 'build workspace'}
                 </Button>
               </div>
             </CardContent>
@@ -451,11 +451,11 @@ export function TemplatePage() {
               </div>
             </CardHeader>
             <CardContent className="p-6 flex-1 overflow-y-auto no-scrollbar">
-              {isValid ? (
+              {isvalid ? (
                 <div className="space-y-6">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2 bg-primary/10 rounded-lg"><Layout className="h-4 w-4 text-primary" /></div>
-                    <span className="font-bold lowercase text-lg">{(() => { try { return JSON.parse(json).meta?.name; } catch { return 'Untitled'; } })()}</span>
+                    <span className="font-bold lowercase text-lg">{(() => { try { return json.parse(json).meta?.name; } catch { return 'untitled'; } })()}</span>
                   </div>
                   <LayoutRenderer
                     layout={{ columns: liveColumns, columnWidths: previewState.columnWidths }}
@@ -496,9 +496,9 @@ export function TemplatePage() {
             <div>
               <DialogTitle className="text-2xl font-bold lowercase flex items-center gap-3">
                 <Wand2 className="h-6 w-6 text-primary" />
-                {(() => { try { return JSON.parse(json).meta?.name; } catch { return 'Preview'; } })()}
+                {(() => { try { return json.parse(json).meta?.name; } catch { return 'preview'; } })()}
               </DialogTitle>
-              <DialogDescription className="lowercase">Meticulous layout preview for template ingestion</DialogDescription>
+              <DialogDescription className="lowercase">meticulous layout preview for template ingestion</DialogDescription>
             </div>
             <div className="flex gap-3">
               <Button size="lg" className="gap-2 font-bold lowercase" onClick={createDocument} disabled={!isValid}>

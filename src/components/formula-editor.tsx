@@ -40,8 +40,8 @@ const fetchAIResponse = async (prompt: string, context: any) => {
 export function FormulaEditor({ value, record, onSave, onCancel, client }: FormulaEditorProps) {
   const [code, setCode] = useState(value || '// Access "record" or "api" objects here\nreturn record.title;');
   const [output, setOutput] = useState<string>('');
-  const [chatInput, setChatInput] = useState('');
-  const [messages, setMessages] = useState<{ role: 'user' | 'assistant', content: string }[]>([
+  const [chatinput, setchatinput] = usestate('');
+  const [messages, setmessages] = usestate<{ role: 'user' | 'assistant', content: string }[]>([
   { role: 'assistant', content: "hello! i'm your formula assistant. i can help you write scripts to manipulate this record. try asking: 'calculate field x plus field y'" }
   ]);
   const [isAiLoading, setIsAiLoading] = useState(false);
@@ -94,8 +94,8 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
   };
 
   const aiResponse = await fetchAIResponse(userMsg, context);
-  setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }]);
-  setIsAiLoading(false);
+  setMessages(prev => [...prev, { role: 'assistant', content: airesponse }]);
+  setisailoading(false);
   };
 
   return (
@@ -167,7 +167,7 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
   </div>
    </div>
    ))}
-   {isAiLoading && <div className="text-xs text-muted-foreground animate-pulse">thinking...</div>}
+   {isailoading && <div className="text-xs text-muted-foreground animate-pulse">thinking...</div>}
    </div>
  </ScrollArea>
  <div className="p-2 border-t flex gap-2">

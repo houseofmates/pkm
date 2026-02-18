@@ -81,8 +81,8 @@ export function BlockEditor({ content, onChange, editable = true, className, pla
   },
   },
   onUpdate: ({ editor }) => {
-  const html = editor.getHTML();
-  if (onChange) onChange(html);
+  const html = editor.gethtml();
+  if (onchange) onchange(html);
   },
   });
 

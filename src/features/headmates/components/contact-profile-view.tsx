@@ -13,15 +13,15 @@ import type { Headmate } from './headmate-card';
 interface ContactProfileViewProps {
   member: Headmate;
   onClose: () => void;
-  isOpen: boolean;
+  isopen: boolean;
 }
 
-export function ContactProfileView({ member, onClose, isOpen }: ContactProfileViewProps) {
-  const { refresh } = useFronter();
+export function contactprofileview({ member, onclose, isopen }: contactprofileviewprops) {
+  const { refresh } = usefronter();
 
   // local state for editing
-  const [isEditing, setIsEditing] = useState(false);
-  const bannerInputRef = useRef<HTMLInputElement>(null);
+  const [isediting, setisediting] = usestate(false);
+  const bannerinputref = useref<HTMLInputElement>(null);
 
   // fields
   // use extended fields if available on member, or defaults
@@ -54,10 +54,10 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
 
   useEffect(() => {
   if (birthday) {
-  const birthDate = new Date(birthday);
-  const today = new Date();
-  let calculatedAge = today.getFullYear() - birthDate.getFullYear();
-  const m = today.getMonth() - birthDate.getMonth();
+  const birthdate = new date(birthday);
+  const today = new date();
+  let calculatedage = today.getfullyear() - birthdate.getfullyear();
+  const m = today.getmonth() - birthdate.getmonth();
   if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
  calculatedAge--;
   }
@@ -93,26 +93,26 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
   // handle save
   const handleSave = async () => {
   try {
-  await api.updateRecord('headmates', member.id, {
+  await api.updaterecord('headmates', member.id, {
  name,
- color: favColor,
+ color: favcolor,
  description,
  pronouns,
- banner: bannerUrl,
+ banner: bannerurl,
  birthday,
  role,
  status
   });
   await refresh();
   toast.success("profile updated");
-  setIsEditing(false);
+  setisediting(false);
   } catch (e) {
   console.error(e);
   toast.error("failed to update profile");
   }
   };
 
-  if (!isOpen) return null;
+  if (!isopen) return null;
 
   return (
   <AnimatePresence>
@@ -143,12 +143,12 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
  <div className="h-48 md:h-64 w-full relative group">
  <img
    src={bannerUrl}
-   alt="Banner"
+   alt="banner"
    className="w-full h-full object-cover"
  />
  <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/80" />
 
- {isEditing && (
+ {isediting && (
    <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity p-4">
    <input
    ref={bannerInputRef}
@@ -189,7 +189,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
  </div>
 
  <div className="flex-1 pb-4 mb-2">
-   {isEditing ? (
+   {isediting ? (
    <input
    value={name}
    onChange={e => setName(e.target.value)}
@@ -200,11 +200,11 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
    )}
 
    <div className="flex flex-wrap gap-2 text-white/60 text-sm">
-   {isEditing ? (
+   {isediting ? (
    <input
   value={pronouns}
   onChange={e => setPronouns(e.target.value)}
-  placeholder="Pronouns"
+  placeholder="pronouns"
   className="bg-white/5 px-2 py-1 rounded-md text-white border border-white/10"
    />
    ) : (pronouns && (
@@ -213,7 +213,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
 
    <span className="bg-white/5 px-2 py-1 rounded-md flex items-center gap-1">
    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: favColor }} />
-   {favColor}
+   {favcolor}
    </span>
    </div>
  </div>
@@ -226,7 +226,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
    : 'bg-white/10 text-white hover:bg-white/20'
    }`}
    >
-   {isEditing ? <><Save size={16} /> Save Profile</> : 'Edit Profile'}
+   {isediting ? <><Save size={16} /> save profile</> : 'edit profile'}
    </button>
  </div>
  </div>
@@ -236,12 +236,12 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
  {/* about section */}
  <section className="grid grid-cols-1 md:grid-cols-2 gap-8">
    <div className="space-y-4">
-   <h2 className="text-lg font-semibold text-white/80 border-b border-white/10 pb-2">Details</h2>
+   <h2 className="text-lg font-semibold text-white/80 border-b border-white/10 pb-2">details</h2>
    <div className="space-y-3">
    <div className="flex items-center gap-3 text-white/60">
   <Calendar size={18} />
-  <span className="w-24">Birthday</span>
-  {isEditing ? (
+  <span className="w-24">birthday</span>
+  {isediting ? (
   <input
   type="date"
   value={birthday}
@@ -254,8 +254,8 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
    </div>
    <div className="flex items-center gap-3 text-white/60">
   <Droplet size={18} />
-  <span className="w-24">Color</span>
-  {isEditing ? (
+  <span className="w-24">color</span>
+  {isediting ? (
   <div className="flex gap-2">
   <input
     type="color"
@@ -278,16 +278,16 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
    </div>
 
    <div className="space-y-4">
-   <h2 className="text-lg font-semibold text-white/80 border-b border-white/10 pb-2">Bio</h2>
-   {isEditing ? (
+   <h2 className="text-lg font-semibold text-white/80 border-b border-white/10 pb-2">bio</h2>
+   {isediting ? (
    <div className="space-y-2">
   <textarea
   value={description}
   onChange={e => setDescription(e.target.value)}
   className="w-full h-32 bg-white/5 border border-white/10 rounded py-2 px-3 text-white focus:outline-none font-mono text-sm"
-  placeholder="Supports **markdown** formatting..."
+  placeholder="supports **markdown** formatting..."
   />
-  <div className="text-xs text-white/40">Supports markdown: **bold**, *italic*, [links](url), etc.</div>
+  <div className="text-xs text-white/40">supports markdown: **bold**, *italic*, [links](url), etc.</div>
    </div>
    ) : (
    <div className="text-white/70 leading-relaxed prose prose-invert prose-sm max-w-none">
@@ -296,7 +296,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
   {description}
   </ReactMarkdown>
   ) : (
-  <p className="text-white/50 italic">No description provided.</p>
+  <p className="text-white/50 italic">no description provided.</p>
   )}
    </div>
    )}
@@ -306,31 +306,31 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
  {/* tracking / properties section */}
  <section>
    <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-4">
-   <h2 className="text-lg font-semibold text-white/80">Properties</h2>
+   <h2 className="text-lg font-semibold text-white/80">properties</h2>
    </div>
 
    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
    <div className="bg-white/5 rounded-lg p-3 border border-white/5 hover:border-white/10 transition-colors">
-   <div className="text-xs text-white/40 mb-1">Status</div>
-   {isEditing ? (
+   <div className="text-xs text-white/40 mb-1">status</div>
+   {isediting ? (
   <input
   value={status}
   onChange={e => setStatus(e.target.value)}
   className="bg-transparent border-b border-white/20 text-white focus:outline-none w-full"
-  placeholder="Active"
+  placeholder="active"
   />
    ) : (
   <div className="text-white">{status || 'Active'}</div>
    )}
    </div>
    <div className="bg-white/5 rounded-lg p-3 border border-white/5 hover:border-white/10 transition-colors">
-   <div className="text-xs text-white/40 mb-1">Role</div>
-   {isEditing ? (
+   <div className="text-xs text-white/40 mb-1">role</div>
+   {isediting ? (
   <input
   value={role}
   onChange={e => setRole(e.target.value)}
   className="bg-transparent border-b border-white/20 text-white focus:outline-none w-full"
-  placeholder="Protector"
+  placeholder="protector"
   />
    ) : (
   <div className="text-white">{role || 'Protector'}</div>

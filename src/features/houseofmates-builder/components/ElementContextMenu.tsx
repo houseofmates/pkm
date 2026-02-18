@@ -81,15 +81,15 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
 
   const handleCopy = () => {
     // ensure the element is selected before copying
-    setSelectedElementIds([element.id]);
-    copySelection();
-    onClose();
+    setselectedelementids([element.id]);
+    copyselection();
+    onclose();
   };
 
   // position menu
-  const menuStyle = {
-    left: Math.min(x, window.innerWidth - 220),
-    top: Math.min(y, window.innerHeight - 450),
+  const menustyle = {
+    left: math.min(x, window.innerwidth - 220),
+    top: math.min(y, window.innerheight - 450),
   };
 
   return (
@@ -242,7 +242,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
         </div>
 
         {/* link input */}
-        {element.clickAction === 'link' && (
+        {element.clickaction === 'link' && (
           <button
             onClick={handleLinkChange}
             className="w-full px-3 py-2 flex items-center gap-3 text-white/80 hover:bg-white/10 transition-colors lowercase rounded-lg mb-1"
@@ -253,7 +253,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
         )}
 
         {/* copy content input */}
-        {element.clickAction === 'copy' && (
+        {element.clickaction === 'copy' && (
           <button
             onClick={() => {
               const content = prompt('content to copy (leave empty to use element text):', element.copyContent || '');
@@ -309,7 +309,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
       </div>
 
       {/* properties panel modal */}
-      {showPropertiesPanel && (
+      {showpropertiespanel && (
         <ElementPropertiesPanel
           elementId={element.id}
           onClose={() => {
@@ -320,7 +320,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
       )}
 
       {/* database config modal */}
-      {showDatabasePanel && (
+      {showdatabasepanel && (
         <DatabaseConfigPanel
           elementId={element.id}
           onClose={() => {
@@ -331,7 +331,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
       )}
 
       {/* widget property editor modal */}
-      {showWidgetEditor && (
+      {showwidgeteditor && (
         <WidgetPropertyEditor
           element={element}
           onUpdate={(updates) => {

@@ -15,7 +15,7 @@ interface IconPickerProps {
   onOpenChange?: (open: boolean) => void;
 }
 
-const COMMON_EMOJIS = [
+const common_emojis = [
   "📁", "📂", "📄", "📝", "📊", "📈", "📉", "🧠", "💡", "🎨",
   "🎯", "✅", "📅", "🏠", "🏢", "👤", "👥", "🤖", "🚀", "⭐",
   "🔥", "💧", "⚡", "🌈", "❤️", "👍", "👎", "👋", "🎉", "✨",
@@ -23,30 +23,30 @@ const COMMON_EMOJIS = [
   "🍎", "🥦", "🐶", "🐱", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯"
 ];
 
-const COMMON_ICONS = [
-  "Folder", "File", "Database", "Layout", "Settings", "User", "Users",
-  "Home", "Search", "Menu", "MoreVertical", "MoreHorizontal", "Plus", "Minus",
-  "X", "Check", "ChevronRight", "ChevronDown", "ArrowRight", "ArrowLeft",
-  "Calendar", "Clock", "Bell", "Mail", "MessageSquare", "Phone", "Video",
-  "Image", "Music", "Map", "Globe", "Sun", "Moon", "Cloud",
-  "Zap", "Activity", "BarChart", "PieChart", "TrendingUp", "DollarSign",
-  "CreditCard", "ShoppingBag", "Gift", "Heart", "Star", "Flag",
-  "Bookmark", "Tag", "Link", "Lock", "Unlock", "Eye", "EyeOff"
+const common_icons = [
+  "folder", "file", "database", "layout", "settings", "user", "users",
+  "home", "search", "menu", "morevertical", "morehorizontal", "plus", "minus",
+  "x", "check", "chevronright", "chevrondown", "arrowright", "arrowleft",
+  "calendar", "clock", "bell", "mail", "messagesquare", "phone", "video",
+  "image", "music", "map", "globe", "sun", "moon", "cloud",
+  "zap", "activity", "barchart", "piechart", "trendingup", "dollarsign",
+  "creditcard", "shoppingbag", "gift", "heart", "star", "flag",
+  "bookmark", "tag", "link", "lock", "unlock", "eye", "eyeoff"
 ];
 
-export function IconPicker({ onSelect, trigger, open, onOpenChange }: IconPickerProps) {
-  const [, setActiveTab] = useState('icons');
-  const fileInputRef = useRef<HTMLInputElement>(null);
+export function iconpicker({ onselect, trigger, open, onopenchange }: iconpickerprops) {
+  const [, setactivetab] = usestate('icons');
+  const fileinputref = useref<HTMLInputElement>(null);
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlefileupload = (e: react.changeevent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (file) {
   const reader = new FileReader();
   reader.onloadend = () => {
- onSelect(reader.result as string, 'image');
- onOpenChange?.(false);
+ onselect(reader.result as string, 'image');
+ onopenchange?.(false);
   };
-  reader.readAsDataURL(file);
+  reader.readasdataurl(file);
   }
   };
 
@@ -68,8 +68,8 @@ export function IconPicker({ onSelect, trigger, open, onOpenChange }: IconPicker
    <TabsContent value="icons" className="mt-0">
    <div className="grid grid-cols-6 gap-2 p-2">
    {COMMON_ICONS.map(name => {
-  const Icon = (LucideIcons as any)[name];
-  if (!Icon) return null;
+  const icon = (lucideicons as any)[name];
+  if (!icon) return null;
   return (
   <Button
   key={name}
@@ -115,7 +115,7 @@ export function IconPicker({ onSelect, trigger, open, onOpenChange }: IconPicker
    size="icon"
    className="h-12 w-12 rounded-full"
    onClick={() => fileInputRef.current?.click()}
-   title="Upload Icon"
+   title="upload icon"
  >
    <Upload className="h-6 w-6" />
  </Button>

@@ -22,6 +22,10 @@ const PROMPTS = [
 ];
 
 export function JournalView({ data, collection, config = {}, onConfigChange, onUpdateRecord: _onUpdateRecord, onEdit: _onEdit }: ViewProps) {
+  // hooks must be called before any early return
+  const [entry, setEntry] = useState('');
+  const [prompt, setPrompt] = useState(PROMPTS[0]);
+  
   if (!collection) {
   return (
   <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
@@ -32,8 +36,6 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
   </div>
   );
   }
-  const [entry, setEntry] = useState('');
-  const [prompt, setPrompt] = useState(PROMPTS[0]);
 
   // fields
   const contentField = collection.fields?.find((f: { interface?: string; name: string }) => f.interface === 'markdown' || f.interface === 'textarea' || f.name === 'content') || { name: 'content' };
@@ -84,7 +86,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
 
   // group by date
   const grouped = useMemo(() => {
-  const groups: Record<string, any[]> = {};
+  const groups: record<string, any[]> = {};
   const sorted = [...data].sort((a, b) => {
   const da = a[dateField?.name] || a.created_at || 0;
   const db = b[dateField?.name] || b.created_at || 0;
@@ -102,17 +104,17 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
 
   // helper to extract preview
   const parseContent = (htmlOrMd: string) => {
-  const text = htmlOrMd || '';
+  const text = htmlormd || '';
   // if markdown (starts with **), try to split prompt
-  let promptText = '';
-  let bodyText = text;
+  let prompttext = '';
+  let bodytext = text;
 
   // naive markdown check for our specific format
-  const promptMatch = text.match(/^\*\*(.*?)\*\*\s*\n*(.*)/s);
-  if (promptMatch) {
-  promptText = promptMatch[1];
-  bodyText = promptMatch[2];
-  } else if (text.startsWith('<')) {
+  const promptmatch = text.match(/^\*\*(.*?)\*\*\s*\n*(.*)/s);
+  if (promptmatch) {
+  prompttext = promptmatch[1];
+  bodytext = promptmatch[2];
+  } else if (text.startswith('<')) {
   // html handling if rich editor saved html
   const div = document.createElement('div');
   div.innerHTML = text;
@@ -147,7 +149,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
  </div>
 
  <RichEditor
- placeholder="Write your thoughts..."
+ placeholder="write your thoughts..."
  className="min-h-[100px] bg-background border-input/50 focus:bg-background transition-all resize-none text-base"
  value={entry ? (String(entry).trim().startsWith('<') ? entry : markdownToHtml(entry)) : ''}
  onChange={(html) => setEntry(sanitizeHTML(html))}
@@ -156,14 +158,14 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
 
  <div className="flex justify-end mt-3">
  <Button size="sm" onClick={handleSubmit} disabled={!entry || !String(entry).trim()}>
- <Send className="h-3 w-3 mr-2" /> Post Entry
+ <Send className="h-3 w-3 mr-2" /> post entry
  </Button>
  </div>
   </div>
 
   {/* stream */}
   <div className="space-y-8">
- {Object.keys(grouped).length === 0 && (
+ {object.keys(grouped).length === 0 && (
  <div className="text-center text-muted-foreground py-10 opacity-50">
  <p>no journal entries yet. start writing above!</p>
  </div>
@@ -174,13 +176,13 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
  {/* date header */}
  <div className="absolute -left-[9px] top-0 h-4 w-4 rounded-full bg-background border-4 border-primary/20" />
  <div className="mb-4 text-xs font-bold text-muted-foreground lowercase opacity-70 flex items-center gap-2">
-   {format(new Date(dateKey), 'eeee, MMMM do, yyyy')}
+   {format(new date(datekey), 'eeee, mmmm do, yyyy')}
  </div>
 
  {/* entries */}
  <div className="space-y-3">
    {records.map(rec => {
-   const { prompt, preview } = parseContent(String(rec[contentField.name] || ''));
+   const { prompt, preview } = parsecontent(string(rec[contentfield.name] || ''));
    return (
    <RecordContextMenu
   key={rec.id}

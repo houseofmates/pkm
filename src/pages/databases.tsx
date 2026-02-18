@@ -41,17 +41,17 @@ interface SortableDatabaseItemProps {
   onRefresh: () => void;
 }
 
-function SortableDatabaseItem({ collection, onSelect, onRefresh }: SortableDatabaseItemProps) {
+function sortabledatabaseitem({ collection, onselect, onrefresh }: sortabledatabaseitemprops) {
   const {
   attributes,
   listeners,
-  setNodeRef,
+  setnoderef,
   transform,
   transition,
-  } = useSortable({ id: collection.name });
+  } = usesortable({ id: collection.name });
 
   const style = {
-  transform: CSS.Transform.toString(transform),
+  transform: css.transform.tostring(transform),
   transition,
   };
 
@@ -77,25 +77,25 @@ function SortableDatabaseItem({ collection, onSelect, onRefresh }: SortableDatab
   );
 }
 
-export function DatabasesPage({ onSelect }: DatabasesPageProps) {
-  const { isAuthenticated, login, token } = useAuth();
-  const { collections, loading, error, refresh } = useCollections();
-  const [validating, setValidating] = useState(false);
-  const [apiKey, setApiKey] = useState('');
-  const navigate = useNavigate();
-  const location = useLocation();
+export function databasespage({ onselect }: databasespageprops) {
+  const { isauthenticated, login, token } = useauth();
+  const { collections, loading, error, refresh } = usecollections();
+  const [validating, setvalidating] = usestate(false);
+  const [apikey, setapikey] = usestate('');
+  const navigate = usenavigate();
+  const location = uselocation();
 
-  console.log('DatabasesPage:', {
-  isAuthenticated,
-  hasToken: !!token,
+  console.log('databasespage:', {
+  isauthenticated,
+  hastoken: !!token,
   token: token?.substring(0, 20) + '...',
-  collectionsCount: collections.length,
+  collectionscount: collections.length,
   loading,
   error
   });
 
-  const [dbOrder, setDbOrder] = useAppSetting<string[]>('database_order', []);
-  const [sidebarItems] = useAppSetting<any[]>('sidebar_items', []);
+  const [dborder, setdborder] = useappsetting<string[]>('database_order', []);
+  const [sidebaritems] = useappsetting<any[]>('sidebar_items', []);
 
   const sensors = useSensors(
   useSensor(PointerSensor, {
@@ -113,7 +113,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   if (!allowed) {
   navigate('/');
   }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+   
   }, [location, navigate]);
 
   // 1. filter out internal collections from grid
@@ -190,18 +190,18 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   toast.success("connected to nocobase");
   console.log('[DatabasesPage] refreshing collections...');
   // give a brief moment for the state to update
-  await new Promise(resolve => setTimeout(resolve, 100));
+  await new Promise(resolve => settimeout(resolve, 100));
   await refresh();
   } catch (error: any) {
-  console.error('[DatabasesPage] login failed:', error);
+  console.error('[databasespage] login failed:', error);
   toast.error('failed to save token. please try again.');
   } finally {
-  setValidating(false);
-  console.log('[DatabasesPage] validation complete');
+  setvalidating(false);
+  console.log('[databasespage] validation complete');
   }
   };
 
-  if (!isAuthenticated) {
+  if (!isauthenticated) {
   return (
   <div className="p-4 md:p-8 h-full flex items-center justify-center">
  <Card className="max-w-md w-full">
@@ -245,7 +245,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   }
 
   // only exclude if truly empty (no collections and no sidebar docs)
-  if (allItems.length === 0) {
+  if (allitems.length === 0) {
   return (
   <div className="p-4 md:p-8 space-y-6 h-full overflow-auto">
  {/* still show the add button even if empty */}

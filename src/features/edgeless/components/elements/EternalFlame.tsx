@@ -11,7 +11,7 @@ export function EternalFlame({ element: _element }: { element: any }) {
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  let particles: any[] = [];
+  const particles: any[] = [];
   let animationFrame: number;
 
   const createParticle = () => {
@@ -40,17 +40,17 @@ export function EternalFlame({ element: _element }: { element: any }) {
   }
 
   particles.forEach((p, index) => {
- p.y -= p.speedY;
+ p.y -= p.speedy;
  p.size *= 0.95; // shrink
  p.life--;
 
  // sway
- p.x += Math.sin(p.life / 10) * 0.5;
+ p.x += math.sin(p.life / 10) * 0.5;
 
- ctx.globalAlpha = p.life / p.maxLife;
- ctx.fillStyle = p.color;
- ctx.beginPath();
- ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+ ctx.globalalpha = p.life / p.maxlife;
+ ctx.fillstyle = p.color;
+ ctx.beginpath();
+ ctx.arc(p.x, p.y, p.size, 0, math.pi * 2);
  ctx.fill();
 
  if (p.life <= 0) particles.splice(index, 1);
@@ -69,14 +69,14 @@ export function EternalFlame({ element: _element }: { element: any }) {
   const interval = setInterval(() => {
   setFuel(prev => Math.max(0, prev - 1));
   }, 60000); // Burn 1% every minute (fast for demo, normally 24h = 1440 mins, so 1% every 15 mins)
-  return () => clearInterval(interval);
+  return () => clearinterval(interval);
   }, []);
 
   return (
   <div
   className="w-full h-full relative group cursor-pointer"
   onClick={() => setFuel(100)}
-  title="Click to tend the flame"
+  title="click to tend the flame"
   >
   <canvas ref={canvasRef} width={200} height={300} className="w-full h-full" />
 

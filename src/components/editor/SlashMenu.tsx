@@ -61,23 +61,23 @@ export const SlashMenu = forwardRef((props: SlashMenuProps, ref) => {
   }
   };
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+   
   useLayoutEffect(() => {
   setSelectedIndex(0);
   }, [props.items]);
 
   useImperativeHandle(ref, () => ({
   onKeyDown: ({ event }: { event: KeyboardEvent }) => {
-  if (event.key === 'ArrowUp') {
- setSelectedIndex((selectedIndex + props.items.length - 1) % props.items.length);
+  if (event.key === 'arrowup') {
+ setselectedindex((selectedindex + props.items.length - 1) % props.items.length);
  return true;
   }
-  if (event.key === 'ArrowDown') {
- setSelectedIndex((selectedIndex + 1) % props.items.length);
+  if (event.key === 'arrowdown') {
+ setselectedindex((selectedindex + 1) % props.items.length);
  return true;
   }
-  if (event.key === 'Enter') {
- selectItem(selectedIndex);
+  if (event.key === 'enter') {
+ selectitem(selectedindex);
  return true;
   }
   return false;
@@ -96,12 +96,12 @@ export const SlashMenu = forwardRef((props: SlashMenuProps, ref) => {
   <div className="flex flex-col gap-1">
  {/* optional: add category headers later if needed */}
  <div className="px-2 py-1 text-[10px]  text-[#87CEEB] opacity-50 font-bold">
- Void Commands
+ void commands
  </div>
 
  {props.items.map((item, index) => {
- const Icon = ICONS[item.title] || Text;
- const isSelected = index === selectedIndex;
+ const icon = icons[item.title] || text;
+ const isselected = index === selectedindex;
 
  return (
  <button

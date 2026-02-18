@@ -2,7 +2,7 @@
 
 export function generateSlug(title: string, existingSlugs: string[] = []): string {
   // convert to lowercase and replace non-alphanumeric with hyphens
-  let baseSlug = title
+  const baseSlug = title
   .toLowerCase()
   .replace(/[^a-z0-9]+/g, '-')
   .replace(/^-+|-+$/g, '');

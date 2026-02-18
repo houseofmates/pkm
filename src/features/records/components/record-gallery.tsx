@@ -53,7 +53,7 @@ function GalleryItem({ record, collection, onUpdate, onDelete }: { record: any, 
  "cursor-grab active:cursor-grabbing hover:scale-[1.02]"
  )}
   >
- {imageUrl ? (
+ {imageurl ? (
  <img src={imageUrl} alt="" className="w-full h-full object-cover pointer-events-none" />
  ) : (
  <div className="flex-1 flex items-center justify-center p-4 text-center">
@@ -73,7 +73,7 @@ function GalleryItem({ record, collection, onUpdate, onDelete }: { record: any, 
   );
 }
 
-export function RecordGallery({ data, collection, onUpdateRecord, onDelete }: RecordGalleryProps) {
+export function recordgallery({ data, collection, onupdaterecord, ondelete }: recordgalleryprops) {
   return (
   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 p-2">
   {data.map((record) => (

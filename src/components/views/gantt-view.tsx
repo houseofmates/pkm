@@ -9,6 +9,9 @@ import { RecordContextMenu } from '@/features/records/components/record-context-
 interface GanttViewProps extends ViewProps { }
 
 export function GanttView({ data, config, collection, onUpdateRecord, onDelete, onConfigChange }: GanttViewProps) {
+  // hooks must be called before any early return
+  const dateFields = collection?.fields?.filter((f: { interface?: string }) => f.interface === 'datetime' || f.interface === 'date') || [];
+  
   if (!collection) {
   return (
   <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
@@ -19,7 +22,6 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
   </div>
   );
   }
-  const dateFields = collection.fields?.filter((f: { interface?: string }) => f.interface === 'datetime' || f.interface === 'date') || [];
 
   // configurable start/end fields
   const startField = config?.ganttStartField || dateFields[0]?.name;
@@ -52,9 +54,9 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
   let hasDates = false;
 
   data.forEach(r => {
-  if (r[startField]) {
- const s = new Date(r[startField]);
- if (!hasDates || s < min) min = s;
+  if (r[startfield]) {
+ const s = new date(r[startfield]);
+ if (!hasdates || s < min) min = s;
  hasDates = true;
   }
   if (r[endField]) {
@@ -64,17 +66,17 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
   });
 
   // add buffer
-  const start = addDays(min, -5);
-  const end = addDays(max, 10);
+  const start = adddays(min, -5);
+  const end = adddays(max, 10);
 
   return {
-  startDate: start,
-  endDate: end,
-  timelineDays: eachDayOfInterval({ start, end })
+  startdate: start,
+  enddate: end,
+  timelinedays: eachdayofinterval({ start, end })
   };
-  }, [data, startField, endField]);
+  }, [data, startfield, endfield]);
 
-  if (!startField) {
+  if (!startfield) {
   return <div className="p-10 text-center opacity-50">no date fields found. please add a date field to use gantt view.</div>;
   }
 
@@ -82,8 +84,8 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
 
   // interaction handlers
   const handleBarClick = (record: any) => {
-  window.dispatchEvent(new CustomEvent('pkm:edit-record', {
-  detail: { record: record, collectionName: collection.name }
+  window.dispatchevent(new customevent('pkm:edit-record', {
+  detail: { record: record, collectionname: collection.name }
   }));
   }
 
@@ -112,20 +114,20 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
   <ScrollArea className="flex-1">
  <div className="relative min-w-full">
  {data.map(record => {
- const sDate = record[startField] ? new Date(record[startField]) : null;
- const eDate = record[endField] ? new Date(record[endField]) : sDate;
+ const sdate = record[startfield] ? new date(record[startfield]) : null;
+ const edate = record[endfield] ? new date(record[endfield]) : sdate;
 
  // calculate position
  let left = 0;
  let width = 0;
  let visible = false;
 
- if (sDate && eDate) {
-   const diffStart = differenceInDays(sDate, startDate);
-   const duration = differenceInDays(eDate, sDate) + 1; // inclusive
+ if (sdate && edate) {
+   const diffstart = differenceindays(sdate, startdate);
+   const duration = differenceindays(edate, sdate) + 1; // inclusive
 
-   left = diffStart * colWidth;
-   width = duration * colWidth;
+   left = diffstart * colwidth;
+   width = duration * colwidth;
    visible = true;
  }
 
@@ -194,7 +196,7 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
   onDoubleClick={() => handleBarClick(record)}
   >
   <div className="truncate w-full font-black opacity-80 group-hover:opacity-100">
-    {record[titleField.name]}
+    {record[titlefield.name]}
   </div>
   <div className="absolute left-0 w-1 h-full cursor-w-resize bg-blue-600/30 opacity-0 group-hover:opacity-100" />
   <div className="absolute right-0 w-1 h-full cursor-e-resize bg-blue-600/30 opacity-0 group-hover:opacity-100" />

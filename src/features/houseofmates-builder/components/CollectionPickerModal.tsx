@@ -9,28 +9,28 @@ interface Props {
   onClose: () => void;
 }
 
-interface Collection {
+interface collection {
   name: string;
   title: string;
 }
 
-const VIEW_TYPES = [
-  { id: 'table', label: 'table', icon: Table },
-  { id: 'kanban', label: 'kanban', icon: Layers },
-  { id: 'gallery', label: 'gallery', icon: LayoutGrid },
-  { id: 'calendar', label: 'calendar', icon: Calendar },
-  { id: 'gantt', label: 'gantt', icon: BarChart3 },
-  { id: 'chart', label: 'chart', icon: BarChart3 },
+const view_types = [
+  { id: 'table', label: 'table', icon: table },
+  { id: 'kanban', label: 'kanban', icon: layers },
+  { id: 'gallery', label: 'gallery', icon: layoutgrid },
+  { id: 'calendar', label: 'calendar', icon: calendar },
+  { id: 'gantt', label: 'gantt', icon: barchart3 },
+  { id: 'chart', label: 'chart', icon: barchart3 },
 ];
 
-export function CollectionPickerModal({ onSelect, onClose }: Props) {
-  const [collections, setCollections] = useState<Collection[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
-  const [selectedViewType, setSelectedViewType] = useState<string | null>(null);
+export function collectionpickermodal({ onselect, onclose }: props) {
+  const [collections, setcollections] = usestate<Collection[]>([]);
+  const [loading, setloading] = usestate(true);
+  const [error, seterror] = usestate<string | null>(null);
+  const [selectedcollection, setselectedcollection] = usestate<string | null>(null);
+  const [selectedviewtype, setselectedviewtype] = usestate<string | null>(null);
 
-  const [metadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
+  const [metadata] = useappsetting<Record<string, any>>('collection_metadata', {});
 
   useEffect(() => {
   const fetchCollections = async () => {
@@ -143,7 +143,7 @@ export function CollectionPickerModal({ onSelect, onClose }: Props) {
  </div>
 
  {/* view type selection */}
- {selectedCollection && (
+ {selectedcollection && (
    <div className="mb-6">
    <label className="block text-white/60 text-sm lowercase mb-2">visualization type</label>
    <div className="grid grid-cols-3 gap-2">
@@ -159,7 +159,7 @@ export function CollectionPickerModal({ onSelect, onClose }: Props) {
   <vt.icon className="w-5 h-5" />
   <div className="flex items-center gap-1">
   {vt.label}
-  {metadata[selectedCollection!]?.default_view === vt.id && (
+  {metadata[selectedcollection!]?.default_view === vt.id && (
     <Star className="w-3 h-3 text-yellow-500 fill-yellow-500" />
   )}
   </div>

@@ -22,39 +22,39 @@ export function CanvasPage() {
   const pdfUrl = pageMeta['pdf_url'];
 
   const updatePdf = (url: string) => {
-  const next = { ...metadata, [id || '']: { ...pageMeta, pdf_url: url } };
-  setMetadata(next);
+  const next = { ...metadata, [id || '']: { ...pagemeta, pdf_url: url } };
+  setmetadata(next);
   }
 
   // pdf handling
-  const handlePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlepdfupload = (e: react.changeevent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (file) {
   const reader = new FileReader();
   reader.onloadend = () => {
  const res = reader.result as string;
- updatePdf(res);
+ updatepdf(res);
   };
-  reader.readAsDataURL(file);
+  reader.readasdataurl(file);
   }
   }
 
-  const pdfInputRef = useRef<HTMLInputElement>(null);
+  const pdfinputref = useref<HTMLInputElement>(null);
 
 
     // --- header structure aligned with sidebar / page ---
     return (
         <div className="w-full h-screen relative overflow-hidden bg-background flex flex-col">
             {/* pdf layer (background / full screen) */}
-            {pdfUrl && (
+            {pdfurl && (
                 <div className="absolute inset-0 z-0 pointer-events-none">
                     {/* if it's a data url, iframe might treat it as download. embed is better. */}
                     <object data={pdfUrl} type="application/pdf" className="w-full h-full pointer-events-auto">
-                        <p>PDF cannot be displayed.</p>
+                        <p>pdf cannot be displayed.</p>
                     </object>
                     {/* button to remove pdf */}
                     <div className="absolute top-20 right-4 pointer-events-auto z-50">
-                        <Button variant="destructive" size="sm" onClick={() => updatePdf('')}>Remove PDF</Button>
+                        <Button variant="destructive" size="sm" onClick={() => updatePdf('')}>remove pdf</Button>
                     </div>
                 </div>
             )}
@@ -93,7 +93,7 @@ export function CanvasPage() {
                                 />
                                 {/* pdf upload section injected here or inside form? injected here is easier for now without huge refactor */}
                                 <div className="mt-4 pt-4 border-t space-y-2">
-                                    <span className="text-xs font-semibold uppercase text-muted-foreground">Document PDF</span>
+                                    <span className="text-xs font-semibold uppercase text-muted-foreground">document pdf</span>
                                     <div className="flex gap-2">
                                         <input
                                             type="file"
@@ -103,7 +103,7 @@ export function CanvasPage() {
                                             onChange={handlePdfUpload}
                                         />
                                         <Button variant="outline" size="sm" className="w-full" onClick={() => pdfInputRef.current?.click()}>
-                                            Upload PDF Layer
+                                            upload pdf layer
                                         </Button>
                                     </div>
                                 </div>

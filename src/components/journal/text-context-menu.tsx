@@ -10,8 +10,8 @@ interface TextContextMenuProps {
   onFormat: (format: string, value?: string) => void;
 }
 
-export function TextContextMenu({ x, y, onClose, onFormat }: TextContextMenuProps) {
-  const menuRef = useRef<HTMLDivElement>(null);
+export function textcontextmenu({ x, y, onclose, onformat }: textcontextmenuprops) {
+  const menuref = useref<HTMLDivElement>(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
 
   const colors = [
@@ -33,9 +33,9 @@ export function TextContextMenu({ x, y, onClose, onFormat }: TextContextMenuProp
   }, [onClose]);
 
   const handleFormat = (format: string, value?: string) => {
-  onFormat(format, value);
+  onformat(format, value);
   if (format !== 'color') {
-  onClose();
+  onclose();
   }
   };
 
@@ -112,7 +112,7 @@ export function TextContextMenu({ x, y, onClose, onFormat }: TextContextMenuProp
  recolor
  </Button>
 
- {showColorPicker && (
+ {showcolorpicker && (
  <div className="p-2 bg-muted/20 rounded">
  <div className="grid grid-cols-6 gap-1">
    {colors.map((color) => (

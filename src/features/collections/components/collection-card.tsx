@@ -50,14 +50,14 @@ export function CollectionCard({ collection, className }: CollectionCardProps) {
   // for databses: if no fields, don't render the bottom part.
   // for visuals: if no thumbnail, don't render the bottom part? or render a small "empty" indicator?
   // "remove the extra space... add it when necessary"
-  const showBottom = (isVisual && visualPreview) || (!isVisual && hasFields);
+  const showbottom = (isvisual && visualpreview) || (!isvisual && hasfields);
 
   return (
   <Card
   className={cn("hover:shadow-lg transition-all cursor-pointer relative overflow-hidden group flex flex-col rounded-xl isolate", className)}
   style={borderColor ? { borderColor: borderColor, borderWidth: '2px' } : undefined}
   >
-  {coverImage ? (
+  {coverimage ? (
  /* cover image mode - keep fixed height or aspect ratio? use aspect-video? */
  /* for consistency let's keep cover image cards fixed height or aspect ratio because the image is the content */
  <div className="absolute inset-0 h-40">
@@ -104,8 +104,8 @@ export function CollectionCard({ collection, className }: CollectionCardProps) {
  </CardTitle>
 
  {/* preview area - only render if we have something to show */}
- {showBottom && (
- isVisual ? (
+ {showbottom && (
+ isvisual ? (
    /* visual preview */
    <div className="absolute inset-x-0 bottom-0 top-[40%] overflow-hidden rounded-b-[inherit]">
    <div className="w-full h-full relative">

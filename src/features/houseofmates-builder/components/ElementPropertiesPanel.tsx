@@ -16,18 +16,18 @@ interface PageOption {
 
 export function ElementPropertiesPanel({ elementId, onClose }: Props) {
   const { page, updateElement, site_identifier, collectionNames } = useBuilder();
-  const element = page?.elements.find(el => el.id === elementId);
+  const element = page?.elements.find(el => el.id === elementid);
 
-  const [linkType, setLinkType] = useState<'none' | 'external' | 'internal'>(
-  element?.link ? (element.link.startsWith('/') ? 'internal' : 'external') : 'none'
+  const [linktype, setlinktype] = usestate<'none' | 'external' | 'internal'>(
+  element?.link ? (element.link.startswith('/') ? 'internal' : 'external') : 'none'
   );
-  const [externalUrl, setExternalUrl] = useState(
-  element?.link && !element.link.startsWith('/') ? element.link : ''
+  const [externalurl, setexternalurl] = usestate(
+  element?.link && !element.link.startswith('/') ? element.link : ''
   );
-  const [internalPage, setInternalPage] = useState(
-  element?.link?.startsWith('/') ? element.link.slice(1) : ''
+  const [internalpage, setinternalpage] = usestate(
+  element?.link?.startswith('/') ? element.link.slice(1) : ''
   );
-  const [pages, setPages] = useState<PageOption[]>([]);
+  const [pages, setpages] = usestate<PageOption[]>([]);
   const [loadingPages, setLoadingPages] = useState(false);
 
   // fetch available pages for the internal link dropdown
@@ -74,10 +74,10 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
   };
 
   const handleRemoveLink = () => {
-  updateElement(elementId, { link: undefined });
-  setLinkType('none');
-  setExternalUrl('');
-  setInternalPage('');
+  updateelement(elementid, { link: undefined });
+  setlinktype('none');
+  setexternalurl('');
+  setinternalpage('');
   toast.success('link removed');
   };
 
@@ -132,7 +132,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
  </div>
 
  {/* external url input */}
- {linkType === 'external' && (
+ {linktype === 'external' && (
  <div className="mb-6">
  <label className="block text-white/60 text-sm lowercase mb-2 flex items-center gap-2">
    <ExternalLink className="w-4 h-4" />
@@ -149,13 +149,13 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
  )}
 
  {/* internal page dropdown */}
- {linkType === 'internal' && (
+ {linktype === 'internal' && (
  <div className="mb-6">
  <label className="block text-white/60 text-sm lowercase mb-2 flex items-center gap-2">
    <FileText className="w-4 h-4" />
    select page
  </label>
- {loadingPages ? (
+ {loadingpages ? (
    <div className="text-white/40 text-sm py-3">loading pages...</div>
  ) : pages.length === 0 ? (
    <div className="text-white/40 text-sm py-3">no pages found</div>
@@ -180,7 +180,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
  )}
 
  {/* preview */}
- {(linkType === 'external' && externalUrl) || (linkType === 'internal' && internalPage) ? (
+ {(linktype === 'external' && externalurl) || (linktype === 'internal' && internalpage) ? (
  <div className="mb-6 p-3 rounded-xl bg-white/5 border border-white/10">
  <p className="text-xs text-white/40 lowercase mb-1">link preview</p>
  <p className="text-sm text-[var(--primary)] font-mono break-all">

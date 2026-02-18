@@ -23,8 +23,8 @@ export function BlogEditor() {
 }
 
 // --- dashboard ---
-function BlogDashboard() {
-  const [posts, setPosts] = useState<BlogPostData[]>([]);
+function blogdashboard() {
+  const [posts, setposts] = usestate<BlogPostData[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -68,12 +68,12 @@ function BlogDashboard() {
   };
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
-  e.stopPropagation();
+  e.stoppropagation();
   if (!confirm('delete this post?')) return;
   try {
-  await api.deleteRecord('blog_posts', id);
+  await api.deleterecord('blog_posts', id);
   toast.success('post deleted');
-  loadPosts();
+  loadposts();
   } catch (e) {
   toast.error('failed to delete');
   }
@@ -149,11 +149,11 @@ function BlogDashboard() {
 }
 
 // --- editor wrapper ---
-function BlogEditorParamsWrapper({ slug }: { slug: string }) {
-  const [post, setPost] = useState<BlogPostData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [selectedElementIds, setSelectedElementIds] = useState<string[]>([]);
-  const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile' | 'tablet'>('desktop');
+function blogeditorparamswrapper({ slug }: { slug: string }) {
+  const [post, setpost] = usestate<BlogPostData | null>(null);
+  const [loading, setloading] = usestate(true);
+  const [selectedelementids, setselectedelementids] = usestate<string[]>([]);
+  const [previewmode, setpreviewmode] = usestate<'desktop' | 'mobile' | 'tablet'>('desktop');
   const [viewWidth, setViewWidth] = useState(window.innerWidth);
   const [selectionBox, setSelectionBox] = useState(null);
   const [showSidebar, setShowSidebar] = useState(true);
@@ -206,38 +206,38 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
   useEffect(() => {
   const handleResize = () => setViewWidth(window.innerWidth);
   window.addEventListener('resize', handleResize);
-  return () => window.removeEventListener('resize', handleResize);
+  return () => window.removeeventlistener('resize', handleresize);
   }, []);
 
   // sync 'elements' and 'content'
-  const updatePost = (updates: Partial<BlogPostData>) => {
+  const updatepost = (updates: partial<BlogPostData>) => {
   if (!post) return;
-  setPost({ ...post, ...updates });
+  setpost({ ...post, ...updates });
   };
 
   // --- context methods ---
-  const updateElements = (batchUpdates: { id: string; updates: Partial<ElementData> }[]) => {
+  const updateelements = (batchupdates: { id: string; updates: partial<ElementData> }[]) => {
   if (!post) return;
   const newElements = post.elements?.map(el => {
   const update = batchUpdates.find(u => u.id === el.id);
   if (!update) return el;
   return { ...el, ...update.updates };
   }) || [];
-  updatePost({ elements: newElements, content: newElements });
+  updatepost({ elements: newelements, content: newelements });
   };
 
-  const updateElement = (id: string, updates: Partial<ElementData>) => {
+  const updateelement = (id: string, updates: partial<ElementData>) => {
   updateElements([{ id, updates }]);
   };
 
   const deleteElements = (ids: string[]) => {
   if (!post) return;
   const newElements = post.elements?.filter(el => !ids.includes(el.id)) || [];
-  updatePost({ elements: newElements, content: newElements });
-  setSelectedElementIds([]);
+  updatepost({ elements: newelements, content: newelements });
+  setselectedelementids([]);
   };
 
-  const addElement = (element: Omit<ElementData, 'id' | 'zIndex'> & { zIndex?: number }) => {
+  const addelement = (element: omit<ElementData, 'id' | 'zIndex'> & { zIndex?: number }) => {
   if (!post) return;
   const newElement = {
   ...element,
@@ -274,25 +274,25 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
 
   // dummy handlers
   const handleElementContextMenu = (e: React.MouseEvent, _id: string) => { e.preventDefault(); };
-  const handleGlobalContextMenu = (e: React.MouseEvent) => { e.preventDefault(); };
+  const handleGlobalContextMenu = (e: React.MouseEvent) => { e.preventdefault(); };
 
-  const contextValue: BlogBuilderContextType = {
-  isAdmin: true,
+  const contextvalue: blogbuildercontexttype = {
+  isadmin: true,
   page: post,
-  selectedElementIds,
-  setSelectedElementIds,
-  updateElement,
-  updateElements,
-  deleteElements,
-  addElement,
-  handleElementContextMenu,
-  handleGlobalContextMenu,
-  previewMode,
-  setPreviewMode,
-  viewWidth,
-  selectionBox,
-  setSelectionBox,
-  savePost
+  selectedelementids,
+  setselectedelementids,
+  updateelement,
+  updateelements,
+  deleteelements,
+  addelement,
+  handleelementcontextmenu,
+  handleglobalcontextmenu,
+  previewmode,
+  setpreviewmode,
+  viewwidth,
+  selectionbox,
+  setselectionbox,
+  savepost
   };
 
   if (loading) return <div className="h-screen flex items-center justify-center bg-[#050505] text-white">loading editor...</div>;
@@ -312,7 +312,7 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
    value={post.title}
    onChange={(e) => updatePost({ title: e.target.value })}
    className="bg-transparent border-none text-sm font-bold focus:outline-none w-64"
-   placeholder="Post Title"
+   placeholder="post title"
    />
    <div className="flex items-center gap-1 text-xs text-white/30">
    <span>/</span>
@@ -337,7 +337,7 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
    onClick={savePost}
    className="bg-[var(--primary)] text-black px-4 py-1.5 rounded-lg text-sm font-bold flex items-center gap-2 hover:opacity-90"
  >
-   <Save size={16} /> Save
+   <Save size={16} /> save
  </button>
  <button onClick={() => setShowSidebar(!showSidebar)} className="p-2 hover:bg-white/10 rounded-lg">
    <Settings size={18} />
@@ -353,44 +353,44 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
 
  {/* simple add menu (bottom center) */}
  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-[#050505] border border-white/10 p-2 rounded-2xl shadow-2xl z-[1000]">
-   <ToolBtn icon={<Type size={18} />} label="Text" onClick={() => addElement({ type: 'text', content: { html: '<p>New Text</p>' }, width: 300, height: 100, x: 100, y: 100, styles: {} })} />
-   <ToolBtn icon={<ImageIcon size={18} />} label="Image" onClick={() => {
+   <ToolBtn icon={<Type size={18} />} label="text" onClick={() => addelement({ type: 'text', content: { html: '<p>new text</p>' }, width: 300, height: 100, x: 100, y: 100, styles: {} })} />
+   <ToolBtn icon={<ImageIcon size={18} />} label="image" onClick={() => {
    const url = prompt('Image URL');
    if (url) addElement({ type: 'image', content: { url }, width: 300, height: 200, x: 100, y: 100, styles: {} });
    }} />
-   <ToolBtn icon={<Square size={18} />} label="Box" onClick={() => addElement({ type: 'container', content: {}, width: 200, height: 200, x: 100, y: 100, styles: { backgroundColor: '#ffffff10' } })} />
-   <ToolBtn icon={<Link2 size={18} />} label="Button" onClick={() => addElement({ type: 'button', content: { text: 'Click Me', bgColor: 'var(--primary)', textColor: '#000' }, width: 120, height: 40, x: 100, y: 100, styles: {} })} />
-   <ToolBtn icon={<MoreVertical size={18} />} label="More" onClick={() => toast.info('more widgets coming soon')} />
+   <ToolBtn icon={<Square size={18} />} label="box" onClick={() => addElement({ type: 'container', content: {}, width: 200, height: 200, x: 100, y: 100, styles: { backgroundColor: '#ffffff10' } })} />
+   <ToolBtn icon={<Link2 size={18} />} label="button" onClick={() => addElement({ type: 'button', content: { text: 'Click Me', bgColor: 'var(--primary)', textColor: '#000' }, width: 120, height: 40, x: 100, y: 100, styles: {} })} />
+   <ToolBtn icon={<MoreVertical size={18} />} label="more" onClick={() => toast.info('more widgets coming soon')} />
  </div>
  </div>
 
  {/* sidebar properties */}
- {showSidebar && (
+ {showsidebar && (
  <div className="w-80 bg-[#050505] border-l border-white/10 p-4 overflow-y-auto">
-   <h3 className="text-white/50 text-xs font-bold  mb-4">Post Settings</h3>
+   <h3 className="text-white/50 text-xs font-bold  mb-4">post settings</h3>
 
    <div className="space-y-4">
-   <FormItem label="Publish Status">
+   <FormItem label="publish status">
    <div className="flex items-center gap-2">
   <button
   onClick={() => updatePost({ published: !post.published })}
   className={`flex-1 py-2 rounded-lg font-bold text-sm transition-colors ${post.published ? 'bg-green-500/20 text-green-400 border border-green-500/30' : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'}`}
   >
-  {post.published ? 'Published' : 'Draft'}
+  {post.published ? 'published' : 'draft'}
   </button>
    </div>
    </FormItem>
 
-   <FormItem label="Excerpt">
+   <FormItem label="excerpt">
    <textarea
   className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm min-h-[80px] focus:outline-none focus:border-[var(--primary)]"
   value={post.description || ''}
   onChange={(e) => updatePost({ description: e.target.value })}
-  placeholder="Brief summary..."
+  placeholder="brief summary..."
    />
    </FormItem>
 
-   <FormItem label="Banner Image">
+   <FormItem label="banner image">
    <div className="space-y-2">
   {post.banner_image && (
   <div className="relative aspect-video rounded-lg overflow-hidden border border-white/10 group">
@@ -410,12 +410,12 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
   }}
   className="w-full py-2 border border-dashed border-white/20 rounded-lg text-white/50 hover:text-white hover:border-white/40 text-sm flex items-center justify-center gap-2"
   >
-  <ImageIcon size={16} /> {post.banner_image ? 'Change Image' : 'Add Banner'}
+  <ImageIcon size={16} /> {post.banner_image ? 'change image' : 'add banner'}
   </button>
    </div>
    </FormItem>
 
-   <FormItem label="Tags (comma separated)">
+   <FormItem label="tags (comma separated)">
    <input
   className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none focus:border-[var(--primary)]"
   value={post.tags?.join(', ') || ''}
@@ -425,31 +425,31 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
    </FormItem>
 
    <div className="grid grid-cols-2 gap-4">
-   <FormItem label="Mood">
+   <FormItem label="mood">
   <select
   value={post.mood || ''}
   onChange={(e) => updatePost({ mood: e.target.value })}
   className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none"
   >
-  <option value="">None</option>
-  <option value="high">High</option>
-  <option value="medium">Medium</option>
-  <option value="low">Low</option>
-  <option value="wired">Wired</option>
-  <option value="tired">Tired</option>
+  <option value="">none</option>
+  <option value="high">high</option>
+  <option value="medium">medium</option>
+  <option value="low">low</option>
+  <option value="wired">wired</option>
+  <option value="tired">tired</option>
   </select>
    </FormItem>
-   <FormItem label="Energy">
+   <FormItem label="energy">
   <select
   value={post.energy_level || ''}
   onChange={(e) => updatePost({ energy_level: e.target.value })}
   className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-sm focus:outline-none"
   >
-  <option value="">None</option>
-  <option value="high">High</option>
-  <option value="moderate">Moderate</option>
-  <option value="low">Low</option>
-  <option value="depleted">Depleted</option>
+  <option value="">none</option>
+  <option value="high">high</option>
+  <option value="moderate">moderate</option>
+  <option value="low">low</option>
+  <option value="depleted">depleted</option>
   </select>
    </FormItem>
    </div>
@@ -462,7 +462,7 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
   );
 }
 
-function FormItem({ label, children }: { label: string, children: React.ReactNode }) {
+function formitem({ label, children }: { label: string, children: react.reactnode }) {
   return (
   <div className="flex flex-col gap-1.5">
   <label className="text-xs text-white/40 font-bold ">{label}</label>

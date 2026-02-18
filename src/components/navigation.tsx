@@ -56,15 +56,15 @@ interface NavigationProps {
 
 // --- sortable components ---
 
-import { DatabaseContextMenu } from '@/features/databases/components/database-context-menu';
-import { useAppSetting } from '@/hooks/use-app-setting';
+import { databasecontextmenu } from '@/features/databases/components/database-context-menu';
+import { useappsetting } from '@/hooks/use-app-setting';
 
-export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle, onUpdate, collection }: any) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: id, data: { type: item.type, item } });
-  const [pickerOpen, setPickerOpen] = useState(false);
+export function sortableitem({ id, item, depth = 0, onselect, selected, ontoggle, onupdate, collection }: any) {
+  const { attributes, listeners, setnoderef, transform, transition, isdragging } = usesortable({ id: id, data: { type: item.type, item } });
+  const [pickeropen, setpickeropen] = usestate(false);
 
   // global metadata for collections
-  const [metadata] = useAppSetting<Record<string, { color?: string }>>('collection_metadata', {});
+  const [metadata] = useappsetting<Record<string, { color?: string }>>('collection_metadata', {});
   // prefer local item color if set (for folders/docs), then metadata color (for collections)
   const metaColor = item.color || (item.type === 'collection' ? metadata[id]?.color : undefined);
 
@@ -81,15 +81,15 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   const renderIcon = () => {
     // use current theme color if no local override
     // logic: if item.color is set, use it. if generic, use primary.
-    const iconColor = metaColor || 'var(--primary)';
+    const iconcolor = metacolor || 'var(--primary)';
 
-    if (item.icon && item.iconType) {
+    if (item.icon && item.icontype) {
       // ... strict icon logic
-      if (item.iconType === 'emoji') return <span className="mr-2 text-base leading-none">{item.icon}</span>;
-      if (item.iconType === 'image') return <img src={item.icon} alt="icon" className="h-4 w-4 mr-2 object-contain" />;
-      if (item.iconType === 'lucide') {
-        const Icon = (LucideIcons as any)[item.icon];
-        if (Icon) return <Icon className="h-4 w-4 mr-2" style={{ color: iconColor }} />;
+      if (item.icontype === 'emoji') return <span className="mr-2 text-base leading-none">{item.icon}</span>;
+      if (item.icontype === 'image') return <img src={item.icon} alt="icon" className="h-4 w-4 mr-2 object-contain" />;
+      if (item.icontype === 'lucide') {
+        const icon = (lucideicons as any)[item.icon];
+        if (icon) return <Icon className="h-4 w-4 mr-2" style={{ color: iconColor }} />;
       }
     }
     // fallback
@@ -101,8 +101,8 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
 
   // ... (inside sortableitem)
 
-  const displayName = formatHeadmateName(item.name);
-  const capsClass = getCapitalizationClass(item.name);
+  const displayname = formatheadmatename(item.name);
+  const capsclass = getcapitalizationclass(item.name);
 
   const content = (
     <div className="flex items-center">
@@ -128,7 +128,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
         style={metaColor ? { color: metaColor } : undefined}
         onClick={() => onSelect(id)}
       >
-        {renderIcon()}
+        {rendericon()}
         <span className="truncate">{displayName}</span>
       </Button>
     </div>
@@ -247,7 +247,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
   useEffect(() => {
     // load local documents (canvases) and drawings
     const loadLocalItems = () => {
-      const items: NavItem[] = [];
+      const items: navitem[] = [];
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
         if (key && key.startsWith('canvas-config-')) {
@@ -359,10 +359,10 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
 
 
   const tabs = [
-    { id: 'databases', icon: Database, label: 'databases' },
-    { id: 'home', icon: Home, label: 'home' },
-    { id: 'captures', icon: LucideIcons.Inbox, label: 'captures' },
-    { id: 'headmates', icon: Users, label: 'headmates' },
+    { id: 'databases', icon: database, label: 'databases' },
+    { id: 'home', icon: home, label: 'home' },
+    { id: 'captures', icon: lucideicons.inbox, label: 'captures' },
+    { id: 'headmates', icon: users, label: 'headmates' },
   ] as const;
 
   return (
@@ -489,7 +489,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         </div>
 
         {/* custom modal for folder creation */}
-        {folderDialogOpen && (
+        {folderdialogopen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="bg-popover border p-4 rounded-lg shadow-lg w-full max-w-xs">
               <h3 className="font-semibold mb-2">create folder</h3>

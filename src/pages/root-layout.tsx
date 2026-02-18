@@ -62,19 +62,19 @@ function MobileSidebarDrawer({ isOpen, onClose, ...props }: any) {
   );
 }
 
-export function RootLayout() {
-  useThemeReactor(); // Activate Dynamic Theming
-  const { activeFronters, overrides, members } = useFronter();
-  const navigate = useNavigate();
+export function rootlayout() {
+  usethemereactor(); // activate dynamic theming
+  const { activefronters, overrides, members } = usefronter();
+  const navigate = usenavigate();
 
-  const [activeTab, setActiveTab] = useState<'databases' | 'home' | 'headmates' | 'board' | 'captures'>('home');
-  const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [activetab, setactivetab] = usestate<'databases' | 'home' | 'headmates' | 'board' | 'captures'>('home');
+  const [selectedcollection, setselectedcollection] = usestate<string | null>(null);
+  const [sidebaropen, setsidebaropen] = usestate(false);
+  const [settingsopen, setsettingsopen] = usestate(false);
 
-  // Sync / Health state
-  const [walCount, setWalCount] = useState(0);
-  const [syncStatus, setSyncStatus] = useState<'ok' | 'syncing' | 'error'>('ok');
+  // sync / health state
+  const [walcount, setwalcount] = usestate(0);
+  const [syncstatus, setsyncstatus] = usestate<'ok' | 'syncing' | 'error'>('ok');
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -111,7 +111,7 @@ export function RootLayout() {
   }, [activeColor]);
 
   const [sidebarItems, setSidebarItems] = useAppSetting<NavItem[]>('sidebar_items', []);
-  const [activeDragItem, setActiveDragItem] = useState<NavItem | null>(null);
+  const [activedragitem, setactivedragitem] = usestate<NavItem | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -180,7 +180,7 @@ export function RootLayout() {
         <MobileSidebarDrawer isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} onTabChange={handleTabChange} onSelectCollection={handleSelectCollection} selectedCollection={selectedCollection} items={sidebarItems} onOpenSettings={() => setSettingsOpen(true)} />
 
         <main className="flex-1 overflow-hidden h-full relative pb-20 lg:pb-0" style={{ touchAction: 'pan-y' }}>
-          {/* Sync / Health Header Bar (Premium) */}
+          {/* sync / health header bar (premium) */}
           <div className="absolute top-4 right-4 z-50 flex items-center gap-3 px-3 py-1.5 rounded-full bg-background/40 backdrop-blur-xl border border-primary/10 text-[10px] font-medium transition-all hover:bg-background/60">
             <div className="flex items-center gap-1.5 px-2 border-r border-primary/5">
               <Database className="h-3 w-3 text-primary/60" />
@@ -196,7 +196,7 @@ export function RootLayout() {
                   <RefreshCcw className="h-3 w-3 text-amber-500 animate-spin" />
                   <span className="text-amber-500 lowercase">{walCount} pending</span>
                 </>
-              ) : syncStatus === 'error' ? (
+              ) : syncstatus === 'error' ? (
                 <>
                   <AlertTriangle className="h-3 w-3 text-red-500" />
                   <span className="text-red-500 lowercase">error</span>
@@ -213,7 +213,7 @@ export function RootLayout() {
         <Spotlight />
         <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
         <DragOverlay>
-          {activeDragItem ? (
+          {activedragitem ? (
             <div className="bg-card border rounded shadow-lg p-2 flex items-center opacity-80 w-48 pointer-events-none">
               <Folder className="h-4 w-4 mr-2" />
               <span className="truncate text-sm font-medium lowercase">{activeDragItem.name}</span>

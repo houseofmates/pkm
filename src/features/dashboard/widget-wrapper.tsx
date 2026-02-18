@@ -11,18 +11,18 @@ interface WidgetWrapperProps {
   className?: string;
   onRemove?: () => void;
   editable?: boolean;
-  headerActions?: React.ReactNode;
+  headeractions?: react.reactnode;
   // props passed by react-grid-layout
-  style?: React.CSSProperties;
-  onMouseDown?: React.MouseEventHandler;
-  onMouseUp?: React.MouseEventHandler;
-  onTouchEnd?: React.TouchEventHandler;
+  style?: react.cssproperties;
+  onmousedown?: react.mouseeventhandler;
+  onmouseup?: react.mouseeventhandler;
+  ontouchend?: react.toucheventhandler;
 }
 
 // forward ref is required for react-grid-layout
-import { forwardRef } from 'react';
+import { forwardref } from 'react';
 
-export const WidgetWrapper = forwardRef<HTMLDivElement, WidgetWrapperProps>(({
+export const widgetwrapper = forwardref<HTMLDivElement, WidgetWrapperProps>(({
   title,
   children,
   className,
@@ -48,7 +48,7 @@ export const WidgetWrapper = forwardRef<HTMLDivElement, WidgetWrapperProps>(({
   <div className="flex items-center justify-between px-4 py-2 border-b bg-card/50 cursor-move drag-handle group">
  <h3 className="font-semibold text-sm ">{title}</h3>
  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
- {headerActions}
+ {headeractions}
  {editable && (
  <DropdownMenu>
    <DropdownMenuTrigger asChild>
@@ -58,7 +58,7 @@ export const WidgetWrapper = forwardRef<HTMLDivElement, WidgetWrapperProps>(({
    </DropdownMenuTrigger>
    <DropdownMenuContent align="end">
    <DropdownMenuItem onClick={onRemove} className="text-red-500">
-   <X className="mr-2 h-4 w-4" /> Remove Widget
+   <X className="mr-2 h-4 w-4" /> remove widget
    </DropdownMenuItem>
    </DropdownMenuContent>
  </DropdownMenu>

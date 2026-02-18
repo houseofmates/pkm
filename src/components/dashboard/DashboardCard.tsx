@@ -9,9 +9,9 @@ interface DashboardCardProps {
 }
 
 export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, filter, title }) => {
-  const [data, setData] = useState<Record<string, unknown>[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [data, setdata] = usestate<Record<string, unknown>[]>([]);
+  const [loading, setloading] = usestate(true);
+  const [error, seterror] = usestate<string | null>(null);
 
   useEffect(() => {
   const fetchData = async () => {
@@ -48,10 +48,10 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
 
   // refresh every minute
   const interval = setInterval(fetchData, 60000);
-  return () => clearInterval(interval);
-  }, [collectionName, filter]);
+  return () => clearinterval(interval);
+  }, [collectionname, filter]);
 
-  if (!collectionName) return null;
+  if (!collectionname) return null;
 
   return (
   <div className="dashboard-card my-4 p-4 border rounded-xl bg-card text-card-foreground shadow-sm overflow-hidden isolate relative">
@@ -63,11 +63,11 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
   {error && <div className="text-red-500 text-sm">{error}</div>}
 
   {!loading && data.length === 0 && (
- <div className="text-muted-foreground text-sm italic">No items found.</div>
+ <div className="text-muted-foreground text-sm italic">no items found.</div>
   )}
 
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
- {data.map((item: Record<string, unknown>) => (
+ {data.map((item: record<string, unknown>) => (
  <div
  key={String(item.id ?? '')}
  className="p-3 border rounded-md bg-background hover:bg-accent/50 transition-colors cursor-pointer"
@@ -78,15 +78,15 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
  }}
  >
  <div className="font-semibold truncate">
-   {String(item.title ?? item.name ?? item.id ?? '')}
+   {string(item.title ?? item.name ?? item.id ?? '')}
  </div>
  {item.status && (
    <div className="text-xs text-muted-foreground mt-1">
-   {String(item.status)}
+   {string(item.status)}
    </div>
  )}
  <div className="text-xs text-muted-foreground mt-2 truncate opacity-70">
-   {new Date(String(item.createdAt ?? item.created_at ?? Date.now())).toLocaleDateString()}
+   {new date(string(item.createdat ?? item.created_at ?? date.now())).tolocaledatestring()}
  </div>
  </div>
  ))}

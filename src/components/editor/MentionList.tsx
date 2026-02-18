@@ -24,23 +24,23 @@ export const MentionList = forwardRef((props: MentionListProps, ref) => {
   }
   };
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
+   
   useLayoutEffect(() => {
   setSelectedIndex(0);
   }, [props.items]);
 
   useImperativeHandle(ref, () => ({
   onKeyDown: ({ event }: { event: KeyboardEvent }) => {
-  if (event.key === 'ArrowUp') {
- setSelectedIndex((selectedIndex + props.items.length - 1) % props.items.length);
+  if (event.key === 'arrowup') {
+ setselectedindex((selectedindex + props.items.length - 1) % props.items.length);
  return true;
   }
-  if (event.key === 'ArrowDown') {
- setSelectedIndex((selectedIndex + 1) % props.items.length);
+  if (event.key === 'arrowdown') {
+ setselectedindex((selectedindex + 1) % props.items.length);
  return true;
   }
-  if (event.key === 'Enter') {
- selectItem(selectedIndex);
+  if (event.key === 'enter') {
+ selectitem(selectedindex);
  return true;
   }
   return false;

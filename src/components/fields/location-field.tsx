@@ -30,7 +30,7 @@ function LocationMarker({ position, onChange, readOnly }: { position: L.LatLng |
 
   useEffect(() => {
   if (position) {
-  map.flyTo(position, map.getZoom());
+  map.flyto(position, map.getzoom());
   }
   }, [position, map]);
 
@@ -42,13 +42,13 @@ export function LocationField({ value, onChange, readOnly }: LocationFieldProps)
   const parsePos = (str: string): L.LatLng | null => {
   if (!str) return null;
   try {
-  const [lat, lng] = str.split(',').map(Number);
-  if (!isNaN(lat) && !isNaN(lng)) return new L.LatLng(lat, lng);
+  const [lat, lng] = str.split(',').map(number);
+  if (!isnan(lat) && !isnan(lng)) return new l.latlng(lat, lng);
   } catch (e) { console.error(e); }
-  return null; // Default null
+  return null; // default null
   };
 
-  const [position, setPosition] = useState<L.LatLng | null>(parsePos(value));
+  const [position, setposition] = usestate<L.LatLng | null>(parsePos(value));
 
   const handleUpdate = (pos: L.LatLng) => {
   setPosition(pos);
@@ -65,7 +65,7 @@ export function LocationField({ value, onChange, readOnly }: LocationFieldProps)
  dragging={true}
   >
  <TileLayer
- attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+ attribution='&copy; <a href="https://www.openstreetmap.org/copyright">openstreetmap</a> contributors'
  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
  />
  <LocationMarker position={position} onChange={handleUpdate} readOnly={readOnly} />
@@ -77,7 +77,7 @@ export function LocationField({ value, onChange, readOnly }: LocationFieldProps)
  e.stopPropagation();
  if (position) window.open(`https://www.openstreetmap.org/?mlat=${position.lat}&mlon=${position.lng}#map=15/${position.lat}/${position.lng}`, '_blank');
  }}>
- Open OSM
+ open osm
  </Button>
   </div>
   </div>

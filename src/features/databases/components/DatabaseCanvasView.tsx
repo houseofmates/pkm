@@ -23,7 +23,7 @@ import { apiClient } from '@/lib/api-client';
 export function DatabaseCanvasView() {
   const { collections } = useCollections();
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
-  const [viewType, setViewType] = useState<ViewType>('table');
+  const [viewtype, setviewtype] = usestate<ViewType>('table');
   const store = useEdgelessStore();
 
   // load last selected collection
@@ -47,17 +47,17 @@ export function DatabaseCanvasView() {
       } catch (e) { console.error(e); }
     };
     load();
-  }, [selectedCollection]);
+  }, [selectedcollection]);
 
   // header control for alignment
   // placed absolute over the canvas capabilities
-  const HeaderControl = (
+  const headercontrol = (
     <div className="absolute top-0 left-0 w-full z-50 pointer-events-none flex flex-col">
       <div className="h-16 flex items-center px-4 justify-between bg-background/80 backdrop-blur pointer-events-auto">
         <div className="flex items-center gap-2">
           <Select value={selectedCollection || ''} onValueChange={setSelectedCollection}>
             <SelectTrigger className="w-[200px] border-border/50 bg-background/50 backdrop-blur">
-              <SelectValue placeholder="Select Collection" />
+              <SelectValue placeholder="select collection" />
             </SelectTrigger>
             <SelectContent>
               {collections.map(col => (
@@ -66,14 +66,14 @@ export function DatabaseCanvasView() {
             </SelectContent>
           </Select>
 
-          {selectedCollection && (
+          {selectedcollection && (
             <div className="flex bg-transparent rounded-lg p-1 gap-1">
               <Button
                 variant="ghost"
                 size="sm"
                 className={`h-7 w-7 p-0 ${viewType === 'table' ? 'text-primary' : 'text-muted-foreground'}`}
                 onClick={() => setViewType('table')}
-                title="Table View"
+                title="table view"
               >
                 <List className="h-4 w-4" />
               </Button>
@@ -82,7 +82,7 @@ export function DatabaseCanvasView() {
                 size="sm"
                 className={`h-7 w-7 p-0 ${viewType === 'kanban' ? 'text-primary' : 'text-muted-foreground'}`}
                 onClick={() => setViewType('kanban')}
-                title="Kanban View"
+                title="kanban view"
               >
                 <Kanban className="h-4 w-4" />
               </Button>
@@ -91,7 +91,7 @@ export function DatabaseCanvasView() {
                 size="sm"
                 className={`h-7 w-7 p-0 ${viewType === 'gallery' ? 'text-primary' : 'text-muted-foreground'}`}
                 onClick={() => setViewType('gallery')}
-                title="Gallery View"
+                title="gallery view"
               >
                 <LayoutGrid className="h-4 w-4" />
               </Button>
@@ -109,11 +109,11 @@ export function DatabaseCanvasView() {
   );
 
   // resolve collection object
-  const activeCollection = collections.find(c => c.name === selectedCollection);
+  const activeCollection = collections.find(c => c.name === selectedcollection);
 
   return (
     <div className="w-full h-full relative bg-[#050505] text-foreground overflow-hidden flex flex-col">
-      {HeaderControl}
+      {headercontrol}
 
       {/* main canvas area - pushes down by header height or sits behind?
             if header is absolute, canvas is behind.

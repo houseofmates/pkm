@@ -28,21 +28,21 @@ interface DatabaseSettingsFormProps {
   onUpdateConfig?: (key: string, val: any) => void;
   onUpdateMetadata?: (updates: any) => void; // Name, Icon, Color
   onDelete?: () => void;
-  isPage?: boolean;
+  ispage?: boolean;
 }
 
-export function DatabaseSettingsForm({
-  collectionName,
+export function databasesettingsform({
+  collectionname,
   title,
-  viewConfig = {},
+  viewconfig = {},
   fields = [],
-  currentView,
-  onUpdateConfig,
-  onUpdateMetadata,
-  onDelete,
-  isPage = false
-}: DatabaseSettingsFormProps) {
-  const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
+  currentview,
+  onupdateconfig,
+  onupdatemetadata,
+  ondelete,
+  ispage = false
+}: databasesettingsformprops) {
+  const [metadata, setmetadata] = useappsetting<Record<string, any>>('collection_metadata', {});
   const info = metadata[collectionName] || {};
 
   const [localName, setLocalName] = useState(title || info.title || collectionName);
@@ -53,36 +53,36 @@ export function DatabaseSettingsForm({
 
   // helpers
   const updateMeta = (key: string, val: any) => {
-  const next = { ...metadata, [collectionName]: { ...metadata[collectionName], [key]: val } };
-  setMetadata(next);
-  onUpdateMetadata?.({ [key]: val });
+  const next = { ...metadata, [collectionname]: { ...metadata[collectionname], [key]: val } };
+  setmetadata(next);
+  onupdatemetadata?.({ [key]: val });
   };
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'icon' | 'image') => {
+  const handleupload = (e: react.changeevent<HTMLInputElement>, type: 'icon' | 'image') => {
   const file = e.target.files?.[0];
   if (file) {
   const reader = new FileReader();
   reader.onloadend = () => {
  const res = reader.result as string;
  if (type === 'icon') {
- updateMeta('icon', res);
- updateMeta('iconType', 'image');
+ updatemeta('icon', res);
+ updatemeta('icontype', 'image');
  } else {
- updateMeta('image', res); // Associated Image / Cover
+ updatemeta('image', res); // associated image / cover
  }
   };
-  reader.readAsDataURL(file);
+  reader.readasdataurl(file);
   }
   };
 
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const coverInputRef = useRef<HTMLInputElement>(null);
+  const fileinputref = useref<HTMLInputElement>(null);
+  const coverinputref = useref<HTMLInputElement>(null);
 
   return (
   <div className="space-y-4">
   <div className="flex items-center justify-between border-b pb-2">
  <span className="font-semibold text-sm">settings</span>
- {onDelete && (
+ {ondelete && (
  <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:bg-destructive/10" onClick={onDelete} title="delete">
  <Trash2 className="h-3 w-3" />
  </Button>
@@ -109,7 +109,7 @@ export function DatabaseSettingsForm({
  <div className="flex gap-1">
    {/* icon picker trigger - assume generic icon picker available or simple usage */}
    <Button variant="outline" size="sm" className="w-full justify-start gap-2 h-8" onClick={() => setIconPickerOpen(true)}>
-   {info.iconType === 'image' ? (
+   {info.icontype === 'image' ? (
    <img src={info.icon} className="h-4 w-4 object-contain" />
    ) : (
    <span className="text-xs">{info.icon || 'Select'}</span>
@@ -163,7 +163,7 @@ export function DatabaseSettingsForm({
   <separator />
 
   {/* default view setting */}
-  {currentView && (
+  {currentview && (
  <div className="space-y-2">
  <Label className="text-xs text-muted-foreground ">default view</Label>
  <Button
@@ -183,18 +183,18 @@ export function DatabaseSettingsForm({
   <Separator />
 
   {/* view config (sort/filter etc) */}
-  {!isPage && onUpdateConfig && (
+  {!ispage && onupdateconfig && (
  <div className="space-y-3">
  <div className="space-y-1">
  <Label className="text-xs text-muted-foreground flex items-center gap-2">
-   <ArrowUpDown className="h-3 w-3" /> Sort
+   <ArrowUpDown className="h-3 w-3" /> sort
  </Label>
  <Select value={currentSort || '_none'} onValueChange={(v) => onUpdateConfig?.('sort', v === '_none' ? [] : [v])}>
-   <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Sort by..." /></SelectTrigger>
+   <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="sort by..." /></SelectTrigger>
    <SelectContent>
-   <SelectItem value="_none">None</SelectItem>
-   <SelectItem value="-created_at">Newest First</SelectItem>
-   <SelectItem value="created_at">Oldest First</SelectItem>
+   <SelectItem value="_none">none</SelectItem>
+   <SelectItem value="-created_at">newest first</SelectItem>
+   <SelectItem value="created_at">oldest first</SelectItem>
    {fields.map(f => (
    <SelectItem key={f.name} value={f.name}>{f.uiSchema?.title || f.name}</SelectItem>
    ))}
@@ -203,10 +203,10 @@ export function DatabaseSettingsForm({
  </div>
  <div className="space-y-1">
  <Label className="text-xs text-muted-foreground flex items-center gap-2">
-   <Filter className="h-3 w-3" /> Filter
+   <Filter className="h-3 w-3" /> filter
  </Label>
  <Button variant="outline" size="sm" className="w-full h-8 justify-start text-xs text-muted-foreground" disabled>
-   Advanced Filter (Coming Soon)
+   advanced filter (coming soon)
  </Button>
  </div>
  </div>
@@ -215,21 +215,21 @@ export function DatabaseSettingsForm({
   <Separator />
 
   {/* view specific settings */}
-  {(['gallery', 'list', 'calendar', 'timeline', 'gantt'].includes(currentView || '')) && onUpdateConfig && (
+  {(['gallery', 'list', 'calendar', 'timeline', 'gantt'].includes(currentview || '')) && onupdateconfig && (
  <div className="space-y-3">
  <Label className="text-xs text-muted-foreground ">{currentView} appearance</Label>
 
  {/* cover image field (gallery/list) */}
- {(currentView === 'gallery' || currentView === 'list') && (
+ {(currentview === 'gallery' || currentview === 'list') && (
  <div className="space-y-1">
    <Label className="text-[10px] text-muted-foreground">cover image / icon</Label>
    <Select
    value={viewConfig.coverField || '_default'}
    onValueChange={(v) => onUpdateConfig('coverField', v === '_default' ? undefined : v)}
    >
-   <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Auto" /></SelectTrigger>
+   <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="auto" /></SelectTrigger>
    <SelectContent>
-   <SelectItem value="_default">Auto (First Image)</SelectItem>
+   <SelectItem value="_default">auto (first image)</SelectItem>
    {fields.filter(f => f.interface === 'attachment' || f.name.includes('img') || f.name.includes('cover') || f.name.includes('icon')).map(f => (
   <SelectItem key={f.name} value={f.name}>{f.uiSchema?.title || f.name}</SelectItem>
    ))}
@@ -239,16 +239,16 @@ export function DatabaseSettingsForm({
  )}
 
  {/* date field (calendar/timeline/gantt) */}
- {(currentView === 'calendar' || currentView === 'timeline' || currentView === 'gantt') && (
+ {(currentview === 'calendar' || currentview === 'timeline' || currentview === 'gantt') && (
  <div className="space-y-1">
    <Label className="text-[10px] text-muted-foreground">primary date field</Label>
    <Select
    value={viewConfig.dateField || '_default'}
    onValueChange={(v) => onUpdateConfig('dateField', v === '_default' ? undefined : v)}
    >
-   <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Auto" /></SelectTrigger>
+   <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="auto" /></SelectTrigger>
    <SelectContent>
-   <SelectItem value="_default">Auto (Nearest Date)</SelectItem>
+   <SelectItem value="_default">auto (nearest date)</SelectItem>
    {fields.filter(f => f.type === 'date' || f.interface === 'date' || f.type === 'datetime' || f.interface === 'datetime').map(f => (
   <SelectItem key={f.name} value={f.name}>{f.uiSchema?.title || f.name}</SelectItem>
    ))}
@@ -264,9 +264,9 @@ export function DatabaseSettingsForm({
    value={viewConfig.titleField || '_default'}
    onValueChange={(v) => onUpdateConfig('titleField', v === '_default' ? undefined : v)}
  >
-   <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="Auto" /></SelectTrigger>
+   <SelectTrigger className="h-7 text-xs"><SelectValue placeholder="auto" /></SelectTrigger>
    <SelectContent>
-   <SelectItem value="_default">Auto</SelectItem>
+   <SelectItem value="_default">auto</SelectItem>
    {fields.filter(f => f.interface === 'input' || f.type === 'string' || f.name === 'title' || f.name === 'label' || f.name === 'name').map(f => (
    <SelectItem key={f.name} value={f.name}>{f.uiSchema?.title || f.name}</SelectItem>
    ))}
@@ -279,7 +279,7 @@ export function DatabaseSettingsForm({
  <Label className="text-[10px] text-muted-foreground">visible properties / metadata</Label>
  <div className="max-h-32 overflow-y-auto space-y-1 border rounded p-1">
    {fields.map(f => {
-   const isChecked = (viewConfig.visibleFields || []).includes(f.name);
+   const ischecked = (viewconfig.visiblefields || []).includes(f.name);
    return (
    <div key={f.name} className="flex items-center space-x-2">
   <Checkbox
@@ -294,7 +294,7 @@ export function DatabaseSettingsForm({
   }}
   />
   <Label htmlFor={`vf-${f.name}`} className="text-xs lowercase cursor-pointer select-none">
-  {f.uiSchema?.title || f.name}
+  {f.uischema?.title || f.name}
   </Label>
    </div>
    );

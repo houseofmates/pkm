@@ -18,15 +18,15 @@ interface CollectionContextMenuProps {
   onAddToFolder?: () => void;
 }
 
-const COLORS = [
-  { name: 'Yellow', value: 'var(--primary)' },
-  { name: 'Red', value: '#ef4444' },
-  { name: 'Blue', value: '#3b82f6' },
-  { name: 'Green', value: '#22c55e' },
-  { name: 'Purple', value: '#a855f7' },
+const colors = [
+  { name: 'yellow', value: 'var(--primary)' },
+  { name: 'red', value: '#ef4444' },
+  { name: 'blue', value: '#3b82f6' },
+  { name: 'green', value: '#22c55e' },
+  { name: 'purple', value: '#a855f7' },
 ];
 
-export function CollectionContextMenu({ children, onRename, onColorChange, onAddToFolder }: CollectionContextMenuProps) {
+export function collectioncontextmenu({ children, onrename, oncolorchange, onaddtofolder }: collectioncontextmenuprops) {
   return (
   <ContextMenu>
   <ContextMenuTrigger asChild>
@@ -47,7 +47,7 @@ export function CollectionContextMenu({ children, onRename, onColorChange, onAdd
  {COLORS.map(color => (
    <ContextMenuItem key={color.name} onSelect={() => onColorChange?.(color.value)}>
    <div className="mr-2 h-3 w-3 rounded-full" style={{ backgroundColor: color.value }} />
-   {color.name.toLowerCase()}
+   {color.name.tolowercase()}
    </ContextMenuItem>
  ))}
  </ContextMenuSubContent>

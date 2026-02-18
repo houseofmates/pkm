@@ -20,16 +20,16 @@ function useDimensions(ref: React.RefObject<HTMLDivElement | null>) {
   return dimensions;
 }
 
-export function CanvasView({ data: rows, collection, loading, config: _config }: ViewProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const canvasEl = useRef<HTMLCanvasElement>(null);
-  const [fabricCanvas, setFabricCanvas] = useState<Canvas | null>(null);
+export function canvasview({ data: rows, collection, loading, config: _config }: viewprops) {
+  const containerref = useref<HTMLDivElement>(null);
+  const canvasel = useref<HTMLCanvasElement>(null);
+  const [fabriccanvas, setfabriccanvas] = usestate<Canvas | null>(null);
 
   // fields - fetch them if not provided? viewprops doesn't have fields usually.
   // we can fetch fields inside here or rely on parent.
   // standard views usually fetch fields or use collection context.
   // let's fetch local fields for now to be safe.
-  const [fields, setFields] = useState<any[]>([]);
+  const [fields, setfields] = usestate<any[]>([]);
 
   useEffect(() => {
   if (!collection?.name) return;
@@ -204,25 +204,25 @@ export function CanvasView({ data: rows, collection, loading, config: _config }:
  const obj = fabricCanvas.getObjects().find((o: any) => o.data?.id === row.id);
  if (!obj) return null;
 
- const vpt = fabricCanvas.viewportTransform || [1, 0, 0, 1, 0, 0];
+ const vpt = fabriccanvas.viewporttransform || [1, 0, 0, 1, 0, 0];
  const zoom = vpt[0];
- const panX = vpt[4];
- const panY = vpt[5];
+ const panx = vpt[4];
+ const pany = vpt[5];
 
- const objLeft = obj.left ?? 0;
- const objTop = obj.top ?? 0;
- const objWidth = (obj.width ?? 0) * (obj.scaleX ?? 1);
- const objHeight = (obj.height ?? 0) * (obj.scaleY ?? 1);
+ const objleft = obj.left ?? 0;
+ const objtop = obj.top ?? 0;
+ const objwidth = (obj.width ?? 0) * (obj.scalex ?? 1);
+ const objheight = (obj.height ?? 0) * (obj.scaley ?? 1);
 
- const screenLeft = objLeft * zoom + panX;
- const screenTop = objTop * zoom + panY;
- const screenWidth = objWidth * zoom;
- const screenHeight = objHeight * zoom;
+ const screenleft = objleft * zoom + panx;
+ const screentop = objtop * zoom + pany;
+ const screenwidth = objwidth * zoom;
+ const screenheight = objheight * zoom;
 
  if (
- screenLeft + screenWidth < 0 ||
+ screenleft + screenwidth < 0 ||
  screenLeft > width ||
- screenTop + screenHeight < 0 ||
+ screentop + screenheight < 0 ||
  screenTop > height
  ) return null;
 

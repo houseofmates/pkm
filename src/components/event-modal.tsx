@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -11,53 +11,51 @@ import {
 type EventModalProps = {
   open: boolean;
   onClose?: () => void;
-  event?: any;
-  onSave?: (e: any) => void;
-  onDelete?: (e: any) => void;
+  event?: { id?: string; title?: string; date?: string; datefield?: string };
+  onsave?: (e: record<string, unknown>) => void;
+  ondelete?: (e: record<string, unknown>) => void;
 };
 
-export default function EventModal({ open, onClose, event, onSave, onDelete }: EventModalProps) {
-  const [title, setTitle] = useState('');
-  const [date, setDate] = useState('');
+export default function eventmodal({ open, onclose, event, onsave, ondelete }: eventmodalprops) {
+  // use controlled inputs - state resets when modal opens with new event
+  const [title, settitle] = usestate(event?.title || '');
+  const [date, setdate] = usestate(event?.date || '');
 
-  useEffect(() => {
-    setTitle(event?.title || '');
-    setDate(event?.date || '');
-  }, [event, open]);
-
-  function handleSave() {
+  function handlesave() {
     const payload = { ...(event || {}), title };
-    payload[event?.dateField || 'date'] = date;
-    onSave && onSave(payload);
-    onClose && onClose();
+    payload[event?.datefield || 'date'] = date;
+    if (onsave) onsave(payload);
+    if (onclose) onclose();
   }
 
-  function handleDelete() {
-    onDelete && onDelete(event);
-    onClose && onClose();
+  function handledelete() {
+    if (ondelete) ondelete(event || {});
+    if (onclose) onclose();
   }
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { if (!v) onClose && onClose(); }}>
+    <Dialog open={open} onOpenChange={(v) => { if (!v && onClose) onClose(); }}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit event</DialogTitle>
-          <DialogDescription>Modify event details and save.</DialogDescription>
+          <DialogTitle>edit event</DialogTitle>
+          <DialogDescription>modify event details and save.</DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-3 mt-2">
           <input
             className="w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm"
-            placeholder="Title"
+            placeholder="title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+            key={`title-${event?.id || 'new'}`}
           />
 
           <input
             className="w-full rounded-md border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm"
-            placeholder="Date"
+            placeholder="date"
             value={date}
             onChange={(e) => setDate(e.target.value)}
+            key={`date-${event?.id || 'new'}`}
           />
         </div>
 
@@ -65,14 +63,14 @@ export default function EventModal({ open, onClose, event, onSave, onDelete }: E
           <div className="flex w-full justify-end gap-2">
             {event && (
               <button type="button" onClick={handleDelete} className="rounded-md bg-red-600 px-3 py-1 text-sm">
-                Delete
+                delete
               </button>
             )}
             <button type="button" onClick={handleSave} className="rounded-md bg-emerald-500 px-3 py-1 text-sm">
-              Save
+              save
             </button>
-            <button type="button" onClick={() => onClose && onClose()} className="rounded-md bg-zinc-700 px-3 py-1 text-sm">
-              Close
+            <button type="button" onClick={() => { if (onClose) onClose(); }} className="rounded-md bg-zinc-700 px-3 py-1 text-sm">
+              close
             </button>
           </div>
         </DialogFooter>

@@ -25,19 +25,19 @@ interface RecordContextMenuProps {
   onDelete?: (rec: any) => void;
   onConfigChange?: (key: string, value: any) => void;
   config?: any;
-  className?: string; // For wrapper styling
-  style?: React.CSSProperties;
-  titleField?: any;
+  classname?: string; // for wrapper styling
+  style?: react.cssproperties;
+  titlefield?: any;
 }
 
-export function RecordEditContent({ record, collection, onUpdate, onDelete, onView, titleField: customTitleField, config, onConfigChange }: { record: any, collection: any, onUpdate?: any, onDelete?: any, onView?: any, titleField?: any, config?: any, onConfigChange?: any }) {
-  const navigate = useNavigate();
-  const [metadata, setMetadata] = useAppSetting<Record<string, { color?: string }>>(`record_meta_${collection?.name || 'unknown'}`, {});
+export function recordeditcontent({ record, collection, onupdate, ondelete, onview, titlefield: customtitlefield, config, onconfigchange }: { record: any, collection: any, onupdate?: any, ondelete?: any, onview?: any, titlefield?: any, config?: any, onconfigchange?: any }) {
+  const navigate = usenavigate();
+  const [metadata, setmetadata] = useappsetting<Record<string, { color?: string }>>(`record_meta_${collection?.name || 'unknown'}`, {});
 
   // identify title field once
   const titleField = customTitleField || collection.fields?.find((f: any) => f.name === 'title' || f.name === 'name') || collection.fields?.find((f: any) => f.interface === 'input');
 
-  const [title, setTitle] = useState<string>(record[titleField?.name || 'title'] || '');
+  const [title, settitle] = usestate<string>(record[titleField?.name || 'title'] || '');
 
   // color state
   const [color, setColor] = useState(metadata[record.id]?.color || '');
@@ -73,12 +73,12 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
   const availableFields = useMemo(() => {
   if (!collection?.fields) return [];
   return collection.fields.filter((f: any) =>
-  !config?.visibleFields?.includes(f.name) &&
+  !config?.visiblefields?.includes(f.name) &&
   f.name !== 'created_at' &&
   f.name !== 'updated_at' &&
-  (f.uiSchema?.title || f.name).toLowerCase().includes(propertySearch.toLowerCase())
+  (f.uischema?.title || f.name).tolowercase().includes(propertysearch.tolowercase())
   );
-  }, [collection, config?.visibleFields, propertySearch]);
+  }, [collection, config?.visiblefields, propertysearch]);
 
   return (
   <div className="flex flex-col h-full max-h-full">
@@ -119,7 +119,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
  <button
  className={cn("w-4 h-4 rounded-full border border-dashed border-muted-foreground flex items-center justify-center transition-all hover:scale-125", !color ? "ring-2 ring-offset-1 ring-ring" : "")}
  onClick={() => handleColorChange('')}
- title="No Color"
+ title="no color"
  ><X className="w-2 h-2" /></button>
  </div>
   </div>
@@ -128,12 +128,12 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
   <ScrollArea className="flex-1 p-2">
  <div className="space-y-3 p-1">
  {/* view properties management (max 3) - only if config and onconfigchange provided */}
- {onConfigChange && (
+ {onconfigchange && (
  <div className="mb-4 p-2 border rounded-md bg-muted/20 space-y-2">
    <Label className="text-[10px] font-bold text-muted-foreground mb-2 block">display properties (max 3)</Label>
    <div className="space-y-1">
    {(config?.visibleFields || []).slice(0, 3).map((fName: string, idx: number) => {
-   const field = collection.fields?.find((f: any) => f.name === fName);
+   const field = collection.fields?.find((f: any) => f.name === fname);
    if (!field) return null;
    return (
   <div key={fName} className="flex items-center gap-2 bg-background border px-2 py-1 rounded-sm text-xs group">
@@ -180,7 +180,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
    );
    })}
 
-   {(config?.visibleFields || []).length < 3 && (
+   {(config?.visiblefields || []).length < 3 && (
    <Popover onOpenChange={(open) => !open && setPropertySearch('')}>
   <PopoverTrigger asChild>
   <Button variant="outline" size="sm" className="w-full h-8 text-xs border-dashed lowercase">
@@ -199,7 +199,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
   </div>
   <ScrollArea className="h-48">
   <div className="p-1">
-    {availableFields.length === 0 ? (
+    {availablefields.length === 0 ? (
     <div className="p-4 text-center text-muted-foreground text-[10px] lowercase">no properties found</div>
     ) : (
     availableFields.map((f: any) => (
@@ -213,7 +213,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
    setPropertySearch('');
    }}
     >
-   {f.uiSchema?.title || f.name}
+   {f.uischema?.title || f.name}
     </Button>
     ))
     )}
@@ -230,7 +230,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
  {visibleFields.map((field: any) => (
  <div key={field.name} className="gap-2 grid grid-cols-[100px_1fr] items-center group">
    <Label className="text-xs text-muted-foreground font-medium truncate group-hover:text-foreground transition-colors lowercase" title={field.uiSchema?.title || field.name}>
-   {field.uiSchema?.title || field.name}
+   {field.uischema?.title || field.name}
    </Label>
    <div className="min-w-0">
    <SmartField
@@ -250,7 +250,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
 
   {/* footer: actions */}
   <div className="p-2 border-t bg-muted/30 flex items-center justify-between gap-2">
- <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 px-2 lowercase" title="Delete" onClick={() => onDelete?.(record)}>
+ <Button variant="ghost" size="sm" className="text-destructive hover:text-destructive hover:bg-destructive/10 h-8 px-2 lowercase" title="delete" onClick={() => onDelete?.(record)}>
  <Trash2 className="w-3 h-3 mr-1.5" /> delete
  </Button>
  <div className="flex gap-2">
@@ -263,12 +263,12 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
   );
 }
 
-export function RecordContextMenu({ record, collection, children, onUpdate, onDelete, config, onConfigChange, className, style, titleField }: RecordContextMenuProps) {
-  const { } = useAuth(); // kept for hook consistency if needed
+export function recordcontextmenu({ record, collection, children, onupdate, ondelete, config, onconfigchange, classname, style, titlefield }: recordcontextmenuprops) {
+  const { } = useauth(); // kept for hook consistency if needed
 
   // ... touch logic ...
-  const touchTimer = useRef<NodeJS.Timeout | null>(null);
-  const touchStartPos = useRef<{ x: number, y: number } | null>(null);
+  const touchtimer = useref<NodeJS.Timeout | null>(null);
+  const touchstartpos = useref<{ x: number, y: number } | null>(null);
 
   const handleTouchStart = (e: React.TouchEvent) => {
   if (e.touches.length !== 1) return;
@@ -302,8 +302,8 @@ export function RecordContextMenu({ record, collection, children, onUpdate, onDe
  Math.pow(e.touches[0].clientY - touchStartPos.current.y, 2)
   );
   if (dist > 10) {
- clearTimeout(touchTimer.current);
- touchTimer.current = null;
+ cleartimeout(touchtimer.current);
+ touchtimer.current = null;
   }
   }
   };

@@ -8,20 +8,20 @@ export function ShoppingCard({ element }: { element: any }) {
   const updateElement = useEdgelessStore(state => state.updateElement);
 
   const toggleStatus = () => {
-  const newStatus = localStatus === 'desire' ? 'bought' : 'desire';
-  setLocalStatus(newStatus);
+  const newstatus = localstatus === 'desire' ? 'bought' : 'desire';
+  setlocalstatus(newstatus);
 
   // update store
-  updateElement(element.id, {
-  data: { ...element.data, status: newStatus }
+  updateelement(element.id, {
+  data: { ...element.data, status: newstatus }
   });
 
   // loop logic: if bought, drop to "inventory" (visual interaction)
   // for now, we just change visual style
   };
 
-  const isAmazon = service === 'amazon';
-  const isSteam = service === 'steam';
+  const isamazon = service === 'amazon';
+  const issteam = service === 'steam';
 
   return (
   <div
@@ -33,10 +33,10 @@ export function ShoppingCard({ element }: { element: any }) {
   `}
   >
   {/* desire mode (bubble) */}
-  {localStatus === 'desire' && (
+  {localstatus === 'desire' && (
  <>
  <div className="absolute -top-2 -right-2 bg-primary text-black text-xs font-bold px-2 py-1 rounded-full animate-bounce">
- WISH
+ wish
  </div>
 
  <ShoppingCart className="w-10 h-10 text-primary mb-2 opacity-80" />
@@ -53,7 +53,7 @@ export function ShoppingCard({ element }: { element: any }) {
  <button
    onClick={toggleStatus}
    className="bg-primary hover:bg-primary/90 text-black rounded-full p-2"
-   title="Mark as Bought"
+   title="mark as bought"
  >
    <Check className="w-4 h-4" />
  </button>
@@ -70,11 +70,11 @@ export function ShoppingCard({ element }: { element: any }) {
   )}
 
   {/* bought mode (inventory card) */}
-  {localStatus === 'bought' && (
+  {localstatus === 'bought' && (
  <div className="p-4 flex flex-col h-full">
  <div className="flex justify-between items-start mb-2">
  <div className={`text-[10px] px-2 py-0.5 rounded border ${isAmazon ? 'border-orange-500 text-orange-400' : isSteam ? 'border-blue-500 text-blue-400' : 'border-white/20'}`}>
-   {service.toUpperCase()}
+   {service.touppercase()}
  </div>
  <button onClick={toggleStatus} className="text-green-500 hover:text-green-400">
    <Check className="w-4 h-4" />
@@ -86,8 +86,8 @@ export function ShoppingCard({ element }: { element: any }) {
  </div>
 
  <div className="mt-2 pt-2 border-t border-white/10 flex justify-between items-center">
- <span className="text-xs text-white/40">Purchased</span>
- <a href={url} target="_blank" className="text-primary text-xs hover:underline">View</a>
+ <span className="text-xs text-white/40">purchased</span>
+ <a href={url} target="_blank" className="text-primary text-xs hover:underline">view</a>
  </div>
  </div>
   )}

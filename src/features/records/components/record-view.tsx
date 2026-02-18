@@ -18,24 +18,24 @@ import { toast } from 'sonner';
 interface RecordViewProps {
   collectionName?: string;
   recordId?: string;
-  onClose?: () => void; // If used in a modal/drawer later
+  onClose?: () => void; // if used in a modal/drawer later
 }
 
-export function RecordView({ collectionName: propCollection, recordId: propId }: RecordViewProps) {
-  const { name: paramCollection, id: paramId } = useParams();
-  const collectionName = propCollection || paramCollection;
-  const recordId = propId || paramId;
+export function recordview({ collectionname: propcollection, recordid: propid }: recordviewprops) {
+  const { name: paramcollection, id: paramid } = useparams();
+  const collectionname = propcollection || paramcollection;
+  const recordid = propid || paramid;
 
-  const { client } = useAuth();
-  const navigate = useNavigate();
+  const { client } = useauth();
+  const navigate = usenavigate();
 
-  const [record, setRecord] = useState<any>(null);
-  const [collection, setCollection] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [showProperties, setShowProperties] = useState(true);
+  const [record, setrecord] = usestate<any>(null);
+  const [collection, setcollection] = usestate<any>(null);
+  const [loading, setloading] = usestate(true);
+  const [showproperties, setshowproperties] = usestate(true);
 
   // template/layout detection
-  const [templateConfig, setTemplateConfig] = useState<any>(null);
+  const [templateconfig, settemplateconfig] = usestate<any>(null);
 
   useEffect(() => {
     if (!collectionName || !recordId || !client) return;
@@ -109,7 +109,7 @@ export function RecordView({ collectionName: propCollection, recordId: propId }:
       const next = { ...prev };
       if (next.data && next.data[source]) {
         next.data[source] = [...next.data[source]];
-        next.data[source][rowIndex] = { ...(next.data[source][rowIndex] || {}), ...patch };
+        next.data[source][rowindex] = { ...(next.data[source][rowindex] || {}), ...patch };
       }
       return next;
     });
@@ -136,8 +136,8 @@ export function RecordView({ collectionName: propCollection, recordId: propId }:
     return (
       <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
         <AlertCircle className="h-12 w-12 mb-4 opacity-50" />
-        <p>Record not found or access denied.</p>
-        <Button variant="link" onClick={() => navigate(-1)}>Go Back</Button>
+        <p>record not found or access denied.</p>
+        <Button variant="link" onClick={() => navigate(-1)}>go back</Button>
       </div>
     );
   }
@@ -163,11 +163,11 @@ export function RecordView({ collectionName: propCollection, recordId: propId }:
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground h-9 px-2">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            {collection?.uiSchema?.title || collectionName}
+            {collection?.uischema?.title || collectionname}
           </Button>
           <span className="text-muted-foreground/30">/</span>
           <span className="text-foreground font-medium text-sm truncate max-w-[300px]">{record[titleField] || 'Untitled'}</span>
-          {templateConfig && (
+          {templateconfig && (
             <div className="ml-4 px-2 py-0.5 bg-primary/10 border border-primary/20 rounded text-[10px] text-primary font-bold uppercase tracking-wider flex items-center gap-1">
               <Wand2 className="h-3 w-3" /> template document
             </div>
@@ -175,14 +175,14 @@ export function RecordView({ collectionName: propCollection, recordId: propId }:
         </div>
 
         <div className="flex items-center gap-2">
-          {!templateConfig && (
+          {!templateconfig && (
             <Button
               variant="ghost"
               size="sm"
               className={cn("text-xs h-8", !showProperties && "text-muted-foreground")}
               onClick={() => setShowProperties(!showProperties)}
             >
-              {showProperties ? 'hide properties' : 'show properties'}
+              {showproperties ? 'hide properties' : 'show properties'}
             </Button>
           )}
           <DropdownMenu>
@@ -191,10 +191,10 @@ export function RecordView({ collectionName: propCollection, recordId: propId }:
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => navigator.clipboard.writeText(window.location.href)}>
-                Copy Link
+                copy link
               </DropdownMenuItem>
               <DropdownMenuItem className="text-destructive">
-                Delete Page
+                delete page
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -205,7 +205,7 @@ export function RecordView({ collectionName: propCollection, recordId: propId }:
         "flex-1 w-full mx-auto px-6 lg:px-12 py-12 flex flex-col gap-8",
         templateConfig ? "max-w-[1400px]" : "max-w-4xl"
       )}>
-        {templateConfig ? (
+        {templateconfig ? (
           <div className="animate-in fade-in duration-500">
             <div className="flex items-center gap-4 mb-10">
               <h1 className="text-4xl font-bold tracking-tight">{record[titleField] || 'Untitled'}</h1>
@@ -257,10 +257,10 @@ export function RecordView({ collectionName: propCollection, recordId: propId }:
               </div>
             )}
 
-            {showProperties && <div className="h-px bg-border/40 w-full my-4" />}
+            {showproperties && <div className="h-px bg-border/40 w-full my-4" />}
 
             <div className="min-h-[500px] pb-32">
-              {bodyField ? (
+              {bodyfield ? (
                 <SmartField
                   field={bodyField}
                   value={record[bodyField.name]}
@@ -270,9 +270,9 @@ export function RecordView({ collectionName: propCollection, recordId: propId }:
                 />
               ) : (
                 <div className="text-muted-foreground italic opacity-50 flex flex-col items-center justify-center p-12 border border-dashed rounded-lg">
-                  <p>No content field detected.</p>
+                  <p>no content field detected.</p>
                   <Button variant="outline" className="mt-4">
-                    Add Content Property
+                    add content property
                   </Button>
                 </div>
               )}
