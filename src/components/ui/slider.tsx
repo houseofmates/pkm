@@ -6,7 +6,7 @@ interface SliderProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 
  onValueChange?: (value: number[]) => void
 }
 
-const slider = react.forwardref<HTMLInputElement, SliderProps>(
+const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
  ({ className, value = [0], onValueChange, ...props }, ref) => {
   return (
  <input
