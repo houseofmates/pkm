@@ -1,6 +1,7 @@
 import { openDB } from 'idb'
 import type { DBSchema, IDBPDatabase } from 'idb'
 import type { DrawOp, OpLogEntry, CanvasCheckpoint } from './oplog'
+import { secureLogger } from '@/lib/secure-logger'
 
 const DB_NAME = 'pkm-canvas-v1'
 const DB_VERSION = 1
@@ -132,22 +133,30 @@ export async function getRecentOps(drawingId: string, limit = 100): Promise<OpLo
   return all.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit)
 }
 
-export async function pruneOldOps(drawingId: string, keepCount = 500): Promise<void> {
-  const db = await getCanvasDB()
-  const all = await db.getAllFromIndex('oplog', 'by-drawing', drawingId)
-  if (all.length <= keepCount) return
+export async function pruneOldOps(drawingId: string, keepCount = 500): Promise<number> {
+  try {
+    const db = await getCanvasDB()
+    const all = await db.getAllFromIndex('oplog', 'by-drawing', drawingId)
+    if (all.length <= keepCount) return 0
 
-  // keep the most recent, delete the rest
-  const toDelete = all
-    .sort((a, b) => a.timestamp - b.timestamp)
-    .slice(0, all.length - keepCount)
-    .filter((e) => e.synced) // only delete synced ops
+    // keep the most recent, delete the rest
+    const toDelete = all
+      .sort((a, b) => a.timestamp - b.timestamp)
+      .slice(0, all.length - keepCount)
+      .filter((e) => e.synced) // only delete synced ops
 
-  const tx = db.transaction('oplog', 'readwrite')
-  for (const entry of toDelete) {
-    await tx.store.delete(entry.id)
+    if (toDelete.length === 0) return 0
+
+    const tx = db.transaction('oplog', 'readwrite')
+    for (const entry of toDelete) {
+      await tx.store.delete(entry.id)
+    }
+    await tx.done
+    return toDelete.length
+  } catch (e) {
+    secureLogger.error('[DB] pruneOldOps failed', e)
+    throw e
   }
-  await tx.done
 }
 
 // checkpoint operations

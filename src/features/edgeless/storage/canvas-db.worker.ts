@@ -68,6 +68,7 @@ self.onmessage = async (e: MessageEvent) => {
         const result = await handler(...args)
         self.postMessage({ id, result })
     } catch (error) {
+        console.error(`[Worker] Error in ${method}:`, error)
         self.postMessage({ id, error: (error as Error).message })
     }
 }
@@ -134,21 +135,31 @@ const handlers: Record<string, (...args: any[]) => Promise<unknown>> = {
     },
 
     async pruneoldops(drawingid: string, keepcount = 500) {
-        const d = await getdb()
-        const all = await d.getAllFromIndex('oplog', 'by-drawing', drawingid)
-        if (all.length <= keepcount) return 0
+        try {
+            const d = await getdb()
+            const all = await d.getAllFromIndex('oplog', 'by-drawing', drawingid)
+            if (all.length <= keepcount) return 0
 
-        const todelete = all
-            .sort((a, b) => a.timestamp - b.timestamp)
-            .slice(0, all.length - keepcount)
-            .filter((e) => e.synced)
+            // sort by timestamp ascending (oldest first)
+            const sorted = all.sort((a, b) => a.timestamp - b.timestamp)
 
-        const tx = d.transaction('oplog', 'readwrite')
-        for (const entry of todelete) {
-            await tx.store.delete(entry.id)
+            // determine which ones to delete (oldest ones, but keep 'keepcount' newest)
+            // AND only delete if they are synced
+            const potentialDeletes = sorted.slice(0, all.length - keepcount)
+            const todelete = potentialDeletes.filter((e) => e.synced)
+
+            if (todelete.length === 0) return 0
+
+            const tx = d.transaction('oplog', 'readwrite')
+            for (const entry of todelete) {
+                await tx.store.delete(entry.id)
+            }
+            await tx.done
+            return todelete.length
+        } catch (e) {
+            console.error('[Worker] pruneoldops failed:', e)
+            throw e
         }
-        await tx.done
-        return todelete.length
     },
 
     async savecheckpoint(drawingid: string, state: unknown) {
