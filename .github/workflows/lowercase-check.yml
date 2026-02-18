@@ -1,0 +1,35 @@
+name: lowercase checks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lowercase:
+    name: lowercase + ui checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: check comments are lowercase
+        run: npm run lowercase:check
+
+      - name: check ui text is lowercase
+        run: npm run check:ui-lowercase
+
+      - name: lint (optional)
+        run: npm run lint --if-present
+
+      - name: run tests
+        run: npm test
