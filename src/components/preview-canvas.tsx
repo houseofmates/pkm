@@ -1,0 +1,302 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { 
+  DndContext, 
+  PointerSensor, 
+  TouchSensor, 
+  useSensor, 
+  useSensors, 
+  DragOverlay, 
+  useDroppable,
+  defaultDropAnimationSideEffects,
+} from '@dnd-kit/core';
+import { snapCenterToCursor } from '@dnd-kit/modifiers';
+import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+
+// Custom sensor that ignores clicks on editable elements (inputs, textareas, contenteditable)
+class SmartPointerSensor extends PointerSensor {
+  static activators = [
+    {
+      eventName: 'onPointerDown' as const,
+      handler: ({ nativeEvent: event }: { nativeEvent: PointerEvent }) => {
+        // Don't start drag if clicking on an editable element
+        const target = event.target as HTMLElement;
+        if (
+          target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.isContentEditable ||
+          target.closest('input') ||
+          target.closest('textarea') ||
+          target.closest('select') ||
+          target.closest('[contenteditable="true"]')
+        ) {
+          return false;
+        }
+        return true;
+      },
+    },
+  ];
+}
+
+type Widget = any;
+
+// Droppable column
+function DroppableColumn({ ci, children }: { ci: number; children: React.ReactNode }) {
+  const { setNodeRef, isOver } = useDroppable({ id: `col-${ci}`, data: { columnIndex: ci } });
+  return (
+    <div 
+      ref={setNodeRef} 
+      className={`space-y-4 relative min-h-[100px] rounded-lg transition-colors ${isOver ? 'bg-white/10 ring-2 ring-primary/30' : ''}`}
+    >
+      {children}
+    </div>
+  );
+}
+
+// Individual sortable item
+function SortableItem({ id, render }: { id: string; render: () => React.ReactNode }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ 
+    id,
+    transition: {
+      duration: 150,
+      easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)',
+    }
+  });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.3 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      data-preview-id={id}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`p-3 bg-white/5 rounded border border-white/5 text-sm ${isDragging ? '' : 'cursor-grab hover:bg-white/[0.07]'}`}
+    >
+      {render()}
+    </div>
+  );
+}
+
+export default function PreviewCanvas({
+  columns,
+  columnWidths,
+  onColumnWidthsChange,
+  onColumnsChange,
+  renderWidget,
+  className
+}: {
+  columns: Widget[][];
+  columnWidths?: number[];
+  onColumnWidthsChange?: (w: number[]) => void;
+  onColumnsChange?: (cols: Widget[][]) => void;
+  renderWidget: (w: Widget, idx: number) => React.ReactNode;
+  className?: string;
+}) {
+  const colCount = Math.max(1, Math.min(columns.length || 1, 4));
+  
+  const [localCols, setLocalCols] = useState<Widget[][]>(() => 
+    columns.map(c => Array.isArray(c) ? [...c] : [])
+  );
+  
+  useEffect(() => {
+    setLocalCols(columns.map(c => Array.isArray(c) ? [...c] : []));
+  }, [columns]);
+
+  const widths = columnWidths?.slice(0, colCount) || Array(colCount).fill(Math.floor(100/colCount));
+
+  const findLocation = (id: string) => {
+    for (let ci = 0; ci < localCols.length; ci++) {
+      for (let wi = 0; wi < localCols[ci].length; wi++) {
+        const itemId = `${ci}:${wi}:${(localCols[ci][wi].id || localCols[ci][wi].title || wi)}`;
+        if (itemId === id) return { ci, wi, item: localCols[ci][wi] };
+      }
+    }
+    return null;
+  };
+
+  const sensors = useSensors(
+    useSensor(SmartPointerSensor, { 
+      activationConstraint: { distance: 3 }
+    }),
+    useSensor(TouchSensor, { 
+      activationConstraint: { delay: 0, tolerance: 5 }
+    })
+  );
+
+  const [activeId, setActiveId] = useState<string | null>(null);
+  
+  const activeItem = useMemo(() => {
+    if (!activeId) return null;
+    const loc = findLocation(activeId);
+    return loc?.item ?? null;
+  }, [activeId, localCols]);
+
+  const handleDragStart = (event: any) => {
+    // debug: ensure drag start is firing in tests
+    // eslint-disable-next-line no-console
+    console.log('[PreviewCanvas] onDragStart', event?.active?.id);
+    setActiveId(event.active.id as string);
+  };
+
+  const handleDragEnd = (event: any) => {
+    const { active, over } = event;
+    // debug: log drag end for diagnostics during tests
+    // eslint-disable-next-line no-console
+    console.log('[PreviewCanvas] onDragEnd', { active: active?.id, over: over?.id });
+    
+    if (!over) {
+      setActiveId(null);
+      return;
+    }
+
+    const activeIdStr = active.id as string;
+    const from = findLocation(activeIdStr);
+    if (!from) {
+      setActiveId(null);
+      return;
+    }
+
+    const overId = over.id as string;
+    let targetCol = from.ci;
+    let targetIndex = from.wi;
+
+    if (overId.startsWith('col-')) {
+      targetCol = Number(overId.split('-')[1]);
+      targetIndex = localCols[targetCol]?.length || 0;
+    } else {
+      const to = findLocation(overId);
+      if (!to) {
+        setActiveId(null);
+        return;
+      }
+      targetCol = to.ci;
+      targetIndex = to.wi;
+    }
+
+    if (from.ci === targetCol && from.wi === targetIndex) {
+      setActiveId(null);
+      return;
+    }
+
+    const newCols = localCols.map(c => [...c]);
+    const [movedItem] = newCols[from.ci].splice(from.wi, 1);
+    
+    if (from.ci === targetCol && targetIndex > from.wi) {
+      targetIndex--;
+    }
+    
+    newCols[targetCol].splice(targetIndex, 0, movedItem);
+    setLocalCols(newCols);
+    onColumnsChange?.(newCols);
+
+    // clear activeId after DOM/state update so DragOverlay drop animation doesn't jump
+    setActiveId(null);
+  };
+  const handleResize = (ci: number, e: React.MouseEvent) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const initialWidths = [...widths];
+    
+    const onMove = (ev: MouseEvent) => {
+      const root = document.getElementById('preview-canvas-root');
+      const total = root?.getBoundingClientRect().width || window.innerWidth;
+      const dx = ev.clientX - startX;
+      const deltaPerc = (dx / total) * 100;
+      
+      const newWidths = [...initialWidths];
+      newWidths[ci] = Math.max(10, Math.min(90, initialWidths[ci] + deltaPerc));
+      newWidths[ci + 1] = Math.max(10, Math.min(90, initialWidths[ci + 1] - deltaPerc));
+      
+      onColumnWidthsChange?.(newWidths);
+    };
+    
+    const onUp = () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+    
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+  };
+
+  const dropAnimation = {
+    sideEffects: defaultDropAnimationSideEffects({
+      styles: {
+        active: {
+          opacity: '0.5',
+        },
+      },
+    }),
+  };
+
+  return (
+    <div
+      id="preview-canvas-root"
+      className={className}
+      style={{
+        display: 'grid',
+        gridTemplateColumns: widths.map(w => `${w}%`).join(' '),
+        gap: '1rem',
+        alignItems: 'start'
+      }}
+    >
+      <DndContext
+        sensors={sensors}
+        modifiers={[snapCenterToCursor]}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        onDragCancel={() => setActiveId(null)}
+      >
+        {localCols.map((col, ci) => {
+          const colItemIds = col.map((w, wi) => `${ci}:${wi}:${(w.id || w.title || wi)}`);
+          return (
+            <SortableContext key={ci} items={colItemIds} strategy={verticalListSortingStrategy}>
+              <DroppableColumn ci={ci}>
+                {col.map((w, wi) => {
+                  const id = `${ci}:${wi}:${(w.id || w.title || wi)}`;
+                  return (
+                    <SortableItem 
+                      key={id} 
+                      id={id} 
+                      render={() => renderWidget(w, wi)} 
+                    />
+                  );
+                })}
+                {ci < colCount - 1 && (
+                  <div 
+                    className="absolute right-0 top-0 bottom-0 w-2 cursor-col-resize hover:bg-primary/20 transition-colors"
+                    onMouseDown={(e) => handleResize(ci, e)}
+                  />
+                )}
+              </DroppableColumn>
+            </SortableContext>
+          );
+        })}
+
+        <DragOverlay 
+          dropAnimation={dropAnimation}
+        >
+          {activeId && activeItem ? (
+            <div className="p-3 bg-white/10 rounded border border-primary/50 shadow-2xl scale-[1.02]">
+              {renderWidget(activeItem, -1)}
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
+    </div>
+  );
+}

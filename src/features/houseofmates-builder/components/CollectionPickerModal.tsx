@@ -38,7 +38,7 @@ export function CollectionPickerModal({ onSelect, onClose }: Props) {
   setError(null);
   try {
  const res = await api.listCollections();
- const data = res?.data || [];
+ const data = Array.isArray(res) ? res : (res as { data?: any[] }).data || [];
  // Filter out system collections
  const userCollections = data.filter((c: any) =>
  !c.name.startsWith('_') &&

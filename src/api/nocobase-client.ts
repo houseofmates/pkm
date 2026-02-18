@@ -1,15 +1,16 @@
-import { ListRecordsResponseSchema, GetRecordResponseSchema, ActionResponseSchema, ListCollectionsResponseSchema } from "@/lib/api/schemas";
 // @ts-nocheck
+import { ListRecordsResponseSchema, GetRecordResponseSchema, ActionResponseSchema, ListCollectionsResponseSchema } from "@/lib/api/schemas";
 import { apiClient } from '@/lib/api-client';
+import type { AxiosInstance } from 'axios';
 
 export class NocoBaseClient {
+ private _axios: AxiosInstance;
+
  constructor() {
-  // RENAME internal variable to avoid conflict
   this._axios = apiClient;
  }
 
- // Getter to allow 'this.client' access without writing to it
- get client() {
+ get client(): AxiosInstance {
   return this._axios;
  }
 
@@ -65,8 +66,8 @@ export class NocoBaseClient {
    list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
    if (list.length > 0) return { data: list[0] };
 
-  } catch (e) {
-   console.warn("Case insensitive search failed", e);
+  } catch (_e) {
+   console.warn("Case insensitive search failed", _e);
   }
  }
 
@@ -100,9 +101,10 @@ export class NocoBaseClient {
    return { data: found };
   }
 
- } catch (e) {
-  console.warn("Brute force search failed", e);
- }
+  } catch (_e) {
+   console.warn("Brute force search failed", _e);
+  }
+
 
  throw error;
   }
@@ -222,8 +224,9 @@ export class NocoBaseClient {
 
  console.log(`[NocoBase] ${COL_NAME} collection created successfully`);
  return true;
-  } catch (createError: any) {
- console.error(`[NocoBase] Failed to create ${COL_NAME}:`, createError?.message || createError);
+  } catch (createError: unknown) {
+ const errMsg = createError instanceof Error ? createError.message : String(createError);
+ console.error(`[NocoBase] Failed to create ${COL_NAME}:`, errMsg);
  return false;
   }
  }
@@ -266,8 +269,9 @@ export class NocoBaseClient {
  });
  return ListRecordsResponseSchema.parse(res.data);
   } catch (error) {
- // @ts-ignore
+  // @ts-expect-error - error may have response property
  if (error?.response?.status === 404) {
+
   console.warn("First create attempt failed 404, retrying ensure...", error);
   await ensure(); // Force check/create again
   await new Promise(r => setTimeout(r, 1000)); // Wait more

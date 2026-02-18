@@ -64,8 +64,9 @@ async function setupPublicCollections() {
   await api.request(colReq.name, 'list', { params: { pageSize: 1 } });
   tableExists = true;
   console.log(`[Setup] Table ${colReq.name} exists physically.`);
-  } catch (e: any) {
-  console.warn(`[Setup] Table ${colReq.name} check failed (Status: ${e.response?.status}). Assuming missing/broken.`);
+  } catch (e: unknown) {
+  const err = e as { response?: { status?: number } };
+  console.warn(`[Setup] Table ${colReq.name} check failed (Status: ${err.response?.status}). Assuming missing/broken.`);
   }
 
   // 2. If table missing, DESTROY METADATA first (Scorched Earth)
@@ -78,7 +79,7 @@ async function setupPublicCollections() {
  console.log(`[Setup] Metadata destroyed for ${colReq.name}.`);
  // Wait a moment for NocoBase to process
  await new Promise(r => setTimeout(r, 1000));
-  } catch (destroyErr) {
+  } catch (_destroyErr) {
  // validation error usually means it didn't exist, which is good
   }
 
@@ -94,8 +95,9 @@ async function setupPublicCollections() {
  }
  });
  console.log(`[Setup] Collection ${colReq.name} created.`);
-  } catch (createErr: any) {
- console.error(`[Setup] Failed to create collection ${colReq.name}:`, createErr.message);
+  } catch (createErr: unknown) {
+ const errMsg = createErr instanceof Error ? createErr.message : String(createErr);
+ console.error(`[Setup] Failed to create collection ${colReq.name}:`, errMsg);
   }
   }
 
@@ -109,7 +111,7 @@ async function setupPublicCollections() {
  data: field
  });
  // Success = Created
- } catch (e: any) {
+ } catch (_e: unknown) {
  // 400 = Already exists, usually
  }
   }

@@ -40,8 +40,8 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
  fields: ['slug', 'title'],
  pageSize: 100
  });
- const data = res?.data || res?.data?.data || [];
- setPages(data.map((p: any) => ({ slug: p.slug, title: p.title })));
+ const records = Array.isArray(res) ? res : (res as { data?: any[] }).data || [];
+ setPages(records.map((p: any) => ({ slug: p.slug, title: p.title })));
   } catch (e) {
  console.error('Failed to fetch pages:', e);
  setPages([]);

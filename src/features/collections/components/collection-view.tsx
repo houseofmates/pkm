@@ -52,10 +52,10 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
   await client.createRecord(collection.name, data);
   setIsCreateOpen(false);
   refresh();
-  toast.success("Record created successfully");
+  toast.success("record created successfully");
   } catch (err) {
   console.error("Failed to create record", err);
-  toast.error("Failed to create record");
+  toast.error("failed to create record");
   }
   };
 
@@ -66,10 +66,10 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
   await client.updateRecord(collection.name, editingRecord.id, data);
   setEditingRecord(null);
   refresh();
-  toast.success("Record updated successfully");
+  toast.success("record updated successfully");
   } catch (err) {
   console.error("Failed to update record", err);
-  toast.error("Failed to update record");
+  toast.error("failed to update record");
   }
   };
 
@@ -78,10 +78,10 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
   try {
   await client.deleteRecord(collection.name, record.id);
   refresh();
-  toast.success("Record deleted successfully");
+  toast.success("record deleted successfully");
   } catch (err) {
   console.error("Failed to delete record", err);
-  toast.error("Failed to delete record");
+  toast.error("failed to delete record");
   }
   };
 

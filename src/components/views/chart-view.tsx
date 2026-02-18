@@ -12,13 +12,12 @@ import { Button } from '@/components/ui/button';
 import { RecordEditContent } from '@/features/records/components/record-context-menu';
 import { RecordTable } from '@/features/records/components/record-table';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 
 export function ChartView(props: ViewProps) {
   const { data, collection, config, onConfigChange, onUpdateRecord, onDelete } = props;
   const [drillDown, setDrillDown] = useState<{ xKey: string, seriesKey?: string } | null>(null);
   const [virtualMenu, setVirtualMenu] = useState<{ x: number, y: number, records: any[] } | null>(null);
-  const viewContainerRef = useRef<HTMLDivElement>(null);
 
   if (!collection) {
   return (
@@ -236,7 +235,7 @@ export function ChartView(props: ViewProps) {
   chartData[0] && Object.keys(chartData[0])
     .filter(k => k !== 'name' && k !== 'value') // Assuming transformed keys
     .slice(0, 10)
-    .map((bgKey, idx) => {
+    .map((bgKey) => {
     const current = config?.chartSeriesColors?.[bgKey];
     return (
     <Popover key={bgKey}>
@@ -342,7 +341,6 @@ export function ChartView(props: ViewProps) {
    // We'll use a portal-like approach relative to view or just fixed
    // But Popover needs a trigger or anchor.
    // Helper: Set virtual menu state
-   const rect = viewContainerRef.current?.getBoundingClientRect();
    // Adjust coordinates to be relative to viewport if using fixed overlay
    // e.clientX/Y are viewport coordinates
    setVirtualMenu({
@@ -429,4 +427,3 @@ export function ChartView(props: ViewProps) {
   </div >
   );
 }
-

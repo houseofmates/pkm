@@ -13,7 +13,7 @@ interface Props {
   visibleFields?: string[];
 }
 
-export function DatabaseViewElement({ collectionName, viewType, width = 400, height = 300, sort, filter, visibleFields, isAdmin }: Props) {
+export function DatabaseViewElement({ collectionName, viewType, width = 400, height = 300, sort, filter, visibleFields, isAdmin: _isAdmin }: Props) {
   const [data, setData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +25,8 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
   try {
   // Fetch collection schema for field info
   const colRes = await api.getCollection(collectionName);
-  const colFields = colRes?.data?.fields || [];
+  const colData = Array.isArray(colRes) ? undefined : (colRes as { data?: { fields?: any[] } }).data;
+  const colFields = colData?.fields || [];
   setFields(colFields.filter((f: any) => !f.hidden && !f.name.startsWith('_')));
 
   // Fetch records with sort and filter
@@ -34,7 +35,7 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
  sort,
  filter
   });
-  const records = res?.data || res?.data?.data || [];
+  const records = Array.isArray(res) ? res : (res as { data?: any[] }).data || [];
   setData(Array.isArray(records) ? records : []);
   } catch (e: any) {
   console.error('DatabaseViewElement error:', e);
@@ -220,7 +221,7 @@ function GalleryView({ data, fields, visibleFields }: { data: any[], fields: any
   );
 }
 
-function KanbanView({ data, fields, collectionName, groupByField }: { data: any[], fields: any[], collectionName: string, groupByField?: string }) {
+function KanbanView({ data, fields, collectionName: _collectionName, groupByField }: { data: any[], fields: any[], collectionName: string, groupByField?: string }) {
   if (!groupByField) {
   groupByField = fields.find(f => f.type === 'select' || f.type === 'radio')?.name;
   }

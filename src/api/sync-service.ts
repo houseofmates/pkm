@@ -1,6 +1,5 @@
 import { api } from './nocobase-client';
 import { SimplyPluralClient } from '@/lib/simply-plural-client';
-import { toast } from 'sonner';
 
 /**
  * NocoBase Collection Schema: 'front_history'
@@ -32,7 +31,8 @@ export class SyncService {
  sort: ['-startTime'],
  pageSize: 1
  });
- const data = Array.isArray(res?.data) ? res.data : (res?.data as any)?.data;
+  const data = Array.isArray(res?.data) ? res.data : (res?.data as { data?: unknown[] })?.data;
+
  if (data && data.length > 0 && data[0].startTime) {
  lastSyncTime = data[0].startTime;
  console.log(`sync: last timestamp found: [${lastSyncTime}]`);
@@ -80,7 +80,8 @@ export class SyncService {
  pageSize: 1
  });
 
- const existingData = Array.isArray(existingRes?.data) ? existingRes.data : (existingRes?.data as any)?.data;
+  const existingData = Array.isArray(existingRes?.data) ? existingRes.data : (existingRes?.data as { data?: unknown[] })?.data;
+
 
  if (existingData && existingData.length > 0) {
  // Update if changed
@@ -113,13 +114,15 @@ export class SyncService {
  addedCount++;
 
  }
- } catch (err: any) {
+  } catch (err: unknown) {
  console.error(`sync: failed to write entry [${sp_id}]`);
- if (err.response) {
- console.error("sync: NocoBase Error Response:", JSON.stringify(err.response.data, null, 2));
+ const errorWithResponse = err as { response?: { data?: unknown }; message?: string };
+ if (errorWithResponse.response) {
+ console.error("sync: NocoBase Error Response:", JSON.stringify(errorWithResponse.response.data, null, 2));
  } else {
- console.error("sync: Error:", err.message);
+ console.error("sync: Error:", errorWithResponse.message || String(err));
  }
+
  }
   }
 
@@ -131,7 +134,7 @@ export class SyncService {
  console.log("sync: No changes needed.");
   }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
   console.error("Sync Service Failed:", error);
   }
   }

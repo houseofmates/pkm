@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-export function EternalFlame({ element }: { element: any }) {
+export function EternalFlame({ element: _element }: { element: any }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [fuel, setFuel] = useState(100);
 

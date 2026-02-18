@@ -35,13 +35,14 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   placeholderData: (previousData) => previousData, // Keep previous data while fetching new (better UX)
   });
 
-  const records = data?.data || [];
-  const meta = data?.meta;
+  // Handle both array response and { data: [...], meta: ... } response
+  const records: any[] = Array.isArray(data) ? data : ((data as { data?: any[] })?.data || []);
+  const meta = (data as { meta?: any })?.meta;
 
   // Refresh wrapper to support updating params
-  const refresh = (newParams?: any) => {
+  const refresh = (newParams?: Record<string, unknown>) => {
   if (newParams) {
-  setQueryParams((prev: any) => ({ ...prev, ...newParams }));
+  setQueryParams((prev: Record<string, unknown>) => ({ ...prev, ...newParams }));
   } else {
   refetch();
   }
@@ -51,7 +52,7 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
 
   // Create
   const createMutation = useMutation({
-  mutationFn: async (data: any) => {
+  mutationFn: async (data: Record<string, unknown>) => {
   const payload = { ...data };
   if (activeFronterId) {
  payload.fronter = activeFronterId;
@@ -65,14 +66,14 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
 
   // Update (Optimistic)
   const updateMutation = useMutation({
-  mutationFn: async ({ id, data }: { id: string | number; data: any }) => {
+  mutationFn: async ({ id, data }: { id: string | number; data: Record<string, unknown> }) => {
   const payload = { ...data };
   if (activeFronterId) {
  payload.lastEditedByFronter = activeFronterId;
   }
   return client.updateRecord(collectionName, id, payload);
   },
-  onMutate: async ({ id, data }) => {
+  onMutate: async ({ id, data }: { id: string | number; data: Record<string, unknown> }) => {
   // Cancel outgoing refetches
   await queryClient.cancelQueries({ queryKey: ['records', collectionName] });
 
@@ -80,11 +81,11 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   const previousData = queryClient.getQueryData(['records', collectionName, queryParams]);
 
   // Optimistically update
-  queryClient.setQueryData(['records', collectionName, queryParams], (old: any) => {
+  queryClient.setQueryData(['records', collectionName, queryParams], (old: { data?: Array<{ id: string | number } & Record<string, unknown>> } | undefined) => {
  if (!old || !old.data) return old;
  return {
  ...old,
- data: old.data.map((record: any) =>
+ data: old.data.map((record) =>
  record.id === id ? { ...record, ...data } : record
  ),
  };
@@ -119,8 +120,8 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   loading: isLoading,
   error: error ? (error as Error).message : null,
   refresh,
-  createRecord: (data: any) => createMutation.mutateAsync(data),
-  updateRecord: (id: string | number, data: any) => updateMutation.mutateAsync({ id, data }),
+  createRecord: (data: Record<string, unknown>) => createMutation.mutateAsync(data),
+  updateRecord: (id: string | number, data: Record<string, unknown>) => updateMutation.mutateAsync({ id, data }),
   deleteRecord: (id: string | number) => deleteMutation.mutateAsync(id),
   };
 }
@@ -142,7 +143,7 @@ export function useRecord(collectionName: string, recordId: string | number) {
   });
 
   const updateMutation = useMutation({
-  mutationFn: async (data: any) => {
+  mutationFn: async (data: Record<string, unknown>) => {
   const payload = { ...data };
   if (activeFronterId) {
  payload.lastEditedByFronter = activeFronterId;
@@ -159,7 +160,7 @@ export function useRecord(collectionName: string, recordId: string | number) {
   data: data?.data || data, // Handle structure variations
   loading: isLoading,
   error: error ? (error as Error).message : null,
-  updateRecord: (data: any) => updateMutation.mutateAsync(data),
+  updateRecord: (data: Record<string, unknown>) => updateMutation.mutateAsync(data),
   refresh: refetch
   };
 }

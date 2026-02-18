@@ -1,4 +1,4 @@
-import { Extension } from '@tiptap/core';
+import { Extension, Editor, type Range } from '@tiptap/core';
 import Suggestion from '@tiptap/suggestion';
 import { PluginKey } from '@tiptap/pm/state';
 
@@ -10,7 +10,8 @@ export const Wikilink = Extension.create({
   suggestion: {
  char: '[',
  pluginKey: new PluginKey('wikilink'),
- command: ({ editor, range, props }) => {
+        command: ({ editor, range, props }: { editor: Editor; range: Range; props: { href: string; label: string } }) => {
+
  editor
  .chain()
  .focus()

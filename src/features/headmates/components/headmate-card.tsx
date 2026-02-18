@@ -2,8 +2,7 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useFronter } from "@/contexts/fronter-context";
-import { forwardRef, useMemo, useState, useEffect } from 'react';
-import { API_URL } from '@/lib/api-client';
+import { forwardRef, useMemo, useState } from 'react';
 import { formatHeadmateName, getCapitalizationClass } from '@/utils/text-formatting';
 import { getStringColor } from '@/utils/color-generator';
 import { PLACEHOLDER_IMAGE } from '@/lib/discord-utils';
@@ -31,7 +30,7 @@ export const HeadmateCard = forwardRef<HTMLDivElement, HeadmateCardProps & React
   const { activeFronters } = useFronter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  const handleCardClick = (e: React.MouseEvent) => {
+  const handleCardClick = (_e: React.MouseEvent) => {
   console.log('CLICK REGISTERED:', member.name, member.id);
   if (onClick) {
   console.log('Calling onClick handler');

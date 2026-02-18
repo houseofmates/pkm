@@ -1,6 +1,4 @@
-import { useDroppable } from '@dnd-kit/core';
-
-export function TierListElement({ element }: { element: any }) {
+export function TierListElement({ element: _element }: { element: any }) {
   const rows = ['S', 'A', 'B', 'C', 'D'];
 
   // Color mapping

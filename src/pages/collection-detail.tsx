@@ -450,11 +450,11 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                 </div>
                 {fetchError && (
                     <div className="mt-4 p-4 bg-destructive/10 text-destructive rounded-md text-xs font-mono text-left max-w-sm overflow-auto">
-                        <strong>Debug Info:</strong><br />
+                        <strong>debug info:</strong><br />
                         Error: {fetchError}<br />
                         ID: {params.name}<br />
                         Decoded: {collectionName}<br />
-                        Auth: {isAuthenticated ? 'Yes' : 'No'}<br />
+                        Auth: {isAuthenticated ? 'yes' : 'no'}<br />
                         Available: {availableCollections.length}
                         <div className="mt-1 opacity-50 max-h-20 overflow-y-auto">
                             [{availableCollections.map((c: any) => c.name).join(', ')}]
@@ -462,7 +462,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                     </div>
                 )}
                 <Button variant="outline" onClick={() => navigate('/databases')}>
-                    Return to Databases
+                    return to databases
                 </Button>
             </div>
         );

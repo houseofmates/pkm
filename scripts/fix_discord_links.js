@@ -2,9 +2,9 @@
 import fs from 'fs';
 import path from 'path';
 
-// PLACEHOLDER IMAGE URL
+// placeholder image url for expired links
 const PLACEHOLDER_URL = "https://placehold.co/400x400?text=expired+link";
-// REGEX TO MATCH DISCORD MEDIA LINKS
+// regex to find discord media links (used to detect expired tokens)
 const DISCORD_LINK_REGEX = /https:\/\/media\.discordapp\.net\/attachments\/[^"'\s]+/;
 
 function scanAndReplace(obj, stats) {

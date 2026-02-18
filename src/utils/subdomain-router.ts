@@ -34,6 +34,12 @@ export const isPublicDomain = () => {
   const port = window.location.port;
   const search = window.location.search;
 
+  // Allow overriding public detection during development by passing ?mode=private
+  if (search.includes('mode=private')) {
+    console.log('[Router] Override: mode=private detected');
+    return false;
+  }
+
   // EXPLICIT INCLUDE: Port 3010/3001 is always public builder
   if (port === '3010' || port === '3001') {
   console.log(`[Router] Public by Port: ${port}`);

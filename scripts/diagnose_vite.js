@@ -23,7 +23,7 @@ if (fs.existsSync(storagePath)) {
     console.log("       If you expected to serve local files, this directory must exist.");
 }
 
-// 2. Check Vite Config for Proxy
+// 2. check vite config for proxy settings (llm / nocobase)
 if (fs.existsSync(viteConfigPath)) {
     const viteConfig = fs.readFileSync(viteConfigPath, 'utf8');
 

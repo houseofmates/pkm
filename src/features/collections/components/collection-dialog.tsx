@@ -126,9 +126,11 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
   if (open) {
   // Fetch collections list for relation targets
   client.listCollections().then(res => {
+ // Normalize response - could be array or { data: [...] }
+ const collectionsData: Collection[] = Array.isArray(res) ? res : ((res as { data?: Collection[] })?.data || []);
  // Filter out system and backend collections
  const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers', 'site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates', 'website'];
- const filteredCollections = res.data.filter((col: Collection) => {
+ const filteredCollections = collectionsData.filter((col: Collection) => {
  const name = (col.name || '').toLowerCase().trim();
  const title = (col.title || '').toLowerCase().trim();
 
@@ -357,7 +359,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
   onSuccess();
   } catch (error: any) {
   console.error(error);
-  toast.error(error.message || `Failed to ${isEdit ? 'update' : 'create'} database`);
+  toast.error(error.message || `failed to ${isEdit ? 'update' : 'create'} database`);
   } finally {
   setLoading(false);
   }

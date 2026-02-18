@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { UploadCloud } from 'lucide-react';
 
-export function OfferingDrop({ element }: { element: any }) {
+export function OfferingDrop({ element: _element }: { element: any }) {
   const [isHovering, setIsHovering] = useState(false);
   const [absorbing, setAbsorbing] = useState(false);
 

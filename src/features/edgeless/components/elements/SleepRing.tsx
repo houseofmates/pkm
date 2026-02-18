@@ -1,8 +1,6 @@
-import { useRef, useState } from 'react';
 
 export function SleepRing({ element }: { element: any }) {
-  const { start = "23:00", end = "07:00", history = [] } = element.data;
-  const [isDragging, setIsDragging] = useState(false);
+  const { start = "23:00", end = "07:00" } = element.data;
 
   // Convert time string to angle
   const timeToAngle = (time: string) => {

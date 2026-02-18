@@ -31,7 +31,7 @@ interface LLMState {
 export const useLLMStore = create<LLMState>((set, get) => ({
   isConnected: true,
   activeModel: 'qwen2.5:7b',
-  apiUrl: localStorage.getItem('wilson_api_url') || 'http://192.168.4.232:11434/api/generate',
+  apiUrl: localStorage.getItem('wilson_api_url') || `${(import.meta.env.VITE_OLLAMA_URL || 'http://localhost:11434').replace(/\/$/, '')}/api/generate`,
 
   interactionHistory: [],
   isThinking: false,

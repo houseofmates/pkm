@@ -31,7 +31,7 @@ import { SmartField } from '@/components/fields/smart-field';
 interface KanbanViewProps extends ViewProps { }
 
 // Helper for Sortable Item (Card)
-function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange }: { id: string | number, record: any, collection: any, onUpdateRecord?: any, onDelete?: any, titleField: any, visibleFields: any[], config?: any, onConfigChange?: any }) {
+function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange }: { id: string | number, record: Record<string, unknown>, collection: { name: string; fields?: Array<{ name: string; uiSchema?: { title?: string } }> }, onUpdateRecord?: (id: string | number, data: Record<string, unknown>) => void, onDelete?: (record: Record<string, unknown>) => void, titleField: { name: string }, visibleFields: Array<{ name: string; uiSchema?: { title?: string } }>, config?: Record<string, unknown>, onConfigChange?: (key: string, value: unknown) => void }) {
   const {
   attributes,
   listeners,
@@ -70,7 +70,7 @@ function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleF
    size="sm"
    onChange={(val) => {
    if (onUpdateRecord) {
-  onUpdateRecord(record.id, { [titleField.name]: val });
+  onUpdateRecord(record.id as string | number, { [titleField.name]: val });
    }
    }}
    className="h-auto p-0 border-none bg-transparent hover:bg-muted/50 rounded px-1 font-black leading-tight text-base w-full block text-center"
@@ -93,7 +93,8 @@ function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleF
   record={record}
   collectionName={collection.name}
   size="sm"
-  onChange={(val) => onUpdateRecord?.(record.id, { [f.name]: val })}
+   onChange={(val) => onUpdateRecord?.(record.id as string | number, { [f.name]: val })}
+
   className="h-auto p-0 border-none bg-transparent hover:bg-muted/30 rounded px-1 truncate flex-1 text-center"
    />
    </div>
@@ -153,11 +154,11 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
 
   // Identify title and visible fields
   const titleField = config?.titleField
-  ? collection.fields?.find((f: any) => f.name === config.titleField)
-  : collection.fields?.find((f: any) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
+  ? collection.fields?.find((f: { name: string; primary?: boolean }) => f.name === config.titleField)
+  : collection.fields?.find((f: { name: string; primary?: boolean }) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
 
   const visibleFieldNames = config?.visibleFields || [];
-  const visibleFields = collection?.fields?.filter((f: any) => visibleFieldNames.includes(f.name)) || [];
+  const visibleFields = collection?.fields?.filter((f: { name: string }) => visibleFieldNames.includes(f.name)) || [];
 
   // Default to first select field if not configured
   const groupByField = config?.groupByField;
@@ -182,7 +183,7 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
 
   // Pre-fill columns from Schema Options if available (Select/Radio)
   if (fieldSchema?.uiSchema?.enum) {
-  fieldSchema.uiSchema.enum.forEach((opt: any) => {
+  fieldSchema.uiSchema.enum.forEach((opt: { value: string }) => {
  const val = opt.value;
  newColumns[val] = [];
  newOrder.push(val);
@@ -225,7 +226,7 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
   const handleDragStart = (event: DragStartEvent) => {
   const { active } = event;
   setActiveId(active.id);
-  const record = data.find(r => r.id === active.id);
+  const record = data.find((r: { id: string | number }) => r.id === active.id);
   setDraggedRecord(record);
   };
 
@@ -293,10 +294,10 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
  await client.updateRecord(collection.name, recordId, {
  [groupByField]: newValue
  });
- toast.success("Record updated");
+ toast.success("record updated");
   } catch (e) {
  console.error("Failed to update kanban status", e);
- toast.error("Failed to update status");
+ toast.error("failed to update status");
  // Revert? (requires tracking original state)
   }
   }
@@ -310,7 +311,7 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
 
   function findContainer(id: string | number) {
   if (id in columns) return id;
-  return Object.keys(columns).find((key) => columns[key].find((item) => item.id === id));
+  return Object.keys(columns).find((key) => columns[key].find((item: { id: string | number }) => item.id === id));
   }
 
   if (!groupByField) {

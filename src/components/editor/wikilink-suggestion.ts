@@ -1,9 +1,7 @@
 import { ReactRenderer } from '@tiptap/react';
+import type { Editor } from '@tiptap/core';
 import tippy, { type Instance } from 'tippy.js';
-import { SlashMenu } from './SlashMenu'; // Re-use SlashMenu UI for consistency or create a new one?
-// Let's reuse SlashMenu but mapped to simple items for now, or create a specific list component.
-// Reusing SlashMenu is risky if it expects specific prop shapes. 
-// Let's create a minimal render function similar to slash-command.ts but tailored.
+import { SlashMenu } from './SlashMenu';
 
 import { api } from '@/api/nocobase-client';
 
@@ -29,10 +27,11 @@ export const getWikilinkItems = async ({ query }: { query: string }) => {
   filter: { title: { $includes: query } },
   pageSize: 5
   });
-  if (notes?.data?.data) {
-  results.push(...notes.data.data.map((r: any) => ({
- title: r.title || 'Untitled',
- description: 'Note',
+  const notesData = Array.isArray(notes?.data) ? notes?.data : (notes?.data as { data: unknown[] } | undefined)?.data;
+  if (notesData) {
+  results.push(...notesData.map((r: { title?: string; id: string }) => ({
+ title: r.title || 'untitled',
+ description: 'note',
  href: `/databases/notes/${r.id}`,
  label: r.title || 'Untitled'
   })));
@@ -43,10 +42,11 @@ export const getWikilinkItems = async ({ query }: { query: string }) => {
   filter: { title: { $includes: query } },
   pageSize: 3
   });
-  if (tasks?.data?.data) {
-  results.push(...tasks.data.data.map((r: any) => ({
- title: r.title || 'Untitled',
- description: 'Task',
+  const tasksData = Array.isArray(tasks?.data) ? tasks?.data : (tasks?.data as { data: unknown[] } | undefined)?.data;
+  if (tasksData) {
+  results.push(...tasksData.map((r: { title?: string; id: string }) => ({
+ title: r.title || 'untitled',
+ description: 'task',
  href: `/databases/tasks/${r.id}`,
  label: r.title || 'Untitled'
   })));
@@ -57,8 +57,6 @@ export const getWikilinkItems = async ({ query }: { query: string }) => {
   // We will adapt the command in the render or extensions.
 
   return results.map(item => ({
-  title: item.title,
-  description: item.description,
   // Command is handled by the extension's 'command' handler using these props
   ...item
   }));
@@ -74,20 +72,15 @@ export const renderWikilinkItems = () => {
   let popup: Instance[] | null = null;
 
   return {
-  onStart: (props: any) => {
-  // Re-use SlashMenu (it renders a list of items)
-  // SlashMenu expects items with `title`, `description`, `command`?
-  // Our extension calls `props.command` with the item.
-  // So we need to ensure the item has the data we need.
-  // But SlashMenu's internal `onClick` calls `item.command`.
-  // The `Wikilink` extension defines a global command, but here we might need per-item command?
-  // Yes, standard Tiptap Suggestion calls `item.command` if defined, OR we pass a handler.
-  // Let's inject a command into each item that calls the suggestion's range command.
-
-  const itemsWithCommand = props.items.map((item: any) => ({
+  onStart: (props: { 
+    items: { title: string; description: string; href: string; label: string }[]; 
+    command: (args: unknown) => void; 
+    clientRect?: () => DOMRect; 
+    editor: Editor 
+  }) => {
+  const itemsWithCommand = props.items.map((item) => ({
  ...item,
- command: ({ editor, range }: any) => {
- // Call the extension's defined command with the item props
+ command: ({ editor, range }: { editor: unknown; range: unknown }) => {
  props.command({ editor, range, props: item });
  }
   }));
@@ -101,7 +94,6 @@ export const renderWikilinkItems = () => {
  return;
   }
 
-  // @ts-ignore
   popup = tippy('body', {
  getReferenceClientRect: props.clientRect,
  appendTo: () => document.body,
@@ -113,10 +105,14 @@ export const renderWikilinkItems = () => {
   });
   },
 
-  onUpdate(props: any) {
-  const itemsWithCommand = props.items.map((item: any) => ({
+  onUpdate(props: { 
+    items: { title: string; description: string; href: string; label: string }[]; 
+    command: (args: unknown) => void; 
+    clientRect?: () => DOMRect 
+  }) {
+  const itemsWithCommand = props.items.map((item) => ({
  ...item,
- command: ({ editor, range }: any) => {
+ command: ({ editor, range }: { editor: unknown; range: unknown }) => {
  props.command({ editor, range, props: item });
  }
   }));
@@ -127,17 +123,17 @@ export const renderWikilinkItems = () => {
  return;
   }
 
-  popup?.[0].setProps({
+  popup?.[0]?.setProps({
  getReferenceClientRect: props.clientRect,
   });
   },
 
-  onKeyDown(props: any) {
+  onKeyDown(props: { event: KeyboardEvent }) {
   if (props.event.key === 'Escape') {
- popup?.[0].hide();
+ popup?.[0]?.hide();
  return true;
   }
-  return (component?.ref as any)?.onKeyDown(props);
+  return (component?.ref as { onKeyDown?: (props: unknown) => boolean })?.onKeyDown?.(props) ?? false;
   },
 
   onExit() {

@@ -134,7 +134,7 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
  return data.map((r: any) => ({
    id: r.id,
    collection: col.name,
-   title: r.title || r.Name || r.content?.substring(0, 30) || "Untitled",
+   title: r.title || r.Name || r.content?.substring(0, 30) || 'untitled',
    snippet: r.content?.substring(0, 100) || ""
  }));
  }
@@ -193,7 +193,8 @@ user question: ${userQuery}
 
 your response (all lowercase):`;
 
-  const res = await fetch('http://192.168.4.232:11434/api/generate', {
+  const base = import.meta.env.VITE_OLLAMA_URL || 'http://localhost:11434';
+  const res = await fetch(`${base.replace(/\/$/, '')}/api/generate`, {
  method: 'POST',
  headers: { 'Content-Type': 'application/json' },
  body: JSON.stringify({

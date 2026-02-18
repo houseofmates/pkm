@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect } from 'react'
 import { useEdgelessStore } from '../store'
-import { MousePointer2, Pencil, Eraser, Type, Link as LinkIcon, MessageCircle, Hand } from 'lucide-react'
+import { MousePointer2, Pencil, Eraser, Type, Link as LinkIcon, MessageCircle, Hand, BrainCircuit } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
 
 // Long Press Hook
@@ -305,13 +305,33 @@ export function Toolbar() {
  }
   />
 
-  {/* Wilson Toggle */}
+  {/* wilson / ai helpers */}
+  <div className="flex items-center gap-2">
   <button
- onClick={() => store.setChatOpen(!store.isChatOpen)}
- className={`h-[48px] w-[48px] flex items-center justify-center rounded-full transition-all ${store.isChatOpen ? 'bg-primary text-black' : 'text-primary hover:bg-primary/20'}`}
+    onClick={async () => {
+      // collect canvas state (falls back to element list)
+      const canvasState = (window as any).pkmGetCanvasJSON?.() || useEdgelessStore.getState().elements || {};
+      const q = window.prompt('ask wilson about the canvas (context will be included):');
+      if (!q) return;
+      // set background context for wilson, open chat, and ask
+      (await import('@/stores/llm-store')).useLLMStore.getState().setContext({ canvas: canvasState });
+      useEdgelessStore.getState().setChatOpen(true);
+      await (await import('@/stores/llm-store')).useLLMStore.getState().askWilson(q);
+      (await import('@/stores/llm-store')).useLLMStore.getState().setContext(null);
+    }}
+    title="ask wilson about canvas"
+    className={`h-[48px] w-[48px] flex items-center justify-center rounded-full transition-all text-primary hover:bg-primary/20`}
   >
- <MessageCircle size={24} />
+    <BrainCircuit size={20} />
   </button>
+
+  <button
+    onClick={() => store.setChatOpen(!store.isChatOpen)}
+    className={`h-[48px] w-[48px] flex items-center justify-center rounded-full transition-all ${store.isChatOpen ? 'bg-primary text-black' : 'text-primary hover:bg-primary/20'}`}
+  >
+    <MessageCircle size={24} />
+  </button>
+  </div>
 
   </div>
   )

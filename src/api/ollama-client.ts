@@ -17,10 +17,12 @@ export const OLLAMA_MODEL = 'qwen2.5:7b';
 export class OllamaClient {
 
   async chat(messages: ChatMessage[]): Promise<ChatResponse> {
-  // Direct call to Ollama endpoint (via Vite proxy or direct URL)
-  // Using fetch to avoid conflicting with the NocoBase apiClient axios instance
+  // direct call to the local ollama server (vite proxy used when configured)
+  // keep this simple and use fetch so we don't mix axios clients
   try {
-  const response = await fetch('http://192.168.4.232:11434/api/chat', {
+  const base = import.meta.env.VITE_OLLAMA_URL || 'http://localhost:11434';
+  const url = `${base.replace(/\/$/, '')}/api/chat`;
+  const response = await fetch(url, {
  method: 'POST',
  headers: {
  'Content-Type': 'application/json',
@@ -28,7 +30,7 @@ export class OllamaClient {
  body: JSON.stringify({
  model: OLLAMA_MODEL,
  messages,
- stream: false // Enforce false for this simple client
+ stream: false // enforce non-streaming for this client
  })
   });
 

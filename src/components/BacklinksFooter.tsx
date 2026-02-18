@@ -36,10 +36,12 @@ export function BacklinksFooter({ recordId, collectionName }: { recordId: string
  pageSize: 5
  });
 
- if (res?.data?.data) {
- found.push(...res.data.data.map((r: any) => ({
+ // Handle both array response and { data: { data: [] } } response
+ const records = Array.isArray(res) ? res : ((res as { data?: { data?: unknown[] } })?.data?.data || []);
+ if (records.length > 0) {
+ found.push(...(records as Array<{ id: string; title?: string }>).map((r) => ({
    id: r.id,
-   title: r.title || 'Untitled',
+   title: r.title || 'untitled',
    collection: col
  })));
  }
@@ -58,12 +60,12 @@ export function BacklinksFooter({ recordId, collectionName }: { recordId: string
   fetchBacklinks();
   }, [recordId, collectionName]);
 
-  if (loading) return <div className="text-muted-foreground text-xs mt-8 pl-4">Loading mentions...</div>;
+  if (loading) return <div className="text-muted-foreground text-xs mt-8 pl-4">loading mentions...</div>; 
   if (backlinks.length === 0) return null;
 
   return (
   <div className="mt-12 pt-6 border-t border-border">
-  <h3 className="text-sm font-bold text-muted-foreground mb-4 ">Linked Mentions</h3>
+  <h3 className="text-sm font-bold text-muted-foreground mb-4 ">linked mentions</h3>
   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
  {backlinks.map(link => (
  <Link

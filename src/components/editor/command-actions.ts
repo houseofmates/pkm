@@ -27,13 +27,11 @@ export const CommandActions = {
   if (fronter) {
   editor.chain().focus().deleteRange(range).insertContent(`**[Front: ${fronter}]** `).run();
   } else {
-  toast.error("No active fronter found.");
+  toast.error("no active fronter found.");
   }
   },
 
   sendToCanvas: (editor: Editor, range: TiptapRange) => {
-  const { from } = editor.state.selection;
-
   let content = "New Thought";
 
   try {
@@ -64,7 +62,7 @@ export const CommandActions = {
   layerId: store.activeLayerId
   });
 
-  toast.success("Sent to Canvas");
+  toast.success("sent to canvas");
   editor.chain().focus().deleteRange(range).run(); // Clear the command
   },
 
