@@ -1,4 +1,4 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-npm run lowercase:all && npx lint-staged
+npm run lowercase:staged && npx lint-staged

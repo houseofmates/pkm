@@ -150,17 +150,41 @@ function walkTargets() {
   return files
 }
 
+const { execSync } = require('child_process')
+
+function getStagedFiles() {
+  try {
+    const out = execSync('git diff --cached --name-only --diff-filter=ACM', { encoding: 'utf8' })
+    return out.split(/\r?\n/).filter(Boolean)
+  } catch (err) {
+    return []
+  }
+}
+
 function main() {
   const args = process.argv.slice(2)
   const apply = args.includes('--apply')
+  const staged = args.includes('--staged')
   const dry = !apply
 
-  const files = walkTargets()
+  let files = []
+  if (staged) {
+    const stagedFiles = getStagedFiles()
+    files = stagedFiles.filter(f => EXT.includes(path.extname(f)) && fs.existsSync(f))
+  } else {
+    files = walkTargets()
+  }
+
   const results = []
   for (const f of files) {
     try {
       const r = processFile(f, apply)
-      if (r.changed) results.push(r)
+      if (r.changed) {
+        results.push(r)
+        if (apply && staged) {
+          try { execSync(`git add "${f}"`) } catch (_) {}
+        }
+      }
     } catch (err) {
       console.error('error processing', f, err.message)
     }
@@ -169,7 +193,7 @@ function main() {
   results.sort((a,b) => b.delta - a.delta)
 
   console.log('\nlowercase-comments report:')
-  console.log('mode:', dry ? 'dry-run' : 'apply')
+  console.log('mode:', staged ? (dry ? 'staged dry-run' : 'staged apply') : (dry ? 'dry-run' : 'apply'))
   console.log('files changed:', results.length)
   const totalChanges = results.reduce((s, r) => s + Math.max(1, r.delta), 0)
   console.log('approx changed comment-lines:', totalChanges)
@@ -181,7 +205,7 @@ function main() {
     }
   }
 
-  if (dry) console.log('\nno files were modified (dry-run). run with --apply to write changes.')
+  if (dry && !staged) console.log('\nno files were modified (dry-run). run with --apply to write changes.')
 }
 
 if (require.main === module) main()

@@ -9,6 +9,16 @@ const path = require('path')
 const ROOT = path.resolve(__dirname, '..')
 const DEFAULT_DIRS = [path.join(ROOT, 'src'), path.join(ROOT, 'public')]
 const EXT = ['.tsx', '.jsx', '.html']
+const { execSync } = require('child_process')
+
+function getStagedFiles() {
+  try {
+    const out = execSync('git diff --cached --name-only --diff-filter=ACM', { encoding: 'utf8' })
+    return out.split(/\r?\n/).filter(Boolean)
+  } catch (err) {
+    return []
+  }
+}
 
 function walkDirs(dirs) {
   const files = []
@@ -118,12 +128,19 @@ function applyFix(file) {
 
 function main() {
   const APPLY = process.argv.includes('--apply')
+  const STAGED = process.argv.includes('--staged')
   const dirsArg = process.argv.find(a => a.startsWith('--dirs='))
   const rawDirs = dirsArg ? dirsArg.replace('--dirs=', '') : ''
   const extraDirs = rawDirs ? rawDirs.split(',').map(s => s.trim()).filter(Boolean).map(d => path.isAbsolute(d) ? d : path.join(ROOT, d)) : []
   const dirs = [...DEFAULT_DIRS, ...extraDirs]
 
-  const files = walkDirs(dirs)
+  let files = []
+  if (STAGED) {
+    files = getStagedFiles().filter(f => EXT.includes(path.extname(f)) && fs.existsSync(f))
+  } else {
+    files = walkDirs(dirs)
+  }
+
   const allViolations = []
   for (const f of files) {
     const vs = scanFile(f)
@@ -175,6 +192,12 @@ function main() {
   if (changedFiles.length > 0) {
     console.log('ui-lowercase autofix: files updated:')
     for (const f of changedFiles) console.log(`  - ${f}`)
+    // stage fixes if running in staged mode
+    if (STAGED && changedFiles.length) {
+      try {
+        execSync('git add ' + changedFiles.map(f => `"${f}"`).join(' '))
+      } catch (_) {}
+    }
     process.exit(0)
   }
 
