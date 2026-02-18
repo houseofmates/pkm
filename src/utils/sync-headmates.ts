@@ -99,11 +99,11 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
   }
 
   console.log(`Sync complete: ${created} created, ${updated} updated`);
-  toast.success(`Synced ${members.length} headmates (${created} new, ${updated} updated)`);
+  toast.success(`synced ${members.length} headmates (${created} new, ${updated} updated)`);
 
   } catch (error: any) {
   console.error('Failed to sync headmates:', error);
-  toast.error('Failed to sync headmates: ' + error.message);
+  toast.error('failed to sync headmates: ' + error.message);
   throw error;
   }
 }

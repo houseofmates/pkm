@@ -1,6 +1,5 @@
 import { useEffect, useCallback } from 'react';
 import { useEdgelessStore } from '../store';
-import { v4 as uuidv4 } from 'uuid';
 
 export function useCanvasEvents() {
   const { addElement, viewPort } = useEdgelessStore();

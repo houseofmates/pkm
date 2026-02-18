@@ -306,7 +306,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   window.location.href = `tel:${val.replace(/\D/g, '')}`;
   } else {
   navigator.clipboard.writeText(val.replace(/\D/g, ''));
-  toast.success(`Copied ${formatPhoneNumber(val)} to clipboard`);
+  toast.success(`copied ${formatPhoneNumber(val)} to clipboard`);
   }
   };
 
@@ -530,7 +530,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
    onChange(parsed);
    setIsEditing(false);
    } catch (e) {
-   toast.error("Invalid JSON format");
+   toast.error("invalid json format");
    }
  }}><Check className="h-3 w-3" /></Button>
  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancel}><X className="h-3 w-3" /></Button>
@@ -696,10 +696,10 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     // @ts-ignore
     const result = await eyeDropper.open();
     navigator.clipboard.writeText(result.sRGBHex);
-    toast.success(`Copied ${result.sRGBHex}`);
+    toast.success(`copied ${result.sRGBHex}`);
   } catch (e) { console.error(e); }
   } else {
-  toast.error("Color picker not supported");
+  toast.error("color picker not supported");
   }
   }}
   title="Pick Color"
@@ -837,7 +837,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
    // eslint-disable-next-line
    const func = new Function('record', 'api', value);
    func(record, client); // Run with context
-   toast.success("Script executed");
+   toast.success("script executed");
    } catch (e) {
    alert("Error running code: " + e);
    }

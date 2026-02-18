@@ -16,7 +16,7 @@ class ContextServer {
         this.app.use(cors());
         this.app.use(express.json());
 
-        // Middleware for API Key (Simple check)
+        // middleware to validate the api key (lightweight check)
         this.app.use((req, res, next) => {
             // Allow health check without key
             if (req.path === '/health') return next();

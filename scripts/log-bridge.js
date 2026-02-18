@@ -3,9 +3,9 @@ import { spawn } from 'child_process';
 import axios from 'axios';
 import fs from 'fs';
 
-// --- CONFIGURATION ---
+// --- configuration ---
 const LOG_FILE = '/home/house/Documents/docker/dupemates/data/logs/latest.log';
-// DIRECT TO BACKEND (Bypassing n8n to fix payload corruption)
+// direct to backend (bypass n8n to avoid payload corruption)
 const N8N_URL = 'http://localhost:4100/api/broadcast';
 const AUTH_KEY = process.env.BROADCAST_AUTH_KEY;
 // Removed blocklist per user request

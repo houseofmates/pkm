@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useKeyPress } from 'react-use';
 
 export function ProtocolShift() {
   const [shifted, setShifted] = useState(false);

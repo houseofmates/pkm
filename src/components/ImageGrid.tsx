@@ -2,12 +2,8 @@
 // User requested "masonry layout (like pinterest)".
 // CSS columns are the easiest.
 
-import { cn } from '@/lib/utils';
-import { Card } from '@/components/ui/card';
-
 interface ImageGridProps {
   images?: Array<{ src: string; alt?: string; aspectRatio?: number }>;
-  columns?: number;
 }
 
 // Mock Data
@@ -19,10 +15,10 @@ const mockImages = [
   { src: 'https://images.unsplash.com/photo-1682687220199-d0124f48f95b', alt: 'building', aspectRatio: 1.4 },
 ];
 
-export function ImageGrid({ images = mockImages, columns = 3 }: ImageGridProps) {
+export function ImageGrid({ images = mockImages }: ImageGridProps) {
   return (
   <div className="w-full p-4 border border-dashed rounded-xl bg-card/20">
-  <div className="text-xs text-muted-foreground mb-4  font-bold">Moodboard</div>
+  <div className="text-xs text-muted-foreground mb-4  font-bold">moodboard</div>
   <div className="columns-1 md:columns-2 lg:columns-3 gap-4 space-y-4">
  {images.map((img, idx) => (
  <div key={idx} className="break-inside-avoid relative group rounded-xl shadow-sm hover:shadow-md transition-all duration-300 transform hover:scale-[1.02] isolate border border-border bg-card p-0">
@@ -35,7 +31,7 @@ export function ImageGrid({ images = mockImages, columns = 3 }: ImageGridProps) 
    loading="lazy"
    />
    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-[inherit]">
-   <span className="text-white text-xs font-bold  border border-white/50 px-2 py-1 rounded">View</span>
+   <span className="text-white text-xs font-bold  border border-white/50 px-2 py-1 rounded">view</span>
    </div>
  </div>
  </div>

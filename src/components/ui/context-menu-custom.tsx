@@ -7,7 +7,7 @@ import { Button } from './button';
 import { Input } from './input';
 import { toast } from 'sonner';
 import { HexColorPicker } from 'react-colorful';
-import { Edit2, ExternalLink, Palette, Trash2, BoxSelect, Smartphone } from 'lucide-react';
+import { Edit2, ExternalLink, Palette, Trash2, BoxSelect, BrainCircuit } from 'lucide-react';
 
 export function ContextMenu() {
   const { isOpen, x, y, targetId, targetType, data, closeMenu } = useContextMenuStore();
@@ -78,9 +78,9 @@ export function ContextMenu() {
  await client.updateRecord(data.collection, targetId!, {
  title: renameValue // Assuming 'title' is the field, might vary
  });
- toast.success('Renamed');
+ toast.success('renamed');
   } catch (e) {
- toast.error('Failed to rename');
+ toast.error('failed to rename');
   }
   }
   setIsRenaming(false);
@@ -101,8 +101,8 @@ export function ContextMenu() {
   const collection = window.prompt("Target Collection (e.g. notes):", "notes");
   if (collection) {
   client.createRecord(collection, { title: 'From Canvas', content: content })
- .then(() => toast.success("Promoted to Record"))
- .catch(() => toast.error("Failed to promote"));
+ .then(() => toast.success("promoted to record"))
+ .catch(() => toast.error("failed to promote"));
   }
   closeMenu();
   };
@@ -113,7 +113,7 @@ export function ContextMenu() {
   } else if (targetType === 'dashboard-card' && data?.collection) {
   if (confirm("Delete this record?")) {
  await client.deleteRecord(data.collection, targetId!);
- toast.success("Deleted");
+ toast.success("deleted");
  // Trigger refresh? DashboardCard relies on parent list update.
  // We might need to dispatch an event.
  window.dispatchEvent(new CustomEvent('pkm:record-deleted', { detail: { id: targetId, collection: data.collection } }));
@@ -204,18 +204,38 @@ export function ContextMenu() {
  </Button>
   )}
 
-  {/* Promote (Canvas Only) */}
+  {/* ask ai (canvas/object) */}
   {targetType === 'canvas-object' && (
- <Button
- variant="ghost"
- size="sm"
- className="justify-start text-xs h-8 px-2"
- onClick={handlePromote}
- >
- <BoxSelect className="h-3.5 w-3.5 mr-2 opacity-70" />
- Promote to Record
- </Button>
-  )}
+  <>
+  <Button
+    variant="ghost"
+    size="sm"
+    className="justify-start text-xs h-8 px-2"
+    onClick={async () => {
+      const content = data?.text || data?.title || JSON.stringify(data || {});
+      const q = window.prompt('ask wilson about this canvas item (context will be included):');
+      if (!q) return;
+      (await import('@/stores/llm-store')).useLLMStore.getState().setContext(content);
+      useEdgelessStore.getState().setChatOpen(true);
+      await (await import('@/stores/llm-store')).useLLMStore.getState().askWilson(q);
+      (await import('@/stores/llm-store')).useLLMStore.getState().setContext(null);
+    }}
+  >
+    <BrainCircuit className="h-3.5 w-3.5 mr-2 opacity-70" />
+    ask ai about this
+  </Button>
+
+  <Button
+    variant="ghost"
+    size="sm"
+    className="justify-start text-xs h-8 px-2"
+    onClick={handlePromote}
+  >
+    <BoxSelect className="h-3.5 w-3.5 mr-2 opacity-70" />
+    Promote to Record
+  </Button>
+  </>
+  )} 
 
   <div className="h-px bg-border/50 my-1" />
 

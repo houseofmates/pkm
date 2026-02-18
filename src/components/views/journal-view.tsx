@@ -36,8 +36,8 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
   const [prompt, setPrompt] = useState(PROMPTS[0]);
 
   // Fields
-  const contentField = collection.fields?.find((f: any) => f.interface === 'markdown' || f.interface === 'textarea' || f.name === 'content') || { name: 'content' };
-  const dateField = collection.fields?.find((f: any) => f.interface === 'date' || f.interface === 'datetime' || f.name === 'created_at');
+  const contentField = collection.fields?.find((f: { interface?: string; name: string }) => f.interface === 'markdown' || f.interface === 'textarea' || f.name === 'content') || { name: 'content' };
+  const dateField = collection.fields?.find((f: { interface?: string; name: string }) => f.interface === 'date' || f.interface === 'datetime' || f.name === 'created_at');
 
   const handleShufflePrompt = () => {
   setPrompt(PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
@@ -79,7 +79,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
   }));
 
   setEntry('');
-  toast.success("Entry captured!");
+  toast.success("entry captured!");
   };
 
   // Group by Date
@@ -207,7 +207,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
     {preview}
   </div>
   {/* Universal Property Visibility */}
-  {collection.fields?.filter((f: any) => config.visibleFields?.includes(f.name)).slice(0, 3).map((f: any) => (
+  {collection.fields?.filter((f: { name: string }) => config.visibleFields?.includes(f.name)).slice(0, 3).map((f: { name: string; uiSchema?: { title?: string } }) => (
     <div key={f.name} className="flex flex-col gap-0.5 mt-2 bg-muted/20 p-2 rounded-md">
     <span className="text-[10px] text-muted-foreground  opacity-60">{f.uiSchema?.title || f.name}</span>
     <SmartField
@@ -217,7 +217,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
     collectionName={collection.name}
     size="sm"
     className="h-auto p-0 border-none bg-transparent text-sm"
-    onChange={(val: any) => _onUpdateRecord?.(rec.id, { [f.name]: val })}
+    onChange={(val: unknown) => _onUpdateRecord?.(rec.id, { [f.name]: val })}
     />
     </div>
   ))}

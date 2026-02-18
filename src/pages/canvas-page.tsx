@@ -7,6 +7,7 @@ import { CanvasControls } from '@/features/edgeless/components/CanvasControls'
 import { WilsonChat } from '@/features/chat/wilson-chat'
 import { DatabaseSettingsForm } from '@/features/databases/components/database-settings-form'
 import { Button } from '@/components/ui/button'
+import PreviewCanvas from '@/components/preview-canvas'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Settings, ArrowLeft } from 'lucide-react'
 import { useAppSetting } from '@/hooks/use-app-setting'
@@ -59,7 +60,7 @@ export function CanvasPage() {
             )}
 
             {/* Fixed Top Header (Sidebar Alignment) */}
-            <div className="pt-4 shrink-0 bg-background z-50 pointer-events-auto flex flex-col">
+            <div className="pt-4 shrink-0 bg-background z-50 pointer-events-auto flex flex-col nav-header">
                 <div className="px-5 mb-2 h-10 flex items-center justify-between">
                     {/* Left: Back + Title */}
                     <div className="flex items-center gap-4">
@@ -110,13 +111,21 @@ export function CanvasPage() {
                         </Popover>
                     </div>
                 </div>
-                <Separator className="mb-2 bg-primary" />
+                {/* Separator removed: nav-header has border-bottom using --header-sep for exact match */}
             </div>
 
             {/* Main Canvas Area */}
             <div className="flex-1 relative overflow-hidden z-10">
                 {/* Canvas elements should be interactive */}
                 <div className="pointer-events-auto w-full h-full">
+                    {/* Small demo: multi-column layout overlay for documents */}
+                    <div className="px-5 pb-4">
+                        <PreviewCanvas
+                            columns={[[{ view_type: 'text', title: 'Column A' }, { view_type: 'embed', title: 'PDF Layer' }], [{ view_type: 'notes', title: 'Column B' }]]}
+                            columnWidths={[60,40]}
+                            renderWidget={(w:any)=> <div className="p-2 text-sm">{w.title}</div>}
+                        />
+                    </div>
                     {/* Toolbar might need z-index adjustment if it overlaps header */}
                     <Toolbar />
                     <CanvasControls />

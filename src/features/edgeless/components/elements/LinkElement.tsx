@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import * as LucideIcons from 'lucide-react';
-import { ExternalLink, MoreHorizontal, Image as ImageIcon, Type, Eye } from 'lucide-react';
+import { ExternalLink, Type, Eye } from 'lucide-react';
 import { useEdgelessStore } from '../../store';
 import {
   ContextMenu,

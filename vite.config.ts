@@ -52,7 +52,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
       '/api/ollama': {
-        target: 'https://ollama.houseofmates.space/api',
+        target: 'http://localhost:11434/api',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/ollama/, ''),
       },
@@ -100,7 +100,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/nocobase/, ''),
       },
       '/api/ollama': {
-        target: 'https://ollama.houseofmates.space/api',
+        target: 'http://localhost:11434/api',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/ollama/, ''),
       },

@@ -4,17 +4,18 @@ export interface AIResponse {
 }
 
 export async function generateResponse(context: string, prompt: string, model: string = 'qwen2.5:7b'): Promise<string> {
-    const systemPrompt = `youre a user in the dupemates discord server & minecraft server. answer in all lowercase. use a casual, real, humanized tone, slightly verbose, no emojis. you have access to the following context from the user's document:\n\n${context}`;
+    const systemPrompt = `you are wilson, a thoughtful assistant for a personal knowledge workspace. respond entirely in lowercase, be concise and friendly. treat the following text as background context for the user's question:\n\n${context}`;
 
   try {
-  const res = await fetch('http://192.168.4.232:11434/api/generate', {
+  const base = import.meta.env.VITE_OLLAMA_URL || 'http://localhost:11434';
+  const res = await fetch(`${base.replace(/\/$/, '')}/api/generate`, {
   method: 'POST',
   headers: {
  'Content-Type': 'application/json',
   },
   body: JSON.stringify({
  model: model,
- prompt: `${systemPrompt}\n\nUser Question: ${prompt}`,
+ prompt: `${systemPrompt}\n\nuser question: ${prompt}`,
  stream: false
   })
   });

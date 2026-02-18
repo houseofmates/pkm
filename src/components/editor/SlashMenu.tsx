@@ -1,5 +1,5 @@
 
-import { useEffect, useState, useImperativeHandle, forwardRef } from 'react';
+import { useLayoutEffect, useState, useImperativeHandle, forwardRef } from 'react';
 import { Editor } from '@tiptap/react';
 import {
   Heading1,
@@ -21,7 +21,7 @@ import {
 import { cn } from '@/lib/utils';
 
 // Icons mapping for dynamic items
-const ICONS: Record<string, any> = {
+const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   'Text': Text,
   'Heading 1': Heading1,
   'Heading 2': Heading2,
@@ -40,9 +40,14 @@ const ICONS: Record<string, any> = {
   'AI Assistant': User // Reusing User or finding a better one? Let's use Sparkles if available or just User for now to avoid import errors since Sparkles isn't imported. Wait, I can verify imports.
 };
 
+interface SlashMenuItem {
+  title: string;
+  description?: string;
+}
+
 interface SlashMenuProps {
-  items: any[];
-  command: (item: any) => void;
+  items: SlashMenuItem[];
+  command: (item: SlashMenuItem) => void;
   editor: Editor;
 }
 
@@ -56,7 +61,8 @@ export const SlashMenu = forwardRef((props: SlashMenuProps, ref) => {
   }
   };
 
-  useEffect(() => {
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useLayoutEffect(() => {
   setSelectedIndex(0);
   }, [props.items]);
 

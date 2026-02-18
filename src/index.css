@@ -53,6 +53,7 @@
     /* match primary default */
 
     --radius: 0.75rem;
+    --header-sep: 2px;
   }
 
   * {
@@ -333,9 +334,9 @@ header * {
 }
 
 /* restore for header/sidebar only */
-.sidebar-container,
+/* .sidebar-container, removed to fix bottom border regression */
 .nav-header {
-  border-bottom: 2px solid hsl(var(--primary)) !important;
+  border-bottom: var(--header-sep) solid hsl(var(--primary)) !important;
 }
 
 /* 2. sidebar icons specific target */
@@ -360,15 +361,13 @@ header * {
 /* --- v5 emergency fix (coherent) --- */
 
 /* 1. header & sidebar background (dark grey/black) */
+/* 1. header & sidebar background (dark grey/black) */
 header,
 .nav-header,
-.sidebar,
-.sidebar-container,
-.nav-container,
-aside {
+.nav-container {
   background-color: #050505 !important;
   background: #050505 !important;
-  border-bottom: 2px solid hsl(var(--primary)) !important;
+  border-bottom: var(--header-sep) solid hsl(var(--primary)) !important;
   /* restore header separating line */
 }
 
@@ -403,7 +402,7 @@ button,
 [class*='sidebar'] svg,
 .selected-icon-btn svg,
 .selected-icon-btn * {
-  fill: hsl(var(--primary)) !important;
+  fill: none !important;
   color: hsl(var(--primary)) !important;
   stroke: hsl(var(--primary)) !important;
   opacity: 1 !important;
@@ -412,10 +411,12 @@ button,
 }
 
 /* kill random white borders, force them to primary or transparent */
+/* DISABLED: This was preventing widget borders from using custom colors
 *[style*="border"],
 [class*="border"] {
   border-color: hsl(var(--primary)) !important;
 }
+*/
 
 /* force cmdk items to always be visible and clickable */
 [cmdk-item] {

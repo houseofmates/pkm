@@ -65,7 +65,7 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
   }
   // Also local backup
   localStorage.setItem(`mindmap_${collection.name}`, JSON.stringify(positions));
-  toast.success("Mind Map layout saved");
+  toast.success("mind map layout saved");
   };
 
   // Calculate Edges based on relations

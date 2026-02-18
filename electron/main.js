@@ -36,7 +36,7 @@ function createWindow() {
 app.whenReady().then(() => {
     createWindow();
 
-    // Start the Context API Server
+    // start the context api server (serves llm context to renderer)
     contextServer.start();
 
     app.on('activate', () => {

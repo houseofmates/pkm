@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Calendar, Droplet, User, Save, Link as LinkIcon, Plus, Upload, Image as ImageIcon } from 'lucide-react';
+import { X, Calendar, Droplet, Save, Upload } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFronter } from '@/contexts/fronter-context';
 import { formatHeadmateName } from '@/utils/text-formatting';
 import { PLACEHOLDER_IMAGE } from '@/lib/discord-utils';
-import { API_URL } from '@/lib/api-client';
 import { api } from '@/api/nocobase-client';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
@@ -75,9 +74,14 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
   const formData = new FormData();
   formData.append('file', file);
 
-  const res = await api.uploadFile(formData);
-  if (res.data?.url) {
- setBannerUrl(res.data.url);
+  // Use fetch directly for file upload since uploadFile may not exist on api client
+  const res = await fetch('/api/upload', {
+    method: 'POST',
+    body: formData
+  });
+  const data = await res.json();
+  if (data?.url) {
+ setBannerUrl(data.url);
  toast.success('banner uploaded');
   }
   } catch (e) {

@@ -92,10 +92,10 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
  console.error('[GlobalContextMenu] No URL found in upload response:', uploaded);
  throw new Error('no url in response - upload may have failed');
  }
-  } catch (err) {
+  } catch (err: any) {
  console.error('[GlobalContextMenu] Upload error:', err);
- console.error('[GlobalContextMenu] Error details:', err.response || err.message);
- toast.error('failed to upload background: ' + (err.message || 'unknown error'));
+ console.error('[GlobalContextMenu] Error details:', err?.response || err?.message);
+ toast.error('failed to upload background: ' + (err?.message || 'unknown error'));
   }
   onClose();
   };

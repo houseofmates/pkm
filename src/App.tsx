@@ -29,7 +29,6 @@ const HouseofmatesBuilder = lazy(() => import("@/features/houseofmates-builder/H
 const BlogBuilder = lazy(() => import("@/features/blog-builder/BlogBuilder").then(m => ({ default: m.BlogBuilder })));
 const TemplatePage = lazy(() => import("@/pages/template").then(m => ({ default: m.TemplatePage })));
 const WorkspacePage = lazy(() => import("@/pages/workspace").then(m => ({ default: m.WorkspacePage })));
-const JournalDocument = lazy(() => import("@/components/journal/journal-document").then(m => ({ default: m.JournalDocument })));
 const PublicDocViewer = lazy(() => import("@/components/journal/public-doc-viewer").then(m => ({ default: m.PublicDocViewer })));
 
 

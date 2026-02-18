@@ -53,7 +53,7 @@ export function QuickEditSheet() {
   detail: { collection: collectionName, record: data }
   }));
 
-  toast.success("Record updated");
+  toast.success("record updated");
   setOpen(false);
   };
 

@@ -16,7 +16,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
   }
 
   // Helper to get image URL from a record field
-  const getImageUrl = (record: any, field: any) => {
+  const getImageUrl = (record: Record<string, unknown>, field: { name: string } | null) => {
   if (!field) return null;
   const value = record[field.name];
   if (!value) return null;
@@ -35,18 +35,18 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
   // Detect fields if not configured
   // Priority: Config -> Explicit 'attachment' interface -> name includes 'image'/'cover'
   const imageField = config.coverField
-  ? collection?.fields?.find((f: any) => f.name === config.coverField)
-  : (collection?.fields?.find((f: any) => f.interface === 'attachment')
-  || collection?.fields?.find((f: any) => f.name.toLowerCase().includes('image') || f.name.toLowerCase().includes('cover')));
+  ? collection?.fields?.find((f: { name: string; interface?: string }) => f.name === config.coverField)
+  : (collection?.fields?.find((f: { name: string; interface?: string }) => f.interface === 'attachment')
+  || collection?.fields?.find((f: { name: string }) => f.name.toLowerCase().includes('image') || f.name.toLowerCase().includes('cover')));
 
   // Priority: Config -> 'title'/'name' -> First input field
   const titleField = config.titleField
-  ? collection?.fields?.find((f: any) => f.name === config.titleField)
-  : (collection?.fields?.find((f: any) => f.name === 'title' || f.name === 'name')
-  || collection?.fields?.find((f: any) => f.interface === 'input'));
+  ? collection?.fields?.find((f: { name: string; interface?: string }) => f.name === config.titleField)
+  : (collection?.fields?.find((f: { name: string }) => f.name === 'title' || f.name === 'name')
+  || collection?.fields?.find((f: { interface?: string }) => f.interface === 'input'));
 
   const visibleFieldNames = config.visibleFields || [];
-  const visibleFields = collection?.fields?.filter((f: any) => visibleFieldNames.includes(f.name)) || [];
+  const visibleFields = collection?.fields?.filter((f: { name: string }) => visibleFieldNames.includes(f.name)) || [];
 
   return (
   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
@@ -108,7 +108,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
    {/* Editable Properties (Max 3) */}
    {visibleFields.length > 0 && (
   <div className="mt-2 space-y-1 text-center" onClick={(e) => e.stopPropagation()}>
-  {visibleFields.slice(0, 3).map((f: any) => (
+  {visibleFields.slice(0, 3).map((f: { name: string; uiSchema?: { title?: string } }) => (
   <div key={f.name} className="text-xs text-muted-foreground truncate flex flex-col items-center gap-0.5">
     <span className="opacity-50 lowercase text-[10px] ">{f.uiSchema?.title || f.name}:</span>
     <div className="w-full">

@@ -1,16 +1,16 @@
 
 #!/bin/bash
 
-# HOUSE OF MATES - WILDCARD SUBDOMAIN PROVISIONER
-# Usage: sudo ./setup-wildcard.sh
-# Purpose: Configure Nginx to handle *.houseofmates.space and secure it with Certbot
+# house of mates - wildcard subdomain provisioner
+# usage: sudo ./setup-wildcard.sh
+# purpose: create nginx config for *.houseofmates.space and guide dns/certbot steps
 
 DOMAIN="houseofmates.space"
 EMAIL="admin@houseofmates.space" 
 NGINX_CONF="/etc/nginx/sites-available/$DOMAIN"
 WEB_ROOT="/home/house/pkm/dist"
 
-echo ">>> ENGAGING HOUSE PROTOCOL: SUBDOMAIN ARCHITECTURE"
+echo "setting up wildcard subdomain configuration..."
 
 # 1. Install Certbot (if missing)
 if ! command -v certbot &> /dev/null; then

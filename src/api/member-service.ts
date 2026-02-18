@@ -23,7 +23,7 @@ export const MemberService = {
 
   // Extract URL (NocoBase returns { data: { url: ... } })
   const fileData = uploadRes.data || uploadRes;
-  let fileUrl = fileData.url;
+  const fileUrl = fileData.url;
 
   if (!fileUrl) {
  throw new Error("Upload succeeded but no URL returned from NocoBase");
@@ -81,9 +81,10 @@ export const MemberService = {
 
   return fileUrl;
 
-  } catch (error: any) {
+  } catch (error: unknown) {
   console.error("MemberService Error:", error);
-  toast.error(`Avatar update failed: ${error.message}`, { id: toastId });
+  const errorMessage = error instanceof Error ? error.message : String(error);
+  toast.error(`Avatar update failed: ${errorMessage}`, { id: toastId });
   throw error;
   }
   }

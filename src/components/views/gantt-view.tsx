@@ -19,7 +19,7 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
   </div>
   );
   }
-  const dateFields = collection.fields?.filter((f: any) => f.interface === 'datetime' || f.interface === 'date') || [];
+  const dateFields = collection.fields?.filter((f: { interface?: string }) => f.interface === 'datetime' || f.interface === 'date') || [];
 
   // Configurable start/end fields
   const startField = config?.ganttStartField || dateFields[0]?.name;
@@ -27,11 +27,11 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
 
   // Unified Property Logic
   const titleField = config?.titleField
-  ? collection.fields?.find((f: any) => f.name === config.titleField)
-  : collection.fields?.find((f: any) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
+  ? collection.fields?.find((f: { name: string; primary?: boolean }) => f.name === config.titleField)
+  : collection.fields?.find((f: { name: string; primary?: boolean }) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
 
   const visibleFieldNames = config?.visibleFields || [];
-  const visibleFields = collection?.fields?.filter((f: any) => visibleFieldNames.includes(f.name)) || [];
+  const visibleFields = collection?.fields?.filter((f: { name: string }) => visibleFieldNames.includes(f.name)) || [];
 
   // Determine Timeline Range based on data
   const { startDate, timelineDays } = useMemo(() => {
@@ -159,7 +159,7 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
   {/* Universal Property Visibility */}
   {visibleFields.length > 0 && (
   <div className="flex flex-col gap-0.5 mt-1">
-    {visibleFields.slice(0, 3).map((f: any) => (
+    {visibleFields.slice(0, 3).map((f: { name: string; uiSchema?: { title?: string } }) => (
     <div key={f.name} className="flex items-center gap-1 min-w-0">
     <span className="text-[9px] text-muted-foreground lowercase shrink-0 opacity-50">{f.uiSchema?.title || f.name}:</span>
     <SmartField

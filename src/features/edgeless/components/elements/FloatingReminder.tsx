@@ -5,7 +5,7 @@ export function FloatingReminder({ element }: { element: any }) {
   const { title, deadline } = element.data;
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [velocity, setVelocity] = useState({ dx: 0.5, dy: 0.5 });
-  const requestRef = useRef<number>();
+  const requestRef = useRef<number | undefined>(undefined);
   const updateElement = useEdgelessStore(state => state.updateElement);
 
   // Calculate Urgency

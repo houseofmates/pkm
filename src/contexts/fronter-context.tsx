@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { api } from '@/api/nocobase-client';
-import { useAppSetting } from '@/hooks/use-app-setting';
 import { toast } from 'sonner';
 
 export interface Headmate {
@@ -37,6 +36,9 @@ interface FronterContextType {
   cacheMemberColors: (members: any[]) => void;
   updateFronters: (fronters: string[]) => void;
   toggleFronter: (id: string) => void; // Convenience
+  
+  // Member colors from SimplyPlural
+  memberColors: Record<string, string>;
 }
 
 const FronterContext = createContext<FronterContextType | undefined>(undefined);
@@ -46,6 +48,16 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   const [history, setHistory] = useState<FrontEntry[]>([]);
   const [activeFronters, setActiveFronters] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Member colors state
+  const [memberColors, setMemberColors] = useState<Record<string, string>>(() => {
+    try {
+      const stored = localStorage.getItem('member_colors');
+      return stored ? JSON.parse(stored) : {};
+    } catch {
+      return {};
+    }
+  });
 
   // Overrides for SimplyPlural integration
   const [overrides, setOverridesState] = useState<Record<string, any>>(() => {
@@ -83,6 +95,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
  colorCache[m.id] = m.content.color;
   }
   });
+  setMemberColors(colorCache);
   localStorage.setItem('member_colors', JSON.stringify(colorCache));
   };
 
@@ -102,7 +115,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   let headmatesData: any[] = [];
   try {
  const res = await api.listRecords('headmates', { sort: 'name', pageSize: 100 });
- headmatesData = Array.isArray(res) ? res : (res?.data || []);
+ headmatesData = Array.isArray(res) ? res : ((res as { data?: any[] })?.data || []);
   } catch (e) {
  console.warn("Headmates collection missing?", e);
  // Create if missing?
@@ -115,7 +128,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   let historyData: any[] = [];
   try {
  const res = await api.listRecords('front_history', { sort: '-startTime', pageSize: 50 });
- historyData = Array.isArray(res) ? res : (res?.data || []);
+ historyData = Array.isArray(res) ? res : ((res as { data?: any[] })?.data || []);
   } catch (e) {
  console.warn("Front history missing?", e);
   }
@@ -278,7 +291,8 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   flushOverrides,
   cacheMemberColors,
   updateFronters,
-  toggleFronter
+  toggleFronter,
+  memberColors
   }}>
   {children}
   </FronterContext.Provider>

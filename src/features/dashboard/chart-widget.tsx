@@ -152,17 +152,17 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
  fill={col}
  fillOpacity={isDim ? 0.15 : 1}
  onClick={(data) => onDataClick && onDataClick(data, xKey, key)}
- onContextMenu={(data: any, index: number, e: any) => {
-   if (onDataContextMenu) onDataContextMenu(e || index /* fallback */, data, xKey, key);
+ onContextMenu={(data: any, index: number, _e: any) => {
+   if (onDataContextMenu) onDataContextMenu(_e || index /* fallback */, data, xKey, key);
  }}
  />
  );
   }
   if (keyType === 'line') {
- return <Line key={key} type="monotone" dataKey={key} stroke={col} strokeWidth={2} dot={false} strokeOpacity={isDim ? 0.2 : 1} activeDot={{ onClick: (e: any, payload: any) => onDataClick && onDataClick(payload, xKey, key), onContextMenu: (e: any, payload: any) => onDataContextMenu && onDataContextMenu(e, payload, xKey, key) }} />;
+ return <Line key={key} type="monotone" dataKey={key} stroke={col} strokeWidth={2} dot={false} strokeOpacity={isDim ? 0.2 : 1} activeDot={{ onClick: (_e: any, payload: any) => onDataClick && onDataClick(payload, xKey, key), onContextMenu: (e: any, payload: any) => onDataContextMenu && onDataContextMenu(e, payload, xKey, key) }} />;
   }
   if (keyType === 'area') {
- return <Area key={key} type="monotone" dataKey={key} stroke={col} fill={col} fillOpacity={isDim ? 0.08 : 0.25} activeDot={{ onClick: (e: any, payload: any) => onDataClick && onDataClick(payload, xKey, key) }} />;
+ return <Area key={key} type="monotone" dataKey={key} stroke={col} fill={col} fillOpacity={isDim ? 0.08 : 0.25} activeDot={{ onClick: (_e: any, payload: any) => onDataClick && onDataClick(payload, xKey, key) }} />;
   }
   return null;
   });
@@ -569,11 +569,11 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
    data={sorted}
    isAnimationActive
    onClick={(data) => onDataClick && !isPlaceholder && onDataClick(data, xKey)}
-   onContextMenu={(...args: any[]) => {
+   onContextMenu={(...args: unknown[]) => {
    // Funnel might pass different args
-   const e = args[args.length - 1];
+   const e = args[args.length - 1] as { preventDefault?: () => void };
    const data = args[0];
-   if (e?.preventDefault && onDataContextMenu) onDataContextMenu(e, data, xKey);
+   if (e?.preventDefault && onDataContextMenu) onDataContextMenu(e as unknown as Event, data, xKey);
    }}
  >
    <LabelList position="right" fill="var(--foreground)" stroke="none" dataKey={isPlaceholder ? "name" : xKey} />

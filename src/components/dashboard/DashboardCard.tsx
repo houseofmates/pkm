@@ -4,12 +4,12 @@ import { Loader2 } from 'lucide-react';
 
 interface DashboardCardProps {
   collectionName: string;
-  filter?: any;
+  filter?: unknown;
   title?: string;
 }
 
 export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, filter, title }) => {
-  const [data, setData] = useState<any[]>([]);
+  const [data, setData] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -23,7 +23,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
  if (typeof filter === 'string') {
  try {
  queryFilter = JSON.parse(filter);
- } catch (e) {
+ } catch (_e) {
  console.warn('Invalid filter JSON:', filter);
  }
  }
@@ -34,7 +34,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
  sort: '-createdAt'
  });
 
- const items = Array.isArray(res?.data) ? res.data : (res?.data as any)?.data || [];
+ const items = Array.isArray(res?.data) ? res.data : (res?.data as { data?: unknown[] })?.data || [];
  setData(items);
   } catch (err) {
  console.error('Dashboard fetching error:', err);
@@ -67,9 +67,9 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
   )}
 
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
- {data.map((item: any) => (
+ {data.map((item: Record<string, unknown>) => (
  <div
- key={item.id}
+ key={String(item.id ?? '')}
  className="p-3 border rounded-md bg-background hover:bg-accent/50 transition-colors cursor-pointer"
  style={{ fontFamily: '"Varela Round", sans-serif' }}
  onClick={() => {
@@ -78,15 +78,15 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
  }}
  >
  <div className="font-semibold truncate">
-   {item.title || item.name || item.id}
+   {String(item.title ?? item.name ?? item.id ?? '')}
  </div>
  {item.status && (
    <div className="text-xs text-muted-foreground mt-1">
-   {item.status}
+   {String(item.status)}
    </div>
  )}
  <div className="text-xs text-muted-foreground mt-2 truncate opacity-70">
-   {new Date(item.createdAt || item.created_at).toLocaleDateString()}
+   {new Date(String(item.createdAt ?? item.created_at ?? Date.now())).toLocaleDateString()}
  </div>
  </div>
  ))}

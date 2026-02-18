@@ -15,7 +15,7 @@ export function CodeBlock({ title, language = 'text', children, collapsible = tr
 
   const handleCopy = () => {
   navigator.clipboard.writeText(children);
-  toast.success('Code copied to clipboard');
+  toast.success('code copied to clipboard');
   };
 
   return (

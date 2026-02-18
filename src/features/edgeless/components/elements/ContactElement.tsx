@@ -4,6 +4,6 @@
 // import { EdgelessElement } from "../../store";
 // import { useMemo } from "react";
 
-export function ContactElement({ element }: { element: any }) {
+export function ContactElement({ element: _element }: { element: any }) {
   return null;
 }

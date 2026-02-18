@@ -18,20 +18,21 @@ interface FormulaEditorProps {
 // Mock AI Service until WebSocket is fully confirmed
 const fetchAIResponse = async (prompt: string, context: any) => {
   try {
-  const res = await fetch('http://192.168.4.232:11434/api/generate', {
+  const base = import.meta.env.VITE_OLLAMA_URL || 'http://localhost:11434';
+  const res = await fetch(`${base.replace(/\/$/, '')}/api/generate`, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
  model: 'qwen2.5:7b',
- prompt: `context: ${JSON.stringify(context)}\n\nuser: ${prompt}\n\nprovide a concise javascript code snippet to solve the user's request using the valid context variables (record, api). wrap code in \`\`\`javascript ... \`\`\`. respond entirely in lowercase.`,
+ prompt: `context: ${JSON.stringify(context)}\n\nuser: ${prompt}\n\nplease reply in lowercase and provide a concise javascript snippet when appropriate. treat the provided context as background.`,
  stream: false
   })
   });
   const data = await res.json();
   return data.response?.toLowerCase() || data.response;
   } catch (e) {
-  console.error("AI Error", e);
-  return "error connecting to ai assistant.";
+  console.error("ai error", e);
+  return "error connecting to the ai assistant.";
   }
 };
 
@@ -40,7 +41,7 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
   const [output, setOutput] = useState<string>('');
   const [chatInput, setChatInput] = useState('');
   const [messages, setMessages] = useState<{ role: 'user' | 'assistant', content: string }[]>([
-  { role: 'assistant', content: "Hello! I'm your Formula Assistant. I can help you write scripts to manipulate this record. Try asking: 'Calculate field X plus field Y'" }
+  { role: 'assistant', content: "hello! i'm your formula assistant. i can help you write scripts to manipulate this record. try asking: 'calculate field x plus field y'" }
   ]);
   const [isAiLoading, setIsAiLoading] = useState(false);
 
@@ -103,15 +104,15 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
  <div className="flex items-center justify-between p-3 border-b bg-muted/30">
  <div className="flex items-center gap-2">
  <Terminal className="h-5 w-5 text-primary" />
- <span className="font-bold">Formula Editor</span>
- <span className="text-xs text-muted-foreground ml-2">Record ID: {record?.id || 'New'}</span>
+ <span className="font-bold">formula editor</span>
+ <span className="text-xs text-muted-foreground ml-2">record id: {record?.id || 'new'}</span>
  </div>
  <div className="flex gap-2">
- <Button variant="ghost" size="sm" onClick={handleRun} title="Test Run">
-   <Play className="h-4 w-4 mr-1 text-green-500" /> Run
+ <Button variant="ghost" size="sm" onClick={handleRun} title="test run">
+   <Play className="h-4 w-4 mr-1 text-green-500" /> run
  </Button>
  <Button variant="default" size="sm" onClick={() => onSave(code)}>
-   <Save className="h-4 w-4 mr-1" /> Save
+   <Save className="h-4 w-4 mr-1" /> save
  </Button>
  <Button variant="ghost" size="icon" onClick={onCancel}>
    <X className="h-4 w-4" />
@@ -125,7 +126,7 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
  <div className="w-1/3 border-r flex flex-col bg-muted/10">
  <div className="p-2 border-b text-xs font-semibold text-muted-foreground flex items-center gap-2">
    <Sparkles className="h-3 w-3 text-yellow-500" />
-   AI Assistant (Qwen 2.5)
+   ai assistant (qwen 2.5)
  </div>
  <ScrollArea className="flex-1 p-4">
    <div className="flex flex-col gap-4">
@@ -148,7 +149,7 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
    className="absolute top-0 right-0 h-5 text-[10px] opacity-0 group-hover:opacity-100 transition-opacity"
    onClick={() => setCode(String(children).replace(/\n$/, ''))}
    >
-   Apply
+   apply
    </Button>
    </div>
     ) : (
@@ -165,12 +166,12 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
   </div>
    </div>
    ))}
-   {isAiLoading && <div className="text-xs text-muted-foreground animate-pulse">Thinking...</div>}
+   {isAiLoading && <div className="text-xs text-muted-foreground animate-pulse">thinking...</div>}
    </div>
  </ScrollArea>
  <div className="p-2 border-t flex gap-2">
    <Input
-   placeholder="Ask AI to generate code..."
+   placeholder="ask ai to generate code..."
    value={chatInput}
    onChange={e => setChatInput(e.target.value)}
    onKeyDown={e => e.key === 'Enter' && handleSendChat()}
@@ -202,8 +203,8 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
  </div>
  {/* Output Console */}
  <div className="h-48 border-t bg-black text-green-400 font-mono text-xs p-2 overflow-auto">
-   <div className="text-muted-foreground mb-1 select-none">Console Output:</div>
-   <pre className="whitespace-pre-wrap">{output || 'Ready to run.'}</pre>
+   <div className="text-muted-foreground mb-1 select-none">console output:</div>
+   <pre className="whitespace-pre-wrap">{output || 'ready to run.'}</pre>
  </div>
  </div>
  </div>

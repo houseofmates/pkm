@@ -1,5 +1,6 @@
 
 import { ReactRenderer } from '@tiptap/react';
+import type { SuggestionProps, SuggestionKeyDownProps } from '@tiptap/suggestion';
 import tippy, { type Instance } from 'tippy.js';
 import { MentionList } from './MentionList';
 
@@ -27,11 +28,11 @@ export const getMentionSuggestionItems = ({ query }: { query: string }) => {
 };
 
 export const renderMentionItems = () => {
-  let component: ReactRenderer;
-  let popup: Instance[];
+  let component: ReactRenderer | null = null;
+  let popup: Instance | null = null;
 
   return {
-  onStart: (props: any) => {
+  onStart: (props: SuggestionProps) => {
   component = new ReactRenderer(MentionList, {
  props,
  editor: props.editor,
@@ -41,8 +42,8 @@ export const renderMentionItems = () => {
  return;
   }
 
-  popup = tippy('body', {
- getReferenceClientRect: props.clientRect,
+  popup = tippy(document.body, {
+ getReferenceClientRect: () => props.clientRect?.() ?? new DOMRect(0, 0, 0, 0),
  appendTo: () => document.body,
  content: component.element,
  showOnCreate: true,
@@ -52,30 +53,31 @@ export const renderMentionItems = () => {
   });
   },
 
-  onUpdate: (props: any) => {
+  onUpdate: (props: SuggestionProps) => {
+  if (!component) return;
   component.updateProps(props);
 
-  if (!props.clientRect) {
+  if (!props.clientRect || !popup) {
  return;
   }
 
-  popup[0].setProps({
- getReferenceClientRect: props.clientRect,
+  popup.setProps({
+ getReferenceClientRect: () => props.clientRect?.() ?? new DOMRect(0, 0, 0, 0),
   });
   },
 
-  onKeyDown: (props: any) => {
+  onKeyDown: (props: SuggestionKeyDownProps) => {
   if (props.event.key === 'Escape') {
- popup[0].hide();
+ popup?.hide();
  return true;
   }
 
-  return (component.ref as any)?.onKeyDown(props);
+  return (component?.ref as { onKeyDown?: (props: SuggestionKeyDownProps) => boolean })?.onKeyDown?.(props) ?? false;
   },
 
   onExit: () => {
-  popup[0].destroy();
-  component.destroy();
+  popup?.destroy();
+  component?.destroy();
   },
   };
 };

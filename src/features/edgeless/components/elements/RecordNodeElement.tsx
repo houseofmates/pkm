@@ -1,10 +1,9 @@
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { useEdgelessStore } from '../../store';
-import { Card, CardHeader, CardContent, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Maximize2, Minimize2, ExternalLink } from 'lucide-react';
+import { Maximize2, Minimize2 } from 'lucide-react';
 import { RecordForm } from '@/features/records/components/record-form'; // Re-use existing form!
 import { useCollection } from '@/hooks/use-collections';
 import { useRecord } from '@/hooks/use-records';
@@ -21,8 +20,8 @@ export const RecordNodeElement: React.FC<RecordNodeElementProps> = ({ element })
   // Local state for expansion (or use element.data.mode)
   const isExpanded = element.data.mode === 'card';
 
-  const toggleExpand = (e: React.MouseEvent) => {
-  e.stopPropagation();
+  const toggleExpand = (_e: React.MouseEvent) => {
+  _e.stopPropagation();
   updateElement(element.id, {
   width: isExpanded ? 200 : 400,
   height: isExpanded ? 60 : 500,
@@ -40,7 +39,7 @@ export const RecordNodeElement: React.FC<RecordNodeElementProps> = ({ element })
   )}>
   {/* Header (Node View) */}
   <div className="h-[60px] flex items-center justify-between px-3 border-b border-primary/20 shrink-0 cursor-move"
- onMouseDown={(e) => {
+ onMouseDown={(_e) => {
  // Allow dragging via header? Fabric handles dragging usually.
  // But since we are an overlay "pointer-events-auto", we might steal drag.
  // If we want Fabric to drag, we need to pass event?

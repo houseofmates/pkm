@@ -12,19 +12,26 @@ const Separator = React.forwardRef<
   (
   { className, orientation = "horizontal", decorative = true, ...props },
   ref
-  ) => (
+  ) => {
+  const mergedStyle = {
+    ...((props as any).style || {}),
+    ...(orientation === "horizontal" ? { height: 'var(--header-sep)' } : { width: 'var(--header-sep)' })
+  }
+  return (
   <SeparatorPrimitive.Root
   ref={ref}
   decorative={decorative}
   orientation={orientation}
+  style={mergedStyle}
   className={cn(
  "shrink-0 bg-border",
- orientation === "horizontal" ? "h-[2px] w-full" : "h-full w-[2px]",
+ orientation === "horizontal" ? "w-full" : "h-full",
  className
-  )}
+ )}
   {...props}
   />
   )
+  }
 )
 Separator.displayName = SeparatorPrimitive.Root.displayName
 

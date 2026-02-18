@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Configuration
+# configuration and watcher settings
 REPO_URL="github.com/houseofmates/pkm.git"
 BRANCH="main"
 EXCLUDE="(\.git/|node_modules/|dist/|\.gemini/|_work/)"

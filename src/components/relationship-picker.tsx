@@ -25,7 +25,8 @@ export function RelationshipPicker({ collectionName, onSelect, value }: Relation
   useEffect(() => {
   if (open && options.length === 0) {
   client.listRecords(collectionName, { pageSize: 50 }).then(res => {
- setOptions(res.data || []);
+ const data: any[] = Array.isArray(res) ? res : ((res as { data?: any[] })?.data || []);
+ setOptions(data);
   });
   }
   }, [open, collectionName, client, options.length]);

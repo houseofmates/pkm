@@ -1,0 +1,12 @@
+import React from 'react';
+
+export default function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKey?: string }) {
+  return (
+    <div className="p-4">
+      <h2 className="text-lg font-semibold">dashboard (placeholder)</h2>
+      <p className="text-sm text-muted-foreground">The dashboard-grid component is temporarily disabled for rebuild. Restore the original implementation from version control when ready.</p>
+    </div>
+  );
+}
+
+export { DashboardGrid as DashboardGridPlaceholder };

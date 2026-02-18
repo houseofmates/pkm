@@ -19,7 +19,7 @@ export function ShareDialog({ documentId, isPublic, onTogglePublic }: ShareDialo
 
   const handleCopyLink = () => {
   navigator.clipboard.writeText(publicUrl);
-  toast.success('Link copied to clipboard');
+  toast.success('link copied to clipboard');
   };
 
   return (
