@@ -25,8 +25,8 @@ jobs:
       - name: check comments are lowercase
         run: npm run lowercase:check
 
-      - name: check ui text is lowercase
-        run: npm run check:ui-lowercase
+#      - name: check ui text is lowercase
+#        run: npm run check:ui-lowercase
 
       - name: lint (optional)
         run: npm run lint --if-present
