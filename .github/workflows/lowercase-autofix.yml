@@ -24,13 +24,13 @@ jobs:
           node-version: '20'
 
       - name: install
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: apply comment lowercase autofix
         run: npm run lowercase:fix || true
 
-      - name: apply ui-lowercase autofix
-        run: node scripts/check-ui-lowercase.cjs --apply || true
+#      - name: apply ui-lowercase autofix
+#        run: node scripts/check-ui-lowercase.cjs --apply || true
 
       - name: detect changes
         id: detect

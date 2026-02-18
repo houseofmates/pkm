@@ -2,6 +2,7 @@
 // one-time migration for existing drawings
 
 import { updateDrawingMeta, saveCheckpoint } from './canvas-db'
+import { secureLogger } from '@/lib/secure-logger'
 
 interface LegacyDrawing {
   id: string
@@ -10,12 +11,15 @@ interface LegacyDrawing {
   thumbnail?: string
 }
 
-export async function migrateFromLocalStorage(): Promise<{
+export interface MigrationResult {
   migrated: number
   failed: number
   skipped: number
-}> {
-  const result = { migrated: 0, failed: 0, skipped: 0 }
+  details: Array<{ id: string; status: 'migrated' | 'failed' | 'skipped'; error?: string }>
+}
+
+export async function migrateFromLocalStorage(): Promise<MigrationResult> {
+  const result: MigrationResult = { migrated: 0, failed: 0, skipped: 0, details: [] }
 
   // find all drawing keys in localstorage
   const keys: string[] = []
@@ -26,7 +30,7 @@ export async function migrateFromLocalStorage(): Promise<{
     }
   }
 
-  console.log('[migrate] found', keys.length, 'potential drawings in localstorage')
+  secureLogger.info('[migrate] found', keys.length, 'potential drawings in localstorage')
 
   for (const key of keys) {
     try {
@@ -48,7 +52,7 @@ export async function migrateFromLocalStorage(): Promise<{
           syncState: 'pending', // trigger re-sync
         })
 
-        console.log('[migrate] migrated config for', id)
+        secureLogger.info('[migrate] migrated config for', id)
       } else if (type === 'content') {
         // migrate content as checkpoint
         const contentStr = localStorage.getItem(key)
@@ -62,23 +66,26 @@ export async function migrateFromLocalStorage(): Promise<{
           const data = JSON.parse(decompressed)
           await saveCheckpoint(id, data)
 
-          console.log('[migrate] migrated content for', id, '-', data.objects?.length || 0, 'objects')
+          secureLogger.info('[migrate] migrated content for', id, '-', data.objects?.length || 0, 'objects')
           result.migrated++
+          result.details.push({ id, status: 'migrated' })
         } else {
-          console.warn('[migrate] failed to decompress', id)
+          secureLogger.warn('[migrate] failed to decompress', id)
           result.failed++
+          result.details.push({ id, status: 'failed', error: 'Decompression failed' })
         }
 
         // optionally: remove from localstorage after migration
         // localstorage.removeitem(key)
       }
     } catch (e) {
-      console.error('[migrate] error migrating', key, e)
+      secureLogger.error('[migrate] error migrating', key, e)
       result.failed++
+      result.details.push({ id: key, status: 'failed', error: String(e) })
     }
   }
 
-  console.log('[migrate] complete:', result)
+  secureLogger.info('[migrate] complete:', result)
   return result
 }
 

@@ -61,7 +61,7 @@ const field_types = [
   { label: 'formula', type: 'formula', interface: 'formula' },
 ] as const;
 
-export function collectiondialog({ collection, onsuccess, trigger, open: controlledopen, onopenchange: setcontrolledopen, initialtitle }: collectiondialogprops) {
+export function CollectionDialog({ collection, onsuccess, trigger, open: controlledopen, onopenchange: setcontrolledopen, initialtitle }: collectiondialogprops) {
   const { client } = useauth();
   const navigate = usenavigate();
   const [internalopen, setinternalopen] = usestate(false);

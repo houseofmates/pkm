@@ -28,7 +28,7 @@ interface SearchResult {
     score?: number;
 }
 
-export function spotlight() {
+export function Spotlight() {
     const [open, setopen] = usestate(false);
     const [query, setquery] = usestate("");
     const [dbresults, setdbresults] = usestate<SearchResult[]>([]);

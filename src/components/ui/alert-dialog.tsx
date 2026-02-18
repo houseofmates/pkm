@@ -15,7 +15,7 @@ const AlertDialogPortal = AlertDialogPrimitive.Portal
 
 const AlertDialogOverlay = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Overlay>,
-  react.componentpropswithoutref<typeof AlertDialogPrimitive.Overlay>
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Overlay>
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Overlay
   className={cn(
@@ -26,11 +26,11 @@ const AlertDialogOverlay = React.forwardRef<
   ref={ref}
   />
 ))
-alertdialogoverlay.displayname = alertdialogprimitive.overlay.displayname
+AlertDialogOverlay.displayName = AlertdialogPrimitive.Overlay.displayName
 
-const alertdialogcontent = react.forwardref<
+const AlertDialogContent = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Content>,
-  react.componentpropswithoutref<typeof AlertDialogPrimitive.Content>
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Content>
 >(({ className, ...props }, ref) => (
   <AlertDialogPortal>
   <AlertDialogOverlay />
@@ -44,12 +44,12 @@ const alertdialogcontent = react.forwardref<
   />
   </AlertDialogPortal>
 ))
-alertdialogcontent.displayname = alertdialogprimitive.content.displayname
+AlertDialogContent.displayName = AlertdialogPrimitive.Content.displayName
 
-const alertdialogheader = ({
-  classname,
+const AlertDialogHeader = ({
+  className,
   ...props
-}: react.htmlattributes<HTMLDivElement>) => (
+}: React.HTMLAttributes<HTMLDivElement>) => (
   <div
   className={cn(
   "flex flex-col space-y-2 text-center sm:text-left",
@@ -58,12 +58,12 @@ const alertdialogheader = ({
   {...props}
   />
 )
-alertdialogheader.displayname = "alertdialogheader"
+AlertDialogHeader.displayName = "alertdialogheader"
 
-const alertdialogfooter = ({
-  classname,
+const AlertDialogFooter = ({
+  className,
   ...props
-}: react.htmlattributes<HTMLDivElement>) => (
+}: React.HTMLAttributes<HTMLDivElement>) => (
   <div
   className={cn(
   "flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2",
@@ -72,11 +72,11 @@ const alertdialogfooter = ({
   {...props}
   />
 )
-alertdialogfooter.displayname = "alertdialogfooter"
+AlertDialogFooter.displayName = "alertdialogfooter"
 
-const alertdialogtitle = react.forwardref<
+const AlertDialogTitle = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Title>,
-  react.componentpropswithoutref<typeof AlertDialogPrimitive.Title>
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Title>
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Title
   ref={ref}
@@ -84,11 +84,11 @@ const alertdialogtitle = react.forwardref<
   {...props}
   />
 ))
-alertdialogtitle.displayname = alertdialogprimitive.title.displayname
+AlertDialogTitle.displayName = AlertdialogPrimitive.Title.displayName
 
-const alertdialogdescription = react.forwardref<
+const AlertDialogDescription = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Description>,
-  react.componentpropswithoutref<typeof AlertDialogPrimitive.Description>
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Description>
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Description
   ref={ref}
@@ -96,12 +96,12 @@ const alertdialogdescription = react.forwardref<
   {...props}
   />
 ))
-alertdialogdescription.displayname =
-  alertdialogprimitive.description.displayname
+AlertDialogDescription.displayName =
+  AlertdialogPrimitive.Description.displayName
 
-const alertdialogaction = react.forwardref<
+const AlertDialogAction = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Action>,
-  react.componentpropswithoutref<typeof AlertDialogPrimitive.Action>
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Action>
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Action
   ref={ref}
@@ -109,11 +109,11 @@ const alertdialogaction = react.forwardref<
   {...props}
   />
 ))
-alertdialogaction.displayname = alertdialogprimitive.action.displayname
+AlertDialogAction.displayName = AlertdialogPrimitive.Action.displayName
 
-const alertdialogcancel = react.forwardref<
+const AlertDialogCancel = React.forwardRef<
   React.ElementRef<typeof AlertDialogPrimitive.Cancel>,
-  react.componentpropswithoutref<typeof AlertDialogPrimitive.Cancel>
+  React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Cancel>
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Cancel
   ref={ref}
@@ -127,16 +127,4 @@ const alertdialogcancel = react.forwardref<
 ))
 AlertDialogCancel.displayName = AlertDialogPrimitive.Cancel.displayName
 
-export {
-  AlertDialog,
-  AlertDialogPortal,
-  AlertDialogOverlay,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogAction,
-  AlertDialogCancel,
-}
+export { AlertDialog, AlertDialogPortal, AlertDialogOverlay, AlertDialogTrigger, AlertDialogContent, AlertDialogHeader, AlertDialogFooter, AlertDialogTitle, AlertDialogDescription, AlertDialogAction, AlertDialogCancel }
