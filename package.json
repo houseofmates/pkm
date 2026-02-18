@@ -18,6 +18,7 @@
     "check:ui-lowercase": "node scripts/check-ui-lowercase.cjs",
     "check:ui-lowercase:fix": "node scripts/check-ui-lowercase.cjs --apply",
     "lowercase:all": "npm run lowercase:check && npm run check:ui-lowercase",
+    "precommit": "npm run lowercase:all && npx lint-staged",
     "preview": "vite preview",
     "backend": "PORT=4100 node backend/server.js",
     "electron:dev": "concurrently -k \"npm run dev\" \"npm run backend\" \"wait-on tcp:4173 && electron .\"",
@@ -136,7 +137,9 @@
     "eslint-plugin-react-refresh": "^0.4.24",
     "fake-indexeddb": "^6.2.5",
     "globals": "^16.5.0",
+    "husky": "^8.0.3",
     "jsdom": "^22.1.0",
+    "lint-staged": "^14.0.1",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
     "typescript": "~5.9.3",
@@ -144,6 +147,13 @@
     "vite": "^7.3.0",
     "vitest": "^4.0.16",
     "wait-on": "^9.0.3"
+  },
+  "prepare": "husky install",
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,cjs,mjs}": [
+      "eslint --fix",
+      "git add"
+    ]
   },
   "build": {
     "appId": "com.houseofmates.pkm",
