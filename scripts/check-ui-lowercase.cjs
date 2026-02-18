@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // script: check-ui-lowercase
 // purpose: scan jsx/tsx/html files for ui text (jsx text nodes and common attributes)
-//          and fail if any uppercase letters are present in visible UI strings.
+//          and optionally fix (lowercase) offending visible UI strings.
 
 const fs = require('fs')
 const path = require('path')
@@ -34,7 +34,6 @@ function containsUppercaseVisibleText(str) {
   // ignore backticks and urls
   if (/`[^`]*`/.test(str)) return false
   if (/https?:\/\//i.test(str)) return false
-  // consider visible words that contain uppercase letters
   return /[A-Z]/.test(str)
 }
 
@@ -48,10 +47,7 @@ function scanFile(file) {
   while ((m = jsxTextRe.exec(text))) {
     const content = m[1].trim()
     if (!content) continue
-    if (containsUppercaseVisibleText(content)) {
-      // ignore all-uppercase abbreviation-only lines like 'API' - user requested strict lowercase so we flag them
-      violations.push({ type: 'jsx-text', snippet: content, index: m.index })
-    }
+    if (containsUppercaseVisibleText(content)) violations.push({ type: 'jsx-text', snippet: content, index: m.index })
   }
 
   // 2) attribute string values (common ui attributes)
@@ -76,7 +72,52 @@ function scanFile(file) {
   return violations
 }
 
+function applyFix(file) {
+  let text = fs.readFileSync(file, 'utf8')
+  let changed = false
+
+  // fix jsx text nodes
+  const jsxTextRe = />\s*([^<>\{\}][^<>]*)\s*</g
+  text = text.replace(jsxTextRe, (match, inner) => {
+    if (!containsUppercaseVisibleText(inner)) return match
+    const lower = inner.toLowerCase()
+    if (lower === inner) return match
+    changed = true
+    return match.replace(inner, lower)
+  })
+
+  // fix attribute values
+  const attrNames = ['title', 'placeholder', 'aria-label', 'alt', 'label', 'aria-placeholder', 'aria-labelledby']
+  const attrRe = new RegExp(`\\b(${attrNames.join('|')})\\s*=\\s*(?:"([^"]*)"|'([^']*)'|\\{\\s*'([^']*)'\\s*\\})`, 'gi')
+  text = text.replace(attrRe, (full, name, g2, g3, g4) => {
+    const orig = (g2 || g3 || g4 || '')
+    if (!containsUppercaseVisibleText(orig)) return full
+    const lower = orig.toLowerCase()
+    changed = true
+    if (g2) return full.replace(`"${orig}"`, `"${lower}"`)
+    if (g3) return full.replace(`'${orig}'`, `'${lower}'`)
+    if (g4) return full.replace(`{'${orig}'}`, `{'${lower}'}`)
+    return full
+  })
+
+  // fix html text nodes
+  if (file.endsWith('.html')) {
+    const tagTextRe = />([^<>]+)</g
+    text = text.replace(tagTextRe, (match, inner) => {
+      if (!containsUppercaseVisibleText(inner)) return match
+      const lower = inner.toLowerCase()
+      if (lower === inner) return match
+      changed = true
+      return match.replace(inner, lower)
+    })
+  }
+
+  if (changed) fs.writeFileSync(file, text, 'utf8')
+  return changed
+}
+
 function main() {
+  const APPLY = process.argv.includes('--apply')
   const dirsArg = process.argv.find(a => a.startsWith('--dirs='))
   const rawDirs = dirsArg ? dirsArg.replace('--dirs=', '') : ''
   const extraDirs = rawDirs ? rawDirs.split(',').map(s => s.trim()).filter(Boolean).map(d => path.isAbsolute(d) ? d : path.join(ROOT, d)) : []
@@ -89,19 +130,55 @@ function main() {
     if (vs.length > 0) allViolations.push({ file: f, violations: vs })
   }
 
-  if (allViolations.length > 0) {
-    console.error('\nui-lowercase check failed: found uppercase letters in ui text (strict)')
-    for (const item of allViolations) {
-      console.error(`\nfile: ${path.relative(ROOT, item.file)}`)
-      for (const v of item.violations.slice(0, 20)) {
-        console.error(`  - [${v.type}] ${v.snippet.replace(/\n/g, ' ')} `)
+  if (!APPLY) {
+    if (allViolations.length > 0) {
+      console.error('\nui-lowercase check failed: found uppercase letters in ui text (strict)')
+      for (const item of allViolations) {
+        console.error(`\nfile: ${path.relative(ROOT, item.file)}`)
+        for (const v of item.violations.slice(0, 20)) {
+          console.error(`  - [${v.type}] ${v.snippet.replace(/\n/g, ' ')} `)
+        }
       }
+      console.error('\nplease lowercase visible ui strings and ui attributes (title, placeholder, alt, aria-label, label).')
+      process.exit(1)
     }
-    console.error('\nplease lowercase visible ui strings and ui attributes (title, placeholder, alt, aria-label, label).')
-    process.exit(1)
+
+    console.log('ui-lowercase check: no violations found')
+    process.exit(0)
   }
 
-  console.log('ui-lowercase check: no violations found')
+  // apply mode
+  const changedFiles = []
+  for (const item of allViolations) {
+    const file = item.file
+    const fixed = applyFix(file)
+    if (fixed) changedFiles.push(path.relative(ROOT, file))
+  }
+
+  // re-scan remaining violations
+  const remaining = []
+  for (const f of files) {
+    const vs = scanFile(f)
+    if (vs.length > 0) remaining.push({ file: f, violations: vs })
+  }
+
+  if (remaining.length > 0) {
+    console.error('\nui-lowercase autofix applied, but some violations remain:')
+    for (const item of remaining) {
+      console.error(`\nfile: ${path.relative(ROOT, item.file)}`)
+      for (const v of item.violations.slice(0, 20)) console.error(`  - [${v.type}] ${v.snippet.replace(/\n/g, ' ')}`)
+    }
+    if (changedFiles.length > 0) console.error(`\nautofix changed files: ${changedFiles.join(', ')}`)
+    process.exit(2)
+  }
+
+  if (changedFiles.length > 0) {
+    console.log('ui-lowercase autofix: files updated:')
+    for (const f of changedFiles) console.log(`  - ${f}`)
+    process.exit(0)
+  }
+
+  console.log('ui-lowercase autofix: nothing to change')
   process.exit(0)
 }
 

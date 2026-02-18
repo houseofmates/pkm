@@ -16,6 +16,7 @@
     "lowercase:check": "node scripts/lowercase-comments.cjs",
     "lowercase:fix": "node scripts/lowercase-comments.cjs --apply",
     "check:ui-lowercase": "node scripts/check-ui-lowercase.cjs",
+    "check:ui-lowercase:fix": "node scripts/check-ui-lowercase.cjs --apply",
     "lowercase:all": "npm run lowercase:check && npm run check:ui-lowercase",
     "preview": "vite preview",
     "backend": "PORT=4100 node backend/server.js",
