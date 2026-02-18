@@ -1,7 +1,7 @@
 // @ts-nocheck
 import axios from 'axios';
 
-// use the production url directly or env if available
+// api base: prefer the vite environment override, fall back to local backend for dev
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4100/api';
 
 export const apiClient = axios.create({
@@ -16,48 +16,51 @@ apiClient.interceptors.request.use((config) => {
  const ht = localStorage.getItem('hom_api_key');
  const gt = localStorage.getItem('hom_guest_key'); // Guest Token Support
 
- // robust check for truthy token
+ // pick the best token we have: admin > nocobase jwt > guest (trim common placeholders)
  let token = null;
  if (ht && ht !== 'null' && ht !== 'undefined' && ht.trim() !== '') {
   token = ht.trim();
-  // console.debug('[auth] using hom_api_key');
+  // hom_api_key (admin-level token)
  } else if (nt && nt !== 'null' && nt !== 'undefined' && nt.trim() !== '') {
   token = nt.trim();
-  // console.debug('[auth] using nocobase_token');
+  // nocobase jwt (standard user/session token)
  } else if (gt && gt !== 'null' && gt !== 'undefined' && gt.trim() !== '') {
-  token = gt.trim(); // Use guest token as fallback
-  // console.debug('[auth] using hom_guest_key');
+  token = gt.trim();
+  // guest token (read-only fallback)
  }
 
- // debug log for troubleshooting 401s
+ // friendly warning when no token is present (helps debug unexpected 401s)
  if (!token) {
-  console.warn('[Auth] No token found in localStorage (nocobase_token, hom_api_key, or hom_guest_key). Request will be anonymous.');
- } else {
-  // console.debug('[auth] token present:', token.substring(0, 10) + '...');
+  console.warn('[auth] no token found in localStorage (nocobase_token, hom_api_key, hom_guest_key). request will be anonymous');
  }
 
  if (token) {
   const bearerToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+  const hostname = window.location.hostname;
 
-  // direct assignment to ensure compatibility
+  // attach headers consistently for axios and fetch-like header objects
   config.headers['Authorization'] = bearerToken;
-  config.headers['X-Hostname'] = window.location.hostname;
-
-  // also try set() if it's an axiosheaders object
-  if (config.headers && typeof config.headers.set === 'function') {
- config.headers.set('Authorization', bearerToken);
- config.headers.set('X-Hostname', window.location.hostname);
+  config.headers['X-Hostname'] = hostname;
+  if (config.headers && typeof (config.headers as any).set === 'function') {
+   (config.headers as any).set('Authorization', bearerToken);
+   (config.headers as any).set('X-Hostname', hostname);
   }
  } else {
-  // anonymous auth is broken in nocobase - use a hardcoded public access token (member role with view-only perms)
-  const PUBLIC_ACCESS_TOKEN = process.env.PUBLIC_ACCESS_TOKEN || '';
-  token = PUBLIC_ACCESS_TOKEN;
-  const bearerToken = `Bearer ${token}`;
-  config.headers['Authorization'] = bearerToken;
-  config.headers['X-Hostname'] = window.location.hostname;
-  if (config.headers && typeof config.headers.set === 'function') {
- config.headers.set('Authorization', bearerToken);
- config.headers.set('X-Hostname', window.location.hostname);
+  // nocobase rejects anonymous requests; use a read-only public token if configured (vite env)
+  const PUBLIC_ACCESS_TOKEN = import.meta.env.VITE_PUBLIC_ACCESS_TOKEN || '';
+  if (PUBLIC_ACCESS_TOKEN) {
+   token = PUBLIC_ACCESS_TOKEN;
+   const bearerToken = `Bearer ${token}`;
+   const hostname = window.location.hostname;
+   config.headers['Authorization'] = bearerToken;
+   config.headers['X-Hostname'] = hostname;
+   if (config.headers && typeof (config.headers as any).set === 'function') {
+    (config.headers as any).set('Authorization', bearerToken);
+    (config.headers as any).set('X-Hostname', hostname);
+   }
+  } else {
+   // no public access token configured — calls may 401 until user logs in
+   console.warn('[auth] no public access token configured; anonymous requests may be rejected by nocobase');
   }
  }
 
