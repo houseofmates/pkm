@@ -6,7 +6,7 @@ if (typeof (globalThis as any).fetch === 'undefined') {
   (globalThis as any).fetch = () => Promise.resolve({ ok: true, text: async () => '{}' });
 }
 
-// mock ResizeObserver
+// mock resizeobserver
 global.ResizeObserver = class ResizeObserver {
   callback: ResizeObserverCallback;
   constructor(callback: ResizeObserverCallback) {

@@ -13,14 +13,14 @@ describe('ChartWidget legend & ordering', () => {
   it('renders legend in seriesOrder when provided', () => {
     render(<ChartWidget type="bar" data={mockData as any} seriesKeys={["s1", "s2"]} seriesOrder={["s2", "s1"]} />);
 
-    // Legend buttons should render in order s2, s1
+    // legend buttons should render in order s2, s1
     const buttons = screen.getAllByRole('button');
     // find first two legend-like buttons by text
     const first = screen.getByText('s2');
     const second = screen.getByText('s1');
     expect(first).toBeTruthy();
     expect(second).toBeTruthy();
-    // Ensure order in DOM: s2 comes before s1
+    // ensure order in dom: s2 comes before s1
     expect(buttons.map(b => b.textContent).join(' ')).toContain('s2');
   });
 

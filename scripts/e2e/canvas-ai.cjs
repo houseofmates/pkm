@@ -81,7 +81,7 @@ const { chromium } = require('playwright');
   // navigate in private mode so /drawings route is available
   await page.goto(`${base}/drawings/test-ai?mode=private`, { waitUntil: 'networkidle' });
 
-  // dump a small snapshot of the DOM body for debugging if toolbar doesn't appear
+  // dump a small snapshot of the dom body for debugging if toolbar doesn't appear
   const bodyHtml = await page.locator('body').innerHTML();
   console.log('[e2e] body snapshot length:', bodyHtml.length);
 
