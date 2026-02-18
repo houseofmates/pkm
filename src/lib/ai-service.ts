@@ -1,3 +1,5 @@
+import { getOllamaGenerateUrl } from '@/lib/llm-config';
+
 export interface AIResponse {
   response: string;
   done: boolean;
@@ -7,8 +9,8 @@ export async function generateResponse(context: string, prompt: string, model: s
     const systemPrompt = `you are wilson, a thoughtful assistant for a personal knowledge workspace. respond entirely in lowercase, be concise and friendly. treat the following text as background context for the user's question:\n\n${context}`;
 
   try {
-  const base = import.meta.env.VITE_OLLAMA_URL || 'http://localhost:11434';
-  const res = await fetch(`${base.replace(/\/$/, '')}/api/generate`, {
+  const url = getOllamaGenerateUrl();
+  const res = await fetch(url, {
   method: 'POST',
   headers: {
  'Content-Type': 'application/json',

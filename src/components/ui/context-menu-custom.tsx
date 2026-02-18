@@ -100,7 +100,9 @@ export function ContextMenu() {
 
   const collection = window.prompt("Target Collection (e.g. notes):", "notes");
   if (collection) {
-  client.createRecord(collection, { title: 'From Canvas', content: content })
+  const payload: any = { title: 'From Canvas', content: content };
+  if (collection.toLowerCase().includes('note')) payload.entity_type = 'note';
+  client.createRecord(collection, payload)
  .then(() => toast.success("promoted to record"))
  .catch(() => toast.error("failed to promote"));
   }

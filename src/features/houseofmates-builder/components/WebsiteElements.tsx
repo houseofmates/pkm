@@ -479,7 +479,7 @@ interface CountdownProps {
 export function CountdownTimer({ targetDate, title }: CountdownProps) {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
-  useState(() => {
+  useEffect(() => {
     const updateTimer = () => {
       const target = new Date(targetDate).getTime();
       const now = Date.now();
@@ -498,7 +498,7 @@ export function CountdownTimer({ targetDate, title }: CountdownProps) {
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
     return () => clearInterval(interval);
-  });
+  }, [targetDate]);
 
   return (
     <div className="p-6 rounded-2xl text-center flex flex-col items-center justify-center h-full">

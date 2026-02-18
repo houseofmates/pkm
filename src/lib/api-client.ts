@@ -1,5 +1,6 @@
-// @ts-nocheck
 import axios from 'axios';
+import { secureLogger } from './secure-logger';
+import { safeUrl, sanitizeHeaders } from './sanitize-utils';
 
 // api base: prefer the vite environment override, fall back to local backend for dev
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4100/api';
@@ -14,7 +15,7 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use((config) => {
  const nt = localStorage.getItem('nocobase_token');
  const ht = localStorage.getItem('hom_api_key');
- const gt = localStorage.getItem('hom_guest_key'); // Guest Token Support
+ const gt = localStorage.getItem('hom_guest_key'); // guest token support
 
  // pick the best token we have: admin > nocobase jwt > guest (trim common placeholders)
  let token = null;
@@ -31,7 +32,7 @@ apiClient.interceptors.request.use((config) => {
 
  // friendly warning when no token is present (helps debug unexpected 401s)
  if (!token) {
-  console.warn('[auth] no token found in localStorage (nocobase_token, hom_api_key, hom_guest_key). request will be anonymous');
+  secureLogger.warn('[auth] no token found in localStorage. request will be anonymous');
  }
 
  if (token) {
@@ -60,7 +61,7 @@ apiClient.interceptors.request.use((config) => {
    }
   } else {
    // no public access token configured — calls may 401 until user logs in
-   console.warn('[auth] no public access token configured; anonymous requests may be rejected by nocobase');
+   secureLogger.warn('[auth] no public access token configured; anonymous requests may be rejected by nocobase');
   }
  }
 
@@ -72,7 +73,7 @@ apiClient.interceptors.response.use(
  (error) => {
   if (error.response?.status === 401) {
  // clear potentially expired/invalid tokens
- console.warn('[Auth] 401 Unauthorized - clearing stored tokens');
+ secureLogger.warn('[Auth] 401 Unauthorized - clearing stored tokens');
  localStorage.removeItem('hom_api_key');
  localStorage.removeItem('nocobase_token');
 
@@ -88,7 +89,7 @@ apiClient.interceptors.response.use(
  }
 );
 
-export const apiRequest = async (resource, action, options = {}) => {
+export const apiRequest = async (resource: string, action: string, options: Record<string, any> = {}) => {
  const { method = 'GET', data, ...rest } = options;
  try {
   const res = await apiClient({
@@ -99,7 +100,7 @@ export const apiRequest = async (resource, action, options = {}) => {
   });
   return res.data;
  } catch (e) {
-  console.error("API Error:", e);
+  secureLogger.error("API Error:", e);
   throw e;
  }
 };

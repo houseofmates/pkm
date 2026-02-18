@@ -68,11 +68,11 @@ export const MemberService = {
  } else {
  const resJson = await spRes.json().catch(() => ({}));
  console.log("MemberService: SimplyPlural Patch Success", resJson);
- toast.success("Avatar updated and synced!", { id: toastId });
+ toast.success("avatar updated and synced", { id: toastId });
  }
   } else {
  console.warn("MemberService: No API Key, skipping SimplyPlural sync");
- toast.success("Avatar saved locally (No API Key)", { id: toastId });
+ toast.success("avatar saved locally (no api key)", { id: toastId });
   }
 
   // 3. update local override

@@ -148,11 +148,11 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             // datatosubmit['title'] = 'untitled'; 
 
             await client.createRecord(collectionName, dataToSubmit);
-            toast.success("Record created");
+            toast.success("record created");
             fetchData();
         } catch (error) {
             console.error(error);
-            toast.error("Failed to create record");
+            toast.error("failed to create record");
         }
     };
 
@@ -216,7 +216,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         } catch (error: any) {
             console.error(error);
             setFetchError(error.message || "Unknown Error");
-            toast.error("Failed to load collection data");
+            toast.error("failed to load collection data");
         } finally {
             setLoading(false);
         }

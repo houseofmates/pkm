@@ -49,6 +49,9 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
 
   const handleCreate = async (data: any) => {
   try {
+  if (collection.name.toLowerCase().includes('note')) {
+    data.entity_type = data.entity_type || 'note'
+  }
   await client.createRecord(collection.name, data);
   setIsCreateOpen(false);
   refresh();

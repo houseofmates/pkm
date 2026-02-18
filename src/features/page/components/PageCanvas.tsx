@@ -47,9 +47,9 @@ export function PageCanvas() {
   };
 
     return (
-        <div className="h-screen bg-[#060606] text-white flex flex-col font-['Varela_Round'] overflow-hidden">
+        <div className="h-screen bg-[#050505] text-white flex flex-col font-['Varela_Round'] overflow-hidden">
             {/* fixed header section matching sidebar alignment */}
-            <div className="pt-4 shrink-0 bg-[#060606] z-10 flex flex-col">
+            <div className="pt-4 shrink-0 bg-[#050505] z-10 flex flex-col">
                 <div className="max-w-[1200px] mx-auto px-5">
                     <div className="flex justify-between items-center mb-2 h-10">
                         <h1 className="text-3xl font-bold text-[var(--primary)]">Page Mode</h1>

@@ -1,4 +1,3 @@
-
 import { AuthProvider, useAuth } from "@/contexts/auth-context"
 import { LoginPage } from "@/pages/login"
 import { RootLayout } from "@/pages/root-layout"
@@ -6,12 +5,15 @@ import { Toaster } from "@/components/ui/sonner"
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Routes, Route, BrowserRouter } from "react-router-dom"
 import { isPublicDomain } from "@/utils/subdomain-router"
-import { lazy, Suspense } from "react"
+import { lazy, Suspense, useEffect } from "react"
 import { FronterProvider } from "@/contexts/fronter-context"
 import { LLMContextProvider } from "@/contexts/llm-context"
+import { CanvasErrorBoundary } from "@/features/edgeless"
+import { walrecover, walcommit, walfail, walpendingcount } from "@/lib/write-ahead-log"
+import { islinkregistrymigrated, backfilllinkregistry } from "@/lib/link-migration"
 
 // lazy load heavy components
-const GlobalCommandPalette = lazy(() => import("@/components/global-command-palette").then(m => ({ default: m.GlobalCommandPalette })));
+const Spotlight = lazy(() => import("@/components/Spotlight").then(m => ({ default: m.Spotlight })));
 const WilsonChat = lazy(() => import("@/features/chat/wilson-chat").then(m => ({ default: m.WilsonChat })));
 const SetupRequired = lazy(() => import("@/components/setup-required").then(m => ({ default: m.SetupRequired })));
 const HomePage = lazy(() => import("@/pages/home").then(m => ({ default: m.HomePage })));
@@ -31,10 +33,14 @@ const TemplatePage = lazy(() => import("@/pages/template").then(m => ({ default:
 const WorkspacePage = lazy(() => import("@/pages/workspace").then(m => ({ default: m.WorkspacePage })));
 const PublicDocViewer = lazy(() => import("@/components/journal/public-doc-viewer").then(m => ({ default: m.PublicDocViewer })));
 
-
-
-
-const queryClient = new QueryClient()
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+    },
+  },
+})
 
 // check public mode early
 const isPublicByDomain = isPublicDomain();
@@ -45,145 +51,211 @@ console.log(`[Router] Host: ${window.location.hostname}, isPublicByDomain: ${isP
 
 // set branding immediately (before react mounts)
 if (typeof document !== 'undefined') {
- const hostname = window.location.hostname;
- if (hostname.includes('dupe')) {
-  document.title = "dupemates";
- } else if (hostname.includes('blog')) {
-  document.title = "blog";
- } else if (hostname.includes('home')) {
-  document.title = "home";
- } else {
-  document.title = isPublic ? "house of mates" : "pkm";
- }
- const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
- if (favicon) {
-  if (window.location.hostname.includes('dupe')) {
- favicon.href = "/favicon-dupe.png";
-  } else if (isPublic) {
- favicon.href = "/favicon-home.png";
+  const hostname = window.location.hostname;
+  if (hostname.includes('dupe')) {
+    document.title = "dupemates";
+  } else if (hostname.includes('blog')) {
+    document.title = "blog";
+  } else if (hostname.includes('home')) {
+    document.title = "home";
   } else {
- favicon.href = "/favicon.png";
+    document.title = isPublic ? "house of mates" : "pkm";
   }
- }
+  const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
+  if (favicon) {
+    if (window.location.hostname.includes('dupe')) {
+      favicon.href = "/favicon-dupe.png";
+    } else if (isPublic) {
+      favicon.href = "/favicon-home.png";
+    } else {
+      favicon.href = "/favicon.png";
+    }
+  }
 }
 
 function AppContent() {
- const { token } = useAuth()
+  const { token, client } = useAuth()
 
- const LoadingFallback = (
-  <div className="h-screen flex items-center justify-center bg-[#050505] text-[var(--primary)] lowercase text-xl">
- {isPublic
-  ? (window.location.hostname.includes('dupe')
-   ? "dupemates loading..."
-   : window.location.hostname.includes('blog')
-  ? "blog loading..."
-  : "house of mates loading...")
-  : `loading ${isPkmDomain ? 'pkm' : 'app'}...`}
-  </div>
- );
+  // beforeunload guard: warn if there are pending wal entries
+  useEffect(() => {
+    const handler = (e: BeforeUnloadEvent) => {
+      // check synchronously (we can't await in beforeunload)
+      // the actual recovery happens on next load via walrecover()
+      walpendingcount().then((count) => {
+        if (count > 0) {
+          console.warn(`wal: ${count} pending writes — recovery will happen on next load`)
+        }
+      })
+      e.preventDefault()
+      e.returnValue = ''
+    }
+    window.addEventListener('beforeunload', handler)
+    return () => window.removeEventListener('beforeunload', handler)
+  }, [])
 
- // check for critical configuration
- const isConfigured = !!import.meta.env.VITE_API_URL;
- if (!isConfigured && !isPublic) {
-  return (
- <Suspense fallback={LoadingFallback}>
-  <SetupRequired />
- </Suspense>
+  // wal recovery on startup: replay any incomplete writes from a previous crash
+  useEffect(() => {
+    if (!client) return
+    walrecover().then(async (pending) => {
+      if (pending.length === 0) return
+      console.log(`wal: recovering ${pending.length} pending writes from previous session`)
+      for (const entry of pending) {
+        try {
+          if (entry.operation === 'update') {
+            await client.updateRecord(entry.collection, entry.recordid, entry.payload)
+          } else if (entry.operation === 'create') {
+            await client.createRecord(entry.collection, entry.payload)
+          } else if (entry.operation === 'delete') {
+            await client.deleteRecord(entry.collection, entry.recordid)
+          }
+          await walcommit(entry.id)
+          console.log(`wal: recovered ${entry.operation} on ${entry.collection}/${entry.recordid}`)
+        } catch (err) {
+          console.error('wal: recovery failed for', entry.id, err)
+          await walfail(entry.id)
+        }
+      }
+    }).catch((err) => {
+      console.error('wal: startup recovery error', err)
+    })
+  }, [client])
+
+  // link registry backfill: scan existing documents on first load of this version
+  useEffect(() => {
+    if (!client || islinkregistrymigrated()) return
+
+    // run migration after a small delay to not block initial render
+    const timer = setTimeout(() => {
+      console.log('[link-migration] starting backfill...')
+      backfilllinkregistry()
+        .then((res) => {
+          console.log(`[link-migration] complete: scanned ${res.documents} docs, found ${res.links} links`)
+        })
+        .catch((err) => {
+          console.error('[link-migration] failed:', err)
+        })
+    }, 5000)
+
+    return () => clearTimeout(timer)
+  }, [client])
+
+  const LoadingFallback = (
+    <div className="h-screen flex items-center justify-center bg-[#050505] text-[var(--primary)] lowercase text-xl">
+      {isPublic
+        ? (window.location.hostname.includes('dupe')
+          ? "dupemates loading..."
+          : window.location.hostname.includes('blog')
+            ? "blog loading..."
+            : "house of mates loading...")
+        : `loading ${isPkmDomain ? 'pkm' : 'app'}...`}
+    </div>
   );
- }
 
- // public site router - bypass standard app for public domains
- if (isPublic) {
-  const isBlog = window.location.hostname.includes('blog');
+  // check for critical configuration
+  const isConfigured = !!import.meta.env.VITE_API_URL;
+  if (!isConfigured && !isPublic) {
+    return (
+      <Suspense fallback={LoadingFallback}>
+        <SetupRequired />
+      </Suspense>
+    );
+  }
 
-  if (isBlog) {
- return (
-  <BrowserRouter>
-   <Suspense fallback={LoadingFallback}>
-  <Routes>
+  // public site router - bypass standard app for public domains
+  if (isPublic) {
+    const isBlog = window.location.hostname.includes('blog');
 
-   <Route path="/" element={<BlogBuilder />} />
-   <Route path="/:slug" element={<BlogBuilder />} />
-  </Routes>
-   </Suspense>
-   <Toaster />
-  </BrowserRouter>
- );
+    if (isBlog) {
+      return (
+        <BrowserRouter>
+          <Suspense fallback={LoadingFallback}>
+            <Routes>
+              <Route path="/" element={<BlogBuilder />} />
+              <Route path="/:slug" element={<BlogBuilder />} />
+            </Routes>
+          </Suspense>
+          <Toaster />
+        </BrowserRouter>
+      );
+    }
+
+    return (
+      <BrowserRouter>
+        <Suspense fallback={LoadingFallback}>
+          <Routes>
+            <Route path="/" element={<HouseofmatesBuilder />} />
+            <Route path="/doc/:slug" element={<PublicDocViewer slug={window.location.pathname.split('/doc/')[1]} />} />
+            <Route path="/:slug" element={<HouseofmatesBuilder />} />
+          </Routes>
+        </Suspense>
+        <Toaster />
+      </BrowserRouter>
+    );
   }
 
   return (
- <BrowserRouter>
-  <Suspense fallback={LoadingFallback}>
-   <Routes>
-  <Route path="/" element={<HouseofmatesBuilder />} />
-  <Route path="/doc/:slug" element={<PublicDocViewer slug={window.location.pathname.split('/doc/')[1]} />} />
-  <Route path="/:slug" element={<HouseofmatesBuilder />} />
-   </Routes>
-  </Suspense>
-  <Toaster />
- </BrowserRouter>
-  );
- }
-
- return (
-  <>
- {token ? (
-  <BrowserRouter>
-   <Suspense fallback={LoadingFallback}>
-  <Routes>
-   <Route element={<RootLayout />}>
- <Route path="/" element={<HomePage />} />
- <Route path="/databases" element={<DatabasesPage />} />
- <Route path="/databases/:name" element={<CollectionDetailPage />} />
- <Route path="/headmates" element={<HeadmatesPage />} />
- <Route path="/board" element={<MoodboardPage />} />
- <Route path="/canvas/:id" element={<CanvasPage />} />
- <Route path="/drawings/:id" element={<DrawingPage />} />
- <Route path="/databases/:name/:id" element={<RecordView />} />
- <Route path="/captures" element={<CapturesPage />} />
- <Route path="/db-canvas" element={<DatabaseCanvasView />} />
- <Route path="/page/:id" element={<PageCanvas />} />
- <Route path="/template" element={<TemplatePage />} />
- <Route path="/workspace/:id" element={<WorkspacePage />} />
-   </Route>
-  </Routes>
-  <GlobalCommandPalette />
-  <WilsonChat />
-   </Suspense>
-  </BrowserRouter>
- ) : <LoginPage />}
- <Toaster />
-  </>
- )
+    <>
+      {token ? (
+        <BrowserRouter>
+          <Suspense fallback={LoadingFallback}>
+            <Routes>
+              <Route element={<RootLayout />}>
+                <Route path="/" element={<HomePage />} />
+                <Route path="/databases" element={<DatabasesPage />} />
+                <Route path="/databases/:name" element={<CollectionDetailPage />} />
+                <Route path="/headmates" element={<HeadmatesPage />} />
+                <Route path="/board" element={<MoodboardPage />} />
+                <Route path="/canvas/:id" element={<CanvasPage />} />
+                <Route path="/drawings/:id" element={
+                  <CanvasErrorBoundary>
+                    <DrawingPage />
+                  </CanvasErrorBoundary>
+                } />
+                <Route path="/databases/:name/:id" element={<RecordView />} />
+                <Route path="/captures" element={<CapturesPage />} />
+                <Route path="/db-canvas" element={<DatabaseCanvasView />} />
+                <Route path="/page/:id" element={<PageCanvas />} />
+                <Route path="/template" element={<TemplatePage />} />
+                <Route path="/workspace/:id" element={<WorkspacePage />} />
+              </Route>
+            </Routes>
+            <Spotlight />
+            <WilsonChat />
+          </Suspense>
+        </BrowserRouter>
+      ) : <LoginPage />}
+      <Toaster />
+    </>
+  )
 }
 
 function App() {
- // check if public domain
- const isPublic = isPublicDomain();
+  // check if public domain
+  const isPublic = isPublicDomain();
 
- if (isPublic) {
-  // public site doesn't need fronterprovider or llmcontextprovider
+  if (isPublic) {
+    // public site doesn't need fronterprovider or llmcontextprovider
+    return (
+      <AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <AppContent />
+        </QueryClientProvider>
+      </AuthProvider>
+    );
+  }
+
+  // private pkm site needs all providers
   return (
- <AuthProvider>
-  <QueryClientProvider client={queryClient}>
-   <AppContent />
-  </QueryClientProvider>
- </AuthProvider>
-  );
- }
-
- // private pkm site needs all providers
- return (
-  <AuthProvider>
- <QueryClientProvider client={queryClient}>
-  <FronterProvider>
-   <LLMContextProvider>
-  <AppContent />
-   </LLMContextProvider>
-  </FronterProvider>
- </QueryClientProvider>
-  </AuthProvider>
- )
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
+        <FronterProvider>
+          <LLMContextProvider>
+            <AppContent />
+          </LLMContextProvider>
+        </FronterProvider>
+      </QueryClientProvider>
+    </AuthProvider>
+  )
 }
 
 export default App

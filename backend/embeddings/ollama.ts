@@ -2,7 +2,7 @@ import fetch from 'node-fetch';
 
 export async function getEmbedding(text: string): Promise<number[]> {
   try {
-    const body = { input: text.toLowerCase() };
+    const body = { model: 'nomic-embed-text', prompt: text.toLowerCase() };
     const res = await fetch('http://localhost:11434/api/embeddings', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },

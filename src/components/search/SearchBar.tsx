@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import usePkmStore from '../../store/usePkmStore';
 import type { SearchHit } from '../../types';
+import { secureLogger } from '@/lib/secure-logger';
 
 const API_BASE = (import.meta.env.VITE_PKM_API_URL as string) || 'http://localhost:4110';
 
@@ -33,7 +34,7 @@ export function SearchBar({ onSearched }: { onSearched?: (q: string) => void }) 
   }, [data, setSearchResults]);
 
   useEffect(() => {
-    if (error) console.error('search error', error);
+    if (error) secureLogger.error('search error', error);
   }, [error]);
 
   return (

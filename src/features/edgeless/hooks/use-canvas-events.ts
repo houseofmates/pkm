@@ -27,7 +27,7 @@ export function useCanvasEvents() {
  };
  reader.readAsDataURL(blob);
  }
- return; // Prioritize image if mixed
+ return; // prioritize image if mixed
   }
 
   // 2. handle text (links, image urls)

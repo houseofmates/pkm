@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Terminal, Send, Play, Sparkles, X, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
+import { getOllamaGenerateUrl } from '@/lib/llm-config';
 
 interface FormulaEditorProps {
   value: string;
@@ -18,8 +19,8 @@ interface FormulaEditorProps {
 // mock ai service until websocket is fully confirmed
 const fetchAIResponse = async (prompt: string, context: any) => {
   try {
-  const base = import.meta.env.VITE_OLLAMA_URL || 'http://localhost:11434';
-  const res = await fetch(`${base.replace(/\/$/, '')}/api/generate`, {
+  const url = getOllamaGenerateUrl();
+  const res = await fetch(url, {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({

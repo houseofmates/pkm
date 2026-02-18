@@ -305,6 +305,12 @@ export class NocoBaseClient {
   return GetRecordResponseSchema.parse(res.data);
  }
  async createRecord(collection, data) {
+  // normalize: ensure notes created via ui/backend include entity_type: 'note'
+  // this enforces metadata consistency for note templates and downstream plugins
+  if (collection === 'notes' && data && typeof data === 'object' && !('entity_type' in data)) {
+    data = { ...data, entity_type: 'note' }
+  }
+
   // remove /obj/ prefix, use <collection>:create
   const res = await this._axios.post(`/${collection}:create`, data);
   return GetRecordResponseSchema.parse(res.data);

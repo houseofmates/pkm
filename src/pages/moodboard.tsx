@@ -44,7 +44,7 @@ export function MoodboardPage() {
 
   const handleSave = () => {
   localStorage.setItem('moodboard_data', JSON.stringify(elements));
-  toast.success("Moodboard saved");
+  toast.success("moodboard saved");
   };
 
   // --- element operations ---

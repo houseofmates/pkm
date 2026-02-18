@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { generateText } from '@/lib/llm-service'
+import { getOllamaGenerateUrl, normalizeGenerateEndpoint } from '@/lib/llm-config' 
 
 export interface ChatMessage {
   id: number
@@ -31,7 +32,7 @@ interface LLMState {
 export const useLLMStore = create<LLMState>((set, get) => ({
   isConnected: true,
   activeModel: 'qwen2.5:7b',
-  apiUrl: localStorage.getItem('wilson_api_url') || `${(import.meta.env.VITE_OLLAMA_URL || 'http://localhost:11434').replace(/\/$/, '')}/api/generate`,
+  apiUrl: (localStorage.getItem('wilson_api_url') ? normalizeGenerateEndpoint(localStorage.getItem('wilson_api_url')!) : getOllamaGenerateUrl()),
 
   interactionHistory: [],
   isThinking: false,
@@ -40,8 +41,9 @@ export const useLLMStore = create<LLMState>((set, get) => ({
   setContext: (data) => set({ currentContext: data }),
 
   setApiUrl: (url) => {
-  localStorage.setItem('wilson_api_url', url)
-  set({ apiUrl: url })
+  const normalized = normalizeGenerateEndpoint(url);
+  localStorage.setItem('wilson_api_url', normalized)
+  set({ apiUrl: normalized })
   },
 
   toggleConnection: () => set((state) => ({ isConnected: !state.isConnected })),

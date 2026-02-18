@@ -50,14 +50,18 @@ export function CreateRecordDialog({ collectionName, fields, onRecordCreated, op
   }
 
   try {
+  // enforce entity_type for notes
+  if (collectionName.toLowerCase().includes('note')) {
+    dataToSubmit.entity_type = dataToSubmit.entity_type || 'note'
+  }
   await client.createRecord(collectionName, dataToSubmit);
-  toast.success("Record created");
+  toast.success("record created");
   setOpen(false);
   setFormData({});
   if (onRecordCreated) onRecordCreated();
   } catch (error: any) {
   console.error(error);
-  toast.error("Failed to create record");
+  toast.error("failed to create record");
   } finally {
   setLoading(false);
   }

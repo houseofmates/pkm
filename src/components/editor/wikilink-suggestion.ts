@@ -4,6 +4,7 @@ import tippy, { type Instance } from 'tippy.js';
 import { SlashMenu } from './SlashMenu';
 
 import { api } from '@/api/nocobase-client';
+import { secureLogger } from '@/lib/secure-logger';
 
 export const getWikilinkItems = async ({ query }: { query: string }) => {
   // we only trigger if the query starts with [ which implies [[ (since char is [)
@@ -62,7 +63,7 @@ export const getWikilinkItems = async ({ query }: { query: string }) => {
   }));
 
   } catch (e) {
-  console.error("Wikilink Search Error", e);
+  secureLogger.error("Wikilink Search Error", e);
   return [];
   }
 };

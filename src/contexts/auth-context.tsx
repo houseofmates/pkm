@@ -1,6 +1,7 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { NocoBaseClient } from '@/api/nocobase-client';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface AuthContextType {
   token: string | null;
@@ -60,7 +61,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   try {
  await client.ensureBackendCollection();
   } catch (error) {
- console.warn('Failed to ensure backend collection:', error);
+ secureLogger.warn('Failed to ensure backend collection:', error);
   }
   }, 1000); // Delay to allow login to complete
   };
