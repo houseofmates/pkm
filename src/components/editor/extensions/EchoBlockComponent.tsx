@@ -16,7 +16,7 @@ interface EchoBlockComponentProps {
   extension: any;
 }
 
-export const echoblockcomponent: react.fc<EchoBlockComponentProps> = ({ node }) => {
+export const EchoBlockComponent: react.fc<EchoBlockComponentProps> = ({ node }) => {
   const { recordid, collectionname } = node.attrs;
   const [content, setcontent] = usestate<string>('loading...');
   const [issyncing, setissyncing] = usestate(false);

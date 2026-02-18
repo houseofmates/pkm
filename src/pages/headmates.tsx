@@ -67,7 +67,7 @@ function SortableHeadmateCard({
   );
 }
 
-export function headmatespage() {
+export function HeadmatesPage() {
   const { togglefronter, overrides, setoverrides, cachemembercolors, activefronters } = usefronter();
   const [apikey, setapikey] = usestate('');
   const [allmembers, setallmembers] = usestate<Member[]>([]);

@@ -62,7 +62,7 @@ function MobileSidebarDrawer({ isOpen, onClose, ...props }: any) {
   );
 }
 
-export function rootlayout() {
+export function RootLayout() {
   usethemereactor(); // activate dynamic theming
   const { activefronters, overrides, members } = usefronter();
   const navigate = usenavigate();
