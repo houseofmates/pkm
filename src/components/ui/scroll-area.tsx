@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 
 const ScrollArea = React.forwardRef<
   React.ElementRef<typeof ScrollAreaPrimitive.Root>,
-  react.componentpropswithoutref<typeof ScrollAreaPrimitive.Root>
+  React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.Root>
 >(({ className, children, ...props }, ref) => (
   <ScrollAreaPrimitive.Root
   ref={ref}
@@ -20,11 +20,11 @@ const ScrollArea = React.forwardRef<
   <ScrollAreaPrimitive.Corner />
   </ScrollAreaPrimitive.Root>
 ))
-scrollarea.displayname = scrollareaprimitive.root.displayname
+ScrollArea.displayName = ScrollareaPrimitive.Root.displayName
 
-const scrollbar = react.forwardref<
+const ScrollBar = React.forwardRef<
   React.ElementRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>,
-  react.componentpropswithoutref<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>
+  React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitive.ScrollAreaScrollbar>
 >(({ className, orientation = "vertical", ...props }, ref) => (
   <ScrollAreaPrimitive.ScrollAreaScrollbar
   ref={ref}

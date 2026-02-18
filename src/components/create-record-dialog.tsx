@@ -14,7 +14,7 @@ interface CreateRecordDialogProps {
   trigger?: react.reactnode;
 }
 
-export function createrecorddialog({ open, onopenchange, collectionname, onsuccess, trigger }: createrecorddialogprops) {
+export function CreateRecordDialog({ open, onopenchange, collectionname, onsuccess, trigger }: createrecorddialogprops) {
   const [data, setdata] = usestate<Record<string, unknown>>({});
   const [loading, setLoading] = useState(false);
 

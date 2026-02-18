@@ -19,7 +19,7 @@ const ContextMenuRadioGroup = ContextMenuPrimitive.RadioGroup
 
 const ContextMenuSubTrigger = React.forwardRef<
   React.ElementRef<typeof ContextMenuPrimitive.SubTrigger>,
-  react.componentpropswithoutref<typeof ContextMenuPrimitive.SubTrigger> & {
+  React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.SubTrigger> & {
   inset?: boolean
   }
 >(({ className, inset, children, ...props }, ref) => (
@@ -36,11 +36,11 @@ const ContextMenuSubTrigger = React.forwardRef<
   <ChevronRight className="ml-auto h-4 w-4" />
   </ContextMenuPrimitive.SubTrigger>
 ))
-contextmenusubtrigger.displayname = contextmenuprimitive.subtrigger.displayname
+ContextMenuSubTrigger.displayName = ContextmenuPrimitive.Subtrigger.displayName
 
-const contextmenusubcontent = react.forwardref<
+const ContextMenuSubContent = React.forwardRef<
   React.ElementRef<typeof ContextMenuPrimitive.SubContent>,
-  react.componentpropswithoutref<typeof ContextMenuPrimitive.SubContent>
+  React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.SubContent>
 >(({ className, ...props }, ref) => (
   <ContextMenuPrimitive.SubContent
   ref={ref}
@@ -51,11 +51,11 @@ const contextmenusubcontent = react.forwardref<
   {...props}
   />
 ))
-contextmenusubcontent.displayname = contextmenuprimitive.subcontent.displayname
+ContextMenuSubContent.displayName = ContextmenuPrimitive.Subcontent.displayName
 
-const contextmenucontent = react.forwardref<
+const ContextMenuContent = React.forwardRef<
   React.ElementRef<typeof ContextMenuPrimitive.Content>,
-  react.componentpropswithoutref<typeof ContextMenuPrimitive.Content>
+  React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.Content>
 >(({ className, ...props }, ref) => (
   <ContextMenuPrimitive.Portal>
   <ContextMenuPrimitive.Content
@@ -69,11 +69,11 @@ const contextmenucontent = react.forwardref<
   />
   </ContextMenuPrimitive.Portal>
 ))
-contextmenucontent.displayname = contextmenuprimitive.content.displayname
+ContextMenuContent.displayName = ContextmenuPrimitive.Content.displayName
 
-const contextmenuitem = react.forwardref<
+const ContextMenuItem = React.forwardRef<
   React.ElementRef<typeof ContextMenuPrimitive.Item>,
-  react.componentpropswithoutref<typeof ContextMenuPrimitive.Item> & {
+  React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.Item> & {
   inset?: boolean
   }
 >(({ className, inset, ...props }, ref) => (
@@ -87,11 +87,11 @@ const contextmenuitem = react.forwardref<
   {...props}
   />
 ))
-contextmenuitem.displayname = contextmenuprimitive.item.displayname
+ContextMenuItem.displayName = ContextmenuPrimitive.Item.displayName
 
-const contextmenucheckboxitem = react.forwardref<
+const ContextMenuCheckboxItem = React.forwardRef<
   React.ElementRef<typeof ContextMenuPrimitive.CheckboxItem>,
-  react.componentpropswithoutref<typeof ContextMenuPrimitive.CheckboxItem>
+  React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.CheckboxItem>
 >(({ className, children, checked, ...props }, ref) => (
   <ContextMenuPrimitive.CheckboxItem
   ref={ref}
@@ -110,12 +110,12 @@ const contextmenucheckboxitem = react.forwardref<
   {children}
   </ContextMenuPrimitive.CheckboxItem>
 ))
-contextmenucheckboxitem.displayname =
-  contextmenuprimitive.checkboxitem.displayname
+ContextMenuCheckboxItem.displayName =
+  ContextmenuPrimitive.Checkboxitem.displayName
 
-const contextmenuradioitem = react.forwardref<
+const ContextMenuRadioItem = React.forwardRef<
   React.ElementRef<typeof ContextMenuPrimitive.RadioItem>,
-  react.componentpropswithoutref<typeof ContextMenuPrimitive.RadioItem>
+  React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.RadioItem>
 >(({ className, children, ...props }, ref) => (
   <ContextMenuPrimitive.RadioItem
   ref={ref}
@@ -133,11 +133,11 @@ const contextmenuradioitem = react.forwardref<
   {children}
   </ContextMenuPrimitive.RadioItem>
 ))
-contextmenuradioitem.displayname = contextmenuprimitive.radioitem.displayname
+ContextMenuRadioItem.displayName = ContextmenuPrimitive.Radioitem.displayName
 
-const contextmenulabel = react.forwardref<
+const ContextMenuLabel = React.forwardRef<
   React.ElementRef<typeof ContextMenuPrimitive.Label>,
-  react.componentpropswithoutref<typeof ContextMenuPrimitive.Label> & {
+  React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.Label> & {
   inset?: boolean
   }
 >(({ className, inset, ...props }, ref) => (
@@ -151,11 +151,11 @@ const contextmenulabel = react.forwardref<
   {...props}
   />
 ))
-contextmenulabel.displayname = contextmenuprimitive.label.displayname
+ContextMenuLabel.displayName = ContextmenuPrimitive.Label.displayName
 
-const contextmenuseparator = react.forwardref<
+const ContextMenuSeparator = React.forwardRef<
   React.ElementRef<typeof ContextMenuPrimitive.Separator>,
-  react.componentpropswithoutref<typeof ContextMenuPrimitive.Separator>
+  React.ComponentPropsWithoutRef<typeof ContextMenuPrimitive.Separator>
 >(({ className, ...props }, ref) => (
   <ContextMenuPrimitive.Separator
   ref={ref}
@@ -163,12 +163,12 @@ const contextmenuseparator = react.forwardref<
   {...props}
   />
 ))
-contextmenuseparator.displayname = contextmenuprimitive.separator.displayname
+ContextMenuSeparator.displayName = ContextmenuPrimitive.Separator.displayName
 
-const contextmenushortcut = ({
-  classname,
+const ContextMenuShortcut = ({
+  className,
   ...props
-}: react.htmlattributes<HTMLSpanElement>) => {
+}: React.HTMLAttributes<HTMLSpanElement>) => {
   return (
   <span
   className={cn(
@@ -181,20 +181,4 @@ const contextmenushortcut = ({
 }
 ContextMenuShortcut.displayName = "ContextMenuShortcut"
 
-export {
-  ContextMenu,
-  ContextMenuTrigger,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuCheckboxItem,
-  ContextMenuRadioItem,
-  ContextMenuLabel,
-  ContextMenuSeparator,
-  ContextMenuShortcut,
-  ContextMenuGroup,
-  ContextMenuPortal,
-  ContextMenuSub,
-  ContextMenuSubContent,
-  ContextMenuSubTrigger,
-  ContextMenuRadioGroup,
-}
+export { ContextMenu, ContextMenuTrigger, ContextMenuContent, ContextMenuItem, ContextMenuCheckboxItem, ContextMenuRadioItem, ContextMenuLabel, ContextMenuSeparator, ContextMenuShortcut, ContextMenuGroup, ContextMenuPortal, ContextMenuSub, ContextMenuSubContent, ContextMenuSubTrigger, ContextMenuRadioGroup }

@@ -15,17 +15,17 @@ const Table = React.forwardRef<
   />
   </div>
 ))
-table.displayname = "table"
+Table.displayName = "table"
 
-const tableheader = react.forwardref<
+const TableHeader = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
   <thead ref={ref} className={cn("[&_tr]:border-b", className)} {...props} />
 ))
-tableheader.displayname = "tableheader"
+TableHeader.displayName = "tableheader"
 
-const tablebody = react.forwardref<
+const TableBody = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
@@ -35,9 +35,9 @@ const tablebody = react.forwardref<
   {...props}
   />
 ))
-tablebody.displayname = "tablebody"
+TableBody.displayName = "tablebody"
 
-const tablefooter = react.forwardref<
+const TableFooter = React.forwardRef<
   HTMLTableSectionElement,
   React.HTMLAttributes<HTMLTableSectionElement>
 >(({ className, ...props }, ref) => (
@@ -50,9 +50,9 @@ const tablefooter = react.forwardref<
   {...props}
   />
 ))
-tablefooter.displayname = "tablefooter"
+TableFooter.displayName = "tablefooter"
 
-const tablerow = react.forwardref<
+const TableRow = React.forwardRef<
   HTMLTableRowElement,
   React.HTMLAttributes<HTMLTableRowElement>
 >(({ className, ...props }, ref) => (
@@ -65,9 +65,9 @@ const tablerow = react.forwardref<
   {...props}
   />
 ))
-tablerow.displayname = "tablerow"
+TableRow.displayName = "tablerow"
 
-const tablehead = react.forwardref<
+const TableHead = React.forwardRef<
   HTMLTableCellElement,
   React.ThHTMLAttributes<HTMLTableCellElement>
 >(({ className, ...props }, ref) => (
@@ -80,9 +80,9 @@ const tablehead = react.forwardref<
   {...props}
   />
 ))
-tablehead.displayname = "tablehead"
+TableHead.displayName = "tablehead"
 
-const tablecell = react.forwardref<
+const TableCell = React.forwardRef<
   HTMLTableCellElement,
   React.TdHTMLAttributes<HTMLTableCellElement>
 >(({ className, ...props }, ref) => (
@@ -95,9 +95,9 @@ const tablecell = react.forwardref<
   {...props}
   />
 ))
-tablecell.displayname = "tablecell"
+TableCell.displayName = "tablecell"
 
-const tablecaption = react.forwardref<
+const TableCaption = React.forwardRef<
   HTMLTableCaptionElement,
   React.HTMLAttributes<HTMLTableCaptionElement>
 >(({ className, ...props }, ref) => (
@@ -109,13 +109,4 @@ const tablecaption = react.forwardref<
 ))
 TableCaption.displayName = "TableCaption"
 
-export {
-  Table,
-  TableHeader,
-  TableBody,
-  TableFooter,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableCaption,
-}
+export { Table, TableHeader, TableBody, TableFooter, TableHead, TableRow, TableCell, TableCaption }
