@@ -299,7 +299,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
  <ChevronRight className={`w-4 h-4 transition-transform ${showBackgroundMenu ? 'rotate-90' : ''}`} />
  </button>
 
- {showBackgroundMenu && (
+ {showbackgroundmenu && (
  <div className="pl-6 border-l border-white/10 ml-3 space-y-1 mt-1">
    <button
    onClick={() => setShowColorPicker(true)}
@@ -441,7 +441,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
  </span>
  </button>
 
- {showAddMenu && (
+ {showaddmenu && (
  <div className="pl-6 border-l border-white/10 ml-3">
    <button onClick={() => addElementAtCursor('text')} className="w-full px-3 py-2 flex items-center gap-3 text-white/60 hover:bg-white/10 hover:text-white lowercase">
    <Type className="w-4 h-4" /> text
@@ -474,7 +474,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   </div>
 
   {/* collection picker modal */}
-  {showCollectionPicker && (
+  {showcollectionpicker && (
  <CollectionPickerModal
  onSelect={handleDatabaseViewSelect}
  onClose={() => setShowCollectionPicker(false)}

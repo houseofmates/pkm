@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> { }
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
+const input = react.forwardref<HTMLInputElement, InputProps>(
   ({ className, type, ...props }, ref) => {
   return (
   <input
@@ -21,22 +21,22 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
   )
   }
 )
-Input.displayName = "Input"
+input.displayname = "input"
 
-export { Input }
+export { input }
 
 // label
-import * as LabelPrimitive from "@radix-ui/react-label"
-import { cva, type VariantProps } from "class-variance-authority"
+import * as labelprimitive from "@radix-ui/react-label"
+import { cva, type variantprops } from "class-variance-authority"
 
-const labelVariants = cva(
+const labelvariants = cva(
   "text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
 )
 
-const Label = React.forwardRef<
+const label = react.forwardref<
   React.ElementRef<typeof LabelPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof LabelPrimitive.Root> &
-  VariantProps<typeof labelVariants>
+  react.componentpropswithoutref<typeof LabelPrimitive.Root> &
+  variantprops<typeof labelVariants>
 >(({ className, ...props }, ref) => (
   <LabelPrimitive.Root
   ref={ref}

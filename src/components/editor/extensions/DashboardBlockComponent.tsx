@@ -13,7 +13,7 @@ interface DashboardBlockComponentProps {
 }
 
 export const DashboardBlockComponent: React.FC<DashboardBlockComponentProps> = ({ node }) => {
-  const { collectionName, filter, title } = node.attrs;
+  const { collectionname, filter, title } = node.attrs;
 
   return (
   <NodeViewWrapper className="dashboard-block-wrapper">

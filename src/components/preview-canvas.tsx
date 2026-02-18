@@ -55,15 +55,15 @@ function DroppableColumn({ ci, children }: { ci: number; children: React.ReactNo
 }
 
 // individual sortable item
-function SortableItem({ id, render }: { id: string; render: () => React.ReactNode }) {
+function SortableItem({ id, render }: { id: string; render: () => react.reactnode }) {
   const {
     attributes,
     listeners,
-    setNodeRef,
+    setnoderef,
     transform,
     transition,
-    isDragging,
-  } = useSortable({ 
+    isdragging,
+  } = usesortable({ 
     id,
     transition: {
       duration: 150,
@@ -72,9 +72,9 @@ function SortableItem({ id, render }: { id: string; render: () => React.ReactNod
   });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: css.transform.tostring(transform),
     transition,
-    opacity: isDragging ? 0.3 : 1,
+    opacity: isdragging ? 0.3 : 1,
   };
 
   return (
@@ -103,12 +103,12 @@ export default function PreviewCanvas({
   columnWidths?: number[];
   onColumnWidthsChange?: (w: number[]) => void;
   onColumnsChange?: (cols: Widget[][]) => void;
-  renderWidget: (w: Widget, idx: number) => React.ReactNode;
-  className?: string;
+  renderWidget: (w: Widget, idx: number) => react.reactnode;
+  classname?: string;
 }) {
-  const colCount = Math.max(1, Math.min(columns.length || 1, 4));
+  const colcount = math.max(1, math.min(columns.length || 1, 4));
   
-  const [localCols, setLocalCols] = useState<Widget[][]>(() => 
+  const [localcols, setlocalcols] = usestate<Widget[][]>(() => 
     columns.map(c => Array.isArray(c) ? [...c] : [])
   );
   
@@ -147,7 +147,7 @@ export default function PreviewCanvas({
 
   const handleDragStart = (event: any) => {
     // debug: ensure drag start is firing in tests
-    // eslint-disable-next-line no-console
+     
     console.log('[PreviewCanvas] onDragStart', event?.active?.id);
     setActiveId(event.active.id as string);
   };
@@ -155,7 +155,7 @@ export default function PreviewCanvas({
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
     // debug: log drag end for diagnostics during tests
-    // eslint-disable-next-line no-console
+     
     console.log('[PreviewCanvas] onDragEnd', { active: active?.id, over: over?.id });
     
     if (!over) {
@@ -225,16 +225,16 @@ export default function PreviewCanvas({
     };
     
     const onUp = () => {
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
+      window.removeeventlistener('mousemove', onmove);
+      window.removeeventlistener('mouseup', onup);
     };
     
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
+    window.addeventlistener('mousemove', onmove);
+    window.addeventlistener('mouseup', onup);
   };
 
-  const dropAnimation = {
-    sideEffects: defaultDropAnimationSideEffects({
+  const dropanimation = {
+    sideeffects: defaultdropanimationsideeffects({
       styles: {
         active: {
           opacity: '0.5',
@@ -290,9 +290,9 @@ export default function PreviewCanvas({
         <DragOverlay 
           dropAnimation={dropAnimation}
         >
-          {activeId && activeItem ? (
+          {activeid && activeitem ? (
             <div className="p-3 bg-white/10 rounded border border-primary/50 shadow-2xl scale-[1.02]">
-              {renderWidget(activeItem, -1)}
+              {renderwidget(activeitem, -1)}
             </div>
           ) : null}
         </DragOverlay>

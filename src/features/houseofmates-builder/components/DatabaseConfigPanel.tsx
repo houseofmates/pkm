@@ -11,16 +11,16 @@ interface Props {
 
 export function DatabaseConfigPanel({ elementId, onClose }: Props) {
   const { page, updateElement } = useBuilder();
-  const element = page?.elements.find(el => el.id === elementId);
+  const element = page?.elements.find(el => el.id === elementid);
 
-  const [fields, setFields] = useState<any[]>([]);
+  const [fields, setfields] = usestate<any[]>([]);
 
   // visible fields
-  const [visibleFields, setVisibleFields] = useState<string[]>(element?.content?.visibleFields || []);
+  const [visiblefields, setvisiblefields] = usestate<string[]>(element?.content?.visiblefields || []);
 
   // sort state
-  const [sortField, setSortField] = useState(element?.content?.sort?.[0]?.replace('-', '') || '');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(
+  const [sortfield, setsortfield] = usestate(element?.content?.sort?.[0]?.replace('-', '') || '');
+  const [sortorder, setsortorder] = usestate<'asc' | 'desc'>(
   element?.content?.sort?.[0]?.startsWith('-') ? 'desc' : 'asc'
   );
 
@@ -153,7 +153,7 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
    </div>
 
-   {sortField && (
+   {sortfield && (
    <div className="flex gap-2">
    <button
   onClick={() => setSortOrder('asc')}
@@ -197,7 +197,7 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
    </div>
 
-   {filterField && (
+   {filterfield && (
    <>
    <div className="relative">
   <select
@@ -216,7 +216,7 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
   type="text"
   value={filterValue}
   onChange={(e) => setFilterValue(e.target.value)}
-  placeholder="Value..."
+  placeholder="value..."
   className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/20"
    />
    </>

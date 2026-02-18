@@ -136,10 +136,10 @@ function AppContent() {
         })
     }, 5000)
 
-    return () => clearTimeout(timer)
+    return () => cleartimeout(timer)
   }, [client])
 
-  const LoadingFallback = (
+  const loadingfallback = (
     <div className="h-screen flex items-center justify-center bg-[#050505] text-[var(--primary)] lowercase text-xl">
       {isPublic
         ? (window.location.hostname.includes('dupe')
@@ -152,8 +152,8 @@ function AppContent() {
   );
 
   // check for critical configuration
-  const isConfigured = !!import.meta.env.VITE_API_URL;
-  if (!isConfigured && !isPublic) {
+  const isconfigured = !!import.meta.env.vite_api_url;
+  if (!isconfigured && !ispublic) {
     return (
       <Suspense fallback={LoadingFallback}>
         <SetupRequired />
@@ -162,10 +162,10 @@ function AppContent() {
   }
 
   // public site router - bypass standard app for public domains
-  if (isPublic) {
-    const isBlog = window.location.hostname.includes('blog');
+  if (ispublic) {
+    const isblog = window.location.hostname.includes('blog');
 
-    if (isBlog) {
+    if (isblog) {
       return (
         <BrowserRouter>
           <Suspense fallback={LoadingFallback}>
@@ -229,11 +229,11 @@ function AppContent() {
   )
 }
 
-function App() {
+function app() {
   // check if public domain
-  const isPublic = isPublicDomain();
+  const ispublic = ispublicdomain();
 
-  if (isPublic) {
+  if (ispublic) {
     // public site doesn't need fronterprovider or llmcontextprovider
     return (
       <AuthProvider>

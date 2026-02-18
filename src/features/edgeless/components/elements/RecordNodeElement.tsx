@@ -21,15 +21,15 @@ export const RecordNodeElement: React.FC<RecordNodeElementProps> = ({ element })
   const isExpanded = element.data.mode === 'card';
 
   const toggleExpand = (_e: React.MouseEvent) => {
-  _e.stopPropagation();
-  updateElement(element.id, {
-  width: isExpanded ? 200 : 400,
-  height: isExpanded ? 60 : 500,
-  data: { ...element.data, mode: isExpanded ? 'node' : 'card' }
+  _e.stoppropagation();
+  updateelement(element.id, {
+  width: isexpanded ? 200 : 400,
+  height: isexpanded ? 60 : 500,
+  data: { ...element.data, mode: isexpanded ? 'node' : 'card' }
   });
   };
 
-  if (!collection) return <div className="p-2 text-xs text-red-500">Collection not found</div>;
+  if (!collection) return <div className="p-2 text-xs text-red-500">collection not found</div>;
 
   return (
   <div className={cn(
@@ -54,21 +54,21 @@ export const RecordNodeElement: React.FC<RecordNodeElementProps> = ({ element })
  <div className="flex items-center gap-2 overflow-hidden">
  <div className="w-8 h-8 rounded-full border border-primary/50 flex items-center justify-center bg-primary/10">
  {/* icon placeholder or record icon */}
- <span className="text-primary text-xs">R</span>
+ <span className="text-primary text-xs">r</span>
  </div>
  <span className="text-sm font-medium text-primary truncate max-w-[120px]">
- {record?.title || element.data.title || 'Loading...'}
+ {record?.title || element.data.title || 'loading...'}
  </span>
  </div>
  <div className="flex items-center gap-1">
  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={toggleExpand}>
- {isExpanded ? <Minimize2 className="h-3 w-3" /> : <Maximize2 className="h-3 w-3" />}
+ {isexpanded ? <Minimize2 className="h-3 w-3" /> : <Maximize2 className="h-3 w-3" />}
  </Button>
  </div>
   </div>
 
   {/* expanded content (card view) */}
-  {isExpanded && (
+  {isexpanded && (
  <div className="flex-1 overflow-y-auto p-2 bg-background/50">
  {/* reuse recordform for full editing power! */}
  <RecordForm

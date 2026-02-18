@@ -17,7 +17,7 @@ import { useState } from 'react';
 export function ChartView(props: ViewProps) {
   const { data, collection, config, onConfigChange, onUpdateRecord, onDelete } = props;
   const [drillDown, setDrillDown] = useState<{ xKey: string, seriesKey?: string } | null>(null);
-  const [virtualMenu, setVirtualMenu] = useState<{ x: number, y: number, records: any[] } | null>(null);
+  const [virtualmenu, setvirtualmenu] = usestate<{ x: number, y: number, records: any[] } | null>(null);
 
   if (!collection) {
   return (
@@ -47,8 +47,8 @@ export function ChartView(props: ViewProps) {
 
   // multi-series: build nested map: x -> seriesval -> { value, records }
   // simple single-series aggregation by x
-  if (!seriesField) {
-  const map = new Map<string, { value: number, records: any[] }>();
+  if (!seriesfield) {
+  const map = new map<string, { value: number, records: any[] }>();
   data.forEach(rec => {
  const xVal = String(rec[xKey] || 'untagged');
  const current = map.get(xVal) || { value: 0, records: [] };
@@ -68,8 +68,8 @@ export function ChartView(props: ViewProps) {
   }
 
   // multi-series aggregation
-  const xMap = new Map<string, Map<string, { value: number, records: any[] }>>();
-  const seriesSet = new Set<string>();
+  const xmap = new map<string, Map<string, { value: number, records: any[] }>>();
+  const seriesset = new set<string>();
 
   data.forEach(rec => {
   const xVal = String(rec[xKey] || 'untagged');
@@ -110,10 +110,10 @@ export function ChartView(props: ViewProps) {
   }, [data, xKey, seriesField, aggregation, yField, type]);
 
   const handleConfig = (key: string, val: any) => {
-  if (onConfigChange) onConfigChange(key, val);
+  if (onconfigchange) onconfigchange(key, val);
   }
 
-  const isChart = !['network', 'mindmap'].includes(type);
+  const ischart = !['network', 'mindmap'].includes(type);
 
   return (
   <div className="h-full flex flex-col gap-4 relative">
@@ -148,7 +148,7 @@ export function ChartView(props: ViewProps) {
    </Select>
    </div>
 
-   {isChart && (
+   {ischart && (
    <>
    <div className="space-y-1">
   <Label className="text-[10px]  text-muted-foreground font-semibold">group by (x axis)</Label>
@@ -236,7 +236,7 @@ export function ChartView(props: ViewProps) {
     .filter(k => k !== 'name' && k !== 'value') // Assuming transformed keys
     .slice(0, 10)
     .map((bgKey) => {
-    const current = config?.chartSeriesColors?.[bgKey];
+    const current = config?.chartseriescolors?.[bgkey];
     return (
     <Popover key={bgKey}>
    <PopoverTrigger asChild>
@@ -268,7 +268,7 @@ export function ChartView(props: ViewProps) {
     )
     })
   ) : (
-  null // TODO: Single color picker for non-series charts?
+  null // todo: single color picker for non-series charts?
   )}
   </div>
    </div>
@@ -285,7 +285,7 @@ export function ChartView(props: ViewProps) {
  className="flex-1 min-h-0 rounded-lg p-0 overflow-hidden relative group"
  style={{ backgroundColor: '#090909', border: '1px solid #1a1a1a' }}
   >
- {isChart ? (
+ {ischart ? (
  <div className="w-full h-full p-4">
  <ChartWidget
    type={type as any}
@@ -370,7 +370,7 @@ export function ChartView(props: ViewProps) {
  </DialogTitle>
  </DialogHeader>
  <div className="flex-1 overflow-auto min-h-0 border rounded-md">
- {drillDown && (
+ {drilldown && (
    <RecordTable
    data={(() => {
    // derive records from current chartdata
@@ -396,7 +396,7 @@ export function ChartView(props: ViewProps) {
 
   {/* virtual context menu (single record) */}
   {
- virtualMenu && (
+ virtualmenu && (
  <div
  className="fixed inset-0 z-50 bg-black/5"
  onClick={() => setVirtualMenu(null)}
@@ -410,7 +410,7 @@ export function ChartView(props: ViewProps) {
    }}
    onClick={(e) => e.stopPropagation()}
  >
-   {virtualMenu.records[0] && (
+   {virtualmenu.records[0] && (
    <RecordEditContent
    record={virtualMenu.records[0]}
    collection={collection}

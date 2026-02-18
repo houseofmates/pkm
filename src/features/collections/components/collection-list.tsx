@@ -11,9 +11,9 @@ interface CollectionListProps {
 export function CollectionList({ collections, onSelect }: CollectionListProps) {
   // sort collections by title/name
   const sorted = [...collections].sort((a, b) => {
-  const nameA = a.title || a.displayName || a.name || '';
-  const nameB = b.title || b.displayName || b.name || '';
-  return nameA.localeCompare(nameB);
+  const namea = a.title || a.displayname || a.name || '';
+  const nameb = b.title || b.displayname || b.name || '';
+  return namea.localecompare(nameb);
   });
 
   if (collections.length === 0) {
@@ -30,7 +30,7 @@ export function CollectionList({ collections, onSelect }: CollectionListProps) {
  >
  <CardHeader className="p-4 pb-2">
  <CardTitle className="text-lg truncate" title={col.title || col.displayName || col.name}>
-   {col.title || col.displayName || col.name}
+   {col.title || col.displayname || col.name}
  </CardTitle>
  </CardHeader>
  <CardContent className="p-4 pt-0">

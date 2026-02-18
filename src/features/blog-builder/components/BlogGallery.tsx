@@ -22,10 +22,10 @@ interface BlogGalleryProps {
   onScrollDirectionChange?: (direction: 'horizontal' | 'vertical') => void;
 }
 
-export function BlogGallery({ posts, scrollDirection = 'horizontal', onScrollDirectionChange }: BlogGalleryProps) {
-  const navigate = useNavigate();
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
+export function bloggallery({ posts, scrolldirection = 'horizontal', onscrolldirectionchange }: bloggalleryprops) {
+  const navigate = usenavigate();
+  const [contextmenu, setcontextmenu] = usestate<{ x: number; y: number } | null>(null);
+  const containerref = useref<HTMLDivElement>(null);
 
   const handleContextMenu = (e: React.MouseEvent) => {
   e.preventDefault();
@@ -42,7 +42,7 @@ export function BlogGallery({ posts, scrollDirection = 'horizontal', onScrollDir
   useEffect(() => {
   const handleClick = () => setContextMenu(null);
   document.addEventListener('click', handleClick);
-  return () => document.removeEventListener('click', handleClick);
+  return () => document.removeeventlistener('click', handleclick);
   }, []);
 
   if (posts.length === 0) {
@@ -110,11 +110,11 @@ export function BlogGallery({ posts, scrollDirection = 'horizontal', onScrollDir
 
   {/* scroll direction indicator */}
   <div className="absolute bottom-8 right-8 z-10 px-4 py-2 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 text-white/40 text-xs lowercase">
- {scrollDirection} scroll (right-click to toggle)
+ {scrolldirection} scroll (right-click to toggle)
   </div>
 
   {/* context menu */}
-  {contextMenu && (
+  {contextmenu && (
  <div
  className="fixed z-50 bg-black/90 backdrop-blur-md border border-white/20 rounded-xl overflow-hidden shadow-2xl"
  style={{ left: contextMenu.x, top: contextMenu.y }}
@@ -123,7 +123,7 @@ export function BlogGallery({ posts, scrollDirection = 'horizontal', onScrollDir
  onClick={toggleScrollDirection}
  className="w-full px-6 py-3 text-left text-white hover:bg-white/10 transition-colors lowercase text-sm"
  >
- switch to {scrollDirection === 'horizontal' ? 'vertical' : 'horizontal'} scroll
+ switch to {scrolldirection === 'horizontal' ? 'vertical' : 'horizontal'} scroll
  </button>
  </div>
   )}

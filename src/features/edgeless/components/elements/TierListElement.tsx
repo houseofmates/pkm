@@ -3,11 +3,11 @@ export function TierListElement({ element: _element }: { element: any }) {
 
   // color mapping
   const colors: Record<string, string> = {
-  'S': '#ff7f7f',
-  'A': '#ffbf7f',
-  'B': '#ffff7f',
-  'C': '#7fff7f',
-  'D': '#7f7fff'
+  's': '#ff7f7f',
+  'a': '#ffbf7f',
+  'b': '#ffff7f',
+  'c': '#7fff7f',
+  'd': '#7f7fff'
   };
 
   return (

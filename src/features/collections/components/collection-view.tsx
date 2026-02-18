@@ -24,13 +24,13 @@ interface CollectionViewProps {
   onBack: () => void;
 }
 
-export function CollectionView({ collection, onBack }: CollectionViewProps) {
-  const { client } = useAuth();
-  const { records, loading, error, refresh } = useRecords(collection.name);
-  const { setContext } = useLLMStore();
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
+export function collectionview({ collection, onback }: collectionviewprops) {
+  const { client } = useauth();
+  const { records, loading, error, refresh } = userecords(collection.name);
+  const { setcontext } = usellmstore();
+  const [iscreateopen, setiscreateopen] = usestate(false);
 
-  const [editingRecord, setEditingRecord] = useState<any | null>(null);
+  const [editingrecord, seteditingrecord] = usestate<any | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   // context stuffing: push current data to llm
@@ -98,7 +98,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
 
   const searchField = collection.fields?.find((f: any) => f.name === 'title' || f.name === 'name' || f.type === 'string')?.name || 'id';
 
-  const filter = searchTerm ? { [searchField]: { $includes: searchTerm } } : undefined;
+  const filter = searchterm ? { [searchfield]: { $includes: searchterm } } : undefined;
   refresh({ filter });
   };
 
@@ -108,25 +108,25 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
  <div className="flex items-center gap-2">
  <Button variant="ghost" size="sm" onClick={onBack}>
  <ArrowLeft className="mr-2 h-4 w-4" />
- Back
+ back
  </Button>
  <h2 className="text-2xl font-bold ">{collection.title || collection.displayName || collection.name}</h2>
  </div>
  <div className="flex items-center gap-2">
  <Button variant="outline" size="sm" onClick={() => refresh()} disabled={loading}>
  <RotateCcw className={`mr - 2 h - 4 w - 4 ${loading ? 'animate-spin' : ''} `} />
- Refresh
+ refresh
  </Button>
  <Button size="sm" onClick={() => setIsCreateOpen(true)}>
  <Plus className="mr-2 h-4 w-4" />
- Create New
+ create new
  </Button>
  </div>
   </div>
 
   <form onSubmit={handleSearch} className="flex gap-2">
  <Input
- placeholder="Search..."
+ placeholder="search..."
  value={searchTerm}
  onChange={(e) => setSearchTerm(e.target.value)}
  className="max-w-xs"
@@ -138,7 +138,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
 
   {error && (
  <div className="p-4 text-red-500 bg-red-50 rounded-md border border-red-200">
- Error: {error}
+ error: {error}
  </div>
   )}
 
@@ -175,7 +175,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
  <DialogHeader>
  <DialogTitle>edit record</DialogTitle>
  </DialogHeader>
- {editingRecord && (
+ {editingrecord && (
  <RecordForm
    collection={collection}
    initialData={editingRecord}

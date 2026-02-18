@@ -19,15 +19,15 @@ export type ViewProps = {
   loading?: boolean;
   collection: any;
   config?: any;
-  onUpdateRecord?: (id: any, data: any) => Promise<void> | void;
-  onDelete?: (id: any) => Promise<void> | void;
+  onUpdateRecord?: (id: any, data: any) => promise<void> | void;
+  onDelete?: (id: any) => promise<void> | void;
   onEdit?: (id: any) => void;
   onConfigChange?: (key: string, value: any) => void;
   onCreateRecord?: () => void;
   onCreateField?: () => void;
 };
 
-export const VIEW_REGISTRY: Record<ViewType, React.ComponentType<ViewProps>> = {
+export const view_registry: record<ViewType, React.ComponentType<ViewProps>> = {
   table: RecordTable,
   calendar: CalendarView,
   kanban: KanbanView,

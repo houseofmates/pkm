@@ -20,7 +20,7 @@ export function Dashboard() {
   };
 
   const handleBack = () => {
-  setSelectedCollection(null);
+  setselectedcollection(null);
   };
 
   return (
@@ -47,9 +47,9 @@ export function Dashboard() {
  </div>
 
  <div className="flex items-center gap-2">
- {!selectedCollection && (
+ {!selectedcollection && (
    <Button variant="ghost" size="sm" onClick={() => refresh()} disabled={loading}>
-   {loading ? 'Refreshing...' : 'Refresh'}
+   {loading ? 'refreshing...' : 'refresh'}
    </Button>
  )}
  <Button variant="outline" size="sm" onClick={logout}>logout</Button>
@@ -57,7 +57,7 @@ export function Dashboard() {
  </header>
 
  <main className="flex-1 p-4 md:p-6 overflow-auto">
- {selectedCollection ? (
+ {selectedcollection ? (
  <PageTransition key={selectedCollection.name} className="h-full">
    <CollectionView collection={selectedCollection} onBack={handleBack} />
  </PageTransition>
@@ -65,10 +65,10 @@ export function Dashboard() {
  <PageTransition className="h-full flex flex-col">
    <div className="flex flex-col items-center justify-center h-[70vh] text-center space-y-4">
    <h1 className="text-4xl font-extrabold lg:text-5xl text-primary">
-   Welcome to PKM
+   welcome to pkm
    </h1>
    <p className="text-xl text-muted-foreground max-w-[600px]">
-   Select a database from the sidebar to view records.
+   select a database from the sidebar to view records.
    </p>
    {/* mobile: show list if sidebar is hidden */}
    <div className="md:hidden w-full max-w-sm text-left border rounded-lg p-4 bg-card">
@@ -76,7 +76,7 @@ export function Dashboard() {
    <div className="space-y-1">
   {collections.map((c: Collection) => (
   <Button key={c.name} variant="ghost" className="w-full justify-start" onClick={() => handleCollectionSelect(c)}>
-  {c.title || c.displayName || c.name}
+  {c.title || c.displayname || c.name}
   </Button>
   ))}
    </div>
@@ -87,7 +87,7 @@ export function Dashboard() {
 
  {error && (
  <div className="mt-4 p-4 text-red-500 bg-red-50 rounded-md border border-red-200">
-   Error: {error}
+   error: {error}
  </div>
  )}
  </main>

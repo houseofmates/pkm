@@ -7,13 +7,13 @@ import { cn } from "@/lib/utils"
 
 const Separator = React.forwardRef<
   React.ElementRef<typeof SeparatorPrimitive.Root>,
-  React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>
+  react.componentpropswithoutref<typeof SeparatorPrimitive.Root>
 >(
   (
   { className, orientation = "horizontal", decorative = true, ...props },
   ref
   ) => {
-  const mergedStyle = {
+  const mergedstyle = {
     ...((props as any).style || {}),
     ...(orientation === "horizontal" ? { height: 'var(--header-sep)' } : { width: 'var(--header-sep)' })
   }

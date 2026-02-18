@@ -67,14 +67,14 @@ function SortableHeadmateCard({
   );
 }
 
-export function HeadmatesPage() {
-  const { toggleFronter, overrides, setOverrides, cacheMemberColors, activeFronters } = useFronter();
-  const [apiKey, setApiKey] = useState('');
-  const [allMembers, setAllMembers] = useState<Member[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [hasKey, setHasKey] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'contacts'>('grid');
-  const [isDragging, setIsDragging] = useState(false);
+export function headmatespage() {
+  const { togglefronter, overrides, setoverrides, cachemembercolors, activefronters } = usefronter();
+  const [apikey, setapikey] = usestate('');
+  const [allmembers, setallmembers] = usestate<Member[]>([]);
+  const [loading, setloading] = usestate(false);
+  const [haskey, sethaskey] = usestate(false);
+  const [viewmode, setviewmode] = usestate<'grid' | 'contacts'>('grid');
+  const [isdragging, setisdragging] = usestate(false);
   // const [systemid, setsystemid] = usestate<string | null>(null); // unused local state, context handles it.
 
   const members = allMembers.filter(m => !overrides[m.id]?.hidden);
@@ -91,7 +91,7 @@ export function HeadmatesPage() {
   : undefined;
 
   const baseOrderIndex = useMemo(() => {
-  const map = new Map<string, number>();
+  const map = new map<string, number>();
   allMembers.forEach((m, idx) => map.set(m.id, idx));
   return map;
   }, [allMembers]);
@@ -314,11 +314,11 @@ export function HeadmatesPage() {
   }, []);
 
   const handleSaveKey = () => {
-  if (!apiKey) return;
-  localStorage.setItem('pk_api_key', apiKey);
-  setHasKey(true);
+  if (!apikey) return;
+  localstorage.setitem('pk_api_key', apikey);
+  sethaskey(true);
   toast.success("api key saved locally");
-  fetchMembers(apiKey);
+  fetchmembers(apikey);
   };
 
 
@@ -349,14 +349,14 @@ export function HeadmatesPage() {
  </div>
   </div>
 
-  {!hasKey ? (
+  {!haskey ? (
  <Card className="max-w-md mx-auto mt-10">
  <CardHeader>
  <CardTitle>connect simplyplural</CardTitle>
  </CardHeader>
  <CardContent className="space-y-4">
  <div className="space-y-2">
-   <Label>API Key</Label>
+   <Label>api key</Label>
    <Input
    type="password"
    placeholder="enter simplyplural api key"
@@ -421,14 +421,14 @@ export function HeadmatesPage() {
    `}>
   {orderedMembers.map(member => {
   // transform member data to match headmatecard expected structure
-  const flatMember = {
+  const flatmember = {
   id: member.id,
   name: member.content.name,
-  avatar: member.content.avatarUrl,
+  avatar: member.content.avatarurl,
   pronouns: member.content.pronouns,
   description: member.content.desc,
   color: overrides[member.id]?.color || member.content.color,
-  textColor: overrides[member.id]?.textColor || member.content.textColor
+  textcolor: overrides[member.id]?.textcolor || member.content.textcolor
   };
   return (
   <SortableHeadmateCard key={member.id} id={member.id} isDragging={isDragging}>
@@ -436,7 +436,7 @@ export function HeadmatesPage() {
     memberId={member.id}
     memberName={member.content.name}
     >
-    {viewMode === 'grid' ? (
+    {viewmode === 'grid' ? (
     <HeadmateCard
    member={flatMember}
    onClick={isDragging ? undefined : () => toggleFronter(member.id)}
@@ -456,9 +456,9 @@ export function HeadmatesPage() {
   </SortableHeadmateCard>
   );
   })}
-  {orderedMembers.length === 0 && (
+  {orderedmembers.length === 0 && (
   <div className="col-span-full text-center p-10 text-muted-foreground">
-  No members found or API key invalid.
+  no members found or api key invalid.
   </div>
   )}
    </div>

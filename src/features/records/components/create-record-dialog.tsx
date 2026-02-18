@@ -25,10 +25,10 @@ export function CreateRecordDialog({ collectionName, fields, onRecordCreated, op
   const [internalOpen, setInternalOpen] = useState(false);
   const open = openProp !== undefined ? openProp : internalOpen;
   const setOpen = (v: boolean) => {
-  if (onOpenChange) onOpenChange(v);
-  else setInternalOpen(v);
+  if (onopenchange) onopenchange(v);
+  else setinternalopen(v);
   };
-  const [formData, setFormData] = useState<Record<string, any>>({});
+  const [formdata, setformdata] = usestate<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -74,10 +74,10 @@ export function CreateRecordDialog({ collectionName, fields, onRecordCreated, op
   // filter editable fields
   // exclude system fields and the 'fronter' field (auto-filled)
   const editableFields = (fields || []).filter(f =>
-  !['id', 'createdAt', 'updatedAt', 'fronter', 'sort'].includes(f.name) &&
+  !['id', 'createdat', 'updatedat', 'fronter', 'sort'].includes(f.name) &&
   !f.hidden &&
-  f.interface !== 'subTable' && // Skip complex relations
-  f.interface !== 'linkTo' // Skip complex relations
+  f.interface !== 'subtable' && // skip complex relations
+  f.interface !== 'linkto' // skip complex relations
   );
 
   return (
@@ -85,7 +85,7 @@ export function CreateRecordDialog({ collectionName, fields, onRecordCreated, op
   {trigger ? <DialogTrigger asChild>{trigger}</DialogTrigger> : (
  <DialogTrigger asChild>
  <Button>
- <Plus className="mr-2 h-4 w-4" /> New Item
+ <Plus className="mr-2 h-4 w-4" /> new item
  </Button>
  </DialogTrigger>
   )}
@@ -110,7 +110,7 @@ export function CreateRecordDialog({ collectionName, fields, onRecordCreated, op
  ))}
  <DialogFooter>
  <Button type="submit" disabled={loading}>
-   {loading ? 'Creating...' : 'Create'}
+   {loading ? 'creating...' : 'create'}
  </Button>
  </DialogFooter>
  </form>

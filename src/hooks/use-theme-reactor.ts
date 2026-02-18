@@ -14,7 +14,7 @@ export function useThemeReactor() {
 
   // strategy: use the first active fronter's color.
   // fallback: use the first headmate's color in the system list.
-  let primaryFronterId = activeFronters[0];
+  const primaryFronterId = activeFronters[0];
   let color: string | undefined;
 
   if (!primaryFronterId && members.length > 0) {

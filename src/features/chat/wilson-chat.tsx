@@ -13,11 +13,11 @@ export function WilsonChat() {
 
   // actually, let's update store first? no, let's write this component to use the store field we will add.
   const isChatOpen = useEdgelessStore((state) => state.isChatOpen)
-  const setChatOpen = useEdgelessStore((state) => state.setChatOpen)
+  const setChatOpen = useEdgelessStore((state) => state.setchatopen)
 
-  const { interactionHistory, isThinking, askWilson } = useLLMStore()
-  const [userInput, setUserInput] = useState('')
-  const chatContainerRef = useRef<HTMLDivElement>(null)
+  const { interactionhistory, isthinking, askwilson } = usellmstore()
+  const [userinput, setuserinput] = usestate('')
+  const chatcontainerref = useref<HTMLDivElement>(null)
 
   // auto-scroll
   useEffect(() => {
@@ -54,8 +54,8 @@ export function WilsonChat() {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-  if (e.key === 'Enter') {
-  checkAndSend()
+  if (e.key === 'enter') {
+  checkandsend()
   }
   }
 
@@ -75,7 +75,7 @@ export function WilsonChat() {
 
   {/* chat area */}
   <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 font-mono text-sm">
- {interactionHistory.length === 0 && (
+ {interactionhistory.length === 0 && (
  <div className="text-primary opacity-50 text-center mt-10 lowercase">
  <p>systems online.</p>
  <p>waiting for input...</p>
@@ -88,7 +88,7 @@ export function WilsonChat() {
  className={`flex flex-col gap-1 ${msg.role === 'assistant' ? 'items-start' : 'items-end'}`}
  >
  <span className="text-[10px] text-primary opacity-50 ">
-   {msg.role === 'assistant' ? 'WILSON' : 'USER'}
+   {msg.role === 'assistant' ? 'wilson' : 'user'}
  </span>
  <div
    className={`p-3 rounded-lg max-w-[90%] lowercase ${msg.role === 'assistant' ? 'bg-primary/10 border border-primary/20 text-primary' : 'bg-black border border-gray-700 text-gray-300'}`}
@@ -99,7 +99,7 @@ export function WilsonChat() {
  ))}
 
  {/* thinking indicator */}
- {isThinking && (
+ {isthinking && (
  <div className="flex items-center gap-2 text-primary text-xs animate-pulse lowercase">
  <BrainCircuit size={14} />
  <span>processing...</span>

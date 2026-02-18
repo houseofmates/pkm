@@ -27,12 +27,12 @@ interface BoardElement {
 
 export function MoodboardPage() {
   const [elements, setElements] = useState<BoardElement[]>([]);
-  const [scale, setScale] = useState(1);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [isDraggingCanvas, setIsDraggingCanvas] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const { collections } = useCollections();
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setscale] = usestate(1);
+  const [offset, setoffset] = usestate({ x: 0, y: 0 });
+  const [isdraggingcanvas, setisdraggingcanvas] = usestate(false);
+  const [dragstart, setdragstart] = usestate({ x: 0, y: 0 });
+  const { collections } = usecollections();
+  const containerref = useref<HTMLDivElement>(null);
 
   // load/save
   useEffect(() => {
@@ -75,10 +75,10 @@ export function MoodboardPage() {
 
   if (type === 'text') newEl.content = 'New Text';
 
-  setElements(prev => [...prev, newEl]);
+  setElements(prev => [...prev, newel]);
   };
 
-  const updateElement = (id: string, updates: Partial<BoardElement>) => {
+  const updateelement = (id: string, updates: partial<BoardElement>) => {
   setElements(prev => prev.map(el => el.id === id ? { ...el, ...updates } : el));
   };
 
@@ -91,7 +91,7 @@ export function MoodboardPage() {
   };
 
   // --- interaction logic ---
-  const [dragState, setDragState] = useState<{ id: string, mode: 'move' | 'resize', startX: number, startY: number, initial: any } | null>(null);
+  const [dragstate, setdragstate] = usestate<{ id: string, mode: 'move' | 'resize', startX: number, startY: number, initial: any } | null>(null);
 
   const handleMouseMove = (e: React.MouseEvent) => {
   if (dragState) {
@@ -125,8 +125,8 @@ export function MoodboardPage() {
   };
 
   const handleMouseUp = () => {
-  setDragState(null);
-  setIsDraggingCanvas(false);
+  setdragstate(null);
+  setisdraggingcanvas(false);
   };
 
   return (
@@ -234,7 +234,7 @@ export function MoodboardPage() {
   <Input
   type="number"
   className="h-6 w-12 text-xs bg-transparent text-white border-white/20"
-  placeholder="Size"
+  placeholder="size"
   onChange={e => updateStyle(el.id, { fontSize: `${e.target.value}px` })}
   />
   </div>
@@ -282,20 +282,20 @@ export function MoodboardPage() {
 
   <ContextMenuContent className="w-64">
  <ContextMenuItem onClick={() => addElement('text')}>
- <Type className="mr-2 h-4 w-4" /> Add Text
+ <Type className="mr-2 h-4 w-4" /> add text
  </ContextMenuItem>
  <ContextMenuItem onClick={() => {
  const url = prompt("Enter Image URL:");
  if (url) addElement('image', url);
  }}>
- <ImageIcon className="mr-2 h-4 w-4" /> Add Image
+ <ImageIcon className="mr-2 h-4 w-4" /> add image
  </ContextMenuItem>
  <ContextMenuItem onClick={() => addElement('shape')}>
- <Palette className="mr-2 h-4 w-4" /> Add Color Card
+ <Palette className="mr-2 h-4 w-4" /> add color card
  </ContextMenuItem>
  <ContextMenuSub>
  <ContextMenuSubTrigger>
- <MoreHorizontal className="mr-2 h-4 w-4" /> Add Database
+ <MoreHorizontal className="mr-2 h-4 w-4" /> add database
  </ContextMenuSubTrigger>
  <ContextMenuSubContent className="w-48">
  {collections.map(col => (

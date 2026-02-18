@@ -21,7 +21,7 @@ export function OfferingDrop({ element: _element }: { element: any }) {
 
   // simulate absorption and api call
   setTimeout(() => {
- setAbsorbing(false);
+ setabsorbing(false);
  // in real app, create new record in 'offerings' collection
   }, 2000);
   }
@@ -43,7 +43,7 @@ export function OfferingDrop({ element: _element }: { element: any }) {
   <UploadCloud className={`h-8 w-8 text-primary transition-transform duration-500 ${isHovering ? 'scale-125' : 'opacity-50'}`} />
 
   <div className="absolute bottom-4 text-[10px]  text-primary/70 font-bold opacity-0 group-hover:opacity-100 transition-opacity">
- Offer
+ offer
   </div>
   </div>
   );

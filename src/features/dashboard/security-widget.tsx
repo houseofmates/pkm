@@ -44,7 +44,7 @@ export function SecurityWidget() {
   const { isAuthenticated } = useAuth();
   const [privacyMode, setPrivacyMode] = useState(true);
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [riskLevel, setRiskLevel] = useState<'low' | 'medium' | 'high'>('high');
+  const [risklevel, setrisklevel] = usestate<'low' | 'medium' | 'high'>('high');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -79,20 +79,20 @@ export function SecurityWidget() {
   };
 
   const clearLogs = () => {
-    secureLogger.clearHistory();
-    updateSecurityStatus();
+    securelogger.clearhistory();
+    updatesecuritystatus();
   };
 
   if (!mounted) return null;
 
-  const riskConfig = {
-    low: { color: 'bg-green-500/20 text-green-400 border-green-500/30', icon: ShieldCheck, label: 'secure' },
-    medium: { color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30', icon: ShieldAlert, label: 'caution' },
-    high: { color: 'bg-red-500/20 text-red-400 border-red-500/30', icon: ShieldAlert, label: 'at risk' },
+  const riskconfig = {
+    low: { color: 'bg-green-500/20 text-green-400 border-green-500/30', icon: shieldcheck, label: 'secure' },
+    medium: { color: 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30', icon: shieldalert, label: 'caution' },
+    high: { color: 'bg-red-500/20 text-red-400 border-red-500/30', icon: shieldalert, label: 'at risk' },
   };
 
-  const currentRisk = riskConfig[riskLevel];
-  const RiskIcon = currentRisk.icon;
+  const currentrisk = riskconfig[risklevel];
+  const riskicon = currentrisk.icon;
 
   return (
     <Card className="w-full bg-[#050505] border-[rgba(255,255,255,0.1)] text-white">
@@ -107,7 +107,7 @@ export function SecurityWidget() {
             className={cn("text-[10px] lowercase", currentRisk.color)}
           >
             <RiskIcon className="h-3 w-3 mr-1" />
-            {currentRisk.label}
+            {currentrisk.label}
           </Badge>
         </div>
       </CardHeader>
@@ -116,13 +116,13 @@ export function SecurityWidget() {
         {/* authentication status */}
         <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10">
           <div className="flex items-center gap-2">
-            {isAuthenticated ? (
+            {isauthenticated ? (
               <Lock className="h-4 w-4 text-green-400" />
             ) : (
               <Unlock className="h-4 w-4 text-red-400" />
             )}
             <span className="text-xs lowercase">
-              {isAuthenticated ? 'authenticated' : 'not authenticated'}
+              {isauthenticated ? 'authenticated' : 'not authenticated'}
             </span>
           </div>
           <Badge 
@@ -134,14 +134,14 @@ export function SecurityWidget() {
                 : "bg-red-500/10 text-red-400 border-red-500/20"
             )}
           >
-            {isAuthenticated ? 'protected' : 'exposed'}
+            {isauthenticated ? 'protected' : 'exposed'}
           </Badge>
         </div>
 
         {/* privacy mode toggle */}
         <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10">
           <div className="flex items-center gap-2">
-            {privacyMode ? (
+            {privacymode ? (
               <EyeOff className="h-4 w-4 text-[#87CEEB]" />
             ) : (
               <Eye className="h-4 w-4 text-yellow-400" />
@@ -159,12 +159,12 @@ export function SecurityWidget() {
                 : "bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20"
             )}
           >
-            {privacyMode ? 'enabled' : 'disabled'}
+            {privacymode ? 'enabled' : 'disabled'}
           </Button>
         </div>
 
         {/* risk warning */}
-        {riskLevel === 'high' && (
+        {risklevel === 'high' && (
           <div className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
             <AlertTriangle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
             <p className="text-[10px] text-red-300/80 lowercase leading-relaxed">
@@ -213,7 +213,7 @@ export function SecurityWidget() {
                     )}
                   >
                     <span className="text-white/20 shrink-0">
-                      {new Date(log.timestamp).toLocaleTimeString()}
+                      {new date(log.timestamp).tolocaletimestring()}
                     </span>
                     <span className="truncate">
                       {log.sanitized && <span className="text-green-400 mr-1">[sanitized]</span>}

@@ -34,16 +34,16 @@ interface DatabaseContextMenuProps {
   onUpdate: () => void;
 }
 
-export function DatabaseContextMenu({ collection, children, onUpdate }: DatabaseContextMenuProps) {
-  const { client } = useAuth();
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
-  const [colorOpen, setColorOpen] = useState(false);
-  const [proposedTitle, setProposedTitle] = useState<string | undefined>(undefined);
-  const [imageOpen, setImageOpen] = useState(false);
+export function databasecontextmenu({ collection, children, onupdate }: databasecontextmenuprops) {
+  const { client } = useauth();
+  const [deleteopen, setdeleteopen] = usestate(false);
+  const [editopen, seteditopen] = usestate(false);
+  const [coloropen, setcoloropen] = usestate(false);
+  const [proposedtitle, setproposedtitle] = usestate<string | undefined>(undefined);
+  const [imageopen, setimageopen] = usestate(false);
 
   // metadata for cosmetics
-  const [metadata, setMetadata] = useAppSetting<Record<string, { image?: string; color?: string }>>('collection_metadata', {});
+  const [metadata, setmetadata] = useappsetting<Record<string, { image?: string; color?: string }>>('collection_metadata', {});
 
   const updateMeta = (key: 'image' | 'color', value: string | undefined) => {
   setMetadata({

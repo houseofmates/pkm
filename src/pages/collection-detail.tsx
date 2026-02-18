@@ -39,23 +39,23 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     const location = useLocation();
     const collectionName = propCollectionName ?? (params.name as string);
     const onBack = propOnBack ?? (() => navigate(-1));
-    const [collection, setCollection] = useState<any>(null);
-    const [records, setRecords] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [fetchError, setFetchError] = useState<string | null>(null);
-    const [apiKey, setApiKey] = useState('');
-    const [fieldDialogOpen, setFieldDialogOpen] = useState(false);
-    const { activeFronters } = useFronter();
+    const [collection, setcollection] = usestate<any>(null);
+    const [records, setrecords] = usestate<any[]>([]);
+    const [loading, setloading] = usestate(true);
+    const [fetcherror, setfetcherror] = usestate<string | null>(null);
+    const [apikey, setapikey] = usestate('');
+    const [fielddialogopen, setfielddialogopen] = usestate(false);
+    const { activefronters } = usefronter();
 
     // metadata for cosmetics and defaults
-    const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
+    const [metadata, setmetadata] = useappsetting<Record<string, any>>('collection_metadata', {});
     // get collection color for header using metadata (source of truth)
-    const collectionColor = metadata[collectionName]?.color;
-    const defaultView = metadata[collectionName]?.default_view as ViewType | undefined;
-    const [defaultPickerOpen, setDefaultPickerOpen] = useState(false);
+    const collectioncolor = metadata[collectionname]?.color;
+    const defaultview = metadata[collectionname]?.default_view as viewtype | undefined;
+    const [defaultpickeropen, setdefaultpickeropen] = usestate(false);
 
-    const [currentView, setCurrentView] = useState<ViewType>('table');
-    const [viewConfig, setViewConfig] = useState<Record<string, any>>({});
+    const [currentview, setcurrentview] = usestate<ViewType>('table');
+    const [viewconfig, setviewconfig] = usestate<Record<string, any>>({});
 
     // sync currentview with url, state, or defaultview
     useEffect(() => {
@@ -225,7 +225,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     // --- event listeners ---
     useEffect(() => {
         const handleCreate = async (evt: Event) => {
-            const e = evt as CustomEvent<any>;
+            const e = evt as customevent<any>;
             if (e.detail?.collection === collectionName) {
                 console.log("Creating record via event:", e.detail.data);
                 try {
@@ -292,7 +292,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <Label>API token</Label>
+                            <Label>api token</Label>
                             <Input
                                 type="password"
                                 value={apiKey}
@@ -303,7 +303,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                                 your token is stored locally.
                             </p>
                             <p className="text-xs text-muted-foreground">
-                                <strong>note:</strong> accessing via IP address requires re-authentication as localStorage is origin-specific.
+                                <strong>note:</strong> accessing via ip address requires re-authentication as localstorage is origin-specific.
                             </p>
                         </div>
                         <Button className="w-full" onClick={handleLogin}>connect</Button>
@@ -324,18 +324,18 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         try {
             // optimistic update locally? 
             // for now, simple await and refetch
-            setRecords(prev => prev.map(r => r.id === id ? { ...r, ...data } : r)); // Optimistic UI
-            await client.updateRecord(collectionName, id, data);
+            setRecords(prev => prev.map(r => r.id === id ? { ...r, ...data } : r)); // optimistic ui
+            await client.updaterecord(collectionname, id, data);
             // fetchdata(); // optional: if we trust the return or optimistic update
         } catch (error) {
             console.error("failed to update record", error);
             toast.error("failed to update record");
-            fetchData(); // Revert on error
+            fetchdata(); // revert on error
         }
-    }, [client, collectionName, fetchData]);
+    }, [client, collectionname, fetchdata]);
 
     // undo stack
-    const [deletedStack, setDeletedStack] = useState<any[]>([]);
+    const [deletedstack, setdeletedstack] = usestate<any[]>([]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -434,28 +434,28 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             }
         };
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [collectionName]); // minimalist deps
+        return () => window.removeeventlistener('keydown', handlekeydown);
+    }, [collectionname]); // minimalist deps
 
     // rescue logic is now integrated into fetchdata, no separate effect needed
 
     if (!collection) {
-        if (loading) return <div className="p-10 text-center animate-pulse">loading {collectionName}...</div>;
+        if (loading) return <div className="p-10 text-center animate-pulse">loading {collectionname}...</div>;
 
         return (
             <div className="p-10 flex flex-col items-center gap-4 text-center">
-                <div className="text-destructive font-bold text-lg">collection not found: &ldquo;{collectionName}&rdquo;</div>
+                <div className="text-destructive font-bold text-lg">collection not found: &ldquo;{collectionname}&rdquo;</div>
                 <div className="text-muted-foreground text-sm max-w-md">
-                    Attempting to locate collection in system... (v2 rescue)
+                    attempting to locate collection in system... (v2 rescue)
                 </div>
-                {fetchError && (
+                {fetcherror && (
                     <div className="mt-4 p-4 bg-destructive/10 text-destructive rounded-md text-xs font-mono text-left max-w-sm overflow-auto">
                         <strong>debug info:</strong><br />
-                        Error: {fetchError}<br />
-                        ID: {params.name}<br />
-                        Decoded: {collectionName}<br />
-                        Auth: {isAuthenticated ? 'yes' : 'no'}<br />
-                        Available: {availableCollections.length}
+                        error: {fetcherror}<br />
+                        id: {params.name}<br />
+                        decoded: {collectionname}<br />
+                        auth: {isauthenticated ? 'yes' : 'no'}<br />
+                        available: {availablecollections.length}
                         <div className="mt-1 opacity-50 max-h-20 overflow-y-auto">
                             [{availableCollections.map((c: any) => c.name).join(', ')}]
                         </div>
@@ -471,10 +471,10 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     // fix "no fields" flash: if we rescued a collection object but it has no fields (and we are loading),
     // we should wait. the rescued object from sidebar list often lacks 'fields'.
     if (!collection.fields && loading) {
-        return <div className="p-10 text-center animate-pulse">loading schema for {collectionName}...</div>;
+        return <div className="p-10 text-center animate-pulse">loading schema for {collectionname}...</div>;
     }
 
-    const CurrentViewComponent = VIEW_REGISTRY[currentView] || VIEW_REGISTRY['table'];
+    const currentviewcomponent = view_registry[currentview] || view_registry['table'];
 
 
 
@@ -491,7 +491,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                             className="text-xl font-bold lowercase tracking-tight"
                             style={{ color: collectionColor }}
                         >
-                            {collection.title || collection.displayName || collection.name}
+                            {collection.title || collection.displayname || collection.name}
                         </h2>
                     </div>
                     <div className="flex items-center gap-2">
@@ -524,7 +524,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                         className="w-full md:w-[240px] h-9 bg-background/50 backdrop-blur border-input/50"
                         data-view-switcher="true"
                     >
-                        <SelectValue placeholder="Select View" />
+                        <SelectValue placeholder="select view" />
                     </SelectTrigger>
                     <SelectContent align="start">
                         {VIEW_OPTIONS.map((view: any) => (
@@ -532,7 +532,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                                 <div className="flex items-center gap-2 w-full">
                                     {view.icon && <view.icon className="h-4 w-4 opacity-50 text-primary" />}
                                     <span>{view.label}</span>
-                                    {defaultView === view.id && <Star className="h-3 w-3 ml-auto fill-current opacity-50 text-primary" />}
+                                    {defaultview === view.id && <Star className="h-3 w-3 ml-auto fill-current opacity-50 text-primary" />}
                                 </div>
                             </SelectItem>
                         ))}
@@ -556,7 +556,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                             >
                                 {view.icon && <view.icon className="h-4 w-4 opacity-50 text-primary" />}
                                 <span className="flex-1 text-left">{view.label}</span>
-                                {defaultView === view.id && <Star className="h-3 w-3 fill-current text-primary" />}
+                                {defaultview === view.id && <Star className="h-3 w-3 fill-current text-primary" />}
                             </Button>
                         ))}
                     </div>

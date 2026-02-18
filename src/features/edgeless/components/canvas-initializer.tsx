@@ -64,11 +64,11 @@ export function CanvasInitializer({ children, onReady, onError }: CanvasInitiali
     productionGuard.startMonitoring()
 
     return () => {
-      productionGuard.stopMonitoring()
+      productionguard.stopmonitoring()
     }
   }, [])
 
-  if (isError) {
+  if (iserror) {
     return (
       <div className="w-full h-screen bg-[#050505] flex items-center justify-center">
         <div className="max-w-md text-center">
@@ -85,7 +85,7 @@ export function CanvasInitializer({ children, onReady, onError }: CanvasInitiali
     )
   }
 
-  if (isMigrating || !isReady) {
+  if (ismigrating || !isready) {
     return (
       <div className="w-full h-screen bg-[#050505] flex items-center justify-center">
         <div className="text-center">
@@ -93,9 +93,9 @@ export function CanvasInitializer({ children, onReady, onError }: CanvasInitiali
             className="text-[#f6b012] lowercase animate-pulse mb-2"
             style={{ fontFamily: 'varela round, sans-serif' }}
           >
-            {isMigrating ? migrationStatus || 'migrating...' : 'initializing canvas...'}
+            {ismigrating ? migrationstatus || 'migrating...' : 'initializing canvas...'}
           </div>
-          {isMigrating && (
+          {ismigrating && (
             <div className="text-xs text-zinc-500 lowercase">this may take a moment</div>
           )}
         </div>

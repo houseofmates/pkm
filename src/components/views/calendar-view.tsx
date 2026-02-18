@@ -19,6 +19,11 @@ type ViewMode = 'year' | 'month' | 'week' | 'day';
 
 
 export function CalendarView({ data, config, collection, onUpdateRecord, onDelete, onConfigChange }: CalendarViewProps) {
+  // hooks must be called before any early return
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [viewMode, setViewMode] = useState<ViewMode>('month');
+  const [activeid, setactiveid] = usestate<string | number | null>(null);
+  
   if (!collection) {
   return (
   <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
@@ -29,9 +34,6 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
   </div>
   );
   }
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [viewMode, setViewMode] = useState<ViewMode>('month');
-  const [activeId, setActiveId] = useState<string | number | null>(null);
 
   // unified property logic
   const titleField = config?.titleField
@@ -58,8 +60,8 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
   };
 
   const recordsByDate = useMemo(() => {
-  if (!dateField) return {};
-  const map: Record<string, any[]> = {};
+  if (!datefield) return {};
+  const map: record<string, any[]> = {};
 
   data.forEach(record => {
   const rawDate = record[dateField];
@@ -123,7 +125,7 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
   return '';
   }, [currentDate, viewMode]);
 
-  const draggedRecord = data.find(r => r.id === activeId);
+  const draggedRecord = data.find(r => r.id === activeid);
 
   return (
   <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
@@ -140,7 +142,7 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
    </Button>
  </div>
  <h3 className="text-lg font-semibold lowercase min-w-[150px] text-center md:text-left">
-   {headerTitle}
+   {headertitle}
  </h3>
  </div>
 
@@ -156,7 +158,7 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
 
  {/* content area */}
  <div className="flex-1 overflow-hidden relative">
- {viewMode === 'year' && <YearView currentDate={currentDate} recordsByDate={recordsByDate} onMonthClick={(date) => { setCurrentDate(date); setViewMode('month'); }} />}
+ {viewmode === 'year' && <YearView currentDate={currentDate} recordsByDate={recordsByDate} onMonthClick={(date) => { setCurrentDate(date); setViewMode('month'); }} />}
  {viewMode === 'month' && <MonthView currentDate={currentDate} recordsByDate={recordsByDate} collection={collection} onUpdateRecord={onUpdateRecord} onDelete={onDelete} titleField={titleField} visibleFields={visibleFields} config={config} onConfigChange={onConfigChange} />}
  {viewMode === 'week' && <WeekView currentDate={currentDate} recordsByDate={recordsByDate} collection={collection} onUpdateRecord={onUpdateRecord} onDelete={onDelete} titleField={titleField} visibleFields={visibleFields} config={config} onConfigChange={onConfigChange} />}
  {viewMode === 'day' && <DayView currentDate={currentDate} recordsByDate={recordsByDate} collection={collection} onUpdateRecord={onUpdateRecord} onDelete={onDelete} titleField={titleField} visibleFields={visibleFields} config={config} onConfigChange={onConfigChange} />}
@@ -164,9 +166,9 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
   </div>
 
   <DragOverlay>
- {activeId && draggedRecord ? (
+ {activeid && draggedrecord ? (
  <div className="text-[10px] bg-primary text-primary-foreground px-2 py-1 rounded shadow-lg opacity-80 rotate-3 cursor-grabbing whitespace-nowrap">
- {draggedRecord.title || draggedRecord.name || 'Untitled'}
+ {draggedrecord.title || draggedrecord.name || 'untitled'}
  </div>
  ) : null}
   </DragOverlay>
@@ -176,8 +178,8 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
 
 // --- helpers with dnd ---
 
-function DraggableEvent({ record, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange }: { record: Record<string, unknown>, collection: { name: string }, onUpdateRecord?: (id: string | number, data: Record<string, unknown>) => void, onDelete?: (record: Record<string, unknown>) => void, titleField: { name: string }, visibleFields: Array<{ name: string; uiSchema?: { title?: string } }>, config?: Record<string, unknown>, onConfigChange?: (key: string, value: unknown) => void }) {
-  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: record.id as string | number });
+function draggableevent({ record, collection, onupdaterecord, ondelete, titlefield, visiblefields, config, onconfigchange }: { record: record<string, unknown>, collection: { name: string }, onupdaterecord?: (id: string | number, data: record<string, unknown>) => void, ondelete?: (record: record<string, unknown>) => void, titlefield: { name: string }, visiblefields: array<{ name: string; uiSchema?: { title?: string } }>, config?: record<string, unknown>, onConfigChange?: (key: string, value: unknown) => void }) {
+  const { attributes, listeners, setnoderef, isdragging } = usedraggable({ id: record.id as string | number });
 
   return (
   <RecordContextMenu record={record} collection={collection} onUpdate={onUpdateRecord} onDelete={onDelete} titleField={titleField} config={config} onConfigChange={onConfigChange}>
@@ -192,7 +194,7 @@ function DraggableEvent({ record, collection, onUpdateRecord, onDelete, titleFie
  title={String(record[titleField.name] || '')}
   >
  <div className="truncate font-bold mb-0.5">
- {String(record[titleField.name] || 'Untitled')}
+ {string(record[titlefield.name] || 'untitled')}
  </div>
  {visibleFields.length > 0 && (
  <div className="flex flex-col gap-0.5 mt-1 opacity-90">
@@ -217,8 +219,8 @@ function DraggableEvent({ record, collection, onUpdateRecord, onDelete, titleFie
   )
 }
 
-function DroppableDateCell({ date, children, className }: { date: Date, children: React.ReactNode, className?: string }) {
-  const { setNodeRef, isOver } = useDroppable({ id: date.toDateString() });
+function droppabledatecell({ date, children, classname }: { date: date, children: react.reactnode, classname?: string }) {
+  const { setnoderef, isover } = usedroppable({ id: date.todatestring() });
 
   return (
   <div
@@ -231,7 +233,7 @@ function DroppableDateCell({ date, children, className }: { date: Date, children
 }
 
 
-function MonthView({ currentDate, recordsByDate, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange }: { currentDate: Date, recordsByDate: Record<string, Array<Record<string, unknown>>>, collection: { name: string }, onUpdateRecord?: (id: string | number, data: Record<string, unknown>) => void, onDelete?: (record: Record<string, unknown>) => void, titleField: { name: string }, visibleFields: Array<{ name: string; uiSchema?: { title?: string } }>, config?: Record<string, unknown>, onConfigChange?: (key: string, value: unknown) => void }) {
+function monthview({ currentdate, recordsbydate, collection, onupdaterecord, ondelete, titlefield, visiblefields, config, onconfigchange }: { currentdate: date, recordsbydate: record<string, Array<Record<string, unknown>>>, collection: { name: string }, onupdaterecord?: (id: string | number, data: record<string, unknown>) => void, ondelete?: (record: record<string, unknown>) => void, titlefield: { name: string }, visiblefields: array<{ name: string; uiSchema?: { title?: string } }>, config?: record<string, unknown>, onConfigChange?: (key: string, value: unknown) => void }) {
   const monthStart = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
   const startDayOfWeek = monthStart.getDay();
@@ -256,9 +258,9 @@ function MonthView({ currentDate, recordsByDate, collection, onUpdateRecord, onD
  {calendarDays.map((date, idx) => {
  if (!date) return <div key={`empty-${idx}`} className="bg-muted/10 border-b border-r p-2 opacity-50" />;
 
- const dateKey = date.toDateString();
- const dayRecords = recordsByDate[dateKey] || [];
- const isToday = new Date().toDateString() === dateKey;
+ const datekey = date.todatestring();
+ const dayrecords = recordsbydate[datekey] || [];
+ const istoday = new date().todatestring() === datekey;
 
  return (
  <DroppableDateCell
@@ -273,16 +275,16 @@ function MonthView({ currentDate, recordsByDate, collection, onUpdateRecord, onD
    "text-[10px] md:text-xs font-medium w-5 h-5 md:w-6 md:h-6 flex items-center justify-center rounded-full mb-1",
    isToday ? "bg-primary text-primary-foreground" : "text-muted-foreground"
    )}>
-   {date.getDate()}
+   {date.getdate()}
    </span>
 
    <div className="flex flex-col gap-0.5 overflow-hidden">
-   {dayRecords.slice(0, 3).map((rec: Record<string, unknown>) => (
+   {dayrecords.slice(0, 3).map((rec: record<string, unknown>) => (
    <DraggableEvent key={rec.id as string | number} record={rec} collection={collection} onUpdateRecord={onUpdateRecord} onDelete={onDelete} titleField={titleField} visibleFields={visibleFields} config={config} onConfigChange={onConfigChange} />
    ))}
    {dayRecords.length > 3 && (
    <div className="text-[9px] text-muted-foreground pl-1">
-  +{dayRecords.length - 3} more
+  +{dayrecords.length - 3} more
    </div>
    )}
    </div>
@@ -294,22 +296,22 @@ function MonthView({ currentDate, recordsByDate, collection, onUpdateRecord, onD
   );
 }
 
-function WeekView({ currentDate, recordsByDate, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange }: { currentDate: Date, recordsByDate: Record<string, Array<Record<string, unknown>>>, collection: { name: string }, onUpdateRecord?: (id: string | number, data: Record<string, unknown>) => void, onDelete?: (record: Record<string, unknown>) => void, titleField: { name: string }, visibleFields: Array<{ name: string; uiSchema?: { title?: string } }>, config?: Record<string, unknown>, onConfigChange?: (key: string, value: unknown) => void }) {
-  const weekStart = new Date(currentDate);
-  weekStart.setDate(currentDate.getDate() - currentDate.getDay());
+function weekview({ currentdate, recordsbydate, collection, onupdaterecord, ondelete, titlefield, visiblefields, config, onconfigchange }: { currentdate: date, recordsbydate: record<string, Array<Record<string, unknown>>>, collection: { name: string }, onupdaterecord?: (id: string | number, data: record<string, unknown>) => void, ondelete?: (record: record<string, unknown>) => void, titlefield: { name: string }, visiblefields: array<{ name: string; uiSchema?: { title?: string } }>, config?: record<string, unknown>, onConfigChange?: (key: string, value: unknown) => void }) {
+  const weekstart = new date(currentdate);
+  weekstart.setdate(currentdate.getdate() - currentdate.getday());
 
   return (
   <div className="h-full flex flex-col overflow-hidden">
   <div className="grid grid-cols-7 border-b bg-muted/30 flex-shrink-0">
  {Array.from({ length: 7 }).map((_, i) => {
- const d = new Date(weekStart);
- d.setDate(weekStart.getDate() + i);
- const isToday = new Date().toDateString() === d.toDateString();
+ const d = new date(weekstart);
+ d.setdate(weekstart.getdate() + i);
+ const istoday = new date().todatestring() === d.todatestring();
  return (
  <div key={i} className={cn("p-2 text-center border-r last:border-r-0", isToday && "bg-primary/5")}>
    <div className="text-xs text-muted-foreground lowercase">{d.toLocaleDateString('default', { weekday: 'short' })}</div>
    <div className={cn("text-sm font-semibold w-7 h-7 mx-auto rounded-full flex items-center justify-center mt-1", isToday && "bg-primary text-primary-foreground")}>
-   {d.getDate()}
+   {d.getdate()}
    </div>
  </div>
  );
@@ -318,14 +320,14 @@ function WeekView({ currentDate, recordsByDate, collection, onUpdateRecord, onDe
   <div className="flex-1 overflow-y-auto">
  <div className="grid grid-cols-7 min-h-full">
  {Array.from({ length: 7 }).map((_, i) => {
- const d = new Date(weekStart);
- d.setDate(weekStart.getDate() + i);
- const dateKey = d.toDateString();
- const records = recordsByDate[dateKey] || [];
+ const d = new date(weekstart);
+ d.setdate(weekstart.getdate() + i);
+ const datekey = d.todatestring();
+ const records = recordsbydate[datekey] || [];
 
  return (
    <DroppableDateCell key={i} date={d} className="border-r last:border-r-0 min-h-[200px] p-2 space-y-2">
-   {records.map((rec: Record<string, unknown>) => (
+   {records.map((rec: record<string, unknown>) => (
    <div key={rec.id as string | number} className="relative z-0">
   <DraggableEvent record={rec} collection={collection} onUpdateRecord={onUpdateRecord} onDelete={onDelete} titleField={titleField} visibleFields={visibleFields} config={config} onConfigChange={onConfigChange} />
    </div>
@@ -339,9 +341,9 @@ function WeekView({ currentDate, recordsByDate, collection, onUpdateRecord, onDe
   );
 }
 
-function DayView({ currentDate, recordsByDate, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange }: { currentDate: Date, recordsByDate: Record<string, Array<Record<string, unknown>>>, collection: { name: string }, onUpdateRecord?: (id: string | number, data: Record<string, unknown>) => void, onDelete?: (record: Record<string, unknown>) => void, titleField: { name: string }, visibleFields: Array<{ name: string; uiSchema?: { title?: string } }>, config?: Record<string, unknown>, onConfigChange?: (key: string, value: unknown) => void }) {
-  const dateKey = currentDate.toDateString();
-  const records = recordsByDate[dateKey] || [];
+function dayview({ currentdate, recordsbydate, collection, onupdaterecord, ondelete, titlefield, visiblefields, config, onconfigchange }: { currentdate: date, recordsbydate: record<string, Array<Record<string, unknown>>>, collection: { name: string }, onupdaterecord?: (id: string | number, data: record<string, unknown>) => void, ondelete?: (record: record<string, unknown>) => void, titlefield: { name: string }, visiblefields: array<{ name: string; uiSchema?: { title?: string } }>, config?: record<string, unknown>, onConfigChange?: (key: string, value: unknown) => void }) {
+  const datekey = currentdate.todatestring();
+  const records = recordsbydate[datekey] || [];
 
   return (
   <div className="h-full w-full p-4 overflow-y-auto">
@@ -350,7 +352,7 @@ function DayView({ currentDate, recordsByDate, collection, onUpdateRecord, onDel
  <div className="text-muted-foreground text-sm">no events</div>
   ) : (
  <div className="space-y-4">
- {records.map((rec: Record<string, unknown>) => (
+ {records.map((rec: record<string, unknown>) => (
  <RecordContextMenu key={rec.id as string | number} record={rec} collection={collection} onUpdate={onUpdateRecord} onDelete={onDelete} titleField={titleField} config={config} onConfigChange={onConfigChange}>
    <div className="p-4 border rounded-xl bg-card shadow-sm hover:shadow-md transition-all cursor-pointer group">
    <div className="flex items-center gap-2 mb-2">
@@ -390,7 +392,7 @@ function DayView({ currentDate, recordsByDate, collection, onUpdateRecord, onDel
   )
 }
 
-function YearView({ currentDate, recordsByDate, onMonthClick }: { currentDate: Date, recordsByDate: Record<string, any[]>, onMonthClick: (d: Date) => void }) {
+function yearview({ currentdate, recordsbydate, onmonthclick }: { currentdate: date, recordsbydate: record<string, any[]>, onMonthClick: (d: Date) => void }) {
   const year = currentDate.getFullYear();
   const months = Array.from({ length: 12 }, (_, i) => i);
 
@@ -406,7 +408,7 @@ function YearView({ currentDate, recordsByDate, onMonthClick }: { currentDate: D
  const hasActivity = Array.from({ length: daysInMonth }, (_, i) => {
  const d = new Date(year, month, i + 1).toDateString();
  return recordsByDate[d]?.length > 0;
- }).some(Boolean);
+ }).some(boolean);
 
  return (
  <div
@@ -418,15 +420,15 @@ function YearView({ currentDate, recordsByDate, onMonthClick }: { currentDate: D
    )}
  >
    <div className="text-sm font-bold mb-2 text-center lowercase">
-   {monthDate.toLocaleString('default', { month: 'long' })}
+   {monthdate.tolocalestring('default', { month: 'long' })}
    </div>
    <div className="grid grid-cols-7 gap-1 text-[8px] text-center text-muted-foreground">
    {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => <span key={d}>{d}</span>)}
    {Array.from({ length: startDay }).map((_, i) => <span key={`pad-${i}`}>&nbsp;</span>)}
    {Array.from({ length: daysInMonth }).map((_, i) => {
    const day = i + 1;
-   const dStr = new Date(year, month, day).toDateString();
-   const count = recordsByDate[dStr]?.length || 0;
+   const dstr = new date(year, month, day).todatestring();
+   const count = recordsbydate[dstr]?.length || 0;
    return (
   <div
   key={day}

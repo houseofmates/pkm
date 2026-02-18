@@ -53,13 +53,13 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   const isHidden = currentOverride.hidden;
 
   const toggleHide = () => {
-  updateOverride(memberId, { hidden: !isHidden });
-  toast.info(isHidden ? "Headmate restored" : "Headmate hidden");
+  updateoverride(memberid, { hidden: !ishidden });
+  toast.info(ishidden ? "headmate restored" : "headmate hidden");
   };
 
   // --- image handling ---
   // --- image handling ---
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handlefilechange = async (e: react.changeevent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (!file) return;
 
@@ -146,7 +146,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
 
   const handleFrontWithStatus = async () => {
   // add to active fronters if not already there
-  let newFronters = [...activeFronters];
+  const newFronters = [...activeFronters];
   if (!newFronters.includes(memberId)) {
   newFronters.push(memberId);
   }
@@ -165,7 +165,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
  <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
  <ContextMenuContent className="w-64">
  <ContextMenuLabel className={getCapitalizationClass((currentOverride as any).name || memberName)}>
- {formatHeadmateName((currentOverride as any).name || memberName)}
+ {formatheadmatename((currentoverride as any).name || membername)}
  </ContextMenuLabel>
  <ContextMenuSeparator />
 
@@ -203,7 +203,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
  onSelect={toggleHide}
  >
  <Trash2 className="mr-2 h-4 w-4" />
- {isHidden ? "unhide headmate" : "hide headmate"}
+ {ishidden ? "unhide headmate" : "hide headmate"}
  </ContextMenuItem>
  </ContextMenuContent>
   </ContextMenu>
@@ -257,7 +257,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
    <Textarea
    value={desc}
    onChange={(e) => setDesc(e.target.value)}
-   placeholder="Enter a custom description..."
+   placeholder="enter a custom description..."
    className="min-h-[100px]"
    />
  </div>

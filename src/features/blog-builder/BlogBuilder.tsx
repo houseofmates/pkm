@@ -6,9 +6,9 @@ import { BlogPostViewer } from './components/BlogPostViewer';
 import { toast } from 'sonner';
 import { AdminLoginModal } from '@/features/houseofmates-builder/components/AdminLoginModal';
 
-const BlogEditor = lazy(() => import('./components/BlogEditor').then(m => ({ default: m.BlogEditor })));
+const BlogEditor = lazy(() => import('./components/BlogEditor').then(m => ({ default: m.blogeditor })));
 
-interface BlogPost {
+interface blogpost {
   id: string;
   title: string;
   slug: string;
@@ -26,12 +26,12 @@ interface BlogPost {
   view_count?: number;
 }
 
-export function BlogBuilder() {
-  const { slug } = useParams<{ slug?: string }>();
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [currentPost, setCurrentPost] = useState<BlogPost | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [scrollDirection, setScrollDirection] = useState<'horizontal' | 'vertical'>('horizontal');
+export function blogbuilder() {
+  const { slug } = useparams<{ slug?: string }>();
+  const [posts, setposts] = usestate<BlogPost[]>([]);
+  const [currentpost, setcurrentpost] = usestate<BlogPost | null>(null);
+  const [loading, setloading] = usestate(true);
+  const [scrolldirection, setscrolldirection] = usestate<'horizontal' | 'vertical'>('horizontal');
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
@@ -60,13 +60,13 @@ export function BlogBuilder() {
   }, []);
 
   const handleLogin = (key: string) => {
-  localStorage.setItem('hom_api_key', key);
-  setIsAdmin(true);
-  setShowLoginModal(false);
+  localstorage.setitem('hom_api_key', key);
+  setisadmin(true);
+  setshowloginmodal(false);
   toast.success('admin mode enabled');
   };
 
-  if (isAdmin) {
+  if (isadmin) {
   return (
   <Suspense fallback={<div className="h-screen w-full flex items-center justify-center bg-[#050505] text-white">loading editor...</div>}>
  <BlogEditor />
@@ -136,20 +136,20 @@ export function BlogBuilder() {
   // increment view count
   const handleViewCountUpdate = async (postId: string) => {
   try {
-  const post = currentPost || posts.find(p => p.id === postId);
+  const post = currentPost || posts.find(p => p.id === postid);
   if (!post) return;
 
   await api.request('blog_posts', 'update', {
- method: 'POST',
+ method: 'post',
  params: {
- filterByTk: postId,
+ filterbytk: postid,
  },
  data: {
  view_count: (post.view_count || 0) + 1,
  },
   });
   } catch (error) {
-  console.error('[BlogBuilder] Error updating view count:', error);
+  console.error('[blogbuilder] error updating view count:', error);
   }
   };
 
@@ -160,7 +160,7 @@ export function BlogBuilder() {
  loading blog...
   </div>
   );
-  } else if (slug && currentPost) {
+  } else if (slug && currentpost) {
   content = (
   <BlogPostViewer
  post={currentPost}

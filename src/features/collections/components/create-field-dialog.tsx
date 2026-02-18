@@ -114,13 +114,13 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
   };
 
   const getComponentType = (uiType: string) => {
-  switch (uiType) {
-  case 'input': return 'Input';
-  case 'textarea': return 'Input.TextArea';
-  case 'number': return 'InputNumber';
-  case 'checkbox': return 'Checkbox';
-  case 'formula': return 'Input'; // Generic field to show formula result or define it
-  default: return 'Input';
+  switch (uitype) {
+  case 'input': return 'input';
+  case 'textarea': return 'input.textarea';
+  case 'number': return 'inputnumber';
+  case 'checkbox': return 'checkbox';
+  case 'formula': return 'input'; // generic field to show formula result or define it
+  default: return 'input';
   }
   };
 
@@ -130,7 +130,7 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
  <DialogHeader>
  <DialogTitle>add new property</DialogTitle>
  <DialogDescription>
- Add a new column to the <strong>{collectionName}</strong> database.
+ add a new column to the <strong>{collectionName}</strong> database.
  </DialogDescription>
  </DialogHeader>
  <form onSubmit={handleSubmit} className="space-y-4">
@@ -147,7 +147,7 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
    </SelectContent>
  </Select>
  </div>
- {interfaceType === 'formula' && (
+ {interfacetype === 'formula' && (
  <div className="space-y-2">
    <Label>expression</Label>
    <Input
@@ -164,7 +164,7 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
  <Input
    value={title}
    onChange={(e) => setTitle(e.target.value)}
-   placeholder="e.g. Status, Rating, Tags"
+   placeholder="e.g. status, rating, tags"
    required
  />
  </div>
@@ -178,7 +178,7 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
  </div>
  <DialogFooter>
  <Button type="submit" disabled={loading}>
-   {loading ? "Adding..." : "Add Property"}
+   {loading ? "adding..." : "add property"}
  </Button>
  </DialogFooter>
  </form>

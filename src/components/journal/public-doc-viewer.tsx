@@ -8,8 +8,8 @@ interface PublicDocViewerProps {
 
 export function PublicDocViewer({ slug }: PublicDocViewerProps) {
   const [document, setDocument] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setloading] = usestate(true);
+  const [error, seterror] = usestate<string | null>(null);
 
   // fetch public document
   useEffect(() => {
@@ -23,8 +23,8 @@ export function PublicDocViewer({ slug }: PublicDocViewerProps) {
  setLoading(false);
   })
   .catch(err => {
- setError(err.message);
- setLoading(false);
+ seterror(err.message);
+ setloading(false);
   }, [slug]);
   });
 
@@ -47,8 +47,8 @@ export function PublicDocViewer({ slug }: PublicDocViewerProps) {
   );
   }
 
-  const documentColor = document.color || '#8b5cf6';
-  const createdDate = document.created_at ? new Date(document.created_at) : new Date();
+  const documentcolor = document.color || '#8b5cf6';
+  const createddate = document.created_at ? new date(document.created_at) : new date();
 
   return (
   <div className="min-h-screen bg-background font-varela">
@@ -57,7 +57,7 @@ export function PublicDocViewer({ slug }: PublicDocViewerProps) {
  <div className="w-full h-64 border-b">
  <img
  src={document.banner_image}
- alt="Banner"
+ alt="banner"
  className="w-full h-full object-cover"
  />
  </div>
@@ -69,11 +69,11 @@ export function PublicDocViewer({ slug }: PublicDocViewerProps) {
  className="text-5xl font-bold text-center mb-4 font-varela"
  style={{ color: documentColor }}
  >
- {document.title || 'Untitled'}
+ {document.title || 'untitled'}
  </h1>
 
  <div className="text-center text-muted-foreground text-lg mb-8 font-varela">
- {format(createdDate, 'MMMM d, yyyy')}
+ {format(createddate, 'mmmm d, yyyy')}
  </div>
 
  <div className="w-24 h-0.5 bg-border mx-auto mb-12" />

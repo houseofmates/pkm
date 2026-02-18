@@ -12,7 +12,7 @@ import { registry } from '@/lib/link-registry'
 import { walpendingcount } from '@/lib/write-ahead-log'
 import { toast } from 'sonner'
 import { Separator } from '@/components/ui/separator'
-import { cn } from '@/lib/utils'
+// import { cn } from '@/lib/utils' // unused
 
 export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
     const [isRebuilding, setIsRebuilding] = useState(false)
@@ -83,7 +83,7 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                                     "text-xs font-mono lowercase px-2 py-0.5 rounded",
                                     pendingWal > 0 ? "bg-amber-500/20 text-amber-500" : "bg-green-500/20 text-green-500"
                                 )}>
-                                    {pendingWal} pending
+                                    {pendingwal} pending
                                 </span>
                             </div>
 
@@ -102,7 +102,7 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                                     disabled={isRebuilding}
                                 >
                                     <RefreshCw className={cn("h-3 w-3 mr-2", isRebuilding && "animate-spin")} />
-                                    {isRebuilding ? 'rebuilding...' : 'rebuild index'}
+                                    {isrebuilding ? 'rebuilding...' : 'rebuild index'}
                                 </Button>
                             </div>
                         </div>

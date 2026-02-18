@@ -36,8 +36,8 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
  const coverField = config.coverField ? collection.fields?.find((f: { name: string }) => f.name === config.coverField) : null;
  const coverValue = coverField ? record[coverField.name] : null;
  const attachmentField = collection.fields?.find((f: { interface?: string; name: string }) => f.interface === 'attachment');
- const firstImage = coverValue || (attachmentField ? record[attachmentField.name] : null);
- const imageUrl = Array.isArray(firstImage) ? firstImage[0]?.url : (firstImage?.url || null);
+ const firstimage = covervalue || (attachmentfield ? record[attachmentfield.name] : null);
+ const imageurl = array.isarray(firstimage) ? firstimage[0]?.url : (firstimage?.url || null);
 
  return (
  <RecordContextMenu
@@ -55,12 +55,12 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
  >
    <div className="flex items-center gap-4 flex-1 min-w-0">
    {/* optional image preview */}
-   {imageUrl && (
+   {imageurl && (
    <div className="w-12 h-12 rounded-lg overflow-hidden shrink-0 border bg-muted">
   <img src={imageUrl} alt="" className="w-full h-full object-cover" />
    </div>
    )}
-   {!imageUrl && record.color && (
+   {!imageurl && record.color && (
    <div className="w-2 h-12 rounded-full shrink-0" style={{ backgroundColor: record.color }} />
    )}
 
@@ -101,12 +101,12 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
    </div>
 
    <div className="flex items-center gap-2 shrink-0 md:opacity-0 group-hover:opacity-100 transition-opacity">
-   {onEdit && (
+   {onedit && (
    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); onEdit(record); }}>
   <MoreHorizontal className="h-4 w-4" />
    </Button>
    )}
-   {onDelete && (
+   {ondelete && (
    <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:bg-destructive/10" onClick={(e) => { e.stopPropagation(); onDelete(record); }}>
   <Trash2 className="h-4 w-4" />
    </Button>

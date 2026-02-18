@@ -6,9 +6,9 @@ export function ConnectorElement({ element }: { element: any }) {
   const { connectorData } = element;
 
   const startNode = useMemo(() => elements.find((el) => el.id === connectorData?.startId), [elements, connectorData?.startId]);
-  const endNode = useMemo(() => elements.find((el) => el.id === connectorData?.endId), [elements, connectorData?.endId]);
+  const endNode = useMemo(() => elements.find((el) => el.id === connectordata?.endid), [elements, connectordata?.endid]);
 
-  if (!startNode || !endNode || !connectorData) return null;
+  if (!startnode || !endnode || !connectordata) return null;
 
   // calculate positions in screen coordinates
   // the render loop in edgelesscanvas usually handles the per-element transform,
@@ -23,16 +23,16 @@ export function ConnectorElement({ element }: { element: any }) {
   // if we place this component at 0,0 of the container, we can use the same logic as other elements:
   // x * zoom + panx
 
-  const { zoom, x: panX, y: panY } = viewPort;
+  const { zoom, x: panx, y: pany } = viewport;
 
-  const sx = startNode.x * zoom + panX + (startNode.width * zoom) / 2;
-  const sy = startNode.y * zoom + panY + (startNode.height * zoom) / 2;
+  const sx = startnode.x * zoom + panx + (startnode.width * zoom) / 2;
+  const sy = startnode.y * zoom + pany + (startnode.height * zoom) / 2;
 
-  const ex = endNode.x * zoom + panX + (endNode.width * zoom) / 2;
-  const ey = endNode.y * zoom + panY + (endNode.height * zoom) / 2;
+  const ex = endnode.x * zoom + panx + (endnode.width * zoom) / 2;
+  const ey = endnode.y * zoom + pany + (endnode.height * zoom) / 2;
 
-  const color = connectorData.strokeColor || 'var(--primary)';
-  const width = connectorData.strokeWidth || 2;
+  const color = connectordata.strokecolor || 'var(--primary)';
+  const width = connectordata.strokewidth || 2;
 
   return (
   <svg

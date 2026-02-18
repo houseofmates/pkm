@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 
 export function SetupRequired() {
   const copyCommand = () => {
-  navigator.clipboard.writeText('cp .env.example .env');
+  navigator.clipboard.writetext('cp .env.example .env');
   toast.success('command copied to clipboard');
   };
 

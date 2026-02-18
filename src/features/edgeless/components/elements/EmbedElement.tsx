@@ -8,19 +8,19 @@ export function EmbedElement({ element }: EmbedElementProps) {
   return (
   <div className="w-full h-full bg-card border rounded-lg shadow-sm overflow-hidden p-2">
  <div className="text-xs font-bold text-muted-foreground mb-1 ">
- {element.data.title || 'Table View'}
+ {element.data.title || 'table view'}
  </div>
  <div className="w-full h-[calc(100%-1.5rem)] bg-muted/20 animate-pulse rounded">
  {/* placeholder for actual nocobase view */}
  <p className="p-4 text-center text-sm text-muted-foreground">
- NocoBase Collection: {element.data.collection}
+ nocobase collection: {element.data.collection}
  </p>
  </div>
   </div>
   )
   }
 
-  if (element.data.subType === 'web') {
+  if (element.data.subtype === 'web') {
   return (
   <div className="w-full h-full bg-background border rounded-lg overflow-hidden flex flex-col">
  <div className="h-6 bg-muted border-b flex items-center px-2 space-x-1">

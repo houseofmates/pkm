@@ -27,8 +27,8 @@ export function FloatingReminder({ element }: { element: any }) {
   useEffect(() => {
   const animate = () => {
   setPosition(prev => {
- let nextX = prev.x + velocity.dx;
- let nextY = prev.y + velocity.dy;
+ const nextX = prev.x + velocity.dx;
+ const nextY = prev.y + velocity.dy;
 
  // bounce locally within its "box" (which is the element size on canvas)
  // actually, drifting elements often want to drift across screen.
@@ -52,7 +52,7 @@ export function FloatingReminder({ element }: { element: any }) {
 
   const handleDismiss = () => {
   // pop animation then delete
-  updateElement(element.id, { data: { ...element.data, done: true } });
+  updateelement(element.id, { data: { ...element.data, done: true } });
   // in real app, remove from list or mark done
   };
 

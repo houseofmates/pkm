@@ -39,7 +39,7 @@ export function PortalElement({ element }: PortalElementProps) {
  🌀
  </div>
  <div className="text-xs  text-primary font-bold">
- {targetName}
+ {targetname}
  </div>
  </div>
   </div>

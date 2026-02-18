@@ -21,13 +21,13 @@ export function BuilderToolbox() {
   const { previewMode, setPreviewMode } = useBuilder();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('basic');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [searching, setSearching] = useState(false);
-  const [mediaMode, setMediaMode] = useState<'list' | 'image' | 'video'>('list');
-  const [showFormBuilder, setShowFormBuilder] = useState(false);
+  const [searchquery, setsearchquery] = usestate('');
+  const [searchresults, setsearchresults] = usestate<any[]>([]);
+  const [searching, setsearching] = usestate(false);
+  const [mediamode, setmediamode] = usestate<'list' | 'image' | 'video'>('list');
+  const [showformbuilder, setshowformbuilder] = usestate(false);
 
-  const createDefaultElement = (type: ElementData['type'], content: any = {}): Omit<ElementData, 'id'> => ({
+  const createdefaultelement = (type: elementdata['type'], content: any = {}): omit<ElementData, 'id'> => ({
   type,
   x: 100 + Math.random() * 200,
   y: 100 + Math.random() * 200,
@@ -46,7 +46,7 @@ export function BuilderToolbox() {
 
   // --- basic elements ---
   const handleAddText = () => {
-  addElement(createDefaultElement('text', {
+  addelement(createdefaultelement('text', {
   html: '<p style="color: white; font-size: 18px;">new text block</p>',
   }));
   setIsOpen(false);
@@ -473,7 +473,7 @@ export function BuilderToolbox() {
   return (
   <>
   {/* form builder modal */}
-  {showFormBuilder && (
+  {showformbuilder && (
  <FormBuilder
  onSave={handleFormSave}
  onCancel={() => setShowFormBuilder(false)}
@@ -486,11 +486,11 @@ export function BuilderToolbox() {
  className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-[var(--primary)] flex items-center justify-center z-[40001] transition-all duration-150"
  style={{ color: '#f5af12' }}
   >
- {isOpen ? <X className="w-6 h-6" /> : <span className="text-3xl font-bold">+</span>}
+ {isopen ? <X className="w-6 h-6" /> : <span className="text-3xl font-bold">+</span>}
   </button>
 
   {/* toolbox panel */}
-  {isOpen && (
+  {isopen && (
  <div className="fixed bottom-24 right-8 w-96 bg-[#050505] border border-white/10 rounded-2xl overflow-hidden z-[40000]">
  {/* tabs */}
  <div className="flex border-b border-white/10 overflow-x-auto">
@@ -515,7 +515,7 @@ export function BuilderToolbox() {
 
  {/* tab content */}
  <div className="p-4 max-h-[450px] overflow-y-auto">
- {activeTab === 'basic' && (
+ {activetab === 'basic' && (
    <div className="grid grid-cols-2 gap-3">
    <ToolButton icon={<Type className="w-5 h-5" />} label="text" onClick={handleAddText} />
    <ToolButton icon={<MousePointerClick className="w-5 h-5" />} label="slick button" onClick={handleAddSlickButton} />
@@ -525,14 +525,14 @@ export function BuilderToolbox() {
    </div>
  )}
 
- {activeTab === 'home' && (
+ {activetab === 'home' && (
    <div className="grid grid-cols-2 gap-3">
    <ToolButton icon={<Link2 className="w-5 h-5" />} label="link card" onClick={handleAddLinkCard} />
    <ToolButton icon={<Star className="w-5 h-5" />} label="status" onClick={handleAddStatusIndicator} />
    </div>
  )}
 
- {activeTab === 'website' && (
+ {activetab === 'website' && (
    <div className="grid grid-cols-2 gap-3">
    <ToolButton icon={<Layout className="w-5 h-5" />} label="hero" onClick={handleAddHero} />
    <ToolButton icon={<Users className="w-5 h-5" />} label="about" onClick={handleAddAbout} />
@@ -545,7 +545,7 @@ export function BuilderToolbox() {
    </div>
  )}
 
- {activeTab === 'minecraft' && (
+ {activetab === 'minecraft' && (
    <div className="grid grid-cols-2 gap-3">
    <ToolButton icon={<Server className="w-5 h-5" />} label="server ip" onClick={handleAddServerIP} />
    <ToolButton icon={<Gamepad2 className="w-5 h-5" />} label="status" onClick={handleAddServerStatus} />
@@ -560,7 +560,7 @@ export function BuilderToolbox() {
    </div>
  )}
 
- {activeTab === 'integrations' && (
+ {activetab === 'integrations' && (
    <div className="grid grid-cols-2 gap-3">
    <ToolButton
    icon={<BarChart size={18} />}
@@ -619,14 +619,14 @@ export function BuilderToolbox() {
    </div>
  )}
 
- {activeTab === 'media' && (
+ {activetab === 'media' && (
    <div className="h-full">
-   {mediaMode === 'list' ? (
+   {mediamode === 'list' ? (
    <div className="grid grid-cols-2 gap-3">
   <ToolButton icon={<Image className="w-5 h-5" />} label="image" onClick={() => setMediaMode('image')} />
   <ToolButton icon={<Play className="w-5 h-5" />} label="video" onClick={() => setMediaMode('video')} />
    </div>
-   ) : mediaMode === 'image' ? (
+   ) : mediamode === 'image' ? (
    <div className="space-y-2">
   <button onClick={() => setMediaMode('list')} className="text-white/50 hover:text-white text-xs mb-2 flex items-center gap-1">
   <ChevronLeft className="w-3 h-3" /> back
@@ -652,7 +652,7 @@ export function BuilderToolbox() {
    </div>
  )}
 
- {activeTab === 'integrations' && (
+ {activetab === 'integrations' && (
    <div className="space-y-4">
    {/* search */}
    <div className="flex gap-2">
@@ -694,7 +694,7 @@ export function BuilderToolbox() {
    <div className="grid grid-cols-3 gap-2">
   {searchResults.map((item: any) => {
   const url = item.urls?.small || item.images?.fixed_width?.url || item.images?.original?.url;
-  const isGif = !!item.images;
+  const isgif = !!item.images;
   return (
   <button
     key={item.id}
@@ -710,7 +710,7 @@ export function BuilderToolbox() {
    </div>
  )}
 
- {activeTab === 'embeds' && (
+ {activetab === 'embeds' && (
    <div className="grid grid-cols-2 gap-3">
    <ToolButton icon={<Code className="w-5 h-5" />} label="embed" onClick={handleAddEmbed} />
    </div>

@@ -64,33 +64,33 @@ export function PageRenderer() {
       if (isTyping) return;
 
       if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (selectedElementIds.length > 0 && isAdmin) {
-          deleteElements(selectedElementIds);
+        if (selectedElementIds.length > 0 && isadmin) {
+          deleteelements(selectedelementids);
         }
         return;
       }
 
       // canvas hotkeys
-      if (isAdmin) {
-        const key = e.key.toLowerCase();
+      if (isadmin) {
+        const key = e.key.tolowercase();
         if (key === 's') {
-          setSelectedElementIds([]);
+          setselectedelementids([]);
           toast.success('selection tool active', { duration: 1000, icon: '🔍' });
         } else if (key === 't') {
           // calculate center of current viewport
-          const canvasContent = document.getElementById('canvas-content');
-          const scrollContainer = document.getElementById('builder-canvas');
+          const canvascontent = document.getelementbyid('canvas-content');
+          const scrollcontainer = document.getelementbyid('builder-canvas');
 
-          if (canvasContent && scrollContainer) {
-            const rect = canvasContent.getBoundingClientRect();
-            const viewHeight = window.innerHeight;
-            const viewWidth = window.innerWidth;
+          if (canvascontent && scrollcontainer) {
+            const rect = canvascontent.getboundingclientrect();
+            const viewheight = window.innerheight;
+            const viewwidth = window.innerwidth;
 
             // center in viewport relative to canvas-content
-            const centerX = (viewWidth / 2) - rect.left;
-            const centerY = scrollContainer.scrollTop + (viewHeight / 2) - 60; // 60 for header adjustment
+            const centerx = (viewwidth / 2) - rect.left;
+            const centery = scrollcontainer.scrolltop + (viewheight / 2) - 60; // 60 for header adjustment
 
-            addElement({
+            addelement({
               type: 'text',
               content: { html: '<p>new text box</p>' },
               x: Math.round(centerX),
@@ -279,7 +279,7 @@ export function PageRenderer() {
         }}
       >
         {/* the selection box visual */}
-        {selectionBox && (
+        {selectionbox && (
           <div
             className="absolute border border-[var(--primary)] bg-[var(--primary)]/10 z-[10000] pointer-events-none"
             style={{
@@ -348,53 +348,53 @@ interface ElementRendererProps {
   onContextMenu: (e: React.MouseEvent) => void;
 }
 
-function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onUpdateBatch, onContextMenu }: ElementRendererProps) {
-  const { page, previewMode, viewWidth } = useBuilder();
+function elementrenderer({ element, isselected, isadmin, onselect, onupdate, onupdatebatch, oncontextmenu }: elementrendererprops) {
+  const { page, previewmode, viewwidth } = usebuilder();
 
   // calculate scale factor for mobile/tablet responsive layout
   // designwidth for mobile is 430px (iphone 14/15 pro max)
   // designwidth for tablet is 834px (ipad air)
-  const designWidth = previewMode === 'mobile' ? 430 : previewMode === 'tablet' ? 834 : viewWidth;
+  const designwidth = previewmode === 'mobile' ? 430 : previewmode === 'tablet' ? 834 : viewwidth;
 
   // in admin mode (builder), we keep 1:1 scale for precise editing inside the frame.
   // in public mode (preview), we scale to fit the actual device width.
-  const scaleFactor = isAdmin ? 1 : (viewWidth / designWidth);
+  const scalefactor = isadmin ? 1 : (viewwidth / designwidth);
 
   // determine active layout with robust fallbacks per field
-  const deviceLayout = previewMode === 'mobile' ? element.mobile : previewMode === 'tablet' ? element.tablet : null;
+  const devicelayout = previewmode === 'mobile' ? element.mobile : previewmode === 'tablet' ? element.tablet : null;
 
-  const posX = deviceLayout?.x ?? element.x ?? 0;
-  const posY = deviceLayout?.y ?? element.y ?? 0;
-  const posW = deviceLayout?.width ?? element.width ?? 200;
-  const posH = deviceLayout?.height ?? element.height ?? 100;
-  const fontSize = deviceLayout?.fontSize ?? element.styles?.fontSize;
+  const posx = devicelayout?.x ?? element.x ?? 0;
+  const posy = devicelayout?.y ?? element.y ?? 0;
+  const posw = devicelayout?.width ?? element.width ?? 200;
+  const posh = devicelayout?.height ?? element.height ?? 100;
+  const fontsize = devicelayout?.fontsize ?? element.styles?.fontsize;
 
 
   // scroll-triggered animation
-  const { ref: inViewRef } = useInView({
-    triggerOnce: true,
+  const { ref: inviewref } = useinview({
+    triggeronce: true,
     threshold: 0.1,
   });
-  const elementRef = useRef<HTMLDivElement | null>(null);
+  const elementref = useref<HTMLDivElement | null>(null);
 
   // merge refs
   const setRefs = (node: HTMLDivElement | null) => {
-    elementRef.current = node;
-    inViewRef(node);
+    elementref.current = node;
+    inviewref(node);
   };
 
   // drag state
-  const [isDragging, setIsDragging] = useState(false);
-  const [isResizing, setIsResizing] = useState(false);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSnapping, setIsSnapping] = useState(false);
-  const [resizeHandle, setResizeHandle] = useState<string | null>(null); // n, s, e, w, ne, nw, se, sw
-  const dragStart = useRef<{
+  const [isdragging, setisdragging] = usestate(false);
+  const [isresizing, setisresizing] = usestate(false);
+  const [isediting, setisediting] = usestate(false);
+  const [issnapping, setissnapping] = usestate(false);
+  const [resizehandle, setresizehandle] = usestate<string | null>(null); // n, s, e, w, ne, nw, se, sw
+  const dragstart = useref<{
     x: number;
     y: number;
     targets: { id: string; initialX: number; initialY: number; dom: HTMLElement | null }[]
   } | null>(null);
-  const resizeStart = useRef<{ x: number; y: number; elW: number; elH: number; elX: number; elY: number; baseFontSize: number } | null>(null);
+  const resizestart = useref<{ x: number; y: number; elW: number; elH: number; elX: number; elY: number; baseFontSize: number } | null>(null);
 
   // handle drag
   useEffect(() => {
@@ -440,7 +440,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
               if (targets.some(t => t.id === other.id)) continue;
               const cx = other.x + (other.width || 0) / 2;
               const cy = other.y + (other.height || 0) / 2;
-              const dist = Math.hypot(cx - movingCenterX, cy - movingCenterY);
+              const dist = math.hypot(cx - movingcenterx, cy - movingcentery);
               if (!nearest || dist < nearest.dist) nearest = { cx, cy, dist };
             }
 
@@ -1016,7 +1016,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
 
   return (
     <>
-      {isEditing && element.type !== 'text' && isAdmin && (
+      {isediting && element.type !== 'text' && isadmin && (
         element.type === 'form' ? (
           <FormBuilder
             initialData={element}
@@ -1048,14 +1048,14 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
         onClick={handleClick}
         onContextMenu={onContextMenu}
       >
-        {isAdmin && isSelected && (
+        {isadmin && isselected && (
           <>
             <div className="absolute -top-7 left-0 bg-[var(--primary)] text-black text-[10px] font-bold px-2 py-1 rounded-t-lg lowercase flex items-center gap-3 shadow-lg transition-all group-hover:pr-3">
               <div className="flex items-center gap-1.5">
                 <span className="opacity-60">{element.type}</span>
                 <div className="flex gap-1 border-l border-black/10 pl-2">
-                  <span className="opacity-40">x:{Math.round(posX)}</span>
-                  <span className="opacity-40">y:{Math.round(posY)}</span>
+                  <span className="opacity-40">x:{math.round(posx)}</span>
+                  <span className="opacity-40">y:{math.round(posy)}</span>
                 </div>
               </div>
 
@@ -1089,7 +1089,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
 
         {/* content wrapper - pointer shield to allow dragging from anywhere */}
         <div className={`w-full h-full ${isAdmin && !isEditing ? 'pointer-events-none' : 'pointer-events-auto'}`}>
-          {renderContent()}
+          {rendercontent()}
         </div>
       </div>
     </>

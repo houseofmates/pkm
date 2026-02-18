@@ -32,8 +32,8 @@ interface ChartProps {
   stacked?: boolean;
   seriesType?: 'bar' | 'line' | 'area';
   seriesTypes?: Record<string, 'bar' | 'line' | 'area'>;
-  seriesOrder?: string[];
-  seriesColors?: Record<string, string>; // NEW: Custom colors per series
+  seriesorder?: string[];
+  seriescolors?: record<string, string>; // NEW: Custom colors per series
   legendCollapsed?: boolean;
   onConfig?: (key: string, value?: any) => void;
   columns?: { label: string, value: string }[];
@@ -84,14 +84,14 @@ function PlaceholderOverlay({ label, targetKey, isPlaceholder, columns, onConfig
   );
 }
 
-export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'value', color = 'var(--primary)', seriesKeys, stacked, seriesType, seriesTypes, seriesOrder, seriesColors, legendCollapsed, onConfig, columns, onDataClick, onDataContextMenu }: ChartProps) {
-  const [hidden, setHidden] = useState<Record<string, boolean>>({});
-  const [hoverKey, setHoverKey] = useState<string | null>(null);
-  const [search, setSearch] = useState('');
-  const [collapsed, setCollapsed] = useState(!!legendCollapsed);
-  const [isMounted, setIsMounted] = useState(false);
-  const [isReady, setIsReady] = useState(false);
-  const containerRef = useRef<HTMLDivElement>(null);
+export function chartwidget({ type = 'line', data = [], xkey = 'name', ykey = 'value', color = 'var(--primary)', serieskeys, stacked, seriestype, seriestypes, seriesorder, seriescolors, legendcollapsed, onconfig, columns, ondataclick, ondatacontextmenu }: chartprops) {
+  const [hidden, sethidden] = usestate<Record<string, boolean>>({});
+  const [hoverkey, sethoverkey] = usestate<string | null>(null);
+  const [search, setsearch] = usestate('');
+  const [collapsed, setcollapsed] = usestate(!!legendcollapsed);
+  const [ismounted, setismounted] = usestate(false);
+  const [isready, setisready] = usestate(false);
+  const containerref = useref<HTMLDivElement>(null);
 
   // default palette - updated to include var(--primary) as primary
   const DEFAULT_ALTS = ['var(--primary)', '#00C49F', '#0088FE', '#FF8042', '#8884d8', '#ff0055', '#7F00FF', '#00FF00'];
@@ -152,11 +152,11 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   if (!keys || keys.length === 0) return null;
   return keys.map((key, idx) => {
   if (hidden[key]) return null;
-  if (search && !key.toLowerCase().includes(search.toLowerCase())) return null;
-  const col = getColor(key, idx);
-  const keyType = seriesTypes?.[key] || seriesType || type;
-  const isDim = hoverKey && hoverKey !== key;
-  if (keyType === 'bar') {
+  if (search && !key.tolowercase().includes(search.tolowercase())) return null;
+  const col = getcolor(key, idx);
+  const keytype = seriestypes?.[key] || seriestype || type;
+  const isdim = hoverkey && hoverkey !== key;
+  if (keytype === 'bar') {
  return (
  <Bar
  key={key}
@@ -171,10 +171,10 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
  />
  );
   }
-  if (keyType === 'line') {
+  if (keytype === 'line') {
  return <Line key={key} type="monotone" dataKey={key} stroke={col} strokeWidth={2} dot={false} strokeOpacity={isDim ? 0.2 : 1} activeDot={{ onClick: (_e: any, payload: any) => onDataClick && onDataClick(payload, xKey, key), onContextMenu: (e: any, payload: any) => onDataContextMenu && onDataContextMenu(e, payload, xKey, key) }} />;
   }
-  if (keyType === 'area') {
+  if (keytype === 'area') {
  return <Area key={key} type="monotone" dataKey={key} stroke={col} fill={col} fillOpacity={isDim ? 0.08 : 0.25} activeDot={{ onClick: (_e: any, payload: any) => onDataClick && onDataClick(payload, xKey, key) }} />;
   }
   return null;
@@ -182,7 +182,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   };
 
   if (type === 'line') {
-  if (!isMounted || !isReady) {
+  if (!ismounted || !isready) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
@@ -195,12 +195,12 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
    <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
    <YAxis fontSize={10} tickLine={false} axisLine={false} />
    <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />
-   {renderSeries()}
+   {renderseries()}
  </LineChart>
  </ResponsiveContainer>
  <div className="flex items-center justify-between gap-2 mt-2">
  <div className="flex items-center gap-2">
-   <input placeholder="Search series..." value={search} onChange={(e) => setSearch(e.target.value)} className="input input-sm" />
+   <input placeholder="search series..." value={search} onChange={(e) => setSearch(e.target.value)} className="input input-sm" />
    <button onClick={() => setCollapsed(!collapsed)} className="btn btn-ghost">{collapsed ? 'Expand Legend' : 'Collapse Legend'}</button>
  </div>
  <div className="text-xs text-muted-foreground">{(buildKeys() || []).filter(k => !hidden[k]).length} visible</div>
@@ -208,9 +208,9 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
  {!collapsed && (
  <div className="flex flex-wrap gap-2 mt-2">
    {buildKeys().map((k, idx) => {
-   const col = getColor(k, idx);
-   const hiddenFlag = !!hidden[k];
-   if (search && !k.toLowerCase().includes(search.toLowerCase())) return null;
+   const col = getcolor(k, idx);
+   const hiddenflag = !!hidden[k];
+   if (search && !k.tolowercase().includes(search.tolowercase())) return null;
    return (
    <button key={k} onClick={() => toggle(k)} onMouseEnter={() => setHoverKey(k)} onMouseLeave={() => setHoverKey(null)} className="flex items-center gap-2 px-2 py-1 rounded bg-card border border-border/50 hover:bg-muted/50 transition-colors">
   <span style={{ width: 12, height: 12, backgroundColor: col, display: 'inline-block', borderRadius: 3, opacity: hiddenFlag ? 0.3 : 1 }} />
@@ -226,13 +226,13 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
 
   return (
   <div ref={containerRef} className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="Select Group By" targetKey="chartX" />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select group by" targetKey="chartX" />
  <ResponsiveContainer width="100%" height="100%">
  <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
  <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={isPlaceholder ? 0.1 : 0.2} />
  <XAxis dataKey="name" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
  <YAxis {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
- {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
+ {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
  <Line
    type="monotone"
    dataKey={isPlaceholder ? "value" : yKey}
@@ -250,7 +250,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'area') {
-  if (!isMounted || !isReady) {
+  if (!ismounted || !isready) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
@@ -263,19 +263,19 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
    <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
    <YAxis fontSize={10} tickLine={false} axisLine={false} />
    <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />
-   {renderSeries()}
+   {renderseries()}
  </AreaChart>
  </ResponsiveContainer>
  <div className="flex items-center justify-between gap-2 mt-2">
  <div className="flex items-center gap-2">
    <input
-   placeholder="Search series..."
+   placeholder="search series..."
    value={search}
    onChange={(e) => setSearch(e.target.value)}
    className="input input-sm"
    />
    <button onClick={() => setCollapsed(!collapsed)} className="btn btn-ghost">
-   {collapsed ? 'Expand Legend' : 'Collapse Legend'}
+   {collapsed ? 'expand legend' : 'collapse legend'}
    </button>
  </div>
  <div className="text-xs text-muted-foreground">
@@ -285,9 +285,9 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
  {!collapsed && (
  <div className="flex flex-wrap gap-2 mt-2">
    {buildKeys().map((k, idx) => {
-   const col = getColor(k, idx);
-   const hiddenFlag = !!hidden[k];
-   if (search && !k.toLowerCase().includes(search.toLowerCase())) return null;
+   const col = getcolor(k, idx);
+   const hiddenflag = !!hidden[k];
+   if (search && !k.tolowercase().includes(search.tolowercase())) return null;
    return (
    <button
   key={k}
@@ -309,13 +309,13 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
 
   return (
   <div ref={containerRef} className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="Select Group By" targetKey="chartX" />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select group by" targetKey="chartX" />
  <ResponsiveContainer width="100%" height="100%">
  <AreaChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
  <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
  <XAxis dataKey="name" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
  <YAxis {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
- {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
+ {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
  <Area
    type="monotone"
    dataKey={isPlaceholder ? "value" : yKey}
@@ -331,19 +331,19 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'scatter') {
-  if (!isMounted || !isReady) {
+  if (!ismounted || !isready) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
   return (
   <div ref={containerRef} className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="Select X Axis" targetKey="chartX" />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select x axis" targetKey="chartX" />
  <ResponsiveContainer width="100%" height="100%">
  <ScatterChart>
  <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
  <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
  <YAxis dataKey={yKey} fontSize={10} tickLine={false} axisLine={false} />
- {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
+ {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
  <Scatter data={data} fill={color} />
  </ScatterChart>
  </ResponsiveContainer>
@@ -352,7 +352,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'bar') {
-  if (!isMounted || !isReady) {
+  if (!ismounted || !isready) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
@@ -365,12 +365,12 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
    <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
    <YAxis fontSize={10} tickLine={false} axisLine={false} />
    <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />
-   {renderSeries()}
+   {renderseries()}
  </BarChart>
  </ResponsiveContainer>
  <div className="flex items-center justify-between gap-2 mt-2">
  <div className="flex items-center gap-2">
-   <input placeholder="Search series..." value={search} onChange={(e) => setSearch(e.target.value)} className="input input-sm" />
+   <input placeholder="search series..." value={search} onChange={(e) => setSearch(e.target.value)} className="input input-sm" />
    <button onClick={() => setCollapsed(!collapsed)} className="btn btn-ghost">{collapsed ? 'Expand Legend' : 'Collapse Legend'}</button>
  </div>
  <div className="text-xs text-muted-foreground">{(buildKeys() || []).filter(k => !hidden[k]).length} visible</div>
@@ -378,9 +378,9 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
  {!collapsed && (
  <div className="flex flex-wrap gap-2 mt-2">
    {buildKeys().map((k, idx) => {
-   const col = getColor(k, idx);
-   const hiddenFlag = !!hidden[k];
-   if (search && !k.toLowerCase().includes(search.toLowerCase())) return null;
+   const col = getcolor(k, idx);
+   const hiddenflag = !!hidden[k];
+   if (search && !k.tolowercase().includes(search.tolowercase())) return null;
    return (
    <button key={k} onClick={() => toggle(k)} onMouseEnter={() => setHoverKey(k)} onMouseLeave={() => setHoverKey(null)} className="flex items-center gap-2 px-2 py-1 rounded bg-card border border-border/50 hover:bg-muted/50 transition-colors">
   <span style={{ width: 12, height: 12, backgroundColor: col, display: 'inline-block', borderRadius: 3, opacity: hiddenFlag ? 0.3 : 1 }} />
@@ -396,13 +396,13 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
 
   return (
   <div className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="Select Group By" targetKey="chartX" />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select group by" targetKey="chartX" />
  <ResponsiveContainer width="100%" height="100%">
  <BarChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
  <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
  <XAxis dataKey="name" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
  <YAxis {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
- {!isPlaceholder && <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
+ {!isplaceholder && <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
  <Bar
    dataKey={isPlaceholder ? "value" : yKey}
    fill={isPlaceholder ? "var(--muted)" : color}
@@ -417,13 +417,13 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'pie') {
-  if (!isMounted || !isReady) {
+  if (!ismounted || !isready) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
   return (
   <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="Select Category" targetKey="chartX" />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select category" targetKey="chartX" />
  <ResponsiveContainer width="100%" height="100%">
  <PieChart>
  <Pie
@@ -448,7 +448,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
    />
    ))}
  </Pie>
- {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
+ {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
  {!isPlaceholder && <Legend />}
  </PieChart>
  </ResponsiveContainer>
@@ -457,13 +457,13 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'radar') {
-  if (!isMounted || !isReady) {
+  if (!ismounted || !isready) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
   return (
   <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="Select Dimensions" targetKey="chartX" />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select dimensions" targetKey="chartX" />
  <ResponsiveContainer width="100%" height="100%">
  <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
  <PolarGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
@@ -478,7 +478,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
    strokeDasharray={isPlaceholder ? "5 5" : undefined}
    onClick={(data) => onDataClick && !isPlaceholder && onDataClick(data, xKey)}
  />
- {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
+ {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
  </RadarChart>
  </ResponsiveContainer>
   </div>
@@ -486,13 +486,13 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'treemap') {
-  if (!isMounted || !isReady) {
+  if (!ismounted || !isready) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
   return (
   <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="Select Grouping" targetKey="chartX" />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select grouping" targetKey="chartX" />
  <ResponsiveContainer width="100%" height="100%">
  <Treemap
  data={chartData}
@@ -503,16 +503,16 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
  isAnimationActive={false}
  content={(props: any) => {
    const { x, y, width, height, index, name, value } = props;
-   if (isPlaceholder) {
+   if (isplaceholder) {
    return (
    <g>
   <rect x={x} y={y} width={width} height={height} fill="var(--muted)" stroke="var(--background)" strokeDasharray="3 3" fillOpacity={0.1} />
    </g>
    )
    }
-   const col = getColor(name, index);
+   const col = getcolor(name, index);
    // contrast check
-   const textColor = getContrastColor(col);
+   const textcolor = getcontrastcolor(col);
 
    return (
    <g>
@@ -557,7 +557,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
    );
  }}
  >
- {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
+ {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
  </Treemap>
  </ResponsiveContainer>
   </div>
@@ -565,18 +565,18 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'funnel') {
-  if (!isMounted || !isReady) {
+  if (!ismounted || !isready) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
   // funnel sort
-  const sorted = isPlaceholder ? chartData : [...data].sort((a, b) => (b[yKey] || 0) - (a[yKey] || 0));
+  const sorted = isPlaceholder ? chartData : [...data].sort((a, b) => (b[ykey] || 0) - (a[ykey] || 0));
   return (
   <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="Select Stage" targetKey="chartX" />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select stage" targetKey="chartX" />
  <ResponsiveContainer width="100%" height="100%">
  <RechartsFunnelChart>
- {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
+ {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
  <Funnel
    dataKey={isPlaceholder ? "value" : yKey}
    data={sorted}
@@ -598,21 +598,21 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'gauge') {
-  if (!isMounted || !isReady) {
+  if (!ismounted || !isready) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
-  const val = isPlaceholder ? 0 : (data[0]?.[yKey] || 0);
-  const max = 100; // Arbitrary for now without config
-  const safeVal = Math.min(Math.max(val, 0), max);
-  const gaugeData = [
-  { name: 'Value', value: safeVal },
-  { name: 'Remainder', value: max - safeVal }
+  const val = isplaceholder ? 0 : (data[0]?.[ykey] || 0);
+  const max = 100; // arbitrary for now without config
+  const safeval = math.min(math.max(val, 0), max);
+  const gaugedata = [
+  { name: 'value', value: safeval },
+  { name: 'remainder', value: max - safeval }
   ];
 
   return (
   <div ref={containerRef} className="relative w-full h-full flex items-center justify-center p-2 group" onClick={() => isPlaceholder && triggerConfig('chartY')}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="Select Metric" targetKey="chartY" />
+ <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select metric" targetKey="chartY" />
  <ResponsiveContainer width="100%" height="100%">
  <PieChart>
  <Pie
@@ -628,7 +628,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
    stroke="none"
    onClick={(data) => onDataClick && !isPlaceholder && onDataClick(data, xKey)}
  >
-   {isPlaceholder ? (
+   {isplaceholder ? (
    <Cell fill="var(--muted)" strokeDasharray="5 5" stroke="var(--muted-foreground)" fillOpacity={0.1} />
    ) : (
    <>
@@ -639,7 +639,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
  </Pie>
  </PieChart>
  </ResponsiveContainer>
- {!isPlaceholder && (
+ {!isplaceholder && (
  <div className="absolute bottom-4 text-2xl font-bold flex flex-col items-center">
  {val}%
  <span className="text-xs text-muted-foreground font-normal">target</span>
@@ -650,11 +650,11 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'kpi') {
-  if (!isMounted || !isReady) {
+  if (!ismounted || !isready) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
-  const val = isPlaceholder ? 1234 : data.reduce((acc, cur) => acc + (Number(cur[yKey]) || 0), 0);
+  const val = isPlaceholder ? 1234 : data.reduce((acc, cur) => acc + (number(cur[ykey]) || 0), 0);
 
   return (
   <div ref={containerRef} className="h-full w-full flex flex-col items-center justify-center p-4 group cursor-pointer relative"
@@ -666,12 +666,12 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
  }}>
  <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="configure kpi values" targetKey="chartY" />
  <div className={cn("text-sm  mb-2", isPlaceholder ? "text-muted-foreground/50" : "text-muted-foreground")}>
- {isPlaceholder ? "total metric" : (xKey + ' total')}
+ {isplaceholder ? "total metric" : (xkey + ' total')}
  </div>
  <div className={cn("text-5xl font-bold ", isPlaceholder ? "text-muted-foreground/30 dashed-text" : "text-primary")}>
- {val.toLocaleString()}
+ {val.tolocalestring()}
  </div>
- {!isPlaceholder && (
+ {!isplaceholder && (
  <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2 opacity-0">
  {/* placeholder for future trends */}
  </div>
@@ -681,7 +681,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'scatter') {
-  if (!isMounted || !isReady) {
+  if (!ismounted || !isready) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
@@ -693,7 +693,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
  <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
  <XAxis dataKey="amt" type="number" name="amt" unit="" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
  <YAxis dataKey={yKey} type="number" name="val" unit="" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
- {!isPlaceholder && <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />}
+ {!isplaceholder && <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />}
  <Scatter
    name="A school"
    data={chartData}

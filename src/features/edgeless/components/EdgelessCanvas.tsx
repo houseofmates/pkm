@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo } from 'react'
 import { Canvas, PencilBrush, Point } from 'fabric'
 import { toast } from 'sonner'
 import * as fabric from 'fabric'
@@ -36,12 +36,12 @@ export interface EdgelessCanvasProps {
   onObjectModified?: (id: string, patch: any) => void
   className?: string
   onLoad?: () => void
-  children?: React.ReactNode
+  children?: react.reactnode
 }
 
-export function EdgelessCanvas({ onObjectModified, className, onLoad, children }: EdgelessCanvasProps) {
-  const canvasEl = useRef<HTMLCanvasElement>(null)
-  const containerRef = useRef<HTMLDivElement>(null)
+export function edgelesscanvas({ onobjectmodified, classname, onload, children }: edgelesscanvasprops) {
+  const canvasel = useref<HTMLCanvasElement>(null)
+  const containerref = useref<HTMLDivElement>(null)
   const { width, height } = useWindowSize()
 
   // drop target logic
@@ -94,17 +94,17 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
   }
 
   const setRefs = (node: HTMLDivElement) => {
-    containerRef.current = node
-    setNodeRef(node)
+    containerref.current = node
+    setnoderef(node)
   }
 
-  const [fabricCanvas, setFabricCanvas] = useState<Canvas | null>(null)
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
-  const [pdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null)
+  const [fabriccanvas, setfabriccanvas] = usestate<Canvas | null>(null)
+  const [selectedids, setselectedids] = usestate<Set<string>>(new set())
+  const [pdfdoc] = usestate<pdfjsLib.PDFDocumentProxy | null>(null)
 
   // spatial index ref for eraser performance
-  const spatialIndexRef = useRef<SpatialIndex | null>(null)
-  const rebuildSpatialIndexRef = useRef<(() => void) | null>(null)
+  const spatialindexref = useref<SpatialIndex | null>(null)
+  const rebuildspatialindexref = useref<(() => void) | null>(null)
 
   // store state
   const {
@@ -377,41 +377,45 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
 
   // interact/cursor mode
   useEffect(() => {
-    if (!fabricCanvas) return
+    if (!fabriccanvas) return
 
-    const selMode = useEdgelessStore.getState().selectionMode
-    const isCursorMode = activeTool === 'select' && selMode === 'cursor'
-    const isInteractMode = mode === 'interact'
+    const selmode = useedgelessstore.getstate().selectionmode
+    const iscursormode = activetool === 'select' && selmode === 'cursor'
+    const isinteractmode = mode === 'interact'
 
-    if (isInteractMode || isCursorMode) {
-      fabricCanvas.selection = false
-      fabricCanvas.defaultCursor = 'default'
+    if (isinteractmode || iscursormode) {
+      fabriccanvas.selection = false
+      fabriccanvas.defaultcursor = 'default'
 
-      fabricCanvas.forEachObject((obj) => {
-        obj.selectable = false
-        obj.evented = false
-      })
+      const _objs = fabriccanvas.getobjects()
+      for (let i = 0; i < _objs.length; i++) {
+        _objs[i].selectable = false
+        _objs[i].evented = false
+      }
       fabricCanvas.requestRenderAll()
     } else if (activeTool === 'select' && selMode === 'grab') {
       fabricCanvas.selection = true
       fabricCanvas.defaultCursor = 'grab'
 
-      fabricCanvas.forEachObject((obj) => {
-        obj.selectable = true
-        obj.evented = true
-      })
+      const _objs = fabricCanvas.getObjects()
+      for (let i = 0; i < _objs.length; i++) {
+        _objs[i].selectable = true
+        _objs[i].evented = true
+      }
       fabricCanvas.requestRenderAll()
     } else if (activeTool === 'select' && (selMode === 'free' || selMode === 'magic')) {
-      fabricCanvas.forEachObject((obj) => {
-        obj.selectable = false
-        obj.evented = false
-      })
+      const _objs = fabricCanvas.getObjects()
+      for (let i = 0; i < _objs.length; i++) {
+        _objs[i].selectable = false
+        _objs[i].evented = false
+      }
     } else {
       fabricCanvas.selection = false
-      fabricCanvas.forEachObject((obj) => {
-        obj.selectable = false
-        obj.evented = false
-      })
+      const _objs = fabricCanvas.getObjects()
+      for (let i = 0; i < _objs.length; i++) {
+        _objs[i].selectable = false
+        _objs[i].evented = false
+      }
     }
   }, [fabricCanvas, mode, activeTool])
 
@@ -465,8 +469,8 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     if (!fabricCanvas) return
 
     const updateSelection = () => {
-      const active = fabricCanvas.getActiveObjects()
-      const newSet = new Set<string>()
+      const active = fabriccanvas.getactiveobjects()
+      const newset = new set<string>()
       for (let i = 0; i < active.length; i++) {
         const id = active[i].data?.id
         if (id) newSet.add(id)
@@ -529,12 +533,12 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     fabricCanvas.on('path:created', handlePathCreated)
 
     return () => {
-      fabricCanvas.off('path:created', handlePathCreated)
+      fabriccanvas.off('path:created', handlepathcreated)
     }
-  }, [fabricCanvas, drawingId, activeLayerId, recordOp])
+  }, [fabriccanvas, drawingid, activelayerid, recordop])
 
   // selection safeguards
-  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null)
+  const longpresstimerref = useref<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     if (!fabricCanvas) return
@@ -646,12 +650,12 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     }
 
     const handleUp = () => {
-      if (!isLassoing) return
-      isLassoing = false
+      if (!islassoing) return
+      islassoing = false
 
-      if (activeLine) {
-        fabricCanvas.remove(activeLine)
-        activeLine = null
+      if (activeline) {
+        fabriccanvas.remove(activeline)
+        activeline = null
       }
 
       if (points.length < 5) return
@@ -661,18 +665,19 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       const toSelect: any[] = []
       const buffer = 10
 
-      objects.forEach((obj) => {
-        if (!obj.selectable && obj.type !== 'path' && obj.type !== 'group') return
-        if (obj === activeLine) return
+      for (let i = 0; i < objects.length; i++) {
+        const obj = objects[i]
+        if (!obj.selectable && obj.type !== 'path' && obj.type !== 'group') continue
+        if (obj === activeLine) continue
 
         if (polygon.containsPoint(obj.getCenterPoint())) {
           toSelect.push(obj)
-          return
+          continue
         }
 
         if (polygon.intersectsWithObject(obj)) {
           toSelect.push(obj)
-          return
+          continue
         }
 
         const rect = obj.getBoundingRect()
@@ -682,13 +687,13 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         if (polygon.intersectsWithRect(tl, br)) {
           toSelect.push(obj)
         }
-      })
+      }
 
       if (toSelect.length > 0) {
-        toSelect.forEach((obj) => {
-          obj.selectable = true
-          obj.evented = true
-        })
+        for (let i = 0; i < toSelect.length; i++) {
+          toSelect[i].selectable = true
+          toSelect[i].evented = true
+        }
 
         const sel = new fabric.ActiveSelection(toSelect, { canvas: fabricCanvas })
         fabricCanvas.setActiveObject(sel)
@@ -702,10 +707,10 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
 
     const handleSelectionCleared = (e: any) => {
       const objs = e.deselected || []
-      objs.forEach((obj: any) => {
-        obj.selectable = false
-        obj.evented = false
-      })
+      for (let i = 0; i < objs.length; i++) {
+        objs[i].selectable = false
+        objs[i].evented = false
+      }
     }
 
     fabricCanvas.on('mouse:down', handleDown)
@@ -771,24 +776,24 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
 
     const doErase = (opt: any) => {
       const e = opt.e
-      const clientX = e.clientX || e.touches?.[0]?.clientX
-      const clientY = e.clientY || e.touches?.[0]?.clientY
-      if (clientX) setCursorPos({ x: clientX, y: clientY })
+      const clientx = e.clientx || e.touches?.[0]?.clientx
+      const clienty = e.clienty || e.touches?.[0]?.clienty
+      if (clientx) setcursorpos({ x: clientx, y: clienty })
 
-      if (activeTool !== 'eraser' || mode !== 'draw' || !isErasingRef.current) return
+      if (activetool !== 'eraser' || mode !== 'draw' || !iserasingref.current) return
 
-      const pointer = fabricCanvas.getScenePoint(e)
-      const eraserWidth = useEdgelessStore.getState().eraserWidth
-      const r = eraserWidth / 2
+      const pointer = fabriccanvas.getscenepoint(e)
+      const eraserwidth = useedgelessstore.getstate().eraserwidth
+      const r = eraserwidth / 2
 
       // use spatial index if available
-      const index = spatialIndexRef.current
+      const index = spatialindexref.current
       let candidates: any[] = []
 
       if (index) {
-        index.setLayerFilter(activeLayerId)
-        const hits = index.queryRadius(pointer.x, pointer.y, r)
-        candidates = new Array(hits.length)
+        index.setlayerfilter(activelayerid)
+        const hits = index.queryradius(pointer.x, pointer.y, r)
+        candidates = new array(hits.length)
         for (let i = 0; i < hits.length; i++) {
           candidates[i] = hits[i].ref
         }
@@ -800,20 +805,24 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       const toRemove: fabric.Object[] = []
       const toAdd: fabric.Object[] = []
 
-      for (const obj of candidates) {
+      const rSq = r * r
+      for (let ci = 0; ci < candidates.length; ci++) {
+        const obj = candidates[ci]
         if (!obj || !obj.visible) continue
 
         // check intersection
         const bounds = obj.getBoundingRect()
         const centerX = bounds.left + bounds.width / 2
         const centerY = bounds.top + bounds.height / 2
-        const dist = Math.hypot(centerX - pointer.x, centerY - pointer.y)
+        const dx = centerX - pointer.x
+        const dy = centerY - pointer.y
+        const distSq = dx * dx + dy * dy
 
-        if (dist > r + Math.max(bounds.width, bounds.height) / 2) continue
+        if (distSq > (r + math.max(bounds.width, bounds.height) / 2) ** 2) continue
 
         if (obj.type !== 'path') {
           // non-path objects: remove if center in range
-          if (dist < r) {
+          if (distsq < rSq) {
             toRemove.push(obj)
             recordOp({
               type: 'delete',
@@ -839,13 +848,17 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
           if (type === 'M') {
             currentPt = { x: cmd[1] as number, y: cmd[2] as number }
           } else if (type === 'Q') {
+            const bx = cmd[1] as number
+            const by = cmd[2] as number
             const endPt = { x: cmd[3] as number, y: cmd[4] as number }
             // sample the curve
             for (let t = 0; t <= 10; t++) {
               const tt = t / 10
-              const x = (1 - tt) * (1 - tt) * currentPt.x + 2 * (1 - tt) * tt * (cmd[1] as number) + tt * tt * endPt.x
-              const y = (1 - tt) * (1 - tt) * currentPt.y + 2 * (1 - tt) * tt * (cmd[2] as number) + tt * tt * endPt.y
-              if (Math.hypot(x - pointer.x, y - pointer.y) < r) {
+              const x = (1 - tt) * (1 - tt) * currentPt.x + 2 * (1 - tt) * tt * bx + tt * tt * endPt.x
+              const y = (1 - tt) * (1 - tt) * currentPt.y + 2 * (1 - tt) * tt * by + tt * tt * endPt.y
+              const dx2 = x - pointer.x
+              const dy2 = y - pointer.y
+              if (dx2 * dx2 + dy2 * dy2 < rSq) {
                 hit = true
                 break
               }
@@ -857,7 +870,9 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
             for (let t = 0; t <= 10; t++) {
               const px = currentPt.x + (endPt.x - currentPt.x) * (t / 10)
               const py = currentPt.y + (endPt.y - currentPt.y) * (t / 10)
-              if (Math.hypot(px - pointer.x, py - pointer.y) < r) {
+              const dx2 = px - pointer.x
+              const dy2 = py - pointer.y
+              if (dx2 * dx2 + dy2 * dy2 < rSq) {
                 hit = true
                 break
               }
@@ -878,7 +893,9 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       }
 
       if (toRemove.length > 0) {
-        toRemove.forEach((o) => fabricCanvas.remove(o))
+        for (let i = 0; i < toRemove.length; i++) {
+          fabricCanvas.remove(toRemove[i])
+        }
         fabricCanvas.requestRenderAll()
         rebuildSpatialIndexRef.current?.()
       }
@@ -930,8 +947,9 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       if (e.key === 'Delete' || e.key === 'Backspace') {
         const activeObjects = fabricCanvas?.getActiveObjects()
         if (activeObjects && activeObjects.length > 0) {
-          e.preventDefault()
-          activeObjects.forEach((obj: any) => {
+          e.preventdefault()
+          for (let i = 0; i < activeObjects.length; i++) {
+            const obj: any = activeObjects[i]
             if (obj.data?.id) {
               removeElement(obj.data.id)
               recordOp({
@@ -940,7 +958,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
                 layerId: obj.data?.layerId || activeLayerId,
               })
             }
-          })
+          }
           fabricCanvas?.discardActiveObject()
           fabricCanvas?.requestRenderAll()
           rebuildSpatialIndexRef.current?.()
@@ -1035,11 +1053,11 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     }
 
     const handleTouchEnd = (e: TouchEvent) => {
-      if (!hasMoved) {
-        if (startFingers === 2) {
+      if (!hasmoved) {
+        if (startfingers === 2) {
           undo()
         }
-        if (startFingers === 3) {
+        if (startfingers === 3) {
           redo()
         }
       }
@@ -1098,12 +1116,12 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       }
     }
     window.addEventListener('paste', handlePaste)
-    return () => window.removeEventListener('paste', handlePaste)
-  }, [viewPort, addElement])
+    return () => window.removeeventlistener('paste', handlepaste)
+  }, [viewport, addelement])
 
-  const fileInputRef = useRef<HTMLInputElement>(null)
+  const fileinputref = useref<HTMLInputElement>(null)
 
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleupload = (e: react.changeevent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -1171,7 +1189,171 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     }
   }
 
-  const eraserWidth = useEdgelessStore.getState().eraserWidth
+  // memoized overlay elements to avoid unnecessary remounts during unrelated renders
+  const overlayElements = useMemo(() => {
+    if (!fabriccanvas) return null
+    const out: react.reactnode[] = []
+    for (let i = 0; i < elements.length; i++) {
+      const el = elements[i]
+      const { x: screenX, y: screenY, w: screenW, h: screenH } = getScreenPos(el)
+      const isSelected = selectedIds.has(el.id)
+      const bgPointerEvents = isSelected ? 'pointer-events-none select-none' : 'pointer-events-auto'
+
+      const elementStyle = {
+        left: screenX,
+        top: screenY,
+        width: screenW,
+        height: screenH,
+        transformOrigin: 'top left',
+      }
+
+      switch (el.type) {
+        case 'pdf-page':
+          out.push(
+            <div
+              key={el.id}
+              className={`absolute bg-[#090909] border border-white/10 shadow-lg ${bgPointerEvents}`}
+              style={elementStyle}
+            >
+              <PdfElement element={el} pdfDocument={pdfDoc} />
+            </div>
+          )
+          break
+        case 'image':
+          out.push(
+            <div key={el.id} className="absolute shadow-lg pointer-events-auto" style={elementStyle}>
+              <img src={el.data?.src || el.data?.url} className="w-full h-full object-cover" draggable={false} />
+            </div>
+          )
+          break
+        case 'embed':
+        case 'embed-web':
+        case 'embed-nocobase':
+          out.push(
+            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+              <EmbedElement element={el} />
+            </div>
+          )
+          break
+        case 'link-card':
+          out.push(
+            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+              <LinkElement element={el} />
+            </div>
+          )
+          break
+        case 'record-node':
+          out.push(
+            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+              <RecordNodeElement element={el} />
+            </div>
+          )
+          break
+        case 'database-card':
+          out.push(
+            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+              <CanvasCard
+                data={el.data.row}
+                collection={el.data.collection}
+                fields={el.data.fields || []}
+                layout={{ x: 0, y: 0, width: el.width, height: el.height }}
+                isSelected={false}
+                className="w-full h-full"
+                onUpdate={el.data.onUpdate}
+              />
+            </div>
+          )
+          break
+        case 'portal':
+          out.push(
+            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+              <PortalElement element={el} />
+            </div>
+          )
+          break
+        case 'eternal-flame':
+          out.push(
+            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+              <EternalFlame element={el} />
+            </div>
+          )
+          break
+        case 'contact-card':
+          out.push(
+            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+              <ContactElement element={el} />
+            </div>
+          )
+          break
+        case 'offering-drop':
+          out.push(
+            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+              <OfferingDrop element={el} />
+            </div>
+          )
+          break
+        case 'shopping-card':
+          out.push(
+            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+              <ShoppingCard element={el} />
+            </div>
+          )
+          break
+        case 'gold-pile':
+          out.push(
+            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+              <GoldPile element={el} />
+            </div>
+          )
+          break
+        case 'floating-reminder':
+          out.push(
+            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+              <FloatingReminder element={el} />
+            </div>
+          )
+          break
+        case 'tier-list':
+          out.push(
+            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+              <TierListElement element={el} />
+            </div>
+          )
+          break
+        case 'sleep-ring':
+          out.push(
+            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+              <SleepRing element={el} />
+            </div>
+          )
+          break
+        case 'connector':
+          out.push(<ConnectorElement key={el.id} element={el} />)
+          break
+        case 'smart-text':
+          out.push(
+            <div
+              key={el.id}
+              className="absolute pointer-events-auto"
+              style={{
+                ...elementStyle,
+                height: 'auto',
+                minHeight: 50,
+                zIndex: 10,
+              }}
+            >
+              <SmartTextElement element={el} />
+            </div>
+          )
+          break
+        default:
+          break
+      }
+    }
+    return out
+  }, [elements, selectedids, fabriccanvas, viewport.x, viewport.y, viewport.zoom, pdfdoc])
+
+  const eraserwidth = useedgelessstore.getstate().eraserwidth
 
   return (
     <div
@@ -1225,14 +1407,14 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
 
       {/* page boundary indicator */}
       {(() => {
-        if (canvasConfig.mode === 'edgeless') return null
+        if (canvasconfig.mode === 'edgeless') return null
 
-        const width = canvasConfig.mode === 'desktop-8k' ? 7680 : 4320
-        const height = canvasConfig.mode === 'desktop-8k' ? 4320 : 9360
+        const width = canvasconfig.mode === 'desktop-8k' ? 7680 : 4320
+        const height = canvasconfig.mode === 'desktop-8k' ? 4320 : 9360
 
-        const zoom = viewPort.zoom
-        const panX = viewPort.x
-        const panY = viewPort.y
+        const zoom = viewport.zoom
+        const panx = viewport.x
+        const pany = viewport.y
 
         return (
           <div
@@ -1246,7 +1428,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
             }}
           >
             <div className="absolute -top-6 left-0 text-xs text-muted-foreground font-mono lowercase">
-              {canvasConfig.mode === 'desktop-8k' ? '8k desktop (7680x4320)' : '8k iphone (4320x9360)'}
+              {canvasconfig.mode === 'desktop-8k' ? '8k desktop (7680x4320)' : '8k iphone (4320x9360)'}
             </div>
           </div>
         )
@@ -1265,149 +1447,10 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       </div>
 
       {/* element overlays */}
-      {fabricCanvas &&
-        elements.map((el: any) => {
-          const { x: screenX, y: screenY, w: screenW, h: screenH } = getScreenPos(el)
-          const isSelected = selectedIds.has(el.id)
-          const bgPointerEvents = isSelected ? 'pointer-events-none select-none' : 'pointer-events-auto'
-
-          const elementStyle = {
-            left: screenX,
-            top: screenY,
-            width: screenW,
-            height: screenH,
-            transformOrigin: 'top left',
-          }
-
-          switch (el.type) {
-            case 'pdf-page':
-              return (
-                <div
-                  key={el.id}
-                  className={`absolute bg-[#090909] border border-white/10 shadow-lg ${bgPointerEvents}`}
-                  style={elementStyle}
-                >
-                  <PdfElement element={el} pdfDocument={pdfDoc} />
-                </div>
-              )
-            case 'image':
-              return (
-                <div key={el.id} className="absolute shadow-lg pointer-events-auto" style={elementStyle}>
-                  <img src={el.data?.src || el.data?.url} className="w-full h-full object-cover" draggable={false} />
-                </div>
-              )
-            case 'embed':
-            case 'embed-web':
-            case 'embed-nocobase':
-              return (
-                <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-                  <EmbedElement element={el} />
-                </div>
-              )
-            case 'link-card':
-              return (
-                <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-                  <LinkElement element={el} />
-                </div>
-              )
-            case 'record-node':
-              return (
-                <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-                  <RecordNodeElement element={el} />
-                </div>
-              )
-            case 'database-card':
-              return (
-                <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-                  <CanvasCard
-                    data={el.data.row}
-                    collection={el.data.collection}
-                    fields={el.data.fields || []}
-                    layout={{ x: 0, y: 0, width: el.width, height: el.height }}
-                    isSelected={false}
-                    className="w-full h-full"
-                    onUpdate={el.data.onUpdate}
-                  />
-                </div>
-              )
-            case 'portal':
-              return (
-                <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-                  <PortalElement element={el} />
-                </div>
-              )
-            case 'eternal-flame':
-              return (
-                <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-                  <EternalFlame element={el} />
-                </div>
-              )
-            case 'contact-card':
-              return (
-                <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-                  <ContactElement element={el} />
-                </div>
-              )
-            case 'offering-drop':
-              return (
-                <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-                  <OfferingDrop element={el} />
-                </div>
-              )
-            case 'shopping-card':
-              return (
-                <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-                  <ShoppingCard element={el} />
-                </div>
-              )
-            case 'gold-pile':
-              return (
-                <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-                  <GoldPile element={el} />
-                </div>
-              )
-            case 'floating-reminder':
-              return (
-                <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-                  <FloatingReminder element={el} />
-                </div>
-              )
-            case 'tier-list':
-              return (
-                <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-                  <TierListElement element={el} />
-                </div>
-              )
-            case 'sleep-ring':
-              return (
-                <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-                  <SleepRing element={el} />
-                </div>
-              )
-            case 'connector':
-              return <ConnectorElement key={el.id} element={el} />
-            case 'smart-text':
-              return (
-                <div
-                  key={el.id}
-                  className="absolute pointer-events-auto"
-                  style={{
-                    ...elementStyle,
-                    height: 'auto',
-                    minHeight: 50,
-                    zIndex: 10,
-                  }}
-                >
-                  <SmartTextElement element={el} />
-                </div>
-              )
-            default:
-              return null
-          }
-        })}
+      {fabriccanvas && overlayelements}
 
       {/* eraser cursor */}
-      {activeTool === 'eraser' && (
+      {activetool === 'eraser' && (
         <div
           className="pointer-events-none fixed rounded-full"
           style={{

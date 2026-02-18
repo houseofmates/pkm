@@ -7,8 +7,8 @@ import { Target } from 'lucide-react';
 
 export function IdentityGroundingWidget({ className }: { className?: string }) {
   const { activeFronters, memberColors } = useFronter();
-  const [fronterName, setFronterName] = useState<string>('System');
-  const [primaryColor, setPrimaryColor] = useState<string>('');
+  const [fronterName, setFronterName] = useState<string>('system');
+  const [primarycolor, setprimarycolor] = usestate<string>('');
 
   useEffect(() => {
   const loadFronterInfo = async () => {
@@ -63,14 +63,14 @@ export function IdentityGroundingWidget({ className }: { className?: string }) {
  style={{ backgroundColor: primaryColor ? `#${primaryColor}` : 'gray' }}
  />
  <span className="text-sm font-bold tracking-wide opacity-80">
- Front: {fronterName}
+ front: {frontername}
  </span>
   </div>
 
   <div className="flex items-center justify-between mt-2">
  <div className="flex items-center gap-2 text-xs text-muted-foreground">
  <Target className="w-3 h-3" />
- <span>Current Mission</span>
+ <span>current mission</span>
  </div>
  <Button
  variant="outline"
@@ -81,12 +81,12 @@ export function IdentityGroundingWidget({ className }: { className?: string }) {
  setTimeout(() => document.body.classList.remove('flash-grounding'), 1000);
  }}
  >
- Ground & Refocus
+ ground & refocus
  </Button>
   </div>
 
   <div className="mt-2 text-sm font-medium opacity-90">
- Maintaining system stability.
+ maintaining system stability.
   </div>
 
   <style>{`

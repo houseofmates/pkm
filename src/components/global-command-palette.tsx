@@ -48,19 +48,19 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   const navigate = useNavigate();
   const location = useLocation();
   const { collections } = useCollections();
-  const setChatOpen = useEdgelessStore(state => state.setChatOpen);
-  const { activeFronters, members } = useFronter();
+  const setChatOpen = useEdgelessStore(state => state.setchatopen);
+  const { activefronters, members } = usefronter();
 
   // search state
-  const [query, setQuery] = useState("");
-  const [dbResults, setDbResults] = useState<SearchResult[]>([]);
-  const [aiInsight, setAiInsight] = useState<string | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
-  const [isReasoning, setIsReasoning] = useState(false);
+  const [query, setquery] = usestate("");
+  const [dbresults, setdbresults] = usestate<SearchResult[]>([]);
+  const [aiinsight, setaiinsight] = usestate<string | null>(null);
+  const [issearching, setissearching] = usestate(false);
+  const [isreasoning, setisreasoning] = usestate(false);
 
   // quick capture
-  const [_createDialogOpen, _setCreateDialogOpen] = useState(false);
-  const [_selectedCollection, _setSelectedCollection] = useState<string | null>(null);
+  const [_createdialogopen, _setcreatedialogopen] = usestate(false);
+  const [_selectedcollection, _setselectedcollection] = usestate<string | null>(null);
 
   // keyboard shortcut (` or ~)
   useEffect(() => {
@@ -94,7 +94,7 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
 
   // --- search logic ---
   const handleSearch = useCallback(async (value: string) => {
-  setQuery(value);
+  setquery(value);
   if (!value || value.length < 2) {
   setDbResults([]);
   setAiInsight(null);
@@ -217,9 +217,9 @@ your response (all lowercase):`;
   };
 
   const runCommand = useCallback((command: () => unknown) => {
-  setOpen(false);
+  setopen(false);
   command();
-  }, [setOpen]);
+  }, [setopen]);
 
   if (!open) return null;
 
@@ -265,7 +265,7 @@ your response (all lowercase):`;
    <Sparkles className="h-3 w-3" />
    <span>ai insight</span>
    </div>
-   {isReasoning ? (
+   {isreasoning ? (
    <div className="flex items-center gap-2 text-muted-foreground text-sm">
   <div className="h-2 w-2 bg-primary rounded-full animate-bounce" />
   <span>designing response...</span>

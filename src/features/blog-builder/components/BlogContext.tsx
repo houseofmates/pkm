@@ -50,10 +50,10 @@ export interface BlogBuilderContextType {
   page: BlogPostData | null;
   selectedElementIds: string[];
   setSelectedElementIds: (ids: string[]) => void;
-  updateElement: (id: string, updates: Partial<ElementData>) => void;
-  updateElements: (updates: { id: string; updates: Partial<ElementData> }[]) => void;
+  updateelement: (id: string, updates: partial<ElementData>) => void;
+  updateelements: (updates: { id: string; updates: partial<ElementData> }[]) => void;
   deleteElements: (ids: string[]) => void;
-  addElement: (element: Omit<ElementData, 'id' | 'zIndex'> & { zIndex?: number }) => void;
+  addelement: (element: omit<ElementData, 'id' | 'zIndex'> & { zIndex?: number }) => void;
   handleElementContextMenu: (e: React.MouseEvent, elementId: string) => void;
   handleGlobalContextMenu: (e: React.MouseEvent) => void;
   previewMode: 'desktop' | 'mobile' | 'tablet';
@@ -61,10 +61,10 @@ export interface BlogBuilderContextType {
   viewWidth: number;
   selectionBox: any;
   setSelectionBox: (box: any) => void;
-  savePost: () => Promise<void>;
+  savePost: () => promise<void>;
 }
 
-export const BlogContext = createContext<BlogBuilderContextType | null>(null);
+export const blogcontext = createcontext<BlogBuilderContextType | null>(null);
 
 export const useBlogBuilder = () => {
   const ctx = useContext(BlogContext);

@@ -8,9 +8,9 @@ export function BacklinksFooter({ recordId }: { recordId: string, collectionName
   const [backlinks, setBacklinks] = useState<linkentry[]>([]);
 
   useEffect(() => {
-    if (!recordId) return;
-    setBacklinks(registry.getbacklinks(recordId));
-  }, [recordId]);
+    if (!recordid) return;
+    setbacklinks(registry.getbacklinks(recordid));
+  }, [recordid]);
 
   if (backlinks.length === 0) return null;
 

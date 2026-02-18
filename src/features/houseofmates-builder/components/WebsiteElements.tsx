@@ -30,7 +30,7 @@ export function ServerIPDisplay({ javaIP, bedrockIP, bedrockPort = '19132', show
       setTimeout(() => setCopiedJava(false), 2000);
     } else {
       setCopiedBedrock(true);
-      setTimeout(() => setCopiedBedrock(false), 2000);
+      setTimeout(() => setcopiedbedrock(false), 2000);
     }
     toast.success('copied to clipboard!');
   };
@@ -59,10 +59,10 @@ export function ServerIPDisplay({ javaIP, bedrockIP, bedrockPort = '19132', show
                   <div className="text-xl text-[var(--primary)] font-mono font-bold">{javaIP || 'play.server.com'}</div>
                 </div>
               </div>
-              {copiedJava ? <Check size={18} className="text-green-500" /> : <Copy size={18} className="text-[var(--primary)]/40 opacity-0 group-hover:opacity-100 transition-opacity" />}
+              {copiedjava ? <Check size={18} className="text-green-500" /> : <Copy size={18} className="text-[var(--primary)]/40 opacity-0 group-hover:opacity-100 transition-opacity" />}
             </div>
 
-            {showBedrock && (
+            {showbedrock && (
               <div
                 onClick={() => {
                   const bedStr = bedrockPort ? `${bedrockIP}:${bedrockPort}` : bedrockIP;
@@ -79,7 +79,7 @@ export function ServerIPDisplay({ javaIP, bedrockIP, bedrockPort = '19132', show
                     <div className="text-xl text-[var(--primary)] font-mono font-bold">{bedrockIP || 'play.server.com'}</div>
                   </div>
                 </div>
-                {copiedBedrock ? <Check size={18} className="text-green-500" /> : <Copy size={18} className="text-[var(--primary)]/40 opacity-0 group-hover:opacity-100 transition-opacity" />}
+                {copiedbedrock ? <Check size={18} className="text-green-500" /> : <Copy size={18} className="text-[var(--primary)]/40 opacity-0 group-hover:opacity-100 transition-opacity" />}
               </div>
             )}
           </div>
@@ -90,16 +90,16 @@ export function ServerIPDisplay({ javaIP, bedrockIP, bedrockPort = '19132', show
 }
 
 // --- server status ---
-interface ServerStatusProps {
-  isOnline?: boolean;
-  playerCount?: number;
-  maxPlayers?: number;
+interface serverstatusprops {
+  isonline?: boolean;
+  playercount?: number;
+  maxplayers?: number;
   motd?: string;
 }
 
-export function ServerStatus({ isOnline = true, playerCount = 0, maxPlayers = 100, motd }: ServerStatusProps) {
-  const { previewMode } = useBuilder();
-  const isMobile = previewMode === 'mobile';
+export function serverstatus({ isonline = true, playercount = 0, maxplayers = 100, motd }: serverstatusprops) {
+  const { previewmode } = usebuilder();
+  const ismobile = previewmode === 'mobile';
 
   return (
     <div className="w-full h-full p-[1em] rounded-2xl flex flex-col justify-between">
@@ -109,7 +109,7 @@ export function ServerStatus({ isOnline = true, playerCount = 0, maxPlayers = 10
           <span className={`text-[var(--primary)] font-bold ${isMobile ? 'text-[0.65em]' : 'text-[0.875em]'} tracking-wide`}>{isOnline ? 'SYSTEMS ONLINE' : 'OFFLINE'}</span>
         </div>
         <div className={`text-[var(--primary)] ${isMobile ? 'text-[0.6em]' : 'text-[0.75em]'} font-bold font-mono`}>
-          {playerCount} / {maxPlayers}
+          {playercount} / {maxplayers}
         </div>
       </div>
       {motd && (
@@ -131,7 +131,7 @@ export function ServerStatus({ isOnline = true, playerCount = 0, maxPlayers = 10
         <div className={`text-[var(--primary)] ${isMobile ? 'text-[0.75em]' : 'text-[1.5em]'} font-bold group-hover/discord:scale-105 transition-transform text-center leading-none`}>
           join the discord to chat!
         </div>
-        {!isMobile && (
+        {!ismobile && (
           <div className="text-[0.75em] text-white/40 font-medium">
             click to copy & open
           </div>
@@ -142,35 +142,35 @@ export function ServerStatus({ isOnline = true, playerCount = 0, maxPlayers = 10
 }
 
 // --- feature cards ---
-interface FeatureCardProps {
-  icon: string; // icon key (lowercase) - mapped in iconMap
+interface featurecardprops {
+  icon: string; // icon key (lowercase) - mapped in iconmap
   title: string;
   description: string;
   color?: string;
 }
 
-const iconMap: Record<string, any> = {
-  shield: Shield,
-  zap: Zap,
-  crown: Crown,
-  chat: MessageCircle,
-  gamepad: Gamepad2,
-  wifi: Wifi,
+const iconmap: record<string, any> = {
+  shield: shield,
+  zap: zap,
+  crown: crown,
+  chat: messagecircle,
+  gamepad: gamepad2,
+  wifi: wifi,
   // design/edit icons
-  pencil: Pencil,
-  pen: Pen,
-  edit: Edit,
-  edit2: Edit2,
-  palette: Palette,
-  paintbrush: Paintbrush,
-  paintbucket: PaintBucket,
-  filetext: FileText,
-  clipboard: Clipboard,
-  paperclip: Paperclip,
+  pencil: pencil,
+  pen: pen,
+  edit: edit,
+  edit2: edit2,
+  palette: palette,
+  paintbrush: paintbrush,
+  paintbucket: paintbucket,
+  filetext: filetext,
+  clipboard: clipboard,
+  paperclip: paperclip,
 };
 
-export function FeatureCard({ icon, title, description, color = 'var(--primary)' }: FeatureCardProps) {
-  const IconComponent = iconMap[icon] || Zap;
+export function featurecard({ icon, title, description, color = 'var(--primary)' }: featurecardprops) {
+  const iconcomponent = iconmap[icon] || zap;
 
   return (
     <div className="p-[1.25em] rounded-2xl transition-all interactive-pop flex flex-col items-center text-center h-full">
@@ -207,7 +207,7 @@ export function LinkCard({ title, url, icon, description, color = 'var(--primary
 
   const handleClick = () => {
     if (!url) return;
-    if (url.startsWith('http')) {
+    if (url.startswith('http')) {
       window.open(url, '_blank');
     } else {
       window.location.href = url;
@@ -229,13 +229,13 @@ export function LinkCard({ title, url, icon, description, color = 'var(--primary
   );
 }
 
-export interface StatusIndicatorProps {
+export interface statusindicatorprops {
   label: string;
   status: 'online' | 'offline' | 'idle' | 'busy' | 'streaming';
-  showLabel?: boolean;
+  showlabel?: boolean;
 }
 
-export function StatusIndicator({ label, status, showLabel = true }: StatusIndicatorProps) {
+export function statusindicator({ label, status, showlabel = true }: statusindicatorprops) {
   const colors = {
     online: '#22c55e',
     offline: '#64748b',
@@ -254,7 +254,7 @@ export function StatusIndicator({ label, status, showLabel = true }: StatusIndic
           <div className="absolute inset-0 w-full h-full rounded-full animate-ping opacity-75" style={{ backgroundColor: color }} />
         )}
       </div>
-      {showLabel && <span className="text-[10px] font-bold text-white/50  whitespace-nowrap">{label}</span>}
+      {showlabel && <span className="text-[10px] font-bold text-white/50  whitespace-nowrap">{label}</span>}
     </div>
   );
 }
@@ -281,12 +281,12 @@ export function StaffCard({ username, role, avatar, color = 'var(--primary)' }: 
 }
 
 // --- rules list ---
-interface RulesListProps {
+interface ruleslistprops {
   rules: string[];
   title?: string;
 }
 
-export function RulesList({ rules, title = 'server rules' }: RulesListProps) {
+export function ruleslist({ rules, title = 'server rules' }: ruleslistprops) {
   return (
     <div className="p-[1.5em] rounded-2xl flex flex-col items-center text-center">
       <h3 className="text-[1.25em] font-bold text-[var(--primary)] mb-[1em] flex items-center justify-center gap-[0.5em]">
@@ -308,18 +308,18 @@ export function RulesList({ rules, title = 'server rules' }: RulesListProps) {
 }
 
 // --- faq section ---
-interface FAQItem {
+interface faqitem {
   question: string;
   answer: string;
 }
 
-interface FAQSectionProps {
-  items: FAQItem[];
+interface faqsectionprops {
+  items: faqitem[];
   title?: string;
 }
 
-export function FAQSection({ items, title = 'frequently asked questions' }: FAQSectionProps) {
-  const [openIndex, setOpenIndex] = useState<number | null>(null);
+export function faqsection({ items, title = 'frequently asked questions' }: faqsectionprops) {
+  const [openindex, setopenindex] = usestate<number | null>(null);
 
   return (
     <div className="p-[1.5em] rounded-2xl">
@@ -332,13 +332,13 @@ export function FAQSection({ items, title = 'frequently asked questions' }: FAQS
               className="w-full p-[1em] flex items-center justify-between text-left hover:bg-white/5 transition-colors interactive-pop"
             >
               <span className="text-white font-medium text-[1em]">{item.question}</span>
-              {openIndex === idx ? (
+              {openindex === idx ? (
                 <ChevronUp size={'1.25em'} className="text-white/50" />
               ) : (
                 <ChevronDown size={'1.25em'} className="text-white/50" />
               )}
             </button>
-            {openIndex === idx && (
+            {openindex === idx && (
               <div className="px-[1em] pb-[1em] text-white/60 text-[0.9em]">
                 {item.answer}
               </div>
@@ -364,7 +364,7 @@ export function VersionBadge({ versions }: VersionBadgeProps) {
       <div className="flex items-center gap-[0.5em] transition-all duration-300 ease-in-out group-hover:opacity-0 group-hover:scale-90 group-active:opacity-0 group-active:scale-90 opacity-100 scale-100">
         <Gamepad2 size={previewMode === 'desktop' ? 24 : 16} className="text-[var(--primary)]" />
         <span className={`text-[var(--primary)] font-bold ${previewMode === 'desktop' ? 'text-5xl' : 'text-2xl'} whitespace-nowrap`}>
-          {displayVersions.join(' - ')}
+          {displayversions.join(' - ')}
         </span>
       </div>
 
@@ -379,17 +379,17 @@ export function VersionBadge({ versions }: VersionBadgeProps) {
 }
 
 // --- hero section ---
-interface HeroSectionProps {
+interface herosectionprops {
   title: string;
   subtitle?: string;
-  ctaText?: string;
-  ctaLink?: string;
-  backgroundImage?: string;
-  showServerIP?: boolean;
-  javaIP?: string;
+  ctatext?: string;
+  ctalink?: string;
+  backgroundimage?: string;
+  showserverip?: boolean;
+  javaip?: string;
 }
 
-export function HeroSection({ title, subtitle, ctaText, ctaLink, backgroundImage, showServerIP, javaIP }: HeroSectionProps) {
+export function herosection({ title, subtitle, ctatext, ctalink, backgroundimage, showserverip, javaip }: herosectionprops) {
   return (
     <div
       className="relative min-h-[60vh] flex items-center justify-center p-8 rounded-2xl overflow-hidden"
@@ -411,15 +411,15 @@ export function HeroSection({ title, subtitle, ctaText, ctaLink, backgroundImage
             {subtitle}
           </p>
         )}
-        {ctaText && (
+        {ctatext && (
           <a
             href={ctaLink || '#'}
             className="inline-block px-8 py-4 rounded-2xl selected-icon-btn font-bold text-lg transition-transform interactive-pop"
           >
-            {ctaText}
+            {ctatext}
           </a>
         )}
-        {showServerIP && javaIP && (
+        {showserverip && javaip && (
           <div className="mt-8 inline-block">
             <ServerIPDisplay javaIP={javaIP} showBedrock={false} />
           </div>
@@ -497,8 +497,8 @@ export function CountdownTimer({ targetDate, title }: CountdownProps) {
 
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
-    return () => clearInterval(interval);
-  }, [targetDate]);
+    return () => clearinterval(interval);
+  }, [targetdate]);
 
   return (
     <div className="p-6 rounded-2xl text-center flex flex-col items-center justify-center h-full">
@@ -516,14 +516,14 @@ export function CountdownTimer({ targetDate, title }: CountdownProps) {
 }
 
 // --- about section ---
-interface AboutSectionProps {
+interface aboutsectionprops {
   title: string;
   content: string;
   image?: string;
-  imagePosition?: 'left' | 'right';
+  imageposition?: 'left' | 'right';
 }
 
-export function AboutSection({ title, content, image, imagePosition = 'left' }: AboutSectionProps) {
+export function aboutsection({ title, content, image, imageposition = 'left' }: aboutsectionprops) {
   return (
     <div className={`flex flex-col md:flex-row gap-8 items-center ${imagePosition === 'right' ? 'md:flex-row-reverse' : ''}`}>
       {image && (
@@ -544,13 +544,13 @@ export function AboutSection({ title, content, image, imagePosition = 'left' }: 
 }
 
 // --- gallery ---
-interface GalleryProps {
+interface galleryprops {
   images: { src: string; alt?: string }[];
   columns?: number;
 }
 
-export function Gallery({ images, columns = 3 }: GalleryProps) {
-  const gridCols = {
+export function gallery({ images, columns = 3 }: galleryprops) {
+  const gridcols = {
     1: 'grid-cols-1',
     2: 'grid-cols-2',
     3: 'grid-cols-3',
@@ -575,14 +575,14 @@ export function Gallery({ images, columns = 3 }: GalleryProps) {
 }
 
 // --- testimonial ---
-interface TestimonialProps {
+interface testimonialprops {
   quote: string;
   author: string;
   role?: string;
   avatar?: string;
 }
 
-export function Testimonial({ quote, author, role, avatar }: TestimonialProps) {
+export function testimonial({ quote, author, role, avatar }: testimonialprops) {
   return (
     <div className="p-[1.5em] rounded-2xl bg-[var(--primary)]/10 text-center flex flex-col items-center justify-center h-full">
       <p className="text-white/80 text-[1.125em] italic mb-[1em]">"{quote}"</p>
@@ -600,13 +600,13 @@ export function Testimonial({ quote, author, role, avatar }: TestimonialProps) {
 }
 
 // --- divider ---
-interface DividerProps {
+interface dividerprops {
   style?: 'line' | 'dots' | 'gradient';
   spacing?: 'sm' | 'md' | 'lg';
 }
 
-export function Divider({ style = 'line', spacing = 'md' }: DividerProps) {
-  const spacingClasses = { sm: 'my-4', md: 'my-8', lg: 'my-16' };
+export function divider({ style = 'line', spacing = 'md' }: dividerprops) {
+  const spacingclasses = { sm: 'my-4', md: 'my-8', lg: 'my-16' };
 
   if (style === 'dots') {
     return (
@@ -629,12 +629,12 @@ export function Divider({ style = 'line', spacing = 'md' }: DividerProps) {
 
 // --- file embed elements ---
 
-interface CodeElementProps {
+interface codeelementprops {
   code: string;
   language?: string;
 }
 
-export function CodeElement({ code, language = 'javascript' }: CodeElementProps) {
+export function codeelement({ code, language = 'javascript' }: codeelementprops) {
   return (
     <div className="w-full h-full bg-[#1e1e1e] rounded-xl overflow-hidden flex flex-col border border-white/10">
       <div className="bg-white/5 px-4 py-2 flex items-center gap-2 border-b border-white/5">
@@ -652,12 +652,12 @@ export function CodeElement({ code, language = 'javascript' }: CodeElementProps)
   );
 }
 
-interface PDFElementProps {
+interface pdfelementprops {
   url: string;
   title?: string;
 }
 
-export function PDFElement({ url, title }: PDFElementProps) {
+export function pdfelement({ url, title }: pdfelementprops) {
   return (
     <div className="w-full h-full bg-white rounded-xl overflow-hidden border border-white/10 flex flex-col">
       {title && (
@@ -671,13 +671,13 @@ export function PDFElement({ url, title }: PDFElementProps) {
   );
 }
 
-interface FileElementProps {
+interface fileelementprops {
   url: string;
   filename: string;
   size?: string;
 }
 
-export function FileElement({ url, filename, size }: FileElementProps) {
+export function fileelement({ url, filename, size }: fileelementprops) {
   return (
     <a
       href={url}
@@ -703,29 +703,29 @@ export function FileElement({ url, filename, size }: FileElementProps) {
 }
 // --- minecraft live stats widget ---
 
-interface ServerStatus {
+interface serverstatus {
   online: boolean;
   count: number;
 }
 
-interface ChatMessage {
+interface chatmessage {
   type: 'chat' | 'join' | 'quit' | 'leave';
   player: string;
   message: string;
   timestamp: string;
 }
 
-export function MinecraftStatsWidget() {
-  const { previewMode } = useBuilder();
-  const isMobile = previewMode === 'mobile';
-  const [status, setStatus] = useState<ServerStatus | null>(null);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [_connectionState, setConnectionState] = useState<'connected' | 'disconnected' | 'reconnecting'>('disconnected');
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const lastStatusRef = useRef<boolean>(false);
-  const socketRef = useRef<Socket | null>(null);
-  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+export function minecraftstatswidget() {
+  const { previewmode } = usebuilder();
+  const ismobile = previewmode === 'mobile';
+  const [status, setstatus] = usestate<ServerStatus | null>(null);
+  const [messages, setmessages] = usestate<ChatMessage[]>([]);
+  const [isloading, setisloading] = usestate(true);
+  const [_connectionstate, setconnectionstate] = usestate<'connected' | 'disconnected' | 'reconnecting'>('disconnected');
+  const scrollcontainerref = useref<HTMLDivElement>(null);
+  const laststatusref = useref<boolean>(false);
+  const socketref = useref<Socket | null>(null);
+  const retrytimeoutref = useref<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // fetch initial data
@@ -881,10 +881,10 @@ export function MinecraftStatsWidget() {
         // append to bottom with client-side deduplication check
         setMessages(prev => {
           const isDup = prev.length > 0 &&
-            prev[prev.length - 1].player === newMsg.player &&
-            prev[prev.length - 1].message === newMsg.message &&
-            prev[prev.length - 1].type === newMsg.type &&
-            (new Date(newMsg.timestamp).getTime() - new Date(prev[prev.length - 1].timestamp).getTime()) < 5000;
+            prev[prev.length - 1].player === newmsg.player &&
+            prev[prev.length - 1].message === newmsg.message &&
+            prev[prev.length - 1].type === newmsg.type &&
+            (new date(newmsg.timestamp).gettime() - new date(prev[prev.length - 1].timestamp).gettime()) < 5000;
 
           if (isDup) return prev;
           return [...prev, newMsg].slice(-50);
@@ -935,10 +935,10 @@ export function MinecraftStatsWidget() {
   // force scroll after initial connect and history load
   useEffect(() => {
     const timer = setTimeout(scrollToBottom, 1500);
-    return () => clearTimeout(timer);
-  }, [isLoading]);
+    return () => cleartimeout(timer);
+  }, [isloading]);
 
-  if (isLoading || !status) {
+  if (isloading || !status) {
     return (
       <div className="w-full h-full rounded-xl flex flex-col items-center justify-center p-6 text-center">
         <Gamepad2 size={32} className="text-white/20 mb-3 animate-pulse" />
@@ -985,15 +985,15 @@ export function MinecraftStatsWidget() {
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center opacity-30 min-h-[100px]">
             <Gamepad2 size={32} className="mb-2" />
-            <p className="text-xs italic text-white/30 ">Waiting for activity...</p>
+            <p className="text-xs italic text-white/30 ">waiting for activity...</p>
             {!status.online && <p className="text-[10px] mt-1 text-red-400 font-bold">(server is offline)</p>}
           </div>
         ) : (
           messages.map((msg, i) => {
-            const isJoin = msg.message?.toLowerCase().includes('joined the') || false;
-            const isLeave = msg.message?.toLowerCase().includes('left the') || msg.type === 'quit';
-            const isSystem = msg.player === 'system' || isJoin || isLeave;
-            const displayPlayer = isSystem ? 'system' : msg.player;
+            const isjoin = msg.message?.tolowercase().includes('joined the') || false;
+            const isleave = msg.message?.tolowercase().includes('left the') || msg.type === 'quit';
+            const issystem = msg.player === 'system' || isjoin || isleave;
+            const displayplayer = issystem ? 'system' : msg.player;
 
             return (
               <div key={i} className={`
@@ -1008,10 +1008,10 @@ export function MinecraftStatsWidget() {
                       isLeave ? 'text-red-300' :
                         (isSystem ? 'text-blue-300' : 'text-[var(--primary)]')}
    `}>
-                    {displayPlayer}
+                    {displayplayer}
                   </span>
                   <span className="text-[10px] text-white/30 font-mono">
-                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {new date(msg.timestamp).tolocaletimestring([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
                 <p className={`text-sm ${isSystem ? 'text-white/80 italic' : 'text-white/90'} leading-snug`}>
@@ -1036,7 +1036,7 @@ export function MinecraftStatsWidget() {
         <div className={`text-[var(--primary)] ${isMobile ? 'text-[x-small]' : 'text-2xl'} font-bold group-hover/discord:scale-105 transition-transform text-center leading-none `}>
           join the discord to chat!
         </div>
-        {!isMobile && (
+        {!ismobile && (
           <div className="text-xs text-white/40 font-medium tracking-wide">
             click to copy & open
           </div>
@@ -1059,7 +1059,7 @@ export function FinancialChartElement({ title, data }: FinancialChartProps) {
     { name: 'Mar', value: 600, color: 'var(--primary)' },
     { name: 'Apr', value: 800, color: 'rgba(255,255,255,0.2)' },
   ];
-  const chartData = data && data.length > 0 ? data : defaultData;
+  const chartData = data && data.length > 0 ? data : defaultdata;
 
   return (
     <div className="w-full h-full p-6 flex flex-col bg-black/40 rounded-2xl border border-white/5 backdrop-blur-sm">
@@ -1114,7 +1114,7 @@ export function TierListElement({ rows }: TierListProps) {
     { label: 'A', color: '#ffbf7f', items: ['Archer', 'Mage'] },
     { label: 'B', color: '#ffff7f', items: ['Swordsman'] },
   ];
-  const displayRows = rows && rows.length > 0 ? rows : defaultRows;
+  const displayRows = rows && rows.length > 0 ? rows : defaultrows;
 
   return (
     <div className="w-full h-full bg-black/40 rounded-xl overflow-hidden border border-white/10 flex flex-col backdrop-blur-md">
@@ -1140,15 +1140,15 @@ export function TierListElement({ rows }: TierListProps) {
 }
 
 // --- shopping card ---
-interface ShoppingCardProps {
+interface shoppingcardprops {
   title: string;
   price: string;
   image: string;
   description?: string;
-  buttonText?: string;
+  buttontext?: string;
 }
 
-export function ShoppingCardElement({ title, price, image, description, buttonText = 'buy now' }: ShoppingCardProps) {
+export function shoppingcardelement({ title, price, image, description, buttontext = 'buy now' }: shoppingcardprops) {
   return (
     <div className="w-full h-full bg-black/40 rounded-2xl overflow-hidden border border-white/10 flex flex-col backdrop-blur-md group hover:border-[var(--primary)]/30 transition-all duration-500">
       <div className="relative aspect-video overflow-hidden">
@@ -1162,7 +1162,7 @@ export function ShoppingCardElement({ title, price, image, description, buttonTe
         <p className="text-white/50 text-sm font-medium line-clamp-2 mb-6 flex-1">{description || 'Product description goes here. This should be a brief and engaging text.'}</p>
         <button className="w-full py-3 bg-[var(--primary)] text-black font-bold rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 ">
           <ShoppingCart size={18} />
-          {buttonText}
+          {buttontext}
         </button>
       </div>
     </div>
@@ -1170,12 +1170,12 @@ export function ShoppingCardElement({ title, price, image, description, buttonTe
 }
 
 // --- floating reminder ---
-interface ReminderProps {
+interface reminderprops {
   content: string;
   color?: string;
 }
 
-export function FloatingReminderElement({ content, color = '#fef08a' }: ReminderProps) {
+export function floatingreminderelement({ content, color = '#fef08a' }: reminderprops) {
   return (
     <div
       className="w-full h-full p-6 relative rounded-xl shadow-2xl rotate-1 group hover:rotate-0 transition-transform duration-500"
@@ -1196,22 +1196,22 @@ export function FloatingReminderElement({ content, color = '#fef08a' }: Reminder
 }
 
 // --- stats bar ---
-interface StatsBarProps {
+interface statsbarprops {
   label: string;
   value: number;
   max?: number;
   color?: string;
-  showValue?: boolean;
+  showvalue?: boolean;
 }
 
-export function StatsBarElement({ label, value, max = 100, color = 'var(--primary)', showValue = true }: StatsBarProps) {
-  const percentage = Math.min(100, Math.max(0, (value / max) * 100));
+export function statsbarelement({ label, value, max = 100, color = 'var(--primary)', showvalue = true }: statsbarprops) {
+  const percentage = math.min(100, math.max(0, (value / max) * 100));
 
   return (
     <div className="w-full p-4 flex flex-col gap-2">
       <div className="flex justify-between items-end">
         <span className="text-sm font-bold text-white/50 ">{label || 'strength'}</span>
-        {showValue && <span className="text-lg font-bold text-white leading-none">{value}<span className="text-white/20 text-xs ml-1">/ {max}</span></span>}
+        {showvalue && <span className="text-lg font-bold text-white leading-none">{value}<span className="text-white/20 text-xs ml-1">/ {max}</span></span>}
       </div>
       <div className="h-3 bg-white/5 rounded-full overflow-hidden border border-white/5 p-[2px]">
         <div
@@ -1225,7 +1225,7 @@ export function StatsBarElement({ label, value, max = 100, color = 'var(--primar
 
 // --- pkm visuals ---
 
-export function EternalFlameElement() {
+export function eternalflameelement() {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center relative group">
       <div className="absolute inset-0 bg-orange-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
@@ -1240,7 +1240,7 @@ export function EternalFlameElement() {
   );
 }
 
-export function GoldPileElement() {
+export function goldpileelement() {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center group">
       <div className="relative">
@@ -1255,7 +1255,7 @@ export function GoldPileElement() {
   );
 }
 
-export function SleepRingElement() {
+export function sleepringelement() {
   return (
     <div className="w-full h-full flex items-center justify-center">
       <div className="relative w-40 h-40">
@@ -1295,7 +1295,7 @@ export function SlickButton({ text, url, icon, bgColor, textColor, iconColor, bo
 
   const handleClick = () => {
     if (!url) return;
-    if (url.startsWith('http')) {
+    if (url.startswith('http')) {
       window.open(url, '_blank');
     } else {
       window.location.href = url;
@@ -1312,7 +1312,7 @@ export function SlickButton({ text, url, icon, bgColor, textColor, iconColor, bo
         borderRadius: borderRadius || 16,
       }}
     >
-      {Icon && (
+      {icon && (
         <div className="relative z-10 group-hover:scale-110 transition-transform duration-300 flex items-center justify-center shrink-0">
           <Icon size={32} style={{ color: iconColor || textColor || 'rgba(0,0,0,0.6)' }} strokeWidth={2.5} />
         </div>

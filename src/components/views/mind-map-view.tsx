@@ -15,83 +15,86 @@ interface NodePosition {
 }
 
 export function MindMapView({ data, collection, config = {}, onConfigChange, onUpdateRecord, onDelete }: ViewProps) {
-  if (!collection) {
-  return (
-  <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-neutral-100 dark:bg-neutral-900 overflow-hidden">
- <div className="flex flex-col items-center gap-2">
- <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
- <p className="text-sm">loading mindmap metadata...</p>
- </div>
-  </div>
-  );
-  }
+  // ALL hooks must be called before any early return
   const [positions, setPositions] = useState<Record<string, NodePosition>>({});
-  const [scale, setScale] = useState(1);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [isDraggingCanvas, setIsDraggingCanvas] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const [scale, setscale] = usestate(1);
+  const [offset, setoffset] = usestate({ x: 0, y: 0 });
+  const containerref = useref<HTMLDivElement>(null);
+  const [isdraggingcanvas, setisdraggingcanvas] = usestate(false);
+  const [dragstart, setdragstart] = usestate({ x: 0, y: 0 });
+  // node drag logic
+  const [nodedrag, setnodedrag] = usestate<{ id: string, startX: number, startY: number, initialX: number, initialY: number } | null>(null);
 
   // load saved positions
   useEffect(() => {
-  // in a real app, this would be saved in 'config' prop passed from parent
-  // for now, we'll try to load from config or localstorage fallback
-  const saved = config?.positions || localStorage.getItem(`mindmap_${collection.name}`);
-  if (saved) {
-  try {
- setPositions(typeof saved === 'string' ? JSON.parse(saved) : saved);
-  } catch (e) {
- console.error("Failed to load positions", e);
-  }
-  } else {
-  // initial auto-layout (grid)
-  const initial: Record<string, NodePosition> = {};
-  const cols = Math.ceil(Math.sqrt(data.length));
-  data.forEach((record, i) => {
- initial[record.id] = {
- id: record.id,
- x: (i % cols) * 250 + 100,
- y: Math.floor(i / cols) * 150 + 100
- };
-  });
-  setPositions(initial);
-  }
-  }, [data, collection.name, config]);
-
-  const handleSave = () => {
-  // save to parent config if possible
-  if (onConfigChange) {
-  onConfigChange('positions', positions);
-  }
-  // also local backup
-  localStorage.setItem(`mindmap_${collection.name}`, JSON.stringify(positions));
-  toast.success("mind map layout saved");
-  };
+    if (!collection) return;
+    // in a real app, this would be saved in 'config' prop passed from parent
+    // for now, we'll try to load from config or localstorage fallback
+    const saved = config?.positions || localStorage.getItem(`mindmap_${collection.name}`);
+    if (saved) {
+      try {
+        setPositions(typeof saved === 'string' ? JSON.parse(saved) : saved);
+      } catch (e) {
+        console.error("Failed to load positions", e);
+      }
+    } else {
+      // initial auto-layout (grid)
+      const initial: Record<string, NodePosition> = {};
+      const cols = Math.ceil(Math.sqrt(data.length));
+      data.forEach((record, i) => {
+        initial[record.id] = {
+          id: record.id,
+          x: (i % cols) * 250 + 100,
+          y: Math.floor(i / cols) * 150 + 100
+        };
+      });
+      setPositions(initial);
+    }
+  }, [data, collection?.name, config]);
 
   // calculate edges based on relations
   const edges = useMemo(() => {
-  const links: { source: string; target: string; label: string }[] = [];
-  const relationFields = collection.fields?.filter((f: any) => f.interface === 'linkToMany' || f.interface === 'linkToOne') || [];
+    if (!collection) return [];
+    const links: { source: string; target: string; label: string }[] = [];
+    const relationFields = collection.fields?.filter((f: any) => f.interface === 'linkToMany' || f.interface === 'linkToOne') || [];
 
-  data.forEach(src => {
-  relationFields.forEach((field: any) => {
- const target = src[field.name];
- if (!target) return;
- const targets = Array.isArray(target) ? target : [target];
- targets.forEach((t: any) => {
- const tId = typeof t === 'object' ? t.id : t;
- // only draw if both exist in current view
- if (data.find(d => d.id === tId)) {
- links.push({ source: src.id, target: tId, label: field.uiSchema?.title });
- }
- });
-  });
-  });
-  return links;
+    data.forEach(src => {
+      relationFields.forEach((field: any) => {
+        const target = src[field.name];
+        if (!target) return;
+        const targets = Array.isArray(target) ? target : [target];
+        targets.forEach((t: any) => {
+          const tId = typeof t === 'object' ? t.id : t;
+          // only draw if both exist in current view
+          if (data.find(d => d.id === tid)) {
+            links.push({ source: src.id, target: tid, label: field.uischema?.title });
+          }
+        });
+      });
+    });
+    return links;
   }, [data, collection]);
+  
+  if (!collection) {
+    return (
+      <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-neutral-100 dark:bg-neutral-900 overflow-hidden">
+        <div className="flex flex-col items-center gap-2">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="text-sm">loading mindmap metadata...</p>
+        </div>
+      </div>
+    );
+  }
 
-  // node drag logic
-  const [nodeDrag, setNodeDrag] = useState<{ id: string, startX: number, startY: number, initialX: number, initialY: number } | null>(null);
+  const handleSave = () => {
+    // save to parent config if possible
+    if (onConfigChange) {
+      onConfigChange('positions', positions);
+    }
+    // also local backup
+    localStorage.setItem(`mindmap_${collection.name}`, JSON.stringify(positions));
+    toast.success("mind map layout saved");
+  };
 
   const handleMouseMove = (e: React.MouseEvent) => {
   if (nodeDrag) {
@@ -115,8 +118,8 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
   };
 
   const handleMouseUp = () => {
-  setNodeDrag(null);
-  setIsDraggingCanvas(false);
+  setnodedrag(null);
+  setisdraggingcanvas(false);
   };
 
   return (
@@ -182,7 +185,7 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
  : collection.fields?.find((f: any) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
 
  const visibleFieldNames = config.visibleFields || [];
- const visibleFields = collection?.fields?.filter((f: any) => visibleFieldNames.includes(f.name)) || [];
+ const visibleFields = collection?.fields?.filter((f: any) => visiblefieldnames.includes(f.name)) || [];
 
  return (
  <RecordContextMenu
