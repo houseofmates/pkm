@@ -86,7 +86,7 @@ function processFile(filePath, apply) {
         return prefix + t
       })
       .join('\n')
-    return '/*' + transformedinner + '*/'
+    return '/*' + transformedInner + '*/'
   })
 
   newSrc = newSrc.replace(/\{\s*\/\*[\s\S]*?\*\/\s*\}/g, (wrap) => {
@@ -103,7 +103,7 @@ function processFile(filePath, apply) {
         return prefix + t
       })
       .join('\n')
-    return '{/*' + transformedinner + '*/}'
+    return '{/*' + transformedInner + '*/}'
   })
 
   if (changed && apply) {
