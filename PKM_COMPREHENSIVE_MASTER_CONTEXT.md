@@ -4,6 +4,8 @@
 **last updated**: february 14, 2026  
 **purpose**: complete architectural and implementation reference for llm-assisted development
 
+> note: strict-lowercase policy — any update (human or llm-generated) that introduces uppercase letters in code comments or visible ui text will be rejected. pull requests or automated changes containing uppercase in comments or visible ui strings (including attributes such as `title`, `placeholder`, `alt`, `aria-label`, `label`) will fail ci and must be fixed before merging.
+
 ---
 
 ## table of contents
