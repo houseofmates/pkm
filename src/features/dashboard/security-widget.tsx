@@ -1,13 +1,13 @@
 /**
- * Security Dashboard Widget
+ * security dashboard widget
  * 
- * A creative addition to the PKM system that provides:
- * - Real-time authentication status
- * - Data exposure risk indicator
- * - Privacy mode toggle
- * - Console log audit trail
+ * a creative addition to the pkm system that provides:
+ * - real-time authentication status
+ * - data exposure risk indicator
+ * - privacy mode toggle
+ * - console log audit trail
  * 
- * This helps users (especially those with DID systems) understand
+ * this helps users (especially those with did systems) understand
  * their privacy and security posture at a glance.
  */
 
@@ -51,7 +51,7 @@ export function SecurityWidget() {
     setMounted(true);
     updateSecurityStatus();
     
-    // Poll for updates every 5 seconds
+    // poll for updates every 5 seconds
     const interval = setInterval(updateSecurityStatus, 5000);
     return () => clearInterval(interval);
   }, [isAuthenticated]);
@@ -61,7 +61,7 @@ export function SecurityWidget() {
     setPrivacyMode(status.privacyMode);
     setLogs(secureLogger.getHistory());
     
-    // Calculate risk level
+    // calculate risk level
     if (!isAuthenticated) {
       setRiskLevel('high');
     } else if (!status.privacyMode) {
@@ -113,7 +113,7 @@ export function SecurityWidget() {
       </CardHeader>
       
       <CardContent className="space-y-4">
-        {/* Authentication Status */}
+        {/* authentication status */}
         <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10">
           <div className="flex items-center gap-2">
             {isAuthenticated ? (
@@ -138,7 +138,7 @@ export function SecurityWidget() {
           </Badge>
         </div>
 
-        {/* Privacy Mode Toggle */}
+        {/* privacy mode toggle */}
         <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10">
           <div className="flex items-center gap-2">
             {privacyMode ? (
@@ -163,7 +163,7 @@ export function SecurityWidget() {
           </Button>
         </div>
 
-        {/* Risk Warning */}
+        {/* risk warning */}
         {riskLevel === 'high' && (
           <div className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
             <AlertTriangle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
@@ -174,7 +174,7 @@ export function SecurityWidget() {
           </div>
         )}
 
-        {/* Console Log Audit */}
+        {/* console log audit */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -226,7 +226,7 @@ export function SecurityWidget() {
           </ScrollArea>
         </div>
 
-        {/* Footer Info */}
+        {/* footer info */}
         <div className="text-[9px] text-white/30 text-center lowercase">
           all logs are sanitized • no tokens or secrets exposed
         </div>

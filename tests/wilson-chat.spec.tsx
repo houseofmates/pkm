@@ -10,7 +10,7 @@ describe('WilsonChat /ai flow', () => {
     // ensure chat panel is open for the component to render
     useEdgelessStore.setState({ isChatOpen: true })
 
-    // reset llm store state and stub askWilson
+    // reset llm store state and stub askwilson
     useLLMStore.setState({ interactionHistory: [], isThinking: false, currentContext: null })
   })
 
@@ -24,7 +24,7 @@ describe('WilsonChat /ai flow', () => {
     // replace implementation with our spy
     useLLMStore.setState({ askWilson: askSpy })
 
-    // ensure document.body.innerText exists for context extraction
+    // ensure document.body.innertext exists for context extraction
     Object.defineProperty(document.body, 'innerText', { value: 'sample page text for context', configurable: true });
 
     render(<WilsonChat />)
@@ -36,7 +36,7 @@ describe('WilsonChat /ai flow', () => {
 
     await waitFor(() => expect(askSpy).toHaveBeenCalled())
 
-    // verify askWilson received the stripped prompt (without '/ai')
+    // verify askwilson received the stripped prompt (without '/ai')
     expect(askSpy).toHaveBeenCalledWith('analyse the page')
 
     // verify that the llm store received the assistant message we emulated

@@ -2,7 +2,7 @@ import { execSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
-// Configuration
+// configuration
 const DEBOUNCE_MS = 30000; // 30 seconds
 const POLL_INTERVAL_MS = 5000; // 5 seconds
 const EXCLUDE_PATHS = ['.git', 'node_modules', 'dist', '.gemini', 'release'];
@@ -26,13 +26,13 @@ function syncToGitHub() {
         const commitMsg = `PKM Auto-Sync: ${new Date().toISOString()}`;
         execSync(`git commit -m "${commitMsg}"`);
 
-        // Push using the stored credentials or token
-        // Assuming the user has git credentials configured or a token in .github_token
+        // push using the stored credentials or token
+        // assuming the user has git credentials configured or a token in .github_token
         let pushCmd = 'git push';
         if (fs.existsSync('.github_token')) {
             const token = fs.readFileSync('.github_token', 'utf8').trim();
-            // Try to extract the remote URL to inject the token if needed
-            // For now, assume git is configured to handle auth (helpers/SSH)
+            // try to extract the remote url to inject the token if needed
+            // for now, assume git is configured to handle auth (helpers/ssh)
             // or the user is on a system where git push just works.
         }
 
@@ -58,13 +58,13 @@ setInterval(() => {
         }
         lastChangeDetectedAt = now;
     } else if (pendingCommits) {
-        // This might happen if changes were manually reverted within the polling interval
+        // this might happen if changes were manually reverted within the polling interval
         console.log(`[${new Date().toLocaleTimeString()}] ✨ Workspace clean again. Skipping sync.`);
         pendingCommits = false;
         lastChangeDetectedAt = 0;
     }
 
-    // If we have pending changes and 30s have passed since the LAST change
+    // if we have pending changes and 30s have passed since the last change
     if (pendingCommits && (now - lastChangeDetectedAt) >= DEBOUNCE_MS) {
         syncToGitHub();
     }

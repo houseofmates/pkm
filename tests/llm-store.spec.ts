@@ -24,12 +24,12 @@ describe('useLLMStore.askWilson', () => {
   it('includes currentContext in system prompt and appends assistant reply', async () => {
     ;(generateText as any).mockResolvedValue('mocked ai reply')
 
-    // set background context and call askWilson
+    // set background context and call askwilson
     useLLMStore.getState().setContext({ page: 'hello world' })
 
     const reply = await useLLMStore.getState().askWilson('summarize this')
 
-    // generateText should have been called and its first arg must include the context json
+    // generatetext should have been called and its first arg must include the context json
     expect((generateText as any).mock.calls.length).toBeGreaterThan(0)
     const calledPrompt: string = (generateText as any).mock.calls[0][0]
     expect(calledPrompt).toContain('current page context')
