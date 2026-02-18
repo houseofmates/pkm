@@ -37,7 +37,7 @@ test('canvas /ai: injects canvas context and includes system prompt', async ({ p
   expect(capturedPost).toContain('you are wilson');
   // system prompt must ask for lowercase responses as per project rule
   expect(capturedPost).toMatch(/lowercase/);
-  // canvas context should be injected into the prompt (we expect "canvas" or a small JSON snippet)
+  // canvas context should be injected into the prompt (we expect "canvas" or a small json snippet)
   expect(capturedPost).toMatch(/canvas|current page context/i);
 
   // verify the user-supplied question was forwarded (without leading '/ai')
