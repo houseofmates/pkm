@@ -78,7 +78,7 @@ function processFile(filePath, apply) {
         return prefix + t
       })
       .join('\n')
-    return '/*' + transformedInner + '*/'
+    return '/*' + transformedinner + '*/'
   })
 
   // process jsx comments {/* ... */}
@@ -96,7 +96,7 @@ function processFile(filePath, apply) {
         return prefix + t
       })
       .join('\n')
-    return '{/*' + transformedInner + '*/}'
+    return '{/*' + transformedinner + '*/}'
   })
 
   if (changed && apply) {

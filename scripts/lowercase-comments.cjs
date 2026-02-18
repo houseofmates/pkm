@@ -7,12 +7,31 @@ const fs = require('fs')
 const path = require('path')
 
 const ROOT = path.resolve(__dirname, '..')
-const TARGET_DIRS = [
+// default target dirs (can be extended via --dirs comma-separated or env extra_dirs)
+const DEFAULT_TARGET_DIRS = [
   path.join(ROOT, 'src', 'features'),
   path.join(ROOT, 'src', 'lib'),
   path.join(ROOT, 'src', 'components'),
 ]
 const EXT = ['.ts', '.tsx', '.js', '.jsx', '.cjs', '.mjs']
+
+function parseExtraDirs() {
+  const arg = process.argv.find(a => a.startsWith('--dirs='))
+  const env = process.env.EXTRA_DIRS
+  const raw = arg ? arg.replace('--dirs=', '') : env ? env : ''
+  if (!raw) return []
+  return raw.split(',').map(s => s.trim()).filter(Boolean).map(d => path.isAbsolute(d) ? d : path.join(ROOT, d))
+}
+
+function parseExcludes() {
+  const arg = process.argv.find(a => a.startsWith('--exclude='))
+  const env = process.env.EXCLUDE_DIRS
+  const raw = arg ? arg.replace('--exclude=', '') : env ? env : ''
+  if (!raw) return []
+  return raw.split(',').map(s => s.trim()).filter(Boolean).map(d => path.isAbsolute(d) ? d : path.join(ROOT, d))
+}
+
+let TARGET_DIRS = DEFAULT_TARGET_DIRS
 
 function protectBackticksAndUrls(text) {
   const parts = []
@@ -67,7 +86,7 @@ function processFile(filePath, apply) {
         return prefix + t
       })
       .join('\n')
-    return '/*' + transformedInner + '*/'
+    return '/*' + transformedinner + '*/'
   })
 
   newSrc = newSrc.replace(/\{\s*\/\*[\s\S]*?\*\/\s*\}/g, (wrap) => {
@@ -84,7 +103,7 @@ function processFile(filePath, apply) {
         return prefix + t
       })
       .join('\n')
-    return '{/*' + transformedInner + '*/}'
+    return '{/*' + transformedinner + '*/}'
   })
 
   if (changed && apply) {
@@ -107,12 +126,18 @@ function processFile(filePath, apply) {
 }
 
 function walkTargets() {
+  const extra = parseExtraDirs()
+  const excludes = parseExcludes()
+  TARGET_DIRS = Array.from(new Set([...TARGET_DIRS, ...extra]))
   const files = []
   for (const dir of TARGET_DIRS) {
     if (!fs.existsSync(dir)) continue
     const stack = [dir]
     while (stack.length) {
       const p = stack.pop()
+      // skip excludes and node_modules
+      if (excludes.some(ex => p.startsWith(ex))) continue
+      if (p.includes('node_modules')) continue
       const entries = fs.readdirSync(p)
       for (const e of entries) {
         const full = path.join(p, e)

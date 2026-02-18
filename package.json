@@ -13,6 +13,8 @@
     "test": "vitest",
     "test:e2e": "node scripts/e2e/canvas-ai.cjs",
     "lint": "eslint .",
+    "lowercase:check": "node scripts/lowercase-comments.cjs",
+    "lowercase:fix": "node scripts/lowercase-comments.cjs --apply",
     "preview": "vite preview",
     "backend": "PORT=4100 node backend/server.js",
     "electron:dev": "concurrently -k \"npm run dev\" \"npm run backend\" \"wait-on tcp:4173 && electron .\"",
