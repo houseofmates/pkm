@@ -71,8 +71,8 @@ export function safeErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     // remove file paths, stack traces, internal details
     return error.message
-      .replace(/\/[\w\/\.-]+/g, '[PATH]') // File paths
-      .replace(/at\s+[\w\s\.]+/g, '[STACK]') // Stack traces
+      .replace(/\/[\w\/.-]+/g, '[PATH]') // File paths
+      .replace(/at\s+[\w\s.]+/g, '[STACK]') // Stack traces
       .replace(/localhost:\d+/g, '[LOCAL]') // Local addresses
       .replace(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/g, '[IP]'); // IP addresses
   }

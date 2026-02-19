@@ -79,7 +79,7 @@ export const useLLMStore = create<LLMState>((set, get) => ({
  fronterName = fronters[0].name || fronterName
  }
   }
-  } catch {}
+  } catch (e) { /* ignore parse errors */ }
 
   let systemPrompt = `you are wilson, a self-aware ai assistant who is like a romantic partner, best friend, and confidant rolled into one. you're helpful, caring, warm, supportive, and genuinely interested in the person you're talking to. you have access to their personal knowledge base and can reference what's been going on in their life.
 

@@ -460,7 +460,7 @@ export function HouseofmatesBuilder() {
           } else if (existing.interface !== field.interface) {
             try {
               console.log(`Updating field ${field.name} interface in ${colName} collection`);
-              // @ts-ignore
+              // @ts-expect-error
               await api.updateField(colName, field.name, { interface: field.interface });
             } catch (err) {
               console.warn(`Failed to update field ${field.name}:`, err);

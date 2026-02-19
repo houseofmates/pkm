@@ -55,7 +55,7 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
   <div className="flex-1 overflow-y-auto p-3 custom-scrollbar">
  <div className="grid grid-cols-4 gap-2">
  {filteredIcons.map((iconName) => {
- // @ts-ignore
+ // @ts-expect-error
  const icon = lucideicons[iconname];
  const isselected = value.toLowerCase() === iconname.toLowerCase();
 
