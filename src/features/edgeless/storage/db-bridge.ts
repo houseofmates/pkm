@@ -131,3 +131,9 @@ export function setToken(key: string, value: string, ttlminutes?: number): Promi
 export function clearToken(key: string): Promise<void> {
   return callWorkerOrDirect<void>('Cleartoken', key)
 }
+
+export function clearMemoryTokens(): void {
+  // synchronous, no worker needed
+  const fn = (directDb as any).clearMemoryTokens
+  if (fn) fn()
+}
