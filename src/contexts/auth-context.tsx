@@ -8,13 +8,13 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (token: string) => void;
   logout: () => void;
-  client: nocobaseclient;
+  client: NocoBaseClient;
 }
 
-const authcontext = createcontext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: reactnode }) {
-  const [token, settoken] = useState<string | null>(localStorage.getItem('nocobase_token'));
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [token, setToken] = useState<string | null>(localStorage.getItem('nocobase_token'));
 
   // initialize client with a function to get the current token
   // this ensures the client always uses the latest token from the closure/state if we adjusted the client implementation,
@@ -67,13 +67,13 @@ export function AuthProvider({ children }: { children: reactnode }) {
   };
 
   const logout = () => {
-  localstorage.removeitem('nocobase_token');
-  settoken(null);
+  localStorage.removeItem('nocobase_token');
+  setToken(null);
 
   // sync to electron
   const electron = (window as any).electron;
-  if (electron?.syncstate) {
-  electron.syncstate({ token: null });
+  if (electron?.syncState) {
+  electron.syncState({ token: null });
   }
   };
 
@@ -87,7 +87,7 @@ export function AuthProvider({ children }: { children: reactnode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-  throw new Error('UseAuth must be used within an AuthProvider');
+  throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 }
