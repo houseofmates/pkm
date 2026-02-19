@@ -47,8 +47,8 @@ export function ChartView(props: ViewProps) {
 
     // multi-series: build nested map: x -> seriesval -> { value, records }
     // simple single-series aggregation by x
-    if (!seriesfield) {
-      const map = new map<string, { value: number, records: any[] }>();
+    if (!seriesField) {
+      const map = new Map<string, { value: number, records: any[] }>();
       data.forEach(rec => {
         const xVal = String(rec[xKey] || 'untagged');
         const current = map.get(xVal) || { value: 0, records: [] };
@@ -68,8 +68,8 @@ export function ChartView(props: ViewProps) {
     }
 
     // multi-series aggregation
-    const xmap = new map<string, Map<string, { value: number, records: any[] }>>();
-    const seriesset = new set<string>();
+    const xMap = new Map<string, Map<string, { value: number, records: any[] }>>();
+    const seriesSet = new Set<string>();
 
     data.forEach(rec => {
       const xVal = String(rec[xKey] || 'untagged');
@@ -236,7 +236,7 @@ export function ChartView(props: ViewProps) {
                           .filter(k => k !== 'name' && k !== 'value') // Assuming transformed keys
                           .slice(0, 10)
                           .map((bgKey) => {
-                            const current = config?.chartseriescolors?.[bgkey];
+                            const current = config?.chartSeriesColors?.[bgKey];
                             return (
                               <Popover key={bgKey}>
                                 <PopoverTrigger asChild>
@@ -370,7 +370,7 @@ export function ChartView(props: ViewProps) {
             </DialogTitle>
           </DialogHeader>
           <div className="flex-1 overflow-auto min-h-0 border rounded-md">
-            {drilldown && (
+            {drillDown && (
               <RecordTable
                 data={(() => {
                   // derive records from current chartdata
@@ -396,7 +396,7 @@ export function ChartView(props: ViewProps) {
 
       {/* virtual context menu (single record) */}
       {
-        virtualmenu && (
+        virtualMenu && (
           <div
             className="fixed inset-0 z-50 bg-black/5"
             onClick={() => setVirtualMenu(null)}
@@ -410,7 +410,7 @@ export function ChartView(props: ViewProps) {
               }}
               onClick={(e) => e.stopPropagation()}
             >
-              {virtualmenu.records[0] && (
+              {virtualMenu.records[0] && (
                 <RecordEditContent
                   record={virtualMenu.records[0]}
                   collection={collection}

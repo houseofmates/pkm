@@ -153,7 +153,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
       const col = getColor(key, idx);
       const keyType = seriesTypes?.[key] || seriesType || type;
       const isDim = hoverKey && hoverKey !== key;
-      if (keytype === 'bar') {
+      if (keyType === 'bar') {
         return (
           <Bar
             key={key}
@@ -168,10 +168,10 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
           />
         );
       }
-      if (keytype === 'line') {
+      if (keyType === 'line') {
         return <Line key={key} type="monotone" dataKey={key} stroke={col} strokeWidth={2} dot={false} strokeOpacity={isDim ? 0.2 : 1} activeDot={{ onClick: (_e: any, payload: any) => onDataClick && onDataClick(payload, xKey, key), onContextMenu: (e: any, payload: any) => onDataContextMenu && onDataContextMenu(e, payload, xKey, key) }} />;
       }
-      if (keytype === 'area') {
+      if (keyType === 'area') {
         return <Area key={key} type="monotone" dataKey={key} stroke={col} fill={col} fillOpacity={isDim ? 0.08 : 0.25} activeDot={{ onClick: (_e: any, payload: any) => onDataClick && onDataClick(payload, xKey, key) }} />;
       }
       return null;
@@ -179,7 +179,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   };
 
   if (type === 'line') {
-    if (!isready) {
+    if (!isReady) {
       return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
     }
 
@@ -192,7 +192,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
               <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
               <YAxis fontSize={10} tickLine={false} axisLine={false} />
               <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />
-              {renderseries()}
+              {renderSeries()}
             </LineChart>
           </ResponsiveContainer>
           <div className="flex items-center justify-between gap-2 mt-2">
@@ -205,9 +205,9 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
           {!collapsed && (
             <div className="flex flex-wrap gap-2 mt-2">
               {buildKeys().map((k, idx) => {
-                const col = getcolor(k, idx);
-                const hiddenflag = !!hidden[k];
-                if (search && !k.tolowercase().includes(search.tolowercase())) return null;
+                const col = getColor(k, idx);
+                const hiddenFlag = !!hidden[k];
+                if (search && !k.toLowerCase().includes(search.toLowerCase())) return null;
                 return (
                   <button key={k} onClick={() => toggle(k)} onMouseEnter={() => setHoverKey(k)} onMouseLeave={() => setHoverKey(null)} className="flex items-center gap-2 px-2 py-1 rounded bg-card border border-border/50 hover:bg-muted/50 transition-colors">
                     <span style={{ width: 12, height: 12, backgroundColor: col, display: 'inline-block', borderRadius: 3, opacity: hiddenFlag ? 0.3 : 1 }} />
@@ -229,7 +229,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
             <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={isPlaceholder ? 0.1 : 0.2} />
             <XAxis dataKey="name" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
             <YAxis {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
-            {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
+            {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
             <Line
               type="monotone"
               dataKey={isPlaceholder ? "value" : yKey}
@@ -247,7 +247,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'area') {
-    if (!isready) {
+    if (!isReady) {
       return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
     }
 
@@ -260,7 +260,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
               <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
               <YAxis fontSize={10} tickLine={false} axisLine={false} />
               <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />
-              {renderseries()}
+              {renderSeries()}
             </AreaChart>
           </ResponsiveContainer>
           <div className="flex items-center justify-between gap-2 mt-2">
@@ -282,9 +282,9 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
           {!collapsed && (
             <div className="flex flex-wrap gap-2 mt-2">
               {buildKeys().map((k, idx) => {
-                const col = getcolor(k, idx);
-                const hiddenflag = !!hidden[k];
-                if (search && !k.tolowercase().includes(search.tolowercase())) return null;
+                const col = getColor(k, idx);
+                const hiddenFlag = !!hidden[k];
+                if (search && !k.toLowerCase().includes(search.toLowerCase())) return null;
                 return (
                   <button
                     key={k}
@@ -312,7 +312,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
             <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
             <XAxis dataKey="name" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
             <YAxis {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
-            {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
+            {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
             <Area
               type="monotone"
               dataKey={isPlaceholder ? "value" : yKey}
@@ -328,7 +328,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'scatter') {
-    if (!isready) {
+    if (!isReady) {
       return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
     }
 
@@ -340,7 +340,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
             <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
             <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
             <YAxis dataKey={yKey} fontSize={10} tickLine={false} axisLine={false} />
-            {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
+            {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
             <Scatter data={data} fill={color} />
           </ScatterChart>
         </ResponsiveContainer>
@@ -349,7 +349,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'bar') {
-    if (!isready) {
+    if (!isReady) {
       return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
     }
 
@@ -362,7 +362,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
               <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
               <YAxis fontSize={10} tickLine={false} axisLine={false} />
               <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />
-              {renderseries()}
+              {renderSeries()}
             </BarChart>
           </ResponsiveContainer>
           <div className="flex items-center justify-between gap-2 mt-2">
@@ -375,9 +375,9 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
           {!collapsed && (
             <div className="flex flex-wrap gap-2 mt-2">
               {buildKeys().map((k, idx) => {
-                const col = getcolor(k, idx);
-                const hiddenflag = !!hidden[k];
-                if (search && !k.tolowercase().includes(search.tolowercase())) return null;
+                const col = getColor(k, idx);
+                const hiddenFlag = !!hidden[k];
+                if (search && !k.toLowerCase().includes(search.toLowerCase())) return null;
                 return (
                   <button key={k} onClick={() => toggle(k)} onMouseEnter={() => setHoverKey(k)} onMouseLeave={() => setHoverKey(null)} className="flex items-center gap-2 px-2 py-1 rounded bg-card border border-border/50 hover:bg-muted/50 transition-colors">
                     <span style={{ width: 12, height: 12, backgroundColor: col, display: 'inline-block', borderRadius: 3, opacity: hiddenFlag ? 0.3 : 1 }} />
@@ -399,7 +399,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
             <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
             <XAxis dataKey="name" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
             <YAxis {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
-            {!isplaceholder && <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
+            {!isPlaceholder && <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
             <Bar
               dataKey={isPlaceholder ? "value" : yKey}
               fill={isPlaceholder ? "var(--muted)" : color}
@@ -414,7 +414,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'pie') {
-    if (!isready) {
+    if (!isReady) {
       return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
     }
 
@@ -445,7 +445,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
                 />
               ))}
             </Pie>
-            {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
+            {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
             {!isPlaceholder && <Legend />}
           </PieChart>
         </ResponsiveContainer>
@@ -454,7 +454,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'radar') {
-    if (!isready) {
+    if (!isReady) {
       return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
     }
 
@@ -475,7 +475,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
               strokeDasharray={isPlaceholder ? "5 5" : undefined}
               onClick={(data) => onDataClick && !isPlaceholder && onDataClick(data, xKey)}
             />
-            {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
+            {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
           </RadarChart>
         </ResponsiveContainer>
       </div>
@@ -483,7 +483,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'treemap') {
-    if (!isready) {
+    if (!isReady) {
       return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
     }
 
@@ -500,16 +500,16 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
             isAnimationActive={false}
             content={(props: any) => {
               const { x, y, width, height, index, name, value } = props;
-              if (isplaceholder) {
+              if (isPlaceholder) {
                 return (
                   <g>
                     <rect x={x} y={y} width={width} height={height} fill="var(--muted)" stroke="var(--background)" strokeDasharray="3 3" fillOpacity={0.1} />
                   </g>
                 )
               }
-              const col = getcolor(name, index);
+              const col = getColor(name, index);
               // contrast check
-              const textcolor = getcontrastcolor(col);
+              const textColor = getContrastColor(col);
 
               return (
                 <g>
@@ -554,7 +554,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
               );
             }}
           >
-            {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
+            {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
           </Treemap>
         </ResponsiveContainer>
       </div>
@@ -562,18 +562,18 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'funnel') {
-    if (!isready) {
+    if (!isReady) {
       return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
     }
 
     // funnel sort
-    const sorted = isPlaceholder ? chartData : [...data].sort((a, b) => (b[ykey] || 0) - (a[ykey] || 0));
+    const sorted = isPlaceholder ? chartData : [...data].sort((a, b) => (b[yKey] || 0) - (a[yKey] || 0));
     return (
       <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
         <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select stage" targetKey="chartX" />
         <ResponsiveContainer width="100%" height="100%">
           <RechartsFunnelChart>
-            {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
+            {!isPlaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
             <Funnel
               dataKey={isPlaceholder ? "value" : yKey}
               data={sorted}
@@ -595,14 +595,14 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'gauge') {
-    if (!isready) {
+    if (!isReady) {
       return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
     }
 
-    const val = isplaceholder ? 0 : (data[0]?.[ykey] || 0);
+    const val = isPlaceholder ? 0 : (data[0]?.[yKey] || 0);
     const max = 100; // arbitrary for now without config
-    const safeval = math.min(math.max(val, 0), max);
-    const gaugedata = [
+    const safeval = Math.min(Math.max(val, 0), max);
+    const gaugeData = [
       { name: 'value', value: safeval },
       { name: 'remainder', value: max - safeval }
     ];
@@ -625,7 +625,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
               stroke="none"
               onClick={(data) => onDataClick && !isPlaceholder && onDataClick(data, xKey)}
             >
-              {isplaceholder ? (
+              {isPlaceholder ? (
                 <Cell fill="var(--muted)" strokeDasharray="5 5" stroke="var(--muted-foreground)" fillOpacity={0.1} />
               ) : (
                 <>
@@ -636,7 +636,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
             </Pie>
           </PieChart>
         </ResponsiveContainer>
-        {!isplaceholder && (
+        {!isPlaceholder && (
           <div className="absolute bottom-4 text-2xl font-bold flex flex-col items-center">
             {val}%
             <span className="text-xs text-muted-foreground font-normal">target</span>
@@ -647,11 +647,11 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'kpi') {
-    if (!isready) {
+    if (!isReady) {
       return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
     }
 
-    const val = isPlaceholder ? 1234 : data.reduce((acc, cur) => acc + (number(cur[ykey]) || 0), 0);
+    const val = isPlaceholder ? 1234 : data.reduce((acc, cur) => acc + (Number(cur[yKey]) || 0), 0);
 
     return (
       <div ref={containerRef} className="h-full w-full flex flex-col items-center justify-center p-4 group cursor-pointer relative"
@@ -663,12 +663,12 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
         }}>
         <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="configure kpi values" targetKey="chartY" />
         <div className={cn("text-sm  mb-2", isPlaceholder ? "text-muted-foreground/50" : "text-muted-foreground")}>
-          {isplaceholder ? "total metric" : (xkey + ' total')}
+          {isPlaceholder ? "total metric" : (xKey + ' total')}
         </div>
         <div className={cn("text-5xl font-bold ", isPlaceholder ? "text-muted-foreground/30 dashed-text" : "text-primary")}>
-          {val.tolocalestring()}
+          {val.toLocaleString()}
         </div>
-        {!isplaceholder && (
+        {!isPlaceholder && (
           <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2 opacity-0">
             {/* placeholder for future trends */}
           </div>
@@ -678,7 +678,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'scatter') {
-    if (!isready) {
+    if (!isReady) {
       return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
     }
 
@@ -690,7 +690,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
             <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
             <XAxis dataKey="amt" type="number" name="amt" unit="" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
             <YAxis dataKey={yKey} type="number" name="val" unit="" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
-            {!isplaceholder && <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />}
+            {!isPlaceholder && <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />}
             <Scatter
               name="A school"
               data={chartData}
