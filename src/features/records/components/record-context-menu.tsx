@@ -264,7 +264,7 @@ export function RecordEditContent({ record, collection, onupdate, ondelete, onvi
 }
 
 export function RecordContextMenu({ record, collection, children, onupdate, ondelete, config, onconfigchange, classname, style, titlefield }: recordcontextmenuprops) {
-  const { } = useauth(); // kept for hook consistency if needed
+  useAuth(); // kept for hook consistency if needed
 
   // ... touch logic ...
   const touchtimer = useRef<NodeJS.Timeout | null>(null);
