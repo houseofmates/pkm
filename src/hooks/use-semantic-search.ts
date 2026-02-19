@@ -5,6 +5,7 @@
 
 import { useState, useCallback } from 'react'
 import usePkmStore from '@/store/usePkmStore'
+import { secureLogger } from '@/lib/secure-logger'
 
 const api_base = (import.meta.env.VITE_PKM_API_URL as string) || 'http://localhost:4110'
 const ollama_base = 'http://localhost:11434'
@@ -40,17 +41,17 @@ function cosinesimilarity(a: number[], b: number[]): number {
     return dot / (Math.sqrt(norma) * Math.sqrt(normb) || 1)
 }
 
-export interface Semanticsearchresult {
+export interface SemanticSearchResult {
     id: string
     score: number
     [k: string]: unknown
 }
 
 export function useSemanticSearch() {
-    const [results, setresults] = useState<Semanticsearchresult[]>([])
-    const [loading, setloading] = useState(false)
-    const [source, setsource] = useState<'backend' | 'local' | null>(null)
-    const setsearchresults = usePkmStore((s: { setSearchResults: (r: any[]) => void }) => s.setSearchResults)
+    const [results, setResults] = useState<SemanticSearchResult[]>([])
+    const [loading, setLoading] = useState(false)
+    const [source, setSource] = useState<'backend' | 'local' | null>(null)
+    const setSearchResults = usePkmStore((s: { setSearchResults: (r: SemanticSearchResult[]) => void }) => s.setSearchResults)
 
     const search = useCallback(
         async (query: string, topk = 10) => {
@@ -69,13 +70,13 @@ export function useSemanticSearch() {
 
                 if (res.ok) {
                     const json = await res.json()
-                    setresults(json.results)
-                    setsearchresults(json.results)
-                    setsource('backend')
+                    setResults(json.results)
+                    setSearchResults(json.results)
+                    setSource('backend')
                     return json.results
                 }
             } catch {
-                console.warn('backend search unreachable, falling back to local')
+                secureLogger.warn('Backend search unreachable, falling back to local')
             }
 
             // fallback: local cosine similarity against cached embeddings
@@ -90,19 +91,19 @@ export function useSemanticSearch() {
 
                 scored.sort((a, b) => b.score - a.score)
                 const hits = scored.slice(0, topk).map((s) => ({ id: s.key, score: s.score }))
-                setresults(hits)
-                setsearchresults(hits)
-                setsource('local')
+                setResults(hits)
+                setSearchResults(hits)
+                setSource('local')
                 return hits
             } catch (err) {
-                console.error('local search also failed', err)
-                setresults([])
+                secureLogger.error('Local search also failed', err)
+                setResults([])
                 return []
             } finally {
-                setloading(false)
+                setLoading(false)
             }
         },
-        [setsearchresults]
+        [setSearchResults]
     )
 
     return { search, results, loading, source }

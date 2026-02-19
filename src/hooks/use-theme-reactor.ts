@@ -1,6 +1,7 @@
 
 import { useEffect } from 'react';
 import { useFronter } from '@/contexts/fronter-context';
+import { secureLogger } from '@/lib/secure-logger';
 
 export function useThemeReactor() {
   const { activeFronters, overrides, members } = useFronter();
@@ -36,7 +37,7 @@ export function useThemeReactor() {
  const colorCache = JSON.parse(localStorage.getItem('member_colors') || '{}');
  color = colorCache[primaryFronterId];
  } catch (e) {
- console.warn('Failed to read color cache:', e);
+ secureLogger.warn('Failed to read color cache:', e);
  }
   }
   }
@@ -61,7 +62,7 @@ export function useThemeReactor() {
  let finalColor = color;
  if (lightness < 25) {
  finalColor = '#ffffff';
- console.log('Dark color detected, using white instead');
+ secureLogger.info('Dark color detected, using white instead');
  }
 
  const finalHsl = HexToHsl(finalColor);
@@ -93,7 +94,7 @@ export function useThemeReactor() {
 }
 
 // helper: hex to hsl string "h s% l%"
-export function hexToHsl(hex: string): string | null {
+export function HexToHsl(hex: string): string | null {
   // remove #
   hex = hex.replace(/^#/, '');
 
