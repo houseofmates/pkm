@@ -28,20 +28,20 @@ interface SearchResult {
     score?: number;
 }
 
-export function spotlight() {
-    const [open, setopen] = usestate(false);
-    const [query, setquery] = usestate("");
-    const [dbresults, setdbresults] = usestate<SearchResult[]>([]);
-    const [aiinsight, setaiinsight] = usestate<string | null>(null);
-    const [externalcontext, setexternalcontext] = usestate<string | null>(null);
+export function Spotlight() {
+    const [open, setOpen] = useState(false);
+    const [query, setQuery] = useState("");
+    const [dbResults, setDbResults] = useState<SearchResult[]>([]);
+    const [aiInsight, setAiInsight] = useState<string | null>(null);
+    const [externalContext, setExternalContext] = useState<string | null>(null);
     const [isSearching, setIsSearching] = useState(false);
     const [isAiLoading, setIsAiLoading] = useState(false);
 
     const navigate = useNavigate();
     const { collections } = useCollections();
-    const setChatOpen = useEdgelessStore(state => state.setchatopen);
+    const setChatOpen = useEdgelessStore(state => state.setChatOpen);
 
-    const searchtimeout = useref<NodeJS.Timeout | null>(null);
+    const searchTimeout = useRef<NodeJS.Timeout | null>(null);
 
     // keyboard shortcuts & global events
     useEffect(() => {
@@ -149,7 +149,7 @@ export function spotlight() {
     };
 
     const runAction = (action: () => void) => {
-        setopen(false);
+        setOpen(false);
         action();
     };
 
@@ -165,13 +165,13 @@ export function spotlight() {
                             onValueChange={onQueryChange}
                             className="flex-1 h-8 bg-transparent border-none focus:ring-0 text-lg lowercase placeholder:text-muted-foreground/50"
                         />
-                        {issearching && <Loader2 className="h-4 w-4 animate-spin text-primary/40 ml-2" />}
+                        {isSearching && <Loader2 className="h-4 w-4 animate-spin text-primary/40 ml-2" />}
                     </div>
 
                     <ScrollArea className="max-h-[70vh]">
                         <CommandList className="pb-4">
                             <CommandEmpty className="p-8 text-center text-muted-foreground lowercase">
-                                {issearching ? "tuning into your thoughts..." : "no matches found across your database."}
+                                {isSearching ? "tuning into your thoughts..." : "no matches found across your database."}
                             </CommandEmpty>
 
                             {/* ai insight section (premium) */}
@@ -186,8 +186,8 @@ export function spotlight() {
                                             <span>wilson's reflection</span>
                                         </div>
                                         <p className="text-sm leading-relaxed text-foreground/90 whitespace-pre-wrap min-h-[1.5em] lowercase">
-                                            {aiinsight}
-                                            {isailoading && <span className="inline-block w-1.5 h-4 ml-1 bg-primary/50 animate-pulse align-middle" />}
+                                            {aiInsight}
+                                            {isAiLoading && <span className="inline-block w-1.5 h-4 ml-1 bg-primary/50 animate-pulse align-middle" />}
                                         </p>
                                     </div>
                                 </div>
@@ -209,11 +209,11 @@ export function spotlight() {
                                                         {(res.record?.title as string) || (res.record?.name as string) || `record #${res.id}`}
                                                     </span>
                                                     <Badge variant="outline" className="text-[10px] py-0 h-4 border-primary/20 text-primary/60 lowercase">
-                                                        {res.collectiontitle || res.collectionname}
+                                                        {res.collectionTitle || res.collectionName}
                                                     </Badge>
                                                 </div>
                                                 <p className="text-xs text-muted-foreground/70 line-clamp-1 italic font-light lowercase">
-                                                    {res.record?.content ? string(res.record.content).substring(0, 120) : "no preview available"}
+                                                    {res.record?.content ? String(res.record.content).substring(0, 120) : "no preview available"}
                                                 </p>
                                             </div>
                                         </CommandItem>

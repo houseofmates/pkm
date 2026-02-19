@@ -62,19 +62,19 @@ function MobileSidebarDrawer({ isOpen, onClose, ...props }: any) {
   );
 }
 
-export function rootlayout() {
-  usethemereactor(); // activate dynamic theming
-  const { activefronters, overrides, members } = usefronter();
-  const navigate = usenavigate();
+export function RootLayout() {
+  useThemeReactor(); // activate dynamic theming
+  const { activeFronters, overrides, members } = useFronter();
+  const navigate = useNavigate();
 
-  const [activetab, setactivetab] = usestate<'databases' | 'home' | 'headmates' | 'board' | 'captures'>('home');
-  const [selectedcollection, setselectedcollection] = usestate<string | null>(null);
-  const [sidebaropen, setsidebaropen] = usestate(false);
-  const [settingsopen, setsettingsopen] = usestate(false);
+  const [activeTab, setActiveTab] = useState<'databases' | 'home' | 'headmates' | 'board' | 'captures'>('home');
+  const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // sync / health state
-  const [walcount, setwalcount] = usestate(0);
-  const [syncstatus, setsyncstatus] = usestate<'ok' | 'syncing' | 'error'>('ok');
+  const [walCount, setWalCount] = useState(0);
+  const [syncStatus, setSyncStatus] = useState<'ok' | 'syncing' | 'error'>('ok');
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -111,7 +111,7 @@ export function rootlayout() {
   }, [activeColor]);
 
   const [sidebarItems, setSidebarItems] = useAppSetting<NavItem[]>('sidebar_items', []);
-  const [activedragitem, setactivedragitem] = usestate<NavItem | null>(null);
+  const [activeDragItem, setActiveDragItem] = useState<NavItem | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
