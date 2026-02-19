@@ -7,12 +7,12 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Settings, RefreshCw, Database, Trash2, Zap, ShieldCheck } from 'lucide-react'
-import { backfilllinkregistry } from '@/lib/link-migration'
+import { backfillLinkRegistry } from '@/lib/link-migration'
 import { registry } from '@/lib/link-registry'
-import { walpendingcount } from '@/lib/write-ahead-log'
+import { walPendingCount } from '@/lib/write-ahead-log'
 import { toast } from 'sonner'
 import { Separator } from '@/components/ui/separator'
-// import { cn } from '@/lib/utils' // unused
+import { cn } from '@/lib/utils'
 
 export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
     const [isRebuilding, setIsRebuilding] = useState(false)
@@ -21,7 +21,7 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
 
     useEffect(() => {
         if (open) {
-            walpendingcount().then(setPendingWal)
+            walPendingCount().then(setPendingWal)
             setLinkCount(registry.size())
         }
     }, [open])
@@ -29,7 +29,7 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
     const handleRebuildIndex = async () => {
         setIsRebuilding(true)
         try {
-            const res = await backfilllinkregistry()
+            const res = await backfillLinkRegistry()
             setLinkCount(registry.size())
             toast.success(`index rebuilt: scanned ${res.documents} docs, found ${res.links} links`)
         } catch (e) {
@@ -83,7 +83,7 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                                     "text-xs font-mono lowercase px-2 py-0.5 rounded",
                                     pendingWal > 0 ? "bg-amber-500/20 text-amber-500" : "bg-green-500/20 text-green-500"
                                 )}>
-                                    {pendingwal} pending
+                                    {pendingWal} pending
                                 </span>
                             </div>
 
@@ -102,7 +102,7 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                                     disabled={isRebuilding}
                                 >
                                     <RefreshCw className={cn("h-3 w-3 mr-2", isRebuilding && "animate-spin")} />
-                                    {isrebuilding ? 'rebuilding...' : 'rebuild index'}
+                                    {isRebuilding ? 'rebuilding...' : 'rebuild index'}
                                 </Button>
                             </div>
                         </div>
