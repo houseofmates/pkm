@@ -13,50 +13,50 @@ export function WilsonChat() {
 
   // actually, let's update store first? no, let's write this component to use the store field we will add.
   const isChatOpen = useEdgelessStore((state) => state.isChatOpen)
-  const setChatOpen = useEdgelessStore((state) => state.setchatopen)
+  const setChatOpen = useEdgelessStore((state) => state.setChatOpen)
 
-  const { interactionhistory, isthinking, askwilson } = usellmstore()
-  const [userinput, setuserinput] = usestate('')
-  const chatcontainerref = useref<HTMLDivElement>(null)
+  const { interactionHistory, isThinking, askWilson } = useLLMStore()
+  const [userInput, setUserInput] = useState('')
+  const chatContainerRef = useRef<HTMLDivElement>(null)
 
   // auto-scroll
   useEffect(() => {
-  if (chatContainerRef.current) {
-  chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
-  }
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight
+    }
   }, [interactionHistory])
 
   const checkAndSend = async () => {
-  if (!userInput.trim() || isThinking) return
+    if (!userInput.trim() || isThinking) return
 
-  const text = userInput
-  setUserInput('') // Clear immediately
+    const text = userInput
+    setUserInput('') // Clear immediately
 
-  if (text.trim().toLowerCase().startsWith('/ai')) {
-  const prompt = text.replace(/^\/ai\s*/i, '');
+    if (text.trim().toLowerCase().startsWith('/ai')) {
+      const prompt = text.replace(/^\/ai\s*/i, '')
 
-  // capture basic page context
-  // in the future, we can make this smarter by checking the route and pulling specific store data
-  const context = {
- url: window.location.href,
- pageText: document.body.innerText.substring(0, 5000) // limit to avoid token overflow
-  };
+      // capture basic page context
+      // in the future, we can make this smarter by checking the route and pulling specific store data
+      const context = {
+        url: window.location.href,
+        pageText: document.body.innerText.substring(0, 5000), // limit to avoid token overflow
+      }
 
-  useLLMStore.getState().setContext(context);
+      useLLMStore.getState().setContext(context)
 
-  await askWilson(prompt || "Analyze this page content.");
+      await askWilson(prompt || 'Analyze this page content.')
 
-  // clear context to avoid polluting future chats
-  useLLMStore.getState().setContext(null);
-  } else {
-  await askWilson(text)
-  }
+      // clear context to avoid polluting future chats
+      useLLMStore.getState().setContext(null)
+    } else {
+      await askWilson(text)
+    }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-  if (e.key === 'enter') {
-  checkandsend()
-  }
+    if (e.key === 'Enter') {
+      checkAndSend()
+    }
   }
 
   return (
@@ -75,7 +75,7 @@ export function WilsonChat() {
 
   {/* chat area */}
   <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 font-mono text-sm">
- {interactionhistory.length === 0 && (
+ {interactionHistory.length === 0 && (
  <div className="text-primary opacity-50 text-center mt-10 lowercase">
  <p>systems online.</p>
  <p>waiting for input...</p>
@@ -99,7 +99,7 @@ export function WilsonChat() {
  ))}
 
  {/* thinking indicator */}
- {isthinking && (
+ {isThinking && (
  <div className="flex items-center gap-2 text-primary text-xs animate-pulse lowercase">
  <BrainCircuit size={14} />
  <span>processing...</span>
