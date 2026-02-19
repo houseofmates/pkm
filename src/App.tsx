@@ -11,6 +11,7 @@ import { LLMContextProvider } from "@/contexts/llm-context"
 import { CanvasErrorBoundary } from "@/features/edgeless"
 import { walrecover, walcommit, walfail, walpendingcount } from "@/lib/write-ahead-log"
 import { islinkregistrymigrated, backfilllinkregistry } from "@/lib/link-migration"
+import { secureLogger } from "@/lib/secure-logger"
 
 // lazy load heavy components
 const Spotlight = lazy(() => import("@/components/Spotlight").then(m => ({ default: m.Spotlight })));
@@ -47,7 +48,7 @@ const isPublicByDomain = isPublicDomain();
 const isPkmDomain = window.location.hostname.startsWith('pkm.');
 const isPublic = isPublicByDomain && !isPkmDomain;
 
-console.log(`[Router] Host: ${window.location.hostname}, isPublicByDomain: ${isPublicByDomain}, isPkm: ${isPkmDomain}, Result Public: ${isPublic}`);
+secureLogger.info(`[Router] Host: ${window.location.hostname}, isPublicByDomain: ${isPublicByDomain}, isPkm: ${isPkmDomain}, Result Public: ${isPublic}`);
 
 // set branding immediately (before react mounts)
 if (typeof document !== 'undefined') {
@@ -83,7 +84,7 @@ function AppContent() {
       // the actual recovery happens on next load via walrecover()
       walpendingcount().then((count) => {
         if (count > 0) {
-          console.warn(`wal: ${count} pending writes — recovery will happen on next load`)
+          secureLogger.warn(`wal: ${count} pending writes — recovery will happen on next load`)
         }
       })
       e.preventDefault()
@@ -98,7 +99,7 @@ function AppContent() {
     if (!client) return
     walrecover().then(async (pending) => {
       if (pending.length === 0) return
-      console.log(`wal: recovering ${pending.length} pending writes from previous session`)
+      secureLogger.info(`wal: recovering ${pending.length} pending writes from previous session`)
       for (const entry of pending) {
         try {
           if (entry.operation === 'update') {
@@ -109,14 +110,14 @@ function AppContent() {
             await client.deleteRecord(entry.collection, entry.recordid)
           }
           await walcommit(entry.id)
-          console.log(`wal: recovered ${entry.operation} on ${entry.collection}/${entry.recordid}`)
+          secureLogger.info(`wal: recovered ${entry.operation} on ${entry.collection}/${entry.recordid}`)
         } catch (err) {
-          console.error('wal: recovery failed for', entry.id, err)
+          secureLogger.error('wal: recovery failed for', entry.id, err)
           await walfail(entry.id)
         }
       }
     }).catch((err) => {
-      console.error('wal: startup recovery error', err)
+      secureLogger.error('wal: startup recovery error', err)
     })
   }, [client])
 
@@ -126,13 +127,13 @@ function AppContent() {
 
     // run migration after a small delay to not block initial render
     const timer = setTimeout(() => {
-      console.log('[link-migration] starting backfill...')
+      secureLogger.info('[link-migration] starting backfill...')
       backfilllinkregistry()
         .then((res) => {
-          console.log(`[link-migration] complete: scanned ${res.documents} docs, found ${res.links} links`)
+          secureLogger.info(`[link-migration] complete: scanned ${res.documents} docs, found ${res.links} links`)
         })
         .catch((err) => {
-          console.error('[link-migration] failed:', err)
+          secureLogger.error('[link-migration] failed:', err)
         })
     }, 5000)
 

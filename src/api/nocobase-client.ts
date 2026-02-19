@@ -71,7 +71,7 @@ export class NocoBaseClient {
    }
   });
 
-  const list: Collection[] = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+  let list: Collection[] = Array.isArray(res.data) ? res.data : (res.data?.data || []);
 
   if (list.length > 0) {
    return { data: list[0] as Collection };
@@ -81,23 +81,23 @@ export class NocoBaseClient {
   // trying both $ilike and $like to be safe across db types
   secureLogger.warn(`getCollection(${name}) exact match failed, attempting case-insensitive...`);
   try {
-   res = await this._axios.get('/collections:list', {
+   const res2 = await this._axios.get('/collections:list', {
   params: {
    'filter[name.$ilike]': name, // Postgres
    'appends': ['fields']
   }
    });
-   list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+   list = Array.isArray(res2.data) ? res2.data : (res2.data?.data || []);
    if (list.length > 0) return { data: list[0] };
 
    // try $like?
-   res = await this._axios.get('/collections:list', {
+   const res3 = await this._axios.get('/collections:list', {
   params: {
    'filter[name.$like]': name,
    'appends': ['fields']
   }
    });
-   list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+   list = Array.isArray(res3.data) ? res3.data : (res3.data?.data || []);
    if (list.length > 0) return { data: list[0] };
 
   } catch (_e) {
@@ -302,11 +302,11 @@ export class NocoBaseClient {
 
   // 2. try create record
   try {
- const res = await this.createRecord(COL_NAME, {
+ const createRes = await this.createRecord(COL_NAME, {
   title,
   content: ''
  });
- return ListRecordsResponseSchema.parse(res.data);
+ return ListRecordsResponseSchema.parse((createRes as { data?: unknown }).data);
   } catch (error: unknown) {
  const err = error as ApiError;
  if (err?.response?.status === 404) {
@@ -315,11 +315,11 @@ export class NocoBaseClient {
   await ensure(); // Force check/create again
   await new Promise(r => setTimeout(r, 1000)); // Wait more
   // retry create
-  const res = await this.createRecord(COL_NAME, {
+  const retryRes = await this.createRecord(COL_NAME, {
    title,
    content: ''
   });
-  return ListRecordsResponseSchema.parse(res.data);
+  return ListRecordsResponseSchema.parse((retryRes as { data?: unknown }).data);
  }
  throw error;
   }
