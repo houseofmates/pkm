@@ -367,4 +367,4 @@ export class NocoBaseClient {
 }
 
 export const api = new NocoBaseClient();
-export default Api;
+export default api;
