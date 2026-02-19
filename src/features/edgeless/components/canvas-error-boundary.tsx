@@ -50,11 +50,11 @@ export class CanvasErrorBoundary extends Component<Props, State> {
   }
 
   handleReset = () => {
-    this.setstate({ haserror: false, error: null, errorinfo: '' })
+    this.setState({ hasError: false, error: null, errorInfo: '' })
   }
 
   render() {
-    if (this.state.haserror) {
+    if (this.state.hasError) {
       if (this.props.fallback) {
         return this.props.fallback
       }
