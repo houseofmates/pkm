@@ -15,50 +15,50 @@ interface RelationshipPickerProps {
   value?: any;
 }
 
-export function relationshippicker({ collectionname, onselect, value }: relationshippickerprops) {
-  const { client } = useauth();
-  const [open, setopen] = usestate(false);
-  const [options, setoptions] = usestate<any[]>([]);
+export function RelationshipPicker({ collectionName, onSelect, value }: RelationshipPickerProps) {
+  const { client } = useAuth();
+  const [open, setOpen] = useState(false);
+  const [options, setOptions] = useState<any[]>([]);
 
   // very basic implementation: fetch all options
   // in a real app we'd need search/pagination here too
   useEffect(() => {
-  if (open && options.length === 0) {
-  client.listRecords(collectionName, { pageSize: 50 }).then(res => {
- const data: any[] = array.isarray(res) ? res : ((res as { data?: any[] })?.data || []);
- setoptions(data);
-  });
-  }
-  }, [open, collectionname, client, options.length]);
+    if (open && options.length === 0) {
+      client.listRecords(collectionName, { pageSize: 50 }).then(res => {
+        const data: any[] = Array.isArray(res) ? res : ((res as { data?: any[] })?.data || []);
+        setOptions(data);
+      });
+    }
+  }, [open, collectionName, client, options.length]);
 
-  const displayvalue = value ? (typeof value === 'object' ? (value.title || value.name || value.id) : value) : "select...";
+  const displayValue = value ? (typeof value === 'object' ? (value.title || value.name || value.id) : value) : "select...";
 
   return (
-  <>
-  <Button type="button" variant="outline" onClick={() => setOpen(true)}>
- {displayvalue}
-  </Button>
-  <Dialog open={open} onOpenChange={setOpen}>
- <DialogContent>
- <DialogHeader>
- <DialogTitle>select {collectionname}</DialogTitle>
- </DialogHeader>
- <div className="max-h-[300px] overflow-y-auto space-y-2">
- {options.map(opt => (
-   <div
-   key={opt.id}
-   className="p-2 hover:bg-muted cursor-pointer rounded-md border"
-   onClick={() => {
-   onSelect(opt);
-   setOpen(false);
-   }}
-   >
-   {opt.title || opt.name || opt.displayname || opt.id}
-   </div>
- ))}
- </div>
- </DialogContent>
-  </Dialog>
-  </>
+    <>
+      <Button type="button" variant="outline" onClick={() => setOpen(true)}>
+        {displayValue}
+      </Button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>select {collectionName}</DialogTitle>
+          </DialogHeader>
+          <div className="max-h-[300px] overflow-y-auto space-y-2">
+            {options.map(opt => (
+              <div
+                key={opt.id}
+                className="p-2 hover:bg-muted cursor-pointer rounded-md border"
+                onClick={() => {
+                  onSelect(opt);
+                  setOpen(false);
+                }}
+              >
+                {opt.title || opt.name || opt.displayname || opt.id}
+              </div>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   )
 }

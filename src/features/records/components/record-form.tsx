@@ -51,7 +51,7 @@ export function RecordForm({ collection, initialData, onSubmit, onCancel }: Reco
           {fields.map((field: any) => {
             // check if it's a relationship field
             if (field.interface === 'linkto' || field.interface === 'm2o') {
-              const targetcollection = field.target; // assuming 'target' property holds the related collection name
+              const targetCollection = field.target; // assuming 'target' property holds the related collection name
               return (
                 <div key={field.name} className="space-y-2">
                   <Label htmlFor={field.name}>{field.uiSchema?.title || field.name}</Label>
