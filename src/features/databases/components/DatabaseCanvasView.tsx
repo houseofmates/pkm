@@ -23,7 +23,7 @@ import { apiClient } from '@/lib/api-client';
 export function DatabaseCanvasView() {
   const { collections } = useCollections();
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
-  const [viewtype, setviewtype] = usestate<ViewType>('table');
+  const [viewtype, setviewtype] = useState<ViewType>('table');
   const store = useEdgelessStore();
 
   // load last selected collection

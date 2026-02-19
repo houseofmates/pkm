@@ -72,7 +72,7 @@ export function PageRenderer() {
 
       // canvas hotkeys
       if (isadmin) {
-        const key = e.key.tolowercase();
+        const key = e.key.toLowerCase();
         if (key === 's') {
           setselectedelementids([]);
           toast.success('selection tool active', { duration: 1000, icon: '🔍' });
@@ -375,7 +375,7 @@ function elementrenderer({ element, isselected, isadmin, onselect, onupdate, onu
     triggeronce: true,
     threshold: 0.1,
   });
-  const elementref = useref<HTMLDivElement | null>(null);
+  const elementref = useRef<HTMLDivElement | null>(null);
 
   // merge refs
   const setRefs = (node: HTMLDivElement | null) => {
@@ -384,17 +384,17 @@ function elementrenderer({ element, isselected, isadmin, onselect, onupdate, onu
   };
 
   // drag state
-  const [isdragging, setisdragging] = usestate(false);
-  const [isresizing, setisresizing] = usestate(false);
-  const [isediting, setisediting] = usestate(false);
-  const [issnapping, setissnapping] = usestate(false);
-  const [resizehandle, setresizehandle] = usestate<string | null>(null); // n, s, e, w, ne, nw, se, sw
-  const dragstart = useref<{
+  const [isdragging, setisdragging] = useState(false);
+  const [isresizing, setisresizing] = useState(false);
+  const [isediting, setisediting] = useState(false);
+  const [issnapping, setissnapping] = useState(false);
+  const [resizehandle, setresizehandle] = useState<string | null>(null); // n, s, e, w, ne, nw, se, sw
+  const dragstart = useRef<{
     x: number;
     y: number;
     targets: { id: string; initialX: number; initialY: number; dom: HTMLElement | null }[]
   } | null>(null);
-  const resizestart = useref<{ x: number; y: number; elW: number; elH: number; elX: number; elY: number; baseFontSize: number } | null>(null);
+  const resizestart = useRef<{ x: number; y: number; elW: number; elH: number; elX: number; elY: number; baseFontSize: number } | null>(null);
 
   // handle drag
   useEffect(() => {

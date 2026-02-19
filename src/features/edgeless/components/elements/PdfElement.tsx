@@ -9,8 +9,8 @@ interface PdfElementProps {
 
 export function PdfElement({ element, pdfDocument }: PdfElementProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const canvasref = useref<HTMLCanvasElement>(null)
-  const annotationlayerref = useref<HTMLDivElement>(null)
+  const canvasref = useRef<HTMLCanvasElement>(null)
+  const annotationlayerref = useRef<HTMLDivElement>(null)
   const [rendered, setRendered] = useState(false)
   const { mode } = useEdgelessStore()
 

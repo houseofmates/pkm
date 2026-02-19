@@ -18,8 +18,8 @@ type EventModalProps = {
 
 export default function eventmodal({ open, onclose, event, onsave, ondelete }: eventmodalprops) {
   // use controlled inputs - state resets when modal opens with new event
-  const [title, settitle] = usestate(event?.title || '');
-  const [date, setdate] = usestate(event?.date || '');
+  const [title, settitle] = useState(event?.title || '');
+  const [date, setdate] = useState(event?.date || '');
 
   function handlesave() {
     const payload = { ...(event || {}), title };

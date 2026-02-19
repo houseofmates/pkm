@@ -277,7 +277,7 @@ export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onA
         </div>
     );
 
-    switch ((widget.view_type || '').tolowercase()) {
+    switch ((widget.view_type || '').toLowerCase()) {
         case 'table': return rendertable(widget);
         case 'kanban': return renderkanban(widget);
         case 'chart': return renderchart(widget);

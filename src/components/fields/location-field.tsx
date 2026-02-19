@@ -48,7 +48,7 @@ export function LocationField({ value, onChange, readOnly }: LocationFieldProps)
   return null; // default null
   };
 
-  const [position, setposition] = usestate<L.LatLng | null>(parsePos(value));
+  const [position, setposition] = useState<L.LatLng | null>(parsePos(value));
 
   const handleUpdate = (pos: L.LatLng) => {
   setPosition(pos);

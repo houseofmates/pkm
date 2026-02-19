@@ -27,15 +27,15 @@ export function ImageCropper({
   previewwidth = 200,
   previewheight = 200
 }: imagecropperprops) {
-  const [imagesrc, setimagesrc] = usestate<string>('');
-  const [scale, setscale] = usestate(1);
-  const [rotation, setrotation] = usestate(0);
-  const [position, setposition] = usestate({ x: 0, y: 0 });
-  const [isdragging, setisdragging] = usestate(false);
-  const [dragstart, setdragstart] = usestate({ x: 0, y: 0 });
+  const [imagesrc, setimagesrc] = useState<string>('');
+  const [scale, setscale] = useState(1);
+  const [rotation, setrotation] = useState(0);
+  const [position, setposition] = useState({ x: 0, y: 0 });
+  const [isdragging, setisdragging] = useState(false);
+  const [dragstart, setdragstart] = useState({ x: 0, y: 0 });
 
-  const canvasref = useref<HTMLCanvasElement>(null);
-  const imageref = useref<HTMLImageElement>(null);
+  const canvasref = useRef<HTMLCanvasElement>(null);
+  const imageref = useRef<HTMLImageElement>(null);
 
   // load image when file changes
   useEffect(() => {

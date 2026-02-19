@@ -80,8 +80,8 @@ function sortabledatabaseitem({ collection, onselect, onrefresh }: sortabledatab
 export function Databasespage({ onselect }: databasespageprops) {
   const { isauthenticated, login, token } = useauth();
   const { collections, loading, error, refresh } = usecollections();
-  const [validating, setvalidating] = usestate(false);
-  const [apikey, setapikey] = usestate('');
+  const [validating, setvalidating] = useState(false);
+  const [apikey, setapikey] = useState('');
   const navigate = usenavigate();
   const location = uselocation();
 

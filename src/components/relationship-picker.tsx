@@ -17,8 +17,8 @@ interface RelationshipPickerProps {
 
 export function RelationshipPicker({ collectionname, onselect, value }: relationshippickerprops) {
   const { client } = useauth();
-  const [open, setopen] = usestate(false);
-  const [options, setoptions] = usestate<any[]>([]);
+  const [open, setopen] = useState(false);
+  const [options, setoptions] = useState<any[]>([]);
 
   // very basic implementation: fetch all options
   // in a real app we'd need search/pagination here too

@@ -5,8 +5,8 @@ import * as LucideIcons from 'lucide-react'
 
 // long press hook
 function useLongPress(callback: () => void, ms = 500) {
-  const [startlongpress, setstartlongpress] = usestate(false)
-  const timerref = useref<any>(null)
+  const [startlongpress, setstartlongpress] = useState(false)
+  const timerref = useRef<any>(null)
 
   useEffect(() => {
   if (startLongPress) {
@@ -82,8 +82,8 @@ const ToolBtn = ({ tool, icon: Icon, menuContent, specialModeIcon, store, active
 
 export function Toolbar() {
   const store = useedgelessstore()
-  const [activemenu, setactivemenu] = usestate<string | null>(null)
-  const toolbarref = useref<HTMLDivElement>(null)
+  const [activemenu, setactivemenu] = useState<string | null>(null)
+  const toolbarref = useRef<HTMLDivElement>(null)
 
   const closeMenu = () => setActiveMenu(null)
   const openMenu = (tool: string) => setActiveMenu(tool)

@@ -318,7 +318,7 @@ interface faqsectionprops {
 }
 
 export function FAQSection({ items, title = 'frequently asked questions' }: faqsectionprops) {
-  const [openindex, setopenindex] = usestate<number | null>(null);
+  const [openindex, setopenindex] = useState<number | null>(null);
 
   return (
     <div className="p-[1.5em] rounded-2xl">
@@ -717,14 +717,14 @@ interface chatmessage {
 export function MinecraftStatsWidget() {
   const { previewmode } = usebuilder();
   const ismobile = previewmode === 'mobile';
-  const [status, setstatus] = usestate<ServerStatus | null>(null);
-  const [messages, setmessages] = usestate<ChatMessage[]>([]);
-  const [isloading, setisloading] = usestate(true);
-  const [_connectionstate, setconnectionstate] = usestate<'connected' | 'disconnected' | 'reconnecting'>('disconnected');
-  const scrollcontainerref = useref<HTMLDivElement>(null);
-  const laststatusref = useref<boolean>(false);
-  const socketref = useref<Socket | null>(null);
-  const retrytimeoutref = useref<NodeJS.Timeout | null>(null);
+  const [status, setstatus] = useState<ServerStatus | null>(null);
+  const [messages, setmessages] = useState<ChatMessage[]>([]);
+  const [isloading, setisloading] = useState(true);
+  const [_connectionstate, setconnectionstate] = useState<'connected' | 'disconnected' | 'reconnecting'>('disconnected');
+  const scrollcontainerref = useRef<HTMLDivElement>(null);
+  const laststatusref = useRef<boolean>(false);
+  const socketref = useRef<Socket | null>(null);
+  const retrytimeoutref = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // fetch initial data
@@ -989,8 +989,8 @@ export function MinecraftStatsWidget() {
           </div>
         ) : (
           messages.map((msg, i) => {
-            const isjoin = msg.message?.tolowercase().includes('joined the') || false;
-            const isleave = msg.message?.tolowercase().includes('left the') || msg.type === 'quit';
+            const isjoin = msg.message?.toLowerCase().includes('joined the') || false;
+            const isleave = msg.message?.toLowerCase().includes('left the') || msg.type === 'quit';
             const issystem = msg.player === 'system' || isjoin || isleave;
             const displayplayer = issystem ? 'system' : msg.player;
 

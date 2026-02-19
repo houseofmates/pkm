@@ -8,7 +8,7 @@ interface SmartTextElementProps {
 }
 
 export function SmartTextElement({ element }: smarttextelementprops) {
-  const [content, setcontent] = usestate(element.data?.content || '');
+  const [content, setcontent] = useState(element.data?.content || '');
 
   return (
   <div

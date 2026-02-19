@@ -45,13 +45,13 @@ interface FronterContextType {
 const frontercontext = createcontext<FronterContextType | undefined>(undefined);
 
 export function FronterProvider({ children }: { children: reactnode }) {
-  const [members, setmembers] = usestate<Headmate[]>([]);
-  const [history, sethistory] = usestate<FrontEntry[]>([]);
-  const [activefronters, setactivefronters] = usestate<string[]>([]);
-  const [loading, setloading] = usestate(true);
+  const [members, setmembers] = useState<Headmate[]>([]);
+  const [history, sethistory] = useState<FrontEntry[]>([]);
+  const [activefronters, setactivefronters] = useState<string[]>([]);
+  const [loading, setloading] = useState(true);
   
   // member colors state
-  const [membercolors, setmembercolors] = usestate<Record<string, string>>(() => {
+  const [membercolors, setmembercolors] = useState<Record<string, string>>(() => {
     try {
       const stored = localstorage.getitem('member_colors');
       return stored ? json.parse(stored) : {};
@@ -61,7 +61,7 @@ export function FronterProvider({ children }: { children: reactnode }) {
   });
 
   // overrides for simplyplural integration
-  const [overrides, setoverridesstate] = usestate<Record<string, any>>(() => {
+  const [overrides, setoverridesstate] = useState<Record<string, any>>(() => {
   try {
   const stored = localstorage.getitem('headmate_overrides');
   return stored ? json.parse(stored) : {};

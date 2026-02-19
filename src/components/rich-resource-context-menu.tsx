@@ -302,7 +302,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   }, [currentname]);
 
   // emoji state
-  const [emojis, setemojis] = usestate<any[]>(DEFAULT_EMOJIS);
+  const [emojis, setemojis] = useState<any[]>(DEFAULT_EMOJIS);
   const [loadingEmojis, setLoadingEmojis] = useState(false);
 
   // load emojis (twemoji based source or standard list)

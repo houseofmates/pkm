@@ -20,8 +20,8 @@ export function ContactProfileView({ member, onclose, isopen }: contactprofilevi
   const { refresh } = usefronter();
 
   // local state for editing
-  const [isediting, setisediting] = usestate(false);
-  const bannerinputref = useref<HTMLInputElement>(null);
+  const [isediting, setisediting] = useState(false);
+  const bannerinputref = useRef<HTMLInputElement>(null);
 
   // fields
   // use extended fields if available on member, or defaults

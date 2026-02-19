@@ -147,10 +147,10 @@ export function KanbanView({ data, collection, config, onupdaterecord, ondelete,
   );
   }
   const { client } = useauth();
-  const [columns, setcolumns] = usestate<Record<string, any[]>>({});
-  const [columnorder, setcolumnorder] = usestate<string[]>([]);
-  const [activeid, setactiveid] = usestate<string | number | null>(null);
-  const [draggedrecord, setdraggedrecord] = usestate<any>(null);
+  const [columns, setcolumns] = useState<Record<string, any[]>>({});
+  const [columnorder, setcolumnorder] = useState<string[]>([]);
+  const [activeid, setactiveid] = useState<string | number | null>(null);
+  const [draggedrecord, setdraggedrecord] = useState<any>(null);
 
   // identify title and visible fields
   const titleField = config?.titleField

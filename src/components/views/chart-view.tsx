@@ -17,7 +17,7 @@ import { useState } from 'react';
 export function ChartView(props: ViewProps) {
   const { data, collection, config, onConfigChange, onUpdateRecord, onDelete } = props;
   const [drillDown, setDrillDown] = useState<{ xKey: string, seriesKey?: string } | null>(null);
-  const [virtualmenu, setvirtualmenu] = usestate<{ x: number, y: number, records: any[] } | null>(null);
+  const [virtualmenu, setvirtualmenu] = useState<{ x: number, y: number, records: any[] } | null>(null);
 
   if (!collection) {
   return (

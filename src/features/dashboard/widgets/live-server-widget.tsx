@@ -26,9 +26,9 @@ interface PlayerDataMap {
 
 export function LiveServerWidget() {
   const [stats, setStats] = useState<ServerStats | null>(null);
-  const [loading, setloading] = usestate(true);
-  const [chatmessages, setchatmessages] = usestate<any[]>([]);
-  const [playerdata, setplayerdata] = usestate<PlayerDataMap>({});
+  const [loading, setloading] = useState(true);
+  const [chatmessages, setchatmessages] = useState<any[]>([]);
+  const [playerdata, setplayerdata] = useState<PlayerDataMap>({});
 
   useEffect(() => {
   // initial stats fetch from local backend (fast)
@@ -218,7 +218,7 @@ export function LiveServerWidget() {
 
    // format timestamp in user's local timezone (date + time)
    const timestamp = msg.timestamp
-   ? new date(msg.timestamp).tolocalestring()
+   ? new date(msg.timestamp).toLocaleString()
    : '';
 
    return (
@@ -243,7 +243,7 @@ export function LiveServerWidget() {
   </div>
 
   <div className="text-[9px] text-right text-muted-foreground opacity-50">
- last heartbeat: {stats?.lastupdated ? new date(stats.lastupdated).tolocalestring() : '--:--:--'}
+ last heartbeat: {stats?.lastupdated ? new date(stats.lastupdated).toLocaleString() : '--:--:--'}
   </div>
   </div>
   );

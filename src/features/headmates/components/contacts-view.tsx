@@ -10,8 +10,8 @@ export function ContactsView({ }: ViewProps) {
   const [search, setSearch] = useState("");
 
   const filtered = members.filter(m =>
-  m.name.tolowercase().includes(search.tolowercase()) ||
-  (m.pronouns?.tolowercase().includes(search.tolowercase()) ?? false)
+  m.name.toLowerCase().includes(search.toLowerCase()) ||
+  (m.pronouns?.toLowerCase().includes(search.toLowerCase()) ?? false)
   );
 
   return (

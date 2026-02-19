@@ -75,8 +75,8 @@ export function DatabaseSettingsForm({
   }
   };
 
-  const fileinputref = useref<HTMLInputElement>(null);
-  const coverinputref = useref<HTMLInputElement>(null);
+  const fileinputref = useRef<HTMLInputElement>(null);
+  const coverinputref = useRef<HTMLInputElement>(null);
 
   return (
   <div className="space-y-4">

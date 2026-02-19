@@ -14,12 +14,12 @@ interface Props {
 }
 
 export function WidgetPropertyEditor({ element, onupdate, onclose }: props) {
-  const [content, setcontent] = usestate<any>(element.content || {});
-  const [styles, setstyles] = usestate<any>(element.styles || {});
-  const [showiconpicker, setshowiconpicker] = usestate(false);
-  const [cropperopen, setcropperopen] = usestate(false);
-  const [cropperfile, setcropperfile] = usestate<File | null>(null);
-  const [cropperfield, setcropperfield] = usestate<string>('');
+  const [content, setcontent] = useState<any>(element.content || {});
+  const [styles, setstyles] = useState<any>(element.styles || {});
+  const [showiconpicker, setshowiconpicker] = useState(false);
+  const [cropperopen, setcropperopen] = useState(false);
+  const [cropperfile, setcropperfile] = useState<File | null>(null);
+  const [cropperfield, setcropperfield] = useState<string>('');
   const [cropperConfig, setCropperConfig] = useState({ aspectRatio: 1, shape: 'rect' as 'rect' | 'round', width: 200, height: 200 });
 
   useEffect(() => {

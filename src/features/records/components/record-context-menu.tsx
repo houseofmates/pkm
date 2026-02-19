@@ -37,7 +37,7 @@ export function RecordEditContent({ record, collection, onupdate, ondelete, onvi
   // identify title field once
   const titleField = customTitleField || collection.fields?.find((f: any) => f.name === 'title' || f.name === 'name') || collection.fields?.find((f: any) => f.interface === 'input');
 
-  const [title, settitle] = usestate<string>(record[titleField?.name || 'title'] || '');
+  const [title, settitle] = useState<string>(record[titleField?.name || 'title'] || '');
 
   // color state
   const [color, setColor] = useState(metadata[record.id]?.color || '');
@@ -76,7 +76,7 @@ export function RecordEditContent({ record, collection, onupdate, ondelete, onvi
   !config?.visiblefields?.includes(f.name) &&
   f.name !== 'created_at' &&
   f.name !== 'updated_at' &&
-  (f.uischema?.title || f.name).tolowercase().includes(propertysearch.tolowercase())
+  (f.uischema?.title || f.name).toLowerCase().includes(propertysearch.toLowerCase())
   );
   }, [collection, config?.visiblefields, propertysearch]);
 
@@ -267,8 +267,8 @@ export function RecordContextMenu({ record, collection, children, onupdate, onde
   const { } = useauth(); // kept for hook consistency if needed
 
   // ... touch logic ...
-  const touchtimer = useref<NodeJS.Timeout | null>(null);
-  const touchstartpos = useref<{ x: number, y: number } | null>(null);
+  const touchtimer = useRef<NodeJS.Timeout | null>(null);
+  const touchstartpos = useRef<{ x: number, y: number } | null>(null);
 
   const handleTouchStart = (e: React.TouchEvent) => {
   if (e.touches.length !== 1) return;

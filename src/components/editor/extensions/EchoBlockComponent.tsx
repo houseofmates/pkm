@@ -18,9 +18,9 @@ interface EchoBlockComponentProps {
 
 export const EchoBlockComponent: react.fc<EchoBlockComponentProps> = ({ node }) => {
   const { recordid, collectionname } = node.attrs;
-  const [content, setcontent] = usestate<string>('loading...');
-  const [issyncing, setissyncing] = usestate(false);
-  const [error, seterror] = usestate<string | null>(null);
+  const [content, setcontent] = useState<string>('loading...');
+  const [issyncing, setissyncing] = useState(false);
+  const [error, seterror] = useState<string | null>(null);
   const [remoteTyping, setRemoteTyping] = useState(false);
   const { socket, isConnected } = useSocket();
 

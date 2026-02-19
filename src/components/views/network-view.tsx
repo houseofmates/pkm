@@ -10,9 +10,9 @@ export function NetworkView(props: ViewProps) {
   const { data, collection, config = {}, onConfigChange, onUpdateRecord, onDelete } = props;
   // hooks must be called before any early return
   const graphRef = useRef<any>(null);
-  const [dimensions, setdimensions] = usestate({ w: 800, h: 600 });
-  const containerref = useref<HTMLDivElement>(null);
-  const [virtualmenu, setvirtualmenu] = usestate<{ x: number, y: number, record: any } | null>(null);
+  const [dimensions, setdimensions] = useState({ w: 800, h: 600 });
+  const containerref = useRef<HTMLDivElement>(null);
+  const [virtualmenu, setvirtualmenu] = useState<{ x: number, y: number, record: any } | null>(null);
   
   if (!collection) {
   return (

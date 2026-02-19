@@ -74,7 +74,7 @@ export function BlogPostViewer({ post, onViewCountUpdate }: BlogPostViewerProps)
    month: 'long',
    day: 'numeric',
    year: 'numeric'
-   }).tolowercase()}
+   }).toLowerCase()}
    </span>
  </div>
  )}

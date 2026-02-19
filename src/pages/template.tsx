@@ -45,12 +45,12 @@ export function TemplatePage() {
   }
 }`);
   const [isValid, setIsValid] = useState<boolean | null>(null);
-  const [error, seterror] = usestate<string | null>(null);
-  const [isbuilding, setisbuilding] = usestate(false);
-  const [previewstate, setpreviewstate] = usestate<Record<string, any>>({});
-  const [previewdata, setpreviewdata] = usestate<Record<string, any[]>>({});
+  const [error, seterror] = useState<string | null>(null);
+  const [isbuilding, setisbuilding] = useState(false);
+  const [previewstate, setpreviewstate] = useState<Record<string, any>>({});
+  const [previewdata, setpreviewdata] = useState<Record<string, any[]>>({});
   // livecolumns holds interactive layout state for preview and persists to json
-  const [livecolumns, setlivecolumns] = usestate<any[][]>([]);
+  const [livecolumns, setlivecolumns] = useState<any[][]>([]);
 
   // fullscreen preview dialog state
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
