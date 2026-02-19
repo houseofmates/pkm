@@ -109,7 +109,7 @@ export default function PreviewCanvas({
     if (!activeId) return null;
     const loc = findLocation(activeId);
     return loc?.item ?? null;
-  }, [activeId, localCols]);
+  }, [activeId, localCols, findLocation]);
 
   const handleDragStart = (event: any) => {
     setActiveId(event.active.id as string);

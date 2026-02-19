@@ -23,7 +23,7 @@ export function BlogEditor() {
 }
 
 // --- dashboard ---
-function blogdashboard() {
+function BlogDashboard() {
   const [posts, setposts] = useState<BlogPostData[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
@@ -149,7 +149,7 @@ function blogdashboard() {
 }
 
 // --- editor wrapper ---
-function blogeditorparamswrapper({ slug }: { slug: string }) {
+function BlogEditorParamsWrapper({ slug }: { slug: string }) {
   const [post, setpost] = useState<BlogPostData | null>(null);
   const [loading, setloading] = useState(true);
   const [selectedelementids, setselectedelementids] = useState<string[]>([]);

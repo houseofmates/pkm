@@ -102,9 +102,9 @@ export function EdgelessCanvas({ onobjectmodified, classname, onload, children }
   const [selectedids, setselectedids] = useState<Set<string>>(new set())
   const [pdfdoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null)
 
-  // spatial index ref for eraser performance
-  const spatialindexref = useRef<SpatialIndex | null>(null)
-  const rebuildspatialindexref = useRef<(() => void) | null>(null)
+  // spatial index refs for eraser performance
+  const spatialIndexRef = useRef<SpatialIndex | null>(null);
+  const rebuildSpatialIndexRef = useRef<(() => void) | null>(null);
 
   // store state
   const {
