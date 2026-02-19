@@ -70,12 +70,12 @@ interface BuilderContextType {
   page: PageData | null;
   selectedElementIds: string[];
   setSelectedElementIds: (ids: string[]) => void;
-  updateelement: (id: string, updates: Partial<ElementData>) => void;
-  updateelements: (updates: { id: string; updates: Partial<ElementData> }[]) => void;
+  updateElement: (id: string, updates: Partial<ElementData>) => void;
+  updateElements: (updates: { id: string; updates: Partial<ElementData> }[]) => void;
   deleteElements: (ids: string[]) => void;
   deleteElement: (id: string) => void;
-  addelement: (element: Omit<ElementData, 'id'>) => void;
-  updatepage: (updates: Partial<PageData>) => void;
+  addElement: (element: Omit<ElementData, 'id'>) => void;
+  updatePage: (updates: Partial<PageData>) => void;
   refresh: () => void;
   site_identifier: string;
   handleElementContextMenu: (e: React.MouseEvent, elementId: string) => void;
@@ -608,7 +608,7 @@ export function HouseofmatesBuilder() {
       });
   }, [page, collectionNames, previewMode, addToHistory]);
 
-  const updateelement = useCallback((id: string, updates: Partial<ElementData>) => {
+  const updateElement = useCallback((id: string, updates: Partial<ElementData>) => {
     updateElements([{ id, updates }]);
   }, [updateElements]);
 
@@ -628,7 +628,7 @@ export function HouseofmatesBuilder() {
     deleteElements([id]);
   }, [deleteElements]);
 
-  const addelement = useCallback((element: Omit<ElementData, 'id'>) => {
+  const addElement = useCallback((element: Omit<ElementData, 'id'>) => {
     if (!page) return;
     const newElement: ElementData = {
       ...element,
