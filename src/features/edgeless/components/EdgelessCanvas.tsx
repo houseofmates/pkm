@@ -39,9 +39,9 @@ export interface EdgelessCanvasProps {
   children?: react.reactnode
 }
 
-export function edgelesscanvas({ onobjectmodified, classname, onload, children }: edgelesscanvasprops) {
-  const canvasel = useref<HTMLCanvasElement>(null)
-  const containerref = useref<HTMLDivElement>(null)
+export function EdgelessCanvas({ onObjectModified, className, onLoad, children }: EdgelessCanvasProps) {
+  const canvasEl = useRef<HTMLCanvasElement>(null)
+  const containerRef = useRef<HTMLDivElement>(null)
   const { width, height } = useWindowSize()
 
   // drop target logic
@@ -94,17 +94,17 @@ export function edgelesscanvas({ onobjectmodified, classname, onload, children }
   }
 
   const setRefs = (node: HTMLDivElement) => {
-    containerref.current = node
-    setnoderef(node)
+    containerRef.current = node
+    setNodeRef(node)
   }
 
-  const [fabriccanvas, setfabriccanvas] = usestate<Canvas | null>(null)
-  const [selectedids, setselectedids] = usestate<Set<string>>(new set())
-  const [pdfdoc] = usestate<pdfjsLib.PDFDocumentProxy | null>(null)
+  const [fabricCanvas, setFabricCanvas] = useState<Canvas | null>(null)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [pdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null)
 
   // spatial index refs for eraser performance
-  const spatialindexref = useref<SpatialIndex | null>(null);
-  const rebuildspatialindexref = useref<(() => void) | null>(null);
+  const spatialIndexRef = useRef<SpatialIndex | null>(null);
+  const rebuildSpatialIndexRef = useRef<(() => void) | null>(null);
 
   // store state
   const {
@@ -308,16 +308,16 @@ export function edgelesscanvas({ onobjectmodified, classname, onload, children }
   useEffect(() => {
     if (!fabricCanvas) return
 
-    ;(window as any).pkmGetCanvasJSON = () => {
-      return fabricCanvas.toJSON()
-    }
-    ;(window as any).pkmGetCanvasThumbnail = () => {
-      return fabricCanvas.toDataURL({
-        format: 'png',
-        multiplier: 0.2,
-        quality: 0.8,
-      })
-    }
+      ; (window as any).pkmGetCanvasJSON = () => {
+        return fabricCanvas.toJSON()
+      }
+      ; (window as any).pkmGetCanvasThumbnail = () => {
+        return fabricCanvas.toDataURL({
+          format: 'png',
+          multiplier: 0.2,
+          quality: 0.8,
+        })
+      }
 
     return () => {
       delete (window as any).pkmGetCanvasJSON
