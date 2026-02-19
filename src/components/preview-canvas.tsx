@@ -91,7 +91,7 @@ export default function PreviewCanvas({
 
   const widths = columnWidths?.slice(0, colCount) || Array(colCount).fill(Math.floor(100 / colCount));
 
-  const findLocation = (id: string) => {
+  const findLocation = useCallback((id: string) => {
     for (let ci = 0; ci < localCols.length; ci++) {
       for (let wi = 0; wi < localCols[ci].length; wi++) {
         const itemId = `${ci}:${wi}:${localCols[ci][wi].id || localCols[ci][wi].title || wi}`;
@@ -99,7 +99,7 @@ export default function PreviewCanvas({
       }
     }
     return null;
-  };
+  }, [localCols]);
 
   const sensors = useSensors(useSensor(SmartPointerSensor, { activationConstraint: { distance: 3 } }), useSensor(TouchSensor, { activationConstraint: { delay: 0, tolerance: 5 } }));
 

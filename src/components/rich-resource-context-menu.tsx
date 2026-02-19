@@ -298,7 +298,10 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
 
   // sync local name if prop changes
   useEffect(() => {
-  if (currentName) setLocalName(currentName);
+    const raf = requestAnimationFrame(() => {
+      if (currentName) setLocalName(currentName);
+    });
+    return () => cancelAnimationFrame(raf);
   }, [currentName]);
 
   // emoji state
