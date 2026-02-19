@@ -947,7 +947,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       if (e.key === 'Delete' || e.key === 'Backspace') {
         const activeObjects = fabricCanvas?.getActiveObjects()
         if (activeObjects && activeObjects.length > 0) {
-          e.preventdefault()
+          e.preventDefault()
           for (let i = 0; i < activeObjects.length; i++) {
             const obj: any = activeObjects[i]
             if (obj.data?.id) {
@@ -1191,8 +1191,8 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
 
   // memoized overlay elements to avoid unnecessary remounts during unrelated renders
   const overlayElements = useMemo(() => {
-    if (!fabriccanvas) return null
-    const out: react.reactnode[] = []
+    if (!fabricCanvas) return null
+    const out: react.ReactNode[] = []
     for (let i = 0; i < elements.length; i++) {
       const el = elements[i]
       const { x: screenX, y: screenY, w: screenW, h: screenH } = getScreenPos(el)
@@ -1351,9 +1351,9 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       }
     }
     return out
-  }, [elements, selectedids, fabriccanvas, viewport.x, viewport.y, viewport.zoom, pdfdoc])
+  }, [elements, selectedIds, fabricCanvas, viewPort.x, viewPort.y, viewPort.zoom, pdfDoc])
 
-  const eraserwidth = useedgelessstore.getstate().eraserwidth
+  const eraserWidth = useEdgelessStore.getState().eraserWidth
 
   return (
     <div
