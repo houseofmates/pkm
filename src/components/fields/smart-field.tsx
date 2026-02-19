@@ -37,14 +37,14 @@ import { useAppSetting } from '@/hooks/use-app-setting';
 
 const FieldContextMenu = ({ children, onEdit, onClear, value, record, collectionName }: any) => {
   // row color logic
-  const [recordmeta, setrecordmeta] = useappsetting<Record<string, any>>(`record_meta_${collectionName || 'unknown'}`, {});
+  const [recordMeta, setRecordMeta] = useAppSetting<Record<string, any>>(`record_meta_${collectionName || 'unknown'}`, {});
 
   const handleRowColor = (color: string) => {
-    if (!record || !collectionname) return;
-    setrecordmeta({
-      ...recordmeta,
+    if (!record || !collectionName) return;
+    setRecordMeta({
+      ...recordMeta,
       [record.id]: {
-        ...(recordmeta[record.id] || {}),
+        ...(recordMeta[record.id] || {}),
         color
       }
     });
@@ -130,9 +130,9 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
 }
 
 // --- relation picker component ---
-function relationpicker({ field, value, onchange, oncancel }: any) {
-  const { client } = useauth();
-  const [options, setoptions] = usestate<any[]>([]);
+function RelationPicker({ field, value, onChange, onCancel }: any) {
+  const { client } = useAuth();
+  const [options, setOptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -197,13 +197,13 @@ function relationpicker({ field, value, onchange, oncancel }: any) {
               )}
             >
               <span className="truncate">{opt.title || opt.name || opt.id}</span>
-              {isselected && <Check className="h-3 w-3 opacity-50" />}
+              {isSelected && <Check className="h-3 w-3 opacity-50" />}
             </div>
           )
         })}
       </div>
       <div className="flex justify-end gap-1 pt-2 border-t mt-1">
-        {ismany && <Button size="sm" className="h-6 text-xs" onClick={() => onChange(value)}>done</Button>}
+        {isMany && <Button size="sm" className="h-6 text-xs" onClick={() => onChange(value)}>done</Button>}
         <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={onCancel}>cancel</Button>
       </div>
     </div>
@@ -355,7 +355,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       );
     }
 
-    if (iscode && showformulaeditor) {
+    if (isCode && showFormulaEditor) {
       return (
         <FormulaEditor
           value={localValue}
@@ -375,9 +375,9 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       );
     }
 
-    if (ismarkdown || iscode) {
-      if (iscode) {
-        setshowformulaeditor(true);
+    if (isMarkdown || isCode) {
+      if (isCode) {
+        setShowFormulaEditor(true);
         return null;
       }
 
@@ -397,7 +397,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
 
             <div className="flex-1 overflow-auto p-4">
               <RichEditor
-                value={localValue && String(localValue).trim().startsWith('<') ? localValue : (localValue ? `<p>${string(localvalue).replace(/\n/g, '<br/>')}</p>` : '')}
+                value={localValue && String(localValue).trim().startsWith('<') ? localValue : (localValue ? `<p>${String(localValue).replace(/\n/g, '<br/>')}</p>` : '')}
                 onChange={(html) => setLocalValue(sanitizeHTML(html))}
                 uploadImage={async (file: File) => {
                   try {
@@ -440,7 +440,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           <PopoverTrigger asChild>
             {/* use visible trigger to ensure correct positioning and prevent cell collapse */}
             <div className="nav-button cursor-pointer text-xs min-h-[20px] min-w-[50px] whitespace-nowrap">
-              {formatdate(localvalue)} {formattime(localvalue) || <span className="opacity-50">select date...</span>}
+              {formatDate(localValue)} {formatTime(localValue) || <span className="opacity-50">select date...</span>}
             </div>
           </PopoverTrigger>
           {/* use standard popover which portals to body */}
@@ -572,11 +572,11 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       // prepare display value: if object, show title/name. if array, join them.
       let display = '';
       if (Array.isArray(value)) {
-        display = value.map(v => v?.title || v?.name || v?.id || json.stringify(v)).join(', ');
+        display = value.map(v => v?.title || v?.name || v?.id || JSON.stringify(v)).join(', ');
       } else if (typeof value === 'object' && value !== null) {
-        display = value.title || value.name || value.id || json.stringify(value);
+        display = value.title || value.name || value.id || JSON.stringify(value);
       } else {
-        display = string(value || '');
+        display = String(value || '');
       }
 
       return (
@@ -591,19 +591,19 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       )
     }
 
-    if (isphone) {
+    if (isPhone) {
       return (
         <div
           className={cn("text-primary hover:underline flex items-center gap-1 cursor-pointer font-varela", size === 'lg' ? "text-lg" : "text-xs")}
           onClick={(e) => handlePhoneClick(e, strValue)}
         >
           <Phone className="h-3 w-3" />
-          {formatphonenumber(strvalue)}
+          {formatPhoneNumber(strValue)}
         </div>
       );
     }
 
-    if (isemail) {
+    if (isEmail) {
       return (
         <a
           href={`mailto:${strValue}`}
@@ -611,7 +611,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           onClick={e => e.stopPropagation()}
         >
           <Mail className="h-3 w-3" />
-          {strvalue}
+          {strValue}
         </a>
       );
     }
@@ -767,7 +767,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
                   )}
                 </div>
                 <div className="pb-4 text-center text-white/50 text-sm">
-                  {fullscreenindex + 1} / {galleryimgs.length}
+                  {fullscreenIndex + 1} / {galleryImgs.length}
                 </div>
               </div>
             )}
