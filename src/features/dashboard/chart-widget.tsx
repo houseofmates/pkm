@@ -179,7 +179,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   };
 
   if (type === 'line') {
-  if (!isMounted || !isReady) {
+  if (!isReady) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
@@ -247,7 +247,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'area') {
-  if (!isMounted || !isReady) {
+  if (!isReady) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
