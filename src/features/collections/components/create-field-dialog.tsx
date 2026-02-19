@@ -57,8 +57,8 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
   // use controlled or internal state
   const isOpen = controlledOpen !== undefined ? controlledOpen : internalOpen;
   const setIsOpen = (value: boolean) => {
-  if (onOpenChange) onOpenChange(value);
-  else setInternalOpen(value);
+    if (onOpenChange) onOpenChange(value);
+    else setInternalOpen(value);
   };
   const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState('');
@@ -67,122 +67,122 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
   const [expression, setExpression] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-  const finalName = name || title.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+    try {
+      const finalName = name || title.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
 
-  const fieldConfig: any = {
- title,
- name: finalName,
- interface: interfaceType,
- type: getDBType(interfaceType),
- uiSchema: {
- title,
- 'x-component': getComponentType(interfaceType),
- }
-  };
+      const fieldConfig: any = {
+        title,
+        name: finalName,
+        interface: interfaceType,
+        type: getDBType(interfaceType),
+        uiSchema: {
+          title,
+          'x-component': getComponentType(interfaceType),
+        }
+      };
 
-  if (interfaceType === 'formula') {
- fieldConfig.params = { expression };
-  }
+      if (interfaceType === 'formula') {
+        fieldConfig.params = { expression };
+      }
 
-  await client.createField(collectionName, fieldConfig);
+      await client.createField(collectionName, fieldConfig);
 
-  toast.success("field created");
-  setIsOpen(false);
-  setTitle('');
-  setName('');
-  onFieldCreated();
-  } catch (error: any) {
-  console.error(error);
-  toast.error(error.message || "failed to create field");
-  } finally {
-  setLoading(false);
-  }
+      toast.success("field created");
+      setIsOpen(false);
+      setTitle('');
+      setName('');
+      onFieldCreated();
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || "failed to create field");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const getDBType = (uiType: string) => {
-  switch (uiType) {
-  case 'number': return 'integer';
-  case 'checkbox': return 'boolean';
-  case 'textarea': return 'text';
-  case 'formula': return 'formula';
-  default: return 'string';
-  }
+    switch (uiType) {
+      case 'number': return 'integer';
+      case 'checkbox': return 'boolean';
+      case 'textarea': return 'text';
+      case 'formula': return 'formula';
+      default: return 'string';
+    }
   };
 
   const getComponentType = (uiType: string) => {
-  switch (uitype) {
-  case 'input': return 'input';
-  case 'textarea': return 'input.textarea';
-  case 'number': return 'inputnumber';
-  case 'checkbox': return 'checkbox';
-  case 'formula': return 'input'; // generic field to show formula result or define it
-  default: return 'input';
-  }
+    switch (uiType) {
+      case 'input': return 'input';
+      case 'textarea': return 'input.textarea';
+      case 'number': return 'inputNumber';
+      case 'checkbox': return 'checkbox';
+      case 'formula': return 'input'; // generic field to show formula result or define it
+      default: return 'input';
+    }
   };
 
   return (
-  <Dialog open={isOpen} onOpenChange={setIsOpen}>
-  <DialogContent>
- <DialogHeader>
- <DialogTitle>add new property</DialogTitle>
- <DialogDescription>
- add a new column to the <strong>{collectionName}</strong> database.
- </DialogDescription>
- </DialogHeader>
- <form onSubmit={handleSubmit} className="space-y-4">
- <div className="space-y-2">
- <Label>type</Label>
- <Select value={interfaceType} onValueChange={setInterfaceType}>
-   <SelectTrigger>
-   <SelectValue />
-   </SelectTrigger>
-   <SelectContent>
-   {FIELD_TYPES.map(t => (
-   <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-   ))}
-   </SelectContent>
- </Select>
- </div>
- {interfacetype === 'formula' && (
- <div className="space-y-2">
-   <Label>expression</Label>
-   <Input
-   value={expression}
-   onChange={(e) => setExpression(e.target.value)}
-   placeholder="e.g. {{price}} * {{quantity}}"
-   className="font-mono text-xs"
-   required
-   />
- </div>
- )}
- <div className="space-y-2">
- <Label>property name</Label>
- <Input
-   value={title}
-   onChange={(e) => setTitle(e.target.value)}
-   placeholder="e.g. status, rating, tags"
-   required
- />
- </div>
- <div className="space-y-2">
- <Label>system key (optional)</Label>
- <Input
-   value={name}
-   onChange={(e) => setName(e.target.value)}
-   placeholder="my_field_name"
- />
- </div>
- <DialogFooter>
- <Button type="submit" disabled={loading}>
-   {loading ? "adding..." : "add property"}
- </Button>
- </DialogFooter>
- </form>
-  </DialogContent>
-  </Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>add new property</DialogTitle>
+          <DialogDescription>
+            add a new column to the <strong>{collectionName}</strong> database.
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label>type</Label>
+            <Select value={interfaceType} onValueChange={setInterfaceType}>
+              <SelectTrigger>
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {FIELD_TYPES.map(t => (
+                  <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          {interfacetype === 'formula' && (
+            <div className="space-y-2">
+              <Label>expression</Label>
+              <Input
+                value={expression}
+                onChange={(e) => setExpression(e.target.value)}
+                placeholder="e.g. {{price}} * {{quantity}}"
+                className="font-mono text-xs"
+                required
+              />
+            </div>
+          )}
+          <div className="space-y-2">
+            <Label>property name</Label>
+            <Input
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. status, rating, tags"
+              required
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>system key (optional)</Label>
+            <Input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="my_field_name"
+            />
+          </div>
+          <DialogFooter>
+            <Button type="submit" disabled={loading}>
+              {loading ? "adding..." : "add property"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 }
