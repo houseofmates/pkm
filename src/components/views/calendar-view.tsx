@@ -142,7 +142,7 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
               </Button>
             </div>
             <h3 className="text-lg font-semibold lowercase min-w-[150px] text-center md:text-left">
-              {headertitle}
+              {headerTitle}
             </h3>
           </div>
 
@@ -311,7 +311,7 @@ function WeekView({ currentDate, recordsByDate, collection, onUpdateRecord, onDe
             <div key={i} className={cn("p-2 text-center border-r last:border-r-0", isToday && "bg-primary/5")}>
               <div className="text-xs text-muted-foreground lowercase">{d.toLocaleDateString('default', { weekday: 'short' })}</div>
               <div className={cn("text-sm font-semibold w-7 h-7 mx-auto rounded-full flex items-center justify-center mt-1", isToday && "bg-primary text-primary-foreground")}>
-                {d.getdate()}
+                {d.getDate()}
               </div>
             </div>
           );
@@ -323,11 +323,11 @@ function WeekView({ currentDate, recordsByDate, collection, onUpdateRecord, onDe
             const d = new Date(weekStart);
             d.setDate(weekStart.getDate() + i);
             const dateKey = d.toDateString();
-            const records = recordsbydate[datekey] || [];
+            const records = recordsByDate[dateKey] || [];
 
             return (
               <DroppableDateCell key={i} date={d} className="border-r last:border-r-0 min-h-[200px] p-2 space-y-2">
-                {records.map((rec: record<string, unknown>) => (
+                {records.map((rec: Record<string, unknown>) => (
                   <div key={rec.id as string | number} className="relative z-0">
                     <DraggableEvent record={rec} collection={collection} onUpdateRecord={onUpdateRecord} onDelete={onDelete} titleField={titleField} visibleFields={visibleFields} config={config} onConfigChange={onConfigChange} />
                   </div>

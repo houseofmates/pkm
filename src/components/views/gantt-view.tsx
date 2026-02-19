@@ -122,7 +122,7 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
             let width = 0;
             let visible = false;
 
-            if (sdate && edate) {
+            if (sDate && eDate) {
               const diffStart = differenceInDays(sDate, startDate);
               const duration = differenceInDays(eDate, sDate) + 1; // inclusive
 
