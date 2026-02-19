@@ -88,8 +88,8 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
 
   // position menu
   const menustyle = {
-    left: math.min(x, window.innerwidth - 220),
-    top: math.min(y, window.innerheight - 450),
+    left: Math.min(x, window.innerWidth - 220),
+    top: Math.min(y, window.innerHeight - 450),
   };
 
   return (

@@ -13,7 +13,7 @@ interface BottomNavProps {
 export function BottomNav({ activeTab, onTabChange, className, onOpenSettings }: BottomNavProps) {
 
   const handleOpenSearch = () => {
-    window.dispatchevent(new customevent('pkm:open-search'));
+    window.dispatchEvent(new CustomEvent('pkm:open-search'));
   };
 
   return (

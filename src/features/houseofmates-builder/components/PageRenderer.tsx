@@ -78,19 +78,19 @@ export function PageRenderer() {
           toast.success('selection tool active', { duration: 1000, icon: '🔍' });
         } else if (key === 't') {
           // calculate center of current viewport
-          const canvascontent = document.getelementbyid('canvas-content');
-          const scrollcontainer = document.getelementbyid('builder-canvas');
+          const canvascontent = document.getElementById('canvas-content');
+          const scrollcontainer = document.getElementById('builder-canvas');
 
           if (canvascontent && scrollcontainer) {
-            const rect = canvascontent.getboundingclientrect();
-            const viewheight = window.innerheight;
-            const viewwidth = window.innerwidth;
+            const rect = canvascontent.getBoundingClientRect();
+            const viewheight = window.innerHeight;
+            const viewwidth = window.innerWidth;
 
             // center in viewport relative to canvas-content
             const centerx = (viewwidth / 2) - rect.left;
-            const centery = scrollcontainer.scrolltop + (viewheight / 2) - 60; // 60 for header adjustment
+            const centery = scrollcontainer.scrollTop + (viewheight / 2) - 60; // 60 for header adjustment
 
-            addelement({
+            addElement({
               type: 'text',
               content: { html: '<p>new text box</p>' },
               x: Math.round(centerX),
