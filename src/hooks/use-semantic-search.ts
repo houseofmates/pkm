@@ -56,8 +56,8 @@ export function useSemanticSearch() {
     const search = useCallback(
         async (query: string, topk = 10) => {
             if (!query.trim()) return []
-            setloading(true)
-            setsource(null)
+            setLoading(true)
+            setSource(null)
 
             try {
                 // try backend first (lancedb + ollama)
