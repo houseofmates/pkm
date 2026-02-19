@@ -44,7 +44,7 @@ interface FronterContextType {
 
 const frontercontext = createcontext<FronterContextType | undefined>(undefined);
 
-export function fronterprovider({ children }: { children: reactnode }) {
+export function FronterProvider({ children }: { children: reactnode }) {
   const [members, setmembers] = usestate<Headmate[]>([]);
   const [history, sethistory] = usestate<FrontEntry[]>([]);
   const [activefronters, setactivefronters] = usestate<string[]>([]);
@@ -303,7 +303,7 @@ export function fronterprovider({ children }: { children: reactnode }) {
 export function useFronter() {
   const context = useContext(FronterContext);
   if (context === undefined) {
-  throw new Error('useFronter must be used within a FronterProvider');
+  throw new Error('UseFronter must be used within a FronterProvider');
   }
   return context;
 }

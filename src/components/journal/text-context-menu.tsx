@@ -10,7 +10,7 @@ interface TextContextMenuProps {
   onFormat: (format: string, value?: string) => void;
 }
 
-export function textcontextmenu({ x, y, onclose, onformat }: textcontextmenuprops) {
+export function TextContextMenu({ x, y, onclose, onformat }: textcontextmenuprops) {
   const menuref = useref<HTMLDivElement>(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
 

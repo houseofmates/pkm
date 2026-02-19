@@ -20,7 +20,7 @@ function useDimensions(ref: React.RefObject<HTMLDivElement | null>) {
   return dimensions;
 }
 
-export function canvasview({ data: rows, collection, loading, config: _config }: viewprops) {
+export function CanvasView({ data: rows, collection, loading, config: _config }: viewprops) {
   const containerref = useref<HTMLDivElement>(null);
   const canvasel = useref<HTMLCanvasElement>(null);
   const [fabriccanvas, setfabriccanvas] = usestate<Canvas | null>(null);

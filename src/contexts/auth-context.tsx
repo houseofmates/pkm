@@ -13,7 +13,7 @@ interface AuthContextType {
 
 const authcontext = createcontext<AuthContextType | undefined>(undefined);
 
-export function authprovider({ children }: { children: reactnode }) {
+export function AuthProvider({ children }: { children: reactnode }) {
   const [token, settoken] = usestate<string | null>(localStorage.getItem('nocobase_token'));
 
   // initialize client with a function to get the current token
@@ -87,7 +87,7 @@ export function authprovider({ children }: { children: reactnode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-  throw new Error('useAuth must be used within an AuthProvider');
+  throw new Error('UseAuth must be used within an AuthProvider');
   }
   return context;
 }

@@ -31,7 +31,7 @@ interface DatabaseSettingsFormProps {
   ispage?: boolean;
 }
 
-export function databasesettingsform({
+export function DatabaseSettingsForm({
   collectionname,
   title,
   viewconfig = {},

@@ -27,7 +27,7 @@ export type ViewProps = {
   onCreateField?: () => void;
 };
 
-export const view_registry: record<ViewType, React.ComponentType<ViewProps>> = {
+export const VIEW_REGISTRY: record<ViewType, React.ComponentType<ViewProps>> = {
   table: RecordTable,
   calendar: CalendarView,
   kanban: KanbanView,

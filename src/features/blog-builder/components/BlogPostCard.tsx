@@ -20,7 +20,7 @@ interface BlogPostCardProps {
   onClick: () => void;
 }
 
-export function blogpostcard({ post, onclick }: blogpostcardprops) {
+export function BlogPostCard({ post, onclick }: blogpostcardprops) {
   const [imageerror, setimageerror] = usestate(false);
 
   return (

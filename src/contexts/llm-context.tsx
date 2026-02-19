@@ -8,7 +8,7 @@ import { formatHeadmateName } from '@/utils/text-formatting';
 
 const LLMContext = createContext<LLMContextPayload | null>(null);
 
-export function llmcontextprovider({ children }: { children: react.reactnode }) {
+export function LLMContextProvider({ children }: { children: react.reactnode }) {
   const { activefronters, overrides } = usefronter();
   const { client, isauthenticated } = useauth();
   // const { collections } = usecollections(); // not used currently
@@ -156,6 +156,6 @@ export function llmcontextprovider({ children }: { children: react.reactnode }) 
   );
 }
 
-export function useLLMContext() {
+export function UseLLMContext() {
   return useContext(LLMContext);
 }

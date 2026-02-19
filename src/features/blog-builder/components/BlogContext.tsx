@@ -64,10 +64,10 @@ export interface BlogBuilderContextType {
   savePost: () => promise<void>;
 }
 
-export const blogcontext = createcontext<BlogBuilderContextType | null>(null);
+export const BlogContext = createcontext<BlogBuilderContextType | null>(null);
 
 export const useBlogBuilder = () => {
   const ctx = useContext(BlogContext);
-  if (!ctx) throw new Error('useBlogBuilder must be used within BlogEditor');
+  if (!ctx) throw new Error('UseBlogBuilder must be used within BlogEditor');
   return ctx;
 };
