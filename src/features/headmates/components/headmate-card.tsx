@@ -2,10 +2,11 @@
 import { Card } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { useFronter } from "@/contexts/fronter-context";
-import { forwardRef, useMemo, useState } from 'react';
+import React, { forwardRef, useMemo, useState } from 'react';
 import { formatHeadmateName, getCapitalizationClass } from '@/utils/text-formatting';
 import { getStringColor } from '@/utils/color-generator';
 import { PLACEHOLDER_IMAGE } from '@/lib/discord-utils';
+import { secureLogger } from '@/lib/secure-logger';
 
 import { ContactProfileView } from './contact-profile-view';
 
@@ -23,20 +24,20 @@ export interface Headmate {
 interface HeadmateCardProps {
   member: Headmate;
   onClick?: () => void;
-  classname?: string;
+  className?: string;
 }
 
-export const HeadmateCard = forwardref<HTMLDivElement, HeadmateCardProps & React.HTMLAttributes<HTMLDivElement>>(({ member, onClick, className, ...props }, ref) => {
+export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardProps & React.HTMLAttributes<HTMLDivElement>>(({ member, onClick, className, ...props }, ref) => {
   const { activeFronters } = useFronter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const handleCardClick = (_e: React.MouseEvent) => {
-  console.log('CLICK REGISTERED:', member.name, member.id);
+  secureLogger.debug('CLICK REGISTERED:', member.name, member.id);
   if (onClick) {
-  console.log('Calling onClick handler');
+  secureLogger.debug('Calling onClick handler');
   onClick();
   } else {
-  console.log('No onClick handler provided!');
+  secureLogger.debug('No onClick handler provided!');
   }
   };
 
@@ -49,7 +50,7 @@ export const HeadmateCard = forwardref<HTMLDivElement, HeadmateCardProps & React
   const memberId = String(member.id);
   const isActive = activeFronters.map(String).includes(memberId);
 
-  console.log(`RENDER ${member.name}: isActive=${isActive}, memberId=${memberId}, activeFronters=`, activeFronters);
+  secureLogger.debug(`RENDER ${member.name}: isActive=${isActive}, memberId=${memberId}, activeFronters=`, activeFronters);
 
   // render logic
   const rawName = member.name;
@@ -64,9 +65,9 @@ export const HeadmateCard = forwardref<HTMLDivElement, HeadmateCardProps & React
   // image resolution
   const finalImageSrc = useMemo(() => {
   const raw = member.avatar;
-  if (!raw) return placeholder_image || null;
+  if (!raw) return PLACEHOLDER_IMAGE || null;
 
-  if (raw.startswith('data:') || raw.startswith('http')) return raw;
+  if (raw.startsWith('data:') || raw.startsWith('http')) return raw;
 
   // handle nocobase attachments
   // if it's a url path, append api_url (maybe?)
@@ -82,7 +83,7 @@ export const HeadmateCard = forwardref<HTMLDivElement, HeadmateCardProps & React
   ref={ref}
   className={cn("group flex flex-col gap-2 cursor-pointer", className)}
   onClick={(e) => {
- console.log('OUTER DIV CLICK:', member.name);
+ secureLogger.debug('OUTER DIV CLICK:', member.name);
  handleCardClick(e);
   }}
   onDoubleClick={handleDoubleClick}
@@ -104,7 +105,7 @@ export const HeadmateCard = forwardref<HTMLDivElement, HeadmateCardProps & React
   >
  {/* background image */}
  <div className="absolute inset-0 bg-muted/30">
- {finalimagesrc ? (
+ {finalImageSrc ? (
  <img
    src={finalImageSrc}
    alt={member.name}
@@ -113,7 +114,7 @@ export const HeadmateCard = forwardref<HTMLDivElement, HeadmateCardProps & React
  />
  ) : (
  <div className="h-full w-full flex items-center justify-center text-6xl opacity-20 select-none bg-muted">
-   {member.name.charat(0)}
+   {member.name.charAt(0)}
  </div>
  )}
  </div>
@@ -132,7 +133,7 @@ export const HeadmateCard = forwardref<HTMLDivElement, HeadmateCardProps & React
    fontWeight: 900
  }}
  >
- {displayname}
+ {displayName}
  </h3>
  </div>
   </Card>
@@ -151,5 +152,5 @@ export const HeadmateCard = forwardref<HTMLDivElement, HeadmateCardProps & React
   />
   </div>
   );
-});
+}));
 HeadmateCard.displayName = "HeadmateCard";
