@@ -156,8 +156,8 @@ export function WidgetPropertyEditor({ element, onupdate, onclose }: props) {
                     {(() => {
                       const iconname = content.icon || 'shield';
                       const formattedname = iconname.charat(0).touppercase() + iconname.slice(1);
-                      // @ts-ignore
-                      const icon = lucideicons[formattedname] || lucideicons.shield;
+                      // @ts-expect-error -- dynamic LucideIcons lookup
+                      const Icon = (LucideIcons as any)[formattedName] || LucideIcons.shield;
                       return <icon size={18} />;
                     })()}
                   </div>
