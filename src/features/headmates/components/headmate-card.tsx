@@ -26,7 +26,7 @@ interface HeadmateCardProps {
   classname?: string;
 }
 
-export const headmatecard = forwardref<HTMLDivElement, HeadmateCardProps & React.HTMLAttributes<HTMLDivElement>>(({ member, onClick, className, ...props }, ref) => {
+export const HeadmateCard = forwardref<HTMLDivElement, HeadmateCardProps & React.HTMLAttributes<HTMLDivElement>>(({ member, onClick, className, ...props }, ref) => {
   const { activeFronters } = useFronter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 

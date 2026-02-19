@@ -13,7 +13,7 @@ interface Props {
   onClose: () => void;
 }
 
-export function widgetpropertyeditor({ element, onupdate, onclose }: props) {
+export function WidgetPropertyEditor({ element, onupdate, onclose }: props) {
   const [content, setcontent] = usestate<any>(element.content || {});
   const [styles, setstyles] = usestate<any>(element.styles || {});
   const [showiconpicker, setshowiconpicker] = usestate(false);

@@ -290,5 +290,5 @@ export const canvasSync = new CanvasSyncService()
 
 // react hook for sync status
 export function useSyncStatus(drawingId: string) {
-  return canvasSync.getSyncState(drawingId)
+  return CanvasSync.getSyncState(drawingId)
 }

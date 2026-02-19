@@ -1,9 +1,9 @@
-// link-registry.ts
+// link-Registry.ts
 // bidirectional adjacency list for document cross-references
 // eliminates dangling pointers on rename, move, and delete
 // persisted to localstorage with lazy hydration
 
-export interface linkentry {
+export interface Linkentry {
     sourceid: string
     sourcecollection: string
     targetid: string
@@ -16,14 +16,14 @@ const storage_key = 'pkm_link_registry'
 class linkregistry {
     private outbound = new Map<string, Set<string>>()
     private inbound = new Map<string, Set<string>>()
-    private entries = new Map<string, linkentry>()
+    private entries = new Map<string, Linkentry>()
     private dirty = false
 
     private key(source: string, target: string): string {
         return `${source}→${target}`
     }
 
-    register(entry: linkentry): void {
+    register(entry: Linkentry): void {
         const k = this.key(entry.sourceid, entry.targetid)
         this.entries.set(k, entry)
 
@@ -61,21 +61,21 @@ class linkregistry {
     }
 
     // all documents that link to this target
-    getbacklinks(targetid: string): linkentry[] {
+    getbacklinks(targetid: string): Linkentry[] {
         const sources = this.inbound.get(targetid)
         if (!sources) return []
         return [...sources]
             .map((sid) => this.entries.get(this.key(sid, targetid)))
-            .filter(Boolean) as linkentry[]
+            .filter(Boolean) as Linkentry[]
     }
 
     // all documents that this source links to
-    getoutlinks(sourceid: string): linkentry[] {
+    getoutlinks(sourceid: string): Linkentry[] {
         const targets = this.outbound.get(sourceid)
         if (!targets) return []
         return [...targets]
             .map((tid) => this.entries.get(this.key(sourceid, tid)))
-            .filter(Boolean) as linkentry[]
+            .filter(Boolean) as Linkentry[]
     }
 
     // when a note is renamed, update all link labels pointing at it
@@ -119,7 +119,7 @@ class linkregistry {
     }
 
     // when a note is deleted, return all documents that reference it
-    getorphanedlinks(targetid: string): linkentry[] {
+    getorphanedlinks(targetid: string): Linkentry[] {
         return this.getbacklinks(targetid)
     }
 
@@ -141,7 +141,7 @@ class linkregistry {
         return this.entries.size
     }
 
-    // clear the entire registry
+    // clear the entire Registry
     clear(): void {
         this.outbound.clear()
         this.inbound.clear()
@@ -169,7 +169,7 @@ class linkregistry {
             localStorage.setItem(storage_key, JSON.stringify(data))
             this.dirty = false
         } catch (e) {
-            console.error('link-registry: persist failed', e)
+            console.error('link-Registry: persist failed', e)
         }
     }
 
@@ -177,14 +177,14 @@ class linkregistry {
         try {
             const raw = localStorage.getItem(storage_key)
             if (!raw) return
-            const data: linkentry[] = JSON.parse(raw)
+            const data: Linkentry[] = JSON.parse(raw)
             this.outbound.clear()
             this.inbound.clear()
             this.entries.clear()
             for (const e of data) this.register(e)
             this.dirty = false
         } catch (e) {
-            console.error('link-registry: hydrate failed', e)
+            console.error('link-Registry: hydrate failed', e)
         }
     }
 
@@ -194,8 +194,8 @@ class linkregistry {
         sourceid: string,
         sourcecollection: string,
         htmlcontent: string
-    ): linkentry[] {
-        const found: linkentry[] = []
+    ): Linkentry[] {
+        const found: Linkentry[] = []
         const regex = /href="\/databases\/([^/]+)\/([^"]+)"/g
         let match
 
@@ -221,7 +221,7 @@ class linkregistry {
         return found
     }
 
-    // re-scan a document's content and update the registry
+    // re-scan a document's content and update the Registry
     rescan(sourceid: string, sourcecollection: string, htmlcontent: string): void {
         this.clearoutbound(sourceid)
         const links = this.scanlinks(sourceid, sourcecollection, htmlcontent)
@@ -234,4 +234,4 @@ class linkregistry {
 export const registry = new linkregistry()
 
 // hydrate on module load
-registry.hydrate()
+Registry.hydrate()

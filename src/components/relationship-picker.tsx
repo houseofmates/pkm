@@ -15,7 +15,7 @@ interface RelationshipPickerProps {
   value?: any;
 }
 
-export function relationshippicker({ collectionname, onselect, value }: relationshippickerprops) {
+export function RelationshipPicker({ collectionname, onselect, value }: relationshippickerprops) {
   const { client } = useauth();
   const [open, setopen] = usestate(false);
   const [options, setoptions] = usestate<any[]>([]);

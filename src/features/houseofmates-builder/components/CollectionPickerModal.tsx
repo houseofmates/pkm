@@ -23,7 +23,7 @@ const view_types = [
   { id: 'chart', label: 'chart', icon: barchart3 },
 ];
 
-export function collectionpickermodal({ onselect, onclose }: props) {
+export function CollectionPickerModal({ onselect, onclose }: props) {
   const [collections, setcollections] = usestate<Collection[]>([]);
   const [loading, setloading] = usestate(true);
   const [error, seterror] = usestate<string | null>(null);

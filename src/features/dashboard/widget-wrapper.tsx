@@ -22,7 +22,7 @@ interface WidgetWrapperProps {
 // forward ref is required for react-grid-layout
 import { forwardref } from 'react';
 
-export const widgetwrapper = forwardref<HTMLDivElement, WidgetWrapperProps>(({
+export const Widgetwrapper = forwardref<HTMLDivElement, WidgetWrapperProps>(({
   title,
   children,
   className,

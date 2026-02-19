@@ -18,7 +18,7 @@ export function getOllamaBase(): string {
   try {
     const stored = localStorage.getItem('wilson_api_url');
     if (stored && stored.trim()) {
-      const base = normalizeBaseUrl(stored);
+      const base = NormalizeBaseUrl(stored);
       if (base) return base;
     }
   } catch (e) {
@@ -32,15 +32,15 @@ export function getOllamaBase(): string {
 }
 
 export function getOllamaGenerateUrl(): string {
-  return `${getOllamaBase().replace(/\/$/, '')}/api/generate`;
+  return `${GetOllamaBase().replace(/\/$/, '')}/api/generate`;
 }
 
 export function getOllamaChatUrl(): string {
-  return `${getOllamaBase().replace(/\/$/, '')}/api/chat`;
+  return `${GetOllamaBase().replace(/\/$/, '')}/api/chat`;
 }
 
 export function normalizeGenerateEndpoint(urlOrBase?: string): string {
-  if (!urlOrBase) return getOllamaGenerateUrl();
+  if (!urlOrBase) return GetOllamaGenerateUrl();
   const t = String(urlOrBase).trim().replace(/\/$/, '');
   if (/\/api\/generate$/.test(t)) return t;
   const stripped = t.replace(/(\/api\/chat|\/api)$/i, '').replace(/\/$/, '');

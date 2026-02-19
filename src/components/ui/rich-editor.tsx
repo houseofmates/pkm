@@ -55,8 +55,8 @@ function SlashMenu({ onSelect, onClose, position }: { onSelect: (cmd: string) =>
   if (e.key === 'Escape') onClose();
   };
   window.addEventListener('keydown', handleKeyDown);
-  return () => window.removeeventlistener('keydown', handlekeydown);
-  }, [onclose]);
+  return () => window.removeeventlistener('keydown', handleKeyDown);
+  }, [onClose]);
 
   return (
   <div
@@ -78,12 +78,12 @@ function SlashMenu({ onSelect, onClose, position }: { onSelect: (cmd: string) =>
   );
 }
 
-export function richeditor({ value = '', placeholder, classname, onchange, uploadimage, showtoolbar = true }: richeditorprops) {
-  const ref = useref<HTMLDivElement | null>(null);
-  const fileref = useref<HTMLInputElement | null>(null);
+export function RichEditor({ value = '', placeholder, className, onChange, uploadImage, showToolbar = true }: RichEditorProps) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const fileRef = useRef<HTMLInputElement | null>(null);
 
   // slash menu state
-  const [slashmenu, setslashmenu] = usestate<{ open: boolean, top: number, left: number } | null>(null);
+  const [slashMenu, setSlashMenu] = usestate<{ open: boolean, top: number, left: number } | null>(null);
 
   useEffect(() => {
   // sync html ...
@@ -141,7 +141,7 @@ export function richeditor({ value = '', placeholder, classname, onchange, uploa
   setSlashMenu(null);
   };
 
-  // ... insertimagefromfile, handlepaste ...
+  // ... insertImageFromFile, handlepaste ...
 
   // (copy paste previous helper functions manually if needed or assume they persist if not overwritten widely)
   // actually replace_file_content overwrites the range, so i need to include them if i am replacing the component body.
@@ -150,9 +150,9 @@ export function richeditor({ value = '', placeholder, classname, onchange, uploa
 
   const insertImageFromFile = async (file?: File) => {
   if (!file) return;
-  if (uploadimage) {
+  if (uploadImage) {
   try {
- const url = await uploadimage(file);
+ const url = await uploadImage(file);
  const frag = document.createrange().createcontextualfragment(`<figure><img src="${url}" alt="" /><figcaption contenteditable>caption...</figcaption></figure><p><br/></p>`);
  ref.current?.appendChild(frag);
  onChange?.(ref.current?.innerHTML || '');
@@ -172,35 +172,35 @@ export function richeditor({ value = '', placeholder, classname, onchange, uploa
   const html = e.clipboarddata.getdata('text/html');
   if (text && !html) {
   e.preventdefault();
-  const converted = markdowntohtml(text);
+  const converted = markdownToHtml(text);
   document.execcommand('inserthtml', false, converted);
-  onchange?.(ref.current?.innerhtml || '');
+  onChange?.(ref.current?.innerhtml || '');
   }
   };
 
   return (
   <div className={cn('w-full relative', className)}>
   {/* hidden input for images */}
-  <input ref={fileRef} type="file" accept="image/*" classname="hidden" onchange={e => {
+  <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={e => {
  const files = (e.target as htmlinputelement).files;
  if (!files) return;
- array.from(files).foreach(f => insertimagefromfile(f));
+ array.from(files).foreach(f => insertImageFromFile(f));
  if (e.currenttarget) (e.currenttarget as htmlinputelement).value = '';
   }} multiple />
 
-{slashmenu && (
+{slashMenu && (
   <>
-  <div classname="fixed inset-0 z-40 bg-transparent" onclick={() => setslashmenu(null)} />
-  <slashmenu
-  onselect={handleslashselect}
-  onclose={() => setslashmenu(null)}
-  position={slashmenu}
+  <div className="fixed inset-0 z-40 bg-transparent" onclick={() => setSlashMenu(null)} />
+  <SlashMenu
+  onSelect={handleSlashSelect}
+  onClose={() => setSlashMenu(null)}
+  position={slashMenu}
  />
  </>
   )}
 
-  {showtoolbar && (
- <div classname="flex gap-1 mb-2 opacity-20 hover:opacity-100 transition-opacity duration-300">
+  {showToolbar && (
+ <div className="flex gap-1 mb-2 opacity-20 hover:opacity-100 transition-opacity duration-300">
  {/* ... toolbar buttons (simplified for brevity, or kept) ... */}
  <button type="button" className="btn-ghost btn-sm text-xs" onClick={() => exec('bold')}>b</button>
  <button type="button" className="btn-ghost btn-sm text-xs" onClick={() => exec('italic')}>i</button>
@@ -215,7 +215,7 @@ export function richeditor({ value = '', placeholder, classname, onchange, uploa
  suppressContentEditableWarning
  onPaste={handlePaste}
  onInput={() => onChange?.(ref.current?.innerHTML || '')}
- // onblur={() => onchange?.(ref.current?.innerhtml || '')} // disabled to allow clicking menu
+ // onblur={() => onChange?.(ref.current?.innerhtml || '')} // disabled to allow clicking menu
  onKeyDown={handleKeyDown}
  className={cn('min-h-[120px] p-2 rounded focus:outline-none prose prose-invert max-w-none', placeholder ? 'placeholder' : '')}
  data-placeholder={placeholder}

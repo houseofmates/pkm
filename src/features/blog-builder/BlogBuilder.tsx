@@ -26,7 +26,7 @@ interface blogpost {
   view_count?: number;
 }
 
-export function blogbuilder() {
+export function Blogbuilder() {
   const { slug } = useparams<{ slug?: string }>();
   const [posts, setposts] = usestate<BlogPost[]>([]);
   const [currentpost, setcurrentpost] = usestate<BlogPost | null>(null);
@@ -149,7 +149,7 @@ export function blogbuilder() {
  },
   });
   } catch (error) {
-  console.error('[blogbuilder] error updating view count:', error);
+  console.error('[Blogbuilder] error updating view count:', error);
   }
   };
 
@@ -190,4 +190,3 @@ export function blogbuilder() {
 }
 
 export default BlogBuilder;
-

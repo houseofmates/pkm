@@ -26,7 +26,7 @@ const colors = [
   { name: 'purple', value: '#a855f7' },
 ];
 
-export function collectioncontextmenu({ children, onrename, oncolorchange, onaddtofolder }: collectioncontextmenuprops) {
+export function Collectioncontextmenu({ children, onrename, oncolorchange, onaddtofolder }: collectioncontextmenuprops) {
   return (
   <ContextMenu>
   <ContextMenuTrigger asChild>

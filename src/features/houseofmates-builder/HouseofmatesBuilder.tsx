@@ -94,7 +94,7 @@ interface BuilderContextType {
 const buildercontext = createcontext<BuilderContextType | null>(null);
 export const useBuilder = () => {
   const ctx = useContext(BuilderContext);
-  if (!ctx) throw new Error('useBuilder must be used within HouseofmatesBuilder');
+  if (!ctx) throw new Error('UseBuilder must be used within HouseofmatesBuilder');
   return ctx;
 };
 

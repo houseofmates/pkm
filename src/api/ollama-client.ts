@@ -14,7 +14,7 @@ export interface ChatResponse {
   total_duration?: number;
 }
 
-export const OLLAMA_MODEL = 'qwen2.5:7b';
+export const oLLAMA_MODEL = 'qwen2.5:7b';
 
 export class OllamaClient {
 

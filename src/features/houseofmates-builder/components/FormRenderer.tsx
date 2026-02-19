@@ -39,7 +39,7 @@ interface formrendererprops {
     isadmin?: boolean;
 }
 
-export function formrenderer({ element, isadmin }: formrendererprops) {
+export function FormRenderer({ element, isadmin }: formrendererprops) {
     const [formdata, setformdata] = usestate<Record<string, any>>({});
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
@@ -237,7 +237,7 @@ interface formbuilderprops {
     initialdata?: partial<FormElementData>;
 }
 
-export function formbuilder({ onsave, oncancel, initialdata }: formbuilderprops) {
+export function FormBuilder({ onsave, oncancel, initialdata }: formbuilderprops) {
     const defaultfields: formfield[] = [
         { id: 'minecraft_username', type: 'text', label: 'minecraft username', placeholder: 'your ign...', required: true },
         { id: 'rating', type: 'rating', label: 'how would you rate us?', required: true },
@@ -466,4 +466,3 @@ export function formbuilder({ onsave, oncancel, initialdata }: formbuilderprops)
 
 // export types
 export type { FormField, FormElementData };
-

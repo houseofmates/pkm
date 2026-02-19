@@ -30,7 +30,7 @@ interface RecordContextMenuProps {
   titlefield?: any;
 }
 
-export function recordeditcontent({ record, collection, onupdate, ondelete, onview, titlefield: customtitlefield, config, onconfigchange }: { record: any, collection: any, onupdate?: any, ondelete?: any, onview?: any, titlefield?: any, config?: any, onconfigchange?: any }) {
+export function RecordEditContent({ record, collection, onupdate, ondelete, onview, titlefield: customtitlefield, config, onconfigchange }: { record: any, collection: any, onupdate?: any, ondelete?: any, onview?: any, titlefield?: any, config?: any, onconfigchange?: any }) {
   const navigate = usenavigate();
   const [metadata, setmetadata] = useappsetting<Record<string, { color?: string }>>(`record_meta_${collection?.name || 'unknown'}`, {});
 
@@ -263,7 +263,7 @@ export function recordeditcontent({ record, collection, onupdate, ondelete, onvi
   );
 }
 
-export function recordcontextmenu({ record, collection, children, onupdate, ondelete, config, onconfigchange, classname, style, titlefield }: recordcontextmenuprops) {
+export function RecordContextMenu({ record, collection, children, onupdate, ondelete, config, onconfigchange, classname, style, titlefield }: recordcontextmenuprops) {
   const { } = useauth(); // kept for hook consistency if needed
 
   // ... touch logic ...

@@ -15,7 +15,7 @@ interface NodePosition {
 }
 
 export function MindMapView({ data, collection, config = {}, onConfigChange, onUpdateRecord, onDelete }: ViewProps) {
-  // ALL hooks must be called before any early return
+  // all hooks must be called before any early return
   const [positions, setPositions] = useState<Record<string, NodePosition>>({});
   const [scale, setscale] = usestate(1);
   const [offset, setoffset] = usestate({ x: 0, y: 0 });

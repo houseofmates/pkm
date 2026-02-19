@@ -16,7 +16,7 @@ interface GlobalSearchDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function globalsearchdialog({ open, onopenchange }: globalsearchdialogprops) {
+export function Globalsearchdialog({ open, onopenchange }: globalsearchdialogprops) {
   const [query, setquery] = usestate('');
   const [response, setresponse] = usestate<string | null>(null);
   const [status, setstatus] = usestate<string>('');

@@ -28,4 +28,4 @@ export const usePkmStore = create<PkmState>((set) => ({
   setSearchResults: (r) => set({ searchResults: r }),
 }));
 
-export default usePkmStore;
+export default UsePkmStore;
