@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { useFronter } from '@/contexts/fronter-context';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { walwrite, walcommit, walfail } from '@/lib/write-ahead-log';
+import { walWrite, walCommit, walFail } from '@/lib/write-ahead-log';
 import { registry } from '@/lib/link-registry';
 
 export function useRecords(collectionName: string, initialParams: any = {}) {
@@ -71,16 +71,16 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
       if (activeFronterId) {
         payload.lastEditedByFronter = activeFronterId;
       }
-      const walId = await walwrite(collectionName, String(id), 'update', payload);
+      const walId = await walWrite(collectionName, String(id), 'update', payload);
       try {
         const result = await client.updateRecord(collectionName, id, payload);
-        await walcommit(walId);
+        await walCommit(walId);
         if (typeof payload.content === 'string') {
           registry.rescan(String(id), collectionName, payload.content);
         }
         return result;
       } catch (err) {
-        await walfail(walId);
+        await walFail(walId);
         throw err;
       }
     },
@@ -113,14 +113,14 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   // delete
   const deleteMutation = useMutation({
     mutationFn: async (id: string | number) => {
-      const walId = await walwrite(collectionName, String(id), 'delete', null);
+      const walId = await walWrite(collectionName, String(id), 'delete', null);
       try {
         const result = await client.deleteRecord(collectionName, id);
-        await walcommit(walId);
+        await walCommit(walId);
         registry.purgeReferences(String(id));
         return result;
       } catch (err) {
-        await walfail(walId);
+        await walFail(walId);
         throw err;
       }
     },
