@@ -114,7 +114,7 @@ export function BlogGallery({ posts, scrollDirection = 'horizontal', onScrollDir
       </div>
 
       {/* context menu */}
-      {contextmenu && (
+      {contextMenu && (
         <div
           className="fixed z-50 bg-black/90 backdrop-blur-md border border-white/20 rounded-xl overflow-hidden shadow-2xl"
           style={{ left: contextMenu.x, top: contextMenu.y }}
@@ -123,7 +123,7 @@ export function BlogGallery({ posts, scrollDirection = 'horizontal', onScrollDir
             onClick={toggleScrollDirection}
             className="w-full px-6 py-3 text-left text-white hover:bg-white/10 transition-colors lowercase text-sm"
           >
-            switch to {scrolldirection === 'horizontal' ? 'vertical' : 'horizontal'} scroll
+            switch to {scrollDirection === 'horizontal' ? 'vertical' : 'horizontal'} scroll
           </button>
         </div>
       )}
