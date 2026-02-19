@@ -1,10 +1,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/auth-context';
+import { secureLogger } from '@/lib/secure-logger';
 
 export interface AppSetting {
   id?: number | string;
   key: string;
-  value: any;
+  value: unknown;
 }
 
 export function useAppSetting<T>(key: string, defaultValue: T, options?: { debounceMs?: number }) {
@@ -33,12 +34,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
   const [loading, setLoading] = useState(false);
   const settingIdRef = useRef<string | number | null>(null);
-  const saveTimeoutRef = useRef<any>(null);
-
-
-
-  // ensurecollectionexists removed - handled by nocobaseclient.ensurebackendcollection
-  // which is called by authprovider on login.
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // fetch from backend on mount
   const fetchSetting = useCallback(async () => {
@@ -70,13 +66,13 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
  try {
    localStorage.setItem(`pkm_setting:${key}`, newValueString);
  } catch (e) {
-   console.warn(`Failed to update local cache for ${key}`, e);
+   secureLogger.warn(`Failed to update local cache for ${key}`, e);
  }
  }
  }
   }
-  } catch (err: any) {
-  const msg = err.message || '';
+  } catch (err: unknown) {
+  const msg = err instanceof Error ? err.message : '';
   if (!msg.includes('404') && !msg.includes('400')) {
  // ignore silent errors for existence checks
   }
@@ -100,8 +96,8 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
  return newValue;
   });
   };
-  window.addEventListener(`pkm_setting_update:${key}`, handler as any);
-  return () => window.removeEventListener(`pkm_setting_update:${key}`, handler as any);
+  window.addEventListener(`pkm_setting_update:${key}`, handler as EventListener);
+  return () => window.removeEventListener(`pkm_setting_update:${key}`, handler as EventListener);
   }, [key]);
 
   // save to backend (debounced)
@@ -116,13 +112,13 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
  }, 0);
   } catch (e) {
  // ignore quotaexceedederror - just don't cache locally, rely on server
- console.warn(`Failed to save locally for ${key}`, e);
+ secureLogger.warn(`Failed to save locally for ${key}`, e);
   }
 
   if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
   saveTimeoutRef.current = setTimeout(async () => {
  if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) return;
- const performSave = async (valueToSave: any): Promise<void> => {
+ const performSave = async (valueToSave: unknown): Promise<void> => {
  try {
  const payload = { value: valueToSave };
 
@@ -152,10 +148,10 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
    settingIdRef.current = createRes.data.id;
  }
 
- } catch (err: any) {
- const errMsg = (err.message || "").toLowerCase();
+ } catch (err: unknown) {
+ const errMsg = (err instanceof Error ? err.message : "").toLowerCase();
  if (errMsg.includes('404') || errMsg.includes('not found')) {
-   console.warn("PKM Setting save failed: Collection not ready.", errMsg);
+   secureLogger.warn("PKM Setting save failed: Collection not ready.", errMsg);
    // initial ensurebackendcollection should handle this; we just fail silently here to avoid loops
  }
  }
@@ -198,8 +194,8 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
  });
  if (createRes?.data?.id) settingIdRef.current = createRes.data.id;
 
-  } catch (err: any) {
- const errMsg = (err.message || "").toLowerCase();
+  } catch (err: unknown) {
+ const errMsg = (err instanceof Error ? err.message : "").toLowerCase();
  if (attempt < 2 && (errMsg.includes('404') || errMsg.includes('not found'))) {
  // retry once for network blips
  return attemptUpsert(attempt + 1);
