@@ -40,7 +40,7 @@ interface formrendererprops {
 }
 
 export function FormRenderer({ element, isadmin }: formrendererprops) {
-    const [formdata, setformdata] = usestate<Record<string, any>>({});
+    const [formdata, setformdata] = useState<Record<string, any>>({});
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [rating, setRating] = useState(0);
@@ -245,8 +245,8 @@ export function FormBuilder({ onsave, oncancel, initialdata }: formbuilderprops)
     ];
 
     const data = initialdata?.content || initialdata; // handle nested vs flattened
-    const [formname, setformname] = usestate(data?.formname || 'feedback form');
-    const [fields, setfields] = usestate<FormField[]>(data?.fields || defaultFields);
+    const [formname, setformname] = useState(data?.formname || 'feedback form');
+    const [fields, setfields] = useState<FormField[]>(data?.fields || defaultFields);
     const [submitButtonText, setSubmitButtonText] = useState(data?.submitButtonText || 'submit');
     const [successMessage, setSuccessMessage] = useState(data?.successMessage || 'thank you for your feedback!');
 

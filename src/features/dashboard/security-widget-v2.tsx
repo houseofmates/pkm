@@ -138,13 +138,13 @@ export function SecurityWidgetV2() {
   const { isAuthenticated } = useAuth();
   const [privacyMode, setPrivacyMode] = useState(true);
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [risklevel, setrisklevel] = usestate<'low' | 'medium' | 'high'>('high');
-  const [mounted, setmounted] = usestate(false);
-  const [vulnerabilities, setvulnerabilities] = usestate<Vulnerability[]>([]);
-  const [selectedvuln, setselectedvuln] = usestate<Vulnerability | null>(null);
-  const [scanning, setscanning] = usestate(false);
-  const [expandedvulns, setexpandedvulns] = usestate<Set<string>>(new set());
-  const [copiedprompt, setcopiedprompt] = usestate<string | null>(null);
+  const [risklevel, setrisklevel] = useState<'low' | 'medium' | 'high'>('high');
+  const [mounted, setmounted] = useState(false);
+  const [vulnerabilities, setvulnerabilities] = useState<Vulnerability[]>([]);
+  const [selectedvuln, setselectedvuln] = useState<Vulnerability | null>(null);
+  const [scanning, setscanning] = useState(false);
+  const [expandedvulns, setexpandedvulns] = useState<Set<string>>(new set());
+  const [copiedprompt, setcopiedprompt] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);

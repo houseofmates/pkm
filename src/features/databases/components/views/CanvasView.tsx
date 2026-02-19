@@ -21,15 +21,15 @@ function useDimensions(ref: React.RefObject<HTMLDivElement | null>) {
 }
 
 export function CanvasView({ data: rows, collection, loading, config: _config }: viewprops) {
-  const containerref = useref<HTMLDivElement>(null);
-  const canvasel = useref<HTMLCanvasElement>(null);
-  const [fabriccanvas, setfabriccanvas] = usestate<Canvas | null>(null);
+  const containerref = useRef<HTMLDivElement>(null);
+  const canvasel = useRef<HTMLCanvasElement>(null);
+  const [fabriccanvas, setfabriccanvas] = useState<Canvas | null>(null);
 
   // fields - fetch them if not provided? viewprops doesn't have fields usually.
   // we can fetch fields inside here or rely on parent.
   // standard views usually fetch fields or use collection context.
   // let's fetch local fields for now to be safe.
-  const [fields, setfields] = usestate<any[]>([]);
+  const [fields, setfields] = useState<any[]>([]);
 
   useEffect(() => {
   if (!collection?.name) return;

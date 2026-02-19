@@ -15,7 +15,7 @@ interface CreateRecordDialogProps {
 }
 
 export function CreateRecordDialog({ open, onopenchange, collectionname, onsuccess, trigger }: createrecorddialogprops) {
-  const [data, setdata] = usestate<Record<string, unknown>>({});
+  const [data, setdata] = useState<Record<string, unknown>>({});
   const [loading, setLoading] = useState(false);
 
   const handleChange = (key: string, val: unknown) => {

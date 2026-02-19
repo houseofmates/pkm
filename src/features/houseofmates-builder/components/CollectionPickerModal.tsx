@@ -24,11 +24,11 @@ const view_types = [
 ];
 
 export function CollectionPickerModal({ onselect, onclose }: props) {
-  const [collections, setcollections] = usestate<Collection[]>([]);
-  const [loading, setloading] = usestate(true);
-  const [error, seterror] = usestate<string | null>(null);
-  const [selectedcollection, setselectedcollection] = usestate<string | null>(null);
-  const [selectedviewtype, setselectedviewtype] = usestate<string | null>(null);
+  const [collections, setcollections] = useState<Collection[]>([]);
+  const [loading, setloading] = useState(true);
+  const [error, seterror] = useState<string | null>(null);
+  const [selectedcollection, setselectedcollection] = useState<string | null>(null);
+  const [selectedviewtype, setselectedviewtype] = useState<string | null>(null);
 
   const [metadata] = useappsetting<Record<string, any>>('collection_metadata', {});
 

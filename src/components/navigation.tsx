@@ -61,7 +61,7 @@ import { useAppSetting } from '@/hooks/use-app-setting';
 
 export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle, onUpdate, collection }: any) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = usesortable({ id: id, data: { type: item.type, item } });
-  const [pickerOpen, setpickerOpen] = usestate(false);
+  const [pickerOpen, setpickerOpen] = useState(false);
 
   // global metadata for collections
   const [metadata] = useAppSetting<Record<string, { color?: string }>>('collection_metadata', {});

@@ -42,10 +42,10 @@ export function DashboardGrid({ layoutkey = 'dashboard_widgets_v2' }: { layoutke
     const [widgets, setwidgets] = useappsetting<WidgetDefinition[]>(layoutkey, []);
     const { collections } = usecollections();
     // const { client, token, isauthenticated, login } = useauth(); // unused
-    const [iseditmode, setiseditmode] = usestate(true);
-    const [addmenuopen, setaddmenuopen] = usestate(false);
-    const [localdocs, setlocaldocs] = usestate<{ id: string, title: string }[]>([]);
-    const [wizardtab, setwizardtab] = usestate<'databases' | 'documents' | 'contacts'>('databases');
+    const [iseditmode, setiseditmode] = useState(true);
+    const [addmenuopen, setaddmenuopen] = useState(false);
+    const [localdocs, setlocaldocs] = useState<{ id: string, title: string }[]>([]);
+    const [wizardtab, setwizardtab] = useState<'databases' | 'documents' | 'contacts'>('databases');
     const { members } = useFronter();
 
     // load local docs

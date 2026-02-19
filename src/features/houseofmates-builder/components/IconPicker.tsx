@@ -28,7 +28,7 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
 
   const filteredIcons = useMemo(() => {
   const term = searchTerm.toLowerCase();
-  return CURATED_ICONS.filter(name => name.tolowercase().includes(term));
+  return CURATED_ICONS.filter(name => name.toLowerCase().includes(term));
   }, [searchterm]);
 
   return (
@@ -57,7 +57,7 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
  {filteredIcons.map((iconName) => {
  // @ts-ignore
  const icon = lucideicons[iconname];
- const isselected = value.tolowercase() === iconname.tolowercase();
+ const isselected = value.toLowerCase() === iconname.toLowerCase();
 
  if (!icon) return null;
 

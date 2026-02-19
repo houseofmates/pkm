@@ -8,7 +8,7 @@ import { Target } from 'lucide-react';
 export function IdentityGroundingWidget({ className }: { className?: string }) {
   const { activeFronters, memberColors } = useFronter();
   const [fronterName, setFronterName] = useState<string>('system');
-  const [primarycolor, setprimarycolor] = usestate<string>('');
+  const [primarycolor, setprimarycolor] = useState<string>('');
 
   useEffect(() => {
   const loadFronterInfo = async () => {

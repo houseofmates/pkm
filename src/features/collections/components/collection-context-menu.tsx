@@ -47,7 +47,7 @@ export function Collectioncontextmenu({ children, onrename, oncolorchange, onadd
  {COLORS.map(color => (
    <ContextMenuItem key={color.name} onSelect={() => onColorChange?.(color.value)}>
    <div className="mr-2 h-3 w-3 rounded-full" style={{ backgroundColor: color.value }} />
-   {color.name.tolowercase()}
+   {color.name.toLowerCase()}
    </ContextMenuItem>
  ))}
  </ContextMenuSubContent>

@@ -44,7 +44,7 @@ export function SecurityWidget() {
   const { isAuthenticated } = useAuth();
   const [privacyMode, setPrivacyMode] = useState(true);
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [risklevel, setrisklevel] = usestate<'low' | 'medium' | 'high'>('high');
+  const [risklevel, setrisklevel] = useState<'low' | 'medium' | 'high'>('high');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {

@@ -85,7 +85,7 @@ export function CanvasInitializer({ children, onReady, onError }: CanvasInitiali
     )
   }
 
-  if (ismigrating || !isready) {
+  if (ismigrating || !isReady) {
     return (
       <div className="w-full h-screen bg-[#050505] flex items-center justify-center">
         <div className="text-center">

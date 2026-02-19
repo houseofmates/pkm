@@ -35,8 +35,8 @@ const common_icons = [
 ];
 
 export function IconPicker({ onselect, trigger, open, onopenchange }: iconpickerprops) {
-  const [, setactivetab] = usestate('icons');
-  const fileinputref = useref<HTMLInputElement>(null);
+  const [, setactivetab] = useState('icons');
+  const fileinputref = useRef<HTMLInputElement>(null);
 
   const handlefileupload = (e: react.changeevent<HTMLInputElement>) => {
   const file = e.target.files?.[0];

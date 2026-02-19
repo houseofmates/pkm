@@ -17,13 +17,13 @@ interface GlobalSearchDialogProps {
 }
 
 export function Globalsearchdialog({ open, onopenchange }: globalsearchdialogprops) {
-  const [query, setquery] = usestate('');
-  const [response, setresponse] = usestate<string | null>(null);
-  const [status, setstatus] = usestate<string>('');
-  const [loading, setloading] = usestate(false);
+  const [query, setquery] = useState('');
+  const [response, setresponse] = useState<string | null>(null);
+  const [status, setstatus] = useState<string>('');
+  const [loading, setloading] = useState(false);
   const searchresults = usepkmstore((s: { searchresults: array<{ collectionName?: string; collectionTitle?: string; record?: Record<string, unknown>; id?: string; score?: number }> }) => s.searchresults);
 
-  const inputref = useref<HTMLInputElement>(null);
+  const inputref = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) {

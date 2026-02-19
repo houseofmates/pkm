@@ -14,7 +14,7 @@ interface AuthContextType {
 const authcontext = createcontext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: reactnode }) {
-  const [token, settoken] = usestate<string | null>(localStorage.getItem('nocobase_token'));
+  const [token, settoken] = useState<string | null>(localStorage.getItem('nocobase_token'));
 
   // initialize client with a function to get the current token
   // this ensures the client always uses the latest token from the closure/state if we adjusted the client implementation,

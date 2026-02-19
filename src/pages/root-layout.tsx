@@ -67,14 +67,14 @@ export function RootLayout() {
   const { activefronters, overrides, members } = usefronter();
   const navigate = usenavigate();
 
-  const [activetab, setactivetab] = usestate<'databases' | 'home' | 'headmates' | 'board' | 'captures'>('home');
-  const [selectedcollection, setselectedcollection] = usestate<string | null>(null);
-  const [sidebaropen, setsidebaropen] = usestate(false);
-  const [settingsopen, setsettingsopen] = usestate(false);
+  const [activetab, setactivetab] = useState<'databases' | 'home' | 'headmates' | 'board' | 'captures'>('home');
+  const [selectedcollection, setselectedcollection] = useState<string | null>(null);
+  const [sidebaropen, setsidebaropen] = useState(false);
+  const [settingsopen, setsettingsopen] = useState(false);
 
   // sync / health state
-  const [walcount, setwalcount] = usestate(0);
-  const [syncstatus, setsyncstatus] = usestate<'ok' | 'syncing' | 'error'>('ok');
+  const [walcount, setwalcount] = useState(0);
+  const [syncstatus, setsyncstatus] = useState<'ok' | 'syncing' | 'error'>('ok');
 
   useEffect(() => {
     const interval = setInterval(async () => {
@@ -111,7 +111,7 @@ export function RootLayout() {
   }, [activeColor]);
 
   const [sidebarItems, setSidebarItems] = useAppSetting<NavItem[]>('sidebar_items', []);
-  const [activedragitem, setactivedragitem] = usestate<NavItem | null>(null);
+  const [activedragitem, setactivedragitem] = useState<NavItem | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),

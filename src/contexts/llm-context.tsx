@@ -14,10 +14,10 @@ export function LLMContextProvider({ children }: { children: react.reactnode }) 
   // const { collections } = usecollections(); // not used currently
 
   // local state for aggregated context
-  const [context, setcontext] = usestate<LLMContextPayload | null>(null);
+  const [context, setcontext] = useState<LLMContextPayload | null>(null);
 
   // ref to track last pushed context to avoid spamming the main process
-  const lastpushedref = useref<string | null>(null);
+  const lastpushedref = useRef<string | null>(null);
 
   // --- 1. identity context ---
   const getIdentityContext = (): IdentityContext => {
@@ -48,7 +48,7 @@ export function LLMContextProvider({ children }: { children: react.reactnode }) 
   };
 
   // --- 0. collection availability check ---
-  const [availablecollections, setavailablecollections] = usestate<string[]>([]);
+  const [availablecollections, setavailablecollections] = useState<string[]>([]);
 
   useEffect(() => {
   if (!isAuthenticated) return;
@@ -61,7 +61,7 @@ export function LLMContextProvider({ children }: { children: react.reactnode }) 
   }, [client, isauthenticated]);
 
   // --- 2. affective context ---
-  const [moodstate, setmoodstate] = usestate<AffectiveContext['currentMood']>(null);
+  const [moodstate, setmoodstate] = useState<AffectiveContext['currentMood']>(null);
 
   useEffect(() => {
   if (!isAuthenticated) return;
@@ -95,7 +95,7 @@ export function LLMContextProvider({ children }: { children: react.reactnode }) 
   }, [client, isauthenticated, availablecollections]);
 
   // --- 3. activity context ---
-  const [recentactivity, setrecentactivity] = usestate<ActivityContext['recentActions']>([]);
+  const [recentactivity, setrecentactivity] = useState<ActivityContext['recentActions']>([]);
 
   useEffect(() => {
   if (!isAuthenticated) return;
