@@ -1,9 +1,8 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { useFronter } from '@/contexts/fronter-context';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { walWrite, walCommit, walFail } from '@/lib/write-ahead-log';
+import { walwrite, walcommit, walfail } from '@/lib/write-ahead-log';
 import { registry } from '@/lib/link-registry';
 
 export function useRecords(collectionName: string, initialParams: any = {}) {
@@ -20,28 +19,21 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
     ...initialParams
   });
 
-  // update queryparams if initialparams change (deep check or just key check? usually simplistic is fine for now)
-  // actually, we shouldn't overwrite user interaction (pagination) if parent re-renders,
-  // unless we want parent to control it fully.
-  // let's rely on initialization for now.
-
   const fetchRecords = async () => {
     const response = await client.listRecords(collectionName, queryParams);
-    return response; // { data: [...], meta: ... }
+    return response;
   };
 
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['records', collectionName, queryParams],
     queryFn: fetchRecords,
     enabled: !!collectionName,
-    placeholderData: (previousData) => previousData, // Keep previous data while fetching new (better UX)
+    placeholderData: (previousData) => previousData,
   });
 
-  // handle both array response and { data: [...], meta: ... } response
   const records: any[] = Array.isArray(data) ? data : ((data as { data?: any[] })?.data || []);
   const meta = (data as { meta?: any })?.meta;
 
-  // refresh wrapper to support updating params
   const refresh = (newParams?: Record<string, unknown>) => {
     if (newParams) {
       setQueryParams((prev: Record<string, unknown>) => ({ ...prev, ...newParams }));
@@ -50,8 +42,6 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
     }
   };
 
-  // --- mutations ---
-
   // create
   const createMutation = useMutation({
     mutationFn: async (data: Record<string, unknown>) => {
@@ -59,14 +49,13 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
       if (activeFronterId) {
         payload.fronter = activeFronterId;
       }
-      // write-ahead log: journal the create before executing
-      const walId = await walWrite(collectionName, 'new', 'create', payload);
+      const walId = await walwrite(collectionName, 'new', 'create', payload);
       try {
         const result = await client.createRecord(collectionName, payload);
-        await walCommit(walId);
+        await walcommit(walId);
         return result;
       } catch (err) {
-        await walFail(walId);
+        await walfail(walId);
         throw err;
       }
     },
@@ -82,29 +71,23 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
       if (activeFronterId) {
         payload.lastEditedByFronter = activeFronterId;
       }
-      // write-ahead log: journal the update before executing
-      const walId = await walWrite(collectionName, String(id), 'update', payload);
+      const walId = await walwrite(collectionName, String(id), 'update', payload);
       try {
         const result = await client.updateRecord(collectionName, id, payload);
-        await walCommit(walId);
-        // scan content for link references and update the registry
+        await walcommit(walId);
         if (typeof payload.content === 'string') {
           registry.rescan(String(id), collectionName, payload.content);
         }
         return result;
       } catch (err) {
-        await walFail(walId);
+        await walfail(walId);
         throw err;
       }
     },
     onMutate: async ({ id, data }: { id: string | number; data: Record<string, unknown> }) => {
-      // cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: ['records', collectionName] });
-
-      // snapshot previous value
       const previousData = queryClient.getQueryData(['records', collectionName, queryParams]);
 
-      // optimistically update
       queryClient.setQueryData(['records', collectionName, queryParams], (old: { data?: Array<{ id: string | number } & Record<string, unknown>> } | undefined) => {
         if (!old || !old.data) return old;
         return {
@@ -118,7 +101,6 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
       return { previousData };
     },
     onError: (_err, _newRecord, context) => {
-      // rollback
       if (context?.previousData) {
         queryClient.setQueryData(['records', collectionName, queryParams], context.previousData);
       }
@@ -131,16 +113,14 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   // delete
   const deleteMutation = useMutation({
     mutationFn: async (id: string | number) => {
-      // write-ahead log: journal the delete before executing
-      const walId = await walWrite(collectionName, String(id), 'delete', null);
+      const walId = await walwrite(collectionName, String(id), 'delete', null);
       try {
         const result = await client.deleteRecord(collectionName, id);
-        await walCommit(walId);
-        // clean up any links pointing to this deleted record
+        await walcommit(walId);
         registry.purgeReferences(String(id));
         return result;
       } catch (err) {
-        await walFail(walId);
+        await walfail(walId);
         throw err;
       }
     },
@@ -192,7 +172,7 @@ export function useRecord(collectionName: string, recordId: string | number) {
   });
 
   return {
-    data: data?.data || data, // Handle structure variations
+    data: data?.data || data,
     loading: isLoading,
     error: error ? (error as Error).message : null,
     updateRecord: (data: Record<string, unknown>) => updateMutation.mutateAsync(data),
