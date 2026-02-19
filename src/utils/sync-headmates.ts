@@ -1,6 +1,7 @@
 import { api } from '@/api/nocobase-client';
 import { SimplyPluralClient } from '@/lib/simply-plural-client';
 import { toast } from 'sonner';
+import { secureLogger } from '@/lib/secure-logger';
 
 export interface SimplyPluralMember {
   id: string;
@@ -40,7 +41,7 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
   }
 
   const members: SimplyPluralMember[] = await membersRes.json();
-  console.log(`Found ${members.length} SimplyPlural members to sync`);
+  secureLogger.info(`Found ${members.length} SimplyPlural members to sync`);
 
   // 2. fetch existing nocobase headmates
   const existing = await api.listRecords('headmates', { pageSize: 500 });
@@ -52,7 +53,7 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
   }
   });
 
-  console.log(`Found ${existingMap.size} existing headmates in NocoBase`);
+  secureLogger.info(`Found ${existingMap.size} existing headmates in NocoBase`);
 
   // 3. sync each member
   let created = 0;
@@ -88,21 +89,22 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
  if (needsUpdate) {
  await api.updateRecord('headmates', existing.id, headmateData);
  updated++;
- console.log(`Updated headmate: ${headmateData.name}`);
+ secureLogger.info(`Updated headmate: ${headmateData.name}`);
  }
-  } else {
+ } else {
  // create new
  await api.createRecord('headmates', headmateData);
  created++;
- console.log(`Created headmate: ${headmateData.name}`);
-  }
+ secureLogger.info(`Created headmate: ${headmateData.name}`);
+ }
+
   }
 
-  console.log(`Sync complete: ${created} created, ${updated} updated`);
+  secureLogger.info(`Sync complete: ${created} created, ${updated} updated`);
   toast.success(`synced ${members.length} headmates (${created} new, ${updated} updated)`);
 
   } catch (error: any) {
-  console.error('Failed to sync headmates:', error);
+  secureLogger.error('Failed to sync headmates:', error);
   toast.error('failed to sync headmates: ' + error.message);
   throw error;
   }

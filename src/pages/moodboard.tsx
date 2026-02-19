@@ -26,7 +26,9 @@ interface BoardElement {
 }
 
 export function MoodboardPage() {
-  const [elements, setElements] = useState<BoardElement[]>([]);
+  const [elements, setElements] = useState<BoardElement[]>(() => {
+    try { const saved = localStorage.getItem('moodboard_data'); return saved ? JSON.parse(saved) : []; } catch (e) { console.error(e); return []; }
+  });
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const [isDraggingCanvas, setIsDraggingCanvas] = useState(false);
@@ -34,15 +36,7 @@ export function MoodboardPage() {
   const { collections } = useCollections();
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // load/save
-  useEffect(() => {
-    try {
-      const saved = localStorage.getItem('moodboard_data');
-      if (saved) {
-        setElements(JSON.parse(saved));
-      }
-    } catch (e) { console.error(e); }
-  }, []);
+
 
   const handleSave = () => {
     localStorage.setItem('moodboard_data', JSON.stringify(elements));

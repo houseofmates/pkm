@@ -37,6 +37,8 @@ interface WidgetDefinition {
     zindex: number;
 }
 
+const makeId = () => (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9);
+
 export function DashboardGrid({ layoutkey = 'dashboard_widgets_v2' }: { layoutkey?: string }) {
     // --- state ---
     const [widgets, setwidgets] = useappsetting<WidgetDefinition[]>(layoutkey, []);

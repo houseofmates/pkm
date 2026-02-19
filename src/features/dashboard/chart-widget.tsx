@@ -89,7 +89,6 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   const [hoverKey, setHoverKey] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [collapsed, setCollapsed] = useState(!!legendCollapsed);
-  const [isMounted, setIsMounted] = useState(false);
   const [isReady, setIsReady] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -102,7 +101,6 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   };
 
   useEffect(() => {
-    setIsMounted(true);
     if (!containerRef.current) return;
 
     const observer = new ResizeObserver((entries) => {
