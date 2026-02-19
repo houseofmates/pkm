@@ -40,14 +40,14 @@ function cosinesimilarity(a: number[], b: number[]): number {
     return dot / (Math.sqrt(norma) * Math.sqrt(normb) || 1)
 }
 
-export interface semanticsearchresult {
+export interface Semanticsearchresult {
     id: string
     score: number
     [k: string]: unknown
 }
 
 export function usesemanticsearch() {
-    const [results, setresults] = useState<semanticsearchresult[]>([])
+    const [results, setresults] = useState<Semanticsearchresult[]>([])
     const [loading, setloading] = useState(false)
     const [source, setsource] = useState<'backend' | 'local' | null>(null)
     const setsearchresults = usePkmStore((s: { setSearchResults: (r: any[]) => void }) => s.setSearchResults)

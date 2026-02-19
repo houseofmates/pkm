@@ -18,7 +18,7 @@ interface EditEventDetail {
   onSave?: (updated: any) => void;
 }
 
-export function quickeditsheet() {
+export function QuickEditSheet() {
   const [open, setopen] = usestate(false);
   const [data, setdata] = usestate<any>(null);
   const [collectionname, setcollectionname] = usestate('');

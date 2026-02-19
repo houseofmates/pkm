@@ -135,7 +135,7 @@ function kanbancolumn({ id, title, items, children }: { id: string, title: strin
 }
 
 
-export function kanbanview({ data, collection, config, onupdaterecord, ondelete, onconfigchange }: kanbanviewprops) {
+export function KanbanView({ data, collection, config, onupdaterecord, ondelete, onconfigchange }: kanbanviewprops) {
   if (!collection) {
   return (
   <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-muted/20 rounded-lg border">

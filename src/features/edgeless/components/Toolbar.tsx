@@ -80,7 +80,7 @@ const ToolBtn = ({ tool, icon: Icon, menuContent, specialModeIcon, store, active
   )
 }
 
-export function toolbar() {
+export function Toolbar() {
   const store = useedgelessstore()
   const [activemenu, setactivemenu] = usestate<string | null>(null)
   const toolbarref = useref<HTMLDivElement>(null)

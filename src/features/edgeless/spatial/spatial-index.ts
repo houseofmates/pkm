@@ -239,7 +239,7 @@ export function buildSpatialIndex(canvas: any): SpatialIndex {
 
     index.insert({
       id,
-      bounds: boundsFromFabricObject(obj),
+      bounds: BoundsFromFabricObject(obj),
       layerId: obj.data?.layerId || 'default',
       visible: obj.visible !== false,
       ref: obj,

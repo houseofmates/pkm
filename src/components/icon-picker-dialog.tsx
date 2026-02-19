@@ -34,7 +34,7 @@ const common_icons = [
   "bookmark", "tag", "link", "lock", "unlock", "eye", "eyeoff"
 ];
 
-export function iconpicker({ onselect, trigger, open, onopenchange }: iconpickerprops) {
+export function IconPicker({ onselect, trigger, open, onopenchange }: iconpickerprops) {
   const [, setactivetab] = usestate('icons');
   const fileinputref = useref<HTMLInputElement>(null);
 

@@ -334,7 +334,7 @@ export class NocoBaseClient {
   // try pkm backend upload first (for background images)
   try {
  const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4100';
- const res = await fetch(`${backendUrl}/api/upload-background`, {
+ const res = await fetch(`${backendUrl}/Api/upload-background`, {
   method: 'POST',
   body: formData,
  });
@@ -367,4 +367,4 @@ export class NocoBaseClient {
 }
 
 export const api = new NocoBaseClient();
-export default api;
+export default Api;

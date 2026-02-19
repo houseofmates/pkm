@@ -1,5 +1,5 @@
 
-export const CAPITALIZED_NAMES = new Set([
+export const cAPITALIZED_NAMES = new Set([
   'S',
   'Mike',
   'Walt',
@@ -36,7 +36,7 @@ export function formatHeadmateName(name: string): string {
 }
 
 export function getCapitalizationClass(name: string): string {
-  const formatted = formatHeadmateName(name);
+  const formatted = FormatHeadmateName(name);
   // if the formatted name starts with an letter (and is in our allowed list),
   // we return a class that forces normal case.
   const firstChar = formatted.charAt(0);

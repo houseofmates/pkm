@@ -17,7 +17,7 @@ interface ImageCropperProps {
   previewheight?: number;
 }
 
-export function imagecropper({
+export function ImageCropper({
   isopen,
   onclose,
   imagefile,

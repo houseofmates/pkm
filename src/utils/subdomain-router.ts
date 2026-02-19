@@ -46,7 +46,7 @@ export const isPublicDomain = () => {
   return true;
   }
 
-  const subdomain = getSubdomain();
+  const subdomain = GetSubdomain();
 
   // explicit exclusion: pkm is always the private app
   if (subdomain === 'pkm') {

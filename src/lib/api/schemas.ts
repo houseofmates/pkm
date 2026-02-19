@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const CollectionSchema = z.object({
+export const collectionSchema = z.object({
   name: z.string(),
   title: z.string().optional(),
   displayName: z.string().optional(),

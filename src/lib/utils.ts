@@ -60,7 +60,7 @@ export function sanitizeHTML(html: string) {
   }
   return doc.body.innerHTML || '';
   } catch (e) {
-  console.warn('sanitizeHTML failed', e);
+  console.warn('SanitizeHTML failed', e);
   return '';
   }
 }

@@ -34,7 +34,7 @@ interface DatabaseContextMenuProps {
   onUpdate: () => void;
 }
 
-export function databasecontextmenu({ collection, children, onupdate }: databasecontextmenuprops) {
+export function DatabaseContextMenu({ collection, children, onupdate }: databasecontextmenuprops) {
   const { client } = useauth();
   const [deleteopen, setdeleteopen] = usestate(false);
   const [editopen, seteditopen] = usestate(false);

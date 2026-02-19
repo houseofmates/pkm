@@ -97,7 +97,7 @@ interface serverstatusprops {
   motd?: string;
 }
 
-export function serverstatus({ isonline = true, playercount = 0, maxplayers = 100, motd }: serverstatusprops) {
+export function ServerStatus({ isonline = true, playercount = 0, maxplayers = 100, motd }: serverstatusprops) {
   const { previewmode } = usebuilder();
   const ismobile = previewmode === 'mobile';
 
@@ -169,7 +169,7 @@ const iconmap: record<string, any> = {
   paperclip: paperclip,
 };
 
-export function featurecard({ icon, title, description, color = 'var(--primary)' }: featurecardprops) {
+export function FeatureCard({ icon, title, description, color = 'var(--primary)' }: featurecardprops) {
   const iconcomponent = iconmap[icon] || zap;
 
   return (
@@ -229,13 +229,13 @@ export function LinkCard({ title, url, icon, description, color = 'var(--primary
   );
 }
 
-export interface statusindicatorprops {
+export interface Statusindicatorprops {
   label: string;
   status: 'online' | 'offline' | 'idle' | 'busy' | 'streaming';
   showlabel?: boolean;
 }
 
-export function statusindicator({ label, status, showlabel = true }: statusindicatorprops) {
+export function StatusIndicator({ label, status, showlabel = true }: Statusindicatorprops) {
   const colors = {
     online: '#22c55e',
     offline: '#64748b',
@@ -286,7 +286,7 @@ interface ruleslistprops {
   title?: string;
 }
 
-export function ruleslist({ rules, title = 'server rules' }: ruleslistprops) {
+export function RulesList({ rules, title = 'server rules' }: ruleslistprops) {
   return (
     <div className="p-[1.5em] rounded-2xl flex flex-col items-center text-center">
       <h3 className="text-[1.25em] font-bold text-[var(--primary)] mb-[1em] flex items-center justify-center gap-[0.5em]">
@@ -318,7 +318,7 @@ interface faqsectionprops {
   title?: string;
 }
 
-export function faqsection({ items, title = 'frequently asked questions' }: faqsectionprops) {
+export function FAQSection({ items, title = 'frequently asked questions' }: faqsectionprops) {
   const [openindex, setopenindex] = usestate<number | null>(null);
 
   return (
@@ -389,7 +389,7 @@ interface herosectionprops {
   javaip?: string;
 }
 
-export function herosection({ title, subtitle, ctatext, ctalink, backgroundimage, showserverip, javaip }: herosectionprops) {
+export function HeroSection({ title, subtitle, ctatext, ctalink, backgroundimage, showserverip, javaip }: herosectionprops) {
   return (
     <div
       className="relative min-h-[60vh] flex items-center justify-center p-8 rounded-2xl overflow-hidden"
@@ -523,7 +523,7 @@ interface aboutsectionprops {
   imageposition?: 'left' | 'right';
 }
 
-export function aboutsection({ title, content, image, imageposition = 'left' }: aboutsectionprops) {
+export function AboutSection({ title, content, image, imageposition = 'left' }: aboutsectionprops) {
   return (
     <div className={`flex flex-col md:flex-row gap-8 items-center ${imagePosition === 'right' ? 'md:flex-row-reverse' : ''}`}>
       {image && (
@@ -543,13 +543,13 @@ export function aboutsection({ title, content, image, imageposition = 'left' }: 
   );
 }
 
-// --- gallery ---
+// --- Gallery ---
 interface galleryprops {
   images: { src: string; alt?: string }[];
   columns?: number;
 }
 
-export function gallery({ images, columns = 3 }: galleryprops) {
+export function Gallery({ images, columns = 3 }: galleryprops) {
   const gridcols = {
     1: 'grid-cols-1',
     2: 'grid-cols-2',
@@ -565,7 +565,7 @@ export function gallery({ images, columns = 3 }: galleryprops) {
         <div key={idx} className="aspect-square w-full rounded-2xl overflow-hidden group cursor-pointer hover:bg-white/5 transition-colors">
           <img
             src={img.src}
-            alt={img.alt || `gallery-image-${idx}`}
+            alt={img.alt || `Gallery-image-${idx}`}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
         </div>
@@ -574,7 +574,7 @@ export function gallery({ images, columns = 3 }: galleryprops) {
   );
 }
 
-// --- testimonial ---
+// --- Testimonial ---
 interface testimonialprops {
   quote: string;
   author: string;
@@ -582,7 +582,7 @@ interface testimonialprops {
   avatar?: string;
 }
 
-export function testimonial({ quote, author, role, avatar }: testimonialprops) {
+export function Testimonial({ quote, author, role, avatar }: testimonialprops) {
   return (
     <div className="p-[1.5em] rounded-2xl bg-[var(--primary)]/10 text-center flex flex-col items-center justify-center h-full">
       <p className="text-white/80 text-[1.125em] italic mb-[1em]">"{quote}"</p>
@@ -599,13 +599,13 @@ export function testimonial({ quote, author, role, avatar }: testimonialprops) {
   );
 }
 
-// --- divider ---
+// --- Divider ---
 interface dividerprops {
   style?: 'line' | 'dots' | 'gradient';
   spacing?: 'sm' | 'md' | 'lg';
 }
 
-export function divider({ style = 'line', spacing = 'md' }: dividerprops) {
+export function Divider({ style = 'line', spacing = 'md' }: dividerprops) {
   const spacingclasses = { sm: 'my-4', md: 'my-8', lg: 'my-16' };
 
   if (style === 'dots') {
@@ -629,12 +629,12 @@ export function divider({ style = 'line', spacing = 'md' }: dividerprops) {
 
 // --- file embed elements ---
 
-interface codeelementprops {
+interface CodeElementProps {
   code: string;
   language?: string;
 }
 
-export function codeelement({ code, language = 'javascript' }: codeelementprops) {
+export function CodeElement({ code, language = 'javascript' }: CodeElementProps) {
   return (
     <div className="w-full h-full bg-[#1e1e1e] rounded-xl overflow-hidden flex flex-col border border-white/10">
       <div className="bg-white/5 px-4 py-2 flex items-center gap-2 border-b border-white/5">
@@ -652,12 +652,12 @@ export function codeelement({ code, language = 'javascript' }: codeelementprops)
   );
 }
 
-interface pdfelementprops {
+interface PDFElementProps {
   url: string;
   title?: string;
 }
 
-export function pdfelement({ url, title }: pdfelementprops) {
+export function PDFElement({ url, title }: PDFElementProps) {
   return (
     <div className="w-full h-full bg-white rounded-xl overflow-hidden border border-white/10 flex flex-col">
       {title && (
@@ -671,13 +671,13 @@ export function pdfelement({ url, title }: pdfelementprops) {
   );
 }
 
-interface fileelementprops {
+interface FileElementProps {
   url: string;
   filename: string;
   size?: string;
 }
 
-export function fileelement({ url, filename, size }: fileelementprops) {
+export function FileElement({ url, filename, size }: FileElementProps) {
   return (
     <a
       href={url}
@@ -703,7 +703,7 @@ export function fileelement({ url, filename, size }: fileelementprops) {
 }
 // --- minecraft live stats widget ---
 
-interface serverstatus {
+interface Serverstatus {
   online: boolean;
   count: number;
 }
@@ -715,7 +715,7 @@ interface chatmessage {
   timestamp: string;
 }
 
-export function minecraftstatswidget() {
+export function MinecraftStatsWidget() {
   const { previewmode } = usebuilder();
   const ismobile = previewmode === 'mobile';
   const [status, setstatus] = usestate<ServerStatus | null>(null);
@@ -1114,7 +1114,7 @@ export function TierListElement({ rows }: TierListProps) {
     { label: 'A', color: '#ffbf7f', items: ['Archer', 'Mage'] },
     { label: 'B', color: '#ffff7f', items: ['Swordsman'] },
   ];
-  const displayRows = rows && rows.length > 0 ? rows : defaultrows;
+  const displayRows = rows && rows.length > 0 ? rows : defaultRows;
 
   return (
     <div className="w-full h-full bg-black/40 rounded-xl overflow-hidden border border-white/10 flex flex-col backdrop-blur-md">
@@ -1140,7 +1140,7 @@ export function TierListElement({ rows }: TierListProps) {
 }
 
 // --- shopping card ---
-interface shoppingcardprops {
+interface ShoppingCardProps {
   title: string;
   price: string;
   image: string;
@@ -1148,7 +1148,7 @@ interface shoppingcardprops {
   buttontext?: string;
 }
 
-export function shoppingcardelement({ title, price, image, description, buttontext = 'buy now' }: shoppingcardprops) {
+export function ShoppingCardElement({ title, price, image, description, buttontext = 'buy now' }: ShoppingCardProps) {
   return (
     <div className="w-full h-full bg-black/40 rounded-2xl overflow-hidden border border-white/10 flex flex-col backdrop-blur-md group hover:border-[var(--primary)]/30 transition-all duration-500">
       <div className="relative aspect-video overflow-hidden">
@@ -1170,12 +1170,12 @@ export function shoppingcardelement({ title, price, image, description, buttonte
 }
 
 // --- floating reminder ---
-interface reminderprops {
+interface ReminderProps {
   content: string;
   color?: string;
 }
 
-export function floatingreminderelement({ content, color = '#fef08a' }: reminderprops) {
+export function FloatingReminderElement({ content, color = '#fef08a' }: ReminderProps) {
   return (
     <div
       className="w-full h-full p-6 relative rounded-xl shadow-2xl rotate-1 group hover:rotate-0 transition-transform duration-500"
@@ -1196,7 +1196,7 @@ export function floatingreminderelement({ content, color = '#fef08a' }: reminder
 }
 
 // --- stats bar ---
-interface statsbarprops {
+interface StatsBarProps {
   label: string;
   value: number;
   max?: number;
@@ -1204,7 +1204,7 @@ interface statsbarprops {
   showvalue?: boolean;
 }
 
-export function statsbarelement({ label, value, max = 100, color = 'var(--primary)', showvalue = true }: statsbarprops) {
+export function StatsBarElement({ label, value, max = 100, color = 'var(--primary)', showvalue = true }: StatsBarProps) {
   const percentage = math.min(100, math.max(0, (value / max) * 100));
 
   return (
@@ -1225,7 +1225,7 @@ export function statsbarelement({ label, value, max = 100, color = 'var(--primar
 
 // --- pkm visuals ---
 
-export function eternalflameelement() {
+export function EternalFlameElement() {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center relative group">
       <div className="absolute inset-0 bg-orange-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
@@ -1240,7 +1240,7 @@ export function eternalflameelement() {
   );
 }
 
-export function goldpileelement() {
+export function GoldPileElement() {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center group">
       <div className="relative">
@@ -1255,7 +1255,7 @@ export function goldpileelement() {
   );
 }
 
-export function sleepringelement() {
+export function SleepRingElement() {
   return (
     <div className="w-full h-full flex items-center justify-center">
       <div className="relative w-40 h-40">

@@ -43,7 +43,7 @@ export function useThemeReactor() {
 
   if (color) {
   // special case: if color is very dark (like black), use white instead
-  const hsl = hexToHsl(color);
+  const hsl = HexToHsl(color);
   if (hsl) {
  // parse lightness from "h s% l%" format
  const lightnessMatch = hsl.match(/(\d+)%$/);
@@ -64,7 +64,7 @@ export function useThemeReactor() {
  console.log('Dark color detected, using white instead');
  }
 
- const finalHsl = hexToHsl(finalColor);
+ const finalHsl = HexToHsl(finalColor);
  if (finalHsl) {
  // force injection on both documentelement and body for max coverage
  document.documentElement.style.setProperty('--primary', finalHsl);

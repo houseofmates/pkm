@@ -60,7 +60,7 @@ export function getColorStyles(str: string) {
   const l = 45 + (hash % 20);
 
   const base = `hsl(${h}, ${s}%, ${l}%)`;
-  const outline = getOutlineColorFromHsl(h, s, l);
+  const outline = GetOutlineColorFromHsl(h, s, l);
 
   return {
   color: base,

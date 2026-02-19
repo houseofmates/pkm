@@ -63,7 +63,7 @@ export const apiClient: AxiosInstance = axios.create({
 })
 
 // request interceptor with non-blocking token refresh
-apiClient.interceptors.request.use(async (config) => {
+ApiClient.interceptors.request.use(async (config) => {
   // refresh tokens if needed (async, non-blocking after first load)
   await refreshTokensFromDB()
 
@@ -90,7 +90,7 @@ apiClient.interceptors.request.use(async (config) => {
 })
 
 // response interceptor for 401 handling
-apiClient.interceptors.response.use(
+ApiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
@@ -171,7 +171,7 @@ export const apiRequest = async (
 ) => {
   const { method = 'get', data, ...rest } = options
   try {
-    const res = await apiClient({
+    const res = await ApiClient({
       url: `/${resource}:${action}`,
       method: method as any,
       data,
@@ -184,4 +184,4 @@ export const apiRequest = async (
   }
 }
 
-export default apiClient
+export default ApiClient

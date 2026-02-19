@@ -14,7 +14,7 @@ interface LayoutRendererProps {
     classname?: string;
 }
 
-export function layoutrenderer({
+export function LayoutRenderer({
     layout,
     data,
     onupdatewidget,

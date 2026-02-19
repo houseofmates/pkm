@@ -7,7 +7,7 @@ interface SmartTextElementProps {
   onChange?: (content: string) => void;
 }
 
-export function smarttextelement({ element }: smarttextelementprops) {
+export function SmartTextElement({ element }: smarttextelementprops) {
   const [content, setcontent] = usestate(element.data?.content || '');
 
   return (
