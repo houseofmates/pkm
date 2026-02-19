@@ -137,7 +137,7 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
         const result = await client.deleteRecord(collectionName, id);
         await walcommit(walid);
         // clean up any links pointing to this deleted record
-        registry.purgereferences(String(id));
+        registry.purgeReferences(String(id));
         return result;
       } catch (err) {
         await walfail(walid);
