@@ -105,7 +105,7 @@ export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardPr
       >
         {/* background image */}
         <div className="absolute inset-0 bg-muted/30">
-          {finalimagesrc ? (
+          {finalImageSrc ? (
             <img
               src={finalImageSrc}
               alt={member.name}
@@ -114,7 +114,7 @@ export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardPr
             />
           ) : (
             <div className="h-full w-full flex items-center justify-center text-6xl opacity-20 select-none bg-muted">
-              {member.name.charat(0)}
+              {member.name.charAt(0)}
             </div>
           )}
         </div>
@@ -133,7 +133,7 @@ export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardPr
               fontWeight: 900
             }}
           >
-            {displayname}
+            {displayName}
           </h3>
         </div>
       </Card>

@@ -54,14 +54,15 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
 
   useEffect(() => {
     if (birthday) {
-      const birthdate = new date(birthday);
-      const today = new date();
-      const calculatedage = today.getfullyear() - birthdate.getfullyear();
-      const m = today.getmonth() - birthdate.getmonth();
-      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
-        calculatedAge--;
+      const birthdate = new Date(birthday);
+      const today = new Date();
+      const calculatedAge = today.getFullYear() - birthdate.getFullYear();
+      const m = today.getMonth() - birthdate.getMonth();
+      let ageValue = calculatedAge;
+      if (m < 0 || (m === 0 && today.getDate() < birthdate.getDate())) {
+        ageValue--;
       }
-      setAge(calculatedAge);
+      setAge(ageValue);
     }
   }, [birthday]);
 
@@ -93,19 +94,19 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
   // handle save
   const handleSave = async () => {
     try {
-      await api.updaterecord('headmates', member.id, {
+      await api.updateRecord('headmates', member.id, {
         name,
-        color: favcolor,
+        color: favColor,
         description,
         pronouns,
-        banner: bannerurl,
+        banner: bannerUrl,
         birthday,
         role,
         status
       });
       await refresh();
       toast.success("profile updated");
-      setisediting(false);
+      setIsEditing(false);
     } catch (e) {
       console.error(e);
       toast.error("failed to update profile");
@@ -148,28 +149,28 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
             />
             <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/80" />
 
-            {isediting && (
+            {isEditing && (
               <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity p-4">
                 <input
                   ref={bannerInputRef}
                   type="file"
                   accept="image/*"
-                  onchange={handlebannerupload}
-                  classname="hidden"
+                  onChange={handleBannerUpload}
+                  className="hidden"
                 />
                 <button
-                  onclick={() => bannerinputref.current?.click()}
-                  classname="bg-white/20 hover:bg-white/30 border border-white/40 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                  onClick={() => bannerInputRef.current?.click()}
+                  className="bg-white/20 hover:bg-white/30 border border-white/40 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
                 >
-                  <upload size={18} />
+                  <Upload size={18} />
                   upload image
                 </button>
-                <div classname="text-white/60 text-xs">or</div>
+                <div className="text-white/60 text-xs">or</div>
                 <input
                   type="text"
-                  value={bannerurl}
-                  onchange={(e) => setbannerurl(e.target.value)}
-                  classname="bg-black/80 border border-white/30 p-2 rounded text-white text-sm w-3/4"
+                  value={bannerUrl}
+                  onChange={(e) => setBannerUrl(e.target.value)}
+                  className="bg-black/80 border border-white/30 p-2 rounded text-white text-sm w-3/4"
                   placeholder="enter url..."
                 />
               </div>
@@ -189,7 +190,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
             </div>
 
             <div className="flex-1 pb-4 mb-2">
-              {isediting ? (
+              {isEditing ? (
                 <input
                   value={name}
                   onChange={e => setName(e.target.value)}
@@ -200,7 +201,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
               )}
 
               <div className="flex flex-wrap gap-2 text-white/60 text-sm">
-                {isediting ? (
+                {isEditing ? (
                   <input
                     value={pronouns}
                     onChange={e => setPronouns(e.target.value)}
@@ -213,7 +214,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
 
                 <span className="bg-white/5 px-2 py-1 rounded-md flex items-center gap-1">
                   <div className="w-2 h-2 rounded-full" style={{ backgroundColor: favColor }} />
-                  {favcolor}
+                  {favColor}
                 </span>
               </div>
             </div>
@@ -226,7 +227,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
                   : 'bg-white/10 text-white hover:bg-white/20'
                   }`}
               >
-                {isediting ? <><Save size={16} /> save profile</> : 'edit profile'}
+                {isEditing ? <><Save size={16} /> save profile</> : 'edit profile'}
               </button>
             </div>
           </div>
@@ -241,7 +242,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
                   <div className="flex items-center gap-3 text-white/60">
                     <Calendar size={18} />
                     <span className="w-24">birthday</span>
-                    {isediting ? (
+                    {isEditing ? (
                       <input
                         type="date"
                         value={birthday}
@@ -255,7 +256,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
                   <div className="flex items-center gap-3 text-white/60">
                     <Droplet size={18} />
                     <span className="w-24">color</span>
-                    {isediting ? (
+                    {isEditing ? (
                       <div className="flex gap-2">
                         <input
                           type="color"
@@ -279,7 +280,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
 
               <div className="space-y-4">
                 <h2 className="text-lg font-semibold text-white/80 border-b border-white/10 pb-2">bio</h2>
-                {isediting ? (
+                {isEditing ? (
                   <div className="space-y-2">
                     <textarea
                       value={description}
@@ -312,7 +313,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="bg-white/5 rounded-lg p-3 border border-white/5 hover:border-white/10 transition-colors">
                   <div className="text-xs text-white/40 mb-1">status</div>
-                  {isediting ? (
+                  {isEditing ? (
                     <input
                       value={status}
                       onChange={e => setStatus(e.target.value)}
@@ -325,7 +326,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
                 </div>
                 <div className="bg-white/5 rounded-lg p-3 border border-white/5 hover:border-white/10 transition-colors">
                   <div className="text-xs text-white/40 mb-1">role</div>
-                  {isediting ? (
+                  {isEditing ? (
                     <input
                       value={role}
                       onChange={e => setRole(e.target.value)}
