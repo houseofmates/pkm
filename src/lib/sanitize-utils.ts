@@ -47,9 +47,9 @@ export function sanitizeObject(
     );
     
     if (isSensitive && typeof sanitized[key] === 'string') {
-      sanitized[key] = Redact(sanitized[key]);
+      sanitized[key] = redact(sanitized[key]);
     } else if (typeof sanitized[key] === 'object' && sanitized[key] !== null) {
-      sanitized[key] = SanitizeObject(sanitized[key], sensitiveFields);
+      sanitized[key] = sanitizeObject(sanitized[key], sensitiveFields);
     }
   }
   
@@ -60,7 +60,7 @@ export function sanitizeObject(
  * safe json stringify that redacts sensitive data
  */
 export function safeStringify(obj: any, space?: number): string {
-  const sanitized = SanitizeObject(obj);
+  const sanitized = sanitizeObject(obj);
   return JSON.stringify(sanitized, null, space);
 }
 
@@ -94,7 +94,7 @@ export function sanitizeHeaders(headers: Record<string, string>): Record<string,
   for (const [key, value] of Object.entries(headers)) {
     const lowerKey = key.toLowerCase();
     if (sensitive.some(s => lowerKey.includes(s))) {
-      sanitized[key] = Redact(value);
+      sanitized[key] = redact(value);
     } else {
       sanitized[key] = value;
     }
@@ -133,7 +133,7 @@ export const safeStorage = {
   
   setItem(key: string, value: string): void {
     // warn if trying to store sensitive data
-    if (LooksLikeSecret(value) && !key.toLowerCase().includes('token') && !key.toLowerCase().includes('key')) {
+    if (looksLikeSecret(value) && !key.toLowerCase().includes('token') && !key.toLowerCase().includes('key')) {
       console.warn(`[SECURITY] Potentially sensitive data being stored in localStorage key: ${key}`);
     }
     
