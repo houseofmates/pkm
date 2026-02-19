@@ -90,7 +90,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
 
   const cacheMemberColors = (members: any[]) => {
     // store member colors from simplyplural
-    const colorcache: record<string, string> = {};
+    const colorCache: Record<string, string> = {};
     members.forEach((m: any) => {
       if (m.content?.color) {
         colorCache[m.id] = m.content.color;
