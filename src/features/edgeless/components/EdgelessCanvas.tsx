@@ -650,12 +650,12 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     }
 
     const handleUp = () => {
-      if (!islassoing) return
-      islassoing = false
+      if (!isLassoing) return
+      isLassoing = false
 
-      if (activeline) {
-        fabriccanvas.remove(activeline)
-        activeline = null
+      if (activeLine) {
+        fabricCanvas.remove(activeLine)
+        activeLine = null
       }
 
       if (points.length < 5) return
@@ -818,11 +818,11 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         const dy = centerY - pointer.y
         const distSq = dx * dx + dy * dy
 
-        if (distSq > (r + math.max(bounds.width, bounds.height) / 2) ** 2) continue
+        if (distSq > (r + Math.max(bounds.width, bounds.height) / 2) ** 2) continue
 
         if (obj.type !== 'path') {
           // non-path objects: remove if center in range
-          if (distsq < rSq) {
+          if (distSq < rSq) {
             toRemove.push(obj)
             recordOp({
               type: 'delete',
