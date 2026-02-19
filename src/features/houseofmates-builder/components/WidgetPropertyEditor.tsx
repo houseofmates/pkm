@@ -13,13 +13,13 @@ interface Props {
   onClose: () => void;
 }
 
-export function widgetpropertyeditor({ element, onupdate, onclose }: props) {
-  const [content, setcontent] = usestate<any>(element.content || {});
-  const [styles, setstyles] = usestate<any>(element.styles || {});
-  const [showiconpicker, setshowiconpicker] = usestate(false);
-  const [cropperopen, setcropperopen] = usestate(false);
-  const [cropperfile, setcropperfile] = usestate<File | null>(null);
-  const [cropperfield, setcropperfield] = usestate<string>('');
+export function WidgetPropertyEditor({ element, onUpdate, onClose }: Props) {
+  const [content, setContent] = useState<any>(element.content || {});
+  const [styles, setStyles] = useState<any>(element.styles || {});
+  const [showIconPicker, setShowIconPicker] = useState(false);
+  const [cropperOpen, setCropperOpen] = useState(false);
+  const [cropperFile, setCropperFile] = useState<File | null>(null);
+  const [cropperField, setCropperField] = useState<string>('');
   const [cropperConfig, setCropperConfig] = useState({ aspectRatio: 1, shape: 'rect' as 'rect' | 'round', width: 200, height: 200 });
 
   useEffect(() => {
@@ -66,75 +66,75 @@ export function widgetpropertyeditor({ element, onupdate, onclose }: props) {
     input.type = 'file';
     input.accept = 'image/*';
     input.onchange = async (e) => {
-      const file = (e.target as htmlinputelement).files?.[0];
+      const file = (e.target as HTMLInputElement).files?.[0];
       if (!file) return;
 
-      setcropperfile(file);
-      setcropperfield(field);
-      setcropperconfig(config);
-      setcropperopen(true);
+      setCropperFile(file);
+      setCropperField(field);
+      setCropperConfig(config);
+      setCropperOpen(true);
     };
     input.click();
   };
 
-  const handlecropcomplete = async (croppedblob: blob) => {
-    const toastid = toast.loading('uploading image...');
+  const handleCropComplete = async (croppedBlob: Blob) => {
+    const toastId = toast.loading('uploading image...');
     try {
       // convert blob to file
-      const file = new file([croppedblob], cropperfile?.name || 'cropped.png', { type: 'image/png' });
+      const file = new File([croppedBlob], cropperFile?.name || 'cropped.png', { type: 'image/png' });
       const uploaded = await api.upload(file);
       const url = uploaded?.url || uploaded?.data?.url;
       if (url) {
-        updatefield(cropperfield, url);
-        toast.success('image uploaded', { id: toastid });
+        updateField(cropperField, url);
+        toast.success('image uploaded', { id: toastId });
       } else {
-        toast.error('upload failed - no url returned', { id: toastid });
+        toast.error('upload failed - no url returned', { id: toastId });
       }
     } catch (err) {
       console.error(err);
-      toast.error('upload failed', { id: toastid });
+      toast.error('upload failed', { id: toastId });
     }
   };
 
-  const renderfields = () => {
+  const renderFields = () => {
     switch (element.type) {
       case 'serverip':
         return (
           <>
-            <input label="java ip" value={content.javaip} onchange={(v: string) => updatefield('javaip', v)} />
-            <input label="java port" value={content.javaport} onchange={(v: string) => updatefield('javaport', v)} />
-            <input label="bedrock ip" value={content.bedrockip} onchange={(v: string) => updatefield('bedrockip', v)} />
-            <input label="bedrock port" value={content.bedrockport} onchange={(v: string) => updatefield('bedrockport', v)} />
-            <checkbox label="show bedrock" checked={content.showbedrock} onchange={(v: boolean) => updatefield('showbedrock', v)} />
+            <Input label="java ip" value={content.javaip} onChange={(v: string) => updateField('javaip', v)} />
+            <Input label="java port" value={content.javaport} onChange={(v: string) => updateField('javaport', v)} />
+            <Input label="bedrock ip" value={content.bedrockip} onChange={(v: string) => updateField('bedrockip', v)} />
+            <Input label="bedrock port" value={content.bedrockport} onChange={(v: string) => updateField('bedrockport', v)} />
+            <Checkbox label="show bedrock" checked={content.showbedrock} onChange={(v: boolean) => updateField('showbedrock', v)} />
           </>
         );
       case 'serverstatus':
         return (
           <>
-            <input label="motd" value={content.motd} onchange={(v: string) => updatefield('motd', v)} />
-            <input label="player count" type="number" value={content.playercount} onchange={(v: number) => updatefield('playercount', number(v))} />
-            <input label="max players" type="number" value={content.maxplayers} onchange={(v: number) => updatefield('maxplayers', number(v))} />
-            <checkbox label="is online (static)" checked={content.isonline} onchange={(v: boolean) => updatefield('isonline', v)} />
+            <Input label="motd" value={content.motd} onChange={(v: string) => updateField('motd', v)} />
+            <Input label="player count" type="number" value={content.playercount} onChange={(v: number) => updateField('playercount', Number(v))} />
+            <Input label="max players" type="number" value={content.maxplayers} onChange={(v: number) => updateField('maxplayers', Number(v))} />
+            <Checkbox label="is online (static)" checked={content.isonline} onChange={(v: boolean) => updateField('isonline', v)} />
           </>
         );
       case 'rules':
         return (
           <>
-            <input label="title" value={content.title} onchange={(v: string) => updatefield('title', v)} />
-            <div classname="space-y-2 mt-4">
-              <label classname="text-white/70 text-sm">rules list</label>
+            <Input label="title" value={content.title} onChange={(v: string) => updateField('title', v)} />
+            <div className="space-y-2 mt-4">
+              <label className="text-white/70 text-sm">rules list</label>
               {(content.rules || []).map((rule: string, idx: number) => (
-                <div key={idx} classname="flex gap-2">
+                <div key={idx} className="flex gap-2">
                   <input
-                    classname="flex-1 bg-black/50 border border-white/10 rounded px-2 py-1 text-white text-sm"
+                    className="flex-1 bg-black/50 border border-white/10 rounded px-2 py-1 text-white text-sm"
                     value={rule}
-                    onchange={(e: react.changeevent<htmlinputelement>) => handlearrayupdate('rules', idx, e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleArrayUpdate('rules', idx, e.target.value)}
                   />
-                  <button onclick={() => handlearrayremove('rules', idx)} classname="text-red-400 hover:text-red-300"><trash2 size={16} /></button>
+                  <button onClick={() => handleArrayRemove('rules', idx)} className="text-red-400 hover:text-red-300"><Trash2 size={16} /></button>
                 </div>
               ))}
-              <button onclick={() => handlearrayadd('rules', 'new rule')} classname="flex items-center gap-2 text-[var(--primary)] text-sm hover:underline">
-                <plus size={14} /> add rule
+              <button onClick={() => handleArrayAdd('rules', 'new rule')} className="flex items-center gap-2 text-[var(--primary)] text-sm hover:underline">
+                <Plus size={14} /> add rule
               </button>
             </div>
           </>
@@ -615,24 +615,24 @@ export function widgetpropertyeditor({ element, onupdate, onclose }: props) {
           </>
         );
       default:
-        return <div classname="text-white/50 italic">no specific editor for this widget type.</div>;
+        return <div className="text-white/50 italic">no specific editor for this widget type.</div>;
     }
   };
 
   return (
-    <div classname="fixed inset-0 bg-black/80 backdrop-blur-sm z-[50000] flex items-center justify-center p-4 widget-property-editor" onclick={onclose}>
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[50000] flex items-center justify-center p-4 widget-property-editor" onClick={onClose}>
       <div
-        classname="bg-[#1a1a1a] border border-white/10 rounded-2xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl"
-        onclick={e => e.stoppropagation()}
-        onmousedown={e => e.stoppropagation()}
+        className="bg-[#1a1a1a] border border-white/10 rounded-2xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl"
+        onClick={e => e.stopPropagation()}
+        onMouseDown={e => e.stopPropagation()}
       >
-        <div classname="flex justify-between items-center p-6 border-b border-white/10">
-          <h3 classname="text-xl font-bold text-[var(--primary)] lowercase">edit {element.type}</h3>
-          <button onclick={onclose} classname="text-white/40 hover:text-white"><x size={20} /></button>
+        <div className="flex justify-between items-center p-6 border-b border-white/10">
+          <h3 className="text-xl font-bold text-[var(--primary)] lowercase">edit {element.type}</h3>
+          <button onClick={onClose} className="text-white/40 hover:text-white"><X size={20} /></button>
         </div>
 
         <div classname="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-4">
-          {renderfields()}
+          {renderFields()}
           {/* common style fields */}
           <div className="p-4 bg-white/5 rounded-xl space-y-4 mb-4">
             <h4 className="text-[var(--primary)] text-xs font-black  mb-2 lowercase">background styles</h4>
@@ -711,14 +711,14 @@ export function widgetpropertyeditor({ element, onupdate, onclose }: props) {
               </div>
             </div>
           </div>
-          {cropperopen && (
+          {cropperOpen && (
             <ImageCropper
-              open={cropperOpen}
+              isOpen={cropperOpen}
               onClose={() => {
                 setCropperOpen(false);
                 setCropperFile(null);
               }}
-              imageFile={cropperFile}
+              imageFile={cropperFile!}
               onCropComplete={handleCropComplete}
               aspectRatio={cropperConfig.aspectRatio}
               shape={cropperConfig.shape}
