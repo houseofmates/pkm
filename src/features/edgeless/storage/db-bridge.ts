@@ -96,7 +96,7 @@ export function markOpsSynced(ids: string[]): Promise<void> {
   return callWorkerOrDirect<void>('Markopssynced', ids)
 }
 
-export function pruneoldops(drawingid: string, keepcount = 500): Promise<number> {
+export function pruneOldOps(drawingid: string, keepcount = 500): Promise<number> {
   return callWorkerOrDirect<number>('Pruneoldops', drawingid, keepcount)
 }
 
