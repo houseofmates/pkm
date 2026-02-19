@@ -22,16 +22,16 @@ export function LoginPage() {
       // save token directly - it will be validated on first actual api call
       login(trimmedToken);
       // small delay to let state propagate
-      await new Promise((resolve) => settimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
     } catch (err: any) {
       console.error('token validation failed:', err);
-      seterror('failed to save token. please try again.');
+      setError('failed to save token. please try again.');
     } finally {
-      setisvalidating(false);
+      setIsValidating(false);
     }
   };
 
-  const ispublic = ispublicdomain();
+  const isPublic = isPublicDomain();
 
   return (
     <div className="flex h-screen items-center justify-center bg-background p-4">
@@ -55,19 +55,19 @@ export function LoginPage() {
           <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md">{error}</div>
         )}
 
-        {inputtoken.startswith('ey') && (
+        {inputToken.startsWith('ey') && (
           <div className="text-xs text-muted-foreground break-all">
             {(() => {
               try {
-                const payload = json.parse(atob(inputtoken.split('.')[1] || '{}'));
+                const payload = JSON.parse(atob(inputToken.split('.')[1] || '{}'));
                 if (payload.exp) {
-                  const date = new date(payload.exp * 1000);
-                  const isexpired = date < new Date();
+                  const date = new Date(payload.exp * 1000);
+                  const isExpired = date < new Date();
                   return (
                     <div className={`mt-2 p-2 rounded ${isExpired ? 'bg-yellow-50 text-yellow-800' : 'bg-green-50 text-green-800'}`}>
                       <p><strong>token type:</strong> jwt</p>
-                      <p><strong>expires:</strong> {date.tolocalestring()}</p>
-                      {isexpired && <p className="font-bold text-red-600">⚠️ this token has expired!</p>}
+                      <p><strong>expires:</strong> {date.toLocaleString()}</p>
+                      {isExpired && <p className="font-bold text-red-600">⚠️ this token has expired!</p>}
                     </div>
                   );
                 }
@@ -89,7 +89,7 @@ export function LoginPage() {
           />
 
           <Button type="submit" className="w-full" disabled={isValidating || !inputToken}>
-            {isvalidating ? 'validating...' : 'login'}
+            {isValidating ? 'validating...' : 'login'}
           </Button>
         </form>
       </div>

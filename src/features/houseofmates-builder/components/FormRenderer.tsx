@@ -34,13 +34,13 @@ interface FormElementData {
 }
 
 // --- form renderer (user-facing) ---
-interface formrendererprops {
-    element: formelementdata;
-    isadmin?: boolean;
+interface FormRendererProps {
+    element: FormElementData;
+    isAdmin?: boolean;
 }
 
-export function formrenderer({ element, isadmin }: formrendererprops) {
-    const [formdata, setformdata] = usestate<Record<string, any>>({});
+export function FormRenderer({ element, isAdmin }: FormRendererProps) {
+    const [formData, setFormData] = useState<Record<string, any>>({});
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [rating, setRating] = useState(0);
@@ -90,7 +90,7 @@ export function formrenderer({ element, isadmin }: formrendererprops) {
     };
 
     const handleChange = (fieldId: string, value: any) => {
-        setFormData(prev => ({ ...prev, [fieldid]: value }));
+        setFormData(prev => ({ ...prev, [fieldId]: value }));
     };
 
 
@@ -218,7 +218,7 @@ export function formrenderer({ element, isadmin }: formrendererprops) {
                         ) : (
                             <>
                                 <Send size={20} />
-                                {content.submitbuttontext}
+                                {content.submitButtonText}
                             </>
                         )}
                     </button>
@@ -231,25 +231,25 @@ export function formrenderer({ element, isadmin }: formrendererprops) {
 }
 
 // --- form builder (admin) ---
-interface formbuilderprops {
-    onsave: (elementupdates: partial<FormElementData>) => void;
+interface FormBuilderProps {
+    onSave: (elementUpdates: Partial<FormElementData>) => void;
     onCancel: () => void;
-    initialdata?: partial<FormElementData>;
+    initialData?: Partial<FormElementData>;
 }
 
 let __formId = 0;
 const makeFormId = () => `field_${++__formId}`;
 
-export function FormBuilder({ onsave, oncancel, initialdata }: formbuilderprops) {
-    const defaultfields: formfield[] = [
+export function FormBuilder({ onSave, onCancel, initialData }: FormBuilderProps) {
+    const defaultFields: FormField[] = [
         { id: 'minecraft_username', type: 'text', label: 'minecraft username', placeholder: 'your ign...', required: true },
         { id: 'rating', type: 'rating', label: 'how would you rate us?', required: true },
         { id: 'feedback', type: 'textarea', label: 'your feedback', placeholder: 'tell us what you think...', required: false },
     ];
 
-    const data = initialdata?.content || initialdata; // handle nested vs flattened
-    const [formname, setformname] = useState(data?.formname || 'feedback form');
-    const [fields, setfields] = useState<FormField[]>(data?.fields || defaultFields);
+    const data = initialData?.content || initialData; // handle nested vs flattened
+    const [formName, setFormName] = useState(data?.formName || 'feedback form');
+    const [fields, setFields] = useState<FormField[]>(data?.fields || defaultFields);
     const [submitButtonText, setSubmitButtonText] = useState(data?.submitButtonText || 'submit');
     const [successMessage, setSuccessMessage] = useState(data?.successMessage || 'thank you for your feedback!');
 
@@ -277,12 +277,12 @@ export function FormBuilder({ onsave, oncancel, initialdata }: formbuilderprops)
 
     const handleSave = () => {
         // we save to 'content' property to match elementdata structure
-        onsave({
+        onSave({
             content: {
-                formname,
+                formName,
                 fields,
-                submitbuttontext,
-                successmessage,
+                submitButtonText,
+                successMessage,
             }
         });
     };
@@ -385,7 +385,7 @@ export function FormBuilder({ onsave, oncancel, initialdata }: formbuilderprops)
                                                                 }}
                                                             >↑</button>
                                                         )}
-                                                        {optidx < (field.options?.length || 0) - 1 && (
+                                                        {optIdx < (field.options?.length || 0) - 1 && (
                                                             <button
                                                                 type="button"
                                                                 className="text-white/40 hover:text-white/70 text-xs"
