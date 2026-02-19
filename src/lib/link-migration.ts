@@ -4,9 +4,9 @@
 import { registry } from './link-registry'
 import { api } from '@/api/nocobase-client'
 
-const migration_key = 'pkm_link_registry_migrated'
+const MIGRATION_KEY = 'pkm_link_registry_migrated'
 
-export async function backfilllinkregistry(): Promise<{ documents: number, links: number }> {
+export async function backfillLinkRegistry(): Promise<{ documents: number, links: number }> {
     const systemCollections = new Set([
         'users', 'roles', 'attachments', 'collection_fields', 'collections',
         'ui_schemas', 'application_installations', 'cas_providers',
@@ -52,7 +52,7 @@ export async function backfilllinkregistry(): Promise<{ documents: number, links
         }
 
         // 3. mark as migrated
-        localStorage.setItem(migration_key, 'true')
+        localStorage.setItem(MIGRATION_KEY, 'true')
         registry.persist() // ensure it's saved to storage immediately
 
         return { documents: totalDocs, links: totalLinks }
@@ -62,6 +62,6 @@ export async function backfilllinkregistry(): Promise<{ documents: number, links
     }
 }
 
-export function islinkregistrymigrated(): boolean {
-    return localStorage.getItem(migration_key) === 'true'
+export function isLinkRegistryMigrated(): boolean {
+    return localStorage.getItem(MIGRATION_KEY) === 'true'
 }
