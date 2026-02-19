@@ -1407,10 +1407,10 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
 
       {/* page boundary indicator */}
       {(() => {
-        if (canvasconfig.mode === 'edgeless') return null
+        if (canvasConfig.mode === 'edgeless') return null
 
-        const width = canvasconfig.mode === 'desktop-8k' ? 7680 : 4320
-        const height = canvasconfig.mode === 'desktop-8k' ? 4320 : 9360
+        const width = canvasConfig.mode === 'desktop-8k' ? 7680 : 4320
+        const height = canvasConfig.mode === 'desktop-8k' ? 4320 : 9360
 
         const zoom = viewPort.zoom
         const panX = viewPort.x
@@ -1428,7 +1428,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
             }}
           >
             <div className="absolute -top-6 left-0 text-xs text-muted-foreground font-mono lowercase">
-              {canvasconfig.mode === 'desktop-8k' ? '8k desktop (7680x4320)' : '8k iphone (4320x9360)'}
+              {canvasConfig.mode === 'desktop-8k' ? '8k desktop (7680x4320)' : '8k iphone (4320x9360)'}
             </div>
           </div>
         )
