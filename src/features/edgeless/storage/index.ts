@@ -17,6 +17,7 @@ export {
   getToken,
   setToken,
   clearToken,
+  clearMemoryTokens,
 } from './db-bridge'
 
 
