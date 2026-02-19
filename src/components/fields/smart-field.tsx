@@ -132,7 +132,7 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
 // --- relation picker component ---
 function relationpicker({ field, value, onchange, oncancel }: any) {
   const { client } = useauth();
-  const [options, setoptions] = useState<any[]>([]);
+  const [options, setoptions] = usestate<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -222,11 +222,11 @@ export interface SmartFieldProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-export function SmartField({ value, field, record, collectionname, mode: _mode = 'view', onchange, classname, inputclassname, size = 'lg' }: smartfieldprops) {
-  const [isediting, setisediting] = useState(false);
-  const [localvalue, setlocalvalue] = useState(value);
-  const [fullscreenindex, setfullscreenindex] = useState<number | null>(null);
-  const [galleryimgs, setgalleryimgs] = useState<string[]>([]);
+export function smartfield({ value, field, record, collectionname, mode: _mode = 'view', onchange, classname, inputclassname, size = 'lg' }: smartfieldprops) {
+  const [isediting, setisediting] = usestate(false);
+  const [localvalue, setlocalvalue] = usestate(value);
+  const [fullscreenindex, setfullscreenindex] = usestate<number | null>(null);
+  const [galleryimgs, setgalleryimgs] = usestate<string[]>([]);
 
   // formula editor state
   const [showFormulaEditor, setShowFormulaEditor] = useState(false);

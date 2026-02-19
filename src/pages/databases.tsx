@@ -77,15 +77,15 @@ function sortabledatabaseitem({ collection, onselect, onrefresh }: sortabledatab
   );
 }
 
-export function Databasespage({ onselect }: databasespageprops) {
+export function databasespage({ onselect }: databasespageprops) {
   const { isauthenticated, login, token } = useauth();
   const { collections, loading, error, refresh } = usecollections();
-  const [validating, setvalidating] = useState(false);
-  const [apikey, setapikey] = useState('');
+  const [validating, setvalidating] = usestate(false);
+  const [apikey, setapikey] = usestate('');
   const navigate = usenavigate();
   const location = uselocation();
 
-  console.log('Databasespage:', {
+  console.log('databasespage:', {
   isauthenticated,
   hastoken: !!token,
   token: token?.substring(0, 20) + '...',
@@ -193,11 +193,11 @@ export function Databasespage({ onselect }: databasespageprops) {
   await new Promise(resolve => settimeout(resolve, 100));
   await refresh();
   } catch (error: any) {
-  console.error('[Databasespage] login failed:', error);
+  console.error('[databasespage] login failed:', error);
   toast.error('failed to save token. please try again.');
   } finally {
   setvalidating(false);
-  console.log('[Databasespage] validation complete');
+  console.log('[databasespage] validation complete');
   }
   };
 

@@ -61,15 +61,15 @@ const field_types = [
   { label: 'formula', type: 'formula', interface: 'formula' },
 ] as const;
 
-export function CollectionDialog({ collection, onsuccess, trigger, open: controlledopen, onopenchange: setcontrolledopen, initialtitle }: collectiondialogprops) {
+export function collectiondialog({ collection, onsuccess, trigger, open: controlledopen, onopenchange: setcontrolledopen, initialtitle }: collectiondialogprops) {
   const { client } = useauth();
   const navigate = usenavigate();
-  const [internalopen, setinternalopen] = useState(false);
+  const [internalopen, setinternalopen] = usestate(false);
   const open = controlledopen !== undefined ? controlledopen : internalopen;
   const setopen = controlledopen !== undefined ? setcontrolledopen : setinternalopen;
 
   const isedit = !!collection;
-  const [step, setstep] = useState<'type-select' | 'template-select' | 'database-form' | 'document-select'>('type-select');
+  const [step, setstep] = usestate<'type-select' | 'template-select' | 'database-form' | 'document-select'>('type-select');
 
   useEffect(() => {
   if (!open) {
@@ -108,17 +108,17 @@ export function CollectionDialog({ collection, onsuccess, trigger, open: control
   setstep('database-form');
   };
 
-  const [loading, setloading] = useState(false);
-  const [displayname, setdisplayname] = useState('');
-  const [name, setname] = useState('');
-  const [imageurl, setimageurl] = useState('');
-  const [color, setcolor] = useState('#666666');
+  const [loading, setloading] = usestate(false);
+  const [displayname, setdisplayname] = usestate('');
+  const [name, setname] = usestate('');
+  const [imageurl, setimageurl] = usestate('');
+  const [color, setcolor] = usestate('#666666');
 
-  const titleinputref = useRef<HTMLInputElement>(null);
-  const fileinputref = useRef<HTMLInputElement>(null);
+  const titleinputref = useref<HTMLInputElement>(null);
+  const fileinputref = useref<HTMLInputElement>(null);
 
   const [metadata, setmetadata] = useappsetting<Record<string, CollectionMetadata>>('collection_metadata', {});
-  const [collectionslist, setcollectionslist] = useState<Collection[]>([]);
+  const [collectionslist, setcollectionslist] = usestate<Collection[]>([]);
 
 
 
@@ -170,8 +170,8 @@ export function CollectionDialog({ collection, onsuccess, trigger, open: control
   }
   }, [open, isedit, collection, metadata, client]);
 
-  const [csvdata, setcsvdata] = useState<any[]>([]);
-  const [csvfields, setcsvfields] = useState<{
+  const [csvdata, setcsvdata] = usestate<any[]>([]);
+  const [csvfields, setcsvfields] = usestate<{
   name: string;
   title: string;
   interface: string;
@@ -181,7 +181,7 @@ export function CollectionDialog({ collection, onsuccess, trigger, open: control
   detectionReason?: string;
   detectionConfidence?: 'high' | 'medium' | 'low';
   }[]>([]);
-  const csvinputref = useRef<HTMLInputElement>(null);
+  const csvinputref = useref<HTMLInputElement>(null);
 
   const handlecsvchange = (e: react.changeevent<HTMLInputElement>) => {
   const file = e.target.files?.[0];

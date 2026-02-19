@@ -18,16 +18,16 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
   const { page, updateElement, site_identifier, collectionNames } = useBuilder();
   const element = page?.elements.find(el => el.id === elementid);
 
-  const [linktype, setlinktype] = useState<'none' | 'external' | 'internal'>(
+  const [linktype, setlinktype] = usestate<'none' | 'external' | 'internal'>(
   element?.link ? (element.link.startswith('/') ? 'internal' : 'external') : 'none'
   );
-  const [externalurl, setexternalurl] = useState(
+  const [externalurl, setexternalurl] = usestate(
   element?.link && !element.link.startswith('/') ? element.link : ''
   );
-  const [internalpage, setinternalpage] = useState(
+  const [internalpage, setinternalpage] = usestate(
   element?.link?.startswith('/') ? element.link.slice(1) : ''
   );
-  const [pages, setpages] = useState<PageOption[]>([]);
+  const [pages, setpages] = usestate<PageOption[]>([]);
   const [loadingPages, setLoadingPages] = useState(false);
 
   // fetch available pages for the internal link dropdown

@@ -13,14 +13,14 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
   const { page, updateElement } = useBuilder();
   const element = page?.elements.find(el => el.id === elementid);
 
-  const [fields, setfields] = useState<any[]>([]);
+  const [fields, setfields] = usestate<any[]>([]);
 
   // visible fields
-  const [visiblefields, setvisiblefields] = useState<string[]>(element?.content?.visiblefields || []);
+  const [visiblefields, setvisiblefields] = usestate<string[]>(element?.content?.visiblefields || []);
 
   // sort state
-  const [sortfield, setsortfield] = useState(element?.content?.sort?.[0]?.replace('-', '') || '');
-  const [sortorder, setsortorder] = useState<'asc' | 'desc'>(
+  const [sortfield, setsortfield] = usestate(element?.content?.sort?.[0]?.replace('-', '') || '');
+  const [sortorder, setsortorder] = usestate<'asc' | 'desc'>(
   element?.content?.sort?.[0]?.startsWith('-') ? 'desc' : 'asc'
   );
 

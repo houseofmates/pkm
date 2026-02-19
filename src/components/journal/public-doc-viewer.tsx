@@ -8,8 +8,8 @@ interface PublicDocViewerProps {
 
 export function PublicDocViewer({ slug }: PublicDocViewerProps) {
   const [document, setDocument] = useState<any>(null);
-  const [loading, setloading] = useState(true);
-  const [error, seterror] = useState<string | null>(null);
+  const [loading, setloading] = usestate(true);
+  const [error, seterror] = usestate<string | null>(null);
 
   // fetch public document
   useEffect(() => {

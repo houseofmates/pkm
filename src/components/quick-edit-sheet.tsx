@@ -18,11 +18,11 @@ interface EditEventDetail {
   onSave?: (updated: any) => void;
 }
 
-export function QuickEditSheet() {
-  const [open, setopen] = useState(false);
-  const [data, setdata] = useState<any>(null);
-  const [collectionname, setcollectionname] = useState('');
-  const [callback, setcallback] = useState<((u: any) => void) | null>(null);
+export function quickeditsheet() {
+  const [open, setopen] = usestate(false);
+  const [data, setdata] = usestate<any>(null);
+  const [collectionname, setcollectionname] = usestate('');
+  const [callback, setcallback] = usestate<((u: any) => void) | null>(null);
 
   useEffect(() => {
   const handleedit = (e: customevent<EditEventDetail>) => {

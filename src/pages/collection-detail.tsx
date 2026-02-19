@@ -39,12 +39,12 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     const location = useLocation();
     const collectionName = propCollectionName ?? (params.name as string);
     const onBack = propOnBack ?? (() => navigate(-1));
-    const [collection, setcollection] = useState<any>(null);
-    const [records, setrecords] = useState<any[]>([]);
-    const [loading, setloading] = useState(true);
-    const [fetcherror, setfetcherror] = useState<string | null>(null);
-    const [apikey, setapikey] = useState('');
-    const [fielddialogopen, setfielddialogopen] = useState(false);
+    const [collection, setcollection] = usestate<any>(null);
+    const [records, setrecords] = usestate<any[]>([]);
+    const [loading, setloading] = usestate(true);
+    const [fetcherror, setfetcherror] = usestate<string | null>(null);
+    const [apikey, setapikey] = usestate('');
+    const [fielddialogopen, setfielddialogopen] = usestate(false);
     const { activefronters } = usefronter();
 
     // metadata for cosmetics and defaults
@@ -52,10 +52,10 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     // get collection color for header using metadata (source of truth)
     const collectioncolor = metadata[collectionname]?.color;
     const defaultview = metadata[collectionname]?.default_view as viewtype | undefined;
-    const [defaultpickeropen, setdefaultpickeropen] = useState(false);
+    const [defaultpickeropen, setdefaultpickeropen] = usestate(false);
 
-    const [currentview, setcurrentview] = useState<ViewType>('table');
-    const [viewconfig, setviewconfig] = useState<Record<string, any>>({});
+    const [currentview, setcurrentview] = usestate<ViewType>('table');
+    const [viewconfig, setviewconfig] = usestate<Record<string, any>>({});
 
     // sync currentview with url, state, or defaultview
     useEffect(() => {
@@ -335,7 +335,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     }, [client, collectionname, fetchdata]);
 
     // undo stack
-    const [deletedstack, setdeletedstack] = useState<any[]>([]);
+    const [deletedstack, setdeletedstack] = usestate<any[]>([]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {

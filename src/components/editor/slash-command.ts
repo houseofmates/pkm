@@ -230,7 +230,7 @@ export const renderItems = () => {
  return;
   }
 
-  // @ts-expect-error -- tippy popper types incompatible with ReactRenderer return type
+  // @ts-expect-error -- tippy popper types incompatible with reactrenderer return type
   popup = tippy('body', {
  getReferenceClientRect: props.clientRect,
  appendTo: () => document.body,

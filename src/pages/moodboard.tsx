@@ -27,14 +27,14 @@ interface BoardElement {
 
 export function MoodboardPage() {
   const [elements, setElements] = useState<BoardElement[]>(() => {
-    try { const saved = localStorage.getItem('moodboard_data'); return saved ? JSON.parse(saved) : []; } catch (e) { console.error(e); return []; }
+    try { const saved = localstorage.getitem('moodboard_data'); return saved ? json.parse(saved) : []; } catch (e) { console.error(e); return []; }
   });
-  const [scale, setScale] = useState(1);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [isDraggingCanvas, setIsDraggingCanvas] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  const { collections } = useCollections();
-  const containerRef = useRef<HTMLDivElement>(null);
+  const [scale, setscale] = usestate(1);
+  const [offset, setoffset] = usestate({ x: 0, y: 0 });
+  const [isdraggingcanvas, setisdraggingcanvas] = usestate(false);
+  const [dragstart, setdragstart] = usestate({ x: 0, y: 0 });
+  const { collections } = usecollections();
+  const containerref = useref<HTMLDivElement>(null);
 
 
 
@@ -71,10 +71,10 @@ export function MoodboardPage() {
 
     if (type === 'text') newEl.content = 'New Text';
 
-    setElements(prev => [...prev, newEl]);
+    setElements(prev => [...prev, newel]);
   };
 
-  const updateElement = (id: string, updates: Partial<BoardElement>) => {
+  const updateelement = (id: string, updates: partial<BoardElement>) => {
     setElements(prev => prev.map(el => el.id === id ? { ...el, ...updates } : el));
   };
 
@@ -87,8 +87,8 @@ export function MoodboardPage() {
   };
 
   // --- interaction logic ---
-  const [dragState, setDragState] = useState<{ id: string, mode: 'move' | 'resize', startX: number, startY: number, initial: any } | null>(null);
-  const [editingId, setEditingId] = useState<string | null>(null);
+  const [dragstate, setdragstate] = usestate<{ id: string, mode: 'move' | 'resize', startX: number, startY: number, initial: any } | null>(null);
+  const [editingid, seteditingid] = usestate<string | null>(null);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (dragState) {
@@ -122,8 +122,8 @@ export function MoodboardPage() {
   };
 
   const handleMouseUp = () => {
-    setDragState(null);
-    setIsDraggingCanvas(false);
+    setdragstate(null);
+    setisdraggingcanvas(false);
   };
 
   return (

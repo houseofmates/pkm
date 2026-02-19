@@ -4,24 +4,24 @@ import './index.css';
 import App from './App';
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null }> {
-  constructor(props: { children: React.ReactNode }) {
+  constructor(props: { children: react.reactnode }) {
     super(props);
-    this.state = { hasError: false, error: null };
+    this.state = { haserror: false, error: null };
   }
 
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
+  static getderivedstatefromerror(error: error) {
+    return { haserror: true, error };
   }
 
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("uncaught error:", error, errorInfo);
+  componentdidcatch(error: error, errorinfo: react.errorinfo) {
+    console.error("uncaught error:", error, errorinfo);
   }
 
   render() {
-    if (this.state.hasError) {
+    if (this.state.haserror) {
       return (
         <div style={{ padding: '2rem', color: 'red', fontFamily: 'monospace', zIndex: 9999, position: 'relative' }}>
-          <h1>Something went wrong.</h1>
+          <h1>something went wrong.</h1>
           <pre>{this.state.error?.toString()}</pre>
           <pre>{this.state.error?.stack}</pre>
         </div>
@@ -38,10 +38,10 @@ if ("serviceWorker" in navigator) {
   });
 }
 
-const container = document.getElementById('root');
+const container = document.getelementbyid('root');
 if (container) {
   try {
-    const root = createRoot(container);
+    const root = createroot(container);
     root.render(
       <ErrorBoundary>
         <App />
@@ -49,6 +49,6 @@ if (container) {
     );
   } catch (e) {
     console.error("root render failed:", e);
-    document.body.innerHTML = "<h1>root render failed</h1>";
+    document.body.innerhtml = "<h1>root render failed</h1>";
   }
 }

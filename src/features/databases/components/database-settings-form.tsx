@@ -31,7 +31,7 @@ interface DatabaseSettingsFormProps {
   ispage?: boolean;
 }
 
-export function DatabaseSettingsForm({
+export function databasesettingsform({
   collectionname,
   title,
   viewconfig = {},
@@ -75,8 +75,8 @@ export function DatabaseSettingsForm({
   }
   };
 
-  const fileinputref = useRef<HTMLInputElement>(null);
-  const coverinputref = useRef<HTMLInputElement>(null);
+  const fileinputref = useref<HTMLInputElement>(null);
+  const coverinputref = useref<HTMLInputElement>(null);
 
   return (
   <div className="space-y-4">

@@ -19,7 +19,7 @@ export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onA
     const renderTable = (w: any) => {
         const rows = findRowsForSource(w.source);
         // basic heuristic for columns if properties not defined
-        const cols = w.properties?.map((p: any) => p.name) || (rows.length > 0 ? Object.keys(rows[0]) : ['id', 'title']);
+        const cols = w.properties?.map((p: any) => p.name) || (rows.length > 0 ? object.keys(rows[0]) : ['id', 'title']);
 
         return (
             <div className="space-y-2">
@@ -59,7 +59,7 @@ export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onA
 
     const renderKanban = (w: any) => {
         const lanes = w.lanes || ['todo', 'doing', 'done'];
-        const statusField = w.statusField || w.statusfield || 'status';
+        const statusfield = w.statusfield || w.statusfield || 'status';
         const rows = findrowsforsource(w.source);
 
         return (
@@ -76,7 +76,7 @@ export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onA
                             </div>
                             <div className="space-y-3">
                                 {rows.filter((r: any) => r[statusField] === lane).map((r: any, i: number) => {
-                                    const rowIndex = rows.indexOf(r);
+                                    const rowindex = rows.indexof(r);
                                     return (
                                         <div key={i} className="group p-3 bg-background border border-border/50 rounded-lg shadow-sm hover:border-primary/30 transition-all cursor-pointer">
                                             <input
@@ -114,10 +114,10 @@ export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onA
         const xKey = w.chart?.x || 'timestamp';
         const yKey = w.chart?.y || 'value';
         const chartData = rows.map((r: any) => ({
-            name: r[xKey],
-            value: Number(r[yKey] || 0),
-            x: r[xKey],
-            y: Number(r[yKey] || 0)
+            name: r[xkey],
+            value: number(r[ykey] || 0),
+            x: r[xkey],
+            y: number(r[ykey] || 0)
         }));
         const color = w.chart?.color || '#f6b012';
 
@@ -177,7 +177,7 @@ export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onA
         const latField = w.latField || 'lat';
         const lngField = w.lngField || 'lng';
         const markers = rows.filter((r: any) => r[latField] && r[lngField]);
-        const center: [number, number] = markers.length > 0 ? [Number(markers[0][latField]), Number(markers[0][lngField])] : [51.505, -0.09];
+        const center: [number, number] = markers.length > 0 ? [number(markers[0][latfield]), number(markers[0][lngfield])] : [51.505, -0.09];
 
         return (
             <div className="space-y-2">
@@ -277,7 +277,7 @@ export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onA
         </div>
     );
 
-    switch ((widget.view_type || '').toLowerCase()) {
+    switch ((widget.view_type || '').tolowercase()) {
         case 'table': return rendertable(widget);
         case 'kanban': return renderkanban(widget);
         case 'chart': return renderchart(widget);

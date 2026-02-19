@@ -13,7 +13,7 @@ interface Props {
   onClose: () => void;
 }
 
-export function WidgetPropertyEditor({ element, onupdate, onclose }: props) {
+export function widgetpropertyeditor({ element, onupdate, onclose }: props) {
   const [content, setcontent] = usestate<any>(element.content || {});
   const [styles, setstyles] = usestate<any>(element.styles || {});
   const [showiconpicker, setshowiconpicker] = usestate(false);
@@ -156,8 +156,8 @@ export function WidgetPropertyEditor({ element, onupdate, onclose }: props) {
                     {(() => {
                       const iconname = content.icon || 'shield';
                       const formattedname = iconname.charat(0).touppercase() + iconname.slice(1);
-                      // @ts-expect-error -- dynamic LucideIcons lookup
-                      const Icon = (LucideIcons as any)[formattedName] || LucideIcons.shield;
+                      // @ts-expect-error -- dynamic lucideicons lookup
+                      const icon = (lucideicons as any)[formattedname] || lucideicons.shield;
                       return <icon size={18} />;
                     })()}
                   </div>

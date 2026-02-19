@@ -20,8 +20,8 @@ interface BlogPostCardProps {
   onClick: () => void;
 }
 
-export function BlogPostCard({ post, onclick }: blogpostcardprops) {
-  const [imageerror, setimageerror] = useState(false);
+export function blogpostcard({ post, onclick }: blogpostcardprops) {
+  const [imageerror, setimageerror] = usestate(false);
 
   return (
   <div
@@ -75,7 +75,7 @@ export function BlogPostCard({ post, onclick }: blogpostcardprops) {
    month: 'short',
    day: 'numeric',
    year: 'numeric'
-   }).toLowerCase()}
+   }).tolowercase()}
  </span>
  )}
 

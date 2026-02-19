@@ -24,7 +24,7 @@ export function maskString(str: string, visibleFirst = 4, visibleLast = 4): stri
 }
 
 /**
- * completely Redact a sensitive value
+ * completely redact a sensitive value
  */
 export function redact(value: string | null | undefined): string {
   if (!value) return '[EMPTY]';

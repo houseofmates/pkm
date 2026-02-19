@@ -13,7 +13,7 @@ interface CanvasCardProps {
   layout: any; // Position/Size data
   fields: any[]; // Schema definition
   isSelected?: boolean;
-  onUpdate?: (id: string | number, data: any) => Promise<void> | void;
+  onUpdate?: (id: string | number, data: any) => promise<void> | void;
   style?: React.CSSProperties;
   className?: string;
 }
@@ -78,12 +78,12 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
   };
 
   const handleSave = (key: string, value: any) => {
-  const newData = { ...localData, [key]: value };
-  setLocalData(newData);
-  if (onUpdate) onUpdate(data.id, { [key]: value });
+  const newdata = { ...localdata, [key]: value };
+  setlocaldata(newdata);
+  if (onupdate) onupdate(data.id, { [key]: value });
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleimageupload = async (e: react.changeevent<HTMLInputElement>) => {
   const file = e.target.files?.[0];
   if (!file) return;
 
@@ -108,12 +108,12 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
   // filter fields to show (first 3 relevant ones excluding title/image)
   // order based on fields array order
   const visibleFields = fields
-  .filter(f => !f.hidden && f.name !== titleField && f.name !== imageField && f.interface !== 'attachment' && f.name !== 'id')
+  .filter(f => !f.hidden && f.name !== titlefield && f.name !== imagefield && f.interface !== 'attachment' && f.name !== 'id')
   .slice(0, 3);
 
   // selection style: use box-shadow instead of ring to respect radius
-  const selectionStyle = isSelected
-  ? { boxShadow: '0 0 0 2px var(--primary-gold), 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' }
+  const selectionstyle = isselected
+  ? { boxshadow: '0 0 0 2px var(--primary-gold), 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' }
   : {};
   return (
   <RecordContextMenu
@@ -149,7 +149,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
  {/* image cover */}
  {(previewImage || (visibleFields.length > 0)) ? (
  <div className="flex-1 w-full bg-muted/20 relative min-h-[80px] flex items-center justify-center overflow-hidden group rounded-t-[inherit]">
- {previewImage ? (
+ {previewimage ? (
    <img
    src={previewImage}
    alt="cover"
@@ -159,7 +159,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
  ) : null}
 
  {/* overlay drag handle */}
- {previewImage && (
+ {previewimage && (
    <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing p-1 bg-black/50 rounded-md">
    <GripVertical className="h-4 w-4 text-white/70" />
    </div>
@@ -170,7 +170,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
  {/* content footer */}
  <div className="shrink-0 p-3 flex flex-col gap-1.5 bg-card/95 border-t border-transparent pointer-events-auto h-auto rounded-b-[inherit] overflow-hidden">
  {/* drag handle (if no image) */}
- {(!previewImage) && (
+ {(!previewimage) && (
  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing p-1 bg-muted rounded-md z-20">
    <GripVertical className="h-4 w-4 text-muted-foreground" />
  </div>
@@ -183,7 +183,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
  suppressContentEditableWarning
  onBlur={(e) => handleSave(titleField, e.currentTarget.textContent)}
  >
- {localData[titleField] || 'untitled'}
+ {localdata[titlefield] || 'untitled'}
  </div>
 
  {/* fields */}
@@ -201,7 +201,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
    ).length;
 
    if (total > 0) {
-  const percent = Math.round((completed / total) * 100);
+  const percent = math.round((completed / total) * 100);
   return (
   <div key={field.name} className="flex flex-col gap-0.5 text-[10px] text-muted-foreground">
   <div className="flex justify-between w-full">
@@ -238,9 +238,9 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
     handleSave(field.name, c);
     handleSave('last_watered', new Date().toISOString());
   }} size="sm" />
-  ) : (field.type === 'string' && (String(val).startsWith('http') || field.format === 'url')) ? (
+  ) : (field.type === 'string' && (string(val).startswith('http') || field.format === 'url')) ? (
   <a href={String(val)} target="_blank" rel="noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1">
-    {String(val)} <ExternalLink className="h-2 w-2" />
+    {string(val)} <ExternalLink className="h-2 w-2" />
   </a>
   ) : (
   <span>{String(val)}</span>

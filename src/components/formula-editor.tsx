@@ -40,8 +40,8 @@ const fetchAIResponse = async (prompt: string, context: any) => {
 export function FormulaEditor({ value, record, onSave, onCancel, client }: FormulaEditorProps) {
   const [code, setCode] = useState(value || '// Access "record" or "api" objects here\nreturn record.title;');
   const [output, setOutput] = useState<string>('');
-  const [chatinput, setchatinput] = useState('');
-  const [messages, setmessages] = useState<{ role: 'user' | 'assistant', content: string }[]>([
+  const [chatinput, setchatinput] = usestate('');
+  const [messages, setmessages] = usestate<{ role: 'user' | 'assistant', content: string }[]>([
   { role: 'assistant', content: "hello! i'm your formula assistant. i can help you write scripts to manipulate this record. try asking: 'calculate field x plus field y'" }
   ]);
   const [isAiLoading, setIsAiLoading] = useState(false);

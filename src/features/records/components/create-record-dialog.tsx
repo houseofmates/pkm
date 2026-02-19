@@ -28,7 +28,7 @@ export function CreateRecordDialog({ collectionName, fields, onRecordCreated, op
   if (onopenchange) onopenchange(v);
   else setinternalopen(v);
   };
-  const [formdata, setformdata] = useState<Record<string, any>>({});
+  const [formdata, setformdata] = usestate<Record<string, any>>({});
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {

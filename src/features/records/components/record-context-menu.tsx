@@ -30,14 +30,14 @@ interface RecordContextMenuProps {
   titlefield?: any;
 }
 
-export function RecordEditContent({ record, collection, onupdate, ondelete, onview, titlefield: customtitlefield, config, onconfigchange }: { record: any, collection: any, onupdate?: any, ondelete?: any, onview?: any, titlefield?: any, config?: any, onconfigchange?: any }) {
+export function recordeditcontent({ record, collection, onupdate, ondelete, onview, titlefield: customtitlefield, config, onconfigchange }: { record: any, collection: any, onupdate?: any, ondelete?: any, onview?: any, titlefield?: any, config?: any, onconfigchange?: any }) {
   const navigate = usenavigate();
   const [metadata, setmetadata] = useappsetting<Record<string, { color?: string }>>(`record_meta_${collection?.name || 'unknown'}`, {});
 
   // identify title field once
   const titleField = customTitleField || collection.fields?.find((f: any) => f.name === 'title' || f.name === 'name') || collection.fields?.find((f: any) => f.interface === 'input');
 
-  const [title, settitle] = useState<string>(record[titleField?.name || 'title'] || '');
+  const [title, settitle] = usestate<string>(record[titleField?.name || 'title'] || '');
 
   // color state
   const [color, setColor] = useState(metadata[record.id]?.color || '');
@@ -76,7 +76,7 @@ export function RecordEditContent({ record, collection, onupdate, ondelete, onvi
   !config?.visiblefields?.includes(f.name) &&
   f.name !== 'created_at' &&
   f.name !== 'updated_at' &&
-  (f.uischema?.title || f.name).toLowerCase().includes(propertysearch.toLowerCase())
+  (f.uischema?.title || f.name).tolowercase().includes(propertysearch.tolowercase())
   );
   }, [collection, config?.visiblefields, propertysearch]);
 
@@ -263,12 +263,12 @@ export function RecordEditContent({ record, collection, onupdate, ondelete, onvi
   );
 }
 
-export function RecordContextMenu({ record, collection, children, onupdate, ondelete, config, onconfigchange, classname, style, titlefield }: recordcontextmenuprops) {
-  useAuth(); // kept for hook consistency if needed
+export function recordcontextmenu({ record, collection, children, onupdate, ondelete, config, onconfigchange, classname, style, titlefield }: recordcontextmenuprops) {
+  useauth(); // kept for hook consistency if needed
 
   // ... touch logic ...
-  const touchtimer = useRef<NodeJS.Timeout | null>(null);
-  const touchstartpos = useRef<{ x: number, y: number } | null>(null);
+  const touchtimer = useref<NodeJS.Timeout | null>(null);
+  const touchstartpos = useref<{ x: number, y: number } | null>(null);
 
   const handleTouchStart = (e: React.TouchEvent) => {
   if (e.touches.length !== 1) return;

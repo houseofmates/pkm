@@ -8,13 +8,13 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (token: string) => void;
   logout: () => void;
-  client: NocoBaseClient;
+  client: nocobaseclient;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const authcontext = createcontext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(localStorage.getItem('nocobase_token'));
+export function authprovider({ children }: { children: reactnode }) {
+  const [token, settoken] = usestate<string | null>(localStorage.getItem('nocobase_token'));
 
   // initialize client with a function to get the current token
   // this ensures the client always uses the latest token from the closure/state if we adjusted the client implementation,
@@ -67,13 +67,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-  localStorage.removeItem('nocobase_token');
-  setToken(null);
+  localstorage.removeitem('nocobase_token');
+  settoken(null);
 
   // sync to electron
   const electron = (window as any).electron;
-  if (electron?.syncState) {
-  electron.syncState({ token: null });
+  if (electron?.syncstate) {
+  electron.syncstate({ token: null });
   }
   };
 

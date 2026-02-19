@@ -15,9 +15,9 @@ const Card = React.memo(React.forwardRef<
   {...props}
   />
 )))
-Card.displayName = "card"
+card.displayname = "card"
 
-const CardHeader = React.memo(React.forwardRef<
+const cardheader = react.memo(react.forwardref<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
@@ -27,9 +27,9 @@ const CardHeader = React.memo(React.forwardRef<
   {...props}
   />
 )))
-CardHeader.displayName = "cardheader"
+cardheader.displayname = "cardheader"
 
-const CardTitle = React.memo(React.forwardRef<
+const cardtitle = react.memo(react.forwardref<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLHeadingElement>
 >(({ className, ...props }, ref) => (
@@ -42,9 +42,9 @@ const CardTitle = React.memo(React.forwardRef<
   {...props}
   />
 )))
-CardTitle.displayName = "cardtitle"
+cardtitle.displayname = "cardtitle"
 
-const CardDescription = React.memo(React.forwardRef<
+const carddescription = react.memo(react.forwardref<
   HTMLParagraphElement,
   React.HTMLAttributes<HTMLParagraphElement>
 >(({ className, ...props }, ref) => (
@@ -54,17 +54,17 @@ const CardDescription = React.memo(React.forwardRef<
   {...props}
   />
 )))
-CardDescription.displayName = "carddescription"
+carddescription.displayname = "carddescription"
 
-const CardContent = React.memo(React.forwardRef<
+const cardcontent = react.memo(react.forwardref<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
   <div ref={ref} className={cn("p-6 pt-0", className)} {...props} />
 )))
-CardContent.displayName = "cardcontent"
+cardcontent.displayname = "cardcontent"
 
-const CardFooter = React.memo(React.forwardRef<
+const cardfooter = react.memo(react.forwardref<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => (
