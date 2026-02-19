@@ -196,7 +196,7 @@ export function RootLayout() {
                   <RefreshCcw className="h-3 w-3 text-amber-500 animate-spin" />
                   <span className="text-amber-500 lowercase">{walCount} pending</span>
                 </>
-              ) : syncstatus === 'error' ? (
+              ) : syncStatus === 'error' ? (
                 <>
                   <AlertTriangle className="h-3 w-3 text-red-500" />
                   <span className="text-red-500 lowercase">error</span>
@@ -213,7 +213,7 @@ export function RootLayout() {
         <Spotlight />
         <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
         <DragOverlay>
-          {activedragitem ? (
+          {activeDragItem ? (
             <div className="bg-card border rounded shadow-lg p-2 flex items-center opacity-80 w-48 pointer-events-none">
               <Folder className="h-4 w-4 mr-2" />
               <span className="truncate text-sm font-medium lowercase">{activeDragItem.name}</span>
