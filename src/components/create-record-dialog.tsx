@@ -11,11 +11,11 @@ interface CreateRecordDialogProps {
   collectionName: string;
   onSuccess?: () => void;
   fields?: unknown[];
-  trigger?: react.reactnode;
+  trigger?: React.ReactNode;
 }
 
-export function createrecorddialog({ open, onopenchange, collectionname, onsuccess, trigger }: createrecorddialogprops) {
-  const [data, setdata] = useState<Record<string, unknown>>({});
+export function CreateRecordDialog({ open, onOpenChange, collectionName, onSuccess, trigger }: CreateRecordDialogProps) {
+  const [data, setData] = useState<Record<string, unknown>>({});
   const [loading, setLoading] = useState(false);
 
   const handleChange = (key: string, val: unknown) => {
@@ -23,20 +23,20 @@ export function createrecorddialog({ open, onopenchange, collectionname, onsucce
   };
 
   const handleSave = async () => {
-    setloading(true);
+    setLoading(true);
     try {
       // dispatch event to create record
-      window.dispatchevent(new customevent('pkm:create-record', {
-        detail: { collection: collectionname, data }
+      window.dispatchEvent(new CustomEvent('pkm:create-record', {
+        detail: { collection: collectionName, data }
       }));
       toast.success("record created");
-      onsuccess?.();
-      onopenchange(false);
-      setdata({});
+      onSuccess?.();
+      onOpenChange(false);
+      setData({});
     } catch {
       toast.error("failed to create record");
     } finally {
-      setloading(false);
+      setLoading(false);
     }
   };
 
@@ -47,7 +47,7 @@ export function createrecorddialog({ open, onopenchange, collectionname, onsucce
         <DialogHeader>
           <DialogTitle>create record</DialogTitle>
           <DialogDescription>
-            add a new record to {collectionname}
+            add a new record to {collectionName}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">

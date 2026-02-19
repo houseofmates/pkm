@@ -11,26 +11,26 @@ import {
 type EventModalProps = {
   open: boolean;
   onClose?: () => void;
-  event?: { id?: string; title?: string; date?: string; datefield?: string };
-  onsave?: (e: record<string, unknown>) => void;
-  ondelete?: (e: record<string, unknown>) => void;
+  event?: { id?: string; title?: string; date?: string; dateField?: string };
+  onSave?: (e: Record<string, unknown>) => void;
+  onDelete?: (e: Record<string, unknown>) => void;
 };
 
-export default function eventmodal({ open, onclose, event, onsave, ondelete }: eventmodalprops) {
+export default function EventModal({ open, onClose, event, onSave, onDelete }: EventModalProps) {
   // use controlled inputs - state resets when modal opens with new event
-  const [title, settitle] = useState(event?.title || '');
-  const [date, setdate] = useState(event?.date || '');
+  const [title, setTitle] = useState(event?.title || '');
+  const [date, setDate] = useState(event?.date || '');
 
-  function handlesave() {
+  function handleSave() {
     const payload = { ...(event || {}), title };
-    payload[event?.datefield || 'date'] = date;
-    if (onsave) onsave(payload);
-    if (onclose) onclose();
+    payload[event?.dateField || 'date'] = date;
+    if (onSave) onSave(payload);
+    if (onClose) onClose();
   }
 
-  function handledelete() {
-    if (ondelete) ondelete(event || {});
-    if (onclose) onclose();
+  function handleDelete() {
+    if (onDelete) onDelete(event || {});
+    if (onClose) onClose();
   }
 
   return (
