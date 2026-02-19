@@ -102,7 +102,7 @@ export function InfiniteCanvasWrapper({
             el.addEventListener('wheel', handleWheel, { passive: false });
         }
         return () => {
-            if (el) el.removeeventlistener('wheel', handlewheel);
+            if (el) el.removeEventListener('wheel', handlewheel);
         }
     }, [scale, minscale, maxscale]);
 

@@ -36,7 +36,7 @@ export interface EdgelessCanvasProps {
   onObjectModified?: (id: string, patch: any) => void
   className?: string
   onLoad?: () => void
-  children?: react.reactnode
+  children?: React.ReactNode
 }
 
 export function EdgelessCanvas({ onObjectModified, className, onLoad, children }: EdgelessCanvasProps) {
@@ -1192,7 +1192,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
   // memoized overlay elements to avoid unnecessary remounts during unrelated renders
   const overlayElements = useMemo(() => {
     if (!fabricCanvas) return null
-    const out: react.ReactNode[] = []
+    const out: React.ReactNode[] = []
     for (let i = 0; i < elements.length; i++) {
       const el = elements[i]
       const { x: screenX, y: screenY, w: screenW, h: screenH } = getScreenPos(el)

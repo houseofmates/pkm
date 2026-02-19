@@ -423,7 +423,7 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: Props) {
                   <input
                     classname="flex-1 bg-black/50 border border-white/10 rounded px-2 py-1 text-white text-sm"
                     value={ver}
-                    onchange={(e: react.changeevent<htmlinputelement>) => handlearrayupdate('versions', idx, e.target.value)}
+                    onchange={(e: React.ChangeEvent<HTMLInputElement>) => handlearrayupdate('versions', idx, e.target.value)}
                   />
                   <button onclick={() => handlearrayremove('versions', idx)} classname="text-red-400 hover:text-red-300"><trash2 size={16} /></button>
                 </div>

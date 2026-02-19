@@ -13,8 +13,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 interface CollectionDetailPageProps {
-  collectionName?: string;
-  onBack?: () => void;
+    collectionName?: string;
+    onBack?: () => void;
 }
 
 
@@ -23,10 +23,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { Star } from 'lucide-react';
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
 } from "@/components/ui/dialog";
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -225,7 +225,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     // --- event listeners ---
     useEffect(() => {
         const handleCreate = async (evt: Event) => {
-            const e = evt as customevent<any>;
+            const e = evt as CustomEvent<any>;
             if (e.detail?.collection === collectionName) {
                 console.log("Creating record via event:", e.detail.data);
                 try {
