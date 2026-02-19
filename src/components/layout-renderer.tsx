@@ -11,7 +11,7 @@ interface LayoutRendererProps {
     onUpdateWidget?: (targetWidget: any, patch: any) => void;
     onUpdateData?: (source: string, rowIndex: number, patch: any) => void;
     onAddData?: (source: string, vals: any) => void;
-    classname?: string;
+    className?: string;
 }
 
 export function LayoutRenderer({
