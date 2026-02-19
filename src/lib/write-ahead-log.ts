@@ -1,6 +1,6 @@
 // write-ahead-log.ts
 // ensures zero data loss by journaling all writes before they happen
-// incomplete writes are replayed on app startup via walrecover()
+// incomplete writes are replayed on app startup via walRecover()
 
 import { openDB } from 'idb'
 import type { IDBPDatabase, DBSchema } from 'idb'
@@ -33,7 +33,7 @@ async function getWAL(): Promise<IDBPDatabase<WALSchema>> {
     return walDb
 }
 
-export async function walwrite(
+export async function walWrite(
     collection: string,
     recordId: string,
     operation: 'create' | 'update' | 'delete',
@@ -54,7 +54,7 @@ export async function walwrite(
     return id
 }
 
-export async function walcommit(id: string): Promise<void> {
+export async function walCommit(id: string): Promise<void> {
     const db = await getWAL()
     const entry = await db.get('wal', id)
     if (entry) {
@@ -73,7 +73,7 @@ export async function walcommit(id: string): Promise<void> {
     await tx.done
 }
 
-export async function walfail(id: string): Promise<void> {
+export async function walFail(id: string): Promise<void> {
     const db = await getWAL()
     const entry = await db.get('wal', id)
     if (entry) {
@@ -83,7 +83,7 @@ export async function walfail(id: string): Promise<void> {
     }
 }
 
-export async function walrecover(): Promise<
+export async function walRecover(): Promise<
     Array<{
         id: string
         collection: string
@@ -99,7 +99,7 @@ export async function walrecover(): Promise<
         .sort((a, b) => a.timestamp - b.timestamp)
 }
 
-export async function walpendingcount(): Promise<number> {
+export async function walPendingCount(): Promise<number> {
     const db = await getWAL()
     const all = await db.getAll('wal')
     return all.filter((e) => e.status === 'pending').length

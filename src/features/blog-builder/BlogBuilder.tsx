@@ -6,7 +6,7 @@ import { BlogPostViewer } from './components/BlogPostViewer';
 import { toast } from 'sonner';
 import { AdminLoginModal } from '@/features/houseofmates-builder/components/AdminLoginModal';
 
-const BlogEditor = lazy(() => import('./components/BlogEditor').then(m => ({ default: m.blogeditor })));
+const BlogEditor = lazy(() => import('./components/BlogEditor').then(m => ({ default: m.BlogEditor })));
 
 interface BlogPost {
   id: string;
