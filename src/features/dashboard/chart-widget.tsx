@@ -207,9 +207,9 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
  {!collapsed && (
  <div className="flex flex-wrap gap-2 mt-2">
    {buildKeys().map((k, idx) => {
-   const col = getcolor(k, idx);
-   const hiddenflag = !!hidden[k];
-   if (search && !k.tolowercase().includes(search.tolowercase())) return null;
+  const col = getColor(k, idx);
+  const hiddenFlag = !!hidden[k];
+  if (search && !k.toLowerCase().includes(search.toLowerCase())) return null;
    return (
    <button key={k} onClick={() => toggle(k)} onMouseEnter={() => setHoverKey(k)} onMouseLeave={() => setHoverKey(null)} className="flex items-center gap-2 px-2 py-1 rounded bg-card border border-border/50 hover:bg-muted/50 transition-colors">
   <span style={{ width: 12, height: 12, backgroundColor: col, display: 'inline-block', borderRadius: 3, opacity: hiddenFlag ? 0.3 : 1 }} />
@@ -627,7 +627,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
    stroke="none"
    onClick={(data) => onDataClick && !isPlaceholder && onDataClick(data, xKey)}
  >
-   {isplaceholder ? (
+   {isPlaceholder ? (
    <Cell fill="var(--muted)" strokeDasharray="5 5" stroke="var(--muted-foreground)" fillOpacity={0.1} />
    ) : (
    <>
