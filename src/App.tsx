@@ -9,8 +9,8 @@ import { lazy, Suspense, useEffect } from "react"
 import { FronterProvider } from "@/contexts/fronter-context"
 import { LLMContextProvider } from "@/contexts/llm-context"
 import { CanvasErrorBoundary } from "@/features/edgeless"
-import { walrecover, walcommit, walfail, walpendingcount } from "@/lib/write-ahead-log"
-import { islinkregistrymigrated, backfilllinkregistry } from "@/lib/link-migration"
+import { walRecover, walCommit, walFail, walPendingCount } from "@/lib/write-ahead-log"
+import { isLinkRegistryMigrated, backfillLinkRegistry } from "@/lib/link-migration"
 import { secureLogger } from "@/lib/secure-logger"
 
 // lazy load heavy components
@@ -81,8 +81,8 @@ function AppContent() {
   useEffect(() => {
     const handler = (e: BeforeUnloadEvent) => {
       // check synchronously (we can't await in beforeunload)
-      // the actual recovery happens on next load via walrecover()
-      walpendingcount().then((count) => {
+      // the actual recovery happens on next load via walRecover()
+      walPendingCount().then((count) => {
         if (count > 0) {
           secureLogger.warn(`wal: ${count} pending writes — recovery will happen on next load`)
         }
@@ -97,23 +97,23 @@ function AppContent() {
   // wal recovery on startup: replay any incomplete writes from a previous crash
   useEffect(() => {
     if (!client) return
-    walrecover().then(async (pending) => {
+    walRecover().then(async (pending) => {
       if (pending.length === 0) return
       secureLogger.info(`wal: recovering ${pending.length} pending writes from previous session`)
       for (const entry of pending) {
         try {
           if (entry.operation === 'update') {
-            await client.updateRecord(entry.collection, entry.recordid, entry.payload)
+            await client.updateRecord(entry.collection, entry.recordId, entry.payload)
           } else if (entry.operation === 'create') {
             await client.createRecord(entry.collection, entry.payload)
           } else if (entry.operation === 'delete') {
-            await client.deleteRecord(entry.collection, entry.recordid)
+            await client.deleteRecord(entry.collection, entry.recordId)
           }
-          await walcommit(entry.id)
-          secureLogger.info(`wal: recovered ${entry.operation} on ${entry.collection}/${entry.recordid}`)
+          await walCommit(entry.id)
+          secureLogger.info(`wal: recovered ${entry.operation} on ${entry.collection}/${entry.recordId}`)
         } catch (err) {
           secureLogger.error('wal: recovery failed for', entry.id, err)
-          await walfail(entry.id)
+          await walFail(entry.id)
         }
       }
     }).catch((err) => {
@@ -123,12 +123,12 @@ function AppContent() {
 
   // link registry backfill: scan existing documents on first load of this version
   useEffect(() => {
-    if (!client || islinkregistrymigrated()) return
+    if (!client || isLinkRegistryMigrated()) return
 
     // run migration after a small delay to not block initial render
     const timer = setTimeout(() => {
       secureLogger.info('[link-migration] starting backfill...')
-      backfilllinkregistry()
+      backfillLinkRegistry()
         .then((res) => {
           secureLogger.info(`[link-migration] complete: scanned ${res.documents} docs, found ${res.links} links`)
         })
@@ -137,10 +137,10 @@ function AppContent() {
         })
     }, 5000)
 
-    return () => cleartimeout(timer)
+    return () => clearTimeout(timer)
   }, [client])
 
-  const loadingfallback = (
+  const LoadingFallback = (
     <div className="h-screen flex items-center justify-center bg-[#050505] text-[var(--primary)] lowercase text-xl">
       {isPublic
         ? (window.location.hostname.includes('dupe')
@@ -153,8 +153,8 @@ function AppContent() {
   );
 
   // check for critical configuration
-  const isconfigured = !!import.meta.env.vite_api_url;
-  if (!isconfigured && !ispublic) {
+  const isConfigured = !!import.meta.env.VITE_API_URL;
+  if (!isConfigured && !isPublic) {
     return (
       <Suspense fallback={LoadingFallback}>
         <SetupRequired />
@@ -163,10 +163,10 @@ function AppContent() {
   }
 
   // public site router - bypass standard app for public domains
-  if (ispublic) {
-    const isblog = window.location.hostname.includes('blog');
+  if (isPublic) {
+    const isBlog = window.location.hostname.includes('blog');
 
-    if (isblog) {
+    if (isBlog) {
       return (
         <BrowserRouter>
           <Suspense fallback={LoadingFallback}>
@@ -230,11 +230,11 @@ function AppContent() {
   )
 }
 
-function app() {
+function App() {
   // check if public domain
-  const ispublic = ispublicdomain();
+  const isPublic = isPublicDomain();
 
-  if (ispublic) {
+  if (isPublic) {
     // public site doesn't need fronterprovider or llmcontextprovider
     return (
       <AuthProvider>
