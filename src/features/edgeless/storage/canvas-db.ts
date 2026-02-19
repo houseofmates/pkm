@@ -70,7 +70,7 @@ export function getCanvasDB(): Promise<IDBPDatabase<CanvasDBSchema>> {
 
 // oplog operations
 export async function appendOp(drawingId: string, op: DrawOp): Promise<OpLogEntry> {
-  const db = await GetCanvasDB()
+  const db = await getCanvasDB()
   const entry: OpLogEntry = {
     id: `${drawingId}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
     drawingId,
@@ -88,7 +88,7 @@ export async function appendOp(drawingId: string, op: DrawOp): Promise<OpLogEntr
  */
 export async function appendOps(drawingId: string, ops: DrawOp[]): Promise<OpLogEntry[]> {
   if (!ops || ops.length === 0) return []
-  const db = await GetCanvasDB()
+  const db = await getCanvasDB()
   const tx = db.transaction('oplog', 'readwrite')
   const result: OpLogEntry[] = []
   const baseTs = Date.now()
@@ -109,13 +109,13 @@ export async function appendOps(drawingId: string, ops: DrawOp[]): Promise<OpLog
 }
 
 export async function getUnsyncedOps(drawingId: string): Promise<OpLogEntry[]> {
-  const db = await GetCanvasDB()
+  const db = await getCanvasDB()
   const all = await db.getAllFromIndex('oplog', 'by-drawing', drawingId)
   return all.filter((e) => !e.synced).sort((a, b) => a.timestamp - b.timestamp)
 }
 
 export async function markOpsSynced(ids: string[]): Promise<void> {
-  const db = await GetCanvasDB()
+  const db = await getCanvasDB()
   const tx = db.transaction('oplog', 'readwrite')
   for (const id of ids) {
     const entry = await tx.store.get(id)
@@ -128,14 +128,14 @@ export async function markOpsSynced(ids: string[]): Promise<void> {
 }
 
 export async function getRecentOps(drawingId: string, limit = 100): Promise<OpLogEntry[]> {
-  const db = await GetCanvasDB()
+  const db = await getCanvasDB()
   const all = await db.getAllFromIndex('oplog', 'by-drawing', drawingId)
   return all.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit)
 }
 
 export async function pruneOldOps(drawingId: string, keepCount = 500): Promise<number> {
   try {
-    const db = await GetCanvasDB()
+    const db = await getCanvasDB()
     const all = await db.getAllFromIndex('oplog', 'by-drawing', drawingId)
     if (all.length <= keepCount) return 0
 
@@ -161,7 +161,7 @@ export async function pruneOldOps(drawingId: string, keepCount = 500): Promise<n
 
 // checkpoint operations
 export async function saveCheckpoint(drawingId: string, state: unknown): Promise<void> {
-  const db = await GetCanvasDB()
+  const db = await getCanvasDB()
   const checkpoint: CanvasCheckpoint = {
     id: `${drawingId}-${Date.now()}`,
     drawingId,
@@ -183,14 +183,14 @@ export async function saveCheckpoint(drawingId: string, state: unknown): Promise
 }
 
 export async function getLatestCheckpoint(drawingId: string): Promise<CanvasCheckpoint | undefined> {
-  const db = await GetCanvasDB()
+  const db = await getCanvasDB()
   const all = await db.getAllFromIndex('checkpoints', 'by-drawing', drawingId)
   return all.sort((a, b) => b.timestamp - a.timestamp)[0]
 }
 
 // drawing metadata operations
 export async function getDrawingMeta(id: string) {
-  const db = await GetCanvasDB()
+  const db = await getCanvasDB()
   return db.get('drawings', id)
 }
 
@@ -198,7 +198,7 @@ export async function updateDrawingMeta(
   id: string,
   patch: Partial<{ title: string; thumbnail: string; syncState: 'pending' | 'synced' | 'conflict'; serverId?: string }>
 ) {
-  const db = await GetCanvasDB()
+  const db = await getCanvasDB()
   const existing = await db.get('drawings', id)
   const updated = {
     ...(existing || { id, createdAt: Date.now() }),
@@ -210,7 +210,7 @@ export async function updateDrawingMeta(
 }
 
 export async function listPendingDrawings() {
-  const db = await GetCanvasDB()
+  const db = await getCanvasDB()
   return db.getAllFromIndex('drawings', 'by-sync-state', 'pending')
 }
 
@@ -224,7 +224,7 @@ export async function getToken(key: string): Promise<string | undefined> {
   }
 
   // fallback to idb
-  const db = await GetCanvasDB()
+  const db = await getCanvasDB()
   const entry = await db.get('tokens', key)
   if (entry && entry.expiresAt && entry.expiresAt < Date.now()) {
     await db.delete('tokens', key)
@@ -237,7 +237,7 @@ export async function getToken(key: string): Promise<string | undefined> {
 }
 
 export async function setToken(key: string, value: string, ttlMinutes?: number) {
-  const db = await GetCanvasDB()
+  const db = await getCanvasDB()
   memoryTokens.set(key, value)
   await db.put('tokens', {
     key,
@@ -248,7 +248,7 @@ export async function setToken(key: string, value: string, ttlMinutes?: number) 
 
 export async function clearToken(key: string) {
   memoryTokens.delete(key)
-  const db = await GetCanvasDB()
+  const db = await getCanvasDB()
   await db.delete('tokens', key)
 }
 
