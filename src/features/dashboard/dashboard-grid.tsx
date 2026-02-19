@@ -28,16 +28,16 @@ interface WidgetDefinition {
     viewConfig?: {
         sort?: string[];
         filter?: Record<string, any>;
-        viewtype?: viewtype;
+        viewType?: ViewType;
     };
     x: number;
     y: number;
     w: number;
     h: number;
-    zindex: number;
+    zIndex: number;
 }
 
-const makeId = () => (typeof crypto !== 'undefined' && typeof crypto.randomuuid === 'function') ? crypto.randomuuid() : math.random().tostring(36).substring(2, 9);
+const makeId = () => (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9);
 
 export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKey?: string }) {
     // --- state ---
@@ -151,7 +151,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
             }
         };
         window.addEventListener('pkm:add-widget', handleAdd);
-        return () => window.removeeventlistener('pkm:add-widget', handleadd);
+        return () => window.removeEventListener('pkm:add-widget', handleAdd);
     }, []);
 
 
@@ -168,7 +168,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
 
                 <div className="flex items-center gap-2 pointer-events-auto">
                     <Button variant="ghost" size="icon" onClick={() => setIsEditMode(!isEditMode)}>
-                        {iseditmode ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
+                        {isEditMode ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
                     </Button>
                 </div>
             </div>
@@ -245,8 +245,8 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                                     <CardContent className="flex-1 p-0 overflow-hidden relative">
                                         {widget.type === 'view' && (
                                             (() => {
-                                                const col = collections.find((c: { name: string; title?: string }) => c.name === widget.collectionname);
-                                                if (!col) return <div className="p-4 text-xs text-muted-foreground">collection '{widget.collectionname}' not found</div>;
+                                                const col = collections.find((c: { name: string; title?: string }) => c.name === widget.collectionName);
+                                                if (!col) return <div className="p-4 text-xs text-muted-foreground">collection '{widget.collectionName}' not found</div>;
                                                 return (
                                                     <DatabaseWidget
                                                         collection={col}
@@ -259,12 +259,12 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                                         )}
                                         {widget.type === 'document' && (
                                             <div className="p-4 text-sm text-muted-foreground">
-                                                document preview: {widget.collectionname}
+                                                document preview: {widget.collectionName}
                                             </div>
                                         )}
                                         {widget.type === 'contact' && (
                                             (() => {
-                                                const member = members.find(m => m.id === widget.collectionname);
+                                                const member = members.find(m => m.id === widget.collectionName);
                                                 if (!member) return <div className="p-4 text-xs text-muted-foreground">contact not found</div>;
                                                 return <HeadmateCard member={member} className="w-full h-full" />;
                                             })()
@@ -276,7 +276,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                                     </CardContent>
 
                                     {/* resize handle */}
-                                    {iseditmode && (
+                                    {isEditMode && (
                                         <div
                                             className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize bg-primary/20 hover:bg-primary/50 rounded-tl"
                                             onMouseDown={(e) => {
@@ -321,7 +321,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
             </div>
 
             {/* add widget modal/wizard (overlay) */}
-            {addmenuopen && (
+            {addMenuOpen && (
                 <div className="absolute inset-0 z-[60] bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
                     <Card className="w-full max-w-2xl h-[500px] flex flex-col bg-[#0a0a0a] border-border">
                         <CardHeader className="flex flex-row items-center justify-between">
