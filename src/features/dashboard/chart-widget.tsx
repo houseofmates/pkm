@@ -328,7 +328,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'scatter') {
-  if (!isMounted || !isReady) {
+  if (!isReady) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
@@ -595,7 +595,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'gauge') {
-  if (!isMounted || !isReady) {
+  if (!isReady) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
@@ -647,7 +647,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'kpi') {
-  if (!isMounted || !isReady) {
+  if (!isReady) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
@@ -678,7 +678,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'scatter') {
-  if (!isMounted || !isReady) {
+  if (!isReady) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
