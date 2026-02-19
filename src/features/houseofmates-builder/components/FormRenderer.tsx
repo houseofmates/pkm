@@ -237,6 +237,9 @@ interface formbuilderprops {
     initialdata?: partial<FormElementData>;
 }
 
+let __formId = 0;
+const makeFormId = () => `field_${++__formId}`;
+
 export function FormBuilder({ onsave, oncancel, initialdata }: formbuilderprops) {
     const defaultfields: formfield[] = [
         { id: 'minecraft_username', type: 'text', label: 'minecraft username', placeholder: 'your ign...', required: true },
@@ -252,7 +255,7 @@ export function FormBuilder({ onsave, oncancel, initialdata }: formbuilderprops)
 
     const addField = (type: FormField['type']) => {
         const newField: FormField = {
-            id: `field_${Date.now()}`,
+            id: makeFormId(),
             type,
             label: `new ${type} field`,
             placeholder: '',

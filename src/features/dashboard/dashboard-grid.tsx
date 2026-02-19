@@ -61,7 +61,7 @@ export function DashboardGrid({ layoutkey = 'dashboard_widgets_v2' }: { layoutke
                 try {
                     const config = JSON.parse(localStorage.getItem(key) || '{}');
                     docs.push({ id, title: config.title || 'Untitled Document' });
-                } catch (e) { }
+                } catch (e) { /* ignore malformed localStorage entry */ }
             }
         }
         setLocalDocs(docs);
@@ -71,7 +71,7 @@ export function DashboardGrid({ layoutkey = 'dashboard_widgets_v2' }: { layoutke
     const handleAddWidget = (collectionName: string, viewType: ViewType) => {
         const col = collections.find((c: { name: string; title?: string }) => c.name === collectionName);
         const newWidget: WidgetDefinition = {
-            id: Math.random().toString(36).substring(7),
+            id: makeId(),
             type: 'view',
             title: col?.title || collectionName,
             collectionName,
@@ -87,7 +87,7 @@ export function DashboardGrid({ layoutkey = 'dashboard_widgets_v2' }: { layoutke
 
     const handleAddDocumentWidget = (docId: string, title: string) => {
         const newWidget: WidgetDefinition = {
-            id: Math.random().toString(36).substring(7),
+            id: makeId(),
             type: 'document',
             title: title,
             collectionName: docId,
@@ -104,7 +104,7 @@ export function DashboardGrid({ layoutkey = 'dashboard_widgets_v2' }: { layoutke
     const handleAddContactWidget = (memberId: string) => {
         const member = members.find(m => m.id === memberId);
         const newWidget: WidgetDefinition = {
-            id: Math.random().toString(36).substring(7),
+            id: makeId(),
             type: 'contact',
             title: member?.name || 'Unknown Contact',
             collectionName: memberId,

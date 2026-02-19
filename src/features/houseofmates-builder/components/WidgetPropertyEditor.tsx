@@ -156,7 +156,7 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: Props) {
                     {(() => {
                       const iconName = content.icon || 'shield';
                       const formattedName = iconName.charAt(0).toUpperCase() + iconName.slice(1);
-                      // @ts-expect-error
+                      // @ts-expect-error -- dynamic LucideIcons lookup
                       const Icon = LucideIcons[formattedName] || LucideIcons.shield;
                       return <Icon size={18} />;
                     })()}
@@ -287,7 +287,7 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: Props) {
                     {(() => {
                       const iconName = content.icon || 'arrow-right';
                       const formattedName = iconName.charAt(0).toUpperCase() + iconName.slice(1).replace(/-([a-z])/g, (g) => g[1].toUpperCase());
-                      // @ts-expect-error
+                      // @ts-expect-error -- dynamic LucideIcons lookup
                       const Icon = LucideIcons[formattedName] || LucideIcons.arrowRight;
                       return <Icon size={18} />;
                     })()}
@@ -368,7 +368,7 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: Props) {
                     {(() => {
                       const iconName = content.icon || 'link-2';
                       const formattedName = iconName.charAt(0).toUpperCase() + iconName.slice(1).replace(/-([a-z])/g, (g: any) => g[1].toUpperCase());
-                      // @ts-expect-error
+                      // @ts-expect-error -- dynamic LucideIcons lookup
                       const Icon = LucideIcons[formattedName] || LucideIcons.link2;
                       return <Icon size={18} />;
                     })()}
