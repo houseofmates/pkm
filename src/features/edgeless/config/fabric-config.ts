@@ -3,6 +3,7 @@
 // each canvas instance receives explicit configuration
 
 import type { Canvas } from 'fabric'
+import * as fabric from 'fabric'
 
 export interface FabricConfig {
   selectionColor: string
@@ -86,7 +87,7 @@ export function createConfiguredCanvas(
   height: number,
   config: FabricConfig = DEFAULT_DARK_CONFIG
 ): Canvas {
-  const { Canvas: FabricCanvas } = window.fabric as any
+  const { Canvas: FabricCanvas } = fabric as any
 
   const canvas = new FabricCanvas(canvasEl, {
     width,
