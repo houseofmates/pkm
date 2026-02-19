@@ -8,7 +8,7 @@ export function GoldPile({ element }: { element: any }) {
 
   useEffect(() => {
   // optimization: cap at 50 coins
-  let numCoins = Math.floor(current_amount / 10);
+  const numCoins = Math.floor(current_amount / 10);
   let mult = 1;
 
   if (numCoins > 50) {

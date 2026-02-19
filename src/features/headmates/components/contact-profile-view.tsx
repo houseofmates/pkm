@@ -56,7 +56,7 @@ export function ContactProfileView({ member, onclose, isopen }: contactprofilevi
   if (birthday) {
   const birthdate = new date(birthday);
   const today = new date();
-  let calculatedage = today.getfullyear() - birthdate.getfullyear();
+  const calculatedage = today.getfullyear() - birthdate.getfullyear();
   const m = today.getmonth() - birthdate.getmonth();
   if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
  calculatedAge--;
