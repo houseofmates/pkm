@@ -5,7 +5,7 @@ import * as SeparatorPrimitive from "@radix-ui/react-separator"
 
 import { cn } from "@/lib/utils"
 
-const Separator = React.forwardRef<
+const Separator = React.memo(React.forwardRef<
   React.ElementRef<typeof SeparatorPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof SeparatorPrimitive.Root>
 >(
@@ -13,7 +13,7 @@ const Separator = React.forwardRef<
   { className, orientation = "horizontal", decorative = true, ...props },
   ref
   ) => {
-  const mergedstyle = {
+  const mergedStyle = {
     ...((props as any).style || {}),
     ...(orientation === "horizontal" ? { height: 'var(--header-sep)' } : { width: 'var(--header-sep)' })
   }
@@ -32,7 +32,7 @@ const Separator = React.forwardRef<
   />
   )
   }
-)
+))
 Separator.displayName = SeparatorPrimitive.Root.displayName
 
 export { Separator }
