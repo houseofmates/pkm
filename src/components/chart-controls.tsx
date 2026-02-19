@@ -14,11 +14,11 @@ interface ChartControlsProps {
 }
 
 export default function chartcontrols({ config, onchange }: chartcontrolsprops) {
-  const oncolor = (e: React.ChangeEvent<HTMLInputElement>) => onchange({ ...config, color: e.target.value });
-  const onstack = (e: React.ChangeEvent<HTMLInputElement>) => onchange({ ...config, stack: e.target.checked });
-  const onlegend = (e: React.ChangeEvent<HTMLInputElement>) => onchange({ ...config, legend: e.target.checked });
-  const onx = (e: React.ChangeEvent<HTMLInputElement>) => onchange({ ...config, xlabel: e.target.value });
-  const ony = (e: React.ChangeEvent<HTMLInputElement>) => onchange({ ...config, ylabel: e.target.value });
+  const onColor = (e: React.ChangeEvent<HTMLInputElement>) => onchange({ ...config, color: e.target.value });
+  const onStack = (e: React.ChangeEvent<HTMLInputElement>) => onchange({ ...config, stack: e.target.checked });
+  const onLegend = (e: React.ChangeEvent<HTMLInputElement>) => onchange({ ...config, legend: e.target.checked });
+  const onX = (e: React.ChangeEvent<HTMLInputElement>) => onchange({ ...config, xlabel: e.target.value });
+  const onY = (e: React.ChangeEvent<HTMLInputElement>) => onchange({ ...config, ylabel: e.target.value });
   return (
     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
       <input type="color" value={config?.color || '#f6b012'} onChange={onColor} title="series color" />

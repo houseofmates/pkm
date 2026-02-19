@@ -59,7 +59,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
 
   // --- image handling ---
   // --- image handling ---
-  const handlefilechange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
