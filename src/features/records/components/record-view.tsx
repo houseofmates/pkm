@@ -21,21 +21,21 @@ interface RecordViewProps {
   onClose?: () => void; // if used in a modal/drawer later
 }
 
-export function recordview({ collectionname: propcollection, recordid: propid }: recordviewprops) {
-  const { name: paramcollection, id: paramid } = useparams();
-  const collectionname = propcollection || paramcollection;
-  const recordid = propid || paramid;
+export function RecordView({ collectionName: propCollection, recordId: propId, onClose }: RecordViewProps) {
+  const { name: paramCollection, id: paramId } = useParams();
+  const collectionName = propCollection || paramCollection;
+  const recordId = propId || paramId;
 
-  const { client } = useauth();
-  const navigate = usenavigate();
+  const { client } = useAuth();
+  const navigate = useNavigate();
 
-  const [record, setrecord] = useState<any>(null);
-  const [collection, setcollection] = useState<any>(null);
-  const [loading, setloading] = useState(true);
-  const [showproperties, setshowproperties] = useState(true);
+  const [record, setRecord] = useState<any>(null);
+  const [collection, setCollection] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [showProperties, setShowProperties] = useState(true);
 
   // template/layout detection
-  const [templateconfig, settemplateconfig] = useState<any>(null);
+  const [templateConfig, setTemplateConfig] = useState<any>(null);
 
   useEffect(() => {
     if (!collectionName || !recordId || !client) return;
@@ -79,7 +79,7 @@ export function recordview({ collectionname: propcollection, recordid: propid }:
             if (parsed.layout || parsed.widgets) {
               setTemplateConfig(parsed);
             }
-          } catch (e) {/* not json */}
+          } catch (e) {/* not json */ }
         }
       } catch (e) {
         console.error("Failed to fetch record view", e);
@@ -109,7 +109,7 @@ export function recordview({ collectionname: propcollection, recordid: propid }:
       const next = { ...prev };
       if (next.data && next.data[source]) {
         next.data[source] = [...next.data[source]];
-        next.data[source][rowindex] = { ...(next.data[source][rowindex] || {}), ...patch };
+        next.data[source][rowIndex] = { ...(next.data[source][rowIndex] || {}), ...patch };
       }
       return next;
     });
@@ -163,11 +163,11 @@ export function recordview({ collectionname: propcollection, recordid: propid }:
         <div className="flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="text-muted-foreground hover:text-foreground h-9 px-2">
             <ArrowLeft className="h-4 w-4 mr-2" />
-            {collection?.uischema?.title || collectionname}
+            {collection?.uiSchema?.title || collectionName}
           </Button>
           <span className="text-muted-foreground/30">/</span>
           <span className="text-foreground font-medium text-sm truncate max-w-[300px]">{record[titleField] || 'Untitled'}</span>
-          {templateconfig && (
+          {templateConfig && (
             <div className="ml-4 px-2 py-0.5 bg-primary/10 border border-primary/20 rounded text-[10px] text-primary font-bold uppercase tracking-wider flex items-center gap-1">
               <Wand2 className="h-3 w-3" /> template document
             </div>
@@ -175,14 +175,14 @@ export function recordview({ collectionname: propcollection, recordid: propid }:
         </div>
 
         <div className="flex items-center gap-2">
-          {!templateconfig && (
+          {!templateConfig && (
             <Button
               variant="ghost"
               size="sm"
               className={cn("text-xs h-8", !showProperties && "text-muted-foreground")}
               onClick={() => setShowProperties(!showProperties)}
             >
-              {showproperties ? 'hide properties' : 'show properties'}
+              {showProperties ? 'hide properties' : 'show properties'}
             </Button>
           )}
           <DropdownMenu>
@@ -205,7 +205,7 @@ export function recordview({ collectionname: propcollection, recordid: propid }:
         "flex-1 w-full mx-auto px-6 lg:px-12 py-12 flex flex-col gap-8",
         templateConfig ? "max-w-[1400px]" : "max-w-4xl"
       )}>
-        {templateconfig ? (
+        {templateConfig ? (
           <div className="animate-in fade-in duration-500">
             <div className="flex items-center gap-4 mb-10">
               <h1 className="text-4xl font-bold tracking-tight">{record[titleField] || 'Untitled'}</h1>
@@ -257,10 +257,10 @@ export function recordview({ collectionname: propcollection, recordid: propid }:
               </div>
             )}
 
-            {showproperties && <div className="h-px bg-border/40 w-full my-4" />}
+            {showProperties && <div className="h-px bg-border/40 w-full my-4" />}
 
             <div className="min-h-[500px] pb-32">
-              {bodyfield ? (
+              {bodyField ? (
                 <SmartField
                   field={bodyField}
                   value={record[bodyField.name]}
