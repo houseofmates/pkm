@@ -36,7 +36,7 @@ export function formatHeadmateName(name: string): string {
 }
 
 export function getCapitalizationClass(name: string): string {
-  const formatted = FormatHeadmateName(name);
+  const formatted = formatHeadmateName(name);
   // if the formatted name starts with an letter (and is in our allowed list),
   // we return a class that forces normal case.
   const firstChar = formatted.charAt(0);
