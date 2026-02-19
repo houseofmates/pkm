@@ -2,6 +2,7 @@
 import { useAuth } from '@/contexts/auth-context';
 import type { Collection } from '@/types/nocobase';
 import { useQuery } from '@tanstack/react-query';
+import { secureLogger } from '@/lib/secure-logger';
 
 export type { Collection };
 
@@ -31,18 +32,18 @@ export function useCollections() {
    await client.updateCollection(col.name, { hidden: true, title: col.title || 'PKM Settings' });
  }
  } catch (e) {
- console.error('Failed to hide pkm_settings:', e);
+ secureLogger.error('Failed to hide pkm_settings:', e);
  }
  }
   });
 
   return rawCollections;
-  } catch (err: any) {
-  console.error("fetchCollections Error object:", err);
-  const msg = (err.message || JSON.stringify(err) || '').toString();
+  } catch (err: unknown) {
+  secureLogger.error("fetchCollections Error object:", err);
+  const msg = (err instanceof Error ? err.message : JSON.stringify(err) || '').toString();
 
   if (msg.includes('404') || msg.includes('401')) {
- console.warn("Auth Error Detected: Logging out.");
+ secureLogger.warn("Auth Error Detected: Logging out.");
  logout();
   }
   throw new Error(msg || 'Failed to fetch collections');
@@ -76,7 +77,7 @@ export function useCollections() {
 }
 
 export function useCollection(name: string) {
-  const { collections, loading, error } = UseCollections();
+  const { collections, loading, error } = useCollections();
   const collection = collections.find((c: Collection) => c.name === name);
   return { data: collection, loading, error };
 }
