@@ -30,8 +30,9 @@ export const useSocket = () => {
  console.warn("Socket connect error:", err);
   });
   } else {
-  setIsConnected(socket.connected);
-  if (!socket.connected) socket.connect();
+    const raf = requestAnimationFrame(() => setIsConnected(!!socket?.connected));
+    if (!socket.connected) socket.connect();
+    return () => cancelAnimationFrame(raf);
   }
 
   return () => {

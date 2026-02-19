@@ -72,7 +72,7 @@ export function TemplatePage() {
       const hist = s.history || [];
       if (hist.length === 0) return s;
       const last = hist[hist.length - 1];
-      try { setjson(last); } catch (e) { }
+      try { setjson(last); } catch (e) { /* ignore malformed JSON in local storage */ }
       return { ...s, history: hist.slice(0, -1) };
     });
   };

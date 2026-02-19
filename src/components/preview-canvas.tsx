@@ -84,7 +84,9 @@ export default function PreviewCanvas({
   const [localCols, setLocalCols] = useState<Widget[][]>(() => columns.map((c) => (Array.isArray(c) ? [...c] : [])));
 
   useEffect(() => {
-    setLocalCols(columns.map((c) => (Array.isArray(c) ? [...c] : [])));
+    const next = columns.map((c) => (Array.isArray(c) ? [...c] : []));
+    const raf = requestAnimationFrame(() => setLocalCols(next));
+    return () => cancelAnimationFrame(raf);
   }, [columns]);
 
   const widths = columnWidths?.slice(0, colCount) || Array(colCount).fill(Math.floor(100 / colCount));

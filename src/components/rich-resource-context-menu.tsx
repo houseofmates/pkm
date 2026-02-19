@@ -298,33 +298,33 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
 
   // sync local name if prop changes
   useEffect(() => {
-  if (currentname) setlocalname(currentname);
-  }, [currentname]);
+  if (currentName) setLocalName(currentName);
+  }, [currentName]);
 
   // emoji state
-  const [emojis, setemojis] = useState<any[]>(DEFAULT_EMOJIS);
+  const [emojis, setEmojis] = useState<any[]>(DEFAULT_EMOJIS);
   const [loadingEmojis, setLoadingEmojis] = useState(false);
 
   // load emojis (twemoji based source or standard list)
-  // load emojis (twemoji based source or standard list)
   useEffect(() => {
   if (activeTab === 'emojis' && emojis.length === DEFAULT_EMOJIS.length) {
-  setLoadingEmojis(true);
-  // fetch a comprehensive emoji list
-  fetch('https://unpkg.com/emoji-datasource-twitter@15.0.0/emoji.json')
- .then(res => res.json())
- .then((data: any[]) => {
- // sort by sort_order to ensure smileys are first (fixing the "flags only" issue)
- const sorted = data.sort((a, b) => a.sort_order - b.sort_order);
- setEmojis(sorted);
- setLoadingEmojis(false);
- })
- .catch(() => {
- // fail silently, we have defaults
- setLoadingEmojis(false);
- });
+    const raf = requestAnimationFrame(() => setLoadingEmojis(true));
+    // fetch a comprehensive emoji list
+    fetch('https://unpkg.com/emoji-datasource-twitter@15.0.0/emoji.json')
+      .then(res => res.json())
+      .then((data: any[]) => {
+        // sort by sort_order to ensure smileys are first (fixing the "flags only" issue)
+        const sorted = data.sort((a, b) => a.sort_order - b.sort_order);
+        setEmojis(sorted);
+        setLoadingEmojis(false);
+      })
+      .catch(() => {
+        // fail silently, we have defaults
+        setLoadingEmojis(false);
+      });
+    return () => cancelAnimationFrame(raf);
   }
-  }, [activeTab]);
+  }, [activeTab, emojis.length]);
 
   const filteredEmojis = useMemo(() => {
   if (!search) return emojis.slice(0, 200); // Limit initial render

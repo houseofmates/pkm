@@ -24,15 +24,21 @@ export function ProtocolShift() {
 
   useEffect(() => {
   if (sequence.join(',') === KONAMI_CODE.join(',')) {
-  setShifted(true);
-  setSequence([]);
+    const raf = requestAnimationFrame(() => {
+      setShifted(true);
+      setSequence([]);
+    });
+    return () => cancelAnimationFrame(raf);
   }
   }, [sequence]);
 
   // escape to exit
   useEffect(() => {
   const handleEsc = (e: KeyboardEvent) => {
-  if (e.key === 'Escape') setShifted(false);
+  if (e.key === 'Escape') {
+    const raf = requestAnimationFrame(() => setShifted(false));
+    return () => cancelAnimationFrame(raf);
+  }
   };
   window.addEventListener('keydown', handleEsc);
   return () => window.removeEventListener('keydown', handleEsc);
@@ -40,9 +46,9 @@ export function ProtocolShift() {
 
   useEffect(() => {
   if (shifted) {
-  document.body.classlist.add('protocol-shift');
+  document.body.classList.add('protocol-shift');
   } else {
-  document.body.classlist.remove('protocol-shift');
+  document.body.classList.remove('protocol-shift');
   }
   }, [shifted]);
 

@@ -18,18 +18,24 @@ export function CircularGauge({ title, totalSeconds, color = 'var(--primary)', c
   const [isActive, setIsActive] = useState(false);
 
   useEffect(() => {
-  let interval: NodeJS.Timeout;
+  let interval: NodeJS.Timeout | undefined;
+  let rafId: number | undefined;
 
   if (isActive && timeLeft > 0) {
-  interval = setInterval(() => {
- setTimeLeft((prev) => prev - 1);
-  }, 1000);
-  } else if (timeLeft === 0) {
-  setIsActive(false);
+    interval = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+  } else if (timeLeft === 0 && isActive) {
+    rafId = requestAnimationFrame(() => setIsActive(false));
   }
 
-  return () => clearInterval(interval);
+  return () => {
+    if (interval) clearInterval(interval);
+    if (rafId) cancelAnimationFrame(rafId);
+  };
   }, [isActive, timeLeft]);
+
+...
 
   const progress = timeLeft / totalSeconds;
   const radius = 40;
