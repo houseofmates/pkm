@@ -39,21 +39,22 @@ const ToolBtn = ({ tool, icon: Icon, menuContent, specialModeIcon, store, active
     if (menuContent) openMenu(tool)
   })
 
-  const handleClick = () => {
-    // close any open menu first
-    closemenu()
+    const handleClick = () => {
+      // close any open menu first
+      closeMenu()
 
-    if (onclickoverride) {
-      onclickoverride()
-    } else {
-      store.settool(tool)
-      if (tool === 'pen' || tool === 'eraser' || tool === 'text') {
-        store.setmode('draw')
-      } else if (tool === 'hand') {
-        store.setmode('interact')
+      if (onClickOverride) {
+        onClickOverride()
+      } else {
+        store.setTool(tool)
+        if (tool === 'pen' || tool === 'eraser' || tool === 'text') {
+          store.setMode('draw')
+        } else if (tool === 'hand') {
+          store.setMode('interact')
+        }
       }
     }
-  }
+
 
   return (
     <div className="relative group">
@@ -65,12 +66,12 @@ const ToolBtn = ({ tool, icon: Icon, menuContent, specialModeIcon, store, active
         title={tool}
         className={`h-[48px] w-[48px] flex items-center justify-center rounded-full transition-all relative ${isActive ? 'bg-primary text-primary-foreground' : 'text-primary hover:bg-primary/20'}`}
       >
-        {specialmodeicon ? specialmodeicon : <Icon size={24} />}
+        {specialModeIcon ? specialModeIcon : <Icon size={24} />}
         {/* visual indicator for active mode variants */}
         {activeMenu === tool && <div className="absolute -bottom-1 w-1 h-1 bg-primary rounded-full"></div>}
       </button>
 
-      {activemenu === tool && menucontent && (
+      {activeMenu === tool && menuContent && (
         <div className="absolute bottom-16 left-1/2 -translate-x-1/2 md:top-16 md:bottom-auto bg-black border border-primary p-4 rounded-lg flex flex-col gap-2 min-w-[200px] z-[70] shadow-[0_0_15px_rgba(255,215,0,0.2)]">
           {menucontent}
           <button onClick={closeMenu} className="text-xs text-red-500 mt-2 lowercase hover:text-red-400 self-center">close</button>
@@ -96,8 +97,8 @@ export function Toolbar() {
       }
     }
     window.addEventListener('mousedown', handleClickOutside)
-    return () => window.removeeventlistener('mousedown', handleclickoutside)
-  }, [activemenu])
+    return () => window.removeEventListener('mousedown', handleClickOutside)
+  }, [activeMenu])
 
   return (
     <div ref={toolbarRef} className="fixed bottom-24 left-1/2 -translate-x-1/2 md:top-4 md:right-24 md:left-auto md:translate-x-0 md:bottom-auto bg-black border-2 border-primary rounded-full p-2 flex gap-2 shadow-[4px_4px_0_var(--primary)] z-50 items-center">
@@ -151,17 +152,17 @@ export function Toolbar() {
         openMenu={openMenu}
         closeMenu={closeMenu}
         onClickOverride={() => {
-          store.settool('select')
+          store.setTool('select')
           // ensure we are in the correct mode for the tool
-          if (store.selectionmode === 'rect' || store.selectionmode === 'magic' || store.selectionmode === 'free') {
-            store.setselectionmode('grab') // default fallback if weird state
+          if (store.selectionMode === 'rect' || store.selectionMode === 'magic' || store.selectionMode === 'free') {
+            store.setSelectionMode('grab') // default fallback if weird state
           }
-          store.setmode('draw')
+          store.setMode('draw')
         }}
-        specialmodeicon={
-          store.selectionmode === 'cursor' ? <MousePointer2 size={24} /> : <Hand size={24} />
+        specialModeIcon={
+          store.selectionMode === 'cursor' ? <MousePointer2 size={24} /> : <Hand size={24} />
         }
-        menucontent={
+        menuContent={
           <>
             <span className="text-xs text-primary font-bold mb-1 lowercase">cursor mode</span>
             <button onClick={() => { store.setSelectionMode('grab'); closeMenu() }} className={`text-sm hover:bg-primary/20 p-2 rounded flex items-center gap-2 lowercase ${store.selectionMode === 'grab' ? 'text-primary font-bold' : 'text-primary'}`}>
@@ -265,7 +266,7 @@ export function Toolbar() {
         closeMenu={closeMenu}
         menuContent={
           <>
-            <label className="text-xs text-primary lowercase">width: {store.eraserwidth}px</label>
+            <label className="text-xs text-primary lowercase">width: {store.eraserWidth}px</label>
             <input
               type="range" min="5" max="100"
               value={store.eraserWidth}
@@ -286,7 +287,7 @@ export function Toolbar() {
         closeMenu={closeMenu}
         menuContent={
           <>
-            <label className="text-xs text-primary lowercase">size: {store.textsize}px</label>
+            <label className="text-xs text-primary lowercase">size: {store.textSize}px</label>
             <input
               type="range" min="12" max="120"
               value={store.textSize}
@@ -299,7 +300,7 @@ export function Toolbar() {
               className={`text-sm p-2 rounded flex items-center gap-2 transition-colors lowercase ${store.isLinking ? 'bg-primary text-black' : 'text-primary'}`}
             >
               <LinkIcon size={16} />
-              {store.islinking ? 'linking active...' : 'create link'}
+              {store.isLinking ? 'linking active...' : 'create link'}
             </button>
           </>
         }
