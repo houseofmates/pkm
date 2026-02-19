@@ -1,6 +1,6 @@
-// @ts-nocheck
 import { ListRecordsResponseSchema, GetRecordResponseSchema, ActionResponseSchema, ListCollectionsResponseSchema } from "@/lib/api/schemas";
 import { apiClient } from '@/lib/api-client';
+import { secureLogger } from '@/lib/secure-logger';
 import type { AxiosInstance } from 'axios';
 
 export class NocoBaseClient {
@@ -27,7 +27,7 @@ export class NocoBaseClient {
   } catch (error) {
  // fallback: if 404/400 (likely due to name mismatch with id), try filtered list
  if (error.response?.status === 404 || error.response?.status === 400 || error.response?.status === 500) {
-  console.warn(`getCollection(${name}) failed, attempting fallback search...`);
+  secureLogger.warn(`getCollection(${name}) failed, attempting fallback search...`);
 
   // attempt 1: exact name match
   let res = await this._axios.get('/collections:list', {
@@ -45,7 +45,7 @@ export class NocoBaseClient {
 
   // attempt 2: case-insensitive match (postgres/general)
   // trying both $ilike and $like to be safe across db types
-  console.warn(`getCollection(${name}) exact match failed, attempting case-insensitive...`);
+  secureLogger.warn(`getCollection(${name}) exact match failed, attempting case-insensitive...`);
   try {
    res = await this._axios.get('/collections:list', {
   params: {
@@ -67,12 +67,12 @@ export class NocoBaseClient {
    if (list.length > 0) return { data: list[0] };
 
   } catch (_e) {
-   console.warn("Case insensitive search failed", _e);
+   secureLogger.warn("Case insensitive search failed", _e);
   }
  }
 
  // attempt 3: brute force (fetch all and find)
- console.warn(`getCollection(${name}) still failing, attempting brute - force list search...`);
+ secureLogger.warn(`getCollection(${name}) still failing, attempting brute - force list search...`);
  try {
   // try with fields first (removed paginate: false in case it's problematic)
   let res = await this._axios.get('/collections:list', {
@@ -84,25 +84,25 @@ export class NocoBaseClient {
   let found = list.find(c => (c.name || '').toLowerCase() === (name || '').toLowerCase());
 
   if (found) {
-   console.log(`FOUND collection ${name} via brute force(with fields) !`);
+   secureLogger.info(`FOUND collection ${name} via brute force(with fields) !`);
    return { data: found };
   }
 
   // try without fields (exact same as usecollections/sidebar)
-  console.warn(`getCollection(${name}) not found with fields, trying bare list...`);
+  secureLogger.warn(`getCollection(${name}) not found with fields, trying bare list...`);
   res = await this._axios.get('/collections:list'); // No params
   list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
   found = list.find(c => (c.name || '').toLowerCase() === (name || '').toLowerCase());
 
   if (found) {
-   console.log(`FOUND collection ${name} via bare list!`);
+   secureLogger.info(`FOUND collection ${name} via bare list!`);
    // if we found it without fields, we return it.
    // the ui might lack field definitions but it won't 404.
    return { data: found };
   }
 
   } catch (_e) {
-   console.warn("Brute force search failed", _e);
+   secureLogger.warn("Brute force search failed", _e);
   }
 
 
@@ -122,19 +122,19 @@ export class NocoBaseClient {
   } catch (error) {
  // if 404, it might be a case-sensitivity mismatch. try to resolve the real name.
  if (error.response?.status === 404) {
-  console.warn(`updateCollection(${name}) 404, attempting to resolve real name...`);
+  secureLogger.warn(`updateCollection(${name}) 404, attempting to resolve real name...`);
   try {
    const col = await this.getCollection(name);
    // handle both { data: collection } and collection structure
    const realName = col?.data?.name || col?.name;
 
    if (realName && realName !== name) {
-  console.log(`Resolved collection name mismatch: ${name} -> ${realName}. Retrying update.`);
+  secureLogger.info(`Resolved collection name mismatch: ${name} -> ${realName}. Retrying update.`);
   const res = await this._axios.post(`/collections/${realName}:update`, data);
   return ListRecordsResponseSchema.parse(res.data);
    }
   } catch (findError) {
-   console.warn("Failed to resolve collection for retry", findError);
+   secureLogger.warn("Failed to resolve collection for retry", findError);
   }
  }
  throw error;
@@ -166,7 +166,7 @@ export class NocoBaseClient {
  return true;
   } catch (error) {
  if (error?.response?.status === 400) return true; // Already exists race condition
- console.warn('Backend collection check failed', error);
+ secureLogger.warn('Backend collection check failed', error);
  return false;
   }
  }
@@ -194,17 +194,17 @@ export class NocoBaseClient {
   }
 
   // delete existing collection if it exists (to fix schema)
-  console.log(`[NocoBase] Resetting ${COL_NAME} collection to fix schema...`);
+  secureLogger.info(`[NocoBase] Resetting ${COL_NAME} collection to fix schema...`);
   try {
  await this._axios.post(`/collections:destroy?filterByTk=${COL_NAME}`);
- console.log(`[NocoBase] Deleted old ${COL_NAME} collection`);
+ secureLogger.info(`[NocoBase] Deleted old ${COL_NAME} collection`);
  await new Promise(r => setTimeout(r, 1000));
   } catch (e) {
  // ignore delete errors - collection might not exist
   }
 
   // create with correct schema
-  console.log(`[NocoBase] Creating ${COL_NAME} collection with correct schema...`);
+  secureLogger.info(`[NocoBase] Creating ${COL_NAME} collection with correct schema...`);
   try {
  await this.createCollection({
   name: COL_NAME,
@@ -226,7 +226,7 @@ export class NocoBaseClient {
  return true;
   } catch (createError: unknown) {
  const errMsg = createError instanceof Error ? createError.message : String(createError);
- console.error(`[NocoBase] Failed to create ${COL_NAME}:`, errMsg);
+ secureLogger.error(`[NocoBase] Failed to create ${COL_NAME}:`, errMsg);
  return false;
   }
  }
@@ -243,7 +243,8 @@ export class NocoBaseClient {
   // not found
  }
 
- console.log(`Creating ${COL_NAME} collection...`);
+  secureLogger.info(`Creating ${COL_NAME} collection...`);
+
  await this.createCollection({
   name: COL_NAME,
   title: 'PKM Canvases',
@@ -272,7 +273,7 @@ export class NocoBaseClient {
   // @ts-expect-error - error may have response property
  if (error?.response?.status === 404) {
 
-  console.warn("First create attempt failed 404, retrying ensure...", error);
+  secureLogger.warn("First create attempt failed 404, retrying ensure...", error);
   await ensure(); // Force check/create again
   await new Promise(r => setTimeout(r, 1000)); // Wait more
   // retry create
@@ -341,11 +342,11 @@ export class NocoBaseClient {
 
  if (res.ok) {
   const data = await res.json();
-  console.log('[Upload] Using PKM backend upload:', data);
+  secureLogger.info('[Upload] Using PKM backend upload:', data);
   return data;
  }
   } catch (err) {
- console.warn('[Upload] PKM backend upload failed, falling back to NocoBase:', err);
+ secureLogger.warn('[Upload] PKM backend upload failed, falling back to NocoBase:', err);
   }
 
   // fallback to nocobase attachments endpoint

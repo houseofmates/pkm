@@ -1,5 +1,6 @@
 import { api } from './nocobase-client';
 import { SimplyPluralClient } from '@/lib/simply-plural-client';
+import { secureLogger } from '@/lib/secure-logger';
 
 /**
  * nocobase collection schema: 'front_history'
@@ -22,7 +23,7 @@ export class SyncService {
  * @param systemid simplyplural system id
  */
   static async sync(apiKey: string) {
-  console.log("sync: fetching last entry from nocobase...");
+  secureLogger.info("sync: fetching last entry from nocobase...");
   try {
   // 1. get last known sync time (most recent starttime in db)
   let lastSyncTime = new Date('2020-01-01').toISOString();
@@ -35,15 +36,15 @@ export class SyncService {
 
  if (data && data.length > 0 && data[0].startTime) {
  lastSyncTime = data[0].startTime;
- console.log(`sync: last timestamp found: [${lastSyncTime}]`);
+ secureLogger.info(`sync: last timestamp found: [${lastSyncTime}]`);
  } else {
- console.log("sync: no previous history found, defaulting to 2020-01-01");
+ secureLogger.info("sync: no previous history found, defaulting to 2020-01-01");
  }
   } catch (e) {
- console.warn("sync: Could not fetch last sync time, defaulting to full sync.", e);
+ secureLogger.warn("sync: Could not fetch last sync time, defaulting to full sync.", e);
   }
 
-  console.log(`sync: fetching from simplyplural...`);
+  secureLogger.info(`sync: fetching from simplyplural...`);
 
   // 2. fetch history from simplyplural
   const spRes = await fetch(SimplyPluralClient.url(`/frontHistory`), {
@@ -60,7 +61,7 @@ export class SyncService {
 
   // 3. filter (process last 50 for safety)
   const recentEntries = spHistory.slice(0, 50);
-  console.log(`sync: found [${recentEntries.length}] entries to process (checking for updates/new).`);
+  secureLogger.info(`sync: found [${recentEntries.length}] entries to process (checking for updates/new).`);
 
   let addedCount = 0;
   let updatedCount = 0;
@@ -115,27 +116,27 @@ export class SyncService {
 
  }
   } catch (err: unknown) {
- console.error(`sync: failed to write entry [${sp_id}]`);
+ secureLogger.error(`sync: failed to write entry [${sp_id}]`);
  const errorWithResponse = err as { response?: { data?: unknown }; message?: string };
  if (errorWithResponse.response) {
- console.error("sync: NocoBase Error Response:", JSON.stringify(errorWithResponse.response.data, null, 2));
+ secureLogger.error("sync: NocoBase Error Response:", JSON.stringify(errorWithResponse.response.data, null, 2));
  } else {
- console.error("sync: Error:", errorWithResponse.message || String(err));
+ secureLogger.error("sync: Error:", errorWithResponse.message || String(err));
  }
 
  }
   }
 
-  console.log(`sync: Sync Complete. Added: ${addedCount}, Updated: ${updatedCount}`);
+  secureLogger.info(`sync: Sync Complete. Added: ${addedCount}, Updated: ${updatedCount}`);
   if (addedCount > 0 || updatedCount > 0) {
  // toast.success(`synced ${addedcount} new, ${updatedcount} updated entries.`); // user requested removal
- console.log(`Synced ${addedCount} new, ${updatedCount} updated entries.`);
+ secureLogger.info(`Synced ${addedCount} new, ${updatedCount} updated entries.`);
   } else {
- console.log("sync: No changes needed.");
+ secureLogger.info("sync: No changes needed.");
   }
 
   } catch (error: unknown) {
-  console.error("Sync Service Failed:", error);
+  secureLogger.error("Sync Service Failed:", error);
   }
   }
 }
