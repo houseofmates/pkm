@@ -1,5 +1,6 @@
-
+import * as React from 'react';
 import { useState, useEffect } from 'react';
+import type { ChangeEvent, MouseEvent } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -131,7 +132,7 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
 
 // --- relation picker component ---
 function RelationPicker({ field, value, onChange, onCancel }: any) {
-  const { client } = useAuth();
+  const { client } = useAuth() as any;
   const [options, setOptions] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
@@ -231,7 +232,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   // formula editor state
   const [showFormulaEditor, setShowFormulaEditor] = useState(false);
 
-  const { client }: { client: any } = useAuth(); // force any for now to avoid null issues if context is missing
+  const { client } = useAuth() as any; // cast to any to bypass hook return type mismatch if context is undefined internally
 
   useEffect(() => {
     if (!isEditing) setLocalValue(value);
@@ -421,7 +422,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           <Input
             placeholder="paste url..."
             value={localValue || ''}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
             className="h-8 text-xs border-none focus-visible:ring-0 rounded-none"
           />
           {/* mock upload - in real app, this would use an uploader utils */}
@@ -496,7 +497,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           />
           <Input
             value={localValue || ''}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
             className="h-8 w-24 text-xs font-mono"
             placeholder="#hex"
           />
@@ -520,7 +521,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           <textarea
             autoFocus
             value={typeof localValue === 'string' ? localValue : JSON.stringify(localValue, null, 2)}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setLocalValue(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setLocalValue(e.target.value)}
             className="w-full h-32 text-[10px] font-mono bg-[#050505] text-green-400 p-2 border border-primary/20 focus:outline-none"
           />
           <div className="flex justify-end gap-1 mt-1">
@@ -545,9 +546,9 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           autoFocus
           type={isNumber ? "number" : "text"}
           value={localValue || ''}
-          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
           className={cn("h-8 text-xs", inputClassName)}
-          onKeyDown={e => {
+          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
             if (e.key === 'Enter') handleSave();
             if (e.key === 'Escape') handleCancel();
           }}
@@ -793,7 +794,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
               <span className={cn("truncate max-w-[150px] underline decoration-dotted text-muted-foreground group-hover:text-primary font-varela", size === 'lg' ? "text-lg" : "text-sm")}>
                 {value ? 'view map' : 'set location'}
               </span>
-              <Button variant="ghost" size="icon" className="h-4 w-4 ml-1 opacity-0 group-hover:opacity-100" onClick={(e: React.MouseEvent) => { e.stopPropagation(); setIsEditing(true); }}>
+              <Button variant="ghost" size="icon" className="h-4 w-4 ml-1 opacity-0 group-hover:opacity-100" onClick={(e: MouseEvent) => { e.stopPropagation(); setIsEditing(true); }}>
                 <Check className="h-3 w-3" />
               </Button>
             </div>

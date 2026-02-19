@@ -89,8 +89,8 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
             <Label className="text-[10px] font-bold text-muted-foreground ">title / name</Label>
             <Input
               value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              onBlur={(e) => handleTitleChange(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
+              onBlur={(e: React.FocusEvent<HTMLInputElement>) => handleTitleChange(e.target.value)}
               className="h-8 font-semibold text-sm bg-[#050505] border-transparent hover:border-input focus:border-primary transition-colors text-white"
             />
           </div>
@@ -238,7 +238,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
                   value={record[field.name]}
                   record={record}
                   className="h-8 text-sm"
-                  onChange={(val) => {
+                  onChange={(val: any) => {
                     if (onUpdate) onUpdate(record.id, { [field.name]: val });
                   }}
                 />
