@@ -9,7 +9,7 @@ import { lazy, Suspense, useEffect } from "react"
 import { FronterProvider } from "@/contexts/fronter-context"
 import { LLMContextProvider } from "@/contexts/llm-context"
 import { CanvasErrorBoundary } from "@/features/edgeless"
-import { walRecover, walCommit, walFail, walPendingCount } from "@/lib/write-ahead-log"
+import { walrecover, walcommit, walfail, walpendingcount } from "@/lib/write-ahead-log"
 import { isLinkRegistryMigrated, backfillLinkRegistry } from "@/lib/link-migration"
 import { secureLogger } from "@/lib/secure-logger"
 
@@ -82,7 +82,7 @@ function AppContent() {
     const handler = (e: BeforeUnloadEvent) => {
       // check synchronously (we can't await in beforeunload)
       // the actual recovery happens on next load via walRecover()
-      walPendingCount().then((count) => {
+      walpendingcount().then((count) => {
         if (count > 0) {
           secureLogger.warn(`wal: ${count} pending writes — recovery will happen on next load`)
         }
@@ -97,7 +97,7 @@ function AppContent() {
   // wal recovery on startup: replay any incomplete writes from a previous crash
   useEffect(() => {
     if (!client) return
-    walRecover().then(async (pending) => {
+    walrecover().then(async (pending) => {
       if (pending.length === 0) return
       secureLogger.info(`wal: recovering ${pending.length} pending writes from previous session`)
       for (const entry of pending) {
@@ -109,11 +109,11 @@ function AppContent() {
           } else if (entry.operation === 'delete') {
             await client.deleteRecord(entry.collection, entry.recordId)
           }
-          await walCommit(entry.id)
+          await walcommit(entry.id)
           secureLogger.info(`wal: recovered ${entry.operation} on ${entry.collection}/${entry.recordId}`)
         } catch (err) {
           secureLogger.error('wal: recovery failed for', entry.id, err)
-          await walFail(entry.id)
+          await walfail(entry.id)
         }
       }
     }).catch((err) => {
