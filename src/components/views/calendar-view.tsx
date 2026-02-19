@@ -408,7 +408,7 @@ function YearView({ currentDate, recordsByDate, onMonthClick }: { currentDate: D
           const hasActivity = Array.from({ length: daysInMonth }, (_, i) => {
             const d = new Date(year, month, i + 1).toDateString();
             return recordsByDate[d]?.length > 0;
-          }).some(boolean);
+          }).some(Boolean);
 
           return (
             <div
@@ -420,15 +420,15 @@ function YearView({ currentDate, recordsByDate, onMonthClick }: { currentDate: D
               )}
             >
               <div className="text-sm font-bold mb-2 text-center lowercase">
-                {monthdate.tolocalestring('default', { month: 'long' })}
+                {monthDate.toLocaleString('default', { month: 'long' })}
               </div>
               <div className="grid grid-cols-7 gap-1 text-[8px] text-center text-muted-foreground">
                 {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => <span key={d}>{d}</span>)}
                 {Array.from({ length: startDay }).map((_, i) => <span key={`pad-${i}`}>&nbsp;</span>)}
                 {Array.from({ length: daysInMonth }).map((_, i) => {
                   const day = i + 1;
-                  const dstr = new date(year, month, day).todatestring();
-                  const count = recordsbydate[dstr]?.length || 0;
+                  const dStr = new Date(year, month, day).toDateString();
+                  const count = recordsByDate[dStr]?.length || 0;
                   return (
                     <div
                       key={day}
