@@ -8,7 +8,7 @@ import { AdminLoginModal } from '@/features/houseofmates-builder/components/Admi
 
 const BlogEditor = lazy(() => import('./components/BlogEditor').then(m => ({ default: m.blogeditor })));
 
-interface blogpost {
+interface BlogPost {
   id: string;
   title: string;
   slug: string;
@@ -26,166 +26,166 @@ interface blogpost {
   view_count?: number;
 }
 
-export function blogbuilder() {
-  const { slug } = useparams<{ slug?: string }>();
-  const [posts, setposts] = useState<BlogPost[]>([]);
-  const [currentpost, setcurrentpost] = useState<BlogPost | null>(null);
-  const [loading, setloading] = useState(true);
-  const [scrolldirection, setscrolldirection] = useState<'horizontal' | 'vertical'>('horizontal');
+export function BlogBuilder() {
+  const { slug } = useParams<{ slug?: string }>();
+  const [posts, setPosts] = useState<BlogPost[]>([]);
+  const [currentPost, setCurrentPost] = useState<BlogPost | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [scrollDirection, setScrollDirection] = useState<'horizontal' | 'vertical'>('horizontal');
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   // check auth on mount
   useEffect(() => {
-  const key = localStorage.getItem('hom_api_key');
-  if (key) setIsAdmin(true);
+    const key = localStorage.getItem('hom_api_key');
+    if (key) setIsAdmin(true);
   }, []);
 
   // global keyboard listener for ctrl+e
   useEffect(() => {
-  const handleKeyDown = (e: KeyboardEvent) => {
-  if (e.ctrlKey && e.key.toLowerCase() === 'e') {
- e.preventDefault();
- const key = localStorage.getItem('hom_api_key');
- if (key) {
- setIsAdmin(true);
- toast.info('admin mode active');
- } else {
- setShowLoginModal(true);
- }
-  }
-  };
-  window.addEventListener('keydown', handleKeyDown);
-  return () => window.removeEventListener('keydown', handleKeyDown);
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key.toLowerCase() === 'e') {
+        e.preventDefault();
+        const key = localStorage.getItem('hom_api_key');
+        if (key) {
+          setIsAdmin(true);
+          toast.info('admin mode active');
+        } else {
+          setShowLoginModal(true);
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
   const handleLogin = (key: string) => {
-  localstorage.setitem('hom_api_key', key);
-  setisadmin(true);
-  setshowloginmodal(false);
-  toast.success('admin mode enabled');
+    localStorage.setItem('hom_api_key', key);
+    setIsAdmin(true);
+    setShowLoginModal(false);
+    toast.success('admin mode enabled');
   };
 
   if (isadmin) {
-  return (
-  <Suspense fallback={<div className="h-screen w-full flex items-center justify-center bg-[#050505] text-white">loading editor...</div>}>
- <BlogEditor />
-  </Suspense>
-  );
+    return (
+      <Suspense fallback={<div className="h-screen w-full flex items-center justify-center bg-[#050505] text-white">loading editor...</div>}>
+        <BlogEditor />
+      </Suspense>
+    );
   }
 
   // load scroll direction preference from localstorage
   useEffect(() => {
-  const saved = localStorage.getItem('blog-scroll-direction');
-  if (saved === 'vertical' || saved === 'horizontal') {
-  setScrollDirection(saved);
-  }
+    const saved = localStorage.getItem('blog-scroll-direction');
+    if (saved === 'vertical' || saved === 'horizontal') {
+      setScrollDirection(saved);
+    }
   }, []);
 
   // save scroll direction preference
   const handleScrollDirectionChange = (direction: 'horizontal' | 'vertical') => {
-  setScrollDirection(direction);
-  localStorage.setItem('blog-scroll-direction', direction);
+    setScrollDirection(direction);
+    localStorage.setItem('blog-scroll-direction', direction);
   };
 
   // fetch posts or individual post
   useEffect(() => {
-  const fetchData = async () => {
-  setLoading(true);
-  try {
- if (slug) {
- // fetch individual post by slug
- const response = await api.request('blog_posts', 'list', {
- params: {
-   'filter[slug][$eq]': slug,
-   'filter[published][$eq]': true,
- },
- });
+    const fetchData = async () => {
+      setLoading(true);
+      try {
+        if (slug) {
+          // fetch individual post by slug
+          const response = await api.request('blog_posts', 'list', {
+            params: {
+              'filter[slug][$eq]': slug,
+              'filter[published][$eq]': true,
+            },
+          });
 
- if (response.data?.data && response.data.data.length > 0) {
- setCurrentPost(response.data.data[0]);
- } else {
- toast.error('post not found');
- setCurrentPost(null);
- }
- } else {
- // fetch all published posts for gallery
- const response = await api.request('blog_posts', 'list', {
- params: {
-   'filter[published][$eq]': true,
-   sort: '-published_date',
-   pageSize: 100,
- },
- });
+          if (response.data?.data && response.data.data.length > 0) {
+            setCurrentPost(response.data.data[0]);
+          } else {
+            toast.error('post not found');
+            setCurrentPost(null);
+          }
+        } else {
+          // fetch all published posts for gallery
+          const response = await api.request('blog_posts', 'list', {
+            params: {
+              'filter[published][$eq]': true,
+              sort: '-published_date',
+              pageSize: 100,
+            },
+          });
 
- if (response.data?.data) {
- setPosts(response.data.data);
- }
- }
-  } catch (error) {
- console.error('[BlogBuilder] Error fetching data:', error);
- toast.error('failed to load blog posts');
-  } finally {
- setLoading(false);
-  }
-  };
+          if (response.data?.data) {
+            setPosts(response.data.data);
+          }
+        }
+      } catch (error) {
+        console.error('[BlogBuilder] Error fetching data:', error);
+        toast.error('failed to load blog posts');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  fetchData();
+    fetchData();
   }, [slug]);
 
   // increment view count
   const handleViewCountUpdate = async (postId: string) => {
-  try {
-  const post = currentPost || posts.find(p => p.id === postid);
-  if (!post) return;
+    try {
+      const post = currentPost || posts.find(p => p.id === postid);
+      if (!post) return;
 
-  await api.request('blog_posts', 'update', {
- method: 'post',
- params: {
- filterbytk: postid,
- },
- data: {
- view_count: (post.view_count || 0) + 1,
- },
-  });
-  } catch (error) {
-  console.error('[blogbuilder] error updating view count:', error);
-  }
+      await api.request('blog_posts', 'update', {
+        method: 'post',
+        params: {
+          filterbytk: postid,
+        },
+        data: {
+          view_count: (post.view_count || 0) + 1,
+        },
+      });
+    } catch (error) {
+      console.error('[blogbuilder] error updating view count:', error);
+    }
   };
 
   let content;
   if (loading) {
-  content = (
-  <div className="h-screen flex items-center justify-center bg-[#050505] text-[var(--primary)] lowercase text-xl">
- loading blog...
-  </div>
-  );
+    content = (
+      <div className="h-screen flex items-center justify-center bg-[#050505] text-[var(--primary)] lowercase text-xl">
+        loading blog...
+      </div>
+    );
   } else if (slug && currentpost) {
-  content = (
-  <BlogPostViewer
- post={currentPost}
- onViewCountUpdate={handleViewCountUpdate}
-  />
-  );
+    content = (
+      <BlogPostViewer
+        post={currentPost}
+        onViewCountUpdate={handleViewCountUpdate}
+      />
+    );
   } else {
-  content = (
-  <BlogGallery
- posts={posts}
- scrollDirection={scrollDirection}
- onScrollDirectionChange={handleScrollDirectionChange}
-  />
-  );
+    content = (
+      <BlogGallery
+        posts={posts}
+        scrollDirection={scrollDirection}
+        onScrollDirectionChange={handleScrollDirectionChange}
+      />
+    );
   }
 
   return (
-  <>
-  {content}
-  <AdminLoginModal
- isOpen={showLoginModal}
- onClose={() => setShowLoginModal(false)}
- onLogin={handleLogin}
-  />
-  </>
+    <>
+      {content}
+      <AdminLoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onLogin={handleLogin}
+      />
+    </>
   );
 }
 
