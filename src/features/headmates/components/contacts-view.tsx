@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { Search } from "lucide-react";
 
-export function ContactsView({ }: ViewProps) {
+export function ContactsView(_: ViewProps) {
   const { members } = useFronter();
   const [search, setSearch] = useState("");
 

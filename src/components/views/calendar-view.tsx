@@ -13,7 +13,7 @@ import { RecordContextMenu } from '@/features/records/components/record-context-
 import { SmartField } from '@/components/fields/smart-field';
 import { Label } from '@/components/ui/label';
 
-interface CalendarViewProps extends ViewProps { }
+type CalendarViewProps = ViewProps;
 
 type ViewMode = 'year' | 'month' | 'week' | 'day';
 
