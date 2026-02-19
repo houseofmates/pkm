@@ -58,20 +58,20 @@ export function DatabaseSettingsForm({
     onUpdateMetadata?.({ [key]: val });
   };
 
-  const handleupload = (e: react.changeevent<HTMLInputElement>, type: 'icon' | 'image') => {
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>, type: 'icon' | 'image') => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
         const res = reader.result as string;
         if (type === 'icon') {
-          updatemeta('icon', res);
-          updatemeta('icontype', 'image');
+          updateMeta('icon', res);
+          updateMeta('icontype', 'image');
         } else {
-          updatemeta('image', res); // associated image / cover
+          updateMeta('image', res); // associated image / cover
         }
       };
-      reader.readasdataurl(file);
+      reader.readAsDataURL(file);
     }
   };
 
@@ -82,7 +82,7 @@ export function DatabaseSettingsForm({
     <div className="space-y-4">
       <div className="flex items-center justify-between border-b pb-2">
         <span className="font-semibold text-sm">settings</span>
-        {ondelete && (
+        {onDelete && (
           <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:bg-destructive/10" onClick={onDelete} title="delete">
             <Trash2 className="h-3 w-3" />
           </Button>
@@ -116,10 +116,10 @@ export function DatabaseSettingsForm({
                 )}
               </Button>
               {/* hidden upload for icon */}
-              <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onchange={(e) => handleupload(e, 'icon')} />
-              <button variant="ghost" size="icon" classname="h-8 w-8" onclick={() => fileinputref.current?.click()} title="upload icon">
-                <upload classname="h-3 w-3" />
-              </button>
+              <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={(e) => handleUpload(e, 'icon')} />
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => fileInputRef.current?.click()} title="upload icon">
+                <Upload className="h-3 w-3" />
+              </Button>
             </div>
           </div>
 
@@ -165,7 +165,7 @@ export function DatabaseSettingsForm({
       <Separator />
 
       {/* default view setting */}
-      {currentview && (
+      {currentView && (
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground ">default view</Label>
           <Button
@@ -185,7 +185,7 @@ export function DatabaseSettingsForm({
       <Separator />
 
       {/* view config (sort/filter etc) */}
-      {!ispage && onupdateconfig && (
+      {!isPage && onUpdateConfig && (
         <div className="space-y-3">
           <div className="space-y-1">
             <Label className="text-xs text-muted-foreground flex items-center gap-2">
@@ -217,12 +217,12 @@ export function DatabaseSettingsForm({
       <Separator />
 
       {/* view specific settings */}
-      {(['gallery', 'list', 'calendar', 'timeline', 'gantt'].includes(currentview || '')) && onupdateconfig && (
+      {(['gallery', 'list', 'calendar', 'timeline', 'gantt'].includes(currentView || '')) && onUpdateConfig && (
         <div className="space-y-3">
           <Label className="text-xs text-muted-foreground ">{currentView} appearance</Label>
 
           {/* cover image field (gallery/list) */}
-          {(currentview === 'gallery' || currentview === 'list') && (
+          {(currentView === 'gallery' || currentView === 'list') && (
             <div className="space-y-1">
               <Label className="text-[10px] text-muted-foreground">cover image / icon</Label>
               <Select
@@ -241,7 +241,7 @@ export function DatabaseSettingsForm({
           )}
 
           {/* date field (calendar/timeline/gantt) */}
-          {(currentview === 'calendar' || currentview === 'timeline' || currentview === 'gantt') && (
+          {(currentView === 'calendar' || currentView === 'timeline' || currentView === 'gantt') && (
             <div className="space-y-1">
               <Label className="text-[10px] text-muted-foreground">primary date field</Label>
               <Select
