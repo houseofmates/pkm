@@ -6,6 +6,7 @@ import tippy, { type Instance } from 'tippy.js';
 import { SlashMenu } from './SlashMenu';
 import { CommandActions } from './command-actions';
 import { api } from '@/api/nocobase-client';
+import { secureLogger } from '@/lib/secure-logger';
 
 export const SlashCommand = Extension.create({
   name: 'slashCommand',
@@ -169,7 +170,7 @@ export const getSuggestionItems = async ({ query }: { query: string }) => {
  .insertContent(response)
  .run();
  } catch (e) {
- console.error(e);
+ secureLogger.error('AI command failed:', e);
  editor.chain().focus()
  .deleteRange({ from: startPos, to: startPos + 11 })
  .insertContent(`[AI Error]`)
@@ -207,7 +208,7 @@ export const getSuggestionItems = async ({ query }: { query: string }) => {
  return [...commands, ...searchResults];
   }
   } catch (e) {
-  console.warn("Slash Search Failed", e);
+  secureLogger.warn("Slash Search Failed", e);
   }
   }
 

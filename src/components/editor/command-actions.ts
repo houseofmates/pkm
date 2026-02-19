@@ -1,5 +1,6 @@
 
 import { Editor } from '@tiptap/core';
+import { secureLogger } from '@/lib/secure-logger';
 
 export type TiptapRange = { from: number; to: number };
 import { useEdgelessStore } from '@/features/edgeless/store';
@@ -46,7 +47,7 @@ export const CommandActions = {
  content = slice.content.textBetween(0, slice.content.size) || "New Thought";
   }
   } catch (e) {
-  console.warn("Could not extract text for canvas", e);
+  secureLogger.warn("Could not extract text for canvas", e);
   }
 
   const store = useEdgelessStore.getState();
