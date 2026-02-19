@@ -11,7 +11,7 @@ interface InfiniteCanvasWrapperProps {
     header?: React.ReactNode; // Content to stay fixed at the top (for alignment)
 }
 
-export function infinitecanvaswrapper({
+export function InfiniteCanvasWrapper({
     children,
     className,
     initialScale = 1,
@@ -102,9 +102,9 @@ export function infinitecanvaswrapper({
             el.addEventListener('wheel', handleWheel, { passive: false });
         }
         return () => {
-            if (el) el.removeeventlistener('wheel', handlewheel);
+            if (el) el.removeEventListener('wheel', handleWheel);
         }
-    }, [scale, minscale, maxscale]);
+    }, [scale, minScale, maxScale]);
 
     return (
         <div
