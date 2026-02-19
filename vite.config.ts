@@ -12,7 +12,11 @@ export default defineConfig({
     host: true,
     port: 3010,
     strictPort: false,
-    allowedHosts: ["app.houseofmates.space", "houseofmates.space", ".houseofmates.space"],
+    allowedHosts: ["app.houseofmates.space", "houseofmates.space", ".houseofmates.space", "pkm.houseofmates.space"],
+    hmr: {
+      protocol: 'wss',
+      clientPort: 443,
+    },
     proxy: {
       '/api/broadcast': {
         target: 'http://127.0.0.1:4100',
