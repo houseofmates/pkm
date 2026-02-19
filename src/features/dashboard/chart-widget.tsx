@@ -284,9 +284,9 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
  {!collapsed && (
  <div className="flex flex-wrap gap-2 mt-2">
    {buildKeys().map((k, idx) => {
-   const col = getcolor(k, idx);
-   const hiddenflag = !!hidden[k];
-   if (search && !k.tolowercase().includes(search.tolowercase())) return null;
+   const col = getColor(k, idx);
+   const hiddenFlag = !!hidden[k];
+   if (search && !k.toLowerCase().includes(search.toLowerCase())) return null;
    return (
    <button
   key={k}
