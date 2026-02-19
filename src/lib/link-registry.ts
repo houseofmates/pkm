@@ -234,4 +234,4 @@ class linkregistry {
 export const registry = new linkregistry()
 
 // hydrate on module load
-Registry.hydrate()
+registry.hydrate()
