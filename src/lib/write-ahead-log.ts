@@ -5,14 +5,14 @@
 import { openDB } from 'idb'
 import type { IDBPDatabase, DBSchema } from 'idb'
 
-interface walschema extends DBSchema {
+interface WALSchema extends DBSchema {
     wal: {
         key: string
         value: {
             id: string
             timestamp: number
             collection: string
-            recordid: string
+            recordId: string
             operation: 'create' | 'update' | 'delete'
             payload: unknown
             status: 'pending' | 'committed' | 'failed'
@@ -21,31 +21,31 @@ interface walschema extends DBSchema {
     }
 }
 
-let waldb: IDBPDatabase<walschema> | null = null
+let walDb: IDBPDatabase<WALSchema> | null = null
 
-async function getwal(): Promise<IDBPDatabase<walschema>> {
-    if (waldb) return waldb
-    waldb = await openDB<walschema>('pkm-wal-v1', 1, {
+async function getWAL(): Promise<IDBPDatabase<WALSchema>> {
+    if (walDb) return walDb
+    walDb = await openDB<WALSchema>('pkm-wal-v1', 1, {
         upgrade(db) {
             db.createObjectStore('wal', { keyPath: 'id' })
         },
     })
-    return waldb
+    return walDb
 }
 
-export async function walwrite(
+export async function walWrite(
     collection: string,
-    recordid: string,
+    recordId: string,
     operation: 'create' | 'update' | 'delete',
     payload: unknown
 ): Promise<string> {
-    const db = await getwal()
+    const db = await getWAL()
     const id = `wal-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
     await db.put('wal', {
         id,
         timestamp: Date.now(),
         collection,
-        recordid,
+        recordId,
         operation,
         payload,
         status: 'pending',
@@ -54,8 +54,8 @@ export async function walwrite(
     return id
 }
 
-export async function walcommit(id: string): Promise<void> {
-    const db = await getwal()
+export async function walCommit(id: string): Promise<void> {
+    const db = await getWAL()
     const entry = await db.get('wal', id)
     if (entry) {
         entry.status = 'committed'
@@ -73,8 +73,8 @@ export async function walcommit(id: string): Promise<void> {
     await tx.done
 }
 
-export async function walfail(id: string): Promise<void> {
-    const db = await getwal()
+export async function walFail(id: string): Promise<void> {
+    const db = await getWAL()
     const entry = await db.get('wal', id)
     if (entry) {
         entry.status = 'failed'
@@ -83,24 +83,24 @@ export async function walfail(id: string): Promise<void> {
     }
 }
 
-export async function walrecover(): Promise<
+export async function walRecover(): Promise<
     Array<{
         id: string
         collection: string
-        recordid: string
+        recordId: string
         operation: 'create' | 'update' | 'delete'
         payload: unknown
     }>
 > {
-    const db = await getwal()
+    const db = await getWAL()
     const all = await db.getAll('wal')
     return all
         .filter((e) => e.status === 'pending' && e.retries < 3)
         .sort((a, b) => a.timestamp - b.timestamp)
 }
 
-export async function walpendingcount(): Promise<number> {
-    const db = await getwal()
+export async function walPendingCount(): Promise<number> {
+    const db = await getWAL()
     const all = await db.getAll('wal')
     return all.filter((e) => e.status === 'pending').length
 }
