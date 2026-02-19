@@ -82,7 +82,7 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
         )}
       >
         {/* empty cell to match the add-field column */}
-        {oncreatefield && <TableCell className="w-10 border-r border-border/50" />}
+        {onCreateField && <TableCell className="w-10 border-r border-border/50" />}
         {row.getVisibleCells().map((cell: any) => (
           <TableCell
             key={cell.id}
@@ -94,7 +94,7 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
             className="border-r border-border/50 overflow-hidden text-ellipsis whitespace-nowrap align-middle"
           >
             <div className="flex items-center justify-center h-full w-full">
-              {flexrender(cell.column.columndef.cell, cell.getcontext())}
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </div>
           </TableCell>
         ))}
@@ -123,12 +123,12 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   const columnSizing = metadata[collection?.name]?.columnWidths || {};
 
   const setColumnSizing = (updater: any) => {
-    const newsizing = typeof updater === 'function' ? updater(columnsizing) : updater;
-    setmetadata({
+    const newSizing = typeof updater === 'function' ? updater(columnSizing) : updater;
+    setMetadata({
       ...metadata,
       [collection.name]: {
         ...metadata[collection.name],
-        columnwidths: newsizing
+        columnWidths: newSizing
       }
     });
   };
@@ -216,8 +216,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                   <div className="max-h-60 overflow-y-auto space-y-1">
                     {/* list all potential fields to allow unhiding */}
                     {(collection.fields || Object.keys(data[0] || {})).map((f: any) => {
-                      const fieldname = f.name || f;
-                      const ishidden = hiddencolumns.includes(fieldname);
+                      const fieldName = f.name || f;
+                      const isHidden = hiddenColumns.includes(fieldName);
                       return (
                         <div key={fieldName} className="flex items-center space-x-2">
                           <Checkbox
@@ -243,12 +243,12 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         ),
         cell: (props) => (
           <div className="flex items-center justify-center gap-1 h-7">
-            {onedit && (
+            {onEdit && (
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); onEdit(props.row.original); }}>
                 <Edit2 className="h-3.5 w-3.5" />
               </Button>
             )}
-            {ondelete && (
+            {onDelete && (
               <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600" onClick={(e) => { e.stopPropagation(); onDelete(props.row.original); }}>
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
@@ -259,7 +259,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     }
 
     return cols;
-  }, [data, collection, columnhelper, onedit, ondelete, hiddencolumns, sethiddencolumns]);
+  }, [data, collection, columnHelper, onEdit, onDelete, hiddenColumns, setHiddenColumns]);
 
   const table = useReactTable({
     data,
@@ -289,7 +289,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   }
 
   // get column count for add-row cell span
-  const columncount = table.getheadergroups()[0]?.headers.length || 1;
+  const columnCount = table.getHeaderGroups()[0]?.headers.length || 1;
 
 
   return (
