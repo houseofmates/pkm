@@ -28,7 +28,7 @@ interface DatabaseSettingsFormProps {
   onUpdateConfig?: (key: string, val: any) => void;
   onUpdateMetadata?: (updates: any) => void; // Name, Icon, Color
   onDelete?: () => void;
-  ispage?: boolean;
+  isPage?: boolean;
 }
 
 export function DatabaseSettingsForm({

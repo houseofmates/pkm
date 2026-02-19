@@ -702,7 +702,7 @@ export function FileElement({ url, filename, size }: FileElementProps) {
 }
 // --- minecraft live stats widget ---
 
-interface serverstatus {
+export interface ServerStatus {
   online: boolean;
   count: number;
 }
@@ -721,10 +721,10 @@ export function MinecraftStatsWidget() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [_connectionState, setConnectionState] = useState<'connected' | 'disconnected' | 'reconnecting'>('disconnected');
-  const scrollcontainerref = useref<HTMLDivElement>(null);
-  const laststatusref = useref<boolean>(false);
-  const socketref = useref<Socket | null>(null);
-  const retrytimeoutref = useref<NodeJS.Timeout | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const lastStatusRef = useRef<boolean>(false);
+  const socketRef = useRef<Socket | null>(null);
+  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // fetch initial data
@@ -1139,6 +1139,13 @@ export function TierListElement({ rows }: TierListProps) {
 }
 
 // --- shopping card ---
+export interface ShoppingCardProps {
+  title: string;
+  price: string;
+  image: string;
+  description?: string;
+  buttonText?: string;
+}
 export function ShoppingCardElement({ title, price, image, description, buttonText = 'buy now' }: ShoppingCardProps) {
   return (
     <div className="w-full h-full bg-black/40 rounded-2xl overflow-hidden border border-white/10 flex flex-col backdrop-blur-md group hover:border-[var(--primary)]/30 transition-all duration-500">
