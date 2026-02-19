@@ -43,7 +43,7 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
  avatarUrl: (override as any).avatarUrl
   },
 
-      systemname: "system" // placeholder
+      systemName: "system" // placeholder
     };
   };
 
@@ -53,7 +53,7 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     if (!isAuthenticated) return;
   client.listCollections({ pageSize: 100 }).then((res: any) => {
-  const list = Array.isArray(res?.data) ? res.data : (res as any)?.data;
+  const list = Array.isArray(res?.data) ? res.data : res?.data;
 
       if (Array.isArray(list)) {
         setAvailableCollections(list.map((c: any) => c.name));
@@ -73,7 +73,7 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
       // try 'moods' collection first
       try {
  const res = await client.listRecords('moods', { pageSize: 1, sort: ['-createdAt'] });
- const data = Array.isArray(res?.data) ? res.data : (res as any)?.data;
+ const data = Array.isArray(res?.data) ? res.data : res?.data;
 
         if (data && data.length > 0) {
           const last = data[0];
@@ -108,7 +108,7 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
       // let's look for 'journal'
       try {
  const res = await client.listRecords('journal', { pageSize: 3, sort: ['-createdAt'] });
- const data = Array.isArray(res?.data) ? res.data : (res as any)?.data;
+ const data = Array.isArray(res?.data) ? res.data : res?.data;
 
         if (data && data.length > 0) {
           setRecentActivity(data.map((item: any) => ({
