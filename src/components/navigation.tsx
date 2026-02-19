@@ -56,12 +56,12 @@ interface NavigationProps {
 
 // --- sortable components ---
 
-import { databasecontextmenu } from '@/features/databases/components/database-context-menu';
-import { useappsetting } from '@/hooks/use-app-setting';
+import { DatabaseContextMenu } from '@/features/databases/components/database-context-menu';
+import { useAppSetting } from '@/hooks/use-app-setting';
 
-export function sortableitem({ id, item, depth = 0, onselect, selected, ontoggle, onupdate, collection }: any) {
-  const { attributes, listeners, setnoderef, transform, transition, isdragging } = usesortable({ id: id, data: { type: item.type, item } });
-  const [pickeropen, setpickeropen] = usestate(false);
+export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle, onUpdate, collection }: any) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: id, data: { type: item.type, item } });
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   // global metadata for collections
   const [metadata] = useappsetting<Record<string, { color?: string }>>('collection_metadata', {});
@@ -81,15 +81,15 @@ export function sortableitem({ id, item, depth = 0, onselect, selected, ontoggle
   const renderIcon = () => {
     // use current theme color if no local override
     // logic: if item.color is set, use it. if generic, use primary.
-    const iconcolor = metacolor || 'var(--primary)';
+    const iconColor = metaColor || 'var(--primary)';
 
-    if (item.icon && item.icontype) {
+    if (item.icon && item.iconType) {
       // ... strict icon logic
-      if (item.icontype === 'emoji') return <span className="mr-2 text-base leading-none">{item.icon}</span>;
-      if (item.icontype === 'image') return <img src={item.icon} alt="icon" className="h-4 w-4 mr-2 object-contain" />;
-      if (item.icontype === 'lucide') {
-        const icon = (lucideicons as any)[item.icon];
-        if (icon) return <Icon className="h-4 w-4 mr-2" style={{ color: iconColor }} />;
+      if (item.iconType === 'emoji') return <span className="mr-2 text-base leading-none">{item.icon}</span>;
+      if (item.iconType === 'image') return <img src={item.icon} alt="icon" className="h-4 w-4 mr-2 object-contain" />;
+      if (item.iconType === 'lucide') {
+        const Icon = (LucideIcons as any)[item.icon];
+        if (Icon) return <Icon className="h-4 w-4 mr-2" style={{ color: iconColor }} />;
       }
     }
     // fallback
