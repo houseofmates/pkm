@@ -179,25 +179,3 @@ export default function PreviewCanvas({
   );
 }
     
-                    className="absolute right-0 top-0 bottom-0 w-2 cursor-col-resize hover:bg-primary/20 transition-colors"
-                    onMouseDown={(e) => handleResize(ci, e)}
-                  />
-                )}
-              </DroppableColumn>
-            </SortableContext>
-          );
-        })}
-
-        <DragOverlay 
-          dropAnimation={dropAnimation}
-        >
-          {activeid && activeitem ? (
-            <div className="p-3 bg-white/10 rounded border border-primary/50 shadow-2xl scale-[1.02]">
-              {renderwidget(activeitem, -1)}
-            </div>
-          ) : null}
-        </DragOverlay>
-      </DndContext>
-    </div>
-  );
-}
