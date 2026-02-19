@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { io, Socket } from 'socket.io-client';
+import { secureLogger } from '@/lib/secure-logger';
 
 // global singleton to reuse connection
 let socket: Socket | null = null;
@@ -17,17 +18,17 @@ export const useSocket = () => {
   });
 
   socket.on('connect', () => {
- console.log('Socket connected:', socket?.id);
+ secureLogger.info('Socket connected:', socket?.id);
  setIsConnected(true);
   });
 
   socket.on('disconnect', () => {
- console.log('Socket disconnected');
+ secureLogger.info('Socket disconnected');
  setIsConnected(false);
   });
 
   socket.on('connect_error', (err) => {
- console.warn("Socket connect error:", err);
+ secureLogger.warn("Socket connect error:", err);
   });
   } else {
     const raf = requestAnimationFrame(() => setIsConnected(!!socket?.connected));
