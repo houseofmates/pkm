@@ -261,7 +261,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                 case 'number': xComponent = 'InputNumber'; break;
                 case 'checkbox': xComponent = 'Checkbox'; break;
                 case 'attachment': xComponent = 'Upload.Attachment'; break;
-                case 'select': case 'multipleSelect': xComponent = 'Select'; break;
+                case 'select': case 'multipleselect': xComponent = 'Select'; break;
                 default: xComponent = 'Input';
               }
             }
@@ -277,7 +277,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
               csvData.forEach(row => {
                 const val = row[field.title];
                 if (val) {
-                  if (field.interface === 'multipleSelect') {
+                  if (field.interface === 'multipleselect') {
                     String(val).split(',').map(s => s.trim()).forEach(v => v && uniqueValues.add(v));
                   } else {
                     uniqueValues.add(String(val).trim());
@@ -285,7 +285,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                 }
               });
               uiSchema.enum = Array.from(uniqueValues).map(v => ({ label: v, value: v }));
-              if (field.interface === 'multipleSelect') {
+              if (field.interface === 'multipleselect') {
                 uiSchema['x-component-props'] = { mode: 'multiple' };
               }
             }
@@ -327,7 +327,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                 const record: any = {};
                 csvFields.forEach(f => {
                   let val = row[f.title];
-                  if (f.interface === 'multipleSelect' && val) {
+                  if (f.interface === 'multipleselect' && val) {
                     val = String(val).split(',').map(s => s.trim()).filter(Boolean);
                   }
                   if (f.interface === 'belongsTo' && val) {
@@ -371,7 +371,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
 
     const toastid = toast.loading("uploading image...");
     try {
-      const res = await client.upload(file);
+      const res: any = await client.upload(file);
       const uploadedfile = res.data;
 
       if (!uploadedfile || !uploadedfile.url) {

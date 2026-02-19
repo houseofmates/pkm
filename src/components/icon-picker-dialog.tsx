@@ -34,101 +34,101 @@ const common_icons = [
   "bookmark", "tag", "link", "lock", "unlock", "eye", "eyeoff"
 ];
 
-export function iconpicker({ onselect, trigger, open, onopenchange }: iconpickerprops) {
-  const [, setactivetab] = usestate('icons');
-  const fileinputref = useref<HTMLInputElement>(null);
+export function IconPicker({ onSelect, trigger, open, onOpenChange }: IconPickerProps) {
+  const [, setActiveTab] = useState('icons');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handlefileupload = (e: react.changeevent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (file) {
-  const reader = new FileReader();
-  reader.onloadend = () => {
- onselect(reader.result as string, 'image');
- onopenchange?.(false);
-  };
-  reader.readasdataurl(file);
-  }
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onSelect(reader.result as string, 'image');
+        onOpenChange?.(false);
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
-  <Dialog open={open} onOpenChange={onOpenChange}>
-  {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-  <DialogContent className="sm:max-w-md bg-[#050505]">
- <DialogHeader>
- <DialogTitle>select icon</DialogTitle>
- </DialogHeader>
- <Tabs defaultValue="icons" className="w-full" onValueChange={setActiveTab}>
- <TabsList className="grid w-full grid-cols-2">
- <TabsTrigger value="icons">icons</TabsTrigger>
- <TabsTrigger value="emojis">emojis</TabsTrigger>
- </TabsList>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+      <DialogContent className="sm:max-w-md bg-[#050505]">
+        <DialogHeader>
+          <DialogTitle>select icon</DialogTitle>
+        </DialogHeader>
+        <Tabs defaultValue="icons" className="w-full" onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="icons">icons</TabsTrigger>
+            <TabsTrigger value="emojis">emojis</TabsTrigger>
+          </TabsList>
 
- <div className="h-[300px] mt-4 rounded-md border p-1">
- <ScrollArea className="h-full">
-   <TabsContent value="icons" className="mt-0">
-   <div className="grid grid-cols-6 gap-2 p-2">
-   {COMMON_ICONS.map(name => {
-  const icon = (lucideicons as any)[name];
-  if (!icon) return null;
-  return (
-  <Button
-  key={name}
-  variant="ghost"
-  size="icon"
-  className="h-10 w-10"
-  onClick={() => {
-    onSelect(name, 'lucide');
-    onOpenChange?.(false);
-  }}
-  title={name}
-  >
-  <Icon className="h-5 w-5" />
-  </Button>
-  );
-   })}
-   </div>
-   </TabsContent>
-   <TabsContent value="emojis" className="mt-0">
-   <div className="grid grid-cols-6 gap-2 p-2">
-   {COMMON_EMOJIS.map(emoji => (
-  <Button
-  key={emoji}
-  variant="ghost"
-  size="icon"
-  className="h-10 w-10 text-2xl"
-  onClick={() => {
-  onSelect(emoji, 'emoji');
-  onOpenChange?.(false);
-  }}
-  >
-  {emoji}
-  </Button>
-   ))}
-   </div>
-   </TabsContent>
- </ScrollArea>
- </div>
+          <div className="h-[300px] mt-4 rounded-md border p-1">
+            <ScrollArea className="h-full">
+              <TabsContent value="icons" className="mt-0">
+                <div className="grid grid-cols-6 gap-2 p-2">
+                  {common_icons.map(name => {
+                    const Icon = (LucideIcons as any)[name];
+                    if (!Icon) return null;
+                    return (
+                      <Button
+                        key={name}
+                        variant="ghost"
+                        size="icon"
+                        className="h-10 w-10"
+                        onClick={() => {
+                          onSelect(name, 'lucide');
+                          onOpenChange?.(false);
+                        }}
+                        title={name}
+                      >
+                        <Icon className="h-5 w-5" />
+                      </Button>
+                    );
+                  })}
+                </div>
+              </TabsContent>
+              <TabsContent value="emojis" className="mt-0">
+                <div className="grid grid-cols-6 gap-2 p-2">
+                  {common_emojis.map(emoji => (
+                    <Button
+                      key={emoji}
+                      variant="ghost"
+                      size="icon"
+                      className="h-10 w-10 text-2xl"
+                      onClick={() => {
+                        onSelect(emoji, 'emoji');
+                        onOpenChange?.(false);
+                      }}
+                    >
+                      {emoji}
+                    </Button>
+                  ))}
+                </div>
+              </TabsContent>
+            </ScrollArea>
+          </div>
 
- <div className="mt-4 flex justify-center border-t pt-4">
- <Button
-   variant="outline"
-   size="icon"
-   className="h-12 w-12 rounded-full"
-   onClick={() => fileInputRef.current?.click()}
-   title="upload icon"
- >
-   <Upload className="h-6 w-6" />
- </Button>
- <Input
-   type="file"
-   ref={fileInputRef}
-   className="hidden"
-   accept="image/*"
-   onChange={handleFileUpload}
- />
- </div>
- </Tabs>
-  </DialogContent>
-  </Dialog>
+          <div className="mt-4 flex justify-center border-t pt-4">
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-12 w-12 rounded-full"
+              onClick={() => fileInputRef.current?.click()}
+              title="upload icon"
+            >
+              <Upload className="h-6 w-6" />
+            </Button>
+            <Input
+              type="file"
+              ref={fileInputRef}
+              className="hidden"
+              accept="image/*"
+              onChange={handleFileUpload}
+            />
+          </div>
+        </Tabs>
+      </DialogContent>
+    </Dialog>
   );
 }
