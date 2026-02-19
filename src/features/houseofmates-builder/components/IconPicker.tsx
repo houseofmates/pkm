@@ -1,6 +1,28 @@
-import { useState, useMemo } from 'react';
-import * as LucideIcons from 'lucide-react';
-import { Search, X } from 'lucide-react';
+import { useState, useMemo, useCallback } from 'react';
+import {
+  Shield, Zap, Crown, MessageCircle, Gamepad2, Wifi, Server, Monitor,
+  Users, User, Heart, Star, Trophy, Target, Activity,
+  Bell, Settings, Info, HelpCircle, Mail, ExternalLink, Link, Download,
+  Play, Pause, Square, Circle, Triangle, Hash, Code, Terminal,
+  Layout, Search, Home, Compass, Map, Navigation, Globe, Lock,
+  Unlock, Eye, EyeOff, Camera, Image, Video, Music, Volume2,
+  Github, Twitter, Youtube, Twitch, Facebook, Instagram, Dribbble,
+  Pencil, Edit, Edit2, Pen, Palette, Paintbrush, PaintBucket,
+  FileText, Clipboard, Paperclip, X
+} from 'lucide-react';
+
+// Icon registry for O(1) lookup instead of dynamic property access
+const ICON_REGISTRY: Record<string, React.ComponentType<{ size?: number }>> = {
+  Shield, Zap, Crown, MessageCircle, Gamepad2, Wifi, Server, Monitor,
+  Users, User, Heart, Star, Trophy, Target, Activity,
+  Bell, Settings, Info, HelpCircle, Mail, ExternalLink, Link, Download,
+  Play, Pause, Square, Circle, Triangle, Hash, Code, Terminal,
+  Layout, Search, Home, Compass, Map, Navigation, Globe, Lock,
+  Unlock, Eye, EyeOff, Camera, Image, Video, Music, Volume2,
+  Github, Twitter, Youtube, Twitch, Facebook, Instagram, Dribbble,
+  Pencil, Edit, Edit2, Pen, Palette, Paintbrush, PaintBucket,
+  FileText, Clipboard, Paperclip
+};
 
 interface IconPickerProps {
   value: string;
@@ -27,9 +49,14 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredIcons = useMemo(() => {
-  const term = searchTerm.toLowerCase();
-  return CURATED_ICONS.filter(name => name.toLowerCase().includes(term));
+    const term = searchTerm.toLowerCase();
+    return CURATED_ICONS.filter(name => name.toLowerCase().includes(term));
   }, [searchTerm]);
+
+  const handleIconClick = useCallback((iconName: string) => {
+    onChange(iconName.toLowerCase());
+    onClose();
+  }, [onChange, onClose]);
 
   return (
   <div className="flex flex-col h-[400px] w-[320px] bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden shadow-2xl animate-bounce-up builder-modal">
@@ -55,8 +82,7 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
   <div className="flex-1 overflow-y-auto p-3 custom-scrollbar">
  <div className="grid grid-cols-4 gap-2">
  {filteredIcons.map((iconName) => {
- // @ts-expect-error -- dynamic LucideIcons lookup
- const Icon = (LucideIcons as any)[iconName];
+ const Icon = ICON_REGISTRY[iconName];
  const isSelected = value.toLowerCase() === iconName.toLowerCase();
 
  if (!Icon) return null;
@@ -64,10 +90,7 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
  return (
    <button
    key={iconName}
-   onClick={() => {
-   onChange(iconName.toLowerCase());
-   onClose();
-   }}
+   onClick={() => handleIconClick(iconName)}
    className={`
    flex items-center justify-center p-2.5 rounded-lg transition-all
    ${isSelected
