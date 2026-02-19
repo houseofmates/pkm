@@ -1,4 +1,6 @@
 
+import { secureLogger } from '@/lib/secure-logger';
+
 export const getSubdomain = () => {
   const hostname = window.location.hostname;
 
@@ -36,21 +38,21 @@ export const isPublicDomain = () => {
 
   // allow overriding public detection during development by passing ?mode=private
   if (search.includes('mode=private')) {
-    console.log('[Router] Override: mode=private detected');
+    secureLogger.info('[Router] Override: mode=private detected');
     return false;
   }
 
   // explicit include: port 3010/3001 is always public builder
   if (port === '3010' || port === '3001') {
-  console.log(`[Router] Public by Port: ${port}`);
+  secureLogger.info(`[Router] Public by Port: ${port}`);
   return true;
   }
 
-  const subdomain = GetSubdomain();
+  const subdomain = getSubdomain();
 
   // explicit exclusion: pkm is always the private app
   if (subdomain === 'pkm') {
-  console.log('[Router] Private: PKM subdomain detected');
+  secureLogger.info('[Router] Private: PKM subdomain detected');
   return false;
   }
 
@@ -64,13 +66,13 @@ export const isPublicDomain = () => {
 
   // root domain ("houseofmates.space") is public
   if (hostname === 'houseofmates.space') {
-  console.log('[Router] Public: Root domain houseofmates.space detected');
+  secureLogger.info('[Router] Public: Root domain houseofmates.space detected');
   return true;
   }
 
   // any other subdomain on houseofmates.space (except pkm) is public
   if (hostname.endsWith('.houseofmates.space')) {
-  console.log(`[Router] Public: Subdomain ${subdomain} on houseofmates.space detected`);
+  secureLogger.info(`[Router] Public: Subdomain ${subdomain} on houseofmates.space detected`);
   return true;
   }
 
