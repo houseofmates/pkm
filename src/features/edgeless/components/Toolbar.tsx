@@ -39,21 +39,22 @@ const ToolBtn = ({ tool, icon: Icon, menuContent, specialModeIcon, store, active
     if (menuContent) openMenu(tool)
   })
 
-  const handleClick = () => {
-    // close any open menu first
-    closeMenu()
+    const handleClick = () => {
+      // close any open menu first
+      closeMenu()
 
-    if (onClickOverride) {
-      onClickOverride()
-    } else {
-      store.setTool(tool)
-      if (tool === 'pen' || tool === 'eraser' || tool === 'text') {
-        store.setMode('draw')
-      } else if (tool === 'hand') {
-        store.setMode('interact')
+      if (onClickOverride) {
+        onClickOverride()
+      } else {
+        store.setTool(tool)
+        if (tool === 'pen' || tool === 'eraser' || tool === 'text') {
+          store.setMode('draw')
+        } else if (tool === 'hand') {
+          store.setMode('interact')
+        }
       }
     }
-  }
+
 
 
   return (
@@ -77,6 +78,7 @@ const ToolBtn = ({ tool, icon: Icon, menuContent, specialModeIcon, store, active
           <button onClick={closeMenu} className="text-xs text-red-500 mt-2 lowercase hover:text-red-400 self-center">close</button>
         </div>
       )}
+
     </div>
   )
 }

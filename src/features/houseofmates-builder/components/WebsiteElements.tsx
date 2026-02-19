@@ -30,7 +30,7 @@ export function ServerIPDisplay({ javaIP, bedrockIP, bedrockPort = '19132', show
       setTimeout(() => setCopiedJava(false), 2000);
     } else {
       setCopiedBedrock(true);
-      setTimeout(() => setcopiedbedrock(false), 2000);
+      setTimeout(() => setCopiedBedrock(false), 2000);
     }
     toast.success('copied to clipboard!');
   };
@@ -58,10 +58,10 @@ export function ServerIPDisplay({ javaIP, bedrockIP, bedrockPort = '19132', show
                   <div className="text-xl text-[var(--primary)] font-mono font-bold">{javaIP || 'play.server.com'}</div>
                 </div>
               </div>
-              {copiedjava ? <Check size={18} className="text-green-500" /> : <Copy size={18} className="text-[var(--primary)]/40 opacity-0 group-hover:opacity-100 transition-opacity" />}
+              {copiedJava ? <Check size={18} className="text-green-500" /> : <Copy size={18} className="text-[var(--primary)]/40 opacity-0 group-hover:opacity-100 transition-opacity" />}
             </div>
 
-            {showbedrock && (
+            {showBedrock && (
               <div
                 onClick={() => {
                   const bedStr = bedrockPort ? `${bedrockIP}:${bedrockPort}` : bedrockIP;
@@ -78,7 +78,7 @@ export function ServerIPDisplay({ javaIP, bedrockIP, bedrockPort = '19132', show
                     <div className="text-xl text-[var(--primary)] font-mono font-bold">{bedrockIP || 'play.server.com'}</div>
                   </div>
                 </div>
-                {copiedbedrock ? <Check size={18} className="text-green-500" /> : <Copy size={18} className="text-[var(--primary)]/40 opacity-0 group-hover:opacity-100 transition-opacity" />}
+                {copiedBedrock ? <Check size={18} className="text-green-500" /> : <Copy size={18} className="text-[var(--primary)]/40 opacity-0 group-hover:opacity-100 transition-opacity" />}
               </div>
             )}
           </div>
@@ -89,16 +89,16 @@ export function ServerIPDisplay({ javaIP, bedrockIP, bedrockPort = '19132', show
 }
 
 // --- server status ---
-interface serverstatusprops {
-  isonline?: boolean;
-  playercount?: number;
-  maxplayers?: number;
+interface ServerStatusProps {
+  isOnline?: boolean;
+  playerCount?: number;
+  maxPlayers?: number;
   motd?: string;
 }
 
-export function serverstatus({ isonline = true, playercount = 0, maxplayers = 100, motd }: serverstatusprops) {
-  const { previewmode } = usebuilder();
-  const ismobile = previewmode === 'mobile';
+export function ServerStatus({ isOnline = true, playerCount = 0, maxPlayers = 100, motd }: ServerStatusProps) {
+  const { previewMode } = useBuilder();
+  const isMobile = previewMode === 'mobile';
 
   return (
     <div className="w-full h-full p-[1em] rounded-2xl flex flex-col justify-between">
@@ -108,7 +108,7 @@ export function serverstatus({ isonline = true, playercount = 0, maxplayers = 10
           <span className={`text-[var(--primary)] font-bold ${isMobile ? 'text-[0.65em]' : 'text-[0.875em]'} tracking-wide`}>{isOnline ? 'SYSTEMS ONLINE' : 'OFFLINE'}</span>
         </div>
         <div className={`text-[var(--primary)] ${isMobile ? 'text-[0.6em]' : 'text-[0.75em]'} font-bold font-mono`}>
-          {playercount} / {maxplayers}
+          {playerCount} / {maxPlayers}
         </div>
       </div>
       {motd && (
@@ -130,7 +130,7 @@ export function serverstatus({ isonline = true, playercount = 0, maxplayers = 10
         <div className={`text-[var(--primary)] ${isMobile ? 'text-[0.75em]' : 'text-[1.5em]'} font-bold group-hover/discord:scale-105 transition-transform text-center leading-none`}>
           join the discord to chat!
         </div>
-        {!ismobile && (
+        {!isMobile && (
           <div className="text-[0.75em] text-white/40 font-medium">
             click to copy & open
           </div>
@@ -141,35 +141,35 @@ export function serverstatus({ isonline = true, playercount = 0, maxplayers = 10
 }
 
 // --- feature cards ---
-interface featurecardprops {
-  icon: string; // icon key (lowercase) - mapped in iconmap
+interface FeatureCardProps {
+  icon: string; // icon key (lowercase) - mapped in iconMap
   title: string;
   description: string;
   color?: string;
 }
 
-const iconmap: record<string, any> = {
-  shield: shield,
-  zap: zap,
-  crown: crown,
-  chat: messagecircle,
-  gamepad: gamepad2,
-  wifi: wifi,
+const iconMap: Record<string, any> = {
+  shield: Shield,
+  zap: Zap,
+  crown: Crown,
+  chat: MessageCircle,
+  gamepad: Gamepad2,
+  wifi: Wifi,
   // design/edit icons
-  pencil: pencil,
-  pen: pen,
-  edit: edit,
-  edit2: edit2,
-  palette: palette,
-  paintbrush: paintbrush,
-  paintbucket: paintbucket,
-  filetext: filetext,
-  clipboard: clipboard,
-  paperclip: paperclip,
+  pencil: Pencil,
+  pen: Pen,
+  edit: Edit,
+  edit2: Edit2,
+  palette: Palette,
+  paintbrush: Paintbrush,
+  paintbucket: PaintBucket,
+  filetext: FileText,
+  clipboard: Clipboard,
+  paperclip: Paperclip,
 };
 
-export function featurecard({ icon, title, description, color = 'var(--primary)' }: featurecardprops) {
-  const iconcomponent = iconmap[icon] || zap;
+export function FeatureCard({ icon, title, description, color = 'var(--primary)' }: FeatureCardProps) {
+  const IconComponent = iconMap[icon] || Zap;
 
   return (
     <div className="p-[1.25em] rounded-2xl transition-all interactive-pop flex flex-col items-center text-center h-full">
@@ -206,7 +206,7 @@ export function LinkCard({ title, url, icon, description, color = 'var(--primary
 
   const handleClick = () => {
     if (!url) return;
-    if (url.startswith('http')) {
+    if (url.startsWith('http')) {
       window.open(url, '_blank');
     } else {
       window.location.href = url;
@@ -228,13 +228,13 @@ export function LinkCard({ title, url, icon, description, color = 'var(--primary
   );
 }
 
-export interface statusindicatorprops {
+export interface StatusIndicatorProps {
   label: string;
   status: 'online' | 'offline' | 'idle' | 'busy' | 'streaming';
-  showlabel?: boolean;
+  showLabel?: boolean;
 }
 
-export function statusindicator({ label, status, showlabel = true }: statusindicatorprops) {
+export function StatusIndicator({ label, status, showLabel = true }: StatusIndicatorProps) {
   const colors = {
     online: '#22c55e',
     offline: '#64748b',
@@ -253,7 +253,7 @@ export function statusindicator({ label, status, showlabel = true }: statusindic
           <div className="absolute inset-0 w-full h-full rounded-full animate-ping opacity-75" style={{ backgroundColor: color }} />
         )}
       </div>
-      {showlabel && <span className="text-[10px] font-bold text-white/50  whitespace-nowrap">{label}</span>}
+      {showLabel && <span className="text-[10px] font-bold text-white/50  whitespace-nowrap">{label}</span>}
     </div>
   );
 }
@@ -280,12 +280,12 @@ export function StaffCard({ username, role, avatar, color = 'var(--primary)' }: 
 }
 
 // --- rules list ---
-interface ruleslistprops {
+interface RulesListProps {
   rules: string[];
   title?: string;
 }
 
-export function ruleslist({ rules, title = 'server rules' }: ruleslistprops) {
+export function RulesList({ rules, title = 'server rules' }: RulesListProps) {
   return (
     <div className="p-[1.5em] rounded-2xl flex flex-col items-center text-center">
       <h3 className="text-[1.25em] font-bold text-[var(--primary)] mb-[1em] flex items-center justify-center gap-[0.5em]">
@@ -307,18 +307,18 @@ export function ruleslist({ rules, title = 'server rules' }: ruleslistprops) {
 }
 
 // --- faq section ---
-interface faqitem {
+interface FAQItem {
   question: string;
   answer: string;
 }
 
-interface faqsectionprops {
-  items: faqitem[];
+interface FAQSectionProps {
+  items: FAQItem[];
   title?: string;
 }
 
-export function faqsection({ items, title = 'frequently asked questions' }: faqsectionprops) {
-  const [openindex, setopenindex] = usestate<number | null>(null);
+export function FAQSection({ items, title = 'frequently asked questions' }: FAQSectionProps) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   return (
     <div className="p-[1.5em] rounded-2xl">
@@ -331,13 +331,13 @@ export function faqsection({ items, title = 'frequently asked questions' }: faqs
               className="w-full p-[1em] flex items-center justify-between text-left hover:bg-white/5 transition-colors interactive-pop"
             >
               <span className="text-white font-medium text-[1em]">{item.question}</span>
-              {openindex === idx ? (
-                <ChevronUp size={'1.25em'} className="text-white/50" />
+              {openIndex === idx ? (
+                <LucideIcons.ChevronUp size={'1.25em'} className="text-white/50" />
               ) : (
-                <ChevronDown size={'1.25em'} className="text-white/50" />
+                <LucideIcons.ChevronDown size={'1.25em'} className="text-white/50" />
               )}
             </button>
-            {openindex === idx && (
+            {openIndex === idx && (
               <div className="px-[1em] pb-[1em] text-white/60 text-[0.9em]">
                 {item.answer}
               </div>
@@ -363,7 +363,7 @@ export function VersionBadge({ versions }: VersionBadgeProps) {
       <div className="flex items-center gap-[0.5em] transition-all duration-300 ease-in-out group-hover:opacity-0 group-hover:scale-90 group-active:opacity-0 group-active:scale-90 opacity-100 scale-100">
         <Gamepad2 size={previewMode === 'desktop' ? 24 : 16} className="text-[var(--primary)]" />
         <span className={`text-[var(--primary)] font-bold ${previewMode === 'desktop' ? 'text-5xl' : 'text-2xl'} whitespace-nowrap`}>
-          {displayversions.join(' - ')}
+          {displayVersions.join(' - ')}
         </span>
       </div>
 
@@ -378,17 +378,17 @@ export function VersionBadge({ versions }: VersionBadgeProps) {
 }
 
 // --- hero section ---
-interface herosectionprops {
+interface HeroSectionProps {
   title: string;
   subtitle?: string;
-  ctatext?: string;
-  ctalink?: string;
-  backgroundimage?: string;
-  showserverip?: boolean;
-  javaip?: string;
+  ctaText?: string;
+  ctaLink?: string;
+  backgroundImage?: string;
+  showServerIP?: boolean;
+  javaIP?: string;
 }
 
-export function herosection({ title, subtitle, ctatext, ctalink, backgroundimage, showserverip, javaip }: herosectionprops) {
+export function HeroSection({ title, subtitle, ctaText, ctaLink, backgroundImage, showServerIP, javaIP }: HeroSectionProps) {
   return (
     <div
       className="relative min-h-[60vh] flex items-center justify-center p-8 rounded-2xl overflow-hidden"
@@ -410,15 +410,15 @@ export function herosection({ title, subtitle, ctatext, ctalink, backgroundimage
             {subtitle}
           </p>
         )}
-        {ctatext && (
+        {ctaText && (
           <a
             href={ctaLink || '#'}
             className="inline-block px-8 py-4 rounded-2xl selected-icon-btn font-bold text-lg transition-transform interactive-pop"
           >
-            {ctatext}
+            {ctaText}
           </a>
         )}
-        {showserverip && javaip && (
+        {showServerIP && javaIP && (
           <div className="mt-8 inline-block">
             <ServerIPDisplay javaIP={javaIP} showBedrock={false} />
           </div>
@@ -496,8 +496,8 @@ export function CountdownTimer({ targetDate, title }: CountdownProps) {
 
     updateTimer();
     const interval = setInterval(updateTimer, 1000);
-    return () => clearinterval(interval);
-  }, [targetdate]);
+    return () => clearInterval(interval);
+  }, [targetDate]);
 
   return (
     <div className="p-6 rounded-2xl text-center flex flex-col items-center justify-center h-full">
@@ -515,14 +515,14 @@ export function CountdownTimer({ targetDate, title }: CountdownProps) {
 }
 
 // --- about section ---
-interface aboutsectionprops {
+interface AboutSectionProps {
   title: string;
   content: string;
   image?: string;
-  imageposition?: 'left' | 'right';
+  imagePosition?: 'left' | 'right';
 }
 
-export function aboutsection({ title, content, image, imageposition = 'left' }: aboutsectionprops) {
+export function AboutSection({ title, content, image, imagePosition = 'left' }: AboutSectionProps) {
   return (
     <div className={`flex flex-col md:flex-row gap-8 items-center ${imagePosition === 'right' ? 'md:flex-row-reverse' : ''}`}>
       {image && (
@@ -543,13 +543,13 @@ export function aboutsection({ title, content, image, imageposition = 'left' }: 
 }
 
 // --- gallery ---
-interface galleryprops {
+interface GalleryProps {
   images: { src: string; alt?: string }[];
   columns?: number;
 }
 
-export function gallery({ images, columns = 3 }: galleryprops) {
-  const gridcols = {
+export function Gallery({ images, columns = 3 }: GalleryProps) {
+  const gridCols = {
     1: 'grid-cols-1',
     2: 'grid-cols-2',
     3: 'grid-cols-3',
@@ -574,14 +574,14 @@ export function gallery({ images, columns = 3 }: galleryprops) {
 }
 
 // --- testimonial ---
-interface testimonialprops {
+interface TestimonialProps {
   quote: string;
   author: string;
   role?: string;
   avatar?: string;
 }
 
-export function testimonial({ quote, author, role, avatar }: testimonialprops) {
+export function Testimonial({ quote, author, role, avatar }: TestimonialProps) {
   return (
     <div className="p-[1.5em] rounded-2xl bg-[var(--primary)]/10 text-center flex flex-col items-center justify-center h-full">
       <p className="text-white/80 text-[1.125em] italic mb-[1em]">"{quote}"</p>
@@ -599,13 +599,13 @@ export function testimonial({ quote, author, role, avatar }: testimonialprops) {
 }
 
 // --- divider ---
-interface dividerprops {
+interface DividerProps {
   style?: 'line' | 'dots' | 'gradient';
   spacing?: 'sm' | 'md' | 'lg';
 }
 
-export function divider({ style = 'line', spacing = 'md' }: dividerprops) {
-  const spacingclasses = { sm: 'my-4', md: 'my-8', lg: 'my-16' };
+export function Divider({ style = 'line', spacing = 'md' }: DividerProps) {
+  const spacingClasses = { sm: 'my-4', md: 'my-8', lg: 'my-16' };
 
   if (style === 'dots') {
     return (
@@ -628,12 +628,12 @@ export function divider({ style = 'line', spacing = 'md' }: dividerprops) {
 
 // --- file embed elements ---
 
-interface codeelementprops {
+interface CodeElementProps {
   code: string;
   language?: string;
 }
 
-export function codeelement({ code, language = 'javascript' }: codeelementprops) {
+export function CodeElement({ code, language = 'javascript' }: CodeElementProps) {
   return (
     <div className="w-full h-full bg-[#1e1e1e] rounded-xl overflow-hidden flex flex-col border border-white/10">
       <div className="bg-white/5 px-4 py-2 flex items-center gap-2 border-b border-white/5">
@@ -651,12 +651,12 @@ export function codeelement({ code, language = 'javascript' }: codeelementprops)
   );
 }
 
-interface pdfelementprops {
+interface PDFElementProps {
   url: string;
   title?: string;
 }
 
-export function pdfelement({ url, title }: pdfelementprops) {
+export function PDFElement({ url, title }: PDFElementProps) {
   return (
     <div className="w-full h-full bg-white rounded-xl overflow-hidden border border-white/10 flex flex-col">
       {title && (
@@ -670,13 +670,13 @@ export function pdfelement({ url, title }: pdfelementprops) {
   );
 }
 
-interface fileelementprops {
+interface FileElementProps {
   url: string;
   filename: string;
   size?: string;
 }
 
-export function fileelement({ url, filename, size }: fileelementprops) {
+export function FileElement({ url, filename, size }: FileElementProps) {
   return (
     <a
       href={url}
@@ -714,13 +714,13 @@ interface chatmessage {
   timestamp: string;
 }
 
-export function minecraftstatswidget() {
-  const { previewmode } = usebuilder();
-  const ismobile = previewmode === 'mobile';
-  const [status, setstatus] = usestate<ServerStatus | null>(null);
-  const [messages, setmessages] = usestate<ChatMessage[]>([]);
-  const [isloading, setisloading] = usestate(true);
-  const [_connectionstate, setconnectionstate] = usestate<'connected' | 'disconnected' | 'reconnecting'>('disconnected');
+export function MinecraftStatsWidget() {
+  const { previewMode } = useBuilder();
+  const isMobile = previewMode === 'mobile';
+  const [status, setStatus] = useState<ServerStatus | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [_connectionState, setConnectionState] = useState<'connected' | 'disconnected' | 'reconnecting'>('disconnected');
   const scrollcontainerref = useref<HTMLDivElement>(null);
   const laststatusref = useref<boolean>(false);
   const socketref = useref<Socket | null>(null);
