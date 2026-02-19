@@ -27,23 +27,23 @@ interface HeadmateCardProps {
   classname?: string;
 }
 
-export const headmatecard = react.memo(forwardref<HTMLDivElement, HeadmateCardProps & React.HTMLAttributes<HTMLDivElement>>(({ member, onClick, className, ...props }, ref) => {
+export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardProps & React.HTMLAttributes<HTMLDivElement>>(({ member, onClick, className, ...props }, ref) => {
   const { activeFronters } = useFronter();
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const handleCardClick = (_e: React.MouseEvent) => {
-  secureLogger.debug('CLICK REGISTERED:', member.name, member.id);
-  if (onClick) {
-  secureLogger.debug('Calling onClick handler');
-  onClick();
-  } else {
-  secureLogger.debug('No onClick handler provided!');
-  }
+    secureLogger.debug('CLICK REGISTERED:', member.name, member.id);
+    if (onClick) {
+      secureLogger.debug('Calling onClick handler');
+      onClick();
+    } else {
+      secureLogger.debug('No onClick handler provided!');
+    }
   };
 
   const handleDoubleClick = (e: React.MouseEvent) => {
-  e.stopPropagation();
-  setIsProfileOpen(true);
+    e.stopPropagation();
+    setIsProfileOpen(true);
   };
 
   // ensure both ids are strings for comparison
@@ -64,93 +64,93 @@ export const headmatecard = react.memo(forwardref<HTMLDivElement, HeadmateCardPr
 
   // image resolution
   const finalImageSrc = useMemo(() => {
-  const raw = member.avatar;
-  if (!raw) return placeholder_image || null;
+    const raw = member.avatar;
+    if (!raw) return PLACEHOLDER_IMAGE || null;
 
-  if (raw.startswith('data:') || raw.startswith('http')) return raw;
+    if (raw.startsWith('data:') || raw.startsWith('http')) return raw;
 
-  // handle nocobase attachments
-  // if it's a url path, append api_url (maybe?)
-  // nocobase usually returns full url or relative.
-  // if relative...
-  // for now assume absolute or working relative.
-  return raw;
+    // handle nocobase attachments
+    // if it's a url path, append api_url (maybe?)
+    // nocobase usually returns full url or relative.
+    // if relative...
+    // for now assume absolute or working relative.
+    return raw;
   }, [member.avatar]);
 
 
   return (
-  <div
-  ref={ref}
-  className={cn("group flex flex-col gap-2 cursor-pointer", className)}
-  onClick={(e) => {
- secureLogger.debug('OUTER DIV CLICK:', member.name);
- handleCardClick(e);
-  }}
-  onDoubleClick={handleDoubleClick}
-  {...props}
-  >
-  <Card
- style={{
- transition: "all 0.3s ease",
- border: `${isActive ? "6px" : "3px"} solid ${borderColor}`,
- borderRadius: 0,
- boxShadow: isActive ? `0 4px 12px rgba(0,0,0,0.4)` : '0 2px 8px rgba(0,0,0,0.3)',
- transform: isActive ? 'scale(1.08)' : 'scale(1)',
- filter: isActive ? 'brightness(1.1)' : 'brightness(1)',
- zIndex: isActive ? 50 : 1
- }}
- className={cn(
- "aspect-square relative overflow-hidden w-full rounded-none shadow-none"
- )}
-  >
- {/* background image */}
- <div className="absolute inset-0 bg-muted/30">
- {finalimagesrc ? (
- <img
-   src={finalImageSrc}
-   alt={member.name}
-   className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-   loading="lazy"
- />
- ) : (
- <div className="h-full w-full flex items-center justify-center text-6xl opacity-20 select-none bg-muted">
-   {member.name.charat(0)}
- </div>
- )}
- </div>
+    <div
+      ref={ref}
+      className={cn("group flex flex-col gap-2 cursor-pointer", className)}
+      onClick={(e) => {
+        secureLogger.debug('OUTER DIV CLICK:', member.name);
+        handleCardClick(e);
+      }}
+      onDoubleClick={handleDoubleClick}
+      {...props}
+    >
+      <Card
+        style={{
+          transition: "all 0.3s ease",
+          border: `${isActive ? "6px" : "3px"} solid ${borderColor}`,
+          borderRadius: 0,
+          boxShadow: isActive ? `0 4px 12px rgba(0,0,0,0.4)` : '0 2px 8px rgba(0,0,0,0.3)',
+          transform: isActive ? 'scale(1.08)' : 'scale(1)',
+          filter: isActive ? 'brightness(1.1)' : 'brightness(1)',
+          zIndex: isActive ? 50 : 1
+        }}
+        className={cn(
+          "aspect-square relative overflow-hidden w-full rounded-none shadow-none"
+        )}
+      >
+        {/* background image */}
+        <div className="absolute inset-0 bg-muted/30">
+          {finalimagesrc ? (
+            <img
+              src={finalImageSrc}
+              alt={member.name}
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+              loading="lazy"
+            />
+          ) : (
+            <div className="h-full w-full flex items-center justify-center text-6xl opacity-20 select-none bg-muted">
+              {member.name.charat(0)}
+            </div>
+          )}
+        </div>
 
- {/* name at absolute bottom */}
- <div className="absolute inset-x-0 bottom-0 flex flex-col items-center justify-end text-center pb-1 z-10">
- <h3
- className={cn(
-   "font-black text-2xl tracking-[0.5px] transition-all group-hover:-translate-y-1 w-full drop-shadow-[0_3px_3px_rgba(0,0,0,0.6)]",
-   capsClass
- )}
- style={{
-   color: displayTextColor,
-   WebkitTextStroke: displayName === 'S' ? '0px' : '3px black',
-   paintOrder: 'stroke fill',
-   fontWeight: 900
- }}
- >
- {displayname}
- </h3>
- </div>
-  </Card>
+        {/* name at absolute bottom */}
+        <div className="absolute inset-x-0 bottom-0 flex flex-col items-center justify-end text-center pb-1 z-10">
+          <h3
+            className={cn(
+              "font-black text-2xl tracking-[0.5px] transition-all group-hover:-translate-y-1 w-full drop-shadow-[0_3px_3px_rgba(0,0,0,0.6)]",
+              capsClass
+            )}
+            style={{
+              color: displayTextColor,
+              WebkitTextStroke: displayName === 'S' ? '0px' : '3px black',
+              paintOrder: 'stroke fill',
+              fontWeight: 900
+            }}
+          >
+            {displayname}
+          </h3>
+        </div>
+      </Card>
 
-  {/* pronouns below card */}
-  {member.pronouns && (
- <p className="text-[10px] text-[#252525] font-bold text-center lowercase tracking-wide">
- {member.pronouns}
- </p>
-  )}
+      {/* pronouns below card */}
+      {member.pronouns && (
+        <p className="text-[10px] text-[#252525] font-bold text-center lowercase tracking-wide">
+          {member.pronouns}
+        </p>
+      )}
 
-  <ContactProfileView
- member={member as any} // Temporary cast until View is updated
- isOpen={isProfileOpen}
- onClose={() => setIsProfileOpen(false)}
-  />
-  </div>
+      <ContactProfileView
+        member={member as any} // Temporary cast until View is updated
+        isOpen={isProfileOpen}
+        onClose={() => setIsProfileOpen(false)}
+      />
+    </div>
   );
 }));
 HeadmateCard.displayName = "HeadmateCard";
