@@ -238,7 +238,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
     handleSave(field.name, c);
     handleSave('last_watered', new Date().toISOString());
   }} size="sm" />
-  ) : (field.type === 'string' && (string(val).startswith('http') || field.format === 'url')) ? (
+  ) : (field.type === 'string' && (string(val).startsWith('http') || field.format === 'url')) ? (
   <a href={String(val)} target="_blank" rel="noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1">
     {string(val)} <ExternalLink className="h-2 w-2" />
   </a>

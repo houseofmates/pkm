@@ -35,7 +35,7 @@ export function CanvasPage() {
  const res = reader.result as string;
  updatepdf(res);
   };
-  reader.readasdataurl(file);
+  reader.readAsDataURL(file);
   }
   }
 

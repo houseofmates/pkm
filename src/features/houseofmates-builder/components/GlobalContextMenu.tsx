@@ -196,7 +196,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
  </div>
  <input
  type="color"
- value={bgcolor.startswith('#') ? bgcolor : '#050505'}
+ value={bgcolor.startsWith('#') ? bgcolor : '#050505'}
  onchange={(e) => setbgcolor(e.target.value)}
  classname="w-full h-16 rounded-xl cursor-pointer mb-4"
  />

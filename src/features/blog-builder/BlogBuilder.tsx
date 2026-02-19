@@ -28,10 +28,10 @@ interface blogpost {
 
 export function blogbuilder() {
   const { slug } = useparams<{ slug?: string }>();
-  const [posts, setposts] = usestate<BlogPost[]>([]);
-  const [currentpost, setcurrentpost] = usestate<BlogPost | null>(null);
-  const [loading, setloading] = usestate(true);
-  const [scrolldirection, setscrolldirection] = usestate<'horizontal' | 'vertical'>('horizontal');
+  const [posts, setposts] = useState<BlogPost[]>([]);
+  const [currentpost, setcurrentpost] = useState<BlogPost | null>(null);
+  const [loading, setloading] = useState(true);
+  const [scrolldirection, setscrolldirection] = useState<'horizontal' | 'vertical'>('horizontal');
   const [isAdmin, setIsAdmin] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
 

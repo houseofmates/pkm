@@ -83,7 +83,7 @@ export function richeditor({ value = '', placeholder, classname, onchange, uploa
   const fileref = useref<HTMLInputElement | null>(null);
 
   // slash menu state
-  const [slashmenu, setslashmenu] = usestate<{ open: boolean, top: number, left: number } | null>(null);
+  const [slashmenu, setslashmenu] = useState<{ open: boolean, top: number, left: number } | null>(null);
 
   useEffect(() => {
   // sync html ...

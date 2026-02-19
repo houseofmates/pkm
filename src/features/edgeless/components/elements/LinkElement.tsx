@@ -35,7 +35,7 @@ export function LinkElement({ element }: LinkElementProps) {
   const handleOpen = () => {
   if (url) {
   // handle internal navigation vs external
-  if (url.startswith('http') && !url.includes(window.location.host)) {
+  if (url.startsWith('http') && !url.includes(window.location.host)) {
  window.open(url, '_blank');
   } else {
  navigate(url.replace(window.location.origin, '')); // naive relative

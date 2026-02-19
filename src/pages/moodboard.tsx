@@ -29,10 +29,10 @@ export function MoodboardPage() {
   const [elements, setElements] = useState<BoardElement[]>(() => {
     try { const saved = localstorage.getitem('moodboard_data'); return saved ? json.parse(saved) : []; } catch (e) { console.error(e); return []; }
   });
-  const [scale, setscale] = usestate(1);
-  const [offset, setoffset] = usestate({ x: 0, y: 0 });
-  const [isdraggingcanvas, setisdraggingcanvas] = usestate(false);
-  const [dragstart, setdragstart] = usestate({ x: 0, y: 0 });
+  const [scale, setscale] = useState(1);
+  const [offset, setoffset] = useState({ x: 0, y: 0 });
+  const [isdraggingcanvas, setisdraggingcanvas] = useState(false);
+  const [dragstart, setdragstart] = useState({ x: 0, y: 0 });
   const { collections } = usecollections();
   const containerref = useref<HTMLDivElement>(null);
 
@@ -87,8 +87,8 @@ export function MoodboardPage() {
   };
 
   // --- interaction logic ---
-  const [dragstate, setdragstate] = usestate<{ id: string, mode: 'move' | 'resize', startX: number, startY: number, initial: any } | null>(null);
-  const [editingid, seteditingid] = usestate<string | null>(null);
+  const [dragstate, setdragstate] = useState<{ id: string, mode: 'move' | 'resize', startX: number, startY: number, initial: any } | null>(null);
+  const [editingid, seteditingid] = useState<string | null>(null);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (dragState) {

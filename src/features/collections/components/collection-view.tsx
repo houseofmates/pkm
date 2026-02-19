@@ -28,9 +28,9 @@ export function collectionview({ collection, onback }: collectionviewprops) {
   const { client } = useauth();
   const { records, loading, error, refresh } = userecords(collection.name);
   const { setcontext } = usellmstore();
-  const [iscreateopen, setiscreateopen] = usestate(false);
+  const [iscreateopen, setiscreateopen] = useState(false);
 
-  const [editingrecord, seteditingrecord] = usestate<any | null>(null);
+  const [editingrecord, seteditingrecord] = useState<any | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   // context stuffing: push current data to llm

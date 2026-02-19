@@ -113,7 +113,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
   if (promptmatch) {
   prompttext = promptmatch[1];
   bodytext = promptmatch[2];
-  } else if (text.startswith('<')) {
+  } else if (text.startsWith('<')) {
   // html handling if rich editor saved html
   const div = document.createElement('div');
   div.innerHTML = text;

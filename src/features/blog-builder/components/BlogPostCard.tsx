@@ -21,7 +21,7 @@ interface BlogPostCardProps {
 }
 
 export function blogpostcard({ post, onclick }: blogpostcardprops) {
-  const [imageerror, setimageerror] = usestate(false);
+  const [imageerror, setimageerror] = useState(false);
 
   return (
   <div

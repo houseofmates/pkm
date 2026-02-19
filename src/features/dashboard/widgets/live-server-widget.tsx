@@ -26,9 +26,9 @@ interface PlayerDataMap {
 
 export function LiveServerWidget() {
   const [stats, setStats] = useState<ServerStats | null>(null);
-  const [loading, setloading] = usestate(true);
-  const [chatmessages, setchatmessages] = usestate<any[]>([]);
-  const [playerdata, setplayerdata] = usestate<PlayerDataMap>({});
+  const [loading, setloading] = useState(true);
+  const [chatmessages, setchatmessages] = useState<any[]>([]);
+  const [playerdata, setplayerdata] = useState<PlayerDataMap>({});
 
   useEffect(() => {
   // initial stats fetch from local backend (fast)
