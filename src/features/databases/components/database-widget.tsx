@@ -28,7 +28,7 @@ export function DatabaseWidget({ collection, onRemove, className, initialView, v
   // merge initial view with config view type
   const currentView = viewConfig.viewType || initialView;
 
-  const { records, loading, refresh } = useRecords(collection.name, {
+  const { records, loading, refresh, createRecord } = useRecords(collection.name, {
   sort: viewConfig.sort,
   filter: viewConfig.filter
   });
@@ -94,6 +94,7 @@ export function DatabaseWidget({ collection, onRemove, className, initialView, v
  loading={loading}
  config={viewConfig}
  onConfigChange={(newConf: any) => onConfigChange?.({ ...viewConfig, ...newConf })}
+        onCreate={createRecord}
  />
   </CardContent>
   </Card>

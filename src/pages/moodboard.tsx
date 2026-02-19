@@ -8,6 +8,7 @@ import { useCollections } from '@/hooks/use-collections';
 import { toast } from 'sonner';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger, ContextMenuSub, ContextMenuSubTrigger, ContextMenuSubContent } from '@/components/ui/context-menu';
 import { Input } from '@/components/ui/input';
+import { cn } from '@/lib/utils';
 
 type ElementType = 'text' | 'image' | 'shape' | 'view';
 
@@ -93,6 +94,7 @@ export function MoodboardPage() {
 
   // --- interaction logic ---
   const [dragState, setDragState] = useState<{ id: string, mode: 'move' | 'resize', startX: number, startY: number, initial: any } | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (dragState) {
@@ -169,6 +171,7 @@ export function MoodboardPage() {
                   ...el.style
                 }}
                 onMouseDown={(e) => {
+                  if (editingId === el.id) return;
                   e.stopPropagation();
                   if (e.button === 0) {
                     setDragState({
@@ -178,6 +181,12 @@ export function MoodboardPage() {
                       startY: e.clientY,
                       initial: { x: el.x, y: el.y }
                     });
+                  }
+                }}
+                onDoubleClick={(e) => {
+                  if (el.type === 'text') {
+                    e.stopPropagation();
+                    setEditingId(el.id);
                   }
                 }}
               >
@@ -192,7 +201,10 @@ export function MoodboardPage() {
 
                 {el.type === 'text' && (
                   <textarea
-                    className="w-full h-full bg-transparent resize-none outline-none p-2 border-0"
+                    className={cn(
+                      "w-full h-full bg-transparent resize-none outline-none p-2 border-0 transition-colors",
+                      editingId === el.id ? "cursor-text select-text pointer-events-auto bg-background/50 backdrop-blur-sm rounded" : "cursor-grab pointer-events-none select-none"
+                    )}
                     style={{
                       fontSize: el.style?.fontSize,
                       color: el.style?.color,
@@ -200,8 +212,10 @@ export function MoodboardPage() {
                     }}
                     value={el.content}
                     onChange={(e) => updateElement(el.id, { content: e.target.value })}
-                    onMouseDown={(e) => e.stopPropagation()} // Allow text selection? No, we want drag usually. Maybe double click to edit?
-                  // simple hack: if focused, don't drag.
+                    onMouseDown={(e) => e.stopPropagation()}
+                    readOnly={editingId !== el.id}
+                    onBlur={() => setEditingId(null)}
+                    ref={(r) => { if (r && editingId === el.id) r.focus(); }}
                   />
                 )}
 

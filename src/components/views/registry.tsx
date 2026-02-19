@@ -24,6 +24,7 @@ export type ViewProps = {
   onEdit?: (id: any) => void;
   onConfigChange?: (key: string, value: any) => void;
   onCreateRecord?: () => void;
+  onCreate?: (data: any) => Promise<void> | void;
   onCreateField?: () => void;
 };
 
