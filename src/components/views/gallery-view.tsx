@@ -52,7 +52,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
       {data.map((record, i) => {
         const imageUrl = getImageUrl(record, imageField);
-        const title = titlefield ? record[titlefield.name] : (record.id || 'untitled');
+        const title = titleField ? record[titleField.name] : (record.id || 'untitled');
 
         return (
           <RecordContextMenu
@@ -68,7 +68,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
             <Card className="rounded-xl shadow-lg border-2 border-transparent p-0 relative hover:scale-[1.02] transition-all bg-card overflow-hidden flex flex-col group/card">
               {/* inner content vessel */}
               <div className="flex flex-col h-full w-full rounded-[inherit] overflow-hidden">
-                {imageurl && (
+                {imageUrl && (
                   <div className="aspect-square bg-muted/30 flex items-center justify-center relative overflow-hidden rounded-t-[inherit]">
                     <img
                       src={imageUrl}
@@ -87,7 +87,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
                 <CardContent className="p-3 bg-card/95 rounded-b-[inherit]">
                   {/* editable title */}
                   <div className="font-black text-xl mb-1 text-center" onClick={(e) => e.stopPropagation()}>
-                    {titlefield ? (
+                    {titleField ? (
                       <SmartField
                         value={record[titleField.name]}
                         field={titleField}

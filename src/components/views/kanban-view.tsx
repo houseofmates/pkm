@@ -135,7 +135,7 @@ function KanbanColumn({ id, title, items, children }: { id: string, title: strin
 }
 
 
-export function kanbanview({ data, collection, config, onupdaterecord, ondelete, onconfigchange }: kanbanviewprops) {
+export function KanbanView({ data, collection, config, onUpdateRecord, onDelete, onConfigChange }: KanbanViewProps) {
   if (!collection) {
     return (
       <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-muted/20 rounded-lg border">
@@ -146,11 +146,11 @@ export function kanbanview({ data, collection, config, onupdaterecord, ondelete,
       </div>
     );
   }
-  const { client } = useauth();
-  const [columns, setcolumns] = usestate<Record<string, any[]>>({});
-  const [columnorder, setcolumnorder] = usestate<string[]>([]);
-  const [activeid, setactiveid] = usestate<string | number | null>(null);
-  const [draggedrecord, setdraggedrecord] = usestate<any>(null);
+  const { client } = useAuth();
+  const [columns, setColumns] = useState<Record<string, any[]>>({});
+  const [columnOrder, setColumnOrder] = useState<string[]>([]);
+  const [activeId, setActiveId] = useState<string | number | null>(null);
+  const [draggedRecord, setDraggedRecord] = useState<any>(null);
 
   // identify title and visible fields
   const titleField = config?.titleField
@@ -177,8 +177,8 @@ export function kanbanview({ data, collection, config, onupdaterecord, ondelete,
       return;
     }
 
-    const fieldSchema = collection.fields?.find((f: any) => f.name === groupbyfield);
-    const newcolumns: record<string, any[]> = {};
+    const fieldSchema = collection.fields?.find((f: any) => f.name === groupByField);
+    const newColumns: Record<string, any[]> = {};
     const newOrder: string[] = [];
 
     // pre-fill columns from schema options if available (select/radio)
@@ -314,7 +314,7 @@ export function kanbanview({ data, collection, config, onupdaterecord, ondelete,
     return Object.keys(columns).find((key) => columns[key].find((item: { id: string | number }) => item.id === id));
   }
 
-  if (!groupbyfield) {
+  if (!groupByField) {
     return (
       <div className="flex h-full items-center justify-center text-muted-foreground border-2 border-dashed rounded-lg bg-muted/10">
         <div className="text-center">
@@ -358,12 +358,12 @@ export function kanbanview({ data, collection, config, onupdaterecord, ondelete,
       </div>
 
       <DragOverlay>
-        {activeid && draggedrecord ? (
+        {activeId && draggedRecord ? (
           <Card className="w-72 shadow-xl opacity-80 cursor-grabbing bg-card">
             <CardHeader className="p-3">
               <div className="flex items-start justify-between gap-2">
                 <span className="text-sm font-medium leading-tight line-clamp-2">
-                  {draggedrecord.title || draggedrecord.name || draggedrecord.id}
+                  {draggedRecord.title || draggedRecord.name || draggedRecord.id}
                 </span>
                 <GripVertical className="h-4 w-4" />
               </div>

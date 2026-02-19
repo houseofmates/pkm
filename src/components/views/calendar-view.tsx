@@ -158,7 +158,7 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
 
         {/* content area */}
         <div className="flex-1 overflow-hidden relative">
-          {viewmode === 'year' && <YearView currentDate={currentDate} recordsByDate={recordsByDate} onMonthClick={(date) => { setCurrentDate(date); setViewMode('month'); }} />}
+          {viewMode === 'year' && <YearView currentDate={currentDate} recordsByDate={recordsByDate} onMonthClick={(date) => { setCurrentDate(date); setViewMode('month'); }} />}
           {viewMode === 'month' && <MonthView currentDate={currentDate} recordsByDate={recordsByDate} collection={collection} onUpdateRecord={onUpdateRecord} onDelete={onDelete} titleField={titleField} visibleFields={visibleFields} config={config} onConfigChange={onConfigChange} />}
           {viewMode === 'week' && <WeekView currentDate={currentDate} recordsByDate={recordsByDate} collection={collection} onUpdateRecord={onUpdateRecord} onDelete={onDelete} titleField={titleField} visibleFields={visibleFields} config={config} onConfigChange={onConfigChange} />}
           {viewMode === 'day' && <DayView currentDate={currentDate} recordsByDate={recordsByDate} collection={collection} onUpdateRecord={onUpdateRecord} onDelete={onDelete} titleField={titleField} visibleFields={visibleFields} config={config} onConfigChange={onConfigChange} />}
@@ -254,41 +254,45 @@ function MonthView({ currentDate, recordsByDate, collection, onUpdateRecord, onD
           </div>
         ))}
       </div>
-      const dateKey = date.toDateString();
-      const dayRecords = recordsByDate[dateKey] || [];
-      const isToday = new Date().toDateString() === dateKey;
+      <div className="flex-1 grid grid-cols-7 grid-rows-5 md:grid-rows-6 auto-rows-fr overflow-y-auto">
+        {calendarDays.map((date, idx) => {
+          if (!date) return <div key={`empty-${idx}`} className="bg-muted/10 border-b border-r p-2 opacity-50" />;
 
-      return (
-      <DroppableDateCell
-        key={dateKey}
-        date={date}
-        className={cn(
-          "border-b border-r p-1 md:p-2 flex flex-col gap-1 min-h-[60px] md:min-h-[80px] hover:bg-muted/10 transition-colors group relative overflow-hidden",
-          isToday && "bg-primary/5"
-        )}
-      >
-        <span className={cn(
-          "text-[10px] md:text-xs font-medium w-5 h-5 md:w-6 md:h-6 flex items-center justify-center rounded-full mb-1",
-          isToday ? "bg-primary text-primary-foreground" : "text-muted-foreground"
-        )}>
-          {date.getdate()}
-        </span>
+          const dateKey = date.toDateString();
+          const dayRecords = recordsByDate[dateKey] || [];
+          const isToday = new Date().toDateString() === dateKey;
 
-        <div className="flex flex-col gap-0.5 overflow-hidden">
-          {dayrecords.slice(0, 3).map((rec: record<string, unknown>) => (
-            <DraggableEvent key={rec.id as string | number} record={rec} collection={collection} onUpdateRecord={onUpdateRecord} onDelete={onDelete} titleField={titleField} visibleFields={visibleFields} config={config} onConfigChange={onConfigChange} />
-          ))}
-          {dayRecords.length > 3 && (
-            <div className="text-[9px] text-muted-foreground pl-1">
-              +{dayrecords.length - 3} more
-            </div>
-          )}
-        </div>
-      </DroppableDateCell>
-      );
- })}
+          return (
+            <DroppableDateCell
+              key={dateKey}
+              date={date}
+              className={cn(
+                "border-b border-r p-1 md:p-2 flex flex-col gap-1 min-h-[60px] md:min-h-[80px] hover:bg-muted/10 transition-colors group relative overflow-hidden",
+                isToday && "bg-primary/5"
+              )}
+            >
+              <span className={cn(
+                "text-[10px] md:text-xs font-medium w-5 h-5 md:w-6 md:h-6 flex items-center justify-center rounded-full mb-1",
+                isToday ? "bg-primary text-primary-foreground" : "text-muted-foreground"
+              )}>
+                {date.getDate()}
+              </span>
+
+              <div className="flex flex-col gap-0.5 overflow-hidden">
+                {dayRecords.slice(0, 3).map((rec: Record<string, unknown>) => (
+                  <DraggableEvent key={rec.id as string | number} record={rec} collection={collection} onUpdateRecord={onUpdateRecord} onDelete={onDelete} titleField={titleField} visibleFields={visibleFields} config={config} onConfigChange={onConfigChange} />
+                ))}
+                {dayRecords.length > 3 && (
+                  <div className="text-[9px] text-muted-foreground pl-1">
+                    +{dayRecords.length - 3} more
+                  </div>
+                )}
+              </div>
+            </DroppableDateCell>
+          );
+        })}
+      </div>
     </div>
-  </div >
   );
 }
 
