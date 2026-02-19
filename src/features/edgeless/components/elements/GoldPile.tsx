@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 export function GoldPile({ element }: { element: any }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { current_amount = 0, target_amount = 1000 } = element.data;
-  const [coins, setcoins] = usestate<any[]>([]);
+  const [coins, setcoins] = useState<any[]>([]);
   const [multiplier, setMultiplier] = useState(1);
 
   useEffect(() => {
@@ -79,7 +79,7 @@ export function GoldPile({ element }: { element: any }) {
   animationFrame = requestAnimationFrame(animate);
   };
   animate();
-  return () => cancelanimationframe(animationframe);
+  return () => cancelAnimationFrame(animationframe);
   }, [coins, current_amount, target_amount]);
 
   return (

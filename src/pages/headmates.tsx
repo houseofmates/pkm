@@ -69,13 +69,13 @@ function SortableHeadmateCard({
 
 export function headmatespage() {
   const { togglefronter, overrides, setoverrides, cachemembercolors, activefronters } = usefronter();
-  const [apikey, setapikey] = usestate('');
-  const [allmembers, setallmembers] = usestate<Member[]>([]);
-  const [loading, setloading] = usestate(false);
-  const [haskey, sethaskey] = usestate(false);
-  const [viewmode, setviewmode] = usestate<'grid' | 'contacts'>('grid');
-  const [isdragging, setisdragging] = usestate(false);
-  // const [systemid, setsystemid] = usestate<string | null>(null); // unused local state, context handles it.
+  const [apikey, setapikey] = useState('');
+  const [allmembers, setallmembers] = useState<Member[]>([]);
+  const [loading, setloading] = useState(false);
+  const [haskey, sethaskey] = useState(false);
+  const [viewmode, setviewmode] = useState<'grid' | 'contacts'>('grid');
+  const [isdragging, setisdragging] = useState(false);
+  // const [systemid, setsystemid] = useState<string | null>(null); // unused local state, context handles it.
 
   const members = allMembers.filter(m => !overrides[m.id]?.hidden);
   const activeFrontId = activeFronters[0];

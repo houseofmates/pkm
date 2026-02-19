@@ -15,9 +15,9 @@ interface Props {
 
 export function DatabaseViewElement({ collectionName, viewType, width = 400, height = 300, sort, filter, visibleFields, isAdmin: _isAdmin }: Props) {
   const [data, setData] = useState<any[]>([]);
-  const [loading, setloading] = usestate(true);
-  const [error, seterror] = usestate<string | null>(null);
-  const [fields, setfields] = usestate<any[]>([]);
+  const [loading, setloading] = useState(true);
+  const [error, seterror] = useState<string | null>(null);
+  const [fields, setfields] = useState<any[]>([]);
 
   const fetchData = async () => {
   setLoading(true);

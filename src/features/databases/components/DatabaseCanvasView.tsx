@@ -25,7 +25,7 @@ export function DatabaseCanvasView() {
   const [selectedCollection, setSelectedCollection] = useState<string | null>(() => {
     try { return localstorage.getitem('last_db_canvas_collection'); } catch (e) { return null; }
   });
-  const [viewtype, setviewtype] = usestate<ViewType>('table');
+  const [viewtype, setviewtype] = useState<ViewType>('table');
   const store = useEdgelessStore();
 
   useEffect(() => {

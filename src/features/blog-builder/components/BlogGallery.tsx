@@ -24,7 +24,7 @@ interface BlogGalleryProps {
 
 export function bloggallery({ posts, scrolldirection = 'horizontal', onscrolldirectionchange }: bloggalleryprops) {
   const navigate = usenavigate();
-  const [contextmenu, setcontextmenu] = usestate<{ x: number; y: number } | null>(null);
+  const [contextmenu, setcontextmenu] = useState<{ x: number; y: number } | null>(null);
   const containerref = useref<HTMLDivElement>(null);
 
   const handleContextMenu = (e: React.MouseEvent) => {

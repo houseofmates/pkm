@@ -17,7 +17,7 @@ export function DrawingPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [syncStatus, setSyncStatus] = useState<'synced' | 'pending' | 'conflict'>('synced')
-  const [migrating, setmigrating] = usestate(false)
+  const [migrating, setmigrating] = useState(false)
   const initialloadcompleteref = useref(false)
   const lastcheckpointref = useref(0)
   const syncintervalref = useref<ReturnType<typeof setInterval> | null>(null)

@@ -331,11 +331,11 @@ function elementrenderer({ element, isselected, isadmin, onselect, onupdate, onu
   };
 
   // drag state
-  const [isdragging, setisdragging] = usestate(false);
-  const [isresizing, setisresizing] = usestate(false);
-  const [isediting, setisediting] = usestate(false);
-  const [issnapping, setissnapping] = usestate(false);
-  const [resizehandle, setresizehandle] = usestate<string | null>(null); // n, s, e, w, ne, nw, se, sw
+  const [isdragging, setisdragging] = useState(false);
+  const [isresizing, setisresizing] = useState(false);
+  const [isediting, setisediting] = useState(false);
+  const [issnapping, setissnapping] = useState(false);
+  const [resizehandle, setresizehandle] = useState<string | null>(null); // n, s, e, w, ne, nw, se, sw
   const dragstart = useref<{
   x: number;
   y: number;

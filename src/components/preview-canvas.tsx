@@ -81,7 +81,7 @@ export default function PreviewCanvas({
 }) {
   const colcount = math.max(1, math.min(columns.length || 1, 4));
 
-  const [localcols, setlocalcols] = usestate<Widget[][]>(() => columns.map((c) => (Array.isArray(c) ? [...c] : [])));
+  const [localcols, setlocalcols] = useState<Widget[][]>(() => columns.map((c) => (Array.isArray(c) ? [...c] : [])));
 
   useEffect(() => {
     const next = columns.map((c) => (Array.isArray(c) ? [...c] : []));

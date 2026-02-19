@@ -24,7 +24,7 @@ export function BlogEditor() {
 
 // --- dashboard ---
 function blogdashboard() {
-  const [posts, setposts] = usestate<BlogPostData[]>([]);
+  const [posts, setposts] = useState<BlogPostData[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -150,10 +150,10 @@ function blogdashboard() {
 
 // --- editor wrapper ---
 function blogeditorparamswrapper({ slug }: { slug: string }) {
-  const [post, setpost] = usestate<BlogPostData | null>(null);
-  const [loading, setloading] = usestate(true);
-  const [selectedelementids, setselectedelementids] = usestate<string[]>([]);
-  const [previewmode, setpreviewmode] = usestate<'desktop' | 'mobile' | 'tablet'>('desktop');
+  const [post, setpost] = useState<BlogPostData | null>(null);
+  const [loading, setloading] = useState(true);
+  const [selectedelementids, setselectedelementids] = useState<string[]>([]);
+  const [previewmode, setpreviewmode] = useState<'desktop' | 'mobile' | 'tablet'>('desktop');
   const [viewWidth, setViewWidth] = useState(window.innerWidth);
   const [selectionBox, setSelectionBox] = useState(null);
   const [showSidebar, setShowSidebar] = useState(true);
