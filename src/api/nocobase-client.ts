@@ -1,7 +1,40 @@
 import { ListRecordsResponseSchema, GetRecordResponseSchema, ActionResponseSchema, ListCollectionsResponseSchema } from "@/lib/api/schemas";
 import { apiClient } from '@/lib/api-client';
 import { secureLogger } from '@/lib/secure-logger';
-import type { AxiosInstance } from 'axios';
+import type { AxiosInstance, AxiosError } from 'axios';
+
+// Type definitions for NocoBase API
+interface Collection {
+  name: string;
+  title?: string;
+  fields?: Field[];
+  hidden?: boolean;
+}
+
+interface Field {
+  name: string;
+  type: string;
+  unique?: boolean;
+  interface?: string;
+  hidden?: boolean;
+}
+
+interface CollectionResponse {
+  data: Collection;
+}
+
+interface ApiError {
+  response?: {
+    status?: number;
+    data?: unknown;
+  };
+  message?: string;
+}
+
+interface RequestParams {
+  method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
+  [key: string]: unknown;
+}
 
 export class NocoBaseClient {
  private _axios: AxiosInstance;
@@ -20,13 +53,14 @@ export class NocoBaseClient {
   const res = await this._axios.get('/collections:list', { params });
   return ListCollectionsResponseSchema.parse(res.data);
  }
- async getCollection(name) {
+ async getCollection(name: string): Promise<CollectionResponse> {
   try {
  const res = await this._axios.get(`/collections/${name}:get`);
  return GetRecordResponseSchema.parse(res.data);
-  } catch (error) {
+  } catch (error: unknown) {
+ const err = error as ApiError;
  // fallback: if 404/400 (likely due to name mismatch with id), try filtered list
- if (error.response?.status === 404 || error.response?.status === 400 || error.response?.status === 500) {
+ if (err.response?.status === 404 || err.response?.status === 400 || err.response?.status === 500) {
   secureLogger.warn(`getCollection(${name}) failed, attempting fallback search...`);
 
   // attempt 1: exact name match
@@ -37,10 +71,10 @@ export class NocoBaseClient {
    }
   });
 
-  let list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+  const list: Collection[] = Array.isArray(res.data) ? res.data : (res.data?.data || []);
 
   if (list.length > 0) {
-   return { data: list[0] };
+   return { data: list[0] as Collection };
   }
 
   // attempt 2: case-insensitive match (postgres/general)
@@ -80,8 +114,8 @@ export class NocoBaseClient {
   'appends': ['fields']
    }
   });
-  let list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
-  let found = list.find(c => (c.name || '').toLowerCase() === (name || '').toLowerCase());
+  const list: Collection[] = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+  const found = list.find((c: Collection) => (c.name || '').toLowerCase() === (name || '').toLowerCase());
 
   if (found) {
    secureLogger.info(`FOUND collection ${name} via brute force(with fields) !`);
@@ -91,14 +125,14 @@ export class NocoBaseClient {
   // try without fields (exact same as usecollections/sidebar)
   secureLogger.warn(`getCollection(${name}) not found with fields, trying bare list...`);
   res = await this._axios.get('/collections:list'); // No params
-  list = Array.isArray(res.data) ? res.data : (res.data?.data || []);
-  found = list.find(c => (c.name || '').toLowerCase() === (name || '').toLowerCase());
+  const list2: Collection[] = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+  const found2 = list2.find((c: Collection) => (c.name || '').toLowerCase() === (name || '').toLowerCase());
 
-  if (found) {
+  if (found2) {
    secureLogger.info(`FOUND collection ${name} via bare list!`);
    // if we found it without fields, we return it.
    // the ui might lack field definitions but it won't 404.
-   return { data: found };
+   return { data: found2 as Collection };
   }
 
   } catch (_e) {
@@ -110,23 +144,24 @@ export class NocoBaseClient {
   }
  }
 
- async createCollection(data) {
+ async createCollection(data: Collection): Promise<CollectionResponse> {
   const res = await this._axios.post('/collections:create', data);
   return GetRecordResponseSchema.parse(res.data);
  }
- async updateCollection(name, data) {
+ async updateCollection(name: string, data: Partial<Collection>): Promise<unknown> {
   try {
  // use filterbytk for better compatibility
  const res = await this._axios.post(`/collections:update?filterByTk=${name}`, data);
  return ActionResponseSchema.parse(res.data);
-  } catch (error) {
+  } catch (error: unknown) {
+ const err = error as ApiError;
  // if 404, it might be a case-sensitivity mismatch. try to resolve the real name.
- if (error.response?.status === 404) {
+ if (err.response?.status === 404) {
   secureLogger.warn(`updateCollection(${name}) 404, attempting to resolve real name...`);
   try {
    const col = await this.getCollection(name);
    // handle both { data: collection } and collection structure
-   const realName = col?.data?.name || col?.name;
+   const realName = col?.data?.name || (col as unknown as Collection)?.name;
 
    if (realName && realName !== name) {
   secureLogger.info(`Resolved collection name mismatch: ${name} -> ${realName}. Retrying update.`);
@@ -140,7 +175,7 @@ export class NocoBaseClient {
  throw error;
   }
  }
- async deleteCollection(name) {
+ async deleteCollection(name: string): Promise<unknown> {
   const res = await this._axios.delete(`/collections/${name}`);
   return ActionResponseSchema.parse(res.data);
  }
@@ -164,8 +199,9 @@ export class NocoBaseClient {
   hidden: true
  });
  return true;
-  } catch (error) {
- if (error?.response?.status === 400) return true; // Already exists race condition
+  } catch (error: unknown) {
+ const err = error as ApiError;
+ if (err?.response?.status === 400) return true; // Already exists race condition
  secureLogger.warn('Backend collection check failed', error);
  return false;
   }
@@ -185,10 +221,12 @@ export class NocoBaseClient {
  try {
   await this._axios.get(`/${COL_NAME}:list`, { params: { pageSize: 1 } });
   return true;
- } catch (e: any) {
-  if (e?.response?.status !== 404) {
+  } catch (e: unknown) {
+  const err = e as ApiError;
+  if (err?.response?.status !== 404) {
    return true; // Collection exists but some other error
   }
+
   // fall through to create
  }
   }
@@ -269,9 +307,9 @@ export class NocoBaseClient {
   content: ''
  });
  return ListRecordsResponseSchema.parse(res.data);
-  } catch (error) {
-  // @ts-expect-error - error may have response property
- if (error?.response?.status === 404) {
+  } catch (error: unknown) {
+ const err = error as ApiError;
+ if (err?.response?.status === 404) {
 
   secureLogger.warn("First create attempt failed 404, retrying ensure...", error);
   await ensure(); // Force check/create again
@@ -288,24 +326,24 @@ export class NocoBaseClient {
  }
 
  // --- field/record methods ---
- async createField(collection, data) {
+ async createField(collection: string, data: Field): Promise<unknown> {
   const res = await this._axios.post(`/collections/${collection}/fields:create`, data);
   return GetRecordResponseSchema.parse(res.data);
  }
- async updateField(collection, name, data) {
+ async updateField(collection: string, name: string, data: Partial<Field>): Promise<unknown> {
   const res = await this._axios.post(`/collections/${collection}/fields:update?filterByTk=${name}`, data);
   return ActionResponseSchema.parse(res.data);
  }
- async listRecords(collection, params = {}) {
+ async listRecords(collection: string, params: Record<string, unknown> = {}): Promise<unknown> {
   // remove /obj/ prefix, use <collection>:list
   const res = await this._axios.get(`/${collection}:list`, { params });
   return ListRecordsResponseSchema.parse(res.data);
  }
- async getRecord(collection, id) {
+ async getRecord(collection: string, id: string | number): Promise<unknown> {
   const res = await this._axios.get(`/${collection}:get?filterByTk=${id}`);
   return GetRecordResponseSchema.parse(res.data);
  }
- async createRecord(collection, data) {
+ async createRecord(collection: string, data: Record<string, unknown>): Promise<unknown> {
   // normalize: ensure notes created via ui/backend include entity_type: 'note'
   // this enforces metadata consistency for note templates and downstream plugins
   if (collection === 'notes' && data && typeof data === 'object' && !('entity_type' in data)) {
@@ -316,19 +354,19 @@ export class NocoBaseClient {
   const res = await this._axios.post(`/${collection}:create`, data);
   return GetRecordResponseSchema.parse(res.data);
  }
- async updateRecord(collection, id, data) {
+ async updateRecord(collection: string, id: string | number, data: Record<string, unknown>): Promise<unknown> {
   // use filterbytk query param for reliable update, matching deleterecord
   const res = await this._axios.post(`/${collection}:update?filterByTk=${id}`, data);
   return ActionResponseSchema.parse(res.data);
  }
- async deleteRecord(collection, id) {
+ async deleteRecord(collection: string, id: string | number): Promise<unknown> {
   // use filterbytk query param for reliable deletion
   const res = await this._axios.post(`/${collection}:destroy?filterByTk=${id}`);
   return ActionResponseSchema.parse(res.data);
  }
 
  // --- file/storage methods ---
- async upload(file) {
+ async upload(file: File): Promise<unknown> {
   const formData = new FormData();
   formData.append('file', file);
 
@@ -357,7 +395,7 @@ export class NocoBaseClient {
  }
 
  // --- generic request ---
- async request(resource, action, params = {}) {
+ async request(resource: string, action: string, params: RequestParams = {}): Promise<unknown> {
   const { method = 'GET', ...rest } = params;
   return this._axios.request({
  url: `/${resource}:${action}`,
