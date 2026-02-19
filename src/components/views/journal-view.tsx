@@ -21,7 +21,7 @@ const PROMPTS = [
   "What did you learn today?",
 ];
 
-export function JournalView({ data, collection, config = {}, onConfigChange, onUpdateRecord: _onUpdateRecord, onEdit: _onEdit }: ViewProps) {
+export function JournalView({ data, collection, config = {}, onConfigChange, onUpdateRecord: _onUpdateRecord, onEdit: _onEdit, onCreate }: ViewProps) {
   // hooks must be called before any early return
   const [entry, setEntry] = useState('');
   const [prompt, setPrompt] = useState(PROMPTS[0]);
@@ -73,15 +73,14 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
 
   // we will assume onupdaterecord with id='new' might be treated as create? no.
   // i'll emit a custom event "pkm:create-record"
-  window.dispatchEvent(new CustomEvent('pkm:create-record', {
-  detail: {
- collection: collection.name,
- data: newRecord
+  if (onCreate) {
+    await onCreate(newRecord);
+    setEntry('');
+    toast.success("entry captured!");
+  } else {
+    console.warn("JournalView: onCreate prop missing");
+    toast.error("Could not save entry: implementation missing");
   }
-  }));
-
-  setEntry('');
-  toast.success("entry captured!");
   };
 
   // group by date
