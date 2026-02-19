@@ -8,8 +8,8 @@ interface PublicDocViewerProps {
 
 export function PublicDocViewer({ slug }: PublicDocViewerProps) {
   const [document, setDocument] = useState<any>(null);
-  const [loading, setloading] = useState(true);
-  const [error, seterror] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [Error, setError] = useState<string | null>(null);
 
   // fetch public document
   useEffect(() => {
@@ -23,8 +23,8 @@ export function PublicDocViewer({ slug }: PublicDocViewerProps) {
  setLoading(false);
   })
   .catch(err => {
- seterror(err.message);
- setloading(false);
+ setError(err.message);
+ setLoading(false);
   }, [slug]);
   });
 
@@ -36,18 +36,18 @@ export function PublicDocViewer({ slug }: PublicDocViewerProps) {
   );
   }
 
-  if (error || !document) {
+  if (Error || !document) {
   return (
   <div className="min-h-screen bg-background flex items-center justify-center font-varela">
  <div className="text-center">
  <h1 className="text-2xl font-bold mb-2">document not found</h1>
- <p className="text-muted-foreground">{error || 'This document does not exist or is not public.'}</p>
+ <p className="text-muted-foreground">{Error || 'This document does not exist or Is not public.'}</p>
  </div>
   </div>
   );
   }
 
-  const documentcolor = document.color || '#8b5cf6';
+  const documentColor = document.color || '#8b5cf6';
   const createddate = document.created_at ? new Date(document.created_at) : new Date();
 
   return (

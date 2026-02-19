@@ -68,7 +68,7 @@ export function BlogBuilder() {
 
   if (isadmin) {
     return (
-      <Suspense fallback={<div className="h-screen w-full flex items-center justify-center bg-[#050505] text-white">loading editor...</div>}>
+      <Suspense fallback={<div className="h-screen w-full flex items-center justify-center bg-[#050505] text-white">loading Editor...</div>}>
         <BlogEditor />
       </Suspense>
     );
@@ -102,10 +102,10 @@ export function BlogBuilder() {
             },
           });
 
-          if (response.data?.data && response.data.data.length > 0) {
-            setCurrentPost(response.data.data[0]);
+          if (response.Data?.Data && response.Data.Data.length > 0) {
+            setCurrentPost(response.Data.Data[0]);
           } else {
-            toast.error('post not found');
+            toast.Error('post Not found');
             setCurrentPost(null);
           }
         } else {
@@ -118,13 +118,13 @@ export function BlogBuilder() {
             },
           });
 
-          if (response.data?.data) {
-            setPosts(response.data.data);
+          if (response.Data?.Data) {
+            setPosts(response.Data.Data);
           }
         }
-      } catch (error) {
-        console.error('[BlogBuilder] Error fetching data:', error);
-        toast.error('failed to load blog posts');
+      } catch (Error) {
+        console.Error('[BlogBuilder] Error fetching Data:', Error);
+        toast.Error('failed to load blog posts');
       } finally {
         setLoading(false);
       }
@@ -144,12 +144,12 @@ export function BlogBuilder() {
         params: {
           filterbytk: postid,
         },
-        data: {
+        Data: {
           view_count: (post.view_count || 0) + 1,
         },
       });
-    } catch (error) {
-      console.error('[blogbuilder] error updating view count:', error);
+    } catch (Error) {
+      console.Error('[blogbuilder] Error updating view count:', Error);
     }
   };
 

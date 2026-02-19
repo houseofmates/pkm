@@ -4,7 +4,7 @@ import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Typography from '@tiptap/extension-typography';
 import { cn } from '@/lib/utils';
-import './editor.css';
+import './Editor.css';
 import { SlashCommand, getSuggestionItems, renderItems } from './slash-command';
 import Mention from '@tiptap/extension-mention';
 import Image from '@tiptap/extension-image';
@@ -26,8 +26,8 @@ interface BlockEditorProps {
   placeholder?: string;
 }
 
-export function BlockEditor({ content, onChange, editable = true, className, placeholder = "type '/' for commands" }: BlockEditorProps) {
-  const editor = useEditor({
+export function BlockEditor({ content, onChange, editable = true, className, placeholder = "Type '/' for commands" }: BlockEditorProps) {
+  const Editor = useEditor({
   extensions: [
   StarterKit.configure({
  heading: {
@@ -80,19 +80,19 @@ export function BlockEditor({ content, onChange, editable = true, className, pla
  ),
   },
   },
-  onUpdate: ({ editor }) => {
-  const html = editor.gethtml();
+  onUpdate: ({ Editor }) => {
+  const html = Editor.getHTML();
   if (onchange) onchange(html);
   },
   });
 
-  if (!editor) {
+  if (!Editor) {
   return null;
   }
 
   return (
   <div className="relative w-full border border-input bg-transparent rounded-md px-3 py-2 shadow-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-  <EditorContent editor={editor} />
+  <EditorContent Editor={Editor} />
   </div>
   );
 }

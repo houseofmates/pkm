@@ -18,7 +18,7 @@ import { Image, FileText, Trash2, Edit, Upload, Palette } from 'lucide-react';
 import { toast } from 'sonner';
 import { MemberService } from '@/api/member-service';
 
-import { formatHeadmateName, getCapitalizationClass } from '@/utils/text-formatting';
+import { formatHeadmateName, getCapitalizationClass } from '@/utils/Text-formatting';
 
 // local formatting removed in favor of global usage
 
@@ -78,7 +78,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
 
     // reset file input and close dialog
     if (fileInputRef.current) {
-      fileInputRef.current.value = '';
+      fileInputRef.current.Value = '';
     }
     setImageOpen(false);
   };
@@ -99,14 +99,14 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
     setImageOpen(false);
   };
 
-  // --- name/desc ---
+  // --- Name/desc ---
   const openEdit = () => {
     setDesc(currentOverride.description || '');
     setEditOpen(true);
   };
 
   const openNameEdit = () => {
-    setVisualName((currentOverride as any).name || memberName);
+    setVisualName((currentOverride as any).Name || memberName);
     setNameOpen(true);
   };
 
@@ -117,9 +117,9 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   };
 
   const saveVisualName = () => {
-    updateOverride(memberId, ({ name: visualName } as any));
+    updateOverride(memberId, ({ Name: visualName } as any));
     setNameOpen(false);
-    toast.success("visual name saved");
+    toast.success("visual Name saved");
   };
 
   // --- colors ---
@@ -164,21 +164,21 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
       <ContextMenu>
         <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
         <ContextMenuContent className="w-64">
-          <ContextMenuLabel className={getCapitalizationClass((currentOverride as any).name || memberName)}>
-            {formatheadmatename((currentoverride as any).name || membername)}
+          <ContextMenuLabel className={getCapitalizationClass((currentOverride as any).Name || memberName)}>
+            {formatheadmatename((currentoverride as any).Name || membername)}
           </ContextMenuLabel>
           <ContextMenuSeparator />
 
           <ContextMenuItem onSelect={openFrontStatus}>
             <div className="flex items-center">
-              <span className="mr-2 h-4 w-4 bg-green-500/20 text-green-500 flex items-center justify-center rounded-full text-[10px]">●</span>
+              <span className="mr-2 h-4 w-4 bg-green-500/20 Text-green-500 flex items-center justify-center rounded-full Text-[10px]">●</span>
               front with status...
             </div>
           </ContextMenuItem>
 
           <ContextMenuItem onSelect={openNameEdit}>
             <Edit className="mr-2 h-4 w-4" />
-            edit visual name
+            edit visual Name
           </ContextMenuItem>
 
           <ContextMenuItem onSelect={() => setImageOpen(true)}>
@@ -199,7 +199,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
           <ContextMenuSeparator />
 
           <ContextMenuItem
-            className={isHidden ? "" : "text-destructive focus:text-destructive-foreground focus:bg-destructive"}
+            className={isHidden ? "" : "Text-destructive focus:Text-destructive-foreground focus:bg-destructive"}
             onSelect={toggleHide}
           >
             <Trash2 className="mr-2 h-4 w-4" />
@@ -211,13 +211,13 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
       {/* hidden file input for direct click if needed, but using dialog now mostly */}
       <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onchange={handlefilechange} />
 
-      {/* visual name dialog */}
+      {/* visual Name dialog */}
       <Dialog open={nameOpen} onOpenChange={setNameOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>edit visual name</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>edit visual Name</DialogTitle></DialogHeader>
           <div className="py-4">
-            <Label>name (overrides integration)</Label>
-            <Input value={visualName} onChange={e => setVisualName(e.target.value)} className="mt-2" />
+            <Label>Name (overrides integration)</Label>
+            <Input Value={visualName} onChange={e => setVisualName(e.target.Value)} className="mt-2" />
           </div>
           <DialogFooter><Button onClick={saveVisualName}>save</Button></DialogFooter>
         </DialogContent>
@@ -238,7 +238,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
               <div className="col-span-2 border-t pt-4">
                 <Label>or paste image link</Label>
                 <div className="flex gap-2 mt-2">
-                  <Input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="https://..." />
+                  <Input Value={imageUrl} onChange={e => setImageUrl(e.target.Value)} placeholder="https://..." />
                   <Button onClick={saveImageUrl}>save</Button>
                 </div>
               </div>
@@ -255,8 +255,8 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
             <div className="space-y-2">
               <Label>custom description</Label>
               <Textarea
-                value={desc}
-                onChange={(e) => setDesc(e.target.value)}
+                Value={desc}
+                onChange={(e) => setDesc(e.target.Value)}
                 placeholder="enter a custom description..."
                 className="min-h-[100px]"
               />
@@ -274,15 +274,15 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
             <div className="space-y-2">
               <Label>main color</Label>
               <div className="flex gap-2">
-                <Input type="color" className="w-12 h-10 p-1" value={color} onChange={(e) => setColor(e.target.value)} />
-                <Input value={color} onChange={(e) => setColor(e.target.value)} />
+                <Input type="color" className="w-12 h-10 p-1" Value={color} onChange={(e) => setColor(e.target.Value)} />
+                <Input Value={color} onChange={(e) => setColor(e.target.Value)} />
               </div>
             </div>
             <div className="space-y-2">
-              <Label>text color</Label>
+              <Label>Text color</Label>
               <div className="flex gap-2">
-                <Input type="color" className="w-12 h-10 p-1" value={textColor} onChange={(e) => setTextColor(e.target.value)} />
-                <Input value={textColor} onChange={(e) => setTextColor(e.target.value)} />
+                <Input type="color" className="w-12 h-10 p-1" Value={textColor} onChange={(e) => setTextColor(e.target.Value)} />
+                <Input Value={textColor} onChange={(e) => setTextColor(e.target.Value)} />
               </div>
             </div>
           </div>
@@ -298,8 +298,8 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
             <div className="space-y-2">
               <Label>status message</Label>
               <Input
-                value={customFrontStatus}
-                onChange={e => setCustomFrontStatus(e.target.value)}
+                Value={customFrontStatus}
+                onChange={e => setCustomFrontStatus(e.target.Value)}
                 placeholder="e.g. co-con, cooking, working..."
                 onKeyDown={e => e.key === 'Enter' && handleFrontWithStatus()}
               />

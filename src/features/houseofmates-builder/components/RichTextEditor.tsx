@@ -16,7 +16,7 @@ interface Props {
 }
 
 export function RichTextEditor({ content, onChange, editable, className = '' }: Props) {
-  const editor = useEditor({
+  const Editor = useEditor({
   extensions: [
   StarterKit,
   TextStyle,
@@ -25,26 +25,26 @@ export function RichTextEditor({ content, onChange, editable, className = '' }: 
   ],
   content: content,
   editable: editable,
-  onUpdate: ({ editor }) => {
-  onChange(editor.getHTML());
+  onUpdate: ({ Editor }) => {
+  onChange(Editor.getHTML());
   },
   editorProps: {
   attributes: {
- class: `focus:outline-none custom-tiptap-editor ${className}`,
+ class: `focus:outline-none custom-tiptap-Editor ${className}`,
   },
   },
   });
 
   useEffect(() => {
-  if (editor && editor.iseditable !== editable) {
-  editor.seteditable(editable);
+  if (Editor && Editor.isEditable !== editable) {
+  Editor.setEditable(editable);
   if (editable) {
- editor.commands.focus('end');
+ Editor.commands.focus('end');
   }
   }
-  }, [editor, editable]);
+  }, [Editor, editable]);
 
-  if (!editor) {
+  if (!Editor) {
   return null;
   }
 
@@ -52,7 +52,7 @@ export function RichTextEditor({ content, onChange, editable, className = '' }: 
   <div className="rich-text-wrapper relative cursor-text inline-block min-w-[1px]">
   {editable && createportal(
  <BubbleMenu
- editor={editor}
+ Editor={Editor}
  {...({
  appendTo: () => document.body,
  tippyOptions: {
@@ -63,68 +63,68 @@ export function RichTextEditor({ content, onChange, editable, className = '' }: 
  >
  <div className="flex items-center gap-1 p-1 rounded-full bg-[#1a1a1a] border border-white/20 shadow-xl overflow-hidden pointer-events-auto">
  <button
-   type="button"
-   onClick={() => editor.chain().focus().toggleBold().run()}
-   className={`p-2 rounded-full hover:bg-white/10 transition-colors ${editor.isActive('bold') ? 'text-[var(--primary)] bg-white/10' : 'text-white/70'}`}
+   Type="button"
+   onClick={() => Editor.chain().focus().toggleBold().run()}
+   className={`p-2 rounded-full hover:bg-white/10 transition-colors ${Editor.isActive('bold') ? 'text-[var(--primary)] bg-white/10' : 'text-white/70'}`}
  >
    <Bold className="w-4 h-4" />
  </button>
  <button
-   type="button"
-   onClick={() => editor.chain().focus().toggleItalic().run()}
-   className={`p-2 rounded-full hover:bg-white/10 transition-colors ${editor.isActive('italic') ? 'text-[var(--primary)] bg-white/10' : 'text-white/70'}`}
+   Type="button"
+   onClick={() => Editor.chain().focus().toggleItalic().run()}
+   className={`p-2 rounded-full hover:bg-white/10 transition-colors ${Editor.isActive('italic') ? 'text-[var(--primary)] bg-white/10' : 'text-white/70'}`}
  >
    <Italic className="w-4 h-4" />
  </button>
  <div className="w-px h-4 bg-white/10 mx-1" />
  <button
-   type="button"
-   onClick={() => editor.chain().focus().toggleHeading({ level: 1 }).run()}
-   className={`p-2 rounded-full hover:bg-white/10 transition-colors ${editor.isActive('heading', { level: 1 }) ? 'text-[var(--primary)] bg-white/10' : 'text-white/70'}`}
+   Type="button"
+   onClick={() => Editor.chain().focus().toggleHeading({ level: 1 }).run()}
+   className={`p-2 rounded-full hover:bg-white/10 transition-colors ${Editor.isActive('heading', { level: 1 }) ? 'text-[var(--primary)] bg-white/10' : 'text-white/70'}`}
  >
    <Heading1 className="w-4 h-4" />
  </button>
  <button
-   type="button"
-   onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
-   className={`p-2 rounded-full hover:bg-white/10 transition-colors ${editor.isActive('heading', { level: 2 }) ? 'text-[var(--primary)] bg-white/10' : 'text-white/70'}`}
+   Type="button"
+   onClick={() => Editor.chain().focus().toggleHeading({ level: 2 }).run()}
+   className={`p-2 rounded-full hover:bg-white/10 transition-colors ${Editor.isActive('heading', { level: 2 }) ? 'text-[var(--primary)] bg-white/10' : 'text-white/70'}`}
  >
    <Heading2 className="w-4 h-4" />
  </button>
  <div className="w-px h-4 bg-white/10 mx-1" />
  <button
-   type="button"
-   onClick={() => editor.chain().focus().toggleBulletList().run()}
-   className={`p-2 rounded-full hover:bg-white/10 transition-colors ${editor.isActive('bulletList') ? 'text-[var(--primary)] bg-white/10' : 'text-white/70'}`}
+   Type="button"
+   onClick={() => Editor.chain().focus().toggleBulletList().run()}
+   className={`p-2 rounded-full hover:bg-white/10 transition-colors ${Editor.isActive('bulletList') ? 'text-[var(--primary)] bg-white/10' : 'text-white/70'}`}
  >
    <List className="w-4 h-4" />
  </button>
  <button
-   type="button"
-   onClick={() => editor.chain().focus().toggleOrderedList().run()}
-   className={`p-2 rounded-full hover:bg-white/10 transition-colors ${editor.isActive('orderedList') ? 'text-[var(--primary)] bg-white/10' : 'text-white/70'}`}
+   Type="button"
+   onClick={() => Editor.chain().focus().toggleOrderedList().run()}
+   className={`p-2 rounded-full hover:bg-white/10 transition-colors ${Editor.isActive('orderedList') ? 'text-[var(--primary)] bg-white/10' : 'text-white/70'}`}
  >
    <ListOrdered className="w-4 h-4" />
  </button>
  <div className="w-px h-4 bg-white/10 mx-1" />
  <button
-   type="button"
-   onClick={() => editor.chain().focus().toggleBlockquote().run()}
-   className={`p-2 rounded-full hover:bg-white/10 transition-colors ${editor.isActive('blockquote') ? 'text-[var(--primary)] bg-white/10' : 'text-white/70'}`}
+   Type="button"
+   onClick={() => Editor.chain().focus().toggleBlockquote().run()}
+   className={`p-2 rounded-full hover:bg-white/10 transition-colors ${Editor.isActive('blockquote') ? 'text-[var(--primary)] bg-white/10' : 'text-white/70'}`}
  >
    <Quote className="w-4 h-4" />
  </button>
  <button
-   type="button"
-   onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-   className={`p-2 rounded-full hover:bg-white/10 transition-colors ${editor.isActive('codeBlock') ? 'text-[var(--primary)] bg-white/10' : 'text-white/70'}`}
+   Type="button"
+   onClick={() => Editor.chain().focus().toggleCodeBlock().run()}
+   className={`p-2 rounded-full hover:bg-white/10 transition-colors ${Editor.isActive('codeBlock') ? 'text-[var(--primary)] bg-white/10' : 'text-white/70'}`}
  >
    <Code className="w-4 h-4" />
  </button>
  <button
-   type="button"
-   onClick={() => editor.chain().focus().setColor('var(--primary)').run()}
-   className={`p-2 rounded-full hover:bg-white/10 transition-colors ${editor.isActive('textStyle', { color: 'var(--primary)' }) ? 'text-[var(--primary)] bg-white/10' : 'text-white/70'}`}
+   Type="button"
+   onClick={() => Editor.chain().focus().setColor('var(--primary)').run()}
+   className={`p-2 rounded-full hover:bg-white/10 transition-colors ${Editor.isActive('textStyle', { color: 'var(--primary)' }) ? 'text-[var(--primary)] bg-white/10' : 'text-white/70'}`}
  >
    <Type className="w-4 h-4 text-[var(--primary)]" />
  </button>
@@ -133,7 +133,7 @@ export function RichTextEditor({ content, onChange, editable, className = '' }: 
  document.body
   )}
 
-  <EditorContent editor={editor} className="min-w-0 inline-block" />
+  <EditorContent Editor={Editor} className="min-w-0 inline-block" />
 
   <style dangerouslySetInnerHTML={{
  __html: `
@@ -177,9 +177,9 @@ export function RichTextEditor({ content, onChange, editable, className = '' }: 
  padding: 0 !important;
  display: inline-block !important;
  }
- .ProseMirror p.is-editor-empty:first-child::before {
+ .ProseMirror p.Is-Editor-empty:first-child::before {
  color: rgba(255, 255, 255, 0.3);
- content: 'double-click to edit...';
+ content: 'double-click To edit...';
  float: left;
  height: 0;
  pointer-events: none;
@@ -187,7 +187,7 @@ export function RichTextEditor({ content, onChange, editable, className = '' }: 
  margin: 0;
  padding: 0;
  }
- .custom-tiptap-editor pre {
+ .custom-tiptap-Editor pre {
  background: #1e1e1e;
  border-radius: 0.5rem;
  color: #fff;
@@ -195,7 +195,7 @@ export function RichTextEditor({ content, onChange, editable, className = '' }: 
  padding: 0.75rem 1rem;
  text-shadow: none;
  }
- .custom-tiptap-editor blockquote {
+ .custom-tiptap-Editor blockquote {
  border-left-color: var(--primary);
  color: rgba(255, 255, 255, 0.7);
  }

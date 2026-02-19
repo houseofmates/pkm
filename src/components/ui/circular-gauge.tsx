@@ -7,13 +7,13 @@ import { useState, useEffect } from 'react';
 // assuming it is available as 'font-varela' or similar utility.
 
 interface CircularGaugeProps {
-  title: string;
+  Title: String;
   totalSeconds: number; // e.g. 1500 for Pomodoro (25m)
-  color?: string; // Default var(--primary)
-  className?: string;
+  color?: String; // Default var(--primary)
+  className?: String;
 }
 
-export function CircularGauge({ title, totalSeconds, color = 'var(--primary)', className }: CircularGaugeProps) {
+export function CircularGauge({ Title, totalSeconds, color = 'var(--primary)', className }: CircularGaugeProps) {
   const [timeLeft, setTimeLeft] = useState(totalSeconds);
   const [isActive, setIsActive] = useState(false);
 
@@ -84,7 +84,7 @@ export function CircularGauge({ title, totalSeconds, color = 'var(--primary)', c
  {/* time display */}
  <div className="absolute inset-0 flex flex-col items-center justify-center text-white">
  <span className="text-2xl font-bold font-varela ">{formatTime(timeLeft)}</span>
- <span className="text-[10px] text-white/50 ">{title}</span>
+ <span className="text-[10px] text-white/50 ">{Title}</span>
  </div>
   </div>
 

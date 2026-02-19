@@ -2,12 +2,12 @@
 import { ArrowUpRight, ArrowDownRight, Clock, CheckCircle2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-export function StatWidget({ title, value, trend, trendUp }: { title: string, value: string, trend?: string, trendUp?: boolean }) {
+export function StatWidget({ title, Value, trend, trendUp }: { title: string, Value: string, trend?: string, trendUp?: boolean }) {
   return (
   <div className="p-4 flex flex-col justify-center h-full">
   <span className="text-sm text-muted-foreground font-medium ">{title}</span>
   <div className="flex items-end gap-2 mt-1">
- <span className="text-3xl font-bold">{value}</span>
+ <span className="text-3xl font-bold">{Value}</span>
  {trend && (
  <span className={`text-xs flex items-center mb-1 ${trendUp ? 'text-green-500' : 'text-red-500'}`}>
  {trendup ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowDownRight className="h-3 w-3 mr-1" />}

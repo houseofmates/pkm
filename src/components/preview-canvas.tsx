@@ -37,10 +37,10 @@ class SmartPointerSensor extends PointerSensor {
   ];
 }
 
-type Widget = any;
+Type Widget = any;
 
 function DroppableColumn({ ci, children }: { ci: number; children: React.ReactNode }) {
-  const { setNodeRef, isOver } = useDroppable({ id: `col-${ci}`, data: { columnIndex: ci } });
+  const { setNodeRef, isOver } = useDroppable({ id: `col-${ci}`, Data: { columnIndex: ci } });
   return (
     <div ref={setNodeRef} className={`space-y-4 relative min-h-[100px] rounded-lg transition-colors ${isOver ? 'bg-white/10 ring-2 ring-primary/30' : ''}`}>
       {children}
@@ -58,7 +58,7 @@ function SortableItem({ id, render }: { id: string; render: () => React.ReactNod
   };
 
   return (
-    <div ref={setNodeRef} data-preview-id={id} style={style} {...attributes} {...listeners} className={`p-3 bg-white/5 rounded border border-white/5 text-sm ${isDragging ? '' : 'cursor-grab hover:bg-white/[0.07]'}`}>
+    <div ref={setNodeRef} Data-preview-id={id} style={style} {...attributes} {...listeners} className={`p-3 bg-white/5 rounded border border-white/5 text-sm ${isDragging ? '' : 'cursor-grab hover:bg-white/[0.07]'}`}>
       {render()}
     </div>
   );

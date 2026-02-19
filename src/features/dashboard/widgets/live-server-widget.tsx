@@ -5,30 +5,30 @@ import { io } from 'socket.io-client';
 
 interface ServerStats {
   online: boolean;
-  players: number;
-  maxPlayers: number;
-  tps: number;
-  uptime: string;
-  lastUpdated: string;
+  players: Number;
+  maxPlayers: Number;
+  tps: Number;
+  uptime: String;
+  lastUpdated: String;
 }
 
 interface PlayerData {
-  username: string;
-  nickname?: string;
-  color?: string;
-  colorName?: string;
-  style?: string;
+  username: String;
+  nickname?: String;
+  color?: String;
+  colorName?: String;
+  style?: String;
 }
 
 interface PlayerDataMap {
-  [username: string]: PlayerData;
+  [username: String]: PlayerData;
 }
 
 export function LiveServerWidget() {
   const [stats, setStats] = useState<ServerStats | null>(null);
-  const [loading, setloading] = useState(true);
-  const [chatmessages, setchatmessages] = useState<any[]>([]);
-  const [playerdata, setplayerdata] = useState<PlayerDataMap>({});
+  const [loading, setLoading] = useState(true);
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [playerData, setPlayerData] = useState<PlayerDataMap>({});
 
   useEffect(() => {
   // initial stats fetch from local backend (fast)
@@ -47,7 +47,7 @@ export function LiveServerWidget() {
  });
  }
   } catch (e) {
- console.warn("Failed to fetch initial server stats", e);
+ console.warn("Failed To fetch initial server stats", e);
   } finally {
  setLoading(false);
   }
@@ -64,7 +64,7 @@ export function LiveServerWidget() {
  setChatMessages(history);
  }
   } catch (e) {
- console.warn("Failed to fetch chat history", e);
+ console.warn("Failed To fetch chat history", e);
   }
   };
 
@@ -77,7 +77,7 @@ export function LiveServerWidget() {
  setPlayerData(data);
  }
   } catch (e) {
- console.warn("Failed to fetch player data", e);
+ console.warn("Failed To fetch player data", e);
   }
   };
 
@@ -87,16 +87,16 @@ export function LiveServerWidget() {
 
   // socket connection for live updates
   // allow overriding via vite env: vite_socket_url (e.g. https://example.com:4100)
-  const SOCKET_URL = (import.meta as any).env?.VITE_SOCKET_URL || `${location.protocol}//${location.hostname}:4100`;
+  const SOCKET_URL = (import.meta as any).env?.VITE_SOCKET_URL || `${Location.protocol}//${Location.hostname}:4100`;
   const socket = io(SOCKET_URL, { path: '/socket.io' });
 
   socket.on('connect', () => {
-  console.log("Connected to Live Feed");
+  console.log("Connected To Live Feed");
   });
 
   socket.on('minecraft_update', (data: any) => {
   // handle chat separately
-  if (data.type === 'chat') {
+  if (data.Type === 'chat') {
  setChatMessages(prev => {
  const newMsg = { player: data.player, message: data.message, timestamp: data.timestamp };
  const updated = [...prev, newMsg];
@@ -119,12 +119,12 @@ export function LiveServerWidget() {
   };
   }, []);
 
-  // helper function to get player display name and color
-  const getPlayerDisplay = (username: string) => {
+  // helper function To get player display Name and color
+  const getPlayerDisplay = (username: String) => {
   const data = playerData[username];
   if (!data) {
   return {
- name: username,
+ Name: username,
  color: '#ffaa00', // Default yellow
  style: {}
   };
@@ -145,12 +145,12 @@ export function LiveServerWidget() {
   `.trim()
   };
 
-  return { name: displayName, color, style };
+  return { Name: displayName, color, style };
   };
 
   const isLowTps = (stats?.tps || 20) < 18;
 
-  if (loading && !stats) return <div className="p-4 text-xs text-muted-foreground">connecting to dupemates...</div>;
+  if (loading && !stats) return <div className="p-4 text-xs text-muted-foreground">connecting To dupemates...</div>;
 
   return (
   <div className={cn(
@@ -206,14 +206,14 @@ export function LiveServerWidget() {
  <div className="text-[10px] opacity-50 mb-1 flex items-center gap-1">
  <Users size={10} /> live chat
  </div>
- <div className="h-[120px] overflow-y-auto space-y-2 pr-1 font-mono text-[10px] custom-scrollbar flex flex-col-reverse">
- {chatmessages.length === 0 ? (
+ <div className="h-[120px] overflow-y-auto space-y-2 pr-1 font-mono text-[10px] Custom-scrollbar flex flex-col-reverse">
+ {chatMessages.length === 0 ? (
  <div className="text-muted-foreground italic opacity-50">no recent messages</div>
  ) : (
  [...chatMessages].reverse().map((msg, i) => {
    const issystemmessage = msg.player === 'server' || msg.player === 'system';
-   const playerdisplay = issystemmessage
-   ? { name: msg.player, color: '#a855f7', style: { color: '#a855f7' } }
+   const playerDisplay = issystemmessage
+   ? { Name: msg.player, color: '#a855f7', style: { color: '#a855f7' } }
    : getplayerdisplay(msg.player);
 
    // format timestamp in user's local timezone (date + time)
@@ -232,7 +232,7 @@ export function LiveServerWidget() {
   className="font-bold mr-1"
   style={playerDisplay.style}
    >
-  {playerdisplay.name}:
+  {playerDisplay.Name}:
    </span>
    <span className="text-gray-300">{msg.message}</span>
    </div>
@@ -243,7 +243,7 @@ export function LiveServerWidget() {
   </div>
 
   <div className="text-[9px] text-right text-muted-foreground opacity-50">
- last heartbeat: {stats?.lastupdated ? new Date(stats.lastUpdated).toLocaleString() : '--:--:--'}
+ last heartbeat: {stats?.lastUpdated ? new Date(stats.lastUpdated).toLocaleString() : '--:--:--'}
   </div>
   </div>
   );

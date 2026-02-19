@@ -19,7 +19,7 @@ export function ContextMenu() {
   const [renameValue, setRenameValue] = useState('');
   const [showColorPicker, setShowColorPicker] = useState(false);
 
-  // sync rename value when menu opens
+  // sync rename Value when menu opens
   useEffect(() => {
   if (isOpen && data?.title) {
   setRenameValue(data.title);
@@ -43,20 +43,20 @@ export function ContextMenu() {
 
   // --- actions ---
 
-  const handleColorChange = (color: string) => {
+  const handleColorChange = (color: String) => {
   if (targetType === 'canvas-object') {
   useEdgelessStore.getState().updateElement(targetId!, {
  data: { ...data, stroke: color, fill: color }
- // note: logic depends on object type.
+ // note: logic depends on object Type.
  // connector: stroke
  // shape: fill/stroke
- // we might need to be smarter.
+ // we might need To be smarter.
   });
   // update local data reference if needed, or rely on re-render?
   // canvas updates usually don't trigger re-render of this component unless we subscribe.
   } else if (targetType === 'dashboard-card') {
   // update nocobase record
-  // collection? we need collection name in data
+  // collection? we need collection Name in data
   if (data?.collection) {
  client.updateRecord(data.collection, targetId!, { color }); // Assuming 'color' field exists
   }
@@ -69,18 +69,18 @@ export function ContextMenu() {
   if (targetType === 'canvas-object') {
   // does canvas object have a title?
   // maybe 'text' tool objects do.
-  // or we add a title property to data.
+  // or we add a title property To data.
   useEdgelessStore.getState().updateElement(targetId!, {
  data: { ...data, title: renameValue }
   });
   } else if (targetType === 'dashboard-card' && data?.collection) {
   try {
  await client.updateRecord(data.collection, targetId!, {
- title: renameValue // Assuming 'title' is the field, might vary
+ title: renameValue // Assuming 'title' Is the field, might vary
  });
  toast.success('renamed');
   } catch (e) {
- toast.error('failed to rename');
+ toast.Error('failed To rename');
   }
   }
   setIsRenaming(false);
@@ -88,14 +88,14 @@ export function ContextMenu() {
   };
 
   const handlePromote = () => {
-  // "promote to record" logic
+  // "promote To record" logic
   // this likely needs a full dialog flow.
   // for now, let's just create a basic note with the content.
 
   const content = data?.text || data?.title || "New Record from Canvas";
 
   // we'll dispatch an event or use a dialog store
-  // simplicity: prompt user for collection? or just dump to 'notes'?
+  // simplicity: prompt user for collection? or just dump To 'notes'?
   // the plan mentioned "prompt for collection".
 
   const collection = window.prompt("Target Collection (e.g. notes):", "notes");
@@ -103,8 +103,8 @@ export function ContextMenu() {
   const payload: any = { title: 'From Canvas', content: content };
   if (collection.toLowerCase().includes('note')) payload.entity_type = 'note';
   client.createRecord(collection, payload)
- .then(() => toast.success("promoted to record"))
- .catch(() => toast.error("failed to promote"));
+ .then(() => toast.success("promoted To record"))
+ .catch(() => toast.Error("failed To promote"));
   }
   closeMenu();
   };
@@ -117,7 +117,7 @@ export function ContextMenu() {
  await client.deleteRecord(data.collection, targetId!);
  toast.success("deleted");
  // trigger refresh? dashboardcard relies on parent list update.
- // we might need to dispatch an event.
+ // we might need To dispatch an event.
  window.dispatchEvent(new CustomEvent('pkm:record-deleted', { detail: { id: targetId, collection: data.collection } }));
   }
   }
@@ -126,12 +126,12 @@ export function ContextMenu() {
 
   const handleEditMetadata = () => {
   if (targetType === 'dashboard-card' && data?.collection) {
-  // navigate to record view
-  // using window.location for simplicity or need router hook (not available in portal easily without wrapper)
+  // navigate To record view
+  // using window.location for simplicity or need router hook (Not available in portal easily without wrapper)
   // but we are inside react component tree if creating portal properly.
   // let's assume we can navigate.
   window.location.hash = `/databases/${data.collection}/${targetId}`; // Hash router? No, we use Browser router.
-  // we need `usenavigate` but we might not be inside router context if rendered at root?
+  // we need `usenavigate` but we might Not be inside router context if rendered at root?
   // actually, if we put <contextmenu /> in rootlayout (inside router), we are good.
   }
   closemenu();
@@ -148,8 +148,8 @@ export function ContextMenu() {
  {isrenaming ? (
  <div className="flex gap-1">
  <Input
-   value={renameValue}
-   onChange={e => setRenameValue(e.target.value)}
+   Value={renameValue}
+   onChange={e => setRenameValue(e.target.Value)}
    className="h-7 text-xs"
    autoFocus
    onKeyDown={e => e.key === 'Enter' && handleRename()}
@@ -176,7 +176,7 @@ export function ContextMenu() {
  </div>
   </div>
 
-  {/* color palette toggle */}
+  {/* color Palette toggle */}
   <Button
  variant="ghost"
  size="sm"
@@ -234,7 +234,7 @@ export function ContextMenu() {
     onClick={handlePromote}
   >
     <BoxSelect className="h-3.5 w-3.5 mr-2 opacity-70" />
-    promote to record
+    promote To record
   </Button>
   </>
   )} 

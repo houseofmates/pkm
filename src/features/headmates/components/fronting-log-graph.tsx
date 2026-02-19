@@ -71,7 +71,7 @@ export function FrontingLogGraph() {
    <Bar
    key={id}
    dataKey={id}
-   name={m?.name || 'Unknown'}
+   Name={m?.Name || 'Unknown'}
    stackId="a"
    fill={m?.color || '#8884d8'}
    />

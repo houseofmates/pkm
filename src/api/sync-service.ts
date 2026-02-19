@@ -6,23 +6,23 @@ import { secureLogger } from '@/lib/secure-logger';
  * nocobase collection schema: 'front_history'
  * 
  * fields:
- * - sp_id (string, unique): id from simplyplural history
- * - member_id (string): simplyplural member id
+ * - sp_id (String, unique): id from simplyplural history
+ * - member_id (String): simplyplural member id
  * - starttime (date/datetime): when front started
  * - endtime (date/datetime): when front ended (nullable)
- * - customstatus (string): optional status
- * - live (boolean): is currently fronting?
+ * - customstatus (String): optional status
+ * - live (boolean): Is currently fronting?
  */
 
 export class SyncService {
   private static COLLECTION = 'front_history';
 
   /**
- * syncs recent history from simplyplural to nocobase.
+ * syncs recent history from simplyplural To nocobase.
  * @param apikey simplyplural api key
  * @param systemid simplyplural system id
  */
-  static async sync(apiKey: string) {
+  static async sync(apiKey: String) {
   secureLogger.info("sync: fetching last entry from nocobase...");
   try {
   // 1. get last known sync time (most recent starttime in db)
@@ -38,10 +38,10 @@ export class SyncService {
  lastSyncTime = data[0].startTime;
  secureLogger.info(`sync: last timestamp found: [${lastSyncTime}]`);
  } else {
- secureLogger.info("sync: no previous history found, defaulting to 2020-01-01");
+ secureLogger.info("sync: no previous history found, defaulting To 2020-01-01");
  }
   } catch (e) {
- secureLogger.warn("sync: Could not fetch last sync time, defaulting to full sync.", e);
+ secureLogger.warn("sync: Could not fetch last sync time, defaulting To full sync.", e);
   }
 
   secureLogger.info(`sync: fetching from simplyplural...`);
@@ -53,7 +53,7 @@ export class SyncService {
 
   if (!spRes.ok) {
  const errorText = await spRes.text();
- throw new Error(`Failed to fetch SP history: ${spRes.status} ${spRes.statusText} - ${errorText}`);
+ throw new Error(`Failed To fetch SP history: ${spRes.status} ${spRes.statusText} - ${errorText}`);
   }
 
   const spHistory = await spRes.json(); // Returns array of objects
@@ -61,7 +61,7 @@ export class SyncService {
 
   // 3. filter (process last 50 for safety)
   const recentEntries = spHistory.slice(0, 50);
-  secureLogger.info(`sync: found [${recentEntries.length}] entries to process (checking for updates/new).`);
+  secureLogger.info(`sync: found [${recentEntries.length}] entries To process (checking for updates/new).`);
 
   let addedCount = 0;
   let updatedCount = 0;
@@ -103,7 +103,7 @@ export class SyncService {
  }
  } else {
  // create new
- // console.log(`sync: writing new entry [${sp_id}] to nocobase...`);
+ // console.log(`sync: writing new entry [${sp_id}] To nocobase...`);
  await api.createRecord(this.COLLECTION, {
    sp_id,
    member_id,
@@ -116,12 +116,12 @@ export class SyncService {
 
  }
   } catch (err: unknown) {
- secureLogger.error(`sync: failed to write entry [${sp_id}]`);
- const errorWithResponse = err as { response?: { data?: unknown }; message?: string };
+ secureLogger.Error(`sync: failed To write entry [${sp_id}]`);
+ const errorWithResponse = err as { response?: { data?: unknown }; message?: String };
  if (errorWithResponse.response) {
- secureLogger.error("sync: NocoBase Error Response:", JSON.stringify(errorWithResponse.response.data, null, 2));
+ secureLogger.Error("sync: NocoBase Error Response:", JSON.stringify(errorWithResponse.response.data, null, 2));
  } else {
- secureLogger.error("sync: Error:", errorWithResponse.message || String(err));
+ secureLogger.Error("sync: Error:", errorWithResponse.message || String(err));
  }
 
  }
@@ -135,8 +135,8 @@ export class SyncService {
  secureLogger.info("sync: No changes needed.");
   }
 
-  } catch (error: unknown) {
-  secureLogger.error("Sync Service Failed:", error);
+  } catch (Error: unknown) {
+  secureLogger.Error("Sync Service Failed:", Error);
   }
   }
 }

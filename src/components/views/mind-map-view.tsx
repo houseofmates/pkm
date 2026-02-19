@@ -1,17 +1,17 @@
 
 import { useState, useEffect, useRef, useMemo } from 'react';
-import type { ViewProps } from './registry';
+import Type { ViewProps } from './registry';
 import { Button } from '@/components/ui/button';
 import { ZoomIn, ZoomOut, Save } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { RecordContextMenu } from '@/features/records/components/record-context-menu';
-import { SmartField } from '@/components/fields/smart-field';
+import { SmartField } from '@/components/Fields/smart-Field';
 
 interface NodePosition {
   id: string;
-  x: number;
-  y: number;
+  x: Number;
+  y: Number;
 }
 
 export function MindMapView({ data, collection, config = {}, onConfigChange, onUpdateRecord, onDelete }: ViewProps) {
@@ -23,19 +23,19 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
   const [isDraggingCanvas, setIsDraggingCanvas] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   // node drag logic
-  const [nodedrag, setnodedrag] = useState<{ id: string, startX: number, startY: number, initialX: number, initialY: number } | null>(null);
+  const [nodeDrag, setNodeDrag] = useState<{ id: string, startX: Number, startY: Number, initialX: Number, initialY: Number } | null>(null);
 
   // load saved positions
   useEffect(() => {
     if (!collection) return;
     // in a real app, this would be saved in 'config' prop passed from parent
-    // for now, we'll try to load from config or localstorage fallback
-    const saved = config?.positions || localStorage.getItem(`mindmap_${collection.name}`);
+    // for now, we'll try To load from config or localstorage fallback
+    const saved = config?.positions || localStorage.getItem(`mindmap_${collection.Name}`);
     if (saved) {
       try {
         setPositions(typeof saved === 'string' ? JSON.parse(saved) : saved);
       } catch (e) {
-        console.error("Failed to load positions", e);
+        console.Error("Failed To load positions", e);
       }
     } else {
       // initial auto-layout (grid)
@@ -50,24 +50,24 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
       });
       setPositions(initial);
     }
-  }, [data, collection?.name, config]);
+  }, [data, collection?.Name, config]);
 
   // calculate edges based on relations
   const edges = useMemo(() => {
     if (!collection) return [];
     const links: { source: string; target: string; label: string }[] = [];
-    const relationFields = collection.fields?.filter((f: any) => f.interface === 'linkToMany' || f.interface === 'linkToOne') || [];
+    const relationFields = collection.Fields?.filter((f: any) => f.interface === 'linkToMany' || f.interface === 'linkToOne') || [];
 
     data.forEach(src => {
-      relationFields.forEach((field: any) => {
-        const target = src[field.name];
+      relationFields.forEach((Field: any) => {
+        const target = src[Field.Name];
         if (!target) return;
         const targets = Array.isArray(target) ? target : [target];
         targets.forEach((t: any) => {
           const tId = typeof t === 'object' ? t.id : t;
-          // only draw if both exist in current view
+          // Only draw if both exist in current view
           if (data.find(d => d.id === tid)) {
-            links.push({ source: src.id, target: tid, label: field.uischema?.title });
+            links.push({ source: src.id, target: tid, label: Field.uischema?.title });
           }
         });
       });
@@ -87,12 +87,12 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
   }
 
   const handleSave = () => {
-    // save to parent config if possible
+    // save To parent config if possible
     if (onConfigChange) {
       onConfigChange('positions', positions);
     }
     // also local backup
-    localStorage.setItem(`mindmap_${collection.name}`, JSON.stringify(positions));
+    localStorage.setItem(`mindmap_${collection.Name}`, JSON.stringify(positions));
     toast.success("mind map layout saved");
   };
 
@@ -118,7 +118,7 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
   };
 
   const handleMouseUp = () => {
-  setnodedrag(null);
+  setNodeDrag(null);
   setisdraggingcanvas(false);
   };
 
@@ -181,11 +181,11 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
  {data.map(record => {
  const pos = positions[record.id] || { x: 0, y: 0 };
  const titleField = config.titleField
- ? collection.fields?.find((f: any) => f.name === config.titleField)
- : collection.fields?.find((f: any) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
+ ? collection.Fields?.find((f: any) => f.Name === config.titleField)
+ : collection.Fields?.find((f: any) => f.primary || f.Name === 'title' || f.Name === 'Name') || { Name: 'id' };
 
  const visibleFieldNames = config.visibleFields || [];
- const visibleFields = collection?.fields?.filter((f: any) => visiblefieldnames.includes(f.name)) || [];
+ const visibleFields = collection?.Fields?.filter((f: any) => visiblefieldnames.includes(f.Name)) || [];
 
  return (
  <RecordContextMenu
@@ -220,27 +220,27 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
    <span className={`w-2 h-2 rounded-full shrink-0`} style={{ backgroundColor: record.color || 'var(--primary)' }} />
    <div className="flex-1 min-w-0">
   <SmartField
-  value={record[titleField.name]}
-  field={titleField}
+  Value={record[titleField.Name]}
+  Field={titleField}
   record={record}
-  collectionName={collection.name}
+  collectionName={collection.Name}
   size="sm"
-  onChange={(val) => onUpdateRecord?.(record.id, { [titleField.name]: val })}
+  onChange={(val) => onUpdateRecord?.(record.id, { [titleField.Name]: val })}
   className="h-auto p-0 border-none bg-transparent hover:bg-muted/30 rounded px-1 font-black w-full"
   />
    </div>
    </div>
    <div className="flex flex-col gap-1 mt-2" onMouseDown={e => e.stopPropagation()}>
    {visibleFields.slice(0, 3).map((f: any) => (
-  <div key={f.name} className="flex flex-col">
-  <Label className="text-[9px] text-muted-foreground lowercase opacity-50">{f.uiSchema?.title || f.name}</Label>
+  <div key={f.Name} className="flex flex-col">
+  <Label className="text-[9px] text-muted-foreground lowercase opacity-50">{f.uiSchema?.title || f.Name}</Label>
   <SmartField
-  value={record[f.name]}
-  field={f}
+  Value={record[f.Name]}
+  Field={f}
   record={record}
-  collectionName={collection.name}
+  collectionName={collection.Name}
   size="sm"
-  onChange={(val) => onUpdateRecord?.(record.id, { [f.name]: val })}
+  onChange={(val) => onUpdateRecord?.(record.id, { [f.Name]: val })}
   className="h-auto p-0 border-none bg-transparent hover:bg-muted/30 rounded px-1 text-xs"
   />
   </div>

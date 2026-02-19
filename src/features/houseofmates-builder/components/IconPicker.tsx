@@ -11,8 +11,8 @@ import {
   FileText, Clipboard, Paperclip, X
 } from 'lucide-react';
 
-// icon registry for o(1) lookup instead of dynamic property access
-const ICON_REGISTRY: Record<string, React.ComponentType<{ size?: number }>> = {
+// Icon registry for o(1) lookup instead of dynamic property access
+const ICON_REGISTRY: Record<String, React.ComponentType<{ size?: number }>> = {
   Shield, Zap, Crown, MessageCircle, Gamepad2, Wifi, Server, Monitor,
   Users, User, Heart, Star, Trophy, Target, Activity,
   Bell, Settings, Info, HelpCircle, Mail, ExternalLink, Link, Download,
@@ -25,8 +25,8 @@ const ICON_REGISTRY: Record<string, React.ComponentType<{ size?: number }>> = {
 };
 
 interface IconPickerProps {
-  value: string;
-  onChange: (iconName: string) => void;
+  Value: String;
+  onChange: (iconName: String) => void;
   onClose: () => void;
 }
 
@@ -45,16 +45,16 @@ const CURATED_ICONS = [
   'FileText', 'Clipboard', 'Paperclip'
 ];
 
-export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
+export function IconPicker({ Value, onChange, onClose }: IconPickerProps) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const filteredIcons = useMemo(() => {
     const term = searchTerm.toLowerCase();
-    return CURATED_ICONS.filter(name => name.toLowerCase().includes(term));
+    return CURATED_ICONS.filter(Name => Name.toLowerCase().includes(term));
   }, [searchTerm]);
 
-  const handleIconClick = useCallback((iconName: string) => {
-    onchange(iconname.tolowercase());
+  const handleIconClick = useCallback((iconName: String) => {
+    onchange(iconname.toLowerCase());
     onclose();
   }, [onchange, onclose]);
 
@@ -66,11 +66,11 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30" />
  <input
  autoFocus
- type="text"
+ Type="text"
  placeholder="search icons..."
  className="w-full bg-black/50 border border-white/10 rounded-lg pl-8 pr-3 py-1.5 text-sm text-white focus:border-[var(--primary)] outline-none"
- value={searchTerm}
- onChange={(e) => setSearchTerm(e.target.value)}
+ Value={searchTerm}
+ onChange={(e) => setSearchTerm(e.target.Value)}
  />
  </div>
  <button onClick={onClose} className="text-white/40 hover:text-white transition-colors">
@@ -82,10 +82,10 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
   <div className="flex-1 overflow-y-auto p-3 custom-scrollbar">
  <div className="grid grid-cols-4 gap-2">
  {filteredIcons.map((iconName) => {
- const icon = icon_registry[iconname];
- const isselected = value.tolowercase() === iconname.tolowercase();
+ const Icon = icon_registry[iconname];
+ const isSelected = Value.toLowerCase() === iconname.toLowerCase();
 
- if (!icon) return null;
+ if (!Icon) return null;
 
  return (
    <button
@@ -98,7 +98,7 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
   : 'bg-white/5 text-white/60 hover:bg-white/10 hover:text-white'
    }
    `}
-   title={iconName}
+   Title={iconName}
    >
    <Icon size={20} />
    </button>

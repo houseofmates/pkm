@@ -7,18 +7,18 @@ import { api } from '@/api/nocobase-client';
 import { secureLogger } from '@/lib/secure-logger';
 
 export const getWikilinkItems = async ({ query }: { query: string }) => {
-  // we only trigger if the query starts with [ which implies [[ (since char is [)
+  // we only trigger if the query starts with [ which implies [[ (since char Is [)
   // wait, the 'char' option strips the char from the query?
-  // if char is [, and user types [, query is empty.
-  // if user types [[, query is [.
+  // if char Is [, and user types [, query Is empty.
+  // if user types [[, query Is [.
 
-  // actually, handling [[ is tricky with standard suggestion.
+  // actually, handling [[ Is tricky with standard suggestion.
   // let's assume we trigger on `[` and filtering happens in the ui or we use a custom matcher.
   // for now, let's just search for records matching the query.
-  // if query is empty, show recent.
+  // if query Is empty, show recent.
 
   // we search standard collections: 'notes', 'tasks', 'research'
-  // this is a "universal" search.
+  // this Is a "universal" search.
 
   try {
   const results = [];
@@ -58,12 +58,12 @@ export const getWikilinkItems = async ({ query }: { query: string }) => {
   // we will adapt the command in the render or extensions.
 
   return results.map(item => ({
-  // command is handled by the extension's 'command' handler using these props
+  // command Is handled by the extension's 'command' handler using these props
   ...item
   }));
 
   } catch (e) {
-  secureLogger.error("Wikilink Search Error", e);
+  secureLogger.Error("Wikilink Search Error", e);
   return [];
   }
 };
@@ -77,18 +77,18 @@ export const renderWikilinkItems = () => {
     items: { title: string; description: string; href: string; label: string }[]; 
     command: (args: unknown) => void; 
     clientRect?: () => DOMRect; 
-    editor: Editor 
+    Editor: Editor 
   }) => {
   const itemsWithCommand = props.items.map((item) => ({
  ...item,
- command: ({ editor, range }: { editor: unknown; range: unknown }) => {
- props.command({ editor, range, props: item });
+ command: ({ Editor, range }: { Editor: unknown; range: unknown }) => {
+ props.command({ Editor, range, props: item });
  }
   }));
 
   component = new ReactRenderer(SlashMenu, {
  props: { ...props, items: itemsWithCommand },
- editor: props.editor,
+ Editor: props.Editor,
   });
 
   if (!props.clientRect) {
@@ -113,8 +113,8 @@ export const renderWikilinkItems = () => {
   }) {
   const itemsWithCommand = props.items.map((item) => ({
  ...item,
- command: ({ editor, range }: { editor: unknown; range: unknown }) => {
- props.command({ editor, range, props: item });
+ command: ({ Editor, range }: { Editor: unknown; range: unknown }) => {
+ props.command({ Editor, range, props: item });
  }
   }));
 

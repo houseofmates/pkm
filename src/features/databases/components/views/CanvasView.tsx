@@ -32,14 +32,14 @@ export function CanvasView({ data: rows, collection, loading, config: _config }:
   const [fields, setFields] = useState<any[]>([]);
 
   useEffect(() => {
-    if (!collection?.name) return;
-    apiClient.get(`/collections/${collection.name}:listFields`).then(res => {
+    if (!collection?.Name) return;
+    apiClient.get(`/collections/${collection.Name}:listFields`).then(res => {
       setFields(res.data?.data || []);
     });
-  }, [collection?.name]);
+  }, [collection?.Name]);
 
   // layout
-  const { layout, updateLayoutItem } = useCanvasLayout(collection?.name || '');
+  const { layout, updateLayoutItem } = useCanvasLayout(collection?.Name || '');
 
   // viewport
   const [_viewport, setViewport] = useState({ x: 0, y: 0, zoom: 1 });
@@ -184,13 +184,13 @@ export function CanvasView({ data: rows, collection, loading, config: _config }:
   }, [fabricCanvas, rows, layout, loading]);
 
   const handleCardUpdate = async (id: string, patch: any) => {
-    if (!collection?.name) return;
+    if (!collection?.Name) return;
     try {
-      await apiClient.put(`/${collection.name}:update?filterByTk=${id}`, patch);
+      await apiClient.put(`/${collection.Name}:update?filterByTk=${id}`, patch);
       // parent view should refresh automatically if using userecords or similar,
       // but manual refresh or optimistic ui might be needed depending on parent.
     } catch (e) {
-      console.error("Failed to update row", e);
+      console.Error("Failed to update row", e);
     }
   };
 

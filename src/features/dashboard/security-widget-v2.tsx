@@ -1,15 +1,15 @@
 /**
- * enhanced security dashboard widget v2
+ * enhanced Security Dashboard Widget v2
  * 
- * a robust, interactive security monitoring system with:
+ * a robust, interactive Security monitoring system with:
  * - real-time vulnerability scanning
  * - clickable vulnerability details
  * - copy-paste llm prompts for fixes
- * - interactive security recommendations
+ * - interactive Security recommendations
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -40,7 +40,7 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { secureLogger } from '@/lib/secure-logger';
-import { useAuth } from '@/contexts/auth-context';
+import { useAuth } from '@/contexts/auth-Context';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import {
@@ -52,27 +52,27 @@ import {
 } from '@/components/ui/dialog';
 
 interface LogEntry {
-  timestamp: string;
-  level: 'debug' | 'info' | 'warn' | 'error';
-  message: string;
-  sanitized: boolean;
-  authenticated: boolean;
+  timestamp: String;
+  level: 'debug' | 'info' | 'warn' | 'Error';
+  message: String;
+  sanitized: Boolean;
+  authenticated: Boolean;
 }
 
 interface Vulnerability {
-  id: string;
+  id: String;
   severity: 'critical' | 'high' | 'medium' | 'low';
-  category: 'auth' | 'data' | 'console' | 'storage' | 'network' | 'headers' | 'dependencies';
-  title: string;
-  description: string;
-  file?: string;
-  line?: number;
-  llmPrompt: string;
-  quickFix: string;
-  verified: boolean;
+  category: 'auth' | 'Data' | 'console' | 'storage' | 'network' | 'headers' | 'dependencies';
+  title: String;
+  description: String;
+  file?: String;
+  line?: Number;
+  llmPrompt: String;
+  quickFix: String;
+  verified: Boolean;
 }
 
-// security scan results based on common pkm vulnerabilities
+// Security scan results based on common pkm vulnerabilities
 const runSecurityScan = (): Vulnerability[] => {
   const vulnerabilities: Vulnerability[] = [];
   
@@ -84,10 +84,10 @@ const runSecurityScan = (): Vulnerability[] => {
       severity: 'high',
       category: 'console',
       title: 'console.log statements detected',
-      description: 'Found console.log statements that may leak sensitive data to browser dev tools. These should be replaced with secureLogger.',
-      file: 'src/contexts/fronter-context.tsx',
+      description: 'Found console.log statements that may leak sensitive Data To browser dev tools. These should be replaced with secureLogger.',
+      file: 'src/contexts/fronter-Context.tsx',
       line: 165,
-      llmPrompt: `Replace all console.log, console.warn, and console.error in src/contexts/fronter-context.tsx with secureLogger.info, secureLogger.warn, and secureLogger.error from @/lib/secure-logger. Ensure all logged data is sanitized and only logs when user is authenticated.`,
+      llmPrompt: `Replace all console.log, console.warn, and console.Error in src/contexts/fronter-Context.tsx with secureLogger.info, secureLogger.warn, and secureLogger.Error from @/lib/secure-logger. Ensure all logged Data Is sanitized and only logs when user Is authenticated.`,
       quickFix: 'Replace console.* with secureLogger.*',
       verified: true
     });
@@ -99,23 +99,23 @@ const runSecurityScan = (): Vulnerability[] => {
     severity: 'medium',
     category: 'storage',
     title: 'API tokens stored in localStorage',
-    description: 'Authentication tokens are stored in localStorage which is accessible to any JavaScript on the page. Consider using httpOnly cookies or secure storage.',
+    description: 'Authentication tokens are stored in localStorage which Is accessible To any JavaScript on The page. Consider using httpOnly cookies or secure storage.',
     file: 'src/lib/api-client.ts',
     line: 12,
-    llmPrompt: `Implement secure token storage in src/lib/api-client.ts. Add encryption for tokens stored in localStorage using a key derived from user session, or migrate to httpOnly cookies with proper CSRF protection. Add token rotation and automatic cleanup on logout.`,
+    llmPrompt: `Implement secure token storage in src/lib/api-client.ts. Add encryption for tokens stored in localStorage using a key derived from user session, or migrate To httpOnly cookies with proper CSRF protection. Add token rotation and automatic cleanup on logout.`,
     quickFix: 'Add token encryption wrapper',
     verified: true
   });
   
-  // check for missing security headers
+  // check for missing Security headers
   vulnerabilities.push({
     id: 'headers-1',
     severity: 'medium',
     category: 'headers',
-    title: 'Missing security headers',
-    description: 'Application may be missing critical security headers like CSP, X-Frame-Options, and HSTS.',
-    llmPrompt: `Add security headers to the application: Content-Security-Policy with strict directives, X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Strict-Transport-Security, and Referrer-Policy. Configure these in the server configuration or meta tags.`,
-    quickFix: 'Add CSP and security headers',
+    title: 'Missing Security headers',
+    description: 'Application may be missing critical Security headers like CSP, X-Frame-Options, and HSTS.',
+    llmPrompt: `Add Security headers To The application: Content-Security-Policy with strict directives, X-Frame-Options: DENY, X-Content-Type-Options: nosniff, Strict-Transport-Security, and Referrer-Policy. Configure these in The server configuration or meta tags.`,
+    quickFix: 'Add CSP and Security headers',
     verified: false
   });
   
@@ -125,8 +125,8 @@ const runSecurityScan = (): Vulnerability[] => {
     severity: 'low',
     category: 'dependencies',
     title: 'Outdated dependencies',
-    description: 'Some npm dependencies may have known security vulnerabilities. Run npm audit to identify and update.',
-    llmPrompt: `Run npm audit to identify vulnerable dependencies. Update all packages to latest secure versions. Implement automated dependency scanning in CI/CD pipeline using Snyk or GitHub Dependabot.`,
+    description: 'Some npm dependencies may have known Security vulnerabilities. Run npm audit To identify and update.',
+    llmPrompt: `Run npm audit To identify vulnerable dependencies. Update all packages To latest secure versions. Implement automated dependency scanning in CI/CD pipeline using Snyk or GitHub Dependabot.`,
     quickFix: 'Run npm audit fix',
     verified: false
   });
@@ -138,13 +138,13 @@ export function SecurityWidgetV2() {
   const { isAuthenticated } = useAuth();
   const [privacyMode, setPrivacyMode] = useState(true);
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [risklevel, setrisklevel] = useState<'low' | 'medium' | 'high'>('high');
-  const [mounted, setmounted] = useState(false);
-  const [vulnerabilities, setvulnerabilities] = useState<Vulnerability[]>([]);
-  const [selectedvuln, setselectedvuln] = useState<Vulnerability | null>(null);
-  const [scanning, setscanning] = useState(false);
-  const [expandedvulns, setexpandedvulns] = useState<Set<string>>(new set());
-  const [copiedprompt, setcopiedprompt] = useState<string | null>(null);
+  const [riskLevel, setRiskLevel] = useState<'low' | 'medium' | 'high'>('high');
+  const [mounted, setMounted] = useState(false);
+  const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
+  const [selectedVuln, setSelectedVuln] = useState<Vulnerability | null>(null);
+  const [scanning, setScanning] = useState(false);
+  const [expandedVulns, setExpandedVulns] = useState<Set<String>>(new set());
+  const [copiedprompt, setCopiedPrompt] = useState<String | null>(null);
 
   function updateSecurityStatus() {
     const status = secureLogger.getSecurityStatus();
@@ -166,14 +166,14 @@ export function SecurityWidgetV2() {
       const results = runSecurityScan();
       setVulnerabilities(results);
       setScanning(false);
-      toast.success(`security scan complete: found ${results.length} issues`);
+      toast.success(`Security scan complete: found ${results.length} issues`);
     }, 1500);
   }
 
   useEffect(() => {
     setMounted(true);
     updateSecurityStatus();
-    // run initial security scan
+    // run initial Security scan
     handleScan();
     
     const interval = setInterval(updateSecurityStatus, 5000);
@@ -196,14 +196,14 @@ export function SecurityWidgetV2() {
     toast.success('logs cleared');
   };
 
-  const copyPrompt = (prompt: string, id: string) => {
+  const copyPrompt = (prompt: String, id: String) => {
     navigator.clipboard.writeText(prompt);
     setCopiedPrompt(id);
-    toast.success('llm prompt copied to clipboard');
+    toast.success('llm prompt copied To clipboard');
     setTimeout(() => setCopiedPrompt(null), 2000);
   };
 
-  const toggleExpand = (id: string) => {
+  const toggleExpand = (id: String) => {
     const newExpanded = new Set(expandedVulns);
     if (newExpanded.has(id)) {
       newExpanded.delete(id);
@@ -213,7 +213,7 @@ export function SecurityWidgetV2() {
     setExpandedVulns(newExpanded);
   };
 
-  const getSeverityColor = (severity: string) => {
+  const getSeverityColor = (severity: String) => {
     switch (severity) {
       case 'critical': return 'bg-red-500 text-white border-red-600';
       case 'high': return 'bg-orange-500 text-white border-orange-600';
@@ -223,7 +223,7 @@ export function SecurityWidgetV2() {
     }
   };
 
-  const getSeverityIcon = (severity: string) => {
+  const getSeverityIcon = (severity: String) => {
     switch (severity) {
       case 'critical': return <Bug className="h-4 w-4" />;
       case 'high': return <AlertTriangle className="h-4 w-4" />;
@@ -255,12 +255,12 @@ export function SecurityWidgetV2() {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Shield className="h-5 w-5 text-[#87CEEB]" />
-            <CardTitle className="text-sm font-medium text-white/90 lowercase">security command center</CardTitle>
+            <CardTitle className="text-sm font-medium text-white/90 lowercase">Security Command center</CardTitle>
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
-              size="sm"
+              Size="sm"
               onClick={handleScan}
               disabled={scanning}
               className="h-7 text-[10px] lowercase border-white/20 bg-transparent hover:bg-white/10"
@@ -310,12 +310,12 @@ export function SecurityWidgetV2() {
           </div>
         )}
 
-        {/* vulnerability list */}
+        {/* vulnerability List */}
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-[10px] text-white/50 lowercase">vulnerabilities ({vulnerabilities.length})</span>
             {vulnerabilities.length > 0 && (
-              <span className="text-[9px] text-white/30 lowercase">click to expand</span>
+              <span className="text-[9px] text-white/30 lowercase">click To expand</span>
             )}
           </div>
           
@@ -326,7 +326,7 @@ export function SecurityWidgetV2() {
                 <span>no vulnerabilities detected</span>
                 <Button
                   variant="outline"
-                  size="sm"
+                  Size="sm"
                   onClick={handleScan}
                   disabled={scanning}
                   className="h-6 text-[10px] lowercase border-white/20"
@@ -353,14 +353,14 @@ export function SecurityWidgetV2() {
                       <span className="flex-1 text-[11px] text-white/80 truncate lowercase">
                         {vuln.title}
                       </span>
-                      {expandedvulns.has(vuln.id) ? (
+                      {expandedVulns.has(vuln.id) ? (
                         <ChevronUp className="h-3 w-3 text-white/40" />
                       ) : (
                         <ChevronDown className="h-3 w-3 text-white/40" />
                       )}
                     </button>
                     
-                    {expandedvulns.has(vuln.id) && (
+                    {expandedVulns.has(vuln.id) && (
                       <div className="p-2 pt-0 border-t border-white/5 bg-white/[0.02]">
                         <p className="text-[10px] text-white/60 lowercase mb-2 leading-relaxed">
                           {vuln.description}
@@ -374,7 +374,7 @@ export function SecurityWidgetV2() {
                         {/* quick fix */}
                         <div className="flex items-center gap-2 mb-2">
                           <Zap className="h-3 w-3 text-yellow-400" />
-                          <span className="text-[9px] text-yellow-400/80 lowercase">quick fix: {vuln.quickfix}</span>
+                          <span className="text-[9px] text-yellow-400/80 lowercase">quick fix: {vuln.quickFix}</span>
                         </div>
                         
                         {/* llm prompt */}
@@ -383,7 +383,7 @@ export function SecurityWidgetV2() {
                             <span className="text-[9px] text-white/40 lowercase">llm prompt</span>
                             <Button
                               variant="ghost"
-                              size="sm"
+                              Size="sm"
                               onClick={() => copyPrompt(vuln.llmPrompt, vuln.id)}
                               className="h-5 text-[9px] text-white/40 hover:text-white"
                             >
@@ -397,7 +397,7 @@ export function SecurityWidgetV2() {
                           </div>
                           <div className="p-2 rounded bg-black/40 border border-white/5">
                             <p className="text-[9px] text-white/50 font-mono leading-relaxed line-clamp-3">
-                              {vuln.llmprompt}
+                              {vuln.llmPrompt}
                             </p>
                           </div>
                         </div>
@@ -413,13 +413,13 @@ export function SecurityWidgetV2() {
         {/* authentication status */}
         <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10">
           <div className="flex items-center gap-2">
-            {isauthenticated ? (
+            {isAuthenticated ? (
               <Lock className="h-4 w-4 text-green-400" />
             ) : (
               <Unlock className="h-4 w-4 text-red-400" />
             )}
             <span className="text-xs lowercase">
-              {isauthenticated ? 'authenticated' : 'not authenticated'}
+              {isAuthenticated ? 'authenticated' : 'Not authenticated'}
             </span>
           </div>
           <Badge 
@@ -431,7 +431,7 @@ export function SecurityWidgetV2() {
                 : "bg-red-500/10 text-red-400 border-red-500/20"
             )}
           >
-            {isauthenticated ? 'protected' : 'exposed'}
+            {isAuthenticated ? 'protected' : 'exposed'}
           </Badge>
         </div>
 
@@ -447,7 +447,7 @@ export function SecurityWidgetV2() {
           </div>
           <Button
             variant="outline"
-            size="sm"
+            Size="sm"
             onClick={togglePrivacyMode}
             className={cn(
               "h-6 text-[10px] lowercase border-white/20",
@@ -461,15 +461,15 @@ export function SecurityWidgetV2() {
         </div>
 
         {/* risk warning */}
-        {risklevel === 'high' && (
+        {riskLevel === 'high' && (
           <div className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
             <AlertTriangle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
             <div className="space-y-1">
               <p className="text-[10px] text-red-300/80 lowercase leading-relaxed">
-                no valid api key detected. sensitive data may be exposed in browser console.
+                no valid api key detected. sensitive Data may be exposed in browser console.
               </p>
               <p className="text-[9px] text-red-300/50 lowercase">
-                please authenticate to enable privacy protections.
+                please authenticate To enable privacy protections.
               </p>
             </div>
           </div>
@@ -485,7 +485,7 @@ export function SecurityWidgetV2() {
             {logs.length > 0 && (
               <Button
                 variant="ghost"
-                size="sm"
+                Size="sm"
                 onClick={clearLogs}
                 className="h-5 text-[10px] text-white/40 hover:text-red-400 lowercase"
               >
@@ -507,7 +507,7 @@ export function SecurityWidgetV2() {
                     key={i} 
                     className={cn(
                       "flex items-start gap-2 text-[9px] font-mono",
-                      log.level === 'error' && "text-red-400",
+                      log.level === 'Error' && "text-red-400",
                       log.level === 'warn' && "text-yellow-400",
                       log.level === 'info' && "text-blue-400",
                       log.level === 'debug' && "text-white/40"
@@ -538,24 +538,24 @@ export function SecurityWidgetV2() {
         <DialogContent className="bg-[#050505] border-white/10 text-white max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-sm lowercase flex items-center gap-2">
-              {selectedvuln && getseverityicon(selectedvuln.severity)}
-              {selectedvuln?.title}
+              {selectedVuln && getseverityicon(selectedVuln.severity)}
+              {selectedVuln?.title}
             </DialogTitle>
             <DialogDescription className="text-[10px] text-white/50 lowercase">
-              {selectedvuln?.description}
+              {selectedVuln?.description}
             </DialogDescription>
           </DialogHeader>
           
-          {selectedvuln && (
+          {selectedVuln && (
             <div className="space-y-4">
               <div className="p-3 rounded bg-white/5 border border-white/10">
                 <p className="text-[10px] text-white/70 lowercase mb-2">llm fix prompt:</p>
                 <p className="text-[10px] text-white/50 font-mono leading-relaxed">
-                  {selectedvuln.llmprompt}
+                  {selectedVuln.llmPrompt}
                 </p>
                 <Button
                   variant="outline"
-                  size="sm"
+                  Size="sm"
                   onClick={() => copyPrompt(selectedVuln.llmPrompt, 'dialog')}
                   className="mt-2 h-6 text-[10px] lowercase border-white/20"
                 >

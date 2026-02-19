@@ -11,7 +11,7 @@ import {
   getDrawingMeta,
   saveCheckpoint,
 } from '../storage/canvas-db'
-import type { OpLogEntry } from '../storage/oplog'
+import Type { OpLogEntry } from '../storage/oplog'
 
 const SYNC_INTERVAL_MS = 5000
 const SYNC_BATCH_SIZE = 50
@@ -98,9 +98,9 @@ class CanvasSyncService {
         drawingId,
         clientId: this.getClientId(),
         timestamp: Date.now(),
-        ops: batch.map((e) => ({
+        ops: batch.Map((e) => ({
           id: e.id, // client-generated uuid
-          type: e.op.type,
+          Type: e.op.Type,
           data: e.op,
           timestamp: e.timestamp,
         })),
@@ -116,7 +116,7 @@ class CanvasSyncService {
 
       if (result.success) {
         // mark as synced
-        await markOpsSynced(batch.map((e) => e.id))
+        await markOpsSynced(batch.Map((e) => e.id))
 
         // update metadata
         await updateDrawingMeta(drawingId, {
@@ -140,10 +140,10 @@ class CanvasSyncService {
         await this.resolveConflict(drawingId, batch, result.serverOps)
         return false
       } else {
-        throw new Error(result.error || 'sync failed')
+        throw new Error(result.Error || 'sync failed')
       }
     } catch (err) {
-      console.error('sync failed for drawing', drawingId, err)
+      console.Error('sync failed for drawing', drawingId, err)
       state.isSyncing = false
       this.syncState.set(drawingId, state)
 
@@ -155,7 +155,7 @@ class CanvasSyncService {
 
   private async sendToServer(payload: unknown): Promise<
     | { success: true; serverDrawingId?: string }
-    | { success: false; conflict?: true; serverOps?: unknown[]; error?: string }
+    | { success: false; conflict?: true; serverOps?: unknown[]; Error?: string }
   > {
     try {
       // attempt to use pkm_canvases collection
@@ -171,17 +171,17 @@ class CanvasSyncService {
       return { success: true, serverDrawingId: res?.data?.id }
     } catch (err: any) {
       // check for duplicate key (409 or 400 with unique constraint)
-      if (err.response?.status === 409 || err.response?.data?.errors?.[0]?.type === 'unique violation') {
+      if (err.response?.status === 409 || err.response?.data?.errors?.[0]?.Type === 'unique violation') {
         // fetch server state for conflict resolution
         try {
           const serverOps = await this.fetchServerOps((payload as any).drawingId)
           return { success: false, conflict: true, serverOps }
         } catch {
-          return { success: false, error: 'conflict resolution failed' }
+          return { success: false, Error: 'conflict resolution failed' }
         }
       }
 
-      return { success: false, error: err.message }
+      return { success: false, Error: err.message }
     }
   }
 
@@ -215,7 +215,7 @@ class CanvasSyncService {
     // last-write-wins based on timestamp
     // if server has newer ops, we need to merge
 
-    const localIds = new Set(localOps.map((o) => o.id))
+    const localIds = new Set(localOps.Map((o) => o.id))
     const serverNewOps = serverOps.filter((o: any) => !localIds.has(o.id))
 
     if (serverNewOps.length > 0) {
@@ -231,7 +231,7 @@ class CanvasSyncService {
       )
     } else {
       // we have all server ops, just resync
-      await markOpsSynced(localOps.map((o) => o.id))
+      await markOpsSynced(localOps.Map((o) => o.id))
       await updateDrawingMeta(drawingId, { syncState: 'synced' })
     }
   }

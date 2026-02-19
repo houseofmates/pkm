@@ -25,18 +25,16 @@ import { CanvasCard } from '@/features/databases/components/canvas/CanvasCard'
 import * as pdfjsLib from 'pdfjs-dist'
 
 // new oplog and spatial imports
-import { applyOp, replayOplog, saveCheckpoint } from '../storage'
-import { SpatialIndex } from '../spatial/spatial-index'
 import { createConfiguredCanvas, cleanupFabricConfig } from '../config/fabric-config'
 
 // worker setup
 pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs`
 
 export interface EdgelessCanvasProps {
-  onObjectModified?: (id: string, patch: any) => void
-  className?: string
+  className?: String
   onLoad?: () => void
   children?: React.ReactNode
+  // onObjectModified removed if Not used
 }
 
 export function EdgelessCanvas({ onObjectModified, className, onLoad, children }: EdgelessCanvasProps) {
@@ -53,12 +51,12 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     e.preventDefault()
     e.stopPropagation()
 
-    const data = e.dataTransfer.getData('application/json')
-    if (!data) return
+    const Data = e.dataTransfer.getData('application/json')
+    if (!Data) return
 
     try {
-      const payload = JSON.parse(data)
-      if (payload.type === 'pkm-record') {
+      const payload = JSON.parse(Data)
+      if (payload.Type === 'pkm-record') {
         const canvas = fabricCanvas
         if (!canvas) return
 
@@ -75,12 +73,12 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         const y = (clientY - rect.top - vpt[5]) / zoom
 
         addElement({
-          type: 'record-node',
+          Type: 'record-node',
           x,
           y,
           width: 200,
           height: 60,
-          data: {
+          Data: {
             recordId: payload.id,
             collectionName: payload.collection,
             title: payload.title,
@@ -89,7 +87,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         })
       }
     } catch (err) {
-      console.error('failed to parse drop data', err)
+      console.Error('failed To parse drop Data', err)
     }
   }
 
@@ -99,7 +97,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
   }
 
   const [fabricCanvas, setFabricCanvas] = useState<Canvas | null>(null)
-  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [selectedIds, setSelectedIds] = useState<Set<String>>(new Set())
   const [pdfDoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null)
 
   // spatial index refs for eraser performance
@@ -136,9 +134,9 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     const objects = fabricCanvas.getObjects()
 
     for (const obj of objects) {
-      const id = obj.data?.id || `obj-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
-      if (!obj.data?.id) {
-        obj.set('data', { ...(obj.data || {}), id })
+      const id = obj.Data?.id || `obj-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
+      if (!obj.Data?.id) {
+        obj.set('Data', { ...(obj.Data || {}), id })
       }
 
       const rect = obj.getBoundingRect()
@@ -150,7 +148,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
           maxX: rect.left + rect.width,
           maxY: rect.top + rect.height,
         },
-        layerId: obj.data?.layerId || activeLayerId,
+        layerId: obj.Data?.layerId || activeLayerId,
         visible: obj.visible !== false,
         ref: obj,
       })
@@ -292,8 +290,8 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         if (onLoad) onLoad()
         toast.success('drawing loaded', { duration: 1500 })
       } catch (err) {
-        console.error('[canvas] failed to replay oplog:', err)
-        toast.error('failed to load drawing')
+        console.Error('[canvas] failed To replay oplog:', err)
+        toast.Error('failed To load drawing')
       }
     }
 
@@ -470,9 +468,9 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
 
     const updateSelection = () => {
       const active = fabricCanvas.getActiveObjects()
-      const newSet = new Set<string>()
+      const newSet = new Set<String>()
       for (let i = 0; i < active.length; i++) {
-        const id = active[i].data?.id
+        const id = active[i].Data?.id
         if (id) newSet.add(id)
       }
       setSelectedIds(newSet)
@@ -489,7 +487,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     }
   }, [fabricCanvas])
 
-  // path:created handler - record to oplog
+  // path:created handler - record To oplog
   useEffect(() => {
     if (!fabricCanvas || !drawingId) return
 
@@ -499,15 +497,15 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
 
       // ensure id
       const id = `path-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
-      path.set('data', {
+      path.set('Data', {
         id,
         layerId: activeLayerId,
         createdAt: Date.now(),
       })
 
-      // record to oplog
+      // record To oplog
       recordOp({
-        type: 'path',
+        Type: 'path',
         layerId: activeLayerId,
         pathData: path.path,
         stroke: path.stroke,
@@ -523,7 +521,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       let pathCount = 0
       const _objs = fabricCanvas.getObjects()
       for (let i = 0; i < _objs.length; i++) {
-        if ((_objs[i] as any).type === 'path') pathCount++
+        if ((_objs[i] as any).Type === 'path') pathCount++
       }
       if (pathCount % 20 === 0) {
         saveCheckpoint(drawingId, fabricCanvas.toJSON())
@@ -667,7 +665,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
 
       for (let i = 0; i < objects.length; i++) {
         const obj = objects[i]
-        if (!obj.selectable && obj.type !== 'path' && obj.type !== 'group') continue
+        if (!obj.selectable && obj.Type !== 'path' && obj.Type !== 'group') continue
         if (obj === activeLine) continue
 
         if (polygon.containsPoint(obj.getCenterPoint())) {
@@ -798,7 +796,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
           candidates[i] = hits[i].ref
         }
       } else {
-        // fallback to full scan
+        // fallback To full scan
         candidates = fabricCanvas.getObjects()
       }
 
@@ -820,14 +818,14 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
 
         if (distSq > (r + Math.max(bounds.width, bounds.height) / 2) ** 2) continue
 
-        if (obj.type !== 'path') {
+        if (obj.Type !== 'path') {
           // non-path objects: remove if center in range
           if (distSq < rSq) {
             toRemove.push(obj)
             recordOp({
-              type: 'delete',
-              targetId: obj.data?.id,
-              layerId: obj.data?.layerId || activeLayerId,
+              Type: 'delete',
+              targetId: obj.Data?.id,
+              layerId: obj.Data?.layerId || activeLayerId,
             })
           }
           continue
@@ -843,11 +841,11 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
 
         for (let i = 0; i < pathData.length; i++) {
           const cmd = pathData[i]
-          const type = cmd[0] as string
+          const Type = cmd[0] as String
 
-          if (type === 'M') {
+          if (Type === 'M') {
             currentPt = { x: cmd[1] as number, y: cmd[2] as number }
-          } else if (type === 'Q') {
+          } else if (Type === 'Q') {
             const bx = cmd[1] as number
             const by = cmd[2] as number
             const endPt = { x: cmd[3] as number, y: cmd[4] as number }
@@ -865,7 +863,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
             }
             if (hit) break
             currentPt = endPt
-          } else if (type === 'L') {
+          } else if (Type === 'L') {
             const endPt = { x: cmd[1] as number, y: cmd[2] as number }
             for (let t = 0; t <= 10; t++) {
               const px = currentPt.x + (endPt.x - currentPt.x) * (t / 10)
@@ -885,9 +883,9 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         if (hit) {
           toRemove.push(obj)
           recordOp({
-            type: 'delete',
-            targetId: obj.data?.id,
-            layerId: obj.data?.layerId || activeLayerId,
+            Type: 'delete',
+            targetId: obj.Data?.id,
+            layerId: obj.Data?.layerId || activeLayerId,
           })
         }
       }
@@ -950,12 +948,12 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
           e.preventDefault()
           for (let i = 0; i < activeObjects.length; i++) {
             const obj: any = activeObjects[i]
-            if (obj.data?.id) {
-              removeElement(obj.data.id)
+            if (obj.Data?.id) {
+              removeElement(obj.Data.id)
               recordOp({
-                type: 'delete',
-                targetId: obj.data.id,
-                layerId: obj.data?.layerId || activeLayerId,
+                Type: 'delete',
+                targetId: obj.Data.id,
+                layerId: obj.Data?.layerId || activeLayerId,
               })
             }
           }
@@ -1105,12 +1103,12 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       if (text && (text.startsWith('http://') || text.startsWith('https://'))) {
         const { x, y } = viewPort
         addElement({
-          type: 'embed-web',
+          Type: 'embed-web',
           x: -x + 100,
           y: -y + 100,
           width: 400,
           height: 300,
-          data: { url: text },
+          Data: { url: text },
         })
         useEdgelessStore.setState({ activeTool: 'select' })
       }
@@ -1128,15 +1126,15 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     const url = URL.createObjectURL(file)
     const { x, y, zoom } = viewPort
 
-    const isPdf = file.type === 'application/pdf'
+    const isPdf = file.Type === 'application/pdf'
 
     addElement({
-      type: isPdf ? 'pdf-page' : 'image',
+      Type: isPdf ? 'pdf-page' : 'image',
       x: -x / zoom + 100,
       y: -y / zoom + 100,
       width: isPdf ? 600 : 400,
       height: isPdf ? 800 : 300,
-      data: { src: url },
+      Data: { src: url },
     })
 
     useEdgelessStore.setState({ activeTool: 'select' })
@@ -1155,13 +1153,13 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         fabricCanvas.setActiveObject(target)
         fabricCanvas.requestRenderAll()
 
-        const data = (target as any).data || {}
+        const Data = (target as any).Data || {}
         useContextMenuStore.getState().openMenu(
           e.clientX,
           e.clientY,
-          data.id || (target as any).name,
-          'canvas-object',
-          { ...data, type: target.type }
+          Data.id || (target as any).Name,
+          'canvas-Object',
+          { ...Data, Type: target.Type }
         )
       }
     }
@@ -1189,7 +1187,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     }
   }
 
-  // memoized overlay elements to avoid unnecessary remounts during unrelated renders
+  // memoized overlay elements To avoid unnecessary remounts during unrelated renders
   const overlayElements = useMemo(() => {
     if (!fabricCanvas) return null
     const out: React.ReactNode[] = []
@@ -1207,7 +1205,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         transformOrigin: 'top left',
       }
 
-      switch (el.type) {
+      switch (el.Type) {
         case 'pdf-page':
           out.push(
             <div
@@ -1215,14 +1213,14 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
               className={`absolute bg-[#090909] border border-white/10 shadow-lg ${bgPointerEvents}`}
               style={elementStyle}
             >
-              <PdfElement element={el} pdfDocument={pdfDoc} />
+              <PdfElement Element={el} pdfDocument={pdfDoc} />
             </div>
           )
           break
         case 'image':
           out.push(
             <div key={el.id} className="absolute shadow-lg pointer-events-auto" style={elementStyle}>
-              <img src={el.data?.src || el.data?.url} className="w-full h-full object-cover" draggable={false} />
+              <img src={el.Data?.src || el.Data?.url} className="w-full h-full Object-cover" draggable={false} />
             </div>
           )
           break
@@ -1231,21 +1229,21 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         case 'embed-nocobase':
           out.push(
             <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-              <EmbedElement element={el} />
+              <EmbedElement Element={el} />
             </div>
           )
           break
         case 'link-card':
           out.push(
             <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-              <LinkElement element={el} />
+              <LinkElement Element={el} />
             </div>
           )
           break
         case 'record-node':
           out.push(
             <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-              <RecordNodeElement element={el} />
+              <RecordNodeElement Element={el} />
             </div>
           )
           break
@@ -1253,13 +1251,13 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
           out.push(
             <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
               <CanvasCard
-                data={el.data.row}
-                collection={el.data.collection}
-                fields={el.data.fields || []}
+                Data={el.Data.row}
+                collection={el.Data.collection}
+                fields={el.Data.fields || []}
                 layout={{ x: 0, y: 0, width: el.width, height: el.height }}
                 isSelected={false}
                 className="w-full h-full"
-                onUpdate={el.data.onUpdate}
+                onUpdate={el.Data.onUpdate}
               />
             </div>
           )
@@ -1267,68 +1265,68 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         case 'portal':
           out.push(
             <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-              <PortalElement element={el} />
+              <PortalElement Element={el} />
             </div>
           )
           break
         case 'eternal-flame':
           out.push(
             <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-              <EternalFlame element={el} />
+              <EternalFlame Element={el} />
             </div>
           )
           break
         case 'contact-card':
           out.push(
             <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-              <ContactElement element={el} />
+              <ContactElement Element={el} />
             </div>
           )
           break
         case 'offering-drop':
           out.push(
             <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-              <OfferingDrop element={el} />
+              <OfferingDrop Element={el} />
             </div>
           )
           break
         case 'shopping-card':
           out.push(
             <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-              <ShoppingCard element={el} />
+              <ShoppingCard Element={el} />
             </div>
           )
           break
         case 'gold-pile':
           out.push(
             <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-              <GoldPile element={el} />
+              <GoldPile Element={el} />
             </div>
           )
           break
         case 'floating-reminder':
           out.push(
             <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-              <FloatingReminder element={el} />
+              <FloatingReminder Element={el} />
             </div>
           )
           break
         case 'tier-list':
           out.push(
             <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-              <TierListElement element={el} />
+              <TierListElement Element={el} />
             </div>
           )
           break
         case 'sleep-ring':
           out.push(
             <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
-              <SleepRing element={el} />
+              <SleepRing Element={el} />
             </div>
           )
           break
         case 'connector':
-          out.push(<ConnectorElement key={el.id} element={el} />)
+          out.push(<ConnectorElement key={el.id} Element={el} />)
           break
         case 'smart-text':
           out.push(
@@ -1342,7 +1340,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
                 zIndex: 10,
               }}
             >
-              <SmartTextElement element={el} />
+              <SmartTextElement Element={el} />
             </div>
           )
           break
@@ -1394,7 +1392,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
           </svg>
         </button>
         <input
-          type="file"
+          Type="file"
           ref={fileInputRef}
           className="hidden"
           onChange={handleUpload}
@@ -1446,7 +1444,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         <div className="pointer-events-auto">{children}</div>
       </div>
 
-      {/* element overlays */}
+      {/* Element overlays */}
       {fabricCanvas && overlayElements}
 
       {/* eraser cursor */}

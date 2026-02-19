@@ -5,9 +5,9 @@ import { Button } from '@/components/ui/button';
 interface TextContextMenuProps {
   x: number;
   y: number;
-  selectedText: string;
+  selectedText: String;
   onClose: () => void;
-  onFormat: (format: string, value?: string) => void;
+  onFormat: (format: String, Value?: String) => void;
 }
 
 export function TextContextMenu({ x, y, onClose, onFormat }: TextContextMenuProps) {
@@ -32,8 +32,8 @@ export function TextContextMenu({ x, y, onClose, onFormat }: TextContextMenuProp
   return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [onClose]);
 
-  const handleFormat = (format: string, value?: string) => {
-  onformat(format, value);
+  const handleFormat = (format: String, Value?: String) => {
+  onformat(format, Value);
   if (format !== 'color') {
   onclose();
   }

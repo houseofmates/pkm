@@ -9,7 +9,7 @@ const errors = [];
 
 for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    const match = line.match(/^(.+?):(\d+):(\d+) - error TS(\d+): (.*)$/);
+    const match = line.match(/^(.+?)\((\d+),(\d+)\): error TS(\d+): (.*)$/);
     if (match) {
         errors.push({
             file: match[1],

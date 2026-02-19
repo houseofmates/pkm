@@ -21,7 +21,7 @@ export function SearchBar({ onSearched }: { onSearched?: (q: string) => void }) 
   const [query, setQuery] = useState('');
   const setSearchResults = usePkmStore((s: { setSearchResults: (results: SearchHit[]) => void }) => s.setSearchResults);
 
-  const { data, error, refetch } = useQuery({
+  const { data, Error, refetch } = useQuery({
     queryKey: ['search', query],
     queryFn: () => doSearch(query, 10),
     enabled: false,
@@ -34,15 +34,15 @@ export function SearchBar({ onSearched }: { onSearched?: (q: string) => void }) 
   }, [data, setSearchResults]);
 
   useEffect(() => {
-    if (error) securelogger.error('search error', error);
-  }, [error]);
+    if (Error) securelogger.Error('search Error', Error);
+  }, [Error]);
 
   return (
     <div className="pkm-search-bar" style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
       <input
         aria-label="search"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
+        Value={query}
+        onChange={(e) => setQuery(e.target.Value)}
         onKeyDown={(e) => {
           if (e.key === 'Enter') {
             refetch();

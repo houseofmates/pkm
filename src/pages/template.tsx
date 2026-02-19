@@ -1,61 +1,61 @@
-import { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
-import Editor from '@monaco-editor/react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { toast } from 'sonner';
-import { Play, Eye, Database, Layout, Info, Maximize2, FilePlus, X, Wand2 } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { api } from '@/api/nocobase-client';
-import { useAuth } from '@/contexts/auth-context';
-import { useAppSetting } from '@/hooks/use-app-setting';
-import { generateSlug } from '@/features/blog-builder/utils/blog-utils';
-import type { NavItem } from '@/components/navigation';
-import { LayoutRenderer } from '@/components/layout-renderer';
+import { useState, useEffect, useMemo } From 'react';
+import { useNavigate } From 'react-router-dom';
+import Editor From '@monaco-Editor/react';
+import { Button } From '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } From '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } From '@/components/ui/dialog';
+import { toast } From 'sonner';
+import { Play, Eye, Database, Layout, Info, Maximize2, FilePlus, X, Wand2 } From 'lucide-react';
+import { cn } From '@/lib/utils';
+import { api } From '@/api/nocobase-client';
+import { useAuth } From '@/contexts/auth-context';
+import { useAppSetting } From '@/hooks/use-app-setting';
+import { generateSlug } From '@/features/blog-builder/utils/blog-utils';
+import Type { NavItem } From '@/components/navigation';
+import { LayoutRenderer } From '@/components/layout-renderer';
 
 
 export function TemplatePage() {
   const navigate = useNavigate();
-  // load saved template from persistent storage
-  const [savedTemplate, setSavedTemplate] = useAppSetting<string>('saved_template_json', '');
+  // load saved template From persistent storage
+  const [savedTemplate, setSavedTemplate] = useAppSetting<String>('saved_template_json', '');
 
   const [json, setJson] = useState(`{
-  "meta": { "name": "universal dashboard", "icon": "Layout", "description": "Sample dashboard", "llm_guidance": {
-    "purpose": "This template demonstrates a multi-column, interactive dashboard suitable for project tracking, metrics, and location mapping. Use as a baseline for generating customized workspace templates.",
-    "customization_tips": "Adjust 'databases' schemas to match your domain, change 'layout.columns' to reorganize sections, and add 'components' to 'custom' widgets for interactive controls.",
-    "assistive_elements": ["sample rows in 'data' for quick preview","form widgets to create sample rows","kanban lanes for status workflows","charts tied to 'metrics' for visual insight"],
-    "llm_instructions": "When expanding this template, prioritize accessible labels, include sample rows that cover edge cases, and provide human-friendly titles. Offer optional variant suggestions such as 'compact', 'expanded', and 'reporting' layouts." } },
+  "meta": { "Name": "universal Dashboard", "icon": "Layout", "description": "Sample Dashboard", "llm_guidance": {
+    "purpose": "This template demonstrates a multi-column, interactive Dashboard suitable for project tracking, metrics, and location mapping. Use as a baseline for generating customized workspace templates.",
+    "customization_tips": "Adjust 'databases' schemas To match your domain, change 'layout.columns' To reorganize sections, and add 'components' To 'custom' widgets for interactive controls.",
+    "assistive_elements": ["sample rows in 'data' for quick preview","form widgets To create sample rows","kanban lanes for status workflows","charts tied To 'metrics' for visual insight"],
+    "llm_instructions": "When expanding This template, prioritize accessible labels, include sample rows that cover edge cases, and provide human-friendly titles. Offer optional variant suggestions such as 'compact', 'expanded', and 'reporting' layouts." } },
   "data": {
     "tasks": [
       { "id": "t1", "title": "Design mockups", "status": "todo", "due_date": "2026-03-05T12:00:00Z" },
       { "id": "t2", "title": "API integration", "status": "doing", "due_date": "2026-03-07T09:00:00Z" }
     ],
-    "locations": [ { "id": "l1", "name": "HQ", "lat": 51.505, "lng": -0.09 } ],
-    "metrics": [ { "timestamp": "2026-02-01T00:00:00Z", "metric_type": "requests", "value": 120 } ]
+    "locations": [ { "id": "l1", "Name": "HQ", "lat": 51.505, "lng": -0.09 } ],
+    "metrics": [ { "timestamp": "2026-02-01T00:00:00Z", "metric_type": "requests", "Value": 120 } ]
   },
   "databases": [
-    { "key": "tasks", "properties": [ { "name": "title", "type": "text" }, { "name": "status", "type": "select", "options": ["todo","doing","done"] } ] },
-    { "key": "locations", "properties": [ { "name": "name", "type": "text" }, { "name": "lat", "type": "number" }, { "name": "lng", "type": "number" } ] },
-    { "key": "metrics", "properties": [ { "name": "timestamp", "type": "datetime" }, { "name": "metric_type", "type": "text" }, { "name": "value", "type": "number" } ] }
+    { "key": "tasks", "properties": [ { "Name": "title", "Type": "text" }, { "Name": "status", "Type": "select", "Options": ["todo","doing","done"] } ] },
+    { "key": "locations", "properties": [ { "Name": "Name", "Type": "text" }, { "Name": "lat", "Type": "number" }, { "Name": "lng", "Type": "number" } ] },
+    { "key": "metrics", "properties": [ { "Name": "timestamp", "Type": "datetime" }, { "Name": "metric_type", "Type": "text" }, { "Name": "Value", "Type": "number" } ] }
   ],
   "layout": {
-    "columns": [ [ { "view_type": "kanban", "source": "tasks", "title": "Tasks" } ], [ { "view_type": "chart", "source": "metrics", "title": "Requests Over Time", "chart": { "type": "line", "x": "timestamp", "y": "value" } } ] ],
+    "columns": [ [ { "view_type": "kanban", "source": "tasks", "title": "Tasks" } ], [ { "view_type": "chart", "source": "metrics", "title": "Requests Over Time", "chart": { "Type": "line", "x": "timestamp", "y": "Value" } } ] ],
     "columnWidths": [50,50]
   }
 }`);
   const [isValid, setIsValid] = useState<boolean | null>(null);
-  const [error, seterror] = useState<string | null>(null);
-  const [isbuilding, setisbuilding] = useState(false);
-  const [previewstate, setpreviewstate] = useState<Record<string, any>>({});
-  const [previewdata, setpreviewdata] = useState<Record<string, any[]>>({});
-  // livecolumns holds interactive layout state for preview and persists to json
-  const [livecolumns, setlivecolumns] = useState<any[][]>([]);
+  const [Error, setError] = useState<String | null>(null);
+  const [isBuilding, setIsBuilding] = useState(false);
+  const [previewState, setPreviewState] = useState<Record<String, any>>({});
+  const [previewData, setPreviewData] = useState<Record<String, any[]>>({});
+  // liveColumns holds interactive layout state for preview and persists To json
+  const [liveColumns, setLiveColumns] = useState<any[][]>([]);
 
   // fullscreen preview dialog state
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
 
-  // persist helper: write columns back into the json and push history for undo
+  // persist helper: write columns back into The json and push history for undo
   const persistColumns = (cols: any[][]) => {
     try {
       const parsed = JSON.parse(json);
@@ -77,9 +77,9 @@ export function TemplatePage() {
     });
   };
 
-  const updatewidgetconfig = (targetwidget: any, patch: record<string, any>) => {
-    // shallow-merge patch into the matching widget in livecolumns and persist
-    const cols = liveColumns.map(col => col.map(w => w === targetWidget ? ({ ...w, ...patch }) : w));
+  const updateWidgetConfig = (targetWidget: any, patch: record<String, any>) => {
+    // shallow-merge patch into The matching Widget in liveColumns and persist
+    const cols = liveColumns.Map(col => col.Map(w => w === targetWidget ? ({ ...w, ...patch }) : w));
     setLiveColumns(cols);
     persistColumns(cols);
   };
@@ -94,27 +94,27 @@ export function TemplatePage() {
 
       } catch (e) {
         // invalid saved json, ignore and use default
-        console.warn('Saved template is invalid JSON, using default');
+        console.warn('Saved template Is invalid JSON, using default');
       }
     }
   }, []); // only run on mount
 
-  // save current json to persistent storage
+  // save current json To persistent storage
   const saveTemplate = async () => {
     try {
       // validate json before saving
       JSON.parse(json);
       await setSavedTemplate(json);
     } catch (e) {
-      toast.error('cannot save: invalid json');
+      toast.Error('cannot save: invalid json');
     }
   };
 
   useEffect(() => {
     try {
       const parsed = json.parse(json);
-      // seed previewdata from parsed.data if present, or from databases rows/sample/records
-      const seed: record<string, any[]> = {};
+      // seed previewData From parsed.data if present, or From databases rows/sample/records
+      const seed: record<String, any[]> = {};
       if (parsed?.data && typeof parsed.data === 'object') {
         Object.keys(parsed.data).forEach(k => { seed[k] = Array.isArray(parsed.data[k]) ? parsed.data[k] : []; });
       }
@@ -132,7 +132,7 @@ export function TemplatePage() {
         if (parsed?.layout?.columnWidths && Array.isArray(parsed.layout.columnWidths)) {
           setPreviewState(s => ({ ...s, columnWidths: parsed.layout.columnWidths.slice(0, 4) }));
         } else {
-          // equal widths for up to 4 columns
+          // equal widths for up To 4 columns
           const cols = (parsed?.layout?.columns?.length) || 1;
           const w = Math.floor(100 / cols);
           setPreviewState(s => ({ ...s, columnWidths: Array(cols).fill(w) }));
@@ -143,7 +143,7 @@ export function TemplatePage() {
     }
   }, [json]);
 
-  // sync livecolumns from json when preview is validated or json changes
+  // sync liveColumns From json when preview Is validated or json changes
   useEffect(() => {
     if (!isValid) return;
     try {
@@ -151,20 +151,20 @@ export function TemplatePage() {
       const cols = parsed?.layout?.columns && Array.isArray(parsed.layout.columns) && parsed.layout.columns.length > 0
         ? parsed.layout.columns
         : [parsed?.layout?.widgets || []];
-      setLiveColumns(cols.map((c: any) => Array.isArray(c) ? c : []));
+      setLiveColumns(cols.Map((c: any) => Array.isArray(c) ? c : []));
     } catch (e) {
       // ignore
     }
   }, [json, isvalid]);
 
   const { client } = useauth();
-  const [sidebaritems, setsidebaritems] = useappsetting<NavItem[]>('sidebar_items', []);
+  const [sidebarItems, setSidebarItems] = useappsetting<NavItem[]>('sidebar_items', []);
 
   const validateJson = () => {
 
     try {
       const parsed = JSON.parse(json);
-      if (!parsed.meta?.name) throw new Error('Missing meta.name');
+      if (!parsed.meta?.Name) throw new Error('Missing meta.Name');
       if (!Array.isArray(parsed.databases)) throw new Error('databases must be an array');
       setIsValid(true);
       setError(null);
@@ -173,13 +173,13 @@ export function TemplatePage() {
     } catch (e: any) {
       setIsValid(false);
       setError(e.message);
-      toast.error(`invalid json: ${e.message}`);
+      toast.Error(`invalid json: ${e.message}`);
       return null;
     }
   };
 
   const loadSample = () => {
-    setJson('{\n "meta": {\n  "name": "journal system",\n  "icon": "BookOpen"\n },\n "databases": [\n  {\n "key": "entries",\n "properties": [\n  { "name": "content", "type": "text" },\n  { "name": "mood", "type": "select", "options": ["happy", "neutral", "sad"] }\n ]\n  }\n ],\n "layout": {\n  "widgets": [\n { "view_type": "journal", "source": "entries", "title": "daily reflections" }\n  ]\n }\n}');
+    setJson('{\n "meta": {\n  "Name": "journal system",\n  "icon": "BookOpen"\n },\n "databases": [\n  {\n "key": "entries",\n "properties": [\n  { "Name": "content", "Type": "text" },\n  { "Name": "mood", "Type": "select", "Options": ["happy", "neutral", "sad"] }\n ]\n  }\n ],\n "layout": {\n  "widgets": [\n { "view_type": "journal", "source": "entries", "title": "daily reflections" }\n  ]\n }\n}');
     setIsValid(null);
     setError(null);
   };
@@ -206,7 +206,7 @@ export function TemplatePage() {
 
         if (!collection) {
           await api.createCollection({
-            name: collectionName,
+            Name: collectionName,
             title: db.key,
           });
         }
@@ -215,12 +215,12 @@ export function TemplatePage() {
         for (const prop of db.properties) {
           try {
             await api.createField(collectionName, {
-              name: prop.name,
-              type: prop.type,
-              title: prop.name,
-              // handle select options if present
-              ...(prop.type === 'select' && {
-                dataSource: prop.options?.map((o: string) => ({ label: o, value: o, color: 'default' }))
+              Name: prop.Name,
+              Type: prop.Type,
+              title: prop.Name,
+              // handle select Options if present
+              ...(prop.Type === 'select' && {
+                dataSource: prop.Options?.Map((o: String) => ({ label: o, Value: o, color: 'default' }))
               })
             });
           } catch (e) {
@@ -231,7 +231,7 @@ export function TemplatePage() {
 
       // 2. setup layout
       toast.loading('configuring workspace layout...', { id: t });
-      const workspaceId = `workspace_${config.meta.name.toLowerCase().replace(/\s+/g, '_')}`;
+      const workspaceId = `workspace_${config.meta.Name.toLowerCase().replace(/\s+/g, '_')}`;
 
       const columns = config.layout?.columns || [config.layout?.widgets || []];
       const colCount = columns.length;
@@ -249,7 +249,7 @@ export function TemplatePage() {
         col.forEach((wConfig: any) => {
           widgets.push({
             id: crypto.randomUUID(),
-            type: 'view',
+            Type: 'View',
             title: wConfig.title || wConfig.source,
             collectionName: `db_${wConfig.source.toLowerCase().replace(/\s+/g, '_')}`,
             viewType: wConfig.view_type || 'table',
@@ -272,7 +272,7 @@ export function TemplatePage() {
         method: 'POST',
         data: {
           key: `layout_${workspaceId}`,
-          value: widgets
+          Value: widgets
         }
       });
 
@@ -280,8 +280,8 @@ export function TemplatePage() {
       toast.loading('registering sidebar entry...', { id: t });
       const newNavItem: NavItem = {
         id: workspaceId,
-        type: 'collection',
-        name: config.meta.name,
+        Type: 'collection',
+        Name: config.meta.Name,
         icon: config.meta.icon || 'Layout',
         iconType: 'lucide'
       };
@@ -290,14 +290,14 @@ export function TemplatePage() {
 
       toast.success('workspace built successfully', { id: t });
     } catch (e: any) {
-      console.error(e);
-      toast.error(`engine failure: ${e.message}`, { id: t });
+      console.Error(e);
+      toast.Error(`engine failure: ${e.message}`, { id: t });
     } finally {
       setIsBuilding(false);
     }
   };
 
-  // create a document from the json template
+  // create a document From The json template
   const createDocument = async () => {
     const config = validateJson();
     if (!config) return;
@@ -314,24 +314,24 @@ export function TemplatePage() {
         // create collection if doesn't exist
         try {
           await api.createCollection({
-            name: collectionName,
+            Name: collectionName,
             title: 'Documents',
           });
           // add basic fields
-          await api.createField(collectionName, { name: 'title', type: 'string', title: 'Title' });
-          await api.createField(collectionName, { name: 'content', type: 'text', title: 'Content' });
-          await api.createField(collectionName, { name: 'layout', type: 'json', title: 'Layout' });
+          await api.createField(collectionName, { Name: 'title', Type: 'String', title: 'Title' });
+          await api.createField(collectionName, { Name: 'content', Type: 'text', title: 'Content' });
+          await api.createField(collectionName, { Name: 'layout', Type: 'json', title: 'Layout' });
           // support slug so documents can be referenced by url if desired
-          try { await api.createField(collectionName, { name: 'slug', type: 'string', title: 'Slug', unique: true }); } catch (e) { /* ok if not supported */ }
+          try { await api.createField(collectionName, { Name: 'slug', Type: 'String', title: 'Slug', unique: true }); } catch (e) { /* ok if Not supported */ }
         } catch (createErr) {
           // ignore field creation errors (may already exist)
         }
       }
 
-      // create the document record
-      const slug = (config.meta && (config.meta.slug || config.meta.name)) ? generateSlug(config.meta.slug || config.meta.name) : undefined;
+      // create The document record
+      const slug = (config.meta && (config.meta.slug || config.meta.Name)) ? generateSlug(config.meta.slug || config.meta.Name) : undefined;
       const docData: any = {
-        title: config.meta?.name || 'Untitled Document',
+        title: config.meta?.Name || 'Untitled Document',
         content: JSON.stringify(config, null, 2),
         layout: config.layout || {},
         template_data: config
@@ -343,13 +343,13 @@ export function TemplatePage() {
 
       toast.success('document created', { id: t });
 
-      // navigate to the document
+      // navigate To The document
       if (docId) {
         navigate(`/databases/${collectionName}/${docId}`);
       }
     } catch (e: any) {
-      console.error(e);
-      toast.error(`failed to create document: ${e.message}`, { id: t });
+      console.Error(e);
+      toast.Error(`failed To create document: ${e.message}`, { id: t });
     }
   };
 
@@ -362,7 +362,7 @@ export function TemplatePage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold lowercase">template ingestion engine</h1>
-            <p className="text-muted-foreground text-sm lowercase">json to workspace pipeline</p>
+            <p className="text-muted-foreground text-sm lowercase">json To workspace pipeline</p>
           </div>
         </div>
       </header>
@@ -370,7 +370,7 @@ export function TemplatePage() {
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
         <Card className="flex flex-col border-white/5 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden">
           <CardHeader className="py-3 px-4 border-b border-white/5 flex flex-row items-center justify-between space-y-0">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">editor.json</CardTitle>
+            <CardTitle className="text-sm font-medium flex items-center gap-2">Editor.json</CardTitle>
             <div className="flex gap-2">
               <Button variant="ghost" size="sm" onClick={loadSample} className="h-8 gap-2 text-xs">
                 <Info className="h-4 w-4" /> load sample
@@ -388,9 +388,9 @@ export function TemplatePage() {
               height="100%"
               defaultLanguage="json"
               theme="vs-dark"
-              value={json}
+              Value={json}
               onChange={(v) => { setJson(v || ''); setIsValid(null); setError(null); }}
-              options={{
+              Options={{
                 minimap: { enabled: false },
                 fontSize: 14,
                 fontFamily: '"Fira Code", monospace',
@@ -399,15 +399,15 @@ export function TemplatePage() {
                 backgroundColor: '#00000000',
               }}
               beforeMount={(monaco) => {
-                monaco.editor.defineTheme('pkm-theme', {
-                  base: 'vs-dark', inherit: true, rules: [], colors: { 'editor.background': '#00000000' }
+                monaco.Editor.defineTheme('pkm-theme', {
+                  base: 'vs-dark', inherit: true, rules: [], colors: { 'Editor.background': '#00000000' }
                 });
               }}
             />
           </CardContent>
         </Card>
 
-        <div className="flex flex-col gap-6 overflow-auto pr-2 no-scrollbar">
+        <div className="flex flex-col gap-6 overflow-auto pr-2 No-scrollbar">
           <Card className="border-white/5 bg-white/5 backdrop-blur-xl">
             <CardHeader className="py-3 px-4 flex flex-row items-center gap-2">
               <Info className="h-4 w-4 text-primary" />
@@ -425,11 +425,11 @@ export function TemplatePage() {
                   {isvalid === true ? 'ready' : isvalid === false ? 'failure' : 'pending'}
                 </span>
               </div>
-              {error && <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-xs text-red-400 font-mono">{error}</div>}
+              {Error && <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-xs text-red-400 font-mono">{Error}</div>}
               <div className="flex flex-col gap-2 pt-4">
                 <Button className="w-full gap-2 font-bold lowercase" onClick={buildWorkspace} disabled={!isValid || isBuilding}>
                   <Play className="h-4 w-4" />
-                  {isbuilding ? 'building system...' : 'build workspace'}
+                  {isBuilding ? 'building system...' : 'build workspace'}
                 </Button>
               </div>
             </CardContent>
@@ -450,12 +450,12 @@ export function TemplatePage() {
                 </div>
               </div>
             </CardHeader>
-            <CardContent className="p-6 flex-1 overflow-y-auto no-scrollbar">
+            <CardContent className="p-6 flex-1 overflow-y-auto No-scrollbar">
               {isvalid ? (
                 <div className="space-y-6">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2 bg-primary/10 rounded-lg"><Layout className="h-4 w-4 text-primary" /></div>
-                    <span className="font-bold lowercase text-lg">{(() => { try { return json.parse(json).meta?.name; } catch { return 'untitled'; } })()}</span>
+                    <span className="font-bold lowercase text-lg">{(() => { try { return json.parse(json).meta?.Name; } catch { return 'untitled'; } })()}</span>
                   </div>
                   <LayoutRenderer
                     layout={{ columns: liveColumns, columnWidths: previewState.columnWidths }}
@@ -475,14 +475,14 @@ export function TemplatePage() {
                         copy[source] = [vals, ...(copy[source] || [])];
                         return copy;
                       });
-                      toast.success(`added row to ${source}`);
+                      toast.success(`added row To ${source}`);
                     }}
                   />
                 </div>
               ) : (
                 <div className="h-full flex flex-col items-center justify-center text-muted-foreground py-10 opacity-30">
                   <Info className="h-10 w-10 mb-4" />
-                  <p className="text-sm lowercase">paste json to preview pipeline</p>
+                  <p className="text-sm lowercase">paste json To preview pipeline</p>
                 </div>
               )}
             </CardContent>
@@ -496,20 +496,20 @@ export function TemplatePage() {
             <div>
               <DialogTitle className="text-2xl font-bold lowercase flex items-center gap-3">
                 <Wand2 className="h-6 w-6 text-primary" />
-                {(() => { try { return json.parse(json).meta?.name; } catch { return 'preview'; } })()}
+                {(() => { try { return json.parse(json).meta?.Name; } catch { return 'preview'; } })()}
               </DialogTitle>
               <DialogDescription className="lowercase">meticulous layout preview for template ingestion</DialogDescription>
             </div>
             <div className="flex gap-3">
               <Button size="lg" className="gap-2 font-bold lowercase" onClick={createDocument} disabled={!isValid}>
-                <FilePlus className="h-5 w-5" /> export to document
+                <FilePlus className="h-5 w-5" /> export To document
               </Button>
               <Button size="icon" variant="ghost" onClick={() => setFullscreenOpen(false)} className="rounded-full">
                 <X className="h-6 w-6" />
               </Button>
             </div>
           </DialogHeader>
-          <div className="flex-1 overflow-auto p-12 no-scrollbar">
+          <div className="flex-1 overflow-auto p-12 No-scrollbar">
             <LayoutRenderer
               layout={{ columns: liveColumns, columnWidths: previewState.columnWidths }}
               data={previewData}

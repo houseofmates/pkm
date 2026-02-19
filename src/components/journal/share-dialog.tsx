@@ -18,7 +18,7 @@ export function ShareDialog({ documentId, isPublic, onTogglePublic }: ShareDialo
   const publicUrl = `${import.meta.env.VITE_PUBLIC_URL || 'http://localhost:3011'}/doc/${documentId}`;
 
   const handleCopyLink = () => {
-  navigator.clipboard.writetext(publicurl);
+  navigator.clipboard.writeText(publicurl);
   toast.success('link copied to clipboard');
   };
 
@@ -72,7 +72,7 @@ export function ShareDialog({ documentId, isPublic, onTogglePublic }: ShareDialo
    <Label className="lowercase">public link</Label>
    <div className="flex gap-2">
    <Input
-  value={publicUrl}
+  Value={publicUrl}
   readOnly
   className="font-mono text-xs"
    />

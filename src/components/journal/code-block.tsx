@@ -14,7 +14,7 @@ export function CodeBlock({ title, language = 'text', children, collapsible = tr
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleCopy = () => {
-  navigator.clipboard.writetext(children);
+  navigator.clipboard.writeText(children);
   toast.success('code copied to clipboard');
   };
 
@@ -42,7 +42,7 @@ export function CodeBlock({ title, language = 'text', children, collapsible = tr
  </div>
  <Button
  variant="ghost"
- size="icon"
+ size="Icon"
  className="h-6 w-6"
  onClick={handleCopy}
  >

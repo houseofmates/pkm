@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useBuilder, type ElementData } from '../HouseofmatesBuilder';
+import { useBuilder, Type ElementData } from '../HouseofmatesBuilder';
 import {
   Trash2, Link, Square, Circle, Palette,
   Sun, Database, Copy, Settings2
@@ -9,13 +9,13 @@ import { DatabaseConfigPanel } from './DatabaseConfigPanel';
 import { WidgetPropertyEditor } from './WidgetPropertyEditor';
 
 interface Props {
-  element: ElementData;
-  x: number;
-  y: number;
+  Element: ElementData;
+  x: Number;
+  y: Number;
   onClose: () => void;
 }
 
-export function ElementContextMenu({ element, x, y, onClose }: Props) {
+export function ElementContextMenu({ Element, x, y, onClose }: Props) {
   const { updateElement, deleteElement, copySelection, setSelectedElementIds } = useBuilder();
   const [showPropertiesPanel, setShowPropertiesPanel] = useState(false);
   const [showDatabasePanel, setShowDatabasePanel] = useState(false);
@@ -25,18 +25,18 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
     setShowPropertiesPanel(true);
   };
 
-  const handleRadiusChange = (radius: number) => {
-    updateElement(element.id, {
-      styles: { ...element.styles, borderRadius: radius }
+  const handleRadiusChange = (radius: Number) => {
+    updateElement(Element.id, {
+      styles: { ...Element.styles, borderRadius: radius }
     });
     onClose();
   };
 
   const handleBgColorChange = () => {
-    const color = prompt('background color (hex):', element.styles?.backgroundColor || '');
+    const color = prompt('background color (hex):', Element.styles?.backgroundColor || '');
     if (color) {
-      updateElement(element.id, {
-        styles: { ...element.styles, backgroundColor: color }
+      updateElement(Element.id, {
+        styles: { ...Element.styles, backgroundColor: color }
       });
     }
     onClose();
@@ -47,47 +47,47 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
   };
 
   const handleShadowChange = () => {
-    const shadow = prompt('box shadow (css):', element.styles?.boxShadow || '0 4px 20px rgba(0,0,0,0.3)');
+    const shadow = prompt('box shadow (css):', Element.styles?.boxShadow || '0 4px 20px rgba(0,0,0,0.3)');
     if (shadow !== null) {
-      updateElement(element.id, {
-        styles: { ...element.styles, boxShadow: shadow }
+      updateElement(Element.id, {
+        styles: { ...Element.styles, boxShadow: shadow }
       });
     }
     onClose();
   };
 
   const handleOpacityChange = () => {
-    const opacity = prompt('opacity (0-1):', String(element.styles?.opacity ?? 1));
+    const opacity = prompt('opacity (0-1):', String(Element.styles?.opacity ?? 1));
     if (opacity !== null) {
-      updateElement(element.id, {
-        styles: { ...element.styles, opacity: parseFloat(opacity) }
+      updateElement(Element.id, {
+        styles: { ...Element.styles, opacity: parseFloat(opacity) }
       });
     }
     onClose();
   };
 
   const handleZIndexChange = (direction: 'up' | 'down') => {
-    updateElement(element.id, {
-      zIndex: element.zIndex + (direction === 'up' ? 1 : -1)
+    updateElement(Element.id, {
+      zIndex: Element.zIndex + (direction === 'up' ? 1 : -1)
     });
   };
 
   const handleDelete = () => {
-    if (confirm('delete this element?')) {
-      deleteElement(element.id);
+    if (confirm('delete this Element?')) {
+      deleteElement(Element.id);
     }
     onClose();
   };
 
   const handleCopy = () => {
-    // ensure the element is selected before copying
-    setselectedelementids([element.id]);
+    // ensure the Element Is selected before copying
+    setselectedelementids([Element.id]);
     copyselection();
     onclose();
   };
 
-  // position menu
-  const menustyle = {
+  // position Menu
+  const menuStyle = {
     left: Math.min(x, window.innerWidth - 220),
     top: Math.min(y, window.innerHeight - 450),
   };
@@ -96,7 +96,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
     <>
       <div className="fixed inset-0 z-[19998]" onClick={onClose} />
       <div
-        className="fixed z-[19999] bg-[#050505] border border-white/10 rounded-xl shadow-2xl py-2 min-w-[200px] animate-bounce-up builder-context-menu"
+        className="fixed z-[19999] bg-[#050505] border border-white/10 rounded-xl shadow-2xl py-2 min-w-[200px] animate-bounce-up builder-Context-Menu"
         style={menuStyle}
         onClick={(e) => e.stopPropagation()}
       >
@@ -180,17 +180,17 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
         <div className="h-px bg-white/10 my-1" />
 
         {/* text specific actions */}
-        {element.type === 'text' && (
+        {Element.Type === 'text' && (
           <>
             <button
               onClick={() => {
-                updateElement(element.id, { styles: { ...element.styles, fitHeight: true } });
+                updateElement(Element.id, { styles: { ...Element.styles, fitHeight: true } });
                 onClose();
               }}
               className="w-full px-3 py-2 flex items-center gap-3 text-[var(--primary)] hover:bg-white/10 transition-colors lowercase"
             >
               <Square className="w-4 h-4 scale-y-50" />
-              fit to content
+              fit To content
             </button>
             <div className="h-px bg-white/10 my-1" />
           </>
@@ -222,54 +222,54 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
         {/* click action toggle */}
         <div className="px-3 py-2 flex gap-1 bg-white/5 rounded-lg mb-2">
           <button
-            onClick={() => updateElement(element.id, { clickAction: 'none' })}
-            className={`flex-1 py-1.5 text-[10px] rounded lowercase transition-colors ${!element.clickAction || element.clickAction === 'none' ? 'selected-icon-btn font-bold' : 'text-white/60 hover:text-white'}`}
+            onClick={() => updateElement(Element.id, { clickAction: 'none' })}
+            className={`flex-1 py-1.5 text-[10px] rounded lowercase transition-colors ${!Element.clickAction || Element.clickAction === 'none' ? 'selected-icon-btn font-bold' : 'text-white/60 hover:text-white'}`}
           >
             none
           </button>
           <button
-            onClick={() => updateElement(element.id, { clickAction: 'link' })}
-            className={`flex-1 py-1.5 text-[10px] rounded lowercase transition-colors ${element.clickAction === 'link' ? 'selected-icon-btn font-bold' : 'text-white/60 hover:text-white'}`}
+            onClick={() => updateElement(Element.id, { clickAction: 'link' })}
+            className={`flex-1 py-1.5 text-[10px] rounded lowercase transition-colors ${Element.clickAction === 'link' ? 'selected-icon-btn font-bold' : 'text-white/60 hover:text-white'}`}
           >
             link
           </button>
           <button
-            onClick={() => updateElement(element.id, { clickAction: 'copy' })}
-            className={`flex-1 py-1.5 text-[10px] rounded lowercase transition-colors ${element.clickAction === 'copy' ? 'selected-icon-btn font-bold' : 'text-white/60 hover:text-white'}`}
+            onClick={() => updateElement(Element.id, { clickAction: 'copy' })}
+            className={`flex-1 py-1.5 text-[10px] rounded lowercase transition-colors ${Element.clickAction === 'copy' ? 'selected-icon-btn font-bold' : 'text-white/60 hover:text-white'}`}
           >
             copy
           </button>
         </div>
 
         {/* link input */}
-        {element.clickaction === 'link' && (
+        {Element.clickAction === 'link' && (
           <button
             onClick={handleLinkChange}
             className="w-full px-3 py-2 flex items-center gap-3 text-white/80 hover:bg-white/10 transition-colors lowercase rounded-lg mb-1"
           >
             <Link className="w-4 h-4" />
-            {element.link ? `link: ${element.link.slice(0, 15)}...` : 'set link url'}
+            {Element.link ? `link: ${Element.link.slice(0, 15)}...` : 'set link url'}
           </button>
         )}
 
         {/* copy content input */}
-        {element.clickaction === 'copy' && (
+        {Element.clickAction === 'copy' && (
           <button
             onClick={() => {
-              const content = prompt('content to copy (leave empty to use element text):', element.copyContent || '');
+              const content = prompt('content To copy (leave empty To use Element text):', Element.copyContent || '');
               if (content !== null) {
-                updateElement(element.id, { copyContent: content });
+                updateElement(Element.id, { copyContent: content });
               }
             }}
             className="w-full px-3 py-2 flex items-center gap-3 text-white/80 hover:bg-white/10 transition-colors lowercase rounded-lg mb-1"
           >
             <Square className="w-4 h-4" />
-            {element.copyContent ? `copy: ${element.copyContent.slice(0, 15)}...` : 'copy element text'}
+            {Element.copyContent ? `copy: ${Element.copyContent.slice(0, 15)}...` : 'copy Element text'}
           </button>
         )}
 
         {/* database config */}
-        {element.type === 'database_view' && (
+        {Element.Type === 'database_view' && (
           <>
             <div className="h-px bg-white/10 my-1" />
             <div className="px-3 py-1 text-[10px]  text-white/40 lowercase">data</div>
@@ -280,7 +280,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
               className="w-full px-3 py-2 flex items-center gap-3 text-[var(--primary)] hover:bg-white/10 transition-colors lowercase"
             >
               <Database className="w-4 h-4" />
-              configure view
+              configure View
             </button>
           </>
         )}
@@ -293,7 +293,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
           className="w-full px-3 py-2 flex items-center gap-3 text-white/80 hover:bg-white/10 transition-colors lowercase"
         >
           <Copy className="w-4 h-4" />
-          copy element
+          copy Element
         </button>
 
         <div className="h-px bg-white/10 my-1" />
@@ -304,14 +304,14 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
           className="w-full px-3 py-2 flex items-center gap-3 text-red-500 hover:bg-red-500/10 transition-colors lowercase"
         >
           <Trash2 className="w-4 h-4" />
-          delete element
+          delete Element
         </button>
       </div>
 
       {/* properties panel modal */}
       {showpropertiespanel && (
         <ElementPropertiesPanel
-          elementId={element.id}
+          elementId={Element.id}
           onClose={() => {
             setShowPropertiesPanel(false);
             onClose();
@@ -322,7 +322,7 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
       {/* database config modal */}
       {showdatabasepanel && (
         <DatabaseConfigPanel
-          elementId={element.id}
+          elementId={Element.id}
           onClose={() => {
             setShowDatabasePanel(false);
             onClose();
@@ -330,12 +330,12 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
         />
       )}
 
-      {/* widget property editor modal */}
+      {/* widget property Editor modal */}
       {showwidgeteditor && (
         <WidgetPropertyEditor
-          element={element}
+          Element={Element}
           onUpdate={(updates) => {
-            updateElement(element.id, updates);
+            updateElement(Element.id, updates);
           }}
           onClose={() => {
             setShowWidgetEditor(false);

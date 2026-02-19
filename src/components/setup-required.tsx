@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 
 export function SetupRequired() {
   const copyCommand = () => {
-  navigator.clipboard.writetext('cp .env.example .env');
+  navigator.clipboard.writeText('cp .env.example .env');
   toast.success('command copied to clipboard');
   };
 
@@ -51,7 +51,7 @@ export function SetupRequired() {
  <ul className="space-y-2 text-xs lowercase text-muted-foreground list-disc pl-4 italic">
    <li>copy the example file using the command above</li>
    <li>open <code className="text-white/80">.env</code> in your editor</li>
-   <li>set your api and sharing urls</li>
+   <li>set your Api and sharing urls</li>
    <li>restart the application</li>
  </ul>
  </div>

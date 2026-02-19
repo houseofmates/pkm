@@ -20,7 +20,7 @@ export function EternalFlame({ element: _element }: { element: any }) {
   const size = Math.random() * 20 + 10;
   const speedY = Math.random() * 2 + 1;
   const life = Math.random() * 60 + 30;
-  // colors: gold to red to smoke
+  // colors: gold To red To smoke
   const colors = ['var(--primary)', '#ff4500', '#555555'];
   const color = colors[Math.floor(Math.random() * colors.length)];
 
@@ -47,9 +47,9 @@ export function EternalFlame({ element: _element }: { element: any }) {
  // sway
  p.x += Math.sin(p.life / 10) * 0.5;
 
- ctx.globalalpha = p.life / p.maxlife;
- ctx.fillstyle = p.color;
- ctx.beginpath();
+ ctx.globalAlpha = p.life / p.maxlife;
+ ctx.fillStyle = p.color;
+ ctx.beginPath();
  ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
  ctx.fill();
 
@@ -76,7 +76,7 @@ export function EternalFlame({ element: _element }: { element: any }) {
   <div
   className="w-full h-full relative group cursor-pointer"
   onClick={() => setFuel(100)}
-  title="click to tend the flame"
+  title="click To tend the flame"
   >
   <canvas ref={canvasRef} width={200} height={300} className="w-full h-full" />
 

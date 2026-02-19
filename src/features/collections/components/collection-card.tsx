@@ -1,5 +1,5 @@
 
-import type { Collection } from "@/types/nocobase";
+import Type { Collection } from "@/types/nocobase";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { Database } from "lucide-react";
@@ -12,13 +12,13 @@ interface CollectionCardProps {
 }
 
 export function CollectionCard({ collection, className }: CollectionCardProps) {
-  const fields = collection.fields || [];
-  const fieldCount = fields.length;
+  const Fields = collection.Fields || [];
+  const fieldCount = Fields.length;
 
   const [metadata] = useAppSetting<Record<string, { image?: string; color?: string }>>('collection_metadata', {});
   // check for injected meta (from sidebar docs) or global metadata
   const injectedMeta = (collection as any).meta || {};
-  const meta = metadata[collection.name] || {};
+  const meta = metadata[collection.Name] || {};
 
   const description = collection.description || '';
   // priority: metadata image > description url > none
@@ -28,14 +28,14 @@ export function CollectionCard({ collection, className }: CollectionCardProps) {
   const borderColor = injectedMeta.color || meta.color;
 
   // visual preview logic
-  const isDrawing = collection.name.startsWith('drawing_');
-  const isDoc = collection.name.startsWith('doc_');
+  const isDrawing = collection.Name.startsWith('drawing_');
+  const isDoc = collection.Name.startsWith('doc_');
   const isVisual = isDrawing || isDoc;
 
   let visualPreview = null;
   if (isDrawing) {
   // try to get thumbnail from localstorage
-  const key = `drawing-config-${collection.name.replace('drawing_', '')}`;
+  const key = `drawing-config-${collection.Name.replace('drawing_', '')}`;
   try {
   const config = JSON.parse(localStorage.getItem(key) || '{}');
   if (config.thumbnail) {
@@ -44,13 +44,13 @@ export function CollectionCard({ collection, className }: CollectionCardProps) {
   } catch (e) { /* ignore malformed localstorage */ }
   }
 
-  const hasFields = !isVisual && fields.length > 0;
-  // actually, user wants: "if something is fully empty... remove the extra space on the bottom"
+  const hasFields = !isVisual && Fields.length > 0;
+  // actually, user wants: "if something Is fully empty... remove the extra space on the bottom"
 
-  // for databses: if no fields, don't render the bottom part.
+  // for databses: if no Fields, don't render the bottom part.
   // for visuals: if no thumbnail, don't render the bottom part? or render a small "empty" indicator?
   // "remove the extra space... add it when necessary"
-  const showbottom = (isvisual && visualpreview) || (!isvisual && hasfields);
+  const showBottom = (isvisual && visualpreview) || (!isvisual && hasfields);
 
   return (
   <Card
@@ -59,11 +59,11 @@ export function CollectionCard({ collection, className }: CollectionCardProps) {
   >
   {coverimage ? (
  /* cover image mode - keep fixed height or aspect ratio? use aspect-video? */
- /* for consistency let's keep cover image cards fixed height or aspect ratio because the image is the content */
+ /* for consistency let's keep cover image cards fixed height or aspect ratio because the image Is the content */
  <div className="absolute inset-0 h-40">
  <img
  src={coverImage}
- alt={collection.title || collection.name}
+ alt={collection.title || collection.Name}
  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
  />
  <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
@@ -72,9 +72,9 @@ export function CollectionCard({ collection, className }: CollectionCardProps) {
    className="font-bold text-lg lowercase truncate"
    style={borderColor ? { color: borderColor } : undefined}
  >
-   {collection.title || collection.name}
+   {collection.title || collection.Name}
  </h3>
- <p className="text-xs opacity-80 lowercase">{fieldCount} fields</p>
+ <p className="text-xs opacity-80 lowercase">{fieldCount} Fields</p>
  </div>
  </div>
   ) : (
@@ -83,7 +83,7 @@ export function CollectionCard({ collection, className }: CollectionCardProps) {
  user said: "remove the extra space on the bottom... add it when necessary"
  this implies auto height when empty, but maybe fixed/expanded when full?
  however, in a grid, auto-height cards look messy.
- but request is specific: "just remove the extra space".
+ but request Is specific: "just remove the extra space".
  let's try auto height for all, but visual previews might need a specific height.
  */}
 
@@ -100,11 +100,11 @@ export function CollectionCard({ collection, className }: CollectionCardProps) {
  className="lowercase truncate text-xl relative z-10 flex-shrink-0"
  style={borderColor ? { color: borderColor } : undefined}
  >
- {collection.title || collection.name}
+ {collection.title || collection.Name}
  </CardTitle>
 
  {/* preview area - only render if we have something to show */}
- {showbottom && (
+ {showBottom && (
  isvisual ? (
    /* visual preview */
    <div className="absolute inset-x-0 bottom-0 top-[40%] overflow-hidden rounded-b-[inherit]">
@@ -114,14 +114,14 @@ export function CollectionCard({ collection, className }: CollectionCardProps) {
    </div>
    </div>
  ) : (
-   /* database fields preview */
+   /* database Fields preview */
    <div className="mt-4 relative z-10"> {/* added margin top instead of mt-auto if we are auto-height */}
    <div className="flex flex-col gap-1">
-   {fields.slice(0, 3).map((f: any) => (
-  <div key={f.name} className="flex items-center text-[10px] text-muted-foreground gap-2">
+   {Fields.slice(0, 3).map((f: any) => (
+  <div key={f.Name} className="flex items-center text-[10px] text-muted-foreground gap-2">
   <div className="w-1.5 h-1.5 rounded-full bg-primary/20" style={borderColor ? { backgroundColor: borderColor } : undefined} />
-  <span className="truncate opacity-70">{f.name}</span>
-  <span className="opacity-40 ml-auto">{f.interface || f.type}</span>
+  <span className="truncate opacity-70">{f.Name}</span>
+  <span className="opacity-40 ml-auto">{f.interface || f.Type}</span>
   </div>
    ))}
    </div>

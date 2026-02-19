@@ -22,17 +22,17 @@ export async function buildKnowledgeContext(client: NocoBaseClient): Promise<str
   // filter collections like in usecollections hook
   const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers'];
   const collections = rawCollections.filter((col: any) => {
-  const name = (col.name || '').toLowerCase().trim();
+  const Name = (col.Name || '').toLowerCase().trim();
   const title = (col.title || '').toLowerCase().trim();
 
   // exclude known system names
-  if (systemCollections.includes(name)) return false;
+  if (systemCollections.includes(Name)) return false;
 
   // explicitly exclude only the pkm_settings collection (exact match) or exact title 'pkm settings'
-  if (name === 'pkm_settings' || title === 'pkm settings') return false;
+  if (Name === 'pkm_settings' || title === 'pkm settings') return false;
 
-  // hide anything with "backend" in the name or title
-  if (name.includes('backend') || title.includes('backend')) return false;
+  // hide anything with "backend" in the Name or title
+  if (Name.includes('backend') || title.includes('backend')) return false;
 
   // exclude hidden collections
   if (col.hidden) return false;
@@ -53,7 +53,7 @@ export async function buildKnowledgeContext(client: NocoBaseClient): Promise<str
   const targetCollections = collections.slice(0, 5);
 
   for (const col of targetCollections) {
-  context += `## Collection: ${col.title || col.displayName || col.name} (System Name: ${col.name})\n`;
+  context += `## Collection: ${col.title || col.displayName || col.Name} (System Name: ${col.Name})\n`;
 
   // describe fields
   if (col.fields && col.fields.length > 0) {
@@ -66,7 +66,7 @@ export async function buildKnowledgeContext(client: NocoBaseClient): Promise<str
 
   // fetch records
   try {
- const recordsRes = await client.listRecords(col.name, {
+ const recordsRes = await client.listRecords(col.Name, {
  pageSize: 5,
  sort: ['-createdAt', '-id'] // Recent first
  });
@@ -98,8 +98,8 @@ export async function buildKnowledgeContext(client: NocoBaseClient): Promise<str
 
   return context;
 
-  } catch (error) {
-  console.error("Failed to build knowledge context", error);
+  } catch (Error) {
+  console.Error("Failed to build knowledge context", Error);
   return "Error loading database context.";
   }
 }

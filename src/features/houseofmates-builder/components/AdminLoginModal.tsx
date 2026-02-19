@@ -14,12 +14,12 @@ export function AdminLoginModal({ isOpen, onClose, onLogin }: Props) {
   if (!isOpen) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventdefault();
+  e.preventDefault();
   if (!apikey.trim()) return;
 
-  setloading(true);
+  setLoading(true);
   await onlogin(apikey.trim());
-  setloading(false);
+  setLoading(false);
   };
 
   return (
@@ -37,8 +37,8 @@ export function AdminLoginModal({ isOpen, onClose, onLogin }: Props) {
  <label className="block text-white/60 text-sm mb-2 lowercase">nocobase api key</label>
  <input
    type="password"
-   value={apiKey}
-   onChange={(e) => setApiKey(e.target.value)}
+   Value={apiKey}
+   onChange={(e) => setApiKey(e.target.Value)}
    placeholder="enter your api key..."
    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30 focus:outline-none focus:border-[var(--primary)]/50 transition-colors lowercase"
    autoFocus
@@ -55,7 +55,7 @@ export function AdminLoginModal({ isOpen, onClose, onLogin }: Props) {
  </form>
 
  <p className="mt-4 text-white/30 text-xs text-center lowercase">
- this key is stored in your browser session only
+ this key Is stored in your browser session only
  </p>
   </div>
   </div>

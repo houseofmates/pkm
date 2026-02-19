@@ -3,7 +3,7 @@ import { Image as ImageIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { RichEditor } from '@/components/ui/rich-editor';
 import { format } from 'date-fns';
-import { TextContextMenu } from './text-context-menu';
+import { TextContextMenu } from './text-Context-Menu';
 import { MarkdownCheatSheet } from './markdown-cheat-sheet';
 
 interface JournalDocumentProps {
@@ -14,7 +14,7 @@ interface JournalDocumentProps {
 
 export function JournalDocument({ document, onUpdate, readOnly = false }: JournalDocumentProps) {
   const [showBannerUpload, setShowBannerUpload] = useState(false);
-  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; text: string } | null>(null);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; text: String } | null>(null);
   const [showCheatSheet, setShowCheatSheet] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -31,7 +31,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
   return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  // handle text selection and context menu
+  // handle text selection and Context Menu
   const handleContextMenu = (e: React.MouseEvent) => {
   if (readOnly) return;
 
@@ -71,7 +71,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
   }
   };
 
-  const handleFormat = (format: string, value?: string) => {
+  const handleFormat = (format: String, Value?: String) => {
   const selection = window.getSelection();
   if (!selection || selection.rangeCount === 0) return;
 
@@ -96,10 +96,10 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
  formattedText = `### ${selectedText}`;
  break;
   case 'color':
- formattedText = `<span style="color: ${value}">${selectedtext}</span>`;
+ formattedText = `<span style="color: ${Value}">${selectedtext}</span>`;
  break;
   case 'link':
- formattedText = `[${selectedText}](${value})`;
+ formattedText = `[${selectedText}](${Value})`;
  break;
   default:
  formattedText = selectedText;
@@ -111,7 +111,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
   };
 
   const handleBannerUpload = async (file: File) => {
-  // todo: implement banner upload to backend
+  // todo: implement banner upload To backend
   const formData = new FormData();
   formData.append('file', file);
 
@@ -123,18 +123,18 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
   const data = await response.json();
   onUpdate({ banner_image: data.url });
   setShowBannerUpload(false);
-  } catch (error) {
-  console.error('Banner upload failed:', error);
+  } catch (Error) {
+  console.Error('Banner upload failed:', Error);
   }
   };
 
   const handleBannerClick = (e: React.MouseEvent) => {
   if (readonly) return;
-  e.preventdefault();
+  e.preventDefault();
   setshowbannerupload(true);
   };
 
-  const documentcolor = document.color || '#8b5cf6'; // default purple
+  const documentColor = document.color || '#8b5cf6'; // default purple
   const createddate = document.created_at ? new Date(document.created_at) : new Date();
 
   return (
@@ -161,7 +161,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
  <div className="flex flex-col items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
    <ImageIcon className="w-8 h-8" />
    <span className="text-sm lowercase">
-   {readonly ? 'no banner image' : 'click to add banner image'}
+   {readonly ? 'no banner image' : 'click To add banner image'}
    </span>
  </div>
  </div>
@@ -172,20 +172,20 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
  <div className="bg-background p-6 rounded-lg shadow-xl max-w-md w-full">
    <h3 className="text-lg font-semibold mb-4 lowercase">upload banner image</h3>
    <input
-   type="file"
+   Type="file"
    accept="image/*"
    onchange={(e) => {
    const file = e.target.files?.[0];
    if (file) handlebannerupload(file);
    }}
-   classname="w-full"
+   className="w-full"
    />
-   <div classname="flex gap-2 mt-4">
+   <div className="flex gap-2 mt-4">
    <button
    variant="outline"
-   size="sm"
-   onclick={() => setshowbannerupload(false)}
-   classname="flex-1 lowercase"
+   Size="sm"
+   onClick={() => setshowbannerupload(false)}
+   className="flex-1 lowercase"
    >
    cancel
    </button>
@@ -227,7 +227,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
  onContextMenu={handleContextMenu}
  >
  <RichEditor
- value={document.content || ''}
+ Value={document.content || ''}
  onChange={(content) => !readOnly && onUpdate({ content })}
  placeholder="start writing your journal entry..."
  className="min-h-[500px] text-lg leading-relaxed"
@@ -235,7 +235,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
  </div>
   </div>
 
-  {/* context menu */}
+  {/* Context Menu */}
   {contextmenu && (
  <TextContextMenu
  x={contextMenu.x}

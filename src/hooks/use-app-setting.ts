@@ -5,7 +5,7 @@ import { secureLogger } from '@/lib/secure-logger';
 export interface AppSetting {
   id?: number | string;
   key: string;
-  value: unknown;
+  Value: unknown;
 }
 
 export function useAppSetting<T>(key: string, defaultValue: T, options?: { debounceMs?: number }) {
@@ -16,7 +16,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
   const { isAuthenticated, token, client } = useAuth();
 
   // initialize from localstorage for immediate availability
-  const [value, setValue] = useState<T>(() => {
+  const [Value, setValue] = useState<T>(() => {
   try {
   const local = localStorage.getItem(`pkm_setting:${key}`);
   return local ? JSON.parse(local) : defaultValue;
@@ -25,9 +25,9 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
   }
   });
 
-  // keep a ref to latest value for flush to read
-  const valueRef = useRef<T>(value);
-  useEffect(() => { valueRef.current = value; }, [value]);
+  // keep a ref to latest Value for flush to read
+  const valueRef = useRef<T>(Value);
+  useEffect(() => { valueRef.current = Value; }, [Value]);
 
   // serialize immediate saves
   const savePromiseRef = useRef<Promise<void> | null>(null);
@@ -56,13 +56,13 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
  const setting = data[0];
  settingIdRef.current = setting.id;
 
- if (setting.value !== undefined) {
+ if (setting.Value !== undefined) {
  // deep compare to avoid redundant re-renders
- const newValueString = JSON.stringify(setting.value);
+ const newValueString = JSON.stringify(setting.Value);
  const localValueString = localStorage.getItem(`pkm_setting:${key}`);
 
  if (newValueString !== localValueString) {
- setValue(setting.value);
+ setValue(setting.Value);
  try {
    localStorage.setItem(`pkm_setting:${key}`, newValueString);
  } catch (e) {
@@ -120,7 +120,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
  if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) return;
  const performSave = async (valueToSave: unknown): Promise<void> => {
  try {
- const payload = { value: valueToSave };
+ const payload = { Value: valueToSave };
 
  // try update first
  try {
@@ -141,7 +141,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
  // if update didn't work, create
  const createRes = await client.request('pkm_settings', 'create', {
    method: 'POST',
-   data: { key, value: valueToSave },
+   data: { key, Value: valueToSave },
    silent: true
  });
  if (createRes?.data?.id) {
@@ -170,7 +170,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
   const attemptUpsert = async (attempt = 1): Promise<void> => {
   try {
- const payload = { value: toSave };
+ const payload = { Value: toSave };
  // update first
  try {
  const res = await client.request('pkm_settings', 'update', {
@@ -189,7 +189,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
  // create
  const createRes = await client.request('pkm_settings', 'create', {
  method: 'POST',
- data: { key, value: toSave },
+ data: { key, Value: toSave },
  silent: true
  });
  if (createRes?.data?.id) settingIdRef.current = createRes.data.id;
@@ -210,5 +210,5 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
   }, [isAuthenticated, token, client, key]);
 
   flushRef.current = () => flush();
-  return [value, updateValue, loading, flush] as const;
+  return [Value, updateValue, loading, flush] as const;
 }

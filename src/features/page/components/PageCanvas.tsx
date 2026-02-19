@@ -3,7 +3,7 @@ import GridLayout from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import { useWindowSize } from 'react-use';
-import { BlockEditor } from '@/components/editor/BlockEditor';
+import { BlockEditor } from '@/components/Editor/BlockEditor';
 import { useEdgelessStore } from '@/features/edgeless/store';
 import { cn } from '@/lib/utils';
 import { GripVertical } from 'lucide-react';

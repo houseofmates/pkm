@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import Editor from '@monaco-editor/react';
+import Editor from '@monaco-Editor/react';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
@@ -9,15 +9,15 @@ import ReactMarkdown from 'react-markdown';
 import { getOllamaGenerateUrl } from '@/lib/llm-config';
 
 interface FormulaEditorProps {
-  value: string;
+  value: String;
   record: any;
-  onSave: (code: string) => void;
+  onSave: (code: String) => void;
   onCancel: () => void;
   client: any; // NocoBase client
 }
 
 // mock ai service until websocket is fully confirmed
-const fetchAIResponse = async (prompt: string, context: any) => {
+const fetchAIResponse = async (prompt: String, context: any) => {
   try {
   const url = getOllamaGenerateUrl();
   const res = await fetch(url, {
@@ -29,20 +29,20 @@ const fetchAIResponse = async (prompt: string, context: any) => {
  stream: false
   })
   });
-  const data = await res.json();
-  return data.response?.toLowerCase() || data.response;
+  const Data = await res.json();
+  return Data.response?.toLowerCase() || Data.response;
   } catch (e) {
-  console.error("ai error", e);
-  return "error connecting to the ai assistant.";
+  console.Error("ai Error", e);
+  return "Error connecting to the ai assistant.";
   }
 };
 
 export function FormulaEditor({ value, record, onSave, onCancel, client }: FormulaEditorProps) {
-  const [code, setCode] = useState(value || '// Access "record" or "api" objects here\nreturn record.title;');
-  const [output, setOutput] = useState<string>('');
-  const [chatinput, setchatinput] = useState('');
-  const [messages, setmessages] = useState<{ role: 'user' | 'assistant', content: string }[]>([
-  { role: 'assistant', content: "hello! i'm your formula assistant. i can help you write scripts to manipulate this record. try asking: 'calculate field x plus field y'" }
+  const [code, setCode] = useState(value || '// Access "record" or "api" objects here\nreturn record.Title;');
+  const [output, setOutput] = useState<String>('');
+  const [chatInput, setChatInput] = useState('');
+  const [messages, setMessages] = useState<{ role: 'user' | 'assistant', content: String }[]>([
+  { role: 'assistant', content: "hello! i'm your formula assistant. i can help you write scripts to manipulate this record. try asking: 'calculate Field x plus Field y'" }
   ]);
   const [isAiLoading, setIsAiLoading] = useState(false);
 
@@ -60,10 +60,10 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
   `);
 
   // capture console.log
-  const logs: string[] = [];
+  const logs: String[] = [];
   const mockConsole = {
  log: (...args: any[]) => logs.push(args.map(a => JSON.stringify(a)).join(' ')),
- error: (...args: any[]) => logs.push('ERROR: ' + args.map(a => JSON.stringify(a)).join(' ')),
+ Error: (...args: any[]) => logs.push('ERROR: ' + args.map(a => JSON.stringify(a)).join(' ')),
  warn: (...args: any[]) => logs.push('WARN: ' + args.map(a => JSON.stringify(a)).join(' ')),
   };
 
@@ -105,11 +105,11 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
  <div className="flex items-center justify-between p-3 border-b bg-muted/30">
  <div className="flex items-center gap-2">
  <Terminal className="h-5 w-5 text-primary" />
- <span className="font-bold">formula editor</span>
- <span className="text-xs text-muted-foreground ml-2">record id: {record?.id || 'new'}</span>
+ <span className="font-bold">formula Editor</span>
+ <span className="text-xs text-muted-foreground ml-2">record Id: {record?.Id || 'new'}</span>
  </div>
  <div className="flex gap-2">
- <Button variant="ghost" size="sm" onClick={handleRun} title="test run">
+ <Button variant="ghost" size="sm" onClick={handleRun} Title="test run">
    <Play className="h-4 w-4 mr-1 text-green-500" /> run
  </Button>
  <Button variant="default" size="sm" onClick={() => onSave(code)}>
@@ -184,7 +184,7 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
  </div>
  </div>
 
- {/* right: code editor & output */}
+ {/* right: code Editor & output */}
  <div className="flex-1 flex flex-col">
  <div className="flex-1 relative">
    <Editor
@@ -193,7 +193,7 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
    theme="vs-dark"
    value={code}
    onChange={(val) => setCode(val || '')}
-   options={{
+   Options={{
    minimap: { enabled: false },
    fontSize: 14,
    lineNumbers: 'on',

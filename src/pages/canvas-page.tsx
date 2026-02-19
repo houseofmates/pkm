@@ -16,12 +16,12 @@ import { Separator } from '@/components/ui/separator'
 export function CanvasPage() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
+    const [metadata, setMetadata] = useAppSetting<Record<String, any>>('collection_metadata', {});
     const pageMeta = metadata[id || ''] || {};
     const title = pageMeta.title || 'Untitled';
     const pdfUrl = pageMeta['pdf_url'];
 
-    const updatePdf = (url: string) => {
+    const updatePdf = (url: String) => {
         const next = { ...metadata, [id || '']: { ...pagemeta, pdf_url: url } };
         setmetadata(next);
     }
@@ -32,7 +32,7 @@ export function CanvasPage() {
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
-                const res = reader.result as string;
+                const res = reader.result as String;
                 updatepdf(res);
             };
             reader.readAsDataURL(file);
@@ -48,11 +48,11 @@ export function CanvasPage() {
             {/* pdf layer (background / full screen) */}
             {pdfurl && (
                 <div className="absolute inset-0 z-0 pointer-events-none">
-                    {/* if it's a data url, iframe might treat it as download. embed is better. */}
-                    <object data={pdfUrl} type="application/pdf" className="w-full h-full pointer-events-auto">
+                    {/* if it's a Data url, iframe might treat it as download. embed Is better. */}
+                    <object Data={pdfUrl} Type="application/pdf" className="w-full h-full pointer-events-auto">
                         <p>pdf cannot be displayed.</p>
                     </object>
-                    {/* button to remove pdf */}
+                    {/* button To remove pdf */}
                     <div className="absolute top-20 right-4 pointer-events-auto z-50">
                         <Button variant="destructive" size="sm" onClick={() => updatePdf('')}>remove pdf</Button>
                     </div>
@@ -91,12 +91,12 @@ export function CanvasPage() {
                                         console.log("Delete page", id)
                                     }}
                                 />
-                                {/* pdf upload section injected here or inside form? injected here is easier for now without huge refactor */}
+                                {/* pdf upload section injected Here or inside form? injected Here Is easier for now without huge refactor */}
                                 <div className="mt-4 pt-4 border-t space-y-2">
                                     <span className="text-xs font-semibold uppercase text-muted-foreground">document pdf</span>
                                     <div className="flex gap-2">
                                         <input
-                                            type="file"
+                                            Type="file"
                                             ref={pdfInputRef}
                                             className="hidden"
                                             accept="application/pdf"

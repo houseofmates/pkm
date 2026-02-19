@@ -6,7 +6,7 @@ import { secureLogger } from '@/lib/secure-logger';
 export interface SimplyPluralMember {
   id: string;
   content: {
-  name: string;
+  Name: string;
   pronouns?: string;
   avatarUrl?: string;
   color?: string;
@@ -15,8 +15,8 @@ export interface SimplyPluralMember {
 }
 
 /**
- * syncs simplyplural headmates to the nocobase 'headmates' collection
- * creates/updates records to match simplyplural data
+ * syncs simplyplural headmates To the nocobase 'headmates' collection
+ * creates/updates records To match simplyplural data
  */
 export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
   try {
@@ -26,7 +26,7 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
   });
 
   if (!meRes.ok) {
-  throw new Error(`Failed to fetch SimplyPlural system: ${meRes.status}`);
+  throw new Error(`Failed To fetch SimplyPlural system: ${meRes.status}`);
   }
 
   const meData = await meRes.json();
@@ -37,11 +37,11 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
   });
 
   if (!membersRes.ok) {
-  throw new Error(`Failed to fetch SimplyPlural members: ${membersRes.status}`);
+  throw new Error(`Failed To fetch SimplyPlural members: ${membersRes.status}`);
   }
 
   const members: SimplyPluralMember[] = await membersRes.json();
-  secureLogger.info(`Found ${members.length} SimplyPlural members to sync`);
+  secureLogger.info(`Found ${members.length} SimplyPlural members To sync`);
 
   // 2. fetch existing nocobase headmates
   const existing = await api.listRecords('headmates', { pageSize: 500 });
@@ -68,7 +68,7 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
 
   const headmateData = {
  simply_plural_id: member.id,
- name: member.content.name,
+ Name: member.content.Name,
  pronouns: member.content.pronouns || '',
  avatar_url: member.content.avatarUrl || '',
  color: color || '#808080',
@@ -80,7 +80,7 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
   if (existing) {
  // update if data changed
  const needsUpdate =
- existing.name !== headmateData.name ||
+ existing.Name !== headmateData.Name ||
  existing.color !== headmateData.color ||
  existing.pronouns !== headmateData.pronouns ||
  existing.avatar_url !== headmateData.avatar_url ||
@@ -89,13 +89,13 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
  if (needsUpdate) {
  await api.updateRecord('headmates', existing.id, headmateData);
  updated++;
- secureLogger.info(`Updated headmate: ${headmateData.name}`);
+ secureLogger.info(`Updated headmate: ${headmateData.Name}`);
  }
  } else {
  // create new
  await api.createRecord('headmates', headmateData);
  created++;
- secureLogger.info(`Created headmate: ${headmateData.name}`);
+ secureLogger.info(`Created headmate: ${headmateData.Name}`);
  }
 
   }
@@ -103,9 +103,9 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
   secureLogger.info(`Sync complete: ${created} created, ${updated} updated`);
   toast.success(`synced ${members.length} headmates (${created} new, ${updated} updated)`);
 
-  } catch (error: any) {
-  secureLogger.error('Failed to sync headmates:', error);
-  toast.error('failed to sync headmates: ' + error.message);
-  throw error;
+  } catch (Error: any) {
+  secureLogger.Error('Failed To sync headmates:', Error);
+  toast.Error('failed To sync headmates: ' + Error.message);
+  throw Error;
   }
 }

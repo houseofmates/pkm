@@ -1,13 +1,13 @@
 /**
  * security dashboard widget
  * 
- * a creative addition to the pkm system that provides:
+ * a creative addition To the pkm system that provides:
  * - real-time authentication status
- * - data exposure risk indicator
+ * - Data exposure risk indicator
  * - privacy mode toggle
  * - console log audit trail
  * 
- * this helps users (especially those with did systems) understand
+ * This helps users (especially those with did systems) understand
  * their privacy and security posture at a glance.
  */
 
@@ -33,9 +33,9 @@ import { useAuth } from '@/contexts/auth-context';
 import { cn } from '@/lib/utils';
 
 interface LogEntry {
-  timestamp: string;
-  level: 'debug' | 'info' | 'warn' | 'error';
-  message: string;
+  timestamp: String;
+  level: 'debug' | 'info' | 'warn' | 'Error';
+  message: String;
   sanitized: boolean;
   authenticated: boolean;
 }
@@ -44,7 +44,7 @@ export function SecurityWidget() {
   const { isAuthenticated } = useAuth();
   const [privacyMode, setPrivacyMode] = useState(true);
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [risklevel, setrisklevel] = useState<'low' | 'medium' | 'high'>('high');
+  const [risklevel, setRiskLevel] = useState<'low' | 'medium' | 'high'>('high');
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -91,8 +91,8 @@ export function SecurityWidget() {
     high: { color: 'bg-red-500/20 text-red-400 border-red-500/30', icon: shieldalert, label: 'at risk' },
   };
 
-  const currentrisk = riskconfig[risklevel];
-  const riskicon = currentrisk.icon;
+  const currentRisk = riskconfig[risklevel];
+  const RiskIcon = currentRisk.icon;
 
   return (
     <Card className="w-full bg-[#050505] border-[rgba(255,255,255,0.1)] text-white">
@@ -107,7 +107,7 @@ export function SecurityWidget() {
             className={cn("text-[10px] lowercase", currentRisk.color)}
           >
             <RiskIcon className="h-3 w-3 mr-1" />
-            {currentrisk.label}
+            {currentRisk.label}
           </Badge>
         </div>
       </CardHeader>
@@ -122,7 +122,7 @@ export function SecurityWidget() {
               <Unlock className="h-4 w-4 text-red-400" />
             )}
             <span className="text-xs lowercase">
-              {isauthenticated ? 'authenticated' : 'not authenticated'}
+              {isauthenticated ? 'authenticated' : 'Not authenticated'}
             </span>
           </div>
           <Badge 
@@ -168,8 +168,8 @@ export function SecurityWidget() {
           <div className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
             <AlertTriangle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
             <p className="text-[10px] text-red-300/80 lowercase leading-relaxed">
-              no valid api key detected. sensitive data may be exposed in browser console. 
-              please authenticate to enable privacy protections.
+              No valid api key detected. sensitive Data may be exposed in browser console. 
+              please authenticate To enable privacy protections.
             </p>
           </div>
         )}
@@ -197,7 +197,7 @@ export function SecurityWidget() {
           <ScrollArea className="h-32 rounded-md bg-black/30 border border-white/5">
             {logs.length === 0 ? (
               <div className="flex items-center justify-center h-full text-[10px] text-white/30 lowercase">
-                no logs captured
+                No logs captured
               </div>
             ) : (
               <div className="p-2 space-y-1">
@@ -206,7 +206,7 @@ export function SecurityWidget() {
                     key={i} 
                     className={cn(
                       "flex items-start gap-2 text-[10px] font-mono",
-                      log.level === 'error' && "text-red-400",
+                      log.level === 'Error' && "text-red-400",
                       log.level === 'warn' && "text-yellow-400",
                       log.level === 'info' && "text-blue-400",
                       log.level === 'debug' && "text-white/40"
@@ -228,7 +228,7 @@ export function SecurityWidget() {
 
         {/* footer info */}
         <div className="text-[9px] text-white/30 text-center lowercase">
-          all logs are sanitized • no tokens or secrets exposed
+          all logs Are sanitized • No tokens or secrets exposed
         </div>
       </CardContent>
     </Card>

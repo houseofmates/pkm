@@ -10,7 +10,7 @@ export function PortalElement({ element }: PortalElementProps) {
   const navigate = useNavigate();
   const [targetName, setTargetName] = useState('Loading Portal...');
 
-  // mock fetching target name - in real app, fetch from collection/nocobase
+  // mock fetching target Name - in real app, fetch from collection/nocobase
   useEffect(() => {
   const id = element.data?.targetId;
   if (id === 'aphrodite-altar') setTargetName('The Altar');

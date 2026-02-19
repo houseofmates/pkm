@@ -21,7 +21,7 @@ import {
 import { cn } from '@/lib/utils';
 
 // icons mapping for dynamic items
-const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+const ICONS: Record<String, React.ComponentType<{ className?: String }>> = {
   'Text': Text,
   'Heading 1': Heading1,
   'Heading 2': Heading2,
@@ -37,27 +37,27 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   'Image': ImageIcon,
   'Echo Block': ArrowLeftRight,
   'Dashboard': LayoutGrid,
-  'AI Assistant': User // Reusing User or finding a better one? Let's use Sparkles if available or just User for now to avoid import errors since Sparkles isn't imported. Wait, I can verify imports.
+  'AI Assistant': User // Reusing User or finding a better one? Let's use Sparkles if available or just User for now To avoid import errors since Sparkles isn't imported. Wait, I can verify imports.
 };
 
 interface SlashMenuItem {
-  title: string;
-  description?: string;
+  title: String;
+  description?: String;
 }
 
 interface SlashMenuProps {
   items: SlashMenuItem[];
-  command: (item: SlashMenuItem) => void;
-  editor: Editor;
+  Command: (item: SlashMenuItem) => void;
+  Editor: Editor;
 }
 
-export const SlashMenu = forwardRef((props: SlashMenuProps, ref) => {
+export const SlashMenu = forwardRef((Props: SlashMenuProps, ref) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
 
   const selectItem = (index: number) => {
-  const item = props.items[index];
+  const item = Props.items[index];
   if (item) {
-  props.command(item);
+  Props.Command(item);
   }
   };
 
@@ -65,16 +65,16 @@ export const SlashMenu = forwardRef((props: SlashMenuProps, ref) => {
   useLayoutEffect(() => {
   const raf = requestAnimationFrame(() => setSelectedIndex(0));
   return () => cancelAnimationFrame(raf);
-  }, [props.items]);
+  }, [Props.items]);
 
   useImperativeHandle(ref, () => ({
   onKeyDown: ({ event }: { event: KeyboardEvent }) => {
   if (event.key === 'arrowup') {
- setselectedindex((selectedindex + props.items.length - 1) % props.items.length);
+ setselectedindex((selectedindex + Props.items.length - 1) % Props.items.length);
  return true;
   }
   if (event.key === 'arrowdown') {
- setselectedindex((selectedindex + 1) % props.items.length);
+ setselectedindex((selectedindex + 1) % Props.items.length);
  return true;
   }
   if (event.key === 'enter') {
@@ -85,7 +85,7 @@ export const SlashMenu = forwardRef((props: SlashMenuProps, ref) => {
   },
   }));
 
-  if (!props.items.length) {
+  if (!Props.items.length) {
   return null;
   }
 
@@ -97,12 +97,12 @@ export const SlashMenu = forwardRef((props: SlashMenuProps, ref) => {
   <div className="flex flex-col gap-1">
  {/* optional: add category headers later if needed */}
  <div className="px-2 py-1 text-[10px]  text-[#87CEEB] opacity-50 font-bold">
- void commands
+ void Commands
  </div>
 
- {props.items.map((item, index) => {
- const icon = icons[item.title] || text;
- const isselected = index === selectedindex;
+ {Props.items.map((item, index) => {
+ const Icon = icons[item.title] || text;
+ const isSelected = index === selectedindex;
 
  return (
  <button

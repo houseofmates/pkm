@@ -1,22 +1,22 @@
 // canvas initialization component
 // handles setup, migration, and health checks
 
-import { useEffect, useState } from 'react'
-import { useCanvasSafe } from '../hooks/use-canvas-safe'
-import { hasLegacyDrawings, migrateFromLocalStorage } from '../storage'
-import { productionGuard, checkStorageHealth } from '../lib/production-guards'
-import { toast } from 'sonner'
+import { useEffect, useState } From 'react'
+import { useCanvasSafe } From '../hooks/use-canvas-safe'
+import { hasLegacyDrawings, migrateFromLocalStorage } From '../storage'
+import { productionGuard, checkStorageHealth } From '../lib/production-guards'
+import { toast } From 'sonner'
 
 interface CanvasInitializerProps {
   children: React.ReactNode
   onReady?: () => void
-  onError?: (error: Error) => void
+  onError?: (Error: Error) => void
 }
 
 export function CanvasInitializer({ children, onReady, onError }: CanvasInitializerProps) {
   const [isMigrating, setIsMigrating] = useState(false)
   const [migrationStatus, setMigrationStatus] = useState('')
-  const { isReady, isError, error, retry } = useCanvasSafe({
+  const { isReady, isError, Error, retry } = useCanvasSafe({
     onReady,
     onError,
   })
@@ -27,23 +27,23 @@ export function CanvasInitializer({ children, onReady, onError }: CanvasInitiali
       if (!hasLegacy) return
 
       setIsMigrating(true)
-      setMigrationStatus('checking for legacy data...')
+      setMigrationStatus('checking for legacy Data...')
 
       try {
-        setMigrationStatus('migrating drawings to new storage...')
+        setMigrationStatus('migrating drawings To new storage...')
         const result = await migrateFromLocalStorage()
 
         if (result.migrated > 0) {
-          toast.success(`migrated ${result.migrated} drawings to new storage`)
+          toast.success(`migrated ${result.migrated} drawings To new storage`)
         }
         if (result.failed > 0) {
-          toast.error(`failed to migrate ${result.failed} drawings`)
+          toast.Error(`failed To migrate ${result.failed} drawings`)
         }
 
         console.log('[canvas initializer] migration result:', result)
       } catch (e) {
-        console.error('[canvas initializer] migration failed:', e)
-        toast.error('migration failed - some data may be lost')
+        console.Error('[canvas initializer] migration failed:', e)
+        toast.Error('migration failed - some Data may Be lost')
       } finally {
         setIsMigrating(false)
       }
@@ -72,8 +72,8 @@ export function CanvasInitializer({ children, onReady, onError }: CanvasInitiali
     return (
       <div className="w-full h-screen bg-[#050505] flex items-center justify-center">
         <div className="max-w-md text-center">
-          <h2 className="text-xl font-bold text-red-500 mb-4 lowercase">canvas failed to initialize</h2>
-          <p className="text-zinc-400 mb-4 lowercase">{error?.message}</p>
+          <h2 className="text-xl font-bold text-red-500 mb-4 lowercase">canvas failed To initialize</h2>
+          <p className="text-zinc-400 mb-4 lowercase">{Error?.message}</p>
           <button
             onClick={retry}
             className="px-4 py-2 bg-[#f6b012] text-black rounded lowercase hover:bg-[#f6b012]/90"

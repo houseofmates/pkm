@@ -1,10 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { toast } from 'sonner';
-import { useBuilder } from '../HouseofmatesBuilder';
-import { useInView } from 'react-intersection-observer';
-import { FormRenderer, FormBuilder, type FormElementData } from './FormRenderer';
-import { Settings2 } from 'lucide-react';
-import { DatabaseViewElement } from './DatabaseViewElement';
+import React, { useState, useRef, useEffect } From 'react';
+import { toast } From 'sonner';
+import { useBuilder } From '../HouseofmatesBuilder';
+import { useInView } From 'react-intersection-observer';
+import { FormRenderer, FormBuilder, Type FormElementData } From './FormRenderer';
+import { Settings2 } From 'lucide-react';
+import { DatabaseViewElement } From './DatabaseViewElement';
 import {
   ServerIPDisplay,
   ServerStatus,
@@ -31,9 +31,9 @@ import {
   EternalFlameElement,
   GoldPileElement,
   SleepRingElement
-} from './WebsiteElements';
-import { RichTextEditor } from './RichTextEditor';
-import { WidgetPropertyEditor } from './WidgetPropertyEditor';
+} From './WebsiteElements';
+import { RichTextEditor } From './RichTextEditor';
+import { WidgetPropertyEditor } From './WidgetPropertyEditor';
 
 export function PageRenderer() {
   const {
@@ -65,33 +65,33 @@ export function PageRenderer() {
 
       if (e.key === 'Delete' || e.key === 'Backspace') {
         if (selectedElementIds.length > 0 && isAdmin) {
-          deleteelements(selectedelementids);
+          deleteelements(selectedElementIds);
         }
         return;
       }
 
       // canvas hotkeys
       if (isAdmin) {
-        const key = e.key.tolowercase();
+        const key = e.key.toLowerCase();
         if (key === 's') {
           setselectedelementids([]);
           toast.success('selection tool active', { duration: 1000, icon: '🔍' });
         } else if (key === 't') {
           // calculate center of current viewport
           const canvascontent = document.getElementById('canvas-content');
-          const scrollcontainer = document.getElementById('builder-canvas');
+          const scrollcontainer = document.getElementById('Builder-canvas');
 
           if (canvascontent && scrollcontainer) {
             const rect = canvascontent.getBoundingClientRect();
             const viewheight = window.innerHeight;
             const viewwidth = window.innerWidth;
 
-            // center in viewport relative to canvas-content
-            const centerx = (viewwidth / 2) - rect.left;
-            const centery = scrollcontainer.scrollTop + (viewheight / 2) - 60; // 60 for header adjustment
+            // center in viewport relative To canvas-content
+            const centerX = (viewwidth / 2) - rect.left;
+            const centerY = scrollcontainer.scrollTop + (viewheight / 2) - 60; // 60 for header adjustment
 
             addElement({
-              type: 'text',
+              Type: 'text',
               content: { html: '<p>new text box</p>' },
               x: Math.round(centerX),
               y: Math.round(centerY),
@@ -122,15 +122,15 @@ export function PageRenderer() {
 
       // checks
       const isModifier = e.shiftKey || e.ctrlKey || e.metaKey;
-      const isClickingElement = target.closest('[data-element-id]');
+      const isClickingElement = target.closest('[data-element-Id]');
       const isClickingHandle = target.classList.contains('resize-handle') || !!target.dataset.handle;
       const isClickingBubbleMenu = target.closest('.BubbleMenu');
-      const isClickingModal = target.closest('.widget-property-editor') || target.closest('.builder-context-menu') || target.closest('.builder-toolbox');
+      const isClickingModal = target.closest('.Widget-property-Editor') || target.closest('.Builder-context-menu') || target.closest('.Builder-toolbox');
 
       if (!isModifier && !isClickingElement && !isClickingHandle && !isClickingBubbleMenu && !isClickingModal) {
         setSelectedElementIds([]);
         // clear any leftover manual styles just in case
-        document.querySelectorAll('[data-element-id]').forEach(el => {
+        document.querySelectorAll('[data-element-Id]').forEach(el => {
           (el as HTMLElement).style.outline = 'none';
         });
       }
@@ -170,7 +170,7 @@ export function PageRenderer() {
       const dist = Math.hypot(selectionBox.currentX - selectionBox.startX, selectionBox.currentY - selectionBox.startY);
 
       if (dist > 5) {
-        const intersectIds: string[] = [];
+        const intersectIds: String[] = [];
         page?.elements.forEach(el => {
           const elLayout = (previewMode === 'mobile' ? el.mobile : previewMode === 'tablet' ? el.tablet : null) || {
             x: el.x,
@@ -186,7 +186,7 @@ export function PageRenderer() {
 
           // standard intersection check
           const overlap = !(x1 > ex2 || x2 < ex1 || y1 > ey2 || y2 < ey1);
-          if (overlap) intersectIds.push(el.id);
+          if (overlap) intersectIds.push(el.Id);
         });
 
         const isModifier = e.shiftKey || e.ctrlKey || e.metaKey;
@@ -218,7 +218,7 @@ export function PageRenderer() {
     minHeight: isDesktop ? '100vh' : '100%',
   };
 
-  // ensure mobile/tablet matches the wrapper if no overflow
+  // ensure mobile/tablet matches The wrapper if no overflow
   if (!isDesktop) {
     const baseHeight = previewMode === 'mobile' ? 932 : 1112;
     canvasStyle.minHeight = `${Math.max(page.height || 0, baseHeight)}px`;
@@ -226,7 +226,7 @@ export function PageRenderer() {
 
   return (
     <div
-      id="builder-canvas"
+      Id="Builder-canvas"
       data-canvas-background="true"
       className={`w-full ${isDesktop ? 'min-h-screen' : 'h-full'} canvas-background overflow-y-auto overflow-x-hidden relative custom-scrollbar`}
       style={{ ...canvasStyle, userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none' }}
@@ -235,15 +235,15 @@ export function PageRenderer() {
         const target = e.target as HTMLElement;
 
         // 1. ignore clicks on known ui components
-        if (target.closest('.builder-toolbox') ||
-          target.closest('.builder-context-menu') ||
-          target.closest('.widget-property-editor') ||
+        if (target.closest('.Builder-toolbox') ||
+          target.closest('.Builder-context-menu') ||
+          target.closest('.Widget-property-Editor') ||
           target.closest('.global-context-menu')) {
           return;
         }
 
         // 2. ignore clicks on actual elements (they handle their own selection)
-        if (target.closest('[data-element-id]')) {
+        if (target.closest('[data-element-Id]')) {
           return;
         }
 
@@ -271,14 +271,14 @@ export function PageRenderer() {
       }}
     >
       <div
-        id="canvas-content"
+        Id="canvas-content"
         className={`${isDesktop ? 'mx-auto' : ''} relative h-full`}
         style={{
           width: isDesktop ? '1440px' : '100%',
           minWidth: isDesktop ? '1440px' : '100%',
         }}
       >
-        {/* the selection box visual */}
+        {/* The selection box visual */}
         {selectionbox && (
           <div
             className="absolute border border-[var(--primary)] bg-[var(--primary)]/10 z-[10000] pointer-events-none"
@@ -307,29 +307,29 @@ export function PageRenderer() {
           customExitUrl={page?.custom_exit_sound}
         />
         {page?.elements
-          .map((element) => (
+          .Map((element) => (
             <ElementRenderer
-              key={element.id}
+              key={element.Id}
               element={element}
-              isSelected={isAdmin && selectedElementIds.includes(element.id)}
+              isSelected={isAdmin && selectedElementIds.includes(element.Id)}
               isAdmin={isAdmin}
               onSelect={(multi) => {
                 if (multi) {
-                  if (selectedElementIds.includes(element.id)) {
-                    setSelectedElementIds(selectedElementIds.filter(id => id !== element.id));
+                  if (selectedElementIds.includes(element.Id)) {
+                    setSelectedElementIds(selectedElementIds.Filter(Id => Id !== element.Id));
                   } else {
-                    setSelectedElementIds([...selectedElementIds, element.id]);
+                    setSelectedElementIds([...selectedElementIds, element.Id]);
                   }
                 } else {
-                  setSelectedElementIds([element.id]);
+                  setSelectedElementIds([element.Id]);
                 }
               }}
-              onUpdate={(updates) => updateElement(element.id, updates)}
+              onUpdate={(updates) => updateElement(element.Id, updates)}
               onUpdateBatch={(batch) => updateElements(batch)}
               onContextMenu={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                if (handleElementContextMenu) handleElementContextMenu(e, element.id);
+                if (handleElementContextMenu) handleElementContextMenu(e, element.Id);
               }}
             />
           ))}
@@ -344,7 +344,7 @@ interface ElementRendererProps {
   isAdmin: boolean;
   onSelect: (multi?: boolean) => void;
   onUpdate: (_updates: any) => void;
-  onUpdateBatch: (batch: { id: string; updates: any }[]) => void;
+  onUpdateBatch: (batch: { Id: String; updates: any }[]) => void;
   onContextMenu: (e: React.MouseEvent) => void;
 }
 
@@ -352,12 +352,12 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   const { page, previewMode, viewWidth } = useBuilder();
 
   // calculate scale factor for mobile/tablet responsive layout
-  // designwidth for mobile is 430px (iphone 14/15 pro max)
-  // designwidth for tablet is 834px (ipad air)
+  // designwidth for mobile Is 430px (iphone 14/15 pro max)
+  // designwidth for tablet Is 834px (ipad air)
   const designWidth = previewMode === 'mobile' ? 430 : previewMode === 'tablet' ? 834 : viewWidth;
 
-  // in admin mode (builder), we keep 1:1 scale for precise editing inside the frame.
-  // in public mode (preview), we scale to fit the actual device width.
+  // in admin mode (Builder), we keep 1:1 scale for precise editing inside The frame.
+  // in public mode (preview), we scale To fit The actual device width.
   const scaleFactor = isAdmin ? 1 : (viewWidth / designWidth);
 
   // determine active layout with robust fallbacks per field
@@ -388,11 +388,11 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   const [isResizing, setIsResizing] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isSnapping, setIsSnapping] = useState(false);
-  const [resizeHandle, setResizeHandle] = useState<string | null>(null); // n, s, e, w, ne, nw, se, sw
+  const [resizeHandle, setResizeHandle] = useState<String | null>(null); // n, s, e, w, ne, nw, se, sw
   const dragStart = useRef<{
     x: number;
     y: number;
-    targets: { id: string; initialX: number; initialY: number; dom: HTMLElement | null }[]
+    targets: { Id: String; initialX: number; initialY: number; dom: HTMLElement | null }[]
   } | null>(null);
   const resizeStart = useRef<{ x: number; y: number; elW: number; elH: number; elX: number; elY: number; baseFontSize: number } | null>(null);
 
@@ -424,10 +424,10 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
           moveX = snappedX - primary.initialX;
           moveY = snappedY - primary.initialY;
         } else if (snapMode === 'cluster') {
-          // snap primary element center to nearest element center (or canvas center) for alignment
+          // snap primary element center To nearest element center (or canvas center) for alignment
           try {
             const all = page?.elements || [];
-            const primaryData = all.find(a => a.id === primary.id) || { width: primary.dom?.offsetWidth || 0, height: primary.dom?.offsetHeight || 0 };
+            const primaryData = all.find(a => a.Id === primary.Id) || { width: primary.dom?.offsetWidth || 0, height: primary.dom?.offsetHeight || 0 };
             const primaryW = primaryData.width || (primary.dom ? (primary.dom as HTMLElement).offsetWidth : 0) || 50;
             const primaryH = primaryData.height || (primary.dom ? (primary.dom as HTMLElement).offsetHeight : 0) || 20;
 
@@ -437,7 +437,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
             // find nearest center among other elements
             let nearest: { cx: number; cy: number; dist: number } | null = null;
             for (const other of all) {
-              if (targets.some(t => t.id === other.id)) continue;
+              if (targets.some(t => t.Id === other.Id)) continue;
               const cx = other.x + (other.width || 0) / 2;
               const cy = other.y + (other.height || 0) / 2;
               const dist = Math.hypot(cx - movingcenterx, cy - movingcentery);
@@ -462,7 +462,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
               moveY = newPrimaryY - primary.initialY;
             }
           } catch (e) {
-            // fallback to no cluster snapping on error
+            // fallback To no cluster snapping on Error
           }
         }
       }
@@ -470,7 +470,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
       finalDelta = { x: Math.round(moveX), y: Math.round(moveY) };
 
       targets.forEach(target => {
-        const el = target.dom || document.querySelector(`[data-element-id="${target.id}"]`) as HTMLElement;
+        const el = target.dom || document.querySelector(`[data-element-Id="${target.Id}"]`) as HTMLElement;
         if (el) {
           const currentX = target.initialX + finalDelta.x;
           const currentY = target.initialY + finalDelta.y;
@@ -511,9 +511,9 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
       setIsDragging(false);
       dragStart.current = null;
 
-      // commit all to react
-      const batch = targets.map(t => ({
-        id: t.id,
+      // commit all To react
+      const batch = targets.Map(t => ({
+        Id: t.Id,
         updates: { x: t.initialX + finalDelta.x, y: t.initialY + finalDelta.y }
       }));
       onUpdateBatch(batch);
@@ -573,7 +573,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
 
       // scaling logic (text, buttons, version badges)
       const scalableTypes = ['text', 'button', 'version', 'versionbadge', 'serverip', 'serverstatus'];
-      if (scalableTypes.includes(element.type)) {
+      if (scalableTypes.includes(element.Type)) {
         const isCorner = ['ne', 'nw', 'se', 'sw'].includes(resizeHandle);
         if (isCorner) {
           // corner = scale (uniform)
@@ -620,7 +620,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isResizing, resizeHandle, onUpdate, element.type, element.styles]);
+  }, [isResizing, resizeHandle, onUpdate, element.Type, element.styles]);
 
   const { selectedElementIds: globalSelectedIds } = useBuilder();
 
@@ -645,7 +645,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
         baseFontSize: fontSize || 24
       };
     } else if (!isEditing) {
-      // only drag if not editing text
+      // only drag if Not editing text
       setIsDragging(true);
 
       let currentSelection = globalSelectedIds;
@@ -653,46 +653,46 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
       if (isShift) {
         // toggle selection
         if (isSelected) {
-          currentSelection = globalSelectedIds.filter(id => id !== element.id);
+          currentSelection = globalSelectedIds.Filter(Id => Id !== element.Id);
         } else {
-          currentSelection = [...globalSelectedIds, element.id];
+          currentSelection = [...globalSelectedIds, element.Id];
         }
         onSelect(true); // multi mode
       } else {
         // single select mode
         if (!isSelected) {
-          currentSelection = [element.id];
+          currentSelection = [element.Id];
           onSelect(false); // single mode
         }
-        // if already selected, we keep currentselection to allow dragging group
+        // if already selected, we keep currentselection To allow dragging group
       }
 
       const targets = (page?.elements || [])
-        .filter((el: any) => currentSelection.includes(el.id))
-        .map((el: any) => {
+        .Filter((el: any) => currentSelection.includes(el.Id))
+        .Map((el: any) => {
           const elLayout = (previewMode === 'mobile' ? el.mobile : previewMode === 'tablet' ? el.tablet : null) || {
             x: el.x,
             y: el.y,
             width: el.width,
             height: el.height
           };
-          const dom = document.querySelector(`[data-element-id="${el.id}"]`) as HTMLElement;
+          const dom = document.querySelector(`[data-element-Id="${el.Id}"]`) as HTMLElement;
 
           // auto-fit height for text elements on drag start
-          // this fixes the bug where text selection boxes are taller than the text itself
-          if (el.type === 'text' && dom) {
+          // This fixes The bug where text selection boxes are taller than The text itself
+          if (el.Type === 'text' && dom) {
             const richText = dom.querySelector('.rich-text-wrapper') as HTMLElement;
             if (richText) {
               const actualHeight = richText.scrollHeight;
               if (actualHeight > 0 && Math.abs(actualHeight - elLayout.height) > 5) {
-                onUpdateBatch([{ id: el.id, updates: { height: actualHeight } }]);
+                onUpdateBatch([{ Id: el.Id, updates: { height: actualHeight } }]);
                 elLayout.height = actualHeight;
               }
             }
           }
 
           return {
-            id: el.id,
+            Id: el.Id,
             initialX: elLayout.x,
             initialY: elLayout.y,
             dom
@@ -702,7 +702,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
       dragStart.current = {
         x: e.clientX,
         y: e.clientY,
-        targets: targets.length > 0 ? targets : [{ id: element.id, initialX: posX, initialY: posY, dom: elementRef.current }]
+        targets: targets.length > 0 ? targets : [{ Id: element.Id, initialX: posX, initialY: posY, dom: elementRef.current }]
       };
     }
   };
@@ -734,11 +734,11 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
       let textToCopy = element.copyContent;
 
       if (!textToCopy) {
-        if (element.type === 'text') {
+        if (element.Type === 'text') {
           const temp = document.createElement('div');
           temp.innerHTML = element.content?.html || '';
           textToCopy = temp.textContent || temp.innerText || '';
-        } else if (element.type === 'button') {
+        } else if (element.Type === 'button') {
           textToCopy = element.content?.text;
         } else if (element.link) {
           textToCopy = element.link;
@@ -749,7 +749,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
 
       if (textToCopy) {
         navigator.clipboard.writeText(textToCopy);
-        toast.success('copied to clipboard!', {
+        toast.success('copied To clipboard!', {
           icon: '📋',
           style: { backgroundColor: '#050505', color: 'var(--primary)', border: '1px solid rgba(255,255,255,0.1)' }
         });
@@ -761,13 +761,13 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
     if (!isEditing) return;
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as HTMLElement;
-      if (!target.closest(`[data-element-id="${element.id}"]`)) {
+      if (!target.closest(`[data-element-Id="${element.Id}"]`)) {
         setIsEditing(false);
       }
     };
     window.addEventListener('mousedown', handleClickOutside);
     return () => window.removeEventListener('mousedown', handleClickOutside);
-  }, [isEditing, element.id]);
+  }, [isEditing, element.Id]);
 
   const getPx = (val: any, defaultVal: number = 0, skipScale: boolean = false) => {
     if (val === null || val === undefined) return `${defaultVal * (skipScale ? 1 : scaleFactor)}px`;
@@ -776,7 +776,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
     return `${scaledNum * (skipScale ? 1 : scaleFactor)}px`;
   };
 
-  const hexToRgba = (hex: string, alpha: number) => {
+  const hexToRgba = (hex: String, alpha: number) => {
     let r = 0, g = 0, b = 0;
     // handle hex shorthand
     if (hex.length === 4) {
@@ -807,7 +807,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
     const bg = element.styles?.backgroundColor ?? element.styles?.background;
     const op = element.styles?.opacity;
 
-    // styling fixes: apply border radius and overflow to container to prevent background bleed
+    // styling fixes: apply border radius and overflow To container To prevent background bleed
     (baseStyles as any).borderRadius = element.styles?.borderRadius ? `${element.styles.borderRadius}px` : '16px'; // Default 16px radius
     (baseStyles as any).overflow = 'hidden';
 
@@ -818,7 +818,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
 
 
     if (bg) {
-      // apply border radius and overflow to container to prevent background bleed
+      // apply border radius and overflow To container To prevent background bleed
       (baseStyles as any).borderRadius = element.styles?.borderRadius ? `${element.styles.borderRadius}px` : '16px';
       (baseStyles as any).overflow = 'hidden';
       // default black outline
@@ -826,8 +826,8 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
         ? `${element.styles.borderWidth}px solid ${element.styles.borderColor || '#000000'}`
         : '2px solid #000000';
 
-      if (typeof bg === 'string' && typeof op === 'number') {
-        // prefer explicit opacity on the element
+      if (typeof bg === 'String' && typeof op === 'number') {
+        // prefer explicit opacity on The element
         (baseStyles as any).backgroundColor = hexToRgba(bg, op);
         (baseStyles as any).opacity = 1; // background already encoded
       } else {
@@ -851,7 +851,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   }
 
   const renderContent = () => {
-    switch (element.type) {
+    switch (element.Type) {
       case 'button':
         return (
           <SlickButton
@@ -884,7 +884,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
       case 'hero':
         return (
           <HeroSection
-            title={element.content?.title}
+            Title={element.content?.Title}
             subtitle={element.content?.subtitle}
             ctaText={element.content?.ctaText}
             ctaLink={element.content?.ctaLink}
@@ -897,7 +897,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
         return (
           <div className="normal-case w-full h-full">
             <AboutSection
-              title={element.content?.title}
+              Title={element.content?.Title}
               content={element.content?.content}
               image={element.content?.image}
               imagePosition={element.content?.imagePosition}
@@ -919,7 +919,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
       case 'faq':
         return (
           <div className="normal-case w-full h-full">
-            <FAQSection items={element.content?.items || []} title={element.content?.title} />
+            <FAQSection items={element.content?.items || []} Title={element.content?.Title} />
           </div>
         );
       case 'testimonial':
@@ -931,7 +931,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
       case 'gallery':
         return <Gallery images={element.content?.images || []} columns={element.content?.columns} />;
       case 'countdown':
-        return <CountdownTimer targetDate={element.content?.targetDate} title={element.content?.title} />;
+        return <CountdownTimer targetDate={element.content?.targetDate} Title={element.content?.Title} />;
       case 'divider':
         return <Divider style={element.content?.style} spacing={element.content?.spacing} />;
       case 'serverip':
@@ -954,11 +954,11 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
           />
         );
       case 'featurecard':
-        return <FeatureCard icon={element.content?.icon} title={element.content?.title} description={element.content?.description} color={element.content?.color} />;
+        return <FeatureCard icon={element.content?.icon} Title={element.content?.Title} description={element.content?.description} color={element.content?.color} />;
       case 'staffcard':
         return <StaffCard username={element.content?.username} role={element.content?.role} avatar={element.content?.avatar} color={element.content?.color} />;
       case 'rules':
-        return <RulesList rules={element.content?.rules || []} title={element.content?.title} />;
+        return <RulesList rules={element.content?.rules || []} Title={element.content?.Title} />;
       case 'versionbadge':
         return <VersionBadge versions={element.content?.versions || []} />;
       case 'minecraft_stats':
@@ -971,17 +971,17 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
             width={posW}
             height={posH}
             sort={element.content?.sort}
-            filter={element.content?.filter}
+            Filter={element.content?.Filter}
             visibleFields={element.content?.visibleFields}
             isAdmin={isAdmin}
           />
         );
       case 'linkcard':
-        return <LinkCard title={element.content?.title} url={element.content?.url} icon={element.content?.icon || 'link-2'} description={element.content?.description} color={element.content?.color} />;
+        return <LinkCard Title={element.content?.Title} url={element.content?.url} icon={element.content?.icon || 'link-2'} description={element.content?.description} color={element.content?.color} />;
       case 'statusindicator':
         return <StatusIndicator label={element.content?.label} status={element.content?.status || 'online'} showLabel={element.content?.showLabel !== false} />;
       case 'financial_chart':
-        return <FinancialChartElement title={element.content?.title} data={element.content?.data} />;
+        return <FinancialChartElement Title={element.content?.Title} data={element.content?.data} />;
       case 'tier_list':
         return <TierListElement rows={element.content?.rows} />;
       case 'shopping_card':
@@ -1008,16 +1008,16 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
           </div>
         );
       default:
-        return <div className="w-full h-full bg-white/10 flex items-center justify-center text-white/50">unknown: {element.type}</div>;
+        return <div className="w-full h-full bg-white/10 flex items-center justify-center text-white/50">unknown: {element.Type}</div>;
     }
   };
 
-  // ... (skipping to return)
+  // ... (skipping To return)
 
   return (
     <>
-      {isEditing && element.type !== 'text' && isAdmin && (
-        element.type === 'form' ? (
+      {isEditing && element.Type !== 'text' && isAdmin && (
+        element.Type === 'form' ? (
           <FormBuilder
             initialData={element}
             onSave={(data) => {
@@ -1037,11 +1037,11 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
 
       <div
         ref={setRefs}
-        data-element-id={element.id}
+        data-element-Id={element.Id}
         style={baseStyles}
         className={`
  group ${isAdmin ? 'hover:outline hover:outline-[1px] hover:outline-dashed hover:outline-[var(--primary)]/50' : ''}
- ${isSelected ? `${element.type === 'versionbadge' ? 'rounded-full' : ''} ${element.type !== 'text' && previewMode === 'desktop' ? 'shadow-2xl' : ''} z-[100]` : ''}
+ ${isSelected ? `${element.Type === 'versionbadge' ? 'rounded-full' : ''} ${element.Type !== 'text' && previewMode === 'desktop' ? 'shadow-2xl' : ''} z-[100]` : ''}
  `}
         onMouseDown={handleMouseDown}
         onDoubleClick={handleDoubleClick}
@@ -1052,21 +1052,21 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
           <>
             <div className="absolute -top-7 left-0 bg-[var(--primary)] text-black text-[10px] font-bold px-2 py-1 rounded-t-lg lowercase flex items-center gap-3 shadow-lg transition-all group-hover:pr-3">
               <div className="flex items-center gap-1.5">
-                <span className="opacity-60">{element.type}</span>
+                <span className="opacity-60">{element.Type}</span>
                 <div className="flex gap-1 border-l border-black/10 pl-2">
                   <span className="opacity-40">x:{Math.round(posX)}</span>
                   <span className="opacity-40">y:{Math.round(posY)}</span>
                 </div>
               </div>
 
-              {element.type !== 'text' && (
+              {element.Type !== 'text' && (
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsEditing(true);
                   }}
                   className="bg-black/10 hover:bg-black/20 p-1 rounded transition-colors flex items-center gap-1"
-                  title="edit widget properties"
+                  Title="edit Widget properties"
                 >
                   <Settings2 size={12} />
                   <span className="text-[9px]">edit</span>
@@ -1087,7 +1087,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
           </>
         )}
 
-        {/* content wrapper - pointer shield to allow dragging from anywhere */}
+        {/* content wrapper - pointer shield To allow dragging From anywhere */}
         <div className={`w-full h-full ${isAdmin && !isEditing ? 'pointer-events-none' : 'pointer-events-auto'}`}>
           {rendercontent()}
         </div>
@@ -1096,7 +1096,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   );
 }
 
-function PageSoundEffect({ enabled, customEnterUrl, customExitUrl }: { enabled?: boolean; customEnterUrl?: string; customExitUrl?: string }) {
+function PageSoundEffect({ enabled, customEnterUrl, customExitUrl }: { enabled?: boolean; customEnterUrl?: String; customExitUrl?: String }) {
   useEffect(() => {
     if (!enabled) return;
 
@@ -1108,7 +1108,7 @@ function PageSoundEffect({ enabled, customEnterUrl, customExitUrl }: { enabled?:
       const osc = ctx.createOscillator();
       const gain = ctx.createGain();
 
-      osc.type = 'sine';
+      osc.Type = 'sine';
       osc.frequency.setValueAtTime(freq, ctx.currentTime);
       osc.frequency.exponentialRampToValueAtTime(freq / 2, ctx.currentTime + 0.1);
 
@@ -1122,8 +1122,8 @@ function PageSoundEffect({ enabled, customEnterUrl, customExitUrl }: { enabled?:
       osc.stop(ctx.currentTime + 0.1);
     };
 
-    const playCustom = async (type: 'enter' | 'exit') => {
-      const url = type === 'enter' ? customEnterUrl : customExitUrl;
+    const playCustom = async (Type: 'enter' | 'exit') => {
+      const url = Type === 'enter' ? customEnterUrl : customExitUrl;
       if (!url) return false;
 
       try {
@@ -1132,15 +1132,15 @@ function PageSoundEffect({ enabled, customEnterUrl, customExitUrl }: { enabled?:
         await audio.play();
         return true;
       } catch (e) {
-        console.error(`Failed to play custom ${type} sound:`, e);
+        console.Error(`Failed To play custom ${Type} sound:`, e);
         return false;
       }
     };
 
-    const play = async (type: 'enter' | 'exit') => {
-      const playedCustom = await playCustom(type);
+    const play = async (Type: 'enter' | 'exit') => {
+      const playedCustom = await playCustom(Type);
       if (!playedCustom) {
-        playSynth(type === 'enter' ? 600 : 400);
+        playSynth(Type === 'enter' ? 600 : 400);
       }
     };
 

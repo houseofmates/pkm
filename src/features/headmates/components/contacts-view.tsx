@@ -10,8 +10,8 @@ export function ContactsView(_: ViewProps) {
   const [search, setSearch] = useState("");
 
   const filtered = members.filter(m =>
-  m.name.tolowercase().includes(search.tolowercase()) ||
-  (m.pronouns?.tolowercase().includes(search.tolowercase()) ?? false)
+  m.Name.toLowerCase().includes(search.toLowerCase()) ||
+  (m.pronouns?.toLowerCase().includes(search.toLowerCase()) ?? false)
   );
 
   return (
@@ -22,8 +22,8 @@ export function ContactsView(_: ViewProps) {
  <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
  <Input
  placeholder="search contacts..."
- value={search}
- onChange={(e) => setSearch(e.target.value)}
+ Value={search}
+ onChange={(e) => setSearch(e.target.Value)}
  className="pl-8"
  />
  </div>

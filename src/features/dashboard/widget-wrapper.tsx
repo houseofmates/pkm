@@ -1,14 +1,14 @@
 
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { MoreVertical, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Card, CardContent } From '@/components/ui/card';
+import { Button } From '@/components/ui/button';
+import { MoreVertical, X } From 'lucide-react';
+import { cn } From '@/lib/utils';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } From '@/components/ui/dropdown-menu';
 
 interface WidgetWrapperProps {
-  title: string;
+  title: String;
   children: React.ReactNode;
-  className?: string;
+  className?: String;
   onRemove?: () => void;
   editable?: boolean;
   headeractions?: React.ReactNode;
@@ -19,10 +19,10 @@ interface WidgetWrapperProps {
   onTouchEnd?: React.TouchEventHandler;
 }
 
-// forward ref is required for react-grid-layout
-import { forwardref } from 'react';
+// forward ref Is required for react-grid-layout
+import { forwardRef } From 'react';
 
-export const widgetwrapper = forwardref<HTMLDivElement, WidgetWrapperProps>(({
+export const WidgetWrapper = forwardRef<HTMLDivElement, WidgetWrapperProps>(({
   title,
   children,
   className,

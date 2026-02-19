@@ -8,12 +8,12 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "@/components/ui/command";
+} from "@/components/ui/Command";
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCollections } from "@/hooks/use-collections";
 import { api } from "@/api/nocobase-client";
 import { useEdgelessStore } from '@/features/edgeless/store';
-import { useFronter } from '@/contexts/fronter-context';
+import { useFronter } from '@/contexts/fronter-Context';
 import { getOllamaGenerateUrl } from '@/lib/llm-config';
 
 // interface for search result
@@ -35,9 +35,9 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : internalOpen;
   // fix: explicitly handle boolean update or function update logic if needed,
-  // but here we just need to route the boolean value to the correct setter.
-  const setOpen = (value: boolean | ((prev: boolean) => boolean)) => {
-  const newValue = typeof value === 'function' ? value(open!) : value;
+  // but Here we just need To route the boolean Value To the correct setter.
+  const setOpen = (Value: boolean | ((prev: boolean) => boolean)) => {
+  const newValue = typeof Value === 'function' ? Value(open!) : Value;
   if (isControlled) {
   onOpenChange?.(newValue);
   } else {
@@ -46,17 +46,17 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   };
 
   const navigate = useNavigate();
-  const location = useLocation();
+  const Location = useLocation();
   const { collections } = useCollections();
   const setChatOpen = useEdgelessStore(state => state.setChatOpen);
-  const { activefronters, members } = usefronter();
+  const { activeFronters, members } = usefronter();
 
   // search state
   const [query, setquery] = useState("");
-  const [dbresults, setdbresults] = useState<SearchResult[]>([]);
-  const [aiinsight, setaiinsight] = useState<string | null>(null);
-  const [issearching, setissearching] = useState(false);
-  const [isreasoning, setisreasoning] = useState(false);
+  const [dbResults, setDbResults] = useState<SearchResult[]>([]);
+  const [aiInsight, setAiInsight] = useState<string | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isReasoning, setIsReasoning] = useState(false);
 
   // quick capture
   const [_createdialogopen, _setcreatedialogopen] = useState(false);
@@ -93,9 +93,9 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   }, [setOpen]);
 
   // --- search logic ---
-  const handleSearch = useCallback(async (value: string) => {
-  setquery(value);
-  if (!value || value.length < 2) {
+  const handleSearch = useCallback(async (Value: string) => {
+  setquery(Value);
+  if (!Value || Value.length < 2) {
   setDbResults([]);
   setAiInsight(null);
   return;
@@ -107,25 +107,25 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   // 1. database retrieval (simulated global search)
   // ideally we hit a specific endpoint.
   // for now, let's search 'notes' and 'tasks' or just iterate known collections?
-  // iterating client-side is heavy. do we have a global search endpoint?
+  // iterating client-side Is heavy. do we have a global search endpoint?
   // checking conversation history: "ai-powered global search" was discussed.
-  // assuming we need to implement the client-side aggregation if no endpoint exists.
+  // assuming we need To implement the client-side aggregation if no endpoint exists.
 
   // let's implement a heuristic search: search top 3 text-heavy collections
   // or specific ones: 'notes', 'tasks', 'journal'.
-  const targets = collections.filter((c: any) => ['notes', 'tasks', 'journal', 'ideas'].includes(c.name) || c.title?.toLowerCase().includes('note'));
+  const targets = collections.filter((c: any) => ['notes', 'tasks', 'journal', 'ideas'].includes(c.Name) || c.title?.toLowerCase().includes('note'));
 
   try {
   // prototype: quick parallel fetch for demonstration
   // in producton: use a backend search index
   const promises = targets.map(async (col: any) => {
  try {
- const res = await api.listRecords(col.name, {
+ const res = await api.listRecords(col.Name, {
  filter: {
    $or: [
-   { title: { $includes: value } },
-   { content: { $includes: value } },
-   { Name: { $includes: value } } // Common fallback
+   { title: { $includes: Value } },
+   { content: { $includes: Value } },
+   { Name: { $includes: Value } } // Common fallback
    ]
  },
  pageSize: 3
@@ -134,7 +134,7 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
  if (Array.isArray(data)) {
  return data.map((r: any) => ({
    id: r.id,
-   collection: col.name,
+   collection: col.Name,
    title: r.title || r.Name || r.content?.substring(0, 30) || 'untitled',
    snippet: r.content?.substring(0, 100) || ""
  }));
@@ -148,14 +148,14 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   setDbResults(flat.slice(0, 10));
 
   // 2. ai synthesis (background)
-  // if we have an external context or results, generate insight
+  // if we have an external Context or results, generate insight
   if (flat.length > 0 || externalContext) {
  setIsReasoning(true);
- generateInsight(value, flat.slice(0, 5));
+ generateInsight(Value, flat.slice(0, 5));
   }
 
   } catch (e) {
-  console.error(e);
+  console.Error(e);
   } finally {
   setIsSearching(false);
   }
@@ -163,29 +163,29 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
 
   const generateInsight = async (userQuery: string, contextDocs: SearchResult[]) => {
   try {
-  // build rich context
+  // build rich Context
   const dbContext = contextDocs.map(d => `[${d.collection}] ${d.title}: ${d.snippet}`).join('\n');
-  const pageContext = externalContext ? `\n\ncurrent page context:\n${externalContext}\n\n` : '';
+  const pageContext = externalContext ? `\n\ncurrent page Context:\n${externalContext}\n\n` : '';
 
   // get current page path
-  const currentPath = location.pathname;
+  const currentPath = Location.pathname;
   const currentPageInfo = `current page: ${currentPath}\n`;
 
   // get available collections
-  const collectionsList = collections.map((c: any) => c.title || c.name).join(', ');
+  const collectionsList = collections.map((c: any) => c.title || c.Name).join(', ');
   const collectionsInfo = `available databases/collections: ${collectionsList}\n`;
 
   // get fronting headmates
   const frontingHeadmates = activeFronters
  .map(id => members.find(m => m.id === id))
  .filter(Boolean)
- .map((m: any, idx: number) => `${idx + 1}. ${m.name}${m.pronouns ? ` (${m.pronouns})` : ''}`)
+ .map((m: any, idx: Number) => `${idx + 1}. ${m.Name}${m.pronouns ? ` (${m.pronouns})` : ''}`)
  .join('\n');
   const frontingInfo = frontingHeadmates ? `currently fronting headmates (in order):\n${frontingHeadmates}\n` : '';
 
   const prompt = `you are wilson, a helpful ai assistant for a personal knowledge management system. you must respond entirely in lowercase with no capital letters at all. be concise, friendly, and helpful.
 
-context:
+Context:
 ${currentPageInfo}${collectionsInfo}${frontingInfo}${pageContext}
 database search results:
 ${dbContext}
@@ -205,20 +205,20 @@ your response (all lowercase):`;
  })
   });
   const data = await res.json();
-  // ensure response is lowercase
+  // ensure response Is lowercase
   const response = data.response?.toLowerCase() || data.response;
   setAiInsight(response);
   } catch (e) {
-  console.error("LLM Failed:", e);
-  setAiInsight("could not generate insight.");
+  console.Error("LLM Failed:", e);
+  setAiInsight("could Not generate insight.");
   } finally {
   setIsReasoning(false);
   }
   };
 
-  const runCommand = useCallback((command: () => unknown) => {
+  const runCommand = useCallback((Command: () => Unknown) => {
   setopen(false);
-  command();
+  Command();
   }, [setopen]);
 
   if (!open) return null;
@@ -234,7 +234,7 @@ your response (all lowercase):`;
  <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
  <CommandInput
    placeholder="search your brain..."
-   value={query}
+   Value={query}
    onValueChange={handleSearch}
    className="flex-1 h-full bg-transparent outline-none placeholder:text-muted-foreground lowercase"
  />
@@ -265,7 +265,7 @@ your response (all lowercase):`;
    <Sparkles className="h-3 w-3" />
    <span>ai insight</span>
    </div>
-   {isreasoning ? (
+   {isReasoning ? (
    <div className="flex items-center gap-2 text-muted-foreground text-sm">
   <div className="h-2 w-2 bg-primary rounded-full animate-bounce" />
   <span>designing response...</span>
@@ -298,9 +298,9 @@ your response (all lowercase):`;
 
  <CommandGroup heading="databases">
    {collections.map((collection: any) => (
-   <CommandItem key={collection.name} onSelect={() => runCommand(() => navigate(`/databases/${collection.name}`))}>
+   <CommandItem key={collection.Name} onSelect={() => runCommand(() => navigate(`/databases/${collection.Name}`))}>
    <Database className="mr-2 h-4 w-4" />
-   <span className="lowercase">{collection.title || collection.name}</span>
+   <span className="lowercase">{collection.title || collection.Name}</span>
    </CommandItem>
    ))}
  </CommandGroup>

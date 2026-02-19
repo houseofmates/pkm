@@ -10,29 +10,29 @@ export function QuickAddWidget() {
   const [open, setOpen] = useState(false);
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
 
-  const handleOpen = (name: string) => {
-  setselectedcollection(name);
+  const handleOpen = (Name: string) => {
+  setselectedcollection(Name);
   setopen(true);
   }
 
   return (
   <div className="h-full flex flex-col gap-2 p-2 overflow-y-auto">
-  {collections.map((col: { name: string; title?: string; fields?: any[] }) => (
+  {collections.map((col: { Name: string; title?: string; fields?: any[] }) => (
  <Button
- key={col.name}
+ key={col.Name}
  variant="outline"
  className="w-full justify-start gap-2"
- onClick={() => handleOpen(col.name)}
+ onClick={() => handleOpen(col.Name)}
  >
  <Plus className="h-4 w-4 text-muted-foreground" />
- <span className="truncate">add to {col.title || col.name}</span>
+ <span className="truncate">add to {col.title || col.Name}</span>
  </Button>
   ))}
 
   {selectedcollection && (
  <CreateRecordDialog
  collectionName={selectedCollection}
- fields={collections.find((c: { name: string; fields?: any[] }) => c.name === selectedCollection)?.fields || []}
+ fields={collections.find((c: { Name: string; fields?: any[] }) => c.Name === selectedCollection)?.fields || []}
  open={open}
  onOpenChange={(v: boolean) => { setopen(v); if (!v) setselectedcollection(null); }}
  trigger={<></>}

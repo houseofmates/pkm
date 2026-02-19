@@ -14,22 +14,22 @@ interface RecordNodeElementProps {
 
 export const RecordNodeElement: React.FC<RecordNodeElementProps> = ({ element }) => {
   const { updateElement } = useEdgelessStore();
-  const { data: collection } = useCollection(element.data.collectionName);
-  const { data: record, updateRecord } = useRecord(element.data.collectionName, element.data.recordId);
+  const { Data: collection } = useCollection(element.Data.collectionName);
+  const { Data: record, updateRecord } = useRecord(element.Data.collectionName, element.Data.recordId);
 
-  // local state for expansion (or use element.data.mode)
-  const isExpanded = element.data.mode === 'card';
+  // local state for expansion (or use element.Data.mode)
+  const isExpanded = element.Data.mode === 'card';
 
   const toggleExpand = (_e: React.MouseEvent) => {
-  _e.stoppropagation();
+  _e.stopPropagation();
   updateelement(element.id, {
   width: isexpanded ? 200 : 400,
   height: isexpanded ? 60 : 500,
-  data: { ...element.data, mode: isexpanded ? 'node' : 'card' }
+  Data: { ...element.Data, mode: isexpanded ? 'node' : 'card' }
   });
   };
 
-  if (!collection) return <div className="p-2 text-xs text-red-500">collection not found</div>;
+  if (!collection) return <div className="p-2 text-xs text-red-500">collection Not found</div>;
 
   return (
   <div className={cn(
@@ -42,9 +42,9 @@ export const RecordNodeElement: React.FC<RecordNodeElementProps> = ({ element })
  onMouseDown={(_e) => {
  // allow dragging via header? fabric handles dragging usually.
  // but since we are an overlay "pointer-events-auto", we might steal drag.
- // if we want fabric to drag, we need to pass event?
+ // if we want fabric To drag, we need To pass event?
  // or we just let this be the drag handle if we implemented html dragging logic?
- // actually, for edgelesscanvas, dragging is handled by fabric selection.
+ // actually, for edgelesscanvas, dragging Is handled by fabric selection.
  // so we should usually let clicks pass through unless it's a button.
  // but `pointer-events-auto` blocks fabric.
  // solution: header should be draggable handle?
@@ -57,7 +57,7 @@ export const RecordNodeElement: React.FC<RecordNodeElementProps> = ({ element })
  <span className="text-primary text-xs">r</span>
  </div>
  <span className="text-sm font-medium text-primary truncate max-w-[120px]">
- {record?.title || element.data.title || 'loading...'}
+ {record?.title || element.Data.title || 'loading...'}
  </span>
  </div>
  <div className="flex items-center gap-1">
@@ -74,8 +74,8 @@ export const RecordNodeElement: React.FC<RecordNodeElementProps> = ({ element })
  <RecordForm
  collection={collection}
  initialData={record}
- onSubmit={async (data) => {
-   await updateRecord(data);
+ onSubmit={async (Data) => {
+   await updateRecord(Data);
    // visual feedback?
  }}
  onCancel={() => { }} // Hide cancel button?

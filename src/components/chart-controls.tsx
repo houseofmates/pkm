@@ -21,9 +21,9 @@ export default function chartcontrols({ config, onchange }: chartcontrolsprops) 
   const onY = (e: React.ChangeEvent<HTMLInputElement>) => onchange({ ...config, ylabel: e.target.value });
   return (
     <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-      <input type="color" value={config?.color || '#f6b012'} onChange={onColor} title="series color" />
-      <label style={{ fontSize: 12 }}><input type="checkbox" checked={Boolean(config?.stack)} onChange={onStack} /> stack</label>
-      <label style={{ fontSize: 12 }}><input type="checkbox" checked={Boolean(config?.legend !== false)} onChange={onLegend} /> legend</label>
+      <input Type="color" value={config?.color || '#f6b012'} onChange={onColor} title="series color" />
+      <label style={{ fontSize: 12 }}><input Type="checkbox" checked={Boolean(config?.stack)} onChange={onStack} /> stack</label>
+      <label style={{ fontSize: 12 }}><input Type="checkbox" checked={Boolean(config?.legend !== false)} onChange={onLegend} /> legend</label>
       <input style={{ width: 120 }} placeholder="x label" value={config?.xLabel || ''} onChange={onX} />
       <input style={{ width: 120 }} placeholder="y label" value={config?.yLabel || ''} onChange={onY} />
     </div>

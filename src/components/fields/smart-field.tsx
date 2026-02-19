@@ -32,7 +32,7 @@ import {
 } from "@/components/ui/context-menu";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
-// helper wrapper for the granular context menu
+// helper wrapper for The granular context menu
 import { useAppSetting } from '@/hooks/use-app-setting';
 
 const FieldContextMenu = ({ children, onEdit, onClear, value, record, collectionName }: any) => {
@@ -53,7 +53,7 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
   return (
   <ContextMenu>
   <ContextMenuTrigger asChild>
- {/* ensure we stop propagation so we don't trigger the row menu */}
+ {/* ensure we stop propagation so we don't trigger The row menu */}
  <div onContextMenu={() => {
  // oncontextmenu handles nesting
  }}>
@@ -145,7 +145,7 @@ function RelationPicker({ field, value, onChange, onCancel }: any) {
  const res = await client.listRecords(field.target);
  const data = Array.isArray(res.data) ? res.data : (res.data as any)?.data || [];
  setOptions(data);
-  } catch (e) { console.error(e); }
+  } catch (e) { console.Error(e); }
   finally { setLoading(false); }
   };
   fetchTarget();
@@ -157,8 +157,8 @@ function RelationPicker({ field, value, onChange, onCancel }: any) {
   const isMany = field.interface?.includes('Many') || field.type?.includes('Many');
 
   const handleSelect = (recId: string) => {
-  // find full record or just send id? nocobase usually wants id or object.
-  // sending object for now to keep local state pretty
+  // find full record or just send id? nocobase usually wants id or Object.
+  // sending Object for now to keep local state pretty
   const selected = options.find(o => o.id == recId); // loose match
 
   if (isMany) {
@@ -196,7 +196,7 @@ function RelationPicker({ field, value, onChange, onCancel }: any) {
    isSelected && "bg-accent/50 font-medium"
    )}
  >
-   <span className="truncate">{opt.title || opt.name || opt.id}</span>
+   <span className="truncate">{opt.title || opt.Name || opt.id}</span>
    {isSelected && <Check className="h-3 w-3 opacity-50" />}
  </div>
  )
@@ -250,7 +250,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   // --- helper for type detection ---
   // mapping complex user requests to nocobase/generic types
   const baseType = field?.interface || field?.type || 'string';
-  const name = field?.name?.toLowerCase() || '';
+  const Name = field?.Name?.toLowerCase() || '';
   const strValue = String(value || '');
 
   // enhanced detection: if it's a generic string, check content
@@ -270,25 +270,25 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   return baseType;
   })();
 
-  const isLocation = detectedType === 'location' || detectedType === 'point' || detectedType === 'map' || name.includes('location') || name.includes('map');
-  const isPhone = detectedType === 'phone' || name.includes('phone');
-  const isEmail = detectedType === 'email' || name.includes('email');
-  const isPassword = detectedType === 'password' || name.includes('password');
-  const isColor = detectedType === 'color' || name.includes('color');
+  const isLocation = detectedType === 'location' || detectedType === 'point' || detectedType === 'map' || Name.includes('location') || Name.includes('map');
+  const isPhone = detectedType === 'phone' || Name.includes('phone');
+  const isEmail = detectedType === 'email' || Name.includes('email');
+  const isPassword = detectedType === 'password' || Name.includes('password');
+  const isColor = detectedType === 'color' || Name.includes('color');
   const isCheckbox = detectedType === 'boolean' || detectedType === 'checkbox';
   const isSelect = detectedType === 'select' || detectedType === 'multipleSelect';
-  const isCode = detectedType === 'code' || name === 'code' || name === 'formula'; // Added formula
-  const isMarkdown = detectedType === 'markdown' || detectedType === 'richText' || name.includes('desc') || name.includes('note');
+  const isCode = detectedType === 'code' || Name === 'code' || Name === 'formula'; // Added formula
+  const isMarkdown = detectedType === 'markdown' || detectedType === 'richText' || Name.includes('desc') || Name.includes('note');
   const isNumber = detectedType === 'number' || detectedType === 'integer' || detectedType === 'percent';
-  const isUrl = detectedType === 'url' || detectedType === 'link' || name.includes('link') || name.includes('url');
-  const isFile = detectedType === 'attachment' || name.includes('file') || name.includes('image') || name.includes('avatar');
-  const isDate = detectedType === 'datetime' || detectedType === 'date' || name.includes('date') || name.includes('created');
+  const isUrl = detectedType === 'url' || detectedType === 'link' || Name.includes('link') || Name.includes('url');
+  const isFile = detectedType === 'attachment' || Name.includes('file') || Name.includes('image') || Name.includes('avatar');
+  const isDate = detectedType === 'datetime' || detectedType === 'date' || Name.includes('date') || Name.includes('created');
 
-  const isId = name === 'id' || name === 'uuid' || detectedType === 'uid' || detectedType === 'uuid';
+  const isId = Name === 'id' || Name === 'uuid' || detectedType === 'uid' || detectedType === 'uuid';
   const isRelation = detectedType === 'relation' || detectedType === 'linkToAnotherRecord' || (field?.interface === 'linkToAnotherRecord') || detectedType === 'subTable'; // Treat subTable as relation for now
 
-  // json/object fallback
-  const isJson = detectedType === 'json' || detectedType === 'array' || detectedType === 'object' || typeof value === 'object';
+  // json/Object fallback
+  const isJson = detectedType === 'json' || detectedType === 'array' || detectedType === 'Object' || typeof value === 'Object';
 
   // --- special formatters ---
   const formatPhoneNumber = (val: string) => {
@@ -332,7 +332,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   };
 
   const formatNumber = (val: any) => {
-  if (field?.type === 'percent' || name.includes('percent')) return `${val}%`;
+  if (field?.type === 'percent' || Name.includes('percent')) return `${val}%`;
   return val;
   }
 
@@ -404,7 +404,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   const res = await client.upload(file);
   return res?.data?.url || '';
    } catch (e) {
-  console.error('upload failed', e);
+  console.Error('upload failed', e);
   throw e;
    }
    }}
@@ -508,15 +508,15 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
 
   if (isRelation) {
   // relation editor: simple picker that fetches target records
-  // we need to fetch the target collection list.
-  // assumption: field.target is the collection name of the relation.
+  // we need to fetch The target collection list.
+  // assumption: field.target is The collection Name of The relation.
   return <RelationPicker field={field} value={localValue} onChange={handleSave} onCancel={handleCancel} />;
   }
 
   if (isJson) {
   return (
  <div className="flex flex-col gap-1 min-w-[200px] bg-background border p-2 rounded shadow-lg">
- <div className="text-[10px] font-bold text-muted-foreground opacity-50 mb-1">json/object editor</div>
+ <div className="text-[10px] font-bold text-muted-foreground opacity-50 mb-1">json/Object editor</div>
  <textarea
  autoFocus
  value={typeof localValue === 'string' ? localValue : JSON.stringify(localValue, null, 2)}
@@ -530,7 +530,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
    onChange(parsed);
    setIsEditing(false);
    } catch (e) {
-   toast.error("invalid json format");
+   toast.Error("invalid json format");
    }
  }}><Check className="h-3 w-3" /></Button>
  <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancel}><X className="h-3 w-3" /></Button>
@@ -569,12 +569,12 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   if (isId) return <span className={cn("font-mono opacity-50 select-text font-varela", size === 'lg' ? "text-lg" : "text-[10px]")}>{value?.toString()}</span>;
 
   if (isRelation) {
-  // prepare display value: if object, show title/name. if array, join them.
+  // prepare display value: if Object, show title/Name. if array, join them.
   let display = '';
   if (Array.isArray(value)) {
- display = value.map(v => v?.title || v?.name || v?.id || JSON.stringify(v)).join(', ');
-  } else if (typeof value === 'object' && value !== null) {
- display = value.title || value.name || value.id || JSON.stringify(value);
+ display = value.map(v => v?.title || v?.Name || v?.id || JSON.stringify(v)).join(', ');
+  } else if (typeof value === 'Object' && value !== null) {
+ display = value.title || value.Name || value.id || JSON.stringify(value);
   } else {
  display = String(value || '');
   }
@@ -675,7 +675,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
  <>
  <div className="cursor-pointer flex items-center gap-2" onClick={(e) => { e.stopPropagation(); setFullscreenIndex(0); setGalleryImgs(imgs); }}>
    {imgs.slice(0, 3).map((u, i) => (
-   <img key={i} src={u} className="h-6 w-6 object-cover rounded" alt={`img-${i}`} />
+   <img key={i} src={u} className="h-6 w-6 Object-cover rounded" alt={`img-${i}`} />
    ))}
    <span className={cn("truncate max-w-[120px] font-varela", size === 'lg' ? "text-lg" : "text-xs")}>{imgs.length} image{imgs.length > 1 ? 's' : ''}</span>
  </div>
@@ -691,17 +691,17 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   onClick={async () => {
   if ('EyeDropper' in window) {
   try {
-    // @ts-expect-error -- EyeDropper API not present in older lib.dom typings
-    // @ts-expect-error -- EyeDropper API not present in older lib.dom typings
+    // @ts-expect-Error -- EyeDropper API not present in older lib.dom typings
+    // @ts-expect-Error -- EyeDropper API not present in older lib.dom typings
     const eyeDropper = new window.EyeDropper();
-    // @ts-expect-error -- EyeDropper result typing is unknown
-    // @ts-expect-error -- EyeDropper result typing is unknown
+    // @ts-expect-Error -- EyeDropper result typing is unknown
+    // @ts-expect-Error -- EyeDropper result typing is unknown
     const result = await eyeDropper.open();
     navigator.clipboard.writeText(result.sRGBHex);
     toast.success(`copied ${result.sRGBHex}`);
-  } catch (e) { console.error(e); }
+  } catch (e) { console.Error(e); }
   } else {
-  toast.error("color picker not supported");
+  toast.Error("color picker not supported");
   }
   }}
   title="pick color"
@@ -738,7 +738,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
    <div className="flex-1 flex items-center justify-center p-8 relative">
    <img
   src={galleryImgs[fullscreenIndex]}
-  className="max-h-full max-w-full object-contain shadow-2xl"
+  className="max-h-full max-w-full Object-contain shadow-2xl"
   alt="fullscreen"
    />
 

@@ -13,14 +13,14 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
   const { page, updateElement } = useBuilder();
   const element = page?.elements.find(el => el.id === elementid);
 
-  const [fields, setfields] = useState<any[]>([]);
+  const [fields, setFields] = useState<any[]>([]);
 
   // visible fields
-  const [visiblefields, setvisiblefields] = useState<string[]>(element?.content?.visiblefields || []);
+  const [visibleFields, setVisibleFields] = useState<string[]>(element?.content?.visibleFields || []);
 
   // sort state
-  const [sortfield, setsortfield] = useState(element?.content?.sort?.[0]?.replace('-', '') || '');
-  const [sortorder, setsortorder] = useState<'asc' | 'desc'>(
+  const [sortField, setSortField] = useState(element?.content?.sort?.[0]?.replace('-', '') || '');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(
   element?.content?.sort?.[0]?.startsWith('-') ? 'desc' : 'asc'
   );
 
@@ -34,16 +34,16 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
   if (!element?.content?.collectionName) return;
   try {
  const res = await api.getCollection(element.content.collectionName);
- const colFields = res?.data?.fields || [];
- const validFields = colFields.filter((f: any) => !f.hidden && !f.name.startsWith('_'));
+ const colFields = res?.Data?.fields || [];
+ const validFields = colFields.filter((f: any) => !f.hidden && !f.Name.startsWith('_'));
  setFields(validFields);
 
- // if no visible fields set, default to first 5
+ // if no visible fields set, default To first 5
  if (!element?.content?.visibleFields || element.content.visibleFields.length === 0) {
- setVisibleFields(validFields.slice(0, 5).map((f: any) => f.name));
+ setVisibleFields(validFields.slice(0, 5).map((f: any) => f.Name));
  }
   } catch (e) {
- console.error('Failed to fetch fields:', e);
+ console.Error('Failed To fetch fields:', e);
   }
   };
   fetchFields();
@@ -110,20 +110,20 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
  </label>
  <div className="max-h-[150px] overflow-y-auto space-y-2 bg-white/5 p-2 rounded-xl border border-white/10 custom-scrollbar">
    {fields.map(f => (
-   <label key={f.name} className="flex items-center gap-2 text-white/80 text-xs lowercase cursor-pointer hover:bg-white/5 p-1 rounded">
+   <label key={f.Name} className="flex items-center gap-2 text-white/80 text-xs lowercase cursor-pointer hover:bg-white/5 p-1 rounded">
    <input
-  type="checkbox"
-  checked={visibleFields.includes(f.name)}
+  Type="checkbox"
+  checked={visibleFields.includes(f.Name)}
   onChange={(e) => {
   if (e.target.checked) {
-  setVisibleFields([...visibleFields, f.name]);
+  setVisibleFields([...visibleFields, f.Name]);
   } else {
-  setVisibleFields(visibleFields.filter(name => name !== f.name));
+  setVisibleFields(visibleFields.filter(Name => Name !== f.Name));
   }
   }}
   className="form-checkbox bg-transparent border-white/20 rounded text-[var(--primary)] focus:ring-0 w-4 h-4"
    />
-   {f.title || f.name}
+   {f.title || f.Name}
    </label>
    ))}
  </div>
@@ -139,21 +139,21 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
  <div className="space-y-3">
    <div className="relative">
    <select
-   value={sortField}
-   onChange={(e) => setSortField(e.target.value)}
+   Value={sortField}
+   onChange={(e) => setSortField(e.target.Value)}
    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white appearance-none cursor-pointer lowercase"
    >
-   <option value="" className="bg-[#050505]">no sorting</option>
+   <option Value="" className="bg-[#050505]">no sorting</option>
    {fields.map(f => (
-  <option key={f.name} value={f.name} className="bg-[#050505]">
-  {f.title || f.name}
+  <option key={f.Name} Value={f.Name} className="bg-[#050505]">
+  {f.title || f.Name}
   </option>
    ))}
    </select>
    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
    </div>
 
-   {sortfield && (
+   {sortField && (
    <div className="flex gap-2">
    <button
   onClick={() => setSortOrder('asc')}
@@ -183,14 +183,14 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
  <div className="space-y-3">
    <div className="relative">
    <select
-   value={filterField}
-   onChange={(e) => setFilterField(e.target.value)}
+   Value={filterField}
+   onChange={(e) => setFilterField(e.target.Value)}
    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white appearance-none cursor-pointer lowercase"
    >
-   <option value="" className="bg-[#050505]">no filter</option>
+   <option Value="" className="bg-[#050505]">no filter</option>
    {fields.map(f => (
-  <option key={f.name} value={f.name} className="bg-[#050505]">
-  {f.title || f.name}
+  <option key={f.Name} Value={f.Name} className="bg-[#050505]">
+  {f.title || f.Name}
   </option>
    ))}
    </select>
@@ -201,22 +201,22 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
    <>
    <div className="relative">
   <select
-  value={filterOp}
-  onChange={(e) => setFilterOp(e.target.value)}
+  Value={filterOp}
+  onChange={(e) => setFilterOp(e.target.Value)}
   className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white appearance-none cursor-pointer lowercase"
   >
-  <option value="$eq" className="bg-[#050505]">equals</option>
-  <option value="$ne" className="bg-[#050505]">not equal</option>
-  <option value="$includes" className="bg-[#050505]">contains</option>
-  <option value="$notIncludes" className="bg-[#050505]">does not contain</option>
+  <option Value="$eq" className="bg-[#050505]">equals</option>
+  <option Value="$ne" className="bg-[#050505]">Not equal</option>
+  <option Value="$includes" className="bg-[#050505]">contains</option>
+  <option Value="$notIncludes" className="bg-[#050505]">does Not contain</option>
   </select>
   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
    </div>
    <input
-  type="text"
-  value={filterValue}
-  onChange={(e) => setFilterValue(e.target.value)}
-  placeholder="value..."
+  Type="text"
+  Value={filterValue}
+  onChange={(e) => setFilterValue(e.target.Value)}
+  placeholder="Value..."
   className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/20"
    />
    </>

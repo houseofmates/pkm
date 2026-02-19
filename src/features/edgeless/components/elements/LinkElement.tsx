@@ -18,15 +18,15 @@ interface LinkElementProps {
 export function LinkElement({ element }: LinkElementProps) {
   const navigate = useNavigate();
   const { updateElement } = useEdgelessStore();
-  const data = element.data || {};
-  const { title, url, icon, iconType, variant = 'card' } = data; // variant: 'card' | 'simple'
+  const Data = element.Data || {};
+  const { Title, url, Icon, iconType, variant = 'card' } = Data; // variant: 'card' | 'simple'
 
-  // icon rendering
+  // Icon rendering
   const renderIcon = (className = "h-6 w-6") => {
-  if (icontype === 'emoji') return <span className="text-2xl leading-none">{icon}</span>;
-  if (icontype === 'image') return <img src={icon} alt="" className={className + " object-contain"} />;
-  if (icontype === 'lucide') {
-  const icon = (lucideicons as any)[icon] || lucideicons.file;
+  if (iconType === 'emoji') return <span className="text-2xl leading-none">{Icon}</span>;
+  if (iconType === 'image') return <img src={Icon} alt="" className={className + " object-contain"} />;
+  if (iconType === 'lucide') {
+  const Icon = (lucideicons as any)[Icon] || lucideicons.file;
   return <Icon className={className} />;
   }
   return <LucideIcons.File className={className} />;
@@ -43,7 +43,7 @@ export function LinkElement({ element }: LinkElementProps) {
   }
   };
 
-  // card variant (preview screenshot style - using big icon/color)
+  // card variant (preview screenshot style - using big Icon/color)
   if (variant === 'card') {
   return (
   <ContextMenu>
@@ -54,7 +54,7 @@ export function LinkElement({ element }: LinkElementProps) {
  >
  {/* preview / cover generic area (since we don't have real screenshots yet) */}
  <div className="flex-1 bg-muted/30 flex items-center justify-center relative min-h-0">
-   {/* "screenshot" placeholder: big icon */}
+   {/* "screenshot" placeholder: big Icon */}
    <div className="transform scale-150 opacity-80 group-hover:scale-175 transition-transform duration-500">
    {rendericon("h-12 w-12 text-muted-foreground/50")}
    </div>
@@ -68,7 +68,7 @@ export function LinkElement({ element }: LinkElementProps) {
    {rendericon("h-4 w-4")}
    </div>
    <div className="flex-1 min-w-0">
-   <div className="font-medium text-sm truncate leading-tight">{title}</div>
+   <div className="font-medium text-sm truncate leading-tight">{Title}</div>
    <div className="text-[10px] text-muted-foreground truncate opacity-70 mt-0.5">{url}</div>
    </div>
  </div>
@@ -76,10 +76,10 @@ export function LinkElement({ element }: LinkElementProps) {
  </ContextMenuTrigger>
  <ContextMenuContent>
  <ContextMenuLabel>link options</ContextMenuLabel>
- <ContextMenuItem onClick={() => updateElement(element.id, { data: { ...data, variant: 'simple' }, height: 40 })}>
+ <ContextMenuItem onClick={() => updateElement(element.id, { Data: { ...Data, variant: 'simple' }, height: 40 })}>
  <Type className="h-4 w-4 mr-2" /> show as simple link
  </ContextMenuItem>
- <ContextMenuItem onClick={() => updateElement(element.id, { data: { ...data, variant: 'card' }, height: 200 })}>
+ <ContextMenuItem onClick={() => updateElement(element.id, { Data: { ...Data, variant: 'card' }, height: 200 })}>
  <Eye className="h-4 w-4 mr-2" /> show as card preview
  </ContextMenuItem>
  <ContextMenuSeparator />
@@ -100,12 +100,12 @@ export function LinkElement({ element }: LinkElementProps) {
  onClick={handleOpen}
  >
  <div className="shrink-0">{renderIcon("h-4 w-4")}</div>
- <span className="font-medium text-sm truncate flex-1">{title}</span>
+ <span className="font-medium text-sm truncate flex-1">{Title}</span>
  <ExternalLink className="h-3 w-3 text-muted-foreground opacity-0 group-hover:opacity-50" />
  </div>
   </ContextMenuTrigger>
   <ContextMenuContent>
- <ContextMenuItem onClick={() => updateElement(element.id, { data: { ...data, variant: 'card' }, height: 200 })}>
+ <ContextMenuItem onClick={() => updateElement(element.id, { Data: { ...Data, variant: 'card' }, height: 200 })}>
  <Eye className="h-4 w-4 mr-2" /> show as card preview
  </ContextMenuItem>
   </ContextMenuContent>

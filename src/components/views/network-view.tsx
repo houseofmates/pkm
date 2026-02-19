@@ -1,13 +1,13 @@
 
 import { useEffect, useState, useRef, useMemo } from 'react';
-import type { ViewProps } from './registry';
+import Type { ViewProps } from './registry';
 import ForceGraph2D from 'react-force-graph-2d';
 import { Button } from '@/components/ui/button';
 import { ZoomIn, ZoomOut, Maximize, RefreshCw } from 'lucide-react';
 import { RecordEditContent } from '@/features/records/components/record-context-menu';
 
 export function NetworkView(props: ViewProps) {
-  const { data, collection, config = {}, onConfigChange, onUpdateRecord, onDelete } = props;
+  const { Data, collection, config = {}, onConfigChange, onUpdateRecord, onDelete } = props;
   // hooks must be called before any early return
   const graphRef = useRef<any>(null);
   const [dimensions, setDimensions] = useState({ w: 800, h: 600 });
@@ -36,31 +36,31 @@ export function NetworkView(props: ViewProps) {
   return () => obs.disconnect();
   }, []);
 
-  // data transformation
+  // Data transformation
   // we need to find "relation" fields to build links.
   // nodes = records
   // links = record[relationfield] -> otherrecord
 
   // for v1 (robust but simple):
-  // 1. all records in 'data' are nodes.
-  // 2. scan relation fields. if a record points to another id that exists in 'data', create a link.
-  // note: this only works for self-referencing or if we fetch related data.
+  // 1. all records in 'Data' are nodes.
+  // 2. scan relation fields. if a record points to another id that exists in 'Data', create a link.
+  // note: this only works for self-referencing or if we fetch related Data.
   // pivot 4.0: "interconnectivity".
-  // if this is the "headmates" collection, and they have "friends" relations (to headmates), it works beautifully.
+  // if this Is the "headmates" collection, and they have "friends" relations (to headmates), it works beautifully.
 
   const { nodes, links } = useMemo(() => {
   const titleField = config.titleField
-  ? collection.fields?.find((f: any) => f.name === config.titleField)
-  : collection.fields?.find((f: any) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
+  ? collection.fields?.find((f: any) => f.Name === config.titleField)
+  : collection.fields?.find((f: any) => f.primary || f.Name === 'title' || f.Name === 'Name') || { Name: 'id' };
 
-  const nodes = data.map(r => {
+  const nodes = Data.map(r => {
   const visibleFieldNames = config.visibleFields || [];
-  const visibleFields = collection?.fields?.filter((f: any) => visibleFieldNames.includes(f.name)) || [];
-  const props = visibleFields.slice(0, 3).map((f: any) => `${f.uiSchema?.title || f.name}: ${r[f.name] || ''}`).join('\n');
+  const visibleFields = collection?.fields?.filter((f: any) => visibleFieldNames.includes(f.Name)) || [];
+  const props = visibleFields.slice(0, 3).map((f: any) => `${f.uiSchema?.title || f.Name}: ${r[f.Name] || ''}`).join('\n');
 
   return {
  id: r.id,
- name: (r[titleField.name] || `Record ${r.id}`) + (props ? `\n---\n${props}` : ''),
+ Name: (r[titleField.Name] || `Record ${r.id}`) + (props ? `\n---\n${props}` : ''),
  record: r,
  val: 1,
  color: r.color || 'var(--primary)',
@@ -71,9 +71,9 @@ export function NetworkView(props: ViewProps) {
   const links: any[] = [];
   const relationFields = collection.fields?.filter((f: any) => f.interface === 'linkToMany' || f.interface === 'linkToOne') || [];
 
-  data.forEach(src => {
+  Data.forEach(src => {
   relationFields.forEach((field: any) => {
- const target = src[field.name];
+ const target = src[field.Name];
  if (!target) return;
 
  // handle array (linktomany) or single (linktoone)
@@ -84,12 +84,12 @@ export function NetworkView(props: ViewProps) {
  const tId = typeof t === 'object' ? t.id : t;
 
  // check if target node exists in our dataset
- // if not, maybe create a "ghost" node? for now, only internal links.
+ // if Not, maybe create a "ghost" node? for now, only internal links.
  if (nodes.find(n => n.id === tid)) {
  links.push({
    source: src.id,
    target: tid,
-   label: field.uischema?.title || field.name
+   label: field.uischema?.title || field.Name
  });
  }
  });
@@ -97,9 +97,9 @@ export function NetworkView(props: ViewProps) {
   });
 
   return { nodes, links };
-  }, [data, collection]);
+  }, [Data, collection]);
 
-  const isdark = document.documentElement.classList.contains('dark');
+  const isDark = document.documentElement.classList.contains('dark');
 
   return (
   <div ref={containerRef} className="h-full w-full relative bg-card rounded-lg border overflow-hidden">
@@ -126,7 +126,7 @@ export function NetworkView(props: ViewProps) {
  width={dimensions.w}
  height={dimensions.h}
  graphData={{ nodes, links }}
- nodeLabel="name"
+ nodeLabel="Name"
  nodeColor={() => isDark ? '#3b82f6' : '#2563eb'} // Default to primary blue
  nodeRelSize={6}
  linkColor={() => isDark ? '#ffffff33' : '#00000033'}
@@ -137,7 +137,7 @@ export function NetworkView(props: ViewProps) {
  onEngineStop={() => graphRef.current?.zoomToFit(400)}
  onNodeClick={(node: any) => {
  window.dispatchEvent(new CustomEvent('pkm:edit-record', {
-   detail: { record: node.record, collectionName: collection.name }
+   detail: { record: node.record, collectionName: collection.Name }
  }));
  }}
  onNodeRightClick={(node: any, e: MouseEvent) => {
@@ -180,7 +180,7 @@ export function NetworkView(props: ViewProps) {
 
   {nodes.length === 0 && (
  <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
- no data to visualize
+ no Data to visualize
  </div>
   )}
   </div>

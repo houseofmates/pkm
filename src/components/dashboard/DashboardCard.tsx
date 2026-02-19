@@ -9,9 +9,9 @@ interface DashboardCardProps {
 }
 
 export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, filter, title }) => {
-  const [data, setdata] = useState<Record<string, unknown>[]>([]);
-  const [loading, setloading] = useState(true);
-  const [error, seterror] = useState<string | null>(null);
+  const [data, setData] = useState<Record<string, unknown>[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [Error, setError] = useState<string | null>(null);
 
   useEffect(() => {
   const fetchData = async () => {
@@ -37,7 +37,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
  const items = Array.isArray(res?.data) ? res.data : (res?.data as { data?: unknown[] })?.data || [];
  setData(items);
   } catch (err) {
- console.error('Dashboard fetching error:', err);
+ console.Error('Dashboard fetching Error:', err);
  setError('Failed to load data');
   } finally {
  setLoading(false);
@@ -60,7 +60,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
  {loading && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
   </h3>
 
-  {error && <div className="text-red-500 text-sm">{error}</div>}
+  {Error && <div className="text-red-500 text-sm">{Error}</div>}
 
   {!loading && data.length === 0 && (
  <div className="text-muted-foreground text-sm italic">no items found.</div>
@@ -78,7 +78,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
  }}
  >
  <div className="font-semibold truncate">
-   {string(item.title ?? item.name ?? item.id ?? '')}
+   {string(item.title ?? item.Name ?? item.id ?? '')}
  </div>
  {item.status && (
    <div className="text-xs text-muted-foreground mt-1">

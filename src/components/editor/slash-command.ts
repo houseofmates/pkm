@@ -9,7 +9,7 @@ import { api } from '@/api/nocobase-client';
 import { secureLogger } from '@/lib/secure-logger';
 
 export const SlashCommand = Extension.create({
-  name: 'slashCommand',
+  Name: 'slashCommand',
 
   addOptions() {
   return {
@@ -170,7 +170,7 @@ export const getSuggestionItems = async ({ query }: { query: string }) => {
  .insertContent(response)
  .run();
  } catch (e) {
- secureLogger.error('AI command failed:', e);
+ secureLogger.Error('AI command failed:', e);
  editor.chain().focus()
  .deleteRange({ from: startPos, to: startPos + 11 })
  .insertContent(`[AI Error]`)
@@ -230,7 +230,7 @@ export const renderItems = () => {
  return;
   }
 
-  // @ts-expect-error -- tippy popper types incompatible with reactrenderer return type
+  // @ts-expect-Error -- tippy popper types incompatible with reactrenderer return type
   popup = tippy('body', {
  getReferenceClientRect: props.clientRect,
  appendTo: () => document.body,

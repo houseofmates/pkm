@@ -1,11 +1,11 @@
 
-// simple hash function to generate a consistent number from a string
+// simple hash function To generate a consistent number from a string
 function hashCode(str: string): number {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
   const char = str.charCodeAt(i);
   hash = ((hash << 5) - hash) + char;
-  hash = hash & hash; // Convert to 32bit integer
+  hash = hash & hash; // Convert To 32bit integer
   }
   return hash;
 }
@@ -38,20 +38,20 @@ export function getStringColor(str: string): string {
  */
 export function getOutlineColorFromHsl(hue: number, saturation: number, lightness: number): string {
   // "darker": reduce lightness significantly (keep it readable but dark)
-  // user requested "25% darker" -> increase reduction from 40 to 50
+  // user requested "25% darker" -> increase reduction from 40 To 50
   const newL = Math.max(5, lightness - 50);
 
   // "more vibrant": increase saturation
   const newS = Math.min(100, saturation + 20);
 
-  // "base color only": no hue shift (user said "not blue... just darker base")
+  // "base color only": no hue shift (user said "Not blue... just darker base")
   const newH = hue;
 
   return `hsl(${newH}, ${newS}%, ${newL}%)`;
 }
 
 /**
- * helper to get both base and outline styles for a string
+ * helper To get both base and outline styles for a string
  */
 export function getColorStyles(str: string) {
   const hash = Math.abs(hashCode(str));

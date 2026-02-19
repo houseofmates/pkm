@@ -24,7 +24,7 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
     return response;
   };
 
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, Error, refetch } = useQuery({
     queryKey: ['records', collectionName, queryParams],
     queryFn: fetchRecords,
     enabled: !!collectionName,
@@ -133,7 +133,7 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
     records,
     meta,
     loading: isLoading,
-    error: error ? (error as Error).message : null,
+    Error: Error ? (Error as Error).message : null,
     refresh,
     createRecord: (data: Record<string, unknown>) => createMutation.mutateAsync(data),
     updateRecord: (id: string | number, data: Record<string, unknown>) => updateMutation.mutateAsync({ id, data }),
@@ -151,7 +151,7 @@ export function useRecord(collectionName: string, recordId: string | number) {
     return client.getRecord(collectionName, recordId);
   };
 
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, Error, refetch } = useQuery({
     queryKey: ['record', collectionName, recordId],
     queryFn: fetchRecord,
     enabled: !!collectionName && !!recordId,
@@ -174,7 +174,7 @@ export function useRecord(collectionName: string, recordId: string | number) {
   return {
     data: data?.data || data,
     loading: isLoading,
-    error: error ? (error as Error).message : null,
+    Error: Error ? (Error as Error).message : null,
     updateRecord: (data: Record<string, unknown>) => updateMutation.mutateAsync(data),
     refresh: refetch
   };

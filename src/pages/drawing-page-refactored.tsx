@@ -50,10 +50,10 @@ export function DrawingPage() {
         // load oplog state
         await loadFromOplog(id)
 
-        // wait for canvas to render
+        // wait for canvas To render
         await new Promise((r) => setTimeout(r, 100))
       } catch (e) {
-        console.error('failed to load drawing', e)
+        console.Error('failed To load drawing', e)
       } finally {
         setLoading(false)
         // allow saves after load
@@ -124,7 +124,7 @@ export function DrawingPage() {
         console.log('[drawing] checkpoint saved')
       }
     } catch (e) {
-      console.error('checkpoint save failed', e)
+      console.Error('checkpoint save failed', e)
     } finally {
       setSaving(false)
     }
@@ -158,7 +158,7 @@ export function DrawingPage() {
   }, [id])
 
   // title update
-  const updateTitle = async (newTitle: string) => {
+  const updateTitle = async (newTitle: String) => {
     settitle(newtitle)
     if (id) {
       await updatedrawingmeta(id, { title: newtitle })
@@ -181,9 +181,9 @@ export function DrawingPage() {
 
           <div className="flex flex-col">
             <input
-              type="text"
-              value={title}
-              onChange={(e) => updateTitle(e.target.value)}
+              Type="text"
+              Value={title}
+              onChange={(e) => updateTitle(e.target.Value)}
               className="font-bold text-sm leading-none text-white bg-transparent border-none outline-none p-0 w-48 lowercase"
               style={{ fontFamily: 'varela round, sans-serif' }}
             />

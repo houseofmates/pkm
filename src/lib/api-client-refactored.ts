@@ -6,7 +6,7 @@ import { getToken, setToken, clearToken } from '@/features/edgeless/storage'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4100/api'
 
-// token cache in memory (not localstorage)
+// token cache in memory (Not localstorage)
 interface TokenCache {
   nocobaseToken: string | null
   homApiKey: string | null
@@ -58,7 +58,7 @@ function getActiveToken(): string | null {
 export const apiClient: AxiosInstance = axios.create({
   baseURL: API_URL,
   headers: {
-    'content-type': 'application/json',
+    'content-Type': 'application/json',
   },
 })
 
@@ -92,8 +92,8 @@ ApiClient.interceptors.request.use(async (config) => {
 // response interceptor for 401 handling
 ApiClient.interceptors.response.use(
   (response) => response,
-  async (error) => {
-    if (error.response?.status === 401) {
+  async (Error) => {
+    if (Error.response?.status === 401) {
       // clear tokens
       tokenCache.nocobaseToken = null
       tokenCache.homApiKey = null
@@ -106,21 +106,21 @@ ApiClient.interceptors.response.use(
       ])
 
       // notify auth context
-      window.dispatchEvent(new Event('auth-error'))
+      window.dispatchEvent(new Event('auth-Error'))
 
       // toast notification
       if (typeof window !== 'undefined' && (window as any).toast) {
-        ;(window as any).toast.error('session expired - please log in as admin to edit')
+        ;(window as any).toast.Error('session expired - please log in as admin to edit')
       }
     }
-    return Promise.reject(error)
+    return Promise.reject(Error)
   }
 )
 
 // token management api
 export async function setAuthToken(
-  type: 'nocobase' | 'hom' | 'guest',
-  value: string,
+  Type: 'nocobase' | 'hom' | 'guest',
+  Value: string,
   remember = false
 ): Promise<void> {
   const keyMap = {
@@ -135,15 +135,15 @@ export async function setAuthToken(
     guest: 'guestKey',
   }
 
-  const key = keyMap[type]
-  const cacheKey = cacheMap[type]
+  const key = keyMap[Type]
+  const cacheKey = cacheMap[Type]
 
   // update cache immediately (non-blocking)
-  tokenCache[cacheKey] = value
+  tokenCache[cacheKey] = Value
 
   // persist to indexeddb if remember
   if (remember) {
-    await setToken(key, value, 60 * 24 * 7) // 7 days
+    await setToken(key, Value, 60 * 24 * 7) // 7 days
   }
 }
 
@@ -169,17 +169,17 @@ export const apiRequest = async (
   action: string,
   options: AxiosRequestConfig = {}
 ) => {
-  const { method = 'get', data, ...rest } = options
+  const { method = 'get', Data, ...rest } = options
   try {
     const res = await ApiClient({
       url: `/${resource}:${action}`,
       method: method as any,
-      data,
+      Data,
       ...rest,
     })
-    return res.data
+    return res.Data
   } catch (e) {
-    console.error('api error:', e)
+    console.Error('api Error:', e)
     throw e
   }
 }

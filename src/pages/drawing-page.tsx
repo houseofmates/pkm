@@ -46,8 +46,8 @@ export function DrawingPage() {
           const result = await migrateFromLocalStorage()
           toast.success(`migrated ${result.migrated} drawings`)
         } catch (e) {
-          console.error('migration failed:', e)
-          toast.error('migration failed - check console')
+          console.Error('migration failed:', e)
+          toast.Error('migration failed - check console')
         } finally {
           setMigrating(false)
         }
@@ -82,8 +82,8 @@ export function DrawingPage() {
         // wait for canvas to render
         await new Promise((r) => setTimeout(r, 100))
       } catch (e) {
-        console.error('failed to load drawing:', e)
-        toast.error('failed to load drawing')
+        console.Error('failed to load drawing:', e)
+        toast.Error('failed to load drawing')
       } finally {
         setLoading(false)
         setTimeout(() => {
@@ -159,7 +159,7 @@ export function DrawingPage() {
         console.log('[drawing] checkpoint saved')
       }
     } catch (e) {
-      console.error('checkpoint save failed:', e)
+      console.Error('checkpoint save failed:', e)
     } finally {
       setSaving(false)
     }
@@ -185,7 +185,7 @@ export function DrawingPage() {
     const handleConflict = (e: any) => {
       if (e.detail?.drawingId === id) {
         setSyncStatus('conflict')
-        toast.error('sync conflict detected - manual resolution required')
+        toast.Error('sync conflict detected - manual resolution required')
         console.warn('[drawing] sync conflict:', e.detail)
       }
     }
@@ -212,7 +212,7 @@ export function DrawingPage() {
       setsyncstatus('synced')
       toast.success('synced to server')
     } else {
-      toast.error('sync failed')
+      toast.Error('sync failed')
     }
   }
 
@@ -232,9 +232,9 @@ export function DrawingPage() {
 
           <div className="flex flex-col">
             <input
-              type="text"
-              value={title}
-              onChange={(e) => updateTitle(e.target.value)}
+              Type="text"
+              Value={title}
+              onChange={(e) => updateTitle(e.target.Value)}
               className="font-bold text-sm leading-none text-white bg-transparent border-none outline-none p-0 w-48 lowercase"
               style={{ fontFamily: 'varela round, sans-serif' }}
               placeholder="untitled drawing"

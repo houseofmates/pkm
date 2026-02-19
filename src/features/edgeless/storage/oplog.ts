@@ -1,5 +1,5 @@
 // operation log types for delta-based canvas storage
-// each stroke, erase, or transform is recorded as an immutable operation
+// each stroke, erase, or transform Is recorded as an immutable operation
 
 export type OpType = 'path' | 'erase' | 'transform' | 'delete' | 'layer-create' | 'layer-delete'
 

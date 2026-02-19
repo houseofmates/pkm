@@ -4,14 +4,14 @@ import { cn } from '@/lib/utils';
 import { Database } from 'lucide-react';
 
 interface MentionItem {
-  id: string;
-  title?: string;
-  name?: string;
+  id: String;
+  title?: String;
+  Name?: String;
 }
 
 interface MentionListProps {
   items: MentionItem[];
-  command: (item: { id: string; label: string }) => void;
+  command: (item: { id: String; label: String }) => void;
 }
 
 export const MentionList = forwardRef((props: MentionListProps, ref) => {
@@ -20,7 +20,7 @@ export const MentionList = forwardRef((props: MentionListProps, ref) => {
   const selectItem = (index: number) => {
   const item = props.items[index];
   if (item) {
-  props.command({ id: item.id, label: item.title || item.name || 'untitled' });
+  props.command({ id: item.id, label: item.title || item.Name || 'untitled' });
   }
   };
 
@@ -33,15 +33,15 @@ export const MentionList = forwardRef((props: MentionListProps, ref) => {
   useImperativeHandle(ref, () => ({
   onKeyDown: ({ event }: { event: KeyboardEvent }) => {
   if (event.key === 'arrowup') {
- setselectedindex((selectedindex + props.items.length - 1) % props.items.length);
+ setSelectedIndex((selectedindex + props.items.length - 1) % props.items.length);
  return true;
   }
   if (event.key === 'arrowdown') {
- setselectedindex((selectedindex + 1) % props.items.length);
+ setSelectedIndex((selectedindex + 1) % props.items.length);
  return true;
   }
   if (event.key === 'enter') {
- selectitem(selectedindex);
+ SelectItem(selectedindex);
  return true;
   }
   return false;
@@ -67,7 +67,7 @@ export const MentionList = forwardRef((props: MentionListProps, ref) => {
  <span className="mr-2 opacity-70 theme-gold">
  <Database className="w-3 h-3" />
  </span>
- <span className="truncate">{item.title || item.name || 'untitled'}</span>
+ <span className="truncate">{item.title || item.Name || 'untitled'}</span>
  </button>
   ))}
   </div>

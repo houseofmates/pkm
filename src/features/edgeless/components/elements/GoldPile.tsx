@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 export function GoldPile({ element }: { element: any }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { current_amount = 0, target_amount = 1000 } = element.data;
-  const [coins, setcoins] = useState<any[]>([]);
+  const [coins, setCoins] = useState<any[]>([]);
   const [multiplier, setMultiplier] = useState(1);
 
   useEffect(() => {
@@ -18,7 +18,7 @@ export function GoldPile({ element }: { element: any }) {
 
   setmultiplier(mult);
 
-  const newcoins = [];
+  const newCoins = [];
   for (let i = 0; i < numCoins; i++) {
   newCoins.push({
  x: Math.random() * 200 + 50,

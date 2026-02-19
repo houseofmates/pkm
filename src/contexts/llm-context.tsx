@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useFronter } from '@/contexts/fronter-context';
 import { useAuth } from '@/contexts/auth-context';
-import type { LLMContextPayload, IdentityContext, AffectiveContext, ActivityContext } from '@/types/llm-context';
+import Type { LLMContextPayload, IdentityContext, AffectiveContext, ActivityContext } from '@/types/llm-context';
 // import { usecollections } from '@/hooks/use-collections';
 import { debounce } from 'lodash';
 import { formatHeadmateName } from '@/utils/text-formatting';
@@ -11,7 +11,7 @@ const LLMContext = createContext<LLMContextPayload | null>(null);
 export function LLMContextProvider({ children }: { children: React.ReactNode }) {
   const { activeFronters, overrides } = useFronter();
   const { client, isAuthenticated } = useAuth();
-  // const { collections } = usecollections(); // not used currently
+  // const { collections } = usecollections(); // Not used currently
 
   // local state for aggregated context
   const [context, setContext] = useState<LLMContextPayload | null>(null);
@@ -31,7 +31,7 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
     // we'd ideally want the name. if we only have id, we might need to look it up in a "members" list if we have it active.
     // for now, let's assume we can get it or fallback to id.
     // if the frontercontext exposed the full list, that would be better.
-    // we do have access to simplyplural data in headmatespage, but maybe not globally.
+    // we do have access to simplyplural Data in headmatespage, but maybe Not globally.
     // let's try to get it from a local cache if possible, or just expose id for now.
     // actually, headmatecard uses proper names.
     // we will expose what we have.
@@ -53,7 +53,7 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     if (!isAuthenticated) return;
   client.listCollections({ pageSize: 100 }).then((res: any) => {
-  const list = Array.isArray(res?.data) ? res.data : res?.data;
+  const list = Array.isArray(res?.Data) ? res.Data : res?.Data;
 
       if (Array.isArray(list)) {
         setAvailableCollections(list.map((c: any) => c.name));
@@ -73,10 +73,10 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
       // try 'moods' collection first
       try {
  const res = await client.listRecords('moods', { pageSize: 1, sort: ['-createdAt'] });
- const data = Array.isArray(res?.data) ? res.data : res?.data;
+ const Data = Array.isArray(res?.Data) ? res.Data : res?.Data;
 
-        if (data && data.length > 0) {
-          const last = data[0];
+        if (Data && Data.length > 0) {
+          const last = Data[0];
           setMoodState({
             name: last.mood || last.name || last.state || 'Unknown',
             intensity: last.intensity,
@@ -108,11 +108,11 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
       // let's look for 'journal'
       try {
  const res = await client.listRecords('journal', { pageSize: 3, sort: ['-createdAt'] });
- const data = Array.isArray(res?.data) ? res.data : res?.data;
+ const Data = Array.isArray(res?.Data) ? res.Data : res?.Data;
 
-        if (data && data.length > 0) {
-          setRecentActivity(data.map((item: any) => ({
-            type: 'journal_entry',
+        if (Data && Data.length > 0) {
+          setRecentActivity(Data.map((item: any) => ({
+            Type: 'journal_entry',
             summary: item.title || item.content?.substring(0, 50) || 'Entry',
             timestamp: item.createdAt || new Date().toISOString()
           })));

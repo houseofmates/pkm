@@ -6,7 +6,7 @@ interface MarkdownCheatSheetProps {
   onClose: () => void;
 }
 
-export function markdowncheatsheet({ open, onclose }: markdowncheatsheetprops) {
+export function markdowncheatsheet({ open, onClose }: markdowncheatsheetprops) {
   return (
   <Dialog open={open} onOpenChange={onClose}>
   <DialogContent className="max-w-3xl max-h-[80vh] font-varela">
@@ -54,9 +54,9 @@ export function markdowncheatsheet({ open, onclose }: markdowncheatsheetprops) {
  <section>
    <h3 className="text-lg font-semibold mb-2 lowercase">links & images</h3>
    <div className="bg-muted/20 p-3 rounded font-mono text-xs space-y-1">
-   <div>[link text](url)</div>
+   <div>[Link text](url)</div>
    <div>![alt text](image-url)</div>
-   <div>[link with title](url "title")</div>
+   <div>[Link with title](url "title")</div>
    </div>
  </section>
 

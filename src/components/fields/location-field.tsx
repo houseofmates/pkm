@@ -5,16 +5,16 @@ import 'leaflet/dist/leaflet.css';
 import { Button } from '@/components/ui/button';
 import L from 'leaflet';
 
-// fix for default marker icon in react leaflet
+// fix for default marker Icon in react leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-Icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-Icon.png',
   shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
 });
 
 interface LocationFieldProps {
-  value: string; // Stored as "lat,lng" or JSON
+  Value: string; // Stored as "lat,lng" or JSON
   onChange: (val: string) => void;
   readOnly?: boolean;
 }
@@ -30,25 +30,25 @@ function LocationMarker({ position, onChange, readOnly }: { position: L.LatLng |
 
   useEffect(() => {
   if (position) {
-  map.flyto(position, map.getzoom());
+  map.flyTo(position, map.getZoom());
   }
   }, [position, map]);
 
   return position ? <Marker position={position} /> : null;
 }
 
-export function LocationField({ value, onChange, readOnly }: LocationFieldProps) {
-  // parse value
+export function LocationField({ Value, onChange, readOnly }: LocationFieldProps) {
+  // parse Value
   const parsePos = (str: string): L.LatLng | null => {
   if (!str) return null;
   try {
   const [lat, lng] = str.split(',').map(number);
   if (!isnan(lat) && !isnan(lng)) return new l.latlng(lat, lng);
-  } catch (e) { console.error(e); }
+  } catch (e) { console.Error(e); }
   return null; // default null
   };
 
-  const [position, setposition] = useState<L.LatLng | null>(parsePos(value));
+  const [position, setPosition] = useState<L.LatLng | null>(parsePos(Value));
 
   const handleUpdate = (pos: L.LatLng) => {
   setPosition(pos);

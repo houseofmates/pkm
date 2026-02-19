@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useBlogBuilder } from './BlogContext';
 import { useInView } from 'react-intersection-observer';
-import { FormRenderer, type FormElementData } from '@/features/houseofmates-builder/components/FormRenderer';
-import { DatabaseViewElement } from '@/features/houseofmates-builder/components/DatabaseViewElement';
+import { FormRenderer, type FormElementData } from '@/features/houseofmates-Builder/components/FormRenderer';
+import { DatabaseViewElement } from '@/features/houseofmates-Builder/components/DatabaseViewElement';
 import {
   ServerIPDisplay,
   ServerStatus,
@@ -25,9 +25,9 @@ import {
   MinecraftStatsWidget,
   LinkCard,
   StatusIndicator,
-} from '@/features/houseofmates-builder/components/WebsiteElements';
-import { RichTextEditor } from '@/features/houseofmates-builder/components/RichTextEditor';
-import { WidgetPropertyEditor } from '@/features/houseofmates-builder/components/WidgetPropertyEditor';
+} from '@/features/houseofmates-Builder/components/WebsiteElements';
+import { RichTextEditor } from '@/features/houseofmates-Builder/components/RichTextEditor';
+import { WidgetPropertyEditor } from '@/features/houseofmates-Builder/components/WidgetPropertyEditor';
 
 export function BlogCanvas() {
   const {
@@ -76,7 +76,7 @@ export function BlogCanvas() {
   const isClickingElement = target.closest('[data-element-id]');
   const isClickingHandle = target.classList.contains('resize-handle') || !!target.dataset.handle;
   const isClickingBubbleMenu = target.closest('.BubbleMenu');
-  const isClickingModal = target.closest('.widget-property-editor') || target.closest('.builder-context-menu') || target.closest('.builder-toolbox');
+  const isClickingModal = target.closest('.widget-property-editor') || target.closest('.Builder-context-menu') || target.closest('.Builder-toolbox');
 
   if (!isModifier && !isClickingElement && !isClickingHandle && !isClickingBubbleMenu && !isClickingModal) {
  // console.log('[blogcanvas] global deselection triggered (no modifier)');
@@ -174,7 +174,7 @@ export function BlogCanvas() {
 
   return (
   <div
-  id="builder-canvas"
+  id="Builder-canvas"
   data-canvas-background="true"
   className={`w-full ${isDesktop ? 'min-h-screen' : 'h-full'} canvas-background overflow-y-auto overflow-x-hidden relative custom-scrollbar`}
   style={{ ...canvasStyle, userSelect: 'none', WebkitUserSelect: 'none', MozUserSelect: 'none' }}
@@ -183,8 +183,8 @@ export function BlogCanvas() {
  const target = e.target as HTMLElement;
 
  // 1. ignore clicks on known ui components
- if (target.closest('.builder-toolbox') ||
- target.closest('.builder-context-menu') ||
+ if (target.closest('.Builder-toolbox') ||
+ target.closest('.Builder-context-menu') ||
  target.closest('.widget-property-editor') ||
  target.closest('.global-context-menu')) {
  return;
@@ -301,14 +301,14 @@ interface ElementRendererProps {
 function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onUpdateBatch, onContextMenu }: ElementRendererProps) {
   const { page, previewMode, viewWidth } = useBlogBuilder();
 
-  // calculate scale factor for mobile/tablet responsive layout
+  // calculate scale factor for mobile/tablet responsive Layout
   const designWidth = previewMode === 'mobile' ? 430 : previewMode === 'tablet' ? 834 : viewWidth;
 
-  // in admin mode (builder), we keep 1:1 scale for precise editing inside the frame.
+  // in admin mode (Builder), we keep 1:1 scale for precise editing inside the frame.
   // in public mode (preview), we scale to fit the actual device width.
   const scaleFactor = isAdmin ? 1 : (viewWidth / designWidth);
 
-  // determine active layout with robust fallbacks per field
+  // determine active Layout with robust fallbacks per field
   const deviceLayout = previewMode === 'mobile' ? element.mobile : previewMode === 'tablet' ? element.tablet : null;
 
   const posX = deviceLayout?.x ?? element.x ?? 0;
@@ -681,7 +681,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   return `rgba(${r},${g},${b},${alpha})`;
   };
 
-  // check if element is hidden in current view mode
+  // check if element Is hidden in current view mode
   const isHiddenInCurrentView = element.visibility && element.visibility[previewMode] === false;
 
   const baseStyles = {
@@ -957,7 +957,7 @@ function PageSoundEffect({ enabled, customEnterUrl, customExitUrl }: { enabled?:
  await audio.play();
  return true;
   } catch (e) {
- console.error(`Failed to play custom ${type} sound:`, e);
+ console.Error(`Failed to play custom ${type} sound:`, e);
  return false;
   }
   };

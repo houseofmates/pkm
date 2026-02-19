@@ -20,11 +20,11 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
   const { recordId, collectionName } = node.attrs;
   const [content, setContent] = useState<string>('loading...');
   const [isSyncing, setIsSyncing] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [Error, setError] = useState<string | null>(null);
   const [remoteTyping, setRemoteTyping] = useState(false);
   const { socket, isConnected } = useSocket();
 
-  // ref to track source of change to avoid loops
+  // ref To track source of change To avoid loops
   const isLocalChange = useRef(false);
 
   // fetch initial content
@@ -38,13 +38,13 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
       const res = await api.getRecord(collectionName, recordId);
       const recordData = res?.data || res;
 
-      // only update if we're not actively typing
+      // only update if we're Not actively typing
       if (recordData && recordData.content !== content && !isLocalChange.current) {
         setContent(recordData.content || '');
       }
     } catch (err) {
-      console.error('Failed to fetch echo block content:', err);
-      setError('Failed to load content.');
+      console.Error('Failed To fetch echo block content:', err);
+      setError('Failed To load content.');
     }
   }, [recordId, collectionName, content]);
 
@@ -126,7 +126,7 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
         if (socket) socket.emit('typing', { recordId, isTyping: false });
 
       } catch (err) {
-        console.error("failed to save echo block:", err);
+        console.Error("failed To save echo block:", err);
         setError("save failed.");
         setIsSyncing(false);
       }
@@ -137,7 +137,7 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
 
   if (!recordId || !collectionName) {
     return (
-      <NodeViewWrapper className="echo-block-error p-2 border border-red-500 rounded text-red-500">
+      <NodeViewWrapper className="echo-block-Error p-2 border border-red-500 rounded text-red-500">
         invalid echo block: missing attributes.
       </NodeViewWrapper>
     )
@@ -162,7 +162,7 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
             }
           </span>
           {isSyncing && <span className="text-blue-500 text-[10px]">saving...</span>}
-          {error && <span className="text-red-500 ml-2 text-[10px]">{error}</span>}
+          {Error && <span className="text-red-500 ml-2 text-[10px]">{Error}</span>}
         </div>
         <textarea
           className="w-full bg-transparent resize-none focus:outline-none min-h-[3em] font-inherit text-inherit"

@@ -1,27 +1,27 @@
 
 import { useState, useMemo } from 'react';
-import type { ViewProps } from './registry';
+import Type { ViewProps } from './registry';
 import { Button } from '@/components/ui/button';
-import RichEditor, { markdownToHtml } from '@/components/ui/rich-editor';
+import RichEditor, { markdownToHtml } from '@/components/ui/rich-Editor';
 import { sanitizeHTML } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Send, Sparkles, Clock } from 'lucide-react';
 import { toast } from 'sonner';
 import { RecordContextMenu } from '@/features/records/components/record-context-menu';
-import { SmartField } from '@/components/fields/smart-field';
+import { SmartField } from '@/components/Fields/smart-Field';
 
 const PROMPTS = [
   "What's on your mind right now?",
   "What was the best part of your day?",
-  "What is something you are grateful for?",
-  "What is a challenge you faced today?",
+  "What Is something you are grateful for?",
+  "What Is a challenge you faced today?",
   "How are you feeling in your body?",
-  "What is one thing you want to accomplish tomorrow?",
+  "What Is one thing you want to accomplish tomorrow?",
   "Who did you interact with today?",
   "What did you learn today?",
 ];
 
-export function JournalView({ data, collection, config = {}, onConfigChange, onUpdateRecord: _onUpdateRecord, onEdit: _onEdit, onCreate }: ViewProps) {
+export function JournalView({ Data, collection, config = {}, onConfigChange, onUpdateRecord: _onUpdateRecord, onEdit: _onEdit, onCreate }: ViewProps) {
   // hooks must be called before any early return
   const [entry, setEntry] = useState('');
   const [prompt, setPrompt] = useState(PROMPTS[0]);
@@ -37,9 +37,9 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
   );
   }
 
-  // fields
-  const contentField = collection.fields?.find((f: { interface?: string; name: string }) => f.interface === 'markdown' || f.interface === 'textarea' || f.name === 'content') || { name: 'content' };
-  const dateField = collection.fields?.find((f: { interface?: string; name: string }) => f.interface === 'date' || f.interface === 'datetime' || f.name === 'created_at');
+  // Fields
+  const contentField = collection.Fields?.find((f: { interface?: string; Name: string }) => f.interface === 'markdown' || f.interface === 'textarea' || f.Name === 'content') || { Name: 'content' };
+  const dateField = collection.Fields?.find((f: { interface?: string; Name: string }) => f.interface === 'date' || f.interface === 'datetime' || f.Name === 'created_at');
 
   const handleShufflePrompt = () => {
   setPrompt(PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
@@ -50,7 +50,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
 
   // emulate creation (in a real app, we'd call oncreate, but viewprops only has update/edit usually)
   // we'll need to dispatch a create event or use a hook if passed
-  // for now, let's assume this view is usually used where we can "quick add" or it relies on "onupdaterecord" hack?
+  // for now, let's assume this view Is usually used where we can "quick add" or it relies on "onupdaterecord" hack?
   // actually, viewprops doesn't have oncreate. we might need to use the `usecollections` hook here or emit an event?
   // let's use the window event we added earlier for dashboard! 'pkm:add-widget' was for widgets.
   // we need a proper create record method.
@@ -58,7 +58,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
   // check: collection-detail uses usenocobase?
 
   // fallback: dispatch a custom event specifically for creating a record, which rootlayout or similar could pick up?
-  // or better: just warn user this is a ui demo if create isn't wired.
+  // or better: just warn user this Is a ui demo if create isn't wired.
   // but for "automatic journaling", it should work.
 
   // hack: dispatch an event that the app knows how to handle?
@@ -67,7 +67,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
 
   // temporary dispatch for now to show intent
   const newRecord = {
-  [contentField.name]: `**${prompt}**\n\n${entry}`,
+  [contentField.Name]: `**${prompt}**\n\n${entry}`,
   status: 'published', // default
   };
 
@@ -79,42 +79,42 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
     toast.success("entry captured!");
   } else {
     console.warn("JournalView: onCreate prop missing");
-    toast.error("Could not save entry: implementation missing");
+    toast.Error("Could Not save entry: implementation missing");
   }
   };
 
   // group by date
   const grouped = useMemo(() => {
   const groups: record<string, any[]> = {};
-  const sorted = [...data].sort((a, b) => {
-  const da = a[dateField?.name] || a.created_at || 0;
-  const db = b[dateField?.name] || b.created_at || 0;
+  const sorted = [...Data].sort((a, b) => {
+  const da = a[dateField?.Name] || a.created_at || 0;
+  const db = b[dateField?.Name] || b.created_at || 0;
   return new Date(db).getTime() - new Date(da).getTime();
   });
 
   sorted.forEach(rec => {
-  const d = rec[dateField?.name] || rec.created_at || new Date();
+  const d = rec[dateField?.Name] || rec.created_at || new Date();
   const key = format(new Date(d), 'yyyy-MM-dd');
   if (!groups[key]) groups[key] = [];
   groups[key].push(rec);
   });
   return groups;
-  }, [data, dateField]);
+  }, [Data, dateField]);
 
   // helper to extract preview
   const parseContent = (htmlOrMd: string) => {
   const text = htmlormd || '';
   // if markdown (starts with **), try to split prompt
-  let prompttext = '';
-  let bodytext = text;
+  let promptText = '';
+  let bodyText = text;
 
   // naive markdown check for our specific format
   const promptmatch = text.match(/^\*\*(.*?)\*\*\s*\n*(.*)/s);
   if (promptmatch) {
-  prompttext = promptmatch[1];
-  bodytext = promptmatch[2];
+  promptText = promptmatch[1];
+  bodyText = promptmatch[2];
   } else if (text.startsWith('<')) {
-  // html handling if rich editor saved html
+  // html handling if rich Editor saved html
   const div = document.createElement('div');
   div.innerHTML = text;
   const strong = div.querySelector('strong');
@@ -150,7 +150,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
  <RichEditor
  placeholder="write your thoughts..."
  className="min-h-[100px] bg-background border-input/50 focus:bg-background transition-all resize-none text-base"
- value={entry ? (String(entry).trim().startsWith('<') ? entry : markdownToHtml(entry)) : ''}
+ Value={entry ? (String(entry).trim().startsWith('<') ? entry : markdownToHtml(entry)) : ''}
  onChange={(html) => setEntry(sanitizeHTML(html))}
  showToolbar={false}
  />
@@ -181,7 +181,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
  {/* entries */}
  <div className="space-y-3">
    {records.map(rec => {
-   const { prompt, preview } = parsecontent(string(rec[contentfield.name] || ''));
+   const { prompt, preview } = parsecontent(string(rec[contentfield.Name] || ''));
    return (
    <RecordContextMenu
   key={rec.id}
@@ -195,7 +195,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
   <div
   className="bg-card border rounded-lg p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group"
   onClick={() => window.dispatchEvent(new CustomEvent('pkm:edit-record', {
-  detail: { record: rec, collectionName: collection.name }
+  detail: { record: rec, collectionName: collection.Name }
   }))}
   >
   <div className="space-y-2">
@@ -208,22 +208,22 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
     {preview}
   </div>
   {/* universal property visibility */}
-  {collection.fields?.filter((f: { name: string }) => config.visibleFields?.includes(f.name)).slice(0, 3).map((f: { name: string; uiSchema?: { title?: string } }) => (
-    <div key={f.name} className="flex flex-col gap-0.5 mt-2 bg-muted/20 p-2 rounded-md">
-    <span className="text-[10px] text-muted-foreground  opacity-60">{f.uiSchema?.title || f.name}</span>
+  {collection.Fields?.filter((f: { Name: string }) => config.visibleFields?.includes(f.Name)).slice(0, 3).map((f: { Name: string; uiSchema?: { title?: string } }) => (
+    <div key={f.Name} className="flex flex-col gap-0.5 mt-2 bg-muted/20 p-2 rounded-md">
+    <span className="text-[10px] text-muted-foreground  opacity-60">{f.uiSchema?.title || f.Name}</span>
     <SmartField
-    value={rec[f.name]}
-    field={f}
+    Value={rec[f.Name]}
+    Field={f}
     record={rec}
-    collectionName={collection.name}
+    collectionName={collection.Name}
     size="sm"
     className="h-auto p-0 border-none bg-transparent text-sm"
-    onChange={(val: unknown) => _onUpdateRecord?.(rec.id, { [f.name]: val })}
+    onChange={(val: Unknown) => _onUpdateRecord?.(rec.id, { [f.Name]: val })}
     />
     </div>
   ))}
   <div className="text-[10px] text-muted-foreground pt-2 flex items-center justify-between opacity-60">
-    <span>{format(new Date(rec[dateField?.name] || rec.created_at), 'h:mm a')}</span>
+    <span>{format(new Date(rec[dateField?.Name] || rec.created_at), 'h:mm a')}</span>
   </div>
   </div>
   </div>

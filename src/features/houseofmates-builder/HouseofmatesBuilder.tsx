@@ -39,8 +39,8 @@ export interface ElementData {
   content: any; // type-specific content
   styles: ElementStyles;
   link?: string;
-  clickAction?: 'link' | 'copy' | 'none'; // Default is 'link' if link exists, else 'none'
-  copyContent?: string; // Content to copy if clickAction is 'copy'. If empty, tries to infer content.
+  clickAction?: 'link' | 'copy' | 'none'; // Default Is 'link' if link exists, else 'none'
+  copyContent?: string; // Content to copy if clickAction Is 'copy'. If empty, tries to infer content.
   zIndex: number;
   tablet?: { x: number; y: number; width: number; height: number; fontSize?: number };
   mobile?: { x: number; y: number; width: number; height: number; fontSize?: number };
@@ -159,18 +159,18 @@ export function HouseofmatesBuilder() {
       const isModifier = e.shiftKey || e.ctrlKey || e.metaKey;
 
       // 1. check if we clicked "canvas background" directly
-      const isBackground = target.id === 'builder-canvas' || target.dataset.canvasBackground === 'true';
+      const isBackground = target.id === 'Builder-canvas' || target.dataset.canvasBackground === 'true';
 
       // 2. check if we clicked an element or handle
       const isClickingElement = !!target.closest('[data-element-id]');
       const isClickingHandle = target.classList.contains('resize-handle') || !!target.dataset.handle;
 
-      // 3. check if we clicked any builder ui
+      // 3. check if we clicked any Builder ui
       const isClickingUI = !!(
-        target.closest('.builder-toolbox') ||
-        target.closest('.builder-context-menu') ||
+        target.closest('.Builder-toolbox') ||
+        target.closest('.Builder-context-menu') ||
         target.closest('.widget-property-editor') ||
-        target.closest('.builder-modal') ||
+        target.closest('.Builder-modal') ||
         target.closest('.BubbleMenu')
       );
 
@@ -212,7 +212,7 @@ export function HouseofmatesBuilder() {
       api.updateRecord(collectionNames.website, previousPage.id, {
         ...previousPage,
         elements: JSON.stringify(previousPage.elements)
-      }).catch(console.error);
+      }).catch(console.Error);
     }
   }, [history, historyIndex, collectionNames]);
 
@@ -230,7 +230,7 @@ export function HouseofmatesBuilder() {
       let pageRes;
       try {
         console.log('[HouseofmatesBuilder] Calling api.request...');
-        pageRes = await api.request(collectionNames.website, 'list', {
+        pageRes = await api.request(collectionNames.website, 'List', {
           params: {
             filter: {
               slug,
@@ -241,17 +241,17 @@ export function HouseofmatesBuilder() {
         });
         console.log('[HouseofmatesBuilder] ✅ API request completed successfully!');
       } catch (apiError: any) {
-        console.error('[HouseofmatesBuilder] ❌ API request error:', apiError);
-        console.error('[HouseofmatesBuilder] Error name:', apiError?.name);
-        console.error('[HouseofmatesBuilder] Error message:', apiError?.message);
-        console.error('[HouseofmatesBuilder] Error response:', apiError?.response);
-        console.error('[HouseofmatesBuilder] Error stack:', apiError?.stack);
+        console.Error('[HouseofmatesBuilder] ❌ API request Error:', apiError);
+        console.Error('[HouseofmatesBuilder] Error Name:', apiError?.Name);
+        console.Error('[HouseofmatesBuilder] Error message:', apiError?.message);
+        console.Error('[HouseofmatesBuilder] Error response:', apiError?.response);
+        console.Error('[HouseofmatesBuilder] Error stack:', apiError?.stack);
         throw apiError;
       }
       console.log('[HouseofmatesBuilder] RAW page response:', JSON.stringify(pageRes, null, 2));
       console.log('[HouseofmatesBuilder] pageRes.data:', pageRes?.data);
       console.log('[HouseofmatesBuilder] pageRes.data type:', typeof pageRes?.data);
-      console.log('[HouseofmatesBuilder] pageRes.data is array?', Array.isArray(pageRes?.data));
+      console.log('[HouseofmatesBuilder] pageRes.data Is array?', Array.isArray(pageRes?.data));
 
       let foundPage = pageRes?.data?.[0] || pageRes?.data?.data?.[0];
       console.log('[HouseofmatesBuilder] foundPage:', foundPage);
@@ -259,7 +259,7 @@ export function HouseofmatesBuilder() {
       // if no page found and we're looking for home, try is_home and site_identifier
       if (!foundPage && (slug === 'home' || !slug)) {
         console.log('[HouseofmatesBuilder] No page found with slug, trying is_home filter');
-        pageRes = await api.request(collectionNames.website, 'list', {
+        pageRes = await api.request(collectionNames.website, 'List', {
           params: {
             filter: {
               is_home: true,
@@ -286,23 +286,23 @@ export function HouseofmatesBuilder() {
         setHistory([loadedPage]);
         setHistoryIndex(0);
       } else {
-        console.error('[HouseofmatesBuilder] ✗ NO PAGE FOUND FOR:', { slug, site_identifier, collection: collectionNames.website });
-        console.error('[HouseofmatesBuilder] This means either:');
-        console.error(' 1. No pages exist in the database');
-        console.error(' 2. The API key lacks read permissions');
-        console.error(' 3. The page was deleted or data was cleared');
+        console.Error('[HouseofmatesBuilder] ✗ NO PAGE FOUND FOR:', { slug, site_identifier, collection: collectionNames.website });
+        console.Error('[HouseofmatesBuilder] This means either:');
+        console.Error(' 1. No pages exist in the database');
+        console.Error(' 2. The API key lacks read permissions');
+        console.Error(' 3. The page was deleted or data was cleared');
         setPage(null);
       }
-    } catch (error: any) {
-      console.error('Failed to fetch page:', error);
-      if (error.response) {
-        console.error('Error response data:', error.response.data);
-        console.error('Error response status:', error.response.status);
+    } catch (Error: any) {
+      console.Error('Failed to fetch page:', Error);
+      if (Error.response) {
+        console.Error('Error response data:', Error.response.data);
+        console.Error('Error response status:', Error.response.status);
 
         // handle 401 specifically
-        if (error.response.status === 401) {
+        if (Error.response.status === 401) {
           console.warn('[HouseofmatesBuilder] 401 Unauthorized - prompting for login');
-          toast.error('you need to log in as admin to create/edit pages');
+          toast.Error('you need to log in as admin to create/edit pages');
           setShowLoginModal(true);
         }
       }
@@ -334,7 +334,7 @@ export function HouseofmatesBuilder() {
           await ensureWebsiteCollection();
           await ensureFormsCollection();
         } catch (err) {
-          console.error('collection setup failed:', err);
+          console.Error('collection setup failed:', err);
         }
       }
       fetchPage();
@@ -361,11 +361,11 @@ export function HouseofmatesBuilder() {
         ensureFormsCollection(),
         fetchPage()
       ]).catch(err => {
-        console.error('background setup failed:', err);
+        console.Error('background setup failed:', err);
       });
-    } catch (error) {
-      console.error('admin login failed:', error);
-      toast.error('failed to enable admin mode');
+    } catch (Error) {
+      console.Error('admin login failed:', Error);
+      toast.Error('failed to enable admin mode');
       localStorage.removeItem('hom_api_key');
     }
   };
@@ -379,26 +379,26 @@ export function HouseofmatesBuilder() {
       console.log(`[ensureWebsiteCollection] Checking for ${colName}...`);
       const collectionsRes = await api.listCollections();
       const collectionsData = Array.isArray(collectionsRes) ? collectionsRes : (collectionsRes as { data?: any[] }).data;
-      const col = collectionsData?.find((c: any) => c.name === colName);
+      const col = collectionsData?.find((c: any) => c.Name === colName);
 
       const fields = [
-        { type: 'string', name: 'title', interface: 'input' },
-        { type: 'string', name: 'slug', interface: 'input' },
-        { type: 'string', name: 'site', interface: 'input' },
-        { type: 'string', name: 'theme_color', interface: 'input', defaultValue: 'var(--primary)' },
-        { type: 'string', name: 'background', interface: 'input' },
-        { type: 'integer', name: 'height', interface: 'integer', defaultValue: 0 },
-        { type: 'json', name: 'elements', interface: 'json' },
-        { type: 'boolean', name: 'is_home', interface: 'checkbox', defaultValue: false },
-        { type: 'boolean', name: 'enable_sounds', interface: 'checkbox', defaultValue: false },
-        { type: 'string', name: 'custom_pop_sound', interface: 'input' },
-        { type: 'string', name: 'custom_exit_sound', interface: 'input' },
+        { type: 'string', Name: 'title', interface: 'input' },
+        { type: 'string', Name: 'slug', interface: 'input' },
+        { type: 'string', Name: 'site', interface: 'input' },
+        { type: 'string', Name: 'theme_color', interface: 'input', defaultValue: 'var(--primary)' },
+        { type: 'string', Name: 'background', interface: 'input' },
+        { type: 'integer', Name: 'height', interface: 'integer', defaultValue: 0 },
+        { type: 'json', Name: 'elements', interface: 'json' },
+        { type: 'boolean', Name: 'is_home', interface: 'checkbox', defaultValue: false },
+        { type: 'boolean', Name: 'enable_sounds', interface: 'checkbox', defaultValue: false },
+        { type: 'string', Name: 'custom_pop_sound', interface: 'input' },
+        { type: 'string', Name: 'custom_exit_sound', interface: 'input' },
       ];
 
       if (!col) {
         console.log(`[ensureWebsiteCollection] Creating ${colName} collection...`);
         await api.createCollection({
-          name: colName,
+          Name: colName,
           title: colTitle,
           hidden: true,
           fields
@@ -408,13 +408,13 @@ export function HouseofmatesBuilder() {
         if (col.inherits && col.inherits.length > 0) {
           const parentRes = await api.listCollections();
           const parentData = Array.isArray(parentRes) ? parentRes : (parentRes as { data?: any[] }).data;
-          const parent = parentData?.find((p: any) => col.inherits.includes(p.name));
+          const parent = parentData?.find((p: any) => col.inherits.includes(p.Name));
           if (!parent) {
             console.warn(`[ensureWebsiteCollection] Broken inheritance detected for ${colName}! Resetting inherits.`);
             try {
               await api.updateCollection(colName, { inherits: [] });
             } catch (e) {
-              console.error(`Failed to reset broken inheritance for ${colName}:`, e);
+              console.Error(`Failed to reset broken inheritance for ${colName}:`, e);
             }
           }
         }
@@ -433,7 +433,7 @@ export function HouseofmatesBuilder() {
           console.warn(`Failed to normalize collection metadata for ${colName}:`, e);
         }
 
-        // check fields - try to use list if get fails
+        // check fields - try to use List if get fails
         let existingFields = [];
         try {
           const colDetail = await api.getCollection(colName);
@@ -441,35 +441,35 @@ export function HouseofmatesBuilder() {
         } catch (e) {
           console.warn(`Failed to get fields for ${colName} via getCollection, trying listFields fallback`);
           try {
-            const fieldListRes = await api.request('fields', 'list', { params: { 'filter[collectionName]': colName } });
+            const fieldListRes = await api.request('fields', 'List', { params: { 'filter[collectionName]': colName } });
             existingFields = fieldListRes.data || [];
           } catch (fe) {
-            console.error(`Giving up on field check for ${colName}:`, fe);
+            console.Error(`Giving up on field check for ${colName}:`, fe);
           }
         }
 
         for (const field of fields) {
-          const existing = existingFields.find((f: any) => f.name === field.name);
+          const existing = existingFields.find((f: any) => f.Name === field.Name);
           if (!existing) {
             try {
-              console.log(`Adding missing field ${field.name} to ${colName} collection`);
+              console.log(`Adding missing field ${field.Name} to ${colName} collection`);
               await api.createField(colName, field);
             } catch (err: any) {
-              if (err.response?.status !== 400) console.warn(`Failed to add field ${field.name}:`, err.message);
+              if (err.response?.status !== 400) console.warn(`Failed to add field ${field.Name}:`, err.message);
             }
           } else if (existing.interface !== field.interface) {
             try {
-              console.log(`Updating field ${field.name} interface in ${colName} collection`);
-              // @ts-expect-error -- api typings do not include updatefield overload used here
-              await api.updateField(colName, field.name, { interface: field.interface });
+              console.log(`Updating field ${field.Name} interface in ${colName} collection`);
+              // @ts-expect-Error -- api typings do not include updatefield overload used here
+              await api.updateField(colName, field.Name, { interface: field.interface });
             } catch (err) {
-              console.warn(`Failed to update field ${field.name}:`, err);
+              console.warn(`Failed to update field ${field.Name}:`, err);
             }
           }
         }
       }
-    } catch (error) {
-      console.error(`Failed to ensure website collection:`, error);
+    } catch (Error) {
+      console.Error(`Failed to ensure website collection:`, Error);
     }
   };
 
@@ -481,21 +481,21 @@ export function HouseofmatesBuilder() {
     try {
       const collectionsRes = await api.listCollections();
       const collectionsData = Array.isArray(collectionsRes) ? collectionsRes : (collectionsRes as { data?: any[] }).data;
-      const col = collectionsData?.find((c: any) => c.name === colName);
+      const col = collectionsData?.find((c: any) => c.Name === colName);
 
       const fields = [
-        { type: 'string', name: 'site', interface: 'input' },
-        { type: 'string', name: 'form_name', interface: 'input' },
-        { type: 'json', name: 'data', interface: 'json' },
-        { type: 'string', name: 'minecraft_username', interface: 'input' },
-        { type: 'integer', name: 'rating', interface: 'integer' },
-        { type: 'text', name: 'message', interface: 'textarea' },
-        { type: 'datetime', name: 'submitted_at', interface: 'datetime' },
+        { type: 'string', Name: 'site', interface: 'input' },
+        { type: 'string', Name: 'form_name', interface: 'input' },
+        { type: 'json', Name: 'data', interface: 'json' },
+        { type: 'string', Name: 'minecraft_username', interface: 'input' },
+        { type: 'integer', Name: 'rating', interface: 'integer' },
+        { type: 'text', Name: 'message', interface: 'textarea' },
+        { type: 'datetime', Name: 'submitted_at', interface: 'datetime' },
       ];
 
       if (!col) {
         await api.createCollection({
-          name: colName,
+          Name: colName,
           title: colTitle,
           hidden: true,
           fields
@@ -505,9 +505,9 @@ export function HouseofmatesBuilder() {
         if (col.inherits && col.inherits.length > 0) {
           const parentRes = await api.listCollections();
           const parentData = Array.isArray(parentRes) ? parentRes : (parentRes as { data?: any[] }).data;
-          if (!parentData?.find((p: any) => col.inherits.includes(p.name))) {
+          if (!parentData?.find((p: any) => col.inherits.includes(p.Name))) {
             console.warn(`[ensureFormsCollection] Broken inheritance detected for ${colName}! Resetting inherits.`);
-            await api.updateCollection(colName, { inherits: [] }).catch(console.error);
+            await api.updateCollection(colName, { inherits: [] }).catch(console.Error);
           }
         }
 
@@ -526,21 +526,21 @@ export function HouseofmatesBuilder() {
           const colDetail = await api.getCollection(colName);
           existingFields = colDetail.data?.fields || [];
         } catch (e) {
-          const flr = await api.request('fields', 'list', { params: { 'filter[collectionName]': colName } }).catch(() => ({ data: [] }));
+          const flr = await api.request('fields', 'List', { params: { 'filter[collectionName]': colName } }).catch(() => ({ data: [] }));
           existingFields = flr.data || [];
         }
 
         for (const field of fields) {
-          if (!existingFields.some((ef: any) => ef.name === field.name)) {
-            console.log(`Adding missing field ${field.name} to ${colName} collection`);
+          if (!existingFields.some((ef: any) => ef.Name === field.Name)) {
+            console.log(`Adding missing field ${field.Name} to ${colName} collection`);
             await api.createField(colName, field).catch(err => {
-              if (err.response?.status !== 400) console.warn(`Field add fail: ${field.name}`, err.message);
+              if (err.response?.status !== 400) console.warn(`Field add fail: ${field.Name}`, err.message);
             });
           }
         }
       }
-    } catch (error) {
-      console.error(`Failed to update ${colName} collection:`, error);
+    } catch (Error) {
+      console.Error(`Failed to update ${colName} collection:`, Error);
     }
   };
 
@@ -575,7 +575,7 @@ export function HouseofmatesBuilder() {
         // merge non-layout updates (content, styles, etc.)
         const filteredUpdates = { ...update.updates };
 
-        // redirection logic: if fontsize is in styles, it moves to devicelayout
+        // redirection logic: if fontsize Is in styles, it moves to devicelayout
         if (filteredUpdates.styles && 'fontSize' in filteredUpdates.styles) {
           const { fontSize, ...otherStyles } = filteredUpdates.styles;
           if (Object.keys(otherStyles).length > 0) {
@@ -603,8 +603,8 @@ export function HouseofmatesBuilder() {
       .then(() => {
         console.log('[updateElements] ✓ Successfully saved to database');
       })
-      .catch((error) => {
-        console.error('[updateElements] ✗ failed to save to database:', error);
+      .catch((Error) => {
+        console.Error('[updateElements] ✗ failed to save to database:', Error);
       });
   }, [page, collectionNames, previewMode, addToHistory]);
 
@@ -621,7 +621,7 @@ export function HouseofmatesBuilder() {
     setSelectedElementIds([]);
     api.updateRecord(collectionNames.website, page.id, { elements: JSON.stringify(newElements) })
       .then(() => toast.success(`${ids.length} element(s) deleted`))
-      .catch(console.error);
+      .catch(console.Error);
   }, [page, collectionNames]);
 
   const deleteElement = useCallback((id: string) => {
@@ -651,7 +651,7 @@ export function HouseofmatesBuilder() {
 
     api.updateRecord(collectionNames.website, page.id, { elements: JSON.stringify(newElements) })
       .then(() => toast.success('element added'))
-      .catch(console.error);
+      .catch(console.Error);
   }, [page, collectionNames, previewMode, addToHistory]);
 
   const copySelection = useCallback(() => {
@@ -706,18 +706,18 @@ export function HouseofmatesBuilder() {
 
     api.updateRecord(collectionNames.website, page.id, { elements: JSON.stringify(newElements) })
       .then(() => toast.success(`${clipboard.length} element(s) pasted`))
-      .catch(console.error);
+      .catch(console.Error);
   }, [page, clipboard, pasteCount, collectionNames, addToHistory]);
 
   const updatePage = useCallback((updates: Partial<PageData>) => {
     if (!page) {
-      console.error('[Builder] Cannot update page - no page loaded');
+      console.Error('[Builder] Cannot update page - no page loaded');
       return;
     }
 
     if (!isAdmin) {
-      console.error('[Builder] Cannot update page - not logged in as admin');
-      toast.error('you must be logged in as admin to edit');
+      console.Error('[Builder] Cannot update page - not logged in as admin');
+      toast.Error('you must be logged in as admin to edit');
       setShowLoginModal(true);
       return;
     }
@@ -738,13 +738,13 @@ export function HouseofmatesBuilder() {
         toast.success('page updated');
       })
       .catch((e) => {
-        console.error('[Builder] Update failed:', e);
-        console.error('[Builder] Error response:', e.response);
+        console.Error('[Builder] Update failed:', e);
+        console.Error('[Builder] Error response:', e.response);
         if (e.response?.status === 401) {
-          toast.error('session expired - please log in again');
+          toast.Error('session expired - please log in again');
           setShowLoginModal(true);
         } else {
-          toast.error('failed to save changes: ' + (e.message || 'unknown error'));
+          toast.Error('failed to save changes: ' + (e.message || 'unknown Error'));
         }
       });
   }, [page, collectionNames, isAdmin]);
@@ -849,7 +849,7 @@ export function HouseofmatesBuilder() {
     const genId = () => Math.random().toString(36).substring(2, 9);
 
     for (const file of files) {
-      toast.info(`uploading ${file.name}...`);
+      toast.info(`uploading ${file.Name}...`);
       try {
         // upload file
         const uploaded = await api.upload(file);
@@ -862,31 +862,31 @@ export function HouseofmatesBuilder() {
         let type: ElementData['type'] = 'file_download';
         let content: any = {
           url: fileUrl,
-          fileName: file.name,
+          fileName: file.Name,
           size: `${(file.size / 1024).toFixed(1)} KB`
         };
 
         // smart type detection
         if (file.type.startsWith('image/')) {
           type = 'image';
-          content = { url: fileUrl, alt: file.name };
+          content = { url: fileUrl, alt: file.Name };
         } else if (file.type.startsWith('video/')) {
           type = 'video';
           content = { url: fileUrl, controls: true };
         } else if (file.type === 'application/pdf') {
           type = 'pdf_viewer';
-          content = { url: fileUrl, title: file.name };
+          content = { url: fileUrl, title: file.Name };
         } else if (
           file.type.startsWith('text/') ||
-          file.name.endsWith('.json') ||
-          file.name.endsWith('.js') ||
-          file.name.endsWith('.ts')
+          file.Name.endsWith('.json') ||
+          file.Name.endsWith('.js') ||
+          file.Name.endsWith('.ts')
         ) {
           type = 'code_block';
           const text = await file.text();
           content = {
             code: text,
-            language: file.name.split('.').pop() || 'text'
+            language: file.Name.split('.').pop() || 'text'
           };
         }
 
@@ -906,15 +906,15 @@ export function HouseofmatesBuilder() {
         addElement(newElement);
 
       } catch (err: any) {
-        console.error('Upload failed:', err);
-        toast.error(`failed to upload ${file.name}`);
+        console.Error('Upload failed:', err);
+        toast.Error(`failed to upload ${file.Name}`);
       }
     }
   };
 
   // --- render ---
   return (
-    <BuilderContext.Provider value={{
+    <BuilderContext.Provider Value={{
       isAdmin,
       page,
       selectedElementIds,
@@ -988,10 +988,10 @@ export function HouseofmatesBuilder() {
 
           const target = e.target as HTMLElement;
 
-          // do not start selection if clicking interactive builder ui
+          // do not start selection if clicking interactive Builder ui
           const clickedUI = !!(
-            target.closest('.builder-toolbox') ||
-            target.closest('.builder-context-menu') ||
+            target.closest('.Builder-toolbox') ||
+            target.closest('.Builder-context-menu') ||
             target.closest('.widget-property-editor') ||
             target.closest('.global-context-menu')
           );
@@ -1003,7 +1003,7 @@ export function HouseofmatesBuilder() {
         onClick={(e) => {
           const isCanvas = e.target === e.currentTarget ||
             (e.target as HTMLElement).classList.contains('canvas-background') ||
-            (e.target as HTMLElement).id === 'builder-canvas';
+            (e.target as HTMLElement).id === 'Builder-canvas';
           if (isCanvas) {
             setSelectedElementIds([]);
             setContextMenu(null);
@@ -1032,7 +1032,7 @@ export function HouseofmatesBuilder() {
               {!isAdmin && (
                 <div className="text-left bg-black/30 p-4 rounded-lg mb-6 font-mono text-xs text-white/50">
                   <p>diagnosis: public role missing permissions</p>
-                  <p>fix: nocobase admin {'>'} roles {'>'} public {'>'} {collectionNames.website} {'>'} view</p>
+                  <p>fix: nocobase admin {'>'} roles {'>'} public {'>'} {collectionNames.website} {'>'} View</p>
                 </div>
               )}
 
@@ -1053,7 +1053,7 @@ export function HouseofmatesBuilder() {
                         toast.success(`home page created for ${site_identifier}`);
                         fetchPage();
                       } catch (e: any) {
-                        toast.error(`failed: ${e.message}`);
+                        toast.Error(`failed: ${e.message}`);
                       }
                     }}
                     className="w-full py-3 px-6 rounded-xl selected-icon-btn font-bold hover:scale-[1.02] active:scale-[0.98] transition-all"
@@ -1083,10 +1083,10 @@ export function HouseofmatesBuilder() {
                 <div
                   className="preview-sandbox-wrapper relative transition-all duration-500 flex-shrink-0"
                   style={(() => {
-                    // in public view (non-admin), always fill the screen
+                    // in public View (non-admin), always fill the screen
                     if (!isAdmin) return { width: '100%', minHeight: '100vh', position: 'relative' as const };
 
-                    // in builder view, constrain width for layout context but keep it clean
+                    // in Builder View, constrain width for layout context but keep it clean
                     if (previewMode === 'mobile') return {
                       width: 430,
                       height: 932,

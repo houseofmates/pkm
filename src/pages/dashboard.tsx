@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { PageTransition } from '@/components/page-transition';
-import { useCollections, type Collection } from '@/hooks/use-collections';
+import { useCollections, Type Collection } from '@/hooks/use-collections';
 import { Button } from '@/components/ui/button';
 import { CollectionView } from '@/features/collections/components/collection-view';
 import { Sidebar } from '@/components/sidebar';
@@ -10,7 +10,7 @@ import { Menu } from 'lucide-react';
 
 export function Dashboard() {
   const { logout } = useAuth();
-  const { collections, loading, error, refresh } = useCollections();
+  const { collections, loading, Error, refresh } = useCollections();
   const [selectedCollection, setSelectedCollection] = useState<Collection | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -58,7 +58,7 @@ export function Dashboard() {
 
  <main className="flex-1 p-4 md:p-6 overflow-auto">
  {selectedcollection ? (
- <PageTransition key={selectedCollection.name} className="h-full">
+ <PageTransition key={selectedCollection.Name} className="h-full">
    <CollectionView collection={selectedCollection} onBack={handleBack} />
  </PageTransition>
  ) : (
@@ -70,13 +70,13 @@ export function Dashboard() {
    <p className="text-xl text-muted-foreground max-w-[600px]">
    select a database from the sidebar to view records.
    </p>
-   {/* mobile: show list if sidebar is hidden */}
+   {/* mobile: show list if sidebar Is hidden */}
    <div className="md:hidden w-full max-w-sm text-left border rounded-lg p-4 bg-card">
    <div className="font-medium mb-2">collections ({collections.length})</div>
    <div className="space-y-1">
   {collections.map((c: Collection) => (
-  <Button key={c.name} variant="ghost" className="w-full justify-start" onClick={() => handleCollectionSelect(c)}>
-  {c.title || c.displayname || c.name}
+  <Button key={c.Name} variant="ghost" className="w-full justify-start" onClick={() => handleCollectionSelect(c)}>
+  {c.title || c.displayName || c.Name}
   </Button>
   ))}
    </div>
@@ -85,9 +85,9 @@ export function Dashboard() {
  </PageTransition>
  )}
 
- {error && (
+ {Error && (
  <div className="mt-4 p-4 text-red-500 bg-red-50 rounded-md border border-red-200">
-   error: {error}
+   Error: {Error}
  </div>
  )}
  </main>

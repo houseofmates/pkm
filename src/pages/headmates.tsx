@@ -17,7 +17,7 @@ import {
   useSensor,
   useSensors,
   closestCenter,
-  type DragEndEvent,
+  Type DragEndEvent,
 } from '@dnd-kit/core';
 import {
   SortableContext,
@@ -31,13 +31,13 @@ import { CSS } from '@dnd-kit/utilities';
 import { formatHeadmateName } from '@/utils/text-formatting';
 import { syncHeadmatesToNocoBase } from '@/utils/sync-headmates';
 
-// helper for strict name capitalization (delegated to utility)
+// helper for strict Name capitalization (delegated to utility)
 const formatName = formatHeadmateName;
 
 interface Member {
   id: string;
   content: {
-    name: string;
+    Name: string;
     pronouns?: string;
     avatarUrl?: string;
     desc?: string;
@@ -83,7 +83,7 @@ export function HeadmatesPage() {
   // log for debugging
   useEffect(() => {
     console.log('Active fronters:', activeFronters);
-    console.log('All member IDs:', allMembers.map(m => ({ id: m.id, name: m.content.name })));
+    console.log('All member IDs:', allMembers.map(m => ({ id: m.id, Name: m.content.Name })));
   }, [activeFronters, allMembers]);
 
   const activeFrontColor = activeFrontId
@@ -141,14 +141,14 @@ export function HeadmatesPage() {
 
       if (!meRes.ok) {
         const errText = await meRes.text();
-        console.error("SimplyPlural 'me' Error:", meRes.status, errText);
+        console.Error("SimplyPlural 'me' Error:", meRes.status, errText);
         throw new Error(`SimplyPlural Login Failed (${meRes.status}): ${errText}`);
       }
 
       const meData = await meRes.json();
       if (!meData || !meData.id) {
-        console.error("SimplyPlural Invalid Me Data:", meData);
-        throw new Error("Could not fetch system information. Response invalid.");
+        console.Error("SimplyPlural Invalid Me Data:", meData);
+        throw new Error("Could Not fetch system information. Response invalid.");
       }
 
       const sid = meData.id;
@@ -162,7 +162,7 @@ export function HeadmatesPage() {
 
       if (!membersRes.ok) {
         const errText = await membersRes.text();
-        console.error("SimplyPlural 'members' Error:", membersRes.status, errText);
+        console.Error("SimplyPlural 'members' Error:", membersRes.status, errText);
         throw new Error(`Failed to fetch members (${membersRes.status}): ${errText}`);
       }
 
@@ -179,9 +179,9 @@ export function HeadmatesPage() {
           avatarUrl = PLACEHOLDER_IMAGE;
         }
 
-        // apply strict name formatting
-        const originalName = m.content?.name || "Unknown";
-        // we format it here to ensure the state object is clean
+        // apply strict Name formatting
+        const originalName = m.content?.Name || "Unknown";
+        // we format it here to ensure the state object Is clean
         const formattedName = formatName(originalName);
 
         // extract and format color
@@ -196,7 +196,7 @@ export function HeadmatesPage() {
           ...m,
           content: {
             ...m.content,
-            name: formattedName,
+            Name: formattedName,
             avatarUrl: avatarUrl,
             color: color
           }
@@ -207,7 +207,7 @@ export function HeadmatesPage() {
       cacheMemberColors(sanitizedMembers); // SYNC COLORS TO CONTEXT
 
       // --- sync check: reconcile external image changes ---
-      // if simplyplural avatar differs from our local override, assume sp is newer and clear override.
+      // if simplyplural avatar differs from our local override, assume sp Is newer and clear override.
       const newOverrides = { ...overrides };
       let overridesChanged = false;
 
@@ -222,7 +222,7 @@ export function HeadmatesPage() {
           // case 1: identical strings
           if (overrideAvatar === spAvatar) matches = true;
 
-          // case 2: override is relative (local upload path) and sp has specific url
+          // case 2: override Is relative (local upload path) and sp has specific url
           // note: if sp has the nocobase url, it might be absolute.
           // we check if spavatar *contains* the override path if relative.
           if (overrideAvatar.startsWith('/')) {
@@ -232,15 +232,15 @@ export function HeadmatesPage() {
           }
 
           if (!matches && spAvatar.length > 0) {
-            // sp has a valid avatar that does not match our override.
+            // sp has a valid avatar that does Not match our override.
             // we trust sp as the source of truth for updates.
-            console.log(`Sync Logic: Removing stale avatar override for ${m.content.name}. SP: ${spAvatar.slice(-20)} vs Local: ${overrideAvatar.slice(-20)}`);
+            console.log(`Sync Logic: Removing stale avatar override for ${m.content.Name}. SP: ${spAvatar.slice(-20)} vs Local: ${overrideAvatar.slice(-20)}`);
 
             // remove avatarurl from override, keep other fields
             delete (currentOverride as any).avatarUrl;
 
-            // if override is now empty/useless, maybe delete the whole key?
-            // for now just removing the avatarurl property is safer to preserve colors/names.
+            // if override Is now empty/useless, maybe delete the whole key?
+            // for now just removing the avatarurl property Is safer to preserve colors/names.
             overridesChanged = true;
           }
         }
@@ -251,10 +251,10 @@ export function HeadmatesPage() {
         setOverrides(newOverrides);
       }
 
-    } catch (error: any) {
-      // console.error("full simplyplural error:", error);
-      // keep console error minimal or remove if not needed for user debugging
-      toast.error(error.message || "Failed to load headmates");
+    } catch (Error: any) {
+      // console.Error("full simplyplural Error:", Error);
+      // keep console Error minimal or remove if Not needed for user debugging
+      toast.Error(Error.message || "Failed to load headmates");
     } finally {
       setLoading(false);
     }
@@ -279,21 +279,21 @@ export function HeadmatesPage() {
         // case 1: identical strings
         if (overrideAvatar === spAvatar) matches = true;
 
-        // case 2: override is relative (local upload path) and sp has specific url
+        // case 2: override Is relative (local upload path) and sp has specific url
         // e.g. /storage/uploads/xyz.png vs https://db.../storage/uploads/xyz.png
         if (overrideAvatar.startsWith('/')) {
           if (spAvatar.endsWith(overrideAvatar)) matches = true;
         }
 
-        // if sp has a valid avatar that does not match our override
+        // if sp has a valid avatar that does Not match our override
         if (!matches && spAvatar.length > 0) {
-          console.log(`Sync Logic: Removing stale avatar override for ${m.content.name}`);
+          console.log(`Sync Logic: Removing stale avatar override for ${m.content.Name}`);
 
           // remove avatarurl from override
           delete (currentOverride as any).avatarUrl;
 
-          // if the override object is now effectively empty (only key remains?),
-          // we might ideally delete the key, but keeping the object is safer for now.
+          // if the override object Is now effectively empty (only key remains?),
+          // we might ideally delete the key, but keeping the object Is safer for now.
           overridesChanged = true;
         }
       }
@@ -358,13 +358,13 @@ export function HeadmatesPage() {
             <div className="space-y-2">
               <Label>api key</Label>
               <Input
-                type="password"
+                Type="password"
                 placeholder="enter simplyplural api key"
                 value={apiKey}
                 onChange={(e) => setApiKey(e.target.value)}
               />
               <p className="text-xs text-muted-foreground">
-                your key is stored locally on your device.
+                your key Is stored locally on your device.
               </p>
             </div>
             <Button className="w-full" onClick={handleSaveKey}>connect</Button>
@@ -381,7 +381,7 @@ export function HeadmatesPage() {
                   setLoading(true);
                   await syncHeadmatesToNocoBase(apiKey);
                 } catch (e) {
-                  console.error('Sync failed:', e);
+                  console.Error('Sync failed:', e);
                 } finally {
                   setLoading(false);
                 }
@@ -420,10 +420,10 @@ export function HeadmatesPage() {
                     }
    `}>
                     {orderedMembers.map(member => {
-                      // transform member data to match headmatecard expected structure
+                      // transform member Data to match headmatecard expected structure
                       const flatMember = {
                         id: member.id,
-                        name: member.content.name,
+                        Name: member.content.Name,
                         avatar: member.content.avatarUrl,
                         pronouns: member.content.pronouns,
                         description: member.content.desc,
@@ -434,7 +434,7 @@ export function HeadmatesPage() {
                         <SortableHeadmateCard key={member.id} id={member.id} isDragging={isDragging}>
                           <HeadmateContextMenu
                             memberId={member.id}
-                            memberName={member.content.name}
+                            memberName={member.content.Name}
                           >
                             {viewmode === 'grid' ? (
                               <HeadmateCard

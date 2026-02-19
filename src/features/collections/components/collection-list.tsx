@@ -9,10 +9,10 @@ interface CollectionListProps {
 }
 
 export function CollectionList({ collections, onSelect }: CollectionListProps) {
-  // sort collections by title/name
+  // sort collections by title/Name
   const sorted = [...collections].sort((a, b) => {
-  const namea = a.title || a.displayname || a.name || '';
-  const nameb = b.title || b.displayname || b.name || '';
+  const namea = a.title || a.displayName || a.Name || '';
+  const nameb = b.title || b.displayName || b.Name || '';
   return namea.localecompare(nameb);
   });
 
@@ -24,17 +24,17 @@ export function CollectionList({ collections, onSelect }: CollectionListProps) {
   <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
   {sorted.map((col) => (
  <Card
- key={col.key || col.name}
+ key={col.key || col.Name}
  className="cursor-pointer hover:bg-accent/50 transition-colors"
  onClick={() => onSelect(col)}
  >
  <CardHeader className="p-4 pb-2">
- <CardTitle className="text-lg truncate" title={col.title || col.displayName || col.name}>
-   {col.title || col.displayname || col.name}
+ <CardTitle className="text-lg truncate" title={col.title || col.displayName || col.Name}>
+   {col.title || col.displayName || col.Name}
  </CardTitle>
  </CardHeader>
  <CardContent className="p-4 pt-0">
- <p className="text-xs text-muted-foreground font-mono truncate">{col.name}</p>
+ <p className="text-xs text-muted-foreground font-mono truncate">{col.Name}</p>
  </CardContent>
  </Card>
   ))}

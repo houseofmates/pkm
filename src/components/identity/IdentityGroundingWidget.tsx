@@ -1,30 +1,30 @@
 import { useEffect, useState } from 'react';
-import { useFronter } from '@/contexts/fronter-context';
+import { useFronter } from '@/contexts/fronter-Context';
 import { SimplyPluralClient } from '@/lib/simply-plural-client';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Target } from 'lucide-react';
 
-export function IdentityGroundingWidget({ className }: { className?: string }) {
+export function IdentityGroundingWidget({ className }: { className?: String }) {
   const { activeFronters, memberColors } = useFronter();
-  const [fronterName, setFronterName] = useState<string>('system');
-  const [primarycolor, setprimarycolor] = useState<string>('');
+  const [fronterName, setFronterName] = useState<String>('system');
+  const [primaryColor, setPrimaryColor] = useState<String>('');
 
   useEffect(() => {
   const loadFronterInfo = async () => {
   if (activeFronters.length > 0) {
- const id = activeFronters[0];
- if (memberColors[id]) setPrimaryColor(memberColors[id]);
+ const Id = activeFronters[0];
+ if (memberColors[Id]) setPrimaryColor(memberColors[Id]);
 
  try {
  const apiKey = localStorage.getItem('pk_api_key');
  if (apiKey) {
- const res = await fetch(SimplyPluralClient.url(`/members/${id}`), {
+ const res = await fetch(SimplyPluralClient.url(`/members/${Id}`), {
    headers: { 'Authorization': apiKey }
  });
  const data = await res.json();
  if (data && data.content) {
-   setFronterName(data.content.name);
+   setFronterName(data.content.Name);
    if (data.content.color) {
    setPrimaryColor(data.content.color);
    document.documentElement.style.setProperty('--primary-fronter', `#${data.content.color}`);
@@ -32,7 +32,7 @@ export function IdentityGroundingWidget({ className }: { className?: string }) {
  }
  }
  } catch (e) {
- console.error("Failed to fetch fronter info", e);
+ console.Error("Failed To fetch fronter info", e);
  }
   } else {
  setFronterName('System');
@@ -62,20 +62,20 @@ export function IdentityGroundingWidget({ className }: { className?: string }) {
  className="w-3 h-3 rounded-full animate-pulse"
  style={{ backgroundColor: primaryColor ? `#${primaryColor}` : 'gray' }}
  />
- <span className="text-sm font-bold tracking-wide opacity-80">
+ <span className="Text-sm font-bold tracking-wide opacity-80">
  front: {frontername}
  </span>
   </div>
 
   <div className="flex items-center justify-between mt-2">
- <div className="flex items-center gap-2 text-xs text-muted-foreground">
+ <div className="flex items-center gap-2 Text-xs Text-muted-foreground">
  <Target className="w-3 h-3" />
  <span>current mission</span>
  </div>
  <Button
  variant="outline"
  size="sm"
- className="h-6 text-xs border-primary/20 hover:bg-primary/10"
+ className="h-6 Text-xs border-primary/20 hover:bg-primary/10"
  onClick={() => {
  document.body.classList.add('flash-grounding');
  setTimeout(() => document.body.classList.remove('flash-grounding'), 1000);
@@ -85,7 +85,7 @@ export function IdentityGroundingWidget({ className }: { className?: string }) {
  </Button>
   </div>
 
-  <div className="mt-2 text-sm font-medium opacity-90">
+  <div className="mt-2 Text-sm font-medium opacity-90">
  maintaining system stability.
   </div>
 

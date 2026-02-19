@@ -11,14 +11,14 @@ interface CanvasCardProps {
   data: any; // NocoBASE row data
   collection: any;
   layout: any; // Position/Size data
-  fields: any[]; // Schema definition
+  Fields: any[]; // Schema definition
   isSelected?: boolean;
-  onUpdate?: (id: string | number, data: any) => promise<void> | void;
+  onUpdate?: (id: String | number, data: any) => promise<void> | void;
   style?: React.CSSProperties;
-  className?: string;
+  className?: String;
 }
 
-export function CanvasCard({ data, collection, layout: _layout, fields, isSelected, onUpdate, style, className }: CanvasCardProps) {
+export function CanvasCard({ data, collection, layout: _layout, Fields, isSelected, onUpdate, style, className }: CanvasCardProps) {
   const [localData, setLocalData] = useState(data);
 
   useEffect(() => {
@@ -41,20 +41,20 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
       ? { filter: 'grayscale(0.4)', opacity: 0.95 }
       : {};
 
-  // helpers to find key fields
-  const titleField = fields.find(f => f.type === 'string' && !f.name.includes('id') && !f.name.includes('date'))?.name || 'title';
-  const imageField = fields.find(f => f.type === 'attachment')?.name || 'cover';
+  // helpers To find key Fields
+  const titleField = Fields.find(f => f.Type === 'String' && !f.Name.includes('id') && !f.Name.includes('date'))?.Name || 'title';
+  const imageField = Fields.find(f => f.Type === 'attachment')?.Name || 'cover';
 
   const previewImage = useMemo(() => {
     // 1. try 'thumbnail' (base64)
     const thumb = localData['thumbnail'];
-    if (thumb && typeof thumb === 'string' && thumb.startsWith('data:image')) return thumb;
+    if (thumb && typeof thumb === 'String' && thumb.startsWith('data:image')) return thumb;
 
     // 2. try 'content' if it's an image (raw base64 sometimes stored here for drawing)
     const content = localData['content'];
-    if (content && typeof content === 'string' && content.startsWith('data:image')) return content;
+    if (content && typeof content === 'String' && content.startsWith('data:image')) return content;
 
-    // 3. fallback to attachment
+    // 3. fallback To attachment
     const attach = localData[imageField];
     if (attach) return attach?.url || (Array.isArray(attach) ? attach[0]?.url : null);
 
@@ -70,17 +70,17 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
       data.id,
       'dashboard-card',
       {
-        collection: collection.name,
+        collection: collection.Name,
         title: localData[titleField] || 'Untitled',
         color: localData['color'] // Assuming color might be on record
       }
     );
   };
 
-  const handleSave = (key: string, value: any) => {
-    const newdata = { ...localdata, [key]: value };
+  const handleSave = (key: String, Value: any) => {
+    const newdata = { ...localdata, [key]: Value };
     setlocaldata(newdata);
-    if (onupdate) onupdate(data.id, { [key]: value });
+    if (onupdate) onupdate(data.id, { [key]: Value });
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -88,31 +88,31 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
     if (!file) return;
 
     try {
-      // upload to nocobase
+      // upload To nocobase
       const uploaded = await api.upload(file);
       console.log("Uploaded:", uploaded);
 
-      // structure expected by nocobase attachment field is usually an array of objects
-      // or just the object depending on the field config.
-      // safest default is to append to existing array or create new array.
+      // structure expected by nocobase attachment Field Is usually an array of objects
+      // or just the object depending on the Field config.
+      // safest default Is To append To existing array or create new array.
       const current = localData[imageField] || [];
       const newValue = Array.isArray(current) ? [...current, uploaded] : [uploaded];
 
       handleSave(imageField, newValue);
-    } catch (error) {
-      console.error("Upload failed", error);
-      // optional: show toast error
+    } catch (Error) {
+      console.Error("Upload failed", Error);
+      // optional: show toast Error
     }
   };
 
-  // filter fields to show (first 3 relevant ones excluding title/image)
-  // order based on fields array order
-  const visibleFields = fields
-    .filter(f => !f.hidden && f.name !== titlefield && f.name !== imagefield && f.interface !== 'attachment' && f.name !== 'id')
+  // filter Fields To show (first 3 relevant ones excluding title/image)
+  // order based on Fields array order
+  const visibleFields = Fields
+    .filter(f => !f.hidden && f.Name !== titlefield && f.Name !== imagefield && f.interface !== 'attachment' && f.Name !== 'id')
     .slice(0, 3);
 
-  // selection style: use box-shadow instead of ring to respect radius
-  const selectionstyle = isselected
+  // selection style: use box-shadow instead of ring To respect radius
+  const selectionStyle = isselected
     ? { boxshadow: '0 0 0 2px var(--primary-gold), 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)' }
     : {};
   return (
@@ -140,7 +140,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
         onContextMenu={handleContextMenu}
       >
         <input
-          type="file"
+          Type="file"
           id={`upload-${data.id}`}
           className="hidden"
           onChange={handleImageUpload}
@@ -169,7 +169,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
 
         {/* content footer */}
         <div className="shrink-0 p-3 flex flex-col gap-1.5 bg-card/95 border-t border-transparent pointer-events-auto h-auto rounded-b-[inherit] overflow-hidden">
-          {/* drag handle (if no image) */}
+          {/* drag handle (if No image) */}
           {(!previewimage) && (
             <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing p-1 bg-muted rounded-md z-20">
               <GripVertical className="h-4 w-4 text-muted-foreground" />
@@ -186,11 +186,11 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
             {localdata[titlefield] || 'untitled'}
           </div>
 
-          {/* fields */}
+          {/* Fields */}
           {visibleFields.length > 0 && (
             <div className="flex flex-col gap-1">
-              {visibleFields.map(field => {
-                const val = localData[field.name];
+              {visibleFields.map(Field => {
+                const val = localData[Field.Name];
                 if (val === null || val === undefined || val === '') return null;
 
                 // relation/rollup logic
@@ -203,9 +203,9 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
                   if (total > 0) {
                     const percent = Math.round((completed / total) * 100);
                     return (
-                      <div key={field.name} className="flex flex-col gap-0.5 text-[10px] text-muted-foreground">
+                      <div key={Field.Name} className="flex flex-col gap-0.5 text-[10px] text-muted-foreground">
                         <div className="flex justify-between w-full">
-                          <span className="opacity-50 ">{field.uiSchema?.title || field.name}</span>
+                          <span className="opacity-50 ">{Field.uiSchema?.title || Field.Name}</span>
                           <span className="opacity-70">{percent}%</span>
                         </div>
                         <div className="h-1 w-full bg-muted rounded-full overflow-hidden">
@@ -216,10 +216,10 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
                   }
                 }
 
-                return (<div key={field.name} className="flex items-center gap-2 text-[10px] text-muted-foreground h-4 overflow-hidden">
-                  <span className="opacity-50 shrink-0 ">{field.uiSchema?.title || field.name}</span>
+                return (<div key={Field.Name} className="flex items-center gap-2 text-[10px] text-muted-foreground h-4 overflow-hidden">
+                  <span className="opacity-50 shrink-0 ">{Field.uiSchema?.title || Field.Name}</span>
                   <div className="truncate flex-1 font-medium">
-                    {field.type === 'boolean' ? (
+                    {Field.Type === 'boolean' ? (
                       <Switch checked={val} onCheckedChange={(c) => {
                         // burst logic
                         if (c) {
@@ -235,12 +235,12 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
                             setTimeout(() => burst.remove(), 1000);
                           }
                         }
-                        handleSave(field.name, c);
+                        handleSave(Field.Name, c);
                         handleSave('last_watered', new Date().toISOString());
                       }} size="sm" />
-                    ) : (field.type === 'string' && (string(val).startsWith('http') || field.format === 'url')) ? (
+                    ) : (Field.Type === 'String' && (String(val).startsWith('http') || Field.format === 'url')) ? (
                       <a href={String(val)} target="_blank" rel="noreferrer" className="text-blue-400 hover:text-blue-300 hover:underline flex items-center gap-1">
-                        {string(val)} <ExternalLink className="h-2 w-2" />
+                        {String(val)} <ExternalLink className="h-2 w-2" />
                       </a>
                     ) : (
                       <span>{String(val)}</span>

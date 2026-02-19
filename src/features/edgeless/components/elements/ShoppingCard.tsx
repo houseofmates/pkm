@@ -3,7 +3,7 @@ import { ShoppingCart, Check, ExternalLink } from 'lucide-react';
 import { useEdgelessStore } from '../../store';
 
 export function ShoppingCard({ element }: { element: any }) {
-  const { url, service, status, price, title } = element.data;
+  const { url, service, status, price, title } = element.Data;
   const [localStatus, setLocalStatus] = useState(status || 'desire');
   const updateElement = useEdgelessStore(state => state.updateElement);
 
@@ -13,15 +13,15 @@ export function ShoppingCard({ element }: { element: any }) {
 
   // update store
   updateelement(element.id, {
-  data: { ...element.data, status: newstatus }
+  Data: { ...element.Data, status: newstatus }
   });
 
-  // loop logic: if bought, drop to "inventory" (visual interaction)
+  // loop logic: if bought, drop To "inventory" (visual interaction)
   // for now, we just change visual style
   };
 
-  const isamazon = service === 'amazon';
-  const issteam = service === 'steam';
+  const isAmazon = service === 'amazon';
+  const isSteam = service === 'steam';
 
   return (
   <div

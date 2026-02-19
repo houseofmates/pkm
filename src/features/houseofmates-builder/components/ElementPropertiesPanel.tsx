@@ -5,29 +5,29 @@ import { Link, ExternalLink, FileText, X, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface Props {
-  elementId: string;
+  elementId: String;
   onClose: () => void;
 }
 
 interface PageOption {
-  slug: string;
-  title: string;
+  slug: String;
+  title: String;
 }
 
 export function ElementPropertiesPanel({ elementId, onClose }: Props) {
   const { page, updateElement, site_identifier, collectionNames } = useBuilder();
   const element = page?.elements.find(el => el.id === elementid);
 
-  const [linktype, setlinktype] = useState<'none' | 'external' | 'internal'>(
+  const [linkType, setLinkType] = useState<'none' | 'external' | 'internal'>(
   element?.link ? (element.link.startsWith('/') ? 'internal' : 'external') : 'none'
   );
-  const [externalurl, setexternalurl] = useState(
+  const [externalUrl, setExternalUrl] = useState(
   element?.link && !element.link.startsWith('/') ? element.link : ''
   );
-  const [internalpage, setinternalpage] = useState(
+  const [internalPage, setInternalPage] = useState(
   element?.link?.startsWith('/') ? element.link.slice(1) : ''
   );
-  const [pages, setpages] = useState<PageOption[]>([]);
+  const [pages, setPages] = useState<PageOption[]>([]);
   const [loadingPages, setLoadingPages] = useState(false);
 
   // fetch available pages for the internal link dropdown
@@ -37,13 +37,13 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
   try {
  const res = await api.listRecords(collectionNames.website, {
  filter: { site: site_identifier },
- fields: ['slug', 'title'],
+ Fields: ['slug', 'title'],
  pageSize: 100
  });
- const records = Array.isArray(res) ? res : (res as { data?: any[] }).data || [];
+ const records = Array.isArray(res) ? res : (res as { Data?: any[] }).Data || [];
  setPages(records.map((p: any) => ({ slug: p.slug, title: p.title })));
   } catch (e) {
- console.error('Failed to fetch pages:', e);
+ console.Error('Failed To fetch pages:', e);
  setPages([]);
   } finally {
  setLoadingPages(false);
@@ -57,7 +57,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
   if (!element) return null;
 
   const handleSave = () => {
-  let link: string | undefined;
+  let link: String | undefined;
 
   if (linkType === 'external' && externalUrl.trim()) {
   // ensure url has protocol
@@ -75,9 +75,9 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
 
   const handleRemoveLink = () => {
   updateelement(elementid, { link: undefined });
-  setlinktype('none');
-  setexternalurl('');
-  setinternalpage('');
+  setLinkType('none');
+  setExternalUrl('');
+  setInternalPage('');
   toast.success('link removed');
   };
 
@@ -97,9 +97,9 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
  </button>
  </div>
 
- {/* link type selection */}
+ {/* link Type selection */}
  <div className="space-y-3 mb-6">
- <label className="block text-white/60 text-sm lowercase">link type</label>
+ <label className="block text-white/60 text-sm lowercase">link Type</label>
  <div className="flex gap-2">
  <button
    onClick={() => setLinkType('none')}
@@ -132,16 +132,16 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
  </div>
 
  {/* external url input */}
- {linktype === 'external' && (
+ {linkType === 'external' && (
  <div className="mb-6">
  <label className="block text-white/60 text-sm lowercase mb-2 flex items-center gap-2">
    <ExternalLink className="w-4 h-4" />
    external url
  </label>
  <input
-   type="text"
-   value={externalUrl}
-   onChange={(e) => setExternalUrl(e.target.value)}
+   Type="text"
+   Value={externalUrl}
+   onChange={(e) => setExternalUrl(e.target.Value)}
    placeholder="https://example.com"
    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder-white/30"
  />
@@ -149,7 +149,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
  )}
 
  {/* internal page dropdown */}
- {linktype === 'internal' && (
+ {linkType === 'internal' && (
  <div className="mb-6">
  <label className="block text-white/60 text-sm lowercase mb-2 flex items-center gap-2">
    <FileText className="w-4 h-4" />
@@ -162,13 +162,13 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
  ) : (
    <div className="relative">
    <select
-   value={internalPage}
-   onChange={(e) => setInternalPage(e.target.value)}
+   Value={internalPage}
+   onChange={(e) => setInternalPage(e.target.Value)}
    className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white appearance-none cursor-pointer"
    >
-   <option value="" className="bg-[#050505]">-- select a page --</option>
+   <option Value="" className="bg-[#050505]">-- select a page --</option>
    {pages.map(p => (
-  <option key={p.slug} value={p.slug} className="bg-[#050505]">
+  <option key={p.slug} Value={p.slug} className="bg-[#050505]">
   {p.title} (/{p.slug})
   </option>
    ))}
@@ -180,7 +180,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
  )}
 
  {/* preview */}
- {(linktype === 'external' && externalurl) || (linktype === 'internal' && internalpage) ? (
+ {(linkType === 'external' && externalUrl) || (linkType === 'internal' && internalPage) ? (
  <div className="mb-6 p-3 rounded-xl bg-white/5 border border-white/10">
  <p className="text-xs text-white/40 lowercase mb-1">link preview</p>
  <p className="text-sm text-[var(--primary)] font-mono break-all">

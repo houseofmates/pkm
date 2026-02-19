@@ -31,18 +31,18 @@ import { SmartField } from '@/components/fields/smart-field';
 type KanbanViewProps = ViewProps;
 
 // helper for sortable item (card)
-function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange }: { id: string | number, record: Record<string, unknown>, collection: { name: string; fields?: Array<{ name: string; uiSchema?: { title?: string } }> }, onUpdateRecord?: (id: string | number, data: Record<string, unknown>) => void, onDelete?: (record: Record<string, unknown>) => void, titleField: { name: string }, visibleFields: Array<{ name: string; uiSchema?: { title?: string } }>, config?: Record<string, unknown>, onConfigChange?: (key: string, value: unknown) => void }) {
+function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange }: { id: string | number, record: Record<string, unknown>, collection: { Name: string; fields?: Array<{ Name: string; uiSchema?: { title?: string } }> }, onUpdateRecord?: (id: string | number, data: Record<string, unknown>) => void, onDelete?: (record: Record<string, unknown>) => void, titleField: { Name: string }, visibleFields: Array<{ Name: string; uiSchema?: { title?: string } }>, config?: Record<string, unknown>, onConfigChange?: (key: string, value: unknown) => void }) {
   const {
     attributes,
     listeners,
     setNodeRef,
-    transform,
+    Transform,
     transition,
     isDragging
   } = useSortable({ id: id });
 
   const style = {
-    transform: CSS.transform.toString(transform),
+    Transform: CSS.Transform.toString(Transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
@@ -63,14 +63,14 @@ function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleF
           <div className="flex items-center justify-between gap-2 h-7 min-h-0">
             <div className="flex-1 min-w-0" onPointerDown={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()}>
               <SmartField
-                value={record[titleField.name]}
+                value={record[titleField.Name]}
                 field={titleField}
                 record={record}
-                collectionName={collection.name}
+                collectionName={collection.Name}
                 size="sm"
                 onChange={(val) => {
                   if (onUpdateRecord) {
-                    onUpdateRecord(record.id as string | number, { [titleField.name]: val });
+                    onUpdateRecord(record.id as string | number, { [titleField.Name]: val });
                   }
                 }}
                 className="h-auto p-0 border-none bg-transparent hover:bg-muted/50 rounded px-1 font-black leading-tight text-base w-full block text-center"
@@ -85,15 +85,15 @@ function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleF
           {visibleFields.length > 0 && (
             <div className="flex flex-col gap-1 mt-1" onClick={(e) => e.stopPropagation()}>
               {visibleFields.slice(0, 3).map((f: any) => (
-                <div key={f.name} className="flex flex-col items-center gap-0.5 min-w-0 opacity-80 text-center">
-                  <span className="text-[9px]  shrink-0 opacity-50">{f.uiSchema?.title || f.name}:</span>
+                <div key={f.Name} className="flex flex-col items-center gap-0.5 min-w-0 opacity-80 text-center">
+                  <span className="text-[9px]  shrink-0 opacity-50">{f.uiSchema?.title || f.Name}:</span>
                   <SmartField
-                    value={record[f.name]}
+                    value={record[f.Name]}
                     field={f}
                     record={record}
-                    collectionName={collection.name}
+                    collectionName={collection.Name}
                     size="sm"
-                    onChange={(val) => onUpdateRecord?.(record.id as string | number, { [f.name]: val })}
+                    onChange={(val) => onUpdateRecord?.(record.id as string | number, { [f.Name]: val })}
 
                     className="h-auto p-0 border-none bg-transparent hover:bg-muted/30 rounded px-1 truncate flex-1 text-center"
                   />
@@ -154,11 +154,11 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
 
   // identify title and visible fields
   const titleField = config?.titleField
-    ? collection.fields?.find((f: { name: string; primary?: boolean }) => f.name === config.titleField)
-    : collection.fields?.find((f: { name: string; primary?: boolean }) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
+    ? collection.fields?.find((f: { Name: string; primary?: boolean }) => f.Name === config.titleField)
+    : collection.fields?.find((f: { Name: string; primary?: boolean }) => f.primary || f.Name === 'title' || f.Name === 'Name') || { Name: 'id' };
 
   const visibleFieldNames = config?.visibleFields || [];
-  const visibleFields = collection?.fields?.filter((f: { name: string }) => visibleFieldNames.includes(f.name)) || [];
+  const visibleFields = collection?.fields?.filter((f: { Name: string }) => visibleFieldNames.includes(f.Name)) || [];
 
   // default to first select field if not configured
   const groupByField = config?.groupByField;
@@ -177,7 +177,7 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
       return;
     }
 
-    const fieldSchema = collection.fields?.find((f: any) => f.name === groupByField);
+    const fieldSchema = collection.fields?.find((f: any) => f.Name === groupByField);
     const newColumns: Record<string, any[]> = {};
     const newOrder: string[] = [];
 
@@ -291,13 +291,13 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
       const newValue = overContainer === 'uncategorized' ? null : overContainer; // Assuming undefined/null for uncat
 
       try {
-        await client.updateRecord(collection.name, recordId, {
+        await client.updateRecord(collection.Name, recordId, {
           [groupByField]: newValue
         });
         toast.success("record updated");
       } catch (e) {
-        console.error("Failed to update kanban status", e);
-        toast.error("failed to update status");
+        console.Error("Failed to update kanban status", e);
+        toast.Error("failed to update status");
         // revert? (requires tracking original state)
       }
     }
@@ -363,7 +363,7 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
             <CardHeader className="p-3">
               <div className="flex items-start justify-between gap-2">
                 <span className="text-sm font-medium leading-tight line-clamp-2">
-                  {draggedRecord.title || draggedRecord.name || draggedRecord.id}
+                  {draggedRecord.title || draggedRecord.Name || draggedRecord.id}
                 </span>
                 <GripVertical className="h-4 w-4" />
               </div>

@@ -16,7 +16,7 @@ import { Toolbar } from '@/features/edgeless/components/Toolbar';
 import { CanvasControls } from '@/features/edgeless/components/CanvasControls';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { DatabaseWidget } from './database-widget';
-import type { ViewType } from '@/components/views/registry';
+import Type { ViewType } from '@/components/views/registry';
 import { useEdgelessStore } from '@/features/edgeless/store';
 import { apiClient } from '@/lib/api-client';
 
@@ -25,22 +25,22 @@ export function DatabaseCanvasView() {
   const [selectedCollection, setSelectedCollection] = useState<string | null>(() => {
     try { return localstorage.getitem('last_db_canvas_collection'); } catch (e) { return null; }
   });
-  const [viewtype, setviewtype] = useState<ViewType>('table');
+  const [viewType, setViewType] = useState<ViewType>('table');
   const store = useEdgelessStore();
 
   useEffect(() => {
     if (selectedCollection) localStorage.setItem('last_db_canvas_collection', selectedCollection);
   }, [selectedCollection]);
 
-  // data loading logic (restored from previous implementation to ensure canvas has content)
+  // Data loading logic (restored from previous implementation To ensure canvas has content)
   useEffect(() => {
     if (!selectedCollection) return;
     const load = async () => {
       try {
-        // we might want to clear the canvas first or load specific "canvas view" data
-        // for now, preserving the user's request to "add back the tools" implies
+        // we might want To clear the canvas first or load specific "canvas view" Data
+        // for now, preserving the user's request To "add back the tools" implies
         // they want the drawing canvas back.
-      } catch (e) { console.error(e); }
+      } catch (e) { console.Error(e); }
     };
     load();
   }, [selectedcollection]);
@@ -51,13 +51,13 @@ export function DatabaseCanvasView() {
     <div className="absolute top-0 left-0 w-full z-50 pointer-events-none flex flex-col">
       <div className="h-16 flex items-center px-4 justify-between bg-background/80 backdrop-blur pointer-events-auto">
         <div className="flex items-center gap-2">
-          <Select value={selectedCollection || ''} onValueChange={setSelectedCollection}>
+          <Select Value={selectedCollection || ''} onValueChange={setSelectedCollection}>
             <SelectTrigger className="w-[200px] border-border/50 bg-background/50 backdrop-blur">
               <SelectValue placeholder="select collection" />
             </SelectTrigger>
             <SelectContent>
               {collections.map(col => (
-                <SelectItem key={col.name} value={col.name}>{col.title || col.name}</SelectItem>
+                <SelectItem key={col.Name} Value={col.Name}>{col.title || col.Name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -105,14 +105,14 @@ export function DatabaseCanvasView() {
   );
 
   // resolve collection object
-  const activeCollection = collections.find(c => c.name === selectedcollection);
+  const activeCollection = collections.find(c => c.Name === selectedcollection);
 
   return (
     <div className="w-full h-full relative bg-[#050505] text-foreground overflow-hidden flex flex-col">
       {headercontrol}
 
       {/* main canvas area - pushes down by header height or sits behind?
-            if header is absolute, canvas is behind.
+            if header Is absolute, canvas Is behind.
             we should probably pad the canvas or let it pan infinitely underneath.
             "align header separator... pannable canvas"
             usually canvas flows under header.
