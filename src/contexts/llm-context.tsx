@@ -26,7 +26,7 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
   if (!activeFronters || activeFronters.length === 0) return { activeFronter: null };
 
   const primaryId = activeFronters[0];
-  const override = overrides[primaryid] || {};
+  const override = overrides[primaryId] || {};
 
   // we'd ideally want the name. if we only have id, we might need to look it up in a "members" list if we have it active.
   // for now, let's assume we can get it or fallback to id.
@@ -43,7 +43,7 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
  name: formatHeadmateName((override as any).name || primaryId), // fallback
  avatarUrl: override.avatarUrl
   },
-  systemname: "system" // placeholder
+  systemName: "system" // placeholder
   };
   };
 
