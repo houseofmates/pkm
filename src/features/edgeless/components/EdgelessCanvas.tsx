@@ -1447,10 +1447,10 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       </div>
 
       {/* element overlays */}
-      {fabriccanvas && overlayelements}
+      {fabricCanvas && overlayElements}
 
       {/* eraser cursor */}
-      {activetool === 'eraser' && (
+      {activeTool === 'eraser' && (
         <div
           className="pointer-events-none fixed rounded-full"
           style={{
