@@ -1,72 +1,72 @@
-import { useState, useEffect } from 'React';
-import Type { ElementData } from '../HouseofmatesBuilder';
-import { X, Plus, Trash2 } from 'lucide-React';
+import { useState, useEffect } from 'react';
+import type { ElementData } from '../HouseofmatesBuilder';
+import { X, Plus, Trash2 } from 'lucide-react';
 import { api } from '@/api/nocobase-client';
 import { toast } from 'sonner';
 import { ImageCropper } from '@/components/ui/image-cropper';
 
 interface Props {
-  Element: ElementData;
+  element: ElementData;
   onUpdate: (updates: Partial<ElementData>) => void;
   onClose: () => void;
 }
 
-export function WidgetPropertyEditor({ Element, onUpdate, onClose }: Props) {
-  const [content, setContent] = useState<any>(Element.content || {});
-  const [styles, setStyles] = useState<any>(Element.styles || {});
+export function WidgetPropertyEditor({ element, onUpdate, onClose }: Props) {
+  const [content, setContent] = useState<any>(element.content || {});
+  const [styles, setStyles] = useState<any>(element.styles || {});
   const [cropperOpen, setCropperOpen] = useState(false);
   const [cropperFile, setCropperFile] = useState<File | null>(null);
-  const [cropperField, setCropperField] = useState<String>('');
+  const [cropperField, setCropperField] = useState<string>('');
   const [cropperConfig, setCropperConfig] = useState({ aspectRatio: 1, shape: 'rect' as 'rect' | 'round', width: 200, height: 200 });
 
   useEffect(() => {
-    setContent(Element.content || {});
-    setStyles(Element.styles || {});
-  }, [Element.id]);
+    setContent(element.content || {});
+    setStyles(element.styles || {});
+  }, [element.id]);
 
   const handleSave = () => {
     onUpdate({ content, styles });
     onClose();
   };
 
-  const updateField = (key: String, Value: any) => {
-    const newContent = { ...content, [key]: Value };
+  const updateField = (key: string, value: any) => {
+    const newContent = { ...content, [key]: value };
     setContent(newContent);
     onUpdate({ content: newContent });
   };
 
-  const updateStyle = (key: String, Value: any) => {
-    const newStyles = { ...styles, [key]: Value };
+  const updateStyle = (key: string, value: any) => {
+    const newStyles = { ...styles, [key]: value };
     setStyles(newStyles);
     onUpdate({ styles: newStyles });
   };
 
   // generic array handler (for rules, faq, etc.)
-  const handleArrayUpdate = (key: String, index: Number, Value: any) => {
+  const handleArrayUpdate = (key: string, index: number, value: any) => {
     const arr = [...(content[key] || [])];
-    arr[index] = Value;
+    arr[index] = value;
     updateField(key, arr);
   };
 
-  const handleArrayAdd = (key: String, defaultValue: any) => {
+  const handleArrayAdd = (key: string, defaultValue: any) => {
     updateField(key, [...(content[key] || []), defaultValue]);
   };
 
-  const handleArrayRemove = (key: String, index: Number) => {
+  const handleArrayRemove = (key: string, index: number) => {
     const arr = [...(content[key] || [])];
     arr.splice(index, 1);
     updateField(key, arr);
   };
 
-  const handleFileUpload = async (field: String, config = { aspectRatio: 1, shape: 'rect' as 'rect' | 'round', width: 200, height: 200 }) => {
+  const handleFileUpload = async (field: string, config = { aspectRatio: 1, shape: 'rect' as 'rect' | 'round', width: 200, height: 200 }) => {
     const input = document.createElement('input');
-    input.Type = 'File';
+    input.type = 'file';
     input.accept = 'image/*';
-    input.onChange = async (e) => {
-      const File = (e.target as HTMLInputElement).files?.[0];
-      if (!File) return;
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
 
-      setCropperFile(File);
+      setCropperFile(file);
       setCropperField(field);
       setCropperConfig(config);
       setCropperOpen(true);
@@ -77,24 +77,24 @@ export function WidgetPropertyEditor({ Element, onUpdate, onClose }: Props) {
   const handleCropComplete = async (croppedBlob: Blob) => {
     const toastId = toast.loading('uploading image...');
     try {
-      // convert blob To File
-      const File = new File([croppedBlob], cropperFile?.Name || 'cropped.png', { Type: 'image/png' });
-      const uploaded = await api.upload(File);
-      const url = uploaded?.url || uploaded?.Data?.url;
+      // convert blob to File
+      const file = new File([croppedBlob], cropperFile?.name || 'cropped.png', { type: 'image/png' });
+      const uploaded = await api.upload(file);
+      const url = uploaded?.url || uploaded?.data?.url;
       if (url) {
         updateField(cropperField, url);
         toast.success('image uploaded', { id: toastId });
       } else {
-        toast.Error('upload failed - No url returned', { id: toastId });
+        toast.error('upload failed - no url returned', { id: toastId });
       }
     } catch (err) {
-      console.Error(err);
-      toast.Error('upload failed', { id: toastId });
+      console.error(err);
+      toast.error('upload failed', { id: toastId });
     }
   };
 
   const renderFields = () => {
-    switch (Element.Type) {
+    switch (element.type) {
       case 'serverip':
         return (
           <>
