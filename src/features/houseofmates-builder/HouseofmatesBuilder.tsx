@@ -70,12 +70,12 @@ interface BuilderContextType {
   page: PageData | null;
   selectedElementIds: string[];
   setSelectedElementIds: (ids: string[]) => void;
-  updateelement: (id: string, updates: partial<ElementData>) => void;
-  updateelements: (updates: { id: string; updates: partial<ElementData> }[]) => void;
+  updateElement: (id: string, updates: Partial<ElementData>) => void;
+  updateElements: (updates: { id: string; updates: Partial<ElementData> }[]) => void;
   deleteElements: (ids: string[]) => void;
   deleteElement: (id: string) => void;
-  addelement: (element: omit<ElementData, 'id'>) => void;
-  updatepage: (updates: partial<PageData>) => void;
+  addElement: (element: Omit<ElementData, 'id'>) => void;
+  updatePage: (updates: Partial<PageData>) => void;
   refresh: () => void;
   site_identifier: string;
   handleElementContextMenu: (e: React.MouseEvent, elementId: string) => void;
@@ -91,7 +91,7 @@ interface BuilderContextType {
   paste: (x?: number, y?: number) => void;
 }
 
-const buildercontext = createcontext<BuilderContextType | null>(null);
+const BuilderContext = createContext<BuilderContextType | null>(null);
 export const useBuilder = () => {
   const ctx = useContext(BuilderContext);
   if (!ctx) throw new Error('UseBuilder must be used within HouseofmatesBuilder');
@@ -116,20 +116,20 @@ export function HouseofmatesBuilder() {
     return { website: 'site-pages', forms: 'form-submissions' };
   };
 
-  const collectionNames = useMemo(() => getcollectionnames(site_identifier), [site_identifier]);
+  const collectionNames = useMemo(() => getCollectionNames(site_identifier), [site_identifier]);
 
-  const [page, setpage] = usestate<PageData | null>(null);
-  const [loading, setloading] = usestate(true);
-  const [isadmin, setisadmin] = usestate(false);
-  const [showloginmodal, setshowloginmodal] = usestate(false);
-  const [selectedelementids, setselectedelementids] = usestate<string[]>([]);
-  const [contextmenu, setcontextmenu] = usestate<ContextMenuState>(null);
-  const [selectionbox, setselectionbox] = usestate<{ startX: number; startY: number; currentX: number; currentY: number } | null>(null);
-  const [clipboard, setclipboard] = usestate<ElementData[]>([]);
-  const [pastecount, setpastecount] = usestate(0);
-  const containerref = useref<HTMLDivElement>(null);
-  const [viewwidth, setviewwidth] = usestate(window.innerwidth);
-  const [previewmode, setpreviewmode] = usestate<'desktop' | 'mobile' | 'tablet'>('desktop');
+  const [page, setPage] = useState<PageData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [selectedElementIds, setSelectedElementIds] = useState<string[]>([]);
+  const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
+  const [selectionBox, setSelectionBox] = useState<{ startX: number; startY: number; currentX: number; currentY: number } | null>(null);
+  const [clipboard, setClipboard] = useState<ElementData[]>([]);
+  const [pasteCount, setPasteCount] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [viewWidth, setViewWidth] = useState(window.innerWidth);
+  const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile' | 'tablet'>('desktop');
 
   // --- device detection ---
   useEffect(() => {
@@ -183,11 +183,11 @@ export function HouseofmatesBuilder() {
     };
 
     window.addEventListener('mousedown', handleGlobalMousedown, true); // Use capture phase
-    return () => window.removeeventlistener('mousedown', handleglobalmousedown, true);
-  }, [selectedelementids]);
+    return () => window.removeEventListener('mousedown', handleGlobalMousedown, true);
+  }, [selectedElementIds]);
 
   // --- undo history ---
-  const [history, sethistory] = usestate<PageData[]>([]);
+  const [history, setHistory] = useState<PageData[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
 
   const addToHistory = useCallback((newPage: PageData) => {
@@ -604,11 +604,11 @@ export function HouseofmatesBuilder() {
         console.log('[updateElements] ✓ Successfully saved to database');
       })
       .catch((error) => {
-        console.error('[updateelements] ✗ failed to save to database:', error);
+        console.error('[updateElements] ✗ failed to save to database:', error);
       });
-  }, [page, collectionnames, previewmode, addtohistory]);
+  }, [page, collectionNames, previewMode, addToHistory]);
 
-  const updateelement = usecallback((id: string, updates: partial<ElementData>) => {
+  const updateElement = useCallback((id: string, updates: Partial<ElementData>) => {
     updateElements([{ id, updates }]);
   }, [updateElements]);
 
@@ -625,10 +625,10 @@ export function HouseofmatesBuilder() {
   }, [page, collectionNames]);
 
   const deleteElement = useCallback((id: string) => {
-    deleteelements([id]);
-  }, [deleteelements]);
+    deleteElements([id]);
+  }, [deleteElements]);
 
-  const addelement = usecallback((element: omit<ElementData, 'id'>) => {
+  const addElement = useCallback((element: Omit<ElementData, 'id'>) => {
     if (!page) return;
     const newElement: ElementData = {
       ...element,
@@ -652,7 +652,7 @@ export function HouseofmatesBuilder() {
     api.updateRecord(collectionNames.website, page.id, { elements: JSON.stringify(newElements) })
       .then(() => toast.success('element added'))
       .catch(console.error);
-  }, [page, collectionNames]);
+  }, [page, collectionNames, previewMode, addToHistory]);
 
   const copySelection = useCallback(() => {
     if (!page || selectedElementIds.length === 0) return;
@@ -999,10 +999,6 @@ export function HouseofmatesBuilder() {
           const clickedHandle = target.classList.contains('resize-handle') || !!(target as HTMLElement).dataset.handle;
 
           if (clickedUI || clickedHandle) return;
-
-          // restore clicking on background logic?
-          // no, the pagerenderer handles this now.
-          // but we keep the relative overflow-hidden container.
         }}
         onClick={(e) => {
           const isCanvas = e.target === e.currentTarget ||
@@ -1033,14 +1029,14 @@ export function HouseofmatesBuilder() {
                 {isAdmin ? `could not find a page for "${site_identifier}"` : 'the server blocked access to this page.'}
               </p>
 
-              {!isadmin && (
+              {!isAdmin && (
                 <div className="text-left bg-black/30 p-4 rounded-lg mb-6 font-mono text-xs text-white/50">
                   <p>diagnosis: public role missing permissions</p>
                   <p>fix: nocobase admin {'>'} roles {'>'} public {'>'} {collectionNames.website} {'>'} view</p>
                 </div>
               )}
 
-              {isadmin ? (
+              {isAdmin ? (
                 <div className="space-y-3 w-full">
                   <button
                     onClick={async () => {
@@ -1064,8 +1060,6 @@ export function HouseofmatesBuilder() {
                   >
                     create home page
                   </button>
-
-
                 </div>
               ) : (
                 <button
@@ -1079,10 +1073,10 @@ export function HouseofmatesBuilder() {
           </div>
         ) : (
           <>
-            {previewmode === 'desktop' ? (
+            {previewMode === 'desktop' ? (
               <div className="w-full min-h-screen relative">
                 <PageRenderer />
-                {isadmin && <BuilderToolbox />}
+                {isAdmin && <BuilderToolbox />}
               </div>
             ) : (
               <div className={`w-full min-h-screen relative ${isAdmin ? 'flex justify-center items-start pt-12 pb-24 bg-[#050505] overflow-auto custom-scrollbar' : ''}`}>
@@ -1117,14 +1111,14 @@ export function HouseofmatesBuilder() {
                 >
                   <PageRenderer />
                 </div>
-                {isadmin && <BuilderToolbox />}
+                {isAdmin && <BuilderToolbox />}
               </div>
             )}
           </>
         )}
 
         {/* always rendered if admin - very high z-index for menus */}
-        {isadmin && contextmenu?.type === 'global' && (
+        {isAdmin && contextMenu?.type === 'global' && (
           <GlobalContextMenu
             x={contextMenu.x}
             y={contextMenu.y}
@@ -1132,7 +1126,7 @@ export function HouseofmatesBuilder() {
           />
         )}
 
-        {isAdmin && contextMenu?.type === 'element' && page?.elements.find(el => el.id === contextmenu.elementid) && (
+        {isAdmin && contextMenu?.type === 'element' && page?.elements.find(el => el.id === contextMenu.elementId) && (
           <ElementContextMenu
             element={page.elements.find(el => el.id === contextMenu.elementId)!}
             x={contextMenu.x}
@@ -1171,6 +1165,6 @@ export function HouseofmatesBuilder() {
  .preview-sandbox { display: block; }
  .preview-sandbox .canvas-background { min-height: unset !important; height: 100% !important; }
   `}} />
-    </BuilderContext.Provider >
+    </BuilderContext.Provider>
   );
 }

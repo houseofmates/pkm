@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { secureLogger } from './secure-logger';
-import { safeUrl, sanitizeHeaders } from './sanitize-utils';
 
 // api base: prefer the vite environment override, fall back to local backend for dev
 export const aPI_URL = import.meta.env.VITE_API_URL || 'http://localhost:4100/api';
