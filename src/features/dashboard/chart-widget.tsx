@@ -32,8 +32,8 @@ interface ChartProps {
   stacked?: boolean;
   seriesType?: 'bar' | 'line' | 'area';
   seriesTypes?: Record<string, 'bar' | 'line' | 'area'>;
-  seriesorder?: string[];
-  seriescolors?: record<string, string>; // NEW: Custom colors per series
+  seriesOrder?: string[];
+  seriesColors?: Record<string, string>; // NEW: Custom colors per series
   legendCollapsed?: boolean;
   onConfig?: (key: string, value?: any) => void;
   columns?: { label: string, value: string }[];
@@ -84,13 +84,13 @@ function PlaceholderOverlay({ label, targetKey, isPlaceholder, columns, onConfig
   );
 }
 
-export function chartwidget({ type = 'line', data = [], xkey = 'name', ykey = 'value', color = 'var(--primary)', serieskeys, stacked, seriestype, seriestypes, seriesorder, seriescolors, legendcollapsed, onconfig, columns, ondataclick, ondatacontextmenu }: chartprops) {
-  const [hidden, sethidden] = usestate<Record<string, boolean>>({});
-  const [hoverkey, sethoverkey] = usestate<string | null>(null);
-  const [search, setsearch] = usestate('');
-  const [collapsed, setcollapsed] = usestate(!!legendcollapsed);
-  const [isready, setisready] = usestate(false);
-  const containerref = useref<HTMLDivElement>(null);
+export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'value', color = 'var(--primary)', seriesKeys, stacked, seriesType, seriesTypes, seriesOrder, seriesColors, legendCollapsed, onConfig, columns, onDataClick, onDataContextMenu }: ChartProps) {
+  const [hidden, setHidden] = useState<Record<string, boolean>>({});
+  const [hoverKey, setHoverKey] = useState<string | null>(null);
+  const [search, setSearch] = useState('');
+  const [collapsed, setCollapsed] = useState(!!legendCollapsed);
+  const [isReady, setIsReady] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // default palette - updated to include var(--primary) as primary
   const DEFAULT_ALTS = ['var(--primary)', '#00C49F', '#0088FE', '#FF8042', '#8884d8', '#ff0055', '#7F00FF', '#00FF00'];
@@ -120,587 +120,587 @@ export function chartwidget({ type = 'line', data = [], xkey = 'name', ykey = 'v
 
   // helper to request config change
   const triggerConfig = (configKey: string, val?: any) => {
-  if (!onConfig) return;
-  onConfig(configKey, val);
+    if (!onConfig) return;
+    onConfig(configKey, val);
   };
 
   // common axis props for placeholders
   const placeholderAxisProps = isPlaceholder ? {
-  // we can't easily put a select on axis click without positioning logic
-  // so we fallback to simple trigger or just let the main overlay handle it
-  cursor: "pointer",
-  tick: { fill: 'var(--muted-foreground)', opacity: 0.5 }
+    // we can't easily put a select on axis click without positioning logic
+    // so we fallback to simple trigger or just let the main overlay handle it
+    cursor: "pointer",
+    tick: { fill: 'var(--muted-foreground)', opacity: 0.5 }
   } : {};
   const toggle = (k: string) => setHidden(prev => ({ ...prev, [k]: !prev[k] }));
 
-  // build the ordered keys list (respect seriesorder if present)
+  // build the ordered keys list (respect seriesOrder if present)
   const buildKeys = () => {
-  const base = seriesKeys || [];
-  if (seriesOrder && seriesOrder.length > 0) {
-  // only include keys that exist in base and preserve order
-  return seriesOrder.filter(k => base.includes(k));
-  }
-  return base;
+    const base = seriesKeys || [];
+    if (seriesOrder && seriesOrder.length > 0) {
+      // only include keys that exist in base and preserve order
+      return seriesOrder.filter(k => base.includes(k));
+    }
+    return base;
   };
 
   // multi-series rendering helper
   const renderSeries = () => {
-  const keys = buildKeys();
-  if (!keys || keys.length === 0) return null;
-  return keys.map((key, idx) => {
-  if (hidden[key]) return null;
-  if (search && !key.tolowercase().includes(search.tolowercase())) return null;
-  const col = getcolor(key, idx);
-  const keytype = seriestypes?.[key] || seriestype || type;
-  const isdim = hoverkey && hoverkey !== key;
-  if (keytype === 'bar') {
- return (
- <Bar
- key={key}
- dataKey={key}
- stackId={stacked ? 'stack' : undefined}
- fill={col}
- fillOpacity={isDim ? 0.15 : 1}
- onClick={(data) => onDataClick && onDataClick(data, xKey, key)}
- onContextMenu={(data: any, index: number, _e: any) => {
-   if (onDataContextMenu) onDataContextMenu(_e || index /* fallback */, data, xKey, key);
- }}
- />
- );
-  }
-  if (keytype === 'line') {
- return <Line key={key} type="monotone" dataKey={key} stroke={col} strokeWidth={2} dot={false} strokeOpacity={isDim ? 0.2 : 1} activeDot={{ onClick: (_e: any, payload: any) => onDataClick && onDataClick(payload, xKey, key), onContextMenu: (e: any, payload: any) => onDataContextMenu && onDataContextMenu(e, payload, xKey, key) }} />;
-  }
-  if (keytype === 'area') {
- return <Area key={key} type="monotone" dataKey={key} stroke={col} fill={col} fillOpacity={isDim ? 0.08 : 0.25} activeDot={{ onClick: (_e: any, payload: any) => onDataClick && onDataClick(payload, xKey, key) }} />;
-  }
-  return null;
-  });
+    const keys = buildKeys();
+    if (!keys || keys.length === 0) return null;
+    return keys.map((key, idx) => {
+      if (hidden[key]) return null;
+      if (search && !key.toLowerCase().includes(search.toLowerCase())) return null;
+      const col = getColor(key, idx);
+      const keyType = seriesTypes?.[key] || seriesType || type;
+      const isDim = hoverKey && hoverKey !== key;
+      if (keytype === 'bar') {
+        return (
+          <Bar
+            key={key}
+            dataKey={key}
+            stackId={stacked ? 'stack' : undefined}
+            fill={col}
+            fillOpacity={isDim ? 0.15 : 1}
+            onClick={(data) => onDataClick && onDataClick(data, xKey, key)}
+            onContextMenu={(data: any, index: number, _e: any) => {
+              if (onDataContextMenu) onDataContextMenu(_e || index /* fallback */, data, xKey, key);
+            }}
+          />
+        );
+      }
+      if (keytype === 'line') {
+        return <Line key={key} type="monotone" dataKey={key} stroke={col} strokeWidth={2} dot={false} strokeOpacity={isDim ? 0.2 : 1} activeDot={{ onClick: (_e: any, payload: any) => onDataClick && onDataClick(payload, xKey, key), onContextMenu: (e: any, payload: any) => onDataContextMenu && onDataContextMenu(e, payload, xKey, key) }} />;
+      }
+      if (keytype === 'area') {
+        return <Area key={key} type="monotone" dataKey={key} stroke={col} fill={col} fillOpacity={isDim ? 0.08 : 0.25} activeDot={{ onClick: (_e: any, payload: any) => onDataClick && onDataClick(payload, xKey, key) }} />;
+      }
+      return null;
+    });
   };
 
   if (type === 'line') {
-  if (!isready) {
-  return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
-  }
+    if (!isready) {
+      return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+    }
 
-  if (!isPlaceholder && seriesKeys && seriesKeys.length > 0) {
-  return (
- <div className="w-full h-full relative group">
- <ResponsiveContainer width="100%" height="100%">
- <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-   <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-   <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
-   <YAxis fontSize={10} tickLine={false} axisLine={false} />
-   <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />
-   {renderseries()}
- </LineChart>
- </ResponsiveContainer>
- <div className="flex items-center justify-between gap-2 mt-2">
- <div className="flex items-center gap-2">
-   <input placeholder="search series..." value={search} onChange={(e) => setSearch(e.target.value)} className="input input-sm" />
-   <button onClick={() => setCollapsed(!collapsed)} className="btn btn-ghost">{collapsed ? 'Expand Legend' : 'Collapse Legend'}</button>
- </div>
- <div className="text-xs text-muted-foreground">{(buildKeys() || []).filter(k => !hidden[k]).length} visible</div>
- </div>
- {!collapsed && (
- <div className="flex flex-wrap gap-2 mt-2">
-   {buildKeys().map((k, idx) => {
-  const col = getcolor(k, idx);
-  const hiddenflag = !!hidden[k];
-  if (search && !k.tolowercase().includes(search.tolowercase())) return null;
-   return (
-   <button key={k} onClick={() => toggle(k)} onMouseEnter={() => setHoverKey(k)} onMouseLeave={() => setHoverKey(null)} className="flex items-center gap-2 px-2 py-1 rounded bg-card border border-border/50 hover:bg-muted/50 transition-colors">
-  <span style={{ width: 12, height: 12, backgroundColor: col, display: 'inline-block', borderRadius: 3, opacity: hiddenFlag ? 0.3 : 1 }} />
-  <span className={hiddenFlag ? 'line-through text-muted-foreground' : ''}>{k}</span>
-   </button>
-   );
-   })}
- </div>
- )}
- </div>
-  );
-  }
+    if (!isPlaceholder && seriesKeys && seriesKeys.length > 0) {
+      return (
+        <div className="w-full h-full relative group">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+              <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
+              <YAxis fontSize={10} tickLine={false} axisLine={false} />
+              <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />
+              {renderseries()}
+            </LineChart>
+          </ResponsiveContainer>
+          <div className="flex items-center justify-between gap-2 mt-2">
+            <div className="flex items-center gap-2">
+              <input placeholder="search series..." value={search} onChange={(e) => setSearch(e.target.value)} className="input input-sm" />
+              <button onClick={() => setCollapsed(!collapsed)} className="btn btn-ghost">{collapsed ? 'Expand Legend' : 'Collapse Legend'}</button>
+            </div>
+            <div className="text-xs text-muted-foreground">{(buildKeys() || []).filter(k => !hidden[k]).length} visible</div>
+          </div>
+          {!collapsed && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {buildKeys().map((k, idx) => {
+                const col = getcolor(k, idx);
+                const hiddenflag = !!hidden[k];
+                if (search && !k.tolowercase().includes(search.tolowercase())) return null;
+                return (
+                  <button key={k} onClick={() => toggle(k)} onMouseEnter={() => setHoverKey(k)} onMouseLeave={() => setHoverKey(null)} className="flex items-center gap-2 px-2 py-1 rounded bg-card border border-border/50 hover:bg-muted/50 transition-colors">
+                    <span style={{ width: 12, height: 12, backgroundColor: col, display: 'inline-block', borderRadius: 3, opacity: hiddenFlag ? 0.3 : 1 }} />
+                    <span className={hiddenFlag ? 'line-through text-muted-foreground' : ''}>{k}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      );
+    }
 
-  return (
-  <div ref={containerRef} className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select group by" targetKey="chartX" />
- <ResponsiveContainer width="100%" height="100%">
- <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
- <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={isPlaceholder ? 0.1 : 0.2} />
- <XAxis dataKey="name" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
- <YAxis {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
-{!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} /> }
- <Line
-   type="monotone"
-   dataKey={isPlaceholder ? "value" : yKey}
-   stroke={isPlaceholder ? "var(--muted-foreground)" : color}
-   strokeWidth={2}
-   dot={false}
-   activeDot={{ r: 4 }}
-   strokeDasharray={isPlaceholder ? "5 5" : undefined}
-   className={isPlaceholder ? "opacity-50" : ""}
- />
- </LineChart>
- </ResponsiveContainer>
-  </div>
-  );
+    return (
+      <div ref={containerRef} className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
+        <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select group by" targetKey="chartX" />
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+            <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={isPlaceholder ? 0.1 : 0.2} />
+            <XAxis dataKey="name" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
+            <YAxis {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
+            {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
+            <Line
+              type="monotone"
+              dataKey={isPlaceholder ? "value" : yKey}
+              stroke={isPlaceholder ? "var(--muted-foreground)" : color}
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 4 }}
+              strokeDasharray={isPlaceholder ? "5 5" : undefined}
+              className={isPlaceholder ? "opacity-50" : ""}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+    );
   }
 
   if (type === 'area') {
-  if (!isready) {
-  return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
-  }
+    if (!isready) {
+      return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+    }
 
-  if (!isPlaceholder && seriesKeys && seriesKeys.length > 0) {
-  return (
- <div ref={containerRef} className="w-full h-full">
- <ResponsiveContainer width="100%" height="100%">
- <AreaChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-   <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-   <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
-   <YAxis fontSize={10} tickLine={false} axisLine={false} />
-   <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />
-   {renderseries()}
- </AreaChart>
- </ResponsiveContainer>
- <div className="flex items-center justify-between gap-2 mt-2">
- <div className="flex items-center gap-2">
-   <input
-   placeholder="search series..."
-   value={search}
-   onChange={(e) => setSearch(e.target.value)}
-   className="input input-sm"
-   />
-   <button onClick={() => setCollapsed(!collapsed)} className="btn btn-ghost">
-   {collapsed ? 'expand legend' : 'collapse legend'}
-   </button>
- </div>
- <div className="text-xs text-muted-foreground">
-   {(buildKeys() || []).filter(k => !hidden[k]).length} visible
- </div>
- </div>
- {!collapsed && (
- <div className="flex flex-wrap gap-2 mt-2">
-   {buildKeys().map((k, idx) => {
-   const col = getcolor(k, idx);
-   const hiddenflag = !!hidden[k];
-   if (search && !k.tolowercase().includes(search.tolowercase())) return null;
-   return (
-   <button
-  key={k}
-  onClick={() => toggle(k)}
-  onMouseEnter={() => setHoverKey(k)}
-  onMouseLeave={() => setHoverKey(null)}
-  className="flex items-center gap-2 px-2 py-1 rounded bg-card border border-border/50 hover:bg-muted/50 transition-colors"
-   >
-  <span style={{ width: 12, height: 12, backgroundColor: col, display: 'inline-block', borderRadius: 3, opacity: hiddenFlag ? 0.3 : 1 }} />
-  <span className={hiddenFlag ? 'line-through text-muted-foreground' : ''}>{k}</span>
-   </button>
-   );
-   })}
- </div>
- )}
- </div>
-  );
-  }
+    if (!isPlaceholder && seriesKeys && seriesKeys.length > 0) {
+      return (
+        <div ref={containerRef} className="w-full h-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <AreaChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+              <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
+              <YAxis fontSize={10} tickLine={false} axisLine={false} />
+              <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />
+              {renderseries()}
+            </AreaChart>
+          </ResponsiveContainer>
+          <div className="flex items-center justify-between gap-2 mt-2">
+            <div className="flex items-center gap-2">
+              <input
+                placeholder="search series..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="input input-sm"
+              />
+              <button onClick={() => setCollapsed(!collapsed)} className="btn btn-ghost">
+                {collapsed ? 'expand legend' : 'collapse legend'}
+              </button>
+            </div>
+            <div className="text-xs text-muted-foreground">
+              {(buildKeys() || []).filter(k => !hidden[k]).length} visible
+            </div>
+          </div>
+          {!collapsed && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {buildKeys().map((k, idx) => {
+                const col = getcolor(k, idx);
+                const hiddenflag = !!hidden[k];
+                if (search && !k.tolowercase().includes(search.tolowercase())) return null;
+                return (
+                  <button
+                    key={k}
+                    onClick={() => toggle(k)}
+                    onMouseEnter={() => setHoverKey(k)}
+                    onMouseLeave={() => setHoverKey(null)}
+                    className="flex items-center gap-2 px-2 py-1 rounded bg-card border border-border/50 hover:bg-muted/50 transition-colors"
+                  >
+                    <span style={{ width: 12, height: 12, backgroundColor: col, display: 'inline-block', borderRadius: 3, opacity: hiddenFlag ? 0.3 : 1 }} />
+                    <span className={hiddenFlag ? 'line-through text-muted-foreground' : ''}>{k}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      );
+    }
 
-  return (
-  <div ref={containerRef} className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select group by" targetKey="chartX" />
- <ResponsiveContainer width="100%" height="100%">
- <AreaChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
- <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
- <XAxis dataKey="name" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
- <YAxis {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
- {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
- <Area
-   type="monotone"
-   dataKey={isPlaceholder ? "value" : yKey}
-   stroke={isPlaceholder ? "var(--muted-foreground)" : color}
-   fill={isPlaceholder ? "var(--muted)" : color}
-   fillOpacity={isPlaceholder ? 0.1 : 0.3}
-   strokeDasharray={isPlaceholder ? "5 5" : undefined}
- />
- </AreaChart>
- </ResponsiveContainer>
-  </div>
-  );
+    return (
+      <div ref={containerRef} className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
+        <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select group by" targetKey="chartX" />
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+            <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
+            <XAxis dataKey="name" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
+            <YAxis {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
+            {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
+            <Area
+              type="monotone"
+              dataKey={isPlaceholder ? "value" : yKey}
+              stroke={isPlaceholder ? "var(--muted-foreground)" : color}
+              fill={isPlaceholder ? "var(--muted)" : color}
+              fillOpacity={isPlaceholder ? 0.1 : 0.3}
+              strokeDasharray={isPlaceholder ? "5 5" : undefined}
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+    );
   }
 
   if (type === 'scatter') {
-  if (!isready) {
-  return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
-  }
+    if (!isready) {
+      return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+    }
 
-  return (
-  <div ref={containerRef} className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select x axis" targetKey="chartX" />
- <ResponsiveContainer width="100%" height="100%">
- <ScatterChart>
- <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
- <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
- <YAxis dataKey={yKey} fontSize={10} tickLine={false} axisLine={false} />
- {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
- <Scatter data={data} fill={color} />
- </ScatterChart>
- </ResponsiveContainer>
-  </div>
-  );
+    return (
+      <div ref={containerRef} className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
+        <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select x axis" targetKey="chartX" />
+        <ResponsiveContainer width="100%" height="100%">
+          <ScatterChart>
+            <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+            <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
+            <YAxis dataKey={yKey} fontSize={10} tickLine={false} axisLine={false} />
+            {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
+            <Scatter data={data} fill={color} />
+          </ScatterChart>
+        </ResponsiveContainer>
+      </div>
+    );
   }
 
   if (type === 'bar') {
-  if (!isready) {
-  return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
-  }
+    if (!isready) {
+      return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+    }
 
-  if (!isPlaceholder && seriesKeys && seriesKeys.length > 0) {
-  return (
- <div ref={containerRef} className="w-full h-full">
- <ResponsiveContainer width="100%" height="100%">
- <BarChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
-   <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-   <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
-   <YAxis fontSize={10} tickLine={false} axisLine={false} />
-   <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />
-   {renderseries()}
- </BarChart>
- </ResponsiveContainer>
- <div className="flex items-center justify-between gap-2 mt-2">
- <div className="flex items-center gap-2">
-   <input placeholder="search series..." value={search} onChange={(e) => setSearch(e.target.value)} className="input input-sm" />
-   <button onClick={() => setCollapsed(!collapsed)} className="btn btn-ghost">{collapsed ? 'Expand Legend' : 'Collapse Legend'}</button>
- </div>
- <div className="text-xs text-muted-foreground">{(buildKeys() || []).filter(k => !hidden[k]).length} visible</div>
- </div>
- {!collapsed && (
- <div className="flex flex-wrap gap-2 mt-2">
-   {buildKeys().map((k, idx) => {
-   const col = getcolor(k, idx);
-   const hiddenflag = !!hidden[k];
-   if (search && !k.tolowercase().includes(search.tolowercase())) return null;
-   return (
-   <button key={k} onClick={() => toggle(k)} onMouseEnter={() => setHoverKey(k)} onMouseLeave={() => setHoverKey(null)} className="flex items-center gap-2 px-2 py-1 rounded bg-card border border-border/50 hover:bg-muted/50 transition-colors">
-  <span style={{ width: 12, height: 12, backgroundColor: col, display: 'inline-block', borderRadius: 3, opacity: hiddenFlag ? 0.3 : 1 }} />
-  <span className={hiddenFlag ? 'line-through text-muted-foreground' : ''}>{k}</span>
-   </button>
-   );
-   })}
- </div>
- )}
- </div>
-  );
-  }
+    if (!isPlaceholder && seriesKeys && seriesKeys.length > 0) {
+      return (
+        <div ref={containerRef} className="w-full h-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
+              <XAxis dataKey={xKey} fontSize={10} tickLine={false} axisLine={false} />
+              <YAxis fontSize={10} tickLine={false} axisLine={false} />
+              <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />
+              {renderseries()}
+            </BarChart>
+          </ResponsiveContainer>
+          <div className="flex items-center justify-between gap-2 mt-2">
+            <div className="flex items-center gap-2">
+              <input placeholder="search series..." value={search} onChange={(e) => setSearch(e.target.value)} className="input input-sm" />
+              <button onClick={() => setCollapsed(!collapsed)} className="btn btn-ghost">{collapsed ? 'Expand Legend' : 'Collapse Legend'}</button>
+            </div>
+            <div className="text-xs text-muted-foreground">{(buildKeys() || []).filter(k => !hidden[k]).length} visible</div>
+          </div>
+          {!collapsed && (
+            <div className="flex flex-wrap gap-2 mt-2">
+              {buildKeys().map((k, idx) => {
+                const col = getcolor(k, idx);
+                const hiddenflag = !!hidden[k];
+                if (search && !k.tolowercase().includes(search.tolowercase())) return null;
+                return (
+                  <button key={k} onClick={() => toggle(k)} onMouseEnter={() => setHoverKey(k)} onMouseLeave={() => setHoverKey(null)} className="flex items-center gap-2 px-2 py-1 rounded bg-card border border-border/50 hover:bg-muted/50 transition-colors">
+                    <span style={{ width: 12, height: 12, backgroundColor: col, display: 'inline-block', borderRadius: 3, opacity: hiddenFlag ? 0.3 : 1 }} />
+                    <span className={hiddenFlag ? 'line-through text-muted-foreground' : ''}>{k}</span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      );
+    }
 
-  return (
-  <div className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select group by" targetKey="chartX" />
- <ResponsiveContainer width="100%" height="100%">
- <BarChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
- <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
- <XAxis dataKey="name" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
- <YAxis {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
- {!isplaceholder && <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
- <Bar
-   dataKey={isPlaceholder ? "value" : yKey}
-   fill={isPlaceholder ? "var(--muted)" : color}
-   opacity={isPlaceholder ? 0.3 : 1}
-   radius={[4, 4, 0, 0]}
-   onClick={(data) => onDataClick && !isPlaceholder && onDataClick(data, xKey)}
- />
- </BarChart>
- </ResponsiveContainer>
-  </div>
-  );
+    return (
+      <div className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartX')}>
+        <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select group by" targetKey="chartX" />
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={chartData} margin={{ top: 5, right: 20, bottom: 5, left: 0 }}>
+            <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
+            <XAxis dataKey="name" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
+            <YAxis {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
+            {!isplaceholder && <Tooltip cursor={{ fill: 'transparent' }} contentStyle={{ backgroundColor: 'transparent', borderRadius: '0', border: 'none', boxShadow: 'none' }} itemStyle={{ color: '#000000', fontWeight: 'bold' }} labelStyle={{ color: '#000000', fontWeight: 'bold' }} />}
+            <Bar
+              dataKey={isPlaceholder ? "value" : yKey}
+              fill={isPlaceholder ? "var(--muted)" : color}
+              opacity={isPlaceholder ? 0.3 : 1}
+              radius={[4, 4, 0, 0]}
+              onClick={(data) => onDataClick && !isPlaceholder && onDataClick(data, xKey)}
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
+    );
   }
 
   if (type === 'pie') {
-  if (!isready) {
-  return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
-  }
+    if (!isready) {
+      return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+    }
 
-  return (
-  <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select category" targetKey="chartX" />
- <ResponsiveContainer width="100%" height="100%">
- <PieChart>
- <Pie
-   data={chartData}
-   cx="50%"
-   cy="50%"
-   innerRadius={60} // Donut style by default for modern look
-   outerRadius={80}
-   paddingAngle={5}
-   dataKey={isPlaceholder ? "value" : yKey}
-   nameKey={isPlaceholder ? "name" : xKey}
-   cursor={isPlaceholder ? "pointer" : "default"}
- >
-   {chartData.map((_, index) => (
-   <Cell
-   key={`cell-${index}`}
-   fill={isPlaceholder ? 'var(--muted)' : getColor(String(index), index)}
-   fillOpacity={isPlaceholder ? 0.3 : 1}
-   stroke={isPlaceholder ? 'var(--muted-foreground)' : 'none'}
-   strokeDasharray={isPlaceholder ? '5 5' : ''}
-   onClick={() => onDataClick && !isPlaceholder && onDataClick(chartData[index], xKey)}
-   />
-   ))}
- </Pie>
- {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
- {!isPlaceholder && <Legend />}
- </PieChart>
- </ResponsiveContainer>
-  </div>
-  );
+    return (
+      <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
+        <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select category" targetKey="chartX" />
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={chartData}
+              cx="50%"
+              cy="50%"
+              innerRadius={60} // Donut style by default for modern look
+              outerRadius={80}
+              paddingAngle={5}
+              dataKey={isPlaceholder ? "value" : yKey}
+              nameKey={isPlaceholder ? "name" : xKey}
+              cursor={isPlaceholder ? "pointer" : "default"}
+            >
+              {chartData.map((_, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={isPlaceholder ? 'var(--muted)' : getColor(String(index), index)}
+                  fillOpacity={isPlaceholder ? 0.3 : 1}
+                  stroke={isPlaceholder ? 'var(--muted-foreground)' : 'none'}
+                  strokeDasharray={isPlaceholder ? '5 5' : ''}
+                  onClick={() => onDataClick && !isPlaceholder && onDataClick(chartData[index], xKey)}
+                />
+              ))}
+            </Pie>
+            {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
+            {!isPlaceholder && <Legend />}
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+    );
   }
 
   if (type === 'radar') {
-  if (!isready) {
-  return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
-  }
+    if (!isready) {
+      return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+    }
 
-  return (
-  <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select dimensions" targetKey="chartX" />
- <ResponsiveContainer width="100%" height="100%">
- <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
- <PolarGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
- <PolarAngleAxis dataKey="name" tick={{ fontSize: 10, fill: isPlaceholder ? 'var(--muted-foreground)' : 'var(--foreground)' }} {...placeholderAxisProps} />
- <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={{ fontSize: 10 }} {...placeholderAxisProps} />
- <Radar
-   name={isPlaceholder ? "Metric" : yKey}
-   dataKey={isPlaceholder ? "value" : yKey}
-   stroke={isPlaceholder ? "var(--muted-foreground)" : color}
-   fill={isPlaceholder ? "var(--muted)" : color}
-   fillOpacity={isPlaceholder ? 0.1 : 0.6}
-   strokeDasharray={isPlaceholder ? "5 5" : undefined}
-   onClick={(data) => onDataClick && !isPlaceholder && onDataClick(data, xKey)}
- />
- {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
- </RadarChart>
- </ResponsiveContainer>
-  </div>
-  );
+    return (
+      <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
+        <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select dimensions" targetKey="chartX" />
+        <ResponsiveContainer width="100%" height="100%">
+          <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData}>
+            <PolarGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
+            <PolarAngleAxis dataKey="name" tick={{ fontSize: 10, fill: isPlaceholder ? 'var(--muted-foreground)' : 'var(--foreground)' }} {...placeholderAxisProps} />
+            <PolarRadiusAxis angle={30} domain={[0, 'auto']} tick={{ fontSize: 10 }} {...placeholderAxisProps} />
+            <Radar
+              name={isPlaceholder ? "Metric" : yKey}
+              dataKey={isPlaceholder ? "value" : yKey}
+              stroke={isPlaceholder ? "var(--muted-foreground)" : color}
+              fill={isPlaceholder ? "var(--muted)" : color}
+              fillOpacity={isPlaceholder ? 0.1 : 0.6}
+              strokeDasharray={isPlaceholder ? "5 5" : undefined}
+              onClick={(data) => onDataClick && !isPlaceholder && onDataClick(data, xKey)}
+            />
+            {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
+          </RadarChart>
+        </ResponsiveContainer>
+      </div>
+    );
   }
 
   if (type === 'treemap') {
-  if (!isready) {
-  return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
-  }
+    if (!isready) {
+      return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+    }
 
-  return (
-  <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select grouping" targetKey="chartX" />
- <ResponsiveContainer width="100%" height="100%">
- <Treemap
- data={chartData}
- dataKey={isPlaceholder ? "value" : yKey}
- aspectRatio={4 / 3}
- stroke="var(--background)"
- fill={isPlaceholder ? "var(--muted)" : "#000000"}
- isAnimationActive={false}
- content={(props: any) => {
-   const { x, y, width, height, index, name, value } = props;
-   if (isplaceholder) {
-   return (
-   <g>
-  <rect x={x} y={y} width={width} height={height} fill="var(--muted)" stroke="var(--background)" strokeDasharray="3 3" fillOpacity={0.1} />
-   </g>
-   )
-   }
-   const col = getcolor(name, index);
-   // contrast check
-   const textcolor = getcontrastcolor(col);
+    return (
+      <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
+        <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select grouping" targetKey="chartX" />
+        <ResponsiveContainer width="100%" height="100%">
+          <Treemap
+            data={chartData}
+            dataKey={isPlaceholder ? "value" : yKey}
+            aspectRatio={4 / 3}
+            stroke="var(--background)"
+            fill={isPlaceholder ? "var(--muted)" : "#000000"}
+            isAnimationActive={false}
+            content={(props: any) => {
+              const { x, y, width, height, index, name, value } = props;
+              if (isplaceholder) {
+                return (
+                  <g>
+                    <rect x={x} y={y} width={width} height={height} fill="var(--muted)" stroke="var(--background)" strokeDasharray="3 3" fillOpacity={0.1} />
+                  </g>
+                )
+              }
+              const col = getcolor(name, index);
+              // contrast check
+              const textcolor = getcontrastcolor(col);
 
-   return (
-   <g>
-   <rect
-  x={x}
-  y={y}
-  width={width}
-  height={height}
-  fill={col}
-  stroke="var(--background)"
-  strokeWidth={2}
-  onClick={() => onDataClick && !isPlaceholder && onDataClick(props, xKey)}
-  style={{ cursor: 'pointer' }}
-   />
-   {width > 30 && height > 20 && (
-  <text
-  x={x + width / 2}
-  y={y + height / 2}
-  textAnchor="middle"
-  fill={textColor}
-  fontSize={12}
-  dy={-4}
-  style={{ pointerEvents: 'none' }}
-  >
-  {name}
-  </text>
-   )}
-   {width > 30 && height > 40 && (
-  <text
-  x={x + width / 2}
-  y={y + height / 2}
-  textAnchor="middle"
-  fill={textColor}
-  fontSize={10}
-  dy={12}
-  style={{ pointerEvents: 'none', opacity: 0.8 }}
-  >
-  {value}
-  </text>
-   )}
-   </g>
-   );
- }}
- >
- {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
- </Treemap>
- </ResponsiveContainer>
-  </div>
-  );
+              return (
+                <g>
+                  <rect
+                    x={x}
+                    y={y}
+                    width={width}
+                    height={height}
+                    fill={col}
+                    stroke="var(--background)"
+                    strokeWidth={2}
+                    onClick={() => onDataClick && !isPlaceholder && onDataClick(props, xKey)}
+                    style={{ cursor: 'pointer' }}
+                  />
+                  {width > 30 && height > 20 && (
+                    <text
+                      x={x + width / 2}
+                      y={y + height / 2}
+                      textAnchor="middle"
+                      fill={textColor}
+                      fontSize={12}
+                      dy={-4}
+                      style={{ pointerEvents: 'none' }}
+                    >
+                      {name}
+                    </text>
+                  )}
+                  {width > 30 && height > 40 && (
+                    <text
+                      x={x + width / 2}
+                      y={y + height / 2}
+                      textAnchor="middle"
+                      fill={textColor}
+                      fontSize={10}
+                      dy={12}
+                      style={{ pointerEvents: 'none', opacity: 0.8 }}
+                    >
+                      {value}
+                    </text>
+                  )}
+                </g>
+              );
+            }}
+          >
+            {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
+          </Treemap>
+        </ResponsiveContainer>
+      </div>
+    );
   }
 
   if (type === 'funnel') {
-  if (!isready) {
-  return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
-  }
+    if (!isready) {
+      return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+    }
 
-  // funnel sort
-  const sorted = isPlaceholder ? chartData : [...data].sort((a, b) => (b[ykey] || 0) - (a[ykey] || 0));
-  return (
-  <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select stage" targetKey="chartX" />
- <ResponsiveContainer width="100%" height="100%">
- <RechartsFunnelChart>
- {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
- <Funnel
-   dataKey={isPlaceholder ? "value" : yKey}
-   data={sorted}
-   isAnimationActive
-   onClick={(data) => onDataClick && !isPlaceholder && onDataClick(data, xKey)}
-   onContextMenu={(...args: unknown[]) => {
-   // funnel might pass different args
-   const e = args[args.length - 1] as { preventDefault?: () => void };
-   const data = args[0];
-   if (e?.preventDefault && onDataContextMenu) onDataContextMenu(e as unknown as Event, data, xKey);
-   }}
- >
-   <LabelList position="right" fill="var(--foreground)" stroke="none" dataKey={isPlaceholder ? "name" : xKey} />
- </Funnel>
- </RechartsFunnelChart>
- </ResponsiveContainer>
-  </div>
-  );
+    // funnel sort
+    const sorted = isPlaceholder ? chartData : [...data].sort((a, b) => (b[ykey] || 0) - (a[ykey] || 0));
+    return (
+      <div ref={containerRef} className="relative w-full h-full group" onClick={() => isPlaceholder && triggerConfig('chartX')}>
+        <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select stage" targetKey="chartX" />
+        <ResponsiveContainer width="100%" height="100%">
+          <RechartsFunnelChart>
+            {!isplaceholder && <Tooltip contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} />}
+            <Funnel
+              dataKey={isPlaceholder ? "value" : yKey}
+              data={sorted}
+              isAnimationActive
+              onClick={(data) => onDataClick && !isPlaceholder && onDataClick(data, xKey)}
+              onContextMenu={(...args: unknown[]) => {
+                // funnel might pass different args
+                const e = args[args.length - 1] as { preventDefault?: () => void };
+                const data = args[0];
+                if (e?.preventDefault && onDataContextMenu) onDataContextMenu(e as unknown as Event, data, xKey);
+              }}
+            >
+              <LabelList position="right" fill="var(--foreground)" stroke="none" dataKey={isPlaceholder ? "name" : xKey} />
+            </Funnel>
+          </RechartsFunnelChart>
+        </ResponsiveContainer>
+      </div>
+    );
   }
 
   if (type === 'gauge') {
-  if (!isready) {
-  return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
-  }
+    if (!isready) {
+      return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+    }
 
-  const val = isplaceholder ? 0 : (data[0]?.[ykey] || 0);
-  const max = 100; // arbitrary for now without config
-  const safeval = math.min(math.max(val, 0), max);
-  const gaugedata = [
-  { name: 'value', value: safeval },
-  { name: 'remainder', value: max - safeval }
-  ];
+    const val = isplaceholder ? 0 : (data[0]?.[ykey] || 0);
+    const max = 100; // arbitrary for now without config
+    const safeval = math.min(math.max(val, 0), max);
+    const gaugedata = [
+      { name: 'value', value: safeval },
+      { name: 'remainder', value: max - safeval }
+    ];
 
-  return (
-  <div ref={containerRef} className="relative w-full h-full flex items-center justify-center p-2 group" onClick={() => isPlaceholder && triggerConfig('chartY')}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select metric" targetKey="chartY" />
- <ResponsiveContainer width="100%" height="100%">
- <PieChart>
- <Pie
-   data={isPlaceholder ? [{ value: 100 }] : gaugeData}
-   cx="50%"
-   cy="85%"
-   startAngle={180}
-   endAngle={0}
-   innerRadius="75%"
-   outerRadius="110%"
-   paddingAngle={0}
-   dataKey="value"
-   stroke="none"
-   onClick={(data) => onDataClick && !isPlaceholder && onDataClick(data, xKey)}
- >
-   {isplaceholder ? (
-   <Cell fill="var(--muted)" strokeDasharray="5 5" stroke="var(--muted-foreground)" fillOpacity={0.1} />
-   ) : (
-   <>
-   <Cell fill={color} />
-   <Cell fill="var(--muted)" opacity={0.2} />
-   </>
-   )}
- </Pie>
- </PieChart>
- </ResponsiveContainer>
- {!isplaceholder && (
- <div className="absolute bottom-4 text-2xl font-bold flex flex-col items-center">
- {val}%
- <span className="text-xs text-muted-foreground font-normal">target</span>
- </div>
- )}
-  </div>
-  );
+    return (
+      <div ref={containerRef} className="relative w-full h-full flex items-center justify-center p-2 group" onClick={() => isPlaceholder && triggerConfig('chartY')}>
+        <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="select metric" targetKey="chartY" />
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={isPlaceholder ? [{ value: 100 }] : gaugeData}
+              cx="50%"
+              cy="85%"
+              startAngle={180}
+              endAngle={0}
+              innerRadius="75%"
+              outerRadius="110%"
+              paddingAngle={0}
+              dataKey="value"
+              stroke="none"
+              onClick={(data) => onDataClick && !isPlaceholder && onDataClick(data, xKey)}
+            >
+              {isplaceholder ? (
+                <Cell fill="var(--muted)" strokeDasharray="5 5" stroke="var(--muted-foreground)" fillOpacity={0.1} />
+              ) : (
+                <>
+                  <Cell fill={color} />
+                  <Cell fill="var(--muted)" opacity={0.2} />
+                </>
+              )}
+            </Pie>
+          </PieChart>
+        </ResponsiveContainer>
+        {!isplaceholder && (
+          <div className="absolute bottom-4 text-2xl font-bold flex flex-col items-center">
+            {val}%
+            <span className="text-xs text-muted-foreground font-normal">target</span>
+          </div>
+        )}
+      </div>
+    );
   }
 
   if (type === 'kpi') {
-  if (!isready) {
-  return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
-  }
+    if (!isready) {
+      return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+    }
 
-  const val = isPlaceholder ? 1234 : data.reduce((acc, cur) => acc + (number(cur[ykey]) || 0), 0);
+    const val = isPlaceholder ? 1234 : data.reduce((acc, cur) => acc + (number(cur[ykey]) || 0), 0);
 
-  return (
-  <div ref={containerRef} className="h-full w-full flex flex-col items-center justify-center p-4 group cursor-pointer relative"
- onClick={() => {
- if (isPlaceholder) triggerConfig('chartY');
- else if (onDataClick) onDataClick({ name: 'All' }, xKey); // Special handling for KPI to signal all?
- // note: chartview needs to handle 'all', or we rely on user filtering.
- // for now, let's just trigger it.
- }}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="configure kpi values" targetKey="chartY" />
- <div className={cn("text-sm  mb-2", isPlaceholder ? "text-muted-foreground/50" : "text-muted-foreground")}>
- {isplaceholder ? "total metric" : (xkey + ' total')}
- </div>
- <div className={cn("text-5xl font-bold ", isPlaceholder ? "text-muted-foreground/30 dashed-text" : "text-primary")}>
- {val.tolocalestring()}
- </div>
- {!isplaceholder && (
- <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2 opacity-0">
- {/* placeholder for future trends */}
- </div>
- )}
-  </div>
-  );
+    return (
+      <div ref={containerRef} className="h-full w-full flex flex-col items-center justify-center p-4 group cursor-pointer relative"
+        onClick={() => {
+          if (isPlaceholder) triggerConfig('chartY');
+          else if (onDataClick) onDataClick({ name: 'All' }, xKey); // Special handling for KPI to signal all?
+          // note: chartview needs to handle 'all', or we rely on user filtering.
+          // for now, let's just trigger it.
+        }}>
+        <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} label="configure kpi values" targetKey="chartY" />
+        <div className={cn("text-sm  mb-2", isPlaceholder ? "text-muted-foreground/50" : "text-muted-foreground")}>
+          {isplaceholder ? "total metric" : (xkey + ' total')}
+        </div>
+        <div className={cn("text-5xl font-bold ", isPlaceholder ? "text-muted-foreground/30 dashed-text" : "text-primary")}>
+          {val.tolocalestring()}
+        </div>
+        {!isplaceholder && (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground mt-2 opacity-0">
+            {/* placeholder for future trends */}
+          </div>
+        )}
+      </div>
+    );
   }
 
   if (type === 'scatter') {
-  if (!isready) {
-  return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
-  }
+    if (!isready) {
+      return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
+    }
 
-  return (
-  <div ref={containerRef} className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
- <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} />
- <ResponsiveContainer width="100%" height="100%">
- <ScatterChart>
- <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
- <XAxis dataKey="amt" type="number" name="amt" unit="" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
- <YAxis dataKey={yKey} type="number" name="val" unit="" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
- {!isplaceholder && <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />}
- <Scatter
-   name="A school"
-   data={chartData}
-   fill={isPlaceholder ? "var(--muted)" : color}
-   fillOpacity={isPlaceholder ? 0.3 : 1}
- />
- </ScatterChart>
- </ResponsiveContainer>
-  </div>
-  );
+    return (
+      <div ref={containerRef} className="w-full h-full relative group cursor-pointer" onClick={() => isPlaceholder && triggerConfig('chartSeriesField')}>
+        <PlaceholderOverlay isPlaceholder={isPlaceholder} columns={columns} onConfig={onConfig} />
+        <ResponsiveContainer width="100%" height="100%">
+          <ScatterChart>
+            <CartesianGrid strokeDasharray={isPlaceholder ? "5 5" : "3 3"} opacity={0.2} />
+            <XAxis dataKey="amt" type="number" name="amt" unit="" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
+            <YAxis dataKey={yKey} type="number" name="val" unit="" {...placeholderAxisProps} fontSize={10} tickLine={false} axisLine={false} />
+            {!isplaceholder && <Tooltip cursor={{ strokeDasharray: '3 3' }} contentStyle={{ backgroundColor: 'var(--background)', borderRadius: '8px', border: '1px solid var(--border)' }} itemStyle={{ color: 'var(--foreground)' }} />}
+            <Scatter
+              name="A school"
+              data={chartData}
+              fill={isPlaceholder ? "var(--muted)" : color}
+              fillOpacity={isPlaceholder ? 0.3 : 1}
+            />
+          </ScatterChart>
+        </ResponsiveContainer>
+      </div>
+    );
   }
   return null;
 }
