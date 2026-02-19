@@ -27,7 +27,12 @@ sudo apt-get install -f
 
 ### windows
 
-coming soon - windows builds require cross-compilation or a windows build machine.
+```markdown
+the electron setup is now configured to support live updates. by setting an environment variable, your .exe will always load the latest version of your website instead of a stagnant local bundle.
+
+build command: `npm run electron:build`
+live sync: set `pkm_remote_url=https://your-pkm-hub.com` in your `.env` to make the exe dynamic.
+```
 
 ## building from source
 
@@ -63,7 +68,7 @@ no manual downloads required after initial installation.
 - **windows**: windows 10/11 (64-bit)
 - **memory**: 512mb ram minimum, 1gb recommended
 - **disk**: ~50mb for app, additional space for your data
-
+- **personal nocobase instance**: you can run it on docker!
 ## notes
 
 - first launch may take a few seconds to initialize
