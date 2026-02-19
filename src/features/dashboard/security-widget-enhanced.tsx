@@ -551,4 +551,19 @@ const SECURITY_PROMPTS = {
 
   wasmExtendedConst: `WebAssembly Extended constant expressions in Electron. Validate all WASM modules, understand extended const behavior.`,
 
-  wasmRelaxedSimd: `WebAssembly Relaxed SIMD in Electron. Validate all WASM modules, understand non-deterministic behavior, prevent side-channel attacks.
+  wasmRelaxedSimd: `WebAssembly Relaxed SIMD in Electron. Validate all WASM modules, understand non-deterministic behavior, prevent side-channel attacks.`,
+};
+
+export default function SecurityWidgetEnhanced() {
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>security (enhanced)</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="text-sm text-muted-foreground">security prompts and scanner configuration are available in the developer UI.</div>
+      </CardContent>
+    </Card>
+  );
+}
+

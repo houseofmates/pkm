@@ -1,6 +1,7 @@
 import { api } from './nocobase-client';
 import { SimplyPluralClient } from '@/lib/simply-plural-client';
 import { toast } from 'sonner';
+import { secureLogger } from '@/lib/secure-logger';
 
 export const MemberService = {
   /**
@@ -18,7 +19,7 @@ export const MemberService = {
 
   try {
   // 1. upload to nocobase
-  console.log("MemberService: Uploading file to NocoBase...");
+  secureLogger.info("MemberService: Uploading file to NocoBase...");
   const uploadRes = await api.upload(file);
 
   // extract url (nocobase returns { data: { url: ... } })
@@ -29,7 +30,7 @@ export const MemberService = {
  throw new Error("Upload succeeded but no URL returned from NocoBase");
   }
 
-  console.log("MemberService: File uploaded, URL:", fileUrl);
+  secureLogger.info("MemberService: File uploaded, URL:", fileUrl);
 
   // construct full url for simplyplural (needs public/absolute)
   // but keep relative for local use (so headmatecard can auth it)
@@ -42,7 +43,7 @@ export const MemberService = {
   // 2. patch simplyplural
   const apiKey = localStorage.getItem('pk_api_key');
   if (apiKey) {
- console.log("MemberService: Patching SimplyPlural...");
+ secureLogger.info("MemberService: Patching SimplyPlural...");
 
  // try flattened structure first (common alternative if 'content' wrapper fails)
  // if previous error was "error at content", then 'content' key is likely forbidden at root of patch.
@@ -63,15 +64,15 @@ export const MemberService = {
 
  if (!spRes.ok) {
  const errText = await spRes.text();
- console.warn(`MemberService: SimplyPlural Patch Failed (${spRes.status}):`, errText);
+ secureLogger.warn(`MemberService: SimplyPlural Patch Failed (${spRes.status}):`, errText);
  toast.warning(`Image saved locally, but SimplyPlural sync failed: ${spRes.status} - ${errText}`, { id: toastId });
  } else {
  const resJson = await spRes.json().catch(() => ({}));
- console.log("MemberService: SimplyPlural Patch Success", resJson);
+ secureLogger.info("MemberService: SimplyPlural Patch Success", resJson);
  toast.success("avatar updated and synced", { id: toastId });
  }
   } else {
- console.warn("MemberService: No API Key, skipping SimplyPlural sync");
+ secureLogger.warn("MemberService: No API Key, skipping SimplyPlural sync");
  toast.success("avatar saved locally (no api key)", { id: toastId });
   }
 
@@ -82,7 +83,7 @@ export const MemberService = {
   return fileUrl;
 
   } catch (error: unknown) {
-  console.error("MemberService Error:", error);
+  secureLogger.error("MemberService Error:", error);
   const errorMessage = error instanceof Error ? error.message : String(error);
   toast.error(`Avatar update failed: ${errorMessage}`, { id: toastId });
   throw error;
