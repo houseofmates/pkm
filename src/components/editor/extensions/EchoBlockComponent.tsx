@@ -79,11 +79,11 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
     socket.on('remote_typing', onRemoteTyping);
 
     return () => {
-      socket.emit('leave_room', recordid);
-      socket.off('receive_update', onreceiveupdate);
-      socket.off('remote_typing', onremotetyping);
+      socket.emit('leave_room', recordId);
+      socket.off('receive_update', onReceiveUpdate);
+      socket.off('remote_typing', onRemoteTyping);
     };
-  }, [socket, recordid]);
+  }, [socket, recordId]);
 
 
   // handle local changes
@@ -113,29 +113,29 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
   // debounce save for persistence (nocobase)
   useDebounce(
     async () => {
-      if (!islocalchange.current) return;
+      if (!isLocalChange.current) return;
 
       try {
-        await api.updaterecord(collectionname, recordid, {
+        await api.updateRecord(collectionName, recordId, {
           content: content
         });
-        setissyncing(false);
-        islocalchange.current = false;
+        setIsSyncing(false);
+        isLocalChange.current = false;
 
         // stop typing indicator on save success
-        if (socket) socket.emit('typing', { recordid, istyping: false });
+        if (socket) socket.emit('typing', { recordId, isTyping: false });
 
       } catch (err) {
         console.error("failed to save echo block:", err);
-        seterror("save failed.");
-        setissyncing(false);
+        setError("save failed.");
+        setIsSyncing(false);
       }
     },
     1000,
     [content]
   );
 
-  if (!recordid || !collectionname) {
+  if (!recordId || !collectionName) {
     return (
       <NodeViewWrapper className="echo-block-error p-2 border border-red-500 rounded text-red-500">
         invalid echo block: missing attributes.
@@ -149,19 +149,19 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
         className="echo-block-container pl-4 border-l-4 transition-all duration-300"
         style={{ borderColor: remoteTyping ? '#ffffff' : 'var(--primary)' }}
       >
-        {remotetyping && (
+        {remoteTyping && (
           <div className="absolute -left-1.5 top-0 w-3 h-3 bg-[var(--primary)] rounded-full animate-pulse shadow-[0_0_10px_var(--primary)]" title="remote user editing" />
         )}
 
         <div className="text-xs text-muted-foreground  mb-1 flex items-center justify-between">
           <span className="flex items-center gap-2">
-            <span>synced block • {collectionname}</span>
-            {isconnected ?
+            <span>synced block • {collectionName}</span>
+            {isConnected ?
               <Wifi className="h-3 w-3 text-green-500 opacity-50" /> :
               <WifiOff className="h-3 w-3 text-red-500 opacity-50" />
             }
           </span>
-          {issyncing && <span className="text-blue-500 text-[10px]">saving...</span>}
+          {isSyncing && <span className="text-blue-500 text-[10px]">saving...</span>}
           {error && <span className="text-red-500 ml-2 text-[10px]">{error}</span>}
         </div>
         <textarea
