@@ -36,12 +36,13 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
     // actually, headmatecard uses proper names.
     // we will expose what we have.
 
-    return {
-      activeFronter: {
-        id: primaryId,
-        name: formatHeadmateName((override as any).name || primaryId), // fallback
-        avatarurl: override.avatarurl
-      },
+  return {
+  activeFronter: {
+ id: primaryId,
+ name: formatHeadmateName((override as any).name || primaryId), // fallback
+ avatarUrl: (override as any).avatarUrl
+  },
+
       systemname: "system" // placeholder
     };
   };
@@ -51,8 +52,9 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     if (!isAuthenticated) return;
-    client.listCollections({ pageSize: 100 }).then((res: any) => {
-      const list = Array.isArray(res?.data) ? res.data : (res?.data as any)?.data;
+  client.listCollections({ pageSize: 100 }).then((res: any) => {
+  const list = Array.isArray(res?.data) ? res.data : (res as any)?.data;
+
       if (Array.isArray(list)) {
         setAvailableCollections(list.map((c: any) => c.name));
       }
@@ -70,8 +72,9 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
     const checkMood = async () => {
       // try 'moods' collection first
       try {
-        const res = await client.listRecords('moods', { pageSize: 1, sort: ['-createdAt'] });
-        const data = Array.isArray(res?.data) ? res.data : (res?.data as any)?.data;
+ const res = await client.listRecords('moods', { pageSize: 1, sort: ['-createdAt'] });
+ const data = Array.isArray(res?.data) ? res.data : (res as any)?.data;
+
         if (data && data.length > 0) {
           const last = data[0];
           setMoodState({
@@ -104,8 +107,9 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
       // check 'journal' or just generic audit logs?
       // let's look for 'journal'
       try {
-        const res = await client.listRecords('journal', { pageSize: 3, sort: ['-createdAt'] });
-        const data = Array.isArray(res?.data) ? res.data : (res?.data as any)?.data;
+ const res = await client.listRecords('journal', { pageSize: 3, sort: ['-createdAt'] });
+ const data = Array.isArray(res?.data) ? res.data : (res as any)?.data;
+
         if (data && data.length > 0) {
           setRecentActivity(data.map((item: any) => ({
             type: 'journal_entry',
