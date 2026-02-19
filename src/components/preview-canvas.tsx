@@ -48,13 +48,13 @@ function DroppableColumn({ ci, children }: { ci: number; children: React.ReactNo
   );
 }
 
-function SortableItem({ id, render }: { id: string; render: () => React.ReactNode }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id, transition: { duration: 150, easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)' } });
+function SortableItem({ id, render }: { id: string; render: () => react.reactnode }) {
+  const { attributes, listeners, setnoderef, transform, transition, isdragging } = usesortable({ id, transition: { duration: 150, easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)' } });
 
-  const style: React.CSSProperties = {
-    transform: transform ? CSS.Transform.toString(transform) : undefined,
+  const style: react.cssproperties = {
+    transform: transform ? css.transform.tostring(transform) : undefined,
     transition,
-    opacity: isDragging ? 0.3 : 1,
+    opacity: isdragging ? 0.3 : 1,
   };
 
   return (
@@ -76,12 +76,12 @@ export default function PreviewCanvas({
   columnWidths?: number[];
   onColumnWidthsChange?: (w: number[]) => void;
   onColumnsChange?: (cols: Widget[][]) => void;
-  renderWidget: (w: Widget, idx: number) => React.ReactNode;
-  className?: string;
+  renderWidget: (w: Widget, idx: number) => react.reactnode;
+  classname?: string;
 }) {
-  const colCount = Math.max(1, Math.min(columns.length || 1, 4));
+  const colcount = math.max(1, math.min(columns.length || 1, 4));
 
-  const [localCols, setLocalCols] = useState<Widget[][]>(() => columns.map((c) => (Array.isArray(c) ? [...c] : [])));
+  const [localcols, setlocalcols] = usestate<Widget[][]>(() => columns.map((c) => (Array.isArray(c) ? [...c] : [])));
 
   useEffect(() => {
     const next = columns.map((c) => (Array.isArray(c) ? [...c] : []));
@@ -153,12 +153,12 @@ export default function PreviewCanvas({
 
     const newCols = localCols.map((c) => [...c]);
     const [movedItem] = newCols[from.ci].splice(from.wi, 1);
-    if (from.ci === targetCol && targetIndex > from.wi) targetIndex--;
-    newCols[targetCol].splice(targetIndex, 0, movedItem);
+    if (from.ci === targetCol && targetIndex > from.wi) targetindex--;
+    newcols[targetcol].splice(targetindex, 0, moveditem);
 
-    setLocalCols(newCols);
-    onColumnsChange?.(newCols);
-    setActiveId(null);
+    setlocalcols(newcols);
+    oncolumnschange?.(newcols);
+    setactiveid(null);
   };
 
   return (

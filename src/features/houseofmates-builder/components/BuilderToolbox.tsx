@@ -21,11 +21,11 @@ export function BuilderToolbox() {
   const { previewMode, setPreviewMode } = useBuilder();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('basic');
-  const [searchquery, setsearchquery] = useState('');
-  const [searchresults, setsearchresults] = useState<any[]>([]);
-  const [searching, setsearching] = useState(false);
-  const [mediamode, setmediamode] = useState<'list' | 'image' | 'video'>('list');
-  const [showformbuilder, setshowformbuilder] = useState(false);
+  const [searchquery, setsearchquery] = usestate('');
+  const [searchresults, setsearchresults] = usestate<any[]>([]);
+  const [searching, setsearching] = usestate(false);
+  const [mediamode, setmediamode] = usestate<'list' | 'image' | 'video'>('list');
+  const [showformbuilder, setshowformbuilder] = usestate(false);
 
   const createdefaultelement = (type: elementdata['type'], content: any = {}): omit<ElementData, 'id'> => ({
   type,

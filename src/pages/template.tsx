@@ -45,12 +45,12 @@ export function TemplatePage() {
   }
 }`);
   const [isValid, setIsValid] = useState<boolean | null>(null);
-  const [error, seterror] = useState<string | null>(null);
-  const [isbuilding, setisbuilding] = useState(false);
-  const [previewstate, setpreviewstate] = useState<Record<string, any>>({});
-  const [previewdata, setpreviewdata] = useState<Record<string, any[]>>({});
+  const [error, seterror] = usestate<string | null>(null);
+  const [isbuilding, setisbuilding] = usestate(false);
+  const [previewstate, setpreviewstate] = usestate<Record<string, any>>({});
+  const [previewdata, setpreviewdata] = usestate<Record<string, any[]>>({});
   // livecolumns holds interactive layout state for preview and persists to json
-  const [livecolumns, setlivecolumns] = useState<any[][]>([]);
+  const [livecolumns, setlivecolumns] = usestate<any[][]>([]);
 
   // fullscreen preview dialog state
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
@@ -72,7 +72,7 @@ export function TemplatePage() {
       const hist = s.history || [];
       if (hist.length === 0) return s;
       const last = hist[hist.length - 1];
-      try { setjson(last); } catch (e) { /* ignore malformed JSON in local storage */ }
+      try { setjson(last); } catch (e) { /* ignore malformed json in local storage */ }
       return { ...s, history: hist.slice(0, -1) };
     });
   };

@@ -301,11 +301,11 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
     const raf = requestAnimationFrame(() => {
       if (currentName) setLocalName(currentName);
     });
-    return () => cancelAnimationFrame(raf);
-  }, [currentName]);
+    return () => cancelanimationframe(raf);
+  }, [currentname]);
 
   // emoji state
-  const [emojis, setEmojis] = useState<any[]>(DEFAULT_EMOJIS);
+  const [emojis, setemojis] = usestate<any[]>(DEFAULT_EMOJIS);
   const [loadingEmojis, setLoadingEmojis] = useState(false);
 
   // load emojis (twemoji based source or standard list)

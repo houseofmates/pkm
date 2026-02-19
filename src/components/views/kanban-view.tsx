@@ -135,7 +135,7 @@ function kanbancolumn({ id, title, items, children }: { id: string, title: strin
 }
 
 
-export function KanbanView({ data, collection, config, onupdaterecord, ondelete, onconfigchange }: kanbanviewprops) {
+export function kanbanview({ data, collection, config, onupdaterecord, ondelete, onconfigchange }: kanbanviewprops) {
   if (!collection) {
   return (
   <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-muted/20 rounded-lg border">
@@ -147,10 +147,10 @@ export function KanbanView({ data, collection, config, onupdaterecord, ondelete,
   );
   }
   const { client } = useauth();
-  const [columns, setcolumns] = useState<Record<string, any[]>>({});
-  const [columnorder, setcolumnorder] = useState<string[]>([]);
-  const [activeid, setactiveid] = useState<string | number | null>(null);
-  const [draggedrecord, setdraggedrecord] = useState<any>(null);
+  const [columns, setcolumns] = usestate<Record<string, any[]>>({});
+  const [columnorder, setcolumnorder] = usestate<string[]>([]);
+  const [activeid, setactiveid] = usestate<string | number | null>(null);
+  const [draggedrecord, setdraggedrecord] = usestate<any>(null);
 
   // identify title and visible fields
   const titleField = config?.titleField

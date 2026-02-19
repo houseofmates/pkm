@@ -561,7 +561,7 @@ export default function SecurityWidgetEnhanced() {
         <CardTitle>security (enhanced)</CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="text-sm text-muted-foreground">security prompts and scanner configuration are available in the developer UI.</div>
+        <div className="text-sm text-muted-foreground">security prompts and scanner configuration are available in the developer ui.</div>
       </CardContent>
     </Card>
   );

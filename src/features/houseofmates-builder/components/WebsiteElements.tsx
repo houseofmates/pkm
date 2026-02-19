@@ -30,7 +30,7 @@ export function ServerIPDisplay({ javaIP, bedrockIP, bedrockPort = '19132', show
       setTimeout(() => setCopiedJava(false), 2000);
     } else {
       setCopiedBedrock(true);
-      setTimeout(() => setCopiedBedrock(false), 2000);
+      setTimeout(() => setcopiedbedrock(false), 2000);
     }
     toast.success('copied to clipboard!');
   };
@@ -96,7 +96,7 @@ interface serverstatusprops {
   motd?: string;
 }
 
-export function ServerStatus({ isonline = true, playercount = 0, maxplayers = 100, motd }: serverstatusprops) {
+export function serverstatus({ isonline = true, playercount = 0, maxplayers = 100, motd }: serverstatusprops) {
   const { previewmode } = usebuilder();
   const ismobile = previewmode === 'mobile';
 
@@ -168,7 +168,7 @@ const iconmap: record<string, any> = {
   paperclip: paperclip,
 };
 
-export function FeatureCard({ icon, title, description, color = 'var(--primary)' }: featurecardprops) {
+export function featurecard({ icon, title, description, color = 'var(--primary)' }: featurecardprops) {
   const iconcomponent = iconmap[icon] || zap;
 
   return (
@@ -228,13 +228,13 @@ export function LinkCard({ title, url, icon, description, color = 'var(--primary
   );
 }
 
-export interface Statusindicatorprops {
+export interface statusindicatorprops {
   label: string;
   status: 'online' | 'offline' | 'idle' | 'busy' | 'streaming';
   showlabel?: boolean;
 }
 
-export function StatusIndicator({ label, status, showlabel = true }: Statusindicatorprops) {
+export function statusindicator({ label, status, showlabel = true }: statusindicatorprops) {
   const colors = {
     online: '#22c55e',
     offline: '#64748b',
@@ -285,7 +285,7 @@ interface ruleslistprops {
   title?: string;
 }
 
-export function RulesList({ rules, title = 'server rules' }: ruleslistprops) {
+export function ruleslist({ rules, title = 'server rules' }: ruleslistprops) {
   return (
     <div className="p-[1.5em] rounded-2xl flex flex-col items-center text-center">
       <h3 className="text-[1.25em] font-bold text-[var(--primary)] mb-[1em] flex items-center justify-center gap-[0.5em]">
@@ -317,8 +317,8 @@ interface faqsectionprops {
   title?: string;
 }
 
-export function FAQSection({ items, title = 'frequently asked questions' }: faqsectionprops) {
-  const [openindex, setopenindex] = useState<number | null>(null);
+export function faqsection({ items, title = 'frequently asked questions' }: faqsectionprops) {
+  const [openindex, setopenindex] = usestate<number | null>(null);
 
   return (
     <div className="p-[1.5em] rounded-2xl">
@@ -388,7 +388,7 @@ interface herosectionprops {
   javaip?: string;
 }
 
-export function HeroSection({ title, subtitle, ctatext, ctalink, backgroundimage, showserverip, javaip }: herosectionprops) {
+export function herosection({ title, subtitle, ctatext, ctalink, backgroundimage, showserverip, javaip }: herosectionprops) {
   return (
     <div
       className="relative min-h-[60vh] flex items-center justify-center p-8 rounded-2xl overflow-hidden"
@@ -522,7 +522,7 @@ interface aboutsectionprops {
   imageposition?: 'left' | 'right';
 }
 
-export function AboutSection({ title, content, image, imageposition = 'left' }: aboutsectionprops) {
+export function aboutsection({ title, content, image, imageposition = 'left' }: aboutsectionprops) {
   return (
     <div className={`flex flex-col md:flex-row gap-8 items-center ${imagePosition === 'right' ? 'md:flex-row-reverse' : ''}`}>
       {image && (
@@ -542,13 +542,13 @@ export function AboutSection({ title, content, image, imageposition = 'left' }: 
   );
 }
 
-// --- Gallery ---
+// --- gallery ---
 interface galleryprops {
   images: { src: string; alt?: string }[];
   columns?: number;
 }
 
-export function Gallery({ images, columns = 3 }: galleryprops) {
+export function gallery({ images, columns = 3 }: galleryprops) {
   const gridcols = {
     1: 'grid-cols-1',
     2: 'grid-cols-2',
@@ -573,7 +573,7 @@ export function Gallery({ images, columns = 3 }: galleryprops) {
   );
 }
 
-// --- Testimonial ---
+// --- testimonial ---
 interface testimonialprops {
   quote: string;
   author: string;
@@ -581,7 +581,7 @@ interface testimonialprops {
   avatar?: string;
 }
 
-export function Testimonial({ quote, author, role, avatar }: testimonialprops) {
+export function testimonial({ quote, author, role, avatar }: testimonialprops) {
   return (
     <div className="p-[1.5em] rounded-2xl bg-[var(--primary)]/10 text-center flex flex-col items-center justify-center h-full">
       <p className="text-white/80 text-[1.125em] italic mb-[1em]">"{quote}"</p>
@@ -598,13 +598,13 @@ export function Testimonial({ quote, author, role, avatar }: testimonialprops) {
   );
 }
 
-// --- Divider ---
+// --- divider ---
 interface dividerprops {
   style?: 'line' | 'dots' | 'gradient';
   spacing?: 'sm' | 'md' | 'lg';
 }
 
-export function Divider({ style = 'line', spacing = 'md' }: dividerprops) {
+export function divider({ style = 'line', spacing = 'md' }: dividerprops) {
   const spacingclasses = { sm: 'my-4', md: 'my-8', lg: 'my-16' };
 
   if (style === 'dots') {
@@ -628,12 +628,12 @@ export function Divider({ style = 'line', spacing = 'md' }: dividerprops) {
 
 // --- file embed elements ---
 
-interface CodeElementProps {
+interface codeelementprops {
   code: string;
   language?: string;
 }
 
-export function CodeElement({ code, language = 'javascript' }: CodeElementProps) {
+export function codeelement({ code, language = 'javascript' }: codeelementprops) {
   return (
     <div className="w-full h-full bg-[#1e1e1e] rounded-xl overflow-hidden flex flex-col border border-white/10">
       <div className="bg-white/5 px-4 py-2 flex items-center gap-2 border-b border-white/5">
@@ -651,12 +651,12 @@ export function CodeElement({ code, language = 'javascript' }: CodeElementProps)
   );
 }
 
-interface PDFElementProps {
+interface pdfelementprops {
   url: string;
   title?: string;
 }
 
-export function PDFElement({ url, title }: PDFElementProps) {
+export function pdfelement({ url, title }: pdfelementprops) {
   return (
     <div className="w-full h-full bg-white rounded-xl overflow-hidden border border-white/10 flex flex-col">
       {title && (
@@ -670,13 +670,13 @@ export function PDFElement({ url, title }: PDFElementProps) {
   );
 }
 
-interface FileElementProps {
+interface fileelementprops {
   url: string;
   filename: string;
   size?: string;
 }
 
-export function FileElement({ url, filename, size }: FileElementProps) {
+export function fileelement({ url, filename, size }: fileelementprops) {
   return (
     <a
       href={url}
@@ -702,7 +702,7 @@ export function FileElement({ url, filename, size }: FileElementProps) {
 }
 // --- minecraft live stats widget ---
 
-interface Serverstatus {
+interface serverstatus {
   online: boolean;
   count: number;
 }
@@ -714,17 +714,17 @@ interface chatmessage {
   timestamp: string;
 }
 
-export function MinecraftStatsWidget() {
+export function minecraftstatswidget() {
   const { previewmode } = usebuilder();
   const ismobile = previewmode === 'mobile';
-  const [status, setstatus] = useState<ServerStatus | null>(null);
-  const [messages, setmessages] = useState<ChatMessage[]>([]);
-  const [isloading, setisloading] = useState(true);
-  const [_connectionstate, setconnectionstate] = useState<'connected' | 'disconnected' | 'reconnecting'>('disconnected');
-  const scrollcontainerref = useRef<HTMLDivElement>(null);
-  const laststatusref = useRef<boolean>(false);
-  const socketref = useRef<Socket | null>(null);
-  const retrytimeoutref = useRef<NodeJS.Timeout | null>(null);
+  const [status, setstatus] = usestate<ServerStatus | null>(null);
+  const [messages, setmessages] = usestate<ChatMessage[]>([]);
+  const [isloading, setisloading] = usestate(true);
+  const [_connectionstate, setconnectionstate] = usestate<'connected' | 'disconnected' | 'reconnecting'>('disconnected');
+  const scrollcontainerref = useref<HTMLDivElement>(null);
+  const laststatusref = useref<boolean>(false);
+  const socketref = useref<Socket | null>(null);
+  const retrytimeoutref = useref<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     // fetch initial data
@@ -989,8 +989,8 @@ export function MinecraftStatsWidget() {
           </div>
         ) : (
           messages.map((msg, i) => {
-            const isjoin = msg.message?.toLowerCase().includes('joined the') || false;
-            const isleave = msg.message?.toLowerCase().includes('left the') || msg.type === 'quit';
+            const isjoin = msg.message?.tolowercase().includes('joined the') || false;
+            const isleave = msg.message?.tolowercase().includes('left the') || msg.type === 'quit';
             const issystem = msg.player === 'system' || isjoin || isleave;
             const displayplayer = issystem ? 'system' : msg.player;
 
@@ -1113,7 +1113,7 @@ export function TierListElement({ rows }: TierListProps) {
     { label: 'A', color: '#ffbf7f', items: ['Archer', 'Mage'] },
     { label: 'B', color: '#ffff7f', items: ['Swordsman'] },
   ];
-  const displayRows = rows && rows.length > 0 ? rows : defaultRows;
+  const displayRows = rows && rows.length > 0 ? rows : defaultrows;
 
   return (
     <div className="w-full h-full bg-black/40 rounded-xl overflow-hidden border border-white/10 flex flex-col backdrop-blur-md">
@@ -1139,7 +1139,7 @@ export function TierListElement({ rows }: TierListProps) {
 }
 
 // --- shopping card ---
-interface ShoppingCardProps {
+interface shoppingcardprops {
   title: string;
   price: string;
   image: string;
@@ -1147,7 +1147,7 @@ interface ShoppingCardProps {
   buttontext?: string;
 }
 
-export function ShoppingCardElement({ title, price, image, description, buttontext = 'buy now' }: ShoppingCardProps) {
+export function shoppingcardelement({ title, price, image, description, buttontext = 'buy now' }: shoppingcardprops) {
   return (
     <div className="w-full h-full bg-black/40 rounded-2xl overflow-hidden border border-white/10 flex flex-col backdrop-blur-md group hover:border-[var(--primary)]/30 transition-all duration-500">
       <div className="relative aspect-video overflow-hidden">
@@ -1169,12 +1169,12 @@ export function ShoppingCardElement({ title, price, image, description, buttonte
 }
 
 // --- floating reminder ---
-interface ReminderProps {
+interface reminderprops {
   content: string;
   color?: string;
 }
 
-export function FloatingReminderElement({ content, color = '#fef08a' }: ReminderProps) {
+export function floatingreminderelement({ content, color = '#fef08a' }: reminderprops) {
   return (
     <div
       className="w-full h-full p-6 relative rounded-xl shadow-2xl rotate-1 group hover:rotate-0 transition-transform duration-500"
@@ -1195,7 +1195,7 @@ export function FloatingReminderElement({ content, color = '#fef08a' }: Reminder
 }
 
 // --- stats bar ---
-interface StatsBarProps {
+interface statsbarprops {
   label: string;
   value: number;
   max?: number;
@@ -1203,7 +1203,7 @@ interface StatsBarProps {
   showvalue?: boolean;
 }
 
-export function StatsBarElement({ label, value, max = 100, color = 'var(--primary)', showvalue = true }: StatsBarProps) {
+export function statsbarelement({ label, value, max = 100, color = 'var(--primary)', showvalue = true }: statsbarprops) {
   const percentage = math.min(100, math.max(0, (value / max) * 100));
 
   return (
@@ -1224,7 +1224,7 @@ export function StatsBarElement({ label, value, max = 100, color = 'var(--primar
 
 // --- pkm visuals ---
 
-export function EternalFlameElement() {
+export function eternalflameelement() {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center relative group">
       <div className="absolute inset-0 bg-orange-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
@@ -1239,7 +1239,7 @@ export function EternalFlameElement() {
   );
 }
 
-export function GoldPileElement() {
+export function goldpileelement() {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center group">
       <div className="relative">
@@ -1254,7 +1254,7 @@ export function GoldPileElement() {
   );
 }
 
-export function SleepRingElement() {
+export function sleepringelement() {
   return (
     <div className="w-full h-full flex items-center justify-center">
       <div className="relative w-40 h-40">

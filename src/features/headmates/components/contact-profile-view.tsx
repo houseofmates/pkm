@@ -16,12 +16,12 @@ interface ContactProfileViewProps {
   isopen: boolean;
 }
 
-export function ContactProfileView({ member, onclose, isopen }: contactprofileviewprops) {
+export function contactprofileview({ member, onclose, isopen }: contactprofileviewprops) {
   const { refresh } = usefronter();
 
   // local state for editing
-  const [isediting, setisediting] = useState(false);
-  const bannerinputref = useRef<HTMLInputElement>(null);
+  const [isediting, setisediting] = usestate(false);
+  const bannerinputref = useref<HTMLInputElement>(null);
 
   // fields
   // use extended fields if available on member, or defaults

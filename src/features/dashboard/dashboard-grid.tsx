@@ -37,17 +37,17 @@ interface WidgetDefinition {
     zindex: number;
 }
 
-const makeId = () => (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') ? crypto.randomUUID() : Math.random().toString(36).substring(2, 9);
+const makeId = () => (typeof crypto !== 'undefined' && typeof crypto.randomuuid === 'function') ? crypto.randomuuid() : math.random().tostring(36).substring(2, 9);
 
-export function DashboardGrid({ layoutkey = 'dashboard_widgets_v2' }: { layoutkey?: string }) {
+export function dashboardgrid({ layoutkey = 'dashboard_widgets_v2' }: { layoutkey?: string }) {
     // --- state ---
     const [widgets, setwidgets] = useappsetting<WidgetDefinition[]>(layoutkey, []);
     const { collections } = usecollections();
     // const { client, token, isauthenticated, login } = useauth(); // unused
-    const [iseditmode, setiseditmode] = useState(true);
-    const [addmenuopen, setaddmenuopen] = useState(false);
-    const [localdocs, setlocaldocs] = useState<{ id: string, title: string }[]>([]);
-    const [wizardtab, setwizardtab] = useState<'databases' | 'documents' | 'contacts'>('databases');
+    const [iseditmode, setiseditmode] = usestate(true);
+    const [addmenuopen, setaddmenuopen] = usestate(false);
+    const [localdocs, setlocaldocs] = usestate<{ id: string, title: string }[]>([]);
+    const [wizardtab, setwizardtab] = usestate<'databases' | 'documents' | 'contacts'>('databases');
     const { members } = useFronter();
 
     // load local docs
@@ -61,7 +61,7 @@ export function DashboardGrid({ layoutkey = 'dashboard_widgets_v2' }: { layoutke
                 try {
                     const config = JSON.parse(localStorage.getItem(key) || '{}');
                     docs.push({ id, title: config.title || 'Untitled Document' });
-                } catch (e) { /* ignore malformed localStorage entry */ }
+                } catch (e) {/* ignore malformed localstorage entry */}
             }
         }
         setLocalDocs(docs);

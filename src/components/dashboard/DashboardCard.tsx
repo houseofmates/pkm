@@ -9,9 +9,9 @@ interface DashboardCardProps {
 }
 
 export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, filter, title }) => {
-  const [data, setdata] = useState<Record<string, unknown>[]>([]);
-  const [loading, setloading] = useState(true);
-  const [error, seterror] = useState<string | null>(null);
+  const [data, setdata] = usestate<Record<string, unknown>[]>([]);
+  const [loading, setloading] = usestate(true);
+  const [error, seterror] = usestate<string | null>(null);
 
   useEffect(() => {
   const fetchData = async () => {

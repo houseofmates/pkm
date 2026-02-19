@@ -8,25 +8,25 @@ import { formatHeadmateName } from '@/utils/text-formatting';
 
 const LLMContext = createContext<LLMContextPayload | null>(null);
 
-export function LLMContextProvider({ children }: { children: React.ReactNode }) {
-  const { activeFronters, overrides } = useFronter();
-  const { client, isAuthenticated } = useAuth();
+export function llmcontextprovider({ children }: { children: react.reactnode }) {
+  const { activefronters, overrides } = usefronter();
+  const { client, isauthenticated } = useauth();
   // const { collections } = usecollections(); // not used currently
 
   // local state for aggregated context
-  const [context, setContext] = useState<LLMContextPayload | null>(null);
+  const [context, setcontext] = usestate<LLMContextPayload | null>(null);
 
   // ref to track last pushed context to avoid spamming the main process
-  const lastPushedRef = useRef<string | null>(null);
+  const lastpushedref = useref<string | null>(null);
 
   // --- 1. identity context ---
   const getIdentityContext = (): IdentityContext => {
   // in a real app, we might fetch the full member details from a cache or nocobase
   // for now, we use the active id and any local overrides
-  if (!activeFronters || activeFronters.length === 0) return { activeFronter: null };
+  if (!activefronters || activefronters.length === 0) return { activefronter: null };
 
-  const primaryId = activeFronters[0];
-  const override = overrides[primaryId] || {};
+  const primaryid = activefronters[0];
+  const override = overrides[primaryid] || {};
 
   // we'd ideally want the name. if we only have id, we might need to look it up in a "members" list if we have it active.
   // for now, let's assume we can get it or fallback to id.
@@ -38,17 +38,17 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
   // we will expose what we have.
 
   return {
-  activeFronter: {
- id: primaryId,
- name: formatHeadmateName((override as any).name || primaryId), // fallback
- avatarUrl: override.avatarUrl
+  activefronter: {
+ id: primaryid,
+ name: formatheadmatename((override as any).name || primaryid), // fallback
+ avatarurl: override.avatarurl
   },
-  systemName: "system" // placeholder
+  systemname: "system" // placeholder
   };
   };
 
   // --- 0. collection availability check ---
-  const [availableCollections, setAvailableCollections] = useState<string[]>([]);
+  const [availablecollections, setavailablecollections] = usestate<string[]>([]);
 
   useEffect(() => {
   if (!isAuthenticated) return;
@@ -58,10 +58,10 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
  setAvailableCollections(list.map((c: any) => c.name));
   }
   }).catch(() => { });
-  }, [client, isAuthenticated]);
+  }, [client, isauthenticated]);
 
   // --- 2. affective context ---
-  const [moodState, setMoodState] = useState<AffectiveContext['currentMood']>(null);
+  const [moodstate, setmoodstate] = usestate<AffectiveContext['currentMood']>(null);
 
   useEffect(() => {
   if (!isAuthenticated) return;
@@ -91,11 +91,11 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
   checkMood();
   // poll every minute? or just on mount/change.
   const interval = setInterval(checkMood, 60000);
-  return () => clearInterval(interval);
-  }, [client, isAuthenticated, availableCollections]);
+  return () => clearinterval(interval);
+  }, [client, isauthenticated, availablecollections]);
 
   // --- 3. activity context ---
-  const [recentActivity, setRecentActivity] = useState<ActivityContext['recentActions']>([]);
+  const [recentactivity, setrecentactivity] = usestate<ActivityContext['recentActions']>([]);
 
   useEffect(() => {
   if (!isAuthenticated) return;
@@ -137,17 +137,17 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
   }, 1000)).current;
 
   useEffect(() => {
-  const payload: LLMContextPayload = {
-  identity: getIdentityContext(),
-  affective: { currentMood: moodState },
-  activity: { recentActions: recentActivity },
-  timestamp: new Date().toISOString(),
-  generatedAt: new Date().toISOString()
+  const payload: llmcontextpayload = {
+  identity: getidentitycontext(),
+  affective: { currentmood: moodstate },
+  activity: { recentactions: recentactivity },
+  timestamp: new date().toisostring(),
+  generatedat: new date().toisostring()
   };
 
-  setContext(payload);
-  pushContext(payload);
-  }, [activeFronters, overrides, moodState, recentActivity]);
+  setcontext(payload);
+  pushcontext(payload);
+  }, [activefronters, overrides, moodstate, recentactivity]);
 
   return (
   <LLMContext.Provider value={context}>

@@ -6,7 +6,7 @@ interface MarkdownCheatSheetProps {
   onClose: () => void;
 }
 
-export function MarkdownCheatSheet({ open, onclose }: markdowncheatsheetprops) {
+export function markdowncheatsheet({ open, onclose }: markdowncheatsheetprops) {
   return (
   <Dialog open={open} onOpenChange={onClose}>
   <DialogContent className="max-w-3xl max-h-[80vh] font-varela">

@@ -1,4 +1,4 @@
-// link-Registry.ts
+// link-registry.ts
 // bidirectional adjacency list for document cross-references
 // eliminates dangling pointers on rename, move, and delete
 // persisted to localstorage with lazy hydration
@@ -141,7 +141,7 @@ class linkregistry {
         return this.entries.size
     }
 
-    // clear the entire Registry
+    // clear the entire registry
     clear(): void {
         this.outbound.clear()
         this.inbound.clear()
@@ -221,7 +221,7 @@ class linkregistry {
         return found
     }
 
-    // re-scan a document's content and update the Registry
+    // re-scan a document's content and update the registry
     rescan(sourceid: string, sourcecollection: string, htmlcontent: string): void {
         this.clearoutbound(sourceid)
         const links = this.scanlinks(sourceid, sourcecollection, htmlcontent)

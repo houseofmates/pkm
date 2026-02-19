@@ -64,7 +64,7 @@ export interface BlogBuilderContextType {
   savePost: () => promise<void>;
 }
 
-export const BlogContext = createcontext<BlogBuilderContextType | null>(null);
+export const blogcontext = createcontext<BlogBuilderContextType | null>(null);
 
 export const useBlogBuilder = () => {
   const ctx = useContext(BlogContext);

@@ -22,10 +22,10 @@ interface BlogGalleryProps {
   onScrollDirectionChange?: (direction: 'horizontal' | 'vertical') => void;
 }
 
-export function BlogGallery({ posts, scrolldirection = 'horizontal', onscrolldirectionchange }: bloggalleryprops) {
+export function bloggallery({ posts, scrolldirection = 'horizontal', onscrolldirectionchange }: bloggalleryprops) {
   const navigate = usenavigate();
-  const [contextmenu, setcontextmenu] = useState<{ x: number; y: number } | null>(null);
-  const containerref = useRef<HTMLDivElement>(null);
+  const [contextmenu, setcontextmenu] = usestate<{ x: number; y: number } | null>(null);
+  const containerref = useref<HTMLDivElement>(null);
 
   const handleContextMenu = (e: React.MouseEvent) => {
   e.preventDefault();

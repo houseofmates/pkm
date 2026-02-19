@@ -39,9 +39,9 @@ export interface EdgelessCanvasProps {
   children?: react.reactnode
 }
 
-export function EdgelessCanvas({ onobjectmodified, classname, onload, children }: edgelesscanvasprops) {
-  const canvasel = useRef<HTMLCanvasElement>(null)
-  const containerref = useRef<HTMLDivElement>(null)
+export function edgelesscanvas({ onobjectmodified, classname, onload, children }: edgelesscanvasprops) {
+  const canvasel = useref<HTMLCanvasElement>(null)
+  const containerref = useref<HTMLDivElement>(null)
   const { width, height } = useWindowSize()
 
   // drop target logic
@@ -98,13 +98,13 @@ export function EdgelessCanvas({ onobjectmodified, classname, onload, children }
     setnoderef(node)
   }
 
-  const [fabriccanvas, setfabriccanvas] = useState<Canvas | null>(null)
-  const [selectedids, setselectedids] = useState<Set<string>>(new set())
-  const [pdfdoc] = useState<pdfjsLib.PDFDocumentProxy | null>(null)
+  const [fabriccanvas, setfabriccanvas] = usestate<Canvas | null>(null)
+  const [selectedids, setselectedids] = usestate<Set<string>>(new set())
+  const [pdfdoc] = usestate<pdfjsLib.PDFDocumentProxy | null>(null)
 
   // spatial index refs for eraser performance
-  const spatialIndexRef = useRef<SpatialIndex | null>(null);
-  const rebuildSpatialIndexRef = useRef<(() => void) | null>(null);
+  const spatialindexref = useref<SpatialIndex | null>(null);
+  const rebuildspatialindexref = useref<(() => void) | null>(null);
 
   // store state
   const {
@@ -538,7 +538,7 @@ export function EdgelessCanvas({ onobjectmodified, classname, onload, children }
   }, [fabriccanvas, drawingid, activelayerid, recordop])
 
   // selection safeguards
-  const longpresstimerref = useRef<NodeJS.Timeout | null>(null)
+  const longpresstimerref = useref<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     if (!fabricCanvas) return
@@ -1119,7 +1119,7 @@ export function EdgelessCanvas({ onobjectmodified, classname, onload, children }
     return () => window.removeeventlistener('paste', handlepaste)
   }, [viewport, addelement])
 
-  const fileinputref = useRef<HTMLInputElement>(null)
+  const fileinputref = useref<HTMLInputElement>(null)
 
   const handleupload = (e: react.changeevent<HTMLInputElement>) => {
     const file = e.target.files?.[0]

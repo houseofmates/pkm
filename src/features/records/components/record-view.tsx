@@ -21,7 +21,7 @@ interface RecordViewProps {
   onClose?: () => void; // if used in a modal/drawer later
 }
 
-export function Recordview({ collectionname: propcollection, recordid: propid }: recordviewprops) {
+export function recordview({ collectionname: propcollection, recordid: propid }: recordviewprops) {
   const { name: paramcollection, id: paramid } = useparams();
   const collectionname = propcollection || paramcollection;
   const recordid = propid || paramid;
@@ -29,13 +29,13 @@ export function Recordview({ collectionname: propcollection, recordid: propid }:
   const { client } = useauth();
   const navigate = usenavigate();
 
-  const [record, setrecord] = useState<any>(null);
-  const [collection, setcollection] = useState<any>(null);
-  const [loading, setloading] = useState(true);
-  const [showproperties, setshowproperties] = useState(true);
+  const [record, setrecord] = usestate<any>(null);
+  const [collection, setcollection] = usestate<any>(null);
+  const [loading, setloading] = usestate(true);
+  const [showproperties, setshowproperties] = usestate(true);
 
   // template/layout detection
-  const [templateconfig, settemplateconfig] = useState<any>(null);
+  const [templateconfig, settemplateconfig] = usestate<any>(null);
 
   useEffect(() => {
     if (!collectionName || !recordId || !client) return;

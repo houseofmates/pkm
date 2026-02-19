@@ -81,15 +81,15 @@ export function ElementContextMenu({ element, x, y, onClose }: Props) {
 
   const handleCopy = () => {
     // ensure the element is selected before copying
-    setSelectedElementIds([element.id]);
-    copySelection();
-    onClose();
+    setselectedelementids([element.id]);
+    copyselection();
+    onclose();
   };
 
   // position menu
-  const menuStyle = {
-    left: Math.min(x, window.innerWidth - 220),
-    top: Math.min(y, window.innerHeight - 450),
+  const menustyle = {
+    left: math.min(x, window.innerwidth - 220),
+    top: math.min(y, window.innerheight - 450),
   };
 
   return (

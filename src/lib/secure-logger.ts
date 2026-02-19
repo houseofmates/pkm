@@ -95,7 +95,7 @@ function containsSensitiveData(message: string): boolean {
   return sanitized !== message;
 }
 
-// store Log entry in history
+// store log entry in history
 function storeLogEntry(entry: LogEntry): void {
   LOG_HISTORY.push(entry);
   if (LOG_HISTORY.length > MAX_HISTORY) {
@@ -126,7 +126,7 @@ function createLogger(level: LogLevel) {
     const sanitizedMessage = sanitizeMessage(fullMessage);
     const hadSensitiveData = sanitizedMessage !== fullMessage;
     
-    // create Log entry
+    // create log entry
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level,
@@ -137,7 +137,7 @@ function createLogger(level: LogLevel) {
     
     storeLogEntry(entry);
     
-    // determine if we should actually Log to console
+    // determine if we should actually log to console
     const shouldLog = debugMode || (authenticated && !privacyMode);
     
     if (shouldLog) {
@@ -169,10 +169,10 @@ export const secureLogger = {
   warn: createLogger('warn'),
   error: createLogger('error'),
   
-  // get Log history for security dashboard
+  // get log history for security dashboard
   getHistory: (): LogEntry[] => [...LOG_HISTORY],
   
-  // clear Log history
+  // clear log history
   clearHistory: (): void => {
     LOG_HISTORY.length = 0;
   },

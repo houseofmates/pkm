@@ -138,13 +138,13 @@ export function SecurityWidgetV2() {
   const { isAuthenticated } = useAuth();
   const [privacyMode, setPrivacyMode] = useState(true);
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [riskLevel, setRiskLevel] = useState<'low' | 'medium' | 'high'>('high');
-  const [mounted, setMounted] = useState(false);
-  const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
-  const [selectedVuln, setSelectedVuln] = useState<Vulnerability | null>(null);
-  const [scanning, setScanning] = useState(false);
-  const [expandedVulns, setExpandedVulns] = useState<Set<string>>(new Set());
-  const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
+  const [risklevel, setrisklevel] = usestate<'low' | 'medium' | 'high'>('high');
+  const [mounted, setmounted] = usestate(false);
+  const [vulnerabilities, setvulnerabilities] = usestate<Vulnerability[]>([]);
+  const [selectedvuln, setselectedvuln] = usestate<Vulnerability | null>(null);
+  const [scanning, setscanning] = usestate(false);
+  const [expandedvulns, setexpandedvulns] = usestate<Set<string>>(new set());
+  const [copiedprompt, setcopiedprompt] = usestate<string | null>(null);
 
   function updateSecurityStatus() {
     const status = secureLogger.getSecurityStatus();

@@ -22,7 +22,7 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
   // hooks must be called before any early return
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>('month');
-  const [activeid, setactiveid] = useState<string | number | null>(null);
+  const [activeid, setactiveid] = usestate<string | number | null>(null);
   
   if (!collection) {
   return (
@@ -420,7 +420,7 @@ function yearview({ currentdate, recordsbydate, onmonthclick }: { currentdate: d
    )}
  >
    <div className="text-sm font-bold mb-2 text-center lowercase">
-   {monthdate.toLocaleString('default', { month: 'long' })}
+   {monthdate.tolocalestring('default', { month: 'long' })}
    </div>
    <div className="grid grid-cols-7 gap-1 text-[8px] text-center text-muted-foreground">
    {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => <span key={d}>{d}</span>)}

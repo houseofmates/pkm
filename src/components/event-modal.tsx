@@ -16,21 +16,21 @@ type EventModalProps = {
   ondelete?: (e: record<string, unknown>) => void;
 };
 
-export default function EventModal({ open, onClose, event, onSave, onDelete }: EventModalProps) {
+export default function eventmodal({ open, onclose, event, onsave, ondelete }: eventmodalprops) {
   // use controlled inputs - state resets when modal opens with new event
-  const [title, setTitle] = useState(event?.title || '');
-  const [date, setDate] = useState(event?.date || '');
+  const [title, settitle] = usestate(event?.title || '');
+  const [date, setdate] = usestate(event?.date || '');
 
-  function handleSave() {
+  function handlesave() {
     const payload = { ...(event || {}), title };
     payload[event?.datefield || 'date'] = date;
-    if (onSave) onSave(payload);
-    if (onClose) onClose();
+    if (onsave) onsave(payload);
+    if (onclose) onclose();
   }
 
-  function handleDelete() {
-    if (onDelete) onDelete(event || {});
-    if (onClose) onClose();
+  function handledelete() {
+    if (ondelete) ondelete(event || {});
+    if (onclose) onclose();
   }
 
   return (

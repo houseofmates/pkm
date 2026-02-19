@@ -39,8 +39,8 @@ interface formrendererprops {
     isadmin?: boolean;
 }
 
-export function FormRenderer({ element, isadmin }: formrendererprops) {
-    const [formdata, setformdata] = useState<Record<string, any>>({});
+export function formrenderer({ element, isadmin }: formrendererprops) {
+    const [formdata, setformdata] = usestate<Record<string, any>>({});
     const [submitting, setSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [rating, setRating] = useState(0);

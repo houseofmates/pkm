@@ -34,9 +34,9 @@ const common_icons = [
   "bookmark", "tag", "link", "lock", "unlock", "eye", "eyeoff"
 ];
 
-export function IconPicker({ onselect, trigger, open, onopenchange }: iconpickerprops) {
-  const [, setactivetab] = useState('icons');
-  const fileinputref = useRef<HTMLInputElement>(null);
+export function iconpicker({ onselect, trigger, open, onopenchange }: iconpickerprops) {
+  const [, setactivetab] = usestate('icons');
+  const fileinputref = useref<HTMLInputElement>(null);
 
   const handlefileupload = (e: react.changeevent<HTMLInputElement>) => {
   const file = e.target.files?.[0];

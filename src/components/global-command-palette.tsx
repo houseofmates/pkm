@@ -52,15 +52,15 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   const { activefronters, members } = usefronter();
 
   // search state
-  const [query, setquery] = useState("");
-  const [dbresults, setdbresults] = useState<SearchResult[]>([]);
-  const [aiinsight, setaiinsight] = useState<string | null>(null);
-  const [issearching, setissearching] = useState(false);
-  const [isreasoning, setisreasoning] = useState(false);
+  const [query, setquery] = usestate("");
+  const [dbresults, setdbresults] = usestate<SearchResult[]>([]);
+  const [aiinsight, setaiinsight] = usestate<string | null>(null);
+  const [issearching, setissearching] = usestate(false);
+  const [isreasoning, setisreasoning] = usestate(false);
 
   // quick capture
-  const [_createdialogopen, _setcreatedialogopen] = useState(false);
-  const [_selectedcollection, _setselectedcollection] = useState<string | null>(null);
+  const [_createdialogopen, _setcreatedialogopen] = usestate(false);
+  const [_selectedcollection, _setselectedcollection] = usestate<string | null>(null);
 
   // keyboard shortcut (` or ~)
   useEffect(() => {
