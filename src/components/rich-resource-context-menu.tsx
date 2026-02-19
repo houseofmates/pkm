@@ -25,13 +25,13 @@ const ALL_ICONS = Object.keys(LucideIcons).filter(key =>
   key !== 'icons' &&
   key !== 'createlucideicon' &&
   key !== 'default' &&
-  !key.startswith('lucide') &&
-  !key.endswith('icon') &&
+  !key.startsWith('lucide') &&
+  !key.endsWith('icon') &&
   /^[a-z]/.test(key)
 );
 
 // semantic keywords for "smart search"
-const icon_keywords: record<string, string[]> = {
+const iconKeywords: Record<string, string[]> = {
   // food & drink
   'food': ['Apple', 'Banana', 'Cherry', 'Citrus', 'Coffee', 'Cookie', 'Croissant', 'CupSoda', 'Donut', 'Egg', 'Fish', 'Grape', 'IceCream', 'Lollipop', 'Martini', 'Milk', 'Nut', 'Pizza', 'Popcorn', 'Potato', 'Sandwich', 'Soup', 'Utensils', 'Wheat', 'Wine', 'Beef', 'Beer', 'Candy', 'Carrot', 'Vegan', 'Cake', 'IceCream2'],
   'drink': ['Beer', 'Coffee', 'CupSoda', 'Martini', 'Milk', 'Wine', 'GlassWater'],
@@ -343,7 +343,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   const directMatches = ALL_ICONS.filter(name => name.toLowerCase().includes(lowerSearch));
 
   // 2. keyword search
-  const keywordMatches = Object.entries(ICON_KEYWORDS)
+  const keywordMatches = Object.entries(iconKeywords)
   .filter(([key]) => key.includes(lowerSearch))
   .flatMap(([, icons]) => icons);
 
@@ -364,9 +364,9 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   if (file) {
   const reader = new FileReader();
   reader.onloadend = () => {
- onupdate({ icon: reader.result as string, icontype: 'image' });
+ onUpdate({ icon: reader.result as string, iconType: 'image' });
   };
-  reader.readasdataurl(file);
+  reader.readAsDataURL(file);
   }
   };
 
@@ -424,7 +424,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
  </div>
 
  {/* search bar - moved below tabs to prevent overlap */}
- {(activetab === 'icons' || activetab === 'emojis') && (
+ {(activeTab === 'icons' || activeTab === 'emojis') && (
  <div className="p-2 border-b bg-muted/10 shrink-0 relative">
    <div className="relative">
    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -440,7 +440,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
 
  <div className="flex-1 min-h-0 relative">
  <TabsContent value="emojis" className="absolute inset-0 m-0">
-   {loadingemojis ? (
+   {loadingEmojis ? (
    <div className="flex items-center justify-center h-full text-muted-foreground">
    <Loader2 className="h-6 w-6 animate-spin mr-2" /> loading...
    </div>
@@ -466,7 +466,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   </button>
   ))}
    </div>
-   {!filteredemojis.length && (
+   {!filteredEmojis.length && (
   <div className="flex flex-col items-center justify-center h-full text-muted-foreground pb-8">
   <span className="text-2xl mb-2">🤔</span>
   <span className="text-xs">no emojis found</span>
@@ -480,7 +480,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
    <ScrollArea className="h-full p-2">
    <div className="grid grid-cols-7 gap-1">
    {filteredIcons.map(name => {
-  const icon = (lucideicons as any)[name];
+  const icon = (LucideIcons as any)[name];
   if (!icon) return null;
   return (
   <button
@@ -495,7 +495,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   );
    })}
    </div>
-   {!filteredicons.length && (
+   {!filteredIcons.length && (
    <div className="flex flex-col items-center justify-center h-full text-muted-foreground pb-8">
   <Search className="h-8 w-8 mb-2 opacity-50" />
   <span className="text-xs">no icons found</span>
