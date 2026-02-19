@@ -33,7 +33,7 @@ async function getWAL(): Promise<IDBPDatabase<WALSchema>> {
     return walDb
 }
 
-export async function walWrite(
+export async function walwrite(
     collection: string,
     recordId: string,
     operation: 'create' | 'update' | 'delete',
@@ -54,7 +54,7 @@ export async function walWrite(
     return id
 }
 
-export async function walCommit(id: string): Promise<void> {
+export async function walcommit(id: string): Promise<void> {
     const db = await getWAL()
     const entry = await db.get('wal', id)
     if (entry) {
@@ -73,7 +73,7 @@ export async function walCommit(id: string): Promise<void> {
     await tx.done
 }
 
-export async function walFail(id: string): Promise<void> {
+export async function walfail(id: string): Promise<void> {
     const db = await getWAL()
     const entry = await db.get('wal', id)
     if (entry) {
@@ -83,7 +83,7 @@ export async function walFail(id: string): Promise<void> {
     }
 }
 
-export async function walRecover(): Promise<
+export async function walrecover(): Promise<
     Array<{
         id: string
         collection: string
@@ -99,7 +99,7 @@ export async function walRecover(): Promise<
         .sort((a, b) => a.timestamp - b.timestamp)
 }
 
-export async function walPendingCount(): Promise<number> {
+export async function walpendingcount(): Promise<number> {
     const db = await getWAL()
     const all = await db.getAll('wal')
     return all.filter((e) => e.status === 'pending').length
