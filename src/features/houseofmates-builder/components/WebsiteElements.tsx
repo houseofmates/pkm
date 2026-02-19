@@ -707,7 +707,7 @@ interface serverstatus {
   count: number;
 }
 
-interface chatmessage {
+export interface ChatMessage {
   type: 'chat' | 'join' | 'quit' | 'leave';
   player: string;
   message: string;
