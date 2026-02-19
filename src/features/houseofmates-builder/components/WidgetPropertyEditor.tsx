@@ -104,13 +104,13 @@ export function WidgetPropertyEditor({ Element, onUpdate, onClose }: Props) {
             <Input label="bedrock port" Value={content.bedrockport} onChange={(v: String) => updateField('bedrockport', v)} />
             <Checkbox label="show bedrock" checked={content.showbedrock} onChange={(v: Boolean) => updateField('showbedrock', v)} />
           </>
-        );
-      case 'serverstatus':
-        return (
           <>
-            <Input label="motd" Value={content.motd} onChange={(v: String) => updateField('motd', v)} />
-            <Input label="player count" Type="Number" Value={content.playercount} onChange={(v: Number) => updateField('playercount', Number(v))} />
-            <Input label="max players" Type="Number" Value={content.maxplayers} onChange={(v: Number) => updateField('maxplayers', Number(v))} />
+            <Input label="title" value={content.title} onChange={(v: string) => updateField('title', v)} />
+            <Input label="java port" value={content.javaport} onChange={(v: string) => updateField('javaport', v)} />
+            <Input label="bedrock ip" value={content.bedrockip} onChange={(v: string) => updateField('bedrockip', v)} />
+            <Input label="bedrock port" value={content.bedrockport} onChange={(v: string) => updateField('bedrockport', v)} />
+            <Checkbox label="show bedrock" checked={content.showbedrock} onChange={(v: boolean) => updateField('showbedrock', v)} />
+          </>
             <Checkbox label="Is online (static)" checked={content.isonline} onChange={(v: Boolean) => updateField('isonline', v)} />
           </>
         );
@@ -124,44 +124,17 @@ export function WidgetPropertyEditor({ Element, onUpdate, onClose }: Props) {
                 <div key={idx} className="flex gap-2">
                   <input
                     className="flex-1 bg-black/50 border border-white/10 rounded px-2 py-1 Text-white Text-sm"
-                    Value={rule}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleArrayUpdate('rules', idx, e.target.Value)}
-                  />
-                  <button onClick={() => handleArrayRemove('rules', idx)} className="Text-red-400 hover:Text-red-300"><Trash2 size={16} /></button>
-                </div>
-              ))}
-              <button onClick={() => handleArrayAdd('rules', 'new rule')} className="flex items-center gap-2 Text-[var(--primary)] Text-sm hover:underline">
-                <Plus size={14} /> Add rule
-              </button>
-            </div>
-          </>
-        );
-      case 'featurecard':
-        return (
-          <>
-            <input label="title" Value={content.title} onChange={(v: String) => updatefield('title', v)} />
-            <input label="description" Value={content.description} onChange={(v: String) => updatefield('description', v)} textarea />
+                    <>
+                      <input value={content.title} onChange={e => updateField('title', e.target.value)} />
+                      <input value={content.description} onChange={e => updateField('description', e.target.value)} />
 
-            <div className="flex flex-col gap-1.5 relative">
-              <label className="Text-white/70 Text-xs  font-bold">icon</label>
-              <button
-                onclick={() => setshowiconpicker(!showiconpicker)}
-                className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 Text-white flex items-center justify-between hover:border-[var(--primary)]/50 transition-colors"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="p-1.5 rounded-lg bg-[var(--primary)]/10 Text-[var(--primary)]">
-                    {(() => {
-                      const iconname = content.icon || 'shield';
-                      const formattedname = iconname.charat(0).touppercase() + iconname.slice(1);
-                      // @ts-expect-Error -- dynamic lucideicons lookup
-                      const icon = (lucideicons as any)[formattedname] || lucideicons.shield;
-                      return <icon size={18} />;
-                    })()}
-                  </div>
-                  <span className="Text-sm">{content.icon || 'select icon...'}</span>
-                </div>
-                <search size={16} className="Text-white/20" />
-              </button>
+                      <div className="flex flex-col gap-1.5 relative">
+                        <label className="text-white/70 text-xs  font-bold">icon</label>
+                        {/* icon picker logic should be implemented here if needed */}
+                      </div>
+
+                      <input value={content.color} onChange={e => updateField('color', e.target.value)} />
+                    </>
 
               {showiconpicker && (
                 <div className="absolute top-full left-0 mt-2 z-[3000]">
@@ -660,34 +633,32 @@ export function WidgetPropertyEditor({ Element, onUpdate, onClose }: Props) {
                 <input
                   Type="range"
                   min={1}
-                  max={100}
-                  step={1}
-                  Value={Math.round((styles.opacity ?? 0.75) * 100)}
-                  onChange={(e) => updateStyle('opacity', Number(e.target.Value) / 100)}
-                  className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-[var(--primary)]"
-                />
-              </div>
-            </div>
-
-            <div className="p-4 bg-white/5 rounded-xl space-y-4 mb-4">
-              <h4 className="Text-[var(--primary)] Text-xs font-black mb-2 lowercase">border styles</h4>
-              <div className="grid grid-cols-2 gap-4">
-                <Input
-                  label="width (px)"
-                  Type="Number"
-                  Value={styles.borderWidth}
-                  onChange={(v: Number) => updateStyle('borderWidth', Number(v))}
-                  placeholder="0"
-                />
-                <Input
-                  label="radius (px)"
-                  Type="Number"
-                  Value={styles.borderRadius}
-                  onChange={(v: Number) => updateStyle('borderRadius', Number(v))}
-                  placeholder="16"
-                />
-                <div className="flex flex-col gap-1.5">
-                  <label className="Text-white/70 Text-xs font-bold">color</label>
+                  <>
+                    <input value={content.username} onChange={e => updateField('username', e.target.value)} />
+                    <input value={content.role} onChange={e => updateField('role', e.target.value)} />
+                    <div className="space-y-2">
+                      <label className="text-white/70 text-sm">avatar</label>
+                      <div className="flex gap-2">
+                        <input
+                          placeholder="custom avatar url (optional)"
+                          value={content.avatar}
+                          onChange={e => updateField('avatar', e.target.value)}
+                        />
+                        <button
+                          className="px-4 py-2 bg-[var(--primary)]/20 hover:bg-[var(--primary)]/30 text-[var(--primary)] rounded-md flex items-center gap-2 whitespace-nowrap transition-colors"
+                          title="upload from device"
+                        >
+                          upload
+                        </button>
+                      </div>
+                      {content.avatar && (
+                        <div className="mt-2">
+                          <img src={content.avatar} alt="preview" className="w-16 h-16 rounded-lg object-cover" />
+                        </div>
+                      )}
+                    </div>
+                    <input value={content.color} onChange={e => updateField('color', e.target.value)} />
+                  </>
                   <div className="flex items-center gap-2 bg-black/50 p-1 rounded-lg border border-white/10">
                     <input
                       Type="color"
