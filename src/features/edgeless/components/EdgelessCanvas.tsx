@@ -1116,8 +1116,8 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       }
     }
     window.addEventListener('paste', handlePaste)
-    return () => window.removeeventlistener('paste', handlepaste)
-  }, [viewport, addelement])
+    return () => window.removeEventListener('paste', handlePaste)
+  }, [viewPort, addElement])
 
   const fileinputref = useref<HTMLInputElement>(null)
 
@@ -1412,9 +1412,9 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         const width = canvasconfig.mode === 'desktop-8k' ? 7680 : 4320
         const height = canvasconfig.mode === 'desktop-8k' ? 4320 : 9360
 
-        const zoom = viewport.zoom
-        const panx = viewport.x
-        const pany = viewport.y
+        const zoom = viewPort.zoom
+        const panX = viewPort.x
+        const panY = viewPort.y
 
         return (
           <div
