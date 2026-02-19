@@ -41,7 +41,7 @@ export function CollectionCard({ collection, className }: CollectionCardProps) {
   if (config.thumbnail) {
  visualPreview = config.thumbnail;
   }
-  } catch { }
+  } catch (e) { /* ignore malformed localstorage */ }
   }
 
   const hasFields = !isVisual && fields.length > 0;

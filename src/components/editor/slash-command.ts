@@ -230,7 +230,7 @@ export const renderItems = () => {
  return;
   }
 
-  // @ts-ignore
+  // @ts-expect-error
   popup = tippy('body', {
  getReferenceClientRect: props.clientRect,
  appendTo: () => document.body,

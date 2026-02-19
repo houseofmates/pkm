@@ -156,7 +156,7 @@ export function WidgetPropertyEditor({ element, onupdate, onclose }: props) {
                     {(() => {
                       const iconname = content.icon || 'shield';
                       const formattedname = iconname.charat(0).touppercase() + iconname.slice(1);
-                      // @ts-ignore
+                      // @ts-expect-error
                       const icon = lucideicons[formattedname] || lucideicons.shield;
                       return <icon size={18} />;
                     })()}
@@ -287,7 +287,7 @@ export function WidgetPropertyEditor({ element, onupdate, onclose }: props) {
                     {(() => {
                       const iconname = content.icon || 'arrow-right';
                       const formattedname = iconname.charat(0).touppercase() + iconname.slice(1).replace(/-([a-z])/g, (g) => g[1].touppercase());
-                      // @ts-ignore
+                      // @ts-expect-error
                       const icon = lucideicons[formattedname] || lucideicons.arrowright;
                       return <icon size={18} />;
                     })()}
@@ -368,7 +368,7 @@ export function WidgetPropertyEditor({ element, onupdate, onclose }: props) {
                     {(() => {
                       const iconname = content.icon || 'link-2';
                       const formattedname = iconname.charat(0).touppercase() + iconname.slice(1).replace(/-([a-z])/g, (g: any) => g[1].touppercase());
-                      // @ts-ignore
+                      // @ts-expect-error
                       const icon = lucideicons[formattedname] || lucideicons.link2;
                       return <icon size={18} />;
                     })()}
