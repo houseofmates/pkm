@@ -70,11 +70,11 @@ export function BlogPostViewer({ post, onViewCountUpdate }: BlogPostViewerProps)
             <div className="flex items-center gap-2">
               <Calendar size={16} />
               <span className="lowercase">
-                {new date(post.published_date).tolocaledatestring('en-us', {
+                {new Date(post.published_date).toLocaleDateString('en-US', {
                   month: 'long',
                   day: 'numeric',
                   year: 'numeric'
-                }).tolowercase()}
+                }).toLowerCase()}
               </span>
             </div>
           )}
@@ -130,7 +130,7 @@ export function BlogPostViewer({ post, onViewCountUpdate }: BlogPostViewerProps)
               <span>content warnings</span>
               <span className="text-xs">{showWarnings ? 'hide' : 'show'}</span>
             </button>
-            {showwarnings && (
+            {showWarnings && (
               <ul className="text-yellow-500/80 text-sm lowercase space-y-1 mt-2">
                 {post.content_warnings.map((warning, idx) => (
                   <li key={idx}>• {warning}</li>
@@ -157,7 +157,7 @@ export function BlogPostViewer({ post, onViewCountUpdate }: BlogPostViewerProps)
 
         {/* post content */}
         <div className="prose prose-invert prose-lg max-w-none">
-          {post.content && array.isarray(post.content) ? (
+          {post.content && Array.isArray(post.content) ? (
             <SimpleContentRenderer elements={post.content} />
           ) : (
             <div className="text-white/60 lowercase">
