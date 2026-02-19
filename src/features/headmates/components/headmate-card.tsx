@@ -8,7 +8,7 @@ import { getStringColor } from '@/utils/color-generator';
 import { PLACEHOLDER_IMAGE } from '@/lib/discord-utils';
 import { secureLogger } from '@/lib/secure-logger';
 
-import { ContactProfileView } from './contact-profile-view';
+import { ContactProfileView } from './ContactProfileView';
 
 // unified headmate interface
 export interface Headmate {
