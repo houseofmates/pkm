@@ -134,7 +134,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
         id: 'dashboard-canvas',
     });
 
-    // listen to drop events from rootlayout (via customevent as dnd kit context is shared but handling is separate)
+    // listen to drop events from rootlayout (via CustomEvent as dnd kit context is shared but handling is separate)
     useEffect(() => {
         const handleAdd = (e: any) => {
             const { id, type, name } = e.detail;

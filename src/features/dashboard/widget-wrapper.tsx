@@ -14,9 +14,9 @@ interface WidgetWrapperProps {
   headeractions?: React.ReactNode;
   // props passed by react-grid-layout
   style?: React.CSSProperties;
-  onmousedown?: React.MouseEventHandler;
-  onmouseup?: React.MouseEventHandler;
-  ontouchend?: React.TouchEventHandler;
+  onMouseDown?: React.MouseEventHandler;
+  onMouseUp?: React.MouseEventHandler;
+  onTouchEnd?: React.TouchEventHandler;
 }
 
 // forward ref is required for react-grid-layout

@@ -27,7 +27,7 @@ export function CanvasPage() {
     }
 
     // pdf handling
-    const handlepdfupload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handlePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             const reader = new FileReader();

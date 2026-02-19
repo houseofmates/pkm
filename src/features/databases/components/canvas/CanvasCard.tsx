@@ -83,7 +83,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
     if (onupdate) onupdate(data.id, { [key]: value });
   };
 
-  const handleimageupload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
