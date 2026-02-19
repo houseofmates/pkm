@@ -39,21 +39,21 @@ const ToolBtn = ({ tool, icon: Icon, menuContent, specialModeIcon, store, active
     if (menuContent) openMenu(tool)
   })
 
-    const handleClick = () => {
-      // close any open menu first
-      closeMenu()
+  const handleClick = () => {
+    // close any open menu first
+    closeMenu()
 
-      if (onClickOverride) {
-        onClickOverride()
-      } else {
-        store.setTool(tool)
-        if (tool === 'pen' || tool === 'eraser' || tool === 'text') {
-          store.setMode('draw')
-        } else if (tool === 'hand') {
-          store.setMode('interact')
-        }
+    if (onClickOverride) {
+      onClickOverride()
+    } else {
+      store.setTool(tool)
+      if (tool === 'pen' || tool === 'eraser' || tool === 'text') {
+        store.setMode('draw')
+      } else if (tool === 'hand') {
+        store.setMode('interact')
       }
     }
+  }
 
 
   return (
@@ -73,7 +73,7 @@ const ToolBtn = ({ tool, icon: Icon, menuContent, specialModeIcon, store, active
 
       {activeMenu === tool && menuContent && (
         <div className="absolute bottom-16 left-1/2 -translate-x-1/2 md:top-16 md:bottom-auto bg-black border border-primary p-4 rounded-lg flex flex-col gap-2 min-w-[200px] z-[70] shadow-[0_0_15px_rgba(255,215,0,0.2)]">
-          {menucontent}
+          {menuContent}
           <button onClick={closeMenu} className="text-xs text-red-500 mt-2 lowercase hover:text-red-400 self-center">close</button>
         </div>
       )}
