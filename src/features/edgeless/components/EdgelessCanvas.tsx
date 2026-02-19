@@ -1119,9 +1119,9 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     return () => window.removeEventListener('paste', handlePaste)
   }, [viewPort, addElement])
 
-  const fileinputref = useref<HTMLInputElement>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleupload = (e: react.changeevent<HTMLInputElement>) => {
+  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 

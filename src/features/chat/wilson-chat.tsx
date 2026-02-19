@@ -15,9 +15,9 @@ export function WilsonChat() {
   const isChatOpen = useEdgelessStore((state) => state.isChatOpen)
   const setChatOpen = useEdgelessStore((state) => state.setchatopen)
 
-  const { interactionhistory, isthinking, askwilson } = usellmstore()
-  const [userinput, setuserinput] = useState('')
-  const chatcontainerref = useref<HTMLDivElement>(null)
+  const { interactionHistory, isThinking, askWilson } = useLLMStore.getState()
+  const [userInput, setUserInput] = useState('')
+  const chatContainerRef = useRef<HTMLDivElement>(null)
 
   // auto-scroll
   useEffect(() => {

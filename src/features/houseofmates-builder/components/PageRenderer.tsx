@@ -371,30 +371,30 @@ function elementrenderer({ element, isselected, isadmin, onselect, onupdate, onu
 
 
   // scroll-triggered animation
-  const { ref: inviewref } = useinview({
-    triggeronce: true,
+  const { ref: inviewRef } = useInView({
+    triggerOnce: true,
     threshold: 0.1,
   });
-  const elementref = useref<HTMLDivElement | null>(null);
+  const elementRef = useRef<HTMLDivElement | null>(null);
 
   // merge refs
   const setRefs = (node: HTMLDivElement | null) => {
-    elementref.current = node;
-    inviewref(node);
+    elementRef.current = node;
+    inviewRef(node);
   };
 
   // drag state
-  const [isdragging, setisdragging] = useState(false);
-  const [isresizing, setisresizing] = useState(false);
-  const [isediting, setisediting] = useState(false);
-  const [issnapping, setissnapping] = useState(false);
-  const [resizehandle, setresizehandle] = useState<string | null>(null); // n, s, e, w, ne, nw, se, sw
-  const dragstart = useref<{
+  const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [isSnapping, setIsSnapping] = useState(false);
+  const [resizeHandle, setResizeHandle] = useState<string | null>(null); // n, s, e, w, ne, nw, se, sw
+  const dragStart = useRef<{
     x: number;
     y: number;
     targets: { id: string; initialX: number; initialY: number; dom: HTMLElement | null }[]
   } | null>(null);
-  const resizestart = useref<{ x: number; y: number; elW: number; elH: number; elX: number; elY: number; baseFontSize: number } | null>(null);
+  const resizeStart = useRef<{ x: number; y: number; elW: number; elH: number; elX: number; elY: number; baseFontSize: number } | null>(null);
 
   // handle drag
   useEffect(() => {

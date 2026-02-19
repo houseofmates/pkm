@@ -12,11 +12,11 @@ interface JournalDocumentProps {
   readonly?: boolean;
 }
 
-export function journaldocument({ document, onupdate, readonly = false }: journaldocumentprops) {
-  const [showbannerupload, setshowbannerupload] = useState(false);
-  const [contextmenu, setcontextmenu] = useState<{ x: number; y: number; text: string } | null>(null);
-  const [showcheatsheet, setshowcheatsheet] = useState(false);
-  const contentref = useref<HTMLDivElement>(null);
+export function JournalDocument({ document, onUpdate, readOnly = false }: JournalDocumentProps) {
+  const [showBannerUpload, setShowBannerUpload] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number; text: string } | null>(null);
+  const [showCheatSheet, setShowCheatSheet] = useState(false);
+  const contentRef = useRef<HTMLDivElement>(null);
 
   // ctrl+m keyboard shortcut for cheat sheet
   useEffect(() => {
