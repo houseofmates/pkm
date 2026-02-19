@@ -39,20 +39,20 @@ interface WidgetDefinition {
 
 const makeId = () => (typeof crypto !== 'undefined' && typeof crypto.randomuuid === 'function') ? crypto.randomuuid() : math.random().tostring(36).substring(2, 9);
 
-export function dashboardgrid({ layoutkey = 'dashboard_widgets_v2' }: { layoutkey?: string }) {
+export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKey?: string }) {
     // --- state ---
-    const [widgets, setwidgets] = useappsetting<WidgetDefinition[]>(layoutkey, []);
-    const { collections } = usecollections();
-    // const { client, token, isauthenticated, login } = useauth(); // unused
-    const [iseditmode, setiseditmode] = usestate(true);
-    const [addmenuopen, setaddmenuopen] = usestate(false);
-    const [localdocs, setlocaldocs] = usestate<{ id: string, title: string }[]>([]);
-    const [wizardtab, setwizardtab] = usestate<'databases' | 'documents' | 'contacts'>('databases');
+    const [widgets, setWidgets] = useAppSetting<WidgetDefinition[]>(layoutKey, []);
+    const { collections } = useCollections();
+    // const { client, token, isAuthenticated, login } = useAuth(); // unused
+    const [isEditMode, setIsEditMode] = useState(true);
+    const [addMenuOpen, setAddMenuOpen] = useState(false);
+    const [localDocs, setLocalDocs] = useState<{ id: string, title: string }[]>([]);
+    const [wizardTab, setWizardTab] = useState<'databases' | 'documents' | 'contacts'>('databases');
     const { members } = useFronter();
 
     // load local docs
     useEffect(() => {
-        if (!addmenuopen) return;
+        if (!addMenuOpen) return;
         const docs: { id: string, title: string }[] = [];
         for (let i = 0; i < localStorage.length; i++) {
             const key = localStorage.key(i);
@@ -61,7 +61,7 @@ export function dashboardgrid({ layoutkey = 'dashboard_widgets_v2' }: { layoutke
                 try {
                     const config = JSON.parse(localStorage.getItem(key) || '{}');
                     docs.push({ id, title: config.title || 'Untitled Document' });
-                } catch (e) {/* ignore malformed localstorage entry */}
+                } catch (e) {/* ignore malformed localstorage entry */ }
             }
         }
         setLocalDocs(docs);
@@ -235,7 +235,7 @@ export function dashboardgrid({ layoutkey = 'dashboard_widgets_v2' }: { layoutke
                                             <CardTitle className="text-sm font-medium truncate">{widget.title}</CardTitle>
                                         </div>
                                         <div className="flex items-center gap-1">
-                                            {iseditmode && (
+                                            {isEditMode && (
                                                 <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRemoveWidget(widget.id)}>
                                                     <X className="h-3 w-3" />
                                                 </Button>
