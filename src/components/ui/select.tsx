@@ -14,7 +14,7 @@ const SelectValue = SelectPrimitive.Value
 
 const SelectTrigger = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Trigger>,
-  react.componentpropswithoutref<typeof SelectPrimitive.Trigger>
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Trigger>
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Trigger
     ref={ref}
@@ -30,11 +30,11 @@ const SelectTrigger = React.forwardRef<
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
 ))
-selecttrigger.displayname = selectprimitive.trigger.displayname
+SelectTrigger.displayName = SelectPrimitive.Trigger.displayName
 
-const selectscrollupbutton = react.forwardref<
+const SelectScrollUpButton = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.ScrollUpButton>,
-  react.componentpropswithoutref<typeof SelectPrimitive.ScrollUpButton>
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollUpButton>
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.ScrollUpButton
     ref={ref}
@@ -47,11 +47,11 @@ const selectscrollupbutton = react.forwardref<
     <ChevronUp className="h-4 w-4" />
   </SelectPrimitive.ScrollUpButton>
 ))
-selectscrollupbutton.displayname = selectprimitive.scrollupbutton.displayname
+SelectScrollUpButton.displayName = SelectPrimitive.ScrollUpButton.displayName
 
-const selectscrolldownbutton = react.forwardref<
+const SelectScrollDownButton = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.ScrollDownButton>,
-  react.componentpropswithoutref<typeof SelectPrimitive.ScrollDownButton>
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.ScrollDownButton>
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.ScrollDownButton
     ref={ref}
@@ -64,12 +64,12 @@ const selectscrolldownbutton = react.forwardref<
     <ChevronDown className="h-4 w-4" />
   </SelectPrimitive.ScrollDownButton>
 ))
-selectscrolldownbutton.displayname =
-  selectprimitive.scrolldownbutton.displayname
+SelectScrollDownButton.displayName =
+  SelectPrimitive.ScrollDownButton.displayName
 
-const selectcontent = react.forwardref<
+const SelectContent = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Content>,
-  react.componentpropswithoutref<typeof SelectPrimitive.Content>
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content>
 >(({ className, children, position = "popper", ...props }, ref) => (
   <SelectPrimitive.Portal>
     <SelectPrimitive.Content
@@ -77,7 +77,7 @@ const selectcontent = react.forwardref<
       className={cn(
         "relative z-50 max-h-96 min-w-[8rem] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-md data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
         position === "popper" &&
-          "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
+        "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
         className
       )}
       position={position}
@@ -88,7 +88,7 @@ const selectcontent = react.forwardref<
         className={cn(
           "p-1",
           position === "popper" &&
-            "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
+          "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
         )}
       >
         {children}
@@ -97,11 +97,11 @@ const selectcontent = react.forwardref<
     </SelectPrimitive.Content>
   </SelectPrimitive.Portal>
 ))
-selectcontent.displayname = selectprimitive.content.displayname
+SelectContent.displayName = SelectPrimitive.Content.displayName
 
-const selectlabel = react.forwardref<
+const SelectLabel = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Label>,
-  react.componentpropswithoutref<typeof SelectPrimitive.Label>
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Label>
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Label
     ref={ref}
@@ -109,11 +109,11 @@ const selectlabel = react.forwardref<
     {...props}
   />
 ))
-selectlabel.displayname = selectprimitive.label.displayname
+SelectLabel.displayName = SelectPrimitive.Label.displayName
 
-const selectitem = react.forwardref<
+const SelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
-  react.componentpropswithoutref<typeof SelectPrimitive.Item>
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Item>
 >(({ className, children, ...props }, ref) => (
   <SelectPrimitive.Item
     ref={ref}
@@ -132,11 +132,11 @@ const selectitem = react.forwardref<
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
   </SelectPrimitive.Item>
 ))
-selectitem.displayname = selectprimitive.item.displayname
+SelectItem.displayName = SelectPrimitive.Item.displayName
 
-const selectseparator = react.forwardref<
+const SelectSeparator = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Separator>,
-  react.componentpropswithoutref<typeof SelectPrimitive.Separator>
+  React.ComponentPropsWithoutRef<typeof SelectPrimitive.Separator>
 >(({ className, ...props }, ref) => (
   <SelectPrimitive.Separator
     ref={ref}
