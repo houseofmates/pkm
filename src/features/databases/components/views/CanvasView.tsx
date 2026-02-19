@@ -204,25 +204,25 @@ export function CanvasView({ data: rows, collection, loading, config: _config }:
           const obj = fabricCanvas.getObjects().find((o: any) => o.data?.id === row.id);
           if (!obj) return null;
 
-          const vpt = fabriccanvas.viewporttransform || [1, 0, 0, 1, 0, 0];
+          const vpt = fabricCanvas.viewportTransform || [1, 0, 0, 1, 0, 0];
           const zoom = vpt[0];
-          const panx = vpt[4];
-          const pany = vpt[5];
+          const panX = vpt[4];
+          const panY = vpt[5];
 
-          const objleft = obj.left ?? 0;
-          const objtop = obj.top ?? 0;
-          const objwidth = (obj.width ?? 0) * (obj.scalex ?? 1);
-          const objheight = (obj.height ?? 0) * (obj.scaley ?? 1);
+          const objLeft = obj.left ?? 0;
+          const objTop = obj.top ?? 0;
+          const objWidth = (obj.width ?? 0) * (obj.scaleX ?? 1);
+          const objHeight = (obj.height ?? 0) * (obj.scaleY ?? 1);
 
-          const screenleft = objleft * zoom + panx;
-          const screentop = objtop * zoom + pany;
-          const screenwidth = objwidth * zoom;
-          const screenheight = objheight * zoom;
+          const screenLeft = objLeft * zoom + panX;
+          const screenTop = objTop * zoom + panY;
+          const screenWidth = objWidth * zoom;
+          const screenHeight = objHeight * zoom;
 
           if (
-            screenleft + screenwidth < 0 ||
+            screenLeft + screenWidth < 0 ||
             screenLeft > width ||
-            screentop + screenheight < 0 ||
+            screenTop + screenHeight < 0 ||
             screenTop > height
           ) return null;
 
