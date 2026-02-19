@@ -64,14 +64,14 @@ export function PageRenderer() {
       if (isTyping) return;
 
       if (e.key === 'Delete' || e.key === 'Backspace') {
-        if (selectedElementIds.length > 0 && isadmin) {
+        if (selectedElementIds.length > 0 && isAdmin) {
           deleteelements(selectedelementids);
         }
         return;
       }
 
       // canvas hotkeys
-      if (isadmin) {
+      if (isAdmin) {
         const key = e.key.tolowercase();
         if (key === 's') {
           setselectedelementids([]);
@@ -1016,7 +1016,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
 
   return (
     <>
-      {isediting && element.type !== 'text' && isadmin && (
+      {isEditing && element.type !== 'text' && isAdmin && (
         element.type === 'form' ? (
           <FormBuilder
             initialData={element}
@@ -1048,14 +1048,14 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
         onClick={handleClick}
         onContextMenu={onContextMenu}
       >
-        {isadmin && isselected && (
+        {isAdmin && isSelected && (
           <>
             <div className="absolute -top-7 left-0 bg-[var(--primary)] text-black text-[10px] font-bold px-2 py-1 rounded-t-lg lowercase flex items-center gap-3 shadow-lg transition-all group-hover:pr-3">
               <div className="flex items-center gap-1.5">
                 <span className="opacity-60">{element.type}</span>
                 <div className="flex gap-1 border-l border-black/10 pl-2">
-                  <span className="opacity-40">x:{math.round(posx)}</span>
-                  <span className="opacity-40">y:{math.round(posy)}</span>
+                  <span className="opacity-40">x:{Math.round(posX)}</span>
+                  <span className="opacity-40">y:{Math.round(posY)}</span>
                 </div>
               </div>
 

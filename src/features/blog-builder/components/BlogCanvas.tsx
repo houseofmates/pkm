@@ -868,7 +868,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
 
   return (
   <>
-  {isediting && element.type !== 'text' && element.type !== 'form' && isadmin && (
+  {isEditing && element.type !== 'text' && element.type !== 'form' && isAdmin && (
  <WidgetPropertyEditor
  element={element}
  onUpdate={onUpdate}
