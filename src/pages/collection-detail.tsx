@@ -434,7 +434,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             }
         };
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeeventlistener('keydown', handlekeydown);
+        return () => window.removeEventListener('keydown', handleKeyDown);
     }, [collectionname]); // minimalist deps
 
     // rescue logic is now integrated into fetchdata, no separate effect needed

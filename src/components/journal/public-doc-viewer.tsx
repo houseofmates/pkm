@@ -48,7 +48,7 @@ export function PublicDocViewer({ slug }: PublicDocViewerProps) {
   }
 
   const documentcolor = document.color || '#8b5cf6';
-  const createddate = document.created_at ? new date(document.created_at) : new date();
+  const createddate = document.created_at ? new Date(document.created_at) : new Date();
 
   return (
   <div className="min-h-screen bg-background font-varela">

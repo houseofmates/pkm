@@ -364,7 +364,7 @@ export function BuilderToolbox() {
   };
 
   const handlevideoupload = () => {
-  const input = document.createelement('input');
+  const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'video/*';
   input.onchange = async (e) => {

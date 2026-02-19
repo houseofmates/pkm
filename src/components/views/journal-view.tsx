@@ -175,7 +175,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
  {/* date header */}
  <div className="absolute -left-[9px] top-0 h-4 w-4 rounded-full bg-background border-4 border-primary/20" />
  <div className="mb-4 text-xs font-bold text-muted-foreground lowercase opacity-70 flex items-center gap-2">
-   {format(new date(datekey), 'eeee, mmmm do, yyyy')}
+   {format(new Date(dateKey), 'eeee, mmmm do, yyyy')}
  </div>
 
  {/* entries */}

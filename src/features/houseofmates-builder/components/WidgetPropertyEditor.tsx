@@ -457,7 +457,7 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: Props) {
                     <input classname="flex-1" value={img.src} onchange={(v: string) => handlearrayupdate('images', idx, { ...img, src: v })} placeholder="image url" />
                     <button
                       onclick={() => {
-                        const input = document.createelement('input');
+                        const input = document.createElement('input');
                         input.type = 'file';
                         input.accept = 'image/*';
                         input.onchange = async (e) => {

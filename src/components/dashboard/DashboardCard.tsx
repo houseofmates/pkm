@@ -86,7 +86,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
    </div>
  )}
  <div className="text-xs text-muted-foreground mt-2 truncate opacity-70">
-   {new date(string(item.createdat ?? item.created_at ?? date.now())).tolocaledatestring()}
+   {new Date(String(item.createdAt ?? item.created_at ?? Date.now())).toLocaleDateString()}
  </div>
  </div>
  ))}

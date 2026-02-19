@@ -135,7 +135,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
   };
 
   const documentcolor = document.color || '#8b5cf6'; // default purple
-  const createddate = document.created_at ? new date(document.created_at) : new date();
+  const createddate = document.created_at ? new Date(document.created_at) : new Date();
 
   return (
   <div className="min-h-screen bg-background font-varela">

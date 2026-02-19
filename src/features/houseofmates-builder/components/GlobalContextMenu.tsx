@@ -131,7 +131,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   };
 
   const handleexpandpage = () => {
-  const currentheight = page?.height || window.innerheight;
+  const currentheight = page?.height || window.innerHeight;
   const newheight = currentheight + 500;
   updatepage({ height: newheight });
   toast.success(`page extended to ${newheight}px`);
@@ -373,7 +373,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
    </button>
    <button
    onclick={() => {
-   const input = document.createelement('input');
+   const input = document.createElement('input');
    input.type = 'file';
    input.accept = 'audio/*';
    input.onchange = async (e: any) => {
