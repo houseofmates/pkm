@@ -132,9 +132,9 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         // authprovider re-renders, causing this to re-render.
     };
 
-    const handleDirectCreate = async () => {
+    const handleDirectCreate = async (initialData: any = {}) => {
         try {
-            const dataToSubmit: any = {};
+            const dataToSubmit: any = { ...initialData };
             // auto-inject fronter
             if (activeFronters && activeFronters.length > 0) {
                 // check if collection has fronter field (from collection schema)
@@ -573,7 +573,8 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                     onConfigChange={handleConfigChange}
                     onUpdateRecord={handleUpdateRecord}
                     onDelete={handleDeleteRecord}
-                    onCreateRecord={handleDirectCreate}
+                    onCreateRecord={() => handleDirectCreate()}
+                    onCreate={(data: any) => handleDirectCreate(data)}
                     onCreateField={() => setFieldDialogOpen(true)}
                 />
             </div>
