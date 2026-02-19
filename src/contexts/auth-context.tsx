@@ -8,13 +8,13 @@ interface AuthContextType {
   isAuthenticated: boolean;
   login: (token: string) => void;
   logout: () => void;
-  client: nocobaseclient;
+  client: NocoBaseClient;
 }
 
-const authcontext = createcontext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function authprovider({ children }: { children: reactnode }) {
-  const [token, settoken] = usestate<string | null>(localStorage.getItem('nocobase_token'));
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [token, setToken] = useState<string | null>(localStorage.getItem('nocobase_token'));
 
   // initialize client with a function to get the current token
   // this ensures the client always uses the latest token from the closure/state if we adjusted the client implementation,
@@ -29,65 +29,65 @@ export function authprovider({ children }: { children: reactnode }) {
 
   // listen for 401s from api-client
   useEffect(() => {
-  const handleAuthError = () => {
-  // token already cleared by api-client; just update react state
-  setToken(null);
-  // reliance on react state reset is smoother than reload
-  };
-  window.addEventListener('auth-error', handleAuthError);
+    const handleAuthError = () => {
+      // token already cleared by api-client; just update react state
+      setToken(null);
+      // reliance on react state reset is smoother than reload
+    };
+    window.addEventListener('auth-error', handleAuthError);
 
-  // initial sync
-  const electron = (window as any).electron;
-  if (electron?.syncState && token) {
-  electron.syncState({ token });
-  }
+    // initial sync
+    const electron = (window as any).electron;
+    if (electron?.syncState && token) {
+      electron.syncState({ token });
+    }
 
-  return () => window.removeEventListener('auth-error', handleAuthError);
+    return () => window.removeEventListener('auth-error', handleAuthError);
   }, []);
 
   // sync changes to localstorage is handled in login/logout to avoid race conditions with api clients
   const login = (newToken: string) => {
-  localStorage.setItem('nocobase_token', newToken);
-  setToken(newToken);
+    localStorage.setItem('nocobase_token', newToken);
+    setToken(newToken);
 
-  // sync to electron
-  const electron = (window as any).electron;
-  if (electron?.syncState) {
-  electron.syncState({ token: newToken });
-  }
+    // sync to electron
+    const electron = (window as any).electron;
+    if (electron?.syncState) {
+      electron.syncState({ token: newToken });
+    }
 
-  // ensure backend collection exists after login
-  setTimeout(async () => {
-  try {
- await client.ensureBackendCollection();
-  } catch (error) {
- secureLogger.warn('Failed to ensure backend collection:', error);
-  }
-  }, 1000); // Delay to allow login to complete
+    // ensure backend collection exists after login
+    setTimeout(async () => {
+      try {
+        await client.ensureBackendCollection();
+      } catch (error) {
+        secureLogger.warn('Failed to ensure backend collection:', error);
+      }
+    }, 1000); // Delay to allow login to complete
   };
 
   const logout = () => {
-  localstorage.removeitem('nocobase_token');
-  settoken(null);
+    localStorage.removeItem('nocobase_token');
+    setToken(null);
 
-  // sync to electron
-  const electron = (window as any).electron;
-  if (electron?.syncstate) {
-  electron.syncstate({ token: null });
-  }
+    // sync to electron
+    const electron = (window as any).electron;
+    if (electron?.syncState) {
+      electron.syncState({ token: null });
+    }
   };
 
   return (
-  <AuthContext.Provider value={{ token, isAuthenticated: !!token, login, logout, client }}>
-  {children}
-  </AuthContext.Provider>
+    <AuthContext.Provider value={{ token, isAuthenticated: !!token, login, logout, client }}>
+      {children}
+    </AuthContext.Provider>
   );
 }
 
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-  throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
 }
