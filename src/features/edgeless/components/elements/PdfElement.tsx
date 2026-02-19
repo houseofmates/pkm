@@ -9,8 +9,8 @@ interface PdfElementProps {
 
 export function PdfElement({ element, pdfDocument }: PdfElementProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const canvasref = useref<HTMLCanvasElement>(null)
-  const annotationlayerref = useref<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+  const annotationLayerRef = useRef<HTMLDivElement>(null)
   const [rendered, setRendered] = useState(false)
   const { mode } = useEdgelessStore()
 
@@ -19,25 +19,25 @@ export function PdfElement({ element, pdfDocument }: PdfElementProps) {
 
   const renderPage = async () => {
   const pagenum = element.data.pagenumber
-  const page = await pdfdocument.getpage(pagenum)
+  const page = await pdfDocument.getPage(pagenum)
 
-  const viewport = page.getviewport({ scale: 1.5 }) // render at higher res
+  const viewport = page.getViewport({ scale: 1.5 }) // render at higher res
 
-  if (canvasref.current) {
- const context = canvasref.current.getcontext('2d')
- canvasref.current.width = viewport.width
- canvasref.current.height = viewport.height
+  if (canvasRef.current) {
+    const context = canvasRef.current.getContext('2d')
+    canvasRef.current.width = viewport.width
+    canvasRef.current.height = viewport.height
 
- await page.render({
- canvascontext: context!,
- viewport: viewport
- }).promise
+    await page.render({
+      canvasContext: context!,
+      viewport,
+    }).promise
 
- setrendered(true)
+    setRendered(true)
 
- // render annotation layer
- if (annotationlayerref.current) {
- annotationlayerref.current.innerhtml = '' // clear
+    // render annotation layer
+    if (annotationLayerRef.current) {
+      annotationLayerRef.current.innerHTML = '' // clear
  // simplified annotation layer for links
  // const annotations = await page.getannotations()
 
@@ -47,8 +47,8 @@ export function PdfElement({ element, pdfDocument }: PdfElementProps) {
   }
   }
 
-  renderpage()
-  }, [pdfdocument, element, rendered])
+  renderPage()
+  }, [pdfDocument, element, rendered])
 
   return (
   <div

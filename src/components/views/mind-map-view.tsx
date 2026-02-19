@@ -17,11 +17,11 @@ interface NodePosition {
 export function MindMapView({ data, collection, config = {}, onConfigChange, onUpdateRecord, onDelete }: ViewProps) {
   // all hooks must be called before any early return
   const [positions, setPositions] = useState<Record<string, NodePosition>>({});
-  const [scale, setscale] = useState(1);
-  const [offset, setoffset] = useState({ x: 0, y: 0 });
-  const containerref = useref<HTMLDivElement>(null);
-  const [isdraggingcanvas, setisdraggingcanvas] = useState(false);
-  const [dragstart, setdragstart] = useState({ x: 0, y: 0 });
+  const [scale, setScale] = useState(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [isDraggingCanvas, setIsDraggingCanvas] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   // node drag logic
   const [nodedrag, setnodedrag] = useState<{ id: string, startX: number, startY: number, initialX: number, initialY: number } | null>(null);
 

@@ -39,7 +39,7 @@ export function CanvasPage() {
   }
   }
 
-  const pdfinputref = useref<HTMLInputElement>(null);
+  const pdfInputRef = useRef<HTMLInputElement>(null);
 
 
     // --- header structure aligned with sidebar / page ---
