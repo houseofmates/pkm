@@ -27,7 +27,7 @@ const ALL_ICONS = Object.keys(LucideIcons).filter(key =>
   key !== 'default' &&
   !key.startsWith('lucide') &&
   !key.endsWith('icon') &&
-  /^[a-z]/.test(key)
+  /^[A-Z]/.test(key)
 );
 
 // semantic keywords for "smart search"
@@ -301,11 +301,11 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
     const raf = requestAnimationFrame(() => {
       if (currentName) setLocalName(currentName);
     });
-    return () => cancelanimationframe(raf);
-  }, [currentname]);
+    return () => cancelAnimationFrame(raf);
+  }, [currentName]);
 
   // emoji state
-  const [emojis, setemojis] = usestate<any[]>(DEFAULT_EMOJIS);
+  const [emojis, setEmojis] = useState<any[]>(DEFAULT_EMOJIS);
   const [loadingEmojis, setLoadingEmojis] = useState(false);
 
   // load emojis (twemoji based source or standard list)
@@ -447,30 +447,28 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
    ) : (
    <ScrollArea className="h-full p-2">
    <div className="grid grid-cols-7 gap-1">
-  {filteredEmojis.map(emoji => (
-  <button
-  key={emoji.unified}
-  className="flex items-center justify-center h-9 w-9 text-xl hover:bg-muted rounded-md active:scale-90 transition-transform"
-  onClick={() => onUpdate({ icon: emoji.unified, iconType: 'emoji' })}
-  title={emoji.short_name}
-  >
-  <img
-    src={getTwemojiUrl(emoji.unified)}
-    alt={emoji.short_name}
-    className="h-6 w-6 object-contain pointer-events-none"
-    loading="lazy"
-    onError={(e) => {
-    e.currentTarget.style.display = 'none';
-    }}
-  />
-  </button>
+  {filteredEmojis.map((emoji: any) => (
+    <button
+      key={emoji.unified}
+      className="flex items-center justify-center h-9 w-9 text-xl hover:bg-muted rounded-md active:scale-90 transition-transform"
+      onClick={() => onUpdate({ icon: emoji.unified, iconType: 'emoji' })}
+      title={emoji.short_name}
+    >
+      <img
+        src={getTwemojiUrl(emoji.unified)}
+        alt={emoji.short_name}
+        className="h-6 w-6 object-contain pointer-events-none"
+        loading="lazy"
+        onError={(e) => { e.currentTarget.style.display = 'none'; }}
+      />
+    </button>
   ))}
    </div>
    {!filteredEmojis.length && (
-  <div className="flex flex-col items-center justify-center h-full text-muted-foreground pb-8">
-  <span className="text-2xl mb-2">🤔</span>
-  <span className="text-xs">no emojis found</span>
-  </div>
+    <div className="flex flex-col items-center justify-center h-full text-muted-foreground pb-8">
+      <span className="text-2xl mb-2">🤔</span>
+      <span className="text-xs">no emojis found</span>
+    </div>
    )}
    </ScrollArea>
    )}
@@ -480,26 +478,26 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
    <ScrollArea className="h-full p-2">
    <div className="grid grid-cols-7 gap-1">
    {filteredIcons.map(name => {
-  const icon = (LucideIcons as any)[name];
-  if (!icon) return null;
-  return (
-  <button
-  key={name}
-  className="flex items-center justify-center h-9 w-9 hover:bg-muted rounded-md active:scale-90 transition-transform"
-  onClick={() => onUpdate({ icon: name, iconType: 'lucide' })}
-  style={{ color: localColor }}
-  title={name}
-  >
-  <Icon className="h-5 w-5 pointer-events-none" strokeWidth={1.5} />
-  </button>
-  );
+    const IconComponent = (LucideIcons as any)[name];
+    if (!IconComponent) return null;
+    return (
+      <button
+        key={name}
+        className="flex items-center justify-center h-9 w-9 hover:bg-muted rounded-md active:scale-90 transition-transform"
+        onClick={() => onUpdate({ icon: name, iconType: 'lucide' })}
+        style={{ color: localColor }}
+        title={name}
+      >
+        <IconComponent className="h-5 w-5 pointer-events-none" strokeWidth={1.5} />
+      </button>
+    );
    })}
    </div>
    {!filteredIcons.length && (
-   <div className="flex flex-col items-center justify-center h-full text-muted-foreground pb-8">
-  <Search className="h-8 w-8 mb-2 opacity-50" />
-  <span className="text-xs">no icons found</span>
-   </div>
+     <div className="flex flex-col items-center justify-center h-full text-muted-foreground pb-8">
+       <Search className="h-8 w-8 mb-2 opacity-50" />
+       <span className="text-xs">no icons found</span>
+     </div>
    )}
    </ScrollArea>
  </TabsContent>

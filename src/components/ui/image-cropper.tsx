@@ -152,7 +152,7 @@ export function ImageCropper({
               onMouseUp={handleMouseUp}
               onMouseLeave={handleMouseUp}
             >
-              {imagesrc && (
+              {imageSrc && (
                 <>
                   <img
                     ref={imageRef}
