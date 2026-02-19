@@ -161,7 +161,7 @@ export function useCanvasEvents() {
   try {
   const domain = new URL(url).hostname.replace('www.', '');
   title = `[${domain.toUpperCase()}] Item`;
-  } catch (e) { }
+  } catch (e) { /* ignore invalid drag/drop data */ }
 
   addElement({
   type: 'shopping-card',

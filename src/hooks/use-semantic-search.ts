@@ -46,7 +46,7 @@ export interface Semanticsearchresult {
     [k: string]: unknown
 }
 
-export function usesemanticsearch() {
+export function useSemanticSearch() {
     const [results, setresults] = useState<Semanticsearchresult[]>([])
     const [loading, setloading] = useState(false)
     const [source, setsource] = useState<'backend' | 'local' | null>(null)

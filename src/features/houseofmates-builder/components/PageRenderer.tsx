@@ -348,7 +348,7 @@ interface ElementRendererProps {
   onContextMenu: (e: React.MouseEvent) => void;
 }
 
-function elementrenderer({ element, isselected, isadmin, onselect, onupdate, onupdatebatch, oncontextmenu }: elementrendererprops) {
+function ElementRenderer({ element, isselected, isadmin, onselect, onupdate, onupdatebatch, oncontextmenu }: elementrendererprops) {
   const { page, previewmode, viewwidth } = usebuilder();
 
   // calculate scale factor for mobile/tablet responsive layout
