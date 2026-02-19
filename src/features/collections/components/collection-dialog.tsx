@@ -62,13 +62,13 @@ const field_types = [
 ] as const;
 
 export function CollectionDialog({ collection, onSuccess, trigger, open: controlledOpen, onOpenChange: setControlledOpen, initialTitle }: CollectionDialogProps) {
-  const { client } = useauth();
-  const navigate = usenavigate();
-  const [internalopen, setinternalopen] = usestate(false);
-  const open = controlledopen !== undefined ? controlledopen : internalopen;
-  const setopen = controlledopen !== undefined ? setcontrolledopen : setinternalopen;
+  const { client } = useAuth();
+  const navigate = useNavigate();
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = controlledOpen !== undefined ? setControlledOpen : setInternalOpen;
 
-  const isedit = !!collection;
+  const isEdit = !!collection;
   const [step, setStep] = useState<'type-select' | 'template-select' | 'database-form' | 'document-select'>('type-select');
 
   useEffect(() => {
@@ -80,7 +80,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
       // if already open and not edit, ensure select
       else if (step === 'database-form' && !displayName) setStep('type-select');
     }
-  }, [open, isEdit]);
+  }, [open, isEdit, step, displayName]);
 
   const handleCreateDocument = (mode: 'edgeless' | 'desktop-8k' | 'iphone-8k') => {
     const id = Math.random().toString(36).substring(7);
@@ -97,15 +97,15 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
       // map template fields to the internal schema format
       setCsvFields(template.fields.map(f => ({
         ...f,
-        detectionreason: 'template',
-        detectionconfidence: 'high' as const
+        detectionReason: 'template',
+        detectionConfidence: 'high' as const
       })));
     } else {
       // blank
-      setdisplayname('');
-      setcsvfields([]);
+      setDisplayName('');
+      setCsvFields([]);
     }
-    setstep('database-form');
+    setStep('database-form');
   };
 
   const [loading, setLoading] = useState(false);
@@ -165,10 +165,10 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
         setCsvData([]);
         setCsvFields([]);
         // auto-focus title on create
-        setTimeout(() => titleinputref.current?.focus(), 100);
+        setTimeout(() => titleInputRef.current?.focus(), 100);
       }
     }
-  }, [open, isedit, collection, metadata, client]);
+  }, [open, isEdit, collection, metadata, client, initialTitle]);
 
   const [csvData, setCsvData] = useState<any[]>([]);
   const [csvFields, setCsvFields] = useState<{
@@ -183,7 +183,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
   }[]>([]);
   const csvInputRef = useRef<HTMLInputElement>(null);
 
-  const handlecsvchange = (e: react.changeevent<HTMLInputElement>) => {
+  const handleCsvChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -243,7 +243,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
           toast.info(`creating ${csvFields.length} fields...`);
           // we must create fields sequentially or carefully to avoid nocobase race conditions
           for (const field of csvFields) {
-            const fieldType = FIELD_TYPES.find(t => t.interface === field.interface);
+            const fieldType = field_types.find(t => t.interface === field.interface);
 
             // intelligent type/ui management: prevent varchar(255) overflow
             let dbType: string = fieldType?.type || 'string';
@@ -394,13 +394,13 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
           <DialogTitle>
             {step === 'type-select' && "create new item"}
             {step === 'template-select' && "choose a template"}
-            {step === 'database-form' && (isedit ? 'edit database' : 'create database')}
+            {step === 'database-form' && (isEdit ? 'edit database' : 'create database')}
             {step === 'document-select' && "select document type"}
           </DialogTitle>
           <DialogDescription>
             {step === 'type-select' ? "choose what you want to create." : ""}
             {step === 'template-select' ? "start from scratch or use a template." : ""}
-            {step === 'database-form' ? (isedit ? 'update your database settings.' : 'configure your new database.') : ""}
+            {step === 'database-form' ? (isEdit ? 'update your database settings.' : 'configure your new database.') : ""}
             {step === 'document-select' ? "choose a canvas size." : ""}
           </DialogDescription>
         </DialogHeader>
@@ -522,7 +522,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
         {/* step 2a: database form (existing) */}
         {step === 'database-form' && (
           <form onSubmit={handleSubmit} className="space-y-4">
-            {!isedit && (
+            {!isEdit && (
               <Button variant="ghost" size="sm" type="button" className="pl-0 gap-1 -mt-2 mb-2" onClick={() => setStep('template-select')}>
                 <ArrowLeft className="w-4 h-4" /> back
               </Button>
@@ -540,7 +540,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
               />
             </div>
 
-            {!isedit && (
+            {!isEdit && (
               <div className="space-y-4 border-t pt-4">
                 <Label>csv import (optional)</Label>
                 <div className="flex flex-col gap-2">
@@ -590,7 +590,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                                   <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {FIELD_TYPES.map(t => (
+                                  {field_types.map(t => (
                                     <SelectItem key={t.interface} value={t.interface}>{t.label}</SelectItem>
                                   ))}
                                 </SelectContent>
@@ -640,7 +640,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
               </div>
             )}
 
-            {!isedit && (
+            {!isEdit && (
               <div className="space-y-2">
                 <Label htmlFor="name">system name (optional)</Label>
                 <Input
@@ -701,7 +701,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
 
             <DialogFooter>
               <Button type="submit" disabled={loading}>
-                {loading ? (isedit ? "saving..." : "creating...") : (isedit ? "save" : "create")}
+                {loading ? (isEdit ? "saving..." : "creating...") : (isEdit ? "save" : "create")}
               </Button>
             </DialogFooter>
           </form>
