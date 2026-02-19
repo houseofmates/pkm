@@ -26,7 +26,7 @@ import { useThemeReactor } from '@/hooks/use-theme-reactor';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { useFronter } from '@/contexts/fronter-context';
 import { ProtocolShift } from '@/components/layout/ProtocolShift';
-import { walpendingcount } from '@/lib/write-ahead-log';
+import { walPendingCount } from '@/lib/write-ahead-log';
 
 // convert hex color to hsl format for tailwind
 function hexToHSL(hex: string): string {
@@ -78,7 +78,7 @@ export function RootLayout() {
 
   useEffect(() => {
     const interval = setInterval(async () => {
-      const count = await walpendingcount();
+      const count = await walPendingCount();
       setWalCount(count);
       setSyncStatus(count > 0 ? 'syncing' : 'ok');
     }, 5000);
