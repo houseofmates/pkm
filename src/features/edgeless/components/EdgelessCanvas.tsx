@@ -377,17 +377,17 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
 
   // interact/cursor mode
   useEffect(() => {
-    if (!fabriccanvas) return
+    if (!fabricCanvas) return
 
-    const selmode = useedgelessstore.getstate().selectionmode
-    const iscursormode = activetool === 'select' && selmode === 'cursor'
-    const isinteractmode = mode === 'interact'
+    const selMode = useEdgelessStore.getState().selectionMode
+    const isCursorMode = activeTool === 'select' && selMode === 'cursor'
+    const isInteractMode = mode === 'interact'
 
-    if (isinteractmode || iscursormode) {
-      fabriccanvas.selection = false
-      fabriccanvas.defaultcursor = 'default'
+    if (isInteractMode || isCursorMode) {
+      fabricCanvas.selection = false
+      fabricCanvas.defaultCursor = 'default'
 
-      const _objs = fabriccanvas.getobjects()
+      const _objs = fabricCanvas.getObjects()
       for (let i = 0; i < _objs.length; i++) {
         _objs[i].selectable = false
         _objs[i].evented = false
@@ -469,8 +469,8 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     if (!fabricCanvas) return
 
     const updateSelection = () => {
-      const active = fabriccanvas.getactiveobjects()
-      const newset = new set<string>()
+      const active = fabricCanvas.getActiveObjects()
+      const newSet = new Set<string>()
       for (let i = 0; i < active.length; i++) {
         const id = active[i].data?.id
         if (id) newSet.add(id)
@@ -533,12 +533,12 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     fabricCanvas.on('path:created', handlePathCreated)
 
     return () => {
-      fabriccanvas.off('path:created', handlepathcreated)
+      fabricCanvas.off('path:created', handlePathCreated)
     }
-  }, [fabriccanvas, drawingid, activelayerid, recordop])
+  }, [fabricCanvas, drawingId, activeLayerId, recordOp])
 
   // selection safeguards
-  const longpresstimerref = useref<NodeJS.Timeout | null>(null)
+  const longPressTimerRef = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
     if (!fabricCanvas) return
@@ -776,24 +776,24 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
 
     const doErase = (opt: any) => {
       const e = opt.e
-      const clientx = e.clientx || e.touches?.[0]?.clientx
-      const clienty = e.clienty || e.touches?.[0]?.clienty
-      if (clientx) setcursorpos({ x: clientx, y: clienty })
+      const clientX = e.clientX || e.touches?.[0]?.clientX
+      const clientY = e.clientY || e.touches?.[0]?.clientY
+      if (clientX) setCursorPos({ x: clientX, y: clientY })
 
-      if (activetool !== 'eraser' || mode !== 'draw' || !iserasingref.current) return
+      if (activeTool !== 'eraser' || mode !== 'draw' || !isErasingRef.current) return
 
-      const pointer = fabriccanvas.getscenepoint(e)
-      const eraserwidth = useedgelessstore.getstate().eraserwidth
-      const r = eraserwidth / 2
+      const pointer = fabricCanvas.getScenePoint(e)
+      const eraserWidth = useEdgelessStore.getState().eraserWidth
+      const r = eraserWidth / 2
 
       // use spatial index if available
-      const index = spatialindexref.current
+      const index = spatialIndexRef.current
       let candidates: any[] = []
 
       if (index) {
-        index.setlayerfilter(activelayerid)
-        const hits = index.queryradius(pointer.x, pointer.y, r)
-        candidates = new array(hits.length)
+        index.setLayerFilter(activeLayerId)
+        const hits = index.queryRadius(pointer.x, pointer.y, r)
+        candidates = new Array(hits.length)
         for (let i = 0; i < hits.length; i++) {
           candidates[i] = hits[i].ref
         }
