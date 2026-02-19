@@ -6,7 +6,7 @@ import { differenceInDays, addDays, startOfMonth, endOfMonth, eachDayOfInterval,
 import { SmartField } from '@/components/fields/smart-field';
 import { RecordContextMenu } from '@/features/records/components/record-context-menu';
 
-interface GanttViewProps extends ViewProps { }
+type GanttViewProps = ViewProps;
 
 export function GanttView({ data, config, collection, onUpdateRecord, onDelete, onConfigChange }: GanttViewProps) {
   // hooks must be called before any early return

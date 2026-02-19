@@ -64,7 +64,7 @@ export class NocoBaseClient {
   secureLogger.warn(`getCollection(${name}) failed, attempting fallback search...`);
 
   // attempt 1: exact name match
-  let res = await this._axios.get('/collections:list', {
+  const res = await this._axios.get('/collections:list', {
    params: {
   'filter[name]': name,
   'appends': ['fields'] // Ensure fields are returned

@@ -28,7 +28,7 @@ import { GripVertical } from 'lucide-react';
 import { RecordContextMenu } from '@/features/records/components/record-context-menu';
 import { SmartField } from '@/components/fields/smart-field';
 
-interface KanbanViewProps extends ViewProps { }
+type KanbanViewProps = ViewProps;
 
 // helper for sortable item (card)
 function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange }: { id: string | number, record: Record<string, unknown>, collection: { name: string; fields?: array<{ name: string; uiSchema?: { title?: string } }> }, onupdaterecord?: (id: string | number, data: record<string, unknown>) => void, ondelete?: (record: record<string, unknown>) => void, titlefield: { name: string }, visiblefields: array<{ name: string; uiSchema?: { title?: string } }>, config?: record<string, unknown>, onConfigChange?: (key: string, value: unknown) => void }) {

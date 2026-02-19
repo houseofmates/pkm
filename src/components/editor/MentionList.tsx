@@ -26,7 +26,7 @@ export const MentionList = forwardRef((props: MentionListProps, ref) => {
 
    
   useLayoutEffect(() => {
-  setSelectedIndex(0);
+  if (props.items.length) setSelectedIndex(0);
   }, [props.items]);
 
   useImperativeHandle(ref, () => ({
