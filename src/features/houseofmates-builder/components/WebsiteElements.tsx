@@ -702,7 +702,7 @@ export function FileElement({ url, filename, size }: FileElementProps) {
 }
 // --- minecraft live stats widget ---
 
-export interface ServerStatus {
+export interface ServerStatusData {
   online: boolean;
   count: number;
 }
@@ -717,7 +717,7 @@ export interface ChatMessage {
 export function MinecraftStatsWidget() {
   const { previewMode } = useBuilder();
   const isMobile = previewMode === 'mobile';
-  const [status, setStatus] = useState<ServerStatus | null>(null);
+  const [status, setStatus] = useState<ServerStatusData | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [_connectionState, setConnectionState] = useState<'connected' | 'disconnected' | 'reconnecting'>('disconnected');
@@ -1139,6 +1139,13 @@ export function TierListElement({ rows }: TierListProps) {
 }
 
 // --- shopping card ---
+export interface ShoppingCardProps {
+  title: string;
+  price: string;
+  image: string;
+  description?: string;
+  buttonText?: string;
+}
 export interface ShoppingCardProps {
   title: string;
   price: string;
