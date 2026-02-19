@@ -114,8 +114,8 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
       <ScrollArea className="flex-1">
         <div className="relative min-w-full">
           {data.map(record => {
-            const sdate = record[startfield] ? new date(record[startfield]) : null;
-            const edate = record[endfield] ? new date(record[endfield]) : sdate;
+            const sDate = record[startField] ? new Date(record[startField]) : null;
+            const eDate = record[endField] ? new Date(record[endField]) : sDate;
 
             // calculate position
             let left = 0;
@@ -123,11 +123,11 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
             let visible = false;
 
             if (sdate && edate) {
-              const diffstart = differenceindays(sdate, startdate);
-              const duration = differenceindays(edate, sdate) + 1; // inclusive
+              const diffStart = differenceInDays(sDate, startDate);
+              const duration = differenceInDays(eDate, sDate) + 1; // inclusive
 
-              left = diffstart * colwidth;
-              width = duration * colwidth;
+              left = diffStart * colWidth;
+              width = duration * colWidth;
               visible = true;
             }
 
