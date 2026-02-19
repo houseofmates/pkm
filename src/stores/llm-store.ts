@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { generateText } from '@/lib/llm-service'
-import { getOllamaGenerateUrl, normalizeGenerateEndpoint } from '@/lib/llm-config' 
+import { getOllamaGenerateUrl, normalizeGenerateEndpoint } from '@/lib/llm-config'
+import { secureLogger } from '@/lib/secure-logger'
 
 export interface ChatMessage {
   id: number
@@ -103,7 +104,7 @@ important rules:
   const response = await generateText(fullPrompt, activeModel, apiUrl)
 
   if (!response) {
- console.warn("Wilson returned no response.")
+ secureLogger.warn("Wilson returned no response.")
  set({ isThinking: false })
  return null
   }
@@ -120,7 +121,7 @@ important rules:
 
   return response
   } catch (e) {
-  console.error("Wilson Silent Fail", e)
+  secureLogger.error("Wilson Silent Fail", e)
   set((state) => ({
  interactionHistory: [...state.interactionHistory, {
  id: Date.now() + 1,
