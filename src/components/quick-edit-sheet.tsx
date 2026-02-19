@@ -69,7 +69,7 @@ export function QuickEditSheet() {
             <SheetTitle className="flex items-center gap-2 text-xl font-serif">
               {data.title || data.name || 'untitled record'}
               <Badge variant="outline" className="ml-auto font-sans font-normal text-xs text-muted-foreground ">
-                {collectionname}
+                {collectionName}
               </Badge>
             </SheetTitle>
             <SheetDescription>
@@ -96,13 +96,13 @@ export function QuickEditSheet() {
                   <div key={key} className={`space-y-1.5 ${isLong ? 'col-span-2' : ''}`}>
                     <Label className="text-xs text-muted-foreground  flex items-center gap-1">
                       {key === 'status' ? <Hash className="h-3 w-3" /> :
-                        isdate ? <CalendarIcon className="h-3 w-3" /> :
+                        isDate ? <CalendarIcon className="h-3 w-3" /> :
                           <Type className="h-3 w-3" />}
                       {key.replace(/_/g, ' ')}
                     </Label>
-                    {isdate ? (
+                    {isDate ? (
                       <div className="p-2 border rounded text-sm bg-muted/20">
-                        {val ? format(new date(val), 'ppp p') : 'no date'}
+                        {val ? format(new Date(val), 'ppp p') : 'no date'}
                       </div>
                     ) : (
                       <Input
