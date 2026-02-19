@@ -138,25 +138,15 @@ export function SecurityWidgetV2() {
   const { isAuthenticated } = useAuth();
   const [privacyMode, setPrivacyMode] = useState(true);
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [risklevel, setrisklevel] = useState<'low' | 'medium' | 'high'>('high');
-  const [mounted, setmounted] = useState(false);
-  const [vulnerabilities, setvulnerabilities] = useState<Vulnerability[]>([]);
-  const [selectedvuln, setselectedvuln] = useState<Vulnerability | null>(null);
-  const [scanning, setscanning] = useState(false);
-  const [expandedvulns, setexpandedvulns] = useState<Set<string>>(new set());
-  const [copiedprompt, setcopiedprompt] = useState<string | null>(null);
+  const [riskLevel, setRiskLevel] = useState<'low' | 'medium' | 'high'>('high');
+  const [mounted, setMounted] = useState(false);
+  const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
+  const [selectedVuln, setSelectedVuln] = useState<Vulnerability | null>(null);
+  const [scanning, setScanning] = useState(false);
+  const [expandedVulns, setExpandedVulns] = useState<Set<string>>(new Set());
+  const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
 
-  useEffect(() => {
-    setMounted(true);
-    updateSecurityStatus();
-    // run initial security scan
-    handleScan();
-    
-    const interval = setInterval(updateSecurityStatus, 5000);
-    return () => clearInterval(interval);
-  }, [isAuthenticated]);
-
-  const updateSecurityStatus = () => {
+  function updateSecurityStatus() {
     const status = secureLogger.getSecurityStatus();
     setPrivacyMode(status.privacyMode);
     setLogs(secureLogger.getHistory());
@@ -168,18 +158,29 @@ export function SecurityWidgetV2() {
     } else {
       setRiskLevel('low');
     }
-  };
+  }
 
-  const handleScan = useCallback(() => {
+  function handleScan() {
     setScanning(true);
-    // simulate scan delay
     setTimeout(() => {
       const results = runSecurityScan();
       setVulnerabilities(results);
       setScanning(false);
       toast.success(`security scan complete: found ${results.length} issues`);
     }, 1500);
-  }, []);
+  }
+
+  useEffect(() => {
+    setMounted(true);
+    updateSecurityStatus();
+    // run initial security scan
+    handleScan();
+    
+    const interval = setInterval(updateSecurityStatus, 5000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
+
+
 
   const togglePrivacyMode = () => {
     const newMode = !privacyMode;

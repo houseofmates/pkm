@@ -22,15 +22,11 @@ import { apiClient } from '@/lib/api-client';
 
 export function DatabaseCanvasView() {
   const { collections } = useCollections();
-  const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
-  const [viewtype, setviewtype] = useState<ViewType>('table');
+  const [selectedCollection, setSelectedCollection] = useState<string | null>(() => {
+    try { return localStorage.getItem('last_db_canvas_collection'); } catch (e) { return null; }
+  });
+  const [viewType, setViewType] = useState<ViewType>('table');
   const store = useEdgelessStore();
-
-  // load last selected collection
-  useEffect(() => {
-    const last = localStorage.getItem('last_db_canvas_collection');
-    if (last) setSelectedCollection(last);
-  }, []);
 
   useEffect(() => {
     if (selectedCollection) localStorage.setItem('last_db_canvas_collection', selectedCollection);
@@ -66,7 +62,7 @@ export function DatabaseCanvasView() {
             </SelectContent>
           </Select>
 
-          {selectedcollection && (
+          {selectedCollection && (
             <div className="flex bg-transparent rounded-lg p-1 gap-1">
               <Button
                 variant="ghost"
@@ -109,7 +105,7 @@ export function DatabaseCanvasView() {
   );
 
   // resolve collection object
-  const activeCollection = collections.find(c => c.name === selectedcollection);
+  const activeCollection = collections.find(c => c.name === selectedCollection);
 
   return (
     <div className="w-full h-full relative bg-[#050505] text-foreground overflow-hidden flex flex-col">
