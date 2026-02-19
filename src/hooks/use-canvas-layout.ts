@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { apiClient } from '@/lib/api-client';
 import { useAuth } from '@/contexts/auth-context';
 import { debounce } from 'lodash';
+import { secureLogger } from '@/lib/secure-logger';
 
 export interface CanvasLayoutItem {
   id: string; // matches row ID
@@ -10,7 +11,7 @@ export interface CanvasLayoutItem {
   width?: number;
   height?: number;
   scale?: number;
-  connections?: any[];
+  connections?: string[];
 }
 
 export interface CanvasLayoutData {
@@ -54,7 +55,7 @@ export function useCanvasLayout(tableName: string) {
  setLayout({ items: {}, updated_at: new Date().toISOString() });
  }
   } catch (err) {
- console.error("Failed to load layout:", err);
+ secureLogger.error("Failed to load layout:", err);
   } finally {
  setIsLoading(false);
   }
@@ -88,9 +89,9 @@ export function useCanvasLayout(tableName: string) {
  });
   }
   setHasUnsavedChanges(false);
-  console.log("Layout saved for", tableName);
+  secureLogger.info("Layout saved for", tableName);
   } catch (err) {
-  console.error("Failed to save layout:", err);
+  secureLogger.error("Failed to save layout:", err);
   }
   }, [tableName]);
 
