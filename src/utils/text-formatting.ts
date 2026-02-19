@@ -1,5 +1,5 @@
 
-export const cAPITALIZED_NAMES = new Set([
+export const CAPITALIZED_NAMES = new Set([
   'S',
   'Mike',
   'Walt',
