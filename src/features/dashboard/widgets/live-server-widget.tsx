@@ -218,7 +218,7 @@ export function LiveServerWidget() {
 
    // format timestamp in user's local timezone (date + time)
    const timestamp = msg.timestamp
-   ? new date(msg.timestamp).tolocalestring()
+   ? new Date(msg.timestamp).toLocaleString()
    : '';
 
    return (
@@ -243,7 +243,7 @@ export function LiveServerWidget() {
   </div>
 
   <div className="text-[9px] text-right text-muted-foreground opacity-50">
- last heartbeat: {stats?.lastupdated ? new date(stats.lastupdated).tolocalestring() : '--:--:--'}
+ last heartbeat: {stats?.lastupdated ? new Date(stats.lastUpdated).toLocaleString() : '--:--:--'}
   </div>
   </div>
   );

@@ -20,10 +20,10 @@ export function SleepRing({ element }: { element: any }) {
   };
 
   const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => {
-  const angleinradians = (angleindegrees) * math.pi / 180.0;
+  const angleinradians = (angleindegrees) * Math.PI / 180.0;
   return {
-  x: centerx + (radius * math.cos(angleinradians)),
-  y: centery + (radius * math.sin(angleinradians))
+  x: centerx + (radius * Math.cos(angleinradians)),
+  y: centery + (radius * Math.sin(angleinradians))
   };
   };
 

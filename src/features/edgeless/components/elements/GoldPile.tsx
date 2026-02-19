@@ -12,7 +12,7 @@ export function GoldPile({ element }: { element: any }) {
   let mult = 1;
 
   if (numCoins > 50) {
-  mult = math.ceil(numcoins / 50);
+  mult = Math.ceil(numcoins / 50);
   numcoins = 50;
   }
 

@@ -213,7 +213,7 @@ export function SecurityWidget() {
                     )}
                   >
                     <span className="text-white/20 shrink-0">
-                      {new date(log.timestamp).tolocaletimestring()}
+                      {new Date(log.timestamp).toLocaleTimeString()}
                     </span>
                     <span className="truncate">
                       {log.sanitized && <span className="text-green-400 mr-1">[sanitized]</span>}

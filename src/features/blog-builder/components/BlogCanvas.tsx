@@ -894,8 +894,8 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
  <div className="absolute -top-6 left-0 bg-[var(--primary)] text-black text-[10px] font-bold px-1.5 py-0.5 rounded-t-lg lowercase flex items-center gap-2">
    {element.type}
    <div className="flex gap-1">
-   <span className="opacity-40">x:{math.round(posx)}</span>
-   <span className="opacity-40">y:{math.round(posy)}</span>
+   <span className="opacity-40">x:{Math.round(posX)}</span>
+   <span className="opacity-40">y:{Math.round(posY)}</span>
    </div>
  </div>
 

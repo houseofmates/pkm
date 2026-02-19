@@ -79,7 +79,7 @@ export default function PreviewCanvas({
   renderWidget: (w: Widget, idx: number) => react.reactnode;
   classname?: string;
 }) {
-  const colcount = math.max(1, math.min(columns.length || 1, 4));
+  const colcount = Math.max(1, Math.min(columns.length || 1, 4));
 
   const [localcols, setlocalcols] = useState<Widget[][]>(() => columns.map((c) => (Array.isArray(c) ? [...c] : [])));
 

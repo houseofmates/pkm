@@ -201,7 +201,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
    ).length;
 
    if (total > 0) {
-  const percent = math.round((completed / total) * 100);
+  const percent = Math.round((completed / total) * 100);
   return (
   <div key={field.name} className="flex flex-col gap-0.5 text-[10px] text-muted-foreground">
   <div className="flex justify-between w-full">

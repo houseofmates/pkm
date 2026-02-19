@@ -45,12 +45,12 @@ export function EternalFlame({ element: _element }: { element: any }) {
  p.life--;
 
  // sway
- p.x += math.sin(p.life / 10) * 0.5;
+ p.x += Math.sin(p.life / 10) * 0.5;
 
  ctx.globalalpha = p.life / p.maxlife;
  ctx.fillstyle = p.color;
  ctx.beginpath();
- ctx.arc(p.x, p.y, p.size, 0, math.pi * 2);
+ ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
  ctx.fill();
 
  if (p.life <= 0) particles.splice(index, 1);
