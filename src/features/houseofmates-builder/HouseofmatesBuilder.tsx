@@ -1029,14 +1029,14 @@ export function HouseofmatesBuilder() {
                 {isAdmin ? `could not find a page for "${site_identifier}"` : 'the server blocked access to this page.'}
               </p>
 
-              {!isadmin && (
+              {!isAdmin && (
                 <div className="text-left bg-black/30 p-4 rounded-lg mb-6 font-mono text-xs text-white/50">
                   <p>diagnosis: public role missing permissions</p>
                   <p>fix: nocobase admin {'>'} roles {'>'} public {'>'} {collectionNames.website} {'>'} view</p>
                 </div>
               )}
 
-              {isadmin ? (
+              {isAdmin ? (
                 <div className="space-y-3 w-full">
                   <button
                     onClick={async () => {
@@ -1073,10 +1073,10 @@ export function HouseofmatesBuilder() {
           </div>
         ) : (
           <>
-            {previewmode === 'desktop' ? (
+            {previewMode === 'desktop' ? (
               <div className="w-full min-h-screen relative">
                 <PageRenderer />
-                {isadmin && <BuilderToolbox />}
+                {isAdmin && <BuilderToolbox />}
               </div>
             ) : (
               <div className={`w-full min-h-screen relative ${isAdmin ? 'flex justify-center items-start pt-12 pb-24 bg-[#050505] overflow-auto custom-scrollbar' : ''}`}>
@@ -1111,14 +1111,14 @@ export function HouseofmatesBuilder() {
                 >
                   <PageRenderer />
                 </div>
-                {isadmin && <BuilderToolbox />}
+                {isAdmin && <BuilderToolbox />}
               </div>
             )}
           </>
         )}
 
         {/* always rendered if admin - very high z-index for menus */}
-        {isadmin && contextmenu?.type === 'global' && (
+        {isAdmin && contextMenu?.type === 'global' && (
           <GlobalContextMenu
             x={contextMenu.x}
             y={contextMenu.y}
@@ -1126,7 +1126,7 @@ export function HouseofmatesBuilder() {
           />
         )}
 
-        {isAdmin && contextMenu?.type === 'element' && page?.elements.find(el => el.id === contextmenu.elementid) && (
+        {isAdmin && contextMenu?.type === 'element' && page?.elements.find(el => el.id === contextMenu.elementId) && (
           <ElementContextMenu
             element={page.elements.find(el => el.id === contextMenu.elementId)!}
             x={contextMenu.x}
