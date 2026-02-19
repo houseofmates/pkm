@@ -21,7 +21,7 @@ export function Globalsearchdialog({ open, onopenchange }: globalsearchdialogpro
   const [response, setresponse] = useState<string | null>(null);
   const [status, setstatus] = useState<string>('');
   const [loading, setloading] = useState(false);
-  const searchresults = usepkmstore((s: { searchresults: array<{ collectionName?: string; collectionTitle?: string; record?: Record<string, unknown>; id?: string; score?: number }> }) => s.searchresults);
+  const searchResults = usePkmStore((s: { searchResults: Array<{ collectionName?: string; collectionTitle?: string; record?: Record<string, unknown>; id?: string; score?: number }> }) => s.searchResults);
 
   const inputref = useRef<HTMLInputElement>(null);
 
@@ -47,7 +47,7 @@ export function Globalsearchdialog({ open, onopenchange }: globalsearchdialogpro
       const results = searchResults || [];
       let context = `user query: "${q}"\n\nsearch results from database:\n`;
       if (results.length > 0) {
-      results.foreach((res: { collectionname?: string; collectiontitle?: string; record?: record<string, unknown>; id?: string; score?: number }) => {
+      results.forEach((res: { collectionName?: string; collectionTitle?: string; record?: Record<string, unknown>; id?: string; score?: number }) => {
         context += `- [${res.collectionTitle || res.collectionName}] ${JSON.stringify(res.record)}\n`;
       });
 
@@ -116,7 +116,7 @@ export function Globalsearchdialog({ open, onopenchange }: globalsearchdialogpro
                 </div>
               )}
 
-              {searchresults && searchresults.length === 0 && !loading && (
+              {searchResults && searchResults.length === 0 && !loading && (
                 <div className="text-center py-4 text-sm text-muted-foreground lowercase">
                   no database matches found. asking ai...
                 </div>
@@ -151,6 +151,6 @@ export function Globalsearchdialog({ open, onopenchange }: globalsearchdialogpro
   );
 }
 
-function separator({ classname }: { classname?: string }) {
+function Separator({ className }: { className?: string }) {
   return <div className={`h-px bg-border ${className}`} />;
 }

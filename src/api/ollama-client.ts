@@ -1,5 +1,6 @@
 
 import { getOllamaChatUrl } from '@/lib/llm-config';
+import { secureLogger } from '@/lib/secure-logger';
 
 export interface ChatMessage {
   role: 'system' | 'user' | 'assistant';
@@ -27,7 +28,7 @@ export class OllamaClient {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: OLLAMA_MODEL,
+          model: oLLAMA_MODEL,
           messages,
           stream: !!onStream
         })
@@ -67,13 +68,13 @@ export class OllamaClient {
             }
           }
         }
-        return { model: OLLAMA_MODEL, created_at: new Date().toISOString(), message: { role: 'assistant', content: fullContent }, done: true };
+        return { model: oLLAMA_MODEL, created_at: new Date().toISOString(), message: { role: 'assistant', content: fullContent }, done: true };
       } else {
         const data = await response.json();
         return data;
       }
     } catch (error) {
-      console.error("Ollama Chat Error:", error);
+      secureLogger.error("Ollama Chat Error:", error);
       throw error;
     }
   }
