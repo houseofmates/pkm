@@ -37,7 +37,7 @@ export function LoginPage() {
     <div className="flex h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-md space-y-6 rounded-lg border bg-card p-8 shadow-sm">
         <div className="flex flex-col items-center gap-4">
-          {ispublic ? (
+          {isPublic ? (
             <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
               <img src="/logo-hom.png" className="w-10 h-10 object-contain" alt="house of mates" />
             </div>
@@ -46,7 +46,7 @@ export function LoginPage() {
               <Database className="w-10 h-10 text-primary" />
             </div>
           )}
-          <h1 className="text-2xl font-bold text-center">login to {ispublic ? 'house of mates' : 'pkm'}</h1>
+          <h1 className="text-2xl font-bold text-center">login to {isPublic ? 'house of mates' : 'pkm'}</h1>
         </div>
 
         <p className="text-sm text-center text-muted-foreground">enter your nocobase jwt token</p>

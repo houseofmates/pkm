@@ -16,14 +16,14 @@ interface GlobalSearchDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export function globalsearchdialog({ open, onopenchange }: globalsearchdialogprops) {
-  const [query, setquery] = usestate('');
-  const [response, setresponse] = usestate<string | null>(null);
-  const [status, setstatus] = usestate<string>('');
-  const [loading, setloading] = usestate(false);
-  const searchresults = usepkmstore((s: { searchresults: array<{ collectionName?: string; collectionTitle?: string; record?: Record<string, unknown>; id?: string; score?: number }> }) => s.searchresults);
+export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogProps) {
+  const [query, setQuery] = useState('');
+  const [response, setResponse] = useState<string | null>(null);
+  const [status, setStatus] = useState<string>('');
+  const [loading, setLoading] = useState(false);
+  const searchResults = usePkmStore((s: { searchResults: Array<{ collectionName?: string; collectionTitle?: string; record?: Record<string, unknown>; id?: string; score?: number }> }) => s.searchResults);
 
-  const inputref = useref<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open) {
@@ -47,7 +47,7 @@ export function globalsearchdialog({ open, onopenchange }: globalsearchdialogpro
       const results = searchResults || [];
       let context = `user query: "${q}"\n\nsearch results from database:\n`;
       if (results.length > 0) {
-      results.foreach((res: { collectionname?: string; collectiontitle?: string; record?: record<string, unknown>; id?: string; score?: number }) => {
+      results.forEach((res: { collectionName?: string; collectionTitle?: string; record?: Record<string, unknown>; id?: string; score?: number }) => {
         context += `- [${res.collectionTitle || res.collectionName}] ${JSON.stringify(res.record)}\n`;
       });
 
@@ -91,10 +91,10 @@ export function globalsearchdialog({ open, onopenchange }: globalsearchdialogpro
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground lowercase px-1">
                     <Database className="h-3 w-3" />
-                    found {searchresults.length} matches
+                    found {searchResults.length} matches
                   </div>
                   <div className="grid gap-2">
-                    {searchresults.map((res: { collectionname?: string; collectiontitle?: string; record?: record<string, unknown>; id?: string; score?: number }, i: number) => (
+                    {searchResults.map((res: { collectionName?: string; collectionTitle?: string; record?: Record<string, unknown>; id?: string; score?: number }, i: number) => (
                       <div key={i} className="flex items-start gap-3 p-3 rounded-lg border bg-card/50 hover:bg-card/80 transition-colors group">
                         <div className="mt-1">
                           <FileText className="h-4 w-4 text-primary" />
@@ -116,7 +116,7 @@ export function globalsearchdialog({ open, onopenchange }: globalsearchdialogpro
                 </div>
               )}
 
-              {searchresults && searchresults.length === 0 && !loading && (
+              {searchResults && searchResults.length === 0 && !loading && (
                 <div className="text-center py-4 text-sm text-muted-foreground lowercase">
                   no database matches found. asking ai...
                 </div>
@@ -144,13 +144,13 @@ export function globalsearchdialog({ open, onopenchange }: globalsearchdialogpro
 
         <div className="p-2 border-t bg-muted/10 flex justify-between items-center text-[10px] text-muted-foreground px-4 lowercase">
           <span><strong>enter</strong> to search</span>
-          <span>powered by <strong>qwen2.5:7b</strong> @ {getollamabase()}</span>
+          <span>powered by <strong>qwen2.5:7b</strong> @ {getOllamaBase()}</span>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
 
-function separator({ classname }: { classname?: string }) {
+function Separator({ className }: { className?: string }) {
   return <div className={`h-px bg-border ${className}`} />;
 }
