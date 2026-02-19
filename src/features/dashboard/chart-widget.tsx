@@ -349,7 +349,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'bar') {
-  if (!isMounted || !isReady) {
+  if (!isReady) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
@@ -414,7 +414,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'pie') {
-  if (!isMounted || !isReady) {
+  if (!isReady) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
@@ -454,7 +454,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'radar') {
-  if (!isMounted || !isReady) {
+  if (!isReady) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
@@ -483,7 +483,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'treemap') {
-  if (!isMounted || !isReady) {
+  if (!isReady) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
@@ -562,7 +562,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   }
 
   if (type === 'funnel') {
-  if (!isMounted || !isReady) {
+  if (!isReady) {
   return <div ref={containerRef} className="w-full h-full flex items-center justify-center text-muted-foreground">loading chart...</div>;
   }
 
