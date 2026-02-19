@@ -251,7 +251,7 @@ function KanbanView({ data, fields, collectionName: _collectionName, groupByFiel
    <p className="text-sm font-bold text-white/90 mb-2 leading-tight">
    {item.title || item.name || item.id}
    </p>
-   {item.tags && array.isarray(item.tags) && (
+   {item.tags && Array.isArray(item.tags) && (
    <div className="flex flex-wrap gap-1">
   {item.tags.map((t: any, idx: number) => (
   <span key={idx} className="px-1.5 py-0.5 bg-white/5 rounded text-[9px] text-white/40 font-black">

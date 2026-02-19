@@ -151,7 +151,7 @@ export function TemplatePage() {
       const cols = parsed?.layout?.columns && Array.isArray(parsed.layout.columns) && parsed.layout.columns.length > 0
         ? parsed.layout.columns
         : [parsed?.layout?.widgets || []];
-      setLiveColumns(cols.map((c: any) => array.isarray(c) ? c : []));
+      setLiveColumns(cols.map((c: any) => Array.isArray(c) ? c : []));
     } catch (e) {
       // ignore
     }

@@ -164,7 +164,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
 
   {/* stream */}
   <div className="space-y-8">
- {object.keys(grouped).length === 0 && (
+ {Object.keys(grouped).length === 0 && (
  <div className="text-center text-muted-foreground py-10 opacity-50">
  <p>no journal entries yet. start writing above!</p>
  </div>

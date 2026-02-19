@@ -45,7 +45,7 @@ export function FrontingLogGraph() {
  if (k !== 'date') ids.add(k);
   });
   });
-  return array.from(ids);
+  return Array.from(ids);
   }, [data]);
 
   return (

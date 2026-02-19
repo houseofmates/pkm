@@ -37,7 +37,7 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
  const coverValue = coverField ? record[coverField.name] : null;
  const attachmentField = collection.fields?.find((f: { interface?: string; name: string }) => f.interface === 'attachment');
  const firstimage = covervalue || (attachmentfield ? record[attachmentfield.name] : null);
- const imageurl = array.isarray(firstimage) ? firstimage[0]?.url : (firstimage?.url || null);
+ const imageurl = Array.isArray(firstimage) ? firstimage[0]?.url : (firstimage?.url || null);
 
  return (
  <RecordContextMenu

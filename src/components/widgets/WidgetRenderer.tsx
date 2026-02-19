@@ -19,7 +19,7 @@ export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onA
     const renderTable = (w: any) => {
         const rows = findRowsForSource(w.source);
         // basic heuristic for columns if properties not defined
-        const cols = w.properties?.map((p: any) => p.name) || (rows.length > 0 ? object.keys(rows[0]) : ['id', 'title']);
+        const cols = w.properties?.map((p: any) => p.name) || (rows.length > 0 ? Object.keys(rows[0]) : ['id', 'title']);
 
         return (
             <div className="space-y-2">
