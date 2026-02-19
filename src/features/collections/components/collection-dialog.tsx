@@ -61,7 +61,7 @@ const field_types = [
   { label: 'formula', type: 'formula', interface: 'formula' },
 ] as const;
 
-export function collectiondialog({ collection, onsuccess, trigger, open: controlledopen, onopenchange: setcontrolledopen, initialtitle }: collectiondialogprops) {
+export function CollectionDialog({ collection, onSuccess, trigger, open: controlledOpen, onOpenChange: setControlledOpen, initialTitle }: CollectionDialogProps) {
   const { client } = useauth();
   const navigate = usenavigate();
   const [internalopen, setinternalopen] = usestate(false);
@@ -69,644 +69,644 @@ export function collectiondialog({ collection, onsuccess, trigger, open: control
   const setopen = controlledopen !== undefined ? setcontrolledopen : setinternalopen;
 
   const isedit = !!collection;
-  const [step, setstep] = usestate<'type-select' | 'template-select' | 'database-form' | 'document-select'>('type-select');
+  const [step, setStep] = useState<'type-select' | 'template-select' | 'database-form' | 'document-select'>('type-select');
 
   useEffect(() => {
-  if (!open) {
-  // reset to select screen on close if creating
-  if (!isEdit) setTimeout(() => setStep('type-select'), 300);
-  } else {
-  if (isEdit) setStep('database-form');
-  // if already open and not edit, ensure select
-  else if (step === 'database-form' && !displayName) setStep('type-select');
-  }
+    if (!open) {
+      // reset to select screen on close if creating
+      if (!isEdit) setTimeout(() => setStep('type-select'), 300);
+    } else {
+      if (isEdit) setStep('database-form');
+      // if already open and not edit, ensure select
+      else if (step === 'database-form' && !displayName) setStep('type-select');
+    }
   }, [open, isEdit]);
 
   const handleCreateDocument = (mode: 'edgeless' | 'desktop-8k' | 'iphone-8k') => {
-  const id = Math.random().toString(36).substring(7);
-  // stash config
-  localStorage.setItem(`canvas-config-${id}`, JSON.stringify({ title: "untitled document", mode }));
-  navigate(`/canvas/${id}`);
-  if (setOpen) setOpen(false);
+    const id = Math.random().toString(36).substring(7);
+    // stash config
+    localStorage.setItem(`canvas-config-${id}`, JSON.stringify({ title: "untitled document", mode }));
+    navigate(`/canvas/${id}`);
+    if (setOpen) setOpen(false);
   };
 
   const handleTemplateSelect = (template: typeof TRACKING_TEMPLATES[0] | null) => {
-  if (template) {
-  setDisplayName(template.label);
-  setColor(template.metadata.color);
-  // map template fields to the internal schema format
-  setCsvFields(template.fields.map(f => ({
- ...f,
- detectionreason: 'template',
- detectionconfidence: 'high' as const
-  })));
-  } else {
-  // blank
-  setdisplayname('');
-  setcsvfields([]);
-  }
-  setstep('database-form');
+    if (template) {
+      setDisplayName(template.label);
+      setColor(template.metadata.color);
+      // map template fields to the internal schema format
+      setCsvFields(template.fields.map(f => ({
+        ...f,
+        detectionreason: 'template',
+        detectionconfidence: 'high' as const
+      })));
+    } else {
+      // blank
+      setdisplayname('');
+      setcsvfields([]);
+    }
+    setstep('database-form');
   };
 
-  const [loading, setloading] = usestate(false);
-  const [displayname, setdisplayname] = usestate('');
-  const [name, setname] = usestate('');
-  const [imageurl, setimageurl] = usestate('');
-  const [color, setcolor] = usestate('#666666');
+  const [loading, setLoading] = useState(false);
+  const [displayName, setDisplayName] = useState('');
+  const [name, setName] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [color, setColor] = useState('#666666');
 
-  const titleinputref = useref<HTMLInputElement>(null);
-  const fileinputref = useref<HTMLInputElement>(null);
+  const titleInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [metadata, setmetadata] = useappsetting<Record<string, CollectionMetadata>>('collection_metadata', {});
-  const [collectionslist, setcollectionslist] = usestate<Collection[]>([]);
+  const [metadata, setMetadata] = useAppSetting<Record<string, CollectionMetadata>>('collection_metadata', {});
+  const [collectionsList, setCollectionsList] = useState<Collection[]>([]);
 
 
 
   useEffect(() => {
-  if (open) {
-  // fetch collections list for relation targets
-  client.listCollections().then(res => {
- // normalize response - could be array or { data: [...] }
- const collectionsData: Collection[] = Array.isArray(res) ? res : ((res as { data?: Collection[] })?.data || []);
- // filter out system and backend collections
- const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers', 'site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates', 'website'];
- const filteredCollections = collectionsData.filter((col: Collection) => {
- const name = (col.name || '').toLowerCase().trim();
- const title = (col.title || '').toLowerCase().trim();
+    if (open) {
+      // fetch collections list for relation targets
+      client.listCollections().then(res => {
+        // normalize response - could be array or { data: [...] }
+        const collectionsData: Collection[] = Array.isArray(res) ? res : ((res as { data?: Collection[] })?.data || []);
+        // filter out system and backend collections
+        const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers', 'site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates', 'website'];
+        const filteredCollections = collectionsData.filter((col: Collection) => {
+          const name = (col.name || '').toLowerCase().trim();
+          const title = (col.title || '').toLowerCase().trim();
 
- // exclude system collections
- if (systemCollections.includes(name)) return false;
+          // exclude system collections
+          if (systemCollections.includes(name)) return false;
 
- // exclude pkm_settings
- if (name === 'pkm_settings' || title === 'pkm settings') return false;
+          // exclude pkm_settings
+          if (name === 'pkm_settings' || title === 'pkm settings') return false;
 
- // hide anything with "backend" in the name or title
- if (name.includes('backend') || title.includes('backend')) return false;
+          // hide anything with "backend" in the name or title
+          if (name.includes('backend') || title.includes('backend')) return false;
 
- // exclude hidden collections
- if (col.hidden) return false;
+          // exclude hidden collections
+          if (col.hidden) return false;
 
- return true;
- });
- setCollectionsList(filteredCollections);
-  }).catch(console.error);
+          return true;
+        });
+        setCollectionsList(filteredCollections);
+      }).catch(console.error);
 
-  if (isEdit) {
- setDisplayName(initialTitle || collection.title || '');
- setName(collection.name || '');
- const meta = metadata[collection.name] || {};
- setImageUrl(meta.image || '');
- setColor(meta.color || '#666666');
-  } else {
- setDisplayName('');
- setName('');
- setImageUrl('');
- setColor('#666666');
- setCsvData([]);
- setCsvFields([]);
- // auto-focus title on create
- setTimeout(() => titleinputref.current?.focus(), 100);
-  }
-  }
+      if (isEdit) {
+        setDisplayName(initialTitle || collection.title || '');
+        setName(collection.name || '');
+        const meta = metadata[collection.name] || {};
+        setImageUrl(meta.image || '');
+        setColor(meta.color || '#666666');
+      } else {
+        setDisplayName('');
+        setName('');
+        setImageUrl('');
+        setColor('#666666');
+        setCsvData([]);
+        setCsvFields([]);
+        // auto-focus title on create
+        setTimeout(() => titleinputref.current?.focus(), 100);
+      }
+    }
   }, [open, isedit, collection, metadata, client]);
 
-  const [csvdata, setcsvdata] = usestate<any[]>([]);
-  const [csvfields, setcsvfields] = usestate<{
-  name: string;
-  title: string;
-  interface: string;
-  target?: string;
-  expression?: string;
-  uiSchema?: any; // Added for template support
-  detectionReason?: string;
-  detectionConfidence?: 'high' | 'medium' | 'low';
+  const [csvData, setCsvData] = useState<any[]>([]);
+  const [csvFields, setCsvFields] = useState<{
+    name: string;
+    title: string;
+    interface: string;
+    target?: string;
+    expression?: string;
+    uiSchema?: any; // Added for template support
+    detectionReason?: string;
+    detectionConfidence?: 'high' | 'medium' | 'low';
   }[]>([]);
-  const csvinputref = useref<HTMLInputElement>(null);
+  const csvInputRef = useRef<HTMLInputElement>(null);
 
   const handlecsvchange = (e: react.changeevent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  import('papaparse').then((Papa) => {
-  Papa.default.parse(file, {
- header: true,
- dynamicTyping: true,
- skipEmptyLines: true,
- complete: (results) => {
- if (results.data && results.data.length > 0) {
- const data = results.data as any[];
- const headers = Object.keys(data[0]);
- const fields = headers.map(h => {
-   const detection = detectFieldType(h, data.map(row => row[h]), collectionsList.map(c => c.name));
-   return {
-   name: h.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''),
-   title: h,
-   interface: detection.type,
-   target: detection.target,
-   detectionReason: detection.reason,
-   detectionConfidence: detection.confidence
-   };
- });
- setCsvData(data);
- setCsvFields(fields);
- if (!displayName) setDisplayName(file.name.replace(/\.[^/.]+$/, ""));
- toast.success(`parsed ${data.length} rows and ${fields.length} columns`);
- }
- },
- error: (err: any) => {
- toast.error("failed to parse csv: " + err.message);
- }
-  });
-  });
+    import('papaparse').then((Papa) => {
+      Papa.default.parse(file, {
+        header: true,
+        dynamicTyping: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          if (results.data && results.data.length > 0) {
+            const data = results.data as any[];
+            const headers = Object.keys(data[0]);
+            const fields = headers.map(h => {
+              const detection = detectFieldType(h, data.map(row => row[h]), collectionsList.map(c => c.name));
+              return {
+                name: h.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''),
+                title: h,
+                interface: detection.type,
+                target: detection.target,
+                detectionReason: detection.reason,
+                detectionConfidence: detection.confidence
+              };
+            });
+            setCsvData(data);
+            setCsvFields(fields);
+            if (!displayName) setDisplayName(file.name.replace(/\.[^/.]+$/, ""));
+            toast.success(`parsed ${data.length} rows and ${fields.length} columns`);
+          }
+        },
+        error: (err: any) => {
+          toast.error("failed to parse csv: " + err.message);
+        }
+      });
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setLoading(true);
+    e.preventDefault();
+    setLoading(true);
 
-  try {
-  const finalName = name || displayName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+    try {
+      const finalName = name || displayName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
 
-  if (isEdit) {
- await client.updateCollection(collection.name, {
- title: displayName,
- });
-  } else {
- // 1. create collection
- await client.createCollection({
- title: displayName,
- name: finalName,
- });
+      if (isEdit) {
+        await client.updateCollection(collection.name, {
+          title: displayName,
+        });
+      } else {
+        // 1. create collection
+        await client.createCollection({
+          title: displayName,
+          name: finalName,
+        });
 
- // 2. if csv/templates, create fields
- if (csvFields.length > 0) {
- toast.info(`creating ${csvFields.length} fields...`);
- // we must create fields sequentially or carefully to avoid nocobase race conditions
- for (const field of csvFields) {
- const fieldType = FIELD_TYPES.find(t => t.interface === field.interface);
+        // 2. if csv/templates, create fields
+        if (csvFields.length > 0) {
+          toast.info(`creating ${csvFields.length} fields...`);
+          // we must create fields sequentially or carefully to avoid nocobase race conditions
+          for (const field of csvFields) {
+            const fieldType = FIELD_TYPES.find(t => t.interface === field.interface);
 
- // intelligent type/ui management: prevent varchar(255) overflow
- let dbType: string = fieldType?.type || 'string';
- let xComponent = 'Input';
+            // intelligent type/ui management: prevent varchar(255) overflow
+            let dbType: string = fieldType?.type || 'string';
+            let xComponent = 'Input';
 
- // check if data contains long strings (> 200 chars)
- const isLong = csvData.some(row => String(row[field.title] || '').length > 200);
+            // check if data contains long strings (> 200 chars)
+            const isLong = csvData.some(row => String(row[field.title] || '').length > 200);
 
- if (isLong && (dbType === 'string' || field.interface === 'text')) {
-   dbType = 'text';
-   xComponent = 'Input.TextArea';
- } else {
-   // default component mapping
-   switch (field.interface) {
-   case 'number': xComponent = 'InputNumber'; break;
-   case 'checkbox': xComponent = 'Checkbox'; break;
-   case 'attachment': xComponent = 'Upload.Attachment'; break;
-   case 'select': case 'multipleSelect': xComponent = 'Select'; break;
-   default: xComponent = 'Input';
-   }
- }
+            if (isLong && (dbType === 'string' || field.interface === 'text')) {
+              dbType = 'text';
+              xComponent = 'Input.TextArea';
+            } else {
+              // default component mapping
+              switch (field.interface) {
+                case 'number': xComponent = 'InputNumber'; break;
+                case 'checkbox': xComponent = 'Checkbox'; break;
+                case 'attachment': xComponent = 'Upload.Attachment'; break;
+                case 'select': case 'multipleSelect': xComponent = 'Select'; break;
+                default: xComponent = 'Input';
+              }
+            }
 
- let uiSchema: any = {
-   title: field.title,
-   'x-component': xComponent,
- };
+            let uiSchema: any = {
+              title: field.title,
+              'x-component': xComponent,
+            };
 
- // extract options for select / multi-select (csv only)
- if (csvData.length > 0 && (field.interface === 'select' || field.interface === 'multipleselect')) {
-   const uniquevalues = new set<string>();
-   csvData.forEach(row => {
-   const val = row[field.title];
-   if (val) {
-   if (field.interface === 'multipleSelect') {
-  String(val).split(',').map(s => s.trim()).forEach(v => v && uniqueValues.add(v));
-   } else {
-  uniqueValues.add(String(val).trim());
-   }
-   }
-   });
-   uiSchema.enum = Array.from(uniqueValues).map(v => ({ label: v, value: v }));
-   if (field.interface === 'multipleSelect') {
-   uiSchema['x-component-props'] = { mode: 'multiple' };
-   }
- }
+            // extract options for select / multi-select (csv only)
+            if (csvData.length > 0 && (field.interface === 'select' || field.interface === 'multipleselect')) {
+              const uniquevalues = new set<string>();
+              csvData.forEach(row => {
+                const val = row[field.title];
+                if (val) {
+                  if (field.interface === 'multipleSelect') {
+                    String(val).split(',').map(s => s.trim()).forEach(v => v && uniqueValues.add(v));
+                  } else {
+                    uniqueValues.add(String(val).trim());
+                  }
+                }
+              });
+              uiSchema.enum = Array.from(uniqueValues).map(v => ({ label: v, value: v }));
+              if (field.interface === 'multipleSelect') {
+                uiSchema['x-component-props'] = { mode: 'multiple' };
+              }
+            }
 
- // use template ui schema if available
- if (field.uiSchema) {
-   uiSchema = {
-   ...uiSchema,
-   ...field.uiSchema
-   };
- }
+            // use template ui schema if available
+            if (field.uiSchema) {
+              uiSchema = {
+                ...uiSchema,
+                ...field.uiSchema
+              };
+            }
 
- const fieldConfig: any = {
-   name: field.name,
-   type: dbType,
-   interface: field.interface,
-   uiSchema
- };
+            const fieldConfig: any = {
+              name: field.name,
+              type: dbType,
+              interface: field.interface,
+              uiSchema
+            };
 
- if (field.interface === 'belongsTo' && field.target) {
-   fieldConfig.target = field.target;
-   fieldConfig.targetKey = 'id';
- }
+            if (field.interface === 'belongsTo' && field.target) {
+              fieldConfig.target = field.target;
+              fieldConfig.targetKey = 'id';
+            }
 
- if (field.interface === 'formula' && field.expression) {
-   fieldConfig.params = { expression: field.expression };
- }
+            if (field.interface === 'formula' && field.expression) {
+              fieldConfig.params = { expression: field.expression };
+            }
 
- await client.createField(finalName, fieldConfig);
- }
+            await client.createField(finalName, fieldConfig);
+          }
 
- // 3. batch create records
- if (csvData.length > 0) {
- toast.info(`importing ${csvData.length} records...`);
- const batchSize = 10;
- for (let i = 0; i < csvData.length; i += batchSize) {
-   const chunk = csvData.slice(i, i + batchSize);
-   await Promise.all(chunk.map(row => {
-   const record: any = {};
-   csvFields.forEach(f => {
-   let val = row[f.title];
-   if (f.interface === 'multipleSelect' && val) {
-  val = String(val).split(',').map(s => s.trim()).filter(Boolean);
-   }
-   if (f.interface === 'belongsTo' && val) {
-  val = isNaN(Number(val)) ? val : Number(val);
-   }
-   record[f.name] = val;
-   });
-   return client.createRecord(finalName, record);
-   }));
-   if (i % 50 === 0) toast.info(`imported ${i + chunk.length} / ${csvData.length} records...`);
- }
- }
- }
-  }
+          // 3. batch create records
+          if (csvData.length > 0) {
+            toast.info(`importing ${csvData.length} records...`);
+            const batchSize = 10;
+            for (let i = 0; i < csvData.length; i += batchSize) {
+              const chunk = csvData.slice(i, i + batchSize);
+              await Promise.all(chunk.map(row => {
+                const record: any = {};
+                csvFields.forEach(f => {
+                  let val = row[f.title];
+                  if (f.interface === 'multipleSelect' && val) {
+                    val = String(val).split(',').map(s => s.trim()).filter(Boolean);
+                  }
+                  if (f.interface === 'belongsTo' && val) {
+                    val = isNaN(Number(val)) ? val : Number(val);
+                  }
+                  record[f.name] = val;
+                });
+                return client.createRecord(finalName, record);
+              }));
+              if (i % 50 === 0) toast.info(`imported ${i + chunk.length} / ${csvData.length} records...`);
+            }
+          }
+        }
+      }
 
-  // save metadata
-  const collectionKey = isEdit ? collection.name : finalName;
-  setMetadata(prev => ({
- ...prev,
- [collectionKey]: {
- ...prev[collectionKey],
- image: imageUrl,
- color: color
- }
-  }));
+      // save metadata
+      const collectionKey = isEdit ? collection.name : finalName;
+      setMetadata(prev => ({
+        ...prev,
+        [collectionKey]: {
+          ...prev[collectionKey],
+          image: imageUrl,
+          color: color
+        }
+      }));
 
-  toast.success(isEdit ? "database updated" : (csvData.length > 0 ? "database imported successfully" : "database created"));
-  if (setOpen) setOpen(false);
-  onSuccess();
-  } catch (error: any) {
-  console.error(error);
-  toast.error(error.message || `failed to ${isEdit ? 'update' : 'create'} database`);
-  } finally {
-  setLoading(false);
-  }
+      toast.success(isEdit ? "database updated" : (csvData.length > 0 ? "database imported successfully" : "database created"));
+      if (setOpen) setOpen(false);
+      onSuccess();
+    } catch (error: any) {
+      console.error(error);
+      toast.error(error.message || `failed to ${isEdit ? 'update' : 'create'} database`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  const toastid = toast.loading("uploading image...");
-  try {
-  const res = await client.upload(file);
-  const uploadedfile = res.data;
+    const toastid = toast.loading("uploading image...");
+    try {
+      const res = await client.upload(file);
+      const uploadedfile = res.data;
 
-  if (!uploadedfile || !uploadedfile.url) {
- throw new error("upload failed");
-  }
+      if (!uploadedfile || !uploadedfile.url) {
+        throw new error("upload failed");
+      }
 
-  setimageurl(uploadedfile.url);
-  toast.success("image uploaded", { id: toastid });
-  } catch (error) {
-  console.error(error);
-  toast.error("failed to upload image", { id: toastid });
-  }
+      setimageurl(uploadedfile.url);
+      toast.success("image uploaded", { id: toastid });
+    } catch (error) {
+      console.error(error);
+      toast.error("failed to upload image", { id: toastid });
+    }
   };
 
   return (
-  <Dialog open={open} onOpenChange={setOpen}>
-  {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
-  <DialogContent className="sm:max-w-[425px]">
- <DialogHeader>
- <DialogTitle>
- {step === 'type-select' && "create new item"}
- {step === 'template-select' && "choose a template"}
- {step === 'database-form' && (isedit ? 'edit database' : 'create database')}
- {step === 'document-select' && "select document type"}
- </DialogTitle>
- <DialogDescription>
- {step === 'type-select' ? "choose what you want to create." : ""}
- {step === 'template-select' ? "start from scratch or use a template." : ""}
- {step === 'database-form' ? (isedit ? 'update your database settings.' : 'configure your new database.') : ""}
- {step === 'document-select' ? "choose a canvas size." : ""}
- </DialogDescription>
- </DialogHeader>
+    <Dialog open={open} onOpenChange={setOpen}>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>
+            {step === 'type-select' && "create new item"}
+            {step === 'template-select' && "choose a template"}
+            {step === 'database-form' && (isedit ? 'edit database' : 'create database')}
+            {step === 'document-select' && "select document type"}
+          </DialogTitle>
+          <DialogDescription>
+            {step === 'type-select' ? "choose what you want to create." : ""}
+            {step === 'template-select' ? "start from scratch or use a template." : ""}
+            {step === 'database-form' ? (isedit ? 'update your database settings.' : 'configure your new database.') : ""}
+            {step === 'document-select' ? "choose a canvas size." : ""}
+          </DialogDescription>
+        </DialogHeader>
 
- {/* step 1: type selection */}
- {step === 'type-select' && (
- <div className="grid grid-cols-2 gap-4 py-4">
- <Card
-   className="cursor-pointer hover:border-black transition-all hover:bg-muted/50"
-   onClick={() => setStep('document-select')}
- >
-   <CardContent className="flex flex-col items-center justify-center p-6 gap-2 text-center h-40">
-   <FileText className="w-8 h-8" />
-   <div className="font-semibold lowercase">document</div>
-   <div className="text-xs text-muted-foreground lowercase">infinite canvas & pdfs</div>
-   </CardContent>
- </Card>
+        {/* step 1: type selection */}
+        {step === 'type-select' && (
+          <div className="grid grid-cols-2 gap-4 py-4">
+            <Card
+              className="cursor-pointer hover:border-black transition-all hover:bg-muted/50"
+              onClick={() => setStep('document-select')}
+            >
+              <CardContent className="flex flex-col items-center justify-center p-6 gap-2 text-center h-40">
+                <FileText className="w-8 h-8" />
+                <div className="font-semibold lowercase">document</div>
+                <div className="text-xs text-muted-foreground lowercase">infinite canvas & pdfs</div>
+              </CardContent>
+            </Card>
 
- <Card
-   className="cursor-pointer hover:border-black transition-all hover:bg-muted/50"
-   onClick={() => setStep('template-select')}
- >
-   <CardContent className="flex flex-col items-center justify-center p-6 gap-2 text-center h-40">
-   <Database className="w-8 h-8" />
-   <div className="font-semibold lowercase">database</div>
-   <div className="text-xs text-muted-foreground lowercase">structured data tables</div>
-   </CardContent>
- </Card>
- </div>
- )}
+            <Card
+              className="cursor-pointer hover:border-black transition-all hover:bg-muted/50"
+              onClick={() => setStep('template-select')}
+            >
+              <CardContent className="flex flex-col items-center justify-center p-6 gap-2 text-center h-40">
+                <Database className="w-8 h-8" />
+                <div className="font-semibold lowercase">database</div>
+                <div className="text-xs text-muted-foreground lowercase">structured data tables</div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
- {/* step 1.5: template selection */}
- {step === 'template-select' && (
- <div className="space-y-4">
- <Button variant="ghost" size="sm" className="pl-0 gap-1" onClick={() => setStep('type-select')}>
-   <ArrowLeft className="w-4 h-4" /> back
- </Button>
- <div className="grid grid-cols-2 gap-2 h-[300px] overflow-y-auto pr-2">
-   <Card
-   className="cursor-pointer hover:border-black transition-all border-dashed"
-   onClick={() => handleTemplateSelect(null)}
-   >
-   <CardContent className="flex flex-col items-center justify-center p-4 gap-1 text-center h-24">
-   <Plus className="w-6 h-6 text-muted-foreground" />
-   <div className="font-semibold text-xs lowercase">empty database</div>
-   </CardContent>
-   </Card>
+        {/* step 1.5: template selection */}
+        {step === 'template-select' && (
+          <div className="space-y-4">
+            <Button variant="ghost" size="sm" className="pl-0 gap-1" onClick={() => setStep('type-select')}>
+              <ArrowLeft className="w-4 h-4" /> back
+            </Button>
+            <div className="grid grid-cols-2 gap-2 h-[300px] overflow-y-auto pr-2">
+              <Card
+                className="cursor-pointer hover:border-black transition-all border-dashed"
+                onClick={() => handleTemplateSelect(null)}
+              >
+                <CardContent className="flex flex-col items-center justify-center p-4 gap-1 text-center h-24">
+                  <Plus className="w-6 h-6 text-muted-foreground" />
+                  <div className="font-semibold text-xs lowercase">empty database</div>
+                </CardContent>
+              </Card>
 
-   {TRACKING_TEMPLATES.map(template => (
-   <Card
-   key={template.id}
-   className="cursor-pointer hover:border-black transition-all"
-   onClick={() => handleTemplateSelect(template)}
-   style={{ borderColor: template.metadata.color ? `${template.metadata.color}40` : undefined }}
-   >
-   <CardContent className="flex flex-col items-center justify-center p-4 gap-1 text-center h-24 relative overflow-hidden">
-  {/* color accent */}
-  <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: template.metadata.color }} />
+              {TRACKING_TEMPLATES.map(template => (
+                <Card
+                  key={template.id}
+                  className="cursor-pointer hover:border-black transition-all"
+                  onClick={() => handleTemplateSelect(template)}
+                  style={{ borderColor: template.metadata.color ? `${template.metadata.color}40` : undefined }}
+                >
+                  <CardContent className="flex flex-col items-center justify-center p-4 gap-1 text-center h-24 relative overflow-hidden">
+                    {/* color accent */}
+                    <div className="absolute top-0 left-0 w-full h-1" style={{ backgroundColor: template.metadata.color }} />
 
-  {/* icon (dynamic string to component mapping would be ideal, but for now generic zap) */}
-  <Zap className="w-5 h-5" style={{ color: template.metadata.color }} />
+                    {/* icon (dynamic string to component mapping would be ideal, but for now generic zap) */}
+                    <Zap className="w-5 h-5" style={{ color: template.metadata.color }} />
 
-  <div className="font-semibold text-xs lowercase truncate w-full">{template.label}</div>
-  <div className="text-[0.6rem] text-muted-foreground line-clamp-2 leading-tight">
-  {template.description}
-  </div>
-   </CardContent>
-   </Card>
-   ))}
- </div>
- </div>
- )}
-
-
- {/* step 2b: document selection */}
- {step === 'document-select' && (
- <div className="space-y-4">
- <Button variant="ghost" size="sm" className="pl-0 gap-1" onClick={() => setStep('type-select')}>
-   <ArrowLeft className="w-4 h-4" /> back
- </Button>
- <div className="grid grid-cols-3 gap-2">
-   <Card
-   className="cursor-pointer hover:border-black transition-all bg-primary/5 border-primary/20"
-   onClick={() => handleCreateDocument('edgeless')}
-   >
-   <CardContent className="flex flex-col items-center justify-center p-4 gap-1 text-center h-32">
-   <div className="text-2xl">∞</div>
-   <div className="font-semibold text-xs lowercase">edgeless</div>
-   <div className="text-[0.65rem] text-muted-foreground lowercase">infinite canvas</div>
-   </CardContent>
-   </Card>
-
-   <Card
-   className="cursor-pointer hover:border-black transition-all"
-   onClick={() => handleCreateDocument('desktop-8k')}
-   >
-   <CardContent className="flex flex-col items-center justify-center p-4 gap-1 text-center h-32">
-   <Monitor className="w-6 h-6" />
-   <div className="font-semibold text-xs lowercase">desktop 8k</div>
-   <div className="text-[0.65rem] text-muted-foreground lowercase">fixed 7680x4320</div>
-   </CardContent>
-   </Card>
-
-   <Card
-   className="cursor-pointer hover:border-black transition-all"
-   onClick={() => handleCreateDocument('iphone-8k')}
-   >
-   <CardContent className="flex flex-col items-center justify-center p-4 gap-1 text-center h-32">
-   <Smartphone className="w-6 h-6" />
-   <div className="font-semibold text-xs lowercase">iphone 8k</div>
-   <div className="text-[0.65rem] text-muted-foreground lowercase">portrait 4320x9360</div>
-   </CardContent>
-   </Card>
- </div>
- </div>
- )}
+                    <div className="font-semibold text-xs lowercase truncate w-full">{template.label}</div>
+                    <div className="text-[0.6rem] text-muted-foreground line-clamp-2 leading-tight">
+                      {template.description}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
 
 
- {/* step 2a: database form (existing) */}
- {step === 'database-form' && (
- <form onSubmit={handleSubmit} className="space-y-4">
- {!isedit && (
-   <Button variant="ghost" size="sm" type="button" className="pl-0 gap-1 -mt-2 mb-2" onClick={() => setStep('template-select')}>
-   <ArrowLeft className="w-4 h-4" /> back
-   </Button>
- )}
+        {/* step 2b: document selection */}
+        {step === 'document-select' && (
+          <div className="space-y-4">
+            <Button variant="ghost" size="sm" className="pl-0 gap-1" onClick={() => setStep('type-select')}>
+              <ArrowLeft className="w-4 h-4" /> back
+            </Button>
+            <div className="grid grid-cols-3 gap-2">
+              <Card
+                className="cursor-pointer hover:border-black transition-all bg-primary/5 border-primary/20"
+                onClick={() => handleCreateDocument('edgeless')}
+              >
+                <CardContent className="flex flex-col items-center justify-center p-4 gap-1 text-center h-32">
+                  <div className="text-2xl">∞</div>
+                  <div className="font-semibold text-xs lowercase">edgeless</div>
+                  <div className="text-[0.65rem] text-muted-foreground lowercase">infinite canvas</div>
+                </CardContent>
+              </Card>
 
- <div className="space-y-2">
-   <Label htmlFor="title">display name</Label>
-   <Input
-   id="title"
-   ref={titleInputRef}
-   value={displayName}
-   onChange={(e) => setDisplayName(e.target.value)}
-   placeholder="my books"
-   required
-   />
- </div>
+              <Card
+                className="cursor-pointer hover:border-black transition-all"
+                onClick={() => handleCreateDocument('desktop-8k')}
+              >
+                <CardContent className="flex flex-col items-center justify-center p-4 gap-1 text-center h-32">
+                  <Monitor className="w-6 h-6" />
+                  <div className="font-semibold text-xs lowercase">desktop 8k</div>
+                  <div className="text-[0.65rem] text-muted-foreground lowercase">fixed 7680x4320</div>
+                </CardContent>
+              </Card>
 
- {!isedit && (
-   <div className="space-y-4 border-t pt-4">
-   <Label>csv import (optional)</Label>
-   <div className="flex flex-col gap-2">
-   <Button
-  type="button"
-  variant="outline"
-  className="w-full border-dashed"
-  onClick={() => csvInputRef.current?.click()}
-   >
-  <Plus className="mr-2 h-4 w-4" />
-  {csvData.length > 0 ? "change csv file" : "upload csv (notion export)"}
-   </Button>
-   <input
-  type="file"
-  ref={csvInputRef}
-  className="hidden"
-  accept=".csv"
-  onChange={handleCsvChange}
-   />
+              <Card
+                className="cursor-pointer hover:border-black transition-all"
+                onClick={() => handleCreateDocument('iphone-8k')}
+              >
+                <CardContent className="flex flex-col items-center justify-center p-4 gap-1 text-center h-32">
+                  <Smartphone className="w-6 h-6" />
+                  <div className="font-semibold text-xs lowercase">iphone 8k</div>
+                  <div className="text-[0.65rem] text-muted-foreground lowercase">portrait 4320x9360</div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
 
-   {csvFields.length > 0 && (
-  <div className="mt-2 space-y-2">
-  <div className="text-xs font-semibold text-muted-foreground ">
-  {csvData.length > 0 ? `detected ${csvFields.length} columns:` : `template fields (${csvFields.length}):`}
-  </div>
-  <div className="max-h-48 overflow-y-auto border rounded p-2 bg-muted/30 space-y-1">
-  {csvFields.map((field, idx) => (
-    <div key={field.name} className="flex items-center justify-between text-xs py-1.5 border-b last:border-0 border-muted group/field">
-    <div className="flex flex-col gap-0.5 max-w-[45%]">
-    <span className="font-medium truncate" title={field.title}>{field.title}</span>
-    {field.detectionreason && (
-   <span className={`text-[0.65rem] truncate ${field.detectionConfidence === 'high' ? 'text-green-600' : 'text-muted-foreground'}`} title={`Detected as ${field.interface}: ${field.detectionReason}`}>
-   {field.detectionreason}
-   </span>
-    )}
-    </div>
-    <div className="flex flex-col gap-2">
-    <Select
-   value={field.interface}
-   onValueChange={(val) => {
-   const newFields = [...csvFields];
-   newFields[idx].interface = val;
-   setCsvFields(newFields);
-   }}
-    >
-   <SelectTrigger className="h-8 text-xs">
-   <SelectValue />
-   </SelectTrigger>
-   <SelectContent>
-   {FIELD_TYPES.map(t => (
-   <SelectItem key={t.interface} value={t.interface}>{t.label}</SelectItem>
-   ))}
-   </SelectContent>
-    </Select>
 
-    {field.interface === 'belongsto' && (
-   <Select
-   value={field.target}
-   onValueChange={(val) => {
-   const newFields = [...csvFields];
-   newFields[idx].target = val;
-   setCsvFields(newFields);
-   }}
-   >
-   <SelectTrigger className="h-8 text-xs border-primary/50 bg-primary/5">
-   <SelectValue placeholder="target collection..." />
-   </SelectTrigger>
-   <SelectContent>
-   {collectionsList.map(c => (
-     <SelectItem key={c.name} value={c.name}>{c.title || c.name}</SelectItem>
-   ))}
-   </SelectContent>
-   </Select>
-    )}
-    {field.interface === 'formula' && (
-   <Input
-   className="h-8 text-xs border-primary/50 bg-primary/5 font-mono"
-   placeholder="formula (e.g. {{price}} * 0.1)..."
-   value={field.expression || ''}
-   onChange={(e) => {
-   const newFields = [...csvFields];
-   newFields[idx].expression = e.target.value;
-   setCsvFields(newFields);
-   }}
-   />
-    )}
-    </div>
-    </div>
-  ))}
-  </div>
-  {csvData.length > 0 && <p className="text-[0.7rem] text-muted-foreground italic">
-  {csvdata.length} records will be imported.
-  </p>}
-  </div>
-   )}
-   </div>
-   </div>
- )}
+        {/* step 2a: database form (existing) */}
+        {step === 'database-form' && (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {!isedit && (
+              <Button variant="ghost" size="sm" type="button" className="pl-0 gap-1 -mt-2 mb-2" onClick={() => setStep('template-select')}>
+                <ArrowLeft className="w-4 h-4" /> back
+              </Button>
+            )}
 
- {!isedit && (
-   <div className="space-y-2">
-   <Label htmlFor="name">system name (optional)</Label>
-   <Input
-   id="name"
-   value={name}
-   onChange={(e) => setName(e.target.value)}
-   placeholder="my_books"
-   />
-   <p className="text-[0.8rem] text-muted-foreground">
-   leave blank to auto-generate from display name.
-   </p>
-   </div>
- )}
+            <div className="space-y-2">
+              <Label htmlFor="title">display name</Label>
+              <Input
+                id="title"
+                ref={titleInputRef}
+                value={displayName}
+                onChange={(e) => setDisplayName(e.target.value)}
+                placeholder="my books"
+                required
+              />
+            </div>
 
- <div className="space-y-2">
-   <Label>cover image</Label>
-   <div className="flex gap-2">
-   <Input
-   value={imageUrl}
-   onChange={(e) => setImageUrl(e.target.value)}
-   placeholder="https://... or upload"
-   />
-   <Button
-   type="button"
-   variant="outline"
-   size="icon"
-   onClick={() => fileInputRef.current?.click()}
-   >
-   <ImageIcon className="h-4 w-4" />
-   </Button>
-   </div>
-   <input
-   type="file"
-   ref={fileInputRef}
-   className="hidden"
-   accept="image/*"
-   onChange={handleFileChange}
-   />
- </div>
+            {!isedit && (
+              <div className="space-y-4 border-t pt-4">
+                <Label>csv import (optional)</Label>
+                <div className="flex flex-col gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full border-dashed"
+                    onClick={() => csvInputRef.current?.click()}
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    {csvData.length > 0 ? "change csv file" : "upload csv (notion export)"}
+                  </Button>
+                  <input
+                    type="file"
+                    ref={csvInputRef}
+                    className="hidden"
+                    accept=".csv"
+                    onChange={handleCsvChange}
+                  />
 
- <div className="space-y-2">
-   <Label>theme color</Label>
-   <div className="flex gap-2">
-   <Input
-   type="color"
-   value={color}
-   onChange={(e) => setColor(e.target.value)}
-   className="w-12 h-10 p-1 cursor-pointer"
-   />
-   <Input
-   value={color}
-   onChange={(e) => setColor(e.target.value)}
-   placeholder="#666666"
-   className="flex-1"
-   />
-   </div>
- </div>
+                  {csvFields.length > 0 && (
+                    <div className="mt-2 space-y-2">
+                      <div className="text-xs font-semibold text-muted-foreground ">
+                        {csvData.length > 0 ? `detected ${csvFields.length} columns:` : `template fields (${csvFields.length}):`}
+                      </div>
+                      <div className="max-h-48 overflow-y-auto border rounded p-2 bg-muted/30 space-y-1">
+                        {csvFields.map((field, idx) => (
+                          <div key={field.name} className="flex items-center justify-between text-xs py-1.5 border-b last:border-0 border-muted group/field">
+                            <div className="flex flex-col gap-0.5 max-w-[45%]">
+                              <span className="font-medium truncate" title={field.title}>{field.title}</span>
+                              {field.detectionreason && (
+                                <span className={`text-[0.65rem] truncate ${field.detectionConfidence === 'high' ? 'text-green-600' : 'text-muted-foreground'}`} title={`Detected as ${field.interface}: ${field.detectionReason}`}>
+                                  {field.detectionreason}
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex flex-col gap-2">
+                              <Select
+                                value={field.interface}
+                                onValueChange={(val) => {
+                                  const newFields = [...csvFields];
+                                  newFields[idx].interface = val;
+                                  setCsvFields(newFields);
+                                }}
+                              >
+                                <SelectTrigger className="h-8 text-xs">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {FIELD_TYPES.map(t => (
+                                    <SelectItem key={t.interface} value={t.interface}>{t.label}</SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
 
- <DialogFooter>
-   <Button type="submit" disabled={loading}>
-   {loading ? (isedit ? "saving..." : "creating...") : (isedit ? "save" : "create")}
-   </Button>
- </DialogFooter>
- </form>
- )}
-  </DialogContent>
-  </Dialog>
+                              {field.interface === 'belongsto' && (
+                                <Select
+                                  value={field.target}
+                                  onValueChange={(val) => {
+                                    const newFields = [...csvFields];
+                                    newFields[idx].target = val;
+                                    setCsvFields(newFields);
+                                  }}
+                                >
+                                  <SelectTrigger className="h-8 text-xs border-primary/50 bg-primary/5">
+                                    <SelectValue placeholder="target collection..." />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {collectionsList.map(c => (
+                                      <SelectItem key={c.name} value={c.name}>{c.title || c.name}</SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              )}
+                              {field.interface === 'formula' && (
+                                <Input
+                                  className="h-8 text-xs border-primary/50 bg-primary/5 font-mono"
+                                  placeholder="formula (e.g. {{price}} * 0.1)..."
+                                  value={field.expression || ''}
+                                  onChange={(e) => {
+                                    const newFields = [...csvFields];
+                                    newFields[idx].expression = e.target.value;
+                                    setCsvFields(newFields);
+                                  }}
+                                />
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                      {csvData.length > 0 && <p className="text-[0.7rem] text-muted-foreground italic">
+                        {csvData.length} records will be imported.
+                      </p>}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {!isedit && (
+              <div className="space-y-2">
+                <Label htmlFor="name">system name (optional)</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="my_books"
+                />
+                <p className="text-[0.8rem] text-muted-foreground">
+                  leave blank to auto-generate from display name.
+                </p>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label>cover image</Label>
+              <div className="flex gap-2">
+                <Input
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder="https://... or upload"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <ImageIcon className="h-4 w-4" />
+                </Button>
+              </div>
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={handleFileChange}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>theme color</Label>
+              <div className="flex gap-2">
+                <Input
+                  type="color"
+                  value={color}
+                  onChange={(e) => setColor(e.target.value)}
+                  className="w-12 h-10 p-1 cursor-pointer"
+                />
+                <Input
+                  value={color}
+                  onChange={(e) => setColor(e.target.value)}
+                  placeholder="#666666"
+                  className="flex-1"
+                />
+              </div>
+            </div>
+
+            <DialogFooter>
+              <Button type="submit" disabled={loading}>
+                {loading ? (isedit ? "saving..." : "creating...") : (isedit ? "save" : "create")}
+              </Button>
+            </DialogFooter>
+          </form>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
