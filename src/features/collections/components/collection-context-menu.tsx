@@ -1,4 +1,3 @@
-
 import {
   ContextMenu,
   ContextMenuContent,
@@ -18,7 +17,7 @@ interface CollectionContextMenuProps {
   onAddToFolder?: () => void;
 }
 
-const colors = [
+const COLORS = [
   { name: 'yellow', value: 'var(--primary)' },
   { name: 'red', value: '#ef4444' },
   { name: 'blue', value: '#3b82f6' },
@@ -26,40 +25,40 @@ const colors = [
   { name: 'purple', value: '#a855f7' },
 ];
 
-export function collectioncontextmenu({ children, onrename, oncolorchange, onaddtofolder }: collectioncontextmenuprops) {
+export function CollectionContextMenu({ children, onRename, onColorChange, onAddToFolder }: CollectionContextMenuProps) {
   return (
-  <ContextMenu>
-  <ContextMenuTrigger asChild>
- {children}
-  </ContextMenuTrigger>
-  <ContextMenuContent className="w-64">
- <ContextMenuItem onSelect={onRename}>
- <Pencil className="mr-2 h-4 w-4" />
- rename collection
- </ContextMenuItem>
+    <ContextMenu>
+      <ContextMenuTrigger asChild>
+        {children}
+      </ContextMenuTrigger>
+      <ContextMenuContent className="w-64">
+        <ContextMenuItem onSelect={onRename}>
+          <Pencil className="mr-2 h-4 w-4" />
+          rename collection
+        </ContextMenuItem>
 
- <ContextMenuSub>
- <ContextMenuSubTrigger>
- <Palette className="mr-2 h-4 w-4" />
- change color
- </ContextMenuSubTrigger>
- <ContextMenuSubContent className="w-48">
- {COLORS.map(color => (
-   <ContextMenuItem key={color.name} onSelect={() => onColorChange?.(color.value)}>
-   <div className="mr-2 h-3 w-3 rounded-full" style={{ backgroundColor: color.value }} />
-   {color.name.tolowercase()}
-   </ContextMenuItem>
- ))}
- </ContextMenuSubContent>
- </ContextMenuSub>
+        <ContextMenuSub>
+          <ContextMenuSubTrigger>
+            <Palette className="mr-2 h-4 w-4" />
+            change color
+          </ContextMenuSubTrigger>
+          <ContextMenuSubContent className="w-48">
+            {COLORS.map(color => (
+              <ContextMenuItem key={color.name} onSelect={() => onColorChange?.(color.value)}>
+                <div className="mr-2 h-3 w-3 rounded-full" style={{ backgroundColor: color.value }} />
+                {color.name.toLowerCase()}
+              </ContextMenuItem>
+            ))}
+          </ContextMenuSubContent>
+        </ContextMenuSub>
 
- <ContextMenuSeparator />
+        <ContextMenuSeparator />
 
- <ContextMenuItem onSelect={onAddToFolder}>
- <FolderPlus className="mr-2 h-4 w-4" />
- add to folder...
- </ContextMenuItem>
-  </ContextMenuContent>
-  </ContextMenu>
+        <ContextMenuItem onSelect={onAddToFolder}>
+          <FolderPlus className="mr-2 h-4 w-4" />
+          add to folder...
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   )
 }
