@@ -193,7 +193,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
                           placeholder="search properties..."
                           className="h-7 text-xs lowercase"
                           value={propertySearch}
-                          onChange={(e) => setPropertySearch(e.target.value)}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPropertySearch(e.target.value)}
                           autoFocus
                         />
                       </div>

@@ -223,7 +223,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                           <Checkbox
                             id={`col-${fieldName}`}
                             checked={!isHidden}
-                            onCheckedChange={(checked) => {
+                            onCheckedChange={(checked: boolean) => {
                               if (checked) {
                                 setHiddenColumns(prev => prev.filter(c => c !== fieldName));
                               } else {
@@ -244,12 +244,12 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         cell: (props) => (
           <div className="flex items-center justify-center gap-1 h-7">
             {onEdit && (
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e) => { e.stopPropagation(); onEdit(props.row.original); }}>
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onEdit(props.row.original); }}>
                 <Edit2 className="h-3.5 w-3.5" />
               </Button>
             )}
             {onDelete && (
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600" onClick={(e) => { e.stopPropagation(); onDelete(props.row.original); }}>
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onDelete(props.row.original); }}>
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
             )}
@@ -306,7 +306,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {/* add field button at the start */}
-                {oncreatefield && (
+                {onCreateField && (
                   <TableHead className="w-10 border-r border-border/50 p-0 overflow-hidden">
                     <Button
                       variant="ghost"
@@ -330,11 +330,11 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                     className="border-r border-border/50 group select-none relative text-center"
                   >
                     <div className="overflow-hidden text-ellipsis whitespace-nowrap flex justify-center items-center w-full">
-                      {header.isplaceholder
+                      {header.isPlaceholder
                         ? null
-                        : flexrender(
-                          header.column.columndef.header,
-                          header.getcontext()
+                        : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
                         )}
                     </div>
                     {/* resize handler */}
