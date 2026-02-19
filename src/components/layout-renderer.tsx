@@ -14,17 +14,17 @@ interface LayoutRendererProps {
     classname?: string;
 }
 
-export function layoutrenderer({
+export function LayoutRenderer({
     layout,
     data,
-    onupdatewidget,
-    onupdatedata,
-    onadddata,
-    classname
-}: layoutrendererprops) {
+    onUpdateWidget,
+    onUpdateData,
+    onAddData,
+    className
+}: LayoutRendererProps) {
     const columns = layout.columns || [[]];
-    const colcount = math.max(1, math.min(columns.length, 4));
-    const widths = layout.columnwidths || array(colcount).fill(100 / colcount);
+    const colCount = Math.max(1, Math.min(columns.length, 4));
+    const widths = layout.columnWidths || Array(colCount).fill(100 / colCount);
 
     return (
         <div
