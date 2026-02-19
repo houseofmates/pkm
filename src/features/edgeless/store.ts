@@ -35,7 +35,7 @@ export interface EdgelessLayer {
   locked: boolean
 }
 
-export interface edgelesselement {
+export interface EdgelessElement {
   id: string
   type: ElementType
   x: number
