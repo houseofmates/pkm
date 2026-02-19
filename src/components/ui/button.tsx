@@ -7,13 +7,13 @@ import { buttonVariants } from './button-variants'
 
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    variantprops<typeof buttonVariants> {
-  aschild?: boolean
+  VariantProps<typeof buttonVariants> {
+  asChild?: boolean
 }
 
-const button = react.memo(react.forwardref<HTMLButtonElement, ButtonProps>(
+const Button = React.memo(React.forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant, size, asChild = false, ...props }, ref) => {
-    const comp = aschild ? slot : "button"
+    const Comp = asChild ? Slot : "button"
     return (
       <Comp
         className={cn(buttonVariants({ variant, size, className }))}
