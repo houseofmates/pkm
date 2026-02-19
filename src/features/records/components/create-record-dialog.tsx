@@ -21,7 +21,7 @@ interface CreateRecordDialogProps {
 export function CreateRecordDialog({ collectionName, fields, onRecordCreated, open: openProp, onOpenChange, trigger }: CreateRecordDialogProps) {
   const { client } = useAuth();
   const { activeFronters } = useFronter();
-  const activeFronterId = activeFronters[0] || null;
+  const activeFronterId = (activeFronters as string[])?.[0] || null;
   const [internalOpen, setInternalOpen] = useState(false);
   const open = openProp !== undefined ? openProp : internalOpen;
   const setOpen = (v: boolean) => {

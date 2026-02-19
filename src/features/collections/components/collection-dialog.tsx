@@ -35,10 +35,10 @@ interface CollectionDialogProps {
   trigger?: React.ReactNode;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  initialtitle?: string;
+  initialTitle?: string;
 }
 
-interface collectionmetadata {
+interface CollectionMetadata {
   color?: string;
   image?: string;
 }
@@ -70,6 +70,18 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
 
   const isEdit = !!collection;
   const [step, setStep] = useState<'type-select' | 'template-select' | 'database-form' | 'document-select'>('type-select');
+
+  const [loading, setLoading] = useState(false);
+  const [displayName, setDisplayName] = useState('');
+  const [name, setName] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [color, setColor] = useState('#666666');
+
+  const titleInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const [metadata, setMetadata] = useAppSetting<Record<string, CollectionMetadata>>('collection_metadata', {});
+  const [collectionsList, setCollectionsList] = useState<Collection[]>([]);
 
   useEffect(() => {
     if (!open) {
@@ -107,18 +119,6 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
     }
     setStep('database-form');
   };
-
-  const [loading, setLoading] = useState(false);
-  const [displayName, setDisplayName] = useState('');
-  const [name, setName] = useState('');
-  const [imageUrl, setImageUrl] = useState('');
-  const [color, setColor] = useState('#666666');
-
-  const titleInputRef = useRef<HTMLInputElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [metadata, setMetadata] = useAppSetting<Record<string, CollectionMetadata>>('collection_metadata', {});
-  const [collectionsList, setCollectionsList] = useState<Collection[]>([]);
 
 
 
@@ -273,7 +273,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
 
             // extract options for select / multi-select (csv only)
             if (csvData.length > 0 && (field.interface === 'select' || field.interface === 'multipleselect')) {
-              const uniquevalues = new set<string>();
+              const uniqueValues = new Set<string>();
               csvData.forEach(row => {
                 const val = row[field.title];
                 if (val) {
@@ -375,10 +375,10 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
       const uploadedfile = res.data;
 
       if (!uploadedfile || !uploadedfile.url) {
-        throw new error("upload failed");
+        throw new Error("upload failed");
       }
 
-      setimageurl(uploadedfile.url);
+      setImageUrl(uploadedfile.url);
       toast.success("image uploaded", { id: toastid });
     } catch (error) {
       console.error(error);
@@ -571,9 +571,9 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                           <div key={field.name} className="flex items-center justify-between text-xs py-1.5 border-b last:border-0 border-muted group/field">
                             <div className="flex flex-col gap-0.5 max-w-[45%]">
                               <span className="font-medium truncate" title={field.title}>{field.title}</span>
-                              {field.detectionreason && (
+                              {field.detectionReason && (
                                 <span className={`text-[0.65rem] truncate ${field.detectionConfidence === 'high' ? 'text-green-600' : 'text-muted-foreground'}`} title={`Detected as ${field.interface}: ${field.detectionReason}`}>
-                                  {field.detectionreason}
+                                  {field.detectionReason}
                                 </span>
                               )}
                             </div>

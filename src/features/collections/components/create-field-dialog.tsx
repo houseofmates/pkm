@@ -147,7 +147,7 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
               </SelectContent>
             </Select>
           </div>
-          {interfacetype === 'formula' && (
+          {interfaceType === 'formula' && (
             <div className="space-y-2">
               <Label>expression</Label>
               <Input
