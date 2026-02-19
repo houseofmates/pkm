@@ -1214,6 +1214,161 @@ update note: this section aims to capture the canonical locations and expected f
 
 - YOU HAVE CODEBASE ACCESS. ITS YOUR JOB TO DO THIS FOR ME. STOP GIVING INSTRUCTIONS AND FOLLOW THEM YOURSELF
 
+---
+
+## 15. bidirectional git sync (24/7 filesystem <-> github)
+
+this section documents the automatic synchronization system that keeps the local pkm repository in constant sync with github, enabling seamless collaboration with external agents like jules.
+
+### 15.1 what it does
+
+the bidirectional sync service ensures:
+- **local → github**: any file change in `/home/house/pkm` is auto-committed and pushed within 10 seconds
+- **github → local**: any change on github (prs by jules, direct commits) is auto-pulled within 30 seconds
+- **conflict resolution**: automatic stash-pop strategy with manual fallback
+- **persistence**: survives reboots, auto-restarts on failure
+
+### 15.2 architecture
+
+```
+┌─────────────────┐         ┌─────────────┐         ┌─────────────────┐
+│  local files    │ ◄──────► │  github     │ ◄──────► │  jules/agent    │
+│  /home/house/pkm│   git   │  repo       │   prs   │  vm             │
+└─────────────────┘         └─────────────┘         └─────────────────┘
+         ▲                           ▲
+         │                           │
+         └──────────┬────────────────┘
+                    │
+         ┌──────────▼──────────┐
+         │  bidirectional-sync │
+         │  (systemd service)    │
+         │  • fs.watch (local)   │
+         │  • git fetch (remote) │
+         └───────────────────────┘
+```
+
+### 15.3 key files
+
+| file | purpose |
+|------|---------|
+| `scripts/bidirectional-git-sync.js` | core sync logic (node.js) |
+| `scripts/bidirectional-git-sync.service` | systemd unit definition |
+| `scripts/install-bidirectional-sync.sh` | one-command installer |
+| `.sync-conflict` | created when manual resolution needed |
+
+### 15.4 how it works
+
+**local change detection**:
+- uses `fs.watch` (recursive) for instant notification
+- debounces rapid changes (10s window)
+- stages all changes, commits with timestamp, pushes to origin
+
+**remote change detection**:
+- polls `git fetch` every 30 seconds
+- compares `HEAD` vs `origin/HEAD`
+- if behind: stash local → pull → stash pop
+
+**conflict handling**:
+1. if local and remote diverge: stash local changes
+2. pull remote changes
+3. attempt stash pop (auto-merge)
+4. if merge fails: leave `.sync-conflict` file, log error
+
+### 15.5 installation
+
+```bash
+# one-time setup
+sudo ./scripts/install-bidirectional-sync.sh
+```
+
+this will:
+- validate git repo and remotes
+- configure git identity for auto-commits
+- install systemd service
+- enable auto-start on boot
+- start the service immediately
+
+### 15.6 management commands
+
+```bash
+# check status
+./pkm-control.sh sync-status
+
+# view live logs
+./pkm-control.sh sync-logs
+
+# stop/start/restart
+./pkm-control.sh sync-stop
+./pkm-control.sh sync-start
+
+# or use systemctl directly
+sudo systemctl status bidirectional-git-sync.service
+sudo journalctl -u bidirectional-git-sync.service -f
+```
+
+### 15.7 jules workflow (external agent)
+
+when using jules or similar coding agents:
+
+1. **jules creates pr** on github from its vm
+2. **sync service detects** new commits within 30s
+3. **auto-pulls** changes to local filesystem
+4. **local workspace** now has the pr code
+5. **you review/test** locally
+6. **merge pr** on github (or jules does)
+7. **sync pulls** the merge commit
+
+this enables true bidirectional collaboration: jules can work in its vm, you work locally, both sync via github.
+
+### 15.8 troubleshooting
+
+**service won't start**:
+```bash
+sudo journalctl -u bidirectional-git-sync.service -n 50
+# check for git auth issues
+```
+
+**auth failures**:
+- ensure `.github_token` exists or ssh key is configured
+- test: `git fetch origin` as user `house`
+
+**conflict detected**:
+```bash
+# check for conflict marker
+cat /home/house/pkm/.sync-conflict
+
+# manual resolution
+cd /home/house/pkm
+git stash list          # see stashed changes
+git stash pop           # attempt restore
+# resolve conflicts if needed
+rm .sync-conflict       # clear marker
+```
+
+**disable on boot**:
+```bash
+sudo systemctl disable bidirectional-git-sync.service
+```
+
+**emergency stop**:
+```bash
+sudo systemctl stop bidirectional-git-sync.service
+```
+
+### 15.9 persistence across reboots
+
+the service is **enabled** by default, meaning:
+- starts automatically on boot
+- restarts on crash (with 10s delay, max 3 attempts/minute)
+- logs to systemd journal (persistent)
+
+to verify persistence:
+```bash
+sudo systemctl is-enabled bidirectional-git-sync.service
+# should print: enabled
+```
+
+
 ### Core Purpose & Identity
 This project is a **Personal Knowledge Management (PKM)** system built specifically for the user, who is a **depressed autistic DID (Dissociative Identity Disorder) system with ADHD**. 
 - The app must feel safe, low-friction, and visually calming.
