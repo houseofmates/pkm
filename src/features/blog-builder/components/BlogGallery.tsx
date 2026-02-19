@@ -22,7 +22,7 @@ interface BlogGalleryProps {
   onScrollDirectionChange?: (direction: 'horizontal' | 'vertical') => void;
 }
 
-export function bloggallery({ posts, scrolldirection = 'horizontal', onscrolldirectionchange }: bloggalleryprops) {
+export function BlogGallery({ posts, scrolldirection = 'horizontal', onscrolldirectionchange }: bloggalleryprops) {
   const navigate = usenavigate();
   const [contextmenu, setcontextmenu] = usestate<{ x: number; y: number } | null>(null);
   const containerref = useref<HTMLDivElement>(null);

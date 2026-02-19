@@ -222,7 +222,7 @@ export interface SmartFieldProps {
   size?: 'sm' | 'md' | 'lg';
 }
 
-export function smartfield({ value, field, record, collectionname, mode: _mode = 'view', onchange, classname, inputclassname, size = 'lg' }: smartfieldprops) {
+export function SmartField({ value, field, record, collectionname, mode: _mode = 'view', onchange, classname, inputclassname, size = 'lg' }: smartfieldprops) {
   const [isediting, setisediting] = usestate(false);
   const [localvalue, setlocalvalue] = usestate(value);
   const [fullscreenindex, setfullscreenindex] = usestate<number | null>(null);

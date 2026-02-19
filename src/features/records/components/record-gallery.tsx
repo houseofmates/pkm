@@ -73,7 +73,7 @@ function GalleryItem({ record, collection, onUpdate, onDelete }: { record: any, 
   );
 }
 
-export function recordgallery({ data, collection, onupdaterecord, ondelete }: recordgalleryprops) {
+export function RecordGallery({ data, collection, onupdaterecord, ondelete }: recordgalleryprops) {
   return (
   <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 p-2">
   {data.map((record) => (

@@ -21,7 +21,7 @@ interface RecordViewProps {
   onClose?: () => void; // if used in a modal/drawer later
 }
 
-export function recordview({ collectionname: propcollection, recordid: propid }: recordviewprops) {
+export function Recordview({ collectionname: propcollection, recordid: propid }: recordviewprops) {
   const { name: paramcollection, id: paramid } = useparams();
   const collectionname = propcollection || paramcollection;
   const recordid = propid || paramid;

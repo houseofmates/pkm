@@ -42,20 +42,20 @@ function callWorkerOrDirect<T>(method: string, ...args: unknown[]): Promise<T> {
   if (!worker) {
     // map lowercased worker method names to camelcase direct exports
     const mapping: Record<string, string> = {
-      appendop: 'appendOp',
-      appendops: 'appendOps',
-      getunsyncedops: 'getUnsyncedOps',
-      getrecentops: 'getRecentOps',
-      markopssynced: 'markOpsSynced',
-      pruneoldops: 'pruneOldOps',
-      savecheckpoint: 'saveCheckpoint',
-      getlatestcheckpoint: 'getLatestCheckpoint',
-      getdrawingmeta: 'getDrawingMeta',
-      updatedrawingmeta: 'updateDrawingMeta',
-      listpendingdrawings: 'listPendingDrawings',
-      gettoken: 'getToken',
-      settoken: 'setToken',
-      cleartoken: 'clearToken',
+      Appendop: 'AppendOp',
+      Appendops: 'AppendOps',
+      Getunsyncedops: 'GetUnsyncedOps',
+      Getrecentops: 'GetRecentOps',
+      Markopssynced: 'MarkOpsSynced',
+      Pruneoldops: 'PruneOldOps',
+      Savecheckpoint: 'SaveCheckpoint',
+      Getlatestcheckpoint: 'GetLatestCheckpoint',
+      Getdrawingmeta: 'GetDrawingMeta',
+      Updatedrawingmeta: 'UpdateDrawingMeta',
+      Listpendingdrawings: 'ListPendingDrawings',
+      Gettoken: 'GetToken',
+      Settoken: 'SetToken',
+      Cleartoken: 'ClearToken',
     }
     const directName = mapping[method] || method
     const fn = (directDb as any)[directName]
@@ -76,72 +76,58 @@ function callWorkerOrDirect<T>(method: string, ...args: unknown[]): Promise<T> {
 }
 
 // public api — matches canvas-db.ts exports and provides lowercase variants
-export function appendop(drawingid: string, op: DrawOp): Promise<OpLogEntry> {
-  return callWorkerOrDirect<OpLogEntry>('appendop', drawingid, op)
+export function appendOp(drawingid: string, op: DrawOp): Promise<OpLogEntry> {
+  return callWorkerOrDirect<OpLogEntry>('Appendop', drawingid, op)
 }
-export const appendOp = appendop
 
-export function appendops(drawingid: string, ops: DrawOp[]): Promise<OpLogEntry[]> {
-  return callWorkerOrDirect<OpLogEntry[]>('appendops', drawingid, ops)
+export function appendOps(drawingid: string, ops: DrawOp[]): Promise<OpLogEntry[]> {
+  return callWorkerOrDirect<OpLogEntry[]>('Appendops', drawingid, ops)
 }
-export const appendOps = appendops
 
-export function getunsyncedops(drawingid: string): Promise<OpLogEntry[]> {
-  return callWorkerOrDirect<OpLogEntry[]>('getunsyncedops', drawingid)
+export function getUnsyncedOps(drawingid: string): Promise<OpLogEntry[]> {
+  return callWorkerOrDirect<OpLogEntry[]>('Getunsyncedops', drawingid)
 }
-export const getUnsyncedOps = getunsyncedops
 
-export function getrecentops(drawingid: string, limit = 100): Promise<OpLogEntry[]> {
-  return callWorkerOrDirect<OpLogEntry[]>('getrecentops', drawingid, limit)
+export function getRecentOps(drawingid: string, limit = 100): Promise<OpLogEntry[]> {
+  return callWorkerOrDirect<OpLogEntry[]>('Getrecentops', drawingid, limit)
 }
-export const getRecentOps = getrecentops
 
-export function markopssynced(ids: string[]): Promise<void> {
-  return callWorkerOrDirect<void>('markopssynced', ids)
+export function markOpsSynced(ids: string[]): Promise<void> {
+  return callWorkerOrDirect<void>('Markopssynced', ids)
 }
-export const markOpsSynced = markopssynced
 
 export function pruneoldops(drawingid: string, keepcount = 500): Promise<number> {
-  return callWorkerOrDirect<number>('pruneoldops', drawingid, keepcount)
+  return callWorkerOrDirect<number>('Pruneoldops', drawingid, keepcount)
 }
-export const pruneOldOps = pruneoldops
 
-export function savecheckpoint(drawingid: string, state: unknown): Promise<void> {
-  return callWorkerOrDirect<void>('savecheckpoint', drawingid, state)
+export function saveCheckpoint(drawingid: string, state: unknown): Promise<void> {
+  return callWorkerOrDirect<void>('Savecheckpoint', drawingid, state)
 }
-export const saveCheckpoint = savecheckpoint
 
-export function getlatestcheckpoint(drawingid: string): Promise<CanvasCheckpoint | null> {
-  return callWorkerOrDirect<CanvasCheckpoint | null>('getlatestcheckpoint', drawingid)
+export function getLatestCheckpoint(drawingid: string): Promise<CanvasCheckpoint | null> {
+  return callWorkerOrDirect<CanvasCheckpoint | null>('Getlatestcheckpoint', drawingid)
 }
-export const getLatestCheckpoint = getlatestcheckpoint
 
-export function getdrawingmeta(id: string): Promise<Record<string, unknown> | null> {
-  return callWorkerOrDirect<Record<string, unknown> | null>('getdrawingmeta', id)
+export function getDrawingMeta(id: string): Promise<Record<string, unknown> | null> {
+  return callWorkerOrDirect<Record<string, unknown> | null>('Getdrawingmeta', id)
 }
-export const getDrawingMeta = getdrawingmeta
 
-export function updatedrawingmeta(id: string, patch: Record<string, unknown>): Promise<Record<string, unknown>> {
-  return callWorkerOrDirect<Record<string, unknown>>('updatedrawingmeta', id, patch)
+export function updateDrawingMeta(id: string, patch: Record<string, unknown>): Promise<Record<string, unknown>> {
+  return callWorkerOrDirect<Record<string, unknown>>('Updatedrawingmeta', id, patch)
 }
-export const updateDrawingMeta = updatedrawingmeta
 
-export function listpendingdrawings(): Promise<Array<{ id: string;[k: string]: unknown }>> {
-  return callWorkerOrDirect<Array<{ id: string }>>('listpendingdrawings')
+export function listPendingDrawings(): Promise<Array<{ id: string;[k: string]: unknown }>> {
+  return callWorkerOrDirect<Array<{ id: string }>>('Listpendingdrawings')
 }
-export const listPendingDrawings = listpendingdrawings
 
-export function gettoken(key: string): Promise<string | null> {
-  return callWorkerOrDirect<string | null>('gettoken', key)
+export function getToken(key: string): Promise<string | null> {
+  return callWorkerOrDirect<string | null>('Gettoken', key)
 }
-export const getToken = gettoken
 
-export function settoken(key: string, value: string, ttlminutes?: number): Promise<void> {
-  return callWorkerOrDirect<void>('settoken', key, value, ttlminutes)
+export function setToken(key: string, value: string, ttlminutes?: number): Promise<void> {
+  return callWorkerOrDirect<void>('Settoken', key, value, ttlminutes)
 }
-export const setToken = settoken
 
-export function cleartoken(key: string): Promise<void> {
-  return callWorkerOrDirect<void>('cleartoken', key)
+export function clearToken(key: string): Promise<void> {
+  return callWorkerOrDirect<void>('Cleartoken', key)
 }
-export const clearToken = cleartoken

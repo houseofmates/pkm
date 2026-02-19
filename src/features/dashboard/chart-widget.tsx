@@ -84,7 +84,7 @@ function PlaceholderOverlay({ label, targetKey, isPlaceholder, columns, onConfig
   );
 }
 
-export function chartwidget({ type = 'line', data = [], xkey = 'name', ykey = 'value', color = 'var(--primary)', serieskeys, stacked, seriestype, seriestypes, seriesorder, seriescolors, legendcollapsed, onconfig, columns, ondataclick, ondatacontextmenu }: chartprops) {
+export function ChartWidget({ type = 'line', data = [], xkey = 'name', ykey = 'value', color = 'var(--primary)', serieskeys, stacked, seriestype, seriestypes, seriesorder, seriescolors, legendcollapsed, onconfig, columns, ondataclick, ondatacontextmenu }: chartprops) {
   const [hidden, sethidden] = usestate<Record<string, boolean>>({});
   const [hoverkey, sethoverkey] = usestate<string | null>(null);
   const [search, setsearch] = usestate('');

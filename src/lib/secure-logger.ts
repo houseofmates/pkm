@@ -95,7 +95,7 @@ function containsSensitiveData(message: string): boolean {
   return sanitized !== message;
 }
 
-// store log entry in history
+// store Log entry in history
 function storeLogEntry(entry: LogEntry): void {
   LOG_HISTORY.push(entry);
   if (LOG_HISTORY.length > MAX_HISTORY) {
@@ -126,7 +126,7 @@ function createLogger(level: LogLevel) {
     const sanitizedMessage = sanitizeMessage(fullMessage);
     const hadSensitiveData = sanitizedMessage !== fullMessage;
     
-    // create log entry
+    // create Log entry
     const entry: LogEntry = {
       timestamp: new Date().toISOString(),
       level,
@@ -137,7 +137,7 @@ function createLogger(level: LogLevel) {
     
     storeLogEntry(entry);
     
-    // determine if we should actually log to console
+    // determine if we should actually Log to console
     const shouldLog = debugMode || (authenticated && !privacyMode);
     
     if (shouldLog) {
@@ -169,10 +169,10 @@ export const secureLogger = {
   warn: createLogger('warn'),
   error: createLogger('error'),
   
-  // get log history for security dashboard
+  // get Log history for security dashboard
   getHistory: (): LogEntry[] => [...LOG_HISTORY],
   
-  // clear log history
+  // clear Log history
   clearHistory: (): void => {
     LOG_HISTORY.length = 0;
   },
@@ -197,9 +197,9 @@ export const secureLogger = {
 };
 
 // convenience exports
-export const log = secureLogger.info;
-export const logDebug = secureLogger.debug;
-export const logWarn = secureLogger.warn;
-export const logError = secureLogger.error;
+export const log = SecureLogger.info;
+export const logDebug = SecureLogger.debug;
+export const logWarn = SecureLogger.warn;
+export const logError = SecureLogger.error;
 
-export default secureLogger;
+export default SecureLogger;

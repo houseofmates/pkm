@@ -11,7 +11,7 @@ interface InfiniteCanvasWrapperProps {
     header?: React.ReactNode; // Content to stay fixed at the top (for alignment)
 }
 
-export function InfiniteCanvasWrapper({
+export function infinitecanvaswrapper({
     children,
     className,
     initialScale = 1,

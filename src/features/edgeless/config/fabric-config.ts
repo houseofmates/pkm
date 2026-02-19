@@ -20,7 +20,7 @@ export interface FabricConfig {
   transparentCorners: boolean
 }
 
-export const DEFAULT_DARK_CONFIG: FabricConfig = {
+export const dEFAULT_DARK_CONFIG: FabricConfig = {
   selectionColor: 'hsla(37, 92%, 52%, 0.1)', // #f6b012 with opacity
   selectionBorderColor: 'hsl(37, 92%, 52%)', // #f6b012
   selectionDashArray: [3, 3],
@@ -100,7 +100,7 @@ export function createConfiguredCanvas(
     selectionLineWidth: config.selectionLineWidth,
   }) as Canvas
 
-  applyFabricConfig(canvas, config)
+  ApplyFabricConfig(canvas, config)
 
   return canvas
 }

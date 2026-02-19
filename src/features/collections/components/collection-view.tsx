@@ -24,7 +24,7 @@ interface CollectionViewProps {
   onBack: () => void;
 }
 
-export function collectionview({ collection, onback }: collectionviewprops) {
+export function CollectionView({ collection, onback }: collectionviewprops) {
   const { client } = useauth();
   const { records, loading, error, refresh } = userecords(collection.name);
   const { setcontext } = usellmstore();

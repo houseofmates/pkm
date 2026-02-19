@@ -39,7 +39,7 @@ export interface EdgelessCanvasProps {
   children?: react.reactnode
 }
 
-export function edgelesscanvas({ onobjectmodified, classname, onload, children }: edgelesscanvasprops) {
+export function EdgelessCanvas({ onobjectmodified, classname, onload, children }: edgelesscanvasprops) {
   const canvasel = useref<HTMLCanvasElement>(null)
   const containerref = useref<HTMLDivElement>(null)
   const { width, height } = useWindowSize()

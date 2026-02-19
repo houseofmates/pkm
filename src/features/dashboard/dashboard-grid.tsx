@@ -37,7 +37,7 @@ interface WidgetDefinition {
     zindex: number;
 }
 
-export function dashboardgrid({ layoutkey = 'dashboard_widgets_v2' }: { layoutkey?: string }) {
+export function DashboardGrid({ layoutkey = 'dashboard_widgets_v2' }: { layoutkey?: string }) {
     // --- state ---
     const [widgets, setwidgets] = useappsetting<WidgetDefinition[]>(layoutkey, []);
     const { collections } = usecollections();

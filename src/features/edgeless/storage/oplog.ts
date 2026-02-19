@@ -161,6 +161,6 @@ export async function replayOplog(
 
   // apply ops in order
   for (const entry of ops) {
-    applyOp(canvas, entry.op)
+    ApplyOp(canvas, entry.op)
   }
 }

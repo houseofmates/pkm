@@ -16,7 +16,7 @@ interface ContactProfileViewProps {
   isopen: boolean;
 }
 
-export function contactprofileview({ member, onclose, isopen }: contactprofileviewprops) {
+export function ContactProfileView({ member, onclose, isopen }: contactprofileviewprops) {
   const { refresh } = usefronter();
 
   // local state for editing

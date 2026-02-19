@@ -76,7 +76,7 @@ export function useCollections() {
 }
 
 export function useCollection(name: string) {
-  const { collections, loading, error } = useCollections();
+  const { collections, loading, error } = UseCollections();
   const collection = collections.find((c: Collection) => c.name === name);
   return { data: collection, loading, error };
 }

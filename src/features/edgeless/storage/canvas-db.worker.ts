@@ -144,7 +144,7 @@ const handlers: Record<string, (...args: any[]) => Promise<unknown>> = {
             const sorted = all.sort((a, b) => a.timestamp - b.timestamp)
 
             // determine which ones to delete (oldest ones, but keep 'keepcount' newest)
-            // AND only delete if they are synced
+            // and only delete if they are synced
             const potentialDeletes = sorted.slice(0, all.length - keepcount)
             const todelete = potentialDeletes.filter((e) => e.synced)
 
