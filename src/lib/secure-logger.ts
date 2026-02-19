@@ -197,9 +197,9 @@ export const secureLogger = {
 };
 
 // convenience exports
-export const log = SecureLogger.info;
-export const logDebug = SecureLogger.debug;
-export const logWarn = SecureLogger.warn;
-export const logError = SecureLogger.error;
+export const log = secureLogger.info;
+export const logDebug = secureLogger.debug;
+export const logWarn = secureLogger.warn;
+export const logError = secureLogger.error;
 
-export default SecureLogger;
+export default secureLogger;

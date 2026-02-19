@@ -65,18 +65,52 @@ test_api() {
         || echo -e "\n${RED}API test failed!${NC}"
 }
 
+show_sync_status() {
+    echo -e "${BLUE}=== Bidirectional Git Sync Status ===${NC}"
+    sudo systemctl status bidirectional-git-sync.service --no-pager | head -n 5
+    echo ""
+    if [ -f "/home/house/pkm/.sync-conflict" ]; then
+        echo -e "${RED}⚠️  SYNC CONFLICT DETECTED${NC}"
+        cat "/home/house/pkm/.sync-conflict"
+    fi
+}
+
+start_sync() {
+    echo -e "${GREEN}Starting bidirectional git sync...${NC}"
+    sudo systemctl start bidirectional-git-sync.service
+    sleep 1
+    show_sync_status
+}
+
+stop_sync() {
+    echo -e "${YELLOW}Stopping bidirectional git sync...${NC}"
+    sudo systemctl stop bidirectional-git-sync.service
+    echo -e "${GREEN}Sync service stopped${NC}"
+}
+
+view_sync_logs() {
+    echo -e "${BLUE}=== Git Sync Logs (Ctrl+C to exit) ===${NC}"
+    sudo journalctl -u bidirectional-git-sync.service -f
+}
+
 show_help() {
     echo -e "${BLUE}PKM Multi-Service Control${NC}"
     echo "Usage: $0 [command]"
     echo ""
     echo "Commands:"
-    echo "  status   - Show status of user and system services"
-    echo "  start    - Start PKM via pkm-boot.service"
-    echo "  stop     - Stop PKM via pkm-boot.service"
-    echo "  restart  - Restart everything"
-    echo "  rebuild  - Run npm build and restart"
-    echo "  logs     - Show live logs for pkm.service"
-    echo "  test     - Test backend API"
+    echo "  status       - Show status of user and system services"
+    echo "  start        - Start PKM via pkm-boot.service"
+    echo "  stop         - Stop PKM via pkm-boot.service"
+    echo "  restart      - Restart everything"
+    echo "  rebuild      - Run npm build and restart"
+    echo "  logs         - Show live logs for pkm.service"
+    echo "  test         - Test backend API"
+    echo ""
+    echo "Git Sync Commands:"
+    echo "  sync-status  - Show bidirectional sync status"
+    echo "  sync-start   - Start git sync service"
+    echo "  sync-stop    - Stop git sync service"
+    echo "  sync-logs    - Show git sync logs"
 }
 
 case "$1" in
@@ -87,5 +121,9 @@ case "$1" in
     rebuild) rebuild_all ;;
     logs) view_logs ;;
     test) test_api ;;
+    sync-status) show_sync_status ;;
+    sync-start) start_sync ;;
+    sync-stop) stop_sync ;;
+    sync-logs) view_sync_logs ;;
     *) show_help ;;
 esac

@@ -1,12 +1,15 @@
 import { z } from 'zod';
 
-export const collectionSchema = z.object({
+export const CollectionSchema = z.object({
   name: z.string(),
   title: z.string().optional(),
   displayName: z.string().optional(),
   fields: z.array(z.any()).optional(),
   hidden: z.boolean().optional(),
 }).passthrough();
+
+// backward-compatible alias
+export const collectionSchema = CollectionSchema;
 
 export const ListCollectionsResponseSchema = z.object({
   data: z.union([

@@ -30,11 +30,10 @@ export function ServerIPDisplay({ javaIP, bedrockIP, bedrockPort = '19132', show
       setTimeout(() => setCopiedJava(false), 2000);
     } else {
       setCopiedBedrock(true);
-      setTimeout(() => setcopiedbedrock(false), 2000);
+      setTimeout(() => setCopiedBedrock(false), 2000);
     }
     toast.success('copied to clipboard!');
   };
-
   return (
     <div className="p-6 rounded-2xl flex flex-col items-center">
       <h3 className="text-xl font-bold text-[var(--primary)] mb-4 flex items-center gap-2">

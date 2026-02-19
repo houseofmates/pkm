@@ -1,0 +1,41 @@
+[Unit]
+Description=Bidirectional Git Sync for PKM (24/7 filesystem <-> github sync)
+Documentation=file:///home/house/pkm/PKM_COMPREHENSIVE_MASTER_CONTEXT.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/house/pkm
+Environment=NODE_ENV=production
+Environment=HOME=/home/house
+Environment=USER=house
+
+# use node to run the sync script
+ExecStart=/home/house/.nvm/versions/node/v24.12.0/bin/node /home/house/pkm/scripts/bidirectional-git-sync.js
+
+# restart forever
+Restart=always
+RestartSec=10
+StartLimitInterval=60s
+StartLimitBurst=3
+
+# ensure git has proper identity for auto-commits
+ExecStartPre=/bin/bash -c 'git config --global user.email "sync@houseofmates.space" || true'
+ExecStartPre=/bin/bash -c 'git config --global user.name "pkm-sync" || true'
+
+# logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=bidirectional-sync
+
+# security (run as user, not root)
+User=house
+Group=house
+
+# resource limits (lightweight service)
+MemoryMax=256M
+CPUQuota=25%
+
+[Install]
+WantedBy=default.target

@@ -12,87 +12,87 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  const trimmedToken = inputToken.trim();
-  if (trimmedToken) {
-  setIsValidating(true);
-  setError(null);
-  try {
- // save token directly - it will be validated on first actual api call
- // this avoids timeout issues during login
- login(trimmedToken);
- // give a brief moment for the state to update
- await new Promise(resolve => settimeout(resolve, 100));
-  } catch (err: any) {
- console.error("token validation failed:", err);
- seterror('failed to save token. please try again.');
-  } finally {
- setisvalidating(false);
-  }
-  }
+    e.preventDefault();
+    const trimmedToken = inputToken.trim();
+    if (!trimmedToken) return;
+
+    setIsValidating(true);
+    setError(null);
+    try {
+      // save token directly - it will be validated on first actual api call
+      login(trimmedToken);
+      // small delay to let state propagate
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    } catch (err: any) {
+      console.error('token validation failed:', err);
+      setError('failed to save token. please try again.');
+    } finally {
+      setIsValidating(false);
+    }
   };
 
-  const ispublic = ispublicdomain();
+  const isPublic = isPublicDomain();
 
   return (
-  <div className="flex h-screen items-center justify-center bg-background p-4">
-  <div className="w-full max-w-md space-y-6 rounded-lg border bg-card p-8 shadow-sm">
- <div className="flex flex-col items-center gap-4">
- {ispublic ? (
- <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
-   <img src="/logo-hom.png" className="w-10 h-10 object-contain" alt="house of mates" />
- </div>
- ) : (
- <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
-   <Database className="w-10 h-10 text-primary" />
- </div>
- )}
- <h1 className="text-2xl font-bold text-center">login to {ispublic ? 'house of mates' : 'pkm'}</h1>
- </div>
- <p className="text-sm text-center text-muted-foreground">enter your nocobase jwt token</p>
+    <div className="flex h-screen items-center justify-center bg-background p-4">
+      <div className="w-full max-w-md space-y-6 rounded-lg border bg-card p-8 shadow-sm">
+        <div className="flex flex-col items-center gap-4">
+          {isPublic ? (
+            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
+              <img src="/logo-hom.png" className="w-10 h-10 object-contain" alt="house of mates" />
+            </div>
+          ) : (
+            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
+              <Database className="w-10 h-10 text-primary" />
+            </div>
+          )}
+          <h1 className="text-2xl font-bold text-center">login to {isPublic ? 'house of mates' : 'pkm'}</h1>
+        </div>
 
- {error && (
- <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md">
- {error}
- </div>
- )}
+        <p className="text-sm text-center text-muted-foreground">enter your nocobase jwt token</p>
 
- {inputtoken.startswith('ey') && (
- <div className="text-xs text-muted-foreground break-all">
- {(() => {
-   try {
-   const payload = json.parse(atob(inputtoken.split('.')[1]));
-   if (payload.exp) {
-   const date = new date(payload.exp * 1000);
-   const isexpired = date < new Date();
-   return (
-  <div className={`mt-2 p-2 rounded ${isExpired ? 'bg-yellow-50 text-yellow-800' : 'bg-green-50 text-green-800'}`}>
-  <p><strong>token type:</strong> jwt</p>
-  <p><strong>expires:</strong> {date.tolocalestring()}</p>
-  {isexpired && <p className="font-bold text-red-600">⚠️ this token has expired!</p>}
-  </div>
-   );
-   }
-   } catch (e) {
-   return null;
-   }
- })()}
- </div>
- )}
+        {error && (
+          <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-md">{error}</div>
+        )}
 
- <form onSubmit={handleSubmit} className="space-y-4">
- <textarea
- className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
- placeholder="paste jwt token here..."
- value={inputToken}
- onChange={(e) => setInputToken(e.target.value)}
- disabled={isValidating}
- />
- <Button type="submit" className="w-full" disabled={isValidating || !inputToken}>
- {isvalidating ? 'validating...' : 'login'}
- </Button>
- </form>
-  </div>
-  </div>
+        {inputToken.startsWith('ey') && (
+          <div className="text-xs text-muted-foreground break-all">
+            {(() => {
+              try {
+                const payload = JSON.parse(atob(inputToken.split('.')[1] || '{}'));
+                if (payload.exp) {
+                  const date = new Date(payload.exp * 1000);
+                  const isExpired = date < new Date();
+                  return (
+                    <div className={`mt-2 p-2 rounded ${isExpired ? 'bg-yellow-50 text-yellow-800' : 'bg-green-50 text-green-800'}`}>
+                      <p><strong>token type:</strong> jwt</p>
+                      <p><strong>expires:</strong> {date.toLocaleString()}</p>
+                      {isExpired && <p className="font-bold text-red-600">⚠️ this token has expired!</p>}
+                    </div>
+                  );
+                }
+              } catch (e) {
+                return null;
+              }
+              return null;
+            })()}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <textarea
+            className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+            placeholder="paste jwt token here..."
+            value={inputToken}
+            onChange={(e) => setInputToken(e.target.value)}
+            disabled={isValidating}
+          />
+
+          <Button type="submit" className="w-full" disabled={isValidating || !inputToken}>
+            {isValidating ? 'validating...' : 'login'}
+          </Button>
+        </form>
+      </div>
+    </div>
   );
 }

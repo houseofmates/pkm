@@ -2,7 +2,7 @@ import axios from 'axios';
 import { secureLogger } from './secure-logger';
 
 // api base: prefer the vite environment override, fall back to local backend for dev
-export const aPI_URL = import.meta.env.VITE_API_URL || 'http://localhost:4100/api';
+export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4100/api';
 
 export const apiClient = axios.create({
  baseURL: API_URL,
@@ -11,7 +11,7 @@ export const apiClient = axios.create({
  },
 });
 
-ApiClient.interceptors.request.use((config) => {
+apiClient.interceptors.request.use((config) => {
  const nt = localStorage.getItem('nocobase_token');
  const ht = localStorage.getItem('hom_api_key');
  const gt = localStorage.getItem('hom_guest_key'); // guest token support
@@ -67,7 +67,7 @@ ApiClient.interceptors.request.use((config) => {
  return config;
 });
 
-ApiClient.interceptors.response.use(
+apiClient.interceptors.response.use(
  (response) => response,
  (error) => {
   if (error.response?.status === 401) {
@@ -91,7 +91,7 @@ ApiClient.interceptors.response.use(
 export const apiRequest = async (resource: string, action: string, options: Record<string, any> = {}) => {
  const { method = 'GET', data, ...rest } = options;
  try {
-  const res = await ApiClient({
+  const res = await apiClient({
  url: `/${resource}:${action}`,
  method,
  data,
@@ -104,4 +104,4 @@ export const apiRequest = async (resource: string, action: string, options: Reco
  }
 };
 
-export default ApiClient;
+export default apiClient;
