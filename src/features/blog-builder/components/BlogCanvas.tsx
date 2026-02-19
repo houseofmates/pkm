@@ -298,24 +298,24 @@ interface ElementRendererProps {
   onContextMenu: (e: React.MouseEvent) => void;
 }
 
-function elementrenderer({ element, isselected, isadmin, onselect, onupdate, onupdatebatch, oncontextmenu }: elementrendererprops) {
-  const { page, previewmode, viewwidth } = useblogbuilder();
+function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onUpdateBatch, onContextMenu }: ElementRendererProps) {
+  const { page, previewMode, viewWidth } = useBlogBuilder();
 
   // calculate scale factor for mobile/tablet responsive layout
-  const designwidth = previewmode === 'mobile' ? 430 : previewmode === 'tablet' ? 834 : viewwidth;
+  const designWidth = previewMode === 'mobile' ? 430 : previewMode === 'tablet' ? 834 : viewWidth;
 
   // in admin mode (builder), we keep 1:1 scale for precise editing inside the frame.
   // in public mode (preview), we scale to fit the actual device width.
-  const scalefactor = isadmin ? 1 : (viewwidth / designwidth);
+  const scaleFactor = isAdmin ? 1 : (viewWidth / designWidth);
 
   // determine active layout with robust fallbacks per field
-  const devicelayout = previewmode === 'mobile' ? element.mobile : previewmode === 'tablet' ? element.tablet : null;
+  const deviceLayout = previewMode === 'mobile' ? element.mobile : previewMode === 'tablet' ? element.tablet : null;
 
-  const posx = devicelayout?.x ?? element.x ?? 0;
-  const posy = devicelayout?.y ?? element.y ?? 0;
-  const posw = devicelayout?.width ?? element.width ?? 200;
-  const posh = devicelayout?.height ?? element.height ?? 100;
-  const fontsize = devicelayout?.fontsize ?? element.styles?.fontsize;
+  const posX = deviceLayout?.x ?? element.x ?? 0;
+  const posY = deviceLayout?.y ?? element.y ?? 0;
+  const posW = deviceLayout?.width ?? element.width ?? 200;
+  const posH = deviceLayout?.height ?? element.height ?? 100;
+  const fontSize = deviceLayout?.fontSize ?? element.styles?.fontSize;
 
   // scroll-triggered animation
   const { ref: inviewRef } = useInView({
