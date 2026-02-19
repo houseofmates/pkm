@@ -880,10 +880,10 @@ export function MinecraftStatsWidget() {
         // append to bottom with client-side deduplication check
         setMessages(prev => {
           const isDup = prev.length > 0 &&
-            prev[prev.length - 1].player === newmsg.player &&
-            prev[prev.length - 1].message === newmsg.message &&
-            prev[prev.length - 1].type === newmsg.type &&
-            (new date(newmsg.timestamp).gettime() - new date(prev[prev.length - 1].timestamp).gettime()) < 5000;
+            prev[prev.length - 1].player === newMsg.player &&
+            prev[prev.length - 1].message === newMsg.message &&
+            prev[prev.length - 1].type === newMsg.type &&
+            (new Date(newMsg.timestamp).getTime() - new Date(prev[prev.length - 1].timestamp).getTime()) < 5000;
 
           if (isDup) return prev;
           return [...prev, newMsg].slice(-50);
@@ -934,10 +934,10 @@ export function MinecraftStatsWidget() {
   // force scroll after initial connect and history load
   useEffect(() => {
     const timer = setTimeout(scrollToBottom, 1500);
-    return () => cleartimeout(timer);
-  }, [isloading]);
+    return () => clearTimeout(timer);
+  }, [isLoading]);
 
-  if (isloading || !status) {
+  if (isLoading || !status) {
     return (
       <div className="w-full h-full rounded-xl flex flex-col items-center justify-center p-6 text-center">
         <Gamepad2 size={32} className="text-white/20 mb-3 animate-pulse" />
@@ -989,10 +989,10 @@ export function MinecraftStatsWidget() {
           </div>
         ) : (
           messages.map((msg, i) => {
-            const isjoin = msg.message?.tolowercase().includes('joined the') || false;
-            const isleave = msg.message?.tolowercase().includes('left the') || msg.type === 'quit';
-            const issystem = msg.player === 'system' || isjoin || isleave;
-            const displayplayer = issystem ? 'system' : msg.player;
+            const isJoin = msg.message?.toLowerCase().includes('joined the') || false;
+            const isLeave = msg.message?.toLowerCase().includes('left the') || msg.type === 'quit';
+            const isSystem = msg.player === 'system' || isJoin || isLeave;
+            const displayPlayer = isSystem ? 'system' : msg.player;
 
             return (
               <div key={i} className={`
@@ -1007,10 +1007,10 @@ export function MinecraftStatsWidget() {
                       isLeave ? 'text-red-300' :
                         (isSystem ? 'text-blue-300' : 'text-[var(--primary)]')}
    `}>
-                    {displayplayer}
+                    {displayPlayer}
                   </span>
                   <span className="text-[10px] text-white/30 font-mono">
-                    {new date(msg.timestamp).tolocaletimestring([], { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
                 <p className={`text-sm ${isSystem ? 'text-white/80 italic' : 'text-white/90'} leading-snug`}>
@@ -1035,7 +1035,7 @@ export function MinecraftStatsWidget() {
         <div className={`text-[var(--primary)] ${isMobile ? 'text-[x-small]' : 'text-2xl'} font-bold group-hover/discord:scale-105 transition-transform text-center leading-none `}>
           join the discord to chat!
         </div>
-        {!ismobile && (
+        {!isMobile && (
           <div className="text-xs text-white/40 font-medium tracking-wide">
             click to copy & open
           </div>
@@ -1058,7 +1058,7 @@ export function FinancialChartElement({ title, data }: FinancialChartProps) {
     { name: 'Mar', value: 600, color: 'var(--primary)' },
     { name: 'Apr', value: 800, color: 'rgba(255,255,255,0.2)' },
   ];
-  const chartData = data && data.length > 0 ? data : defaultdata;
+  const chartData = data && data.length > 0 ? data : defaultData;
 
   return (
     <div className="w-full h-full p-6 flex flex-col bg-black/40 rounded-2xl border border-white/5 backdrop-blur-sm">
@@ -1113,7 +1113,7 @@ export function TierListElement({ rows }: TierListProps) {
     { label: 'A', color: '#ffbf7f', items: ['Archer', 'Mage'] },
     { label: 'B', color: '#ffff7f', items: ['Swordsman'] },
   ];
-  const displayRows = rows && rows.length > 0 ? rows : defaultrows;
+  const displayRows = rows && rows.length > 0 ? rows : defaultRows;
 
   return (
     <div className="w-full h-full bg-black/40 rounded-xl overflow-hidden border border-white/10 flex flex-col backdrop-blur-md">
@@ -1139,15 +1139,7 @@ export function TierListElement({ rows }: TierListProps) {
 }
 
 // --- shopping card ---
-interface shoppingcardprops {
-  title: string;
-  price: string;
-  image: string;
-  description?: string;
-  buttontext?: string;
-}
-
-export function shoppingcardelement({ title, price, image, description, buttontext = 'buy now' }: shoppingcardprops) {
+export function ShoppingCardElement({ title, price, image, description, buttonText = 'buy now' }: ShoppingCardProps) {
   return (
     <div className="w-full h-full bg-black/40 rounded-2xl overflow-hidden border border-white/10 flex flex-col backdrop-blur-md group hover:border-[var(--primary)]/30 transition-all duration-500">
       <div className="relative aspect-video overflow-hidden">
@@ -1161,7 +1153,7 @@ export function shoppingcardelement({ title, price, image, description, buttonte
         <p className="text-white/50 text-sm font-medium line-clamp-2 mb-6 flex-1">{description || 'Product description goes here. This should be a brief and engaging text.'}</p>
         <button className="w-full py-3 bg-[var(--primary)] text-black font-bold rounded-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 ">
           <ShoppingCart size={18} />
-          {buttontext}
+          {buttonText}
         </button>
       </div>
     </div>
@@ -1169,12 +1161,12 @@ export function shoppingcardelement({ title, price, image, description, buttonte
 }
 
 // --- floating reminder ---
-interface reminderprops {
+interface ReminderProps {
   content: string;
   color?: string;
 }
 
-export function floatingreminderelement({ content, color = '#fef08a' }: reminderprops) {
+export function FloatingReminderElement({ content, color = '#fef08a' }: ReminderProps) {
   return (
     <div
       className="w-full h-full p-6 relative rounded-xl shadow-2xl rotate-1 group hover:rotate-0 transition-transform duration-500"
@@ -1195,22 +1187,22 @@ export function floatingreminderelement({ content, color = '#fef08a' }: reminder
 }
 
 // --- stats bar ---
-interface statsbarprops {
+interface StatsBarProps {
   label: string;
   value: number;
   max?: number;
   color?: string;
-  showvalue?: boolean;
+  showValue?: boolean;
 }
 
-export function statsbarelement({ label, value, max = 100, color = 'var(--primary)', showvalue = true }: statsbarprops) {
-  const percentage = math.min(100, math.max(0, (value / max) * 100));
+export function StatsBarElement({ label, value, max = 100, color = 'var(--primary)', showValue = true }: StatsBarProps) {
+  const percentage = Math.min(100, Math.max(0, (value / max) * 100));
 
   return (
     <div className="w-full p-4 flex flex-col gap-2">
       <div className="flex justify-between items-end">
         <span className="text-sm font-bold text-white/50 ">{label || 'strength'}</span>
-        {showvalue && <span className="text-lg font-bold text-white leading-none">{value}<span className="text-white/20 text-xs ml-1">/ {max}</span></span>}
+        {showValue && <span className="text-lg font-bold text-white leading-none">{value}<span className="text-white/20 text-xs ml-1">/ {max}</span></span>}
       </div>
       <div className="h-3 bg-white/5 rounded-full overflow-hidden border border-white/5 p-[2px]">
         <div
@@ -1224,7 +1216,7 @@ export function statsbarelement({ label, value, max = 100, color = 'var(--primar
 
 // --- pkm visuals ---
 
-export function eternalflameelement() {
+export function EternalFlameElement() {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center relative group">
       <div className="absolute inset-0 bg-orange-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
@@ -1239,7 +1231,7 @@ export function eternalflameelement() {
   );
 }
 
-export function goldpileelement() {
+export function GoldPileElement() {
   return (
     <div className="w-full h-full flex flex-col items-center justify-center group">
       <div className="relative">
@@ -1254,7 +1246,7 @@ export function goldpileelement() {
   );
 }
 
-export function sleepringelement() {
+export function SleepRingElement() {
   return (
     <div className="w-full h-full flex items-center justify-center">
       <div className="relative w-40 h-40">
@@ -1294,7 +1286,7 @@ export function SlickButton({ text, url, icon, bgColor, textColor, iconColor, bo
 
   const handleClick = () => {
     if (!url) return;
-    if (url.startswith('http')) {
+    if (url.startsWith('http')) {
       window.open(url, '_blank');
     } else {
       window.location.href = url;
