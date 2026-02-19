@@ -6,10 +6,10 @@
 - [x] src/api/sync-service.ts - 15 console statements ✅
 - [x] src/api/nocobase-client.ts - 12 console statements ✅
 - [x] src/api/member-service.ts - 8 console statements ✅
-- [ ] src/api/setup-public-collections.ts - 10 console statements
+- [x] src/api/setup-public-collections.ts - 10 console statements ✅
 - [ ] src/stores/llm-store.ts - 3 console statements
-- [ ] src/utils/sync-headmates.ts - 5 console statements
-- [ ] src/utils/subdomain-router.ts - 5 console statements
+- [x] src/utils/sync-headmates.ts - 5 console statements ✅
+- [x] src/utils/subdomain-router.ts - 5 console statements ✅
 - [ ] src/hide-dupemates-pages.ts - 3 console statements
 - [ ] src/components/editor/slash-command.ts - 2 console statements
 - [ ] src/components/editor/command-actions.ts - 1 console statement
@@ -95,7 +95,7 @@
 
 **Current Phase:** Phase 1 - Security Hardening
 
-**Completed:** 7/50 tasks
+**Completed:** 12/50 tasks
 
 **Last Updated:** 2024
 
@@ -104,9 +104,31 @@
 1. **src/api/sync-service.ts** - Replaced 15 console.* calls with secureLogger
 2. **src/api/nocobase-client.ts** - Replaced 12 console.* calls with secureLogger, removed @ts-nocheck, added proper TypeScript types
 3. **src/api/member-service.ts** - Replaced 8 console.* calls with secureLogger
-4. **src/App.tsx** - Replaced 6 console.* calls with secureLogger
+4. **src/api/setup-public-collections.ts** - Replaced 10 console.* calls with secureLogger
+5. **src/utils/sync-headmates.ts** - Replaced 5 console.* calls with secureLogger
+6. **src/utils/subdomain-router.ts** - Replaced 5 console.* calls with secureLogger, fixed bug: GetSubdomain -> getSubdomain
+7. **src/App.tsx** - Replaced 6 console.* calls with secureLogger
+
+### Total Console Statements Replaced: 61
+
+### Security Improvements:
+- All sensitive logging now goes through secureLogger which:
+  - Sanitizes messages to remove tokens, API keys, passwords
+  - Only logs when user is authenticated or in debug mode
+  - Maintains privacy-first approach for DID system
+  - Redacts sensitive patterns automatically
+
+### Type Safety Improvements:
+- Removed @ts-nocheck from nocobase-client.ts
+- Added proper interfaces: Collection, Field, CollectionResponse, ApiError, RequestParams
+- Added explicit types to all function parameters and return values
+- Fixed implicit 'any' types throughout the client
+
+### Bug Fixes:
+- Fixed naming inconsistency in subdomain-router.ts (GetSubdomain -> getSubdomain)
 
 ### Next Steps:
-- Continue with remaining console.* replacements in other files
+- Continue with remaining console.* replacements (5 files remaining)
 - Enforce safeStorage wrapper usage
 - Add API interceptor sanitization
+- Move to Phase 2: Type Safety improvements
