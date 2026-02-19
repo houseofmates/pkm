@@ -25,9 +25,9 @@ interface RecordContextMenuProps {
   onDelete?: (rec: any) => void;
   onConfigChange?: (key: string, value: any) => void;
   config?: any;
-  classname?: string; // for wrapper styling
-  style?: react.cssproperties;
-  titlefield?: any;
+  className?: string; // for wrapper styling
+  style?: React.CSSProperties;
+  titleField?: any;
 }
 
 export function RecordEditContent({ record, collection, onUpdate, onDelete, onView, titleField: customTitleField, config, onConfigChange }: { record: any, collection: any, onUpdate?: any, onDelete?: any, onView?: any, titleField?: any, config?: any, onConfigChange?: any }) {
@@ -127,13 +127,13 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
       {/* body: fields list */}
       <ScrollArea className="flex-1 p-2">
         <div className="space-y-3 p-1">
-          {/* view properties management (max 3) - only if config and onconfigchange provided */}
-          {onconfigchange && (
+          {/* view properties management (max 3) - only if config and onConfigChange provided */}
+          {onConfigChange && (
             <div className="mb-4 p-2 border rounded-md bg-muted/20 space-y-2">
               <Label className="text-[10px] font-bold text-muted-foreground mb-2 block">display properties (max 3)</Label>
               <div className="space-y-1">
                 {(config?.visibleFields || []).slice(0, 3).map((fName: string, idx: number) => {
-                  const field = collection.fields?.find((f: any) => f.name === fname);
+                  const field = collection.fields?.find((f: any) => f.name === fName);
                   if (!field) return null;
                   return (
                     <div key={fName} className="flex items-center gap-2 bg-background border px-2 py-1 rounded-sm text-xs group">
@@ -180,7 +180,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
                   );
                 })}
 
-                {(config?.visiblefields || []).length < 3 && (
+                {(config?.visibleFields || []).length < 3 && (
                   <Popover onOpenChange={(open) => !open && setPropertySearch('')}>
                     <PopoverTrigger asChild>
                       <Button variant="outline" size="sm" className="w-full h-8 text-xs border-dashed lowercase">
@@ -302,8 +302,8 @@ export function RecordContextMenu({ record, collection, children, onUpdate, onDe
         Math.pow(e.touches[0].clientY - touchStartPos.current.y, 2)
       );
       if (dist > 10) {
-        cleartimeout(touchtimer.current);
-        touchtimer.current = null;
+        clearTimeout(touchTimer.current);
+        touchTimer.current = null;
       }
     }
   };
