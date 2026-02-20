@@ -1,4 +1,3 @@
-
 import { useState, useMemo } from 'react';
 import type { ViewProps } from './registry';
 import { Button } from '@/components/ui/button';
@@ -27,14 +26,14 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
   const [prompt, setPrompt] = useState(PROMPTS[0]);
   
   if (!collection) {
-  return (
-  <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
- <div className="flex flex-col items-center gap-2">
- <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
- <p className="text-sm">loading journal metadata...</p>
- </div>
-  </div>
-  );
+    return (
+      <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
+        <div className="flex flex-col items-center gap-2">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="text-sm">loading journal metadata...</p>
+        </div>
+      </div>
+    );
   }
 
   // fields
@@ -42,198 +41,178 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
   const dateField = collection.fields?.find((f: { interface?: string; name: string }) => f.interface === 'date' || f.interface === 'datetime' || f.name === 'created_at');
 
   const handleShufflePrompt = () => {
-  setPrompt(PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
+    setPrompt(PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
   };
 
   const handleSubmit = async () => {
-  if (!entry.trim()) return;
+    if (!entry.trim() || !onCreate) return;
 
-  // emulate creation (in a real app, we'd call oncreate, but viewprops only has update/edit usually)
-  // we'll need to dispatch a create event or use a hook if passed
-  // for now, let's assume this view is usually used where we can "quick add" or it relies on "onupdaterecord" hack?
-  // actually, viewprops doesn't have oncreate. we might need to use the `usecollections` hook here or emit an event?
-  // let's use the window event we added earlier for dashboard! 'pkm:add-widget' was for widgets.
-  // we need a proper create record method.
-  // let's assume the parent might pass it or we use a global store dispatch.
-  // check: collection-detail uses usenocobase?
+    const newRecord = {
+      [contentField.name]: `**${prompt}**\n\n${entry}`,
+      status: 'published', // default
+    };
 
-  // fallback: dispatch a custom event specifically for creating a record, which rootlayout or similar could pick up?
-  // or better: just warn user this is a ui demo if create isn't wired.
-  // but for "automatic journaling", it should work.
-
-  // hack: dispatch an event that the app knows how to handle?
-  // or modify viewprops in registry to include `oncreate`? that's cleaner.
-  // i will modify registry next.
-
-  // temporary dispatch for now to show intent
-  const newRecord = {
-  [contentField.name]: `**${prompt}**\n\n${entry}`,
-  status: 'published', // default
-  };
-
-  // we will assume onupdaterecord with id='new' might be treated as create? no.
-  // i'll emit a custom event "pkm:create-record"
-  if (onCreate) {
-    await onCreate(newRecord);
-    setEntry('');
-    toast.success("entry captured!");
-  } else {
-    console.warn("JournalView: onCreate prop missing");
-    toast.error("Could not save entry: implementation missing");
-  }
+    try {
+      await onCreate(newRecord);
+      setEntry('');
+      toast.success("Entry captured!");
+    } catch (error) {
+      console.error("JournalView: Failed to create entry", error);
+      toast.error("Could not save entry");
+    }
   };
 
   // group by date
   const grouped = useMemo(() => {
-  const groups: record<string, any[]> = {};
-  const sorted = [...data].sort((a, b) => {
-  const da = a[dateField?.name] || a.created_at || 0;
-  const db = b[dateField?.name] || b.created_at || 0;
-  return new Date(db).getTime() - new Date(da).getTime();
-  });
+    const groups: Record<string, any[]> = {};
+    const sorted = [...data].sort((a, b) => {
+      const da = a[dateField?.name] || a.created_at || 0;
+      const db = b[dateField?.name] || b.created_at || 0;
+      return new Date(db).getTime() - new Date(da).getTime();
+    });
 
-  sorted.forEach(rec => {
-  const d = rec[dateField?.name] || rec.created_at || new Date();
-  const key = format(new Date(d), 'yyyy-MM-dd');
-  if (!groups[key]) groups[key] = [];
-  groups[key].push(rec);
-  });
-  return groups;
+    sorted.forEach(rec => {
+      const d = rec[dateField?.name] || rec.created_at || new Date();
+      const key = format(new Date(d), 'yyyy-MM-dd');
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(rec);
+    });
+    return groups;
   }, [data, dateField]);
 
   // helper to extract preview
   const parseContent = (htmlOrMd: string) => {
-  const text = htmlormd || '';
-  // if markdown (starts with **), try to split prompt
-  let prompttext = '';
-  let bodytext = text;
+    const text = htmlOrMd || '';
+    // if markdown (starts with **), try to split prompt
+    let promptText = '';
+    let bodyText = text;
 
-  // naive markdown check for our specific format
-  const promptmatch = text.match(/^\*\*(.*?)\*\*\s*\n*(.*)/s);
-  if (promptmatch) {
-  prompttext = promptmatch[1];
-  bodytext = promptmatch[2];
-  } else if (text.startsWith('<')) {
-  // html handling if rich editor saved html
-  const div = document.createElement('div');
-  div.innerHTML = text;
-  const strong = div.querySelector('strong');
-  if (strong && div.firstChild === strong) {
- promptText = strong.textContent || '';
- strong.remove(); // Remove prompt from body
- bodyText = div.innerHTML;
-  }
-  }
+    // naive markdown check for our specific format
+    const promptMatch = text.match(/^\*\*(.*?)\*\*\s*\n*(.*)/s);
+    if (promptMatch) {
+      promptText = promptMatch[1];
+      bodyText = promptMatch[2];
+    } else if (text.startsWith('<')) {
+      // html handling if rich editor saved html
+      const div = document.createElement('div');
+      div.innerHTML = text;
+      const strong = div.querySelector('strong');
+      if (strong && div.firstChild === strong) {
+        promptText = strong.textContent || '';
+        strong.remove(); // Remove prompt from body
+        bodyText = div.innerHTML;
+      }
+    }
 
-  // preview (first paragraph or truncated)
-  const tempDiv = document.createElement('div');
-  tempDiv.innerHTML = bodyText.startsWith('<') ? bodyText : markdownToHtml(bodyText);
-  const firstP = tempDiv.querySelector('p');
-  const preview = firstP ? firstP.textContent : tempDiv.textContent?.slice(0, 150) + '...';
+    // preview (first paragraph or truncated)
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = bodyText.startsWith('<') ? bodyText : markdownToHtml(bodyText);
+    const firstP = tempDiv.querySelector('p');
+    const preview = firstP ? firstP.textContent : tempDiv.textContent?.slice(0, 150) + '...';
 
-  return { prompt: promptText, body: bodyText, preview };
+    return { prompt: promptText, body: bodyText, preview };
   };
 
   return (
-  <div className="max-w-2xl mx-auto flex flex-col gap-6 p-4">
+    <div className="max-w-2xl mx-auto flex flex-col gap-6 p-4">
 
-  {/* daily prompt / entry area */}
-  <div className="bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border rounded-2xl p-5 shadow-sm">
- <div className="flex items-center gap-2 mb-3 text-primary/80">
- <Sparkles className="h-4 w-4 text-amber-400" />
- <h3 className="font-medium text-sm">{prompt}</h3>
- <Button variant="ghost" size="icon" className="h-5 w-5 ml-auto opacity-50 hover:opacity-100" onClick={handleShufflePrompt}>
- <Clock className="h-3 w-3" />
- </Button>
- </div>
+      {/* daily prompt / entry area */}
+      <div className="bg-gradient-to-br from-indigo-500/5 to-purple-500/5 border rounded-2xl p-5 shadow-sm">
+        <div className="flex items-center gap-2 mb-3 text-primary/80">
+          <Sparkles className="h-4 w-4 text-amber-400" />
+          <h3 className="font-medium text-sm">{prompt}</h3>
+          <Button variant="ghost" size="icon" className="h-5 w-5 ml-auto opacity-50 hover:opacity-100" onClick={handleShufflePrompt}>
+            <Clock className="h-3 w-3" />
+          </Button>
+        </div>
 
- <RichEditor
- placeholder="write your thoughts..."
- className="min-h-[100px] bg-background border-input/50 focus:bg-background transition-all resize-none text-base"
- value={entry ? (String(entry).trim().startsWith('<') ? entry : markdownToHtml(entry)) : ''}
- onChange={(html) => setEntry(sanitizeHTML(html))}
- showToolbar={false}
- />
+        <RichEditor
+          placeholder="Write your thoughts..."
+          className="min-h-[100px] bg-background border-input/50 focus:bg-background transition-all resize-none text-base"
+          value={entry ? (String(entry).trim().startsWith('<') ? entry : markdownToHtml(entry)) : ''}
+          onChange={(html) => setEntry(sanitizeHTML(html))}
+          showToolbar={false}
+        />
 
- <div className="flex justify-end mt-3">
- <Button size="sm" onClick={handleSubmit} disabled={!entry || !String(entry).trim()}>
- <Send className="h-3 w-3 mr-2" /> post entry
- </Button>
- </div>
-  </div>
+        <div className="flex justify-end mt-3">
+          <Button size="sm" onClick={handleSubmit} disabled={!entry || !String(entry).trim() || !onCreate}>
+            <Send className="h-3 w-3 mr-2" /> Post entry
+          </Button>
+        </div>
+      </div>
 
-  {/* stream */}
-  <div className="space-y-8">
- {object.keys(grouped).length === 0 && (
- <div className="text-center text-muted-foreground py-10 opacity-50">
- <p>no journal entries yet. start writing above!</p>
- </div>
- )}
+      {/* stream */}
+      <div className="space-y-8">
+        {Object.keys(grouped).length === 0 && (
+          <div className="text-center text-muted-foreground py-10 opacity-50">
+            <p>No journal entries yet. Start writing above!</p>
+          </div>
+        )}
 
- {Object.entries(grouped).map(([dateKey, records]) => (
- <div key={dateKey} className="relative pl-6 border-l-2 border-primary/10">
- {/* date header */}
- <div className="absolute -left-[9px] top-0 h-4 w-4 rounded-full bg-background border-4 border-primary/20" />
- <div className="mb-4 text-xs font-bold text-muted-foreground lowercase opacity-70 flex items-center gap-2">
-   {format(new date(datekey), 'eeee, mmmm do, yyyy')}
- </div>
+        {Object.entries(grouped).map(([dateKey, records]) => (
+          <div key={dateKey} className="relative pl-6 border-l-2 border-primary/10">
+            {/* date header */}
+            <div className="absolute -left-[9px] top-0 h-4 w-4 rounded-full bg-background border-4 border-primary/20" />
+            <div className="mb-4 text-xs font-bold text-muted-foreground lowercase opacity-70 flex items-center gap-2">
+              {format(new Date(dateKey), 'eeee, MMMM do, yyyy')}
+            </div>
 
- {/* entries */}
- <div className="space-y-3">
-   {records.map(rec => {
-   const { prompt, preview } = parsecontent(string(rec[contentfield.name] || ''));
-   return (
-   <RecordContextMenu
-  key={rec.id}
-  record={rec}
-  collection={collection}
-  onUpdate={_onUpdateRecord}
-  onDelete={() => { /* todo: implement if needed or relies on onview */ }}
-  config={config}
-  onConfigChange={onConfigChange}
-   >
-  <div
-  className="bg-card border rounded-lg p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group"
-  onClick={() => window.dispatchEvent(new CustomEvent('pkm:edit-record', {
-  detail: { record: rec, collectionName: collection.name }
-  }))}
-  >
-  <div className="space-y-2">
-  {prompt && (
-    <div className="text-xs font-medium text-primary/70 bg-primary/5 inline-block px-2 py-0.5 rounded">
-    {prompt}
+            {/* entries */}
+            <div className="space-y-3">
+              {records.map(rec => {
+                const { prompt, preview } = parseContent(String(rec[contentField.name] || ''));
+                return (
+                  <RecordContextMenu
+                    key={rec.id}
+                    record={rec}
+                    collection={collection}
+                    onUpdate={_onUpdateRecord}
+                    onDelete={() => { /* todo: implement if needed or relies on onview */ }}
+                    config={config}
+                    onConfigChange={onConfigChange}
+                  >
+                    <div
+                      className="bg-card border rounded-lg p-4 shadow-sm hover:shadow-md transition-all cursor-pointer group"
+                      onClick={() => window.dispatchEvent(new CustomEvent('pkm:edit-record', {
+                        detail: { record: rec, collectionName: collection.name }
+                      }))}
+                    >
+                      <div className="space-y-2">
+                        {prompt && (
+                          <div className="text-xs font-medium text-primary/70 bg-primary/5 inline-block px-2 py-0.5 rounded">
+                            {prompt}
+                          </div>
+                        )}
+                        <div className="text-base text-foreground/90 leading-relaxed line-clamp-3">
+                          {preview}
+                        </div>
+                        {/* universal property visibility */}
+                        {collection.fields?.filter((f: { name: string }) => config.visibleFields?.includes(f.name)).slice(0, 3).map((f: { name: string; uiSchema?: { title?: string } }) => (
+                          <div key={f.name} className="flex flex-col gap-0.5 mt-2 bg-muted/20 p-2 rounded-md">
+                            <span className="text-[10px] text-muted-foreground  opacity-60">{f.uiSchema?.title || f.name}</span>
+                            <SmartField
+                              value={rec[f.name]}
+                              field={f}
+                              record={rec}
+                              collectionName={collection.name}
+                              size="sm"
+                              className="h-auto p-0 border-none bg-transparent text-sm"
+                              onChange={(val: unknown) => _onUpdateRecord?.(rec.id, { [f.name]: val })}
+                            />
+                          </div>
+                        ))}
+                        <div className="text-[10px] text-muted-foreground pt-2 flex items-center justify-between opacity-60">
+                          <span>{format(new Date(rec[dateField?.name] || rec.created_at), 'h:mm a')}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </RecordContextMenu>
+                );
+              })}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
-  )}
-  <div className="text-base text-foreground/90 leading-relaxed line-clamp-3">
-    {preview}
-  </div>
-  {/* universal property visibility */}
-  {collection.fields?.filter((f: { name: string }) => config.visibleFields?.includes(f.name)).slice(0, 3).map((f: { name: string; uiSchema?: { title?: string } }) => (
-    <div key={f.name} className="flex flex-col gap-0.5 mt-2 bg-muted/20 p-2 rounded-md">
-    <span className="text-[10px] text-muted-foreground  opacity-60">{f.uiSchema?.title || f.name}</span>
-    <SmartField
-    value={rec[f.name]}
-    field={f}
-    record={rec}
-    collectionName={collection.name}
-    size="sm"
-    className="h-auto p-0 border-none bg-transparent text-sm"
-    onChange={(val: unknown) => _onUpdateRecord?.(rec.id, { [f.name]: val })}
-    />
-    </div>
-  ))}
-  <div className="text-[10px] text-muted-foreground pt-2 flex items-center justify-between opacity-60">
-    <span>{format(new Date(rec[dateField?.name] || rec.created_at), 'h:mm a')}</span>
-  </div>
-  </div>
-  </div>
-   </RecordContextMenu>
-   );
-   })}
- </div>
- </div>
- ))}
-  </div>
-  </div>
   );
 }
