@@ -2,11 +2,12 @@ import { Suspense, useMemo } from 'react';
 import { useEmbedData } from './hooks/useEmbedData';
 import { useEmbedTheme } from './hooks/useEmbedTheme';
 import { GalleryView } from './views/GalleryView';
+import { TableView } from './views/TableView';
 import { ErrorBoundary } from 'react-error-boundary';
 import { cn } from '@/lib/utils';
 import { Loader2, AlertCircle } from 'lucide-react';
 
-interface DataEmbedProps {
+export interface DataEmbedProps {
   collection: string;
   view?: 'table' | 'gallery' | 'board' | 'chart' | 'calendar';
   limit?: number;
@@ -14,6 +15,7 @@ interface DataEmbedProps {
   filters?: Record<string, any>;
   className?: string;
   onItemClick?: (item: any) => void;
+  style?: React.CSSProperties;
 }
 
 export function DataEmbed(props: DataEmbedProps) {
@@ -28,11 +30,12 @@ export function DataEmbed(props: DataEmbedProps) {
 
 function DataEmbedContent({
   collection,
-  view = 'gallery', // Defaulting to gallery since that's what we implemented
+  view = 'gallery',
   limit = 20,
   filters,
   className,
   height,
+  style,
   onItemClick
 }: DataEmbedProps) {
   const { records, isLoading, isError, error, fetchNextPage, hasNextPage } = useEmbedData({
@@ -47,8 +50,8 @@ function DataEmbedContent({
   const ViewComponent = useMemo(() => {
     switch (view) {
       case 'gallery': return GalleryView;
-      // case 'table': return TableView; // TODO
-      default: return GalleryView; // Fallback to Gallery for demo
+      case 'table': return TableView;
+      default: return GalleryView;
     }
   }, [view]);
 
@@ -59,10 +62,14 @@ function DataEmbedContent({
   return (
     <div
       className={cn(
-        "relative w-full overflow-hidden transition-colors duration-500 rounded-xl",
+        "relative w-full overflow-hidden transition-colors duration-500 rounded-xl bg-background/50 backdrop-blur-sm",
         className
       )}
-      style={{ height: height || 'auto', minHeight: '200px' }}
+      style={{
+        height: height || 'auto',
+        minHeight: '200px',
+        ...style
+      }}
     >
       <ViewComponent
         records={records}
@@ -72,10 +79,10 @@ function DataEmbedContent({
       />
 
       {hasNextPage && (
-        <div className="p-4 flex justify-center">
+        <div className="p-4 flex justify-center bg-gradient-to-t from-background/80 to-transparent absolute bottom-0 left-0 w-full">
            <button
              onClick={() => fetchNextPage()}
-             className="text-xs uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors py-2 px-4 rounded-full border border-transparent hover:border-primary/20 hover:bg-primary/5"
+             className="text-xs uppercase tracking-widest text-muted-foreground hover:text-primary transition-colors py-2 px-4 rounded-full border border-white/10 bg-background/50 backdrop-blur hover:bg-primary/10"
            >
              Load More
            </button>
@@ -98,7 +105,7 @@ function ErrorFallback({ error, resetErrorBoundary }: any) {
 
 function LoadingSkeleton() {
   return (
-    <div className="w-full h-full flex items-center justify-center min-h-[200px] bg-muted/5 rounded-xl border border-dashed border-muted">
+    <div className="w-full h-full flex items-center justify-center min-h-[200px] bg-muted/5 rounded-xl border border-dashed border-muted animate-pulse">
       <Loader2 className="h-6 w-6 animate-spin text-muted-foreground/50" />
     </div>
   );
