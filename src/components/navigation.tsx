@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText } from 'lucide-react';
-import * as LucideIcons from 'lucide-react';
+import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings } from 'lucide-react';
+
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -361,7 +361,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
   const tabs = [
     { id: 'databases', icon: Database, label: 'databases' },
     { id: 'home', icon: Home, label: 'home' },
-    { id: 'captures', icon: LucideIcons.Inbox, label: 'captures' },
+    { id: 'captures', icon: Inbox, label: 'captures' },
     { id: 'headmates', icon: Users, label: 'headmates' },
   ] as const;
 
@@ -460,7 +460,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                     iconType: 'lucide'
                   }]);
                 }}>
-                  <LucideIcons.PenTool className="h-4 w-4 mr-2 text-primary" />
+                  <PenTool className="h-4 w-4 mr-2 text-primary" />
                   <span>new drawing</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -474,7 +474,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             title="template ingestion engine"
             onClick={() => navigate('/template')}
           >
-            <LucideIcons.Wand2 className="h-3 w-3" />
+            <Wand2 className="h-3 w-3" />
           </Button>
 
           <Button
@@ -484,7 +484,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             title="infinite canvas database"
             onClick={() => navigate('/db-canvas')}
           >
-            <LucideIcons.LayoutDashboard className="h-3 w-3" />
+            <LayoutDashboard className="h-3 w-3" />
           </Button>
         </div>
 
@@ -575,7 +575,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             onClick={onOpenSettings}
             title="settings"
           >
-            <LucideIcons.Settings className="h-4 w-4" />
+            <Settings className="h-4 w-4" />
             <span className="text-xs">settings</span>
           </Button>
         </div>
