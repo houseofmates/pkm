@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
+import FormulaEditor from '@/components/formula-editor';
+import { Terminal } from 'lucide-react';
 
 interface CreateFieldDialogProps {
   collectionName: string;
@@ -65,6 +67,7 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
   const [name, setName] = useState('');
   const [interfaceType, setInterfaceType] = useState('input');
   const [expression, setExpression] = useState('');
+  const [formulaEditorOpen, setFormulaEditorOpen] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -125,64 +128,85 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>add new property</DialogTitle>
-          <DialogDescription>
-            add a new column to the <strong>{collectionName}</strong> database.
-          </DialogDescription>
-        </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-2">
-            <Label>type</Label>
-            <Select value={interfaceType} onValueChange={setInterfaceType}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {FIELD_TYPES.map(t => (
-                  <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          {interfaceType === 'formula' && (
+    <>
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>add new property</DialogTitle>
+            <DialogDescription>
+              add a new column to the <strong>{collectionName}</strong> database.
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label>expression</Label>
+              <Label>type</Label>
+              <Select value={interfaceType} onValueChange={setInterfaceType}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {FIELD_TYPES.map(t => (
+                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            {interfaceType === 'formula' && (
+              <div className="space-y-2">
+                <Label>expression</Label>
+                <div className="flex gap-2">
+                  <Input
+                    value={expression}
+                    onChange={(e) => setExpression(e.target.value)}
+                    placeholder="e.g. {{price}} * {{quantity}}"
+                    className="font-mono text-xs flex-1"
+                    required
+                  />
+                  <Button type="button" variant="outline" size="icon" onClick={() => setFormulaEditorOpen(true)} title="open editor">
+                    <Terminal className="h-4 w-4" />
+                  </Button>
+                </div>
+                <p className="text-[10px] text-muted-foreground">advanced javascript formulas supported.</p>
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label>property name</Label>
               <Input
-                value={expression}
-                onChange={(e) => setExpression(e.target.value)}
-                placeholder="e.g. {{price}} * {{quantity}}"
-                className="font-mono text-xs"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                placeholder="e.g. status, rating, tags"
                 required
               />
             </div>
-          )}
-          <div className="space-y-2">
-            <Label>property name</Label>
-            <Input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="e.g. status, rating, tags"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>system key (optional)</Label>
-            <Input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="my_field_name"
-            />
-          </div>
-          <DialogFooter>
-            <Button type="submit" disabled={loading}>
-              {loading ? "adding..." : "add property"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+            <div className="space-y-2">
+              <Label>system key (optional)</Label>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="my_field_name"
+              />
+            </div>
+            <DialogFooter>
+              <Button type="submit" disabled={loading}>
+                {loading ? "adding..." : "add property"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {formulaEditorOpen && (
+        <FormulaEditor
+          value={expression}
+          record={{}} // mock record context
+          client={client}
+          onSave={(code) => {
+            setExpression(code);
+            setFormulaEditorOpen(false);
+          }}
+          onCancel={() => setFormulaEditorOpen(false)}
+        />
+      )}
+    </>
   );
 }
