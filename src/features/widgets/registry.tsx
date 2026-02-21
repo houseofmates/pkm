@@ -1,4 +1,4 @@
-import { Clock, Webhook, Database, Type } from 'lucide-react';
+import { Clock, Webhook, Database, Type, Activity, Scroll, BarChart3 } from 'lucide-react';
 
 export interface WidgetDefinition {
   id: string;
@@ -19,6 +19,33 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
     defaultData: { format: "EEE, MMM d, ''yy", color: '#f6b012' },
     defaultWidth: 300,
     defaultHeight: 150
+  },
+  biometric: {
+    id: 'biometric',
+    label: 'Biometric Tracker',
+    icon: Activity,
+    description: 'Log energy, friction, and focus',
+    defaultData: { initialEnergy: 50, initialFriction: 50 },
+    defaultWidth: 320,
+    defaultHeight: 280
+  },
+  narrative: {
+    id: 'narrative',
+    label: 'Narrative Log',
+    icon: Scroll,
+    description: 'Cinematic captain\'s log',
+    defaultData: { cinematic: true },
+    defaultWidth: 400,
+    defaultHeight: 300
+  },
+  optimization: {
+    id: 'optimization',
+    label: 'Optimization Dash',
+    icon: BarChart3,
+    description: 'Correlate habits with efficiency',
+    defaultData: { timeframe: '7d' },
+    defaultWidth: 500,
+    defaultHeight: 300
   },
   n8n: {
     id: 'n8n',
