@@ -216,3 +216,4 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
     </div>
   );
 }
+// Forced refresh Sat Feb 21 05:08:47 UTC 2026
