@@ -9,7 +9,6 @@ import { lazy, Suspense, useEffect } from "react"
 import { FronterProvider } from "@/contexts/fronter-context"
 import { LLMContextProvider } from "@/contexts/llm-context"
 import { CanvasErrorBoundary } from "@/features/edgeless"
-import { walRecover, walCommit, walFail, walPendingCount } from "@/lib/write-ahead-log"
 import { isLinkRegistryMigrated, backfillLinkRegistry } from "@/lib/link-migration"
 import { secureLogger } from "@/lib/secure-logger"
 
@@ -77,22 +76,6 @@ if (typeof document !== 'undefined') {
 function AppContent() {
   const { token, client } = useAuth()
 
-  // beforeunload guard: warn if there are pending wal entries
-  useEffect(() => {
-    const handler = (e: BeforeUnloadEvent) => {
-      // check synchronously (we can't await in beforeunload)
-      // the actual recovery happens on next load via walRecover()
-      walPendingCount().then((count) => {
-        if (count > 0) {
-          secureLogger.warn(`wal: ${count} pending writes — recovery will happen on next load`)
-        }
-      })
-      e.preventDefault()
-      e.returnValue = ''
-    }
-    window.addEventListener('beforeunload', handler)
-    return () => window.removeEventListener('beforeunload', handler)
-  }, [])
 
   // wal recovery on startup: replay any incomplete writes from a previous crash
   useEffect(() => {
