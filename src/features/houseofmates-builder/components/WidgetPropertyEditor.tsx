@@ -1,614 +1,132 @@
-import { useState, useEffect } from 'react';
-import type { ElementData } from '../HouseofmatesBuilder';
-import { X, Plus, Trash2, Search, Upload } from 'lucide-react';
-import { IconPicker } from './IconPicker';
-import * as LucideIcons from 'lucide-react';
-import { api } from '@/api/nocobase-client';
-import { toast } from 'sonner';
-import { ImageCropper } from '@/components/ui/image-cropper';
+import React, { useState } from 'react';
+import { X, Upload, Search } from 'lucide-react';
+import { ImageCropper } from '@/features/blog-builder/components/ImageCropper';
 
-interface Props {
-  element: ElementData;
-  onUpdate: (updates: Partial<ElementData>) => void;
+interface WidgetPropertyEditorProps {
+  element: any;
+  onUpdate: (updates: any) => void;
   onClose: () => void;
 }
 
-export function WidgetPropertyEditor({ element, onUpdate, onClose }: Props) {
-  const [content, setContent] = useState<any>(element.content || {});
-  const [styles, setStyles] = useState<any>(element.styles || {});
-  const [showIconPicker, setShowIconPicker] = useState(false);
+export function WidgetPropertyEditor({ element, onUpdate, onClose }: WidgetPropertyEditorProps) {
+  const content = element.content || {};
+  const styles = element.styles || {};
   const [cropperOpen, setCropperOpen] = useState(false);
   const [cropperFile, setCropperFile] = useState<File | null>(null);
-  const [cropperField, setCropperField] = useState<string>('');
-  const [cropperConfig, setCropperConfig] = useState({ aspectRatio: 1, shape: 'rect' as 'rect' | 'round', width: 200, height: 200 });
-
-  useEffect(() => {
-    setContent(element.content || {});
-    setStyles(element.styles || {});
-  }, [element.id]);
-
-  const handleSave = () => {
-    onUpdate({ content, styles });
-    onClose();
-  };
+  const [cropperConfig, setCropperConfig] = useState({ field: '', aspectRatio: 1, shape: 'rect' as 'rect' | 'round', width: 200, height: 200 });
 
   const updateField = (key: string, value: any) => {
-    const newContent = { ...content, [key]: value };
-    setContent(newContent);
-    onUpdate({ content: newContent });
+    onUpdate({ content: { ...content, [key]: value } });
   };
 
   const updateStyle = (key: string, value: any) => {
-    const newStyles = { ...styles, [key]: value };
-    setStyles(newStyles);
-    onUpdate({ styles: newStyles });
+    onUpdate({ styles: { ...styles, [key]: value } });
   };
 
-  // generic array handler (for rules, faq, etc.)
-  const handleArrayUpdate = (key: string, index: number, value: any) => {
-    const arr = [...(content[key] || [])];
-    arr[index] = value;
-    updateField(key, arr);
-  };
-
-  const handleArrayAdd = (key: string, defaultValue: any) => {
-    updateField(key, [...(content[key] || []), defaultValue]);
-  };
-
-  const handleArrayRemove = (key: string, index: number) => {
-    const arr = [...(content[key] || [])];
-    arr.splice(index, 1);
-    updateField(key, arr);
-  };
-
-  const handleFileUpload = async (field: string, config = { aspectRatio: 1, shape: 'rect' as 'rect' | 'round', width: 200, height: 200 }) => {
+  const handleFileUpload = (field: string, config: any) => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = async (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (!file) return;
-
-      setCropperFile(file);
-      setCropperField(field);
-      setCropperConfig(config);
-      setCropperOpen(true);
+    input.onchange = (e: any) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        setCropperFile(file);
+        setCropperConfig({ field, ...config });
+        setCropperOpen(true);
+      }
     };
     input.click();
   };
 
-  const handleCropComplete = async (croppedBlob: Blob) => {
-    const toastId = toast.loading('uploading image...');
-    try {
-      // convert blob to file
-      const file = new File([croppedBlob], cropperFile?.name || 'cropped.png', { type: 'image/png' });
-      const uploaded = await api.upload(file);
-      const url = uploaded?.url || uploaded?.data?.url;
-      if (url) {
-        updateField(cropperField, url);
-        toast.success('image uploaded', { id: toastId });
-      } else {
-        toast.error('upload failed - no url returned', { id: toastId });
-      }
-    } catch (err) {
-      console.error(err);
-      toast.error('upload failed', { id: toastId });
-    }
+  const handleCropComplete = (blob: Blob) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      updateField(cropperConfig.field, e.target?.result);
+      setCropperOpen(false);
+      setCropperFile(null);
+    };
+    reader.readAsDataURL(blob);
   };
 
   const renderFields = () => {
     switch (element.type) {
-      case 'serverip':
+      case 'text':
+        return <div className="text-white/50 italic">edit text directly on canvas. use double click.</div>;
+      case 'button':
+      case 'slick_button':
         return (
           <>
-            <Input label="java ip" value={content.javaip} onChange={(v: string) => updateField('javaip', v)} />
-            <Input label="java port" value={content.javaport} onChange={(v: string) => updateField('javaport', v)} />
-            <Input label="bedrock ip" value={content.bedrockip} onChange={(v: string) => updateField('bedrockip', v)} />
-            <Input label="bedrock port" value={content.bedrockport} onChange={(v: string) => updateField('bedrockport', v)} />
-            <Checkbox label="show bedrock" checked={content.showbedrock} onChange={(v: boolean) => updateField('showbedrock', v)} />
-          </>
-        );
-      case 'serverstatus':
-        return (
-          <>
-            <Input label="motd" value={content.motd} onChange={(v: string) => updateField('motd', v)} />
-            <Input label="player count" type="number" value={content.playercount} onChange={(v: number) => updateField('playercount', Number(v))} />
-            <Input label="max players" type="number" value={content.maxplayers} onChange={(v: number) => updateField('maxplayers', Number(v))} />
-            <Checkbox label="is online (static)" checked={content.isonline} onChange={(v: boolean) => updateField('isonline', v)} />
-          </>
-        );
-      case 'rules':
-        return (
-          <>
-            <Input label="title" value={content.title} onChange={(v: string) => updateField('title', v)} />
-            <div className="space-y-2 mt-4">
-              <label className="text-white/70 text-sm">rules list</label>
-              {(content.rules || []).map((rule: string, idx: number) => (
-                <div key={idx} className="flex gap-2">
-                  <input
-                    className="flex-1 bg-black/50 border border-white/10 rounded px-2 py-1 text-white text-sm"
-                    value={rule}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleArrayUpdate('rules', idx, e.target.value)}
-                  />
-                  <button onClick={() => handleArrayRemove('rules', idx)} className="text-red-400 hover:text-red-300"><Trash2 size={16} /></button>
-                </div>
-              ))}
-              <button onClick={() => handleArrayAdd('rules', 'new rule')} className="flex items-center gap-2 text-[var(--primary)] text-sm hover:underline">
-                <Plus size={14} /> add rule
-              </button>
-            </div>
-          </>
-        );
-      case 'featurecard':
-        return (
-          <>
-            <input label="title" value={content.title} onchange={(v: string) => updatefield('title', v)} />
-            <input label="description" value={content.description} onchange={(v: string) => updatefield('description', v)} textarea />
-
-            <div classname="flex flex-col gap-1.5 relative">
-              <label classname="text-white/70 text-xs  font-bold">icon</label>
-              <button
-                onclick={() => setshowiconpicker(!showiconpicker)}
-                classname="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white flex items-center justify-between hover:border-[var(--primary)]/50 transition-colors"
-              >
-                <div classname="flex items-center gap-3">
-                  <div classname="p-1.5 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]">
-                    {(() => {
-                      const iconname = content.icon || 'shield';
-                      const formattedname = iconname.charat(0).touppercase() + iconname.slice(1);
-                      // @ts-expect-error -- dynamic lucideicons lookup
-                      const icon = (lucideicons as any)[formattedname] || lucideicons.shield;
-                      return <icon size={18} />;
-                    })()}
-                  </div>
-                  <span classname="text-sm">{content.icon || 'select icon...'}</span>
-                </div>
-                <search size={16} classname="text-white/20" />
-              </button>
-
-              {showiconpicker && (
-                <div classname="absolute top-full left-0 mt-2 z-[3000]">
-                  <iconpicker
-                    value={content.icon || 'shield'}
-                    onchange={(icon) => updatefield('icon', icon)}
-                    onclose={() => setshowiconpicker(false)}
-                  />
-                </div>
-              )}
-            </div>
-
-            <input label="color (hex)" value={content.color} onchange={(v: string) => updatefield('color', v)} />
-          </>
-        );
-      case 'staffcard':
-        return (
-          <>
-            <input label="username (ign)" value={content.username} onchange={(v: string) => updatefield('username', v)} />
-            <input label="role" value={content.role} onchange={(v: string) => updatefield('role', v)} />
-            <div classname="space-y-2">
-              <label classname="text-white/70 text-sm">avatar</label>
-              <div classname="flex gap-2">
+            <Input label="button text" value={content.text} onChange={(v: string) => updateField('text', v)} />
+            <Input label="url" value={content.url} onChange={(v: string) => updateField('url', v)} placeholder="https://" />
+            <div className="flex flex-col gap-1.5">
+              <label className="text-white/70 text-xs font-bold">icon (lucide name)</label>
+              <div className="flex gap-2">
                 <input
-                  placeholder="custom avatar url (optional)"
-                  value={content.avatar}
-                  onchange={(v: string) => updatefield('avatar', v)}
+                  className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white focus:border-[var(--primary)] outline-none"
+                  value={content.icon || ''}
+                  onChange={e => updateField('icon', e.target.value)}
+                  placeholder="e.g. Star, Heart, Link"
                 />
-                <button
-                  onclick={() => handlefileupload('avatar')}
-                  classname="px-4 py-2 bg-[var(--primary)]/20 hover:bg-[var(--primary)]/30 text-[var(--primary)] rounded-md flex items-center gap-2 whitespace-nowrap transition-colors"
-                  title="upload from device"
-                >
-                  <upload size={16} />
-                  upload
-                </button>
+                <a href="https://lucide.dev/icons" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/5 rounded-lg hover:bg-white/10 text-white/50 hover:text-white" title="browse icons">
+                  <Search size={16} />
+                </a>
               </div>
-              {content.avatar && (
-                <div classname="mt-2">
-                  <img src={content.avatar} alt="preview" classname="w-16 h-16 rounded-lg object-cover" />
-                </div>
-              )}
-            </div>
-            <input label="role color" value={content.color} onchange={(v: string) => updatefield('color', v)} />
-          </>
-        );
-      case 'faq':
-        return (
-          <>
-            <input label="section title" value={content.title} onchange={(v: string) => updatefield('title', v)} />
-            <div classname="space-y-4 mt-4">
-              <label classname="text-white/70 text-sm">questions</label>
-              {(content.items || []).map((item: any, idx: number) => (
-                <div key={idx} classname="p-3 bg-white/5 rounded flex flex-col gap-2">
-                  <div classname="flex justify-between">
-                    <span classname="text-xs text-white/40">question {idx + 1}</span>
-                    <button onclick={() => handlearrayremove('items', idx)} classname="text-red-400 hover:text-red-300"><trash2 size={14} /></button>
-                  </div>
-                  <input value={item.question} onchange={(v: string) => handlearrayupdate('items', idx, { ...item, question: v })} placeholder="question" />
-                  <input value={item.answer} onchange={(v: string) => handlearrayupdate('items', idx, { ...item, answer: v })} textarea placeholder="answer" />
-                </div>
-              ))}
-              <button onclick={() => handlearrayadd('items', { question: 'new question', answer: 'answer here' })} classname="flex items-center gap-2 text-[var(--primary)] text-sm hover:underline">
-                <plus size={14} /> add question
-              </button>
             </div>
           </>
         );
       case 'hero':
         return (
           <>
-            <input label="main title" value={content.title} onchange={(v: string) => updatefield('title', v)} />
-            <input label="subtitle" value={content.subtitle} onchange={(v: string) => updatefield('subtitle', v)} />
-            <input label="cta button text" value={content.ctatext} onchange={(v: string) => updatefield('ctatext', v)} />
-            <input label="cta link" value={content.ctalink} onchange={(v: string) => updatefield('ctalink', v)} />
-            <div classname="space-y-2">
-              <label classname="text-white/70 text-sm">background image</label>
-              <div classname="flex gap-2">
-                <input
-                  placeholder="background image url"
-                  value={content.backgroundimage}
-                  onchange={(v: string) => updatefield('backgroundimage', v)}
-                />
-                <button
-                  onclick={() => handlefileupload('backgroundimage', { aspectratio: 16 / 9, shape: 'rect', width: 400, height: 225 })}
-                  classname="px-4 py-2 bg-[var(--primary)]/20 hover:bg-[var(--primary)]/30 text-[var(--primary)] rounded-md flex items-center gap-2 whitespace-nowrap transition-colors"
-                  title="upload from device"
-                >
-                  <upload size={16} />
-                  upload
-                </button>
-              </div>
-              {content.backgroundimage && (
-                <div classname="mt-2">
-                  <img src={content.backgroundimage} alt="preview" classname="w-full h-24 rounded-lg object-cover" />
-                </div>
-              )}
-            </div>
-            <checkbox label="show server ip widget" checked={content.showserverip} onchange={(v: boolean) => updatefield('showserverip', v)} />
-            {content.showserverip && (
-              <input label="java ip" value={content.javaip} onchange={(v: string) => updatefield('javaip', v)} />
-            )}
-          </>
-        );
-      case 'button':
-      case 'slick_button':
-        return (
-          <>
-            <input label="button text" value={content.text} onchange={(v) => updatefield('text', v)} />
-            <input label="url / link" value={content.url} onchange={(v) => updatefield('url', v)} />
-
-            <div classname="flex flex-col gap-1.5 relative">
-              <label classname="text-white/70 text-xs  font-bold">icon</label>
-              <button
-                onclick={() => setshowiconpicker(!showiconpicker)}
-                classname="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white flex items-center justify-between hover:border-[var(--primary)]/50 transition-colors"
-              >
-                <div classname="flex items-center gap-3">
-                  <div classname="p-1.5 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]">
-                    {(() => {
-                      const iconname = content.icon || 'arrow-right';
-                      const formattedname = iconname.charat(0).touppercase() + iconname.slice(1).replace(/-([a-z])/g, (g) => g[1].touppercase());
-                      // @ts-ignore
-                      const icon = lucideicons[formattedname] || lucideicons.arrowright;
-                      return <icon size={18} />;
-                    })()}
-                  </div>
-                  <span classname="text-sm">{content.icon || 'select icon...'}</span>
-                </div>
-                <lucideicons.search size={16} classname="text-white/20" />
-              </button>
-
-              {showiconpicker && (
-                <div classname="absolute top-full left-0 mt-2 z-[3000]">
-                  <iconpicker
-                    value={content.icon || 'arrow-right'}
-                    onchange={(icon) => updatefield('icon', icon)}
-                    onclose={() => setshowiconpicker(false)}
-                  />
-                </div>
-              )}
-            </div>
-
-            <div classname="grid grid-cols-2 gap-4">
-              <input label="bg color" value={content.bgcolor} onchange={(v) => updatefield('bgcolor', v)} />
-              <input label="text color" value={content.textcolor} onchange={(v) => updatefield('textcolor', v)} />
-            </div>
-            <input label="icon color (optional)" value={content.iconcolor} onchange={(v) => updatefield('iconcolor', v)} />
-          </>
-        );
-      case 'video':
-      case 'image':
-      case 'pdf_viewer':
-        return (
-          <>
-            <input label="url" value={content.url} onchange={(v: string) => updatefield('url', v)} />
-            {element.type === 'image' && <input label="alt text" value={content.alt} onchange={(v: string) => updatefield('alt', v)} />}
-            {element.type === 'video' && (
-              <>
-                <checkbox label="autoplay" checked={content.autoplay} onchange={(v: boolean) => updatefield('autoplay', v)} />
-                <checkbox label="loop" checked={content.loop} onchange={(v: boolean) => updatefield('loop', v)} />
-                <checkbox label="muted" checked={content.muted} onchange={(v: boolean) => updatefield('muted', v)} />
-                <checkbox label="controls" checked={content.controls} onchange={(v: boolean) => updatefield('controls', v)} />
-              </>
-            )}
-          </>
-        );
-      case 'database_view':
-        return (
-          <>
-            <input label="collection name" value={content.collectionname} onchange={(v: string) => updatefield('collectionname', v)} />
-            <div classname="flex flex-col gap-1.5">
-              <label classname="text-white/70 text-xs  font-bold">view type</label>
-              <select
-                classname="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-[var(--primary)] transition-all"
-                value={content.viewtype || 'table'}
-                onchange={(e) => updatefield('viewtype', e.target.value)}
-              >
-                <option value="table">table</option>
-                <option value="gallery">gallery</option>
-                <option value="kanban">kanban</option>
-                <option value="calendar">calendar</option>
-                <option value="chart">chart</option>
-              </select>
-            </div>
-          </>
-        );
-      case 'linkcard':
-        return (
-          <>
-            <input label="title" value={content.title} onchange={(v: string) => updatefield('title', v)} />
-            <input label="url" value={content.url} onchange={(v: string) => updatefield('url', v)} />
-            <div classname="flex flex-col gap-1.5 relative">
-              <label classname="text-white/70 text-xs  font-bold">icon</label>
-              <button
-                onclick={() => setshowiconpicker(!showiconpicker)}
-                classname="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2.5 text-white flex items-center justify-between hover:border-[var(--primary)]/50 transition-colors"
-              >
-                <div classname="flex items-center gap-3">
-                  <div classname="p-1.5 rounded-lg bg-[var(--primary)]/10 text-[var(--primary)]">
-                    {(() => {
-                      const iconname = content.icon || 'link-2';
-                      const formattedname = iconname.charat(0).touppercase() + iconname.slice(1).replace(/-([a-z])/g, (g: any) => g[1].touppercase());
-                      // @ts-ignore
-                      const icon = lucideicons[formattedname] || lucideicons.link2;
-                      return <icon size={18} />;
-                    })()}
-                  </div>
-                  <span classname="text-sm">{content.icon || 'select icon...'}</span>
-                </div>
-                <search size={16} classname="text-white/20" />
-              </button>
-
-              {showiconpicker && (
-                <div classname="absolute top-full left-0 mt-2 z-[3000]">
-                  <iconpicker
-                    value={content.icon || 'link-2'}
-                    onchange={(icon) => updatefield('icon', icon)}
-                    onclose={() => setshowiconpicker(false)}
-                  />
-                </div>
-              )}
-            </div>
-            <input label="description" value={content.description} onchange={(v: string) => updatefield('description', v)} />
-            <input label="color (hex)" value={content.color} onchange={(v: string) => updatefield('color', v)} />
-          </>
-        );
-      case 'statusindicator':
-        return (
-          <>
-            <input label="label" value={content.label} onchange={(v: string) => updatefield('label', v)} />
-            <div classname="flex flex-col gap-1.5">
-              <label classname="text-white/70 text-xs  font-bold">status</label>
-              <select
-                classname="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-[var(--primary)] transition-all"
-                value={content.status || 'online'}
-                onchange={(e) => updatefield('status', e.target.value)}
-              >
-                <option value="online">online</option>
-                <option value="offline">offline</option>
-                <option value="idle">idle</option>
-                <option value="busy">do not disturb</option>
-                <option value="streaming">streaming</option>
-              </select>
-            </div>
-            <checkbox label="show label" checked={content.showlabel !== false} onchange={(v: boolean) => updatefield('showlabel', v)} />
-          </>
-        );
-      case 'versionbadge':
-        return (
-          <>
-            <div classname="space-y-4">
-              <label classname="text-white/70 text-sm">versions</label>
-              {(content.versions || ['1.10', '1.21.11']).map((ver: string, idx: number) => (
-                <div key={idx} classname="flex gap-2">
-                  <input
-                    classname="flex-1 bg-black/50 border border-white/10 rounded px-2 py-1 text-white text-sm"
-                    value={ver}
-                    onchange={(e: react.changeevent<htmlinputelement>) => handlearrayupdate('versions', idx, e.target.value)}
-                  />
-                  <button onclick={() => handlearrayremove('versions', idx)} classname="text-red-400 hover:text-red-300"><trash2 size={16} /></button>
-                </div>
-              ))}
-              <button onclick={() => handlearrayadd('versions', '1.2x.x')} classname="flex items-center gap-2 text-[var(--primary)] text-sm hover:underline">
-                <plus size={14} /> add version
-              </button>
-            </div>
-          </>
-        );
-      case 'countdown':
-        return (
-          <>
-            <input label="title" value={content.title} onchange={(v: string) => updatefield('title', v)} />
-            <input label="target date" type="datetime-local" value={content.targetdate?.split('.')[0]} onchange={(v: string) => updatefield('targetdate', v)} />
+            <Input label="headline" value={content.headline} onChange={(v: string) => updateField('headline', v)} />
+            <Input label="subheadline" value={content.subheadline} onChange={(v: string) => updateField('subheadline', v)} textarea />
+            <Input label="button text" value={content.ctaText} onChange={(v: string) => updateField('ctaText', v)} />
+            <Input label="button link" value={content.ctaLink} onChange={(v: string) => updateField('ctaLink', v)} />
           </>
         );
       case 'gallery':
-        return (
-          <>
-            <input label="columns" type="number" min="1" max="6" value={content.columns} onchange={(v: number) => updatefield('columns', number(v))} />
-            <div classname="space-y-4 mt-4">
-              <label classname="text-white/70 text-sm">images</label>
-              {(content.images || []).map((img: any, idx: number) => (
-                <div key={idx} classname="p-3 bg-white/5 rounded flex flex-col gap-2">
-                  <div classname="flex justify-between items-center">
-                    <span classname="text-xs text-white/40">image {idx + 1}</span>
-                    <button onclick={() => handlearrayremove('images', idx)} classname="text-red-400 hover:text-red-300"><trash2 size={14} /></button>
-                  </div>
-                  <div classname="flex gap-2">
-                    <input classname="flex-1" value={img.src} onchange={(v: string) => handlearrayupdate('images', idx, { ...img, src: v })} placeholder="image url" />
-                    <button
-                      onclick={() => {
-                        const input = document.createelement('input');
-                        input.type = 'file';
-                        input.accept = 'image/*';
-                        input.onchange = async (e) => {
-                          const file = (e.target as htmlinputelement).files?.[0];
-                          if (!file) return;
-                          const uploaded = await api.upload(file);
-                          const url = uploaded?.url || uploaded?.data?.url;
-                          if (url) handlearrayupdate('images', idx, { ...img, src: url });
-                        };
-                        input.click();
-                      }}
-                      classname="px-3 bg-white/10 rounded hover:bg-white/20 text-white"
-                    >
-                      <upload size={14} />
-                    </button>
-                  </div>
-                  <input value={img.alt} onchange={(v: string) => handlearrayupdate('images', idx, { ...img, alt: v })} placeholder="alt text" />
-                </div>
-              ))}
-              <button onclick={() => handlearrayadd('images', { src: '', alt: '' })} classname="flex items-center gap-2 text-[var(--primary)] text-sm hover:underline">
-                <plus size={14} /> add image
-              </button>
-            </div>
-          </>
-        );
-      case 'financial_chart':
-        return (
-          <>
-            <input label="chart title" value={content.title} onchange={(v: string) => updatefield('title', v)} />
-            <div classname="space-y-4 mt-4">
-              <label classname="text-white/70 text-sm">data points</label>
-              {(content.data || []).map((item: any, idx: number) => (
-                <div key={idx} classname="p-3 bg-white/5 rounded flex flex-col gap-2">
-                  <div classname="flex justify-between">
-                    <span classname="text-xs text-white/40">item {idx + 1}</span>
-                    <button onclick={() => handlearrayremove('data', idx)} classname="text-red-400 hover:text-red-300"><trash2 size={14} /></button>
-                  </div>
-                  <div classname="grid grid-cols-2 gap-2">
-                    <input value={item.name} onchange={(v: string) => handlearrayupdate('data', idx, { ...item, name: v })} placeholder="label" />
-                    <input type="number" value={item.value} onchange={(v: number) => handlearrayupdate('data', idx, { ...item, value: number(v) })} placeholder="value" />
-                  </div>
-                  <input value={item.color} onchange={(v: string) => handlearrayupdate('data', idx, { ...item, color: v })} placeholder="color (optional)" />
-                </div>
-              ))}
-              <button onclick={() => handlearrayadd('data', { name: 'new label', value: 0, color: 'var(--primary)' })} classname="flex items-center gap-2 text-[var(--primary)] text-sm hover:underline">
-                <plus size={14} /> add data point
-              </button>
-            </div>
-          </>
-        );
-      case 'tier_list':
-        return (
-          <>
-            <div classname="space-y-4">
-              <label classname="text-white/70 text-sm">tiers</label>
-              {(content.rows || []).map((row: any, idx: number) => (
-                <div key={idx} classname="p-3 bg-white/5 rounded flex flex-col gap-2 text-sm">
-                  <div classname="flex justify-between border-b border-white/5 pb-2">
-                    <span classname="font-bold text-[var(--primary)]">tier {idx + 1}</span>
-                    <button onclick={() => handlearrayremove('rows', idx)} classname="text-red-400 hover:text-red-300"><trash2 size={14} /></button>
-                  </div>
-                  <div classname="grid grid-cols-2 gap-2">
-                    <input label="label" value={row.label} onchange={(v: string) => handlearrayupdate('rows', idx, { ...row, label: v })} />
-                    <input label="color" value={row.color} onchange={(v: string) => handlearrayupdate('rows', idx, { ...row, color: v })} />
-                  </div>
-                  <div classname="space-y-1">
-                    <label classname="text-[10px] text-white/40">items (comma separated)</label>
-                    <textarea
-                      classname="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white outline-none focus:border-[var(--primary)] transition-all min-h-[60px]"
-                      value={row.items?.join(', ') || ''}
-                      onchange={(e) => handlearrayupdate('rows', idx, { ...row, items: e.target.value.split(',').map(s => s.trim()).filter(s => s) })}
-                    />
-                  </div>
-                </div>
-              ))}
-              <button onclick={() => handlearrayadd('rows', { label: 'new', color: '#7f7fff', items: [] })} classname="flex items-center gap-2 text-[var(--primary)] text-sm hover:underline">
-                <plus size={14} /> add tier
-              </button>
-            </div>
-          </>
-        );
-      case 'shopping_card':
-        return (
-          <>
-            <input label="product title" value={content.title} onchange={(v: string) => updatefield('title', v)} />
-            <input label="price label" value={content.price} onchange={(v: string) => updatefield('price', v)} />
-            <div classname="space-y-2">
-              <label classname="text-white/70 text-sm">product image</label>
-              <div classname="flex gap-2">
-                <input placeholder="image url" value={content.image} onchange={(v: string) => updatefield('image', v)} />
-                <button
-                  onclick={() => handlefileupload('image', { aspectratio: 16 / 9, shape: 'rect', width: 400, height: 225 })}
-                  classname="px-4 py-2 bg-[var(--primary)]/20 hover:bg-[var(--primary)]/30 text-[var(--primary)] rounded-md transition-colors"
-                >
-                  <upload size={16} />
-                </button>
-              </div>
-            </div>
-            <input label="description" value={content.description} onchange={(v: string) => updatefield('description', v)} textarea />
-            <input label="button text" value={content.buttontext} onchange={(v: string) => updatefield('buttontext', v)} />
-          </>
-        );
-      case 'floating_reminder':
-        return (
-          <>
-            <input label="reminder content" value={content.content} onchange={(v: string) => updatefield('content', v)} textarea />
-            <input label="background color" value={content.color} onchange={(v: string) => updatefield('color', v)} />
-          </>
-        );
+        return <div className="text-white/50 italic">gallery configuration coming soon (manage items via list)</div>;
       case 'stats_bar':
         return (
           <>
-            <input label="stat label" value={content.label} onchange={(v: string) => updatefield('label', v)} />
-            <div classname="grid grid-cols-2 gap-4">
-              <input label="current value" type="number" value={content.value} onchange={(v: number) => updatefield('value', number(v))} />
-              <input label="max value" type="number" value={content.max} onchange={(v: number) => updatefield('max', number(v))} />
+            <Input label="label" value={content.label} onChange={(v: string) => updateField('label', v)} />
+            <div className="grid grid-cols-2 gap-4">
+              <Input label="current value" type="number" value={content.value} onChange={(v: number) => updateField('value', Number(v))} />
+              <Input label="max value" type="number" value={content.max} onChange={(v: number) => updateField('max', Number(v))} />
             </div>
-            <input label="bar color" value={content.color} onchange={(v: string) => updatestyle('color', v)} />
-            <checkbox label="show numeric value" checked={content.showvalue !== false} onchange={(v: boolean) => updatefield('showvalue', v)} />
+            <Input label="bar color" value={content.color} onChange={(v: string) => updateStyle('color', v)} />
+            <Checkbox label="show numeric value" checked={content.showValue !== false} onChange={(v: boolean) => updateField('showValue', v)} />
           </>
         );
       case 'eternal_flame':
       case 'gold_pile':
       case 'sleep_ring':
-        return <div classname="text-white/50 italic">visual widget. styles can be adjusted above.</div>;
+        return <div className="text-white/50 italic">visual widget. styles can be adjusted above.</div>;
       case 'testimonial':
         return (
           <>
-            <input label="quote" value={content.quote} onchange={(v: string) => updatefield('quote', v)} textarea />
-            <input label="author name" value={content.author} onchange={(v: string) => updatefield('author', v)} />
-            <input label="role/title" value={content.role} onchange={(v: string) => updatefield('role', v)} />
-            <div classname="space-y-2">
-              <label classname="text-white/70 text-sm">avatar</label>
-              <div classname="flex gap-2">
-                <input
+            <Input label="quote" value={content.quote} onChange={(v: string) => updateField('quote', v)} textarea />
+            <Input label="author name" value={content.author} onChange={(v: string) => updateField('author', v)} />
+            <Input label="role/title" value={content.role} onChange={(v: string) => updateField('role', v)} />
+            <div className="space-y-2">
+              <label className="text-white/70 text-sm">avatar</label>
+              <div className="flex gap-2">
+                <Input
                   placeholder="avatar url (optional)"
                   value={content.avatar}
-                  onchange={(v: string) => updatefield('avatar', v)}
+                  onChange={(v: string) => updateField('avatar', v)}
                 />
                 <button
-                  onclick={() => handlefileupload('avatar', { aspectratio: 1, shape: 'round', width: 200, height: 200 })}
-                  classname="px-4 py-2 bg-[var(--primary)]/20 hover:bg-[var(--primary)]/30 text-[var(--primary)] rounded-md flex items-center gap-2 whitespace-nowrap transition-colors"
+                  onClick={() => handleFileUpload('avatar', { aspectRatio: 1, shape: 'round', width: 200, height: 200 })}
+                  className="px-4 py-2 bg-[var(--primary)]/20 hover:bg-[var(--primary)]/30 text-[var(--primary)] rounded-md flex items-center gap-2 whitespace-nowrap transition-colors"
                   title="upload from device"
                 >
-                  <upload size={16} />
+                  <Upload size={16} />
                   upload
                 </button>
               </div>
               {content.avatar && (
-                <div classname="mt-2">
-                  <img src={content.avatar} alt="preview" classname="w-16 h-16 rounded-full object-cover" />
+                <div className="mt-2">
+                  <img src={content.avatar} alt="preview" className="w-16 h-16 rounded-full object-cover" />
                 </div>
               )}
             </div>
@@ -622,20 +140,20 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: Props) {
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[50000] flex items-center justify-center p-4 widget-property-editor" onClick={onClose}>
       <div
-        className="bg-[#1a1a1a] border border-white/10 rounded-2xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl"
+        className="bg-[#1a1a1a] border border-white/10 rounded-2xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl animate-bounce-up"
         onClick={e => e.stopPropagation()}
         onMouseDown={e => e.stopPropagation()}
       >
-        <div className="flex justify-between items-center p-6 border-b border-white/10">
+        <div className="flex justify-between items-center p-6 border-b border-white/10 bg-[#1a1a1a] sticky top-0 z-10 rounded-t-2xl">
           <h3 className="text-xl font-bold text-[var(--primary)] lowercase">edit {element.type}</h3>
           <button onClick={onClose} className="text-white/40 hover:text-white"><X size={20} /></button>
         </div>
 
-        <div classname="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-4">
+        <div className="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-4 bg-[#111]">
           {renderFields()}
           {/* common style fields */}
           <div className="p-4 bg-white/5 rounded-xl space-y-4 mb-4">
-            <h4 className="text-[var(--primary)] text-xs font-black  mb-2 lowercase">background styles</h4>
+            <h4 className="text-[var(--primary)] text-xs font-black mb-2 lowercase">background styles</h4>
             <div className="grid grid-cols-2 gap-4">
               <div className="flex flex-col gap-1.5">
                 <label className="text-white/70 text-xs font-bold lowercase">background (hex)</label>
@@ -672,7 +190,7 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: Props) {
               </div>
             </div>
 
-            <div className="p-4 bg-white/5 rounded-xl space-y-4 mb-4">
+            <div className="p-4 bg-white/5 rounded-xl space-y-4 mt-4">
               <h4 className="text-[var(--primary)] text-xs font-black mb-2 lowercase">border styles</h4>
               <div className="grid grid-cols-2 gap-4">
                 <Input
