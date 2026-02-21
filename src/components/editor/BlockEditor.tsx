@@ -18,6 +18,8 @@ import { Color } from '@tiptap/extension-color';
 import { TextStyle } from '@tiptap/extension-text-style';
 import { Column, ColumnList } from './extensions/Column';
 import { WidgetBlock } from './extensions/WidgetBlock';
+import { DragHandleExtension } from './drag-handle/DragHandleExtension';
+import { DragHandle } from './drag-handle/DragHandle';
 import { UniversalWidgetPicker } from '@/features/widgets/UniversalWidgetPicker';
 import { useState, useEffect } from 'react';
 
@@ -33,7 +35,6 @@ export function BlockEditor({ content, onChange, editable = true, className, pla
   const [widgetPickerOpen, setWidgetPickerOpen] = useState(false);
   const [onWidgetSelect, setOnWidgetSelect] = useState<((type: string, data: any) => void) | null>(null);
 
-  // Listen for slash command event
   useEffect(() => {
     const handleOpenPicker = (e: CustomEvent) => {
       setOnWidgetSelect(() => e.detail.onSelect);
@@ -70,6 +71,7 @@ export function BlockEditor({ content, onChange, editable = true, className, pla
       Column,
       ColumnList,
       WidgetBlock,
+      DragHandleExtension,
     ],
     content: content,
     editable: editable,
@@ -87,8 +89,11 @@ export function BlockEditor({ content, onChange, editable = true, className, pla
   if (!editor) return null;
 
   return (
-    <div className="relative w-full border border-input bg-transparent rounded-md px-3 py-2 shadow-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
+    <div className="relative w-full border border-input bg-transparent rounded-md px-3 py-2 shadow-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 group/editor">
       <EditorContent editor={editor} />
+
+      {/* Drag handle overlay */}
+      {editable && <DragHandle editor={editor} />}
 
       <UniversalWidgetPicker
         open={widgetPickerOpen}
