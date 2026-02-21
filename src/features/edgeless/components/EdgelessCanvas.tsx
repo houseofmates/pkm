@@ -43,6 +43,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     viewPort,
     setViewPort,
     activeTool,
+    selectionMode,
     setTool,
     addHistoryOp,
     selectedIds,
@@ -284,11 +285,31 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
   const overlayElements = useMemo(() => {
     if (!fabricCanvas) return null
     const out: React.ReactNode[] = []
+
+    // Determine pointer behavior based on tool mode
+    // GRAB (Select Tool) -> pointer-events: none (pass through to canvas for drag)
+    // CURSOR (Interact Tool) -> pointer-events: auto (interact with widget)
+    // Draw/Eraser -> pointer-events: none
+    const isInteractMode = activeTool === 'select' && selectionMode === 'cursor';
+    const globalPointerEvents = isInteractMode ? 'pointer-events-auto' : 'pointer-events-none';
+
     for (let i = 0; i < elements.length; i++) {
       const el = elements[i]
       const { x: screenX, y: screenY, w: screenW, h: screenH } = getScreenPos(el)
       const isSelected = selectedIds.has(el.id)
-      const bgPointerEvents = isSelected ? 'pointer-events-none select-none' : 'pointer-events-auto'
+
+      // If interact mode, always interact. If grab mode, only interact if explicitly not covering?
+      // Actually, we want the ability to drag "windows".
+      // If Grab mode: pointer-events: none on content, but maybe auto on a "handle"?
+      // The overlay is the *content*. The fabric object underneath handles the drag.
+      // So if pointer-events is none, clicks go to fabric -> drag works.
+      // If pointer-events is auto, clicks go to overlay -> drag FAILS.
+
+      // So:
+      // Grab Mode -> pointer-events: none
+      // Interact Mode -> pointer-events: auto
+
+      const pointerClass = globalPointerEvents;
 
       const elementStyle = {
         left: screenX,
@@ -303,7 +324,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
           out.push(
             <div
               key={el.id}
-              className={`absolute bg-[#090909] border border-white/10 shadow-lg ${bgPointerEvents}`}
+              className={`absolute bg-[#090909] border border-white/10 shadow-lg ${pointerClass}`}
               style={elementStyle}
             >
               <PdfElement element={el} pdfDocument={pdfDoc} />
@@ -312,7 +333,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
           break
         case 'image':
           out.push(
-            <div key={el.id} className="absolute shadow-lg pointer-events-auto" style={elementStyle}>
+            <div key={el.id} className={`absolute shadow-lg ${pointerClass}`} style={elementStyle}>
               <img src={el.data?.src || el.data?.url} className="w-full h-full object-cover" draggable={false} />
             </div>
           )
@@ -321,28 +342,28 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         case 'embed-web':
         case 'embed-nocobase':
           out.push(
-            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
               <EmbedElement element={el} />
             </div>
           )
           break
         case 'link-card':
           out.push(
-            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
               <LinkElement element={el} />
             </div>
           )
           break
         case 'record-node':
           out.push(
-            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
               <RecordNodeElement element={el} />
             </div>
           )
           break
         case 'database-card':
           out.push(
-            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
               <CanvasCard
                 data={el.data.row}
                 collection={el.data.collection}
@@ -357,63 +378,63 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
           break
         case 'portal':
           out.push(
-            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
               <PortalElement element={el} />
             </div>
           )
           break
         case 'eternal-flame':
           out.push(
-            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
               <EternalFlame element={el} />
             </div>
           )
           break
         case 'contact-card':
           out.push(
-            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
               <ContactElement element={el} />
             </div>
           )
           break
         case 'offering-drop':
           out.push(
-            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
               <OfferingDrop element={el} />
             </div>
           )
           break
         case 'shopping-card':
           out.push(
-            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
               <ShoppingCard element={el} />
             </div>
           )
           break
         case 'gold-pile':
           out.push(
-            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
               <GoldPile element={el} />
             </div>
           )
           break
         case 'floating-reminder':
           out.push(
-            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
               <FloatingReminder element={el} />
             </div>
           )
           break
         case 'tier-list':
           out.push(
-            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
               <TierListElement element={el} />
             </div>
           )
           break
         case 'sleep-ring':
           out.push(
-            <div key={el.id} className="absolute pointer-events-auto" style={elementStyle}>
+            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
               <SleepRing element={el} />
             </div>
           )
@@ -425,7 +446,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
           out.push(
             <div
               key={el.id}
-              className="absolute pointer-events-auto"
+              className={`absolute ${pointerClass}`}
               style={{
                 ...elementStyle,
                 height: 'auto',
@@ -442,7 +463,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       }
     }
     return out
-  }, [elements, selectedIds, fabricCanvas, viewPort.x, viewPort.y, viewPort.zoom, pdfDoc])
+  }, [elements, selectedIds, fabricCanvas, viewPort.x, viewPort.y, viewPort.zoom, pdfDoc, activeTool, selectionMode])
 
   const eraserWidth = useEdgelessStore.getState().eraserWidth
 
