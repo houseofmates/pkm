@@ -9,9 +9,9 @@ interface DashboardCardProps {
 }
 
 export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, filter, title }) => {
-  const [data, setdata] = useState<Record<string, unknown>[]>([]);
-  const [loading, setloading] = useState(true);
-  const [error, seterror] = useState<string | null>(null);
+  const [data, setData] = useState<Record<string, unknown>[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
   const fetchData = async () => {
@@ -48,10 +48,10 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
 
   // refresh every minute
   const interval = setInterval(fetchData, 60000);
-  return () => clearinterval(interval);
-  }, [collectionname, filter]);
+  return () => clearInterval(interval);
+  }, [collectionName, filter]);
 
-  if (!collectionname) return null;
+  if (!collectionName) return null;
 
   return (
   <div className="dashboard-card my-4 p-4 border rounded-xl bg-card text-card-foreground shadow-sm overflow-hidden isolate relative">
