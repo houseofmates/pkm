@@ -103,6 +103,8 @@ Editor authors: there’s a helper library (`src/features/notion-import/editor-h
    ```
    configure `NOCOBASE_URL` and `ADMIN_API_KEY` environment variables the same way other scripts use.
 
+> **tip:** you can enable a small health/status widget in the app's top-right by setting `VITE_SHOW_HEALTH_BAR=true` in your `.env` or environment. It's off by default to keep the UI clean.
+
 3. Alternatively, open the app and click **settings ▶ import notion workspace**; select the ZIP and watch progress logs.
 
 The backend endpoint (`POST /api/notion-import`) accepts the ZIP via multipart/form-data and streams progress via SSE at `/api/notion-import/:taskId/stream`.
