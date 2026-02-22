@@ -63,18 +63,38 @@ describe('SmartField', () => {
     const { container } = withAuth(<SmartField value="12:30" field={{ interface: 'time', name: 't' }} onChange={onChange} />);
     // view should display the raw time string
     expect(container.textContent).toContain('12:30');
+    // click to edit and change
+    fireEvent.click(screen.getByText('12:30'));
+    const input = screen.getByRole('textbox');
+    fireEvent.change(input, { target: { value: '13:45' } });
+    fireEvent.keyDown(input, { key: 'Enter' });
+    expect(onChange).toHaveBeenCalledWith('13:45');
   });
   it('handles datetime fields', () => {
     const onChange = vi.fn();
     const { container } = withAuth(<SmartField value="2021-01-01T09:00" field={{ interface: 'datetime', name: 'dt' }} onChange={onChange} />);
     // the rendered text should include the year or month
     expect(container.textContent).toMatch(/2021|Jan/i);
+    fireEvent.click(screen.getByText(/2021|Jan/i));
+    const dtInput = screen.getByRole('textbox');
+    // using datetime-local input may not appear as textbox; fallback to querySelector
+    const native = document.querySelector('input[type="datetime-local"]') as HTMLInputElement;
+    if (native) {
+      fireEvent.change(native, { target: { value: '2022-02-02T10:00' } });
+      fireEvent.keyDown(native, { key: 'Enter' });
+      expect(onChange).toHaveBeenCalledWith('2022-02-02T10:00');
+    }
   });
-  it('renders boolean checkbox in view mode', () => {
+  it('renders boolean checkbox in view mode and allows toggling', () => {
     const onChange = vi.fn();
-    const { container } = withAuth(<SmartField value={false} field={{ interface: 'checkbox', name: 'flag' }} onChange={onChange} />);
-    // just ensure something is rendered for the boolean
-    expect(container.textContent).toBeDefined();
+    withAuth(<SmartField value={false} field={{ interface: 'checkbox', name: 'flag' }} onChange={onChange} />);
+    const text = screen.getByText(/false|off|0/i);
+    expect(text).toBeDefined();
+    fireEvent.click(text);
+    // after clicking the checkbox view should switch to edit control
+    const checkbox = screen.getByRole('checkbox');
+    fireEvent.click(checkbox);
+    expect(onChange).toHaveBeenCalledWith(true);
   });
 
   it('renders select and allows choice', () => {
