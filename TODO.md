@@ -1,48 +1,21 @@
-# Codebase Cleanup TODO
+# task implementation tracking
 
-## Phase 1: Critical Missing Files
-- [x] Create `src/components/ui/switch.tsx`
-- [x] Create `src/components/create-record-dialog.tsx`
+## changes to implement
 
-## Phase 2: Fix Component Type Issues
-- [ ] Fix `src/components/global-search-dialog.tsx`
-- [ ] Fix `src/components/search/SearchBar.tsx`
-- [ ] Fix `src/components/editor/MentionList.tsx`
-- [ ] Fix `src/components/editor/SlashMenu.tsx`
-- [ ] Fix `src/components/BacklinksFooter.tsx`
-- [ ] Fix `src/components/editor/wikilink-suggestion.ts`
+### 1. implement global search trigger in navigation.tsx
+- [ ] import `GlobalSearchDialog` component
+- [ ] add state for `searchOpen` and `setSearchOpen`
+- [ ] replace custom event dispatch with direct dialog trigger
+- [ ] render `<GlobalSearchDialog open={searchOpen} onOpenChange={setSearchOpen} />`
 
-## Phase 3: Fix Context and Hook Issues
-- [ ] Fix `src/contexts/fronter-context.tsx`
-- [ ] Fix `src/features/collections/components/collection-dialog.tsx`
-- [ ] Fix `src/features/collections/components/collection-view.tsx`
-- [ ] Fix `src/features/dashboard/dashboard-grid.tsx`
+### 2. refine drag-and-drop interaction in moodboard.tsx
+- [ ] replace `e.stopPropagation()` hack with robust state machine
+- [ ] use explicit `isEditing` state to control drag behavior
+- [ ] only allow dragging when not in editing mode
+- [ ] separate concerns: editing mode vs viewing/moving mode
 
-## Phase 4: Fix Editor Extension Issues
-- [ ] Fix `src/components/editor/extensions/DashboardBlock.ts`
-- [ ] Fix `src/components/editor/extensions/EchoBlock.ts`
-- [ ] Fix `src/components/editor/extensions/FinancialBlock.tsx`
-- [ ] Fix `src/components/editor/extensions/ImageGridBlock.tsx`
-- [ ] Fix `src/components/editor/extensions/Wikilink.ts`
+### 3. standardize record creation in journal-view.tsx
+- [ ] verify `onCreate` prop is used consistently
+- [ ] remove any fallback `pkm:create-record` event dispatch
+- [ ] ensure proper typing with ViewProps interface
 
-## Phase 5: Fix Remaining Component Issues
-- [ ] Fix `src/App.tsx`
-- [ ] Fix `src/api/sync-service.ts`
-- [ ] Fix `src/components/ImageGrid.tsx`
-- [ ] Fix `src/components/event-modal.tsx`
-- [ ] Fix `src/components/layout/ProtocolShift.tsx`
-- [ ] Fix `src/components/ui/context-menu-custom.tsx`
-- [ ] Fix `src/components/ui/infinite-canvas-wrapper.tsx`
-- [ ] Fix `src/components/views/chart-view.tsx`
-- [ ] Fix `src/features/dashboard/chart-widget.tsx`
-- [ ] Fix `src/features/dashboard/quick-add-widget.tsx`
-- [ ] Fix `src/features/databases/components/DatabaseCanvasView.tsx`
-- [ ] Fix `src/features/databases/components/database-widget.tsx`
-- [ ] Fix `src/components/identity/IdentityGroundingWidget.tsx`
-- [ ] Fix `src/components/journal/share-dialog.tsx`
-- [ ] Fix `src/components/relationship-picker.tsx`
-
-## Phase 6: Final Verification
-- [ ] Run TypeScript check
-- [ ] Run ESLint
-- [ ] Run build
