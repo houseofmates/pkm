@@ -16,6 +16,8 @@ export interface NotionDatabase {
     name: string;
     rows: Record<string, any>[];
     fields: string[];
+    /** optional Notion property metadata (if export includes JSON) */
+    props?: Record<string, any>;
 }
 
 export interface NotionWorkspace {
@@ -76,7 +78,7 @@ export async function parseNotionExport(root: string): Promise<NotionWorkspace> 
         }
     }
 
-    // find CSV files
+    // find CSV files (databases) and any accompanying JSON metadata
     const csvFiles = await walk(root, f => f.toLowerCase().endsWith('.csv'));
     for (const csv of csvFiles) {
         const name = path.basename(csv, '.csv');
@@ -95,7 +97,21 @@ export async function parseNotionExport(root: string): Promise<NotionWorkspace> 
             }
         });
         const fields = rows.length > 0 ? Object.keys(rows[0]) : [];
-        databases.push({ name, rows, fields });
+
+        // try to load metadata JSON with same basename (e.g. db.json)
+        let props: Record<string, any> | undefined;
+        const jsonPath = path.join(path.dirname(csv), `${name}.json`);
+        if (fs.existsSync(jsonPath)) {
+            try {
+                const raw = await fs.promises.readFile(jsonPath, 'utf-8');
+                const parsed = JSON.parse(raw);
+                if (parsed && parsed.properties) props = parsed.properties;
+            } catch (e) {
+                console.warn(`failed to parse metadata for ${name}:`, e);
+            }
+        }
+
+        databases.push({ name, rows, fields, props });
     }
 
     // collect assets directory if present

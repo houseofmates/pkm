@@ -6,24 +6,35 @@ export type Instruction =
     | { type: 'createRecord'; collection: string; data: Record<string, any> }
     | { type: 'addRelation'; collection: string; field: string; targetCollection: string };
 
-// naive guess of field types based on sample values. expand as needed.
+// enhanced guessing of field types based on sample values
 function guessType(values: any[]): string {
-    // if every value is a number, treat as 'number'; if boolean -> 'boolean'; else 'string'
     let hasString = false;
     let hasNumber = false;
     let hasBoolean = false;
+    let hasDate = false;
+    let hasArray = false;
     for (const v of values) {
         if (v == null || v === '') continue;
+        if (Array.isArray(v)) {
+            hasArray = true;
+            continue;
+        }
         if (typeof v === 'number') {
             hasNumber = true;
         } else if (typeof v === 'boolean') {
             hasBoolean = true;
         } else if (typeof v === 'string') {
-            const maybeNum = Number(v);
-            if (!isNaN(maybeNum) && v.trim() !== '') {
+            const trimmed = v.trim();
+            const maybeNum = Number(trimmed);
+            if (!isNaN(maybeNum) && trimmed !== '') {
                 hasNumber = true;
-            } else if (v === 'true' || v === 'false') {
+            } else if (trimmed === 'true' || trimmed === 'false') {
                 hasBoolean = true;
+            } else if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) {
+                // simple ISO date detection
+                hasDate = true;
+            } else if (trimmed.includes(',') || trimmed.startsWith('[')) {
+                hasArray = true;
             } else {
                 hasString = true;
             }
@@ -31,10 +42,41 @@ function guessType(values: any[]): string {
             hasString = true;
         }
     }
-    if (hasString || (hasString && hasNumber)) return 'string';
-    if (hasBoolean && !hasString && !hasNumber) return 'boolean';
-    if (hasNumber && !hasString) return 'number';
+    if (hasArray) return 'string[]';
+    if (hasDate && !hasString) return 'date';
+    if (hasString) return 'string';
+    if (hasBoolean) return 'boolean';
+    if (hasNumber) return 'number';
     return 'string';
+}
+
+// convert Notion property type (from metadata) into a nocobase field type
+function notionPropertyToType(type: string): string {
+    switch (type.toLowerCase()) {
+        case 'title':
+        case 'text':
+        case 'rich_text':
+        case 'email':
+        case 'phone_number':
+        case 'url':
+            return 'string';
+        case 'number':
+        case 'percent':
+            return 'number';
+        case 'checkbox':
+            return 'boolean';
+        case 'select':
+        case 'multi_select':
+            return 'string';
+        case 'relation':
+            return 'lookup';
+        case 'date':
+            return 'date';
+        case 'files':
+            return 'json';
+        default:
+            return 'string';
+    }
 }
 
 export function transformWorkspace(ws: NotionWorkspace): Instruction[] {
@@ -42,16 +84,24 @@ export function transformWorkspace(ws: NotionWorkspace): Instruction[] {
 
     // databases -> collection + createRecords
     for (const db of ws.databases) {
-        // build field definitions
+        // build field definitions (try to respect Notion props if available)
         const sampleRows = db.rows.slice(0, 20);
         const fields: Record<string, string> = {};
         for (const field of db.fields) {
-            const colValues = sampleRows.map(r => r[field]);
-            fields[field] = guessType(colValues);
+            let ftype: string;
+            if (db.props && db.props[field] && db.props[field].type) {
+                ftype = notionPropertyToType(db.props[field].type);
+            } else {
+                const colValues = sampleRows.map(r => r[field]);
+                ftype = guessType(colValues);
+            }
+            fields[field] = ftype;
         }
         instructions.push({ type: 'createCollection', name: db.name, fields });
         for (const row of db.rows) {
-            instructions.push({ type: 'createRecord', collection: db.name, data: row });
+            const data = { ...row };
+            // if fields include lookup placeholders, we might need relation handling later
+            instructions.push({ type: 'createRecord', collection: db.name, data });
         }
     }
 
