@@ -9,10 +9,10 @@
 - [x] render `<GlobalSearchDialog open={searchOpen} onOpenChange={setSearchOpen} />`
 
 ### 2. refine drag-and-drop interaction in moodboard.tsx
-- [ ] replace `e.stopPropagation()` hack with robust state machine
-- [ ] use explicit `isEditing` state to control drag behavior
-- [ ] only allow dragging when not in editing mode
-- [ ] separate concerns: editing mode vs viewing/moving mode
+- [x] replace `e.stopPropagation()` hack with robust state machine
+- [x] use explicit `canvasMode` state ('viewing' | 'editing') to control drag behavior
+- [x] only allow dragging when in 'viewing' mode
+- [x] separate concerns: editing mode vs viewing/moving mode
 
 ### 3. standardize record creation in journal-view.tsx
 - [ ] verify `onCreate` prop is used consistently
