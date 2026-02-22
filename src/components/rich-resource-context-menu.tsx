@@ -51,8 +51,8 @@ const iconKeywords: Record<string, string[]> = {
   'tech': ['Cpu', 'Database', 'HardDrive', 'Keyboard', 'Laptop', 'Monitor', 'Mouse', 'Phone', 'Server', 'Smartphone', 'Tablet', 'Tv', 'Watch', 'Wifi', 'Battery', 'Bluetooth', 'Camera', 'Headphones', 'Speaker', 'Radio', 'Gamepad', 'Printer', 'Scanner'],
   'computer': ['Monitor', 'Laptop', 'Cpu', 'Keyboard', 'Mouse', 'HardDrive', 'Server', 'Code', 'Terminal'],
   'gaming': ['Gamepad', 'Gamepad2', 'Joystick', 'Dice', 'Sword', 'Ghost', 'Skull', 'Trophy', 'Crown'],
-  'xbox': ['Gamepad', 'Gamepad2'], // Specific Request
-  'boombox': ['BoomBox', 'Speaker', 'Radio'], // Specific Request
+  'xbox': ['Gamepad', 'Gamepad2'], // specific request
+  'boombox': ['BoomBox', 'Speaker', 'Radio'], // specific request
 
   // money & finance
   'money': ['Banknote', 'CircleDollarSign', 'Coins', 'CreditCard', 'DollarSign', 'Gem', 'Landmark', 'PiggyBank', 'Receipt', 'Wallet', 'BadgeDollarSign', 'HandCoins', 'CircleDollarSign'],
@@ -61,7 +61,7 @@ const iconKeywords: Record<string, string[]> = {
   // objects & life
   'life': ['Home', 'Bed', 'Bath', 'Briefcase', 'ShoppingBag', 'ShoppingCart', 'Ticket', 'Key', 'Lock', 'Map', 'Compass', 'Gift', 'Tag', 'Bookmark'],
   'home': ['Home', 'Bed', 'AppWindow', 'Armchair', 'Bath', 'ConciergeBell', 'DoorOpen', 'Fan', 'Lamp', 'Refrigerator', 'Sofa', 'Tv', 'WashingMachine'],
-  'minecraft': ['Box', 'Cuboid', 'Ghost', 'Pickaxe', 'Axe', 'Shovel', 'Sword'], // Specific Request
+  'minecraft': ['Box', 'Cuboid', 'Ghost', 'Pickaxe', 'Axe', 'Shovel', 'Sword'], // specific request
 
   // office & work
   'office': ['Folder', 'File', 'Archive', 'Briefcase', 'Calculator', 'Clipboard', 'Paperclip', 'Printer', 'Scissors', 'Stapler', 'Trash', 'Briefcase', 'Calendar'],
@@ -335,7 +335,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   }, [activeTab, emojis.length]);
 
   const filteredEmojis = useMemo(() => {
-  if (!search) return emojis.slice(0, 200); // Limit initial render
+  if (!search) return emojis.slice(0, 200); // limit initial render
   return emojis.filter(e => e.short_name.includes(search.toLowerCase())).slice(0, 100);
   }, [emojis, search]);
 
