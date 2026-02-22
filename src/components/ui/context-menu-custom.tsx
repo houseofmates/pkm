@@ -169,7 +169,7 @@ export function ContextMenu() {
  </div>
  )}
  <div className="text-[10px] text-muted-foreground  mt-0.5">
- {targettype?.replace('-', ' ')}
+ {targetType?.replace('-', ' ')}
  </div>
   </div>
 
@@ -191,7 +191,7 @@ export function ContextMenu() {
   )}
 
   {/* metadata / full edit */}
-  {targettype === 'dashboard-card' && (
+  {targetType === 'dashboard-card' && (
  <Button
  variant="ghost"
  size="sm"
