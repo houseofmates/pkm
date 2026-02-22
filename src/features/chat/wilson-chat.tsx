@@ -54,7 +54,7 @@ export function WilsonChat() {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'enter') {
+    if (e.key === 'Enter') {
       checkAndSend()
     }
   }
