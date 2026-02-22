@@ -326,4 +326,21 @@ describe('NotionImportWidget', () => {
     });
     expect(fetch).toHaveBeenCalled();
   });
+
+  it('blocks HTML files early', async () => {
+    localStorage.setItem('hom_api_key', 'key');
+    render(<NotionImportWidget />);
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    // make the HTML large enough to bypass the 'too small' check
+    const encoder = new TextEncoder();
+    const htmlHeader = encoder.encode('<!DOCTYPE html><html>not zip</html>');
+    const filler = new Uint8Array(2000).fill(0x20);
+    const html = new File([htmlHeader, filler], 'page.html', { type: 'text/html' });
+    fireEvent.change(input, { target: { files: [html] } });
+    fireEvent.click(screen.getByText(/start import/i));
+    await waitFor(() => {
+      expect(screen.getByText(/appears to be HTML/i)).toBeInTheDocument();
+    });
+    expect(fetch).not.toHaveBeenCalled();
+  });
 });
