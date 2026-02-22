@@ -1,4 +1,7 @@
-import { useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
+Uncaught ReferenceError: UsePkmStore is not defined
+    <anonymous> usePkmStore.ts:31
+usePkmStore.ts:31:1
+    <anonymous> usePkmStore.ts:31import { useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
 import type { ColumnDef } from '@tanstack/react-table';
 import { useMemo } from 'react';
 import { List } from 'react-window';
