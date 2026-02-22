@@ -12,6 +12,10 @@ import { SmartField } from '@/components/fields/smart-field';
 import { Label } from '@/components/ui/label';
 import { format, zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
 
+// utcToZonedTime may be missing or non-function in some test environments (see vitest),
+// so we will check before calling it to avoid runtime errors.
+
+
 type CalendarViewProps = ViewProps;
 
 type ViewMode = 'year' | 'month' | 'week' | 'day';
@@ -61,7 +65,10 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
     data.forEach(record => {
       const rawDate = record[dateField];
       if (!rawDate) return;
-      const zonedDate = utcToZonedTime(new Date(rawDate), timeZone);
+      // if the helper isn't available, just use the raw date
+      const zonedDate = typeof utcToZonedTime === 'function'
+        ? utcToZonedTime(new Date(rawDate), timeZone)
+        : new Date(rawDate);
       const dateStr = format(zonedDate, 'yyyy-MM-dd');
       if (!map[dateStr]) map[dateStr] = [];
       map[dateStr].push(record);

@@ -109,7 +109,7 @@ function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleF
 }
 
 // helper for droppable/sortable column
-function KanbanColumn({ id, title, items, children }: { id: string, title: string, items: any[], children: React.ReactNode }) {
+function KanbanColumn({ id, title, items, children, onCreate, groupByField }: { id: string; title: string; items: any[]; children: React.ReactNode; onCreate?: (data: any) => void; groupByField?: string }) {
   const { setNodeRef } = useSortable({
     id: id,
     data: {
@@ -344,7 +344,14 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
       <div className="flex h-full overflow-x-auto pb-4">
         {/* sortable context for column order - optional, for now just static columns */}
         {columnOrder.map(colId => (
-          <KanbanColumn key={colId} id={colId} title={colId} items={columns[colId]}>
+          <KanbanColumn
+            key={colId}
+            id={colId}
+            title={colId}
+            items={columns[colId]}
+            onCreate={onCreate}
+            groupByField={config.groupByField as string}
+          >
             <SortableContext items={columns[colId].map(i => i.id)} strategy={verticalListSortingStrategy}>
               {columns[colId].map(record => (
                 <SortableItem
