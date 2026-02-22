@@ -138,7 +138,10 @@ describe('SmartField', () => {
   it('opens formula editor for formula type and saves code', () => {
     const onChange = vi.fn();
     withAuth(<SmartField value="init" field={{ interface: 'input', type: 'formula', name: 'f' }} onChange={onChange} />);
-    fireEvent.click(screen.getByText('init'));
+    // formula fields render a placeholder instead of the raw value
+    const placeholder = screen.getByText(/<script/);
+    expect(placeholder).toBeInTheDocument();
+    fireEvent.click(placeholder);
     expect(screen.getByTestId('formula')).toBeInTheDocument();
     fireEvent.click(screen.getByText('save'));
     expect(onChange).toHaveBeenCalledWith('newcode');
