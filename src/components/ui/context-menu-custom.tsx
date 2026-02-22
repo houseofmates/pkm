@@ -207,37 +207,107 @@ export function ContextMenu() {
   )}
 
   {/* ask ai (canvas/object) */}
-  {targettype === 'canvas-object' && (
-  <>
-  <Button
-    variant="ghost"
-    size="sm"
-    className="justify-start text-xs h-8 px-2"
-    onClick={async () => {
-      const content = data?.text || data?.title || JSON.stringify(data || {});
-      const q = window.prompt('ask wilson about this canvas item (context will be included):');
-      if (!q) return;
-      (await import('@/stores/llm-store')).useLLMStore.getState().setContext(content);
-      useEdgelessStore.getState().setChatOpen(true);
-      await (await import('@/stores/llm-store')).useLLMStore.getState().askWilson(q);
-      (await import('@/stores/llm-store')).useLLMStore.getState().setContext(null);
-    }}
-  >
-    <BrainCircuit className="h-3.5 w-3.5 mr-2 opacity-70" />
-    ask ai about this
-  </Button>
+  {targettype === 'tool' && (() => {
+    const store = useEdgelessStore();
+    const isBrush = data?.tool === 'pen';
+    const widthVal = isBrush ? store.penWidth : store.eraserWidth;
+    const opacityVal = isBrush ? store.penOpacity : store.eraserOpacity;
+    const setWidth = isBrush ? store.setPenWidth : store.setEraserWidth;
+    const setOpacity = isBrush ? store.setPenOpacity : store.setEraserOpacity;
 
-  <Button
-    variant="ghost"
-    size="sm"
-    className="justify-start text-xs h-8 px-2"
-    onClick={handlePromote}
-  >
-    <BoxSelect className="h-3.5 w-3.5 mr-2 opacity-70" />
-    promote to record
-  </Button>
-  </>
-  )} 
+    // darkness state for brush (0-100)
+    const [darkness, setDarkness] = useState(0);
+    const applyDark = (hex: string, d: number) => {
+      // convert hex to hsl, reduce lightness by d%
+      let h = 0, s = 0, l = 0;
+      // simple parse
+      const m = hex.replace(/^#/, '');
+      if (m.length === 6) {
+        const r = parseInt(m.slice(0,2),16)/255;
+        const g = parseInt(m.slice(2,4),16)/255;
+        const b = parseInt(m.slice(4,6),16)/255;
+        const max = Math.max(r,g,b), min = Math.min(r,g,b);
+        l = (max+min)/2;
+        if (max!==min) {
+          const d0 = max - min;
+          s = l>0.5?d0/(2-max-min):d0/(max+min);
+          switch(max){
+            case r: h=((g-b)/d0 + (g<b?6:0))/6; break;
+            case g: h=((b-r)/d0 + 2)/6; break;
+            case b: h=((r-g)/d0 + 4)/6; break;
+          }
+        }
+        l = Math.max(0, Math.min(1, l * (1 - d/100)));
+        const q = l<0.5?l*(1+s):l+s-l*s;
+        const p = 2*l - q;
+        const hue2rgb = (p:number,q:number,t:number) => {
+          if(t<0) t+=1;
+          if(t>1) t-=1;
+          if(t<1/6) return p+(q-p)*6*t;
+          if(t<1/2) return q;
+          if(t<2/3) return p+(q-p)*(2/3-t)*6;
+          return p;
+        };
+        const r2 = hue2rgb(p,q,h+1/3);
+        const g2 = hue2rgb(p,q,h);
+        const b2 = hue2rgb(p,q,h-1/3);
+        const hex2 = '#'+[r2,g2,b2].map(x=>{
+          const c = Math.round(x*255).toString(16); return c.length<2?'0'+c:c;
+        }).join('');
+        return hex2;
+      }
+      return hex;
+    };
+
+    return (
+      <>
+        {/* size slider */}
+        <div className="flex flex-col gap-1 mb-2">
+          <label className="text-xs text-primary lowercase flex justify-between">
+            <span>size</span><span>{widthVal}px</span>
+          </label>
+          <input type="range" min="1" max="100" value={widthVal}
+            onChange={(e) => setWidth(Number(e.target.value))}
+            className="accent-primary" />
+        </div>
+        {/* opacity slider */}
+        <div className="flex flex-col gap-1 mb-2">
+          <label className="text-xs text-primary lowercase flex justify-between">
+            <span>opacity</span><span>{opacityVal}%</span>
+          </label>
+          <input type="range" min="0" max="100" value={opacityVal}
+            onChange={(e) => setOpacity(Number(e.target.value))}
+            className="accent-primary" />
+        </div>
+        {isBrush && (
+          <>
+            {/* color picker */}
+            <div className="flex flex-col gap-1 mb-2">
+              <label className="text-xs text-primary lowercase">color</label>
+              <button
+                className="w-6 h-6 rounded-full border" 
+                style={{backgroundColor: store.penColor}}
+                onClick={() => setShowColorPicker((v) => !v)}
+              />
+            </div>
+            {/* darkness slider */}
+            <div className="flex flex-col gap-1 mb-2">
+              <label className="text-xs text-primary lowercase flex justify-between">
+                <span>darkness</span><span>{darkness}%</span>
+              </label>
+              <input type="range" min="0" max="100" value={darkness}
+                onChange={(e) => {
+                  const d = Number(e.target.value);
+                  setDarkness(d);
+                  store.setPenColor(applyDark(store.penColor, d));
+                }}
+                className="accent-primary" />
+            </div>
+          </>
+        )}
+      </>
+    );
+  })()}
 
   <div className="h-px bg-border/50 my-1" />
 
