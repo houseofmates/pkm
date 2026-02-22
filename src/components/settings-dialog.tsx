@@ -126,6 +126,16 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                         >
                             <Trash2 className="h-4 w-4 mr-2" /> clear link registry
                         </Button>
+                        {/* notion import button */}
+                        <Button
+                            variant="outline"
+                            className="w-full justify-start h-9 px-3 lowercase"
+                            onClick={() => {
+                                window.location.href = '/notion-import';
+                            }}
+                        >
+                            import notion workspace
+                        </Button>
                     </div>
                 </div>
 

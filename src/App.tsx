@@ -31,6 +31,7 @@ const RecordView = lazy(() => import("@/features/records/components/record-view"
 const HouseofmatesBuilder = lazy(() => import("@/features/houseofmates-builder/HouseofmatesBuilder").then(m => ({ default: m.HouseofmatesBuilder })));
 const TemplatePage = lazy(() => import("@/pages/template").then(m => ({ default: m.TemplatePage })));
 const WorkspacePage = lazy(() => import("@/pages/workspace").then(m => ({ default: m.WorkspacePage })));
+const NotionImportPage = lazy(() => import("@/pages/notion-import").then(m => ({ default: m.default })));
 const PublicDocViewer = lazy(() => import("@/components/journal/public-doc-viewer").then(m => ({ default: m.PublicDocViewer })));
 
 const queryClient = new QueryClient({
@@ -116,6 +117,7 @@ function AppContent() {
                 <Route path="/page/:id" element={<PageCanvas />} />
                 <Route path="/template" element={<TemplatePage />} />
                 <Route path="/workspace/:id" element={<WorkspacePage />} />
+                <Route path="/notion-import" element={<NotionImportPage />} />
               </Route>
             </Routes>
             <Spotlight />
