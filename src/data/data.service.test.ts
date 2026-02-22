@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { dataService } from './data.service';
 import { FieldInstance } from '../schema/schema.service';
-import '../schema/field-types'; // Ensures 'text' and 'number' are registered
+import '../schema/field-types'; // Ensures default field types are registered
+import '@/services/field-types'; // also import service-level definition for completeness
 
 
 describe('DataService', () => {
