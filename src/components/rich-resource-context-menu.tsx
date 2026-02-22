@@ -1,7 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
-import * as LucideIcons from 'lucide-react';
 import { HexColorPicker } from 'react-colorful';
-import { Upload, Search, Loader2 } from 'lucide-react';
+import { Upload, Search, Loader2, type LucideIcon } from 'lucide-react';
+import * as Icons from 'lucide-react';
+
+// helper to safely get lucide icon by name
+function getLucideIcon(name: string): LucideIcon | undefined {
+  return (Icons as Record<string, LucideIcon>)[name];
+}
 import { ContextMenuContent } from "@/components/ui/context-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -21,7 +26,7 @@ interface RichResourceContextMenuProps {
 // 1. 'icons', 'createlucideicon', 'default' (internal exports)
 // 2. keys starting with 'lucide' (duplicates of base names)
 // 3. keys ending with 'icon' (duplicates of base names, e.g. 'appleicon' vs 'apple')
-const ALL_ICONS = Object.keys(LucideIcons).filter(key =>
+const ALL_ICONS = Object.keys(Icons).filter(key =>
   key !== 'icons' &&
   key !== 'createlucideicon' &&
   key !== 'default' &&
@@ -478,7 +483,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
    <ScrollArea className="h-full p-2">
    <div className="grid grid-cols-7 gap-1">
    {filteredIcons.map(name => {
-    const IconComponent = (LucideIcons as any)[name];
+    const IconComponent = getLucideIcon(name);
     if (!IconComponent) return null;
     return (
       <button
