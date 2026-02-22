@@ -1,6 +1,11 @@
 import { useState, useEffect } from 'react';
-import * as LucideIcons from 'lucide-react';
-import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings } from 'lucide-react';
+import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings, type LucideIcon } from 'lucide-react';
+import * as Icons from 'lucide-react';
+
+// helper to safely get lucide icon by name
+function getLucideIcon(name: string): LucideIcon | undefined {
+  return (Icons as Record<string, LucideIcon>)[name];
+}
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -90,7 +95,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
       if (item.iconType === 'emoji') return <span className="mr-2 text-base leading-none">{item.icon}</span>;
       if (item.iconType === 'image') return <img src={item.icon} alt="icon" className="h-4 w-4 mr-2 object-contain" />;
       if (item.iconType === 'lucide') {
-        const Icon = (LucideIcons as any)[item.icon];
+        const Icon = getLucideIcon(item.icon);
         if (Icon) return <Icon className="h-4 w-4 mr-2" style={{ color: iconColor }} />;
       }
     }
@@ -98,7 +103,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
     if (item.type === 'folder') return <Folder className="h-4 w-4 mr-2" />;
 
     // default for collections/documents without explicit icon
-    return <LucideIcons.Database className="h-4 w-4 mr-2" style={{ color: iconColor }} />;
+    return <Database className="h-4 w-4 mr-2" style={{ color: iconColor }} />;
   };
 
   // ... (inside sortableitem)
@@ -123,9 +128,9 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
         variant={selected ? "secondary" : "ghost"}
         className={cn(
           "flex-1 justify-start text-lg font-normal h-8 px-2 overflow-hidden",
-          selected && "bg-primary-soft font-medium shadow-sm text-primary", // User Request: Transparent primary background using soft variable
+          selected && "bg-primary-soft font-medium shadow-sm text-primary", // user request: transparent primary background using soft variable
           item.type === 'folder' && "font-semibold text-muted-foreground",
-          capsClass ? capsClass : "lowercase" // Default to lowercase unless forced
+          capsClass ? capsClass : "lowercase" // default to lowercase unless forced
         )}
         style={metaColor ? { color: metaColor } : undefined}
         onClick={() => onSelect(id)}
@@ -191,7 +196,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       return;
     }
 
-    // persist local documents only; drawings are DB-only now
+    // persist local documents only; drawings are db-only now
     if (id.startsWith('doc_')) {
       const key = `canvas-config-${id.replace('doc_', '')}`;
       try {
@@ -213,7 +218,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       }
     }
 
-    // drawings persist exclusively in IndexedDB
+    // drawings persist exclusively in indexeddb
     if (id.startsWith('drawing_')) {
       const drawingId = id.replace('drawing_', '');
       if (updates.delete) {
@@ -239,7 +244,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
 
   // initialize/sync items from collections and local documents/drawings
   useEffect(() => {
-    // load drawings stored in IndexedDB (and documents separately)
+    // load drawings stored in indexeddb (and documents separately)
     const loadDbItems = async () => {
       try {
         const drawings = await listPendingDrawings();
@@ -268,10 +273,10 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     loadDbItems();
 
     // 0. aggressive pruning: remove names that should never be in the sidebar
-    const FORBIDDEN_COLLECTIONS = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates', 'website', 'dupemates-pages'];
+    const forbiddenCollections = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates', 'website', 'dupemates-pages'];
 
     // filter out pkm_canvases and others from incoming collections
-    const visibleCollections = collections.filter((c: any) => !FORBIDDEN_COLLECTIONS.includes(String(c.name).toLowerCase()));
+    const visibleCollections = collections.filter((c: any) => !forbiddenCollections.includes(String(c.name).toLowerCase()));
     const collectionNames = new Set(visibleCollections.map((c: any) => String(c.name).toLowerCase()));
 
     // 1. filter out items that were collections but are no longer in the db (or are hidden/forbidden)
@@ -279,7 +284,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       const itemIdLower = String(item.id).toLowerCase();
 
       // hard block forbidden collections
-      if (FORBIDDEN_COLLECTIONS.includes(itemIdLower)) return false;
+      if (forbiddenCollections.includes(itemIdLower)) return false;
 
       if (item.type === 'collection') {
         // if it's a doc, keep it if it exists in local items
@@ -424,7 +429,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   <span>new document</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={async () => {
-                  // create new drawing in IDB and navigate
+                  // create new drawing in idb and navigate
                   const id = crypto.randomUUID();
                   const title = 'untitled drawing';
                   try {
@@ -509,11 +514,11 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                         // we need to bypass the standard onselectcollection logic which expects a db name
                         // parent should ideally handle this, or we hack it here
                         const docId = id.replace('doc_', '');
-                        navigate(`/page/${docId}`); // Navigate to Page Mode
+                        navigate(`/page/${docId}`); // navigate to page mode
                         // we don't have navigate here directly, but parent might.
                         // actually, better to maintain spa state.
                         // but navigation doesn't have `navigate`.
-                        // let's use `onSelectcollection('doc:' + docid)` protocol?
+                        // let's use `onselectcollection('doc:' + docid)` protocol?
                         // or just simple window.location for now (safest)
                         // or we can import usenavigate from wrapper?
                         // navigation is used in rootlayout which has router.

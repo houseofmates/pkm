@@ -1,7 +1,7 @@
 # fix lucideicons error and capitalization
 
 ## tasks
-- [ ] fix src/components/navigation.tsx - main error file
+- [x] fix src/components/navigation.tsx - main error file
 - [ ] fix src/components/icon-picker-dialog.tsx
 - [ ] fix src/components/rich-resource-context-menu.tsx
 - [ ] fix src/components/bottom-nav.tsx
