@@ -11,7 +11,7 @@ export const useSocket = () => {
   useEffect(() => {
   if (!socket) {
   // connecting to host ip for cross-device support
-  socket = io('http://192.168.4.65:3456', {
+  socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:4100', {
  reconnectionAttempts: 5,
  reconnectionDelay: 1000,
  autoConnect: true,

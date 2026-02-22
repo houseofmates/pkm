@@ -50,7 +50,7 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
 
   // initial load
   useEffect(() => {
-    fetchContent();
+    setTimeout(() => fetchContent(), 0);
   }, [fetchContent]);
 
   // socket integration

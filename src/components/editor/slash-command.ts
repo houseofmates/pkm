@@ -1,4 +1,3 @@
-
 import { Extension } from '@tiptap/core';
 import Suggestion from '@tiptap/suggestion';
 import { ReactRenderer } from '@tiptap/react';
@@ -33,9 +32,7 @@ export const SlashCommand = Extension.create({
 });
 
 export const getSuggestionItems = async ({ query }: { query: string }) => {
-  // 1. static commands
   const commands = [
-  // --- core text blocks ---
   {
   title: 'Text',
   description: 'Just start writing.',
@@ -57,15 +54,44 @@ export const getSuggestionItems = async ({ query }: { query: string }) => {
  editor.chain().focus().deleteRange(range).setNode('heading', { level: 2 }).run();
   },
   },
+  // --- Columns ---
   {
-  title: 'Heading 3',
-  description: 'Small section heading.',
+  title: '2 Columns',
+  description: 'Create two equal columns.',
   command: ({ editor, range }: any) => {
- editor.chain().focus().deleteRange(range).setNode('heading', { level: 3 }).run();
+ editor.chain().focus().deleteRange(range).setColumns(2).run();
   },
   },
-
-  // --- lists & tasks ---
+  {
+  title: '3 Columns',
+  description: 'Create three equal columns.',
+  command: ({ editor, range }: any) => {
+ editor.chain().focus().deleteRange(range).setColumns(3).run();
+  },
+  },
+  // --- Widgets ---
+  {
+  title: 'Insert Widget',
+  description: 'Pick a widget from the registry.',
+  command: ({ editor, range }: any) => {
+ // This will trigger the react state in the parent component to open the picker
+ // Since we can't easily access React state from here without a context bridge,
+ // we'll dispatch a custom event.
+ editor.chain().focus().deleteRange(range).run();
+ window.dispatchEvent(new CustomEvent('pkm:open-widget-picker', {
+ detail: {
+ onSelect: (type: string, data: any) => {
+ // Insert widget block
+ editor.chain().focus().insertContent({
+ type: 'widgetBlock',
+ attrs: { type, data }
+ }).run();
+ }
+ }
+ }));
+  },
+  },
+  // --- Lists ---
   {
   title: 'Bullet List',
   description: 'Simple bulleted list.',
@@ -80,43 +106,11 @@ export const getSuggestionItems = async ({ query }: { query: string }) => {
  CommandActions.insertTodo(editor, range);
   },
   },
-
-  // --- special actions (void extensions) ---
-  {
-  title: 'Front',
-  description: 'Stamp current fronter.',
-  command: ({ editor, range }: any) => {
- CommandActions.insertFront(editor, range);
-  },
-  },
-  {
-  title: 'To Canvas',
-  description: 'Send to Edgeless Canvas.',
-  command: ({ editor, range }: any) => {
- CommandActions.sendToCanvas(editor, range);
-  },
-  },
   {
   title: 'Image',
   description: 'Upload an image.',
   command: ({ editor, range }: any) => {
  CommandActions.triggerImageUpload(editor, range);
-  },
-  },
-
-  // --- formatting ---
-  {
-  title: 'Quote',
-  description: 'Capture a quote.',
-  command: ({ editor, range }: any) => {
- editor.chain().focus().deleteRange(range).toggleBlockquote().run();
-  },
-  },
-  {
-  title: 'Code',
-  description: 'Capture a code snippet.',
-  command: ({ editor, range }: any) => {
- editor.chain().focus().deleteRange(range).toggleCodeBlock().run();
   },
   },
   {
@@ -126,91 +120,7 @@ export const getSuggestionItems = async ({ query }: { query: string }) => {
  editor.chain().focus().deleteRange(range).setHorizontalRule().run();
   },
   },
-  {
-  title: 'Echo Block',
-  description: 'Sync with NocoBase record.',
-  command: ({ editor, range }: any) => {
- const collectionName = window.prompt('Enter Collection Name (e.g., notes):');
- if (!collectionName) return;
- const recordId = window.prompt('Enter Record ID:');
- if (!recordId) return;
-
- editor.chain().focus().deleteRange(range).setEchoBlock({ collectionName, recordId }).run();
-  },
-  },
-  {
-  title: 'Dashboard',
-  description: 'Embed collection view.',
-  command: ({ editor, range }: any) => {
- const collectionName = window.prompt('Enter Collection Name (e.g., tasks):');
- if (!collectionName) return;
- editor.chain().focus().deleteRange(range).setDashboardBlock({ collectionName, title: collectionName }).run();
-  },
-  },
-  {
-  title: 'AI Assistant',
-  description: 'Ask Qwen (Casual)',
-  command: async ({ editor, range }: any) => {
- // simple prompt for now
- const query = window.prompt('Ask AI (Context will be included):');
- if (!query) return;
-
- // insert placeholder
- const startPos = range.from;
- editor.chain().focus().deleteRange(range).insertContent('Thinking...').run();
-
- try {
- const { generateResponse } = await import('@/lib/ai-service');
- const context = editor.getText();
- const response = await generateResponse(context, query);
-
- // replace placeholder with response
- editor.chain().focus()
- .deleteRange({ from: startPos, to: startPos + 11 }) // 'Thinking...' length
- .insertContent(response)
- .run();
- } catch (e) {
- secureLogger.error('AI command failed:', e);
- editor.chain().focus()
- .deleteRange({ from: startPos, to: startPos + 11 })
- .insertContent(`[AI Error]`)
- .run();
- }
-  },
-  },
   ].filter(item => item.title.toLowerCase().includes(query.toLowerCase()));
-
-  // 2. dynamic search (if query exists)
-  if (query.length > 2) {
-  try {
-  // quick search on 'notes' collection as a primary target
-  // in a real app we might search multiple or use a search index
-  const res = await api.listRecords('notes', {
- filter: {
- title: { $includes: query }
- },
- pageSize: 3
-  });
-
-  const data = Array.isArray(res?.data) ? res.data : (res?.data as any)?.data;
-  if (Array.isArray(data)) {
- const searchResults = data.map((note: any) => ({
- title: note.title || "Untitled Note",
- description: `Link to note`,
- command: ({ editor, range }: any) => {
- // insert a link to the note
- editor.chain().focus().deleteRange(range)
-   .setLink({ href: `/databases/notes/${note.id}` })
-   .insertContent(note.title || "Untitled Note")
-   .run();
- }
- }));
- return [...commands, ...searchResults];
-  }
-  } catch (e) {
-  secureLogger.warn("Slash Search Failed", e);
-  }
-  }
 
   return commands;
 };
