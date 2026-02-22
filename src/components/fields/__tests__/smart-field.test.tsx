@@ -135,9 +135,10 @@ describe('SmartField', () => {
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     const blob = new Blob(['hello'], { type: 'text/plain' });
     const file = new File([blob], 'test.txt');
-    await waitFor(() => {
-      fireEvent.change(input, { target: { files: [file] } });
-    });
+    // trigger file input change
+    fireEvent.change(input, { target: { files: [file] } });
+    // wait until localValue (and input) reflect the uploaded URL
+    await waitFor(() => expect((input as HTMLInputElement).value).toBe('http://example.com/fake'));
     // after upload the save button should appear, click it to commit
     const saveBtn = Array.from(document.querySelectorAll('button')).find(b => b.className.includes('text-green-500')) as HTMLButtonElement;
     expect(saveBtn).toBeDefined();

@@ -197,7 +197,10 @@ function DroppableDateCell({ date, children, className }: { date: Date, children
 }
 
 function MonthView({ currentDate, recordsByDate, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange, timeZone, allDayField, recurringField }: any) {
-  const monthStart = utcToZonedTime(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1), timeZone);
+  const monthStart =
+    typeof utcToZonedTime === 'function'
+      ? utcToZonedTime(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1), timeZone)
+      : new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
   const startDayOfWeek = monthStart.getDay();
   const calendarDays = useMemo(() => {
