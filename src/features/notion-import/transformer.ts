@@ -116,7 +116,16 @@ export function transformWorkspace(ws: NotionWorkspace): Instruction[] {
     }
 
     // pages -> pages collection (body should be long text)
-    instructions.push({ type: 'createCollection', name: 'pages', fields: { title: 'string', body: 'text' } });
+    // also include any frontmatter keys as fields, guessing their type
+    const pageFields: Record<string, string> = { title: 'string', body: 'text' };
+    for (const page of ws.pages) {
+        for (const key of Object.keys(page.frontmatter)) {
+            if (!(key in pageFields)) {
+                pageFields[key] = guessType([page.frontmatter[key]]);
+            }
+        }
+    }
+    instructions.push({ type: 'createCollection', name: 'pages', fields: pageFields });
     for (const page of ws.pages) {
         const data: Record<string, any> = {
             title: page.title,

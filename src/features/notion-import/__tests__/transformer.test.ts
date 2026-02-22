@@ -29,5 +29,8 @@ describe('Notion transformer', () => {
         // check that pages collection exists
         const colNames = ins.filter(i=>i.type==='createCollection').map(i=>(i as any).name);
         expect(colNames).toEqual(expect.arrayContaining(['db','pages']));
+        // verify pages collection schema includes our frontmatter field 'a'
+        const pagesDef = ins.find(i=>i.type==='createCollection' && (i as any).name==='pages') as any;
+        expect(pagesDef.fields).toHaveProperty('a');
     });
 });
