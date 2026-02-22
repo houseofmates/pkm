@@ -5,7 +5,7 @@ import { useEdgelessStore } from '../store'
 describe('edgeless store', () => {
   it('initializes with reasonable brush/eraser defaults', () => {
     const state = useEdgelessStore.getState()
-    expect(state.penWidth).toBe(2)
+    expect(state.penWidth).toBe(10)
     expect(state.penColor).toBeTruthy()
     expect(state.penOpacity).toBe(100)
     expect(state.eraserWidth).toBe(50)

@@ -196,7 +196,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   textSize: 40,
   isChatOpen: false,
   isLinking: false,
-  penWidth: 2,
+  penWidth: 10,
   penColor: 'var(--primary)',  penOpacity: 100,
   eraserOpacity: 100,  stabilizerLevel: 0,
   pressureEnabled: true,
