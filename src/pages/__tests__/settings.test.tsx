@@ -15,7 +15,7 @@ describe('Settings page', () => {
     localStorage.clear();
   });
 
-  it('renders general settings and import widget', () => {
+  it('renders general settings and import widget (with hint when api key missing)', () => {
     render(
       <AuthContext.Provider value={authValue as any}>
         <SettingsPage />
@@ -27,6 +27,8 @@ describe('Settings page', () => {
     expect(screen.getByLabelText(/dark mode/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/default page size/i)).toBeInTheDocument();
     expect(screen.getByTestId('import-widget')).toBeInTheDocument();
+    // hint should show when api key string is empty
+    expect(screen.getByText(/set your api key above to enable notion import/i)).toBeInTheDocument();
   });
 
   it('allows toggling dark mode and stores in localStorage', () => {
