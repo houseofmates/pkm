@@ -8,7 +8,7 @@ describe('edgeless store', () => {
     expect(state.penWidth).toBe(10)
     expect(state.penColor).toBeTruthy()
     expect(state.penOpacity).toBe(100)
-    expect(state.eraserWidth).toBe(50)
+    expect(state.eraserWidth).toBe(20)
     expect(state.eraserOpacity).toBe(100)
   })
 
