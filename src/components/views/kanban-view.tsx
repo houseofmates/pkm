@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import type { ViewProps } from './registry';
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Plus } from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from 'sonner';
 import {
@@ -119,6 +120,13 @@ function KanbanColumn({ id, title, items, children }: { id: string, title: strin
 
   return (
     <div ref={setNodeRef} className="w-72 flex-shrink-0 flex flex-col h-full max-h-full rounded-lg bg-muted/40 border ml-4 first:ml-0">
+      <div className="absolute top-1 right-1">
+        {onCreate && groupByField && (
+          <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => onCreate({ [groupByField]: id })} title="new">
+            <Plus className="h-3 w-3" />
+          </Button>
+        )}
+      </div>
       <div className="p-3 font-semibold text-sm flex items-center justify-between border-b bg-muted/20">
         <span className="lowercase">{title}</span>
         <span className="text-xs text-muted-foreground font-normal bg-background px-2 py-0.5 rounded-full border">
@@ -135,7 +143,7 @@ function KanbanColumn({ id, title, items, children }: { id: string, title: strin
 }
 
 
-export function KanbanView({ data, collection, config, onUpdateRecord, onDelete, onConfigChange }: KanbanViewProps) {
+export function KanbanView({ data, collection, config, onUpdateRecord, onDelete, onConfigChange, onCreate }: KanbanViewProps) {
   if (!collection) {
     return (
       <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-muted/20 rounded-lg border">
