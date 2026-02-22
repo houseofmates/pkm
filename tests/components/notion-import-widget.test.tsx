@@ -107,9 +107,13 @@ describe('NotionImportWidget', () => {
     // temporarily remove env variable
     const original = process.env.VITE_API_URL;
     delete process.env.VITE_API_URL;
-    // simulate running on pkm domain by overriding location
-    const originalHostname = window.location.hostname;
-    Object.defineProperty(window.location, 'hostname', { value: 'pkm.example.com', configurable: true });
+    // simulate running on pkm domain by overriding location object
+    const originalLocation = window.location;
+    delete (window as any).location;
+    Object.defineProperty(window, 'location', {
+      value: { ...originalLocation, hostname: 'pkm.example.com' },
+      writable: true,
+    });
 
     render(<NotionImportWidget />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
@@ -123,7 +127,8 @@ describe('NotionImportWidget', () => {
     expect(fetch).toHaveBeenCalledWith(`${expectedHost}/notion-import`, expect.any(Object));
     // restore
     process.env.VITE_API_URL = original;
-    Object.defineProperty(window.location, 'hostname', { value: originalHostname });
+    delete (window as any).location;
+    Object.defineProperty(window, 'location', { value: originalLocation, writable: true });
   });
 
   it('ignores literal "null" string from storage', async () => {
