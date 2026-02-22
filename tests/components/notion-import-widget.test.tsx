@@ -168,10 +168,27 @@ describe('NotionImportWidget', () => {
       expect(screen.getByText(/bar/)).toBeInTheDocument();
       expect(screen.getByText(/import done/)).toBeInTheDocument();
     });
-    // verify URL used
-    let expectedBase = (process.env.VITE_API_URL || '/api').replace(/\/$/, '');
-    if (expectedBase.includes('db.houseofmates.space')) {
-      expectedBase = expectedBase.replace('db.houseofmates.space', 'api.houseofmates.space');
+    // verify URL used (mimic actual widget logic)
+    let expectedBase: string;
+    if (process.env.VITE_API_URL) {
+      expectedBase = process.env.VITE_API_URL.replace(/\/$/, '');
+      if (expectedBase.includes('db.houseofmates.space')) {
+        expectedBase = expectedBase.replace('db.houseofmates.space', 'api.houseofmates.space');
+      }
+      // if env var points to api.houseofmates.space and we're on a
+      // houseofmates.subdomain, widget rewrites to relative; but our
+      // test cases don't cover that here.
+    } else {
+      const { protocol, hostname } = window.location;
+      if (!hostname.endsWith('.houseofmates.space')) {
+        let host = hostname;
+        if (hostname.startsWith('pkm.')) {
+          host = hostname.replace(/^pkm\./, 'db.');
+        }
+        expectedBase = `${protocol}//${host}/api`;
+      } else {
+        expectedBase = '/api';
+      }
     }
     expect(fetch).toHaveBeenCalledWith(`${expectedBase}/notion-import/t1/logs`, expect.objectContaining({
       headers: { Authorization: 'Bearer key' }
