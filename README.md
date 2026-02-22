@@ -11,7 +11,7 @@ the system is managed via `pkm-control.sh`.
 ./pkm-control.sh status
 
 # restart services
-./pkm-control.sh restart
+./pkm-control.sh restart  # if the frontend is moved to port 3011 by accident, restart the service so it binds to 3010 again
 
 # view logs
 ./pkm-control.sh logs
@@ -64,4 +64,6 @@ if you want to allow an exception, talk to the team — the CI rule is strict by
 - **frontend**: Vite-based (port 3010)
 - **backend**: Node.js WebSocket/API (port 4100)
 - **Services**: Managed via `systemctl --user pkm.service`, initiated by `/etc/systemd/system/pkm-boot.service`.
+
+> Legacy drawings stored in localStorage are automatically migrated to the new IndexedDB backend on first app load. After migration the old keys are cleaned up and the localStorage path will be removed.
 - **tunneling**: cloudflare tunnel (`cloudflared`) handles external routing.
