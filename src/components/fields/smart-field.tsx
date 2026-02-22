@@ -367,7 +367,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           <div className="flex justify-between items-center mb-2">
             <span className="font-bold text-xs">set location</span>
             <div className="flex gap-1">
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleSave}><Check className="h-3 w-3 text-green-500" /></Button>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleSave()}><Check className="h-3 w-3 text-green-500" /></Button>
               <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancel}><X className="h-3 w-3 text-red-500" /></Button>
             </div>
           </div>
@@ -411,7 +411,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
                 <span className="font-mono text-sm font-bold">rich text editor</span>
               </div>
               <div className="flex gap-2">
-                <Button size="sm" onClick={handleSave} className="rounded-none border border-primary/50 hover:bg-primary hover:text-primary-foreground">save</Button>
+                <Button size="sm" onClick={() => handleSave()} className="rounded-none border border-primary/50 hover:bg-primary hover:text-primary-foreground">save</Button>
                 <Button size="sm" variant="ghost" onClick={handleCancel} className="rounded-none hover:bg-destructive hover:text-destructive-foreground">cancel</Button>
               </div>
             </div>
@@ -666,7 +666,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           }}
         />
         {isPercentField && <span className="text-xs">%</span>}
-        <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500 hover:text-green-600" onClick={handleSave}>
+        <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500 hover:text-green-600" onClick={() => handleSave()}>
           <Check className="h-3 w-3" />
         </Button>
         <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground" onClick={handleCancel}>
