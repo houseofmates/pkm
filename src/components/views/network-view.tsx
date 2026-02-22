@@ -99,7 +99,7 @@ export function NetworkView(props: ViewProps) {
   return { nodes, links };
   }, [data, collection]);
 
-  const isdark = document.documentelement.classlist.contains('dark');
+  const isdark = document.documentElement.classList.contains('dark');
 
   return (
   <div ref={containerRef} className="h-full w-full relative bg-card rounded-lg border overflow-hidden">
