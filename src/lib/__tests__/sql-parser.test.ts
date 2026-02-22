@@ -9,6 +9,16 @@ describe('SQL parser', () => {
     expect((p.from as any).name).toEqual('table1');
   });
 
+  it('supports IN expressions in WHERE', () => {
+    const p = parseSQL('SELECT * FROM users WHERE id IN (1,2,3)');
+    expect(p.where).toContain('IN');
+  });
+
+  it('handles UNION queries by returning first part', () => {
+    const p = parseSQL('SELECT id FROM t UNION SELECT id FROM u');
+    expect((p.from as any).name).toEqual('t');
+  });
+
   it('handles alias', () => {
     const p = parseSQL('SELECT x FROM users u');
     expect((p.from as any).name).toEqual('users');
