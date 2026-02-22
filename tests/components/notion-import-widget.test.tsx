@@ -128,8 +128,8 @@ describe('NotionImportWidget', () => {
     (fetch as any).mockResolvedValue(fakeResponse);
     const esSpy = vi.fn();
     global.EventSource = class {
-      constructor(url: string) {
-        esSpy(url);
+      constructor(url: string, opts?: any) {
+        esSpy(url, opts);
       }
       addEventListener() {}
       set onmessage(_) {}
