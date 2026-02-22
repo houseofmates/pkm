@@ -84,5 +84,18 @@ describe('backend /api/notion-import', () => {
                 .set('Origin', 'https://evil.com');
             expect(res.headers['access-control-allow-origin']).toBeUndefined();
         });
+
+        it('handles CORS preflight and get for logs endpoint', async () => {
+            const id = 'test123';
+            const pre = await request(app)
+                .options(`/api/notion-import/${id}/logs`)
+                .set('Origin', 'https://pkm.houseofmates.space');
+            expect(pre.headers['access-control-allow-origin']).toBe('https://pkm.houseofmates.space');
+
+            const get = await request(app)
+                .get(`/api/notion-import/${id}/logs`)
+                .set('Origin', 'https://pkm.houseofmates.space');
+            expect(get.headers['access-control-allow-origin']).toBe('https://pkm.houseofmates.space');
+        });
     });
 });
