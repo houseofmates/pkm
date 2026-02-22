@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-export type ContextMenuTargetType = 'canvas-object' | 'dashboard-card' | 'block';
+export type ContextMenuTargetType = 'canvas-object' | 'dashboard-card' | 'block' | 'tool';
 
 export interface ContextMenuState {
   isOpen: boolean;
