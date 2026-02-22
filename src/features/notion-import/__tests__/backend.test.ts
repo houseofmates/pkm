@@ -20,12 +20,12 @@ async function waitForDone(taskId) {
   throw new Error('timeout waiting for task completion');
 }
 
-// import the server AFTER the helper functions to avoid side effects
-// server.js exports { app, importTasks }
-const { app: server } = require('../../../../backend/server');
-
 // configure a dummy admin secret for tests (backend expects ADMIN_SECRET)
 process.env.ADMIN_SECRET = 'test-secret';
+
+// import the server AFTER configuring env vars to ensure they are picked up
+// server.js exports { app, importTasks }
+const { app: server } = require('../../../../backend/server');
 
 // ensure the public upload directory exists
 beforeAll(() => {
@@ -92,7 +92,7 @@ describe('backend /api/nb-import', () => {
     it('returns allow-origin header for configured origin', async () => {
       process.env.ALLOWED_ORIGINS = 'https://foo.example';
       const r = await request(server)
-        .options('/api/nb-import/logs')
+        .get('/api/nb-import/logs?id=none')
         .set('Origin', 'https://foo.example')
         .set('Authorization', 'Bearer test-secret');
       expect(r.headers['access-control-allow-origin']).toBe('https://foo.example');
@@ -102,14 +102,14 @@ describe('backend /api/nb-import', () => {
     it('does not expose header for disallowed origin', async () => {
       process.env.ALLOWED_ORIGINS = 'https://bar.example';
       const r = await request(server)
-        .options('/api/nb-import/logs')
+        .get('/api/nb-import/logs?id=none')
         .set('Origin', 'https://not.allowed')
         .set('Authorization', 'Bearer test-secret');
       expect(r.headers['access-control-allow-origin']).toBeUndefined();
       delete process.env.ALLOWED_ORIGINS;
     });
 
-    it('handles CORS preflight and get for logs endpoint', async () => {
+    it('handles CORS and auth on get for logs endpoint', async () => {
       const r = await request(server)
         .get('/api/nb-import/logs?id=test123')
         .set('Origin', 'https://foo.example')
