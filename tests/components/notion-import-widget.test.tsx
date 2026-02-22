@@ -51,6 +51,18 @@ describe('NotionImportWidget', () => {
     (useAppSetting as any).mockReturnValue(['', vi.fn()]);
   });
 
+  it('logs both raw and rewritten VITE_API_URL values', async () => {
+    const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
+    process.env.VITE_API_URL = 'https://api.houseofmates.space/api';
+    render(<NotionImportWidget />);
+    // component will log during render
+    expect(debugSpy).toHaveBeenCalled();
+    const msg = (debugSpy.mock.calls[0] || []).join(' ');
+    expect(msg).toContain('raw VITE_API_URL= https://api.houseofmates.space/api');
+    expect(msg).toMatch(/env VITE_API_URL= ?(?:\/api|)/);
+    debugSpy.mockRestore();
+  });
+
   it('logs error when no API key is set', async () => {
     render(<NotionImportWidget />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
