@@ -335,13 +335,20 @@ app.get('/api/notion-import/:id/stream', requireAuth, (req, res) => {
 // prevents mysterious failures.
 app.options('/api/notion-import/:id/logs', cors());
 app.get('/api/notion-import/:id/logs', requireAuth, (req, res) => {
-    console.log('[NotionImport] logs poll for id', req.params.id);
     const id = req.params.id;
+    console.log('[NotionImport] logs poll for id', id);
     const entry = importTasks.get(id);
     if (!entry) {
+        console.log('[NotionImport] no entry found for', id);
         return res.status(404).json({ error: 'no such task' });
     }
-    res.json({ status: entry.status, logs: entry.logs });
+    console.log('[NotionImport] entry state', entry.status, 'logs length', entry.logs.length);
+    try {
+        res.json({ status: entry.status, logs: entry.logs });
+    } catch (err) {
+        console.error('[NotionImport] error serializing logs response', err, entry);
+        res.status(500).json({ error: 'serialization error' });
+    }
 });
 
 app.post('/api/upload-background', requireAuth, upload.single('file'), (req, res) => {
