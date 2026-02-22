@@ -57,7 +57,7 @@ describe('schema service', () => {
             required: false,
           },
         ],
-        { color: '#3b82f6', icon: 'package' }
+        { color: '#3b82f6', icon: 'package', archived: false }
       );
 
       // verify table was created
@@ -128,7 +128,7 @@ describe('schema service', () => {
       // update table
       const updated = await schemaService.updateTable('tasks', {
         label: 'my tasks',
-        metadata: { color: '#ef4444' },
+        metadata: { color: '#ef4444', archived: false },
       });
 
       expect(updated.label).toBe('my tasks');
@@ -350,7 +350,7 @@ describe('schema service', () => {
       });
 
       expect(result.records).toHaveLength(2); // carrot (20) and broccoli (15)
-      expect(result.records.every(r => r.quantity > 10)).toBe(true);
+      expect(result.records.every((r: any) => r.quantity > 10)).toBe(true);
     });
 
     it('should filter records with contains', async () => {
@@ -368,7 +368,7 @@ describe('schema service', () => {
       });
 
       // check ascending order
-      const quantities = result.records.map(r => r.quantity);
+      const quantities = result.records.map((r: any) => r.quantity);
       for (let i = 1; i < quantities.length; i++) {
         expect(quantities[i]).toBeGreaterThanOrEqual(quantities[i - 1]);
       }
@@ -414,22 +414,23 @@ describe('schema service', () => {
       expect(types).toContain('relation');
     });
 
-    it('should allow registering custom field types', () => {
-      // register a custom field type
-      fieldRegistry.register({
-        typeName: 'percentage',
-        label: 'percentage',
-        schema: { z }.z.number().min(0).max(100),
-        defaultValue: 0,
-        icon: 'percent',
-        description: 'value between 0 and 100',
-      });
+      it('should allow registering custom field types', () => {
+  // register a custom field type
+  fieldRegistry.register({
+    typeName: 'percentage',
+    label: 'percentage',
+    schema: z.number().min(0).max(100),
+    defaultValue: 0,
+    icon: 'percent',
+    description: 'value between 0 and 100',
+  });
 
-      expect(fieldRegistry.has('percentage')).toBe(true);
+  expect(fieldRegistry.has('percentage')).toBe(true);
 
-      // clean up
-      fieldRegistry.unregister('percentage');
-    });
+  // clean up
+  fieldRegistry.unregister('percentage');
+});
+
 
     it('should generate validation schema for fields', () => {
       const fields = [
@@ -438,7 +439,7 @@ describe('schema service', () => {
       ];
 
       const schema = fieldRegistry.generateRecordSchema(fields);
-      expect(schema).toBeInstanceOf({ z }.z.ZodObject);
+      expect(schema).toBeInstanceOf(z.ZodObject);
     });
   });
 
