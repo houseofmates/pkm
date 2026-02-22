@@ -89,9 +89,11 @@ export function MoodboardPage() {
   // --- interaction logic ---
   const [dragState, setdragState] = useState<{ id: string, mode: 'move' | 'resize', startX: number, startY: number, initial: any } | null>(null);
   const [editingId, seteditingId] = useState<string | null>(null);
+  // canvas mode state machine: 'viewing' allows drag, 'editing' prevents drag for text input
   const [canvasMode, setCanvasMode] = useState<'viewing' | 'editing'>('viewing');
 
   const handleMouseMove = (e: React.MouseEvent) => {
+
     if (dragState) {
       const dx = (e.clientX - dragState.startX) / scale;
       const dy = (e.clientY - dragState.startY) / scale;
