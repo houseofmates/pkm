@@ -53,6 +53,8 @@ export async function migrateFromLocalStorage(): Promise<MigrationResult> {
         })
 
         secureLogger.info('[migrate] migrated config for', id)
+        // drop legacy config
+        localStorage.removeItem(key)
       } else if (type === 'content') {
         // migrate content as checkpoint
         const contentStr = localStorage.getItem(key)
@@ -69,14 +71,13 @@ export async function migrateFromLocalStorage(): Promise<MigrationResult> {
           secureLogger.info('[migrate] migrated content for', id, '-', data.objects?.length || 0, 'objects')
           result.migrated++
           result.details.push({ id, status: 'migrated' })
+          // drop legacy content
+          localStorage.removeItem(key)
         } else {
           secureLogger.warn('[migrate] failed to decompress', id)
           result.failed++
           result.details.push({ id, status: 'failed', error: 'Decompression failed' })
         }
-
-        // optionally: remove from localstorage after migration
-        // localstorage.removeitem(key)
       }
     } catch (e) {
       secureLogger.error('[migrate] error migrating', key, e)
