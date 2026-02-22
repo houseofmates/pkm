@@ -36,6 +36,7 @@ export function NotionImportWidget() {
             appendLog('error: file appears too small to be a Notion export');
             return;
         }
+        let headerOk = true;
         try {
             const hdr = await file.slice(0, 4).arrayBuffer();
             const bytes = new Uint8Array(hdr);
@@ -45,9 +46,12 @@ export function NotionImportWidget() {
             }
         } catch (e) {
             // some test environments (jsdom) don’t support blob.arrayBuffer()
-            // and will throw; in that case just log a warning and continue.
-            console.warn('[NotionImportWidget] header check failed', e);
+            // and will throw; we'll treat this as a failure rather than risk
+            // uploading nonsense through Cloudflare.
+            appendLog('error: unable to inspect file header');
+            headerOk = false;
         }
+        if (!headerOk) return;
         setRunning(true);
         appendLog('uploading...');
         const fd = new FormData();
