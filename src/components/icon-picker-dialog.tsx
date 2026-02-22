@@ -1,12 +1,17 @@
 
 import { useState, useRef } from 'react';
-import * as LucideIcons from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Upload } from 'lucide-react';
+import { Upload, type LucideIcon } from 'lucide-react';
+import * as Icons from 'lucide-react';
+
+// helper to safely get lucide icon by name
+function getLucideIcon(name: string): LucideIcon | undefined {
+  return (Icons as Record<string, LucideIcon>)[name];
+}
 
 interface IconPickerProps {
   onSelect: (icon: string, type: 'lucide' | 'emoji' | 'image') => void;
@@ -68,7 +73,7 @@ export function IconPicker({ onSelect, trigger, open, onOpenChange }: IconPicker
               <TabsContent value="icons" className="mt-0">
                 <div className="grid grid-cols-6 gap-2 p-2">
                   {common_icons.map(name => {
-                    const Icon = (LucideIcons as any)[name];
+                    const Icon = getLucideIcon(name);
                     if (!Icon) return null;
                     return (
                       <Button
