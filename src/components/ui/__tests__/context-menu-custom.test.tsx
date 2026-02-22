@@ -1,0 +1,50 @@
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import { ContextMenu } from '../context-menu-custom';
+import { useContextMenuStore } from '../context-menu-store';
+import { useEdgelessStore } from '@/features/edgeless/store';
+
+// helper to open tool menu with given tool
+function openToolMenu(tool: 'pen' | 'eraser') {
+  useContextMenuStore.setState({
+    isOpen: true,
+    x: 100,
+    y: 100,
+    targetId: tool,
+    targetType: 'tool',
+    data: { tool, color: '#ff0000' }
+  });
+}
+
+describe('ContextMenu custom tool section', () => {
+  it('renders brush settings when pen tool', () => {
+    openToolMenu('pen');
+    render(<ContextMenu />);
+    expect(screen.getByText(/size/i)).toBeInTheDocument();
+    expect(screen.getByText(/opacity/i)).toBeInTheDocument();
+    expect(screen.getByText(/darkness/i)).toBeInTheDocument();
+    // color picker toggle button exists
+    const colorBtn = screen.getByRole('button');
+    expect(colorBtn).toBeTruthy();
+  });
+
+  it('updates store on slider change', () => {
+    openToolMenu('pen');
+    render(<ContextMenu />);
+    const widthSlider = screen.getByRole('slider', { name: /size/i }) as HTMLInputElement;
+    fireEvent.change(widthSlider, { target: { value: '20' } });
+    expect(useEdgelessStore.getState().penWidth).toBe(20);
+    const opacitySlider = screen.getByRole('slider', { name: /opacity/i }) as HTMLInputElement;
+    fireEvent.change(opacitySlider, { target: { value: '50' } });
+    expect(useEdgelessStore.getState().penOpacity).toBe(50);
+  });
+
+  it('renders eraser settings without brush options', () => {
+    openToolMenu('eraser');
+    render(<ContextMenu />);
+    expect(screen.getByText(/size/i)).toBeInTheDocument();
+    expect(screen.getByText(/opacity/i)).toBeInTheDocument();
+    expect(screen.queryByText(/darkness/i)).toBeNull();
+  });
+});
