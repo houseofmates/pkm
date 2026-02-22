@@ -169,19 +169,19 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   }
   };
 
-  const handledatabaseviewselect = (collectionname: string, viewtype: string) => {
+  const handleDatabaseViewSelect = (collectionName: string, viewType: string) => {
   const element = {
   type: 'database_view' as const,
   x: x - 200,
   y: y - 150,
   width: 500,
   height: 350,
-  content: { collectionname, viewtype },
+  content: { collectionName, viewType },
   styles: {},
   zindex: 10,
   };
   addelement(element);
-  setshowcollectionpicker(false);
+  setShowCollectionPicker(false);
   onclose();
   };
 
