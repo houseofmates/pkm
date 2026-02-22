@@ -38,6 +38,9 @@ describe('backend /api/notion-import', () => {
             .post('/api/notion-import')
             .set('Authorization', 'Bearer test-secret')
             .attach('file', zipPath);
+        if (res.status !== 200) {
+            console.error('response body', res.body, 'text', res.text);
+        }
         expect(res.status).toBe(200);
         expect(res.body.taskId).toBeTruthy();
         const id = res.body.taskId;

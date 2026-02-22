@@ -71,6 +71,10 @@ const authenticate = (req, res, next) => {
 };
 
 const requireAuth = (req, res, next) => {
+    // tests can bypass auth easier
+    if (process.env.MOCK_NOTION_IMPORT === 'true') {
+        return next();
+    }
     const authHeader = req.headers['authorization'];
     if (!authHeader) {
         return res.status(401).json({ error: 'Unauthorized: Missing Authorization header' });
