@@ -5,6 +5,16 @@ import { AuthContext } from '@/contexts/auth-context';
 
 import { vi } from 'vitest';
 
+// stub the formula editor globally so formula tests can open it
+vi.mock('@/components/formula-editor', () => ({
+  FormulaEditor: ({ value, onSave, onCancel }: any) => (
+    <div>
+      <span data-testid="formula">{value}</span>
+      <button onClick={() => onSave('newcode')}>save</button>
+    </div>
+  ),
+}));
+
 const fakeClient = {
   listRecords: vi.fn().mockResolvedValue({ data: [] }),
   upload: vi.fn().mockResolvedValue({ data: { url: 'http://example.com/fake' } }),
@@ -110,6 +120,28 @@ describe('SmartField', () => {
     withAuth(<SmartField value={null} field={{ interface: 'linkToAnotherRecord', name: 'rel', target: 'other' }} onChange={onChange} />);
     fireEvent.click(screen.getByText(/empty relation/i));
     expect(screen.getByText(/select other/i)).toBeInTheDocument();
+  });
+
+  it('stores only specified property when relation property is configured', async () => {
+    const onChange = vi.fn();
+    // prepare client to return one option
+    fakeClient.listRecords.mockResolvedValueOnce({ data: [{ id: 'r1', name: 'Alice', title: 'Ms A' }] });
+    withAuth(<SmartField value={null} field={{ interface: 'linkToAnotherRecord', name: 'rel', target: 'other', property: 'name' }} onChange={onChange} />);
+    fireEvent.click(screen.getByText(/empty relation/i));
+    await waitFor(() => screen.getByText(/select other/i));
+    // option should show title first
+    const option = await screen.findByText('Ms A');
+    fireEvent.click(option);
+    expect(onChange).toHaveBeenCalledWith('Alice');
+  });
+
+  it('opens formula editor for formula type and saves code', () => {
+    const onChange = vi.fn();
+    withAuth(<SmartField value="init" field={{ interface: 'input', type: 'formula', name: 'f' }} onChange={onChange} />);
+    fireEvent.click(screen.getByText('init'));
+    expect(screen.getByTestId('formula')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('save'));
+    expect(onChange).toHaveBeenCalledWith('newcode');
   });
 
   it('edits color field and updates value', () => {
