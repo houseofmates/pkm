@@ -132,13 +132,14 @@ describe('SmartField', () => {
     withAuth(<SmartField value={null} field={{ interface: 'attachment', name: 'file' }} onChange={onChange} />);
     // click the default empty placeholder to begin editing
     fireEvent.click(screen.getByText(/empty/i));
-    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
     const blob = new Blob(['hello'], { type: 'text/plain' });
     const file = new File([blob], 'test.txt');
     // trigger file input change
-    fireEvent.change(input, { target: { files: [file] } });
-    // wait until localValue (and input) reflect the uploaded URL
-    await waitFor(() => expect((input as HTMLInputElement).value).toBe('http://example.com/fake'));
+    fireEvent.change(fileInput, { target: { files: [file] } });
+    // wait until the text input (url display) updates
+    const textInput = await waitFor(() => document.querySelector('input[placeholder="paste url or upload..."]') as HTMLInputElement);
+    await waitFor(() => expect(textInput.value).toBe('http://example.com/fake'));
     // after upload the save button should appear, click it to commit
     const saveBtn = Array.from(document.querySelectorAll('button')).find(b => b.className.includes('text-green-500')) as HTMLButtonElement;
     expect(saveBtn).toBeDefined();
