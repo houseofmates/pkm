@@ -75,14 +75,23 @@ app.use(cors({
             if (a === origin) {
                 return callback(null, true);
             }
-            // suffix wildcard (eg. https://pkm.*)
+            // if pattern contains a star anywhere, treat as simple wildcard
+            if (a.includes('*')) {
+                // escape regex chars except *
+                const escaped = a.replace(/[-/\\^$+?.()|[\]{}]/g, '\\$&');
+                const regex = new RegExp('^' + escaped.replace(/\\\*/g, '.*') + '$');
+                if (regex.test(origin)) {
+                    return callback(null, true);
+                }
+            }
+            // suffix wildcard (eg. https://pkm.*) - kept for backward compatibility
             if (a.endsWith('*')) {
                 const prefix = a.slice(0, -1);
                 if (origin.startsWith(prefix)) {
                     return callback(null, true);
                 }
             }
-            // prefix wildcard (eg. *.houseofmates.space)
+            // prefix wildcard (eg. *.houseofmates.space) - kept too
             if (a.startsWith('*.')) {
                 const host = a.slice(2);
                 if (origin.endsWith(host)) {
