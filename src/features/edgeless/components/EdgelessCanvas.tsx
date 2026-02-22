@@ -18,7 +18,7 @@ import { TierListElement } from './elements/TierListElement'
 import { SleepRing } from './elements/SleepRing'
 import { ConnectorElement } from './elements/ConnectorElement'
 import { SmartTextElement } from './elements/SmartTextElement'
-import { useContextMenuStore } from '@/components/ui/context-menu'
+import { useContextMenuStore } from '@/components/ui/context-menu-store'
 import { secureLogger } from '@/lib/secure-logger'
 import { useCanvasEvents } from '../hooks/use-canvas-events'
 
