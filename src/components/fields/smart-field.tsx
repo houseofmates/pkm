@@ -228,6 +228,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   const [localValue, setLocalValue] = useState(value);
   const [fullscreenIndex, setFullscreenIndex] = useState<number | null>(null);
   const [galleryImgs, setGalleryImgs] = useState<string[]>([]);
+  const [pickerOpen, setPickerOpen] = useState(false); // used by multi-select editor
 
   // formula editor state
   const [showFormulaEditor, setShowFormulaEditor] = useState(false);
@@ -505,7 +506,6 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
 
     if (isMultiSelect) {
       const options = field?.uiSchema?.enum || [{ label: 'option 1', value: 'opt1' }, { label: 'option 2', value: 'opt2' }];
-      const [pickerOpen, setPickerOpen] = useState(false);
       const currentArray: string[] = Array.isArray(localValue) ? localValue : [];
       const toggleOption = (val: string) => {
         const exists = currentArray.includes(val);
