@@ -73,7 +73,7 @@ A lightweight SQL parser lives in `src/lib/sql-parser.ts` with tests under `src/
 - `GROUP BY` / `HAVING`
 - `ORDER BY` and `LIMIT`
 - **subqueries** in the `FROM` clause and in joins
-- basic `IN` expressions and `UNION` (first part only)
+- basic `IN` expressions and `UNION` (records additional SELECTs in a `union` array; only the first is returned as the main tree)
 
 The implementation is intentionally naive: it tokenizes on whitespace and balanced parentheses, then walks the string. Expanding the parser further means adding grammar rules for additional SQL features (e.g. `UNION ALL`, `INTERSECT`, `EXISTS`, nested expressions, arithmetic, function calls), improving tokenization (strings, identifiers, operators), and possibly adopting a proper parser generator (PEG.js, nearley, etc.) once needs grow beyond toy level.
 
