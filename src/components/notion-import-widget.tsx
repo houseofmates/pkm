@@ -28,6 +28,7 @@ export function NotionImportWidget() {
             return;
         }
         appendLog(`using api key ${maskString(apiKey)}`);
+        console.debug('[NotionImportWidget] file size', file.size, 'name', file.name, 'type', file.type);
         // always check size; small files are clearly wrong
         if (file.size < 1024) {
             appendLog('error: file appears too small to be a Notion export');
