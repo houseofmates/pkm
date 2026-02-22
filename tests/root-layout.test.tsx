@@ -3,8 +3,8 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from '@/contexts/auth-context';
-// We'll dynamically import FronterProvider and other modules after resetModules
+// We'll dynamically import AuthProvider, FronterProvider and other modules after resetModules
+
 
 // avoid hitting real WAL code during render
 vi.mock('@/lib/write-ahead-log', () => ({ walPendingCount: async () => 0 }));
@@ -13,13 +13,15 @@ vi.mock('@/lib/write-ahead-log', () => ({ walPendingCount: async () => 0 }));
 async function loadLayoutAndProviders() {
   // force module reload so env value is re-read and modules are consistent
   vi.resetModules();
-  const [layoutModule, fronModule, llmModule] = await Promise.all([
+  const [layoutModule, authModule, fronModule, llmModule] = await Promise.all([
     import('@/pages/root-layout'),
+    import('@/contexts/auth-context'),
     import('@/contexts/fronter-context'),
     import('@/contexts/llm-context'),
   ]);
   return {
     RootLayout: layoutModule.RootLayout,
+    AuthProvider: authModule.AuthProvider,
     FronterProvider: fronModule.FronterProvider,
     LLMContextProvider: llmModule.LLMContextProvider,
   };
