@@ -267,15 +267,64 @@ function handleNotionImport(req, res) {
     }
     const taskId = `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
     const emitter = new EventEmitter();
-    // ensure errors on the emitter don't crash the process (they are logged)
+    // prevent unhandled emitter errors
     emitter.on('error', (err) => {
         console.error('[NotionImport] emitter error event', err);
     });
     console.log('[NotionImport] creating task', taskId);
-    console.log('[NotionImport] uploaded zip path', req.file.path, 'size', req.file.size);
+    console.log('[NotionImport] uploaded file path', req.file.path, 'size', req.file.size);
     importTasks.set(taskId, { emitter, status: 'running', logs: [] });
-    
-    
+
+    // helper for guessing nocobase field types (copied from transformer)
+    function guessType(values) {
+        let hasString = false;
+        let hasNumber = false;
+        let hasBoolean = false;
+        let hasDate = false;
+        let hasArray = false;
+        let hasLongText = false;
+        for (const v of values) {
+            if (v == null || v === '') continue;
+            if (Array.isArray(v)) {
+                hasArray = true;
+                continue;
+            }
+            if (typeof v === 'number') {
+                hasNumber = true;
+            } else if (typeof v === 'boolean') {
+                hasBoolean = true;
+            } else if (typeof v === 'string') {
+                const trimmed = v.trim();
+                if (trimmed.includes('\n') || /[#*_`\-]{2,}/.test(trimmed) || trimmed.length > 200) {
+                    hasLongText = true;
+                    hasString = true;
+                    continue;
+                }
+                const maybeNum = Number(trimmed);
+                if (!isNaN(maybeNum) && trimmed !== '') {
+                    hasNumber = true;
+                } else if (trimmed === 'true' || trimmed === 'false') {
+                    hasBoolean = true;
+                } else if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) {
+                    hasDate = true;
+                } else if (trimmed.includes(',') || trimmed.startsWith('[')) {
+                    hasArray = true;
+                } else {
+                    hasString = true;
+                }
+            } else {
+                hasString = true;
+            }
+        }
+        if (hasArray) return 'string[]';
+        if (hasDate && !hasString) return 'date';
+        if (hasLongText) return 'text';
+        if (hasString) return 'string';
+        if (hasBoolean) return 'boolean';
+        if (hasNumber) return 'number';
+        return 'string';
+    }
+
     // run in background
     (async () => {
         try {
