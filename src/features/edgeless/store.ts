@@ -66,6 +66,18 @@ interface EdgelessState {
   drawingId: string
   setDrawingId: (id: string) => void
 
+  // fabric canvas reference (shared)
+  fabricCanvas: fabric.Canvas | null
+  setFabricCanvas: (c: fabric.Canvas | null) => void
+
+  // selected objects (ids)
+  selectedIds: Set<string>
+  setSelectedIds: (ids: Set<string>) => void
+
+  // pdf document
+  pdfDoc: any | null
+  setPdfDoc: (doc: any | null) => void
+
   // layers
   layers: EdgelessLayer[]
   activeLayerId: string
