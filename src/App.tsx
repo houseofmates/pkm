@@ -28,7 +28,7 @@ const CapturesPage = lazy(() => import("@/pages/captures").then(m => ({ default:
 const DatabaseCanvasView = lazy(() => import("@/features/databases/components/DatabaseCanvasView").then(m => ({ default: m.DatabaseCanvasView })));
 const PageCanvas = lazy(() => import("@/features/page/components/PageCanvas").then(m => ({ default: m.PageCanvas })));
 const RecordView = lazy(() => import("@/features/records/components/record-view").then(m => ({ default: m.RecordView })));
-const HouseofmatesBuilder = lazy(() => import("@/features/houseofmates-builder/components/HouseofmatesBuilder").then(m => ({ default: m.HouseofmatesBuilder })));
+const HouseofmatesBuilder = lazy(() => import("@/features/houseofmates-builder/HouseofmatesBuilder").then(m => ({ default: m.HouseofmatesBuilder })));
 const TemplatePage = lazy(() => import("@/pages/template").then(m => ({ default: m.TemplatePage })));
 const WorkspacePage = lazy(() => import("@/pages/workspace").then(m => ({ default: m.WorkspacePage })));
 const PublicDocViewer = lazy(() => import("@/features/public-doc/components/PublicDocViewer").then(m => ({ default: m.PublicDocViewer })));
