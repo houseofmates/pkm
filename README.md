@@ -106,10 +106,12 @@ The embedded drawing canvas now shares the same rich brush/eraser settings as th
 - control **individual opacity** for brush and eraser
 - pick pen color from the palette
 - adjust **smoothness** (stabilizer level) for fluid, lag‑free strokes
+- access all of the above via **right‑click** on the canvas when the brush or eraser is active – a context menu lets you tweak size, opacity, and colour (brush only) without opening the toolbar
 - undo/redo via the normal history controls
 
 Brush defaults match the drawing app (10 px brush, 20 px eraser). These
-values are persisted per‑drawing and exposed in the toolbar menus.
+values are persisted per‑drawing and exposed in the toolbar menus in case
+you prefer left‑click controls.
 
 The behaviour is implemented with Fabric.js; the brush respects these
 settings and automatically updates when you adjust sliders.
