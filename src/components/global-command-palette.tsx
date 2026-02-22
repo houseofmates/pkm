@@ -48,8 +48,8 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   const navigate = useNavigate();
   const location = useLocation();
   const { collections } = useCollections();
-  const setChatOpen = useEdgelessStore(state => state.setchatopen);
-  const { activefronters, members } = usefronter();
+  const setChatOpen = useEdgelessStore(state => state.setChatOpen);
+  const { activefronters, members } = useFronter();
 
   // search state
   const [query, setquery] = useState("");
