@@ -83,20 +83,31 @@ export function NotionImportWidget() {
                 return;
             }
             appendLog(`task ${data.taskId} started`);
-            // event stream must point at same backend host as upload
-            const streamUrl = `${baseUrl}/notion-import/${data.taskId}/stream`;
-            const es = new EventSource(streamUrl, { withCredentials: true });
-            es.onmessage = e => appendLog(e.data);
-            es.addEventListener('done', () => {
-                appendLog('import done');
-                es.close();
-                setRunning(false);
-            });
-            es.addEventListener('error', (e: any) => {
-                appendLog('error: ' + e.data);
-                es.close();
-                setRunning(false);
-            });
+            // poll for progress lines every couple seconds
+            const poll = async () => {
+                try {
+                    const r = await fetch(`${baseUrl}/notion-import/${data.taskId}/logs`, {
+                        headers: { Authorization: `Bearer ${apiKey}` }
+                    });
+                    if (!r.ok) {
+                        appendLog(`log fetch failed: ${r.status}`);
+                        return;
+                    }
+                    const body = await r.json();
+                    if (Array.isArray(body.logs)) {
+                        body.logs.forEach((l: string) => appendLog(l));
+                    }
+                    if (body.status === 'done') {
+                        appendLog('import done');
+                        setRunning(false);
+                        clearInterval(interval);
+                    }
+                } catch (err: any) {
+                    appendLog('log fetch error: ' + err.message);
+                }
+            };
+            const interval = setInterval(poll, 2000);
+            poll();
         } catch (err: any) {
             appendLog('upload failed: ' + err.message);
             setRunning(false);

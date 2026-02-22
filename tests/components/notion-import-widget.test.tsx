@@ -122,32 +122,34 @@ describe('NotionImportWidget', () => {
     }));
   });
 
-  it('constructs stream URL from same base as upload', async () => {
+  it('polls logs endpoint for updates', async () => {
     (useAppSetting as any).mockReturnValue(['key', vi.fn()]);
-    const fakeResponse = { ok: true, json: async () => ({ taskId: 't1' }) };
-    (fetch as any).mockResolvedValue(fakeResponse);
-    const esSpy = vi.fn();
-    global.EventSource = class {
-      constructor(url: string, opts?: any) {
-        esSpy(url, opts);
-      }
-      addEventListener() {}
-      set onmessage(_) {}
-      close() {}
-    } as any;
+    const fakeUpload = { ok: true, json: async () => ({ taskId: 't1' }) };
+    const fakeLogs = { ok: true, json: async () => ({ status: 'done', logs: ['foo', 'bar'] }) };
+    // first fetch is upload, second+ are polls
+    let call = 0;
+    (fetch as any).mockImplementation(() => {
+      call++;
+      return call === 1 ? Promise.resolve(fakeUpload) : Promise.resolve(fakeLogs);
+    });
     render(<NotionImportWidget />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     const file = new File(['x'], 'a.zip', { type: 'application/zip' });
     fireEvent.change(input, { target: { files: [file] } });
     fireEvent.click(screen.getByText(/start import/i));
     await waitFor(() => {
-      expect(esSpy).toHaveBeenCalled();
+      expect(screen.getByText('foo')).toBeInTheDocument();
+      expect(screen.getByText('bar')).toBeInTheDocument();
+      expect(screen.getByText('import done')).toBeInTheDocument();
     });
+    // verify URL used
     let expectedBase = (process.env.VITE_API_URL || '/api').replace(/\/$/, '');
     if (expectedBase.includes('db.houseofmates.space')) {
       expectedBase = expectedBase.replace('db.houseofmates.space', 'api.houseofmates.space');
     }
-    expect(esSpy).toHaveBeenCalledWith(`${expectedBase}/notion-import/t1/stream`, expect.any(Object));
+    expect(fetch).toHaveBeenCalledWith(`${expectedBase}/notion-import/t1/logs`, expect.objectContaining({
+      headers: { Authorization: 'Bearer key' }
+    }));
   });
 
   it('infers db host when VITE_API_URL unset and hostname starts with pkm', async () => {
