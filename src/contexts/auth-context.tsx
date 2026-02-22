@@ -91,3 +91,6 @@ export function useAuth() {
   }
   return context;
 }
+
+// context export used by tests and occasional deep wrappers
+export { AuthContext };
