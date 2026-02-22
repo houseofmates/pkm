@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useAppSetting } from '@/hooks/use-app-setting';
+import { maskString } from '@/lib/sanitize-utils';
 
 export function NotionImportWidget() {
     const [file, setFile] = useState<File | null>(null);
@@ -14,10 +15,14 @@ export function NotionImportWidget() {
     const startImport = async () => {
         if (!file) return;
         // prefer the PKM app setting but fall back to known localStorage keys
-        const apiKey = appApiKey ||
+        let apiKey: string | null | undefined = appApiKey ||
             localStorage.getItem('hom_api_key') ||
             localStorage.getItem('nocobase_token') ||
             localStorage.getItem('nocobase_api_key');
+        // sometimes storage contains the literal string "null" or "undefined";
+        // treat those as empty.
+        if (apiKey === 'null' || apiKey === 'undefined') apiKey = '';
+        console.debug('[NotionImportWidget] using apiKey', apiKey && maskString(apiKey));
         if (!apiKey) {
             appendLog('error: missing API key (set in settings or hom_api_key/localStorage)');
             return;
