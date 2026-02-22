@@ -83,7 +83,9 @@ export function NotionImportWidget() {
                 return;
             }
             appendLog(`task ${data.taskId} started`);
-            const es = new EventSource(`/api/notion-import/${data.taskId}/stream`, { withCredentials: true });
+            // event stream must point at same backend host as upload
+            const streamUrl = `${baseUrl}/notion-import/${data.taskId}/stream`;
+            const es = new EventSource(streamUrl, { withCredentials: true });
             es.onmessage = e => appendLog(e.data);
             es.addEventListener('done', () => {
                 appendLog('import done');
