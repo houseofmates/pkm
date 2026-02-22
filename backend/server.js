@@ -366,11 +366,12 @@ app.get('/api/notion-import/:id/stream', requireAuth, (req, res) => {
 app.options('/api/notion-import/:id/logs', cors());
 app.options('/api/nb-import/:id/logs', cors());
 app.options('/api/nb-import/logs', cors());
-app.get(['/api/notion-import/:id/logs','/api/nb-import/logs','/api/nb-import/:id/logs'], requireAuth, (req, res) => {
-    // id may come from params (first and third forms) or query string on the
-    // second form. note that the explicit `/logs` entry must appear before the
-    // parameterized route or it would capture as id='logs'.
-    const id = req.params.id || req.query.id;
+
+// helper for responding with current logs for a task id. used by both GET and
+// POST handlers so we can share the logic and keep tests simple.
+function respondWithLogs(req, res) {
+    // id may come from params (GET forms) or query (GET) or body (POST)
+    const id = req.params.id || req.query.id || (req.body && req.body.id);
     console.log('[NotionImport] logs poll for id', id);
     const entry = importTasks.get(id);
     if (!entry) {
@@ -385,7 +386,24 @@ app.get(['/api/notion-import/:id/logs','/api/nb-import/logs','/api/nb-import/:id
         console.error('[NotionImport] error serializing logs response', err, entry);
         res.status(500).json({ error: 'serialization error' });
     }
+}
+
+// GET routes (query param preferred for Cloudflare compatibility)
+app.get(['/api/notion-import/:id/logs','/api/nb-import/logs','/api/nb-import/:id/logs'], requireAuth, (req, res) => {
+    // explicit `/logs` entry must appear before the parameterized route or it
+    // would capture as id='logs'.
+    respondWithLogs(req, res);
 });
+
+// Accept POST as an alternative shape that keeps the identifier in the JSON
+// body. POST requests tend not to be inspected by Cloudflare WAF rules as
+// aggressively as GET query strings, so this is our best bet for avoiding
+// mysterious 500 responses in production. The handler is intentionally
+// identical to the GET version.
+app.post('/api/nb-import/logs', requireAuth, (req, res) => {
+    respondWithLogs(req, res);
+});
+
 
 app.post('/api/upload-background', requireAuth, upload.single('file'), (req, res) => {
     try {
