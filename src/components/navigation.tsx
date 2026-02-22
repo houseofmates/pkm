@@ -28,6 +28,7 @@ import { IconPicker } from './icon-picker-dialog';
 import { RichResourceContextMenuContent } from '@/components/rich-resource-context-menu';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { CollectionDialog } from '@/features/collections/components/collection-dialog';
+import { updateDrawingMeta, deleteDrawing, listPendingDrawings } from '@/features/edgeless/storage';
 
 export interface NavItem {
   id: string;
