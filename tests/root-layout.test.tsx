@@ -61,6 +61,9 @@ describe('RootLayout', () => {
 
   it('shows health bar when env variable is true', async () => {
     const { RootLayout, AuthProvider, FronterProvider, LLMContextProvider } = await loadLayoutAndProviders({ VITE_SHOW_HEALTH_BAR: 'true' });
+    // debug: inspect constant and function body
+    console.log('env after load', (import.meta as any).env.VITE_SHOW_HEALTH_BAR);
+    console.log('RootLayout source:', RootLayout.toString());
     render(
       <AuthProvider>
         <QueryClientProvider client={new QueryClient()}>
