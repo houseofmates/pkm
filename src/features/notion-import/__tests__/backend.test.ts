@@ -45,7 +45,9 @@ describe('backend /api/notion-import', () => {
         expect(res.body.taskId).toBeTruthy();
         const id = res.body.taskId;
         expect(importTasks.has(id)).toBe(true);
-        expect(importTasks.get(id).status).toBe('running');
+        // task may already complete synchronously in the mock environment, so
+        // accept either 'running' or 'done' here.
+        expect(['running', 'done']).toContain(importTasks.get(id).status);
         // wait until done
         await new Promise<void>((resolve) => {
             const interval = setInterval(() => {
