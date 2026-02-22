@@ -284,7 +284,8 @@ function handleNotionImport(req, res) {
                 setTimeout(() => {
                     emitter.emit('progress', 'mock import finished');
                     emitter.emit('done');
-                    importTasks.set(taskId, { emitter, status: 'done' });
+                    const current = importTasks.get(taskId);
+                    if (current) current.status = 'done';
                 }, 10);
             } else {
                 await notionRun(req.file.path, undefined, (msg) => {
@@ -293,12 +294,14 @@ function handleNotionImport(req, res) {
                     if (entry) entry.logs.push(msg);
                 });
                 emitter.emit('done');
-                importTasks.set(taskId, { emitter, status: 'done' });
+                const current = importTasks.get(taskId);
+                if (current) current.status = 'done';
             }
         } catch (e) {
             console.error('[NotionImport] task failed', e);
             // do not emit 'error' on emitter, prevents crashing when listener
-            importTasks.set(taskId, { emitter, status: 'error' });
+            const current = importTasks.get(taskId);
+            if (current) current.status = 'error';
         } finally {
             // cleanup uploaded file
             try { fs.unlinkSync(req.file.path); } catch {}
@@ -374,9 +377,10 @@ app.get(['/api/notion-import/:id/logs','/api/nb-import/logs','/api/nb-import/:id
         console.log('[NotionImport] no entry found for', id);
         return res.status(404).json({ error: 'no such task' });
     }
-    console.log('[NotionImport] entry state', entry.status, 'logs length', entry.logs.length);
+    const logs = entry.logs || [];
+    console.log('[NotionImport] entry state', entry.status, 'logs length', logs.length);
     try {
-        res.json({ status: entry.status, logs: entry.logs });
+        res.json({ status: entry.status, logs });
     } catch (err) {
         console.error('[NotionImport] error serializing logs response', err, entry);
         res.status(500).json({ error: 'serialization error' });
