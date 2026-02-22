@@ -4,6 +4,8 @@ import { describe, it, expect } from 'vitest';
 import { ContextMenu } from '../context-menu-custom';
 import { useContextMenuStore } from '../context-menu-store';
 import { useEdgelessStore } from '@/features/edgeless/store';
+import { AuthProvider } from '@/contexts/auth-context';
+import { FronterProvider } from '@/contexts/fronter-context';
 
 // helper to open tool menu with given tool
 function openToolMenu(tool: 'pen' | 'eraser') {
@@ -15,6 +17,15 @@ function openToolMenu(tool: 'pen' | 'eraser') {
     targetType: 'tool',
     data: { tool, color: '#ff0000' }
   });
+}
+
+// render helpers
+function renderWithProviders(ui: React.ReactElement) {
+  return render(
+    <AuthProvider>
+      <FronterProvider>{ui}</FronterProvider>
+    </AuthProvider>
+  );
 }
 
 describe('ContextMenu custom tool section', () => {
