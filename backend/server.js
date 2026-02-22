@@ -20,8 +20,12 @@ if (fs.existsSync('.env')) {
         const [key, ...val] = line.split('=');
         if (key && val) {
             const name = key.trim();
-            if (!(name in process.env)) {
-                process.env[name] = val.join('=').trim();
+            const value = val.join('=').trim();
+            if (name === 'ALLOWED_ORIGINS' && process.env[name]) {
+                // merge entries so multiple lines in .env accumulate
+                process.env[name] = process.env[name] + ',' + value;
+            } else if (!(name in process.env)) {
+                process.env[name] = value;
             }
         }
     });
