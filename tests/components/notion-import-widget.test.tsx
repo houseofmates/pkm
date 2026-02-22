@@ -29,6 +29,8 @@ describe('NotionImportWidget', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
     localStorage.clear();
+    // ensure hook returns no key by default
+    (useAppSetting as any).mockReturnValue(['', vi.fn()]);
   });
 
   it('logs error when no API key is set', async () => {
