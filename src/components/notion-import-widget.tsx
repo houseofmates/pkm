@@ -43,6 +43,13 @@ export function NotionImportWidget() {
         try {
             const hdr = await file.slice(0, 4).arrayBuffer();
             const bytes = new Uint8Array(hdr);
+            // if the file starts with `<` we almost certainly fetched HTML
+            // (login page, error message, etc). abort early rather than
+            // sending nonsense to the server.
+            if (bytes[0] === 0x3c) {
+                appendLog('error: selected file appears to be HTML, not a ZIP');
+                return;
+            }
             if (!(bytes[0] === 0x50 && bytes[1] === 0x4B)) {
                 // log the first four bytes in hex for debugging
                 const hex = Array.from(bytes)
