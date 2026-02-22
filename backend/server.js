@@ -252,6 +252,10 @@ function handleNotionImport(req, res) {
     }
     const taskId = `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
     const emitter = new EventEmitter();
+    // ensure errors on the emitter don't crash the process (they are logged)
+    emitter.on('error', (err) => {
+        console.error('[NotionImport] emitter error event', err);
+    });
     console.log('[NotionImport] creating task', taskId);
     importTasks.set(taskId, { emitter, status: 'running', logs: [] });
     
