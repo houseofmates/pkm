@@ -107,4 +107,39 @@ describe('NotionImportWidget', () => {
       expect(screen.getByText(/invalid JSON response/i)).toBeInTheDocument();
     });
   });
+
+  it('builds a relative /api URL by default', async () => {
+    // ensure no env override
+    Object.defineProperty(import.meta, 'env', { value: { VITE_API_URL: undefined }, writable: true });
+    localStorage.setItem('hom_api_key', 'key');
+    const fakeResponse = { ok: false, status: 400, statusText: 'err', text: async () => '' };
+    (fetch as any).mockResolvedValue(fakeResponse);
+    render(<NotionImportWidget />);
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File(['x'], 'a.zip', { type: 'application/zip' });
+    fireEvent.change(input, { target: { files: [file] } });
+    fireEvent.click(screen.getByText(/start import/i));
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalled();
+    });
+    const calledUrl = (fetch as any).mock.calls[0][0];
+    expect(calledUrl).toMatch(/^\/api\/(nb-import)/);
+  });
+
+  it('respects VITE_API_URL when provided', async () => {
+    Object.defineProperty(import.meta, 'env', { value: { VITE_API_URL: 'https://custom.example' }, writable: true });
+    localStorage.setItem('hom_api_key', 'key');
+    const fakeResponse = { ok: false, status: 400, statusText: 'err', text: async () => '' };
+    (fetch as any).mockResolvedValue(fakeResponse);
+    render(<NotionImportWidget />);
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File(['x'], 'a.zip', { type: 'application/zip' });
+    fireEvent.change(input, { target: { files: [file] } });
+    fireEvent.click(screen.getByText(/start import/i));
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalled();
+    });
+    const calledUrl = (fetch as any).mock.calls[0][0];
+    expect(calledUrl).toMatch(/^https:\/\/custom\.example\/nb-import/);
+  });
 });
