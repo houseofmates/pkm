@@ -23,9 +23,11 @@ async function makeZip(): Promise<string> {
 describe('backend /api/notion-import', () => {
     let zipPath: string;
     beforeAll(async () => {
+        const mod = await import('../../../../backend/server.js');
+        app = mod.app;
+        importTasks = mod.importTasks;
         zipPath = await makeZip();
-        process.env.ADMIN_SECRET = 'test-secret';
-        process.env.MOCK_NOTION_IMPORT = 'true';
+        // env variables already set at top
     });
     afterAll(() => {
         if (zipPath && fs.existsSync(zipPath)) fs.unlinkSync(zipPath);
