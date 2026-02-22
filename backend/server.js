@@ -190,7 +190,7 @@ import EventEmitter from 'events';
 
 const importTasks = new Map();
 
-app.post('/api/notion-import', requireAuth, importUpload.single('file'), (req, res) => {
+function handleNotionImport(req, res) {
     if (!req.file) {
         return res.status(400).json({ error: 'missing file' });
     }
@@ -226,7 +226,12 @@ app.post('/api/notion-import', requireAuth, importUpload.single('file'), (req, r
     })();
 
     res.json({ taskId });
-});
+}
+
+// primary endpoint uses shorter name to avoid Cloudflare filtering
+app.post('/api/nb-import', requireAuth, importUpload.single('file'), handleNotionImport);
+// legacy route still available for local tests
+app.post('/api/notion-import', requireAuth, importUpload.single('file'), handleNotionImport);
 
 app.get('/api/notion-import/:id/stream', requireAuth, (req, res) => {
     const id = req.params.id;

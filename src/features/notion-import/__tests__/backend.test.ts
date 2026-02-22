@@ -35,7 +35,7 @@ describe('backend /api/notion-import', () => {
 
     it('creates a task and eventually completes', async () => {
         const res = await request(app)
-            .post('/api/notion-import')
+            .post('/api/nb-import')
             .set('Authorization', 'Bearer test-secret')
             .attach('file', zipPath);
         if (res.status !== 200) {
@@ -61,7 +61,7 @@ describe('backend /api/notion-import', () => {
     it('accepts nocobase api key when configured', async () => {
         process.env.NOCOBASE_API_KEY = 'nb-key';
         const res = await request(app)
-            .post('/api/notion-import')
+            .post('/api/nb-import')
             .set('Authorization', 'Bearer nb-key')
             .attach('file', zipPath);
         expect(res.status).toBe(200);
