@@ -5,7 +5,21 @@ import { KanbanView } from '../kanban-view';
 import { GalleryView } from '../gallery-view';
 import { ListView } from '../list-view';
 import { AuthContext } from '@/contexts/auth-context';
-import { AuthContext } from '@/contexts/auth-context';
+
+// same virtualization stubs used by list view tests
+import { vi } from 'vitest';
+vi.mock('react-window', () => ({
+  List: ({ children, itemCount, itemData }: any) => (
+    <div>
+      {Array.from({ length: itemCount }).map((_, i) => (
+        <div key={i}>{children({ index: i, style: {}, data: itemData })}</div>
+      ))}
+    </div>
+  ),
+}));
+vi.mock('react-virtualized-auto-sizer', () => ({
+  AutoSizer: ({ children }: any) => <div>{children({ width: 100, height: 100 })}</div>,
+}));
 
 const emptyCollection = { name: 'test', fields: [] };
 // collection with a date field for calendar

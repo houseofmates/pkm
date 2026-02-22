@@ -69,7 +69,10 @@ describe('SmartField', () => {
     const timeInput = document.querySelector('input[type="time"]') as HTMLInputElement;
     expect(timeInput).toBeInTheDocument();
     fireEvent.change(timeInput, { target: { value: '13:45' } });
-    fireEvent.click(screen.getByRole('button', { hidden: true })); // click save
+    // click the save button (green check)
+    const saveBtn = Array.from(document.querySelectorAll('button')).find(b => b.className.includes('text-green-500')) as HTMLButtonElement;
+    expect(saveBtn).toBeDefined();
+    fireEvent.click(saveBtn);
     expect(onChange).toHaveBeenCalledWith('13:45');
   });
   it('handles datetime fields', () => {
