@@ -37,7 +37,8 @@ export function NotionImportWidget() {
         // (`pkm.` -> `db.`) which forced cross‑origin requests and broke
         // when the API is behind Cloudflare, so prefer relative unless
         // the environment variable tells us something genuinely external.
-        let envBase = import.meta.env.VITE_API_URL as string | undefined;
+        let rawEnv = import.meta.env.VITE_API_URL as string | undefined;
+        let envBase = rawEnv;
         if (envBase && envBase.endsWith('/')) envBase = envBase.slice(0, -1);
         // old bundles might still use the legacy `db.houseofmates.space`
         // name; rewrite it to the public API domain so clients don't break.
@@ -82,7 +83,7 @@ export function NotionImportWidget() {
             }
         }
         const url = `${baseUrl}/nb-import`;
-        console.debug('[NotionImportWidget] env VITE_API_URL=', envBase, 'using url', url, '(legacy notion-import also accepted)');
+        console.debug('[NotionImportWidget] raw VITE_API_URL=', rawEnv, 'env VITE_API_URL=', envBase, 'using url', url, '(legacy notion-import also accepted)');
         try {
             const res = await fetch(url, {
                 method: 'POST',
