@@ -539,7 +539,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         <div className="mt-auto px-2 pt-4 !border-none shadow-none">
           <Button
             variant="outline"
-            className="w-full justify-start gap-2 text-muted-foreground border-dashed hover:bg-white/5 transition-colors"
+            className="w-full justify-start gap-2 text-muted-foreground border-solid hover:bg-white/5 transition-colors"
             onClick={() => {
               // capture context for ai
               const selection = window.getSelection()?.toString();

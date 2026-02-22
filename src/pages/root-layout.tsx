@@ -75,7 +75,8 @@ export function RootLayout() {
   // sync / health state
   const [walCount, setWalCount] = useState(0);
   const [syncStatus, setSyncStatus] = useState<'ok' | 'syncing' | 'error'>('ok');
-
+  // allow disabling the little corner status via env (default off)
+  const showHealthBar = import.meta.env.VITE_SHOW_HEALTH_BAR === 'true';
   useEffect(() => {
     const interval = setInterval(async () => {
       const count = await walPendingCount();
