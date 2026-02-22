@@ -628,7 +628,19 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       // relation editor: simple picker that fetches target records
       // we need to fetch the target collection list.
       // assumption: field.target is the collection name of the relation.
-      return <RelationPicker field={field} value={localValue} onChange={(v: any) => { setLocalValue(v); handleSave(v); }} onCancel={handleCancel} />;
+      return (
+        <RelationPicker
+          field={field}
+          value={localValue}
+          onChange={(v: any) => {
+            // if a specific property was configured, store only that value
+            const out = field.property && v ? v[field.property] : v;
+            setLocalValue(out);
+            handleSave(out);
+          }}
+          onCancel={handleCancel}
+        />
+      );
     }
 
     if (isJson) {
@@ -688,12 +700,21 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     if (isId) return <span className={cn("font-mono opacity-50 select-text font-varela", size === 'lg' ? "text-lg" : "text-[10px]")}>{value?.toString()}</span>;
 
     if (isRelation) {
-      // prepare display value: if object, show title/name. if array, join them.
+      // prepare display value: if object, show title/name or property.
       let display = '';
       if (Array.isArray(value)) {
-        display = value.map(v => v?.title || v?.name || v?.id || JSON.stringify(v)).join(', ');
+        display = value
+          .map(v => {
+            if (field.property && v && typeof v === 'object') return v[field.property];
+            return v?.title || v?.name || v?.id || JSON.stringify(v);
+          })
+          .join(', ');
       } else if (typeof value === 'object' && value !== null) {
-        display = value.title || value.name || value.id || JSON.stringify(value);
+        if (field.property && value[field.property] !== undefined) {
+          display = String(value[field.property]);
+        } else {
+          display = value.title || value.name || value.id || JSON.stringify(value);
+        }
       } else {
         display = String(value || '');
       }
