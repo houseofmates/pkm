@@ -1,6 +1,11 @@
 import { useNavigate } from 'react-router-dom';
-import * as LucideIcons from 'lucide-react';
-import { ExternalLink, Type, Eye } from 'lucide-react';
+import { ExternalLink, Type, Eye, File, type LucideIcon } from 'lucide-react';
+import * as Icons from 'lucide-react';
+
+// helper to safely get lucide icon by name
+function getLucideIcon(name: string): LucideIcon | undefined {
+  return (Icons as Record<string, LucideIcon>)[name];
+}
 import { useEdgelessStore } from '../../store';
 import {
   ContextMenu,
@@ -23,13 +28,13 @@ export function LinkElement({ element }: LinkElementProps) {
 
   // icon rendering
   const renderIcon = (className = "h-6 w-6") => {
-  if (icontype === 'emoji') return <span className="text-2xl leading-none">{icon}</span>;
-  if (icontype === 'image') return <img src={icon} alt="" className={className + " object-contain"} />;
-  if (icontype === 'lucide') {
-  const icon = (lucideicons as any)[icon] || lucideicons.file;
-  return <Icon className={className} />;
-  }
-  return <LucideIcons.File className={className} />;
+    if (iconType === 'emoji') return <span className="text-2xl leading-none">{icon}</span>;
+    if (iconType === 'image') return <img src={icon} alt="" className={className + " object-contain"} />;
+    if (iconType === 'lucide') {
+      const IconComponent = getLucideIcon(icon) || File;
+      return <IconComponent className={className} />;
+    }
+    return <File className={className} />;
   };
 
   const handleOpen = () => {
@@ -56,7 +61,7 @@ export function LinkElement({ element }: LinkElementProps) {
  <div className="flex-1 bg-muted/30 flex items-center justify-center relative min-h-0">
    {/* "screenshot" placeholder: big icon */}
    <div className="transform scale-150 opacity-80 group-hover:scale-175 transition-transform duration-500">
-   {rendericon("h-12 w-12 text-muted-foreground/50")}
+   {renderIcon("h-12 w-12 text-muted-foreground/50")}
    </div>
 
    <div className="absolute inset-0 bg-gradient-to-t from-black/5 to-transparent pointer-events-none" />
@@ -65,7 +70,7 @@ export function LinkElement({ element }: LinkElementProps) {
  {/* footer info */}
  <div className="p-3 border-t bg-card flex items-center gap-3 shrink-0">
    <div className="shrink-0 opacity-80">
-   {rendericon("h-4 w-4")}
+   {renderIcon("h-4 w-4")}
    </div>
    <div className="flex-1 min-w-0">
    <div className="font-medium text-sm truncate leading-tight">{title}</div>
