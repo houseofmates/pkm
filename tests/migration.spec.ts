@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { migrateFromLocalStorage, hasLegacyDrawings } from '@/features/edgeless/storage/migrate'
-import { getDrawingMeta, getLatestCheckpoint } from '@/features/edgeless/storage/canvas-db'
+import { getDrawingMeta, getLatestCheckpoint, listPendingDrawings, deleteDrawing, updateDrawingMeta } from '@/features/edgeless/storage'
 import LZString from 'lz-string'
 
 // Mock LZString dynamic import if needed, but real one is better.
@@ -64,5 +64,18 @@ describe('Migration', () => {
     const result = await migrateFromLocalStorage()
     expect(result.migrated).toBe(0)
     expect(result.failed).toBe(0)
+  })
+
+  it('can list pending drawings and delete them from the database', async () => {
+    const id = 'db-test-1'
+    // ensure drawing exists
+    await updateDrawingMeta(id, { title: 'foo', syncState: 'pending' })
+    let list = await listPendingDrawings()
+    expect(list.some((d: any) => d.id === id)).toBe(true)
+
+    // delete and ensure it no longer appears
+    await deleteDrawing(id)
+    list = await listPendingDrawings()
+    expect(list.some((d: any) => d.id === id)).toBe(false)
   })
 })
