@@ -537,32 +537,49 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       };
 
       return (
-        <div className="relative flex items-center gap-1">
-          <Button variant="outline" size="sm" className="h-8" onClick={() => setPickerOpen(o => !o)}>
-            {currentArray.join(', ') || 'select...'}
-          </Button>
-          {pickerOpen && (
-            <div className="absolute z-50 bg-popover border shadow-lg rounded-md p-2 mt-1">
-              {options.map((opt: any) => (
-                <div key={opt.value} className="flex items-center gap-1">
-                  <Checkbox
-                    checked={currentArray.includes(opt.value)}
-                    onCheckedChange={() => toggleOption(opt.value)}
-                  />
-                  <span>{opt.label}</span>
-                </div>
-              ))}
-              <div className="flex justify-end gap-1 mt-2">
-                <Button size="sm" className="h-6 text-xs" onClick={() => { handleSave(); setPickerOpen(false); }}>done</Button>
-              </div>
+        <div className="flex flex-col gap-2 p-2 bg-background border rounded-md">
+          {options.map((opt: any) => (
+            <div key={opt.value} className="flex items-center gap-2">
+              <Checkbox
+                id={`checkbox-${opt.value}`}
+                checked={currentArray.includes(opt.value)}
+                onCheckedChange={() => toggleOption(opt.value)}
+              />
+              <label htmlFor={`checkbox-${opt.value}`} className="text-sm">{opt.label}</label>
             </div>
-          )}
+          ))}
+          <div className="flex justify-end gap-1 mt-2">
+            <Button size="sm" className="h-6 text-xs" onClick={() => handleSave()}>done</Button>
+          </div>
         </div>
       );
     }
 
     if (isSelect) {
       const options = field?.uiSchema?.enum || [{ label: 'option 1', value: 'opt1' }, { label: 'option 2', value: 'opt2' }];
+      if (field.interface === 'radioGroup') {
+        return (
+          <div className="flex flex-col gap-2 p-2 bg-background border rounded-md">
+            {options.map((opt: any) => (
+              <div key={opt.value} className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  id={`radio-${opt.value}`}
+                  name={field.name}
+                  value={opt.value}
+                  checked={localValue === opt.value}
+                  onChange={(e) => setLocalValue(e.target.value)}
+                />
+                <label htmlFor={`radio-${opt.value}`} className="text-sm">{opt.label}</label>
+              </div>
+            ))}
+            <div className="flex justify-end gap-1 mt-2">
+              <Button size="sm" className="h-6 text-xs" onClick={() => handleSave()}>done</Button>
+            </div>
+          </div>
+        );
+      }
+
       return (
         <div className="flex items-center gap-1">
           <Select value={localValue} onValueChange={setLocalValue}>
