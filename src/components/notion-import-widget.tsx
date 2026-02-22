@@ -114,10 +114,34 @@ export function NotionImportWidget() {
             // poll for progress lines every couple seconds
             const poll = async () => {
                 try {
-                    // prefer query‑param endpoint to avoid Cloudflare path filters
-                    const r = await fetch(`${baseUrl}/nb-import/logs?id=${data.taskId}`, {
-                        headers: { Authorization: `Bearer ${apiKey}` }
-                    });
+                    // Post body is less likely to trigger Cloudflare WAF rules than a
+                    // suspicious-looking query string. if the POST itself fails with
+                    // a 500 we fall back to the previous GET form so we don't break
+                    // the widget for older browsers or edge cases.
+                    let r;
+                    try {
+                        r = await fetch(`${baseUrl}/nb-import/logs`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                Authorization: `Bearer ${apiKey}`
+                            },
+                            body: JSON.stringify({ id: data.taskId })
+                        });
+                    } catch (e) {
+                        // network error in POST, we'll treat it below
+                        r = null;
+                    }
+                    if (!r || r.status === 500) {
+                        // try legacy GET as a fallback
+                        r = await fetch(`${baseUrl}/nb-import/logs?id=${data.taskId}`, {
+                            headers: { Authorization: `Bearer ${apiKey}` }
+                        });
+                    }
+                    if (!r) {
+                        appendLog('log fetch failed: network error');
+                        return;
+                    }
                     if (!r.ok) {
                         appendLog(`log fetch failed: ${r.status}`);
                         return;
