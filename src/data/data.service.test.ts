@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { dataService } from './data.service';
-import { FieldInstance } from '@/services/schema.service';
+import type { FieldInstance } from '@/services/schema.service';
 import '../schema/field-types'; // Ensures default field types are registered
 import '@/services/field-types'; // also import service-level definition for completeness
 
