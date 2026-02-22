@@ -143,11 +143,15 @@ describe('NotionImportWidget', () => {
     await waitFor(() => {
       expect(esSpy).toHaveBeenCalled();
     });
-    const expectedBase = (process.env.VITE_API_URL || '/api').replace(/\/$/, '');
+    let expectedBase = (process.env.VITE_API_URL || '/api').replace(/\/$/, '');
+    if (expectedBase.includes('db.houseofmates.space')) {
+      expectedBase = expectedBase.replace('db.houseofmates.space', 'api.houseofmates.space');
+    }
     expect(esSpy).toHaveBeenCalledWith(`${expectedBase}/notion-import/t1/stream`, expect.any(Object));
   });
 
   it('infers db host when VITE_API_URL unset and hostname starts with pkm', async () => {
+    localStorage.setItem('hom_api_key','key');
     const fakeResponse = { ok: false, status: 400, statusText: 'Bad', text: async () => '' };
     (fetch as any).mockResolvedValue(fakeResponse);
     // temporarily remove env variable
