@@ -3,6 +3,12 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { NotionImportWidget } from '@/components/notion-import-widget';
 import { vi, describe, it, beforeEach, expect } from 'vitest';
 
+// mock useAppSetting hook so we can control returned apiKey
+vi.mock('@/hooks/use-app-setting', () => ({
+  useAppSetting: vi.fn(() => ['', vi.fn()])
+}));
+import { useAppSetting } from '@/hooks/use-app-setting';
+
 // fake EventSource for tests
 global.EventSource = class {
   url: string;
@@ -71,5 +77,23 @@ describe('NotionImportWidget', () => {
     await waitFor(() => {
       expect(screen.getByText(/invalid JSON response/i)).toBeInTheDocument();
     });
+  });
+
+  it('uses api key from app setting when provided', async () => {
+    // override hook mock to return a value
+    (useAppSetting as any).mockReturnValue(['my-app-key', vi.fn()]);
+    const fakeResponse = { ok: false, status: 401, statusText: 'Unauthorized', text: async () => 'no' };
+    (fetch as any).mockResolvedValue(fakeResponse);
+    render(<NotionImportWidget />);
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File(['x'], 'a.zip', { type: 'application/zip' });
+    fireEvent.change(input, { target: { files: [file] } });
+    fireEvent.click(screen.getByText(/start import/i));
+    await waitFor(() => {
+      expect(screen.getByText(/upload failed: 401/i)).toBeInTheDocument();
+    });
+    expect(fetch).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({
+      headers: { Authorization: 'Bearer my-app-key' }
+    }));
   });
 });

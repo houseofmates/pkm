@@ -1,9 +1,11 @@
 import { useState } from 'react';
+import { useAppSetting } from '@/hooks/use-app-setting';
 
 export function NotionImportWidget() {
     const [file, setFile] = useState<File | null>(null);
     const [logs, setLogs] = useState<string[]>([]);
     const [running, setRunning] = useState(false);
+    const [appApiKey] = useAppSetting('apiKey', '');
 
     const appendLog = (msg: string) => {
         setLogs(l => [...l, msg]);
@@ -11,9 +13,13 @@ export function NotionImportWidget() {
 
     const startImport = async () => {
         if (!file) return;
-        const apiKey = localStorage.getItem('hom_api_key');
+        // prefer the PKM app setting but fall back to known localStorage keys
+        const apiKey = appApiKey ||
+            localStorage.getItem('hom_api_key') ||
+            localStorage.getItem('nocobase_token') ||
+            localStorage.getItem('nocobase_api_key');
         if (!apiKey) {
-            appendLog('error: missing API key (go to settings to set hom_api_key)');
+            appendLog('error: missing API key (set in settings or hom_api_key/localStorage)');
             return;
         }
         setRunning(true);

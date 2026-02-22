@@ -87,7 +87,14 @@ const requireAuth = (req, res, next) => {
         return next();
     }
 
-    // Allow basic check for NocoBase token if we decide to implement it (skipping for now to be safe)
+    // also accept a configured NocoBase API key if present
+    if (process.env.NOCOBASE_API_KEY && token === process.env.NOCOBASE_API_KEY) {
+        return next();
+    }
+
+    // NOTE: we could eventually validate against nocobase_token in storage,
+    // but for now we only honour the environment variable to avoid leaking
+    // secrets from request bodies.
 
     return res.status(403).json({ error: 'Forbidden: Invalid token' });
 };
