@@ -14,9 +14,10 @@ import {
   MessageCircle,
   BrainCircuit,
   Link as LinkIcon,
-  Plus
+  Plus,
+  Eye,
+  EyeOff
 } from 'lucide-react'
-import * as LucideIcons from 'lucide-react' // Fallback for dynamic icons
 import { useEdgelessStore } from '../store'
 import { useCanvasEvents } from '../hooks/use-canvas-events'
 import { useState, useRef, useEffect } from 'react'
@@ -237,7 +238,7 @@ export function Toolbar() {
                     {store.layers.map(layer => (
                       <div key={layer.id} className={`flex items-center gap-2 p-2 rounded ${store.activeLayerId === layer.id ? 'bg-primary/20 border border-primary/50' : 'hover:bg-white/5'}`}>
                         <button onClick={() => store.toggleLayerVisibility(layer.id)} className="text-zinc-400 hover:text-white">
-                          {layer.visible ? <LucideIcons.Eye size={14} /> : <LucideIcons.EyeOff size={14} />}
+                          {layer.visible ? <Eye size={14} /> : <EyeOff size={14} />}
                         </button>
                         <span
                           className={`flex-1 text-xs cursor-pointer truncate ${store.activeLayerId === layer.id ? 'text-primary' : 'text-zinc-300'}`}
