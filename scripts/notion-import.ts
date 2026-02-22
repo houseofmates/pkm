@@ -32,11 +32,11 @@ function getApiClient() {
     return instance;
 }
 
-async function run(zipFile: string) {
+export async function run(zipFile: string, clientOverride?: any) {
     const folder = await unzipToTemp(zipFile);
     const ws = await parseNotionExport(folder);
     const instructions = transformWorkspace(ws);
-    const client = getApiClient();
+    const client = clientOverride || getApiClient();
 
     let collectionsCreated = 0;
     let recordsCreated = 0;
