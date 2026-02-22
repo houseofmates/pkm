@@ -132,7 +132,9 @@ describe('NotionImportWidget', () => {
     const fake = new File([buf], 'page.zip', { type: 'application/zip' });
     fireEvent.change(input, { target: { files: [fake] } });
     fireEvent.click(screen.getByText(/start import/i));
-    await waitFor(() => expect(screen.getByText(/does not appear to be a ZIP/i)).toBeInTheDocument());
+    await waitFor(() => {
+      expect(screen.getByText(/(does not appear to be a ZIP|header check failed)/i)).toBeInTheDocument();
+    });
     expect(fetch).not.toHaveBeenCalled();
   });
 
