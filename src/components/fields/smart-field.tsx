@@ -542,10 +542,11 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     }
 
     if (isRelation) {
-    // relation editor: simple picker that fetches target records
-    // we need to fetch the target collection list.
-    // assumption: field.target is the collection name of the relation.
-    return <RelationPicker field={field} value={localValue} onChange={(v: any) => { setLocalValue(v); handleSave(v); }} onCancel={handleCancel} />;
+      // relation editor: simple picker that fetches target records
+      // we need to fetch the target collection list.
+      // assumption: field.target is the collection name of the relation.
+      return <RelationPicker field={field} value={localValue} onChange={(v: any) => { setLocalValue(v); handleSave(v); }} onCancel={handleCancel} />;
+    }
 
     if (isJson) {
       return (
@@ -624,6 +625,12 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           </div>
         </div>
       )
+    }
+
+    if (isTime) {
+      return (
+        <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer font-varela", size === 'lg' ? "text-lg" : "text-xs")}>{formatTime(value)}</div>
+      );
     }
 
     if (isPhone) {
