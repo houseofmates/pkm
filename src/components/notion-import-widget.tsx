@@ -50,9 +50,10 @@ export function NotionImportWidget() {
                 appendLog(`warning: file header does not begin with PK (${hex}); uploading anyway`);
             }
         } catch (e) {
-            // header check failed; log and abort to avoid uploading garbage
-            appendLog('error: unable to inspect file header');
-            return;
+            // header check failed (likely because arrayBuffer isn't supported
+            // in this environment). log a warning and continue so we don't
+            // block legitimate uploads.
+            appendLog('warning: could not inspect file header; uploading anyway');
         }
         setRunning(true);
         appendLog('uploading...');
