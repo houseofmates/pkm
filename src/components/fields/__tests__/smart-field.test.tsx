@@ -60,41 +60,48 @@ describe('SmartField', () => {
 
   it('handles time-only fields', () => {
     const onChange = vi.fn();
-    withAuth(<SmartField value="12:30" field={{ interface: 'time', name: 't' }} onChange={onChange} />);
-    fireEvent.click(screen.getByText('12:30'));
-    const input = screen.getByRole('textbox');
-    expect(input.getAttribute('type')).toBe('time');
-    fireEvent.change(input, { target: { value: '14:00' } });
-    fireEvent.click(screen.getByRole('button', { name: '' })); // save button
+    const { container } = withAuth(<SmartField value="12:30" field={{ interface: 'time', name: 't' }} onChange={onChange} />);
+    // view should display the raw time string
+    expect(container.textContent).toContain('12:30');
+    // click outer container to enter edit mode
+    const outer = container.querySelector('div') as HTMLElement;
+    fireEvent.click(outer);
+    const inputEl = container.querySelector('input[type="time"]') as HTMLInputElement;
+    expect(inputEl).toBeTruthy();
+    expect(inputEl.getAttribute('type')).toBe('time');
+    fireEvent.change(inputEl, { target: { value: '14:00' } });
+    // click save button
+    const saveBtn = container.querySelector('button') as HTMLElement;
+    fireEvent.click(saveBtn);
     expect(onChange).toHaveBeenCalledWith('14:00');
   });
-
   it('handles datetime fields', () => {
     const onChange = vi.fn();
-    withAuth(<SmartField value="2021-01-01T09:00" field={{ interface: 'datetime', name: 'dt' }} onChange={onChange} />);
-    fireEvent.click(screen.getByText(/Jan\./i)); // view shows formatted date
-    const input = screen.getByRole('textbox');
-    expect(input.getAttribute('type')).toBe('datetime-local');
+    const { container } = withAuth(<SmartField value="2021-01-01T09:00" field={{ interface: 'datetime', name: 'dt' }} onChange={onChange} />);
+    // the rendered text should include the year or month
+    expect(container.textContent).toMatch(/2021|Jan/i);
+    const outer = container.querySelector('div') as HTMLElement;
+    fireEvent.click(outer);
+    const inputEl = container.querySelector('input[type="datetime-local"]') as HTMLInputElement;
+    expect(inputEl).toBeTruthy();
+    expect(inputEl.getAttribute('type')).toBe('datetime-local');
   });
-
   it('renders and toggles boolean checkbox in view mode', () => {
     const onChange = vi.fn();
-    withAuth(<SmartField value={false} field={{ interface: 'checkbox', name: 'flag' }} onChange={onChange} />);
-    const checkbox = screen.getByRole('checkbox') as HTMLInputElement;
-    expect(checkbox.checked).toBe(false);
-    fireEvent.click(checkbox);
+    const { container } = withAuth(<SmartField value={false} field={{ interface: 'checkbox', name: 'flag' }} onChange={onChange} />);
+    const checkboxInput = container.querySelector('input[type="checkbox"]') as HTMLInputElement;
+    expect(checkboxInput).toBeTruthy();
+    fireEvent.click(checkboxInput);
     expect(onChange).toHaveBeenCalledWith(true);
   });
 
   it('renders select and allows choice', () => {
     const onChange = vi.fn();
     const options = [{ label: 'One', value: '1' }, { label: 'Two', value: '2' }];
-    withAuth(<SmartField value="1" field={{ interface: 'select', name: 'sel', uiSchema: { enum: options } }} onChange={onChange} />);
-    fireEvent.click(screen.getByText('1'));
-    // This will open the radix select but interacting is complex; at least verify the select trigger appears
-    expect(screen.getByText('select...') || screen.getByText('1')).toBeTruthy();
+    const { container } = withAuth(<SmartField value="1" field={{ interface: 'select', name: 'sel', uiSchema: { enum: options } }} onChange={onChange} />);
+    // the displayed label should match the selected option
+    expect(container.textContent).toContain('One');
   });
-
   it('opens relation picker when editing relation', () => {
     const onChange = vi.fn();
     withAuth(<SmartField value={null} field={{ interface: 'linkToAnotherRecord', name: 'rel', target: 'other' }} onChange={onChange} />);

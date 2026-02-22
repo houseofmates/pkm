@@ -340,12 +340,15 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   };
 
   const formatTime = (dateStr: string) => {
-    // 12 hour format pst/pacific time and pulls live time to compare to current time
-    // simplification: just 12h formatting for now
     if (!dateStr) return '';
     try {
-      return new Date(dateStr).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-    } catch (e) { return ''; }
+      const t = new Date(dateStr);
+      if (isNaN(t.getTime())) {
+        // fallback to raw string when Date parse fails (e.g. simple '12:30')
+        return dateStr;
+      }
+      return t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    } catch (e) { return dateStr; }
   };
 
   const formatNumber = (val: any) => {
@@ -662,6 +665,12 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           </div>
         </div>
       )
+    }
+
+    if (isDateTime) {
+      return (
+        <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer font-varela", size === 'lg' ? "text-lg" : "text-xs")}>{formatDate(value)} {formatTime(value)}</div>
+      );
     }
 
     if (isTime) {
