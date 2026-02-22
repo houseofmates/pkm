@@ -46,6 +46,10 @@ describe('Migration', () => {
     const checkpoint = await getLatestCheckpoint(id)
     expect(checkpoint).toBeDefined()
     expect(checkpoint?.state).toEqual(content)
+
+    // original keys should be removed now
+    expect(localStorage.getItem(`drawing-config-${id}`)).toBeNull()
+    expect(localStorage.getItem(`drawing-content-${id}`)).toBeNull()
   })
 
   it('handles invalid content gracefully', async () => {
