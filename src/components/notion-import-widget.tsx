@@ -114,10 +114,8 @@ export function NotionImportWidget() {
             // poll for progress lines every couple seconds
             const poll = async () => {
                 try {
-                    // prefer the shorter nb-import route; legacy notion-import
-                    // path is still supported server‑side but may be filtered by
-                    // Cloudflare.
-                    const r = await fetch(`${baseUrl}/nb-import/${data.taskId}/logs`, {
+                    // prefer query‑param endpoint to avoid Cloudflare path filters
+                    const r = await fetch(`${baseUrl}/nb-import/logs?id=${data.taskId}`, {
                         headers: { Authorization: `Bearer ${apiKey}` }
                     });
                     if (!r.ok) {
