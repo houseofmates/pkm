@@ -52,23 +52,22 @@ describe('notion importer integration', () => {
         expect(pagesDef).toBeDefined();
         expect(pagesDef.body.fields.body).toBe('text');
 
-        // find records added
+        // find records added (URLs include the collection name)
         const recs = calls.filter(c => c.url.startsWith('/records:'));
         // we should have at least 1 page + 3 csv rows (1 in db, 2 in db2)
         expect(recs.length).toBeGreaterThanOrEqual(3);
 
         // inspect that one of the record creations for page contains the body text and frontmatter
-        const pageRec = recs.find(r => r.body.collection === 'pages');
+        const pageRec = recs.find(r => r.url.includes('records:pages') && r.body.values?.title === 'MyPage');
         expect(pageRec).toBeDefined();
-        expect(pageRec.body.data.body).toContain('This is the body text.');
-        expect(pageRec.body.data.title).toBe('MyPage');
-        expect(pageRec.body.data.foo).toBe('bar');
+        expect(pageRec.body.values.body).toContain('This is the body text.');
+        expect(pageRec.body.values.foo).toBe('bar');
 
         // inspect CSV row data exists
-        const dbRow = recs.find(r => r.body.collection === 'db' && r.body.data.Name === 'X');
+        const dbRow = recs.find(r => r.url.includes('records:db:create') && r.body.values.Name === 'X');
         expect(dbRow).toBeDefined();
 
-        const db2Row = recs.find(r => r.body.collection === 'db2' && r.body.data.A === 1);
+        const db2Row = recs.find(r => r.url.includes('records:db2:create') && r.body.values.A === 1);
         expect(db2Row).toBeDefined();
     });
 });
