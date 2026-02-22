@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings, type LucideIcon } from 'lucide-react';
 import * as Icons from 'lucide-react';
+import { GlobalSearchDialog } from '@/components/global-search-dialog';
 
 // helper to safely get lucide icon by name
 function getLucideIcon(name: string): LucideIcon | undefined {
@@ -181,7 +182,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
 }
 
 export function Navigation({ activeTab, onTabChange, className, onSelectCollection, selectedCollection, items, setItems, onOpenSettings }: NavigationProps) {
-
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const { collections, refresh } = useCollections();
   const navigate = useNavigate();
@@ -540,17 +541,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
           <Button
             variant="outline"
             className="w-full justify-start gap-2 text-muted-foreground border-solid hover:bg-white/5 transition-colors"
-            onClick={() => {
-              // capture context for ai
-              const selection = window.getSelection()?.toString();
-              const context = selection && selection.length > 5
-                ? selection
-                : document.body.innerText.slice(0, 3000); // reasonable limit
-
-              window.dispatchEvent(new CustomEvent('pkm:open-search', {
-                detail: { context }
-              }));
-            }}
+            onClick={() => setSearchOpen(true)}
           >
             <Search className="h-4 w-4" />
             <span className="text-xs">search / ask ai...</span>
@@ -570,7 +561,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       </div>
 
 
-      {/* <globalsearchdialog open={searchopen} onopenchange={setsearchopen} /> removed in favor of globalcommandpalette */}
+      <GlobalSearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
 
       {/* mobile nav top bar - also removed as we use bottomnav now */}
       {/* keeping it hidden just in case or if classname overrides it, but the parent uses bottomnav for mobile */}
