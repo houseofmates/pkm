@@ -88,5 +88,44 @@ To build a real extension:
 
 These files are intentionally simple; expand them as needed for your editor tooling.
 
+## Notion Export Importer
+
+A new CLI and UI tool lets you import a full Notion workspace export directly into PKM/NocoBase.
+
+### Usage
+
+1. Export your workspace from Notion (ZIP format, up to 5 GB).
+2. From the command line run:
+   ```bash
+   npm run notion:import -- /path/to/notion-export.zip
+   ```
+   configure `NOCOBASE_URL` and `ADMIN_API_KEY` environment variables the same way other scripts use.
+
+3. Alternatively, open the app and click **settings ▶ import notion workspace**; select the ZIP and watch progress logs.
+
+The backend endpoint (`POST /api/notion-import`) accepts the ZIP via multipart/form-data and streams progress via SSE at `/api/notion-import/:taskId/stream`.
+
+### Mapping rules
+
+- **Databases** in Notion become NocoBase collections named after the CSV filename.
+- **Pages** become records in a `pages` collection; markdown body and front-matter fields are preserved.
+- Property types are guessed from sample values (number, boolean, string).
+- Relations, multi-selects and other complex field types are currently treated as plain text but the transformer is easily extensible.
+
+The parser is tolerant of malformed files, logging warnings and continuing. Large exports are streamed to avoid high memory usage.
+
+### Code structure
+
+- `src/features/notion-import/parser.ts` – recursive directory walker, CSV and Markdown loader.
+- `src/features/notion-import/transformer.ts` – turns parsed workspace into a sequence of import instructions.
+- `scripts/notion-import.ts` – CLI entrypoint used by both `npm run notion:import` and the backend API.
+- `backend/server.js` – new endpoints and SSE task management.
+- `src/pages/notion-import.tsx` – UI page with file input and progress panel.
+
+Unit and integration tests cover parsing, transformation, and CLI logic (`src/features/notion-import/__tests__`).
+
+A future extension could allow direct client‑side parsing or more advanced field-type inference; the current implementation is designed for simplicity and robustness.
+
+
 > Legacy drawings stored in localStorage are automatically migrated to the new IndexedDB backend on first app load. After migration the old keys are cleaned up and the localStorage path will be removed.
 - **tunneling**: cloudflare tunnel (`cloudflared`) handles external routing.
