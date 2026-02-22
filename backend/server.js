@@ -66,6 +66,7 @@ const debounceBroadcast = (event, payload, delay = 500) => {
 app.use(cors({
     origin: (origin, callback) => {
         // allow requests with no origin (same‑origin or curl)
+        console.debug('[CORS] request origin', origin, 'allowed list', process.env.ALLOWED_ORIGINS);
         if (!origin) return callback(null, true);
         const allowed = (process.env.ALLOWED_ORIGINS || '')
             .split(',')
@@ -73,6 +74,7 @@ app.use(cors({
             .filter(Boolean);
         for (const a of allowed) {
             if (a === origin) {
+                console.debug('[CORS] origin matched literal', a);
                 return callback(null, true);
             }
             // if pattern contains a star anywhere, treat as simple wildcard
@@ -81,6 +83,7 @@ app.use(cors({
                 const parts = a.split('*').map(p => p.replace(/[-/\\^$+?.()|[\]{}]/g, '\\$&'));
                 const regex = new RegExp('^' + parts.join('.*') + '$');
                 if (regex.test(origin)) {
+                    console.debug('[CORS] origin matched wildcard regex', regex);
                     return callback(null, true);
                 }
             }
@@ -88,6 +91,7 @@ app.use(cors({
             if (a.endsWith('*')) {
                 const prefix = a.slice(0, -1);
                 if (origin.startsWith(prefix)) {
+                    console.debug('[CORS] origin matched suffix wildcard', prefix);
                     return callback(null, true);
                 }
             }
@@ -95,10 +99,12 @@ app.use(cors({
             if (a.startsWith('*.')) {
                 const host = a.slice(2);
                 if (origin.endsWith(host)) {
+                    console.debug('[CORS] origin matched prefix wildcard', host);
                     return callback(null, true);
                 }
             }
         }
+        console.debug('[CORS] origin not allowed');
         callback(null, false);
     },
     methods: ['GET','POST','OPTIONS'],
