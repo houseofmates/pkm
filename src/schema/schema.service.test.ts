@@ -2,6 +2,17 @@ import { describe, it, expect } from 'vitest';
 import { schemaService, FieldInstance } from './schema.service';
 import './field-types'; // This ensures the field types are registered before tests run
 
+// Guarantee registration even if a separate schemaService instance is used.
+import { schemaService, FieldType } from './schema.service';
+import { z } from 'zod';
+
+beforeAll(() => {
+  const textField: FieldType = { typeName: 'text', schema: z.string().nullable(), defaultValue: '' };
+  const numberField: FieldType = { typeName: 'number', schema: z.number().nullable(), defaultValue: 0 };
+  schemaService.registerFieldType(textField);
+  schemaService.registerFieldType(numberField);
+});
+
 
 describe('SchemaService', () => {
 
