@@ -306,7 +306,12 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     baseType === 'belongsToMany'; // include common nocobase relation interfaces
 
   // json/object fallback
-  const isJson = detectedType === 'json' || detectedType === 'array' || detectedType === 'object' || typeof value === 'object';
+  // avoid treating null as an object/json literal
+  const isJson =
+    detectedType === 'json' ||
+    detectedType === 'array' ||
+    detectedType === 'object' ||
+    (typeof value === 'object' && value !== null);
 
   // --- special formatters ---
   const formatPhoneNumber = (val: string) => {
@@ -471,7 +476,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
             <Input type="file" className="absolute inset-0 opacity-0 cursor-pointer w-6" onChange={handleFileChange} />
             <Paperclip className="h-4 w-4 text-muted-foreground" />
           </div>
-          <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={handleSave}><Check className="h-3 w-3" /></Button>
+          <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => handleSave()}><Check className="h-3 w-3" /></Button>
         </div>
       )
     }
@@ -592,7 +597,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
               ))}
             </SelectContent>
           </Select>
-          <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={handleSave}><Check className="h-3 w-3" /></Button>
+          <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => handleSave()}><Check className="h-3 w-3" /></Button>
           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancel}><X className="h-3 w-3" /></Button>
         </div>
       )
@@ -613,7 +618,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
             className="h-8 w-24 text-xs font-mono"
             placeholder="#hex"
           />
-          <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={handleSave}><Check className="h-3 w-3" /></Button>
+          <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => handleSave()}><Check className="h-3 w-3" /></Button>
           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancel}><X className="h-3 w-3" /></Button>
         </div>
       )
