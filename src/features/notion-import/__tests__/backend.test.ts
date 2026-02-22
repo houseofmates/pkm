@@ -67,4 +67,20 @@ describe('backend /api/notion-import', () => {
         expect(res.status).toBe(200);
         expect(res.body.taskId).toBeTruthy();
     });
+
+    describe('CORS', () => {
+        it('returns allow-origin header for configured origin', async () => {
+            const res = await request(app)
+                .options('/api/status')
+                .set('Origin', 'https://pkm.houseofmates.space');
+            expect(res.headers['access-control-allow-origin']).toBe('https://pkm.houseofmates.space');
+        });
+
+        it('does not expose header for disallowed origin', async () => {
+            const res = await request(app)
+                .options('/api/status')
+                .set('Origin', 'https://evil.com');
+            expect(res.headers['access-control-allow-origin']).toBeUndefined();
+        });
+    });
 });
