@@ -28,6 +28,25 @@ export function NotionImportWidget() {
             return;
         }
         appendLog(`using api key ${maskString(apiKey)}`);
+        // sanity check the selected file before we POST it. smaller than 1KB
+        // is almost never a valid Notion export, and we also verify the ZIP
+        // magic bytes so we don't end up sending an HTML page through the
+        // proxy (which is what was happening).
+        if (file.size < 1024) {
+            appendLog('error: file appears too small to be a Notion export');
+            return;
+        }
+        try {
+            const hdr = await file.slice(0, 4).arrayBuffer();
+            const bytes = new Uint8Array(hdr);
+            if (!(bytes[0] === 0x50 && bytes[1] === 0x4B)) {
+                appendLog('error: selected file does not appear to be a ZIP');
+                return;
+            }
+        } catch (e) {
+            appendLog('error: unable to inspect file header');
+            return;
+        }
         setRunning(true);
         appendLog('uploading...');
         const fd = new FormData();
