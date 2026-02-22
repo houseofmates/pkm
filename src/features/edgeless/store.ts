@@ -113,6 +113,10 @@ interface EdgelessState {
   isLinking: boolean
   penWidth: number
   penColor: string
+  penOpacity: number
+  eraserOpacity: number
+  penOpacity: number
+  eraserOpacity: number
   stabilizerLevel: number
   pressureEnabled: boolean
 
@@ -193,8 +197,8 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   isChatOpen: false,
   isLinking: false,
   penWidth: 2,
-  penColor: 'var(--primary)',
-  stabilizerLevel: 0,
+  penColor: 'var(--primary)',  penOpacity: 100,
+  eraserOpacity: 100,  stabilizerLevel: 0,
   pressureEnabled: true,
 
   // canvas refs and helpers
@@ -382,12 +386,16 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   // ui actions
   setSelectionMode: (mode) => set({ selectionMode: mode }),
   setEraserWidth: (width) => set({ eraserWidth: width }),
+  setPenOpacity: (o) => set({ penOpacity: o }),
+  setEraserOpacity: (o) => set({ eraserOpacity: o }),
   setTextSize: (size) => set({ textSize: size }),
   setChatOpen: (open) => set({ isChatOpen: open }),
   setIsLinking: (linking) => set({ isLinking: linking }),
   setPenWidth: (width) => set({ penWidth: width }),
   setPenColor: (color) => set({ penColor: color }),
   setStabilizerLevel: (level) => set({ stabilizerLevel: level }),
+  setPenOpacity: (o) => set({ penOpacity: o }),
+  setEraserOpacity: (o) => set({ eraserOpacity: o }),
   setPressureEnabled: (enabled) => set({ pressureEnabled: enabled }),
   // new canvas helpers
   setFabricCanvas: (c) => set({ fabricCanvas: c }),

@@ -174,6 +174,19 @@ export function Toolbar() {
                   className="accent-primary"
                 />
               </div>
+              {/* opacity */}
+              <div className="flex flex-col gap-1 mb-2">
+                <label className="text-xs text-primary lowercase flex justify-between">
+                  <span>opacity</span>
+                  <span>{store.penOpacity}%</span>
+                </label>
+                <input
+                  type="range" min="0" max="100"
+                  value={store.penOpacity}
+                  onChange={(e) => store.setPenOpacity(Number(e.target.value))}
+                  className="accent-primary"
+                />
+              </div>
               <div className="grid grid-cols-5 gap-2">
                 {['var(--primary)', '#ffffff', '#ef4444', '#22c55e', '#3b82f6', '#000000'].map((color) => (
                   <button
@@ -197,6 +210,16 @@ export function Toolbar() {
                     type="range" min="5" max="100"
                     value={store.eraserWidth}
                     onChange={(e) => store.setEraserWidth(Number(e.target.value))}
+                    className="accent-primary"
+                  />
+                <label className="text-xs text-primary lowercase flex justify-between mt-2">
+                  <span>opacity</span>
+                  <span>{store.eraserOpacity}%</span>
+                </label>
+                  <input
+                    type="range" min="0" max="100"
+                    value={store.eraserOpacity}
+                    onChange={(e) => store.setEraserOpacity(Number(e.target.value))}
                     className="accent-primary"
                   />
                 </>
