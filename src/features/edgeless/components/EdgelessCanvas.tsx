@@ -267,6 +267,17 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
           'canvas-object',
           { ...data, type: target.type }
         )
+      } else {
+        // blank canvas click: if drawing or eraser tool active, show tool menu
+        if (activeTool === 'pen' || activeTool === 'eraser') {
+          useContextMenuStore.getState().openMenu(
+            e.clientX,
+            e.clientY,
+            activeTool,
+            'tool',
+            { tool: activeTool }
+          )
+        }
       }
     }
 
