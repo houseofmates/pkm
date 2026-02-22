@@ -38,7 +38,7 @@ export function NotionImportWidget() {
         if (envBase && envBase.endsWith('/')) envBase = envBase.slice(0, -1);
         // if someone accidentally left the old db domain in the variable,
         // rewrite it to use the real API host so we don't build and deploy
-a broken bundle
+        // a broken bundle
         if (envBase && envBase.includes('db.houseofmates.space')) {
             envBase = envBase.replace('db.houseofmates.space', 'api.houseofmates.space');
         }
