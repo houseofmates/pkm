@@ -5,7 +5,7 @@ import { Toaster } from "@/components/ui/sonner"
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { Routes, Route, BrowserRouter } from "react-router-dom"
 import { isPublicDomain } from "@/utils/subdomain-router"
-import { lazy, Suspense, useEffect } from "react"
+import { lazy, Suspense, useEffect, useState } from "react"
 import { FronterProvider } from "@/contexts/fronter-context"
 import { LLMContextProvider } from "@/contexts/llm-context"
 import { CanvasErrorBoundary } from "@/features/edgeless"
