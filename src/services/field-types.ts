@@ -106,6 +106,12 @@ const attachmentsField: FieldType = {
   defaultValue: [],
 };
 
+const formulaField: FieldType = {
+  typeName: 'formula',
+  schema: z.string().nullable(),
+  defaultValue: '',
+};
+
 const relationField: FieldType = {
   typeName: 'relation',
   schema: z.any().nullable(),
@@ -129,6 +135,7 @@ schemaService.registerFieldType(colorField);
 schemaService.registerFieldType(jsonField);
 schemaService.registerFieldType(attachmentField);
 schemaService.registerFieldType(attachmentsField);
+schemaService.registerFieldType(formulaField);
 schemaService.registerFieldType(relationField);
 
 console.log('Default field types registered (text, number, boolean, date, datetime, time, select, multipleSelect, percent, email, phone, url, color, json, attachment, attachments, relation).');
