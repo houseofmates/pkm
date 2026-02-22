@@ -279,6 +279,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   const isPassword = detectedType === 'password' || name.includes('password');
   const isColor = detectedType === 'color' || name.includes('color');
   const isCheckbox = detectedType === 'boolean' || detectedType === 'checkbox';
+  const isMultiSelect = field?.interface === 'multipleSelect' || detectedType === 'multipleSelect' || field?.interface === 'checkboxgroup';
   const isSelect = detectedType === 'select' || detectedType === 'multipleSelect' || field?.interface === 'radiogroup';
   const isCode = detectedType === 'code' || name === 'code' || name === 'formula'; // Added formula
   const isMarkdown = detectedType === 'markdown' || detectedType === 'richText' || name.includes('desc') || name.includes('note');
@@ -450,7 +451,25 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       )
     }
 
-    if (isDate) {
+    if (isDate || isDateTime || isTime) {
+      // when time or datetime is requested, fall back to native input for simplicity
+      if (isDateTime || isTime) {
+        const inputType = isDateTime ? 'datetime-local' : 'time';
+        return (
+          <div className="flex items-center gap-1">
+            <Input
+              type={inputType}
+              value={localValue || ''}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
+              className="h-8 text-xs"
+            />
+            <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => handleSave(localValue)}><Check className="h-3 w-3" /></Button>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancel}><X className="h-3 w-3" /></Button>
+          </div>
+        );
+      }
+
+      // date only picker remains calendar popover
       return (
         <Popover open={true} onOpenChange={(open) => { if (!open) handleSave(); }}>
           <PopoverTrigger asChild>
@@ -478,7 +497,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
             />
           </PopoverContent>
         </Popover>
-      )
+      );
     }
 
     if (isSelect) {
@@ -567,6 +586,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
             if (e.key === 'Escape') handleCancel();
           }}
         />
+        {isPercentField && <span className="text-xs">%</span>}
         <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500 hover:text-green-600" onClick={handleSave}>
           <Check className="h-3 w-3" />
         </Button>
