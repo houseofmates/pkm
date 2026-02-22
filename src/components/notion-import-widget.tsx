@@ -59,8 +59,15 @@ export function NotionImportWidget() {
             }
         } catch (e) {
             // header check failed (likely because arrayBuffer isn't supported
-            // in this environment). log a warning and continue so we don't
-            // block legitimate uploads.
+            // in this environment). as a best effort, inspect the file as text
+            // so we can still catch HTML pages.
+            try {
+                const txt = await file.text();
+                if (txt.trim().startsWith('<')) {
+                    appendLog('error: selected file appears to be HTML, not a ZIP');
+                    return;
+                }
+            } catch {}
             appendLog('warning: could not inspect file header; uploading anyway');
         }
         setRunning(true);
