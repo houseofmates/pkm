@@ -47,10 +47,10 @@ export const FieldTypeDefinitionSchema = z.object({
   description: z.string().optional(),
   
   // whether this field type supports sorting
-  sortable: z.boolean().default(true),
+  sortable: z.boolean().optional(),
   
   // whether this field type supports filtering
-  filterable: z.boolean().default(true),
+  filterable: z.boolean().optional(),
   
   // configuration schema for this field type (e.g., min/max for numbers)
   configSchema: z.custom<z.ZodType<any>>().optional(),
@@ -80,16 +80,16 @@ export const FieldDefinitionSchema = z.object({
   label: z.string(),
   
   // whether this field is required
-  required: z.boolean().default(false),
+  required: z.boolean().optional(),
   
   // whether this field must be unique across all records
-  unique: z.boolean().default(false),
+  unique: z.boolean().optional(),
   
   // whether this field is read-only
-  readOnly: z.boolean().default(false),
+  readOnly: z.boolean().optional(),
   
   // whether this field is hidden in default views
-  hidden: z.boolean().default(false),
+  hidden: z.boolean().optional(),
   
   // default value for this specific field instance
   defaultValue: z.any().optional(),
@@ -104,7 +104,7 @@ export const FieldDefinitionSchema = z.object({
   description: z.string().optional(),
   
   // order index for displaying fields
-  order: z.number().default(0),
+  order: z.number().optional(),
 });
 
 export type FieldDefinition = z.infer<typeof FieldDefinitionSchema>;
@@ -155,7 +155,7 @@ export const TableDefinitionSchema = z.object({
   fields: z.array(FieldDefinitionSchema),
   
   // table metadata
-  metadata: TableMetadataSchema.default({}),
+  metadata: TableMetadataSchema.optional(),
   
   // created timestamp
   createdAt: z.string().datetime(),
@@ -239,15 +239,10 @@ export type FilterCondition = z.infer<typeof FilterConditionSchema>;
 /**
  * filter group - combines multiple conditions with and/or
  */
-export const FilterGroupSchema = z.object({
-  operator: z.enum(['and', 'or']),
-  conditions: z.array(z.union([
-    FilterConditionSchema,
-    z.lazy(() => FilterGroupSchema),
-  ])),
-});
-
-export type FilterGroup = z.infer<typeof FilterGroupSchema>;
+export interface FilterGroup {
+  operator: 'and' | 'or';
+  conditions: (FilterCondition | FilterGroup)[];
+}
 
 /**
  * sort direction
@@ -277,10 +272,10 @@ export const QueryOptionsSchema = z.object({
   sort: z.array(SortSpecSchema).optional(),
   
   // pagination - page number (1-based)
-  page: z.number().int().positive().default(1),
+  page: z.number().int().positive().optional(),
   
   // pagination - page size
-  pageSize: z.number().int().positive().max(1000).default(100),
+  pageSize: z.number().int().positive().max(1000).optional(),
   
   // fields to include (undefined = all)
   fields: z.array(z.string()).optional(),
@@ -364,26 +359,3 @@ export const RecordChangeSchema = z.object({
 });
 
 export type RecordChange = z.infer<typeof RecordChangeSchema>;
-
-// ============================================================================
-// export all types
-// ============================================================================
-
-export type {
-  ValidationRule,
-  FieldTypeDefinition,
-  FieldDefinition,
-  TableMetadata,
-  TableDefinition,
-  BaseRecord,
-  Record,
-  FilterOperator,
-  FilterCondition,
-  FilterGroup,
-  SortDirection,
-  SortSpec,
-  QueryOptions,
-  QueryResult,
-  ChangeOperation,
-  RecordChange,
-};
