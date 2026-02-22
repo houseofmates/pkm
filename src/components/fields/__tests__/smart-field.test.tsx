@@ -117,15 +117,16 @@ describe('SmartField', () => {
     const colorInput = document.querySelector('input[type="color"]') as HTMLInputElement;
     expect(colorInput).toBeInTheDocument();
     fireEvent.change(colorInput!, { target: { value: '#ff0000' } });
-    // click save button
-    const btn = document.querySelector('button');
-    btn && fireEvent.click(btn);
+    // the save button has green icon, so pick the button with that class
+    const saveBtn = Array.from(document.querySelectorAll('button')).find(b => b.className.includes('text-green-500')) as HTMLButtonElement;
+    expect(saveBtn).toBeDefined();
+    fireEvent.click(saveBtn);
     expect(onChange).toHaveBeenCalledWith('#ff0000');
   });
 
   it('uploads file and returns url', async () => {
     const onChange = vi.fn();
-    withAuth(<SmartField value="" field={{ interface: 'attachment', name: 'file' }} onChange={onChange} />);
+    withAuth(<SmartField value={null} field={{ interface: 'attachment', name: 'file' }} onChange={onChange} />);
     // click the default empty placeholder to begin editing
     fireEvent.click(screen.getByText(/empty/i));
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
