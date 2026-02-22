@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { dataService } from '@/services/data.service';
-import { FieldInstance } from '@/services/schema.service';
+import type { FieldInstance } from '@/services/schema.service';
 import '@/services/field-types'; // Ensures 'text' and 'number' are registered
 
 
