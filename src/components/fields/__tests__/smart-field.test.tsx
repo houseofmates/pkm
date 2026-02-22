@@ -24,7 +24,7 @@ function withAuth(ui: React.ReactElement) {
 
 describe('SmartField', () => {
   it('renders string value and allows editing', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     withAuth(<SmartField value="hello" field={{ interface: 'input', name: 'foo' }} onChange={onChange} />);
     expect(screen.getByText('hello')).toBeInTheDocument();
     fireEvent.click(screen.getByText('hello'));
@@ -36,7 +36,7 @@ describe('SmartField', () => {
   });
 
   it('treats number field as numeric input', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     withAuth(<SmartField value={42} field={{ interface: 'number', name: 'num' }} onChange={onChange} />);
     fireEvent.click(screen.getByText('42'));
     const input = screen.getByRole('spinbutton') as HTMLInputElement;
@@ -47,7 +47,7 @@ describe('SmartField', () => {
   });
 
   it('shows percent suffix and onChange receives raw value', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     withAuth(<SmartField value={10} field={{ interface: 'number', type: 'percent', name: 'pct' }} onChange={onChange} />);
     fireEvent.click(screen.getByText('10%'));
     const input = screen.getByRole('spinbutton');
@@ -59,7 +59,7 @@ describe('SmartField', () => {
   });
 
   it('handles time-only fields', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     withAuth(<SmartField value="12:30" field={{ interface: 'time', name: 't' }} onChange={onChange} />);
     fireEvent.click(screen.getByText('12:30'));
     const input = screen.getByRole('textbox');
@@ -70,7 +70,7 @@ describe('SmartField', () => {
   });
 
   it('handles datetime fields', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     withAuth(<SmartField value="2021-01-01T09:00" field={{ interface: 'datetime', name: 'dt' }} onChange={onChange} />);
     fireEvent.click(screen.getByText(/Jan\./i)); // view shows formatted date
     const input = screen.getByRole('textbox');
@@ -78,7 +78,7 @@ describe('SmartField', () => {
   });
 
   it('renders and toggles boolean checkbox in view mode', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     withAuth(<SmartField value={false} field={{ interface: 'checkbox', name: 'flag' }} onChange={onChange} />);
     const checkbox = screen.getByRole('checkbox') as HTMLInputElement;
     expect(checkbox.checked).toBe(false);
@@ -87,7 +87,7 @@ describe('SmartField', () => {
   });
 
   it('renders select and allows choice', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     const options = [{ label: 'One', value: '1' }, { label: 'Two', value: '2' }];
     withAuth(<SmartField value="1" field={{ interface: 'select', name: 'sel', uiSchema: { enum: options } }} onChange={onChange} />);
     fireEvent.click(screen.getByText('1'));
@@ -96,7 +96,7 @@ describe('SmartField', () => {
   });
 
   it('opens relation picker when editing relation', () => {
-    const onChange = jest.fn();
+    const onChange = vi.fn();
     withAuth(<SmartField value={null} field={{ interface: 'linkToAnotherRecord', name: 'rel', target: 'other' }} onChange={onChange} />);
     fireEvent.click(screen.getByText(/empty relation/i));
     expect(screen.getByText(/select other/i)).toBeInTheDocument();
