@@ -33,21 +33,26 @@ export function NotionImportWidget() {
             appendLog('error: file appears too small to be a Notion export');
             return;
         }
-        // header validation is useful in real environments but in tests we may
-        // not have arrayBuffer support, so only perform it outside of test.
-        if (process.env.NODE_ENV !== 'test') {
-            try {
-                const hdr = await file.slice(0, 4).arrayBuffer();
-                const bytes = new Uint8Array(hdr);
-                if (!(bytes[0] === 0x50 && bytes[1] === 0x4B)) {
-                    appendLog('error: selected file does not appear to be a ZIP');
-                    return;
-                }
-            } catch (e) {
-                // header check failed; log and abort to avoid uploading garbage
-                appendLog('error: unable to inspect file header');
-                return;
+        // inspect the first few bytes of the file to warn if it doesn't
+        // look like a ZIP. this isn't a hard failure because there are still
+        // legitimate ZIP variants that start with something unexpected, but
+        // seeing garbage (HTML login page, etc) is worth indicating in the
+        // UI. keep the try/catch so we don't crash when slice/arrayBuffer
+        // isn't available (should never happen in modern browsers).
+        try {
+            const hdr = await file.slice(0, 4).arrayBuffer();
+            const bytes = new Uint8Array(hdr);
+            if (!(bytes[0] === 0x50 && bytes[1] === 0x4B)) {
+                // log the first four bytes in hex for debugging
+                const hex = Array.from(bytes)
+                    .map(b => b.toString(16).padStart(2, '0'))
+                    .join(' ');
+                appendLog(`warning: file header does not begin with PK (${hex}); uploading anyway`);
             }
+        } catch (e) {
+            // header check failed; log and abort to avoid uploading garbage
+            appendLog('error: unable to inspect file header');
+            return;
         }
         setRunning(true);
         appendLog('uploading...');

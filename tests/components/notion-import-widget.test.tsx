@@ -58,6 +58,8 @@ describe('NotionImportWidget', () => {
     localStorage.clear();
     // ensure hook returns no key by default
     (useAppSetting as any).mockReturnValue(['', vi.fn()]);
+    // run header check logic in tests by pretending we're not in test
+    process.env.NODE_ENV = 'production';
   });
 
   it('logs both raw and rewritten VITE_API_URL values', async () => {
@@ -113,7 +115,7 @@ describe('NotionImportWidget', () => {
     });
   });
 
-  it('rejects files that are too small or not zip', async () => {
+  it('rejects files that are too small', async () => {
     localStorage.setItem('hom_api_key','key');
     render(<NotionImportWidget />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
@@ -122,7 +124,7 @@ describe('NotionImportWidget', () => {
     fireEvent.change(input, { target: { files: [small] } });
     fireEvent.click(screen.getByText(/start import/i));
     await waitFor(() => expect(screen.getByText(/too small/i)).toBeInTheDocument());
-    // no further checks under test environment
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it('handles invalid JSON from server gracefully', async () => {
