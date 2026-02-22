@@ -933,14 +933,15 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     }
 
     if (isNumber) {
-    return (
-      <div
-        onClick={() => setIsEditing(true)}
-        className={cn("cursor-pointer text-right min-h-[20px] font-varela", size === 'lg' ? "text-lg" : "text-sm")}
-      >
-        {value !== null && value !== undefined ? formatNumber(value) : <span className="opacity-20">-</span>}
-      </div>
-    )
+      return (
+        <div
+          onClick={() => setIsEditing(true)}
+          className={cn("cursor-pointer text-right min-h-[20px] font-varela", size === 'lg' ? "text-lg" : "text-sm")}
+        >
+          {value !== null && value !== undefined ? formatNumber(value) : <span className="opacity-20">-</span>}
+        </div>
+      );
+    }
 
     // default string
     return (
