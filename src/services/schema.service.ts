@@ -1,4 +1,4 @@
-import { z, ZodTypeAny } from 'zod';
+import { z } from 'zod';
 
 /**
  * Defines the structure for a field type definition.
@@ -8,7 +8,7 @@ export const FieldTypeSchema = z.object({
   // The programmatic name of the field type, e.g., "text", "number", "date"
   typeName: z.string(),
   // A Zod schema that validates the data for this field type
-  schema: z.custom<ZodTypeAny>(),
+  schema: z.custom<z.ZodType>(),
   // Optional: A default value for this field type
   defaultValue: z.any().optional(),
 });
@@ -59,7 +59,7 @@ class SchemaService {
    * @returns A Zod schema that can be used to validate records.
    */
   public generateRecordSchema(fields: FieldInstance[]): z.ZodObject<any> {
-    const shape: { [key: string]: ZodTypeAny } = {};
+    const shape: { [key: string]: z.ZodType } = {};
 
     for (const field of fields) {
       const fieldType = this.fieldTypes.get(field.type);
