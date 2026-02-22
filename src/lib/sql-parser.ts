@@ -10,6 +10,7 @@ export interface SQLParsed {
   having?: string;
   orderBy?: { field: string; dir: 'ASC' | 'DESC' };
   limit?: number;
+  union?: SQLParsed[]; // additional SELECTs in a UNION
 }
 
 export type TableRef =
@@ -45,14 +46,13 @@ function takeBalanced(str: string): [string, string] {
 }
 
 export function parseSQL(sql: string): SQLParsed {
-  // handle simple UNION by parsing each segment recursively and merging fields
+  // handle simple UNION by parsing each segment recursively and preserving them
   const uText = sql.toUpperCase();
   if (uText.includes(' UNION ')) {
     const parts = sql.split(/\sUNION\s/i).map(p => p.trim());
-    // naive: only support unions of identical field lists
-    const first = parseSQL(parts[0]);
-    // ignore additional parts for now, but you could return an array
-    return first;
+    const parsedFirst = parseSQL(parts[0]);
+    parsedFirst.union = parts.slice(1).map(p => parseSQL(p));
+    return parsedFirst;
   }
 
   const cleaned = sql.trim().replace(/\s+/g, ' ');

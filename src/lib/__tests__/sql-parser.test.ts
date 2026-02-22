@@ -14,9 +14,11 @@ describe('SQL parser', () => {
     expect(p.where).toContain('IN');
   });
 
-  it('handles UNION queries by returning first part', () => {
+  it('handles UNION queries by returning first part and listing others', () => {
     const p = parseSQL('SELECT id FROM t UNION SELECT id FROM u');
     expect((p.from as any).name).toEqual('t');
+    expect(p.union).toHaveLength(1);
+    expect((p.union![0].from as any).name).toEqual('u');
   });
 
   it('handles alias', () => {

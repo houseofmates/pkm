@@ -66,7 +66,20 @@ if you want to allow an exception, talk to the team — the CI rule is strict by
 - **Services**: Managed via `systemctl --user pkm.service`, initiated by `/etc/systemd/system/pkm-boot.service`.
 
 ### SQL Parser & Editor Support
-A lightweight SQL parser lives in `src/lib/sql-parser.ts` with tests under `src/lib/__tests__`. It supports joins, grouping, and even simple subqueries.  An example completion generator script (`npm run schema:completions`) reads `server-data.json` and prints table suggestions; you can hook this into a VS Code extension or other editor plugin by invoking the script and using its output for IntelliSense.
+A lightweight SQL parser lives in `src/lib/sql-parser.ts` with tests under `src/lib/__tests__`. It currently handles:
+
+- `SELECT` fields and simple `FROM table [alias]`
+- `JOIN` clauses (with optional `ON`)
+- `GROUP BY` / `HAVING`
+- `ORDER BY` and `LIMIT`
+- **subqueries** in the `FROM` clause and in joins
+- basic `IN` expressions and `UNION` (first part only)
+
+The implementation is intentionally naive: it tokenizes on whitespace and balanced parentheses, then walks the string. Expanding the parser further means adding grammar rules for additional SQL features (e.g. `UNION ALL`, `INTERSECT`, `EXISTS`, nested expressions, arithmetic, function calls), improving tokenization (strings, identifiers, operators), and possibly adopting a proper parser generator (PEG.js, nearley, etc.) once needs grow beyond toy level.
+
+The associated test file shows usage and serves as a regression suite.
+
+An example completion generator script (`npm run schema:completions`) reads `server-data.json` and prints table suggestions; you can hook this into a VS Code extension or other editor plugin by invoking the script and using its output for IntelliSense.
 
 To build a real extension:
 1. Create a VS Code extension project (`yo code` or `npm init @vscode/extension`).
