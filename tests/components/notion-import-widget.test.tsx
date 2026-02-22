@@ -94,7 +94,8 @@ describe('NotionImportWidget', () => {
     await waitFor(() => {
       expect(screen.getByText(/upload failed: 401/i)).toBeInTheDocument();
     });
-    expect(fetch).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({
+    const expectedBase = (process.env.VITE_API_URL || '/api').replace(/\/$/, '');
+    expect(fetch).toHaveBeenCalledWith(`${expectedBase}/notion-import`, expect.objectContaining({
       headers: { Authorization: 'Bearer my-app-key' }
     }));
   });

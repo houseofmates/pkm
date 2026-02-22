@@ -32,8 +32,11 @@ export function NotionImportWidget() {
         appendLog('uploading...');
         const fd = new FormData();
         fd.append('file', file);
+        // determine target URL from VITE_API_URL (db domain) or fallback to relative
+        const baseUrl = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
+        const url = `${baseUrl}/notion-import`;
         try {
-            const res = await fetch('/api/notion-import', {
+            const res = await fetch(url, {
                 method: 'POST',
                 body: fd,
                 headers: { Authorization: `Bearer ${apiKey}` }
