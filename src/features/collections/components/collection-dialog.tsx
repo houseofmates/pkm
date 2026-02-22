@@ -36,6 +36,18 @@ interface CollectionDialogProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   initialTitle?: string;
+  // when CSV import is initiated externally we prepopulate data/fields
+  initialCsvData?: any[];
+  initialCsvFields?: Array<{
+    name: string;
+    title: string;
+    interface: string;
+    target?: string;
+    expression?: string;
+    uiSchema?: any;
+    detectionReason?: string;
+    detectionConfidence?: 'high' | 'medium' | 'low';
+  }>;
 }
 
 interface CollectionMetadata {
@@ -88,11 +100,23 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
       // reset to select screen on close if creating
       if (!isEdit) setTimeout(() => setStep('type-select'), 300);
     } else {
-      if (isEdit) setStep('database-form');
-      // if already open and not edit, ensure select
-      else if (step === 'database-form' && !displayName) setStep('type-select');
+      if (isEdit) {
+        setStep('database-form');
+      } else {
+        // when preloaded from CSV, go directly to form
+        if (initialCsvData && initialCsvData.length > 0) {
+          setCsvData(initialCsvData);
+          setCsvFields(initialCsvFields || []);
+          setDisplayName(initialTitle || displayName);
+          setStep('database-form');
+        }
+        // if already open and went to form accidentally without title, return to select
+        else if (step === 'database-form' && !displayName) {
+          setStep('type-select');
+        }
+      }
     }
-  }, [open, isEdit, step, displayName]);
+  }, [open, isEdit, step, displayName, initialCsvData, initialCsvFields, initialTitle]);
 
   const handleCreateDocument = (mode: 'edgeless' | 'desktop-8k' | 'iphone-8k') => {
     const id = Math.random().toString(36).substring(7);
