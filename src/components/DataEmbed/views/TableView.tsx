@@ -84,11 +84,10 @@ export function TableView({ records, isLoading, theme, onSelect }: TableViewProp
         <AutoSizer>
           {({ height, width }) => (
             <List
-              height={height}
-              width={width}
               rowCount={rows.length}
               rowHeight={40}
               rowProps={{ rows, onSelect }}
+              style={{ height, width }}
               rowComponent={({ index, style, data }: any) => {
                 const row = data.rows[index];
                 return (
