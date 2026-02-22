@@ -190,7 +190,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       return;
     }
 
-    // persist local documents
+    // persist local documents only; drawings are DB-only now
     if (id.startsWith('doc_')) {
       const key = `canvas-config-${id.replace('doc_', '')}`;
       try {
@@ -212,45 +212,17 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       }
     }
 
-    // persist drawings. legacy items live in localStorage, newer items live in IndexedDB.
+    // drawings persist exclusively in IndexedDB
     if (id.startsWith('drawing_')) {
       const drawingId = id.replace('drawing_', '');
-      const key = `drawing-config-${drawingId}`;
-      try {
-        const existing = JSON.parse(localStorage.getItem(key) || '{}');
-        if (existing && Object.keys(existing).length) {
-          // legacy storage path
-          const toSave = { ...existing };
-          if (updates.name) toSave.title = updates.name;
-          if (updates.icon) toSave.icon = updates.icon;
-          if (updates.iconType) toSave.iconType = updates.iconType;
-          if (updates.color) toSave.color = updates.color;
-
-          if (updates.delete) {
-            localStorage.removeItem(key);
-            localStorage.removeItem(`drawing-content-${drawingId}`);
-          } else {
-            localStorage.setItem(key, JSON.stringify(toSave));
-          }
-        } else {
-          // persisted in IDB
-          if (updates.delete) {
-            // fully remove from database
-            deleteDrawing(drawingId).catch((e) => {
-              console.error('failed to delete drawing', e);
-            });
-          } else {
-            const patch: any = {};
-            if (updates.name) patch.title = updates.name;
-            if (Object.keys(patch).length) {
-              updateDrawingMeta(drawingId, patch).catch((e) => {
-                console.error('failed to update drawing meta', e);
-              });
-            }
-          }
-        }
-      } catch (e) {
-        console.error("Failed to save drawing metadata", e);
+      if (updates.delete) {
+        deleteDrawing(drawingId).catch((e) => {
+          console.error('failed to delete drawing', e);
+        });
+      } else if (updates.name) {
+        updateDrawingMeta(drawingId, { title: updates.name }).catch((e) => {
+          console.error('failed to update drawing meta', e);
+        });
       }
     }
 
@@ -266,48 +238,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
 
   // initialize/sync items from collections and local documents/drawings
   useEffect(() => {
-    // load local documents (canvases) and drawings
-    const loadLocalItems = () => {
-      const items: NavItem[] = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key && key.startsWith('canvas-config-')) {
-          const id = key.replace('canvas-config-', '');
-          try {
-            const config = JSON.parse(localStorage.getItem(key) || '{}');
-            items.push({
-              id: `doc_${id}`,
-              type: 'collection',
-              name: config.title || 'untitled document',
-              icon: 'FileText',
-              iconType: 'lucide'
-            });
-          } catch (e) {
-            // ignore corrupt
-          }
-        }
-        if (key && key.startsWith('drawing-config-')) {
-          const id = key.replace('drawing-config-', '');
-          try {
-            const config = JSON.parse(localStorage.getItem(key) || '{}');
-            items.push({
-              id: `drawing_${id}`,
-              type: 'collection',
-              name: config.title || 'untitled drawing',
-              icon: 'PenTool',
-              iconType: 'lucide'
-            });
-          } catch (e) {
-            // ignore corrupt
-          }
-        }
-      }
-      return items;
-    };
-
-    const localItems = loadLocalItems();
-
-    // load drawings stored in IDB as well
+    // load drawings stored in IndexedDB (and documents separately)
     const loadDbItems = async () => {
       try {
         const drawings = await listPendingDrawings();
@@ -318,22 +249,16 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
           icon: 'PenTool',
           iconType: 'lucide',
         }));
-        // merge without duplicates (local overrides)
-        const existingIds = new Set(localItems.map(i => i.id));
-        const merged = [...localItems, ...dbItems.filter(i => !existingIds.has(i.id))];
         setItems(prev => {
-          // if nothing has been set yet use merged
-          if (prev.length === 0) return merged;
-          // otherwise merge into prev preserving other nav items
           const nonDrawing = prev.filter(i => !i.id.startsWith('drawing_'));
-          return [...nonDrawing, ...merged];
+          return [...nonDrawing, ...dbItems];
         });
       } catch (e) {
         console.error('failed to load drawings from database', e);
       }
     };
 
-    if (collections.length === 0 && items.length === 0 && localItems.length === 0) {
+    if (collections.length === 0 && items.length === 0) {
       loadDbItems().catch(() => {});
       return;
     }
