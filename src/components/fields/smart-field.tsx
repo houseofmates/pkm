@@ -279,16 +279,29 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   const isPassword = detectedType === 'password' || name.includes('password');
   const isColor = detectedType === 'color' || name.includes('color');
   const isCheckbox = detectedType === 'boolean' || detectedType === 'checkbox';
-  const isSelect = detectedType === 'select' || detectedType === 'multipleSelect';
+  const isSelect = detectedType === 'select' || detectedType === 'multipleSelect' || field?.interface === 'radiogroup';
   const isCode = detectedType === 'code' || name === 'code' || name === 'formula'; // Added formula
   const isMarkdown = detectedType === 'markdown' || detectedType === 'richText' || name.includes('desc') || name.includes('note');
   const isNumber = detectedType === 'number' || detectedType === 'integer' || detectedType === 'percent';
+  const isPercentField = field?.type === 'percent' || name.includes('percent');
   const isUrl = detectedType === 'url' || detectedType === 'link' || name.includes('link') || name.includes('url');
   const isFile = detectedType === 'attachment' || name.includes('file') || name.includes('image') || name.includes('avatar');
-  const isDate = detectedType === 'datetime' || detectedType === 'date' || name.includes('date') || name.includes('created');
+
+  // date/time detection
+  const isDateTime = detectedType === 'datetime' || field?.interface === 'datetime' || name.includes('datetime');
+  const isTime = detectedType === 'time' || name.includes('time');
+  const isDate = !isTime && (detectedType === 'date' || name.includes('date') || name.includes('created'));
 
   const isId = name === 'id' || name === 'uuid' || detectedType === 'uid' || detectedType === 'uuid';
-  const isRelation = detectedType === 'relation' || detectedType === 'linkToAnotherRecord' || (field?.interface === 'linkToAnotherRecord') || detectedType === 'subTable'; // Treat subTable as relation for now
+  const isRelation =
+    detectedType === 'relation' ||
+    detectedType === 'linkToAnotherRecord' ||
+    field?.interface === 'linkToAnotherRecord' ||
+    detectedType === 'subTable' ||
+    baseType === 'hasOne' ||
+    baseType === 'hasMany' ||
+    baseType === 'belongsTo' ||
+    baseType === 'belongsToMany'; // include common nocobase relation interfaces
 
   // json/object fallback
   const isJson = detectedType === 'json' || detectedType === 'array' || detectedType === 'object' || typeof value === 'object';
