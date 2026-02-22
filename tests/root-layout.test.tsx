@@ -77,6 +77,7 @@ describe('RootLayout', () => {
         </QueryClientProvider>
       </AuthProvider>
     );
+    screen.debug();
     // there should be an element showing 'connected' status
     expect(screen.getByText('connected')).toBeInTheDocument();
   });
