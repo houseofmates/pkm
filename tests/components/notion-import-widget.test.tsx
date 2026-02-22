@@ -122,6 +122,32 @@ describe('NotionImportWidget', () => {
     }));
   });
 
+  it('rewrites official api.houseofmates.space to relative when on pkm subdomain', async () => {
+    // simulate build-time env var and location
+    process.env.VITE_API_URL = 'https://api.houseofmates.space';
+    const originalLocation = window.location;
+    delete (window as any).location;
+    window.location = new URL('https://pkm.houseofmates.space/');
+
+    localStorage.setItem('hom_api_key', 'key');
+    const fakeResponse = { ok: false, status: 400, statusText: 'err', text: async () => '' };
+    (fetch as any).mockResolvedValue(fakeResponse);
+    render(<NotionImportWidget />);
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File(['x'], 'a.zip', { type: 'application/zip' });
+    fireEvent.change(input, { target: { files: [file] } });
+    fireEvent.click(screen.getByText(/start import/i));
+    await waitFor(() => {
+      expect(screen.getByText(/upload failed: 400/i)).toBeInTheDocument();
+    });
+    expect(fetch).toHaveBeenCalledWith(`/api/nb-import`, expect.any(Object));
+
+    // cleanup
+    Object.defineProperty(window, 'location', { value: originalLocation, writable: true });
+    delete process.env.VITE_API_URL;
+  });
+
+
   it('polls logs endpoint for updates', async () => {
     (useAppSetting as any).mockReturnValue(['key', vi.fn()]);
     const fakeUpload = { ok: true, json: async () => ({ taskId: 't1' }) };
