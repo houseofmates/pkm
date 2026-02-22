@@ -245,6 +245,17 @@ export interface FilterGroup {
 }
 
 /**
+ * zod schema for filter group (using lazy evaluation for recursion)
+ */
+export const FilterGroupSchema: z.ZodType<FilterGroup> = z.object({
+  operator: z.enum(['and', 'or']),
+  conditions: z.array(z.union([
+    FilterConditionSchema,
+    z.lazy(() => FilterGroupSchema),
+  ])),
+});
+
+/**
  * sort direction
  */
 export const SortDirectionSchema = z.enum(['asc', 'desc']);
@@ -256,7 +267,7 @@ export type SortDirection = z.infer<typeof SortDirectionSchema>;
  */
 export const SortSpecSchema = z.object({
   field: z.string(),
-  direction: SortDirectionSchema.default('asc'),
+  direction: SortDirectionSchema.optional(),
 });
 
 export type SortSpec = z.infer<typeof SortSpecSchema>;
