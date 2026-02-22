@@ -12,6 +12,7 @@
 
 import { describe, it, expect, beforeEach, beforeAll, afterAll } from 'vitest';
 import 'fake-indexeddb/auto';
+import { z } from 'zod';
 import { schemaService, fieldRegistry, persistenceService } from '../index';
 import type { TableDefinition, Record } from '../index';
 
