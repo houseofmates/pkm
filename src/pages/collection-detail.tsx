@@ -447,10 +447,10 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                 <div className="text-muted-foreground text-sm max-w-md">
                     attempting to locate collection in system... (v2 rescue)
                 </div>
-                {fetcherror && (
+                {fetchError && (
                     <div className="mt-4 p-4 bg-destructive/10 text-destructive rounded-md text-xs font-mono text-left max-w-sm overflow-auto">
                         <strong>debug info:</strong><br />
-                        error: {fetcherror}<br />
+                        error: {fetchError}<br />
                         id: {params.name}<br />
                         decoded: {collectionName}<br />
                         auth: {isauthenticated ? 'yes' : 'no'}<br />
