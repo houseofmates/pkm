@@ -238,8 +238,10 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     if (!isEditing) setLocalValue(value);
   }, [value, isEditing]);
 
-  const handleSave = () => {
-    onChange(localValue);
+  // saving accepts an optional value (e.g. RelationPicker passes the new record)
+  const handleSave = (newVal?: any) => {
+    const finalVal = newVal !== undefined ? newVal : localValue;
+    onChange(finalVal);
     setIsEditing(false);
   };
 
@@ -508,11 +510,10 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     }
 
     if (isRelation) {
-      // relation editor: simple picker that fetches target records
-      // we need to fetch the target collection list.
-      // assumption: field.target is the collection name of the relation.
-      return <RelationPicker field={field} value={localValue} onChange={handleSave} onCancel={handleCancel} />;
-    }
+    // relation editor: simple picker that fetches target records
+    // we need to fetch the target collection list.
+    // assumption: field.target is the collection name of the relation.
+    return <RelationPicker field={field} value={localValue} onChange={(v: any) => { setLocalValue(v); handleSave(v); }} onCancel={handleCancel} />;
 
     if (isJson) {
       return (
@@ -855,15 +856,14 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     }
 
     if (isNumber) {
-      return (
-        <div
-          onClick={() => setIsEditing(true)}
-          className={cn("cursor-pointer text-right min-h-[20px] font-varela", size === 'lg' ? "text-lg" : "text-sm")}
-        >
-          {value ? formatNumber(value) : <span className="opacity-20">-</span>}
-        </div>
-      )
-    }
+    return (
+      <div
+        onClick={() => setIsEditing(true)}
+        className={cn("cursor-pointer text-right min-h-[20px] font-varela", size === 'lg' ? "text-lg" : "text-sm")}
+      >
+        {value !== null && value !== undefined ? formatNumber(value) : <span className="opacity-20">-</span>}
+      </div>
+    )
 
     // default string
     return (
