@@ -326,6 +326,12 @@ app.get('/api/notion-import/:id/stream', requireAuth, (req, res) => {
 });
 
 // polling/logs endpoint
+// explicit OPTIONS route so preflight will be answered (particularly
+// important when the browser hits the route via cross‑origin). the
+// global cors middleware already handles things, but some proxies
+// (Cloudflare) may return 502 on unknown methods so being explicit
+// prevents mysterious failures.
+app.options('/api/notion-import/:id/logs', cors());
 app.get('/api/notion-import/:id/logs', requireAuth, (req, res) => {
     const id = req.params.id;
     const entry = importTasks.get(id);
