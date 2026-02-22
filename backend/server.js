@@ -3,6 +3,7 @@
 import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
+import cors from 'cors';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
@@ -56,6 +57,32 @@ const debounceBroadcast = (event, payload, delay = 500) => {
         }, delay)
     };
 };
+
+// CORS middleware --------------------------------------------------
+app.use(cors({
+    origin: (origin, callback) => {
+        // allow requests with no origin (same‑origin or curl)
+        if (!origin) return callback(null, true);
+        const allowed = (process.env.ALLOWED_ORIGINS || '')
+            .split(',')
+            .map(s => s.trim())
+            .filter(Boolean);
+        for (const a of allowed) {
+            if (a.endsWith('*')) {
+                const prefix = a.slice(0, -1);
+                if (origin.startsWith(prefix)) {
+                    return callback(null, true);
+                }
+            } else if (origin === a) {
+                return callback(null, true);
+            }
+        }
+        callback(null, false);
+    },
+    methods: ['GET','POST','OPTIONS'],
+    credentials: true,
+    allowedHeaders: ['Content-Type','Authorization'],
+}));
 
 app.use(express.json());
 // Serve static files from public directory
