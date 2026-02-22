@@ -16,6 +16,20 @@ export interface RequestOptions {
   silent?: boolean;
 }
 
+export interface Field {
+  name: string;
+  type: string;
+  title?: string;
+  unique?: boolean;
+  interface?: string;
+  hidden?: boolean;
+  uiSchema?: any;
+  enum?: Array<{ label: string; value: any }>;
+  target?: string;
+  primary?: boolean;
+  [key: string]: any;
+}
+
 export interface Collection {
   name: string;
   title?: string;
