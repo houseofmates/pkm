@@ -176,11 +176,21 @@ app.post('/api/notion-import', requireAuth, upload.single('file'), (req, res) =>
     // run in background
     (async () => {
         try {
-            await notionRun(req.file.path, undefined, (msg) => {
-                emitter.emit('progress', msg);
-            });
-            emitter.emit('done');
-            importTasks.set(taskId, { emitter, status: 'done' });
+            if (process.env.MOCK_NOTION_IMPORT === 'true') {
+                // simulate progress and completion quickly
+                emitter.emit('progress', 'mock import started');
+                setTimeout(() => {
+                    emitter.emit('progress', 'mock import finished');
+                    emitter.emit('done');
+                    importTasks.set(taskId, { emitter, status: 'done' });
+                }, 10);
+            } else {
+                await notionRun(req.file.path, undefined, (msg) => {
+                    emitter.emit('progress', msg);
+                });
+                emitter.emit('done');
+                importTasks.set(taskId, { emitter, status: 'done' });
+            }
         } catch (e) {
             emitter.emit('error', String(e));
             importTasks.set(taskId, { emitter, status: 'error' });
