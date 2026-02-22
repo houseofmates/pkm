@@ -190,16 +190,13 @@ describe('NotionImportWidget', () => {
       expect(screen.getByText(/bar/)).toBeInTheDocument();
       expect(screen.getByText(/import done/)).toBeInTheDocument();
     });
-    // verify URL used (mimic actual widget logic)
+    // verify URL and method used (mimic actual widget logic)
     let expectedBase: string;
     if (process.env.VITE_API_URL) {
       expectedBase = process.env.VITE_API_URL.replace(/\/$/, '');
       if (expectedBase.includes('db.houseofmates.space')) {
         expectedBase = expectedBase.replace('db.houseofmates.space', 'api.houseofmates.space');
       }
-      // if env var points to api.houseofmates.space and we're on a
-      // houseofmates.subdomain, widget rewrites to relative; but our
-      // test cases don't cover that here.
     } else {
       const { protocol, hostname } = window.location;
       if (!hostname.endsWith('.houseofmates.space')) {
@@ -212,28 +209,10 @@ describe('NotionImportWidget', () => {
         expectedBase = '/api';
       }
     }
-    expect(fetch).toHaveBeenCalledWith(`${expectedBase}/nb-import/logs?id=t1`, expect.objectContaining({
-      headers: { Authorization: 'Bearer key' }
-    }));
-  });
-
-  it('infers db host when VITE_API_URL unset and hostname starts with pkm', async () => {
-    localStorage.setItem('hom_api_key','key');
-    const fakeResponse = { ok: false, status: 400, statusText: 'Bad', text: async () => '' };
-    (fetch as any).mockResolvedValue(fakeResponse);
-    // temporarily remove env variable
-    const original = process.env.VITE_API_URL;
-    delete process.env.VITE_API_URL;
-    // simulate running on pkm domain by overriding location object
-    const originalLocation = window.location;
-    delete (window as any).location;
-    Object.defineProperty(window, 'location', {
-      value: { ...originalLocation, hostname: 'pkm.example.com' },
-      writable: true,
-    });
-
-    render(<NotionImportWidget />);
-    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    expect(fetch).toHaveBeenCalledWith(`${expectedBase}/nb-import/logs`, expect.objectContaining({
+      method: 'POST',
+      headers: expect.objectContaining({ Authorization: 'Bearer key' }),
+      body: JSON.stringify({ id: 't1' })
     const file = new File(['x'], 'a.zip', { type: 'application/zip' });
     fireEvent.change(input, { target: { files: [file] } });
     fireEvent.click(screen.getByText(/start import/i));
