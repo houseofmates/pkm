@@ -282,6 +282,7 @@ export function ContextMenu() {
             <div className="flex flex-col gap-1 mb-2">
               <label className="text-xs text-primary lowercase">color</label>
               <button
+                aria-label="color"
                 className="w-6 h-6 rounded-full border" 
                 style={{backgroundColor: store.penColor}}
                 onClick={() => setShowColorPicker((v) => !v)}
