@@ -1,5 +1,4 @@
-import { Home, Database, Users, LayoutDashboard, Search } from 'lucide-react';
-import * as LucideIcons from 'lucide-react';
+import { Home, Database, Users, LayoutDashboard, Search, Inbox, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -13,7 +12,7 @@ interface BottomNavProps {
 export function BottomNav({ activeTab, onTabChange, className, onOpenSettings }: BottomNavProps) {
 
   const handleOpenSearch = () => {
-    window.dispatchevent(new customevent('pkm:open-search'));
+    window.dispatchEvent(new CustomEvent('pkm:open-search'));
   };
 
   return (
@@ -71,7 +70,7 @@ export function BottomNav({ activeTab, onTabChange, className, onOpenSettings }:
           className={cn("flex flex-col items-center gap-1 h-full flex-1 rounded-none", activeTab === 'captures' && "text-primary")}
           onClick={() => onTabChange('captures')}
         >
-          <LucideIcons.Inbox className="h-5 w-5" />
+          <Inbox className="h-5 w-5" />
           <span className="text-[10px] font-medium lowercase">inbox</span>
         </Button>
 
@@ -80,7 +79,7 @@ export function BottomNav({ activeTab, onTabChange, className, onOpenSettings }:
           className="flex flex-col items-center gap-1 h-full flex-1 rounded-none text-muted-foreground hover:text-primary transition-colors"
           onClick={onOpenSettings}
         >
-          <LucideIcons.Settings className="h-5 w-5" />
+          <Settings className="h-5 w-5" />
           <span className="text-[10px] font-medium lowercase">settings</span>
         </Button>
 
