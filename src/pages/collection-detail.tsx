@@ -325,14 +325,14 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             // optimistic update locally? 
             // for now, simple await and refetch
             setRecords(prev => prev.map(r => r.id === id ? { ...r, ...data } : r)); // optimistic ui
-            await client.updaterecord(collectionname, id, data);
-            // fetchdata(); // optional: if we trust the return or optimistic update
+            await client.updaterecord(collectionName, id, data);
+            // fetchData(); // optional: if we trust the return or optimistic update
         } catch (error) {
             console.error("failed to update record", error);
             toast.error("failed to update record");
-            fetchdata(); // revert on error
+            fetchData(); // revert on error
         }
-    }, [client, collectionname, fetchdata]);
+    }, [client, collectionName, fetchData]);
 
     // undo stack
     const [deletedstack, setdeletedstack] = useState<any[]>([]);
