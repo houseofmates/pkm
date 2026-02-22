@@ -35,7 +35,26 @@ export function NotionImportWidget() {
         // determine target URL from VITE_API_URL (db domain) or fallback to relative
         let envBase = import.meta.env.VITE_API_URL as string | undefined;
         if (envBase && envBase.endsWith('/')) envBase = envBase.slice(0, -1);
-        const baseUrl = envBase || `${window.location.protocol}//${window.location.hostname}/api`;
+        let baseUrl: string;
+        if (envBase) {
+            baseUrl = envBase;
+        } else {
+            // attempt to fetch runtime config from backend
+            try {
+                const cfgRes = await fetch('/api/config');
+                if (cfgRes.ok) {
+                    const cfg = await cfgRes.json();
+                    envBase = cfg.apiUrl || '';
+                }
+            } catch (e) {
+                console.warn('failed to fetch runtime config', e);
+            }
+            if (envBase) {
+                baseUrl = envBase.replace(/\/$/, '');
+            } else {
+                baseUrl = `${window.location.protocol}//${window.location.hostname}/api`;
+            }
+        }
         const url = `${baseUrl}/notion-import`;
         console.debug('[NotionImportWidget] env VITE_API_URL=', envBase, 'using url', url);
         try {
