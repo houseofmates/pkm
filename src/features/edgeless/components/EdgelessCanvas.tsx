@@ -102,13 +102,18 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
   useEffect(() => {
     if (!fabricCanvas) return
 
+    const store = useEdgelessStore.getState()
+
     if (activeTool === 'draw') {
       fabricCanvas.isDrawingMode = true
       const brush = new fabric.PencilBrush(fabricCanvas)
-      brush.width = 3
-      brush.color = '#ffffff'
+      brush.width = store.penWidth
+      brush.color = store.penColor
+      brush.opacity = (store.penOpacity ?? 100) / 100
+      // apply smoothing/decimation; higher stabilizer => less decimate
+      // cap between 1 and 8
       // @ts-expect-error fabric-types-issue
-      brush.decimate = 8
+      brush.decimate = Math.max(1, 8 - (store.stabilizerLevel || 0))
       fabricCanvas.freeDrawingBrush = brush
     } else if (activeTool === 'eraser') {
       fabricCanvas.isDrawingMode = true
@@ -116,12 +121,14 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       if (fabric.EraserBrush) {
          // @ts-expect-error fabric-types-issue
          const eraser = new fabric.EraserBrush(fabricCanvas)
-         eraser.width = useEdgelessStore.getState().eraserWidth || 20
+         eraser.width = store.eraserWidth
+         eraser.opacity = (store.eraserOpacity ?? 100) / 100
          fabricCanvas.freeDrawingBrush = eraser
       } else {
          const brush = new fabric.PencilBrush(fabricCanvas)
-         brush.width = useEdgelessStore.getState().eraserWidth || 20
+         brush.width = store.eraserWidth
          brush.color = '#090909'
+         brush.opacity = (store.eraserOpacity ?? 100) / 100
          fabricCanvas.freeDrawingBrush = brush
       }
     } else {
