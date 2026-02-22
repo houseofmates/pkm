@@ -1,6 +1,6 @@
 import { useReactTable, getCoreRowModel, flexRender, ColumnDef } from '@tanstack/react-table';
 import { useMemo } from 'react';
-import { FixedSizeList } from 'react-window';
+import { List } from 'react-window';
 import { AutoSizer } from 'react-virtualized-auto-sizer';
 import { cn } from '@/lib/utils';
 
@@ -83,14 +83,13 @@ export function TableView({ records, isLoading, theme, onSelect }: TableViewProp
       <div className="flex-1 relative">
         <AutoSizer>
           {({ height, width }) => (
-            <FixedSizeList
+            <List
               height={height}
               width={width}
               itemCount={rows.length}
-              itemSize={40}
-              itemData={{ rows, onSelect }}
-            >
-              {({ index, style, data }) => {
+              rowHeight={40}
+              rowData={{ rows, onSelect }}
+              rowComponent={({ index, style, data }: any) => {
                 const row = data.rows[index];
                 return (
                   <div
@@ -110,7 +109,7 @@ export function TableView({ records, isLoading, theme, onSelect }: TableViewProp
                   </div>
                 );
               }}
-            </FixedSizeList>
+            />
           )}
         </AutoSizer>
       </div>
