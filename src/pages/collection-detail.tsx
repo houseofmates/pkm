@@ -440,8 +440,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     // rescue logic is now integrated into fetchdata, no separate effect needed
 
     if (!collection) {
-        if (loading) return <div className="p-10 text-center animate-pulse">loading {collectionname}...</div>;
-
+        if (loading) return <div className="p-10 text-center animate-pulse">loading {collectionName}...</div>;
         return (
             <div className="p-10 flex flex-col items-center gap-4 text-center">
                 <div className="text-destructive font-bold text-lg">collection not found: &ldquo;{collectionName}&rdquo;</div>
@@ -455,7 +454,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                         id: {params.name}<br />
                         decoded: {collectionName}<br />
                         auth: {isauthenticated ? 'yes' : 'no'}<br />
-                        available: {availablecollections.length}
+                        available: {availableCollections.length}
                         <div className="mt-1 opacity-50 max-h-20 overflow-y-auto">
                             [{availableCollections.map((c: any) => c.name).join(', ')}]
                         </div>
