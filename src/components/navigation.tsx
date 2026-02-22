@@ -44,7 +44,7 @@ export interface NavItem {
   collapsed?: boolean;
   icon?: string;
   iconType?: 'lucide' | 'emoji' | 'image';
-  color?: string; // Local color override
+  color?: string; // local color override
 }
 
 interface NavigationProps {
@@ -56,7 +56,7 @@ interface NavigationProps {
 
   // lifted state props
   items: NavItem[];
-  setItems: (items: NavItem[]) => void; // For local updates like folder creation
+  setItems: (items: NavItem[]) => void; // for local updates like folder creation
   onOpenSettings?: () => void;
 }
 
@@ -545,7 +545,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
               const selection = window.getSelection()?.toString();
               const context = selection && selection.length > 5
                 ? selection
-                : document.body.innerText.slice(0, 3000); // Reasonable limit
+                : document.body.innerText.slice(0, 3000); // reasonable limit
 
               window.dispatchEvent(new CustomEvent('pkm:open-search', {
                 detail: { context }
