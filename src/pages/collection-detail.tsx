@@ -473,7 +473,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         return <div className="p-10 text-center animate-pulse">loading schema for {collectionName}...</div>;
     }
 
-    const currentviewcomponent = view_registry[currentview] || view_registry['table'];
+    const currentViewComponent = VIEW_REGISTRY[currentView] || VIEW_REGISTRY['table'];
 
 
 
