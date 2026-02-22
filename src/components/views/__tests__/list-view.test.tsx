@@ -1,9 +1,5 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { ListView } from '../list-view';
-import { vi } from 'vitest';
-
 // virtualization components are tricky in tests; stub them out to render all rows
+import { vi } from 'vitest';
 vi.mock('react-window', () => ({
   List: ({ children, itemCount, itemData }: any) => (
     <div>
@@ -16,6 +12,10 @@ vi.mock('react-window', () => ({
 vi.mock('react-virtualized-auto-sizer', () => ({
   AutoSizer: ({ children }: any) => <div>{children({ width: 100, height: 100 })}</div>,
 }));
+
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { ListView } from '../list-view';
 
 // we don't need to mock SmartField because ListView uses it directly and
 // our earlier tests already validate its behaviour. Instead we provide a
