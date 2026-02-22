@@ -90,7 +90,9 @@ These files are intentionally simple; expand them as needed for your editor tool
 
 ## Notion Export Importer
 
-A new CLI and UI tool lets you import a full Notion workspace export directly into PKM/NocoBase.
+A new CLI and UI tool lets you import a full Notion workspace export directly into PKM/NocoBase. The importer now understands Notion property metadata where available (title, number, checkbox, relation, date, multi‑select, etc.) and uses value heuristics to guess types, including arrays, dates and booleans. This richer handling makes collections more faithful to the original Notion schema.
+
+Editor authors: there’s a helper library (`src/features/notion-import/editor-hook.ts`) which exports type mappings and a `generateSchemaSuggestions` function. You can import this in a VS Code extension or other editor tooling to provide completions and inline hints when working with Notion exports or writing migration scripts.
 
 ### Usage
 
