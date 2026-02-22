@@ -19,7 +19,7 @@ async function makeZippedSample(): Promise<string> {
 }
 
 beforeAll(async () => {
-    const mod = await import(path.resolve(__dirname, '../../../../scripts/notion-import.ts'));
+    const mod = await import(path.resolve(__dirname, '../../../../scripts/notion-import.js'));
     run = mod.run;
 });
 
