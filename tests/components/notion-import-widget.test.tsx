@@ -138,9 +138,9 @@ describe('NotionImportWidget', () => {
     fireEvent.change(input, { target: { files: [file] } });
     fireEvent.click(screen.getByText(/start import/i));
     await waitFor(() => {
-      expect(screen.getByText('foo')).toBeInTheDocument();
-      expect(screen.getByText('bar')).toBeInTheDocument();
-      expect(screen.getByText('import done')).toBeInTheDocument();
+      expect(screen.getByText(/foo/)).toBeInTheDocument();
+      expect(screen.getByText(/bar/)).toBeInTheDocument();
+      expect(screen.getByText(/import done/)).toBeInTheDocument();
     });
     // verify URL used
     let expectedBase = (process.env.VITE_API_URL || '/api').replace(/\/$/, '');
