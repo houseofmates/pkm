@@ -1,28 +1,8 @@
-import { z } from 'zod';
-import { schemaService, FieldType } from './schema.service';
+// This file exists solely for backwards compatibility with tests that
+// import from `src/schema/field-types`. It delegates to the real
+// registry in services/field-types.ts so we don't duplicate definitions.
 
-/**
- * Text Field Type
- * A simple string-based field.
- */
-const textField: FieldType = {
-  typeName: 'text',
-  schema: z.string().nullable(),
-  defaultValue: '',
-};
+import '../services/field-types';
 
-/**
- * Number Field Type
- * A numeric field that supports both integers and floats.
- */
-const numberField: FieldType = {
-  typeName: 'number',
-  schema: z.number().nullable(),
-  defaultValue: 0,
-};
-
-// Register the default field types with the service
-schemaService.registerFieldType(textField);
-schemaService.registerFieldType(numberField);
-
-console.log('Default field types (text, number) registered.');
+// nothing else to export; side effect of the above import is sufficient
+console.log('schema/field-types loaded (delegated to services/field-types)');
