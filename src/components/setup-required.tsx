@@ -26,8 +26,9 @@ export function SetupRequired() {
  <CardContent className="space-y-6">
  <div className="space-y-4">
  <p className="text-sm lowercase leading-relaxed text-muted-foreground">
-   it looks like your environment variables aren't configured.
-   you need to create a <code className="text-amber-500">.env</code> file in the root directory.
+   this screen appears when the backend isn't reachable or hasn't been set up yet.
+   if you've just logged out you can safely <strong>reload</strong> to return to the login page.
+   otherwise you may need to create a <code className="text-amber-500">.env</code> file in the root directory.
  </p>
 
  <div className="relative group">

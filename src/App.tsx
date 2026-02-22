@@ -52,6 +52,7 @@ const LoadingFallback = (
 
 function AppContent() {
   const { token, isLoading } = useAuth()
+  const [setupNeeded, setSetupNeeded] = useState<boolean | null>(null)
 
   // run link registry migration on mount
   useEffect(() => {
@@ -69,13 +70,27 @@ function AppContent() {
     runMigration()
   }, [])
 
-  if (isLoading) {
+  // perform a quick backend health check to decide if configuration is missing
+  useEffect(() => {
+    fetch('/api/stats')
+      .then((r) => {
+        if (r.ok) setSetupNeeded(false)
+        else setSetupNeeded(true)
+      })
+      .catch(() => setSetupNeeded(true))
+  }, [])
+
+  if (setupNeeded === null || isLoading) {
     return LoadingFallback
   }
 
-  // check if setup is required
-  if (!token && !isPublicDomain()) {
+  if (setupNeeded) {
     return <SetupRequired />
+  }
+
+  // if we reach here the backend is configured; show login / normal app
+  if (!token && !isPublicDomain()) {
+    return <LoginPage />
   }
 
   // public domain rendering
