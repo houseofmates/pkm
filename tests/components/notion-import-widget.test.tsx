@@ -63,9 +63,13 @@ describe('NotionImportWidget', () => {
     fireEvent.change(input, { target: { files: [file] } });
     fireEvent.click(screen.getByText(/start import/i));
     await waitFor(() => expect(debugSpy).toHaveBeenCalled());
-    const msg = (debugSpy.mock.calls[0] || []).join(' ');
-    expect(msg).toContain('raw VITE_API_URL= https://api.houseofmates.space/api');
-    expect(msg).toMatch(/env VITE_API_URL= ?(?:\/api|)/);
+    // find the call that includes the raw value log (skip the apiKey line)
+    const combined = debugSpy.mock.calls
+      .map(call => call.join(' '))
+      .find(s => s.includes('raw VITE_API_URL'));
+    expect(combined).toBeDefined();
+    expect(combined).toContain('raw VITE_API_URL= https://api.houseofmates.space/api');
+    expect(combined).toMatch(/env VITE_API_URL= ?(?:\/api|)/);
     debugSpy.mockRestore();
   });
 
