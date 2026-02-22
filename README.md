@@ -118,7 +118,7 @@ The parser is tolerant of malformed files, logging warnings and continuing. Larg
 
 - `src/features/notion-import/parser.ts` – recursive directory walker, CSV and Markdown loader.
 - `src/features/notion-import/transformer.ts` – turns parsed workspace into a sequence of import instructions.
-- `scripts/notion-import.ts` – CLI entrypoint used by both `npm run notion:import` and the backend API.
+- `scripts/notion-import.js` – CLI entrypoint used by both `npm run notion:import` and the backend API.
 - `backend/server.js` – new endpoints and SSE task management.
 - `src/pages/notion-import.tsx` – UI page with file input and progress panel.
 
