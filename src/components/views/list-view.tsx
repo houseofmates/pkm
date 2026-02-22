@@ -144,5 +144,6 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
         )}
       </AutoSizer>
     </div>
+    </div>
   );
 }

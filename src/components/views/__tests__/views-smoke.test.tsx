@@ -6,7 +6,9 @@ import { GalleryView } from '../gallery-view';
 import { ListView } from '../list-view';
 
 const emptyCollection = { name: 'test', fields: [] };
-const dummyData: any[] = [];
+// collection with a date field for calendar
+const dateCollection = { name: 'test', fields: [{ name: 'when', interface: 'date' }] };
+const dummyData: any[] = [{ id: '1', when: new Date().toISOString(), status: null }];
 
 const noop = () => {};
 
@@ -15,8 +17,8 @@ describe('View smoke tests', () => {
     render(
       <CalendarView
         data={dummyData}
-        collection={emptyCollection}
-        config={{}}
+        collection={dateCollection}
+        config={{ dateField: 'when' }}
         onCreate={(d) => {}} // expect plus
       />
     );
@@ -25,16 +27,18 @@ describe('View smoke tests', () => {
   });
 
   it('kanban shows add card buttons for columns', () => {
+    const authValue = { token: '', isAuthenticated: true, login: () => {}, logout: () => {}, client: {} };
     render(
-      <KanbanView
-        data={dummyData}
-        collection={emptyCollection}
-        config={{ groupByField: 'status' }}
-        onCreate={(d) => {}}
-      />
+      <AuthContext.Provider value={authValue as any}>
+        <KanbanView
+          data={dummyData}
+          collection={emptyCollection}
+          config={{ groupByField: 'status' }}
+          onCreate={(d) => {}}
+        />
+      </AuthContext.Provider>
     );
     const btns = screen.getAllByLabelText(/add card/i);
-    // should at least render one column button (uncategorized)
     expect(btns.length).toBeGreaterThan(0);
   });
 
@@ -54,7 +58,7 @@ describe('View smoke tests', () => {
   it('list view shows add button', () => {
     render(
       <ListView
-        data={dummyData}
+        data={[...dummyData]}
         collection={emptyCollection}
         config={{}}
         onCreate={(d) => {}}
