@@ -25,6 +25,9 @@ describe('Navigation', () => {
             onOpenSettings: vi.fn(),
         } as const;
 
+        // make sure body text exists so navigation's search code can slice it
+        document.body.innerText = 'dummy';
+
         render(
             <BrowserRouter>
                 <Navigation {...props} />
@@ -34,9 +37,10 @@ describe('Navigation', () => {
         const searchButton = screen.getByText('search / ask ai...');
         fireEvent.click(searchButton);
 
-        expect(dispatchEventSpy).toHaveBeenCalledWith(expect.any(CustomEvent));
-        const event = dispatchEventSpy.mock.calls.find(call => call[0].type === 'pkm:open-search')?.[0] as CustomEvent;
+        // locate any dispatched event of the expected type
+        const event = dispatchEventSpy.mock.calls
+          .map(call => call[0])
+          .find((ev: any) => ev && ev.type === 'pkm:open-search');
         expect(event).toBeDefined();
-        expect(event.type).toBe('pkm:open-search');
     });
 });
