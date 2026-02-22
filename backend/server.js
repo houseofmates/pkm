@@ -107,6 +107,7 @@ const storage = multer.diskStorage({
     }
 });
 
+// upload middleware for images
 const upload = multer({
     storage,
     limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
@@ -120,6 +121,12 @@ const upload = multer({
             cb(new Error('Only image files are allowed'));
         }
     }
+});
+
+// upload middleware for notion import (no filter, larger limit)
+const importUpload = multer({
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 * 1024 } // 5GB-ish
 });
 
 // State
@@ -169,7 +176,7 @@ import EventEmitter from 'events';
 
 const importTasks = new Map();
 
-app.post('/api/notion-import', requireAuth, upload.single('file'), (req, res) => {
+app.post('/api/notion-import', requireAuth, importUpload.single('file'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'missing file' });
     }
