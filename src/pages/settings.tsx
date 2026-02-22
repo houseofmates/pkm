@@ -44,6 +44,9 @@ export default function SettingsPage() {
             </section>
 
             <section className="mt-8">
+                {!(apiKey as string) ? (
+                    <p className="italic text-sm text-red-500 lowercase">set your api key above to enable notion import</p>
+                ) : null}
                 <NotionImportWidget />
             </section>
         </div>
