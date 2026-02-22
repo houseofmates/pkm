@@ -42,7 +42,7 @@ describe('ContextMenu custom tool section', () => {
     expect(screen.getByText(/opacity/i)).toBeInTheDocument();
     expect(screen.getByText(/darkness/i)).toBeInTheDocument();
     // color picker toggle button exists
-    const colorBtn = screen.getByRole('button');
+    const colorBtn = screen.getByLabelText(/color/i);
     expect(colorBtn).toBeTruthy();
   });
 
