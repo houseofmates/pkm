@@ -10,7 +10,7 @@ import { DndContext, useDraggable, useDroppable, DragOverlay } from '@dnd-kit/co
 import { RecordContextMenu } from '@/features/records/components/record-context-menu';
 import { SmartField } from '@/components/fields/smart-field';
 import { Label } from '@/components/ui/label';
-import { format, zonedTimeToUtc, utcToZonedTime } from 'date-fns-tz';
+import { format, toZonedTime } from 'date-fns-tz';
 
 // utcToZonedTime may be missing or non-function in some test environments (see vitest),
 // so we will check before calling it to avoid runtime errors.
@@ -66,8 +66,8 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
       const rawDate = record[dateField];
       if (!rawDate) return;
       // if the helper isn't available, just use the raw date
-      const zonedDate = typeof utcToZonedTime === 'function'
-        ? utcToZonedTime(new Date(rawDate), timeZone)
+      const zonedDate = typeof toZonedTime === 'function'
+        ? toZonedTime(new Date(rawDate), timeZone)
         : new Date(rawDate);
       const dateStr = format(zonedDate, 'yyyy-MM-dd');
       if (!map[dateStr]) map[dateStr] = [];
@@ -87,7 +87,9 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
     if (over && active.id !== over.id) {
       const newDateStr = String(over.id);
       const recordId = active.id;
-      const newDate = zonedTimeToUtc(newDateStr, timeZone);
+      const newDate = typeof toZonedTime === 'function'
+        ? toZonedTime(new Date(newDateStr), timeZone)
+        : new Date(newDateStr);
 
       if (onUpdateRecord && dateField) {
         onUpdateRecord(recordId, { [dateField]: newDate.toISOString() });
@@ -274,7 +276,7 @@ function WeekView({ currentDate, recordsByDate, collection, onUpdateRecord, onDe
 }
 
 function DayView({ currentDate, recordsByDate, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange, timeZone, allDayField, recurringField }: any) {
-  const dateKey = format(utcToZonedTime(currentDate, timeZone), 'yyyy-MM-dd');
+  const dateKey = format(toZonedTime(currentDate, timeZone), 'yyyy-MM-dd');
   const records = recordsByDate[dateKey] || [];
   return (
     <div className="h-full w-full p-4 overflow-y-auto">
