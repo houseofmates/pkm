@@ -213,6 +213,26 @@ describe('NotionImportWidget', () => {
       method: 'POST',
       headers: expect.objectContaining({ Authorization: 'Bearer key' }),
       body: JSON.stringify({ id: 't1' })
+    }));
+  });
+
+  it('infers db host when VITE_API_URL unset and hostname starts with pkm', async () => {
+    localStorage.setItem('hom_api_key','key');
+    const fakeResponse = { ok: false, status: 400, statusText: 'Bad', text: async () => '' };
+    (fetch as any).mockResolvedValue(fakeResponse);
+    // temporarily remove env variable
+    const original = process.env.VITE_API_URL;
+    delete process.env.VITE_API_URL;
+    // simulate running on pkm domain by overriding location object
+    const originalLocation = window.location;
+    delete (window as any).location;
+    Object.defineProperty(window, 'location', {
+      value: { ...originalLocation, hostname: 'pkm.example.com' },
+      writable: true,
+    });
+
+    render(<NotionImportWidget />);
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     const file = new File(['x'], 'a.zip', { type: 'application/zip' });
     fireEvent.change(input, { target: { files: [file] } });
     fireEvent.click(screen.getByText(/start import/i));
