@@ -89,6 +89,7 @@ export function MoodboardPage() {
   // --- interaction logic ---
   const [dragState, setdragState] = useState<{ id: string, mode: 'move' | 'resize', startX: number, startY: number, initial: any } | null>(null);
   const [editingId, seteditingId] = useState<string | null>(null);
+  const [canvasMode, setCanvasMode] = useState<'viewing' | 'editing'>('viewing');
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (dragState) {
@@ -165,9 +166,10 @@ export function MoodboardPage() {
                   ...el.style
                 }}
                 onMouseDown={(e) => {
-                  if (editingId === el.id) return;
+                  // Only allow dragging in viewing mode, not when editing
+                  if (canvasMode === 'editing' && editingId === el.id) return;
                   e.stopPropagation();
-                  if (e.button === 0) {
+                  if (e.button === 0 && canvasMode === 'viewing') {
                     setDragState({
                       id: el.id,
                       mode: 'move',
@@ -181,6 +183,7 @@ export function MoodboardPage() {
                   if (el.type === 'text') {
                     e.stopPropagation();
                     setEditingId(el.id);
+                    setCanvasMode('editing');
                   }
                 }}
               >
@@ -206,9 +209,17 @@ export function MoodboardPage() {
                     }}
                     value={el.content}
                     onChange={(e) => updateElement(el.id, { content: e.target.value })}
-                    onMouseDown={(e) => { if (editingId === el.id) e.stopPropagation(); }}
+                    onMouseDown={(e) => {
+                      // In editing mode, prevent drag initiation on the textarea
+                      if (canvasMode === 'editing') {
+                        e.stopPropagation();
+                      }
+                    }}
                     readOnly={editingId !== el.id}
-                    onBlur={() => setEditingId(null)}
+                    onBlur={() => {
+                      setEditingId(null);
+                      setCanvasMode('viewing');
+                    }}
                     ref={(r) => { if (r && editingId === el.id) r.focus(); }}
                   />
                 )}
