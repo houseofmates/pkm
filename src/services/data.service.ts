@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { schemaService } from './schema.service';
+import './field-types'; // This import is for side-effects only, to register default field types.
 import type { FieldInstance } from './schema.service';
 
 // Defines the structure for a table, including its fields and records.
