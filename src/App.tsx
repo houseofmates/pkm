@@ -28,142 +28,56 @@ const CapturesPage = lazy(() => import("@/pages/captures").then(m => ({ default:
 const DatabaseCanvasView = lazy(() => import("@/features/databases/components/DatabaseCanvasView").then(m => ({ default: m.DatabaseCanvasView })));
 const PageCanvas = lazy(() => import("@/features/page/components/PageCanvas").then(m => ({ default: m.PageCanvas })));
 const RecordView = lazy(() => import("@/features/records/components/record-view").then(m => ({ default: m.RecordView })));
-const HouseofmatesBuilder = lazy(() => import("@/features/houseofmates-builder/HouseofmatesBuilder").then(m => ({ default: m.HouseofmatesBuilder })));
-const BlogBuilder = lazy(() => import("@/features/blog-builder/BlogBuilder").then(m => ({ default: m.BlogBuilder })));
+const HouseofmatesBuilder = lazy(() => import("@/features/houseofmates-builder/components/HouseofmatesBuilder").then(m => ({ default: m.HouseofmatesBuilder })));
 const TemplatePage = lazy(() => import("@/pages/template").then(m => ({ default: m.TemplatePage })));
 const WorkspacePage = lazy(() => import("@/pages/workspace").then(m => ({ default: m.WorkspacePage })));
-const PublicDocViewer = lazy(() => import("@/components/journal/public-doc-viewer").then(m => ({ default: m.PublicDocViewer })));
+const PublicDocViewer = lazy(() => import("@/features/public-doc/components/PublicDocViewer").then(m => ({ default: m.PublicDocViewer })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 2,
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 1000 * 60 * 5, // 5 minutes
+      retry: 1,
     },
   },
 })
 
-// check public mode early
-const isPublicByDomain = isPublicDomain();
-const isPkmDomain = window.location.hostname.startsWith('pkm.');
-const isPublic = isPublicByDomain && !isPkmDomain;
-
-secureLogger.info(`[Router] Host: ${window.location.hostname}, isPublicByDomain: ${isPublicByDomain}, isPkm: ${isPkmDomain}, Result Public: ${isPublic}`);
-
-// set branding immediately (before react mounts)
-if (typeof document !== 'undefined') {
-  const hostname = window.location.hostname;
-  if (hostname.includes('dupe')) {
-    document.title = "dupemates";
-  } else if (hostname.includes('blog')) {
-    document.title = "blog";
-  } else if (hostname.includes('home')) {
-    document.title = "home";
-  } else {
-    document.title = isPublic ? "house of mates" : "pkm";
-  }
-  const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
-  if (favicon) {
-    if (window.location.hostname.includes('dupe')) {
-      favicon.href = "/favicon-dupe.png";
-    } else if (isPublic) {
-      favicon.href = "/favicon-home.png";
-    } else {
-      favicon.href = "/favicon.png";
-    }
-  }
-}
+const LoadingFallback = (
+  <div className="flex items-center justify-center h-screen">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+  </div>
+)
 
 function AppContent() {
-  const { token, client } = useAuth()
+  const { token, isLoading } = useAuth()
 
-
-  // wal recovery on startup: replay any incomplete writes from a previous crash
+  // run link registry migration on mount
   useEffect(() => {
-    if (!client) return
-    walRecover().then(async (pending) => {
-      if (pending.length === 0) return
-      secureLogger.info(`wal: recovering ${pending.length} pending writes from previous session`)
-      for (const entry of pending) {
-        try {
-          if (entry.operation === 'update') {
-            await client.updateRecord(entry.collection, entry.recordId, entry.payload)
-          } else if (entry.operation === 'create') {
-            await client.createRecord(entry.collection, entry.payload)
-          } else if (entry.operation === 'delete') {
-            await client.deleteRecord(entry.collection, entry.recordId)
-          }
-          await walCommit(entry.id)
-          secureLogger.info(`wal: recovered ${entry.operation} on ${entry.collection}/${entry.recordId}`)
-        } catch (err) {
-          secureLogger.error('wal: recovery failed for', entry.id, err)
-          await walFail(entry.id)
+    const runMigration = async () => {
+      try {
+        const migrated = await isLinkRegistryMigrated()
+        if (!migrated) {
+          secureLogger.info('running link registry backfill migration')
+          await backfillLinkRegistry()
         }
+      } catch (error) {
+        secureLogger.error('link registry migration failed:', error)
       }
-    }).catch((err) => {
-      secureLogger.error('wal: startup recovery error', err)
-    })
-  }, [client])
+    }
+    runMigration()
+  }, [])
 
-  // link registry backfill: scan existing documents on first load of this version
-  useEffect(() => {
-    if (!client || isLinkRegistryMigrated()) return
-
-    // run migration after a small delay to not block initial render
-    const timer = setTimeout(() => {
-      secureLogger.info('[link-migration] starting backfill...')
-      backfillLinkRegistry()
-        .then((res) => {
-          secureLogger.info(`[link-migration] complete: scanned ${res.documents} docs, found ${res.links} links`)
-        })
-        .catch((err) => {
-          secureLogger.error('[link-migration] failed:', err)
-        })
-    }, 5000)
-
-    return () => clearTimeout(timer)
-  }, [client])
-
-  const LoadingFallback = (
-    <div className="h-screen flex items-center justify-center bg-[#050505] text-[var(--primary)] lowercase text-xl">
-      {isPublic
-        ? (window.location.hostname.includes('dupe')
-          ? "dupemates loading..."
-          : window.location.hostname.includes('blog')
-            ? "blog loading..."
-            : "house of mates loading...")
-        : `loading ${isPkmDomain ? 'pkm' : 'app'}...`}
-    </div>
-  );
-
-  // check for critical configuration
-  const isConfigured = !!import.meta.env.VITE_API_URL;
-  if (!isConfigured && !isPublic) {
-    return (
-      <Suspense fallback={LoadingFallback}>
-        <SetupRequired />
-      </Suspense>
-    );
+  if (isLoading) {
+    return LoadingFallback
   }
 
-  // public site router - bypass standard app for public domains
-  if (isPublic) {
-    const isBlog = window.location.hostname.includes('blog');
+  // check if setup is required
+  if (!token && !isPublicDomain()) {
+    return <SetupRequired />
+  }
 
-    if (isBlog) {
-      return (
-        <BrowserRouter>
-          <Suspense fallback={LoadingFallback}>
-            <Routes>
-              <Route path="/" element={<BlogBuilder />} />
-              <Route path="/:slug" element={<BlogBuilder />} />
-            </Routes>
-          </Suspense>
-          <Toaster />
-        </BrowserRouter>
-      );
-    }
-
+  // public domain rendering
+  if (isPublicDomain()) {
     return (
       <BrowserRouter>
         <Suspense fallback={LoadingFallback}>
@@ -210,7 +124,7 @@ function AppContent() {
         </BrowserRouter>
       ) : <LoginPage />}
       <Toaster />
-    </>
+    </CanvasInitializer>
   )
 }
 
