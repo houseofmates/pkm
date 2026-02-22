@@ -245,7 +245,9 @@ const importTasks = new Map();
 // each entry: { emitter, status, logs: string[] }
 
 function handleNotionImport(req, res) {
+    console.log('[NotionImport] request received, auth=', req.headers.authorization);
     if (!req.file) {
+        console.log('[NotionImport] missing file');
         return res.status(400).json({ error: 'missing file' });
     }
     const taskId = `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
@@ -333,6 +335,7 @@ app.get('/api/notion-import/:id/stream', requireAuth, (req, res) => {
 // prevents mysterious failures.
 app.options('/api/notion-import/:id/logs', cors());
 app.get('/api/notion-import/:id/logs', requireAuth, (req, res) => {
+    console.log('[NotionImport] logs poll for id', req.params.id);
     const id = req.params.id;
     const entry = importTasks.get(id);
     if (!entry) {
