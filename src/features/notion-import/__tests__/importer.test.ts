@@ -51,6 +51,8 @@ describe('notion importer integration', () => {
         const pagesDef = calls.find(c => c.url === '/collections:create' && c.body.name === 'pages');
         expect(pagesDef).toBeDefined();
         expect(pagesDef.body.fields.body).toBe('text');
+        // frontmatter columns should be added as well (foo was in sample)
+        expect(pagesDef.body.fields.foo).toBeDefined();
 
         // find records added (URLs include the collection name)
         const recs = calls.filter(c => c.url.startsWith('/records:'));
