@@ -119,7 +119,7 @@ function KanbanColumn({ id, title, items, children }: { id: string, title: strin
   });
 
   return (
-    <div ref={setNodeRef} className="w-72 flex-shrink-0 flex flex-col h-full max-h-full rounded-lg bg-muted/40 border ml-4 first:ml-0">
+    <div ref={setNodeRef} className="relative w-72 flex-shrink-0 flex flex-col h-full max-h-full rounded-lg bg-muted/40 border ml-4 first:ml-0">
       <div className="absolute top-1 right-1">
         {onCreate && groupByField && (
           <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => onCreate({ [groupByField]: id })} title="new">
