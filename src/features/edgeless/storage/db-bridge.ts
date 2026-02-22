@@ -42,21 +42,21 @@ function callWorkerOrDirect<T>(method: string, ...args: unknown[]): Promise<T> {
   if (!worker) {
     // map lowercased worker method names to camelcase direct exports
     const mapping: Record<string, string> = {
-      Appendop: 'AppendOp',
-      Appendops: 'AppendOps',
-      Getunsyncedops: 'GetUnsyncedOps',
-      Getrecentops: 'GetRecentOps',
-      Markopssynced: 'MarkOpsSynced',
-      Pruneoldops: 'PruneOldOps',
-      Savecheckpoint: 'SaveCheckpoint',
-      Getlatestcheckpoint: 'GetLatestCheckpoint',
-      Getdrawingmeta: 'GetDrawingMeta',
-      Updatedrawingmeta: 'UpdateDrawingMeta',
-      Listpendingdrawings: 'ListPendingDrawings',
-      Deletedrawing: 'DeleteDrawing',
-      Gettoken: 'GetToken',
-      Settoken: 'SetToken',
-      Cleartoken: 'ClearToken',
+      Appendop: 'appendOp',
+      Appendops: 'appendOps',
+      Getunsyncedops: 'getUnsyncedOps',
+      Getrecentops: 'getRecentOps',
+      Markopssynced: 'markOpsSynced',
+      Pruneoldops: 'pruneOldOps',
+      Savecheckpoint: 'saveCheckpoint',
+      Getlatestcheckpoint: 'getLatestCheckpoint',
+      Getdrawingmeta: 'getDrawingMeta',
+      Updatedrawingmeta: 'updateDrawingMeta',
+      Listpendingdrawings: 'listPendingDrawings',
+      Deletedrawing: 'deleteDrawing',
+      Gettoken: 'getToken',
+      Settoken: 'setToken',
+      Cleartoken: 'clearToken',
     }
     const directName = mapping[method] || method
     const fn = (directDb as any)[directName]
