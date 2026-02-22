@@ -1,3 +1,6 @@
+// allow importing TypeScript modules in this server process
+import 'ts-node/register';
+
 import express from 'express';
 import http from 'http';
 import { Server } from 'socket.io';
