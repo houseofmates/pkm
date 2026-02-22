@@ -128,7 +128,7 @@ function transformWorkspace(ws) {
             instructions.push({ type: 'createRecord', collection: db.name, data: row });
         }
     }
-    instructions.push({ type: 'createCollection', name: 'pages', fields: { title: 'string', body: 'string' } });
+    instructions.push({ type: 'createCollection', name: 'pages', fields: { title: 'string', body: 'text' } });
     for (const page of ws.pages) {
         const data = { title: page.title, body: page.content, ...page.frontmatter };
         instructions.push({ type: 'createRecord', collection: 'pages', data });
