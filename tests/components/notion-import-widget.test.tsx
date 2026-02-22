@@ -96,4 +96,19 @@ describe('NotionImportWidget', () => {
       headers: { Authorization: 'Bearer my-app-key' }
     }));
   });
+
+  it('ignores literal "null" string from storage', async () => {
+    localStorage.setItem('hom_api_key', 'null');
+    const fakeResponse = { ok: false, status: 400, statusText: 'Bad', text: async () => '' };
+    (fetch as any).mockResolvedValue(fakeResponse);
+    render(<NotionImportWidget />);
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File(['x'], 'a.zip', { type: 'application/zip' });
+    fireEvent.change(input, { target: { files: [file] } });
+    fireEvent.click(screen.getByText(/start import/i));
+    await waitFor(() => {
+      expect(screen.getByText(/missing api key/i)).toBeInTheDocument();
+    });
+    expect(fetch).not.toHaveBeenCalled();
+  });
 });
