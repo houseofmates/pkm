@@ -13,7 +13,7 @@ export function WilsonChat() {
 
   // actually, let's update store first? no, let's write this component to use the store field we will add.
   const isChatOpen = useEdgelessStore((state) => state.isChatOpen)
-  const setChatOpen = useEdgelessStore((state) => state.setchatopen)
+  const setChatOpen = useEdgelessStore((state) => state.setChatOpen)
 
   const { interactionHistory, isThinking, askWilson } = useLLMStore.getState()
   const [userInput, setUserInput] = useState('')
