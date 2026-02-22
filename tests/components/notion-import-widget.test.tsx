@@ -146,6 +146,8 @@ describe('NotionImportWidget', () => {
     const expectedBase = (process.env.VITE_API_URL || '/api').replace(/\/$/, '');
     expect(esSpy).toHaveBeenCalledWith(`${expectedBase}/notion-import/t1/stream`, expect.any(Object));
   });
+
+  it('infers db host when VITE_API_URL unset and hostname starts with pkm', async () => {
     const fakeResponse = { ok: false, status: 400, statusText: 'Bad', text: async () => '' };
     (fetch as any).mockResolvedValue(fakeResponse);
     // temporarily remove env variable
