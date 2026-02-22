@@ -4,7 +4,6 @@ import { describe, it, expect } from 'vitest';
 import { Toolbar } from '../Toolbar';
 import { useEdgelessStore } from '../../store';
 import { FronterProvider } from '@/contexts/fronter-context';
-import { render as rtlRender } from '@testing-library/react';
 
 // custom render that includes required providers
 function render(ui: React.ReactElement) {
