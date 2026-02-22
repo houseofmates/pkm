@@ -13,6 +13,7 @@ function guessType(values: any[]): string {
     let hasBoolean = false;
     let hasDate = false;
     let hasArray = false;
+    let hasLongText = false;
     for (const v of values) {
         if (v == null || v === '') continue;
         if (Array.isArray(v)) {
@@ -25,6 +26,12 @@ function guessType(values: any[]): string {
             hasBoolean = true;
         } else if (typeof v === 'string') {
             const trimmed = v.trim();
+            // treat any string containing newlines or markdown-like syntax as long text
+            if (trimmed.includes('\n') || /[#*_`\-]{2,}/.test(trimmed) || trimmed.length > 200) {
+                hasLongText = true;
+                hasString = true; // still count as string for fallback
+                continue;
+            }
             const maybeNum = Number(trimmed);
             if (!isNaN(maybeNum) && trimmed !== '') {
                 hasNumber = true;
@@ -44,6 +51,7 @@ function guessType(values: any[]): string {
     }
     if (hasArray) return 'string[]';
     if (hasDate && !hasString) return 'date';
+    if (hasLongText) return 'text';
     if (hasString) return 'string';
     if (hasBoolean) return 'boolean';
     if (hasNumber) return 'number';
@@ -54,8 +62,10 @@ function guessType(values: any[]): string {
 function notionPropertyToType(type: string): string {
     switch (type.toLowerCase()) {
         case 'title':
+            return 'string';
         case 'text':
         case 'rich_text':
+            return 'text'; // long text/textarea in nocobase
         case 'email':
         case 'phone_number':
         case 'url':
@@ -105,8 +115,8 @@ export function transformWorkspace(ws: NotionWorkspace): Instruction[] {
         }
     }
 
-    // pages -> pages collection
-    instructions.push({ type: 'createCollection', name: 'pages', fields: { title: 'string', body: 'string' } });
+    // pages -> pages collection (body should be long text)
+    instructions.push({ type: 'createCollection', name: 'pages', fields: { title: 'string', body: 'text' } });
     for (const page of ws.pages) {
         const data: Record<string, any> = {
             title: page.title,
