@@ -32,9 +32,16 @@ function getApiClient() {
     return instance;
 }
 
-export async function run(zipFile: string, clientOverride?: any) {
+export async function run(zipFile: string, clientOverride?: any, onProgress?: (msg: string) => void) {
+    const report = (msg: string) => {
+        if (onProgress) onProgress(msg);
+        else console.log(msg);
+    };
+
     const folder = await unzipToTemp(zipFile);
+    report(`parsed export to ${folder}`);
     const ws = await parseNotionExport(folder);
+    report(`found ${ws.pages.length} pages and ${ws.databases.length} databases`);
     const instructions = transformWorkspace(ws);
     const client = clientOverride || getApiClient();
 
@@ -44,11 +51,11 @@ export async function run(zipFile: string, clientOverride?: any) {
     for (const ins of instructions) {
         if (ins.type === 'createCollection') {
             try {
-                console.log(`creating collection ${ins.name}`);
+                report(`creating collection ${ins.name}`);
                 await client.post(`/collections:create`, { name: ins.name, fields: ins.fields });
                 collectionsCreated++;
             } catch (err: any) {
-                console.error(`failed creating collection ${ins.name}:`, err.response?.data || err.message);
+                report(`failed creating collection ${ins.name}: ${err.response?.data || err.message}`);
             }
         }
     }
@@ -58,15 +65,15 @@ export async function run(zipFile: string, clientOverride?: any) {
                 await client.post(`/records:${ins.collection}:create`, { values: ins.data });
                 recordsCreated++;
                 if (recordsCreated % 50 === 0) {
-                    process.stdout.write(`.${recordsCreated}`);
+                    report(`imported ${recordsCreated} records so far`);
                 }
             } catch (err: any) {
-                console.error(`error creating record in ${ins.collection}:`, err.response?.data || err.message);
+                report(`error creating record in ${ins.collection}: ${err.response?.data || err.message}`);
             }
         }
     }
 
-    console.log(`\nimport complete: ${collectionsCreated} collections, ${recordsCreated} records`);
+    report(`import complete: ${collectionsCreated} collections, ${recordsCreated} records`);
 }
 
 if (require.main === module) {

@@ -157,6 +157,74 @@ app.post('/api/upload/banner', requireAuth, upload.single('file'), (req, res) =>
     res.json({ url: fileUrl, filename: req.file.filename });
 });
 
+// Notion import support
+import { run as notionRun } from '../scripts/notion-import';
+import EventEmitter from 'events';
+
+const importTasks = new Map();
+
+app.post('/api/notion-import', requireAuth, upload.single('file'), (req, res) => {
+    if (!req.file) {
+        return res.status(400).json({ error: 'missing file' });
+    }
+    const taskId = `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+    const emitter = new EventEmitter();
+    importTasks.set(taskId, { emitter, status: 'running' });
+
+    // run in background
+    (async () => {
+        try {
+            await notionRun(req.file.path, undefined, (msg) => {
+                emitter.emit('progress', msg);
+            });
+            emitter.emit('done');
+            importTasks.set(taskId, { emitter, status: 'done' });
+        } catch (e) {
+            emitter.emit('error', String(e));
+            importTasks.set(taskId, { emitter, status: 'error' });
+        } finally {
+            // cleanup uploaded file
+            try { fs.unlinkSync(req.file.path); } catch {}
+        }
+    })();
+
+    res.json({ taskId });
+});
+
+app.get('/api/notion-import/:id/stream', requireAuth, (req, res) => {
+    const id = req.params.id;
+    const entry = importTasks.get(id);
+    if (!entry) {
+        return res.status(404).send('no such task');
+    }
+    const { emitter } = entry;
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.flushHeaders();
+
+    const onProgress = (msg) => {
+        res.write(`data: ${msg}\n\n`);
+    };
+    const onDone = () => {
+        res.write('event: done\n\n');
+        res.end();
+    };
+    const onError = (err) => {
+        res.write(`event: error\ndata: ${err}\n\n`);
+        res.end();
+    };
+
+    emitter.on('progress', onProgress);
+    emitter.on('done', onDone);
+    emitter.on('error', onError);
+
+    req.on('close', () => {
+        emitter.off('progress', onProgress);
+        emitter.off('done', onDone);
+        emitter.off('error', onError);
+    });
+});
+
 app.post('/api/upload-background', requireAuth, upload.single('file'), (req, res) => {
     try {
         if (!req.file) {
