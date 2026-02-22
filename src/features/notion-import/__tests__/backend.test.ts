@@ -73,7 +73,7 @@ describe('backend /api/notion-import', () => {
     describe('CORS', () => {
         it('returns allow-origin header for configured origin', async () => {
             const res = await request(app)
-                .options('/api/status')
+                .get('/api/status')
                 .set('Origin', 'https://pkm.houseofmates.space');
             expect(res.headers['access-control-allow-origin']).toBe('https://pkm.houseofmates.space');
         });
