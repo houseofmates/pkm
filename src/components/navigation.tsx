@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import * as LucideIcons from 'lucide-react';
 import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
@@ -281,9 +282,9 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       if (FORBIDDEN_COLLECTIONS.includes(itemIdLower)) return false;
 
       if (item.type === 'collection') {
-        // if it's a doc, keep it if it exists in localitems
+        // if it's a doc, keep it if it exists in local items
         if (itemIdLower.startsWith('doc_')) {
-          return localItems.some(d => d.id === item.id);
+          return items.some(d => d.id === item.id);
         }
         // if it's a drawing, always keep it; metadata persistence handled elsewhere
         if (itemIdLower.startsWith('drawing_')) {
@@ -305,7 +306,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         name: c.title || c.name,
       }));
 
-    const newLocalItems = localItems.filter(d => !existingIds.has(d.id.toLowerCase()));
+    const newLocalItems = items.filter(d => d.id.startsWith('doc_') && !existingIds.has(d.id.toLowerCase()));
 
     if (newCols.length > 0 || newLocalItems.length > 0 || filteredItems.length !== items.length) {
       setItems([...filteredItems, ...newCols, ...newLocalItems]);
