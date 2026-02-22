@@ -102,7 +102,7 @@ class SchemaService {
       label,
       version: 1,
       fields: fieldsWithIds,
-      metadata: metadata || {},
+      metadata: metadata || { archived: false },
       createdAt: now,
       updatedAt: now,
     };
@@ -174,7 +174,7 @@ class SchemaService {
     }
 
     // update version and timestamp
-    table.version += 1;
+    table.version = (table.version || 1) + 1;
     table.updatedAt = new Date().toISOString();
 
     await persistenceService.saveTable(table);
@@ -275,7 +275,7 @@ class SchemaService {
   public async createRecord(
     tableName: string,
     data: Record<string, any>
-  ): Promise<Record> {
+  ): Promise<TableRecord> {
     this.ensureInitialized();
 
     const table = await persistenceService.getTableByName(tableName);
@@ -304,7 +304,7 @@ class SchemaService {
 
     // create full record with system fields
     const now = new Date().toISOString();
-    const record: Record = {
+    const record: TableRecord = {
       id: crypto.randomUUID(),
       createdAt: now,
       updatedAt: now,
@@ -322,7 +322,7 @@ class SchemaService {
    * @param recordId the record id
    * @returns the record or undefined
    */
-  public async getRecord(recordId: string): Promise<Record | undefined> {
+  public async getRecord(recordId: string): Promise<TableRecord | undefined> {
     this.ensureInitialized();
     return persistenceService.getRecord(recordId);
   }
@@ -338,7 +338,7 @@ class SchemaService {
     tableName: string,
     recordId: string,
     updates: Record<string, any>
-  ): Promise<Record> {
+  ): Promise<TableRecord> {
     this.ensureInitialized();
 
     const table = await persistenceService.getTableByName(tableName);
@@ -361,7 +361,7 @@ class SchemaService {
     }
 
     // update record
-    const record: Record = {
+    const record: TableRecord = {
       ...existing,
       ...updates,
       id: recordId, // ensure id doesn't change
@@ -406,7 +406,7 @@ class SchemaService {
    * @param tableName the table name
    * @returns array of all records
    */
-  public async getAllRecords(tableName: string): Promise<Record[]> {
+  public async getAllRecords(tableName: string): Promise<TableRecord[]> {
     this.ensureInitialized();
     return persistenceService.getRecordsByTable(tableName);
   }
@@ -419,7 +419,7 @@ class SchemaService {
    * export all data (for backup)
    * @returns all tables and records
    */
-  public async exportAll(): Promise<{ tables: TableDefinition[]; records: Record[] }> {
+  public async exportAll(): Promise<{ tables: TableDefinition[]; records: TableRecord[] }> {
     this.ensureInitialized();
     return persistenceService.exportAll();
   }
@@ -428,7 +428,7 @@ class SchemaService {
    * import data (for restore)
    * @param data the data to import
    */
-  public async importAll(data: { tables: TableDefinition[]; records: Record[] }): Promise<void> {
+  public async importAll(data: { tables: TableDefinition[]; records: TableRecord[] }): Promise<void> {
     this.ensureInitialized();
     return persistenceService.importAll(data);
   }
