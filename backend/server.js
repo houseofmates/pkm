@@ -77,9 +77,9 @@ app.use(cors({
             }
             // if pattern contains a star anywhere, treat as simple wildcard
             if (a.includes('*')) {
-                // escape regex chars except *
-                const escaped = a.replace(/[-/\\^$+?.()|[\]{}]/g, '\\$&');
-                const regex = new RegExp('^' + escaped.replace(/\\\*/g, '.*') + '$');
+                // build regex by splitting on * and escaping each literal portion
+                const parts = a.split('*').map(p => p.replace(/[-/\\^$+?.()|[\]{}]/g, '\\$&'));
+                const regex = new RegExp('^' + parts.join('.*') + '$');
                 if (regex.test(origin)) {
                     return callback(null, true);
                 }
