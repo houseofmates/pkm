@@ -184,7 +184,7 @@ export function ContextMenu() {
  appearance
   </Button>
 
-  {showcolorpicker && (
+  {showColorPicker && (
  <div className="p-2 bg-muted/50 rounded-md my-1">
  <HexColorPicker color={data?.color || "var(--primary)"} onChange={handleColorChange} style={{ width: '100%', height: '120px' }} />
  </div>
