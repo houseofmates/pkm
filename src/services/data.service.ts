@@ -1,98 +1,70 @@
-import { z } from 'zod';
-import { schemaService } from './schema.service';
-import './field-types'; // This import is for side-effects only, to register default field types.
+import { api } from '@/api/nocobase-client';
+import { localDbService } from './local-db.service';
+import { usePkmStore } from '@/store/usePkmStore';
+import './field-types'; // For side-effect: registers default field types.
 import type { FieldInstance } from './schema.service';
 
-// Defines the structure for a table, including its fields and records.
-interface Table {
-  name: string;
-  fields: FieldInstance[];
-  records: Map<string, Record<string, any>>;
-  schema: z.ZodObject<any>;
-}
-
 /**
- * A service for managing and persisting data for dynamic tables.
- * It uses SchemaService to validate data on all operations.
+ * A service that orchestrates data flow between the UI, local cache, and NocoBase backend.
+ * It implements a read-through cache for offline-first capabilities.
  */
 class DataService {
-  private tables: Map<string, Table> = new Map();
 
   /**
-   * Creates a new table with a given name and field structure.
-   * @param name The name of the table.
-   * @param fields The fields that define the table's schema.
-   * @returns The newly created table definition.
+   * Creates a new NocoBase collection and then triggers a fresh sync.
+   * @param name The name of the collection.
+   * @param fields The fields that define the collection's schema.
    */
-  public createTable(name: string, fields: FieldInstance[]): Table {
-    if (this.tables.has(name)) {
-      throw new Error(`Table "${name}" already exists.`);
-    }
-
-    const schema = schemaService.generateRecordSchema(fields);
-    const newTable: Table = {
-      name,
-      fields,
-      records: new Map(),
-      schema,
-    };
-
-    this.tables.set(name, newTable);
-    console.log(`Table "${name}" created successfully.`);
-    return newTable;
-  }
-
-  /**
-   * Adds a new record to a specified table.
-   * The record is validated against the table's schema before insertion.
-   * @param tableName The name of the table.
-   * @param record The data to insert.
-   * @returns The created record, including a unique ID.
-   */
-  public createRecord(tableName: string, record: Record<string, any>): Record<string, any> {
-    const table = this.tables.get(tableName);
-    if (!table) {
-      throw new Error(`Table "${tableName}" not found.`);
-    }
-
-    const validationResult = table.schema.safeParse(record);
-    if (!validationResult.success) {
-      // In a real app, you'd want more detailed error reporting.
-      throw new Error(`Record validation failed: ${validationResult.error.message}`);
-    }
-
-    // Generate a unique ID for the record.
-    const id = crypto.randomUUID();
-    const newRecord = { id, ...validationResult.data };
-
-    table.records.set(id, newRecord);
-    return newRecord;
-  }
-
-  /**
-   * Retrieves a record by its ID from a specified table.
-   * @param tableName The name of the table.
-   * @param id The ID of the record to retrieve.
-   * @returns The found record or undefined.
-   */
-  public getRecord(tableName: string, id: string): Record<string, any> | undefined {
-    const table = this.tables.get(tableName);
-    if (!table) {
-      throw new Error(`Table "${tableName}" not found.`);
-    }
-    return table.records.get(id);
-  }
-
-  /**
-   * Retrieves a list of all table definitions, without their data.
-   * @returns An array of table definitions.
-   */
-  public getTables(): { name: string; fields: FieldInstance[] }[] {
-    return Array.from(this.tables.values()).map(table => ({
-      name: table.name,
-      fields: table.fields,
+  public async createTable(name: string, fields: FieldInstance[]): Promise<void> {
+    const backendFields = fields.map(field => ({
+      name: field.name,
+      type: field.type,
     }));
+
+    console.log(`Creating collection "${name}" in NocoBase...`);
+    await api.createCollection({ name, fields: backendFields });
+
+    // After creating, trigger a sync to refresh the UI and cache
+    await this.syncTables();
+  }
+
+  /**
+   * Syncs the list of tables/collections.
+   * 1. Loads and displays data from the local cache immediately.
+   * 2. Fetches fresh data from the NocoBase backend.
+   * 3. Updates the local cache and the UI with the fresh data.
+   */
+  public async syncTables(): Promise<void> {
+    // 1. Load from cache and update UI immediately for instant load
+    try {
+      const cachedCollections = await localDbService.getAllCollections();
+      if (cachedCollections && cachedCollections.length > 0) {
+        console.log(`Loaded ${cachedCollections.length} collections from cache.`);
+        usePkmStore.getState().setCollections(cachedCollections);
+      }
+    } catch (error) {
+      console.error('Failed to load collections from cache:', error);
+    }
+
+    // 2. Fetch fresh data from the network
+    try {
+      const response = await api.listCollections();
+      const freshCollections = response.data || [];
+
+      console.log(`Fetched ${freshCollections.length} collections from NocoBase.`);
+
+      // 3. Update the local cache with fresh data
+      await localDbService.saveCollections(freshCollections);
+
+      // 4. Update the UI (Zustand store) with fresh data
+      usePkmStore.getState().setCollections(freshCollections);
+    } catch (error) {
+      console.error('Failed to sync collections from NocoBase. App may be offline.', error);
+      // If the network fails, the app will continue to run with the cached data.
+    }
   }
 }
+
+export const dataService = new DataService();
 
 export const dataService = new DataService();
