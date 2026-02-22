@@ -7,6 +7,7 @@ import { SmartField } from '@/components/fields/smart-field';
 import { RecordContextMenu } from '@/features/records/components/record-context-menu';
 import { DndContext, useDraggable } from '@dnd-kit/core';
 import { toast } from 'sonner';
+import { Diamond } from 'lucide-react';
 
 type GanttViewProps = ViewProps;
 
@@ -28,6 +29,8 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
   const startField = config?.ganttStartField || dateFields[0]?.name;
   const endField = config?.ganttEndField || dateFields[1]?.name || startField;
   const dependenciesField = config?.ganttDependenciesField;
+  const progressField = config?.ganttProgressField;
+  const milestoneField = config?.ganttMilestoneField;
 
   const titleField = config?.titleField
     ? collection.fields?.find((f: { name: string; primary?: boolean }) => f.name === config.titleField)
@@ -174,6 +177,9 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
                 width = duration * colWidth;
                 visible = true;
               }
+              
+              const isMilestone = milestoneField && record[milestoneField];
+              const progress = progressField ? record[progressField] || 0 : 0;
 
               return (
                 <RecordContextMenu key={record.id} record={record} collection={collection} onUpdate={onUpdateRecord} onDelete={onDelete} titleField={titleField} config={config} onConfigChange={onConfigChange} className="contents">
@@ -188,7 +194,8 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
                       <div className="absolute inset-0 flex pointer-events-none">
                         {timelineDays.map((d, i) => <div key={i} className={cn("border-r shrink-0 h-full", d.getDay() === 0 || d.getDay() === 6 ? "bg-muted/10" : "")} style={{ width: `${colWidth}px` }} />)}
                       </div>
-                      {visible && <TaskBar record={record} left={left} width={width} sDate={sDate} eDate={eDate} onDoubleClick={() => handleBarClick(record)} />}
+                      {visible && !isMilestone && <TaskBar record={record} left={left} width={width} sDate={sDate} eDate={eDate} onDoubleClick={() => handleBarClick(record)} progress={progress} />}
+                      {visible && isMilestone && <Milestone record={record} left={left} sDate={sDate} />}
                     </div>
                   </div>
                 </RecordContextMenu>
@@ -201,16 +208,25 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
   );
 }
 
-function TaskBar({ record, left, width, sDate, eDate, onDoubleClick }: any) {
+function TaskBar({ record, left, width, sDate, eDate, onDoubleClick, progress }: any) {
   const { attributes: move_attr, listeners: move_listeners, setNodeRef: move_ref } = useDraggable({ id: `move-${record.id}`, data: { id: record.id, type: 'move' } });
   const { attributes: resize_attr, listeners: resize_listeners, setNodeRef: resize_ref } = useDraggable({ id: `resize-${record.id}`, data: { id: record.id, type: 'resize-end' } });
 
   return (
     <div ref={move_ref} {...move_attr} {...move_listeners} className="absolute top-2 bottom-2 bg-blue-500/20 border border-blue-500 text-blue-700 dark:text-blue-300 rounded-md flex items-center px-2 text-[10px] whitespace-nowrap overflow-hidden shadow-sm hover:brightness-110 cursor-move transition-all" style={{ left: `${left}px`, width: `${Math.max(width, colWidth)}px` }} title={`${format(sDate!, 'PP')} - ${format(eDate!, 'PP')}`} onDoubleClick={onDoubleClick}>
-      <div className="truncate w-full font-black opacity-80 group-hover:opacity-100">
+      <div className="absolute top-0 left-0 h-full bg-blue-500/40 rounded-md" style={{ width: `${progress}%` }} />
+      <div className="truncate w-full font-black opacity-80 group-hover:opacity-100 relative">
         {record.title || record.name}
       </div>
       <div ref={resize_ref} {...resize_attr} {...resize_listeners} className="absolute right-0 w-2 h-full cursor-e-resize bg-blue-600/30 opacity-0 hover:opacity-100" />
+    </div>
+  )
+}
+
+function Milestone({ record, left, sDate }: any) {
+  return (
+    <div className="absolute top-1/2 -translate-y-1/2" style={{ left: `${left}px` }} title={format(sDate!, 'PP')}>
+      <Diamond className="w-4 h-4 text-primary" />
     </div>
   )
 }
