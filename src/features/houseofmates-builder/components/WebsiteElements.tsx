@@ -757,7 +757,7 @@ export function MinecraftStatsWidget() {
             player: msg.player,
             message: msg.message,
             timestamp: msg.timestamp
-          }))); // Keep order (Oldest -> Newest)
+          }))); // keep order (oldest -> newest)
           // actually our backend pushes newest to end of array? no, push adds to end.
           // array in memory: [oldest, ..., newest].
           // map preserves order.
@@ -864,7 +864,7 @@ export function MinecraftStatsWidget() {
           setMessages(prev => [...prev, statusMsg].slice(-50));
           lastStatusRef.current = isOnline;
         }
-        return; // Stop here for pings
+        return; // stop here for pings
       }
 
       // show other events (chat, join, leave, quit)
