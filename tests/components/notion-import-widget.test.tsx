@@ -127,7 +127,6 @@ describe('NotionImportWidget', () => {
     expect(fetch).toHaveBeenCalledWith(`${expectedHost}/notion-import`, expect.any(Object));
     // restore
     process.env.VITE_API_URL = original;
-    delete (window as any).location;
     Object.defineProperty(window, 'location', { value: originalLocation, writable: true });
   });
 
