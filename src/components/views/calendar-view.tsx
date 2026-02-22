@@ -138,7 +138,7 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
                   const payload: any = {};
                   payload[dateField] = currentDate.toISOString();
                   onCreate(payload);
-                }} title="add">
+                }} title="add" aria-label="add record">
                   <Plus className="h-4 w-4" />
                 </Button>
               )}

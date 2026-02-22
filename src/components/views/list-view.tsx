@@ -126,7 +126,7 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
     <div className="h-full w-full flex flex-col">
       {onCreate && (
         <div className="p-2">
-          <Button onClick={() => onCreate({})}>
+          <Button onClick={() => onCreate({})} aria-label="add record">
             <Plus className="h-4 w-4" /> add
           </Button>
         </div>

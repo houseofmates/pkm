@@ -52,7 +52,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
       {onCreate && (
-        <div className="flex items-center justify-center border border-dashed rounded-lg p-4 cursor-pointer hover:bg-muted/20" onClick={() => onCreate({})}>
+        <div className="flex items-center justify-center border border-dashed rounded-lg p-4 cursor-pointer hover:bg-muted/20" onClick={() => onCreate({})} aria-label="add item">
           <Plus className="h-6 w-6" />
         </div>
       )}
