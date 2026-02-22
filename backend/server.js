@@ -14,11 +14,15 @@ import axios from 'axios';
 // Load environment variables if .env exists
 if (fs.existsSync('.env')) {
     // Basic dotenv loader since we are in ES module and might not have dotenv package installed
+    // do not overwrite existing variables so tests can override values before import
     const envContent = fs.readFileSync('.env', 'utf-8');
     envContent.split('\n').forEach(line => {
         const [key, ...val] = line.split('=');
         if (key && val) {
-            process.env[key.trim()] = val.join('=').trim();
+            const name = key.trim();
+            if (!(name in process.env)) {
+                process.env[name] = val.join('=').trim();
+            }
         }
     });
 }
