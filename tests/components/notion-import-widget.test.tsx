@@ -100,6 +100,27 @@ describe('NotionImportWidget', () => {
     }));
   });
 
+  it('falls back to origin/api when VITE_API_URL unset', async () => {
+    (useAppSetting as any).mockReturnValue(['foo', vi.fn()]);
+    const fakeResponse = { ok: false, status: 400, statusText: 'Bad', text: async () => '' };
+    (fetch as any).mockResolvedValue(fakeResponse);
+    // temporarily remove env variable
+    const original = process.env.VITE_API_URL;
+    delete process.env.VITE_API_URL;
+    render(<NotionImportWidget />);
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File(['x'], 'a.zip', { type: 'application/zip' });
+    fireEvent.change(input, { target: { files: [file] } });
+    fireEvent.click(screen.getByText(/start import/i));
+    await waitFor(() => {
+      expect(screen.getByText(/upload failed: 400/i)).toBeInTheDocument();
+    });
+    const fallback = `${window.location.protocol}//${window.location.hostname}/api`;
+    expect(fetch).toHaveBeenCalledWith(`${fallback}/notion-import`, expect.any(Object));
+    // restore
+    process.env.VITE_API_URL = original;
+  });
+
   it('ignores literal "null" string from storage', async () => {
     localStorage.setItem('hom_api_key', 'null');
     const fakeResponse = { ok: false, status: 400, statusText: 'Bad', text: async () => '' };
