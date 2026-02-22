@@ -74,7 +74,7 @@ export function MoodboardPage() {
     setElements(prev => [...prev, newEl]);
   };
 
-  const updateElement = (id: string, updates: partial<BoardElement>) => {
+  const updateElement = (id: string, updates: Partial<BoardElement>) => {
     setElements(prev => prev.map(el => el.id === id ? { ...el, ...updates } : el));
   };
 
@@ -172,7 +172,7 @@ export function MoodboardPage() {
                   if (canvasMode === 'editing' && editingId === el.id) return;
                   e.stopPropagation();
                   if (e.button === 0 && canvasMode === 'viewing') {
-                    setDragState({
+                    setdragState({
                       id: el.id,
                       mode: 'move',
                       startX: e.clientX,
@@ -184,7 +184,7 @@ export function MoodboardPage() {
                 onDoubleClick={(e) => {
                   if (el.type === 'text') {
                     e.stopPropagation();
-                    setEditingId(el.id);
+                    seteditingId(el.id);
                     setCanvasMode('editing');
                   }
                 }}
@@ -219,14 +219,14 @@ export function MoodboardPage() {
                     }}
                     readOnly={editingId !== el.id}
                     onBlur={() => {
-                      setEditingId(null);
+                      seteditingId(null);
                       setCanvasMode('viewing');
                     }}
                     ref={(r) => { if (r && editingId === el.id) r.focus(); }}
                   />
                 )}
 
-                {el.type === 'view' && collections.find(c => c.name === el.content) && (
+                {el.type === 'view' && collections.find((c: { name: string }) => c.name === el.content) && (
                   <div className="w-full h-full bg-background border rounded-lg overflow-hidden flex flex-col shadow-sm">
                     <div className="bg-muted px-2 py-1 text-xs font-bold ">{el.content}</div>
                     <div className="flex-1 overflow-auto relative">
@@ -275,7 +275,7 @@ export function MoodboardPage() {
                   className="absolute bottom-0 right-0 w-4 h-4 bg-primary/50 cursor-se-resize rounded-tl opacity-0 group-hover:opacity-100"
                   onMouseDown={(e) => {
                     e.stopPropagation();
-                    setDragState({
+                    setdragState({
                       id: el.id,
                       mode: 'resize',
                       startX: e.clientX,
@@ -320,7 +320,7 @@ export function MoodboardPage() {
             <MoreHorizontal className="mr-2 h-4 w-4" /> add database
           </ContextMenuSubTrigger>
           <ContextMenuSubContent className="w-48">
-            {collections.map(col => (
+            {collections.map((col: { name: string; title?: string }) => (
               <ContextMenuItem key={col.name} onClick={() => addElement('view', col.name)}>
                 {col.title || col.name}
               </ContextMenuItem>
