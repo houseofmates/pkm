@@ -13,8 +13,8 @@ const fakeClient = {
 const authValue = {
   token: 'fake',
   isAuthenticated: true,
-  login: jest.fn(),
-  logout: jest.fn(),
+  login: vi.fn(),
+  logout: vi.fn(),
   client: fakeClient,
 };
 
