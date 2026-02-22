@@ -332,11 +332,17 @@ describe('NotionImportWidget', () => {
     render(<NotionImportWidget />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     // make the HTML large enough to bypass the 'too small' check
-    const encoder = new TextEncoder();
-    const htmlHeader = encoder.encode('<!DOCTYPE html><html>not zip</html>');
-    const filler = new Uint8Array(2000).fill(0x20);
-    // simulate a login page accidentally saved with .zip mimetype/extension
-    const html = new File([htmlHeader, filler], 'page.zip', { type: 'application/zip' });
+    // craft an array whose first bytes match the HTML snippet seen in
+    // the live failure (< ! D O) but otherwise fill with zeros so size is OK
+    const arr = new Uint8Array(2048);
+    arr[0] = 0x3c; // '<'
+    arr[1] = 0x21; // '!'
+    arr[2] = 0x44; // 'D'
+    arr[3] = 0x4f; // 'O'
+    const html = new File([arr], 'page.zip', { type: 'application/zip' });
+    // jsdom occasionally throws from slice(arrayBuffer), so stub it to return
+    // our crafted header bytes directly
+    (html as any).slice = () => ({ arrayBuffer: async () => arr.buffer });
     fireEvent.change(input, { target: { files: [html] } });
     fireEvent.click(screen.getByText(/start import/i));
     // the important invariant is that we never attempt a network request
