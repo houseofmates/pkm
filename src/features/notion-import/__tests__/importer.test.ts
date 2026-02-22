@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
-import { run } from '../../../scripts/notion-import';
+// dynamically load the script using node import so vite doesn't try to bundle an external TS file
+let run: (zip: string, client?: any) => Promise<void>;
 import childProcess from 'child_process';
 
 // helper to create zipped sample workspace
