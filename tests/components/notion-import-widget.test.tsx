@@ -247,6 +247,27 @@ describe('NotionImportWidget', () => {
     Object.defineProperty(window, 'location', { value: originalLocation, writable: true });
   });
 
+  it('stops polling when error status returned', async () => {
+    (useAppSetting as any).mockReturnValue(['key', vi.fn()]);
+    const fakeUpload = { ok: true, json: async () => ({ taskId: 't2' }) };
+    const fakeLogs = { ok: true, json: async () => ({ status: 'error', logs: ['oops'] }) };
+    let call = 0;
+    (fetch as any).mockImplementation(() => {
+      call++;
+      return call === 1 ? Promise.resolve(fakeUpload) : Promise.resolve(fakeLogs);
+    });
+    render(<NotionImportWidget />);
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File(['x'], 'a.zip', { type: 'application/zip' });
+    fireEvent.change(input, { target: { files: [file] } });
+    fireEvent.click(screen.getByText(/start import/i));
+    await waitFor(() => {
+      expect(screen.getByText(/oops/)).toBeInTheDocument();
+    });
+    // ensure we stopped polling (fetch only called twice)
+    expect(call).toBe(2);
+  });
+
   it('ignores literal "null" string from storage', async () => {
     localStorage.setItem('hom_api_key', 'null');
     const fakeResponse = { ok: false, status: 400, statusText: 'Bad', text: async () => '' };
