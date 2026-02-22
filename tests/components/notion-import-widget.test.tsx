@@ -54,6 +54,8 @@ describe('NotionImportWidget', () => {
   it('logs both raw and rewritten VITE_API_URL values', async () => {
     const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
     process.env.VITE_API_URL = 'https://api.houseofmates.space/api';
+    // provide a key so startImport doesn't bail out early
+    localStorage.setItem('hom_api_key', 'key');
     render(<NotionImportWidget />);
     // choose a file to allow startImport to proceed
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
