@@ -138,6 +138,10 @@ describe('SmartField', () => {
     await waitFor(() => {
       fireEvent.change(input, { target: { files: [file] } });
     });
+    // after upload the save button should appear, click it to commit
+    const saveBtn = Array.from(document.querySelectorAll('button')).find(b => b.className.includes('text-green-500')) as HTMLButtonElement;
+    expect(saveBtn).toBeDefined();
+    fireEvent.click(saveBtn);
     // our fakeClient.upload resolves with a url so onChange should be called
     await waitFor(() => {
       expect(onChange).toHaveBeenCalledWith('http://example.com/fake');
