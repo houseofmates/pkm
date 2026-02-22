@@ -24,7 +24,6 @@ const PORT = process.env.PORT || 4100;
 const ADMIN_SECRET = process.env.BROADCAST_AUTH_KEY || process.env.ADMIN_SECRET || 'change-me-in-prod';
 
 const app = express();
-const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
         origin: "*", // Adjust to your frontend URL in production
@@ -38,6 +37,21 @@ const io = new Server(server, {
     allowEIO3: true,
     transports: ['websocket', 'polling']
 });
+const pendingEmits = {};
+const debounceBroadcast = (event, payload, delay = 500) => {
+    if (payload.type === "chat") {
+        io.emit(event, payload);
+        return;
+    }
+    const type = payload.type || "generic";
+    if (pendingEmits[type]) clearTimeout(pendingEmits[type].timeout);
+    pendingEmits[type] = {
+        timeout: setTimeout(() => {
+            io.emit(event, payload);
+            delete pendingEmits[type];
+        }, delay)
+    };
+};
 
 app.use(express.json());
 // Serve static files from public directory
@@ -273,7 +287,7 @@ app.post('/api/broadcast', requireAuth, async (req, res) => {
     }
 
     // Emit to clients
-    io.emit('minecraft_update', emitPayload);
+    debounceBroadcast('minecraft_update', emitPayload);
 
     // Update Server Stats
     if (normalizedType !== 'chat') {

@@ -1,9 +1,14 @@
+import React from 'react';
+import { Button } from '@/components/ui/button';
 import {
-    LineChart, Line, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, Legend
+    LineChart, Line, AreaChart, Area, BarChart, Bar,
+    XAxis, YAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend
 } from 'recharts';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Button } from '@/components/ui/button';
+import { DataEmbed } from '@/components/DataEmbed/DataEmbed';
+import { ClockWidget } from '@/features/widgets/ClockWidget';
+import { N8nWidget } from '@/features/widgets/N8nWidget';
 
 interface WidgetRendererProps {
     widget: any;
@@ -14,42 +19,35 @@ interface WidgetRendererProps {
 }
 
 export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onAddData }: WidgetRendererProps) {
-    const findRowsForSource = (source: string) => data[source] || [];
+    const findRowsForSource = (source: string) => {
+        if (!source) return [];
+        return data[source] || [];
+    };
 
+    // ... existing renders ...
     const renderTable = (w: any) => {
         const rows = findRowsForSource(w.source);
-        // basic heuristic for columns if properties not defined
-        const cols = w.properties?.map((p: any) => p.name) || (rows.length > 0 ? object.keys(rows[0]) : ['id', 'title']);
-
+        const headers = w.headers || (rows.length > 0 ? Object.keys(rows[0]) : []);
         return (
             <div className="space-y-2">
                 <h4 className="font-bold text-sm lowercase">{w.title}</h4>
-                <div className="overflow-auto border border-border/50 rounded-lg bg-background/50">
-                    <table className="w-full text-xs">
-                        <thead>
-                            <tr className="border-b border-border/50 bg-muted/30">
-                                {cols.map((c: any) => <th key={c} className="px-3 py-2 text-left font-medium text-muted-foreground">{c}</th>)}
+                <div className="bg-background/40 border border-border/30 rounded-xl overflow-hidden text-xs">
+                    <table className="w-full">
+                        <thead className="bg-muted/30 text-muted-foreground font-bold">
+                            <tr>
+                                {headers.slice(0, 5).map((h: string) => (
+                                    <th key={h} className="p-2 text-left">{h}</th>
+                                ))}
                             </tr>
                         </thead>
                         <tbody>
-                            {rows.map((r: any, ri: number) => (
-                                <tr key={ri} className="border-b border-border/50 last:border-0 hover:bg-muted/20 transition-colors">
-                                    {cols.map((c: any) => (
-                                        <td key={c} className="px-3 py-2">
-                                            <input
-                                                className="w-full bg-transparent outline-none border-none focus:ring-1 focus:ring-primary/20 rounded px-1 -ml-1"
-                                                value={String(r[c] ?? '')}
-                                                onChange={(e) => onUpdateData?.(w.source, ri, { [c]: e.target.value })}
-                                            />
-                                        </td>
+                            {rows.slice(0, 10).map((r: any, i: number) => (
+                                <tr key={i} className="border-t border-white/5 hover:bg-white/5 transition-colors">
+                                    {headers.slice(0, 5).map((h: string) => (
+                                        <td key={h} className="p-2">{String(r[h] || '')}</td>
                                     ))}
                                 </tr>
                             ))}
-                            {rows.length === 0 && (
-                                <tr>
-                                    <td colSpan={cols.length} className="p-4 text-center text-muted-foreground italic">no data</td>
-                                </tr>
-                            )}
                         </tbody>
                     </table>
                 </div>
@@ -58,48 +56,23 @@ export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onA
     };
 
     const renderKanban = (w: any) => {
-        const lanes = w.lanes || ['todo', 'doing', 'done'];
-        const statusfield = w.statusfield || w.statusfield || 'status';
-        const rows = findrowsforsource(w.source);
+        const rows = findRowsForSource(w.source);
+        const statusField = w.statusField || 'status';
+        const statuses = w.statuses || ['todo', 'in-progress', 'done'];
 
         return (
             <div className="space-y-2">
                 <h4 className="font-bold text-sm lowercase">{w.title}</h4>
-                <div className="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
-                    {lanes.map((lane: string) => (
-                        <div key={lane} className="flex-1 min-w-[200px] bg-muted/20 rounded-xl p-3 border border-border/30">
-                            <div className="flex items-center justify-between mb-3 px-1">
-                                <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">{lane}</span>
-                                <span className="text-[10px] bg-background/50 px-1.5 py-0.5 rounded-full border border-border/50">
-                                    {rows.filter((r: any) => r[statusfield] === lane).length}
-                                </span>
-                            </div>
-                            <div className="space-y-3">
-                                {rows.filter((r: any) => r[statusField] === lane).map((r: any, i: number) => {
-                                    const rowindex = rows.indexof(r);
-                                    return (
-                                        <div key={i} className="group p-3 bg-background border border-border/50 rounded-lg shadow-sm hover:border-primary/30 transition-all cursor-pointer">
-                                            <input
-                                                className="w-full bg-transparent text-sm font-medium outline-none mb-2"
-                                                value={r.title || r.name || ''}
-                                                onChange={(e) => onUpdateData?.(w.source, rowIndex, { title: e.target.value })}
-                                            />
-                                            <div className="flex justify-end">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="h-6 text-[10px] text-muted-foreground hover:text-primary p-0 px-2"
-                                                    onClick={() => {
-                                                        const next = lanes[(lanes.indexOf(lane) + 1) % lanes.length];
-                                                        onUpdateData?.(w.source, rowIndex, { [statusField]: next });
-                                                    }}
-                                                >
-                                                    → move
-                                                </Button>
-                                            </div>
-                                        </div>
-                                    );
-                                })}
+                <div className="grid grid-cols-3 gap-2 h-64">
+                    {statuses.map((status: string) => (
+                        <div key={status} className="bg-muted/20 border border-border/30 rounded-lg p-2 flex flex-col">
+                            <div className="text-[10px] font-bold uppercase tracking-wider opacity-50 mb-2">{status}</div>
+                            <div className="flex-1 overflow-y-auto space-y-1 custom-scrollbar">
+                                {rows.filter((r: any) => r[statusField] === status).map((r: any, i: number) => (
+                                    <div key={i} className="bg-background border border-white/5 p-2 rounded text-xs shadow-sm">
+                                        <div className="font-medium">{r.title || r.name || 'Untitled'}</div>
+                                    </div>
+                                ))}
                             </div>
                         </div>
                     ))}
@@ -114,10 +87,10 @@ export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onA
         const xKey = w.chart?.x || 'timestamp';
         const yKey = w.chart?.y || 'value';
         const chartData = rows.map((r: any) => ({
-            name: r[xkey],
-            value: number(r[ykey] || 0),
-            x: r[xkey],
-            y: number(r[ykey] || 0)
+            name: r[xKey],
+            value: Number(r[yKey] || 0),
+            x: r[xKey],
+            y: Number(r[yKey] || 0)
         }));
         const color = w.chart?.color || '#f6b012';
 
@@ -133,31 +106,6 @@ export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onA
                                 <Tooltip />
                                 <Line type="monotone" dataKey="y" stroke={color} strokeWidth={2} dot={false} />
                             </LineChart>
-                        ) : type === 'area' ? (
-                            <AreaChart data={chartData}>
-                                <XAxis dataKey="x" hide />
-                                <YAxis hide />
-                                <Tooltip />
-                                <Area type="monotone" dataKey="y" fill={color} fillOpacity={0.2} stroke={color} />
-                            </AreaChart>
-                        ) : type === 'pie' ? (
-                            <PieChart>
-                                <Pie
-                                    data={chartData}
-                                    dataKey="value"
-                                    nameKey="name"
-                                    cx="50%" cy="50%"
-                                    outerRadius={60}
-                                    fill={color}
-                                    label
-                                >
-                                    {chartData.map((_, index) => (
-                                        <Cell key={`cell-${index}`} fill={[`#f6b012`, `#f8d16d`, `#96600a`, `#3a2804`][index % 4]} />
-                                    ))}
-                                </Pie>
-                                <Tooltip />
-                                <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '10px' }} />
-                            </PieChart>
                         ) : (
                             <BarChart data={chartData}>
                                 <XAxis dataKey="x" hide />
@@ -172,83 +120,9 @@ export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onA
         );
     };
 
-    const renderMap = (w: any) => {
-        const rows = findRowsForSource(w.source);
-        const latField = w.latField || 'lat';
-        const lngField = w.lngField || 'lng';
-        const markers = rows.filter((r: any) => r[latField] && r[lngField]);
-        const center: [number, number] = markers.length > 0 ? [number(markers[0][latfield]), number(markers[0][lngfield])] : [51.505, -0.09];
-
-        return (
-            <div className="space-y-2">
-                <h4 className="font-bold text-sm lowercase">{w.title}</h4>
-                <div className="h-64 w-full rounded-xl overflow-hidden border border-border/50 grayscale hover:grayscale-0 transition-all shadow-inner">
-                    <MapContainer center={center} zoom={13} style={{ height: '100%', width: '100%' }}>
-                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
-                        {markers.map((m: any, i: number) => (
-                            <Marker key={i} position={[Number(m[latField]), Number(m[lngField])]} icon={undefined}>
-                                <Popup>
-                                    <div className="text-xs">
-                                        <div className="font-bold mb-1">{m.title || m.name || 'Location'}</div>
-                                        <div className="text-muted-foreground">{m.description || ''}</div>
-                                    </div>
-                                </Popup>
-                            </Marker>
-                        ))}
-                    </MapContainer>
-                </div>
-            </div>
-        );
-    };
-
-    const renderGallery = (w: any) => {
-        const rows = findrowsforsource(w.source);
-        return (
-            <div className="space-y-2">
-                <h4 className="font-bold text-sm lowercase">{w.title}</h4>
-                <div className="grid grid-cols-2 gap-3">
-                    {rows.slice(0, 4).map((r: any, i: number) => (
-                        <div key={i} className="aspect-video bg-muted/40 rounded-lg overflow-hidden border border-border/50 group relative">
-                            {r.image || r.url ? (
-                                <img src={r.image || r.url} alt="" className="w-full h-full object-cover" />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground uppercase tracking-widest">no image</div>
-                            )}
-                            <div className="absolute inset-x-0 bottom-0 bg-black/60 backdrop-blur-sm p-1.5 translate-y-full group-hover:translate-y-0 transition-transform">
-                                <span className="text-[10px] font-medium truncate block">{r.title || r.name || 'Untitled'}</span>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        );
-    };
-
-    const renderForm = (w: any) => {
-        const properties = w.properties || [];
-        return (
-            <div className="space-y-3">
-                <h4 className="font-bold text-sm lowercase">{w.title}</h4>
-                <div className="bg-background/40 border border-border/30 rounded-xl p-4 space-y-3">
-                    {properties.map((p: any) => (
-                        <div key={p.name} className="space-y-1">
-                            <label className="text-[10px] font-bold uppercase text-muted-foreground tracking-tighter">{p.name}</label>
-                            <input
-                                className="w-full bg-muted/30 border border-border/50 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-1 focus:ring-primary/40 transition-all"
-                                placeholder={`Enter ${p.name}...`}
-                            />
-                        </div>
-                    ))}
-                    <Button
-                        className="w-full h-8 text-xs font-bold lowercase bg-primary/20 text-primary border border-primary/30 hover:bg-primary/30 transition-colors"
-                        onClick={() => onAddData?.(w.source, {})}
-                    >
-                        submit to {w.source}
-                    </Button>
-                </div>
-            </div>
-        );
-    };
+    const renderMap = (w: any) => (
+        <div className="p-4 text-center text-xs text-muted-foreground border border-dashed rounded-xl">Map view placeholder</div>
+    );
 
     const renderRichText = (w: any) => (
         <div className="space-y-2">
@@ -264,32 +138,52 @@ export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onA
         </div>
     );
 
-    const renderEmbed = (w: any) => (
-        <div className="space-y-2">
-            <h4 className="font-bold text-sm lowercase">{w.title}</h4>
-            <div className="aspect-video bg-muted/20 border border-border/50 rounded-xl flex items-center justify-center overflow-hidden">
-                {w.src ? (
-                    <iframe src={w.src} className="w-full h-full border-0" title={w.title} />
-                ) : (
-                    <span className="text-xs text-muted-foreground italic">no source provided</span>
-                )}
-            </div>
-        </div>
-    );
+    // New Widget Types
+    const type = (widget.view_type || widget.type || '').toLowerCase();
 
-    switch ((widget.view_type || '').tolowercase()) {
-        case 'table': return rendertable(widget);
-        case 'kanban': return renderkanban(widget);
-        case 'chart': return renderchart(widget);
-        case 'map': return rendermap(widget);
-        case 'gallery': return rendergallery(widget);
-        case 'form': return renderform(widget);
-        case 'richtext': return renderrichtext(widget);
+    if (type === 'clock') {
+        return <ClockWidget data={widget.data || {}} className="h-48" />;
+    }
+
+    if (type === 'n8n') {
+        return <N8nWidget data={widget.data || {}} />;
+    }
+
+    if (type === 'embed_nocobase' || type === 'database') {
+        return (
+            <div className="space-y-2 h-[400px]">
+                <h4 className="font-bold text-sm lowercase">{widget.title || widget.data?.collection}</h4>
+                <DataEmbed
+                    collection={widget.data?.collection}
+                    view={widget.data?.view || 'table'}
+                    limit={widget.data?.limit || 10}
+                    height="100%"
+                />
+            </div>
+        );
+    }
+
+    if (type === 'smart-text' || type === 'text') {
+        return renderRichText(widget);
+    }
+
+    // Legacy / Other
+    switch (type) {
+        case 'table': return renderTable(widget);
+        case 'kanban': return renderKanban(widget);
+        case 'chart': return renderChart(widget);
+        case 'map': return renderMap(widget);
+        // case 'gallery': return renderGallery(widget);
+        // case 'form': return renderForm(widget);
         case 'iframe':
-        case 'embed': return renderembed(widget);
+        case 'embed': return (
+            <div className="aspect-video bg-muted/20 border border-border/50 rounded-xl flex items-center justify-center overflow-hidden">
+                <iframe src={widget.src || widget.data?.url} className="w-full h-full border-0" />
+            </div>
+        );
         default: return (
             <div className="p-4 border border-dashed rounded-lg text-xs text-muted-foreground text-center">
-                unknown widget type: {widget.view_type}
+                unknown widget type: {type}
             </div>
         );
     }

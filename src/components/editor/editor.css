@@ -50,3 +50,18 @@
 .ProseMirror hr {
     @apply border-border my-6;
 }
+
+/* Columns */
+[data-type="column"] {
+    transition: all 0.2s ease;
+}
+
+[data-type="column"]:hover {
+    border: 1px dashed var(--primary);
+}
+
+/* Drop targets */
+.ProseMirror-drop-target {
+    border-left: 2px solid var(--primary) !important;
+    background: rgba(var(--primary), 0.1);
+}
