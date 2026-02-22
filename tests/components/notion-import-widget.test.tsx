@@ -212,7 +212,7 @@ describe('NotionImportWidget', () => {
         expectedBase = '/api';
       }
     }
-    expect(fetch).toHaveBeenCalledWith(`${expectedBase}/nb-import/t1/logs`, expect.objectContaining({
+    expect(fetch).toHaveBeenCalledWith(`${expectedBase}/nb-import/logs?id=t1`, expect.objectContaining({
       headers: { Authorization: 'Bearer key' }
     }));
   });
