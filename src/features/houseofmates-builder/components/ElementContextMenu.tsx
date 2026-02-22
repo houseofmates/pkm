@@ -11,7 +11,7 @@ import {
   Settings2,
   X
 } from 'lucide-react';
-import { useBuilder } from '../context/BuilderContext';
+import { useBuilder } from '../HouseofmatesBuilder';
 import { ElementPropertiesPanel } from './ElementPropertiesPanel';
 import { DatabaseConfigPanel } from './DatabaseConfigPanel';
 import { WidgetPropertyEditor } from './WidgetPropertyEditor';
