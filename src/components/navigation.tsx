@@ -233,13 +233,19 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
           }
         } else {
           // persisted in IDB
-          const patch: any = {};
-          if (updates.name) patch.title = updates.name;
-          if (updates.delete) patch.deleted = true;
-          if (Object.keys(patch).length) {
-            updateDrawingMeta(drawingId, patch).catch((e) => {
-              console.error('failed to update drawing meta', e);
+          if (updates.delete) {
+            // fully remove from database
+            deleteDrawing(drawingId).catch((e) => {
+              console.error('failed to delete drawing', e);
             });
+          } else {
+            const patch: any = {};
+            if (updates.name) patch.title = updates.name;
+            if (Object.keys(patch).length) {
+              updateDrawingMeta(drawingId, patch).catch((e) => {
+                console.error('failed to update drawing meta', e);
+              });
+            }
           }
         }
       } catch (e) {
@@ -353,9 +359,9 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         if (itemIdLower.startsWith('doc_')) {
           return localItems.some(d => d.id === item.id);
         }
-        // if it's a drawing, keep it if it exists in localitems
+        // if it's a drawing, always keep it; metadata persistence handled elsewhere
         if (itemIdLower.startsWith('drawing_')) {
-          return localItems.some(d => d.id === item.id);
+          return true;
         }
         return collectionNames.has(itemIdLower);
       }
@@ -490,18 +496,22 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   <FileText className="h-4 w-4 mr-2 text-primary" />
                   <span>new document</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={() => {
-                  // create new drawing (localstorage like document)
+                <DropdownMenuItem onSelect={async () => {
+                  // create new drawing in IDB and navigate
                   const id = crypto.randomUUID();
-                  const config = { title: 'untitled drawing', type: 'drawing' };
-                  localStorage.setItem(`drawing-config-${id}`, JSON.stringify(config));
+                  const title = 'untitled drawing';
+                  try {
+                    await updateDrawingMeta(id, { title, syncState: 'pending' });
+                  } catch (e) {
+                    console.error('failed to create new drawing metadata', e);
+                  }
                   navigate(`/drawings/${id}`);
 
-                  // manually add to items
+                  // manually add to items so sidebar updates immediately
                   setItems([...items, {
                     id: `drawing_${id}`,
                     type: 'collection',
-                    name: config.title,
+                    name: title,
                     icon: 'PenTool',
                     iconType: 'lucide'
                   }]);
