@@ -149,7 +149,7 @@ export const TableDefinitionSchema = z.object({
   label: z.string(),
   
   // schema version for migrations
-  version: z.number().default(1),
+  version: z.number().optional(),
   
   // field definitions for this table
   fields: z.array(FieldDefinitionSchema),
@@ -305,13 +305,13 @@ export const QueryResultSchema = z.object({
   records: z.array(z.record(z.any())),
   
   // total count (for pagination)
-  total: z.number().int().nonnegative(),
+  total: z.number().int().nonnegative().optional(),
   
   // current page
-  page: z.number().int().positive(),
+  page: z.number().int().positive().optional(),
   
   // page size
-  pageSize: z.number().int().positive(),
+  pageSize: z.number().int().positive().optional(),
   
   // total pages
   totalPages: z.number().int().nonnegative(),
