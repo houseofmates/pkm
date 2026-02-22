@@ -33,8 +33,11 @@ export function NotionImportWidget() {
         const fd = new FormData();
         fd.append('file', file);
         // determine target URL from VITE_API_URL (db domain) or fallback to relative
-        const baseUrl = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
+        let envBase = import.meta.env.VITE_API_URL as string | undefined;
+        if (envBase && envBase.endsWith('/')) envBase = envBase.slice(0, -1);
+        const baseUrl = envBase || `${window.location.protocol}//${window.location.hostname}/api`;
         const url = `${baseUrl}/notion-import`;
+        console.debug('[NotionImportWidget] env VITE_API_URL=', envBase, 'using url', url);
         try {
             const res = await fetch(url, {
                 method: 'POST',
