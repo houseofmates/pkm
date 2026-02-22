@@ -21,7 +21,8 @@ async function waitForDone(taskId) {
 }
 
 // import the server AFTER the helper functions to avoid side effects
-const server = require('../../../../backend/server');
+// server.js exports { app, importTasks }
+const { app: server } = require('../../../../backend/server');
 
 // configure a dummy api key for tests
 process.env.ADMIN_API_KEY = 'test-secret';
