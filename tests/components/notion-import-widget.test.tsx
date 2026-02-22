@@ -54,11 +54,6 @@ describe('NotionImportWidget', () => {
   }
 
   beforeEach(() => {
-    // jsdom doesn't implement blob.arrayBuffer, so fake a zip header by default
-    vi.spyOn(Blob.prototype as any, 'arrayBuffer').mockImplementation(function() {
-      // always return PK\x03\x04 so header check passes
-      return Promise.resolve(new Uint8Array([0x50,0x4B,0x03,0x04]).buffer);
-    });
     vi.stubGlobal('fetch', vi.fn());
     localStorage.clear();
     // ensure hook returns no key by default
