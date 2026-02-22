@@ -28,15 +28,14 @@ export function NotionImportWidget() {
             return;
         }
         appendLog(`using api key ${maskString(apiKey)}`);
-        // in tests we skip validation entirely (jsdom lacks necessary APIs and
-        // the unit tests exercise upload behaviour separately). in real
-        // environments we verify the size and ZIP header to avoid accidentally
-        // sending HTML pages or other junk through Cloudflare.
+        // always check size; small files are clearly wrong
+        if (file.size < 1024) {
+            appendLog('error: file appears too small to be a Notion export');
+            return;
+        }
+        // header validation is useful in real environments but in tests we may
+        // not have arrayBuffer support, so only perform it outside of test.
         if (process.env.NODE_ENV !== 'test') {
-            if (file.size < 1024) {
-                appendLog('error: file appears too small to be a Notion export');
-                return;
-            }
             try {
                 const hdr = await file.slice(0, 4).arrayBuffer();
                 const bytes = new Uint8Array(hdr);
