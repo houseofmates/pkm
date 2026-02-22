@@ -335,7 +335,8 @@ describe('NotionImportWidget', () => {
     const encoder = new TextEncoder();
     const htmlHeader = encoder.encode('<!DOCTYPE html><html>not zip</html>');
     const filler = new Uint8Array(2000).fill(0x20);
-    const html = new File([htmlHeader, filler], 'page.html', { type: 'text/html' });
+    // simulate a login page accidentally saved with .zip mimetype/extension
+    const html = new File([htmlHeader, filler], 'page.zip', { type: 'application/zip' });
     fireEvent.change(input, { target: { files: [html] } });
     fireEvent.click(screen.getByText(/start import/i));
     // the important invariant is that we never attempt a network request
