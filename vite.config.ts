@@ -50,6 +50,14 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/nocobase/, ''),
       },
       // Catch-all for other /api requests
+      '/api/nb-import': {
+        target: 'http://127.0.0.1:4100',
+        changeOrigin: true,
+      },
+      '/api/notion-import': {
+        target: 'http://127.0.0.1:4100',
+        changeOrigin: true,
+      },
       '/api': {
         target: 'http://192.168.254.33:8091/api',
         changeOrigin: true,
@@ -97,6 +105,14 @@ export default defineConfig({
         target: 'https://api.apparyllis.com/v1',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/simplyplural/, ''),
+      },
+      '/api/nb-import': {
+        target: 'http://127.0.0.1:4100',
+        changeOrigin: true,
+      },
+      '/api/notion-import': {
+        target: 'http://127.0.0.1:4100',
+        changeOrigin: true,
       },
       '/api/nocobase': {
         target: 'https://db.houseofmates.space/api',
