@@ -96,12 +96,31 @@ describe('NotionImportWidget', () => {
     (fetch as any).mockResolvedValue(fakeResponse);
     render(<NotionImportWidget />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-    const file = new File(['x'], 'a.zip', { type: 'application/zip' });
+    const file = new File(['x'.repeat(2000)], 'a.zip', { type: 'application/zip' });
     fireEvent.change(input, { target: { files: [file] } });
     fireEvent.click(screen.getByText(/start import/i));
     await waitFor(() => {
       expect(screen.getByText(/upload failed: 404/i)).toBeInTheDocument();
     });
+  });
+
+  it('rejects files that are too small or not zip', async () => {
+    localStorage.setItem('hom_api_key','key');
+    render(<NotionImportWidget />);
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    // tiny file
+    const small = new File(['hi'], 'small.zip', { type: 'application/zip' });
+    fireEvent.change(input, { target: { files: [small] } });
+    fireEvent.click(screen.getByText(/start import/i));
+    await waitFor(() => expect(screen.getByText(/too small/i)).toBeInTheDocument());
+    // non-zip content but correct size
+    const blob = new Blob(['<html>blah</html>'], { type: 'text/html' });
+    const fake = new File([blob], 'page.zip', { type: 'application/zip' });
+    Object.defineProperty(fake, 'size', { value: 5000 });
+    fireEvent.change(input, { target: { files: [fake] } });
+    fireEvent.click(screen.getByText(/start import/i));
+    await waitFor(() => expect(screen.getByText(/does not appear to be a ZIP/i)).toBeInTheDocument());
+    expect(fetch).not.toHaveBeenCalled();
   });
 
   it('handles invalid JSON from server gracefully', async () => {
