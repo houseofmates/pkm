@@ -3,7 +3,8 @@ import path from 'path';
 import os from 'os';
 import unzipper from 'unzipper';
 import axios from 'axios';
-import { parse as csvParse } from 'papaparse';
+import Papa from 'papaparse';
+const csvParse = Papa.parse;
 import yaml from 'js-yaml';
 
 async function walk(dir, predicate) {
