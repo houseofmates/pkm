@@ -55,8 +55,12 @@ describe('NotionImportWidget', () => {
     const debugSpy = vi.spyOn(console, 'debug').mockImplementation(() => {});
     process.env.VITE_API_URL = 'https://api.houseofmates.space/api';
     render(<NotionImportWidget />);
-    // component will log during render
-    expect(debugSpy).toHaveBeenCalled();
+    // choose a file to allow startImport to proceed
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File(['x'], 'a.zip', { type: 'application/zip' });
+    fireEvent.change(input, { target: { files: [file] } });
+    fireEvent.click(screen.getByText(/start import/i));
+    await waitFor(() => expect(debugSpy).toHaveBeenCalled());
     const msg = (debugSpy.mock.calls[0] || []).join(' ');
     expect(msg).toContain('raw VITE_API_URL= https://api.houseofmates.space/api');
     expect(msg).toMatch(/env VITE_API_URL= ?(?:\/api|)/);
