@@ -33,17 +33,34 @@ export function NotionImportWidget() {
         const fd = new FormData();
         fd.append('file', file);
         // determine target API base from VITE_API_URL or default to the
-        // same‑origin `/api` path. previously we tried to rewrite the frontend
-        // host (`pkm.` -> `db.`) which forced cross‑origin requests in
-        // production and led to CORS/preflight failures (502s through
-        // Cloudflare). using a relative URL avoids the whole class of
-        // problems unless someone explicitly overrides with an env var.
+        // same‑origin `/api` path. previously we rewrote the frontend host
+        // (`pkm.` -> `db.`) which forced cross‑origin requests and broke
+        // when the API is behind Cloudflare, so prefer relative unless
+        // the environment variable tells us something genuinely external.
         let envBase = import.meta.env.VITE_API_URL as string | undefined;
         if (envBase && envBase.endsWith('/')) envBase = envBase.slice(0, -1);
         // old bundles might still use the legacy `db.houseofmates.space`
         // name; rewrite it to the public API domain so clients don't break.
         if (envBase && envBase.includes('db.houseofmates.space')) {
             envBase = envBase.replace('db.houseofmates.space', 'api.houseofmates.space');
+        }
+        // if the env var points at the canonical api domain but we're
+        // already running on a houseofmates subdomain, just use the
+        // relative path to avoid cross‑origin preflights that Cloudflare
+        // will 502. this handles the common case where the variable is
+        // injected by default at build time.
+        if (envBase) {
+            try {
+                const u = new URL(envBase);
+                if (u.hostname === 'api.houseofmates.space' &&
+                    window.location.hostname.endsWith('.houseofmates.space') &&
+                    window.location.hostname !== u.hostname) {
+                    envBase = '';
+                }
+            } catch {
+                // ignore invalid URLs, we'll treat it as a relative path
+                // below which is harmless
+            }
         }
         const baseUrl = envBase || '/api';
         const url = `${baseUrl}/nb-import`;
