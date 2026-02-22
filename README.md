@@ -65,5 +65,15 @@ if you want to allow an exception, talk to the team — the CI rule is strict by
 - **backend**: Node.js WebSocket/API (port 4100)
 - **Services**: Managed via `systemctl --user pkm.service`, initiated by `/etc/systemd/system/pkm-boot.service`.
 
+### SQL Parser & Editor Support
+A lightweight SQL parser lives in `src/lib/sql-parser.ts` with tests under `src/lib/__tests__`. It supports joins, grouping, and even simple subqueries.  An example completion generator script (`npm run schema:completions`) reads `server-data.json` and prints table suggestions; you can hook this into a VS Code extension or other editor plugin by invoking the script and using its output for IntelliSense.
+
+To build a real extension:
+1. Create a VS Code extension project (`yo code` or `npm init @vscode/extension`).
+2. Call `npm run schema:completions` from the extension's language server to fetch tables/columns.
+3. Use `src/lib/sql-parser.ts` if you need to parse user queries.
+
+These files are intentionally simple; expand them as needed for your editor tooling.
+
 > Legacy drawings stored in localStorage are automatically migrated to the new IndexedDB backend on first app load. After migration the old keys are cleaned up and the localStorage path will be removed.
 - **tunneling**: cloudflare tunnel (`cloudflared`) handles external routing.
