@@ -37,7 +37,7 @@ describe('ContextMenu custom tool section', () => {
 
   it('renders brush settings when pen tool', () => {
     openToolMenu('pen');
-    render(<ContextMenu />);
+    renderWithProviders(<ContextMenu />);
     expect(screen.getByText(/size/i)).toBeInTheDocument();
     expect(screen.getByText(/opacity/i)).toBeInTheDocument();
     expect(screen.getByText(/darkness/i)).toBeInTheDocument();
@@ -48,7 +48,7 @@ describe('ContextMenu custom tool section', () => {
 
   it('updates store on slider change', () => {
     openToolMenu('pen');
-    render(<ContextMenu />);
+    renderWithProviders(<ContextMenu />);
     const widthSlider = screen.getByRole('slider', { name: /size/i }) as HTMLInputElement;
     fireEvent.change(widthSlider, { target: { value: '20' } });
     expect(useEdgelessStore.getState().penWidth).toBe(20);
