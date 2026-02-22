@@ -182,31 +182,33 @@ export function RootLayout() {
 
         <main className="flex-1 overflow-hidden h-full relative pb-20 lg:pb-0" style={{ touchAction: 'pan-y' }}>
           {/* sync / health header bar (premium) */}
-          <div className="absolute top-4 right-4 z-50 flex items-center gap-3 px-3 py-1.5 rounded-full bg-background/40 backdrop-blur-xl border border-primary/10 text-[10px] font-medium transition-all hover:bg-background/60">
-            <div className="flex items-center gap-1.5 px-2 border-r border-primary/5">
-              <Database className="h-3 w-3 text-primary/60" />
-              <span className="text-primary/80 lowercase">{syncStatus === 'ok' ? 'connected' : 'syncing'}</span>
+          {showHealthBar && (
+            <div className="absolute top-4 right-4 z-50 flex items-center gap-3 px-3 py-1.5 rounded-full bg-background/40 backdrop-blur-xl border border-primary/10 text-[10px] font-medium transition-all hover:bg-background/60">
+              <div className="flex items-center gap-1.5 px-2 border-r border-primary/5">
+                <Database className="h-3 w-3 text-primary/60" />
+                <span className="text-primary/80 lowercase">{syncStatus === 'ok' ? 'connected' : 'syncing'}</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-2 border-r border-primary/5">
+                <Github className="h-3 w-3 text-primary/60" />
+                <span className="text-primary/80 lowercase">auto-git active</span>
+              </div>
+              <div className="flex items-center gap-1.5 px-1">
+                {walCount > 0 ? (
+                  <>
+                    <RefreshCcw className="h-3 w-3 text-amber-500 animate-spin" />
+                    <span className="text-amber-500 lowercase">{walCount} pending</span>
+                  </>
+                ) : syncStatus === 'error' ? (
+                  <>
+                    <AlertTriangle className="h-3 w-3 text-red-500" />
+                    <span className="text-red-500 lowercase">error</span>
+                  </>
+                ) : (
+                  <CheckCircle className="h-3 w-3 text-emerald-500" />
+                )}
+              </div>
             </div>
-            <div className="flex items-center gap-1.5 px-2 border-r border-primary/5">
-              <Github className="h-3 w-3 text-primary/60" />
-              <span className="text-primary/80 lowercase">auto-git active</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-1">
-              {walCount > 0 ? (
-                <>
-                  <RefreshCcw className="h-3 w-3 text-amber-500 animate-spin" />
-                  <span className="text-amber-500 lowercase">{walCount} pending</span>
-                </>
-              ) : syncStatus === 'error' ? (
-                <>
-                  <AlertTriangle className="h-3 w-3 text-red-500" />
-                  <span className="text-red-500 lowercase">error</span>
-                </>
-              ) : (
-                <CheckCircle className="h-3 w-3 text-emerald-500" />
-              )}
-            </div>
-          </div>
+          )}
           <Outlet />
         </main>
 
