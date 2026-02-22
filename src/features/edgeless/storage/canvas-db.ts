@@ -214,6 +214,11 @@ export async function listPendingDrawings() {
   return db.getAllFromIndex('drawings', 'by-sync-state', 'pending')
 }
 
+export async function deleteDrawing(id: string): Promise<void> {
+  const db = await getCanvasDB()
+  await db.delete('drawings', id)
+}
+
 // token operations (with in-memory cache)
 const memoryTokens = new Map<string, string>()
 

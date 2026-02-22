@@ -53,6 +53,7 @@ function callWorkerOrDirect<T>(method: string, ...args: unknown[]): Promise<T> {
       Getdrawingmeta: 'GetDrawingMeta',
       Updatedrawingmeta: 'UpdateDrawingMeta',
       Listpendingdrawings: 'ListPendingDrawings',
+      Deletedrawing: 'DeleteDrawing',
       Gettoken: 'GetToken',
       Settoken: 'SetToken',
       Cleartoken: 'ClearToken',
@@ -118,6 +119,10 @@ export function updateDrawingMeta(id: string, patch: Record<string, unknown>): P
 
 export function listPendingDrawings(): Promise<Array<{ id: string;[k: string]: unknown }>> {
   return callWorkerOrDirect<Array<{ id: string }>>('Listpendingdrawings')
+}
+
+export function deleteDrawing(id: string): Promise<void> {
+  return callWorkerOrDirect<void>('Deletedrawing', id)
 }
 
 export function getToken(key: string): Promise<string | null> {
