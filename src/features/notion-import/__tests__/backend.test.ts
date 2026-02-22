@@ -3,13 +3,13 @@ import path from 'path';
 import request from 'supertest';
 
 // helper to create a tiny zip file for testing
-function createEmptyZip(filePath: string) {
+function createEmptyZip(filePath) {
   const hex = '504b0506000000000000000000';
   fs.writeFileSync(filePath, Buffer.from(hex, 'hex'));
 }
 
 // simple polling helper used by several tests
-async function waitForDone(taskId: string) {
+async function waitForDone(taskId) {
   for (let i = 0; i < 20; i++) {
     const r = await request(server)
       .get(`/api/nb-import/logs?id=${taskId}`)
@@ -125,7 +125,7 @@ describe('backend /api/nb-import', () => {
     const { taskId } = r.body;
     const body = await waitForDone(taskId);
     // the logs should mention creating a collection from the csv name
-    expect(body.logs.some((l: string) => /creating collection/i.test(l))).toBe(true);
+    expect(body.logs.some(l => /creating collection/i.test(l))).toBe(true);
   });
 });
 
