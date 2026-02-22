@@ -122,10 +122,14 @@ describe('NotionImportWidget', () => {
     fireEvent.change(input, { target: { files: [small] } });
     fireEvent.click(screen.getByText(/start import/i));
     await waitFor(() => expect(screen.getByText(/too small/i)).toBeInTheDocument());
-    // non-zip content but correct size
-    const blob = new Blob(['<html>blah</html>'], { type: 'text/html' });
-    const fake = new File([blob], 'page.zip', { type: 'application/zip' });
-    Object.defineProperty(fake, 'size', { value: 5000 });
+    // non-zip content but correct size – create an ArrayBuffer whose first
+    // bytes are not PK
+    const buf = new Uint8Array(5000);
+    buf[0] = 0x00;
+    buf[1] = 0x01;
+    buf[2] = 0x02;
+    buf[3] = 0x03;
+    const fake = new File([buf], 'page.zip', { type: 'application/zip' });
     fireEvent.change(input, { target: { files: [fake] } });
     fireEvent.click(screen.getByText(/start import/i));
     await waitFor(() => expect(screen.getByText(/does not appear to be a ZIP/i)).toBeInTheDocument());
