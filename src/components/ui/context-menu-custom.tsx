@@ -142,7 +142,7 @@ export function ContextMenu() {
   >
   {/* header / rename */}
   <div className="px-2 py-1.5 border-b border-border/50 mb-1">
- {isrenaming ? (
+ {isRenaming ? (
  <div className="flex gap-1">
  <Input
    value={renameValue}
@@ -156,7 +156,7 @@ export function ContextMenu() {
  ) : (
  <div className="flex items-center justify-between group">
  <span className="text-xs font-semibold truncate max-w-[150px] opacity-80">
-   {renamevalue || 'untitled'}
+   {renameValue || 'untitled'}
  </span>
  <Button
    size="icon"
