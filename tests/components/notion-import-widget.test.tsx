@@ -10,23 +10,38 @@ vi.mock('@/hooks/use-app-setting', () => ({
 import { useAppSetting } from '@/hooks/use-app-setting';
 
 // fake EventSource for tests
-global.EventSource = class {
+class MockEventSource {
   static readonly CONNECTING = 0;
   static readonly OPEN = 1;
   static readonly CLOSED = 2;
   url: string;
+  readyState = MockEventSource.CONNECTING;
+  withCredentials = false;
   listeners: Record<string, Function> = {};
+  onerror: ((ev: any) => void) | null = null;
+  onopen: ((ev: any) => void) | null = null;
+  onmessage: ((ev: any) => void) | null = null;
+
   constructor(url: string) {
     this.url = url;
   }
   addEventListener(ev: string, fn: Function) {
     this.listeners[ev] = fn;
   }
-  set onmessage(fn: Function) {
-    this.listeners['message'] = fn;
+  removeEventListener(ev: string, fn: Function) {
+    if (this.listeners[ev] === fn) {
+      delete this.listeners[ev];
+    }
   }
-  close() {}
-};
+  dispatchEvent(ev: any) {
+    const fn = this.listeners[ev.type];
+    if (fn) fn(ev);
+  }
+  close() {
+    this.readyState = MockEventSource.CLOSED;
+  }
+}
+(global as any).EventSource = MockEventSource;
 
 describe('NotionImportWidget', () => {
   beforeEach(() => {
