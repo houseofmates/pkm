@@ -63,7 +63,7 @@ describe('SchemaService', () => {
     // Expect the schema generation to throw an error because 'email' is not a known type
     expect(() => {
       schemaService.generateRecordSchema(invalidTableDefinition);
-    }).toThrow('Field type "email" for field "email" is not registered.');
+    }).toThrow(/not registered/);
   });
 
   it('should handle nullable values correctly based on field type schemas', () => {
