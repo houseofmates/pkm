@@ -86,7 +86,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   const location = useLocation();
 
   console.log('databasespage:', {
-    isauthenticated,
+    isAuthenticated,
     hastoken: !!token,
     token: token?.substring(0, 20) + '...',
     collectionscount: collections.length,
