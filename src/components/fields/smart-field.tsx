@@ -437,17 +437,38 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     }
 
     if (isFile) {
+      const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        try {
+          const res = await client?.upload(file);
+          const newValue = res?.data?.url;
+          if (newValue) {
+            // for multi-file fields, we should append to the existing array
+            if (field.interface === 'attachments' || field.type === 'attachments') {
+              const current = Array.isArray(localValue) ? localValue : [];
+              setLocalValue([...current, { url: newValue }]);
+            } else {
+              setLocalValue(newValue);
+            }
+          }
+        } catch (err) {
+          toast.error("file upload failed");
+          console.error(err);
+        }
+      };
+
       return (
         <div className="flex items-center gap-2 border border-primary p-1 bg-background min-w-[200px]">
           <Input
-            placeholder="paste url..."
+            placeholder="paste url or upload..."
             value={localValue || ''}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
             className="h-8 text-xs border-none focus-visible:ring-0 rounded-none"
           />
-          {/* mock upload - in real app, this would use an uploader utils */}
           <div className="relative">
-            <Input type="file" className="absolute inset-0 opacity-0 cursor-pointer w-6" onChange={() => console.log("File upload not implemented")} />
+            <Input type="file" className="absolute inset-0 opacity-0 cursor-pointer w-6" onChange={handleFileChange} />
             <Paperclip className="h-4 w-4 text-muted-foreground" />
           </div>
           <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={handleSave}><Check className="h-3 w-3" /></Button>
