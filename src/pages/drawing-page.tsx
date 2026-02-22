@@ -6,7 +6,7 @@ import { CanvasControls } from '@/features/edgeless/components/CanvasControls'
 import { useEdgelessStore } from '@/features/edgeless/store'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
-import { updateDrawingMeta, saveCheckpoint, migrateFromLocalStorage, hasLegacyDrawings } from '@/features/edgeless/storage'
+import { updateDrawingMeta, saveCheckpoint } from '@/features/edgeless/storage'
 import { canvasSync } from '@/features/edgeless/sync/canvas-sync'
 import { toast } from 'sonner'
 
@@ -17,7 +17,8 @@ export function DrawingPage() {
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [syncStatus, setSyncStatus] = useState<'synced' | 'pending' | 'conflict'>('synced')
-  const [migrating, setMigrating] = useState(false)
+  // migration is now handled globally via CanvasInitializer
+  
   const initialLoadCompleteRef = useRef(false)
   const lastCheckpointRef = useRef(0)
   const syncIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -35,27 +36,6 @@ export function DrawingPage() {
     rebuildSpatialIndex,
   } = useEdgelessStore()
 
-  // check for legacy data and migrate if needed
-  useEffect(() => {
-    const checkAndMigrate = async () => {
-      const hasLegacy = await hasLegacyDrawings()
-      if (hasLegacy) {
-        setMigrating(true)
-        toast.info('migrating legacy drawings to new storage...')
-        try {
-          const result = await migrateFromLocalStorage()
-          toast.success(`migrated ${result.migrated} drawings`)
-        } catch (e) {
-          console.error('migration failed:', e)
-          toast.error('migration failed - check console')
-        } finally {
-          setMigrating(false)
-        }
-      }
-    }
-
-    checkAndMigrate()
-  }, [])
 
   // load drawing from oplog on mount
   useEffect(() => {
