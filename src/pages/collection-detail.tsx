@@ -335,7 +335,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     }, [client, collectionName, fetchData]);
 
     // undo stack
-    const [deletedstack, setdeletedstack] = useState<any[]>([]);
+    const [deletedStack, setDeletedStack] = useState<any[]>([]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
