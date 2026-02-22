@@ -46,9 +46,9 @@ export function ProtocolShift() {
 
   useEffect(() => {
   if (shifted) {
-  document.body.classlist.add('protocol-shift');
+  document.body.classList.add('protocol-shift');
   } else {
-  document.body.classlist.remove('protocol-shift');
+  document.body.classList.remove('protocol-shift');
   }
   }, [shifted]);
 
