@@ -242,6 +242,7 @@ import { run as notionRun } from '../scripts/notion-import.js';
 import EventEmitter from 'events';
 
 const importTasks = new Map();
+// each entry: { emitter, status, logs: string[] }
 
 function handleNotionImport(req, res) {
     if (!req.file) {
@@ -249,7 +250,7 @@ function handleNotionImport(req, res) {
     }
     const taskId = `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
     const emitter = new EventEmitter();
-    importTasks.set(taskId, { emitter, status: 'running' });
+    importTasks.set(taskId, { emitter, status: 'running', logs: [] });
 
     // run in background
     (async () => {
@@ -265,6 +266,8 @@ function handleNotionImport(req, res) {
             } else {
                 await notionRun(req.file.path, undefined, (msg) => {
                     emitter.emit('progress', msg);
+                    const entry = importTasks.get(taskId);
+                    if (entry) entry.logs.push(msg);
                 });
                 emitter.emit('done');
                 importTasks.set(taskId, { emitter, status: 'done' });
@@ -286,6 +289,8 @@ app.post('/api/nb-import', requireAuth, importUpload.single('file'), handleNotio
 // legacy route still available for local tests
 app.post('/api/notion-import', requireAuth, importUpload.single('file'), handleNotionImport);
 
+// streaming endpoint - still available for backwards compatibility but
+// may be unreliable through Cloudflare; prefer polling.
 app.get('/api/notion-import/:id/stream', requireAuth, (req, res) => {
     const id = req.params.id;
     const entry = importTasks.get(id);
@@ -318,6 +323,16 @@ app.get('/api/notion-import/:id/stream', requireAuth, (req, res) => {
         emitter.off('done', onDone);
         emitter.off('error', onError);
     });
+});
+
+// polling/logs endpoint
+app.get('/api/notion-import/:id/logs', requireAuth, (req, res) => {
+    const id = req.params.id;
+    const entry = importTasks.get(id);
+    if (!entry) {
+        return res.status(404).json({ error: 'no such task' });
+    }
+    res.json({ status: entry.status, logs: entry.logs });
 });
 
 app.post('/api/upload-background', requireAuth, upload.single('file'), (req, res) => {
