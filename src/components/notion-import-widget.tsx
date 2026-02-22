@@ -32,28 +32,20 @@ export function NotionImportWidget() {
         appendLog('uploading...');
         const fd = new FormData();
         fd.append('file', file);
-        // determine target URL from VITE_API_URL (db domain) or fallback to relative
+        // determine target API base from VITE_API_URL or default to the
+        // same‑origin `/api` path. previously we tried to rewrite the frontend
+        // host (`pkm.` -> `db.`) which forced cross‑origin requests in
+        // production and led to CORS/preflight failures (502s through
+        // Cloudflare). using a relative URL avoids the whole class of
+        // problems unless someone explicitly overrides with an env var.
         let envBase = import.meta.env.VITE_API_URL as string | undefined;
-        // normalise trailing slash
         if (envBase && envBase.endsWith('/')) envBase = envBase.slice(0, -1);
-        // if someone accidentally left the old db domain in the variable,
-        // rewrite it to use the real API host so we don't build and deploy
-        // a broken bundle
+        // old bundles might still use the legacy `db.houseofmates.space`
+        // name; rewrite it to the public API domain so clients don't break.
         if (envBase && envBase.includes('db.houseofmates.space')) {
             envBase = envBase.replace('db.houseofmates.space', 'api.houseofmates.space');
         }
-        let baseUrl: string;
-        if (envBase) {
-            baseUrl = envBase;
-        } else {
-            // infer backend domain from current hostname (pkm -> db)
-            const { protocol, hostname } = window.location;
-            let host = hostname;
-            if (hostname.startsWith('pkm.')) {
-                host = hostname.replace(/^pkm\./, 'db.');
-            }
-            baseUrl = `${protocol}//${host}/api`;
-        }
+        const baseUrl = envBase || '/api';
         const url = `${baseUrl}/nb-import`;
         console.debug('[NotionImportWidget] env VITE_API_URL=', envBase, 'using url', url, '(legacy notion-import also accepted)');
         try {
