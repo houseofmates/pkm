@@ -1,13 +1,10 @@
-
-import { useEffect } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect, useState, ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { RelationshipPicker } from "@/components/relationship-picker";
-import { Loader2 } from "lucide-react";
 import type { Collection } from "@/hooks/use-collections";
-import { BlockEditor } from "@/components/editor/BlockEditor";
+import { Loader2 } from "lucide-react";
+import { SmartField } from '@/components/fields/smart-field';
+import { toast } from 'sonner';
 
 interface RecordFormProps {
   collection: Collection;
@@ -17,75 +14,65 @@ interface RecordFormProps {
 }
 
 export function RecordForm({ collection, initialData, onSubmit, onCancel }: RecordFormProps) {
-  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm({
-    defaultValues: initialData || {}
-  });
-
-  // reactive formulas (phase 3: pure data power)
-  // listens for 'price' and 'quantity' fields and updates 'total' instantly
-  const price = watch('price');
-  const quantity = watch('quantity');
-  const qty = watch('qty'); // handle alias
+  const [values, setValues] = useState<any>(initialData || {});
 
   useEffect(() => {
-    const p = parseFloat(price);
-    const q = parseFloat(quantity || qty);
+    setValues(initialData || {});
+  }, [initialData]);
+
+  // simple reactive formula example
+  useEffect(() => {
+    const p = parseFloat(values.price);
+    const q = parseFloat(values.quantity || values.qty);
     if (!isNaN(p) && !isNaN(q)) {
       const total = (p * q).toFixed(2);
-      // only update if current value is different to avoid loops (though setvalue handles it usually)
-      setValue('total', total);
+      if (values.total !== total) {
+        setValues(v => ({ ...v, total }));
+      }
     }
-  }, [price, quantity, qty, setValue]);
+  }, [values.price, values.quantity, values.qty, values.total]);
 
   // if fields is undefined, we are likely still loading the collection meta
   if (!collection.fields) {
     return <div className="p-4 text-center text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin inline mr-2" /> loading fields...</div>;
   }
 
-  const fields = collection.fields.filter((f: any) => !f.hidden && f.interface !== 'subtable' && !['createdat', 'updatedat', 'createdby', 'updatedby'].includes(f.name));
+  const fields = collection.fields.filter((f: any) =>
+    !f.hidden &&
+    f.interface !== 'subtable' &&
+    !['createdat', 'updatedat', 'createdby', 'updatedby'].includes(f.name)
+  );
+
+  const handleChange = (name: string, val: any) => {
+    setValues(v => ({ ...v, [name]: val }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const missing = fields.filter(f => !f.uiSchema?.nullable && (values[f.name] === undefined || values[f.name] === null || values[f.name] === ''));
+    if (missing.length > 0) {
+      toast.error(`please fill ${missing.map(f => f.uiSchema?.title || f.name).join(', ')}`);
+      return;
+    }
+    onSubmit(values);
+  };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
+    <form onSubmit={handleSubmit} className="space-y-4 max-h-[70vh] overflow-y-auto px-1">
       {fields.length > 0 ? (
         <div className="grid grid-cols-1 gap-4">
-          {fields.map((field: any) => {
-            // check if it's a relationship field
-            if (field.interface === 'linkto' || field.interface === 'm2o') {
-              const targetCollection = field.target; // assuming 'target' property holds the related collection name
-              return (
-                <div key={field.name} className="space-y-2">
-                  <Label htmlFor={field.name}>{field.uiSchema?.title || field.name}</Label>
-                  <div className="block">
-                    <RelationshipPicker
-                      collectionName={targetCollection}
-                      value={watch(field.name)}
-                      onSelect={(val) => setValue(field.name, val)} // We might need to handle specific FK format (e.g. ID only)
-                    />
-                  </div>
-                </div>
-              );
-            }
-
-            return (
-              <div key={field.name} className="space-y-2">
-                <Label htmlFor={field.name}>{field.uiSchema?.title || field.name}</Label>
-                {['textarea', 'markdown', 'richtext', 'longtext'].includes(field.interface) ? (
-                  <BlockEditor
-                    content={watch(field.name)}
-                    onChange={(val) => setValue(field.name, val)}
-                    placeholder={`type '/' for commands in ${field.uiSchema?.title || field.name}`}
-                  />
-                ) : (
-                  <Input
-                    id={field.name}
-                    {...register(field.name, { required: !field.uiSchema?.nullable })}
-                    placeholder={field.uiSchema?.title || field.name}
-                  />
-                )}
-                {errors[field.name] && <span className="text-sm text-red-500">this field is required</span>}
-              </div>
-            );
-          })}
+          {fields.map((field: any) => (
+            <div key={field.name} className="space-y-2">
+              <Label htmlFor={field.name}>{field.uiSchema?.title || field.name}</Label>
+              <SmartField
+                value={values[field.name]}
+                field={field}
+                onChange={(val) => handleChange(field.name, val)}
+                size="lg"
+                className="w-full"
+              />
+            </div>
+          ))}
         </div>
       ) : (
         <div className="text-muted-foreground p-4 text-center">no fields available</div>
