@@ -453,7 +453,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                         error: {fetchError}<br />
                         id: {params.name}<br />
                         decoded: {collectionName}<br />
-                        auth: {isauthenticated ? 'yes' : 'no'}<br />
+                        auth: {isAuthenticated ? 'yes' : 'no'}<br />
                         available: {availableCollections.length}
                         <div className="mt-1 opacity-50 max-h-20 overflow-y-auto">
                             [{availableCollections.map((c: any) => c.name).join(', ')}]
