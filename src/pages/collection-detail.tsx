@@ -39,23 +39,23 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     const location = useLocation();
     const collectionName = propCollectionName ?? (params.name as string);
     const onBack = propOnBack ?? (() => navigate(-1));
-    const [collection, setcollection] = useState<any>(null);
-    const [records, setrecords] = useState<any[]>([]);
-    const [loading, setloading] = useState(true);
-    const [fetcherror, setfetcherror] = useState<string | null>(null);
-    const [apikey, setapikey] = useState('');
-    const [fielddialogopen, setfielddialogopen] = useState(false);
-    const { activefronters } = usefronter();
+    const [collection, setCollection] = useState<any>(null);
+    const [records, setRecords] = useState<any[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [fetchError, setFetchError] = useState<string | null>(null);
+    const [apiKey, setApiKey] = useState('');
+    const [fieldDialogOpen, setFieldDialogOpen] = useState(false);
+    const { activeFronters } = useFronter();
 
     // metadata for cosmetics and defaults
-    const [metadata, setmetadata] = useappsetting<Record<string, any>>('collection_metadata', {});
+    const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
     // get collection color for header using metadata (source of truth)
-    const collectioncolor = metadata[collectionname]?.color;
-    const defaultview = metadata[collectionname]?.default_view as viewtype | undefined;
-    const [defaultpickeropen, setdefaultpickeropen] = useState(false);
+    const collectionColor = metadata[collectionName]?.color;
+    const defaultView = metadata[collectionName]?.default_view as ViewType | undefined;
+    const [defaultPickerOpen, setDefaultPickerOpen] = useState(false);
 
-    const [currentview, setcurrentview] = useState<ViewType>('table');
-    const [viewconfig, setviewconfig] = useState<Record<string, any>>({});
+    const [currentView, setCurrentView] = useState<ViewType>('table');
+    const [viewConfig, setViewConfig] = useState<Record<string, any>>({});
 
     // sync currentview with url, state, or defaultview
     useEffect(() => {
