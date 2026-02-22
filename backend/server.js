@@ -252,7 +252,9 @@ function handleNotionImport(req, res) {
     }
     const taskId = `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
     const emitter = new EventEmitter();
+    console.log('[NotionImport] creating task', taskId);
     importTasks.set(taskId, { emitter, status: 'running', logs: [] });
+    
 
     // run in background
     (async () => {

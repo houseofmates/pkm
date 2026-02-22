@@ -148,9 +148,22 @@ function transformWorkspace(ws) {
 async function unzipToTemp(zipPath) {
     const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), 'notion-import-'));
     console.log(`extracting ${zipPath} -> ${tempDir}`);
-    await fs.createReadStream(zipPath)
-        .pipe(unzipper.Extract({ path: tempDir }))
-        .promise();
+    // `unzipper.Extract().promise()` does not attach a listener for stream
+    // errors, which leads to unhandled "error" events bubbling to the
+    // process (see node:events ERR_UNHANDLED_ERROR logged previously). we
+    // wrap in a promise with explicit handlers.
+    await new Promise((resolve, reject) => {
+        const stream = fs.createReadStream(zipPath)
+            .pipe(unzipper.Extract({ path: tempDir }));
+        stream.on('close', resolve);
+        stream.on('finish', resolve); // just in case
+        stream.on('error', (err) => {
+            console.error('[NotionImport] unzip error', err);
+            reject(err);
+        });
+        // also listen on reader
+        stream.on('entry', e => {});
+    });
     return tempDir;
 }
 
