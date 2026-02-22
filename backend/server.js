@@ -272,9 +272,10 @@ function handleNotionImport(req, res) {
         console.error('[NotionImport] emitter error event', err);
     });
     console.log('[NotionImport] creating task', taskId);
+    console.log('[NotionImport] uploaded zip path', req.file.path, 'size', req.file.size);
     importTasks.set(taskId, { emitter, status: 'running', logs: [] });
     
-
+    
     // run in background
     (async () => {
         try {
@@ -299,7 +300,14 @@ function handleNotionImport(req, res) {
             }
         } catch (e) {
             console.error('[NotionImport] task failed', e);
-            // do not emit 'error' on emitter, prevents crashing when listener
+            // save a copy of the offending archive for debugging
+            try {
+                const debugPath = `/tmp/failed-notion-${taskId}.zip`;
+                fs.copyFileSync(req.file.path, debugPath);
+                console.error('[NotionImport] saved failed archive to', debugPath);
+            } catch (copyErr) {
+                console.error('[NotionImport] error copying failed archive', copyErr);
+            }
             const current = importTasks.get(taskId);
             if (current) current.status = 'error';
         } finally {
