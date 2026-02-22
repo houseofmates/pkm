@@ -81,6 +81,17 @@ class DataService {
     }
     return table.records.get(id);
   }
+
+  /**
+   * Retrieves a list of all table definitions, without their data.
+   * @returns An array of table definitions.
+   */
+  public getTables(): { name: string; fields: FieldInstance[] }[] {
+    return Array.from(this.tables.values()).map(table => ({
+      name: table.name,
+      fields: table.fields,
+    }));
+  }
 }
 
 export const dataService = new DataService();
