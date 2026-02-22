@@ -9,6 +9,7 @@ import { lazy, Suspense, useEffect } from "react"
 import { FronterProvider } from "@/contexts/fronter-context"
 import { LLMContextProvider } from "@/contexts/llm-context"
 import { CanvasErrorBoundary } from "@/features/edgeless"
+import { CanvasInitializer } from "@/features/edgeless/components/canvas-initializer"
 import { isLinkRegistryMigrated, backfillLinkRegistry } from "@/lib/link-migration"
 import { secureLogger } from "@/lib/secure-logger"
 
@@ -178,7 +179,7 @@ function AppContent() {
   }
 
   return (
-    <>
+    <CanvasInitializer>
       {token ? (
         <BrowserRouter>
           <Suspense fallback={LoadingFallback}>
