@@ -47,6 +47,14 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                         <Settings className="h-5 w-5" />
                         pkm settings
                     </DialogTitle>
+                    <div className="text-right mt-1">
+                        <button
+                            className="text-xs underline lowercase"
+                            onClick={() => { window.location.href = '/settings'; }}
+                        >
+                            full settings page
+                        </button>
+                    </div>
                 </DialogHeader>
 
                 <div className="space-y-6 py-4">
