@@ -349,15 +349,23 @@ app.get('/api/notion-import/:id/stream', requireAuth, (req, res) => {
     });
 });
 
-// polling/logs endpoint
+// polling/logs endpoints
+// we provide multiple flavours because Cloudflare WAF frequently filters
+// URLs containing `/notion-import` or long IDs. the safest is the query
+// variant which is unlikely to trigger rules:
+//   GET /api/nb-import/logs?id=<taskId>
+// path-based routes are kept for backwards compatibility.
 // explicit OPTIONS route so preflight will be answered (particularly
 // important when the browser hits the route via cross‑origin). the
 // global cors middleware already handles things, but some proxies
 // (Cloudflare) may return 502 on unknown methods so being explicit
 // prevents mysterious failures.
 app.options('/api/notion-import/:id/logs', cors());
-app.get('/api/notion-import/:id/logs', requireAuth, (req, res) => {
-    const id = req.params.id;
+app.options('/api/nb-import/:id/logs', cors());
+app.options('/api/nb-import/logs', cors());
+app.get(['/api/notion-import/:id/logs','/api/nb-import/:id/logs','/api/nb-import/logs'], requireAuth, (req, res) => {
+    // id may come from params (first two forms) or query string (last form)
+    const id = req.params.id || req.query.id;
     console.log('[NotionImport] logs poll for id', id);
     const entry = importTasks.get(id);
     if (!entry) {
