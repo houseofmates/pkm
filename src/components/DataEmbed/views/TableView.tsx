@@ -1,7 +1,7 @@
 import { useReactTable, getCoreRowModel, flexRender, ColumnDef } from '@tanstack/react-table';
 import { useMemo } from 'react';
 import { FixedSizeList } from 'react-window';
-import AutoSizer from 'react-virtualized-auto-sizer';
+import { AutoSizer } from 'react-virtualized-auto-sizer';
 import { cn } from '@/lib/utils';
 
 interface TableViewProps {
