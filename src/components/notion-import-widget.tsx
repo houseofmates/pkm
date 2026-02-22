@@ -62,7 +62,25 @@ export function NotionImportWidget() {
                 // below which is harmless
             }
         }
-        const baseUrl = envBase || '/api';
+        let baseUrl: string;
+        if (envBase) {
+            baseUrl = envBase;
+        } else {
+            const { protocol, hostname } = window.location;
+            // production handle: houseofmates.space frontend proxies /api to the
+            // real API; if we're on that domain, a relative path is fine. when
+            // running on some other host (e.g. pkmsandbox.example.com) there
+            // is no proxy so we fall back to the old pkm->db inference logic.
+            if (!hostname.endsWith('.houseofmates.space')) {
+                let host = hostname;
+                if (hostname.startsWith('pkm.')) {
+                    host = hostname.replace(/^pkm\./, 'db.');
+                }
+                baseUrl = `${protocol}//${host}/api`;
+            } else {
+                baseUrl = '/api';
+            }
+        }
         const url = `${baseUrl}/nb-import`;
         console.debug('[NotionImportWidget] env VITE_API_URL=', envBase, 'using url', url, '(legacy notion-import also accepted)');
         try {
