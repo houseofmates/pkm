@@ -12,7 +12,7 @@ import { SmartField } from '@/components/fields/smart-field';
 import { Label } from '@/components/ui/label';
 import { format, toZonedTime } from 'date-fns-tz';
 
-// utcToZonedTime may be missing or non-function in some test environments (see vitest),
+// toZonedTime may be missing or non-function in some test environments (see vitest),
 // so we will check before calling it to avoid runtime errors.
 
 
@@ -200,15 +200,15 @@ function DroppableDateCell({ date, children, className }: { date: Date, children
 
 function MonthView({ currentDate, recordsByDate, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange, timeZone, allDayField, recurringField }: any) {
   const monthStart =
-    typeof utcToZonedTime === 'function'
-      ? utcToZonedTime(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1), timeZone)
+    typeof toZonedTime === 'function'
+      ? toZonedTime(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1), timeZone)
       : new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
   const startDayOfWeek = monthStart.getDay();
   const calendarDays = useMemo(() => {
     const days = [];
     for (let i = 0; i < startDayOfWeek; i++) days.push(null);
-    for (let i = 1; i <= daysInMonth; i++) days.push(utcToZonedTime(new Date(currentDate.getFullYear(), currentDate.getMonth(), i), timeZone));
+    for (let i = 1; i <= daysInMonth; i++) days.push(toZonedTime(new Date(currentDate.getFullYear(), currentDate.getMonth(), i), timeZone));
     return days;
   }, [currentDate, startDayOfWeek, daysInMonth, timeZone]);
 
@@ -222,7 +222,7 @@ function MonthView({ currentDate, recordsByDate, collection, onUpdateRecord, onD
           if (!date) return <div key={`empty-${idx}`} className="bg-muted/10 border-b border-r p-2 opacity-50" />;
           const dateKey = format(date, 'yyyy-MM-dd');
           const dayRecords = recordsByDate[dateKey] || [];
-          const isToday = format(utcToZonedTime(new Date(), timeZone), 'yyyy-MM-dd') === dateKey;
+          const isToday = format(toZonedTime(new Date(), timeZone), 'yyyy-MM-dd') === dateKey;
           return (
             <DroppableDateCell key={dateKey} date={date} className={cn("border-b border-r p-1 md:p-2 flex flex-col gap-1 min-h-[60px] md:min-h-[80px] hover:bg-muted/10 transition-colors group relative overflow-hidden", isToday && "bg-primary/5")}>
               <span className={cn("text-[10px] md:text-xs font-medium w-5 h-5 md:w-6 md:h-6 flex items-center justify-center rounded-full mb-1", isToday ? "bg-primary text-primary-foreground" : "text-muted-foreground")}>{date.getDate()}</span>
@@ -239,15 +239,15 @@ function MonthView({ currentDate, recordsByDate, collection, onUpdateRecord, onD
 }
 
 function WeekView({ currentDate, recordsByDate, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange, timeZone, allDayField, recurringField }: any) {
-  const weekStart = utcToZonedTime(new Date(currentDate), timeZone);
+  const weekStart = toZonedTime(new Date(currentDate), timeZone);
   weekStart.setDate(currentDate.getDate() - currentDate.getDay());
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <div className="grid grid-cols-7 border-b bg-muted/30 flex-shrink-0">
         {Array.from({ length: 7 }).map((_, i) => {
-          const d = utcToZonedTime(new Date(weekStart), timeZone);
+          const d = toZonedTime(new Date(weekStart), timeZone);
           d.setDate(weekStart.getDate() + i);
-          const isToday = format(utcToZonedTime(new Date(), timeZone), 'yyyy-MM-dd') === format(d, 'yyyy-MM-dd');
+          const isToday = format(toZonedTime(new Date(), timeZone), 'yyyy-MM-dd') === format(d, 'yyyy-MM-dd');
           return (
             <div key={i} className={cn("p-2 text-center border-r last:border-r-0", isToday && "bg-primary/5")}>
               <div className="text-xs text-muted-foreground lowercase">{format(d, 'EEE')}</div>
@@ -259,7 +259,7 @@ function WeekView({ currentDate, recordsByDate, collection, onUpdateRecord, onDe
       <div className="flex-1 overflow-y-auto">
         <div className="grid grid-cols-7 min-h-full">
           {Array.from({ length: 7 }).map((_, i) => {
-            const d = utcToZonedTime(new Date(weekStart), timeZone);
+            const d = toZonedTime(new Date(weekStart), timeZone);
             d.setDate(weekStart.getDate() + i);
             const dateKey = format(d, 'yyyy-MM-dd');
             const records = recordsByDate[dateKey] || [];
@@ -314,10 +314,10 @@ function YearView({ currentDate, recordsByDate, onMonthClick, timeZone }: any) {
     <ScrollArea className="h-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
         {months.map(month => {
-          const monthDate = utcToZonedTime(new Date(year, month, 1), timeZone);
+          const monthDate = toZonedTime(new Date(year, month, 1), timeZone);
           const daysInMonth = new Date(year, month + 1, 0).getDate();
           const startDay = monthDate.getDay();
-          const hasActivity = Array.from({ length: daysInMonth }, (_, i) => format(utcToZonedTime(new Date(year, month, i + 1), timeZone), 'yyyy-MM-dd')).some(d => recordsByDate[d]?.length > 0);
+          const hasActivity = Array.from({ length: daysInMonth }, (_, i) => format(toZonedTime(new Date(year, month, i + 1), timeZone), 'yyyy-MM-dd')).some(d => recordsByDate[d]?.length > 0);
           return (
             <div key={month} onClick={() => onMonthClick(monthDate)} className={cn("border rounded-md p-2 hover:bg-accent/50 cursor-pointer transition-colors", hasActivity ? "bg-accent/10" : "bg-card")}>
               <div className="text-sm font-bold mb-2 text-center lowercase">{format(monthDate, 'LLLL')}</div>
@@ -326,7 +326,7 @@ function YearView({ currentDate, recordsByDate, onMonthClick, timeZone }: any) {
                 {Array.from({ length: startDay }).map((_, i) => <span key={`pad-${i}`}>&nbsp;</span>)}
                 {Array.from({ length: daysInMonth }).map((_, i) => {
                   const day = i + 1;
-                  const dStr = format(utcToZonedTime(new Date(year, month, day), timeZone), 'yyyy-MM-dd');
+                  const dStr = format(toZonedTime(new Date(year, month, day), timeZone), 'yyyy-MM-dd');
                   const count = recordsByDate[dStr]?.length || 0;
                   return <div key={day} className={cn("aspect-square flex items-center justify-center rounded-sm", count > 0 ? "bg-primary text-primary-foreground font-bold" : "hover:bg-muted")}>{day}</div>
                 })}
