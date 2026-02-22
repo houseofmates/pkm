@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { schemaService, FieldInstance } from './schema.service';
+import { schemaService } from './schema.service';
+import type { FieldInstance } from './schema.service';
 
 // Defines the structure for a table, including its fields and records.
 interface Table {
