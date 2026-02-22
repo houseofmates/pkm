@@ -18,6 +18,12 @@ function openToolMenu(tool: 'pen' | 'eraser') {
 }
 
 describe('ContextMenu custom tool section', () => {
+  beforeEach(() => {
+    useContextMenuStore.setState({ isOpen: false });
+    // reset edgeless defaults
+    useEdgelessStore.setState({ penWidth: 10, penOpacity: 100, eraserWidth: 20, eraserOpacity: 100, penColor: '#ff0000' });
+  });
+
   it('renders brush settings when pen tool', () => {
     openToolMenu('pen');
     render(<ContextMenu />);
