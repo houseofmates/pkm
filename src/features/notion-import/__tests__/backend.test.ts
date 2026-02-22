@@ -70,6 +70,39 @@ describe('backend /api/notion-import', () => {
         expect(res.body.taskId).toBeTruthy();
     });
 
+    it('allows polling logs via either route and keeps logs after completion', async () => {
+        const res = await request(app)
+            .post('/api/nb-import')
+            .set('Authorization', 'Bearer test-secret')
+            .attach('file', zipPath);
+        const id = res.body.taskId;
+        // wait for done
+        await new Promise<void>((resolve) => {
+            const interval = setInterval(() => {
+                const entry = importTasks.get(id);
+                if (entry && entry.status === 'done') {
+                    clearInterval(interval);
+                    resolve();
+                }
+            }, 10);
+        });
+        // poll using query param
+        const poll1 = await request(app)
+            .get('/api/nb-import/logs')
+            .query({ id })
+            .set('Authorization', 'Bearer test-secret');
+        expect(poll1.status).toBe(200);
+        expect(poll1.body.status).toBe('done');
+        expect(Array.isArray(poll1.body.logs)).toBe(true);
+        // poll using path-based route
+        const poll2 = await request(app)
+            .get(`/api/notion-import/${id}/logs`)
+            .set('Authorization', 'Bearer test-secret');
+        expect(poll2.status).toBe(200);
+        expect(poll2.body.status).toBe('done');
+        expect(Array.isArray(poll2.body.logs)).toBe(true);
+    });
+
     describe('CORS', () => {
         it('returns allow-origin header for configured origin', async () => {
             const res = await request(app)
