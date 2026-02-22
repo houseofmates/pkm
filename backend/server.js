@@ -363,8 +363,10 @@ app.get('/api/notion-import/:id/stream', requireAuth, (req, res) => {
 app.options('/api/notion-import/:id/logs', cors());
 app.options('/api/nb-import/:id/logs', cors());
 app.options('/api/nb-import/logs', cors());
-app.get(['/api/notion-import/:id/logs','/api/nb-import/:id/logs','/api/nb-import/logs'], requireAuth, (req, res) => {
-    // id may come from params (first two forms) or query string (last form)
+app.get(['/api/notion-import/:id/logs','/api/nb-import/logs','/api/nb-import/:id/logs'], requireAuth, (req, res) => {
+    // id may come from params (first and third forms) or query string on the
+    // second form. note that the explicit `/logs` entry must appear before the
+    // parameterized route or it would capture as id='logs'.
     const id = req.params.id || req.query.id;
     console.log('[NotionImport] logs poll for id', id);
     const entry = importTasks.get(id);
