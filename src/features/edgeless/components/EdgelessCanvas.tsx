@@ -99,21 +99,23 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
   }, [])
 
   // Tool Configuration (Drawing / Eraser)
+  // read reactive brush/eraser settings from the store so we can
+  // reconfigure the fabric brush whenever they change.
+  const { penWidth, penColor, penOpacity, eraserWidth, eraserOpacity, stabilizerLevel } = useEdgelessStore();
+
   useEffect(() => {
     if (!fabricCanvas) return
-
-    const store = useEdgelessStore.getState()
 
     if (activeTool === 'draw') {
       fabricCanvas.isDrawingMode = true
       const brush = new fabric.PencilBrush(fabricCanvas)
-      brush.width = store.penWidth
-      brush.color = store.penColor
-      brush.opacity = (store.penOpacity ?? 100) / 100
+      brush.width = penWidth
+      brush.color = penColor
+      brush.opacity = (penOpacity ?? 100) / 100
       // apply smoothing/decimation; higher stabilizer => less decimate
       // cap between 1 and 8
       // @ts-expect-error fabric-types-issue
-      brush.decimate = Math.max(1, 8 - (store.stabilizerLevel || 0))
+      brush.decimate = Math.max(1, 8 - (stabilizerLevel || 0))
       fabricCanvas.freeDrawingBrush = brush
     } else if (activeTool === 'eraser') {
       fabricCanvas.isDrawingMode = true
@@ -121,20 +123,20 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       if (fabric.EraserBrush) {
          // @ts-expect-error fabric-types-issue
          const eraser = new fabric.EraserBrush(fabricCanvas)
-         eraser.width = store.eraserWidth
-         eraser.opacity = (store.eraserOpacity ?? 100) / 100
+         eraser.width = eraserWidth
+         eraser.opacity = (eraserOpacity ?? 100) / 100
          fabricCanvas.freeDrawingBrush = eraser
       } else {
          const brush = new fabric.PencilBrush(fabricCanvas)
-         brush.width = store.eraserWidth
+         brush.width = eraserWidth
          brush.color = '#090909'
-         brush.opacity = (store.eraserOpacity ?? 100) / 100
+         brush.opacity = (eraserOpacity ?? 100) / 100
          fabricCanvas.freeDrawingBrush = brush
       }
     } else {
       fabricCanvas.isDrawingMode = false
     }
-  }, [activeTool, fabricCanvas])
+  }, [activeTool, fabricCanvas, penWidth, penColor, penOpacity, eraserWidth, eraserOpacity, stabilizerLevel])
 
   // Spacebar Pan Logic & Event Listeners
   useEffect(() => {
