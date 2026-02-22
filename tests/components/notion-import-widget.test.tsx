@@ -304,4 +304,20 @@ describe('NotionImportWidget', () => {
     });
     expect(fetch).not.toHaveBeenCalled();
   });
+
+  it('warns on strange header but still uploads', async () => {
+    // prepare a file with a non-PK header
+    localStorage.setItem('hom_api_key', 'key');
+    render(<NotionImportWidget />);
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const badHeader = new File([new Uint8Array([0x00, 0x01, 0x02, 0x03, 0, 1, 2, 3])], 'weird.zip', { type: 'application/zip' });
+    fireEvent.change(input, { target: { files: [badHeader] } });
+    const fakeUpload = { ok: true, json: async () => ({ taskId: 't3' }) };
+    (fetch as any).mockResolvedValue(fakeUpload);
+    fireEvent.click(screen.getByText(/start import/i));
+    await waitFor(() => {
+      expect(screen.getByText(/warning: file header does not begin with PK/i)).toBeInTheDocument();
+    });
+    expect(fetch).toHaveBeenCalled();
+  });
 });
