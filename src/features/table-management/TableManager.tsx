@@ -1,48 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { dataService } from '@/services/data.service';
+import { usePkmStore } from '@/store/usePkmStore';
 import type { FieldInstance } from '@/services/schema.service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
-interface TableInfo {
-  name: string;
-  fields: FieldInstance[];
-}
-
 export const TableManager: React.FC = () => {
-  const [tables, setTables] = useState<TableInfo[]>([]);
+  // Subscribe to the collections from the central Zustand store
+  const collections = usePkmStore((state) => state.collections);
   const [newTableName, setNewTableName] = useState('');
+  const [isCreating, setIsCreating] = useState(false);
 
-  // Function to fetch and update the list of tables
-  const refreshTables = () => {
-    const currentTables = dataService.getTables();
-    setTables(currentTables);
-  };
-
-  // Fetch initial tables on component mount
+  // When the component mounts, trigger a sync to load cached data and fetch fresh data.
   useEffect(() => {
-    refreshTables();
+    dataService.syncTables();
   }, []);
 
-  const handleCreateTable = () => {
+  const handleCreateTable = async () => {
     if (newTableName.trim() === '') {
       alert('Table name cannot be empty.');
       return;
     }
 
+    setIsCreating(true);
     try {
       // For simplicity, new tables will have a single 'name' field by default.
       const defaultFields: FieldInstance[] = [{ name: 'name', type: 'text' }];
-      dataService.createTable(newTableName, defaultFields);
+      await dataService.createTable(newTableName, defaultFields);
       setNewTableName('');
-      refreshTables(); // Refresh the list after creation
+      // No need to manually refresh; createTable now triggers a sync automatically.
     } catch (error) {
       if (error instanceof Error) {
         alert(`Failed to create table: ${error.message}`);
       } else {
         alert('An unknown error occurred.');
       }
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -50,32 +45,35 @@ export const TableManager: React.FC = () => {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Create New Table</CardTitle>
+          <CardTitle>Create New Collection</CardTitle>
         </CardHeader>
         <CardContent className="flex gap-2">
           <Input
-            placeholder="Enter new table name"
+            placeholder="Enter new collection name"
             value={newTableName}
             onChange={(e) => setNewTableName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleCreateTable()}
+            disabled={isCreating}
           />
-          <Button onClick={handleCreateTable}>Create</Button>
+          <Button onClick={handleCreateTable} disabled={isCreating}>
+            {isCreating ? 'Creating...' : 'Create'}
+          </Button>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Existing Tables</CardTitle>
+          <CardTitle>Existing Collections</CardTitle>
         </CardHeader>
         <CardContent>
-          {tables.length > 0 ? (
+          {collections.length > 0 ? (
             <ul className="list-disc pl-5 space-y-1">
-              {tables.map(table => (
-                <li key={table.name}>{table.name}</li>
+              {collections.map(collection => (
+                <li key={collection.name}>{collection.title || collection.name}</li>
               ))}
             </ul>
           ) : (
-            <p>No tables created yet.</p>
+            <p>No collections found. They may be loading...</p>
           )}
         </CardContent>
       </Card>
