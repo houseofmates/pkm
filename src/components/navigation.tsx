@@ -190,6 +190,41 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
 
+  // csv upload helpers
+  const [csvInputKey, setCsvInputKey] = useState(0);
+  const handleCsvChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    let apiKey: string | null | undefined =
+      localStorage.getItem('hom_api_key') ||
+      localStorage.getItem('nocobase_token') ||
+      localStorage.getItem('nocobase_api_key');
+    if (apiKey === 'null' || apiKey === 'undefined') apiKey = '';
+    if (!apiKey) {
+      alert('missing API key');
+      return;
+    }
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+      const resp = await fetch(`/api/nb-import`, {
+        method: 'POST',
+        body: fd,
+        headers: { Authorization: `Bearer ${apiKey}` }
+      });
+      if (resp.ok) {
+        const data = await resp.json();
+        alert(`import task ${data.taskId} started`);
+      } else {
+        const text = await resp.text().catch(() => '');
+        alert('csv upload failed: ' + (text || resp.statusText));
+      }
+    } catch (err: any) {
+      alert('csv upload error: ' + err.message);
+    }
+    setCsvInputKey(k => k + 1);
+  };
+
   // handle updates to specific items (name, icon, refresh, delete)
   const handleUpdateItem = (id: string, updates: any) => {
     if (updates.refresh) {
