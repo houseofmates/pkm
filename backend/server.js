@@ -68,13 +68,22 @@ app.use(cors({
             .map(s => s.trim())
             .filter(Boolean);
         for (const a of allowed) {
+            if (a === origin) {
+                return callback(null, true);
+            }
+            // suffix wildcard (eg. https://pkm.*)
             if (a.endsWith('*')) {
                 const prefix = a.slice(0, -1);
                 if (origin.startsWith(prefix)) {
                     return callback(null, true);
                 }
-            } else if (origin === a) {
-                return callback(null, true);
+            }
+            // prefix wildcard (eg. *.houseofmates.space)
+            if (a.startsWith('*.')) {
+                const host = a.slice(2);
+                if (origin.endsWith(host)) {
+                    return callback(null, true);
+                }
             }
         }
         callback(null, false);
