@@ -15,6 +15,14 @@
 - [x] separate concerns: editing mode vs viewing/moving mode
 
 ### 3. standardize record creation in journal-view.tsx
-- [ ] verify `onCreate` prop is used consistently
-- [ ] remove any fallback `pkm:create-record` event dispatch
-- [ ] ensure proper typing with ViewProps interface
+- [x] verify `onCreate` prop is used consistently - already implemented correctly
+- [x] check for `pkm:create-record` event dispatch - not present in file
+- [x] ensure proper typing with ViewProps interface - `onCreate?: (data: any) => Promise<void> | void` is defined
+
+**note:** the journal-view.tsx already properly uses the `onCreate` prop from ViewProps interface. the component:
+- accepts `onCreate` from ViewProps
+- checks `if (!onCreate)` before calling
+- uses `await onCreate(newRecord)` for creation
+- button is disabled when `!onCreate`
+
+no `pkm:create-record` event is used in this file. the standardization is already complete.
