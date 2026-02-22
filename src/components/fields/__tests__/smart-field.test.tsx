@@ -3,9 +3,11 @@ import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import { SmartField } from '../smart-field';
 import { AuthContext } from '@/contexts/auth-context';
 
+import { vi } from 'vitest';
+
 const fakeClient = {
-  listRecords: jest.fn().mockResolvedValue({ data: [] }),
-  upload: jest.fn().mockResolvedValue({ data: { url: 'http://example.com/fake' } }),
+  listRecords: vi.fn().mockResolvedValue({ data: [] }),
+  upload: vi.fn().mockResolvedValue({ data: { url: 'http://example.com/fake' } }),
 };
 
 const authValue = {
