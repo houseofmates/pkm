@@ -31,7 +31,7 @@ const RecordView = lazy(() => import("@/features/records/components/record-view"
 const HouseofmatesBuilder = lazy(() => import("@/features/houseofmates-builder/HouseofmatesBuilder").then(m => ({ default: m.HouseofmatesBuilder })));
 const TemplatePage = lazy(() => import("@/pages/template").then(m => ({ default: m.TemplatePage })));
 const WorkspacePage = lazy(() => import("@/pages/workspace").then(m => ({ default: m.WorkspacePage })));
-const PublicDocViewer = lazy(() => import("@/features/public-doc/components/PublicDocViewer").then(m => ({ default: m.PublicDocViewer })));
+const PublicDocViewer = lazy(() => import("@/components/journal/public-doc-viewer").then(m => ({ default: m.PublicDocViewer })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
