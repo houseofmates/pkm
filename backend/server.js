@@ -24,6 +24,8 @@ const PORT = process.env.PORT || 4100;
 const ADMIN_SECRET = process.env.BROADCAST_AUTH_KEY || process.env.ADMIN_SECRET || 'change-me-in-prod';
 
 const app = express();
+// create http server from express app for socket.io
+const server = http.createServer(app);
 const io = new Server(server, {
     cors: {
         origin: "*", // Adjust to your frontend URL in production
