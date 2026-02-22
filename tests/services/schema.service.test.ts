@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { schemaService, FieldInstance, FieldType } from '@/services/schema.service';
+import { schemaService } from '@/services/schema.service';
+import type { FieldInstance, FieldType } from '@/services/schema.service';
 import '@/services/field-types'; // This ensures the field types are registered before tests run
 
 import { z } from 'zod';
