@@ -90,4 +90,54 @@ describe('SmartField', () => {
     fireEvent.click(screen.getByText(/empty relation/i));
     expect(screen.getByText(/select other/i)).toBeInTheDocument();
   });
+
+  it('edits color field and updates value', () => {
+    const onChange = vi.fn();
+    withAuth(<SmartField value="#000000" field={{ interface: 'input', type: 'color', name: 'col' }} onChange={onChange} />);
+    fireEvent.click(screen.getByText('#000000'));
+    // color input should appear (use querySelector because role is not reliable)
+    const colorInput = document.querySelector('input[type="color"]') as HTMLInputElement;
+    expect(colorInput).toBeInTheDocument();
+    fireEvent.change(colorInput!, { target: { value: '#ff0000' } });
+    fireEvent.keyDown(colorInput!, { key: 'Enter' });
+    expect(onChange).toHaveBeenCalledWith('#ff0000');
+  });
+
+  it('uploads file and returns url', async () => {
+    const onChange = vi.fn();
+    withAuth(<SmartField value="" field={{ interface: 'attachment', name: 'file' }} onChange={onChange} />);
+    fireEvent.click(screen.getByText(/paste url or upload/i));
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const blob = new Blob(['hello'], { type: 'text/plain' });
+    const file = new File([blob], 'test.txt');
+    await waitFor(() => {
+      fireEvent.change(input, { target: { files: [file] } });
+    });
+    // our fakeClient.upload resolves with a url so onChange should be called
+    await waitFor(() => {
+      expect(onChange).toHaveBeenCalledWith('http://example.com/fake');
+    });
+  });
+
+  it('handles multipleSelect editing with checkboxes', () => {
+    const onChange = vi.fn();
+    const options = [{ label: 'A', value: 'a' }, { label: 'B', value: 'b' }];
+    withAuth(<SmartField value={["a"]} field={{ interface: 'multipleSelect', name: 'multi', uiSchema: { enum: options } }} onChange={onChange} />);
+    fireEvent.click(screen.getByText('a'));
+    // open editing to show checkboxes
+    const checkbox = screen.getByLabelText('B');
+    fireEvent.click(checkbox);
+    fireEvent.click(screen.getByText('done'));
+    expect(onChange).toHaveBeenCalledWith(["a", "b"]);
+  });
+
+  it('allows json editing and parses correctly', () => {
+    const onChange = vi.fn();
+    withAuth(<SmartField value={{ foo: 'bar' }} field={{ interface: 'json', name: 'js' }} onChange={onChange} />);
+    fireEvent.click(screen.getByText(/\{"foo":"bar"\}/));
+    const textarea = screen.getByRole('textbox');
+    fireEvent.change(textarea, { target: { value: '{"foo":"baz"}' } });
+    fireEvent.click(screen.getByRole('button', { name: /check/i }));
+    expect(onChange).toHaveBeenCalledWith({ foo: 'baz' });
+  });
 });
