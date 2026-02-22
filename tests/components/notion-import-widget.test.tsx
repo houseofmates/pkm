@@ -11,6 +11,9 @@ import { useAppSetting } from '@/hooks/use-app-setting';
 
 // fake EventSource for tests
 global.EventSource = class {
+  static readonly CONNECTING = 0;
+  static readonly OPEN = 1;
+  static readonly CLOSED = 2;
   url: string;
   listeners: Record<string, Function> = {};
   constructor(url: string) {
