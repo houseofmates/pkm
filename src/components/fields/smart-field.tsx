@@ -282,7 +282,11 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   const isCheckbox = detectedType === 'boolean' || detectedType === 'checkbox';
   const isMultiSelect = field?.interface === 'multipleSelect' || detectedType === 'multipleSelect' || field?.interface === 'checkboxgroup';
   const isSelect = detectedType === 'select' || detectedType === 'multipleSelect' || field?.interface === 'radiogroup';
-  const isCode = detectedType === 'code' || name === 'code' || name === 'formula'; // Added formula
+  const isCode =
+    detectedType === 'code' ||
+    name === 'code' ||
+    name === 'formula' ||
+    field?.type === 'formula'; // Added formula support
   const isMarkdown = detectedType === 'markdown' || detectedType === 'richText' || name.includes('desc') || name.includes('note');
   const isNumber = detectedType === 'number' || detectedType === 'integer' || detectedType === 'percent';
   const isPercentField = field?.type === 'percent' || name.includes('percent');
