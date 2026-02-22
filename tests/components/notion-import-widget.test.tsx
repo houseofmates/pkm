@@ -44,6 +44,15 @@ class MockEventSource {
 (global as any).EventSource = MockEventSource;
 
 describe('NotionImportWidget', () => {
+  function makeFakeZip(size: number = 2048): File {
+    const arr = new Uint8Array(size);
+    arr[0] = 0x50;
+    arr[1] = 0x4B;
+    arr[2] = 0x03;
+    arr[3] = 0x04;
+    return new File([arr], 'test.zip', { type: 'application/zip' });
+  }
+
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
     localStorage.clear();
@@ -96,7 +105,7 @@ describe('NotionImportWidget', () => {
     (fetch as any).mockResolvedValue(fakeResponse);
     render(<NotionImportWidget />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-    const file = new File(['x'.repeat(2000)], 'a.zip', { type: 'application/zip' });
+    const file = makeFakeZip(3000);
     fireEvent.change(input, { target: { files: [file] } });
     fireEvent.click(screen.getByText(/start import/i));
     await waitFor(() => {
