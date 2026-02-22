@@ -6,6 +6,8 @@ import request from 'supertest';
 // ensure secrets and mocking are configured before server module is evaluated
 process.env.ADMIN_SECRET = 'test-secret';
 process.env.MOCK_NOTION_IMPORT = 'true';
+// ensure CORS allows the pkm origin during tests
+process.env.ALLOWED_ORIGINS = 'https://pkm.houseofmates.space';
 
 let app: any;
 let importTasks: Map<any, any>;
