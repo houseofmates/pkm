@@ -487,8 +487,6 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     return out
   }, [elements, selectedIds, fabricCanvas, viewPort.x, viewPort.y, viewPort.zoom, pdfDoc, activeTool, selectionMode])
 
-  const eraserWidth = useEdgelessStore.getState().eraserWidth
-
   // Upload
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
