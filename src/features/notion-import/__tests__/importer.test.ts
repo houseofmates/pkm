@@ -18,6 +18,11 @@ async function makeZippedSample(): Promise<string> {
     return zipPath;
 }
 
+beforeAll(async () => {
+    const mod = await import(path.resolve(__dirname, '../../../scripts/notion-import.ts'));
+    run = mod.run;
+});
+
 describe('notion importer integration', () => {
     it('runs through import steps with a fake client', async () => {
         const zipfile = await makeZippedSample();
