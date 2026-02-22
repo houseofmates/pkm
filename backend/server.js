@@ -255,6 +255,7 @@ app.post('/api/upload/banner', requireAuth, upload.single('file'), (req, res) =>
 // Notion import support
 import { run as notionRun } from '../scripts/notion-import.js';
 import EventEmitter from 'events';
+import { parse as csvParse } from 'papaparse';
 
 const importTasks = new Map();
 // each entry: { emitter, status, logs: string[] }
@@ -328,6 +329,60 @@ function handleNotionImport(req, res) {
     // run in background
     (async () => {
         try {
+            const ext = path.extname(req.file.originalname || '').toLowerCase();
+            if (ext === '.csv') {
+                emitter.emit('progress', 'parsing CSV import');
+                const content = fs.readFileSync(req.file.path, 'utf-8');
+                const rows = [];
+                csvParse(content, {
+                    header: true,
+                    skipEmptyLines: true,
+                    dynamicTyping: true,
+                    transformHeader: h => h.trim(),
+                    complete: (res) => {
+                        if (res.errors.length) {
+                            console.warn('[CsvImport] parse errors', res.errors);
+                        }
+                        rows.push(...(res.data as any));
+                    }
+                });
+                const name = path.basename(req.file.originalname, '.csv');
+                emitter.emit('progress', `parsed ${rows.length} rows`);
+
+                // build collection field definitions
+                const sample = rows.slice(0, 20);
+                const fields: Record<string, string> = {};
+                const columns = sample.length > 0 ? Object.keys(sample[0]) : [];
+                for (const col of columns) {
+                    const vals = sample.map(r => r[col]);
+                    fields[col] = guessType(vals);
+                }
+                emitter.emit('progress', `creating collection ${name}`);
+                const client = getApiClient();
+                try {
+                    await client.post(`/collections:create`, { name, fields });
+                } catch (err) {
+                    emitter.emit('progress', `failed creating collection ${name}: ${err.response?.data || err.message}`);
+                }
+                let recordsCreated = 0;
+                for (const row of rows) {
+                    try {
+                        await client.post(`/records:${name}:create`, { values: row });
+                        recordsCreated++;
+                        if (recordsCreated % 50 === 0) {
+                            emitter.emit('progress', `imported ${recordsCreated} records so far`);
+                        }
+                    } catch (err) {
+                        emitter.emit('progress', `error creating record: ${err.response?.data || err.message}`);
+                    }
+                }
+                emitter.emit('progress', `import complete: ${recordsCreated} records`);
+                emitter.emit('done');
+                const current = importTasks.get(taskId);
+                if (current) current.status = 'done';
+                return;
+            }
+
             if (process.env.MOCK_NOTION_IMPORT === 'true') {
                 // simulate progress and completion quickly
                 emitter.emit('progress', 'mock import started');
