@@ -4,6 +4,7 @@ import { CalendarView } from '../calendar-view';
 import { KanbanView } from '../kanban-view';
 import { GalleryView } from '../gallery-view';
 import { ListView } from '../list-view';
+import { AuthContext } from '@/contexts/auth-context';
 
 const emptyCollection = { name: 'test', fields: [] };
 // collection with a date field for calendar
