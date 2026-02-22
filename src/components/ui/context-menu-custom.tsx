@@ -204,7 +204,7 @@ export function ContextMenu() {
   )}
 
   {/* ask ai (canvas/object) */}
-  {targettype === 'tool' && (() => {
+  {targetType === 'tool' && (() => {
     const store = useEdgelessStore();
     const isBrush = data?.tool === 'pen';
     const widthVal = isBrush ? store.penWidth : store.eraserWidth;
