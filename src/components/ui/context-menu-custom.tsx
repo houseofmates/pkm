@@ -131,10 +131,10 @@ export function ContextMenu() {
   // we need `usenavigate` but we might not be inside router context if rendered at root?
   // actually, if we put <contextmenu /> in rootlayout (inside router), we are good.
   }
-  closemenu();
+  closeMenu();
   }
 
-  return createportal(
+  return createPortal(
   <div
   ref={menuRef}
   className="fixed z-50 min-w-[200px] bg-popover/95 backdrop-blur-md border border-border text-popover-foreground rounded-lg shadow-xl animate-in fade-in zoom-in-95 duration-100 flex flex-col p-1 overflow-hidden"
