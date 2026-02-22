@@ -13,7 +13,7 @@ import { persistenceService } from './persistence-service';
 import type {
   TableDefinition,
   FieldDefinition,
-  Record,
+  Record as TableRecord,
   QueryOptions,
   QueryResult,
   TableMetadata,
