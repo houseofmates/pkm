@@ -56,7 +56,7 @@ describe('SchemaService', () => {
 
   it('should throw an error for unregistered field types', () => {
     const invalidTableDefinition: FieldInstance[] = [
-      { name: 'email', type: 'email' }, // 'email' type is not registered
+      { name: 'email', type: 'this_type_does_not_exist' }, // ensure no builtin type
       { name: 'isVerified', type: 'boolean' },
     ];
 
