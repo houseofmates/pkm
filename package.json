@@ -23,6 +23,7 @@
     "lowercase:all": "npm run lowercase:check && npm run check:ui-lowercase",
     "precommit": "npx lint-staged",
     "preview": "vite preview",
+    "serve:prod": "concurrently -k \"npm run backend\" \"npm run preview\"",
     "backend": "PORT=4100 node backend/server.js",
     "electron:dev": "concurrently -k \"npm run dev\" \"npm run backend\" \"wait-on tcp:4173 && electron .\"",
     "electron:build": "vite build && electron-builder",
