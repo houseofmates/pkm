@@ -3,14 +3,14 @@ import { Button } from '@/components/ui/button';
 import { Trash2, MoreHorizontal } from 'lucide-react';
 import { RecordContextMenu } from '@/features/records/components/record-context-menu';
 import { SmartField } from '@/components/fields/smart-field';
-import { FixedSizeList as List } from 'react-window';
+import { List } from 'react-window';
 import { AutoSizer } from 'react-virtualized-auto-sizer';
 import { memo } from 'react';
 
-// Memoized row to prevent re-renders
-const Row = memo(({ index, style, data }: any) => {
-  const { items, collection, config, onConfigChange, onEdit, onDelete, onUpdateRecord } = data;
-  const record = items[index];
+// Row component for react-window List
+const RowComponent = ({ index, style, data }: any): React.ReactElement | null => {
+  const { rows, collection, config, onConfigChange, onEdit, onDelete, onUpdateRecord } = data;
+  const record = rows[index];
 
   const titleField = config.titleField
     ? collection.fields?.find((f: { name: string; primary?: boolean }) => f.name === config.titleField)
@@ -104,7 +104,7 @@ const Row = memo(({ index, style, data }: any) => {
       </RecordContextMenu>
     </div>
   );
-});
+};
 
 export function ListView({ data, collection, config = {}, onConfigChange, onEdit, onDelete, onUpdateRecord }: ViewProps) {
   if (!collection) {
@@ -125,16 +125,14 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
   return (
     <div className="h-full w-full">
       <AutoSizer>
-        {({ height, width }) => (
+        {({ height, width }: { height: number; width: number }) => (
           <List
-            height={height}
-            itemCount={data.length}
-            itemSize={100}
-            width={width}
-            itemData={{ items: data, collection, config, onConfigChange, onEdit, onDelete, onUpdateRecord }}
-          >
-            {Row}
-          </List>
+            rowCount={data.length}
+            rowHeight={100}
+            rowProps={{ rows: data, collection, config, onConfigChange, onEdit, onDelete, onUpdateRecord }}
+            style={{ height, width }}
+            rowComponent={RowComponent}
+          />
         )}
       </AutoSizer>
     </div>
