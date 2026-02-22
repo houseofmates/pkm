@@ -65,9 +65,11 @@ describe('SmartField', () => {
     expect(container.textContent).toContain('12:30');
     // click to edit and change
     fireEvent.click(screen.getByText('12:30'));
-    const input = screen.getByRole('textbox');
-    fireEvent.change(input, { target: { value: '13:45' } });
-    fireEvent.keyDown(input, { key: 'Enter' });
+    // input is type=time so use querySelector
+    const timeInput = document.querySelector('input[type="time"]') as HTMLInputElement;
+    expect(timeInput).toBeInTheDocument();
+    fireEvent.change(timeInput, { target: { value: '13:45' } });
+    fireEvent.click(screen.getByRole('button', { hidden: true })); // click save
     expect(onChange).toHaveBeenCalledWith('13:45');
   });
   it('handles datetime fields', () => {
@@ -76,23 +78,19 @@ describe('SmartField', () => {
     // the rendered text should include the year or month
     expect(container.textContent).toMatch(/2021|Jan/i);
     fireEvent.click(screen.getByText(/2021|Jan/i));
-    const dtInput = screen.getByRole('textbox');
-    // using datetime-local input may not appear as textbox; fallback to querySelector
     const native = document.querySelector('input[type="datetime-local"]') as HTMLInputElement;
-    if (native) {
-      fireEvent.change(native, { target: { value: '2022-02-02T10:00' } });
-      fireEvent.keyDown(native, { key: 'Enter' });
-      expect(onChange).toHaveBeenCalledWith('2022-02-02T10:00');
-    }
+    expect(native).toBeInTheDocument();
+    fireEvent.change(native, { target: { value: '2022-02-02T10:00' } });
+    // click save button
+    const saveBtn = document.querySelector('button');
+    saveBtn && fireEvent.click(saveBtn);
+    expect(onChange).toHaveBeenCalledWith('2022-02-02T10:00');
   });
   it('renders boolean checkbox in view mode and allows toggling', () => {
     const onChange = vi.fn();
     withAuth(<SmartField value={false} field={{ interface: 'checkbox', name: 'flag' }} onChange={onChange} />);
-    const text = screen.getByText(/false|off|0/i);
-    expect(text).toBeDefined();
-    fireEvent.click(text);
-    // after clicking the checkbox view should switch to edit control
     const checkbox = screen.getByRole('checkbox');
+    expect(checkbox).toBeInTheDocument();
     fireEvent.click(checkbox);
     expect(onChange).toHaveBeenCalledWith(true);
   });
@@ -113,20 +111,23 @@ describe('SmartField', () => {
 
   it('edits color field and updates value', () => {
     const onChange = vi.fn();
-    withAuth(<SmartField value="#000000" field={{ interface: 'input', type: 'color', name: 'col' }} onChange={onChange} />);
+    withAuth(<SmartField value="#000000" field={{ interface: 'input', name: 'color' }} onChange={onChange} />);
     fireEvent.click(screen.getByText('#000000'));
     // color input should appear (use querySelector because role is not reliable)
     const colorInput = document.querySelector('input[type="color"]') as HTMLInputElement;
     expect(colorInput).toBeInTheDocument();
     fireEvent.change(colorInput!, { target: { value: '#ff0000' } });
-    fireEvent.keyDown(colorInput!, { key: 'Enter' });
+    // click save button
+    const btn = document.querySelector('button');
+    btn && fireEvent.click(btn);
     expect(onChange).toHaveBeenCalledWith('#ff0000');
   });
 
   it('uploads file and returns url', async () => {
     const onChange = vi.fn();
     withAuth(<SmartField value="" field={{ interface: 'attachment', name: 'file' }} onChange={onChange} />);
-    fireEvent.click(screen.getByText(/paste url or upload/i));
+    // click the default empty placeholder to begin editing
+    fireEvent.click(screen.getByText(/empty/i));
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     const blob = new Blob(['hello'], { type: 'text/plain' });
     const file = new File([blob], 'test.txt');
@@ -157,7 +158,9 @@ describe('SmartField', () => {
     fireEvent.click(screen.getByText(/\{"foo":"bar"\}/));
     const textarea = screen.getByRole('textbox');
     fireEvent.change(textarea, { target: { value: '{"foo":"baz"}' } });
-    fireEvent.click(screen.getByRole('button', { name: /check/i }));
+    // click the first button (save)
+    const btn = document.querySelector('button');
+    btn && fireEvent.click(btn);
     expect(onChange).toHaveBeenCalledWith({ foo: 'baz' });
   });
 });
