@@ -3,6 +3,12 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { Navigation } from '@/components/navigation';
 import { BrowserRouter } from 'react-router-dom';
+import { AuthProvider } from '@/contexts/auth-context';
+
+// mock useCollections to avoid API calls
+vi.mock('@/hooks/use-collections', () => ({
+  useCollections: () => ({ collections: [], refresh: () => {} }),
+}));
 
 describe('Navigation', () => {
     it('dispatches pkm:open-search event when search button is clicked', () => {
