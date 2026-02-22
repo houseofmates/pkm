@@ -27,6 +27,7 @@ export function NotionImportWidget() {
             appendLog('error: missing API key (set in settings or hom_api_key/localStorage)');
             return;
         }
+        appendLog(`using api key ${maskString(apiKey)}`);
         setRunning(true);
         appendLog('uploading...');
         const fd = new FormData();
