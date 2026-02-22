@@ -3,6 +3,20 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { ListView } from '../list-view';
 import { vi } from 'vitest';
 
+// virtualization components are tricky in tests; stub them out to render all rows
+vi.mock('react-window', () => ({
+  List: ({ children, itemCount, itemData }: any) => (
+    <div>
+      {Array.from({ length: itemCount }).map((_, i) => (
+        <div key={i}>{children({ index: i, style: {}, data: itemData })}</div>
+      ))}
+    </div>
+  ),
+}));
+vi.mock('react-virtualized-auto-sizer', () => ({
+  AutoSizer: ({ children }: any) => <div>{children({ width: 100, height: 100 })}</div>,
+}));
+
 // we don't need to mock SmartField because ListView uses it directly and
 // our earlier tests already validate its behaviour. Instead we provide a
 // very simple field and confirm that onUpdateRecord is called when the
