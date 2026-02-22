@@ -68,7 +68,7 @@ describe('NotionImportWidget', () => {
     render(<NotionImportWidget />);
     // choose a file to allow startImport to proceed
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-    const file = new File(['x'], 'a.zip', { type: 'application/zip' });
+    const file = makeFakeZip();
     fireEvent.change(input, { target: { files: [file] } });
     fireEvent.click(screen.getByText(/start import/i));
     await waitFor(() => expect(debugSpy).toHaveBeenCalled());
