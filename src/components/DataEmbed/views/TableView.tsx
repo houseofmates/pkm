@@ -86,9 +86,9 @@ export function TableView({ records, isLoading, theme, onSelect }: TableViewProp
             <List
               height={height}
               width={width}
-              itemCount={rows.length}
+              rowCount={rows.length}
               rowHeight={40}
-              rowData={{ rows, onSelect }}
+              rowProps={{ rows, onSelect }}
               rowComponent={({ index, style, data }: any) => {
                 const row = data.rows[index];
                 return (
