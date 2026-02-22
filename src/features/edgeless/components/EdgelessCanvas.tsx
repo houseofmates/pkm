@@ -270,12 +270,14 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       } else {
         // blank canvas click: if drawing or eraser tool active, show tool menu
         if (activeTool === 'pen' || activeTool === 'eraser') {
+          const extra: any = { tool: activeTool };
+          if (activeTool === 'pen') extra.color = useEdgelessStore.getState().penColor;
           useContextMenuStore.getState().openMenu(
             e.clientX,
             e.clientY,
             activeTool,
             'tool',
-            { tool: activeTool }
+            extra
           )
         }
       }

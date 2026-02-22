@@ -47,19 +47,16 @@ export function ContextMenu() {
   if (targetType === 'canvas-object') {
   useEdgelessStore.getState().updateElement(targetId!, {
  data: { ...data, stroke: color, fill: color }
- // note: logic depends on object type.
- // connector: stroke
- // shape: fill/stroke
- // we might need to be smarter.
   });
-  // update local data reference if needed, or rely on re-render?
-  // canvas updates usually don't trigger re-render of this component unless we subscribe.
   } else if (targetType === 'dashboard-card') {
-  // update nocobase record
-  // collection? we need collection name in data
   if (data?.collection) {
- client.updateRecord(data.collection, targetId!, { color }); // Assuming 'color' field exists
+ client.updateRecord(data.collection, targetId!, { color });
   }
+  } else if (targetType === 'tool') {
+    // adjust brush color when pen tool
+    if (data?.tool === 'pen') {
+      useEdgelessStore.getState().setPenColor(color);
+    }
   }
   };
 
