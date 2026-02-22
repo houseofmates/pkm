@@ -86,7 +86,7 @@ describe('backend /api/notion-import', () => {
                 }
             }, 10);
         });
-        // poll using query param
+        // poll using query param (GET)
         const poll1 = await request(app)
             .get('/api/nb-import/logs')
             .query({ id })
@@ -94,13 +94,21 @@ describe('backend /api/notion-import', () => {
         expect(poll1.status).toBe(200);
         expect(poll1.body.status).toBe('done');
         expect(Array.isArray(poll1.body.logs)).toBe(true);
-        // poll using path-based route
+        // poll using path-based GET route
         const poll2 = await request(app)
             .get(`/api/notion-import/${id}/logs`)
             .set('Authorization', 'Bearer test-secret');
         expect(poll2.status).toBe(200);
         expect(poll2.body.status).toBe('done');
         expect(Array.isArray(poll2.body.logs)).toBe(true);
+        // poll with POST body, which is the new preferred form
+        const poll3 = await request(app)
+            .post('/api/nb-import/logs')
+            .send({ id })
+            .set('Authorization', 'Bearer test-secret');
+        expect(poll3.status).toBe(200);
+        expect(poll3.body.status).toBe('done');
+        expect(Array.isArray(poll3.body.logs)).toBe(true);
     });
 
     describe('CORS', () => {
