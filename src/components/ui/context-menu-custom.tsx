@@ -263,7 +263,7 @@ export function ContextMenu() {
           <label className="text-xs text-primary lowercase flex justify-between">
             <span>size</span><span>{widthVal}px</span>
           </label>
-          <input type="range" min="1" max="100" value={widthVal}
+          <input aria-label="size" type="range" min="1" max="100" value={widthVal}
             onChange={(e) => setWidth(Number(e.target.value))}
             className="accent-primary" />
         </div>
@@ -272,7 +272,7 @@ export function ContextMenu() {
           <label className="text-xs text-primary lowercase flex justify-between">
             <span>opacity</span><span>{opacityVal}%</span>
           </label>
-          <input type="range" min="0" max="100" value={opacityVal}
+          <input aria-label="opacity" type="range" min="0" max="100" value={opacityVal}
             onChange={(e) => setOpacity(Number(e.target.value))}
             className="accent-primary" />
         </div>
@@ -293,7 +293,7 @@ export function ContextMenu() {
               <label className="text-xs text-primary lowercase flex justify-between">
                 <span>darkness</span><span>{darkness}%</span>
               </label>
-              <input type="range" min="0" max="100" value={darkness}
+              <input aria-label="darkness" type="range" min="0" max="100" value={darkness}
                 onChange={(e) => {
                   const d = Number(e.target.value);
                   setDarkness(d);
