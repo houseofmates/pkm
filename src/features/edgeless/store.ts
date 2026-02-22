@@ -185,6 +185,11 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   stabilizerLevel: 0,
   pressureEnabled: true,
 
+  // canvas refs and helpers
+  fabricCanvas: null,
+  selectedIds: new Set(),
+  pdfDoc: null,
+
   // layer actions
   addLayer: (name) =>
     set((state) => {
@@ -372,7 +377,13 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   setPenColor: (color) => set({ penColor: color }),
   setStabilizerLevel: (level) => set({ stabilizerLevel: level }),
   setPressureEnabled: (enabled) => set({ pressureEnabled: enabled }),
-}))
+  // new canvas helpers
+  setFabricCanvas: (c) => set({ fabricCanvas: c }),
+  setSelectedIds: (ids) => set({ selectedIds: ids }),
+  setPdfDoc: (doc) => set({ pdfDoc: doc }),
+  addHistoryOp: async (op) => { // alias to recordOp
+    await get().recordOp(op as any)
+  },}))
 
 // import for meta update
 import { updateDrawingMeta } from './storage/canvas-db'
