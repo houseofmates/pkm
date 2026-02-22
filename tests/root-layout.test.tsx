@@ -37,7 +37,7 @@ describe('RootLayout', () => {
 
   it('does not render health bar by default', async () => {
     delete (import.meta as any).env.VITE_SHOW_HEALTH_BAR;
-    const { RootLayout, FronterProvider, LLMContextProvider } = await loadLayoutAndProviders();
+    const { RootLayout, AuthProvider, FronterProvider, LLMContextProvider } = await loadLayoutAndProviders();
     render(
       <AuthProvider>
         <QueryClientProvider client={new QueryClient()}>
@@ -56,7 +56,7 @@ describe('RootLayout', () => {
 
   it('shows health bar when env variable is true', async () => {
     (import.meta as any).env.VITE_SHOW_HEALTH_BAR = 'true';
-    const { RootLayout, FronterProvider, LLMContextProvider } = await loadLayoutAndProviders();
+    const { RootLayout, AuthProvider, FronterProvider, LLMContextProvider } = await loadLayoutAndProviders();
     render(
       <AuthProvider>
         <QueryClientProvider client={new QueryClient()}>
