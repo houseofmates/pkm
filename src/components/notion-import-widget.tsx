@@ -133,6 +133,11 @@ export function NotionImportWidget() {
                         setRunning(false);
                         clearInterval(interval);
                     }
+                    if (body.status === 'error') {
+                        appendLog('import failed');
+                        setRunning(false);
+                        clearInterval(interval);
+                    }
                 } catch (err: any) {
                     appendLog('log fetch error: ' + err.message);
                 }

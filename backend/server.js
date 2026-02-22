@@ -1,6 +1,21 @@
 // typer: removing ts-node dependency; import JS version of importer script instead
 
 import express from 'express';
+
+// guard against unzipper (or other event emitters) emitting 'error' with no
+// listener. failing to handle these leads to the whole backend crashing with
+// ERR_UNHANDLED_ERROR. the only error we've seen is "invalid signature" from
+// corrupted ZIPs; swallow those and let the import task handle the failure.
+process.on('uncaughtException', (err) => {
+    if (err && err.code === 'ERR_UNHANDLED_ERROR' &&
+        typeof err.context === 'string' &&
+        err.context.includes('invalid signature')) {
+        console.error('[NotionImport] swallowed unhandled event-emitter error', err.context);
+        return; // keep process alive
+    }
+    console.error('uncaughtException', err);
+    process.exit(1);
+});
 import http from 'http';
 import { Server } from 'socket.io';
 import cors from 'cors';
