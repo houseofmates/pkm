@@ -1,12 +1,17 @@
 import { useState, useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useBuilder } from '../HouseofmatesBuilder';
-import * as LucideIcons from 'lucide-react';
 import {
   Copy, Check, Wifi, Shield, Zap, Crown, MessageCircle, ChevronDown, ChevronUp, Gamepad2, Server, Monitor,
   Pencil, Pen, Edit, Edit2, Palette, Paintbrush, PaintBucket, FileText, Clipboard, Paperclip,
-  TrendingUp, ShoppingCart, Info, Flame, Coins, Moon
+  TrendingUp, ShoppingCart, Info, Flame, Coins, Moon, Link2, type LucideIcon
 } from 'lucide-react';
+import * as Icons from 'lucide-react';
+
+// helper to safely get lucide icon by name
+function getLucideIcon(name: string): LucideIcon | undefined {
+  return (Icons as Record<string, LucideIcon>)[name];
+}
 import { toast } from 'sonner';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip, Cell } from 'recharts';
 
@@ -202,7 +207,8 @@ export interface LinkCardProps {
 }
 
 export function LinkCard({ title, url, icon, description, color = 'var(--primary)' }: LinkCardProps) {
-  const Icon = (LucideIcons as any)[icon?.charAt(0).toUpperCase() + icon?.slice(1)] || LucideIcons.Link2;
+  const iconName = icon ? icon.charAt(0).toUpperCase() + icon.slice(1) : 'Link2';
+  const Icon = getLucideIcon(iconName) || Link2;
 
   const handleClick = () => {
     if (!url) return;
@@ -332,9 +338,9 @@ export function FAQSection({ items, title = 'frequently asked questions' }: FAQS
             >
               <span className="text-white font-medium text-[1em]">{item.question}</span>
               {openIndex === idx ? (
-                <LucideIcons.ChevronUp size={'1.25em'} className="text-white/50" />
+                <ChevronUp size={'1.25em'} className="text-white/50" />
               ) : (
-                <LucideIcons.ChevronDown size={'1.25em'} className="text-white/50" />
+                <ChevronDown size={'1.25em'} className="text-white/50" />
               )}
             </button>
             {openIndex === idx && (
@@ -1296,7 +1302,7 @@ export interface SlickButtonProps {
 export function SlickButton({ text, url, icon, bgColor, textColor, iconColor, borderRadius }: SlickButtonProps) {
   // helper to format icon name (e.g. "shopping-cart" -> "shoppingcart")
   const formattedIconName = icon ? icon.charAt(0).toUpperCase() + icon.slice(1).replace(/-([a-z])/g, (g: any) => g[1].toUpperCase()) : null;
-  const Icon = formattedIconName ? (LucideIcons as any)[formattedIconName] : null;
+  const Icon = formattedIconName ? getLucideIcon(formattedIconName) : null;
 
   const handleClick = () => {
     if (!url) return;
