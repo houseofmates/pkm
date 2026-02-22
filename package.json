@@ -151,6 +151,7 @@
     "husky": "^8.0.3",
     "jsdom": "^22.1.0",
     "lint-staged": "^14.0.1",
+    "nock": "^14.0.11",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
     "ts-node": "^10.9.2",

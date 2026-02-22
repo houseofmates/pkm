@@ -422,7 +422,11 @@ io.on('connection', (socket) => {
 });
 
 
-server.listen(PORT, '0.0.0.0', () => {
-    console.log(`[Backend] Server running on port ${PORT}`);
-    console.log(`[Backend] Protected endpoints enabled. Secret: ${ADMIN_SECRET ? '***' : 'Not Set'}`);
-});
+if (process.env.NODE_ENV !== 'test') {
+    server.listen(PORT, '0.0.0.0', () => {
+        console.log(`[Backend] Server running on port ${PORT}`);
+        console.log(`[Backend] Protected endpoints enabled. Secret: ${ADMIN_SECRET ? '***' : 'Not Set'}`);
+    });
+}
+
+export { app, importTasks };
