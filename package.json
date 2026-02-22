@@ -35,7 +35,7 @@
     "schema:completions": "ts-node scripts/schema-completions.ts",
     "sync:install-service": "sudo scripts/install-auto-git-sync.sh",
     "build:android": "npm run build && npx cap sync android",
-    "notion:import": "ts-node scripts/notion-import.ts"
+    "notion:import": "node scripts/notion-import.js"
   },
   "dependencies": {
     "@capacitor/android": "^6.2.1",

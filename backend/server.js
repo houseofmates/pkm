@@ -1,5 +1,5 @@
-// allow importing TypeScript modules in this server process
-import 'ts-node/register';
+// allow importing TypeScript modules in this server process (ESM variant)
+import 'ts-node/register/esm';
 
 import express from 'express';
 import http from 'http';
@@ -161,7 +161,7 @@ app.post('/api/upload/banner', requireAuth, upload.single('file'), (req, res) =>
 });
 
 // Notion import support
-import { run as notionRun } from '../scripts/notion-import';
+import { run as notionRun } from '../scripts/notion-import.ts';
 import EventEmitter from 'events';
 
 const importTasks = new Map();
