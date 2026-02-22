@@ -100,13 +100,17 @@ describe('NotionImportWidget', () => {
     }));
   });
 
-  it('falls back to origin/api when VITE_API_URL unset', async () => {
+  it('infers db host when VITE_API_URL unset and hostname starts with pkm', async () => {
     (useAppSetting as any).mockReturnValue(['foo', vi.fn()]);
     const fakeResponse = { ok: false, status: 400, statusText: 'Bad', text: async () => '' };
     (fetch as any).mockResolvedValue(fakeResponse);
     // temporarily remove env variable
     const original = process.env.VITE_API_URL;
     delete process.env.VITE_API_URL;
+    // simulate running on pkm domain by overriding location
+    const originalHostname = window.location.hostname;
+    Object.defineProperty(window.location, 'hostname', { value: 'pkm.example.com', configurable: true });
+
     render(<NotionImportWidget />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     const file = new File(['x'], 'a.zip', { type: 'application/zip' });
@@ -115,10 +119,11 @@ describe('NotionImportWidget', () => {
     await waitFor(() => {
       expect(screen.getByText(/upload failed: 400/i)).toBeInTheDocument();
     });
-    const fallback = `${window.location.protocol}//${window.location.hostname}/api`;
-    expect(fetch).toHaveBeenCalledWith(`${fallback}/notion-import`, expect.any(Object));
+    const expectedHost = `${window.location.protocol}//db.example.com/api`;
+    expect(fetch).toHaveBeenCalledWith(`${expectedHost}/notion-import`, expect.any(Object));
     // restore
     process.env.VITE_API_URL = original;
+    Object.defineProperty(window.location, 'hostname', { value: originalHostname });
   });
 
   it('ignores literal "null" string from storage', async () => {
