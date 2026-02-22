@@ -14,6 +14,7 @@ export {
   getDrawingMeta,
   updateDrawingMeta,
   listPendingDrawings,
+  deleteDrawing,
   getToken,
   setToken,
   clearToken,
