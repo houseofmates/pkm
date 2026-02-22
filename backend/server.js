@@ -159,6 +159,13 @@ app.get('/api/stats', (req, res) => {
     res.json(lastServerStats);
 });
 
+// runtime configuration endpoint used by the frontend
+app.get('/api/config', (req, res) => {
+    // value available from build-time env or server env
+    const apiUrl = process.env.VITE_API_URL || process.env.API_DOMAIN || '';
+    res.json({ apiUrl });
+});
+
 app.get('/api/chat', (req, res) => {
     res.json(chatHistory);
 });
