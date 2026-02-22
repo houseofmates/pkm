@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { NotionImportWidget } from '@/components/notion-import-widget';
+import { TableManager } from '@/features/table-management/TableManager';
 
 export default function SettingsPage() {
     const [apiKey, setApiKey] = useAppSetting('apiKey', '');
@@ -41,6 +42,11 @@ export default function SettingsPage() {
                         />
                     </label>
                 </div>
+            </section>
+
+            <section className="mt-8">
+                <h2 className="text-lg font-semibold lowercase">data management</h2>
+                <TableManager />
             </section>
 
             <section className="mt-8">
