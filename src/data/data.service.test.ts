@@ -12,6 +12,11 @@ describe('DataService', () => {
         { name: 'age', type: 'number' },
     ];
 
+    const extendedTableDefinition: FieldInstance[] = [
+        { name: 'flag', type: 'boolean' },
+        { name: 'startedAt', type: 'date' },
+    ];
+
     // Before each test, we'll create the 'users' table to ensure a clean state.
     beforeEach(() => {
         // A simple way to reset the service state for each test.
@@ -71,5 +76,15 @@ describe('DataService', () => {
         expect(() => {
             dataService.createTable('users', userTableDefinition);
         }).toThrow('Table "users" already exists.');
+    });
+
+    it('should validate additional field types when creating records', () => {
+        dataService.createTable('extra', extendedTableDefinition);
+
+        const valid = dataService.createRecord('extra', { flag: true, startedAt: '2023-01-01' });
+        expect(valid.flag).toBe(true);
+        expect(valid.startedAt).toBe('2023-01-01');
+
+        expect(() => dataService.createRecord('extra', { flag: 'yes', startedAt: 123 })).toThrow('Record validation failed');
     });
 });
