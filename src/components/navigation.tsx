@@ -211,25 +211,39 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       }
     }
 
-    // persist local drawings
+    // persist drawings. legacy items live in localStorage, newer items live in IndexedDB.
     if (id.startsWith('drawing_')) {
-      const key = `drawing-config-${id.replace('drawing_', '')}`;
+      const drawingId = id.replace('drawing_', '');
+      const key = `drawing-config-${drawingId}`;
       try {
         const existing = JSON.parse(localStorage.getItem(key) || '{}');
-        const toSave = { ...existing };
-        if (updates.name) toSave.title = updates.name;
-        if (updates.icon) toSave.icon = updates.icon;
-        if (updates.iconType) toSave.iconType = updates.iconType;
-        if (updates.color) toSave.color = updates.color;
+        if (existing && Object.keys(existing).length) {
+          // legacy storage path
+          const toSave = { ...existing };
+          if (updates.name) toSave.title = updates.name;
+          if (updates.icon) toSave.icon = updates.icon;
+          if (updates.iconType) toSave.iconType = updates.iconType;
+          if (updates.color) toSave.color = updates.color;
 
-        if (updates.delete) {
-          localStorage.removeItem(key);
-          localStorage.removeItem(`drawing-content-${id.replace('drawing_', '')}`);
+          if (updates.delete) {
+            localStorage.removeItem(key);
+            localStorage.removeItem(`drawing-content-${drawingId}`);
+          } else {
+            localStorage.setItem(key, JSON.stringify(toSave));
+          }
         } else {
-          localStorage.setItem(key, JSON.stringify(toSave));
+          // persisted in IDB
+          const patch: any = {};
+          if (updates.name) patch.title = updates.name;
+          if (updates.delete) patch.deleted = true;
+          if (Object.keys(patch).length) {
+            updateDrawingMeta(drawingId, patch).catch((e) => {
+              console.error('failed to update drawing meta', e);
+            });
+          }
         }
       } catch (e) {
-        console.error("Failed to save local drawing", e);
+        console.error("Failed to save drawing metadata", e);
       }
     }
 
@@ -286,7 +300,39 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
 
     const localItems = loadLocalItems();
 
-    if (collections.length === 0 && items.length === 0 && localItems.length === 0) return;
+    // load drawings stored in IDB as well
+    const loadDbItems = async () => {
+      try {
+        const drawings = await listPendingDrawings();
+        const dbItems: NavItem[] = drawings.map((d: any) => ({
+          id: `drawing_${d.id}`,
+          type: 'collection',
+          name: (d.title as string) || 'untitled drawing',
+          icon: 'PenTool',
+          iconType: 'lucide',
+        }));
+        // merge without duplicates (local overrides)
+        const existingIds = new Set(localItems.map(i => i.id));
+        const merged = [...localItems, ...dbItems.filter(i => !existingIds.has(i.id))];
+        setItems(prev => {
+          // if nothing has been set yet use merged
+          if (prev.length === 0) return merged;
+          // otherwise merge into prev preserving other nav items
+          const nonDrawing = prev.filter(i => !i.id.startsWith('drawing_'));
+          return [...nonDrawing, ...merged];
+        });
+      } catch (e) {
+        console.error('failed to load drawings from database', e);
+      }
+    };
+
+    if (collections.length === 0 && items.length === 0 && localItems.length === 0) {
+      loadDbItems().catch(() => {});
+      return;
+    }
+
+    // ensure DB items are also fetched on every navigation refresh
+    loadDbItems();
 
     // 0. aggressive pruning: remove names that should never be in the sidebar
     const FORBIDDEN_COLLECTIONS = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'headmates', 'website', 'dupemates-pages'];
