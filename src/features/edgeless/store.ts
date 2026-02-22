@@ -192,7 +192,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
 
   // ui defaults
   selectionMode: 'grab',
-  eraserWidth: 50,
+  eraserWidth: 20,
   textSize: 40,
   isChatOpen: false,
   isLinking: false,
