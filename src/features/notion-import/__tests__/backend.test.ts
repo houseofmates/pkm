@@ -24,8 +24,8 @@ async function waitForDone(taskId) {
 // server.js exports { app, importTasks }
 const { app: server } = require('../../../../backend/server');
 
-// configure a dummy api key for tests
-process.env.ADMIN_API_KEY = 'test-secret';
+// configure a dummy admin secret for tests (backend expects ADMIN_SECRET)
+process.env.ADMIN_SECRET = 'test-secret';
 
 // ensure the public upload directory exists
 beforeAll(() => {
@@ -90,27 +90,30 @@ describe('backend /api/nb-import', () => {
 
   describe('CORS', () => {
     it('returns allow-origin header for configured origin', async () => {
-      process.env.CORS_ORIGIN = 'https://foo.example';
+      process.env.ALLOWED_ORIGINS = 'https://foo.example';
       const r = await request(server)
         .options('/api/nb-import/logs')
-        .set('Origin', 'https://foo.example');
+        .set('Origin', 'https://foo.example')
+        .set('Authorization', 'Bearer test-secret');
       expect(r.headers['access-control-allow-origin']).toBe('https://foo.example');
-      delete process.env.CORS_ORIGIN;
+      delete process.env.ALLOWED_ORIGINS;
     });
 
     it('does not expose header for disallowed origin', async () => {
-      process.env.CORS_ORIGIN = 'https://bar.example';
+      process.env.ALLOWED_ORIGINS = 'https://bar.example';
       const r = await request(server)
         .options('/api/nb-import/logs')
-        .set('Origin', 'https://not.allowed');
+        .set('Origin', 'https://not.allowed')
+        .set('Authorization', 'Bearer test-secret');
       expect(r.headers['access-control-allow-origin']).toBeUndefined();
-      delete process.env.CORS_ORIGIN;
+      delete process.env.ALLOWED_ORIGINS;
     });
 
     it('handles CORS preflight and get for logs endpoint', async () => {
       const r = await request(server)
         .get('/api/nb-import/logs?id=test123')
-        .set('Origin', 'https://foo.example');
+        .set('Origin', 'https://foo.example')
+        .set('Authorization', 'Bearer test-secret');
       expect(r.status).toBe(404);
     });
   });
