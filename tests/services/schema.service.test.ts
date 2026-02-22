@@ -1,11 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { schemaService, FieldInstance } from '@/services/schema.service';
+import { schemaService, FieldInstance, FieldType } from '@/services/schema.service';
 import '@/services/field-types'; // This ensures the field types are registered before tests run
 
-// In case the global registry is cleared or cached modules are reused, we
-// explicitly register the two fundamental types again before tests. This
-// guards against ordering issues when running the full suite.
-import { schemaService, FieldType } from '@/services/schema.service';
 import { z } from 'zod';
 
 beforeAll(() => {
