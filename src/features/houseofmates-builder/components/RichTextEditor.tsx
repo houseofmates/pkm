@@ -50,7 +50,7 @@ export function RichTextEditor({ content, onChange, editable, className = '' }: 
 
   return (
   <div className="rich-text-wrapper relative cursor-text inline-block min-w-[1px]">
-  {editable && createportal(
+  {editable && createPortal(
  <BubbleMenu
  editor={editor}
  {...({
