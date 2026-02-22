@@ -4,24 +4,53 @@ import { NotionImportWidget } from '../notion-import-widget';
 import { vi, describe, it, beforeEach, afterEach, expect } from 'vitest';
 
 // fake EventSource for tests
-global.EventSource = class {
+class MockEventSource implements EventSource {
   static readonly CONNECTING = 0;
   static readonly OPEN = 1;
   static readonly CLOSED = 2;
 
+  readonly CONNECTING = 0;
+  readonly OPEN = 1;
+  readonly CLOSED = 2;
+
   url: string;
+  withCredentials = false;
+  readyState = MockEventSource.CONNECTING;
+  onerror: ((this: EventSource, ev: Event) => any) | null = null;
+  onopen: ((this: EventSource, ev: Event) => any) | null = null;
+  onmessage: ((this: EventSource, ev: MessageEvent) => any) | null = null;
+
   listeners: Record<string, Function> = {};
-  constructor(url: string) {
-    this.url = url;
+
+  constructor(url: string | URL, eventSourceInitDict?: EventSourceInit) {
+    this.url = typeof url === 'string' ? url : url.toString();
+    if (eventSourceInitDict && eventSourceInitDict.withCredentials) {
+      this.withCredentials = eventSourceInitDict.withCredentials;
+    }
   }
-  addEventListener(ev: string, fn: Function) {
+
+  addEventListener(ev: string, fn: EventListenerOrEventListenerObject) {
     this.listeners[ev] = fn;
   }
-  set onmessage(fn: Function) {
-    this.listeners['message'] = fn;
+  removeEventListener(ev: string, fn: EventListenerOrEventListenerObject) {
+    delete this.listeners[ev];
+  }
+  dispatchEvent(event: Event): boolean {
+    const fn = this.listeners[event.type];
+    if (fn) {
+      if (typeof fn === 'function') fn(event);
+      else if (typeof fn.handleEvent === 'function') fn.handleEvent(event);
+      return true;
+    }
+    return false;
   }
   close() {}
-};
+
+  // @ts-ignore: This is required for interface compatibility
+  prototype: EventSource;
+}
+
+global.EventSource = MockEventSource as any;
 
 describe('NotionImportWidget', () => {
   beforeEach(() => {
