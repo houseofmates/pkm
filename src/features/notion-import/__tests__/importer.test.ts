@@ -12,8 +12,8 @@ async function makeZippedSample(): Promise<string> {
     const csv = 'Name,Value\nX,1';
     await fs.promises.writeFile(path.join(tmp, 'db.csv'), csv);
     const zipPath = path.join(process.cwd(), `sample-${Date.now()}.zip`);
-    // use system zip command
-    childProcess.execSync(`cd ${tmp.replace(/\/g,'\\')} && zip -r ${zipPath.replace(/\/g,'\\')} .`);
+    // use system zip command by running in the temp directory; this avoids escaping issues
+    childProcess.execSync(`zip -r ${zipPath} .`, { cwd: tmp });
     return zipPath;
 }
 
