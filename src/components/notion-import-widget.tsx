@@ -47,8 +47,8 @@ export function NotionImportWidget() {
             }
             baseUrl = `${protocol}//${host}/api`;
         }
-        const url = `${baseUrl}/notion-import`;
-        console.debug('[NotionImportWidget] env VITE_API_URL=', envBase, 'using url', url);
+        const url = `${baseUrl}/nb-import`;
+        console.debug('[NotionImportWidget] env VITE_API_URL=', envBase, 'using url', url, '(legacy notion-import also accepted)');
         try {
             const res = await fetch(url, {
                 method: 'POST',
