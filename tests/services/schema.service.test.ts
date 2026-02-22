@@ -44,14 +44,13 @@ describe('SchemaService', () => {
 
   it('should throw an error for unregistered field types', () => {
     const invalidTableDefinition: FieldInstance[] = [
-      { name: 'email', type: 'email' }, // 'email' type is not registered
-      { name: 'isVerified', type: 'boolean' },
+      { name: 'unknownField', type: 'notAType' },
     ];
 
-    // Expect the schema generation to throw an error because 'email' is not a known type
+    // Expect the schema generation to throw an error because 'notAType' is not a known type
     expect(() => {
       schemaService.generateRecordSchema(invalidTableDefinition);
-    }).toThrow('Field type "email" for field "email" is not registered.');
+    }).toThrow('Field type "notAType" for field "unknownField" is not registered.');
   });
 
   it('should handle nullable values correctly based on field type schemas', () => {
