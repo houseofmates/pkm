@@ -10,6 +10,7 @@ function getLucideIcon(name: string): LucideIcon | undefined {
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { detectFieldType } from '@/utils/csv-detector';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useCollections } from '@/hooks/use-collections';
 import { useNavigate } from 'react-router-dom';
@@ -190,38 +191,47 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
 
-  // csv upload helpers
+  // csv upload helpers (simple button no longer uploads directly)
   const [csvInputKey, setCsvInputKey] = useState(0);
+  const [importCsvData, setImportCsvData] = useState<any[]>([]);
+  const [importCsvFields, setImportCsvFields] = useState<any[]>([]);
+  const [importDisplayName, setImportDisplayName] = useState('');
+  const [csvDialogOpen, setCsvDialogOpen] = useState(false);
+
   const handleCsvChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    let apiKey: string | null | undefined =
-      localStorage.getItem('hom_api_key') ||
-      localStorage.getItem('nocobase_token') ||
-      localStorage.getItem('nocobase_api_key');
-    if (apiKey === 'null' || apiKey === 'undefined') apiKey = '';
-    if (!apiKey) {
-      alert('missing API key');
-      return;
-    }
-    const fd = new FormData();
-    fd.append('file', file);
-    try {
-      const resp = await fetch(`/api/nb-import`, {
-        method: 'POST',
-        body: fd,
-        headers: { Authorization: `Bearer ${apiKey}` }
-      });
-      if (resp.ok) {
-        const data = await resp.json();
-        alert(`import task ${data.taskId} started`);
-      } else {
-        const text = await resp.text().catch(() => '');
-        alert('csv upload failed: ' + (text || resp.statusText));
+    // parse csv locally then open create dialog with preloaded data
+    const Papa = await import('papaparse').then(m => m.default);
+    Papa.parse(file, {
+      header: true,
+      dynamicTyping: true,
+      skipEmptyLines: true,
+      complete: (results: any) => {
+        if (results.data && results.data.length > 0) {
+          const data = results.data as any[];
+          const headers = Object.keys(data[0]);
+          const fields = headers.map(h => {
+            const detection = detectFieldType(h, data.map(row => row[h]), collections.map(c => c.name));
+            return {
+              name: h.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''),
+              title: h,
+              interface: detection.type,
+              target: detection.target,
+              detectionReason: detection.reason,
+              detectionConfidence: detection.confidence
+            };
+          });
+          setImportCsvData(data);
+          setImportCsvFields(fields);
+          setImportDisplayName(file.name.replace(/\.[^/.]+$/, ""));
+          setCsvDialogOpen(true);
+        }
+      },
+      error: (err: any) => {
+        alert('failed to parse csv: ' + err.message);
       }
-    } catch (err: any) {
-      alert('csv upload error: ' + err.message);
-    }
+    });
     setCsvInputKey(k => k + 1);
   };
 
@@ -542,6 +552,22 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             </div>
           </div>
         )}
+
+        {/* csv import dialog opened via sidebar button */}
+        <CollectionDialog
+          open={csvDialogOpen}
+          setOpen={setCsvDialogOpen}
+          onSuccess={() => {
+            setCsvDialogOpen(false);
+            setImportCsvData([]);
+            setImportCsvFields([]);
+            setImportDisplayName('');
+            refresh();
+          }}
+          initialTitle={importDisplayName}
+          initialCsvData={importCsvData}
+          initialCsvFields={importCsvFields}
+        />
 
 
         <ScrollArea className="flex-1 px-2 [&>[data-orientation=vertical]]:!hidden [&>[data-orientation=horizontal]]:!hidden">
