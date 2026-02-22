@@ -532,7 +532,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                                 <div className="flex items-center gap-2 w-full">
                                     {view.icon && <view.icon className="h-4 w-4 opacity-50 text-primary" />}
                                     <span>{view.label}</span>
-                                    {defaultview === view.id && <Star className="h-3 w-3 ml-auto fill-current opacity-50 text-primary" />}
+                                    {defaultView === view.id && <Star className="h-3 w-3 ml-auto fill-current opacity-50 text-primary" />}
                                 </div>
                             </SelectItem>
                         ))}
@@ -556,7 +556,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                             >
                                 {view.icon && <view.icon className="h-4 w-4 opacity-50 text-primary" />}
                                 <span className="flex-1 text-left">{view.label}</span>
-                                {defaultview === view.id && <Star className="h-3 w-3 fill-current text-primary" />}
+                                {defaultView === view.id && <Star className="h-3 w-3 fill-current text-primary" />}
                             </Button>
                         ))}
                     </div>
