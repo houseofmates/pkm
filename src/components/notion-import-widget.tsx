@@ -29,8 +29,9 @@ export function NotionImportWidget() {
         }
         appendLog(`using api key ${maskString(apiKey)}`);
         console.debug('[NotionImportWidget] file size', file.size, 'name', file.name, 'type', file.type);
-        // always check size; small files are clearly wrong
-        if (file.size < 1024) {
+        // always check size; small zip files are clearly wrong but csv
+        // files can legitimately be tiny so only enforce on non-csv names.
+        if (file.size < 1024 && !file.name.toLowerCase().endsWith('.csv')) {
             appendLog('error: file appears too small to be a Notion export');
             return;
         }
@@ -220,7 +221,7 @@ export function NotionImportWidget() {
             <p className="mb-4 lowercase">upload a Notion export ZIP to import into pkm.</p>
             <input
                 type="file"
-                accept=".zip"
+                accept=".zip,.csv"
                 onChange={e => setFile(e.target.files?.[0] || null)}
                 disabled={running}
             />

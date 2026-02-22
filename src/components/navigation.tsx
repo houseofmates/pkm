@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings, type LucideIcon } from 'lucide-react';
+import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings, UploadCloud, type LucideIcon } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import { GlobalSearchDialog } from '@/components/global-search-dialog';
 
@@ -489,6 +489,17 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            {/* csv uploader button */}
+            <label className="relative h-5 w-5 rounded-full hover:bg-muted text-primary cursor-pointer" title="upload csv">
+              <input
+                key={csvInputKey}
+                type="file"
+                accept=".csv"
+                className="absolute inset-0 opacity-0 cursor-pointer"
+                onChange={handleCsvChange}
+              />
+              <UploadCloud className="h-3 w-3" />
+            </label>
           </div>
 
           <Button
