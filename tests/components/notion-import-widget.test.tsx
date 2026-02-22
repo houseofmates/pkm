@@ -122,27 +122,30 @@ describe('NotionImportWidget', () => {
     }));
   });
 
-  it('rewrites old db domain when environment variable still points there', async () => {
+  it('constructs stream URL from same base as upload', async () => {
     (useAppSetting as any).mockReturnValue(['key', vi.fn()]);
-    const fakeResponse = { ok: false, status: 400, statusText: 'Bad', text: async () => '' };
+    const fakeResponse = { ok: true, json: async () => ({ taskId: 't1' }) };
     (fetch as any).mockResolvedValue(fakeResponse);
-    const original = process.env.VITE_API_URL;
-    process.env.VITE_API_URL = 'https://db.houseofmates.space/api';
-
+    const esSpy = vi.fn();
+    global.EventSource = class {
+      constructor(url: string) {
+        esSpy(url);
+      }
+      addEventListener() {}
+      set onmessage(_) {}
+      close() {}
+    } as any;
     render(<NotionImportWidget />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     const file = new File(['x'], 'a.zip', { type: 'application/zip' });
     fireEvent.change(input, { target: { files: [file] } });
     fireEvent.click(screen.getByText(/start import/i));
     await waitFor(() => {
-      expect(screen.getByText(/upload failed: 400/i)).toBeInTheDocument();
+      expect(esSpy).toHaveBeenCalled();
     });
-    expect(fetch).toHaveBeenCalledWith('https://api.houseofmates.space/api/nb-import', expect.any(Object));
-    process.env.VITE_API_URL = original;
+    const expectedBase = (process.env.VITE_API_URL || '/api').replace(/\/$/, '');
+    expect(esSpy).toHaveBeenCalledWith(`${expectedBase}/notion-import/t1/stream`, expect.any(Object));
   });
-
-  it('infers db host when VITE_API_URL unset and hostname starts with pkm', async () => {
-    (useAppSetting as any).mockReturnValue(['foo', vi.fn()]);
     const fakeResponse = { ok: false, status: 400, statusText: 'Bad', text: async () => '' };
     (fetch as any).mockResolvedValue(fakeResponse);
     // temporarily remove env variable
