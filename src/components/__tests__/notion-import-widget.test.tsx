@@ -142,4 +142,25 @@ describe('NotionImportWidget', () => {
     const calledUrl = (fetch as any).mock.calls[0][0];
     expect(calledUrl).toMatch(/^https:\/\/custom\.example\/nb-import/);
   });
+
+  it('rewrites the official api domain to relative when running on pkmsubdomain', async () => {
+    Object.defineProperty(import.meta, 'env', { value: { VITE_API_URL: 'https://api.houseofmates.space' }, writable: true });
+    // fake frontend hostname
+    delete (window as any).location;
+    window.location = new URL('https://pkm.houseofmates.space/');
+
+    localStorage.setItem('hom_api_key', 'key');
+    const fakeResponse = { ok: false, status: 400, statusText: 'err', text: async () => '' };
+    (fetch as any).mockResolvedValue(fakeResponse);
+    render(<NotionImportWidget />);
+    const input = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File(['x'], 'a.zip', { type: 'application/zip' });
+    fireEvent.change(input, { target: { files: [file] } });
+    fireEvent.click(screen.getByText(/start import/i));
+    await waitFor(() => {
+      expect(fetch).toHaveBeenCalled();
+    });
+    const calledUrl = (fetch as any).mock.calls[0][0];
+    expect(calledUrl).toMatch(/^\/api\/nb-import/);
+  });
 });
