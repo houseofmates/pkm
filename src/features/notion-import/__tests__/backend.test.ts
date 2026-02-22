@@ -45,10 +45,7 @@ describe('backend /api/notion-import', () => {
         expect(res.body.taskId).toBeTruthy();
         const id = res.body.taskId;
         expect(importTasks.has(id)).toBe(true);
-        // task may already complete synchronously in the mock environment, so
-        // accept either 'running' or 'done' here.
         expect(['running', 'done']).toContain(importTasks.get(id).status);
-        // wait until done
         await new Promise<void>((resolve) => {
             const interval = setInterval(() => {
                 const entry = importTasks.get(id);
@@ -59,5 +56,15 @@ describe('backend /api/notion-import', () => {
             }, 10);
         });
         expect(importTasks.get(id).status).toBe('done');
+    });
+
+    it('accepts nocobase api key when configured', async () => {
+        process.env.NOCOBASE_API_KEY = 'nb-key';
+        const res = await request(app)
+            .post('/api/notion-import')
+            .set('Authorization', 'Bearer nb-key')
+            .attach('file', zipPath);
+        expect(res.status).toBe(200);
+        expect(res.body.taskId).toBeTruthy();
     });
 });
