@@ -94,7 +94,11 @@ describe('NotionImportWidget', () => {
     await waitFor(() => {
       expect(screen.getByText(/upload failed: 401/i)).toBeInTheDocument();
     });
-    const expectedBase = (process.env.VITE_API_URL || '/api').replace(/\/$/, '');
+    // mimic widget logic: trim slash and rewrite old db host if necessary
+    let expectedBase = (process.env.VITE_API_URL || '/api').replace(/\/$/, '');
+    if (expectedBase.includes('db.houseofmates.space')) {
+      expectedBase = expectedBase.replace('db.houseofmates.space', 'api.houseofmates.space');
+    }
     expect(fetch).toHaveBeenCalledWith(`${expectedBase}/nb-import`, expect.objectContaining({
       headers: { Authorization: 'Bearer my-app-key' }
     }));
