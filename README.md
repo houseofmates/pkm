@@ -97,6 +97,24 @@ Editor authors: there’s a helper library (`src/features/notion-import/editor-h
 ### Usage
 
 1. Export your workspace from Notion (ZIP format, up to 5 GB).
+
+## Canvas drawing features
+
+The embedded drawing canvas now shares the same rich brush/eraser settings as the standalone `drawing-app`. When editing drawings you can:
+
+- resize the brush or eraser with the size slider
+- control **individual opacity** for brush and eraser
+- pick pen color from the palette
+- adjust **smoothness** (stabilizer level) for fluid, lag‑free strokes
+- undo/redo via the normal history controls
+
+Brush defaults match the drawing app (10 px brush, 20 px eraser). These
+values are persisted per‑drawing and exposed in the toolbar menus.
+
+The behaviour is implemented with Fabric.js; the brush respects these
+settings and automatically updates when you adjust sliders.
+
+
 2. From the command line run:
    ```bash
    npm run notion:import -- /path/to/notion-export.zip
