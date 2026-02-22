@@ -119,10 +119,11 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       fabricCanvas.freeDrawingBrush = brush
     } else if (activeTool === 'eraser') {
       fabricCanvas.isDrawingMode = true
-      // @ts-expect-error fabric-types-issue
-      if (fabric.EraserBrush) {
-         // @ts-expect-error fabric-types-issue
-         const eraser = new fabric.EraserBrush(fabricCanvas)
+      // fabric's types do not export EraserBrush so we access dynamically to avoid
+      // esbuild treating it as a named import and failing when the symbol is missing.
+      const EraserBrushConstructor = (fabric as any).EraserBrush;
+      if (EraserBrushConstructor) {
+         const eraser = new EraserBrushConstructor(fabricCanvas)
          eraser.width = eraserWidth
          eraser.opacity = (eraserOpacity ?? 100) / 100
          fabricCanvas.freeDrawingBrush = eraser
