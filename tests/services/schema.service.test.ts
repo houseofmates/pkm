@@ -120,6 +120,8 @@ describe('SchemaService', () => {
 
     expect(MixedSchema.safeParse(validRecord).success).toBe(true);
     expect(MixedSchema.safeParse(invalidRecord).success).toBe(false);
+  });
+
   it('should handle nullable values correctly based on field type schemas', () => {
     const contactTable: FieldInstance[] = [
         { name: 'name', type: 'text' },
