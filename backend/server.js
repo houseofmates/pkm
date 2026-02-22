@@ -255,7 +255,7 @@ app.post('/api/upload/banner', requireAuth, upload.single('file'), (req, res) =>
 // Notion import support
 import { run as notionRun } from '../scripts/notion-import.js';
 import EventEmitter from 'events';
-import { parse as csvParse } from 'papaparse';
+import Papa from 'papaparse';
 
 const importTasks = new Map();
 // each entry: { emitter, status, logs: string[] }
@@ -334,7 +334,7 @@ function handleNotionImport(req, res) {
                 emitter.emit('progress', 'parsing CSV import');
                 const content = fs.readFileSync(req.file.path, 'utf-8');
                 const rows = [];
-                csvParse(content, {
+                Papa.parse(content, {
                     header: true,
                     skipEmptyLines: true,
                     dynamicTyping: true,
@@ -351,7 +351,7 @@ function handleNotionImport(req, res) {
 
                 // build collection field definitions
                 const sample = rows.slice(0, 20);
-                const fields: Record<string, string> = {};
+                const fields = {};
                 const columns = sample.length > 0 ? Object.keys(sample[0]) : [];
                 for (const col of columns) {
                     const vals = sample.map(r => r[col]);
