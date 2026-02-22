@@ -11,14 +11,41 @@ export function NotionImportWidget() {
 
     const startImport = async () => {
         if (!file) return;
+        const apiKey = localStorage.getItem('hom_api_key');
+        if (!apiKey) {
+            appendLog('error: missing API key (go to settings to set hom_api_key)');
+            return;
+        }
         setRunning(true);
         appendLog('uploading...');
         const fd = new FormData();
         fd.append('file', file);
         try {
-            const res = await fetch('/api/notion-import', { method: 'POST', body: fd, headers: { Authorization: `Bearer ${localStorage.getItem('hom_api_key')}` } });
-            const data = await res.json();
-            if (!data.taskId) throw new Error('no task id');
+            const res = await fetch('/api/notion-import', {
+                method: 'POST',
+                body: fd,
+                headers: { Authorization: `Bearer ${apiKey}` }
+            });
+            if (!res.ok) {
+                let text = '';
+                try { text = await res.text(); } catch {}
+                appendLog(`upload failed: ${res.status} ${text || res.statusText}`);
+                setRunning(false);
+                return;
+            }
+            let data: any;
+            try {
+                data = await res.json();
+            } catch (e) {
+                appendLog('upload failed: invalid JSON response from server');
+                setRunning(false);
+                return;
+            }
+            if (!data.taskId) {
+                appendLog('upload failed: missing task id in response');
+                setRunning(false);
+                return;
+            }
             appendLog(`task ${data.taskId} started`);
             const es = new EventSource(`/api/notion-import/${data.taskId}/stream`, { withCredentials: true });
             es.onmessage = e => appendLog(e.data);
