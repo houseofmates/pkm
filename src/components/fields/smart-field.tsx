@@ -500,8 +500,45 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       );
     }
 
+    if (isMultiSelect) {
+      const options = field?.uiSchema?.enum || [{ label: 'option 1', value: 'opt1' }, { label: 'option 2', value: 'opt2' }];
+      const [pickerOpen, setPickerOpen] = useState(false);
+      const currentArray: string[] = Array.isArray(localValue) ? localValue : [];
+      const toggleOption = (val: string) => {
+        const exists = currentArray.includes(val);
+        let next;
+        if (exists) next = currentArray.filter(v => v !== val);
+        else next = [...currentArray, val];
+        setLocalValue(next);
+      };
+
+      return (
+        <div className="relative flex items-center gap-1">
+          <Button variant="outline" size="sm" className="h-8" onClick={() => setPickerOpen(o => !o)}>
+            {currentArray.join(', ') || 'select...'}
+          </Button>
+          {pickerOpen && (
+            <div className="absolute z-50 bg-popover border shadow-lg rounded-md p-2 mt-1">
+              {options.map((opt: any) => (
+                <div key={opt.value} className="flex items-center gap-1">
+                  <Checkbox
+                    checked={currentArray.includes(opt.value)}
+                    onCheckedChange={() => toggleOption(opt.value)}
+                  />
+                  <span>{opt.label}</span>
+                </div>
+              ))}
+              <div className="flex justify-end gap-1 mt-2">
+                <Button size="sm" className="h-6 text-xs" onClick={() => { handleSave(); setPickerOpen(false); }}>done</Button>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
     if (isSelect) {
-      const options = field?.uischema?.enum || [{ label: 'option 1', value: 'opt1' }, { label: 'option 2', value: 'opt2' }];
+      const options = field?.uiSchema?.enum || [{ label: 'option 1', value: 'opt1' }, { label: 'option 2', value: 'opt2' }];
       return (
         <div className="flex items-center gap-1">
           <Select value={localValue} onValueChange={setLocalValue}>
