@@ -47,7 +47,7 @@ export function CreateRecordDialog({ open, onOpenChange, collectionName, onSucce
         <DialogHeader>
           <DialogTitle>create record</DialogTitle>
           <DialogDescription>
-            add a new record to {collectionname}
+            add a new record to {collectionName}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">

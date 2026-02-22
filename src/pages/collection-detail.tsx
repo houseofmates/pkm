@@ -127,7 +127,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         login(apiKey);
         toast.success("nocobase api key saved");
         // refresh triggered by auth context change or we manually re-fetch?
-        // fetchdata depends on client/collectionname. 
+        // fetchData depends on client/collectionName. 
         // client will be updated if it depends on token? 
         // authprovider re-renders, causing this to re-render.
     };

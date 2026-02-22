@@ -15,9 +15,9 @@ interface Props {
 
 export function DatabaseViewElement({ collectionName, viewType, width = 400, height = 300, sort, filter, visibleFields, isAdmin: _isAdmin }: Props) {
   const [data, setData] = useState<any[]>([]);
-  const [loading, setloading] = useState(true);
-  const [error, seterror] = useState<string | null>(null);
-  const [fields, setfields] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [fields, setFields] = useState<any[]>([]);
 
   const fetchData = async () => {
   setLoading(true);
@@ -52,8 +52,8 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
   };
 
   useEffect(() => {
-  fetchdata();
-  }, [collectionname, json.stringify(sort), json.stringify(filter)]);
+  fetchData();
+  }, [collectionName, JSON.stringify(sort), JSON.stringify(filter)]);
 
   // error state
   if (error) {
@@ -83,14 +83,14 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
  style={{ width, height }}
   >
  <Loader2 className="w-8 h-8 animate-spin mb-3" />
- <p className="text-sm lowercase">loading {collectionname}...</p>
+ <p className="text-sm lowercase">loading {collectionName}...</p>
   </div>
   );
   }
 
   // render based on view type
   const renderView = () => {
-  switch (viewtype) {
+  switch (viewType) {
   case 'table':
  return <TableView data={data} fields={fields} visibleFields={visibleFields} />;
   case 'kanban':
