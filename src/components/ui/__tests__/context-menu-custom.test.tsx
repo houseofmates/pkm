@@ -59,7 +59,7 @@ describe('ContextMenu custom tool section', () => {
 
   it('renders eraser settings without brush options', () => {
     openToolMenu('eraser');
-    render(<ContextMenu />);
+    renderWithProviders(<ContextMenu />);
     expect(screen.getByText(/size/i)).toBeInTheDocument();
     expect(screen.getByText(/opacity/i)).toBeInTheDocument();
     expect(screen.queryByText(/darkness/i)).toBeNull();
