@@ -434,8 +434,8 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             }
         };
         window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeeventlistener('keydown', handlekeydown);
-    }, [collectionname]); // minimalist deps
+        return () => window.removeEventListener('keydown', handleKeyDown);
+    }, [collectionName]); // minimalist deps
 
     // rescue logic is now integrated into fetchdata, no separate effect needed
 
@@ -444,7 +444,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
 
         return (
             <div className="p-10 flex flex-col items-center gap-4 text-center">
-                <div className="text-destructive font-bold text-lg">collection not found: &ldquo;{collectionname}&rdquo;</div>
+                <div className="text-destructive font-bold text-lg">collection not found: &ldquo;{collectionName}&rdquo;</div>
                 <div className="text-muted-foreground text-sm max-w-md">
                     attempting to locate collection in system... (v2 rescue)
                 </div>
@@ -453,7 +453,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                         <strong>debug info:</strong><br />
                         error: {fetcherror}<br />
                         id: {params.name}<br />
-                        decoded: {collectionname}<br />
+                        decoded: {collectionName}<br />
                         auth: {isauthenticated ? 'yes' : 'no'}<br />
                         available: {availablecollections.length}
                         <div className="mt-1 opacity-50 max-h-20 overflow-y-auto">
@@ -471,7 +471,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     // fix "no fields" flash: if we rescued a collection object but it has no fields (and we are loading),
     // we should wait. the rescued object from sidebar list often lacks 'fields'.
     if (!collection.fields && loading) {
-        return <div className="p-10 text-center animate-pulse">loading schema for {collectionname}...</div>;
+        return <div className="p-10 text-center animate-pulse">loading schema for {collectionName}...</div>;
     }
 
     const currentviewcomponent = view_registry[currentview] || view_registry['table'];
