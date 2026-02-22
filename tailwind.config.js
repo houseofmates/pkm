@@ -5,6 +5,8 @@ export default {
     content: [
         "./index.html",
         "./src/**/*.{js,ts,jsx,tsx}",
+        // exclude test files (they trigger PostCSS errors when being read)
+        "!./src/**/*.test.{js,ts,jsx,tsx}",
     ],
     theme: {
         extend: {
