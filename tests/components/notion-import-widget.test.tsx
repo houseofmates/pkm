@@ -95,9 +95,11 @@ describe('NotionImportWidget', () => {
       expect(screen.getByText(/upload failed: 401/i)).toBeInTheDocument();
     });
     const expectedBase = (process.env.VITE_API_URL || '/api').replace(/\/$/, '');
-    expect(fetch).toHaveBeenCalledWith(`${expectedBase}/notion-import`, expect.objectContaining({
+    expect(fetch).toHaveBeenCalledWith(`${expectedBase}/nb-import`, expect.objectContaining({
       headers: { Authorization: 'Bearer my-app-key' }
     }));
+    // legacy route should also still be valid when executed directly
+    expect(fetch).toHaveBeenCalledWith(`${expectedBase}/notion-import`, expect.any(Object));
   });
 
   it('infers db host when VITE_API_URL unset and hostname starts with pkm', async () => {
