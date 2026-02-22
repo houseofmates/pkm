@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { JournalView } from './journal-view';
+import { JournalView } from '../journal-view';
 import * as React from 'react';
 
 // Mocks
