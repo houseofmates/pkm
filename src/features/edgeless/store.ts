@@ -394,8 +394,6 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   setPenWidth: (width) => set({ penWidth: width }),
   setPenColor: (color) => set({ penColor: color }),
   setStabilizerLevel: (level) => set({ stabilizerLevel: level }),
-  setPenOpacity: (o) => set({ penOpacity: o }),
-  setEraserOpacity: (o) => set({ eraserOpacity: o }),
   setPressureEnabled: (enabled) => set({ pressureEnabled: enabled }),
   // new canvas helpers
   setFabricCanvas: (c) => set({ fabricCanvas: c }),
