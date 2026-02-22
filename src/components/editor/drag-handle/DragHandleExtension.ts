@@ -18,8 +18,8 @@ export const DragHandleExtension = Extension.create({
             if (!pos) return false;
 
             // Find the target node at drop position
-            const  = view.state.doc.resolve(pos.pos);
-            const targetNode = .nodeAfter || .nodeBefore; // Rough heuristic
+            const $pos = view.state.doc.resolve(pos.pos);
+            const targetNode = $pos.nodeAfter || $pos.nodeBefore; // Rough heuristic
 
             if (!targetNode) return false;
 
