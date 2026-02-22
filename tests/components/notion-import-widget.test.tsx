@@ -310,7 +310,11 @@ describe('NotionImportWidget', () => {
     localStorage.setItem('hom_api_key', 'key');
     render(<NotionImportWidget />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-    const badHeader = new File([new Uint8Array([0x00, 0x01, 0x02, 0x03, 0, 1, 2, 3])], 'weird.zip', { type: 'application/zip' });
+    const arr = new Uint8Array(2048);
+    arr[0] = 0x00;
+    arr[1] = 0x01;
+    // leave rest zero; size check should pass
+    const badHeader = new File([arr], 'weird.zip', { type: 'application/zip' });
     fireEvent.change(input, { target: { files: [badHeader] } });
     const fakeUpload = { ok: true, json: async () => ({ taskId: 't3' }) };
     (fetch as any).mockResolvedValue(fakeUpload);
