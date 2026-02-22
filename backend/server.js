@@ -281,7 +281,8 @@ function handleNotionImport(req, res) {
                 importTasks.set(taskId, { emitter, status: 'done' });
             }
         } catch (e) {
-            emitter.emit('error', String(e));
+            console.error('[NotionImport] task failed', e);
+            // do not emit 'error' on emitter, prevents crashing when listener
             importTasks.set(taskId, { emitter, status: 'error' });
         } finally {
             // cleanup uploaded file
