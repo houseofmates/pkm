@@ -343,7 +343,7 @@ function handleNotionImport(req, res) {
                         if (res.errors.length) {
                             console.warn('[CsvImport] parse errors', res.errors);
                         }
-                        rows.push(...(res.data as any));
+                        rows.push(...(res.data));
                     }
                 });
                 const name = path.basename(req.file.originalname, '.csv');

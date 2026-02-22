@@ -1,5 +1,6 @@
 import { z } from 'zod';
-import { schemaService, FieldType } from './schema.service';
+import { schemaService } from './schema.service';
+import type { FieldType } from './schema.service';
 
 /**
  * Text Field Type
