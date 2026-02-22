@@ -2,7 +2,7 @@
 import { useState, useMemo } from 'react';
 import type { ViewProps } from './registry';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -18,7 +18,7 @@ type CalendarViewProps = ViewProps;
 type ViewMode = 'year' | 'month' | 'week' | 'day';
 
 
-export function CalendarView({ data, config, collection, onUpdateRecord, onDelete, onConfigChange }: CalendarViewProps) {
+export function CalendarView({ data, config, collection, onUpdateRecord, onDelete, onConfigChange, onCreate }: CalendarViewProps) {
   // hooks must be called before any early return
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>('month');
@@ -133,6 +133,15 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
         {/* header */}
         <div className="flex flex-col md:flex-row items-center justify-between p-2 md:p-4 border-b gap-2">
           <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-start">
+              {onCreate && dateField && (
+                <Button variant="outline" size="sm" onClick={() => {
+                  const payload: any = {};
+                  payload[dateField] = currentDate.toISOString();
+                  onCreate(payload);
+                }} title="add">
+                  <Plus className="h-4 w-4" />
+                </Button>
+              )}
             <div className="flex items-center gap-1">
               <Button variant="ghost" size="icon" onClick={() => navDate(-1)}>
                 <ChevronLeft className="h-4 w-4" />

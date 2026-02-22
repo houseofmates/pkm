@@ -1,9 +1,10 @@
 import type { ViewProps } from './registry';
 import { Card, CardContent } from "@/components/ui/card";
+import { Plus } from 'lucide-react';
 import { RecordContextMenu } from '@/features/records/components/record-context-menu';
 import { SmartField } from '@/components/fields/smart-field';
 
-export function GalleryView({ data, loading, collection, config = {}, onUpdateRecord, onDelete, onConfigChange }: ViewProps) {
+export function GalleryView({ data, loading, collection, config = {}, onUpdateRecord, onDelete, onConfigChange, onCreate }: ViewProps) {
   if (loading || !collection) {
     return (
       <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
@@ -50,6 +51,11 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      {onCreate && (
+        <div className="flex items-center justify-center border border-dashed rounded-lg p-4 cursor-pointer hover:bg-muted/20" onClick={() => onCreate({})}>
+          <Plus className="h-6 w-6" />
+        </div>
+      )}
       {data.map((record, i) => {
         const imageUrl = getImageUrl(record, imageField);
         const title = titleField ? record[titleField.name] : (record.id || 'untitled');

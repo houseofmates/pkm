@@ -106,7 +106,7 @@ const RowComponent = ({ index, style, data }: any): React.ReactElement | null =>
   );
 };
 
-export function ListView({ data, collection, config = {}, onConfigChange, onEdit, onDelete, onUpdateRecord }: ViewProps) {
+export function ListView({ data, collection, config = {}, onConfigChange, onEdit, onDelete, onUpdateRecord, onCreate }: ViewProps) {
   if (!collection) {
     return (
       <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
@@ -123,7 +123,15 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
   }
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full flex flex-col">
+      {onCreate && (
+        <div className="p-2">
+          <Button onClick={() => onCreate({})}>
+            <Plus className="h-4 w-4" /> add
+          </Button>
+        </div>
+      )}
+      <div className="flex-1">
       <AutoSizer>
         {({ height, width }: { height: number; width: number }) => (
           <List
