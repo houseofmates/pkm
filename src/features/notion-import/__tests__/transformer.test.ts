@@ -11,8 +11,12 @@ describe('Notion transformer', () => {
             databases: [
                 {
                     name: 'db',
-                    fields: ['Name', 'Value'],
-                    rows: [ { Name: 'A', Value: 1 }, { Name: 'B', Value: 2 } ]
+                    fields: ['Name', 'Value', 'Tags', 'Done'],
+                    rows: [
+                        { Name: 'A', Value: 1, Tags: ['x','y'], Done: 'true' },
+                        { Name: 'B', Value: 2, Tags: ['z'], Done: 'false' }
+                    ],
+                    props: { Name: { type: 'title' }, Done: { type: 'checkbox' } }
                 }
             ],
             assets: []
