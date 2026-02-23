@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
@@ -144,7 +143,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
         background: 'transparent',
       }}
       className={cn(
-        "group select-none relative text-left p-0 h-9 transition-colors border-r border-[#222] border-b border-b-[#222]",
+        "group select-none relative text-left p-0 min-h-[36px] transition-colors border-r border-[#222] border-b border-b-[#222]",
         isDragging ? "bg-gray-800/40" : "hover:bg-gray-800/20"
       )}
     >
@@ -164,7 +163,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
       >
         <div
           className={cn(
-            "h-full w-full relative flex items-center group/header overflow-hidden",
+            "min-h-[36px] w-full relative flex items-center group/header",
             !isEditing && "cursor-grab"
           )}
           {...(!isEditing ? attributes : {})}
@@ -172,7 +171,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
         >
           {!isEditing ? (
             <div
-              className="relative z-20 h-full w-full flex items-center px-0.5 select-none cursor-pointer hover:bg-white/5 transition-colors"
+              className="relative z-20 h-full w-full flex items-center px-0.5 select-none cursor-pointer hover:bg-white/5 transition-colors py-1.5"
               onClick={() => onOpenFieldSettings?.((header.column.columnDef as any).meta?.field)}
               onDoubleClick={startEditing}
               onContextMenu={() => {
@@ -180,7 +179,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
               }}
             >
               <div
-                className="whitespace-normal font-medium leading-[1.1]"
+                className="whitespace-normal font-medium leading-[1.2] text-sm"
                 style={{ wordBreak: 'break-word', minWidth: 0 }}
               >
                 {header.isPlaceholder
@@ -297,7 +296,7 @@ const DraggableRecordRow = React.memo(({ index, style: incomingStyle, ariaAttrib
               }}
             >
               <div
-                className="flex items-center justify-start h-full w-full px-0.5 whitespace-normal leading-[1.1]"
+                className="flex items-center justify-start h-full w-full px-0.5 whitespace-normal leading-[1.2] text-sm"
                 style={{ wordBreak: 'break-word', minWidth: 0 }}
               >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -525,6 +524,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     );
   }
 
+  const rows = table.getRowModel().rows;
+
   return (
     <div
       className="record-table-root rounded-md border border-[#222] overflow-hidden no-scrollbar relative bg-[#0b0b0b]"
@@ -597,32 +598,32 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
             </TableHeader>
           </Table>
 
-          <div className="block h-full min-h-[400px]">
-            {table.getRowModel().rows.length === 0 ? (
+          <div className="block w-full" style={{ height: 'calc(100vh - 200px)', minHeight: '400px' }}>
+            {rows.length === 0 ? (
               <div className="flex items-center justify-center text-muted-foreground h-16 w-full lowercase">
                 no records found
               </div>
             ) : (
-              <div style={{ height: 'calc(100vh - 200px)', minHeight: '400px', width: '100%' }}>
-                {React.createElement(AutoSizer as any, {} as any, (size: any) => (
+              <AutoSizer>
+                {({ height, width }: { height: number; width: number }) => (
                   <List
-                    style={{ height: size.height, width: size.width }}
-                    rowCount={table.getRowModel().rows.length}
+                    height={height}
+                    width={width}
+                    rowCount={rows.length}
                     rowHeight={40}
                     className="no-scrollbar"
                     rowComponent={DraggableRecordRow as any}
                     rowProps={{
-                      rows: table.getRowModel().rows,
+                      rows: rows,
                       collection,
                       onUpdate: onUpdateRecord,
                       onDelete,
                       onCreateField,
-                      recordMeta,
-                      columns
+                      recordMeta
                     }}
                   />
-                ))}
-              </div>
+                )}
+              </AutoSizer>
             )}
           </div>
         </div>
