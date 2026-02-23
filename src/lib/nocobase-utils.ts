@@ -60,12 +60,24 @@ export function extractRecords(responseData: any): any[] {
   if (!responseData) return [];
   if (Array.isArray(responseData)) return responseData;
 
-  if (typeof responseData === 'object') {
-    if (Array.isArray(responseData.data)) return responseData.data;
-    if (Array.isArray(responseData.records)) return responseData.records;
-    if (Array.isArray(responseData.items)) return responseData.items;
-    if (Array.isArray(responseData.results)) return responseData.results;
-    if (Array.isArray(responseData.list)) return responseData.list;
+  const tryExtract = (obj: any): any[] | null => {
+    if (!obj || typeof obj !== 'object') return null;
+    if (Array.isArray(obj.data)) return obj.data;
+    if (Array.isArray(obj.records)) return obj.records;
+    if (Array.isArray(obj.items)) return obj.items;
+    if (Array.isArray(obj.results)) return obj.results;
+    if (Array.isArray(obj.list)) return obj.list;
+    return null;
+  };
+
+  // Try direct properties
+  let data = tryExtract(responseData);
+  if (data) return data;
+
+  // Try nested data property (common in NocoBase)
+  if (responseData.data) {
+    data = tryExtract(responseData.data);
+    if (data) return data;
   }
 
   return [];
