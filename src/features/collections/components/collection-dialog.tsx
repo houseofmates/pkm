@@ -73,7 +73,7 @@ const field_types = [
   { label: 'formula', type: 'formula', interface: 'formula' },
 ] as const;
 
-export function CollectionDialog({ collection, onSuccess, trigger, open: controlledOpen, onOpenChange: setControlledOpen, initialTitle }: CollectionDialogProps) {
+export function CollectionDialog({ collection, onSuccess, trigger, open: controlledOpen, onOpenChange: setControlledOpen, initialTitle, initialCsvData, initialCsvFields }: CollectionDialogProps) {
   const { client } = useAuth();
   const navigate = useNavigate();
   const [internalOpen, setInternalOpen] = useState(false);
