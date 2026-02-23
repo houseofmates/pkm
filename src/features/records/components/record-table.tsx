@@ -230,7 +230,8 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
   );
 }
 
-const DraggableRecordRow = React.memo(({ index, style: incomingStyle, data }: any) => {
+const DraggableRecordRow = ({ index, style: incomingStyle, data }: any) => {
+  if (!data) return null;
   const { rows, collection, onUpdate, onDelete, onCreateField, recordMeta } = data;
   const row = rows[index];
   if (!row) return null;
@@ -315,7 +316,7 @@ const DraggableRecordRow = React.memo(({ index, style: incomingStyle, data }: an
       </div>
     </RecordContextMenu>
   );
-});
+};
 
 export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateField, onFieldUpdated: onFieldUpdatedCb, loading }: RecordTableProps) {
   const [hiddenColumns, setHiddenColumns] = useAppSetting<string[]>(
