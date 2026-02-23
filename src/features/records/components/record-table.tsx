@@ -83,7 +83,6 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
     }
   };
 
-  const isFirst = header.index === 0;
 
   return (
     <TableHead
@@ -93,7 +92,7 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
         width: header.getSize(),
         minWidth: header.getSize(),
         maxWidth: header.getSize(),
-        paddingLeft: isFirst ? 24 : 8,
+        paddingLeft: 8,
         paddingRight: 8,
         background: 'transparent',
       }}
