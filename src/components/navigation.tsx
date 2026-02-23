@@ -70,6 +70,7 @@ import { useAppSetting } from '@/hooks/use-app-setting';
 export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle, onUpdate, collection }: any) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: id, data: { type: item.type, item } });
   const [pickerOpen, setPickerOpen] = useState(false);
+  const [hovered, setHovered] = useState(false);
 
   // global metadata for collections
   const [metadata] = useAppSetting<Record<string, { color?: string }>>('collection_metadata', {});
@@ -78,16 +79,32 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
 
   // accentBg passed from Navigation
   const accentBg = typeof window !== 'undefined' && (window as any).accentBg ? (window as any).accentBg : undefined;
+
+  // calculate a custom highlight color for this specific item (hover or selected)
+  function getHighlightColor(baseColor: string | undefined) {
+    if (!baseColor) return accentBg; // fallback to fronter accent
+    if (baseColor.startsWith('#')) {
+      const hex = baseColor.replace('#', '');
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, 0.15)`;
+    }
+    return baseColor.replace(/rgb\(([^)]+)\)/, 'rgba($1, 0.15)');
+  }
+
+  const highlightColor = getHighlightColor(metaColor);
+
   const style = {
     transform: CSS.Translate.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
     paddingLeft: `${depth * 12 + 8}px`,
     touchAction: 'none',
-    background: selected ? accentBg : undefined,
+    background: (selected || hovered) ? highlightColor : undefined,
     borderRadius: '0.5rem'
   };
-
+  Riverside
 
 
   // render icon logic
@@ -133,7 +150,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
       <Button
         variant="ghost"
         className={cn(
-          "flex-1 justify-start text-sm font-normal h-8 px-2 overflow-hidden", // changed text-lg to text-sm to match premium PKM style and fix overflow
+          "flex-1 justify-start text-sm font-normal h-8 px-2 overflow-hidden hover:bg-transparent", // changed text-lg to text-sm to match premium PKM style and fix overflow
           selected && "font-medium shadow-none",
           item.type === 'folder' && "font-semibold text-muted-foreground",
           capsClass ? capsClass : "lowercase"
@@ -152,6 +169,8 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
       ref={setNodeRef}
       style={style}
       className="mb-0.5 group relative"
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       {...attributes}
       {...listeners}
     >
