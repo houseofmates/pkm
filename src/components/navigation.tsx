@@ -85,7 +85,8 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
     opacity: isDragging ? 0.5 : 1,
     paddingLeft: `${depth * 12 + 8}px`,
     touchAction: 'none',
-    background: selected ? (accentBg || 'rgba(255,255,0,0.15)') : undefined
+    background: selected ? accentBg : undefined,
+    borderRadius: '0.5rem'
   };
 
 
@@ -449,7 +450,6 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
           ))}
         </div>
 
-        <Separator className="mb-2 bg-primary" />
 
         <div className="px-4 mb-2 flex items-center justify-between">
 
