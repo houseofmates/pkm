@@ -180,10 +180,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
                 // Allow context menu to bubble up to PropertyContextMenu
               }}
             >
-              <div
-                className="whitespace-normal font-medium leading-[1.1]"
-                style={{ wordBreak: 'break-word', minWidth: 0 }}
-              >
+              <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pr-5">
                 {header.isPlaceholder
                   ? null
                   : flexRender(
@@ -292,24 +289,23 @@ const DraggableRecordRow = React.memo(({ index, style: incomingStyle, ariaAttrib
                 minWidth: cell.column.getSize(),
                 maxWidth: cell.column.getSize()
               }}
-              className="border-r border-b border-[#222] align-middle p-0 h-10 transition-colors group-hover:bg-white/5"
+              className="border-r border-b border-[#222] overflow-hidden text-ellipsis whitespace-nowrap align-middle p-0 h-10 transition-colors group-hover:bg-white/5"
               onContextMenu={(e) => {
                 // Stop propagation to prevent row-level RecordContextMenu from showing
                 // The SmartField's FieldContextMenu will handle this event
                 e.stopPropagation();
               }}
             >
-              <div
-                className="flex items-center justify-start h-full w-full px-0.5 whitespace-normal leading-[1.1]"
-                style={{ wordBreak: 'break-word', minWidth: 0 }}
-              >
+              <div className="flex items-center justify-start h-full w-full px-0.5">
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </div>
+              {flexRender(cell.column.columnDef.cell, cell.getContext())}
+            </div>
             </TableCell>
-          );
+      );
         })}
-      </div>
-    </RecordContextMenu>
+    </div>
+    </RecordContextMenu >
   );
 });
 
