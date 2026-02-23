@@ -7,3 +7,6 @@
 - [x] 4. fix response parsing in use-records.ts
 - [x] 5. improve error handling for schema validation
 - [x] 6. test and verify fix works
+- [ ] 7. investigate react-window virtualization issue
+- [ ] 8. check if rows are rendering but not visible
+- [ ] 9. verify data is reaching the table component
