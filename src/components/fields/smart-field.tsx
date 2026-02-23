@@ -1038,7 +1038,10 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     if (isNumber) {
       return (
         <div
-          onClick={() => setIsEditing(true)}
+          onClick={() => {
+            console.debug('[SmartField] number cell clicked', field?.name, value);
+            setIsEditing(true);
+          }}
           className={cn("cursor-pointer text-right min-h-[20px] font-varela", size === 'lg' ? "text-lg" : "text-sm")}
         >
           {value !== null && value !== undefined ? formatNumber(value) : <span className="opacity-20">-</span>}
@@ -1049,7 +1052,13 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     // default string
     return (
       <div
-        onClick={() => setIsEditing(true)}
+        onClick={() => {
+          console.debug('[SmartField] string cell clicked', field?.name, value);
+          setIsEditing(true);
+        }}
+        onContextMenu={(e) => {
+          console.debug('[SmartField] contextmenu on cell', field?.name, value);
+        }}
         className={cn(
           "cursor-pointer hover:bg-muted/50 px-1 py-0.5 rounded transition-colors min-h-[20px] break-words font-varela",
           size === 'lg' ? "text-lg" : "text-sm",
