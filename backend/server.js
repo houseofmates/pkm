@@ -535,7 +535,8 @@ async function handleCsvImport(req, res) {
                 try {
                     await client.post(`/collections:create`, { name, fields: fieldsConfig });
                 } catch (err) {
-                    log(`failed to create collection ${name}: ${err.response?.data?.error?.message || err.message}`);
+                    const errorDetail = err.response?.data ? JSON.stringify(err.response.data) : err.message;
+                    log(`failed to create collection ${name}: ${errorDetail}`);
                     continue; // skip importing rows if collection creation fails
                 }
 
