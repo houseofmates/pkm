@@ -120,19 +120,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
         </RichResourceContextMenuContent>
       </ContextMenu>
 
-      <CollectionDialog
-        collection={collection}
-        open={editOpen}
-        onOpenChange={(open) => {
-          setEditOpen(open);
-          if (!open) setProposedTitle(undefined);
-        }}
-        onSuccess={() => {
-          setEditOpen(false);
-          onUpdate();
-        }}
-        initialTitle={proposedTitle}
-      />
+      {/* removed CollectionDialog for renaming to avoid popup */}
 
       {/* color dialog */}
       <Dialog open={colorOpen} onOpenChange={setColorOpen}>
