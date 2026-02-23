@@ -338,7 +338,43 @@ export class NocoBaseClient {
   async listRecords(collection: string, params: Record<string, unknown> = {}): Promise<unknown> {
     // remove /obj/ prefix, use <collection>:list
     const res = await this._axios.get(`/${collection}:list`, { params });
-    return ListRecordsResponseSchema.parse(res.data);
+    
+    // Debug logging to diagnose response structure issues
+    secureLogger.info(`[NocoBase] listRecords(${collection}) response:`, {
+      status: res.status,
+      hasData: !!res.data,
+      dataType: typeof res.data,
+      isArray: Array.isArray(res.data),
+      dataKeys: res.data && typeof res.data === 'object' ? Object.keys(res.data) : 'N/A',
+      sample: res.data && typeof res.data === 'object' 
+        ? (Array.isArray(res.data) 
+            ? `Array with ${res.data.length} items` 
+            : (res.data.data 
+                ? `Object with data array (${Array.isArray(res.data.data) ? res.data.data.length : 'not array'})`
+                : 'Object without data property'))
+        : String(res.data).slice(0, 100)
+    });
+    
+    // Handle various response formats more robustly
+    let parsed;
+    try {
+      parsed = ListRecordsResponseSchema.parse(res.data);
+    } catch (parseError) {
+      secureLogger.warn(`[NocoBase] Schema parse failed for ${collection}, attempting fallback parsing:`, parseError);
+      
+      // Fallback: try to extract data manually if schema fails
+      if (Array.isArray(res.data)) {
+        parsed = { data: res.data };
+      } else if (res.data && typeof res.data === 'object') {
+        // Try to find the actual data array in common locations
+        const possibleData = res.data.data || res.data.records || res.data.items || res.data.results || res.data;
+        parsed = { data: possibleData };
+      } else {
+        throw parseError;
+      }
+    }
+    
+    return parsed;
   }
   async getRecord(collection: string, id: string | number): Promise<unknown> {
     const res = await this._axios.get(`/${collection}:get?filterByTk=${id}`);
