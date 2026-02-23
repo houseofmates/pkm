@@ -28,9 +28,9 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
   const { client } = useAuth();
   const { records, loading, error, refresh } = useRecords(collection.name);
   const { setContext } = useLLMStore();
-  const [iscreateopen, setiscreateopen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-  const [editingrecord, seteditingrecord] = useState<any | null>(null);
+  const [editingRecord, setEditingRecord] = useState<any | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
   // context stuffing: push current data to llm
@@ -50,7 +50,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
   const handleCreate = async (data: any) => {
     try {
       if (collection.name.toLowerCase().includes('note')) {
-        data.entity_type = data.entity_type || 'note'
+        data.entity_type = data.entity_type || 'note';
       }
       await client.createRecord(collection.name, data);
       setIsCreateOpen(false);
@@ -98,7 +98,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
 
     const searchField = collection.fields?.find((f: any) => f.name === 'title' || f.name === 'name' || f.type === 'string')?.name || 'id';
 
-    const filter = searchterm ? { [searchfield]: { $includes: searchterm } } : undefined;
+    const filter = searchTerm ? { [searchField]: { $includes: searchTerm } } : undefined;
     refresh({ filter });
   };
 
@@ -114,7 +114,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" onClick={() => refresh()} disabled={loading}>
-            <RotateCcw className={`mr - 2 h - 4 w - 4 ${loading ? 'animate-spin' : ''} `} />
+            <RotateCcw className={`mr-2 h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
             refresh
           </Button>
           <Button size="sm" onClick={() => setIsCreateOpen(true)}>
@@ -176,7 +176,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
           <DialogHeader>
             <DialogTitle>edit record</DialogTitle>
           </DialogHeader>
-          {editingrecord && (
+          {editingRecord && (
             <RecordForm
               collection={collection}
               initialData={editingRecord}
