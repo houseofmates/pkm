@@ -249,17 +249,19 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
     setLoading(true);
 
     try {
+      // Only sanitize system name on create, not on edit/rename
       const finalName = name || displayName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
 
       if (isEdit) {
+        // allow spaces in displayName/title when renaming
         await client.updateCollection(collection.name, {
-          title: displayName,
+          title: displayName, // can include spaces
         });
       } else {
-        // 1. create collection
+        // 1. create collection (system name must be sanitized, display name can have spaces)
         await client.createCollection({
-          title: displayName,
-          name: finalName,
+          title: displayName, // can include spaces
+          name: finalName,   // sanitized, no spaces
         });
 
         // 2. if csv/templates, create fields
