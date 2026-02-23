@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect } from 'react';
 import type { Collection } from '@/types/nocobase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from "@/components/ui/button";
@@ -94,8 +94,8 @@ export function DatabaseWidget({ collection, onRemove, className, initialView, v
           loading={loading}
           config={viewConfig}
           onConfigChange={(newConf: any) => onConfigChange?.({ ...viewConfig, ...newConf })}
-          onCreate={createRecord}
-          onUpdateRecord={updateRecord}
+          onCreate={(d) => { createRecord(d); }}
+          onUpdateRecord={(id, d) => { updateRecord(id, d); }}
         />
       </CardContent>
     </Card>
