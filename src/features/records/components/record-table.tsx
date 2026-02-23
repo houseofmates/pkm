@@ -88,18 +88,25 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
       )}
     >
       <div className="h-full w-full relative flex items-center group/header overflow-hidden">
-        {/* background drag zone */}
+        {/* background drag zone - separate from text zone */}
         <div
           className="absolute inset-0 cursor-grab active:cursor-grabbing transition-colors"
           {...attributes}
           {...listeners}
         />
 
-        {/* foreground click zone (label) */}
+        {/* foreground click zone (label) - elevated and isolated */}
         <div
-          className="relative z-10 h-full w-full flex items-center px-2 cursor-pointer hover:bg-white/10 transition-colors"
-          onPointerDown={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
+          className="relative z-20 h-full w-full flex items-center px-2 cursor-pointer hover:bg-white/10 transition-colors"
+          onPointerDown={(e) => {
+            e.stopPropagation();
+          }}
+          onMouseDown={(e) => {
+            e.stopPropagation();
+          }}
+          onTouchStart={(e) => {
+            e.stopPropagation();
+          }}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -195,8 +202,8 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
             {...attributes}
             {...listeners}
           >
-            <div className="cursor-move p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              <div className="w-1 h-3 bg-white/10 rounded-full" />
+            <div className="cursor-move p-2 opacity-0 group-hover:opacity-60 transition-opacity">
+              <div className="w-1 h-3 bg-white/20 rounded-full" />
             </div>
           </TableCell>
         )}
@@ -467,7 +474,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               <TableRow key={headerGroup.id} className="border-b border-white/60">
                 {/* add field button at the start */}
                 {onCreateField && (
-                  <TableHead className="w-10 border-r border-border/50 p-0 overflow-hidden">
+                  <TableHead className="w-10 border-r border-white/40 border-border/50 p-0 overflow-hidden">
                     <Button
                       variant="ghost"
                       size="icon"
