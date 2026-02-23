@@ -517,11 +517,11 @@ async function handleCsvImport(req, res) {
                             else hasString = true;
                         } else hasString = true;
                     }
-                    if (hasArray) return 'string[]'; // fallback or json
+                    if (hasArray) return 'string'; // fallback or json
                     if (hasDate && !hasString) return 'date';
                     if (hasString) return 'string';
                     if (hasBoolean) return 'boolean';
-                    if (hasNumber) return 'number';
+                    if (hasNumber) return 'float';
                     return 'string'; // default
                 };
 
