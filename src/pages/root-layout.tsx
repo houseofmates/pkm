@@ -115,8 +115,7 @@ export function RootLayout() {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        delay: 150,
-        tolerance: 5,
+        distance: 3,
       },
     }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
