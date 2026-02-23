@@ -107,7 +107,7 @@ export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardPr
               value={rawName}
               field={titleField}
               record={member}
-              collectionName={collection.name}
+              collectionName={collection?.name ?? 'headmates'}
               onChange={() => {}}
             />
           </div>
@@ -121,7 +121,7 @@ export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardPr
             value={member[pronounsField.name]}
             field={pronounsField}
             record={member}
-            collectionName={collection.name}
+            collectionName={collection?.name ?? 'headmates'}
             onChange={() => {}}
           />
         </div>
