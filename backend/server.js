@@ -467,7 +467,19 @@ async function handleCsvImport(req, res) {
         }
 
         try {
-            const client = getApiClient();
+            // Use the authorization header directly from the frontend request to authenticate with NocoBase
+            const authHeader = req.headers.authorization;
+            if (!authHeader) throw new Error("No authorization header provided to import");
+
+            const base = process.env.NOCOBASE_URL || 'http://localhost:4100/api';
+            const client = axios.create({
+                baseURL: base.replace(/\/$/, ''),
+                headers: {
+                    'Authorization': authHeader,
+                    'Content-Type': 'application/json'
+                }
+            });
+
             let totalRecordsImported = 0;
 
             for (const file of req.files) {

@@ -53,6 +53,14 @@ export default defineConfig({
         target: 'http://127.0.0.1:4100',
         changeOrigin: true,
       },
+      '/api/notion-import': {
+        target: 'http://127.0.0.1:4100',
+        changeOrigin: true,
+      },
+      '/api/nb-import': {
+        target: 'http://127.0.0.1:4100',
+        changeOrigin: true,
+      },
       '/api': {
         target: 'http://192.168.254.33:8091/api',
         changeOrigin: true,
@@ -102,6 +110,14 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/simplyplural/, ''),
       },
       '/api/nb-import-csv': {
+        target: 'http://127.0.0.1:4100',
+        changeOrigin: true,
+      },
+      '/api/notion-import': {
+        target: 'http://127.0.0.1:4100',
+        changeOrigin: true,
+      },
+      '/api/nb-import': {
         target: 'http://127.0.0.1:4100',
         changeOrigin: true,
       },
