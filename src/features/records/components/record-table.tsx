@@ -577,77 +577,79 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         collisionDetection={closestCenter}
         onDragEnd={handleDragEnd}
       >
-        <div className="overflow-x-auto overflow-y-hidden no-scrollbar flex-shrink-0">
-          <Table style={{ width: table.getTotalSize(), tableLayout: 'fixed' }}>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="border-b border-[#222]">
-                  {onCreateField && (
-                    <TableHead className="w-10 border-r border-[#222] border-b border-b-[#222] p-0 overflow-hidden">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-full w-full rounded-none opacity-50 hover:opacity-100 hover:bg-white/10 flex items-center justify-center p-0"
-                        onClick={(e) => { e.stopPropagation(); onCreateField(); }}
-                        onDoubleClick={(e) => { e.stopPropagation(); }}
-                        title="add new property"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </TableHead>
-                  )}
-                  <SortableContext
-                    items={headerGroup.headers.map(h => h.id)}
-                    strategy={horizontalListSortingStrategy}
-                  >
-                    {headerGroup.headers.map((header) => (
-                      <SortableHeader
-                        key={header.id}
-                        header={header}
-                        collectionName={collection?.name}
-                        onFieldUpdated={onFieldUpdatedCb}
-                        onOpenFieldSettings={(field: any) => {
-                          setSettingsField(field);
-                          setIsSettingsOpen(true);
-                        }}
-                      />
-                    ))}
-                  </SortableContext>
-                </TableRow>
-              ))}
-            </TableHeader>
-          </Table>
-        </div>
-
-        <div className="flex-1 w-full min-h-[400px] relative overflow-x-auto no-scrollbar bg-[#0b0b0b]">
-          <div style={{ width: table.getTotalSize(), height: '100%' }}>
-            {rows.length === 0 ? (
-              <div className="flex items-center justify-center text-muted-foreground h-16 w-full lowercase">
-                no records found
-              </div>
-            ) : (
-              <AutoSizer>
-                {({ height, width }: { height: number; width: number }) => (
-                  <List
-                    rowCount={rows.length}
-                    rowHeight={40}
-                    rowProps={{
-                      rows: rows,
-                      collection,
-                      onUpdate: onUpdateRecord,
-                      onDelete,
-                      onCreateField,
-                      recordMeta
-                    }}
-                    style={{ height, width }}
-                    className="no-scrollbar"
-                    rowComponent={DraggableRecordRow}
-                  />
-                )}
-              </AutoSizer>
-            )}
+        <div className="h-full flex flex-col min-h-0">
+          <div className="overflow-x-auto overflow-y-hidden no-scrollbar flex-shrink-0">
+            <Table style={{ width: table.getTotalSize(), tableLayout: 'fixed' }}>
+              <TableHeader>
+                {table.getHeaderGroups().map((headerGroup) => (
+                  <TableRow key={headerGroup.id} className="border-b border-[#222]">
+                    {onCreateField && (
+                      <TableHead className="w-10 border-r border-[#222] border-b border-b-[#222] p-0 overflow-hidden">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-full w-full rounded-none opacity-50 hover:opacity-100 hover:bg-white/10 flex items-center justify-center p-0"
+                          onClick={(e) => { e.stopPropagation(); onCreateField(); }}
+                          onDoubleClick={(e) => { e.stopPropagation(); }}
+                          title="add new property"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </TableHead>
+                    )}
+                    <SortableContext
+                      items={headerGroup.headers.map(h => h.id)}
+                      strategy={horizontalListSortingStrategy}
+                    >
+                      {headerGroup.headers.map((header) => (
+                        <SortableHeader
+                          key={header.id}
+                          header={header}
+                          collectionName={collection?.name}
+                          onFieldUpdated={onFieldUpdatedCb}
+                          onOpenFieldSettings={(field: any) => {
+                            setSettingsField(field);
+                            setIsSettingsOpen(true);
+                          }}
+                        />
+                      ))}
+                    </SortableContext>
+                  </TableRow>
+                ))}
+              </TableHeader>
+            </Table>
           </div>
-        </div>
+
+          <div className="flex-1 w-full relative overflow-x-auto no-scrollbar bg-[#0b0b0b] min-h-0">
+            <div style={{ width: table.getTotalSize(), height: '100%', position: 'relative' }}>
+              {rows.length === 0 ? (
+                <div className="flex items-center justify-center text-muted-foreground h-16 w-full lowercase">
+                  no records found
+                </div>
+              ) : (
+                <AutoSizer>
+                  {({ height, width }: { height: number; width: number }) => (
+                    <List
+                      rowCount={rows.length}
+                      rowHeight={40}
+                      rowProps={{
+                        rows: rows,
+                        collection,
+                        onUpdate: onUpdateRecord,
+                        onDelete,
+                        onCreateField,
+                        recordMeta
+                      }}
+                      height={height}
+                      width={width}
+                      style={{ height, width }}
+                      rowComponent={DraggableRecordRow}
+                    />
+                  )}
+                </AutoSizer>
+              )}
+            </div>
+          </div>
       </DndContext>
 
       <FieldSettingsDialog
