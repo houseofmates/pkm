@@ -37,6 +37,51 @@ interface RequestParams {
   [key: string]: unknown;
 }
 
+// helper utilities for unwrapping nocobase list responses
+function normalizeListResponse(raw: any) {
+  // raw could already be { data: Array } or { data: { data: Array, meta? } }
+  // or { data: { list: Array, total? } } or even { list: Array } etc.
+  let data: any[] = [];
+  let meta: any = undefined;
+
+  if (raw == null) {
+    return { data, meta };
+  }
+
+  // direct array
+  if (Array.isArray(raw)) {
+    data = raw;
+    return { data, meta };
+  }
+
+  // helper for objects we expect
+  const tryExtract = (obj: any) => {
+    if (!obj || typeof obj !== 'object') return false;
+    if (Array.isArray(obj.data)) {
+      data = obj.data;
+      meta = obj.meta ?? (obj.total != null ? { total: obj.total } : undefined) ?? (obj.count != null ? { total: obj.count } : undefined);
+      return true;
+    }
+    if (Array.isArray(obj.list)) {
+      data = obj.list;
+      meta = obj.meta ?? (obj.total != null ? { total: obj.total } : undefined) ?? (obj.count != null ? { total: obj.count } : undefined);
+      return true;
+    }
+    return false;
+  };
+
+  // first look at raw itself
+  if (tryExtract(raw)) return { data, meta };
+  // next look under raw.data
+  if (tryExtract(raw.data)) return { data, meta };
+  // maybe under raw.data.data (double nesting)
+  if (raw.data && tryExtract(raw.data.data)) return { data, meta };
+
+  // fallback: if nothing matched but there is a data property that's
+  // an object, we may have to treat it as empty; otherwise leave data as []
+  return { data, meta };
+}
+
 export class NocoBaseClient {
   private _axios: AxiosInstance;
 
