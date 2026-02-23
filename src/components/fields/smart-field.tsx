@@ -951,7 +951,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     if (isSelect) {
       return (
         <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer hover:bg-muted/50 px-2 py-0.5 rounded border border-transparent hover:border-muted-foreground/20 font-varela", size === 'lg' ? "text-lg" : "text-sm")}>
-          {value || <span className="opacity-30 lowercase">select</span>}
+          {value || <span className="opacity-40">Select...</span>}
         </div>
       )
     }
@@ -990,7 +990,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           )}>
             <ReactMarkdown>{value || ''}</ReactMarkdown>
           </div>
-          {!value && <span className={cn("opacity-20 italic font-varela", size === 'lg' ? "text-lg" : "text-xs")}>empty markdown</span>}
+          {!value && <span className={cn("opacity-20 italic font-varela", size === 'lg' ? "text-lg" : "text-xs")}>Empty</span>}
           <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-50 transition-opacity">
             <Edit2 className="h-2.5 w-2.5" />
           </div>

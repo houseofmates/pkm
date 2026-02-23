@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/table';
 import type { Collection } from '@/hooks/use-collections';
 import { Button } from '@/components/ui/button';
-import { Plus, Settings2, Trash2, Edit2, GripVertical } from 'lucide-react';
+import { Plus, Settings2, Trash2, Edit2 } from 'lucide-react';
 import * as React from 'react';
 import { SmartField } from '@/components/fields/smart-field';
 import { RecordContextMenu } from './record-context-menu';
@@ -87,16 +87,13 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
         isDragging ? "bg-accent/20" : "hover:bg-white/10"
       )}
     >
-      <div className="h-full w-full flex items-center px-1">
+      <div
+        className="h-full w-full overflow-hidden text-ellipsis whitespace-nowrap flex justify-start items-center px-1 cursor-grab active:cursor-grabbing"
+        {...attributes}
+        {...listeners}
+      >
         <div
-          className="flex-shrink-0 cursor-grab active:cursor-grabbing p-1 hover:bg-white/10 rounded transition-colors"
-          {...attributes}
-          {...listeners}
-        >
-          <GripVertical className="h-3 w-3 text-muted-foreground/50" />
-        </div>
-        <div
-          className="flex-1 h-full min-w-0 flex items-center px-1 cursor-pointer hover:bg-white/10 transition-colors"
+          className="h-full w-full flex items-center px-1 cursor-pointer hover:bg-white/10 transition-colors"
           onClick={(e) => {
             e.stopPropagation();
             const field = (header.column.columnDef as any).meta?.field;
@@ -183,15 +180,16 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
           !rowColor && "hover:bg-white/10"
         )}
       >
-        {/* drag handle or empty cell to match the add-field column */}
+        {/* drag handle area or empty cell to match the add-field column */}
         {onCreateField && (
-          <TableCell className="w-10 border-r border-border/50 border-b border-white/40 p-0 flex items-center justify-center">
-            <div
-              className="cursor-move p-2 opacity-0 group-hover:opacity-100 transition-opacity"
-              {...attributes}
-              {...listeners}
-            >
-              <GripVertical className="h-3.5 w-3.5 text-muted-foreground/30" />
+          <TableCell
+            className="w-10 border-r border-b border-white/40 border-border/50 p-0 flex items-center justify-center h-10"
+            {...attributes}
+            {...listeners}
+          >
+            <div className="cursor-move p-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              {/* invisible handle but keeping the drag zone */}
+              <div className="w-1 h-3 bg-muted-foreground/10 rounded-full" />
             </div>
           </TableCell>
         )}
@@ -360,7 +358,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                               }
                             }}
                           />
-                          <Label htmlFor={`col-${fieldName}`} className="text-xs lowercase">{f.uiSchema?.title || fieldName}</Label>
+                          <Label htmlFor={`col-${fieldName}`} className="text-xs">{f.uiSchema?.title || fieldName}</Label>
                         </div>
                       )
                     })}
@@ -393,7 +391,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: 10,
       },
     })
   );

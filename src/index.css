@@ -237,7 +237,6 @@ button.interactive-pop:hover {
 /* --- global force lowercase (removed) --- */
 /* user requested capitalization preservation. */
 * {
-  text-transform: lowercase !important;
   font-variant: normal !important;
 }
 
