@@ -4,6 +4,7 @@ import { useFronter } from '@/contexts/fronter-context';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { walWrite, walCommit, walFail } from '@/lib/write-ahead-log';
 import { registry } from '@/lib/link-registry';
+import { extractRecords } from '@/lib/nocobase-utils';
 
 export function useRecords(collectionName: string, initialParams: any = {}) {
   const { client } = useAuth();
