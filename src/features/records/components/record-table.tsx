@@ -505,3 +505,4 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                     ))}
                   </SortableContext>
                 </DndContext>
+              </TableRow>
