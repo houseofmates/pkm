@@ -103,7 +103,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="h-full flex flex-col space-y-4 overflow-hidden">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="sm" onClick={onBack}>
@@ -147,13 +147,15 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
       ) : (
-        <RecordTable
-          data={records}
-          collection={collection}
-          onEdit={setEditingRecord}
-          onDelete={handleDelete}
-          onFieldUpdated={() => { /* renamed field, nothing extra needed here */ }}
-        />
+        <div className="flex-1 min-h-0">
+          <RecordTable
+            data={records}
+            collection={collection}
+            onEdit={setEditingRecord}
+            onDelete={handleDelete}
+            onFieldUpdated={() => { /* renamed field, nothing extra needed here */ }}
+          />
+        </div>
       )}
 
       {/* create dialog */}
