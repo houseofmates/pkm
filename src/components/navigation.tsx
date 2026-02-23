@@ -402,8 +402,6 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     { id: 'headmates', icon: Users, label: 'headmates' },
   ] as const;
 
-  const navigate = useNavigate();
-
   return (
     <>
       {/* desktop sidebar */}
