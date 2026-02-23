@@ -680,7 +680,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           type={isNumber ? "number" : "text"}
           value={localValue || ''}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
-          className={cn("h-8 text-xs", inputClassName)}
+          className={cn("h-8 text-xs focus-visible:ring-0 focus:ring-0", inputClassName)}
           onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
             if (e.key === 'Enter') handleSave();
             if (e.key === 'Escape') handleCancel();
@@ -915,7 +915,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
                           setFullscreenIndex(prev => (prev === null || prev === 0) ? galleryImgs.length - 1 : prev - 1);
                         }}
                       >
-                        &lt;
+                        <
                       </Button>
                       <Button
                         variant="outline"
@@ -925,7 +925,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
                           setFullscreenIndex(prev => (prev === null || prev === galleryImgs.length - 1) ? 0 : prev + 1);
                         }}
                       >
-                        &gt;
+                        >
                       </Button>
                     </>
                   )}
