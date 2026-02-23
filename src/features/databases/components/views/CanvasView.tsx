@@ -34,7 +34,8 @@ export function CanvasView({ data: rows, collection, loading, config: _config }:
   useEffect(() => {
     if (!collection?.name) return;
     apiClient.get(`/collections/${collection.name}:listFields`).then(res => {
-      setFields(res.data?.data || []);
+      // normalized response should put array directly on res.data
+      setFields(Array.isArray(res.data) ? res.data : (res.data || []));
     });
   }, [collection?.name]);
 
