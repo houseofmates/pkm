@@ -17,6 +17,7 @@ import type { Collection } from '@/hooks/use-collections';
 import { Button } from '@/components/ui/button';
 import { Plus, Settings2, Trash2, Edit2 } from 'lucide-react';
 import * as React from 'react';
+import { useAuth } from '@/contexts/auth-context';
 import { SmartField } from '@/components/fields/smart-field';
 import { RecordContextMenu } from './record-context-menu';
 import { useAppSetting } from '@/hooks/use-app-setting';
@@ -447,7 +448,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     useSensor(PointerSensor, {
       activationConstraint: {
         distance: 5,
-        delay: 200, // drag-on-hold
+        delay: 0, // immediate drag allowed
       },
     })
   );
