@@ -204,8 +204,18 @@ export function useRecord(collectionName: string, recordId: string | number) {
     },
   });
 
+  // Safely extract data from various response formats
+  const extractRecordData = (responseData: unknown): unknown => {
+    if (!responseData) return null;
+    if (typeof responseData !== 'object') return responseData;
+    
+    // Try to extract from common wrapper formats
+    const obj = responseData as Record<string, unknown>;
+    return obj.data ?? responseData;
+  };
+
   return {
-    data: data?.data || data,
+    data: extractRecordData(data),
     loading: isLoading,
     error: error ? (error as Error).message : null,
     updateRecord: (data: Record<string, unknown>) => updateMutation.mutateAsync(data),
