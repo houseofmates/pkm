@@ -680,7 +680,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           type={isNumber ? "number" : "text"}
           value={localValue || ''}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
-          className={cn("h-8 text-xs focus-visible:ring-0 focus:ring-0 focus:outline-none", inputClassName)}
+          className={cn("h-8 text-xs border-0 shadow-none outline-none ring-0 focus:border-0 focus:shadow-none focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none", inputClassName)}
           onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
             if (e.key === 'Enter') handleSave();
             if (e.key === 'Escape') handleCancel();
