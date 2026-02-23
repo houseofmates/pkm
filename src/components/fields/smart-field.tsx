@@ -1056,7 +1056,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           console.debug('[SmartField] string cell clicked', field?.name, value);
           setIsEditing(true);
         }}
-        onContextMenu={(e) => {
+        onContextMenu={() => {
           console.debug('[SmartField] contextmenu on cell', field?.name, value);
         }}
         className={cn(
