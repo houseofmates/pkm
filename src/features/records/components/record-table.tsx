@@ -612,7 +612,9 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         onOpenChange={setIsSettingsOpen}
         field={settingsField}
         collectionName={collection.name}
-        onFieldUpdated={() => { }}
+        onFieldUpdated={() => {
+          onFieldUpdated?.();
+        }}
       />
     </div>
   );
