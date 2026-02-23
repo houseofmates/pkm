@@ -9,7 +9,8 @@ export default function SettingsPage() {
     const [pageSize, setPageSize] = useAppSetting('defaultPageSize', 20);
 
     return (
-        <div className="p-4">
+        // make the page fill available space and allow scrolling when content overflows
+        <div className="flex-1 flex flex-col overflow-auto p-4 min-h-0">
             <h1 className="text-xl font-bold lowercase">settings</h1>
 
             <section className="mt-6 space-y-4">
