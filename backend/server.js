@@ -471,7 +471,7 @@ async function handleCsvImport(req, res) {
             const authHeader = req.headers.authorization;
             if (!authHeader) throw new Error("No authorization header provided to import");
 
-            const base = process.env.NOCOBASE_URL || 'http://localhost:4100/api';
+            const base = process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api';
             const client = axios.create({
                 baseURL: base.replace(/\/$/, ''),
                 headers: {
