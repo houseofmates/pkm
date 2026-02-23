@@ -175,7 +175,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
           {/* drag handle area; clicking label no longer interferes */}
           {!isEditing && (
             <div
-              className="absolute right-0 top-0 h-full w-4 cursor-grab"
+              className="absolute left-0 top-0 h-full w-4 cursor-grab"
               {...attributes}
               {...listeners}
             />
