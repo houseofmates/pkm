@@ -225,7 +225,7 @@ export interface SmartFieldProps {
 }
 
 export function SmartField({ value, field, record, collectionName, mode: _mode = 'view', onChange, className, inputClassName, size = 'lg' }: SmartFieldProps) {
-  console.debug('[SmartField] mount', field?.name, value);  const [isEditing, setIsEditing] = useState(false);
+  console.debug('[SmartField] mount', field?.name, value); const [isEditing, setIsEditing] = useState(false);
   const [localValue, setLocalValue] = useState(value);
   const [fullscreenIndex, setFullscreenIndex] = useState<number | null>(null);
   const [galleryImgs, setGalleryImgs] = useState<string[]>([]);
@@ -487,104 +487,79 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
         </div>
       );
 
-    if (isDate || isDateTime || isTime) {
-      // when time or datetime is requested, fall back to native input for simplicity
-      if (isDateTime || isTime) {
-        const inputType = isDateTime ? 'datetime-local' : 'time';
-        // define editTextSize and editHeight before JSX
-        const editTextSize = size === 'lg' ? 'text-lg' : 'text-sm';
-        const editHeight = 'h-8';
+      if (isDate || isDateTime || isTime) {
+        // when time or datetime is requested, fall back to native input for simplicity
+        if (isDateTime || isTime) {
+          const inputType = isDateTime ? 'datetime-local' : 'time';
+          // define editTextSize and editHeight before JSX
+          const editTextSize = size === 'lg' ? 'text-lg' : 'text-sm';
+          const editHeight = 'h-8';
+          return (
+            <div className="flex items-center gap-1">
+              <Input
+                type={inputType}
+                value={localValue || ''}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
+                className={cn(editHeight, editTextSize)}
+              />
+              <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => handleSave(localValue)}><Check className="h-3 w-3" /></Button>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancel}><X className="h-3 w-3" /></Button>
+            </div>
+          );
+        }
+
+        // date only picker remains calendar popover
         return (
-          <div className="flex items-center gap-1">
-            <Input
-              type={inputType}
-              value={localValue || ''}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
-              className={cn(editHeight, editTextSize)}
-            />
-            <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => handleSave(localValue)}><Check className="h-3 w-3" /></Button>
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancel}><X className="h-3 w-3" /></Button>
-          </div>
+          <Popover open={true} onOpenChange={(open) => { if (!open) handleSave(); }}>
+            <PopoverTrigger asChild>
+              {/* use visible trigger to ensure correct positioning and prevent cell collapse */}
+              <div className="nav-button cursor-pointer text-xs min-h-[20px] min-w-[50px] whitespace-nowrap">
+                {formatDate(localValue)} {formatTime(localValue) || <span className="opacity-50">select date...</span>}
+              </div>
+            </PopoverTrigger>
+            {/* use standard popover which portals to body */}
+            <PopoverContent className="w-auto p-0" align="start" collisionPadding={16}>
+              <Calendar
+                mode="single"
+                selected={localValue ? new Date(localValue) : undefined}
+                onSelect={(d: Date | undefined) => {
+                  if (d) {
+                    setLocalValue(d.toISOString());
+                    // slight delay to allow visual feedback before closing
+                    setTimeout(() => {
+                      onChange(d.toISOString());
+                      setIsEditing(false);
+                    }, 100);
+                  }
+                }}
+                initialFocus
+              />
+            </PopoverContent>
+          </Popover>
         );
       }
 
-      // date only picker remains calendar popover
-      return (
-        <Popover open={true} onOpenChange={(open) => { if (!open) handleSave(); }}>
-          <PopoverTrigger asChild>
-            {/* use visible trigger to ensure correct positioning and prevent cell collapse */}
-            <div className="nav-button cursor-pointer text-xs min-h-[20px] min-w-[50px] whitespace-nowrap">
-              {formatDate(localValue)} {formatTime(localValue) || <span className="opacity-50">select date...</span>}
-            </div>
-          </PopoverTrigger>
-          {/* use standard popover which portals to body */}
-          <PopoverContent className="w-auto p-0" align="start" collisionPadding={16}>
-            <Calendar
-              mode="single"
-              selected={localValue ? new Date(localValue) : undefined}
-              onSelect={(d: Date | undefined) => {
-                if (d) {
-                  setLocalValue(d.toISOString());
-                  // slight delay to allow visual feedback before closing
-                  setTimeout(() => {
-                    onChange(d.toISOString());
-                    setIsEditing(false);
-                  }, 100);
-                }
-              }}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
-      );
-    }
+      if (isMultiSelect) {
+        const options = field?.uiSchema?.enum || [{ label: 'option 1', value: 'opt1' }, { label: 'option 2', value: 'opt2' }];
+        const currentArray: string[] = Array.isArray(localValue) ? localValue : [];
+        const toggleOption = (val: string) => {
+          const exists = currentArray.includes(val);
+          let next;
+          if (exists) next = currentArray.filter(v => v !== val);
+          else next = [...currentArray, val];
+          setLocalValue(next);
+        };
 
-    if (isMultiSelect) {
-      const options = field?.uiSchema?.enum || [{ label: 'option 1', value: 'opt1' }, { label: 'option 2', value: 'opt2' }];
-      const currentArray: string[] = Array.isArray(localValue) ? localValue : [];
-      const toggleOption = (val: string) => {
-        const exists = currentArray.includes(val);
-        let next;
-        if (exists) next = currentArray.filter(v => v !== val);
-        else next = [...currentArray, val];
-        setLocalValue(next);
-      };
-
-      return (
-        <div className="flex flex-col gap-2 p-2 bg-background border rounded-md">
-          {options.map((opt: any) => (
-            <div key={opt.value} className="flex items-center gap-2">
-              <Checkbox
-                id={`checkbox-${opt.value}`}
-                checked={currentArray.includes(opt.value)}
-                onCheckedChange={() => toggleOption(opt.value)}
-              />
-              <label htmlFor={`checkbox-${opt.value}`} className="text-sm">{opt.label}</label>
-            </div>
-          ))}
-          <div className="flex justify-end gap-1 mt-2">
-            <Button size="sm" className="h-6 text-xs" onClick={() => handleSave()}>done</Button>
-          </div>
-        </div>
-      );
-    }
-
-    if (isSelect) {
-      const options = field?.uiSchema?.enum || [{ label: 'option 1', value: 'opt1' }, { label: 'option 2', value: 'opt2' }];
-      if (field.interface === 'radioGroup') {
         return (
           <div className="flex flex-col gap-2 p-2 bg-background border rounded-md">
             {options.map((opt: any) => (
               <div key={opt.value} className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  id={`radio-${opt.value}`}
-                  name={field.name}
-                  value={opt.value}
-                  checked={localValue === opt.value}
-                  onChange={(e) => setLocalValue(e.target.value)}
+                <Checkbox
+                  id={`checkbox-${opt.value}`}
+                  checked={currentArray.includes(opt.value)}
+                  onCheckedChange={() => toggleOption(opt.value)}
                 />
-                <label htmlFor={`radio-${opt.value}`} className="text-sm">{opt.label}</label>
+                <label htmlFor={`checkbox-${opt.value}`} className="text-sm">{opt.label}</label>
               </div>
             ))}
             <div className="flex justify-end gap-1 mt-2">
@@ -594,498 +569,520 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
         );
       }
 
-      return (
-        <div className="flex items-center gap-1">
-          <Select value={localValue} onValueChange={setLocalValue}>
-            <SelectTrigger className="h-8 w-[150px]">
-              <SelectValue placeholder="select..." />
-            </SelectTrigger>
-            <SelectContent>
+      if (isSelect) {
+        const options = field?.uiSchema?.enum || [{ label: 'option 1', value: 'opt1' }, { label: 'option 2', value: 'opt2' }];
+        if (field.interface === 'radioGroup') {
+          return (
+            <div className="flex flex-col gap-2 p-2 bg-background border rounded-md">
               {options.map((opt: any) => (
-                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => handleSave()}><Check className="h-3 w-3" /></Button>
-          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancel}><X className="h-3 w-3" /></Button>
-        </div>
-      )
-    }
-
-    if (isColor) {
-      return (
-        <div className="flex items-center gap-2 p-1 bg-card border rounded shadow-lg">
-          <input
-            type="color"
-            value={localValue || '#000000'}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
-            className="h-8 w-8 cursor-pointer border-0 p-0 rounded overflow-hidden"
-          />
-          <Input
-            value={localValue || ''}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
-            className="h-8 w-24 text-xs font-mono"
-            placeholder="#hex"
-          />
-          <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => handleSave()}><Check className="h-3 w-3" /></Button>
-          <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancel}><X className="h-3 w-3" /></Button>
-        </div>
-      )
-    }
-
-    if (isRelation) {
-      // relation editor: simple picker that fetches target records
-      // we need to fetch the target collection list.
-      // assumption: field.target is the collection name of the relation.
-      return (
-        <RelationPicker
-          field={field}
-          value={localValue}
-          onChange={(v: any) => {
-            // if a specific property was configured, store only that value
-            const out = field.property && v ? v[field.property] : v;
-            setLocalValue(out);
-            handleSave(out);
-          }}
-          onCancel={handleCancel}
-        />
-      );
-    }
-
-    if (isJson) {
-      return (
-        <div className="flex flex-col gap-1 min-w-[200px] bg-background border p-2 rounded shadow-lg">
-          <div className="text-[10px] font-bold text-muted-foreground opacity-50 mb-1">json/object editor</div>
-          <textarea
-            autoFocus
-            value={typeof localValue === 'string' ? localValue : JSON.stringify(localValue, null, 2)}
-            onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setLocalValue(e.target.value)}
-            className="w-full h-32 text-[10px] font-mono bg-[#050505] text-green-400 p-2 border border-primary/20 focus:outline-none"
-          />
-          <div className="flex justify-end gap-1 mt-1">
-            <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => {
-              try {
-                const parsed = typeof localValue === 'string' ? JSON.parse(localValue) : localValue;
-                onChange(parsed);
-                setIsEditing(false);
-              } catch (e) {
-                toast.error("invalid json format");
-              }
-            }}><Check className="h-3 w-3" /></Button>
-            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancel}><X className="h-3 w-3" /></Button>
-          </div>
-        </div>
-      )
-    }
-
-    {
-      const editTextSize = size === 'lg' ? 'text-lg' : 'text-sm';
-      // keep height constant so cells don't resize; text will scale instead
-      const editHeight = 'h-8';
-      return (
-      <div className={cn("flex items-center gap-1 min-w-[120px] bg-background relative z-10", className)}>
-        <Input
-          autoFocus
-          type={isNumber ? "number" : "text"}
-          value={localValue || ''}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
-          className={cn(editHeight, editTextSize, "border-0 shadow-none outline-none ring-0 focus:border-0 focus:shadow-none focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none", inputClassName)}
-          onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
-            if (e.key === 'Enter') handleSave();
-            if (e.key === 'Escape') handleCancel();
-          }}
-        />
-        {isPercentField && <span className={cn(size === 'lg' ? 'text-lg' : 'text-sm')}>%</span>}
-        <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500 hover:text-green-600" onClick={() => handleSave()}>
-          <Check className="h-3 w-3" />
-        </Button>
-        <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground" onClick={handleCancel}>
-          <X className="h-3 w-3" />
-        </Button>
-      </div>
-    );
-  }
-
-
-  // --- view mode ---
-
-  const renderView = () => {
-    if (isId) return <span className={cn("font-mono opacity-50 select-text font-varela", size === 'lg' ? "text-lg" : "text-[10px]")}>{value?.toString()}</span>;
-
-    if (isRelation) {
-      // prepare display value: if object, show title/name or property.
-      let display = '';
-      if (Array.isArray(value)) {
-        display = value
-          .map(v => {
-            if (field.property && v && typeof v === 'object') return v[field.property];
-            return v?.title || v?.name || v?.id || JSON.stringify(v);
-          })
-          .join(', ');
-      } else if (typeof value === 'object' && value !== null) {
-        if (field.property && value[field.property] !== undefined) {
-          display = String(value[field.property]);
-        } else {
-          display = value.title || value.name || value.id || JSON.stringify(value);
-        }
-      } else {
-        display = String(value || '');
-      }
-
-      return (
-        <div
-          className="flex items-center gap-1 cursor-pointer font-varela"
-          onClick={() => setIsEditing(true)}
-        >
-          <div className={cn("px-1.5 py-0.5 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded border border-blue-100 dark:border-blue-800 truncate max-w-[200px]", size === 'lg' ? "text-lg" : "text-xs")}>
-            {display || <span className="opacity-50 italic">empty relation</span>}
-          </div>
-        </div>
-      )
-    }
-
-    if (isDateTime) {
-      return (
-        <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer font-varela", size === 'lg' ? "text-lg" : "text-xs")}>{formatDate(value)} {formatTime(value)}</div>
-      );
-    }
-
-    if (isTime) {
-      return (
-        <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer font-varela", size === 'lg' ? "text-lg" : "text-xs")}>{formatTime(value)}</div>
-      );
-    }
-
-    if (isPhone) {
-      return (
-        <div
-          className={cn("text-primary hover:underline flex items-center gap-1 cursor-pointer font-varela", size === 'lg' ? "text-lg" : "text-xs")}
-          onClick={(e) => handlePhoneClick(e, strValue)}
-        >
-          <Phone className="h-3 w-3" />
-          {formatPhoneNumber(strValue)}
-        </div>
-      );
-    }
-
-    if (isEmail) {
-      return (
-        <a
-          href={`mailto:${strValue}`}
-          className={cn("text-primary hover:underline flex items-center gap-1 truncate max-w-[200px] font-varela", size === 'lg' ? "text-lg" : "text-sm")}
-          onClick={e => e.stopPropagation()}
-        >
-          <Mail className="h-3 w-3" />
-          {strValue}
-        </a>
-      );
-    }
-
-    if (isUrl) return <a href={value} target="_blank" rel="noopener noreferrer" className={cn("text-blue-400 hover:underline flex items-center gap-1 truncate max-w-[150px] font-varela", size === 'lg' ? "text-lg" : "text-sm")} onClick={e => e.stopPropagation()}><LinkIcon className="h-3 w-3" /> {value}</a>;
-
-    if (isDate) return <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer font-varela", size === 'lg' ? "text-lg" : "text-xs")}>{formatDate(value)} {formatTime(value)}</div>;
-
-    if (isPassword) {
-      return (
-        <div
-          onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
-          className="cursor-pointer flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors group"
-          title="click to edit/reveal"
-        >
-          <Lock className="h-3 w-3" />
-          <span className={cn("font-mono group-hover:hidden", size === 'lg' ? "text-base" : "text-xs")}>••••••••</span>
-          <span className={cn("font-mono hidden group-hover:inline opacity-50", size === 'lg' ? "text-sm" : "text-[10px]")}>{strValue.slice(0, 1)}***{strValue.slice(-1)}</span>
-        </div>
-      );
-    }
-
-    if (isColor) {
-      return (
-        <div onClick={() => setIsEditing(true)} className="flex items-center gap-2 cursor-pointer group">
-          <div className="w-4 h-4 rounded-full border shadow-sm" style={{ backgroundColor: value || 'transparent' }} />
-          <span className={cn("font-mono opacity-80 group-hover:opacity-100", size === 'lg' ? "text-lg" : "text-xs")}>{value}</span>
-        </div>
-      );
-    }
-
-    if (isCheckbox) {
-      return (
-        <div
-          className="flex items-center justify-center h-full w-full cursor-pointer"
-          onClick={() => onChange(!value)}
-        >
-          <Checkbox
-            checked={!!value}
-            className={cn("data-[state=checked]:bg-yellow-400 data-[state=checked]:text-black border-muted-foreground", !value && "opacity-50")}
-            onCheckedChange={(checked: boolean) => onChange(checked)}
-          />
-        </div>
-      )
-    }
-
-    if (isFile) {
-      // normalize to array of urls
-      const imgs: string[] = [];
-      if (Array.isArray(value)) {
-        value.forEach((v: any) => {
-          if (!v) return;
-          if (typeof v === 'string') imgs.push(v);
-          else if (v.url) imgs.push(v.url);
-        });
-      } else if (typeof value === 'string' && (value.startsWith('http') || value.startsWith('data:'))) {
-        imgs.push(value);
-      } else if (value?.url) {
-        imgs.push(value.url);
-      }
-
-      if (imgs.length > 0) {
-        return (
-          <div className="flex items-center justify-center gap-1 h-full w-full overflow-hidden px-1">
-            <div
-              className="cursor-pointer flex items-center gap-1.5 transition-transform hover:scale-105 active:scale-95"
-              onClick={(e) => { e.stopPropagation(); setFullscreenIndex(0); setGalleryImgs(imgs); }}
-            >
-              {imgs.slice(0, 1).map((u, i) => (
-                <img
-                  key={i}
-                  src={u}
-                  className="h-7 w-7 object-cover rounded shadow-sm border border-white/10"
-                  alt="preview"
-                  onError={(e) => {
-                    (e.target as any).style.display = 'none';
-                  }}
-                />
-              ))}
-              {imgs.length > 1 && (
-                <span className="text-[10px] font-bold text-muted-foreground bg-white/5 px-1 rounded">+{imgs.length - 1}</span>
-              )}
-            </div>
-
-            {/* fullscreen viewer */}
-            {fullscreenIndex !== null && (
-              <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-200">
-                <div className="absolute top-4 right-4 flex gap-2 z-50">
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    onClick={async () => {
-                      if ('EyeDropper' in window) {
-                        try {
-                          // @ts-ignore
-                          const eyeDropper = new window.EyeDropper();
-                          // @ts-ignore
-                          const result = await eyeDropper.open();
-                          navigator.clipboard.writeText(result.sRGBHex);
-                          toast.success(`copied ${result.sRGBHex}`);
-                        } catch (e) { console.error(e); }
-                      } else {
-                        toast.error("color picker not supported");
-                      }
-                    }}
-                    title="pick color"
-                  >
-                    <Pipette className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    onClick={() => {
-                      const link = document.createElement('a');
-                      link.href = galleryImgs[fullscreenIndex!];
-                      link.download = `image-${fullscreenIndex}.jpg`;
-                      link.target = "_blank";
-                      link.click();
-                    }}
-                    title="download"
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    size="icon"
-                    onClick={() => setFullscreenIndex(null)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div className="flex-1 flex items-center justify-center p-8 relative">
-                  <img
-                    src={galleryImgs[fullscreenIndex!]}
-                    className="max-h-full max-w-full object-contain shadow-2xl"
-                    alt="fullscreen"
+                <div key={opt.value} className="flex items-center gap-2">
+                  <input
+                    type="radio"
+                    id={`radio-${opt.value}`}
+                    name={field.name}
+                    value={opt.value}
+                    checked={localValue === opt.value}
+                    onChange={(e) => setLocalValue(e.target.value)}
                   />
-                  {galleryImgs.length > 1 && (
-                    <>
-                      <Button
-                        variant="outline"
-                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white border-0"
-                        onClick={(e: React.MouseEvent) => {
-                          e.stopPropagation();
-                          setFullscreenIndex(prev => (prev === null || prev === 0) ? galleryImgs.length - 1 : prev - 1);
-                        }}
-                      >
-                        ←
-                      </Button>
-                      <Button
-                        variant="outline"
-                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white border-0"
-                        onClick={(e: React.MouseEvent) => {
-                          e.stopPropagation();
-                          setFullscreenIndex(prev => (prev === null || prev === galleryImgs.length - 1) ? 0 : prev + 1);
-                        }}
-                      >
-                        →
-                      </Button>
-                    </>
-                  )}
+                  <label htmlFor={`radio-${opt.value}`} className="text-sm">{opt.label}</label>
                 </div>
-                <div className="pb-4 text-center text-white/50 text-sm">
-                  {fullscreenIndex! + 1} / {galleryImgs.length}
-                </div>
+              ))}
+              <div className="flex justify-end gap-1 mt-2">
+                <Button size="sm" className="h-6 text-xs" onClick={() => handleSave()}>done</Button>
               </div>
-            )}
+            </div>
+          );
+        }
+
+        return (
+          <div className="flex items-center gap-1">
+            <Select value={localValue} onValueChange={setLocalValue}>
+              <SelectTrigger className="h-8 w-[150px]">
+                <SelectValue placeholder="select..." />
+              </SelectTrigger>
+              <SelectContent>
+                {options.map((opt: any) => (
+                  <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => handleSave()}><Check className="h-3 w-3" /></Button>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancel}><X className="h-3 w-3" /></Button>
           </div>
         )
       }
 
-      return (
-        <div
-          onClick={() => setIsEditing(true)}
-          className="h-full w-full flex items-center justify-center cursor-pointer opacity-20 hover:opacity-100 transition-opacity"
-        >
-          <Paperclip className="h-3 w-3" />
-        </div>
-      );
-    }
-
-    if (isSelect) {
-      return (
-        <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer hover:bg-muted/50 px-2 py-0.5 rounded border border-transparent hover:border-muted-foreground/20 font-varela", size === 'lg' ? "text-lg" : "text-sm")}>
-          {value || <span className="opacity-40">Select...</span>}
-        </div>
-      )
-    }
-
-    if (isLocation) {
-      return (
-        <Dialog>
-          <DialogTrigger asChild>
-            <div className="flex items-center gap-2 cursor-pointer group">
-              <MapPin className="h-4 w-4 text-primary group-hover:animate-bounce" />
-              <span className={cn("truncate max-w-[150px] underline decoration-dotted text-muted-foreground group-hover:text-primary font-varela", size === 'lg' ? "text-lg" : "text-sm")}>
-                {value ? 'view map' : 'set location'}
-              </span>
-              <Button variant="ghost" size="icon" className="h-4 w-4 ml-1 opacity-0 group-hover:opacity-100" onClick={(e: MouseEvent) => { e.stopPropagation(); setIsEditing(true); }}>
-                <Check className="h-3 w-3" />
-              </Button>
-            </div>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl h-[500px]">
-            <LocationField value={value} onChange={() => { }} readOnly={true} />
-          </DialogContent>
-        </Dialog>
-      );
-    }
-
-    if (isMarkdown) {
-      return (
-        <div
-          onDoubleClick={() => setIsEditing(true)}
-          className="cursor-pointer group relative min-h-[20px] font-varela w-full h-full overflow-hidden"
-        >
-          <div className={cn(
-            "prose prose-invert prose-xs line-clamp-2 leading-tight opacity-90 group-hover:opacity-100 transition-opacity",
-            "prose-p:my-0 prose-headings:my-0 prose-ul:my-0 prose-li:my-0 pb-0.5 pt-0.5",
-            size === 'lg' ? "text-base" : "text-[11px]"
-          )}>
-            <ReactMarkdown>{value || ''}</ReactMarkdown>
+      if (isColor) {
+        return (
+          <div className="flex items-center gap-2 p-1 bg-card border rounded shadow-lg">
+            <input
+              type="color"
+              value={localValue || '#000000'}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
+              className="h-8 w-8 cursor-pointer border-0 p-0 rounded overflow-hidden"
+            />
+            <Input
+              value={localValue || ''}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
+              className="h-8 w-24 text-xs font-mono"
+              placeholder="#hex"
+            />
+            <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => handleSave()}><Check className="h-3 w-3" /></Button>
+            <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancel}><X className="h-3 w-3" /></Button>
           </div>
-          {!value && <span className={cn("opacity-20 italic font-varela", size === 'lg' ? "text-lg" : "text-xs")}>Empty</span>}
-          <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-50 transition-opacity">
-            <Edit2 className="h-2.5 w-2.5" />
-          </div>
-        </div>
-      )
-    }
+        )
+      }
 
-    if (isJson) {
-      return (
-        <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer font-mono bg-muted px-1 rounded text-muted-foreground truncate max-w-[150px] hover:text-foreground hover:bg-muted/80", size === 'lg' ? "text-sm" : "text-[10px]")}>
-          {JSON.stringify(value)}
-        </div>
-      )
-    }
+      if (isRelation) {
+        // relation editor: simple picker that fetches target records
+        // we need to fetch the target collection list.
+        // assumption: field.target is the collection name of the relation.
+        return (
+          <RelationPicker
+            field={field}
+            value={localValue}
+            onChange={(v: any) => {
+              // if a specific property was configured, store only that value
+              const out = field.property && v ? v[field.property] : v;
+              setLocalValue(out);
+              handleSave(out);
+            }}
+            onCancel={handleCancel}
+          />
+        );
+      }
 
-    if (isCode) {
-      return (
-        <div className="flex items-center gap-2 font-varela">
-          <div onClick={() => { setIsEditing(true); setShowFormulaEditor(true); }} className={cn("cursor-pointer font-mono bg-muted px-1 rounded text-muted-foreground truncate max-w-[100px] hover:text-foreground hover:bg-muted/80 focus:outline-none", size === 'lg' ? "text-sm" : "text-[10px]")}>
-            {value ? '<script...>' : 'empty code'}
-          </div>
-          {value && (
-            <div className="flex gap-1">
-              <Button variant="outline" size="sm" className="h-5 text-[10px] px-1" title="run" onClick={() => {
+      if (isJson) {
+        return (
+          <div className="flex flex-col gap-1 min-w-[200px] bg-background border p-2 rounded shadow-lg">
+            <div className="text-[10px] font-bold text-muted-foreground opacity-50 mb-1">json/object editor</div>
+            <textarea
+              autoFocus
+              value={typeof localValue === 'string' ? localValue : JSON.stringify(localValue, null, 2)}
+              onChange={(e: ChangeEvent<HTMLTextAreaElement>) => setLocalValue(e.target.value)}
+              className="w-full h-32 text-[10px] font-mono bg-[#050505] text-green-400 p-2 border border-primary/20 focus:outline-none"
+            />
+            <div className="flex justify-end gap-1 mt-1">
+              <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => {
                 try {
-                  const func = new Function('record', 'api', value);
-                  func(record, client); // Run with context
-                  toast.success("script executed");
+                  const parsed = typeof localValue === 'string' ? JSON.parse(localValue) : localValue;
+                  onChange(parsed);
+                  setIsEditing(false);
                 } catch (e) {
-                  alert("Error running code: " + e);
+                  toast.error("invalid json format");
                 }
-              }}>
-                <Terminal className="h-3 w-3" />
-              </Button>
-              <Button variant="outline" size="sm" className="h-5 text-[10px] px-1" title="ai edit" onClick={() => { setIsEditing(true); setShowFormulaEditor(true); }}>
-                <Sparkles className="h-3 w-3" />
-              </Button>
+              }}><Check className="h-3 w-3" /></Button>
+              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancel}><X className="h-3 w-3" /></Button>
             </div>
-          )}
-        </div>
-      )
-    }
+          </div>
+        )
+      }
 
-    if (isNumber) {
+      {
+        const editTextSize = size === 'lg' ? 'text-lg' : 'text-sm';
+        // keep height constant so cells don't resize; text will scale instead
+        const editHeight = 'h-8';
+        return (
+          <div className={cn("flex items-center gap-1 min-w-[120px] bg-background relative z-10", className)}>
+            <Input
+              autoFocus
+              type={isNumber ? "number" : "text"}
+              value={localValue || ''}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
+              className={cn(editHeight, editTextSize, "border-0 shadow-none outline-none ring-0 focus:border-0 focus:shadow-none focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none", inputClassName)}
+              onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
+                if (e.key === 'Enter') handleSave();
+                if (e.key === 'Escape') handleCancel();
+              }}
+            />
+            {isPercentField && <span className={cn(size === 'lg' ? 'text-lg' : 'text-sm')}>%</span>}
+            <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500 hover:text-green-600" onClick={() => handleSave()}>
+              <Check className="h-3 w-3" />
+            </Button>
+            <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground" onClick={handleCancel}>
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+        );
+      }
+
+
+      // --- view mode ---
+
+      const renderView = () => {
+        if (isId) return <span className={cn("font-mono opacity-50 select-text font-varela", size === 'lg' ? "text-lg" : "text-[10px]")}>{value?.toString()}</span>;
+
+        if (isRelation) {
+          // prepare display value: if object, show title/name or property.
+          let display = '';
+          if (Array.isArray(value)) {
+            display = value
+              .map(v => {
+                if (field.property && v && typeof v === 'object') return v[field.property];
+                return v?.title || v?.name || v?.id || JSON.stringify(v);
+              })
+              .join(', ');
+          } else if (typeof value === 'object' && value !== null) {
+            if (field.property && value[field.property] !== undefined) {
+              display = String(value[field.property]);
+            } else {
+              display = value.title || value.name || value.id || JSON.stringify(value);
+            }
+          } else {
+            display = String(value || '');
+          }
+
+          return (
+            <div
+              className="flex items-center gap-1 cursor-pointer font-varela"
+              onClick={() => setIsEditing(true)}
+            >
+              <div className={cn("px-1.5 py-0.5 bg-blue-50 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300 rounded border border-blue-100 dark:border-blue-800 truncate max-w-[200px]", size === 'lg' ? "text-lg" : "text-xs")}>
+                {display || <span className="opacity-50 italic">empty relation</span>}
+              </div>
+            </div>
+          )
+        }
+
+        if (isDateTime) {
+          return (
+            <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer font-varela", size === 'lg' ? "text-lg" : "text-xs")}>{formatDate(value)} {formatTime(value)}</div>
+          );
+        }
+
+        if (isTime) {
+          return (
+            <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer font-varela", size === 'lg' ? "text-lg" : "text-xs")}>{formatTime(value)}</div>
+          );
+        }
+
+        if (isPhone) {
+          return (
+            <div
+              className={cn("text-primary hover:underline flex items-center gap-1 cursor-pointer font-varela", size === 'lg' ? "text-lg" : "text-xs")}
+              onClick={(e) => handlePhoneClick(e, strValue)}
+            >
+              <Phone className="h-3 w-3" />
+              {formatPhoneNumber(strValue)}
+            </div>
+          );
+        }
+
+        if (isEmail) {
+          return (
+            <a
+              href={`mailto:${strValue}`}
+              className={cn("text-primary hover:underline flex items-center gap-1 truncate max-w-[200px] font-varela", size === 'lg' ? "text-lg" : "text-sm")}
+              onClick={e => e.stopPropagation()}
+            >
+              <Mail className="h-3 w-3" />
+              {strValue}
+            </a>
+          );
+        }
+
+        if (isUrl) return <a href={value} target="_blank" rel="noopener noreferrer" className={cn("text-blue-400 hover:underline flex items-center gap-1 truncate max-w-[150px] font-varela", size === 'lg' ? "text-lg" : "text-sm")} onClick={e => e.stopPropagation()}><LinkIcon className="h-3 w-3" /> {value}</a>;
+
+        if (isDate) return <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer font-varela", size === 'lg' ? "text-lg" : "text-xs")}>{formatDate(value)} {formatTime(value)}</div>;
+
+        if (isPassword) {
+          return (
+            <div
+              onClick={(e) => { e.stopPropagation(); setIsEditing(true); }}
+              className="cursor-pointer flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors group"
+              title="click to edit/reveal"
+            >
+              <Lock className="h-3 w-3" />
+              <span className={cn("font-mono group-hover:hidden", size === 'lg' ? "text-base" : "text-xs")}>••••••••</span>
+              <span className={cn("font-mono hidden group-hover:inline opacity-50", size === 'lg' ? "text-sm" : "text-[10px]")}>{strValue.slice(0, 1)}***{strValue.slice(-1)}</span>
+            </div>
+          );
+        }
+
+        if (isColor) {
+          return (
+            <div onClick={() => setIsEditing(true)} className="flex items-center gap-2 cursor-pointer group">
+              <div className="w-4 h-4 rounded-full border shadow-sm" style={{ backgroundColor: value || 'transparent' }} />
+              <span className={cn("font-mono opacity-80 group-hover:opacity-100", size === 'lg' ? "text-lg" : "text-xs")}>{value}</span>
+            </div>
+          );
+        }
+
+        if (isCheckbox) {
+          return (
+            <div
+              className="flex items-center justify-center h-full w-full cursor-pointer"
+              onClick={() => onChange(!value)}
+            >
+              <Checkbox
+                checked={!!value}
+                className={cn("data-[state=checked]:bg-yellow-400 data-[state=checked]:text-black border-muted-foreground", !value && "opacity-50")}
+                onCheckedChange={(checked: boolean) => onChange(checked)}
+              />
+            </div>
+          )
+        }
+
+        if (isFile) {
+          // normalize to array of urls
+          const imgs: string[] = [];
+          if (Array.isArray(value)) {
+            value.forEach((v: any) => {
+              if (!v) return;
+              if (typeof v === 'string') imgs.push(v);
+              else if (v.url) imgs.push(v.url);
+            });
+          } else if (typeof value === 'string' && (value.startsWith('http') || value.startsWith('data:'))) {
+            imgs.push(value);
+          } else if (value?.url) {
+            imgs.push(value.url);
+          }
+
+          if (imgs.length > 0) {
+            return (
+              <div className="flex items-center justify-center gap-1 h-full w-full overflow-hidden px-1">
+                <div
+                  className="cursor-pointer flex items-center gap-1.5 transition-transform hover:scale-105 active:scale-95"
+                  onClick={(e) => { e.stopPropagation(); setFullscreenIndex(0); setGalleryImgs(imgs); }}
+                >
+                  {imgs.slice(0, 1).map((u, i) => (
+                    <img
+                      key={i}
+                      src={u}
+                      className="h-7 w-7 object-cover rounded shadow-sm border border-white/10"
+                      alt="preview"
+                      onError={(e) => {
+                        (e.target as any).style.display = 'none';
+                      }}
+                    />
+                  ))}
+                  {imgs.length > 1 && (
+                    <span className="text-[10px] font-bold text-muted-foreground bg-white/5 px-1 rounded">+{imgs.length - 1}</span>
+                  )}
+                </div>
+
+                {/* fullscreen viewer */}
+                {fullscreenIndex !== null && (
+                  <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-200">
+                    <div className="absolute top-4 right-4 flex gap-2 z-50">
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        onClick={async () => {
+                          if ('EyeDropper' in window) {
+                            try {
+                              // @ts-ignore
+                              const eyeDropper = new window.EyeDropper();
+                              // @ts-ignore
+                              const result = await eyeDropper.open();
+                              navigator.clipboard.writeText(result.sRGBHex);
+                              toast.success(`copied ${result.sRGBHex}`);
+                            } catch (e) { console.error(e); }
+                          } else {
+                            toast.error("color picker not supported");
+                          }
+                        }}
+                        title="pick color"
+                      >
+                        <Pipette className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="icon"
+                        onClick={() => {
+                          const link = document.createElement('a');
+                          link.href = galleryImgs[fullscreenIndex!];
+                          link.download = `image-${fullscreenIndex}.jpg`;
+                          link.target = "_blank";
+                          link.click();
+                        }}
+                        title="download"
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => setFullscreenIndex(null)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="flex-1 flex items-center justify-center p-8 relative">
+                      <img
+                        src={galleryImgs[fullscreenIndex!]}
+                        className="max-h-full max-w-full object-contain shadow-2xl"
+                        alt="fullscreen"
+                      />
+                      {galleryImgs.length > 1 && (
+                        <>
+                          <Button
+                            variant="outline"
+                            className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white border-0"
+                            onClick={(e: React.MouseEvent) => {
+                              e.stopPropagation();
+                              setFullscreenIndex(prev => (prev === null || prev === 0) ? galleryImgs.length - 1 : prev - 1);
+                            }}
+                          >
+                            ←
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white border-0"
+                            onClick={(e: React.MouseEvent) => {
+                              e.stopPropagation();
+                              setFullscreenIndex(prev => (prev === null || prev === galleryImgs.length - 1) ? 0 : prev + 1);
+                            }}
+                          >
+                            →
+                          </Button>
+                        </>
+                      )}
+                    </div>
+                    <div className="pb-4 text-center text-white/50 text-sm">
+                      {fullscreenIndex! + 1} / {galleryImgs.length}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )
+          }
+
+          return (
+            <div
+              onClick={() => setIsEditing(true)}
+              className="h-full w-full flex items-center justify-center cursor-pointer opacity-20 hover:opacity-100 transition-opacity"
+            >
+              <Paperclip className="h-3 w-3" />
+            </div>
+          );
+        }
+
+        if (isSelect) {
+          return (
+            <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer hover:bg-muted/50 px-2 py-0.5 rounded border border-transparent hover:border-muted-foreground/20 font-varela", size === 'lg' ? "text-lg" : "text-sm")}>
+              {value || <span className="opacity-40">Select...</span>}
+            </div>
+          )
+        }
+
+        if (isLocation) {
+          return (
+            <Dialog>
+              <DialogTrigger asChild>
+                <div className="flex items-center gap-2 cursor-pointer group">
+                  <MapPin className="h-4 w-4 text-primary group-hover:animate-bounce" />
+                  <span className={cn("truncate max-w-[150px] underline decoration-dotted text-muted-foreground group-hover:text-primary font-varela", size === 'lg' ? "text-lg" : "text-sm")}>
+                    {value ? 'view map' : 'set location'}
+                  </span>
+                  <Button variant="ghost" size="icon" className="h-4 w-4 ml-1 opacity-0 group-hover:opacity-100" onClick={(e: MouseEvent) => { e.stopPropagation(); setIsEditing(true); }}>
+                    <Check className="h-3 w-3" />
+                  </Button>
+                </div>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl h-[500px]">
+                <LocationField value={value} onChange={() => { }} readOnly={true} />
+              </DialogContent>
+            </Dialog>
+          );
+        }
+
+        if (isMarkdown) {
+          return (
+            <div
+              onDoubleClick={() => setIsEditing(true)}
+              className="cursor-pointer group relative min-h-[20px] font-varela w-full h-full overflow-hidden"
+            >
+              <div className={cn(
+                "prose prose-invert prose-xs line-clamp-2 leading-tight opacity-90 group-hover:opacity-100 transition-opacity",
+                "prose-p:my-0 prose-headings:my-0 prose-ul:my-0 prose-li:my-0 pb-0.5 pt-0.5",
+                size === 'lg' ? "text-base" : "text-[11px]"
+              )}>
+                <ReactMarkdown>{value || ''}</ReactMarkdown>
+              </div>
+              {!value && <span className={cn("opacity-20 italic font-varela", size === 'lg' ? "text-lg" : "text-xs")}>Empty</span>}
+              <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-50 transition-opacity">
+                <Edit2 className="h-2.5 w-2.5" />
+              </div>
+            </div>
+          )
+        }
+
+        if (isJson) {
+          return (
+            <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer font-mono bg-muted px-1 rounded text-muted-foreground truncate max-w-[150px] hover:text-foreground hover:bg-muted/80", size === 'lg' ? "text-sm" : "text-[10px]")}>
+              {JSON.stringify(value)}
+            </div>
+          )
+        }
+
+        if (isCode) {
+          return (
+            <div className="flex items-center gap-2 font-varela">
+              <div onClick={() => { setIsEditing(true); setShowFormulaEditor(true); }} className={cn("cursor-pointer font-mono bg-muted px-1 rounded text-muted-foreground truncate max-w-[100px] hover:text-foreground hover:bg-muted/80 focus:outline-none", size === 'lg' ? "text-sm" : "text-[10px]")}>
+                {value ? '<script...>' : 'empty code'}
+              </div>
+              {value && (
+                <div className="flex gap-1">
+                  <Button variant="outline" size="sm" className="h-5 text-[10px] px-1" title="run" onClick={() => {
+                    try {
+                      const func = new Function('record', 'api', value);
+                      func(record, client); // Run with context
+                      toast.success("script executed");
+                    } catch (e) {
+                      alert("Error running code: " + e);
+                    }
+                  }}>
+                    <Terminal className="h-3 w-3" />
+                  </Button>
+                  <Button variant="outline" size="sm" className="h-5 text-[10px] px-1" title="ai edit" onClick={() => { setIsEditing(true); setShowFormulaEditor(true); }}>
+                    <Sparkles className="h-3 w-3" />
+                  </Button>
+                </div>
+              )}
+            </div>
+          )
+        }
+
+        if (isNumber) {
+          return (
+            <div
+              onDoubleClick={() => {
+                setIsEditing(true);
+              }}
+              className={cn("cursor-pointer text-right min-h-[20px] font-varela", size === 'lg' ? "text-lg" : "text-sm")}
+            >
+              {value !== null && value !== undefined ? formatNumber(value) : <span className="opacity-20">-</span>}
+            </div>
+          );
+        }
+
+        // default string
+        return (
+          <div
+            onDoubleClick={() => {
+              setIsEditing(true);
+            }}
+            className={cn(
+              "cursor-pointer hover:bg-muted/50 px-1 py-0.5 rounded transition-colors min-h-[20px] break-words font-varela focus:outline-none",
+              size === 'lg' ? "text-lg" : "text-sm",
+              className
+            )}
+            title="double click to edit"
+          >
+            {value || <span className={cn("opacity-20 italic font-varela", size === 'lg' ? "text-lg" : "text-xs")}>empty</span>}
+          </div>
+        );
+
+      }
+
       return (
-        <div
-          onClick={() => {
-            console.debug('[SmartField] number cell clicked', field?.name, value);
-            setIsEditing(true);
-          }}
-          className={cn("cursor-pointer text-right min-h-[20px] font-varela", size === 'lg' ? "text-lg" : "text-sm")}
-        >
-          {value !== null && value !== undefined ? formatNumber(value) : <span className="opacity-20">-</span>}
+        <div className={cn("font-varela", size === 'lg' ? "text-lg" : "text-sm")}>
+          <FieldContextMenu onEdit={() => setIsEditing(true)} onClear={() => onChange(null)} value={value} record={record} collectionName={collectionName}>
+            {renderView()}
+          </FieldContextMenu>
         </div>
       );
     }
-
-    // default string
-    return (
-      <div
-        onClick={() => {
-          console.debug('[SmartField] string cell clicked', field?.name, value);
-          setIsEditing(true);
-        }}
-        onContextMenu={() => {
-          console.debug('[SmartField] contextmenu on cell', field?.name, value);
-        }}
-        className={cn(
-          "cursor-pointer hover:bg-muted/50 px-1 py-0.5 rounded transition-colors min-h-[20px] break-words font-varela focus:outline-none",
-          size === 'lg' ? "text-lg" : "text-sm",
-          className
-        )}
-        title="click to edit"
-      >
-        {value || <span className={cn("opacity-20 italic font-varela", size === 'lg' ? "text-lg" : "text-xs")}>empty</span>}
-      </div>
-    );
-
   }
-
-  return (
-    <div className={cn("font-varela", size === 'lg' ? "text-lg" : "text-sm")}>
-      <FieldContextMenu onEdit={() => setIsEditing(true)} onClear={() => onChange(null)} value={value} record={record} collectionName={collectionName}>
-        {renderView()}
-      </FieldContextMenu>
-    </div>
-  );
-}}}
+}
