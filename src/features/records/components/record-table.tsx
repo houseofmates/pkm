@@ -98,7 +98,7 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
         background: 'transparent',
       }}
       className={cn(
-        "border-r border-[#222] border-b group select-none relative text-left p-0 h-9 transition-colors",
+        "group select-none relative text-left p-0 h-9 transition-colors border-r border-[#222] border-b border-b-[#222]",
         isDragging ? "bg-gray-800/40" : "hover:bg-gray-800/20"
       )}
     >
@@ -109,7 +109,7 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
           onClick={triggerSettings}
           onDoubleClick={triggerSettings}
           onContextMenu={triggerSettings}
-          onPointerDown={(e) => e.stopPropagation()} // prevent drag when interacting with title
+          onPointerDown={(e) => e.stopPropagation()}
         >
           <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pr-5">
             {header.isPlaceholder
@@ -121,8 +121,7 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
           </div>
         </div>
 
-        {/* drag zones - only active when NOT clicking the title or resize handle */}
-        {/* we keep attributes/listeners on the whole container but use stopPropagation on interactive parts */}
+        {/* drag handle - moved attributes here to avoid role="button" on TableHead */}
         <div
           className="absolute inset-0 z-10 cursor-grab active:cursor-grabbing"
           {...attributes}
@@ -133,7 +132,7 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
       <div
         onMouseDown={header.getResizeHandler()}
         onTouchStart={header.getResizeHandler()}
-        onPointerDown={(e) => e.stopPropagation()} // prevent drag/settings when resizing
+        onPointerDown={(e) => e.stopPropagation()}
         className={cn(
           "absolute -right-2 top-0 h-full w-4 z-30 cursor-col-resize touch-none select-none transition-opacity",
           header.column.getIsResizing() ? "opacity-100 bg-[#333] shadow-[0_4000px_0_0_currentColor]" : "opacity-20 hover:opacity-100"
@@ -175,22 +174,24 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
       <TableRow
         ref={setNodeRef}
         style={style}
-        {...attributes}
-        {...listeners}
         className={cn(
           "transition-colors group border-b border-[#222]",
           !rowColor && "hover:bg-gray-800/10"
         )}
       >
-        {/* drag handle area or empty cell to match the add-field column */}
+        {/* drag handle area */}
         {onCreateField && (
           <TableCell
-            className="w-10 border-r border-[#222] border-b p-0 flex items-center justify-center h-10 transition-colors"
-            {...attributes}
-            {...listeners}
+            className="w-10 border-r border-[#222] border-b border-b-[#222] p-0 h-10 transition-colors relative"
           >
-            <div className="cursor-move p-2 opacity-0 group-hover:opacity-60 transition-opacity">
-              <div className="w-1 h-3 bg-white/20 rounded-full" />
+            <div
+              className="absolute inset-0 cursor-move flex items-center justify-center group-hover:bg-white/5"
+              {...attributes}
+              {...listeners}
+            >
+              <div className="p-2 opacity-0 group-hover:opacity-60 transition-opacity">
+                <div className="w-1 h-3 bg-white/20 rounded-full" />
+              </div>
             </div>
           </TableCell>
         )}
@@ -467,13 +468,30 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
   return (
     <div
-      className="rounded-md border overflow-hidden no-scrollbar relative bg-[#0d0d0d]"
+      className="record-table-root rounded-md border border-[#222] overflow-hidden no-scrollbar relative bg-[#0b0b0b]"
       style={{
         borderColor: '#222',
         borderWidth: '1px',
-        background: '#0d0d0d'
+        background: '#0b0b0b'
       }}
     >
+      <style dangerouslySetInnerHTML={{
+        __html: `
+        .record-table-root * {
+          border-color: #222 !important;
+        }
+        .record-table-root th, 
+        .record-table-root td {
+          border-bottom: 1px solid #222 !important;
+          border-right: 1px solid #222 !important;
+        }
+        .record-table-root tr {
+          border-bottom: 1px solid #222 !important;
+        }
+        .record-table-root .hover\\:bg-white\\/10:hover {
+          background-color: rgba(255, 255, 255, 0.1) !important;
+        }
+      `}} />
       <div className="overflow-x-auto overflow-y-hidden no-scrollbar">
         <Table style={{ width: table.getTotalSize(), tableLayout: 'fixed' }}>
           <TableHeader>
@@ -481,11 +499,11 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               <TableRow key={headerGroup.id} className="border-b border-[#222]">
                 {/* add field button at the start */}
                 {onCreateField && (
-                  <TableHead className="w-10 border-r border-[#222] border-b p-0 overflow-hidden">
+                  <TableHead className="w-10 border-r border-[#222] border-b border-b-[#222] p-0 overflow-hidden">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-full w-full rounded-none opacity-50 hover:opacity-100 hover:bg-white/10 flex items-center justify-center"
+                      className="h-full w-full rounded-none opacity-50 hover:opacity-100 hover:bg-white/10 flex items-center justify-center p-0"
                       onClick={onCreateField}
                       title="add new property"
                     >
@@ -515,11 +533,10 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               </TableRow>
             ))}
           </TableHeader>
-          {/* TableBody and other table content should follow here */}
           <TableBody>
             {table.getRowModel().rows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={columnCount} className="text-center text-muted-foreground h-16">
+                <TableCell colSpan={columnCount + (onCreateField ? 1 : 0)} className="text-center text-muted-foreground h-16">
                   no records found
                 </TableCell>
               </TableRow>
@@ -546,9 +563,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         onOpenChange={setIsSettingsOpen}
         field={settingsField}
         collectionName={collection.name}
-        onFieldUpdated={() => {
-          // You might want to refresh data here or just let it be
-        }}
+        onFieldUpdated={() => { }}
       />
     </div>
   );
