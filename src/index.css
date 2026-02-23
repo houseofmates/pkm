@@ -361,12 +361,11 @@ header * {
 
 /* --- high contrast & visibility restoration (user request) --- */
 
-/* 1. the background: force dark #050505 */
+/* restore sidebar background */
 .sidebar,
-.nav-container,
-.nav-item.selected {
-  background-color: transparent !important;
-  background: transparent !important;
+.nav-container {
+  background-color: #050505 !important;
+  background: #050505 !important;
 }
 
 /* --- v5 emergency fix (coherent) --- */
@@ -374,10 +373,9 @@ header * {
 /* 1. header & sidebar background (dark grey/black) */
 /* 1. header & sidebar background (dark grey/black) */
 header,
-.nav-header,
-.nav-container {
-  background-color: transparent !important;
-  background: transparent !important;
+.nav-header {
+  background-color: #050505 !important;
+  background: #050505 !important;
   border-bottom: none !important;
 }
 
@@ -393,14 +391,10 @@ button,
 /* 3. selected items: transparent background, colored icon */
 .nav-item.selected,
 .nav-item:hover,
-.nav-button.active,
-.selected-icon-btn,
-.nav-icon-btn,
-.nav-icon-btn:active,
-.nav-icon-btn:focus,
-.nav-icon-btn:hover {
+.nav-button.active {
+  background-color: var(--primary-soft) !important;
   border: none !important;
-  /* no box border around the item itself */
+  border-radius: 0.5rem;
 }
 
 /* 4. icons: always primary color & visible */
