@@ -165,7 +165,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
  <ContextMenuTrigger asChild>{children}</ContextMenuTrigger>
  <ContextMenuContent className="w-64">
  <ContextMenuLabel className={getCapitalizationClass((currentOverride as any).name || memberName)}>
- {formatheadmatename((currentoverride as any).name || membername)}
+ {formatHeadmateName((currentOverride as any).name || memberName)}
  </ContextMenuLabel>
  <ContextMenuSeparator />
 
