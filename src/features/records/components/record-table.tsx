@@ -108,7 +108,8 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
           onClick={triggerSettings}
           onDoubleClick={triggerSettings}
           onContextMenu={triggerSettings}
-          onPointerDown={(e) => e.stopPropagation()}
+          onPointerDownCapture={(e) => e.stopPropagation()}
+          onMouseDownCapture={(e) => e.stopPropagation()}
         >
           <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pr-5">
             {header.isPlaceholder
