@@ -53,8 +53,8 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   const isHidden = currentOverride.hidden;
 
   const toggleHide = () => {
-  updateoverride(memberid, { hidden: !ishidden });
-  toast.info(ishidden ? "headmate restored" : "headmate hidden");
+  updateoverride(memberid, { hidden: !isHidden });
+  toast.info(isHidden ? "headmate restored" : "headmate hidden");
   };
 
   // --- image handling ---
@@ -203,7 +203,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
  onSelect={toggleHide}
  >
  <Trash2 className="mr-2 h-4 w-4" />
- {ishidden ? "unhide headmate" : "hide headmate"}
+ {isHidden ? "unhide headmate" : "hide headmate"}
  </ContextMenuItem>
  </ContextMenuContent>
   </ContextMenu>
