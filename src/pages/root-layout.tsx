@@ -98,8 +98,9 @@ export function RootLayout() {
   useEffect(() => {
     const root = document.documentElement;
     root.style.setProperty('--primary', accentColor);
-    root.style.setProperty('--primary-soft', getAccentBg(accentColor));
-    if (typeof window !== 'undefined') (window as any).accentBg = accentBg; // Expose globally for SortableItem
+    const soft = getAccentBg(accentColor);
+    root.style.setProperty('--primary-soft', soft);
+    if (typeof window !== 'undefined') (window as any).accentBg = soft;
 
     const favIcon = document.getElementById('favicon') as HTMLLinkElement;
     if (favIcon) {
