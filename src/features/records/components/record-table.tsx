@@ -4,7 +4,7 @@ import {
   flexRender,
   createColumnHelper,
 } from '@tanstack/react-table';
-import { List } from 'react-window';
+import { FixedSizeList as List } from 'react-window';
 import { AutoSizer } from 'react-virtualized-auto-sizer';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -71,6 +71,9 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
   const [isEditing, setIsEditing] = React.useState(false);
   const [draftTitle, setDraftTitle] = React.useState<string>('');
 
+  const field = (header.column.columnDef as any).meta?.field;
+  const isSystemColumn = !field;
+
   // helper to compute the current title from the column definition itself
   const computeTitle = () => {
     const h = header.column.columnDef.header;
@@ -81,6 +84,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
 
   // whenever editing is enabled, refresh draftTitle from header metadata
   const startEditing = () => {
+    if (isSystemColumn) return;
     setDraftTitle(computeTitle());
     setIsEditing(true);
   };
@@ -99,7 +103,6 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
   };
 
   const saveTitle = async (newTitle: string | undefined) => {
-    const field = (header.column.columnDef as any).meta?.field;
     if (!field) return;
     const trimmed = (newTitle || '').trim();
     // prevent empty names
@@ -143,17 +146,21 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
         background: 'transparent',
       }}
       className={cn(
-        "group select-none relative text-left p-0 h-auto min-h-10 transition-colors border-r border-[#222] border-b border-b-[#222]",
+        "group select-none relative text-left p-0 transition-colors border-r border-[#222] border-b border-b-[#222]",
         isDragging ? "bg-gray-800/40" : "hover:bg-gray-800/20"
       )}
     >
       <PropertyContextMenu
-        field={(header.column.columnDef as any).meta?.field}
+        field={field}
         onRename={() => {
+          if (isSystemColumn) return;
           setDraftTitle(computeTitle());
           setIsEditing(true);
         }}
-        onEditSettings={() => onOpenFieldSettings?.((header.column.columnDef as any).meta?.field)}
+        onEditSettings={() => {
+          if (isSystemColumn) return;
+          onOpenFieldSettings?.(field);
+        }}
         onHide={() => {
           toast.info("hiding feature coming soon");
         }}
@@ -172,11 +179,12 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
           {!isEditing ? (
             <div
               className="relative z-20 h-full w-full flex items-center px-0.5 select-none cursor-pointer hover:bg-white/5 transition-colors py-2"
-              onClick={() => onOpenFieldSettings?.((header.column.columnDef as any).meta?.field)}
-              onDoubleClick={startEditing}
-              onContextMenu={() => {
-                // Allow context menu to bubble up to PropertyContextMenu
+              onClick={() => {
+                if (!isSystemColumn) {
+                  onOpenFieldSettings?.(field);
+                }
               }}
+              onDoubleClick={startEditing}
             >
               <div
                 className="whitespace-normal font-medium leading-[1.2] text-sm"
@@ -222,7 +230,8 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
   );
 }
 
-const DraggableRecordRow = React.memo(({ index, style: incomingStyle, ariaAttributes, rows, collection, onUpdate, onDelete, onCreateField, recordMeta }: any) => {
+const DraggableRecordRow = React.memo(({ index, style: incomingStyle, data }: any) => {
+  const { rows, collection, onUpdate, onDelete, onCreateField, recordMeta } = data;
   const row = rows[index];
   if (!row) return null;
 
@@ -263,7 +272,6 @@ const DraggableRecordRow = React.memo(({ index, style: incomingStyle, ariaAttrib
           "transition-colors group border-b border-[#222] min-w-full",
           !rowColor && "hover:bg-gray-800/10"
         )}
-        {...ariaAttributes}
       >
         {/* drag handle area */}
         {onCreateField && (
@@ -569,7 +577,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         variant="ghost"
                         size="icon"
                         className="h-full w-full rounded-none opacity-50 hover:opacity-100 hover:bg-white/10 flex items-center justify-center p-0"
-                        onClick={onCreateField}
+                        onClick={(e) => { e.stopPropagation(); onCreateField(); }}
+                        onDoubleClick={(e) => { e.stopPropagation(); }}
                         title="add new property"
                       >
                         <Plus className="h-4 w-4" />
@@ -607,9 +616,9 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               <AutoSizer>
                 {({ height, width }: { height: number; width: number }) => (
                   <List
-                    rowCount={rows.length}
-                    rowHeight={40}
-                    rowProps={{
+                    itemCount={rows.length}
+                    itemSize={40}
+                    itemData={{
                       rows: rows,
                       collection,
                       onUpdate: onUpdateRecord,
@@ -617,9 +626,12 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                       onCreateField,
                       recordMeta
                     }}
-                    style={{ height, width }}
-                    rowComponent={DraggableRecordRow as any}
-                  />
+                    height={height}
+                    width={width}
+                    className="no-scrollbar"
+                  >
+                    {DraggableRecordRow}
+                  </List>
                 )}
               </AutoSizer>
             )}
