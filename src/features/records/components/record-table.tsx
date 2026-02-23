@@ -230,17 +230,13 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
   );
 }
 
-const DraggableRecordRow = ({ index, style: incomingStyle, data }: any) => {
+const DraggableRecordRow = (props: any) => {
+  const { index, style: incomingStyle } = props;
+  const data = props.data || props;
   const { rows, collection, onUpdate, onDelete, onCreateField, recordMeta } = data;
+
   const row = rows[index];
-  
-  // Debug logging
-  console.log(`[DraggableRecordRow] index=${index}, row=${row ? 'exists' : 'null'}, rows.length=${rows?.length}`);
-  
-  if (!row) {
-    console.log(`[DraggableRecordRow] No row at index ${index}`);
-    return null;
-  }
+  if (!row) return null;
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `record-${row.original.id}`,
@@ -256,11 +252,11 @@ const DraggableRecordRow = ({ index, style: incomingStyle, data }: any) => {
 
   const style = {
     ...incomingStyle,
-    transform: CSS.Translate.toString(transform),
+    transform: [incomingStyle?.transform, CSS.Translate.toString(transform)].filter(Boolean).join(' '),
     opacity: isDragging ? 0.5 : 1,
-    touchAction: 'none',
+    touchAction: 'none', // Important for touch drag
     backgroundColor: rowColor ? `${rowColor}20` : undefined,
-    display: 'flex',
+    display: 'flex', // Crucial for virtualization 
     width: '100%'
   };
 
