@@ -1088,4 +1088,4 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       </FieldContextMenu>
     </div>
   );
-}}
+}}}
