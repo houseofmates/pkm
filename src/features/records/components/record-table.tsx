@@ -4,7 +4,7 @@ import {
   flexRender,
   createColumnHelper,
 } from '@tanstack/react-table';
-import { List } from 'react-window';
+import { FixedSizeList as List } from 'react-window';
 import { AutoSizer } from 'react-virtualized-auto-sizer';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -233,7 +233,14 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
 const DraggableRecordRow = ({ index, style: incomingStyle, data }: any) => {
   const { rows, collection, onUpdate, onDelete, onCreateField, recordMeta } = data;
   const row = rows[index];
-  if (!row) return null;
+  
+  // Debug logging
+  console.log(`[DraggableRecordRow] index=${index}, row=${row ? 'exists' : 'null'}, rows.length=${rows?.length}`);
+  
+  if (!row) {
+    console.log(`[DraggableRecordRow] No row at index ${index}`);
+    return null;
+  }
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `record-${row.original.id}`,
@@ -251,9 +258,9 @@ const DraggableRecordRow = ({ index, style: incomingStyle, data }: any) => {
     ...incomingStyle,
     transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.5 : 1,
-    touchAction: 'none', // Important for touch drag
+    touchAction: 'none',
     backgroundColor: rowColor ? `${rowColor}20` : undefined,
-    display: 'flex', // Crucial for virtualization 
+    display: 'flex',
     width: '100%'
   };
 
