@@ -503,6 +503,16 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         setIsSettingsOpen={setIsSettingsOpen}
                       />
                     ))}
+                  // Unified handler for all click types
+                  const openSettings = (e: React.SyntheticEvent) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    const field = (header.column.columnDef as any).meta?.field;
+                    if (field) {
+                      setSettingsField(field);
+                      setIsSettingsOpen(true);
+                    }
+                  };
                   return (
                     <TableHead
                       ref={setNodeRef}
@@ -527,43 +537,16 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
                         {/* foreground click zone (label) - elevated and isolated */}
                         <div
-                          className="relative z-20 h-full w-full flex items-center px-2 cursor-pointer hover:bg-gray-200 active:bg-gray-300 transition-colors duration-100"
-                          onPointerDown={(e) => {
-                            e.stopPropagation();
-                          }}
-                          onMouseDown={(e) => {
-                            e.stopPropagation();
-                          }}
-                          onTouchStart={(e) => {
-                            e.stopPropagation();
-                          }}
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            const field = (header.column.columnDef as any).meta?.field;
-                            if (field) {
-                              setSettingsField(field);
-                              setIsSettingsOpen(true);
-                            }
-                          }}
-                          onDoubleClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            const field = (header.column.columnDef as any).meta?.field;
-                            if (field) {
-                              setSettingsField(field);
-                              setIsSettingsOpen(true);
-                            }
-                          }}
-                          onContextMenu={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            const field = (header.column.columnDef as any).meta?.field;
-                            if (field) {
-                              setSettingsField(field);
-                              setIsSettingsOpen(true);
-                            }
-                          }}
+                          className={cn(
+                            "relative z-20 h-full w-full flex items-center cursor-pointer hover:bg-gray-200 active:bg-gray-300 transition-colors duration-100 select-none",
+                            header.index === 0 ? "pl-3" : "px-2" // extra left padding for first column
+                          )}
+                          onPointerDown={e => e.stopPropagation()}
+                          onMouseDown={e => e.stopPropagation()}
+                          onTouchStart={e => e.stopPropagation()}
+                          onClick={openSettings}
+                          onDoubleClick={openSettings}
+                          onContextMenu={openSettings}
                         >
                           <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pointer-events-none select-none">
                             {header.isPlaceholder
@@ -579,9 +562,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                       <div
                         onMouseDown={header.getResizeHandler()}
                         onTouchStart={header.getResizeHandler()}
-                        className={`absolute -right-2 top-0 h-full w-4 z-20 cursor-col-resize touch-none select-none lg:hover:bg-primary lg:hover:opacity-10 transition-opacity ${header.column.getIsResizing() ? 'opacity-100 bg-primary shadow-[0_4000px_0_0_currentColor]' : 'opacity-0'
-                          }`}
-                        style={{ color: 'var(--primary)' }}
+                        className={`absolute -right-2 top-0 h-full w-4 z-20 cursor-col-resize touch-none select-none lg:hover:bg-gray-400 lg:hover:opacity-30 transition-opacity ${header.column.getIsResizing() ? 'opacity-100 bg-gray-400 shadow-[0_4000px_0_0_currentColor]' : 'opacity-0'}`}
+                        style={{ color: '#b0b0b0' }}
                       />
                     </TableHead>
                   );
