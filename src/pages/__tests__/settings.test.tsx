@@ -16,7 +16,7 @@ describe('Settings page', () => {
   });
 
   it('renders general settings and import widget (with hint when api key missing)', () => {
-    render(
+    const { container } = render(
       <AuthContext.Provider value={authValue as any}>
         <SettingsPage />
       </AuthContext.Provider>
@@ -29,6 +29,10 @@ describe('Settings page', () => {
     expect(screen.getByTestId('import-widget')).toBeInTheDocument();
     // hint should show when api key string is empty
     expect(screen.getByText(/set your api key above to enable notion import/i)).toBeInTheDocument();
+
+    // root wrapper should allow scrolling
+    const root = container.firstChild as HTMLElement;
+    expect(root.className).toMatch(/overflow-auto/);
   });
 
   it('allows toggling dark mode and stores in localStorage', () => {
