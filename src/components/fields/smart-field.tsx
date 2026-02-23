@@ -683,23 +683,23 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
         // keep height constant so cells don't resize; text will scale instead
         const editHeight = 'h-8';
         return (
-          <div className={cn("flex items-center gap-1 min-w-[120px] bg-background relative z-10", className)}>
+          <div className={cn("flex items-center gap-1 min-w-[120px] bg-[#050505] border border-[#222] relative z-10 px-1 shadow-xl", className)}>
             <Input
               autoFocus
               type={isNumber ? "number" : "text"}
               value={localValue || ''}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
-              className={cn(editHeight, editTextSize, "border-0 shadow-none outline-none ring-0 focus:border-0 focus:shadow-none focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none", inputClassName)}
+              className={cn(editHeight, editTextSize, "bg-transparent text-white border-0 shadow-none outline-none ring-0 focus:border-0 focus:shadow-none focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none", inputClassName)}
               onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                 if (e.key === 'Enter') handleSave();
                 if (e.key === 'Escape') handleCancel();
               }}
             />
             {isPercentField && <span className={cn(size === 'lg' ? 'text-lg' : 'text-sm')}>%</span>}
-            <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500 hover:text-green-600" onClick={() => handleSave()}>
+            <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500 hover:text-green-600 hover:bg-white/5" onClick={() => handleSave()}>
               <Check className="h-3 w-3" />
             </Button>
-            <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground" onClick={handleCancel}>
+            <Button variant="ghost" size="icon" className="h-6 w-6 text-muted-foreground hover:bg-white/5" onClick={handleCancel}>
               <X className="h-3 w-3" />
             </Button>
           </div>
