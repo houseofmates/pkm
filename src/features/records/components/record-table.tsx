@@ -143,7 +143,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
         background: 'transparent',
       }}
       className={cn(
-        "group select-none relative text-left p-0 min-h-[36px] transition-colors border-r border-[#222] border-b border-b-[#222]",
+        "group select-none relative text-left p-0 h-auto min-h-10 transition-colors border-r border-[#222] border-b border-b-[#222]",
         isDragging ? "bg-gray-800/40" : "hover:bg-gray-800/20"
       )}
     >
@@ -163,7 +163,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
       >
         <div
           className={cn(
-            "min-h-[36px] w-full relative flex items-center group/header",
+            "min-h-[40px] w-full relative flex items-center group/header",
             !isEditing && "cursor-grab"
           )}
           {...(!isEditing ? attributes : {})}
@@ -171,7 +171,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
         >
           {!isEditing ? (
             <div
-              className="relative z-20 h-full w-full flex items-center px-0.5 select-none cursor-pointer hover:bg-white/5 transition-colors py-1.5"
+              className="relative z-20 h-full w-full flex items-center px-0.5 select-none cursor-pointer hover:bg-white/5 transition-colors py-2"
               onClick={() => onOpenFieldSettings?.((header.column.columnDef as any).meta?.field)}
               onDoubleClick={startEditing}
               onContextMenu={() => {
@@ -607,12 +607,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               <AutoSizer>
                 {({ height, width }: { height: number; width: number }) => (
                   <List
-                    height={height}
-                    width={width}
                     rowCount={rows.length}
                     rowHeight={40}
-                    className="no-scrollbar"
-                    rowComponent={DraggableRecordRow as any}
                     rowProps={{
                       rows: rows,
                       collection,
@@ -621,6 +617,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                       onCreateField,
                       recordMeta
                     }}
+                    style={{ height, width }}
+                    rowComponent={DraggableRecordRow as any}
                   />
                 )}
               </AutoSizer>
