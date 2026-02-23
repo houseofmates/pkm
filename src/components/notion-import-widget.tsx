@@ -68,47 +68,13 @@ export function NotionImportWidget() {
         let rawEnv = import.meta.env.VITE_API_URL as string | undefined;
         let envBase = rawEnv;
         if (envBase && envBase.endsWith('/')) envBase = envBase.slice(0, -1);
-        // old bundles might still use the legacy `db.houseofmates.space`
-        // name; rewrite it to the public API domain so clients don't break.
-        if (envBase && envBase.includes('db.houseofmates.space')) {
-            envBase = envBase.replace('db.houseofmates.space', 'api.houseofmates.space');
-        }
-        // if the env var points at the canonical api domain but we're
-        // already running on a houseofmates subdomain, just use the
-        // relative path to avoid cross‑origin preflights that Cloudflare
-        // will 502. this handles the common case where the variable is
-        // injected by default at build time.
-        if (envBase) {
-            try {
-                const u = new URL(envBase);
-                if (u.hostname === 'api.houseofmates.space' &&
-                    window.location.hostname.endsWith('.houseofmates.space') &&
-                    window.location.hostname !== u.hostname) {
-                    envBase = '';
-                }
-            } catch {
-                // ignore invalid URLs, we'll treat it as a relative path
-                // below which is harmless
-            }
-        }
+
         let baseUrl: string;
-        if (envBase) {
+        if (envBase && envBase.startsWith('http')) {
             baseUrl = envBase;
         } else {
-            const { protocol, hostname } = window.location;
-            // production handle: houseofmates.space frontend proxies /api to the
-            // real API; if we're on that domain, a relative path is fine. when
-            // running on some other host (e.g. pkmsandbox.example.com) there
-            // is no proxy so we fall back to the old pkm->db inference logic.
-            if (!hostname.endsWith('.houseofmates.space')) {
-                let host = hostname;
-                if (hostname.startsWith('pkm.')) {
-                    host = hostname.replace(/^pkm\./, 'db.');
-                }
-                baseUrl = `${protocol}//${host}/api`;
-            } else {
-                baseUrl = '/api';
-            }
+            // fallback to relative if env is missing or relative
+            baseUrl = '/api';
         }
         const url = `${baseUrl}/nb-import-csv`;
         console.debug('[NotionImportWidget] raw VITE_API_URL=', rawEnv, 'env VITE_API_URL=', envBase, 'using url', url, '(legacy notion-import also accepted)');
