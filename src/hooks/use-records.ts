@@ -67,6 +67,22 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   const records: any[] = extractRecords(data);
   const meta = (data as { meta?: any })?.meta;
 
+  // If a non-zero page returns no records, try swapping between 0/1 once.
+  const [pageFallbackTried, setPageFallbackTried] = useState(false);
+  useEffect(() => {
+    if (
+      !isLoading &&
+      records.length === 0 &&
+      !pageFallbackTried &&
+      typeof queryParams.page === 'number'
+    ) {
+      const current = queryParams.page as number;
+      const newPage = current === 0 ? 1 : 0;
+      setQueryParams((prev: Record<string, unknown>) => ({ ...prev, page: newPage }));
+      setPageFallbackTried(true);
+    }
+  }, [isLoading, records.length, pageFallbackTried, queryParams.page]);
+
   const refresh = (newParams?: Record<string, unknown>) => {
     if (newParams) {
       setQueryParams((prev: Record<string, unknown>) => ({ ...prev, ...newParams }));
