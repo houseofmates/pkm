@@ -15,7 +15,6 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   const [queryParams, setQueryParams] = useState<any>({
     page: 1,
     pageSize: 20,
-    sort: ['-createdAt', 'id'],
     ...initialParams
   });
 
@@ -49,13 +48,13 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
       if (activeFronterId) {
         payload.fronter = activeFronterId;
       }
-      const walId = await walwrite(collectionName, 'new', 'create', payload);
+      const walId = await walWrite(collectionName, 'new', 'create', payload);
       try {
         const result = await client.createRecord(collectionName, payload);
-        await walcommit(walId);
+        await walCommit(walId);
         return result;
       } catch (err) {
-        await walfail(walId);
+        await walFail(walId);
         throw err;
       }
     },
