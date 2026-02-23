@@ -366,7 +366,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
 
             // refresh
             const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
-            setRecords(res.data?.data || res.data || []);
+            setRecords(Array.isArray(res.data) ? res.data : (res.data || []));
         } catch (e) {
             console.error("failed to undo delete", e);
             toast.error("failed to undo delete");
@@ -408,7 +408,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             await client.createRecord(collectionName, rest);
             toast.success("deletion undone");
             const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
-            setRecords(res.data?.data || res.data || []);
+            setRecords(Array.isArray(res.data) ? res.data : (res.data || []));
             setDeletedStack(prev => prev.filter(r => r.id !== recordToRestore.id));
         } catch (e) {
             console.error("failed to undo delete", e);
