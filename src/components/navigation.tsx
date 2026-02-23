@@ -507,7 +507,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
               </DropdownMenuContent>
             </DropdownMenu>
             {/* csv uploader button */}
-            <label className="flex items-center justify-center h-5 w-5 rounded-full hover:bg-muted text-primary cursor-pointer" title="upload csv">
+            <label className="relative flex items-center justify-center h-5 w-5 rounded-full hover:bg-muted text-primary cursor-pointer" title="upload csv">
               <input
                 key={csvInputKey}
                 type="file"
