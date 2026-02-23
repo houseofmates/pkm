@@ -436,7 +436,7 @@ export function HeadmatesPage() {
                             memberId={member.id}
                             memberName={member.content.name}
                           >
-                            {viewmode === 'grid' ? (
+                            {viewMode === 'grid' ? (
                               <HeadmateCard
                                 member={flatMember}
                                 onClick={isDragging ? undefined : () => toggleFronter(member.id)}
@@ -456,7 +456,7 @@ export function HeadmatesPage() {
                         </SortableHeadmateCard>
                       );
                     })}
-                    {orderedmembers.length === 0 && (
+                    {orderedMembers.length === 0 && (
                       <div className="col-span-full text-center p-10 text-muted-foreground">
                         no members found or api key invalid.
                       </div>
