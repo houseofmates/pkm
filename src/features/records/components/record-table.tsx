@@ -628,33 +628,28 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               </div>
             ) : (
               <div style={{ height: 'calc(100vh - 200px)', minHeight: '400px', width: '100%' }}>
-                <AutoSizer>
-                  {({ height, width }: { height: number; width: number }) => (
-                    <List
-                      height={height}
-                      itemCount={table.getRowModel().rows.length}
-                      itemSize={40} // matching h-10 height
-                      width={width}
-                      className="no-scrollbar"
-                    >
-                      {({ index, style }: { index: number; style: React.CSSProperties }) => {
-                        const row = table.getRowModel().rows[index];
-                        return (
-                          <DraggableRecordRow
-                            key={row.id}
-                            row={row}
-                            collection={collection}
-                            onUpdate={onUpdateRecord}
-                            onDelete={onDelete}
-                            onCreateField={onCreateField}
-                            recordMeta={recordMeta}
-                            style={style}
-                          />
-                        );
-                      }}
-                    </List>
-                  )}
-                </AutoSizer>
+                {(AutoSizer as any) && (
+                  <AutoSizer>
+                    {({ height, width }: { height: number; width: number }) => (
+                      <List
+                        height={height}
+                        rowCount={table.getRowModel().rows.length}
+                        rowHeight={40} // matching h-10 height
+                        width={width}
+                        className="no-scrollbar"
+                        rowComponent={DraggableRecordRow}
+                        rowProps={{
+                          rows: table.getRowModel().rows,
+                          collection,
+                          onUpdate: onUpdateRecord,
+                          onDelete,
+                          onCreateField,
+                          recordMeta
+                        }}
+                      />
+                    )}
+                  </AutoSizer>
+                )}
               </div>
             )}
           </TableBody>
