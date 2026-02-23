@@ -212,16 +212,6 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
           </TableCell>
         )}
         {row.getVisibleCells().map((cell: any) => {
-          const field = (cell.column.columnDef as any).meta?.field;
-          const triggerSettings = (e: React.MouseEvent) => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (field) {
-              setSettingsField(field);
-              setIsSettingsOpen(true);
-            }
-          };
-
           return (
             <TableCell
               key={cell.id}
@@ -232,21 +222,15 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
               }}
               className="border-r border-b border-[#222] overflow-hidden text-ellipsis whitespace-nowrap align-middle p-0 h-10 transition-colors group-hover:bg-white/5"
             >
-              <div
-                className="flex items-center justify-start h-full w-full px-2 cursor-pointer"
-                onClick={triggerSettings}
-                onDoubleClick={triggerSettings}
-                onContextMenu={triggerSettings}
-                onPointerDownCapture={(e) => e.stopPropagation()}
-                onMouseDownCapture={(e) => e.stopPropagation()}
-              >
-                <div className="flex-1 truncate pointer-events-none">
+              <div className="flex items-center justify-start h-full w-full px-2">
+                <div className="flex-1 truncate">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </div>
               </div>
             </TableCell>
           );
         })}
+
       </TableRow>
     </RecordContextMenu>
   );
@@ -541,10 +525,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                   >
                     {headerGroup.headers.map((header) => (
                       <SortableHeader
-                        key={header.id}
-                        header={header}
-                        setSettingsField={setSettingsField}
-                        setIsSettingsOpen={setIsSettingsOpen}
                       />
                     ))}
                   </SortableContext>

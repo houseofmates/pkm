@@ -102,3 +102,10 @@ Error: connect ECONNREFUSED 127.0.0.1:4100
 1:43:53 AM [vite] http proxy error: /api/stats
 Error: connect ECONNREFUSED 127.0.0.1:4100
     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+1:44:05 AM [vite] http proxy error: /api/stats
+Error: connect ECONNREFUSED 127.0.0.1:4100
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+1:44:09 AM [vite] http proxy error: /api/stats
+Error: connect ECONNREFUSED 127.0.0.1:4100
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+1:44:19 AM [vite] (client) hmr update /src/index.css
