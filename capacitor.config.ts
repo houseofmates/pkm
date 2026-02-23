@@ -5,8 +5,8 @@ const config: CapacitorConfig = {
   appName: 'pkm',
   webDir: 'dist',
   server: {
-    // To enable live updates, point this to your production URL
-    // url: 'https://pkm.yourdomain.com',
+    // Live reload for Android app during development
+    url: 'http://192.168.4.233:3010',
     allowNavigation: ['*'],
     cleartext: true
   }
