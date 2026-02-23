@@ -87,13 +87,28 @@ export function RootLayout() {
   const subdomain = window.location.hostname.split('.')[0];
   const isAphrodite = subdomain === 'aphrodite';
 
-  let activeColor = "#f5af12";
+  let accentColor = "#f5af12";
   if (activeFronters.length > 0) {
     const fronterId = activeFronters[0];
-    activeColor = overrides[fronterId]?.color || members.find(m => m.id === fronterId)?.color || "#f5af12";
+    accentColor = overrides[fronterId]?.color || members.find(m => m.id === fronterId)?.color || "#f5af12";
   }
+  if (isAphrodite) accentColor = "#e0a6b5";
 
-  if (isAphrodite) activeColor = "#e0a6b5";
+  // helper to get low opacity background
+  function getAccentBg(color: string) {
+    if (color.startsWith('#')) {
+      const hex = color.replace('#', '');
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, 0.15)`;
+    }
+    if (color.startsWith('rgb')) {
+      return color.replace(/rgb\(([^)]+)\)/, 'rgba($1, 0.15)');
+    }
+    return 'rgba(255,255,0,0.15)';
+  }
+  const accentBg = getAccentBg(accentColor);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -179,7 +194,7 @@ export function RootLayout() {
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <ProtocolShift />
       <div className="flex flex-col lg:flex-row h-screen w-full bg-background overflow-hidden transition-colors duration-700">
-        <Navigation className="hidden lg:flex" activeTab={activeTab} onTabChange={handleTabChange} onSelectCollection={handleSelectCollection} selectedCollection={selectedCollection} items={sidebarItems} setItems={setSidebarItems} />
+        <Navigation className="hidden lg:flex" activeTab={activeTab} onTabChange={handleTabChange} onSelectCollection={handleSelectCollection} selectedCollection={selectedCollection} items={sidebarItems} setItems={setSidebarItems} accentBg={accentBg} />
         <MobileSidebarDrawer isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} onTabChange={handleTabChange} onSelectCollection={handleSelectCollection} selectedCollection={selectedCollection} items={sidebarItems} />
 
         <main className="flex-1 overflow-auto h-full relative pb-20 lg:pb-0" style={{ touchAction: 'pan-y' }}>

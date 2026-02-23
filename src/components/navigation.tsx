@@ -59,6 +59,7 @@ interface NavigationProps {
   // lifted state props
   items: NavItem[];
   setItems: (items: NavItem[]) => void; // for local updates like folder creation
+  accentBg?: string;
 }
 
 
@@ -76,12 +77,15 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   // prefer local item color if set (for folders/docs), then metadata color (for collections)
   const metaColor = item.color || (item.type === 'collection' ? metadata[id]?.color : undefined);
 
+  // accentBg passed from Navigation
+  const accentBg = typeof window !== 'undefined' && window.accentBg ? window.accentBg : undefined;
   const style = {
     transform: CSS.Translate.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
     paddingLeft: `${depth * 12 + 8}px`,
-    touchAction: 'none' // Important for hold-to-drag on touch
+    touchAction: 'none',
+    background: selected ? (accentBg || 'rgba(255,255,0,0.15)') : undefined
   };
 
 
@@ -414,6 +418,8 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     { id: 'headmates', icon: Users, label: 'headmates' },
   ] as const;
 
+  // expose accentBg globally for SortableItem
+  if (typeof window !== 'undefined') window.accentBg = accentBg;
   return (
     <>
       {/* desktop sidebar */}
@@ -428,9 +434,10 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
               className={cn(
                 "rounded-xl w-10 h-10 transition-all nav-icon-btn",
                 activeTab === tab.id && !selectedCollection
-                  ? "text-primary font-bold shadow-none bg-transparent"
+                  ? "text-primary font-bold shadow-none"
                   : "text-muted-foreground hover:text-primary"
               )}
+              style={activeTab === tab.id && !selectedCollection ? { background: accentBg } : undefined}
               onClick={() => {
                 onTabChange(tab.id as any);
                 onSelectCollection(null);
