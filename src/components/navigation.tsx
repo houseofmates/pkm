@@ -198,6 +198,14 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
   const [importDisplayName, setImportDisplayName] = useState('');
   const [csvDialogOpen, setCsvDialogOpen] = useState(false);
 
+  useEffect(() => {
+    if (!csvDialogOpen) {
+      setImportCsvData([]);
+      setImportCsvFields([]);
+      setImportDisplayName('');
+    }
+  }, [csvDialogOpen]);
+
   const handleCsvChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
