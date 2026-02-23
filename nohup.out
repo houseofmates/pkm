@@ -21,3 +21,7 @@
   ➜  Network: http://172.19.0.1:3010/
   ➜  Network: http://172.18.0.1:3010/
   ➜  Network: http://172.21.0.1:3010/
+5:41:48 PM [vite] (client) hmr update /src/index.css
+5:41:50 PM [vite] http proxy error: /api/stats
+Error: connect ECONNREFUSED 127.0.0.1:4100
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
