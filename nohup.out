@@ -37,3 +37,4 @@ The request id "/home/house/pkm/.env.local" is outside of Vite serving allow lis
 The request id "/home/house/pkm/.git/config" is outside of Vite serving allow list.
 7:40:22 PM [vite] (client) ✨ new dependencies optimized: react-intersection-observer, @tiptap/react/menus
 7:40:22 PM [vite] (client) ✨ optimized dependencies changed. reloading
+7:43:47 PM [vite] (client) hmr update /src/index.css, /src/components/notion-import-widget.tsx

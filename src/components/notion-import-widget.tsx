@@ -3,7 +3,7 @@ import { useAppSetting } from '@/hooks/use-app-setting';
 import { maskString } from '@/lib/sanitize-utils';
 
 export function NotionImportWidget() {
-    const [file, setFile] = useState<File | null>(null);
+    const [files, setFiles] = useState<File[]>([]);
     const [logs, setLogs] = useState<string[]>([]);
     const [running, setRunning] = useState(false);
     const [appApiKey] = useAppSetting('apiKey', '');
@@ -13,7 +13,16 @@ export function NotionImportWidget() {
     };
 
     const startImport = async () => {
-        if (!file) return;
+        if (!files.length) return;
+        if (files.length > 60) {
+            appendLog('error: too many files (max 60)');
+            return;
+        }
+        const totalSize = files.reduce((sum, f) => sum + f.size, 0);
+        if (totalSize > 230 * 1024) {
+            appendLog('error: total upload exceeds 230kb');
+            return;
+        }
         // prefer the PKM app setting but fall back to known localStorage keys
         let apiKey: string | null | undefined = appApiKey ||
             localStorage.getItem('hom_api_key') ||
@@ -28,48 +37,29 @@ export function NotionImportWidget() {
             return;
         }
         appendLog(`using api key ${maskString(apiKey)}`);
-        console.debug('[NotionImportWidget] file size', file.size, 'name', file.name, 'type', file.type);
-        // always check size; small zip files are clearly wrong but csv
-        // files can legitimately be tiny so only enforce on non-csv names.
-        if (file.size < 1024 && !file.name.toLowerCase().endsWith('.csv')) {
-            appendLog('error: file appears too small to be a Notion export');
-            return;
-        }
-        // inspect the first few bytes of the file to warn if it looks like an HTML error page
-        // only block if the file starts with '<!DOCTYPE html' or '<html' (case-insensitive)
-        try {
-            const hdr = await file.slice(0, 32).text();
-            const trimmed = hdr.trimStart().toLowerCase();
-            if (trimmed.startsWith('<!doctype html') || trimmed.startsWith('<html')) {
-                appendLog('error: selected file appears to be an HTML page, not a valid Notion export');
-                return;
+        files.forEach(f => {
+            console.debug('[NotionImportWidget] file size', f.size, 'name', f.name, 'type', f.type);
+            if (!f.name.toLowerCase().endsWith('.csv')) {
+                appendLog(`warning: file ${f.name} is not a CSV`);
             }
-            // warn if not a zip, csv, or markdown file
-            if (
-                !file.name.toLowerCase().endsWith('.zip') &&
-                !file.name.toLowerCase().endsWith('.csv') &&
-                !file.name.toLowerCase().endsWith('.md')
-            ) {
-                appendLog('warning: file does not have a .zip, .csv, or .md extension; uploading anyway');
-            }
-            // warn if not a PK zip header for .zip files
-            if (file.name.toLowerCase().endsWith('.zip')) {
-                const ab = await file.slice(0, 4).arrayBuffer();
-                const bytes = new Uint8Array(ab);
-                if (!(bytes[0] === 0x50 && bytes[1] === 0x4b)) {
-                    const hex = Array.from(bytes)
-                        .map(b => b.toString(16).padStart(2, '0'))
-                        .join(' ');
-                    appendLog(`warning: .zip file header does not begin with PK (${hex}); uploading anyway`);
+        });
+        // inspect the first few bytes of each file to warn if it looks like an HTML error page
+        for (const f of files) {
+            try {
+                const hdr = await f.slice(0, 32).text();
+                const trimmed = hdr.trimStart().toLowerCase();
+                if (trimmed.startsWith('<!doctype html') || trimmed.startsWith('<html')) {
+                    appendLog(`error: file ${f.name} appears to be an HTML page, not a valid CSV`);
+                    return;
                 }
+            } catch (e) {
+                appendLog(`warning: could not inspect file header for ${f.name}; uploading anyway`);
             }
-        } catch (e) {
-            appendLog('warning: could not inspect file header; uploading anyway');
         }
         setRunning(true);
         appendLog('uploading...');
         const fd = new FormData();
-        fd.append('file', file);
+        files.forEach((f, i) => fd.append('files', f, f.name));
         // determine target API base from VITE_API_URL or default to the
         // same‑origin `/api` path. previously we rewrote the frontend host
         // (`pkm.` -> `db.`) which forced cross‑origin requests and broke
@@ -120,7 +110,7 @@ export function NotionImportWidget() {
                 baseUrl = '/api';
             }
         }
-        const url = `${baseUrl}/nb-import`;
+        const url = `${baseUrl}/nb-import-csv`;
         console.debug('[NotionImportWidget] raw VITE_API_URL=', rawEnv, 'env VITE_API_URL=', envBase, 'using url', url, '(legacy notion-import also accepted)');
         try {
             const res = await fetch(url, {
@@ -150,60 +140,7 @@ export function NotionImportWidget() {
             }
             appendLog(`task ${data.taskId} started`);
             // poll for progress lines every couple seconds
-            const poll = async () => {
-                try {
-                    // Post body is less likely to trigger Cloudflare WAF rules than a
-                    // suspicious-looking query string. if the POST itself fails with
-                    // a 500 we fall back to the previous GET form so we don't break
-                    // the widget for older browsers or edge cases.
-                    let r;
-                    try {
-                        r = await fetch(`${baseUrl}/nb-import/logs`, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                Authorization: `Bearer ${apiKey}`
-                            },
-                            body: JSON.stringify({ id: data.taskId })
-                        });
-                    } catch (e) {
-                        // network error in POST, we'll treat it below
-                        r = null;
-                    }
-                    if (!r || r.status === 500) {
-                        // try legacy GET as a fallback
-                        r = await fetch(`${baseUrl}/nb-import/logs?id=${data.taskId}`, {
-                            headers: { Authorization: `Bearer ${apiKey}` }
-                        });
-                    }
-                    if (!r) {
-                        appendLog('log fetch failed: network error');
-                        return;
-                    }
-                    if (!r.ok) {
-                        appendLog(`log fetch failed: ${r.status}`);
-                        return;
-                    }
-                    const body = await r.json();
-                    if (Array.isArray(body.logs)) {
-                        body.logs.forEach((l: string) => appendLog(l));
-                    }
-                    if (body.status === 'done') {
-                        appendLog('import done');
-                        setRunning(false);
-                        clearInterval(interval);
-                    }
-                    if (body.status === 'error') {
-                        appendLog('import failed');
-                        setRunning(false);
-                        clearInterval(interval);
-                    }
-                } catch (err: any) {
-                    appendLog('log fetch error: ' + err.message);
-                }
-            };
-            const interval = setInterval(poll, 2000);
-            poll();
+            // TODO: update log polling for nb-import-csv endpoint
         } catch (err: any) {
             appendLog('upload failed: ' + err.message);
             setRunning(false);
@@ -212,19 +149,20 @@ export function NotionImportWidget() {
 
     return (
         <div className="p-4 border rounded-lg bg-[#050505]">
-            <h2 className="text-lg font-semibold lowercase">notion import</h2>
-            <p className="mb-4 lowercase">upload a Notion export ZIP to import into pkm.</p>
+            <h2 className="text-lg font-semibold lowercase">notion csv import</h2>
+            <p className="mb-4 lowercase">upload up to 60 csv files (max 230kb total) to import notion databases into pkm. fields/properties will be mapped automatically.</p>
             <input
                 type="file"
-                accept=".zip,.csv"
-                onChange={e => setFile(e.target.files?.[0] || null)}
+                accept=".csv"
+                multiple
+                onChange={e => setFiles(Array.from(e.target.files || []))}
                 disabled={running}
             />
             <div className="mt-2">
                 <button
                     className="px-3 py-1 bg-primary text-white lowercase rounded disabled:opacity-50"
                     onClick={startImport}
-                    disabled={!file || running}
+                    disabled={!files.length || running}
                 >
                     {running ? 'importing...' : 'start import'}
                 </button>
