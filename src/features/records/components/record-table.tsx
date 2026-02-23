@@ -67,20 +67,19 @@ import { cn } from '@/lib/utils';
 function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSettings }: any) {
   const { client } = useAuth();
   const [isEditing, setIsEditing] = React.useState(false);
-  const [draftTitle, setDraftTitle] = React.useState<string>(
-    (header.column.columnDef as any).meta?.field?.uiSchema?.title ||
-      (header.column.columnDef as any).meta?.field?.name || ''
-  );
+  const [draftTitle, setDraftTitle] = React.useState<string>('');
 
-  // keep draft synced when header props change (e.g. parent refresh)
-  React.useEffect(() => {
-    if (!isEditing) {
-      setDraftTitle(
-        (header.column.columnDef as any).meta?.field?.uiSchema?.title ||
-          (header.column.columnDef as any).meta?.field?.name || ''
-      );
-    }
-  }, [header, isEditing]);
+  // helper to compute the current title from metadata
+  const computeTitle = () => {
+    const f = (header.column.columnDef as any).meta?.field;
+    return f?.uiSchema?.title || f?.name || '';
+  };
+
+  // whenever editing is enabled, refresh draftTitle from header metadata
+  const startEditing = () => {
+    setDraftTitle(computeTitle());
+    setIsEditing(true);
+  };
 
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: header.id,
@@ -97,17 +96,26 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
   const saveTitle = async (newTitle: string) => {
     const field = (header.column.columnDef as any).meta?.field;
     if (!field) return;
+    const trimmed = newTitle.trim();
+    // prevent empty names
+    if (!trimmed) {
+      // restore previous title and exit
+      setDraftTitle(computeTitle());
+      setIsEditing(false);
+      toast.error('title cannot be empty');
+      return;
+    }
     try {
       await client.updateField(collectionName, field.name, {
         uiSchema: {
           ...field.uiSchema,
-          title: newTitle,
+          title: trimmed,
         },
       });
       // update in-memory metadata so header updates immediately
-      field.uiSchema = { ...(field.uiSchema || {}), title: newTitle };
-      header.column.columnDef.header = newTitle.toLowerCase();
-      setDraftTitle(newTitle);
+      field.uiSchema = { ...(field.uiSchema || {}), title: trimmed };
+      header.column.columnDef.header = trimmed; // keep case
+      setDraftTitle(trimmed);
       setIsEditing(false);
       onFieldUpdated?.();
       toast.success('field renamed');
@@ -156,8 +164,8 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
           {!isEditing ? (
             <div
               className="relative z-20 h-full w-full flex items-center px-1 select-none cursor-pointer hover:bg-white/5 transition-colors"
-              onClick={() => setIsEditing(true)}
-              onDoubleClick={() => setIsEditing(true)}
+              onClick={startEditing}
+              onDoubleClick={startEditing}
             >
               <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pr-5">
                 {header.isPlaceholder
