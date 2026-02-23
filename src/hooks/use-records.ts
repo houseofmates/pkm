@@ -30,7 +30,41 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
     placeholderData: (previousData) => previousData,
   });
 
-  const records: any[] = Array.isArray(data) ? data : ((data as { data?: any[] })?.data || []);
+  // Robust record extraction handling multiple API response formats
+  const extractRecords = (responseData: any): any[] => {
+    if (!responseData) return [];
+    
+    // Direct array
+    if (Array.isArray(responseData)) {
+      return responseData;
+    }
+    
+    // Object with nested data
+    if (typeof responseData === 'object') {
+      // Try common data locations
+      if (Array.isArray(responseData.data)) {
+        return responseData.data;
+      }
+      if (Array.isArray(responseData.records)) {
+        return responseData.records;
+      }
+      if (Array.isArray(responseData.items)) {
+        return responseData.items;
+      }
+      if (Array.isArray(responseData.results)) {
+        return responseData.results;
+      }
+      
+      // If data exists but isn't an array, log for debugging
+      if (responseData.data !== undefined && !Array.isArray(responseData.data)) {
+        console.warn('[useRecords] data property exists but is not an array:', typeof responseData.data);
+      }
+    }
+    
+    return [];
+  };
+
+  const records: any[] = extractRecords(data);
   const meta = (data as { meta?: any })?.meta;
 
   const refresh = (newParams?: Record<string, unknown>) => {
