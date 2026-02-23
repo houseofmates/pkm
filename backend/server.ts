@@ -3,6 +3,8 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import LanceIndexer from './lancedb/index';
 import { getEmbedding } from './embeddings/ollama';
+import multer from 'multer';
+import Papa from 'papaparse';
 
 const PORT = process.env.PKM_BACKEND_PORT ? Number(process.env.PKM_BACKEND_PORT) : 4110;
 const app = express();
@@ -13,8 +15,6 @@ const indexer = new LanceIndexer('./data/lancedb');
 
 async function start() {
     // multi-csv import endpoint
-    import multer from 'multer';
-    import Papa from 'papaparse';
     const upload = multer({ limits: { files: 60, fileSize: 230 * 1024 } });
 
     app.post('/nb-import-csv', upload.array('files', 60), async (req, res) => {
