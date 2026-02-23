@@ -278,7 +278,7 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
   );
 }
 
-export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateField, loading }: RecordTableProps) {
+export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateField, onFieldUpdated, loading }: RecordTableProps) {
   // hidden columns state persistence
   const [hiddenColumns, setHiddenColumns] = useAppSetting<string[]>(
     `hidden_columns_${collection?.name || 'unknown'}`,
