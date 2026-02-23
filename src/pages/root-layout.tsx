@@ -3,7 +3,6 @@ import { Outlet, useNavigate } from 'react-router-dom';
 import { Navigation, type NavItem } from '@/components/navigation';
 import { BottomNav } from '@/components/bottom-nav';
 import { QuickEditSheet } from '@/components/quick-edit-sheet';
-import { SettingsDialog } from '@/components/settings-dialog';
 import { Spotlight } from '@/components/Spotlight';
 import {
   DndContext,
@@ -70,7 +69,6 @@ export function RootLayout() {
   const [activeTab, setActiveTab] = useState<'databases' | 'home' | 'headmates' | 'board' | 'captures'>('home');
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // sync / health state
   const [walCount, setWalCount] = useState(0);
@@ -177,8 +175,8 @@ export function RootLayout() {
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <ProtocolShift />
       <div className="flex flex-col lg:flex-row h-screen w-full bg-background overflow-hidden transition-colors duration-700">
-        <Navigation className="hidden lg:flex" activeTab={activeTab} onTabChange={handleTabChange} onSelectCollection={handleSelectCollection} selectedCollection={selectedCollection} items={sidebarItems} setItems={setSidebarItems} onOpenSettings={() => setSettingsOpen(true)} />
-        <MobileSidebarDrawer isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} onTabChange={handleTabChange} onSelectCollection={handleSelectCollection} selectedCollection={selectedCollection} items={sidebarItems} onOpenSettings={() => setSettingsOpen(true)} />
+        <Navigation className="hidden lg:flex" activeTab={activeTab} onTabChange={handleTabChange} onSelectCollection={handleSelectCollection} selectedCollection={selectedCollection} items={sidebarItems} setItems={setSidebarItems} />
+        <MobileSidebarDrawer isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} onTabChange={handleTabChange} onSelectCollection={handleSelectCollection} selectedCollection={selectedCollection} items={sidebarItems} />
 
         <main className="flex-1 overflow-hidden h-full relative pb-20 lg:pb-0" style={{ touchAction: 'pan-y' }}>
           {/* sync / health header bar (premium) */}
@@ -212,7 +210,7 @@ export function RootLayout() {
           <Outlet />
         </main>
 
-        <BottomNav className="lg:hidden" activeTab={activeTab} onTabChange={handleTabChange} onOpenSettings={() => setSettingsOpen(true)} />
+        <BottomNav className="lg:hidden" activeTab={activeTab} onTabChange={handleTabChange} />
         <Spotlight />
         <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
         <DragOverlay>
