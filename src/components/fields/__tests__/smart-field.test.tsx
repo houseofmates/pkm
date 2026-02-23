@@ -7,7 +7,7 @@ import { vi } from 'vitest';
 
 // stub the formula editor globally so formula tests can open it
 vi.mock('@/components/formula-editor', () => ({
-  FormulaEditor: ({ value, onSave, onCancel }: any) => (
+  FormulaEditor: ({ value, onSave }: any) => (
     <div>
       <span data-testid="formula">{value}</span>
       <button onClick={() => onSave('newcode')}>save</button>
