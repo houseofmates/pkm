@@ -15,7 +15,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { HexColorPicker } from 'react-colorful';
-import { Trash2, AlertTriangle } from 'lucide-react';
 
 interface FieldSettingsDialogProps {
     collectionName: string;
