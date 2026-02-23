@@ -50,9 +50,12 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
+  closestCenter,
+  useDraggable
+} from '@dnd-kit/core';
+import type {
   DragEndEvent,
-  DragStartEvent,
-  closestCenter
+  DragStartEvent
 } from '@dnd-kit/core';
 
 import { cn } from '@/lib/utils';
