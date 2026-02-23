@@ -10,7 +10,6 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
-  TableBody,
   TableCell,
   TableHead,
   TableHeader,
@@ -180,7 +179,10 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
                 // Allow context menu to bubble up to PropertyContextMenu
               }}
             >
-              <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pr-5">
+              <div
+                className="whitespace-normal font-medium leading-[1.1]"
+                style={{ wordBreak: 'break-word', minWidth: 0 }}
+              >
                 {header.isPlaceholder
                   ? null
                   : flexRender(
@@ -221,7 +223,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
   );
 }
 
-const DraggableRecordRow = React.memo(({ index, style: incomingStyle, ariaAttributes, rows, collection, onUpdate, onDelete, onCreateField, recordMeta }: any) => {
+const DraggableRecordRow = React.memo(({ index, style: incomingStyle, ariaAttributes, rows, collection, onUpdate, onDelete, onCreateField, recordMeta, columns }: any) => {
   const row = rows[index];
   if (!row) return null;
 
@@ -243,7 +245,7 @@ const DraggableRecordRow = React.memo(({ index, style: incomingStyle, ariaAttrib
     opacity: isDragging ? 0.5 : 1,
     touchAction: 'none', // Important for touch drag
     backgroundColor: rowColor ? `${rowColor}20` : undefined,
-    display: 'flex', // Crucial for virtualization where rows aren't nested in table tags
+    display: 'flex', // Crucial for virtualization 
     width: '100%'
   };
 
@@ -266,8 +268,8 @@ const DraggableRecordRow = React.memo(({ index, style: incomingStyle, ariaAttrib
       >
         {/* drag handle area */}
         {onCreateField && (
-          <TableCell
-            className="w-10 border-r border-[#222] border-b border-b-[#222] p-0 h-10 transition-colors relative"
+          <div
+            className="w-10 border-r border-[#222] p-0 h-10 transition-colors relative flex-shrink-0"
           >
             <div
               className="absolute inset-0 cursor-move flex items-center justify-center group-hover:bg-white/5"
@@ -278,28 +280,29 @@ const DraggableRecordRow = React.memo(({ index, style: incomingStyle, ariaAttrib
                 <div className="w-1 h-3 bg-white/20 rounded-full" />
               </div>
             </div>
-          </TableCell>
+          </div>
         )}
         {row.getVisibleCells().map((cell: any) => {
           return (
-            <TableCell
+            <div
               key={cell.id}
               style={{
                 width: cell.column.getSize(),
                 minWidth: cell.column.getSize(),
                 maxWidth: cell.column.getSize()
               }}
-              className="border-r border-b border-[#222] overflow-hidden text-ellipsis whitespace-nowrap align-middle p-0 h-10 transition-colors group-hover:bg-white/5"
+              className="border-r border-[#222] align-middle p-0 h-10 transition-colors group-hover:bg-white/5 flex-shrink-0"
               onContextMenu={(e) => {
-                // Stop propagation to prevent row-level RecordContextMenu from showing
-                // The SmartField's FieldContextMenu will handle this event
                 e.stopPropagation();
               }}
             >
-              <div className="flex items-center justify-start h-full w-full px-0.5">
+              <div
+                className="flex items-center justify-start h-full w-full px-0.5 whitespace-normal leading-[1.1]"
+                style={{ wordBreak: 'break-word', minWidth: 0 }}
+              >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </div>
-            </TableCell>
+            </div>
           );
         })}
       </div>
@@ -308,27 +311,18 @@ const DraggableRecordRow = React.memo(({ index, style: incomingStyle, ariaAttrib
 });
 
 export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateField, onFieldUpdated: onFieldUpdatedCb, loading }: RecordTableProps) {
-  // hidden columns state persistence
   const [hiddenColumns, setHiddenColumns] = useAppSetting<string[]>(
     `hidden_columns_${collection?.name || 'unknown'}`,
-    [] // Default visible
+    []
   );
 
   const [settingsField, setSettingsField] = React.useState<any>(null);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
 
-
-
-  // record meta for colors
   const [recordMeta] = useAppSetting<Record<string, any>>(`record_meta_${collection?.name || 'unknown'}`, {});
-
-  // get collection color from metadata (source of truth)
   const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
 
-  // column sizing state (stored in metadata)
   const columnSizing = metadata[collection?.name]?.columnWidths || {};
-
-  // column ordering state
   const columnOrder = metadata[collection?.name]?.columnOrder || [];
 
   const setColumnOrder = (newOrder: string[]) => {
@@ -364,33 +358,23 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   }
   const columnHelper = createColumnHelper<any>();
 
-  // dynamically generate columns based on collection fields or data keys
   const columns = React.useMemo(() => {
     let cols: any[] = [];
-
-    // if collection has fields definition, use that
     if (collection.fields && collection.fields.length > 0) {
       cols = (collection.fields || [])
-        .filter((f: any) => !f.hidden) // Filter out system hidden fields
-        .filter((f: any) => {
-          if (!f.name) {
-            console.warn('skipping field with empty name', f);
-            return false;
-          }
-          return !hiddenColumns.includes(f.name);
-        }) // Filter out user hidden fields and blank names
+        .filter((f: any) => !f.hidden)
+        .filter((f: any) => f.name && !hiddenColumns.includes(f.name))
         .map((field: any) => columnHelper.accessor(field.name, {
           header: (field.uiSchema?.title || field.name),
-          meta: { field }, // added for header access
+          meta: { field },
           cell: info => (
             <SmartField
               value={info.getValue()}
               field={field}
               record={info.row.original}
-              collectionName={collection.name} // Pass collection name
+              collectionName={collection.name}
               size="lg"
               onChange={(val) => {
-                // call update callback
                 if (onUpdateRecord) {
                   onUpdateRecord(info.row.original.id, { [field.name]: val });
                 }
@@ -399,9 +383,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           )
         }));
     } else if (data.length > 0) {
-      // fallback: infer (use string field for now)
       cols = Object.keys(data[0])
-        .filter(key => !hiddenColumns.includes(key)) // Filter user hidden
+        .filter(key => !hiddenColumns.includes(key))
         .map((key) =>
           columnHelper.accessor(key, {
             header: key,
@@ -411,7 +394,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                 value={info.getValue()}
                 field={{ type: 'string', name: key }}
                 record={info.row.original}
-                collectionName={collection.name} // Pass collection name
+                collectionName={collection.name}
                 size="lg"
                 onChange={(val) => {
                   if (onUpdateRecord) {
@@ -440,7 +423,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                   <h4 className="font-medium text-sm leading-none border-b pb-2 mb-2 lowercase">view settings</h4>
                   <div className="text-xs text-muted-foreground mb-2 lowercase">check to unhide properties</div>
                   <div className="max-h-60 overflow-y-auto space-y-1">
-                    {/* list all potential fields to allow unhiding */}
                     {(collection.fields || Object.keys(data[0] || {})).map((f: any) => {
                       const fieldName = f.name || f;
                       const isHidden = hiddenColumns.includes(fieldName);
@@ -522,9 +504,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     enableColumnResizing: true,
     columnResizeMode: 'onChange',
     onColumnSizingChange: setColumnSizing,
-    onColumnOrderChange: () => {
-      // we also persist it in handleDragEnd for robustness
-    },
     state: {
       columnSizing,
       columnOrder,
@@ -545,7 +524,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       </div>
     );
   }
-
 
   return (
     <div
@@ -573,30 +551,30 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           background-color: rgba(255, 255, 255, 0.1) !important;
         }
       `}} />
-      <div className="overflow-x-auto overflow-y-hidden no-scrollbar">
-        <Table style={{ width: table.getTotalSize(), tableLayout: 'fixed' }}>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-b border-[#222]">
-                {/* add field button at the start */}
-                {onCreateField && (
-                  <TableHead className="w-10 border-r border-[#222] border-b border-b-[#222] p-0 overflow-hidden">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-full w-full rounded-none opacity-50 hover:opacity-100 hover:bg-white/10 flex items-center justify-center p-0"
-                      onClick={onCreateField}
-                      title="add new property"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </TableHead>
-                )}
-                <DndContext
-                  sensors={sensors}
-                  collisionDetection={closestCenter}
-                  onDragEnd={handleDragEnd}
-                >
+
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="overflow-x-auto overflow-y-hidden no-scrollbar">
+          <Table style={{ width: table.getTotalSize(), tableLayout: 'fixed' }}>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="border-b border-[#222]">
+                  {onCreateField && (
+                    <TableHead className="w-10 border-r border-[#222] border-b border-b-[#222] p-0 overflow-hidden">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-full w-full rounded-none opacity-50 hover:opacity-100 hover:bg-white/10 flex items-center justify-center p-0"
+                        onClick={onCreateField}
+                        title="add new property"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </TableHead>
+                  )}
                   <SortableContext
                     items={headerGroup.headers.map(h => h.id)}
                     strategy={horizontalListSortingStrategy}
@@ -614,11 +592,12 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                       />
                     ))}
                   </SortableContext>
-                </DndContext>
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody className="block h-full min-h-[400px]">
+                </TableRow>
+              ))}
+            </TableHeader>
+          </Table>
+
+          <div className="block h-full min-h-[400px]">
             {table.getRowModel().rows.length === 0 ? (
               <div className="flex items-center justify-center text-muted-foreground h-16 w-full lowercase">
                 no records found
@@ -638,15 +617,17 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                       onUpdate: onUpdateRecord,
                       onDelete,
                       onCreateField,
-                      recordMeta
+                      recordMeta,
+                      columns
                     }}
                   />
                 ))}
               </div>
             )}
-          </TableBody>
-        </Table>
-      </div>
+          </div>
+        </div>
+      </DndContext>
+
       <FieldSettingsDialog
         open={isSettingsOpen}
         onOpenChange={setIsSettingsOpen}
