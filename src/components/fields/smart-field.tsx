@@ -228,7 +228,6 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   const [localValue, setLocalValue] = useState(value);
   const [fullscreenIndex, setFullscreenIndex] = useState<number | null>(null);
   const [galleryImgs, setGalleryImgs] = useState<string[]>([]);
-  const [pickerOpen, setPickerOpen] = useState(false); // used by multi-select editor
 
   // formula editor state
   const [showFormulaEditor, setShowFormulaEditor] = useState(false);
