@@ -383,41 +383,20 @@ export class NocoBaseClient {
   async listRecords(collection: string, params: Record<string, unknown> = {}): Promise<unknown> {
     // remove /obj/ prefix, use <collection>:list
     const res = await this._axios.get(`/${collection}:list`, { params });
-    
-    // Debug logging to diagnose response structure issues
-    secureLogger.info(`[NocoBase] listRecords(${collection}) response:`, {
-      status: res.status,
-      hasData: !!res.data,
-      dataType: typeof res.data,
-      isArray: Array.isArray(res.data),
-      dataKeys: res.data && typeof res.data === 'object' ? Object.keys(res.data) : 'N/A',
-      sample: res.data && typeof res.data === 'object' 
-        ? (Array.isArray(res.data) 
-            ? `Array with ${res.data.length} items` 
-            : (res.data.data 
-                ? `Object with data array (${Array.isArray(res.data.data) ? res.data.data.length : 'not array'})`
-                : 'Object without data property'))
-        : String(res.data).slice(0, 100)
-    });
-    
-    // Handle various response formats more robustly
-    let parsed;
+
+    // normalize response to a consistent { data: Array, meta?: any } shape
+    const normalized = normalizeListResponse(res.data);
+
+    // parse with our schema; if it fails log a warning and return the
+    // normalized object directly so callers can still access the array.
     try {
-      parsed = ListRecordsResponseSchema.parse(res.data);
+      return ListRecordsResponseSchema.parse(normalized);
     } catch (parseError) {
-      secureLogger.warn(`[NocoBase] Schema parse failed for ${collection}, attempting fallback parsing:`, parseError);
-      
-      // Fallback: try to extract data manually if schema fails
-      if (Array.isArray(res.data)) {
-        parsed = { data: res.data };
-      } else if (res.data && typeof res.data === 'object') {
-        // Try to find the actual data array in common locations
-        const possibleData = res.data.data || res.data.records || res.data.items || res.data.results || res.data;
-        parsed = { data: possibleData };
-      } else {
-        throw parseError;
-      }
+      secureLogger.warn(`[NocoBase] listRecords parse failed after normalization for ${collection}:`, parseError);
+      // return normalized result as a best-effort fallback
+      return normalized;
     }
+  }
     
     return parsed;
   }
