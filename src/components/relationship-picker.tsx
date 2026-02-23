@@ -24,8 +24,9 @@ export function RelationshipPicker({ collectionName, onSelect, value }: Relation
   // in a real app we'd need search/pagination here too
   useEffect(() => {
     if (open && options.length === 0) {
-      client.listRecords(collectionName, { pageSize: 50 }).then(res => {
-        const data: any[] = Array.isArray(res) ? res : ((res as { data?: any[] })?.data || []);
+      client.listRecords(collectionName, { pageSize: 50 }).then((res: any) => {
+        // our client normalizes so data should always be an array
+        const data: any[] = Array.isArray(res) ? res : (res?.data || []);
         setOptions(data);
       });
     }
