@@ -110,7 +110,7 @@ export function NotionImportWidget() {
                 baseUrl = '/api';
             }
         }
-        const url = `${baseUrl}/nb-import-csv`;
+        const url = `/nb-import-csv`;
         console.debug('[NotionImportWidget] raw VITE_API_URL=', rawEnv, 'env VITE_API_URL=', envBase, 'using url', url, '(legacy notion-import also accepted)');
         try {
             const res = await fetch(url, {
