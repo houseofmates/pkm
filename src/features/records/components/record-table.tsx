@@ -24,6 +24,7 @@ import { useAppSetting } from '@/hooks/use-app-setting';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { FieldSettingsDialog } from '@/features/collections/components/field-settings-dialog';
 
 interface RecordTableProps {
   data: any[];
@@ -91,9 +92,9 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
               minWidth: cell.column.getSize(),
               maxWidth: cell.column.getSize()
             }}
-            className="border-r border-border/50 overflow-hidden text-ellipsis whitespace-nowrap align-middle"
+            className="border-r border-border/50 overflow-hidden text-ellipsis whitespace-nowrap align-middle p-1 h-8"
           >
-            <div className="flex items-center justify-center h-full w-full">
+            <div className="flex items-center justify-start h-full w-full px-1">
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
             </div>
           </TableCell>
@@ -109,6 +110,9 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     `hidden_columns_${collection?.name || 'unknown'}`,
     [] // Default visible
   );
+
+  const [settingsField, setSettingsField] = React.useState<any>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
 
 
 
@@ -156,6 +160,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         .filter((f: any) => !hiddenColumns.includes(f.name)) // Filter out user hidden fields
         .map((field: any) => columnHelper.accessor(field.name, {
           header: (field.uiSchema?.title || field.name).toLowerCase(),
+          meta: { field }, // added for header access
           cell: info => (
             <SmartField
               value={info.getValue()}
@@ -327,9 +332,18 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                       minWidth: header.getSize(),
                       maxWidth: header.getSize()
                     }}
-                    className="border-r border-border/50 group select-none relative text-center"
+                    className="border-r border-border/50 group select-none relative text-left p-1 h-9"
                   >
-                    <div className="overflow-hidden text-ellipsis whitespace-nowrap flex justify-center items-center w-full">
+                    <div
+                      className="overflow-hidden text-ellipsis whitespace-nowrap flex justify-start items-center w-full px-1 cursor-pointer hover:text-primary transition-colors"
+                      onClick={() => {
+                        const field = (header.column.columnDef as any).meta?.field;
+                        if (field) {
+                          setSettingsField(field);
+                          setIsSettingsOpen(true);
+                        }
+                      }}
+                    >
                       {header.isPlaceholder
                         ? null
                         : flexRender(
@@ -379,6 +393,18 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           </TableBody>
         </Table>
       </div>
+      <FieldSettingsDialog
+        collectionName={collection.name}
+        field={settingsField}
+        open={isSettingsOpen}
+        onOpenChange={setIsSettingsOpen}
+        onFieldUpdated={() => {
+          // refresh logic handled via query invalidation usually, 
+          // but here we might need to trigger a collection re-fetch.
+          // since collection-detail.tsx uses useCollections, it should update.
+          window.location.reload(); // simple brute force refresh for metadata update
+        }}
+      />
     </div>
   );
 }
