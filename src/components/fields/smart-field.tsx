@@ -600,11 +600,12 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       <div
         onDoubleClick={() => setIsEditing(true)}
         className={cn(
-          "cursor-pointer hover:bg-white/5 px-0.5 py-0.5 rounded transition-colors min-h-[20px] break-words text-white/90",
+          "cursor-pointer hover:bg-white/5 px-0.5 py-0.5 rounded transition-colors min-h-[20px] break-words text-white/90 whitespace-normal",
           size === 'lg' ? "text-lg" : "text-sm",
           "[&]:first:mt-0 [&]:mb-0 [&]:leading-[1.1]",
           className
         )}
+        style={{ wordBreak: 'break-word', minWidth: 0 }}
         title="double-click to edit"
       >
         {value || <span className="opacity-20 italic">empty</span>}
