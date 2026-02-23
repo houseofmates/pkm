@@ -150,8 +150,7 @@ svg,
   background-color: var(--primary-soft) !important;
 }
 
-/* ensure focus states use primary */
-*:focus,
+/* ensure focus states use primary *only when visible (keyboard/accessible) */
 *:focus-visible {
   outline-color: hsl(var(--primary)) !important;
   --tw-ring-color: hsl(var(--primary)) !important;
