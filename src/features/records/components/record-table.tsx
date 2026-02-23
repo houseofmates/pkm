@@ -461,9 +461,9 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
   return (
     <div
-      className="rounded-md border overflow-hidden no-scrollbar relative"
+      className="rounded-md border overflow-hidden no-scrollbar relative border-gray-400"
       style={{
-        borderColor: collectionColor,
+        borderColor: '#b0b0b0', // neutral grey
         borderWidth: '1px'
       }}
     >
@@ -503,50 +503,85 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         setIsSettingsOpen={setIsSettingsOpen}
                       />
                     ))}
-                  </SortableContext>
-                </DndContext>
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {table.getRowModel().rows.map((row) => (
-              <DraggableRecordRow
-                key={row.id}
-                row={row}
-                collection={collection}
-                onUpdate={onUpdateRecord}
-                onDelete={onDelete}
-                onCreateField={onCreateField}
-                recordMeta={recordMeta}
-              />
-            ))}
-            {/* add row button at the bottom - border-t ensures separation from last row, no border-b to avoid container overlap */}
-            <TableRow className="hover:bg-transparent !border-b-0 ring-0 h-10">
-              <TableCell colSpan={columnCount + (onCreateField ? 1 : 0)} className="p-0 border-t border-white/40 !border-b-0">
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start rounded-none h-10 text-muted-foreground hover:text-foreground !border-none"
-                  onClick={onCreateRecord}
-                >
-                  <Plus className="mr-2 h-4 w-4" /> add row
-                </Button>
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </div>
-      <FieldSettingsDialog
-        collectionName={collection.name}
-        field={settingsField}
-        open={isSettingsOpen}
-        onOpenChange={setIsSettingsOpen}
-        onFieldUpdated={() => {
-          // refresh logic handled via query invalidation usually, 
-          // but here we might need to trigger a collection re-fetch.
-          // since collection-detail.tsx uses useCollections, it should update.
-          window.location.reload(); // simple brute force refresh for metadata update
-        }}
-      />
-    </div>
-  );
-}
+                  return (
+                    <TableHead
+                      ref={setNodeRef}
+                      style={{
+                        ...style,
+                        width: header.getSize(),
+                        minWidth: header.getSize(),
+                        maxWidth: header.getSize()
+                      }}
+                      className={cn(
+                        "border-r border-gray-300 group select-none relative text-left p-0 h-9 transition-colors",
+                        isDragging ? "bg-accent/20" : "hover:bg-gray-100"
+                      )}
+                    >
+                      <div className="h-full w-full relative flex items-center group/header overflow-hidden">
+                        {/* background drag zone - separate from text zone */}
+                        <div
+                          className="absolute inset-0 cursor-grab active:cursor-grabbing transition-colors"
+                          {...attributes}
+                          {...listeners}
+                        />
+
+                        {/* foreground click zone (label) - elevated and isolated */}
+                        <div
+                          className="relative z-20 h-full w-full flex items-center px-2 cursor-pointer hover:bg-gray-200 active:bg-gray-300 transition-colors duration-100"
+                          onPointerDown={(e) => {
+                            e.stopPropagation();
+                          }}
+                          onMouseDown={(e) => {
+                            e.stopPropagation();
+                          }}
+                          onTouchStart={(e) => {
+                            e.stopPropagation();
+                          }}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const field = (header.column.columnDef as any).meta?.field;
+                            if (field) {
+                              setSettingsField(field);
+                              setIsSettingsOpen(true);
+                            }
+                          }}
+                          onDoubleClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const field = (header.column.columnDef as any).meta?.field;
+                            if (field) {
+                              setSettingsField(field);
+                              setIsSettingsOpen(true);
+                            }
+                          }}
+                          onContextMenu={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            const field = (header.column.columnDef as any).meta?.field;
+                            if (field) {
+                              setSettingsField(field);
+                              setIsSettingsOpen(true);
+                            }
+                          }}
+                        >
+                          <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pointer-events-none select-none">
+                            {header.isPlaceholder
+                              ? null
+                              : flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                          </div>
+                        </div>
+                      </div>
+                      {/* resize handler */}
+                      <div
+                        onMouseDown={header.getResizeHandler()}
+                        onTouchStart={header.getResizeHandler()}
+                        className={`absolute -right-2 top-0 h-full w-4 z-20 cursor-col-resize touch-none select-none lg:hover:bg-primary lg:hover:opacity-10 transition-opacity ${header.column.getIsResizing() ? 'opacity-100 bg-primary shadow-[0_4000px_0_0_currentColor]' : 'opacity-0'
+                          }`}
+                        style={{ color: 'var(--primary)' }}
+                      />
+                    </TableHead>
+                  );
