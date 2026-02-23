@@ -91,7 +91,7 @@ export function RootLayout() {
       return color.replace(/rgb\(([^)]+)\)/, 'rgba($1, 0.15)');
     }
     // generic fallback to the CSS variable itself with opacity
-    return `hsl(var(--primary) / 0.15)`;
+    return `rgba(245, 175, 18, 0.15)`;
   }
   const accentBg = getAccentBg(accentColor);
 
