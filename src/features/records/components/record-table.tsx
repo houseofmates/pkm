@@ -353,7 +353,13 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     if (collection.fields && collection.fields.length > 0) {
       cols = (collection.fields || [])
         .filter((f: any) => !f.hidden) // Filter out system hidden fields
-        .filter((f: any) => !hiddenColumns.includes(f.name)) // Filter out user hidden fields
+        .filter((f: any) => {
+          if (!f.name) {
+            console.warn('skipping field with empty name', f);
+            return false;
+          }
+          return !hiddenColumns.includes(f.name);
+        }) // Filter out user hidden fields and blank names
         .map((field: any) => columnHelper.accessor(field.name, {
           header: (field.uiSchema?.title || field.name),
           meta: { field }, // added for header access
