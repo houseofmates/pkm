@@ -505,5 +505,3 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                     ))}
                   </SortableContext>
                 </DndContext>
-              {/* End header row */}
-            </TableRow>
