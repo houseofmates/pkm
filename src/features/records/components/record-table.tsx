@@ -233,10 +233,10 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
 const DraggableRecordRow = ({ index, style: incomingStyle, data }: any) => {
   const { rows, collection, onUpdate, onDelete, onCreateField, recordMeta } = data;
   const row = rows[index];
-
+  
   // Debug logging
   console.log(`[DraggableRecordRow] index=${index}, row=${row ? 'exists' : 'null'}, rows.length=${rows?.length}`);
-
+  
   if (!row) {
     console.log(`[DraggableRecordRow] No row at index ${index}`);
     return null;
@@ -256,11 +256,11 @@ const DraggableRecordRow = ({ index, style: incomingStyle, data }: any) => {
 
   const style = {
     ...incomingStyle,
-    transform: [incomingStyle.transform, CSS.Translate.toString(transform)].filter(Boolean).join(' '),
+    transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.5 : 1,
-    touchAction: 'none', // Important for touch drag
+    touchAction: 'none',
     backgroundColor: rowColor ? `${rowColor}20` : undefined,
-    display: 'flex', // Crucial for virtualization 
+    display: 'flex',
     width: '100%'
   };
 
@@ -631,9 +631,9 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               <AutoSizer>
                 {({ height, width }: { height: number; width: number }) => (
                   <List
-                    itemCount={rows.length}
-                    itemSize={40}
-                    itemData={{
+                    rowCount={rows.length}
+                    rowHeight={40}
+                    rowProps={{
                       rows: rows,
                       collection,
                       onUpdate: onUpdateRecord,
@@ -644,9 +644,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                     height={height}
                     width={width}
                     className="no-scrollbar"
-                  >
-                    {DraggableRecordRow}
-                  </List>
+                    rowComponent={DraggableRecordRow}
+                  />
                 )}
               </AutoSizer>
             )}
