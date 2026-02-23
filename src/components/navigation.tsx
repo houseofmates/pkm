@@ -78,7 +78,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   const metaColor = item.color || (item.type === 'collection' ? metadata[id]?.color : undefined);
 
   // accentBg passed from Navigation
-  const accentBg = typeof window !== 'undefined' && window.accentBg ? window.accentBg : undefined;
+  const accentBg = typeof window !== 'undefined' && (window as any).accentBg ? (window as any).accentBg : undefined;
   const style = {
     transform: CSS.Translate.toString(transform),
     transition,
@@ -419,7 +419,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
   ] as const;
 
   // expose accentBg globally for SortableItem
-  if (typeof window !== 'undefined') window.accentBg = accentBg;
+  if (typeof window !== 'undefined') (window as any).accentBg = accentBg;
   return (
     <>
       {/* desktop sidebar */}
