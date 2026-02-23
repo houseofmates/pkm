@@ -104,7 +104,6 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
     background: (selected || hovered) ? highlightColor : undefined,
     borderRadius: '0.5rem'
   };
-  Riverside
 
 
   // render icon logic
