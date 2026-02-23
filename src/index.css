@@ -30,7 +30,7 @@
     /* the void blueprint default: warm yellow */
     --primary: 41 92% 52%;
     --primary-foreground: 0 0% 0%;
-    --primary-soft: var(--primary) / 0.1;
+    --primary-soft: hsl(41 92% 52% / 0.1);
 
     /* recolorable white: defaults to white, becomes headmate color via usethemereactor */
     --headmate-white: 0 0% 100%;
@@ -142,7 +142,7 @@ svg,
 .nav-selected,
 [data-selected="true"] {
   background-color: var(--primary-soft) !important;
-  color: hsl(var(--primary)) !important;
+  color: var(--primary) !important;
 }
 
 /* soft background utility */
@@ -152,8 +152,8 @@ svg,
 
 /* ensure focus states use primary *only when visible (keyboard/accessible) */
 *:focus-visible {
-  outline-color: hsl(var(--primary)) !important;
-  --tw-ring-color: hsl(var(--primary)) !important;
+  outline-color: var(--primary) !important;
+  --tw-ring-color: var(--primary) !important;
 }
 
 /* suppress any focus ring/outline inside table cells (inline editors are clipped by overflow)
@@ -268,7 +268,7 @@ button.interactive-pop:hover {
 .selected-icon-btn .lucide *,
 .selected-icon-btn .icon,
 .selected-icon-btn .icon * {
-  color: hsl(var(--primary)) !important;
+  color: var(--primary) !important;
   stroke: currentcolor !important;
   fill: currentcolor !important;
   -webkit-text-fill-color: currentcolor !important;
@@ -286,7 +286,7 @@ button.interactive-pop:hover {
 .selected-icon-btn [class*="bg-[var(--primary)]"],
 .selected-icon-btn [class*="fill-[var(--primary)]"],
 .selected-icon-btn [class*="stroke-[var(--primary)]"] {
-  color: hsl(var(--primary)) !important;
+  color: var(--primary) !important;
   background-color: transparent !important;
   fill: currentcolor !important;
   stroke: currentcolor !important;
@@ -300,7 +300,7 @@ button.interactive-pop:hover {
 .selected-icon-btn [style*="var(--primary)"] {
   fill: currentcolor !important;
   stroke: currentcolor !important;
-  color: hsl(var(--primary)) !important;
+  color: var(--primary) !important;
 }
 
 /* generic fallback: force any svg children to use currentcolor */
@@ -308,16 +308,16 @@ button.interactive-pop:hover {
 .selected-icon-btn svg * {
   fill: currentcolor !important;
   stroke: currentcolor !important;
-  color: hsl(var(--primary)) !important;
+  color: var(--primary) !important;
 }
 
 /* --- nuclear override (user request) --- */
 .selected-icon-btn svg,
 .selected-icon-btn path,
 .selected-icon-btn circle {
-  fill: hsl(var(--primary)) !important;
-  stroke: hsl(var(--primary)) !important;
-  color: hsl(var(--primary)) !important;
+  fill: var(--primary) !important;
+  stroke: var(--primary) !important;
+  color: var(--primary) !important;
 }
 
 .selected-icon-btn {
@@ -329,8 +329,8 @@ button.interactive-pop:hover {
 
 /* universal nested selector to catch wrappers/spans around svgs */
 .selected-icon-btn * {
-  fill: hsl(var(--primary)) !important;
-  stroke: hsl(var(--primary)) !important;
+  fill: var(--primary) !important;
+  stroke: var(--primary) !important;
 }
 
 /* --- nuclear ui fix round 2 (user request) --- */
@@ -354,9 +354,9 @@ header * {
 .sidebar svg,
 .nav-item svg,
 .top-nav svg {
-  fill: hsl(var(--primary)) !important;
-  color: hsl(var(--primary)) !important;
-  filter: drop-shadow(0 0 0 hsl(var(--primary))) !important;
+  fill: var(--primary) !important;
+  color: var(--primary) !important;
+  filter: drop-shadow(0 0 0 var(--primary)) !important;
 }
 
 /* --- high contrast & visibility restoration (user request) --- */
@@ -386,8 +386,8 @@ button,
 .btn,
 .icon-btn,
 [role="button"] {
-  border-color: hsl(var(--primary)) !important;
-  outline-color: hsl(var(--primary)) !important;
+  border-color: var(--primary) !important;
+  outline-color: var(--primary) !important;
 }
 
 /* 3. selected items: transparent background, colored icon */
@@ -411,8 +411,8 @@ button,
 .selected-icon-btn svg,
 .selected-icon-btn * {
   fill: none !important;
-  color: hsl(var(--primary)) !important;
-  stroke: hsl(var(--primary)) !important;
+  color: var(--primary) !important;
+  stroke: var(--primary) !important;
   opacity: 1 !important;
   display: block !important;
   visibility: visible !important;
@@ -422,7 +422,7 @@ button,
 /* DISABLED: This was preventing widget borders from using custom colors
 *[style*="border"],
 [class*="border"] {
-  border-color: hsl(var(--primary)) !important;
+  border-color: var(--primary) !important;
 }
 */
 
