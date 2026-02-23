@@ -221,7 +221,10 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
   );
 }
 
-const DraggableRecordRow = React.memo(({ row, collection, onUpdate, onDelete, onCreateField, recordMeta, style: incomingStyle }: any) => {
+const DraggableRecordRow = React.memo(({ index, style: incomingStyle, ariaAttributes, rows, collection, onUpdate, onDelete, onCreateField, recordMeta, table }: any) => {
+  const row = rows[index];
+  if (!row) return null;
+
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `record-${row.original.id}`,
     data: {
@@ -298,9 +301,6 @@ const DraggableRecordRow = React.memo(({ row, collection, onUpdate, onDelete, on
                 </div>
               </div>
             </TableCell>
-          );
-        })}
-
       </div>
     </RecordContextMenu>
   );
