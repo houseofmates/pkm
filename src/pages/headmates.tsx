@@ -91,7 +91,7 @@ export function HeadmatesPage() {
     : undefined;
 
   const baseOrderIndex = useMemo(() => {
-    const map = new map<string, number>();
+    const map = new Map<string, number>();
     allMembers.forEach((m, idx) => map.set(m.id, idx));
     return map;
   }, [allMembers]);
