@@ -11,18 +11,18 @@ vi.mock('@/hooks/use-collections', () => ({
 }));
 
 describe('Navigation', () => {
+    // reuse props for both tests
+    const props = {
+        activeTab: 'home' as const,
+        onTabChange: vi.fn(),
+        onSelectCollection: vi.fn(),
+        selectedCollection: null,
+        items: [],
+        setItems: vi.fn(),
+    };
+
     it('dispatches pkm:open-search event when search button is clicked', () => {
         const dispatchEventSpy = vi.spyOn(window, 'dispatchEvent');
-
-        // Mock required props
-        const props = {
-            activeTab: 'home',
-            onTabChange: vi.fn(),
-            onSelectCollection: vi.fn(),
-            selectedCollection: null,
-            items: [],
-            setItems: vi.fn(),
-        } as const;
 
         // make sure body text exists so navigation's search code can slice it
         document.body.innerText = 'dummy';
