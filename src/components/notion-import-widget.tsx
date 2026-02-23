@@ -139,8 +139,43 @@ export function NotionImportWidget() {
                 return;
             }
             appendLog(`task ${data.taskId} started`);
-            // poll for progress lines every couple seconds
-            // TODO: update log polling for nb-import-csv endpoint
+
+            // poll for progress lines
+            let pollTimer: any;
+            let lastLogCount = 0;
+            const pollLogs = async () => {
+                try {
+                    const pollUrl = `${baseUrl}/nb-import/logs?id=${encodeURIComponent(data.taskId)}`;
+                    const pres = await fetch(pollUrl, {
+                        headers: { Authorization: `Bearer ${apiKey}` }
+                    });
+                    if (!pres.ok) {
+                        console.warn('[NotionImportWidget] poll log failed', pres.statusText);
+                        return;
+                    }
+                    const pdata = await pres.json();
+                    if (pdata.logs && Array.isArray(pdata.logs)) {
+                        const newLogs = pdata.logs.slice(lastLogCount);
+                        if (newLogs.length > 0) {
+                            setLogs(l => [...l, ...newLogs]);
+                            lastLogCount = pdata.logs.length;
+                        }
+                    }
+                    if (pdata.status === 'done') {
+                        appendLog('import task finished successfully.');
+                        clearInterval(pollTimer);
+                        setRunning(false);
+                    } else if (pdata.status === 'error') {
+                        appendLog('import task failed during background processing.');
+                        clearInterval(pollTimer);
+                        setRunning(false);
+                    }
+                } catch (e) {
+                    console.warn('[NotionImportWidget] polling error', e);
+                }
+            };
+
+            pollTimer = setInterval(pollLogs, 2000);
         } catch (err: any) {
             appendLog('upload failed: ' + err.message);
             setRunning(false);
