@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { Upload, Search, Loader2, type LucideIcon } from 'lucide-react';
 import * as Icons from 'lucide-react';
@@ -300,6 +300,9 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   const [localColor, setLocalColor] = useState(currentColor || 'var(--primary)');
   const [localName, setLocalName] = useState(currentName || '');
   const [search, setSearch] = useState('');
+  const contextMenuRef = useRef<HTMLDivElement>(null);
+  // debounce timer for rename
+  const renameDebounce = useRef<NodeJS.Timeout | null>(null);
 
   // sync local name if prop changes
   useEffect(() => {
@@ -376,24 +379,50 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   };
 
   return (
-  <ContextMenuContent className="w-[90vw] sm:w-[360px] p-0 overflow-hidden bg-[#050505] border-border/50 flex flex-col transition-all duration-300">
+  <ContextMenuContent ref={contextMenuRef} className="w-[90vw] sm:w-[360px] p-0 overflow-hidden bg-[#050505] border-border/50 flex flex-col transition-all duration-300">
   {/* header: name & color toggle */}
   <div className="p-4 border-b shrink-0 relative flex items-center gap-3">
  <div className="flex-1 space-y-1.5">
  <Label className="text-[10px] font-bold  text-muted-foreground/70">name</Label>
  <Input
- value={localName}
- onChange={(e) => setLocalName(e.target.value)}
- onBlur={() => {
-   if (localName !== currentName && localName.trim()) onUpdate({ name: localName });
- }}
- onKeyDown={(e) => {
-   if (e.key === 'Enter') {
-   e.currentTarget.blur();
-   }
- }}
- className="h-9 font-medium text-sm bg-transparent border-transparent hover:border-input focus:border-ring transition-colors px-2 shadow-none"
- placeholder="untitled"
+   value={localName}
+   onChange={(e) => {
+     const val = e.target.value;
+     setLocalName(val);
+     // debounce rename to avoid multiple updates per spacebar tap
+     if (renameDebounce.current) clearTimeout(renameDebounce.current);
+     renameDebounce.current = setTimeout(() => {
+       if (val !== currentName && val.trim()) {
+         onUpdate({ name: val });
+         // close context menu after rename
+         setTimeout(() => {
+           // try to close the menu (works for Radix UI context menu)
+           if (contextMenuRef.current) {
+             const evt = new Event('pointerdown', { bubbles: true });
+             contextMenuRef.current.dispatchEvent(evt);
+           }
+         }, 100);
+       }
+     }, 200);
+   }}
+   onBlur={() => {
+     if (localName !== currentName && localName.trim()) {
+       onUpdate({ name: localName });
+       setTimeout(() => {
+         if (contextMenuRef.current) {
+           const evt = new Event('pointerdown', { bubbles: true });
+           contextMenuRef.current.dispatchEvent(evt);
+         }
+       }, 100);
+     }
+   }}
+   onKeyDown={(e) => {
+     if (e.key === 'Enter') {
+       e.currentTarget.blur();
+     }
+   }}
+   className="h-9 font-medium text-sm bg-transparent border-transparent hover:border-input focus:border-ring transition-colors px-2 shadow-none"
+   placeholder="untitled"
  />
  </div>
 
