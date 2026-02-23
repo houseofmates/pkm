@@ -64,7 +64,7 @@ import type {
 import { cn } from '@/lib/utils';
 
 // Sortable Header Component
-function SortableHeader({ header, collectionName, onFieldUpdated }: any) {
+function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSettings }: any) {
   const { client } = useAuth();
   const [isEditing, setIsEditing] = React.useState(false);
   const [draftTitle, setDraftTitle] = React.useState<string>(
@@ -136,8 +136,8 @@ function SortableHeader({ header, collectionName, onFieldUpdated }: any) {
     >
       <PropertyContextMenu
         field={(header.column.columnDef as any).meta?.field}
-        onRename={() => {}}
-        onEditSettings={() => {}}
+        onRename={() => setIsEditing(true)}
+        onEditSettings={() => onOpenFieldSettings?.((header.column.columnDef as any).meta?.field)}
         onHide={() => {
           toast.info("hiding feature coming soon");
         }}
@@ -572,6 +572,10 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         header={header}
                         collectionName={collection?.name}
                         onFieldUpdated={onFieldUpdated}
+                        onOpenFieldSettings={(field: any) => {
+                          setSettingsField(field);
+                          setIsSettingsOpen(true);
+                        }}
                       />
                     ))}
                   </SortableContext>
