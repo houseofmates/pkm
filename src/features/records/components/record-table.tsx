@@ -509,5 +509,35 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
             ))}
           </TableHeader>
           {/* TableBody and other table content should follow here */}
+          <TableBody>
+            {table.getRowModel().rows.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={columnCount} className="text-center text-muted-foreground h-16">
+                  no records found
+                </TableCell>
+              </TableRow>
+            ) : (
+              table.getRowModel().rows.map((row) => (
+                <DraggableRecordRow
+                  key={row.id}
+                  row={row}
+                  collection={collection}
+                  onUpdate={onUpdateRecord}
+                  onDelete={onDelete}
+                  onCreateField={onCreateField}
+                  recordMeta={recordMeta}
+                />
+              ))
+            )}
+          </TableBody>
         </Table>
       </div>
+      <FieldSettingsDialog
+        open={isSettingsOpen}
+        onOpenChange={setIsSettingsOpen}
+        field={settingsField}
+        collection={collection}
+      />
+    </div>
+  );
+}
