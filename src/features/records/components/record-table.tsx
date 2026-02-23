@@ -171,7 +171,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
         >
           {!isEditing ? (
             <div
-              className="relative z-20 h-full w-full flex items-center px-1 select-none cursor-pointer hover:bg-white/5 transition-colors"
+              className="relative z-20 h-full w-full flex items-center px-0.5 select-none cursor-pointer hover:bg-white/5 transition-colors"
               onDoubleClick={startEditing}
               onContextMenu={(e) => {
                 // Ensure context menu works even if drag listeners are active
@@ -188,7 +188,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
               </div>
             </div>
           ) : (
-            <div className="flex h-full w-full items-center px-1 bg-black/40">
+            <div className="flex h-full w-full items-center px-0.5 bg-black/40">
               <Input
                 autoFocus
                 value={draftTitle}
@@ -287,7 +287,7 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
                 e.stopPropagation();
               }}
             >
-              <div className="flex items-center justify-start h-full w-full px-2">
+              <div className="flex items-center justify-start h-full w-full px-0.5">
                 <div className="flex-1 truncate">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </div>
