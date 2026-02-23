@@ -9,9 +9,8 @@ export const DragHandleExtension = Extension.create({
       new Plugin({
         key: new PluginKey('dragHandle'),
         props: {
-          handleDrop(view, event, slice, moved) {
+          handleDrop(view, event) {
             const { clientX, clientY } = event;
-            // @ts-expect-error type-mismatch
             const pos = view.posAtCoords({ left: clientX, top: clientY });
 
             if (!pos) return false;
@@ -23,7 +22,6 @@ export const DragHandleExtension = Extension.create({
             if (!targetNode) return false;
 
             // Check if we are dropping ONTO a node's left/right edge
-            // @ts-expect-error type-mismatch
             const nodeDom = view.nodeDOM(pos.pos);
             // nodeDOM isn't reliable for all nodes (text nodes return text)
             // But we can approximate with coords
