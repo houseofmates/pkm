@@ -85,12 +85,13 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
     id: header.id,
   });
 
-  const style = {
+  const style: React.CSSProperties = {
     transform: CSS.Translate.toString(transform),
     transition,
     opacity: isDragging ? 0.8 : 1,
     zIndex: isDragging ? 100 : undefined,
     position: 'relative' as const,
+    touchAction: 'none',
   };
 
   const saveTitle = async (newTitle: string) => {
@@ -164,16 +165,15 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
           {!isEditing ? (
             <div
               className="relative z-20 h-full w-full flex items-center px-1 select-none cursor-pointer hover:bg-white/5 transition-colors"
-              onClick={startEditing}
               onDoubleClick={startEditing}
             >
               <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pr-5">
                 {header.isPlaceholder
                   ? null
                   : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )}
               </div>
             </div>
           ) : (
