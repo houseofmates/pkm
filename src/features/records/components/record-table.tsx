@@ -4,7 +4,7 @@ import {
   flexRender,
   createColumnHelper,
 } from '@tanstack/react-table';
-import { FixedSizeList as List } from 'react-window';
+import { List } from 'react-window';
 import { AutoSizer } from 'react-virtualized-auto-sizer';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -185,6 +185,9 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
                 }
               }}
               onDoubleClick={startEditing}
+              onContextMenu={(e) => {
+                // PropertyContextMenu will handle this
+              }}
             >
               <div
                 className="whitespace-normal font-medium leading-[1.2] text-sm"
@@ -231,6 +234,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
 }
 
 const DraggableRecordRow = React.memo(({ index, style: incomingStyle, data }: any) => {
+  if (!data) return null;
   const { rows, collection, onUpdate, onDelete, onCreateField, recordMeta } = data;
   const row = rows[index];
   if (!row) return null;
@@ -421,7 +425,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           <div className="flex items-center justify-center h-full">
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-6 w-6">
+                <Button variant="ghost" size="icon" className="h-6 -6">
                   <Settings2 className="h-4 w-4" />
                 </Button>
               </PopoverTrigger>
@@ -616,9 +620,9 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               <AutoSizer>
                 {({ height, width }: { height: number; width: number }) => (
                   <List
-                    itemCount={rows.length}
-                    itemSize={40}
-                    itemData={{
+                    rowCount={rows.length}
+                    rowHeight={40}
+                    rowProps={{
                       rows: rows,
                       collection,
                       onUpdate: onUpdateRecord,
@@ -626,12 +630,9 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                       onCreateField,
                       recordMeta
                     }}
-                    height={height}
-                    width={width}
-                    className="no-scrollbar"
-                  >
-                    {DraggableRecordRow}
-                  </List>
+                    style={{ height, width }}
+                    rowComponent={DraggableRecordRow}
+                  />
                 )}
               </AutoSizer>
             )}
