@@ -843,7 +843,6 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
                   className="h-7 w-7 object-cover rounded shadow-sm border border-white/10"
                   alt="preview"
                   onError={(e) => {
-                    // fallback if image fails or not really an image
                     (e.target as any).style.display = 'none';
                   }}
                 />
@@ -852,11 +851,94 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
                 <span className="text-[10px] font-bold text-muted-foreground bg-white/5 px-1 rounded">+{imgs.length - 1}</span>
               )}
             </div>
+
+            {/* fullscreen viewer */}
+            {fullscreenIndex !== null && (
+              <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-200">
+                <div className="absolute top-4 right-4 flex gap-2 z-50">
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    onClick={async () => {
+                      if ('EyeDropper' in window) {
+                        try {
+                          // @ts-ignore
+                          const eyeDropper = new window.EyeDropper();
+                          // @ts-ignore
+                          const result = await eyeDropper.open();
+                          navigator.clipboard.writeText(result.sRGBHex);
+                          toast.success(`copied ${result.sRGBHex}`);
+                        } catch (e) { console.error(e); }
+                      } else {
+                        toast.error("color picker not supported");
+                      }
+                    }}
+                    title="pick color"
+                  >
+                    <Pipette className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="icon"
+                    onClick={() => {
+                      const link = document.createElement('a');
+                      link.href = galleryImgs[fullscreenIndex!];
+                      link.download = `image-${fullscreenIndex}.jpg`;
+                      link.target = "_blank";
+                      link.click();
+                    }}
+                    title="download"
+                  >
+                    <Download className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="destructive"
+                    size="icon"
+                    onClick={() => setFullscreenIndex(null)}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="flex-1 flex items-center justify-center p-8 relative">
+                  <img
+                    src={galleryImgs[fullscreenIndex!]}
+                    className="max-h-full max-w-full object-contain shadow-2xl"
+                    alt="fullscreen"
+                  />
+                  {galleryImgs.length > 1 && (
+                    <>
+                      <Button
+                        variant="outline"
+                        className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white border-0"
+                        onClick={(e: React.MouseEvent) => {
+                          e.stopPropagation();
+                          setFullscreenIndex(prev => (prev === null || prev === 0) ? galleryImgs.length - 1 : prev - 1);
+                        }}
+                      >
+                        &lt;
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white border-0"
+                        onClick={(e: React.MouseEvent) => {
+                          e.stopPropagation();
+                          setFullscreenIndex(prev => (prev === null || prev === galleryImgs.length - 1) ? 0 : prev + 1);
+                        }}
+                      >
+                        &gt;
+                      </Button>
+                    </>
+                  )}
+                </div>
+                <div className="pb-4 text-center text-white/50 text-sm">
+                  {fullscreenIndex! + 1} / {galleryImgs.length}
+                </div>
+              </div>
+            )}
           </div>
         )
       }
 
-      // fallback to upload trigger if empty
       return (
         <div
           onClick={() => setIsEditing(true)}
@@ -867,223 +949,121 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       );
     }
 
-    {/* fullscreen viewer */ }
-    {
-      fullscreenIndex !== null && (
-        <div className="fixed inset-0 z-[100] bg-black flex flex-col animate-in fade-in duration-200">
-          <div className="absolute top-4 right-4 flex gap-2 z-50">
-            {/* color picker */}
-            <Button
-              variant="secondary"
-              size="icon"
-              onClick={async () => {
-                if ('EyeDropper' in window) {
-                  try {
-                    // @ts-ignore
-                    const eyeDropper = new window.EyeDropper();
-                    // @ts-ignore
-                    const result = await eyeDropper.open();
-                    navigator.clipboard.writeText(result.sRGBHex);
-                    toast.success(`copied ${result.sRGBHex}`);
-                  } catch (e) { console.error(e); }
-                } else {
-                  toast.error("color picker not supported");
-                }
-              }}
-              title="pick color"
-            >
-              <Pipette className="h-4 w-4" />
-            </Button>
+    if (isSelect) {
+      return (
+        <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer hover:bg-muted/50 px-2 py-0.5 rounded border border-transparent hover:border-muted-foreground/20 font-varela", size === 'lg' ? "text-lg" : "text-sm")}>
+          {value || <span className="opacity-30 lowercase">select</span>}
+        </div>
+      )
+    }
 
-            {/* download */}
-            <Button
-              variant="secondary"
-              size="icon"
-              onClick={() => {
-                const link = document.createElement('a');
-                link.href = galleryImgs[fullscreenIndex];
-                link.download = `image-${fullscreenIndex}.jpg`;
-                link.target = "_blank";
-                link.click();
-              }}
-              title="download"
-            >
-              <Download className="h-4 w-4" />
-            </Button>
+    if (isLocation) {
+      return (
+        <Dialog>
+          <DialogTrigger asChild>
+            <div className="flex items-center gap-2 cursor-pointer group">
+              <MapPin className="h-4 w-4 text-primary group-hover:animate-bounce" />
+              <span className={cn("truncate max-w-[150px] underline decoration-dotted text-muted-foreground group-hover:text-primary font-varela", size === 'lg' ? "text-lg" : "text-sm")}>
+                {value ? 'view map' : 'set location'}
+              </span>
+              <Button variant="ghost" size="icon" className="h-4 w-4 ml-1 opacity-0 group-hover:opacity-100" onClick={(e: MouseEvent) => { e.stopPropagation(); setIsEditing(true); }}>
+                <Check className="h-3 w-3" />
+              </Button>
+            </div>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl h-[500px]">
+            <LocationField value={value} onChange={() => { }} readOnly={true} />
+          </DialogContent>
+        </Dialog>
+      );
+    }
 
-            {/* close */}
-            <Button
-              variant="destructive"
-              size="icon"
-              onClick={() => setFullscreenIndex(null)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
+    if (isMarkdown) {
+      return (
+        <div
+          onDoubleClick={() => setIsEditing(true)}
+          className="cursor-pointer group relative min-h-[20px] font-varela w-full h-full overflow-hidden"
+        >
+          <div className={cn("prose prose-invert prose-xs line-clamp-2 leading-tight opacity-90 group-hover:opacity-100 transition-opacity", size === 'lg' ? "text-base" : "text-[11px]")}>
+            <ReactMarkdown>{value || ''}</ReactMarkdown>
           </div>
-
-          <div className="flex-1 flex items-center justify-center p-8 relative">
-            <img
-              src={galleryImgs[fullscreenIndex]}
-              className="max-h-full max-w-full object-contain shadow-2xl"
-              alt="fullscreen"
-            />
-
-            {/* navigation */}
-            {galleryImgs.length > 1 && (
-              <>
-                <Button
-                  variant="outline"
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white border-0"
-                  onClick={(e: React.MouseEvent) => {
-                    e.stopPropagation();
-                    setFullscreenIndex(prev => (prev === null || prev === 0) ? galleryImgs.length - 1 : prev - 1);
-                  }}
-                >
-                  &lt;
-                </Button>
-                <Button
-                  variant="outline"
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white border-0"
-                  onClick={(e: React.MouseEvent) => {
-                    e.stopPropagation();
-                    setFullscreenIndex(prev => (prev === null || prev === galleryImgs.length - 1) ? 0 : prev + 1);
-                  }}
-                >
-                  &gt;
-                </Button>
-              </>
-            )}
-          </div>
-          <div className="pb-4 text-center text-white/50 text-sm">
-            {fullscreenIndex + 1} / {galleryImgs.length}
+          {!value && <span className={cn("opacity-20 italic font-varela", size === 'lg' ? "text-lg" : "text-xs")}>empty markdown</span>}
+          <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-50 transition-opacity">
+            <Edit2 className="h-2.5 w-2.5" />
           </div>
         </div>
       )
     }
-          </>
-        )
-}
+
+    if (isJson) {
+      return (
+        <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer font-mono bg-muted px-1 rounded text-muted-foreground truncate max-w-[150px] hover:text-foreground hover:bg-muted/80", size === 'lg' ? "text-sm" : "text-[10px]")}>
+          {JSON.stringify(value)}
+        </div>
+      )
     }
 
-if (isSelect) {
-  return (
-    <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer hover:bg-muted/50 px-2 py-0.5 rounded border border-transparent hover:border-muted-foreground/20 font-varela", size === 'lg' ? "text-lg" : "text-sm")}>
-      {value || <span className="opacity-30 lowercase">select</span>}
-    </div>
-  )
-}
-
-if (isLocation) {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <div className="flex items-center gap-2 cursor-pointer group">
-          <MapPin className="h-4 w-4 text-primary group-hover:animate-bounce" />
-          <span className={cn("truncate max-w-[150px] underline decoration-dotted text-muted-foreground group-hover:text-primary font-varela", size === 'lg' ? "text-lg" : "text-sm")}>
-            {value ? 'view map' : 'set location'}
-          </span>
-          <Button variant="ghost" size="icon" className="h-4 w-4 ml-1 opacity-0 group-hover:opacity-100" onClick={(e: MouseEvent) => { e.stopPropagation(); setIsEditing(true); }}>
-            <Check className="h-3 w-3" />
-          </Button>
+    if (isCode) {
+      return (
+        <div className="flex items-center gap-2 font-varela">
+          <div onClick={() => { setIsEditing(true); setShowFormulaEditor(true); }} className={cn("cursor-pointer font-mono bg-muted px-1 rounded text-muted-foreground truncate max-w-[100px] hover:text-foreground hover:bg-muted/80", size === 'lg' ? "text-sm" : "text-[10px]")}>
+            {value ? '<script...>' : 'empty code'}
+          </div>
+          {value && (
+            <div className="flex gap-1">
+              <Button variant="outline" size="sm" className="h-5 text-[10px] px-1" title="run" onClick={() => {
+                try {
+                  const func = new Function('record', 'api', value);
+                  func(record, client); // Run with context
+                  toast.success("script executed");
+                } catch (e) {
+                  alert("Error running code: " + e);
+                }
+              }}>
+                <Terminal className="h-3 w-3" />
+              </Button>
+              <Button variant="outline" size="sm" className="h-5 text-[10px] px-1" title="ai edit" onClick={() => { setIsEditing(true); setShowFormulaEditor(true); }}>
+                <Sparkles className="h-3 w-3" />
+              </Button>
+            </div>
+          )}
         </div>
-      </DialogTrigger>
-      <DialogContent className="max-w-2xl h-[500px]">
-        <LocationField value={value} onChange={() => { }} readOnly={true} />
-      </DialogContent>
-    </Dialog>
-  );
-}
+      )
+    }
 
-if (isMarkdown) {
-  return (
-    <div
-      onDoubleClick={() => setIsEditing(true)}
-      onClick={(e) => {
-        // single click select/focus, dblclick edit
-      }}
-      className="cursor-pointer group relative min-h-[20px] font-varela w-full h-full overflow-hidden"
-    >
-      <div className={cn("prose prose-invert prose-xs line-clamp-2 leading-tight opacity-90 group-hover:opacity-100 transition-opacity", size === 'lg' ? "text-base" : "text-[11px]")}>
-        <ReactMarkdown>{value || ''}</ReactMarkdown>
-      </div>
-      {!value && <span className={cn("opacity-20 italic font-varela", size === 'lg' ? "text-lg" : "text-xs")}>empty markdown</span>}
-      <div className="absolute top-1 right-1 opacity-0 group-hover:opacity-50 transition-opacity">
-        <Edit2 className="h-2.5 w-2.5" />
-      </div>
-    </div>
-  )
-}
-
-if (isJson) {
-  return (
-    <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer font-mono bg-muted px-1 rounded text-muted-foreground truncate max-w-[150px] hover:text-foreground hover:bg-muted/80", size === 'lg' ? "text-sm" : "text-[10px]")}>
-      {JSON.stringify(value)}
-    </div>
-  )
-}
-
-if (isCode) {
-  return (
-    <div className="flex items-center gap-2 font-varela">
-      <div onClick={() => { setIsEditing(true); setShowFormulaEditor(true); }} className={cn("cursor-pointer font-mono bg-muted px-1 rounded text-muted-foreground truncate max-w-[100px] hover:text-foreground hover:bg-muted/80", size === 'lg' ? "text-sm" : "text-[10px]")}>
-        {value ? '<script...>' : 'empty code'}
-      </div>
-      {value && (
-        <div className="flex gap-1">
-          <Button variant="outline" size="sm" className="h-5 text-[10px] px-1" title="run" onClick={() => {
-            try {
-
-              const func = new Function('record', 'api', value);
-              func(record, client); // Run with context
-              toast.success("script executed");
-            } catch (e) {
-              alert("Error running code: " + e);
-            }
-          }}>
-            <Terminal className="h-3 w-3" />
-          </Button>
-          <Button variant="outline" size="sm" className="h-5 text-[10px] px-1" title="ai edit" onClick={() => { setIsEditing(true); setShowFormulaEditor(true); }}>
-            <Sparkles className="h-3 w-3" />
-          </Button>
+    if (isNumber) {
+      return (
+        <div
+          onClick={() => setIsEditing(true)}
+          className={cn("cursor-pointer text-right min-h-[20px] font-varela", size === 'lg' ? "text-lg" : "text-sm")}
+        >
+          {value !== null && value !== undefined ? formatNumber(value) : <span className="opacity-20">-</span>}
         </div>
-      )}
-    </div>
-  )
-}
+      );
+    }
 
-if (isNumber) {
-  return (
-    <div
-      onClick={() => setIsEditing(true)}
-      className={cn("cursor-pointer text-right min-h-[20px] font-varela", size === 'lg' ? "text-lg" : "text-sm")}
-    >
-      {value !== null && value !== undefined ? formatNumber(value) : <span className="opacity-20">-</span>}
-    </div>
-  );
-}
-
-// default string
-return (
-  <div
-    onClick={() => setIsEditing(true)}
-    className={cn(
-      "cursor-pointer hover:bg-muted/50 px-1 py-0.5 rounded transition-colors min-h-[20px] break-words font-varela",
-      size === 'lg' ? "text-lg" : "text-sm",
-      className
-    )}
-    title="click to edit"
-  >
-    {value || <span className={cn("opacity-20 italic font-varela", size === 'lg' ? "text-lg" : "text-xs")}>empty</span>}
-  </div>
-);
+    // default string
+    return (
+      <div
+        onClick={() => setIsEditing(true)}
+        className={cn(
+          "cursor-pointer hover:bg-muted/50 px-1 py-0.5 rounded transition-colors min-h-[20px] break-words font-varela",
+          size === 'lg' ? "text-lg" : "text-sm",
+          className
+        )}
+        title="click to edit"
+      >
+        {value || <span className={cn("opacity-20 italic font-varela", size === 'lg' ? "text-lg" : "text-xs")}>empty</span>}
+      </div>
+    );
 
   }
 
-return (
-  <div className={cn("font-varela", size === 'lg' ? "text-lg" : "text-sm")}>
-    <FieldContextMenu onEdit={() => setIsEditing(true)} onClear={() => onChange(null)} value={value} record={record} collectionName={collectionName}>
-      {renderView()}
-    </FieldContextMenu>
-  </div>
-);
+  return (
+    <div className={cn("font-varela", size === 'lg' ? "text-lg" : "text-sm")}>
+      <FieldContextMenu onEdit={() => setIsEditing(true)} onClear={() => onChange(null)} value={value} record={record} collectionName={collectionName}>
+        {renderView()}
+      </FieldContextMenu>
+    </div>
+  );
 }
