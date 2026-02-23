@@ -28,9 +28,9 @@
     --popover-foreground: 0 0% 95%;
 
     /* the void blueprint default: warm yellow */
-    --primary: #ffffff;
+    --primary: 41 92% 52%;
     --primary-foreground: 0 0% 0%;
-    --primary-soft: rgba(255, 255, 255, 0.1);
+    --primary-soft: hsl(var(--primary) / 0.15);
 
     /* recolorable white: defaults to white, becomes headmate color via usethemereactor */
     --headmate-white: 0 0% 100%;
@@ -142,7 +142,7 @@ svg,
 .nav-selected,
 [data-selected="true"] {
   background-color: var(--primary-soft) !important;
-  color: var(--primary) !important;
+  color: hsl(var(--foreground)) !important;
 }
 
 /* soft background utility */
@@ -315,9 +315,9 @@ button.interactive-pop:hover {
 .selected-icon-btn svg,
 .selected-icon-btn path,
 .selected-icon-btn circle {
-  fill: var(--primary) !important;
-  stroke: var(--primary) !important;
-  color: var(--primary) !important;
+  fill: hsl(var(--primary)) !important;
+  stroke: hsl(var(--primary)) !important;
+  color: hsl(var(--primary)) !important;
 }
 
 .selected-icon-btn {
@@ -329,8 +329,8 @@ button.interactive-pop:hover {
 
 /* universal nested selector to catch wrappers/spans around svgs */
 .selected-icon-btn * {
-  fill: var(--primary) !important;
-  stroke: var(--primary) !important;
+  fill: hsl(var(--primary)) !important;
+  stroke: hsl(var(--primary)) !important;
 }
 
 /* --- nuclear ui fix round 2 (user request) --- */
@@ -347,16 +347,15 @@ header * {
 /* restore for header/sidebar only */
 /* .sidebar-container, removed to fix bottom border regression */
 .nav-header {
-  border-bottom: var(--header-sep) solid var(--primary) !important;
+  border-bottom: var(--header-sep) solid hsl(var(--primary)) !important;
 }
 
 /* 2. sidebar icons specific target */
 .sidebar svg,
 .nav-item svg,
 .top-nav svg {
-  color: var(--primary) !important;
-  stroke: var(--primary) !important;
-  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.5)) !important;
+  color: hsl(var(--primary)) !important;
+  stroke: hsl(var(--primary)) !important;
 }
 
 /* --- high contrast & visibility restoration (user request) --- */
@@ -383,8 +382,8 @@ button,
 .btn,
 .icon-btn,
 [role="button"] {
-  border-color: var(--primary) !important;
-  outline-color: var(--primary) !important;
+  border-color: hsl(var(--primary)) !important;
+  outline-color: hsl(var(--primary)) !important;
 }
 
 /* 3. selected/highlighted items: dynamic accent background + rounded corners */
@@ -395,23 +394,18 @@ button,
 .nav-selected,
 [data-selected="true"] {
   background-color: var(--primary-soft) !important;
-  color: var(--primary) !important;
+  color: hsl(var(--foreground)) !important;
   border-radius: 0.5rem !important;
   border: none !important;
   box-shadow: none !important;
 }
 
-/* 4. icons: always primary color & visible */
-svg:not(.no-color),
-.lucide:not(.no-color),
+/* 4. icons: allow components to handle their own icons, only force color where needed */
 .sidebar-icon,
 [class*='sidebar'] svg,
 .selected-icon-btn svg {
-  fill: none !important;
-  color: var(--primary) !important;
-  stroke: var(--primary) !important;
-  opacity: 1 !important;
-  visibility: visible !important;
+  color: hsl(var(--primary)) !important;
+  stroke: hsl(var(--primary)) !important;
 }
 
 /* improve contrast for icons on dark bg */
