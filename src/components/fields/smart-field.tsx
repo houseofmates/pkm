@@ -55,7 +55,8 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
     <ContextMenu>
       <ContextMenuTrigger asChild>
         {/* ensure we stop propagation so we don't trigger the row menu */}
-        <div onContextMenu={() => {
+        <div onContextMenu={(e) => {
+          e.stopPropagation();
           // oncontextmenu handles nesting
         }}>
           {children}
