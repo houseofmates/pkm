@@ -56,8 +56,8 @@ import {
   DndContext,
   MouseSensor,
   TouchSensor,
-  useSensor,
   useSensors,
+  useSensor,
   closestCenter,
   useDraggable
 } from '@dnd-kit/core';
@@ -299,13 +299,11 @@ const DraggableRecordRow = React.memo(({ index, style: incomingStyle, ariaAttrib
               <div className="flex items-center justify-start h-full w-full px-0.5">
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </div>
-              {flexRender(cell.column.columnDef.cell, cell.getContext())}
-            </div>
             </TableCell>
-      );
+          );
         })}
-    </div>
-    </RecordContextMenu >
+      </div>
+    </RecordContextMenu>
   );
 });
 
@@ -429,7 +427,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     if (onEdit || onDelete) {
       cols.push(columnHelper.display({
         id: 'actions',
-        // ... (rest of actions column)
         header: () => (
           <div className="flex items-center justify-center h-full">
             <Popover>
@@ -548,9 +545,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       </div>
     );
   }
-
-  // get column count for add-row cell span
-  // get column count removed - no longer needed for virtualized body
 
 
   return (
