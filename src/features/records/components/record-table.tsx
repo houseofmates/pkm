@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/table';
 import type { Collection } from '@/hooks/use-collections';
 import { Button } from '@/components/ui/button';
-import { Plus, Settings2, Trash2, Edit2 } from 'lucide-react';
+import { Plus, Settings2, Trash2, Edit2, GripVertical } from 'lucide-react';
 import * as React from 'react';
 import { SmartField } from '@/components/fields/smart-field';
 import { RecordContextMenu } from './record-context-menu';
@@ -87,13 +87,16 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
         isDragging ? "bg-accent/20" : "hover:bg-white/10"
       )}
     >
-      <div
-        className="h-full w-full overflow-hidden text-ellipsis whitespace-nowrap flex justify-start items-center px-1 cursor-grab active:cursor-grabbing"
-        {...attributes}
-        {...listeners}
-      >
+      <div className="h-full w-full flex items-center px-1">
         <div
-          className="h-full w-full flex items-center px-1 cursor-pointer hover:bg-white/10"
+          className="flex-shrink-0 cursor-grab active:cursor-grabbing p-1 hover:bg-white/10 rounded transition-colors"
+          {...attributes}
+          {...listeners}
+        >
+          <GripVertical className="h-3 w-3 text-muted-foreground/50" />
+        </div>
+        <div
+          className="flex-1 h-full min-w-0 flex items-center px-1 cursor-pointer hover:bg-white/10 transition-colors"
           onClick={(e) => {
             e.stopPropagation();
             const field = (header.column.columnDef as any).meta?.field;
@@ -120,12 +123,14 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
             }
           }}
         >
-          {header.isPlaceholder
-            ? null
-            : flexRender(
-              header.column.columnDef.header,
-              header.getContext()
-            )}
+          <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+            {header.isPlaceholder
+              ? null
+              : flexRender(
+                header.column.columnDef.header,
+                header.getContext()
+              )}
+          </div>
         </div>
       </div>
       {/* resize handler */}
@@ -174,12 +179,22 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
         {...attributes}
         {...listeners}
         className={cn(
-          "cursor-grab active:cursor-grabbing border-b border-white/40 transition-colors",
+          "transition-colors group",
           !rowColor && "hover:bg-white/10"
         )}
       >
-        {/* empty cell to match the add-field column */}
-        {onCreateField && <TableCell className="w-10 border-r border-border/50" />}
+        {/* drag handle or empty cell to match the add-field column */}
+        {onCreateField && (
+          <TableCell className="w-10 border-r border-border/50 border-b border-white/40 p-0 flex items-center justify-center">
+            <div
+              className="cursor-move p-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              {...attributes}
+              {...listeners}
+            >
+              <GripVertical className="h-3.5 w-3.5 text-muted-foreground/30" />
+            </div>
+          </TableCell>
+        )}
         {row.getVisibleCells().map((cell: any) => (
           <TableCell
             key={cell.id}
@@ -188,7 +203,7 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
               minWidth: cell.column.getSize(),
               maxWidth: cell.column.getSize()
             }}
-            className="border-r border-border/50 overflow-hidden text-ellipsis whitespace-nowrap align-middle p-1 h-8"
+            className="border-r border-b border-white/40 border-border/50 overflow-hidden text-ellipsis whitespace-nowrap align-middle p-1 h-10 transition-colors group-hover:bg-white/5"
           >
             <div className="flex items-center justify-start h-full w-full px-1">
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -404,7 +419,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     enableColumnResizing: true,
     columnResizeMode: 'onChange',
     onColumnSizingChange: setColumnSizing,
-    onColumnOrderChange: (order) => {
+    onColumnOrderChange: () => {
       // we also persist it in handleDragEnd for robustness
     },
     state: {
@@ -444,7 +459,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         <Table style={{ width: table.getTotalSize(), tableLayout: 'fixed' }}>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-b border-white/40">
+              <TableRow key={headerGroup.id} className="border-b border-white/60">
                 {/* add field button at the start */}
                 {onCreateField && (
                   <TableHead className="w-10 border-r border-border/50 p-0 overflow-hidden">
