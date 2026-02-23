@@ -221,7 +221,8 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
                 onClick={triggerSettings}
                 onDoubleClick={triggerSettings}
                 onContextMenu={triggerSettings}
-                onPointerDown={(e) => e.stopPropagation()} // block dnd-kit from stealing interaction
+                onPointerDownCapture={(e) => e.stopPropagation()}
+                onMouseDownCapture={(e) => e.stopPropagation()}
               >
                 <div className="flex-1 truncate pointer-events-none">
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
