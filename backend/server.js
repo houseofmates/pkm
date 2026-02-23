@@ -497,7 +497,7 @@ async function handleCsvImport(req, res) {
                 }
 
                 const rows = parsed.data;
-                const fieldsConfig = {};
+                const fieldsConfig = [];
                 const name = path.basename(file.originalname, '.csv').replace(/[^a-zA-Z0-9_\-]/g, '_');
                 const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
 
@@ -528,7 +528,7 @@ async function handleCsvImport(req, res) {
                 const sampleRows = rows.slice(0, 20);
                 for (const col of columns) {
                     const vals = sampleRows.map(r => r[col]);
-                    fieldsConfig[col] = guessType(vals);
+                    fieldsConfig.push({ name: col, type: guessType(vals) });
                 }
 
                 log(`creating collection: ${name} with ${columns.length} columns`);
