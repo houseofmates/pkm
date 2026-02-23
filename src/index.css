@@ -156,6 +156,18 @@ svg,
   --tw-ring-color: hsl(var(--primary)) !important;
 }
 
+/* suppress any focus ring/outline inside table cells (inline editors are clipped by overflow)
+   this covers both the <td> and any descendant input/element that may receive focus */
+table td:focus,
+table td:focus-within,
+table td *:focus,
+table td *:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+  --tw-ring-offset-width: 0 !important;
+  --tw-ring-width: 0 !important;
+}
+
 /* kill generic white text/borders that shouldn't exist */
 .text-white {
   color: hsl(var(--headmate-white)) !important;
