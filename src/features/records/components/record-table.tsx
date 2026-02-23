@@ -190,13 +190,12 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
         {/* drag handle area or empty cell to match the add-field column */}
         {onCreateField && (
           <TableCell
-            className="w-10 border-r border-b border-white/40 border-border/50 p-0 flex items-center justify-center h-10"
+            className="w-10 border-r border-b border-white/40 border-primary p-0 flex items-center justify-center h-10 transition-colors"
             {...attributes}
             {...listeners}
           >
             <div className="cursor-move p-2 opacity-0 group-hover:opacity-100 transition-opacity">
-              {/* invisible handle but keeping the drag zone */}
-              <div className="w-1 h-3 bg-muted-foreground/10 rounded-full" />
+              <div className="w-1 h-3 bg-primary/40 rounded-full" />
             </div>
           </TableCell>
         )}
@@ -467,7 +466,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               <TableRow key={headerGroup.id} className="border-b border-white/60">
                 {/* add field button at the start */}
                 {onCreateField && (
-                  <TableHead className="w-10 border-r border-border/50 p-0 overflow-hidden">
+                  <TableHead className="w-10 border-r border-primary p-0 overflow-hidden">
                     <Button
                       variant="ghost"
                       size="icon"
