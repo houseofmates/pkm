@@ -698,7 +698,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
             if (e.key === 'Escape') handleCancel();
           }}
         />
-        {isPercentField && <span className="text-xs">%</span>}
+        {isPercentField && <span className={cn(size === 'lg' ? 'text-lg' : 'text-sm')}>%</span>}
         <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500 hover:text-green-600" onClick={() => handleSave()}>
           <Check className="h-3 w-3" />
         </Button>

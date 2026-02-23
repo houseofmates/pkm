@@ -45,6 +45,15 @@ describe('SmartField', () => {
     expect(onChange).toHaveBeenCalledWith('world');
   });
 
+  it('uses matching font size when editing large cells', () => {
+    const onChange = vi.fn();
+    withAuth(<SmartField value="big" field={{ interface: 'input', name: 'foo' }} size="lg" onChange={onChange} />);
+    fireEvent.click(screen.getByText('big'));
+    const input = screen.getByRole('textbox');
+    // the class list should include text-lg so it doesn't shrink relative to view
+    expect(input.className).toMatch(/text-lg/);
+  });
+
   it('treats number field as numeric input', () => {
     const onChange = vi.fn();
     withAuth(<SmartField value={42} field={{ interface: 'number', name: 'num' }} onChange={onChange} />);
