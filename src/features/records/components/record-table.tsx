@@ -18,7 +18,6 @@ import { Button } from '@/components/ui/button';
 import { Plus, Settings2, Trash2, Edit2 } from 'lucide-react';
 import * as React from 'react';
 import { useAuth } from '@/contexts/auth-context';
-import { useAuth } from '@/contexts/auth-context';
 import { SmartField } from '@/components/fields/smart-field';
 import { RecordContextMenu } from './record-context-menu';
 import { useAppSetting } from '@/hooks/use-app-setting';
