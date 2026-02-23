@@ -107,8 +107,6 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
     return <Database className="h-4 w-4 mr-2" style={{ color: iconColor }} />;
   };
 
-  // ... (inside sortableitem)
-
   const displayName = formatHeadmateName(item.name);
   const capsClass = getCapitalizationClass(item.name);
 
