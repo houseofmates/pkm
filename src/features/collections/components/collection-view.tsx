@@ -30,12 +30,6 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
   const { setContext } = useLLMStore();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
 
-  useEffect(() => {
-    if (!loading) {
-      toast.info(`Database '${collection.name}' has ${records?.length || 0} records`);
-    }
-  }, [loading, records, collection.name]);
-
   const [editingRecord, setEditingRecord] = useState<any | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
 
