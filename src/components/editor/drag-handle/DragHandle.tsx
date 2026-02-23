@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Editor } from '@tiptap/react';
 import { GripVertical, Columns } from 'lucide-react';
 import { createPortal } from 'react-dom';
@@ -26,7 +26,6 @@ export function DragHandle({ editor }: DragHandleProps) {
         e.clientX >= rect.left - 60 && // wider gutter detection
         e.clientX <= rect.right
       ) {
-        // @ts-expect-error type-mismatch
         const pos = editor.view.posAtCoords({ left: rect.left + 10, top: e.clientY });
 
         if (pos) {
@@ -47,7 +46,6 @@ export function DragHandle({ editor }: DragHandleProps) {
           if (depth <= 0) depth = 1;
 
           const nodePos = resolvedPos.before(depth);
-          // @ts-expect-error type-mismatch
           const nodeDom = editor.view.nodeDOM(nodePos) as HTMLElement;
 
           if (nodeDom && nodeDom.getBoundingClientRect) {
@@ -121,7 +119,10 @@ export function DragHandle({ editor }: DragHandleProps) {
         title="Wrap in Columns"
         onClick={() => {
             if (currentNodePos !== null) {
-                editor.chain().setNodeSelection(currentNodePos).setColumns(2).run();
+                // Replace setColumns with a valid command or show a placeholder
+                // Example: wrap node in columns extension if available, otherwise show alert
+                // editor.chain().setNodeSelection(currentNodePos).wrapInColumns(2).run();
+                alert('columns extension not available');
             }
         }}
       >
