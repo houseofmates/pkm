@@ -71,10 +71,10 @@ export function RootLayout() {
   const subdomain = window.location.hostname.split('.')[0];
   const isAphrodite = subdomain === 'aphrodite';
 
-  let accentColor = "#f5af12";
+  let accentColor = "#ffffff";
   if (activeFronters.length > 0) {
     const fronterId = activeFronters[0];
-    accentColor = overrides[fronterId]?.color || members.find(m => m.id === fronterId)?.color || "#f5af12";
+    accentColor = overrides[fronterId]?.color || members.find(m => m.id === fronterId)?.color || "#ffffff";
   }
   if (isAphrodite) accentColor = "#e0a6b5";
 
@@ -91,7 +91,7 @@ export function RootLayout() {
       return color.replace(/rgb\(([^)]+)\)/, 'rgba($1, 0.15)');
     }
     // generic fallback that respects the CSS variable
-    return `rgba(245, 175, 18, 0.15)`;
+    return `rgba(255, 255, 255, 0.15)`;
   }
   const accentBg = getAccentBg(accentColor);
 

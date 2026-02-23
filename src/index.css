@@ -28,7 +28,7 @@
     --popover-foreground: 0 0% 95%;
 
     /* the void blueprint default: warm yellow */
-    --primary: currentColor;
+    --primary: #ffffff;
     --primary-foreground: 0 0% 0%;
     --primary-soft: rgba(255, 255, 255, 0.1);
 
@@ -354,9 +354,9 @@ header * {
 .sidebar svg,
 .nav-item svg,
 .top-nav svg {
-  fill: var(--primary) !important;
   color: var(--primary) !important;
-  filter: drop-shadow(0 0 0 var(--primary)) !important;
+  stroke: var(--primary) !important;
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.5)) !important;
 }
 
 /* --- high contrast & visibility restoration (user request) --- */
@@ -402,14 +402,11 @@ button,
 }
 
 /* 4. icons: always primary color & visible */
-svg,
-.lucide,
-.sidebar svg,
-.nav-item svg,
+svg:not(.no-color),
+.lucide:not(.no-color),
 .sidebar-icon,
 [class*='sidebar'] svg,
-.selected-icon-btn svg,
-.selected-icon-btn * {
+.selected-icon-btn svg {
   fill: none !important;
   color: var(--primary) !important;
   stroke: var(--primary) !important;
@@ -417,10 +414,17 @@ svg,
   visibility: visible !important;
 }
 
+/* improve contrast for icons on dark bg */
+.sidebar svg {
+  filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.2));
+}
+
 /* explicitly allow images like favicons/avatars to NOT be colored */
 img svg,
 img .lucide,
-.avatar svg {
+.avatar svg,
+.no-color svg,
+.no-color {
   color: inherit !important;
   stroke: inherit !important;
 }

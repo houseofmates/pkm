@@ -448,7 +448,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             </Button>
           ))}
         </div>
-        <div className="mx-4 mb-2 h-[2px] bg-primary opacity-50 rounded-full" />
+        <div className="mx-4 mb-2 h-[1px] rounded-full" style={{ backgroundColor: 'var(--primary)', opacity: 0.3 }} />
 
 
         <div className="px-4 mb-2 flex items-center justify-between">
