@@ -22,7 +22,6 @@ import {
   useSortable,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { Separator } from '@/components/ui/separator';
 import { Input } from '@/components/ui/input';
 
 import {
