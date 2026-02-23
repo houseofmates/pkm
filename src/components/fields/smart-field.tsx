@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { Check, X, Phone, Mail, MapPin, Lock, Terminal, Paperclip, Link as LinkIcon, Sparkles, Copy, Trash2, Edit2, Download, Pipette } from 'lucide-react';
+import { Check, X, Phone, Mail, MapPin, Lock, Terminal, Paperclip, Link as LinkIcon, Sparkles, Copy, Trash2, Edit2 } from 'lucide-react';
 
 import { LocationField } from './location-field';
 import ReactMarkdown from 'react-markdown';
@@ -547,8 +547,11 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
 
     if (isDateTime || isDate || isTime) {
       return (
-        <div onClick={() => setIsEditing(true)} className={cn("cursor-pointer text-white/90 truncate", size === 'lg' ? "text-lg" : "text-xs")}>
-          {isTime ? formatTime(value) : (isDate ? formatDate(value) : `${formatDate(value)} ${formatTime(value)}`)}
+        <div
+          onDoubleClick={() => setIsEditing(true)}
+          className={cn("cursor-pointer text-right min-h-[20px] font-varela text-white/90", size === 'lg' ? "text-lg" : "text-sm")}
+        >
+          {value !== null && value !== undefined ? formatNumber(value) : <span className="opacity-20">-</span>}
         </div>
       );
     }
