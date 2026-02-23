@@ -60,7 +60,8 @@ const TableRow = React.forwardRef<
     ref={ref}
     className={cn(
       "border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted",
-      "[&>td]:py-1 [&>td]:px-2 [&>td]:align-top [&>td]:leading-snug",
+      // reduce side padding by 75% (was px-2, now px-0.5)
+      "[&>td]:py-1 [&>td]:px-0.5 [&>td]:align-top [&>td]:leading-snug",
       // prevent weird focus rings from parent if row ever receives focus
       "focus:outline-none focus:ring-0",
       className
@@ -92,7 +93,8 @@ const TableCell = React.forwardRef<
   <td
     ref={ref}
     className={cn(
-      "py-1 px-2 align-top leading-snug break-words max-w-[320px] min-w-[60px]",
+      // reduce side padding by 75% (was px-2, now px-0.5)
+      "py-1 px-0.5 align-top leading-snug break-words max-w-[320px] min-w-[60px]",
       "[&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
       // ensure cells never show focus outlines (they're non-interactive by default)
       "focus:outline-none focus:ring-0",
