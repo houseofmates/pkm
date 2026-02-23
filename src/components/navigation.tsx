@@ -134,7 +134,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
         variant="ghost"
         className={cn(
           "flex-1 justify-start text-sm font-normal h-8 px-2 overflow-hidden", // changed text-lg to text-sm to match premium PKM style and fix overflow
-          selected && "font-medium shadow-none text-primary",
+          selected && "font-medium shadow-none",
           item.type === 'folder' && "font-semibold text-muted-foreground",
           capsClass ? capsClass : "lowercase"
         )}
@@ -448,8 +448,8 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             </Button>
           ))}
         </div>
-        <div className="mx-4 mb-2 h-[1px] rounded-full" style={{ backgroundColor: 'var(--primary)', opacity: 0.3 }} />
-
+        <div className="mx-4 mb-2 h-[1px] rounded-full" style={{ backgroundColor: 'hsl(var(--primary))', opacity: 0.3 }} />
+        Riverside
 
         <div className="px-4 mb-2 flex items-center justify-between">
 

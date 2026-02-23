@@ -21,8 +21,9 @@ import {
   sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
 import { Folder, Database, Github, CheckCircle, RefreshCcw, AlertTriangle } from 'lucide-react';
+import { formatHeadmateName } from '@/utils/text-formatting';
 import { useAppSetting } from '@/hooks/use-app-setting';
-import { useThemeReactor } from '@/hooks/use-theme-reactor';
+import { useThemeReactor, HexToHsl } from '@/hooks/use-theme-reactor';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { useFronter } from '@/contexts/fronter-context';
 import { ProtocolShift } from '@/components/layout/ProtocolShift';
@@ -91,13 +92,16 @@ export function RootLayout() {
       return color.replace(/rgb\(([^)]+)\)/, 'rgba($1, 0.15)');
     }
     // generic fallback that respects the CSS variable
-    return `rgba(255, 255, 255, 0.15)`;
+    return `hsl(var(--primary) / 0.15)`;
   }
   const accentBg = getAccentBg(accentColor);
 
   useEffect(() => {
     const root = document.documentElement;
-    root.style.setProperty('--primary', accentColor);
+    const hsl = HexToHsl(accentColor);
+    if (hsl) {
+      root.style.setProperty('--primary', hsl);
+    }
     const soft = getAccentBg(accentColor);
     root.style.setProperty('--primary-soft', soft);
     if (typeof window !== 'undefined') (window as any).accentBg = soft;
