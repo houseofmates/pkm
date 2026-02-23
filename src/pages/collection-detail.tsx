@@ -233,7 +233,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                     toast.success("record created!");
                     // refresh
                     const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
-                    setRecords(res.data?.data || res.data || []);
+                    setRecords(Array.isArray(res.data) ? res.data : (res.data || []));
                 } catch (err) {
                     console.error(err);
                     toast.error("failed to create record");
@@ -264,8 +264,8 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                 setCollection(found);
                 // fetch records for this collection
                 client.listRecords(collectionName).then(res => {
-                    const recData = Array.isArray(res.data) ? res.data : (res.data as any)?.data || [];
-                    setRecords(recData);
+                    // normalized client ensures res.data is array
+                    setRecords(Array.isArray(res.data) ? res.data : (res.data || []));
                 }).catch(e => console.error("Late-rescue record fetch failed", e));
             }
         }
