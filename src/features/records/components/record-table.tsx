@@ -73,6 +73,8 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
     position: 'relative' as const,
   };
 
+  // add extra left padding for the first header for resize usability
+  const isFirst = header.index === 0;
   return (
     <TableHead
       ref={setNodeRef}
@@ -84,8 +86,37 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
       }}
       className={cn(
         "border-r border-border/50 group select-none relative text-left p-0 h-9 transition-colors",
-        isDragging ? "bg-accent/20" : "hover:bg-white/10"
+        isDragging ? "bg-gray-200/40" : "hover:bg-white/10",
+        isFirst && "pl-4"
       )}
+      // make the entire header clickable for settings
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const field = (header.column.columnDef as any).meta?.field;
+        if (field) {
+          setSettingsField(field);
+          setIsSettingsOpen(true);
+        }
+      }}
+      onDoubleClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const field = (header.column.columnDef as any).meta?.field;
+        if (field) {
+          setSettingsField(field);
+          setIsSettingsOpen(true);
+        }
+      }}
+      onContextMenu={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const field = (header.column.columnDef as any).meta?.field;
+        if (field) {
+          setSettingsField(field);
+          setIsSettingsOpen(true);
+        }
+      }}
     >
       <div className="h-full w-full relative flex items-center group/header overflow-hidden">
         {/* background drag zone - separate from text zone */}
@@ -94,47 +125,8 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
           {...attributes}
           {...listeners}
         />
-
-        {/* foreground click zone (label) - elevated and isolated */}
-        <div
-          className="relative z-20 h-full w-full flex items-center px-2 cursor-pointer hover:bg-white/10 transition-colors"
-          onPointerDown={(e) => {
-            e.stopPropagation();
-          }}
-          onMouseDown={(e) => {
-            e.stopPropagation();
-          }}
-          onTouchStart={(e) => {
-            e.stopPropagation();
-          }}
-          onClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const field = (header.column.columnDef as any).meta?.field;
-            if (field) {
-              setSettingsField(field);
-              setIsSettingsOpen(true);
-            }
-          }}
-          onDoubleClick={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const field = (header.column.columnDef as any).meta?.field;
-            if (field) {
-              setSettingsField(field);
-              setIsSettingsOpen(true);
-            }
-          }}
-          onContextMenu={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const field = (header.column.columnDef as any).meta?.field;
-            if (field) {
-              setSettingsField(field);
-              setIsSettingsOpen(true);
-            }
-          }}
-        >
+        {/* foreground label */}
+        <div className="relative z-20 h-full w-full flex items-center px-2 select-none">
           <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pointer-events-none">
             {header.isPlaceholder
               ? null
@@ -149,9 +141,11 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
       <div
         onMouseDown={header.getResizeHandler()}
         onTouchStart={header.getResizeHandler()}
-        className={`absolute -right-2 top-0 h-full w-4 z-20 cursor-col-resize touch-none select-none lg:hover:bg-primary lg:hover:opacity-10 transition-opacity ${header.column.getIsResizing() ? 'opacity-100 bg-primary shadow-[0_4000px_0_0_currentColor]' : 'opacity-0'
-          }`}
-        style={{ color: 'var(--primary)' }}
+        className={cn(
+          "absolute -right-2 top-0 h-full w-4 z-20 cursor-col-resize touch-none select-none transition-opacity",
+          header.column.getIsResizing() ? "opacity-100 bg-gray-400 shadow-[0_4000px_0_0_currentColor]" : "opacity-0"
+        )}
+        style={{ color: '#b0b0b0' }}
       />
     </TableHead>
   );
@@ -191,7 +185,7 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
         {...attributes}
         {...listeners}
         className={cn(
-          "transition-colors group",
+          "transition-colors group border-b border-gray-300",
           !rowColor && "hover:bg-white/10"
         )}
       >
@@ -464,7 +458,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       className="rounded-md border overflow-hidden no-scrollbar relative border-gray-400"
       style={{
         borderColor: '#b0b0b0', // neutral grey
-        borderWidth: '1px'
+        borderWidth: '1px',
+        background: '#f8f8f8'
       }}
     >
       <div className="overflow-x-auto overflow-y-hidden no-scrollbar">
