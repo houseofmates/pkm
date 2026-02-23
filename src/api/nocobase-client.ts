@@ -354,9 +354,6 @@ export class NocoBaseClient {
       return normalized;
     }
   }
-    
-    return parsed;
-  }
   async getRecord(collection: string, id: string | number): Promise<unknown> {
     const res = await this._axios.get(`/${collection}:get?filterByTk=${id}`);
     return GetRecordResponseSchema.parse(res.data);
