@@ -55,3 +55,4 @@ The request id "/home/house/pkm/.git/config" is outside of Vite serving allow li
 Error: connect ECONNREFUSED 127.0.0.1:4100
     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
 7:58:45 PM [vite] (client) hmr update /src/index.css, /src/components/notion-import-widget.tsx
+8:03:03 PM [vite] (client) hmr update /src/index.css, /src/components/notion-import-widget.tsx
