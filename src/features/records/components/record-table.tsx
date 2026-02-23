@@ -525,12 +525,12 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                   >
                     {headerGroup.headers.map((header) => (
                       <SortableHeader
+                        key={header.id}
+                        header={header}
+                        setSettingsField={setSettingsField}
+                        setIsSettingsOpen={setIsSettingsOpen}
                       />
                     ))}
-                  </SortableContext>
-                </DndContext>
-              </TableRow>
-            ))}
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows.length === 0 ? (

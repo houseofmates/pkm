@@ -109,3 +109,7 @@ Error: connect ECONNREFUSED 127.0.0.1:4100
 Error: connect ECONNREFUSED 127.0.0.1:4100
     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
 1:44:19 AM [vite] (client) hmr update /src/index.css
+1:46:25 AM [vite] (client) hmr update /src/index.css
+1:46:25 AM [vite] (client) hmr update /src/index.css
+1:46:25 AM [vite] (client) hmr update /src/index.css, /src/components/fields/smart-field.tsx
+1:46:25 AM [vite] (client) hmr update /src/index.css, /src/features/collections/components/collection-dialog.tsx
