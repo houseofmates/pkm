@@ -915,7 +915,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
                           setFullscreenIndex(prev => (prev === null || prev === 0) ? galleryImgs.length - 1 : prev - 1);
                         }}
                       >
-                        <
+                        {'<'}
                       </Button>
                       <Button
                         variant="outline"
@@ -925,7 +925,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
                           setFullscreenIndex(prev => (prev === null || prev === galleryImgs.length - 1) ? 0 : prev + 1);
                         }}
                       >
-                        >
+                        {'>'}
                       </Button>
                     </>
                   )}
