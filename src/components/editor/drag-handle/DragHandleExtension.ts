@@ -22,7 +22,6 @@ export const DragHandleExtension = Extension.create({
             if (!targetNode) return false;
 
             // Check if we are dropping ONTO a node's left/right edge
-            const nodeDom = view.nodeDOM(pos.pos);
             // nodeDOM isn't reliable for all nodes (text nodes return text)
             // But we can approximate with coords
 
