@@ -30,9 +30,10 @@ describe('Settings page', () => {
     // hint should show when api key string is empty
     expect(screen.getByText(/set your api key above to enable notion import/i)).toBeInTheDocument();
 
-    // root wrapper should allow scrolling
+    // root wrapper should allow scrolling and fill available height
     const root = container.firstChild as HTMLElement;
     expect(root.className).toMatch(/overflow-auto/);
+    expect(root.className).toMatch(/h-full/);
   });
 
   it('allows toggling dark mode and stores in localStorage', () => {
