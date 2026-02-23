@@ -4,6 +4,8 @@ import {
   flexRender,
   createColumnHelper,
 } from '@tanstack/react-table';
+import { FixedSizeList as List } from 'react-window';
+import { AutoSizer } from 'react-virtualized-auto-sizer';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -219,7 +221,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
   );
 }
 
-function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField, recordMeta }: any) {
+const DraggableRecordRow = React.memo(({ row, collection, onUpdate, onDelete, onCreateField, recordMeta, style: incomingStyle }: any) => {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `record-${row.original.id}`,
     data: {
@@ -233,10 +235,13 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
   const rowColor = recordMeta?.[row.original.id]?.color;
 
   const style = {
+    ...incomingStyle,
     transform: CSS.Translate.toString(transform),
     opacity: isDragging ? 0.5 : 1,
     touchAction: 'none', // Important for touch drag
-    backgroundColor: rowColor ? `${rowColor}20` : undefined
+    backgroundColor: rowColor ? `${rowColor}20` : undefined,
+    display: 'flex', // Crucial for virtualization where rows aren't nested in table tags
+    width: '100%'
   };
 
   return (
@@ -247,11 +252,11 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
       onDelete={onDelete}
       className="contents"
     >
-      <TableRow
+      <div
         ref={setNodeRef}
         style={style}
         className={cn(
-          "transition-colors group border-b border-[#222]",
+          "transition-colors group border-b border-[#222] min-w-full",
           !rowColor && "hover:bg-gray-800/10"
         )}
       >
@@ -296,10 +301,10 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
           );
         })}
 
-      </TableRow>
+      </div>
     </RecordContextMenu>
   );
-}
+});
 
 export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateField, onFieldUpdated, loading }: RecordTableProps) {
   // hidden columns state persistence
@@ -542,7 +547,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   }
 
   // get column count for add-row cell span
-  const columnCount = table.getHeaderGroups()[0]?.headers.length || 1;
+  // get column count removed - no longer needed for virtualized body
 
 
   return (
@@ -616,25 +621,41 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               </TableRow>
             ))}
           </TableHeader>
-          <TableBody>
+          <TableBody className="block h-full min-h-[400px]">
             {table.getRowModel().rows.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={columnCount + (onCreateField ? 1 : 0)} className="text-center text-muted-foreground h-16">
-                  no records found
-                </TableCell>
-              </TableRow>
+              <div className="flex items-center justify-center text-muted-foreground h-16 w-full lowercase">
+                no records found
+              </div>
             ) : (
-              table.getRowModel().rows.map((row) => (
-                <DraggableRecordRow
-                  key={row.id}
-                  row={row}
-                  collection={collection}
-                  onUpdate={onUpdateRecord}
-                  onDelete={onDelete}
-                  onCreateField={onCreateField}
-                  recordMeta={recordMeta}
-                />
-              ))
+              <div style={{ height: 'calc(100vh - 200px)', minHeight: '400px', width: '100%' }}>
+                <AutoSizer>
+                  {({ height, width }: { height: number; width: number }) => (
+                    <List
+                      height={height}
+                      itemCount={table.getRowModel().rows.length}
+                      itemSize={40} // matching h-10 height
+                      width={width}
+                      className="no-scrollbar"
+                    >
+                      {({ index, style }: { index: number; style: React.CSSProperties }) => {
+                        const row = table.getRowModel().rows[index];
+                        return (
+                          <DraggableRecordRow
+                            key={row.id}
+                            row={row}
+                            collection={collection}
+                            onUpdate={onUpdateRecord}
+                            onDelete={onDelete}
+                            onCreateField={onCreateField}
+                            recordMeta={recordMeta}
+                            style={style}
+                          />
+                        );
+                      }}
+                    </List>
+                  )}
+                </AutoSizer>
+              </div>
             )}
           </TableBody>
         </Table>
