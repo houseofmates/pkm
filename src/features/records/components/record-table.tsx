@@ -145,7 +145,11 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
           toast.info("deletion feature coming soon");
         }}
       >
-        <div className="h-full w-full relative flex items-center group/header overflow-hidden">
+        <div
+          className="h-full w-full relative flex items-center group/header overflow-hidden"
+          {...attributes}
+          {...listeners}
+        >
           {!isEditing ? (
             <div
               className="relative z-20 h-full w-full flex items-center px-1 select-none cursor-pointer hover:bg-white/5 transition-colors"
@@ -171,15 +175,6 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
                 onChange={saveTitle}
               />
             </div>
-          )}
-
-          {/* drag handle area; clicking label no longer interferes */}
-          {!isEditing && (
-            <div
-              className="absolute left-0 top-0 h-full w-4 cursor-grab"
-              {...attributes}
-              {...listeners}
-            />
           )}
         </div>
       </PropertyContextMenu>
