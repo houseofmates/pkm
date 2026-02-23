@@ -214,9 +214,26 @@ export function RootLayout() {
         <Spotlight />
         <DragOverlay>
           {activeDragItem ? (
-            <div className="bg-card border rounded shadow-lg p-2 flex items-center opacity-80 w-48 pointer-events-none">
-              <Folder className="h-4 w-4 mr-2" />
-              <span className="truncate text-sm font-medium lowercase">{activeDragItem.name}</span>
+            <div style={{ opacity: 0.5, pointerEvents: 'none', width: '16rem', minWidth: 0 }}>
+              {/* live preview of sidebar item, styled as in navigation */}
+              <div className="mb-0.5 group relative">
+                <div className="flex items-center bg-card border border-white/10 rounded shadow-lg p-2 w-full">
+                  {/* icon logic (copied from navigation/SortableItem) */}
+                  {(() => {
+                    if (activeDragItem.icon && activeDragItem.iconType) {
+                      if (activeDragItem.iconType === 'emoji') return <span className="mr-2 text-base leading-none">{activeDragItem.icon}</span>;
+                      if (activeDragItem.iconType === 'image') return <img src={activeDragItem.icon} alt="icon" className="h-4 w-4 mr-2 object-contain" />;
+                      if (activeDragItem.iconType === 'lucide') {
+                        const Icon = require('lucide-react')[activeDragItem.icon] || Folder;
+                        return <Icon className="h-4 w-4 mr-2" style={{ color: activeDragItem.color || 'var(--primary)' }} />;
+                      }
+                    }
+                    if (activeDragItem.type === 'folder') return <Folder className="h-4 w-4 mr-2" />;
+                    return <Database className="h-4 w-4 mr-2" style={{ color: activeDragItem.color || 'var(--primary)' }} />;
+                  })()}
+                  <span className="truncate text-sm font-medium lowercase">{activeDragItem.name}</span>
+                </div>
+              </div>
             </div>
           ) : null}
         </DragOverlay>
