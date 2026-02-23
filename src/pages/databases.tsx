@@ -96,7 +96,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        delay: 250,
+        delay: 150,
         tolerance: 5,
       },
     }),
