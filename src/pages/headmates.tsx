@@ -349,7 +349,7 @@ export function HeadmatesPage() {
         </div>
       </div>
 
-      {!haskey ? (
+      {!hasKey ? (
         <Card className="max-w-md mx-auto mt-10">
           <CardHeader>
             <CardTitle>connect simplyplural</CardTitle>
