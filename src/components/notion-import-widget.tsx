@@ -59,7 +59,7 @@ export function NotionImportWidget() {
         setRunning(true);
         appendLog('uploading...');
         const fd = new FormData();
-        files.forEach((f, i) => fd.append('files', f, f.name));
+        files.forEach((f) => fd.append('files', f, f.name));
         // determine target API base from VITE_API_URL or default to the
         // same‑origin `/api` path. previously we rewrote the frontend host
         // (`pkm.` -> `db.`) which forced cross‑origin requests and broke
