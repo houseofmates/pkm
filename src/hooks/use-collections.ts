@@ -10,8 +10,7 @@ const SYSTEM_COLLECTIONS = [
   'users', 'roles', 'attachments', 'collection_fields', 'collections',
   'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers',
   'form-submissions', 'site-pages', 'dupemates-stats', 'dupemates-pages', 'dupe-forms', 'form_submissions', 'site_pages',
-  'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website', 'dupemates-pages',
-  'headmates', 'bookmarks', 'captures', 'hygiene', 'hygeine'
+  'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website', 'dupemates-pages'
 ];
 
 export function useCollections() {
