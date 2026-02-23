@@ -54,8 +54,7 @@ import {
   useDraggable
 } from '@dnd-kit/core';
 import type {
-  DragEndEvent,
-  DragStartEvent
+  DragEndEvent
 } from '@dnd-kit/core';
 
 import { cn } from '@/lib/utils';
