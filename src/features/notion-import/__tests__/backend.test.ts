@@ -1,7 +1,6 @@
 import fs from 'fs';
 import path from 'path';
 import request from 'supertest';
-import type { Express } from 'express';
 
 // helper to create a tiny zip file for testing
 function createEmptyZip(filePath: string) {
