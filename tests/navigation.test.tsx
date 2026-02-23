@@ -22,7 +22,6 @@ describe('Navigation', () => {
             selectedCollection: null,
             items: [],
             setItems: vi.fn(),
-            onOpenSettings: vi.fn(),
         } as const;
 
         // make sure body text exists so navigation's search code can slice it
@@ -42,5 +41,29 @@ describe('Navigation', () => {
           .map(call => call[0])
           .find((ev: any) => ev && ev.type === 'pkm:open-search');
         expect(event).toBeDefined();
+    });
+    });
+
+    it('navigates to /settings when settings icon is clicked', () => {
+        // render with memory router to inspect location
+        function LocationDisplay() {
+            const loc = useLocation();
+            return <div data-testid="loc">{loc.pathname}</div>;
+        }
+
+        const props2 = { ...props };
+        render(
+            <MemoryRouter initialEntries={['/']}>
+                <Navigation {...props2} />
+                <Routes>
+                    <Route path="/settings" element={<div>settings page</div>} />
+                </Routes>
+                <LocationDisplay />
+            </MemoryRouter>
+        );
+
+        const button = screen.getByTitle('settings');
+        fireEvent.click(button);
+        expect(screen.getByTestId('loc')).toHaveTextContent('/settings');
     });
 });

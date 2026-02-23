@@ -6,10 +6,11 @@ interface BottomNavProps {
   activeTab: 'databases' | 'home' | 'headmates' | 'board' | 'captures';
   onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'board' | 'captures') => void;
   className?: string;
-  onOpenSettings?: () => void;
 }
 
-export function BottomNav({ activeTab, onTabChange, className, onOpenSettings }: BottomNavProps) {
+import { useNavigate } from 'react-router-dom';
+
+export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps) {
 
   const handleOpenSearch = () => {
     window.dispatchEvent(new CustomEvent('pkm:open-search'));
@@ -77,7 +78,7 @@ export function BottomNav({ activeTab, onTabChange, className, onOpenSettings }:
         <Button
           variant="ghost"
           className="flex flex-col items-center gap-1 h-full flex-1 rounded-none text-muted-foreground hover:text-primary transition-colors"
-          onClick={onOpenSettings}
+          onClick={() => navigate('/settings')}
         >
           <Settings className="h-5 w-5" />
           <span className="text-[10px] font-medium lowercase">settings</span>

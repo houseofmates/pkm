@@ -59,7 +59,6 @@ interface NavigationProps {
   // lifted state props
   items: NavItem[];
   setItems: (items: NavItem[]) => void; // for local updates like folder creation
-  onOpenSettings?: () => void;
 }
 
 
@@ -182,7 +181,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   );
 }
 
-export function Navigation({ activeTab, onTabChange, className, onSelectCollection, selectedCollection, items, setItems, onOpenSettings }: NavigationProps) {
+export function Navigation({ activeTab, onTabChange, className, onSelectCollection, selectedCollection, items, setItems }: NavigationProps) {
   const [searchOpen, setSearchOpen] = useState(false);
 
   const { collections, refresh } = useCollections();
@@ -402,6 +401,8 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     { id: 'captures', icon: Inbox, label: 'captures' },
     { id: 'headmates', icon: Users, label: 'headmates' },
   ] as const;
+
+  const navigate = useNavigate();
 
   return (
     <>
@@ -631,7 +632,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             variant="ghost"
             size="icon"
             className="w-full justify-start gap-2 px-3 mt-1 text-muted-foreground hover:text-primary hover:bg-white/5 transition-colors border-none shadow-none"
-            onClick={onOpenSettings}
+            onClick={() => navigate('/settings')}
             title="settings"
           >
             <Settings className="h-4 w-4" />
