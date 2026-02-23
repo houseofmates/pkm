@@ -421,7 +421,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
   return (
     <>
       {/* desktop sidebar */}
-      <div className={cn("hidden lg:flex flex-col w-64 h-full py-4 sidebar-container", className)} style={{ backgroundColor: '#050505' }}>
+      <div className={cn("hidden lg:flex flex-col w-64 h-full min-h-0 py-4 sidebar-container", className)} style={{ backgroundColor: '#050505' }}>
         {/* top icons */}
         <div className="flex items-center justify-around px-2 mb-2">
           {tabs.map(tab => (
