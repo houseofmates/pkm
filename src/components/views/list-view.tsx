@@ -1,6 +1,6 @@
 import type { ViewProps } from './registry';
 import { Button } from '@/components/ui/button';
-import { Trash2, MoreHorizontal } from 'lucide-react';
+import { Trash2, MoreHorizontal, Plus } from 'lucide-react';
 import { RecordContextMenu } from '@/features/records/components/record-context-menu';
 import { SmartField } from '@/components/fields/smart-field';
 import { List } from 'react-window';
@@ -132,18 +132,18 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
         </div>
       )}
       <div className="flex-1">
-      <AutoSizer>
-        {({ height, width }: { height: number; width: number }) => (
-          <List
-            rowCount={data.length}
-            rowHeight={100}
-            rowProps={{ rows: data, collection, config, onConfigChange, onEdit, onDelete, onUpdateRecord }}
-            style={{ height, width }}
-            rowComponent={RowComponent}
-          />
-        )}
-      </AutoSizer>
-    </div>
+        <AutoSizer>
+          {({ height, width }: { height: number; width: number }) => (
+            <List
+              rowCount={data.length}
+              rowHeight={100}
+              rowProps={{ rows: data, collection, config, onConfigChange, onEdit, onDelete, onUpdateRecord }}
+              style={{ height, width }}
+              rowComponent={RowComponent}
+            />
+          )}
+        </AutoSizer>
+      </div>
     </div>
   );
 }
