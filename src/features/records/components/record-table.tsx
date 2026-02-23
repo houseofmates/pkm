@@ -159,7 +159,7 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
   );
 }
 
-function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField, recordMeta, setSettingsField, setIsSettingsOpen }: any) {
+function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField, recordMeta }: any) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `record-${row.original.id}`,
     data: {
@@ -558,8 +558,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                   onDelete={onDelete}
                   onCreateField={onCreateField}
                   recordMeta={recordMeta}
-                  setSettingsField={setSettingsField}
-                  setIsSettingsOpen={setIsSettingsOpen}
                 />
               ))
             )}
