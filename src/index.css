@@ -49,7 +49,7 @@
 
     --border: 0 0% 15%;
     --input: 0 0% 15%;
-    --ring: 41 92% 52%;
+    --ring: var(--primary);
     /* match primary default */
 
     --radius: 0.75rem;
