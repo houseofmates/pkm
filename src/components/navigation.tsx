@@ -134,7 +134,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
         variant={selected ? "secondary" : "ghost"}
         className={cn(
           "flex-1 justify-start text-sm font-normal h-8 px-2 overflow-hidden", // changed text-lg to text-sm to match premium PKM style and fix overflow
-          selected && "bg-primary-soft font-medium shadow-sm text-primary",
+          selected && "font-medium shadow-none text-primary",
           item.type === 'folder' && "font-semibold text-muted-foreground",
           capsClass ? capsClass : "lowercase"
         )}

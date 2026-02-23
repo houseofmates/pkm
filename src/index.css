@@ -28,9 +28,9 @@
     --popover-foreground: 0 0% 95%;
 
     /* the void blueprint default: warm yellow */
-    --primary: 41 92% 52%;
+    --primary: #f5af12;
     --primary-foreground: 0 0% 0%;
-    --primary-soft: hsl(41 92% 52% / 0.1);
+    --primary-soft: rgba(245, 175, 18, 0.1);
 
     /* recolorable white: defaults to white, becomes headmate color via usethemereactor */
     --headmate-white: 0 0% 100%;
@@ -388,13 +388,17 @@ button,
   outline-color: var(--primary) !important;
 }
 
-/* 3. selected items: transparent background, colored icon */
+/* 3. selected/highlighted items: dynamic accent background + rounded corners */
 .nav-item.selected,
 .nav-item:hover,
-.nav-button.active {
+.nav-button.active,
+.bg-primary-soft,
+.nav-selected,
+[data-selected="true"] {
   background-color: var(--primary-soft) !important;
+  color: var(--primary) !important;
+  border-radius: 0.5rem !important;
   border: none !important;
-  border-radius: 0.5rem;
 }
 
 /* 4. icons: always primary color & visible */
@@ -410,6 +414,11 @@ button,
   opacity: 1 !important;
   display: block !important;
   visibility: visible !important;
+}
+
+/* clear shadow-sm on selected items to avoid "underneath" look */
+.nav-item.selected {
+  box-shadow: none !important;
 }
 
 /* kill random white borders, force them to primary or transparent */
