@@ -87,14 +87,20 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
         isDragging ? "bg-accent/20" : "hover:bg-white/10"
       )}
     >
-      <div
-        className="h-full w-full overflow-hidden text-ellipsis whitespace-nowrap flex justify-start items-center px-1 cursor-grab active:cursor-grabbing"
-        {...attributes}
-        {...listeners}
-      >
+      <div className="h-full w-full relative flex items-center group/header">
+        {/* background drag zone */}
         <div
-          className="h-full w-full flex items-center px-1 cursor-pointer hover:bg-white/10 transition-colors"
+          className="absolute inset-0 cursor-grab active:cursor-grabbing transition-colors"
+          {...attributes}
+          {...listeners}
+        />
+
+        {/* foreground click zone (label) */}
+        <div
+          className="relative z-10 h-full flex items-center px-2 cursor-pointer hover:bg-white/10 transition-colors min-w-[50%]"
+          onPointerDown={(e) => e.stopPropagation()} // stop drag from starting when interacting with label
           onClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
             const field = (header.column.columnDef as any).meta?.field;
             if (field) {
@@ -103,6 +109,7 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
             }
           }}
           onDoubleClick={(e) => {
+            e.preventDefault();
             e.stopPropagation();
             const field = (header.column.columnDef as any).meta?.field;
             if (field) {
@@ -120,7 +127,7 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
             }
           }}
         >
-          <div className="overflow-hidden text-ellipsis whitespace-nowrap">
+          <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium">
             {header.isPlaceholder
               ? null
               : flexRender(
