@@ -93,3 +93,6 @@ Killed
 Error: connect ECONNREFUSED 127.0.0.1:4100
     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
 1:41:37 AM [vite] (client) hmr update /src/index.css, /src/components/fields/smart-field.tsx
+1:41:55 AM [vite] http proxy error: /api/stats
+Error: connect ECONNREFUSED 127.0.0.1:4100
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
