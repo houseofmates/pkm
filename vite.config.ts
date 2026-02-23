@@ -49,11 +49,9 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/nocobase/, ''),
       },
-      // Catch-all for other /api requests
       '/api/nb-import-csv': {
-        target: 'http://127.0.0.1:4110',
+        target: 'http://127.0.0.1:4100',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/nb-import-csv/, '/nb-import-csv'),
       },
       '/api': {
         target: 'http://192.168.254.33:8091/api',

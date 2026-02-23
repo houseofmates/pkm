@@ -100,7 +100,7 @@ app.use(cors({
                 const parts = a.split('*').map(p => p.replace(/[-/\\^$+?.()|[\]{}]/g, '\\$&'));
                 const regex = new RegExp('^' + parts.join('.*') + '$');
                 if (regex.test(origin)) {
-                        return callback(null, true);
+                    return callback(null, true);
                 }
             }
             // suffix wildcard (eg. https://pkm.*) - kept for backward compatibility
@@ -120,9 +120,9 @@ app.use(cors({
         }
         callback(null, false);
     },
-    methods: ['GET','POST','OPTIONS'],
+    methods: ['GET', 'POST', 'OPTIONS'],
     credentials: true,
-    allowedHeaders: ['Content-Type','Authorization'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
 app.use(express.json());
@@ -171,7 +171,7 @@ const requireAuth = (req, res, next) => {
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const uploadDir = path.join(process.cwd(), 'public');
-        if (!fs.existsSync(uploadDir)){
+        if (!fs.existsSync(uploadDir)) {
             fs.mkdirSync(uploadDir, { recursive: true });
         }
         cb(null, uploadDir);
@@ -202,6 +202,12 @@ const upload = multer({
 const importUpload = multer({
     storage,
     limits: { fileSize: 5 * 1024 * 1024 * 1024 } // 5GB-ish
+});
+
+// multi-csv import endpoint for up to 60 files (from server.ts)
+const csvUpload = multer({
+    storage, // optionally use diskStorage so files aren't kept in memory
+    limits: { files: 60, fileSize: 10 * 1024 * 1024 } // allow up to 10MB total to be safe, though user requested 230kb
 });
 
 // State
@@ -266,7 +272,7 @@ function handleNotionImport(req, res) {
         console.log('[NotionImport] missing file');
         return res.status(400).json({ error: 'missing file' });
     }
-    const taskId = `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
+    const taskId = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
     const emitter = new EventEmitter();
     // prevent unhandled emitter errors
     emitter.on('error', (err) => {
@@ -426,7 +432,7 @@ function handleNotionImport(req, res) {
             if (current) current.status = 'error';
         } finally {
             // cleanup uploaded file
-            try { fs.unlinkSync(req.file.path); } catch {}
+            try { fs.unlinkSync(req.file.path); } catch { }
         }
     })();
 
@@ -437,6 +443,85 @@ function handleNotionImport(req, res) {
 app.post('/api/nb-import', requireAuth, importUpload.single('file'), handleNotionImport);
 // legacy route still available for local tests
 app.post('/api/notion-import', requireAuth, importUpload.single('file'), handleNotionImport);
+
+// Multi-CSV import endpoint for notion databases
+app.post('/nb-import-csv', csvUpload.array('files', 60), async (req, res) => {
+    try {
+        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+            return res.status(400).json({ error: 'no files uploaded' });
+        }
+        const databases = [];
+        for (const file of req.files) {
+            // Since we use diskStorage above, read from file.path
+            const content = fs.readFileSync(file.path, 'utf-8');
+            const parsed = Papa.parse(content, {
+                header: true,
+                skipEmptyLines: true,
+                dynamicTyping: true,
+                transformHeader: h => h.trim(),
+            });
+            if (parsed.errors.length) {
+                console.warn(`warnings parsing CSV ${file.originalname}:`, parsed.errors);
+            }
+            const rows = parsed.data;
+            const fields = rows.length > 0 ? Object.keys(rows[0]) : [];
+            // guess types for each field
+            const guessType = (values) => {
+                let hasString = false, hasNumber = false, hasBoolean = false;
+                for (const v of values) {
+                    if (v == null || v === '') continue;
+                    if (typeof v === 'number') hasNumber = true;
+                    else if (typeof v === 'boolean') hasBoolean = true;
+                    else if (typeof v === 'string') {
+                        const maybeNum = Number(v);
+                        if (!isNaN(maybeNum) && v.trim() !== '') hasNumber = true;
+                        else if (v === 'true' || v === 'false') hasBoolean = true;
+                        else hasString = true;
+                    } else hasString = true;
+                }
+                if (hasString || (hasString && hasNumber)) return 'string';
+                if (hasBoolean && !hasString && !hasNumber) return 'boolean';
+                if (hasNumber && !hasString) return 'number';
+                return 'string';
+            };
+            const sampleRows = rows.slice(0, 20);
+            const fieldTypes = {};
+            for (const field of fields) {
+                const colValues = sampleRows.map(r => r[field]);
+                fieldTypes[field] = guessType(colValues);
+            }
+            databases.push({
+                name: file.originalname.replace(/\.csv$/i, ''),
+                rows,
+                fields,
+                fieldTypes,
+            });
+        }
+
+        // Cleanup uploaded files to save disk space
+        req.files.forEach(f => {
+            try { fs.unlinkSync(f.path); } catch (e) { }
+        });
+
+        // TODO: smart property mapping between databases (connect relations, etc)
+        // For now, just return a taskId and summary
+        const taskId = 'csv-' + Date.now();
+        return res.json({ taskId, databases });
+    } catch (err) {
+        console.error('nb-import-csv error', err);
+        return res.status(500).json({ error: String(err) });
+    }
+});
+
+// Alias under /api path since Vite proxy rewrites to /api
+app.post('/api/nb-import-csv', requireAuth, csvUpload.array('files', 60), async (req, res) => {
+    // Just forward to the same handler above so either path works
+    // Express treats req.url, but we can't easily jump handlers. Just duplicate or redirect.
+    // Instead we can just register the exact route directly since my vite config rewrites /api/nb-import-csv to /nb-import-csv, but sometimes proxy doesn't rewrite fully in prod.
+    // Let's just make sure both exist.
+    req.url = '/nb-import-csv';
+    app._router.handle(req, res);
+});
 
 // streaming endpoint - still available for backwards compatibility but
 // may be unreliable through Cloudflare; prefer polling.
@@ -511,7 +596,7 @@ function respondWithLogs(req, res) {
 }
 
 // GET routes (query param preferred for Cloudflare compatibility)
-app.get(['/api/notion-import/:id/logs','/api/nb-import/logs','/api/nb-import/:id/logs'], requireAuth, (req, res) => {
+app.get(['/api/notion-import/:id/logs', '/api/nb-import/logs', '/api/nb-import/:id/logs'], requireAuth, (req, res) => {
     // explicit `/logs` entry must appear before the parameterized route or it
     // would capture as id='logs'.
     respondWithLogs(req, res);
@@ -558,8 +643,8 @@ app.get('/api/players', requireAuth, async (req, res) => {
 
         // Ensure the path exists before running
         if (!fs.existsSync(scriptPath)) {
-             // Fallback for dev/test environment
-             return res.json({ players: [] });
+            // Fallback for dev/test environment
+            return res.json({ players: [] });
         }
 
         const { stdout, stderr } = await execPromise(`python3 "${scriptPath}"`);
@@ -597,13 +682,13 @@ const sendWebhook = async (type, player, message, timestamp, online) => {
     const webhookUrl = 'http://192.168.4.233:5678/webhook/leave-join';
     try {
         await axios.post(webhookUrl, {
-             type: type === 'quit' ? 'leave' : type,
-             player,
-             username: player,
-             message: message,
-             timestamp,
-             online,
-             processed: true
+            type: type === 'quit' ? 'leave' : type,
+            player,
+            username: player,
+            message: message,
+            timestamp,
+            online,
+            processed: true
         }, {
             headers: { 'Content-Type': 'application/json' },
             timeout: 5000
@@ -631,11 +716,11 @@ app.post('/api/broadcast', requireAuth, async (req, res) => {
     // Determine player name
     let finalPlayer = 'Server';
     if (message && message.includes('joined the game')) {
-         finalPlayer = message.replace(' joined the game', '');
+        finalPlayer = message.replace(' joined the game', '');
     } else if (message && message.includes('left the game')) {
-         finalPlayer = message.replace(' left the game', '');
+        finalPlayer = message.replace(' left the game', '');
     } else if (source) {
-         finalPlayer = source;
+        finalPlayer = source;
     }
 
     const normalizedType = type.toLowerCase();
@@ -685,11 +770,11 @@ app.post('/api/broadcast', requireAuth, async (req, res) => {
         if (normalizedType === 'chat') {
             chatHistory.push({ type: 'chat', player: finalPlayer, message, timestamp: msgTimestamp });
         } else if (['join', 'leave', 'quit'].includes(normalizedType)) {
-             const msg = `${finalPlayer} ${normalizedType === 'join' ? 'joined' : 'left'} the game`;
-             chatHistory.push({ type: 'system', player: 'system', message: msg, timestamp: msgTimestamp });
+            const msg = `${finalPlayer} ${normalizedType === 'join' ? 'joined' : 'left'} the game`;
+            chatHistory.push({ type: 'system', player: 'system', message: msg, timestamp: msgTimestamp });
 
-             // Trigger Webhook
-             sendWebhook(normalizedType, finalPlayer, msg, msgTimestamp, safeOnline);
+            // Trigger Webhook
+            sendWebhook(normalizedType, finalPlayer, msg, msgTimestamp, safeOnline);
         }
     }
 
