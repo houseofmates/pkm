@@ -4,7 +4,7 @@ import {
   flexRender,
   createColumnHelper,
 } from '@tanstack/react-table';
-import { List } from 'react-window';
+import { FixedSizeList as List } from 'react-window';
 import { AutoSizer } from 'react-virtualized-auto-sizer';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -230,10 +230,33 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
   );
 }
 
-const DraggableRecordRow = ({ index, style: incomingStyle, data }: any) => {
-  if (!data) return null;
+const DraggableRecordRow = React.memo(({ index, style: incomingStyle, data }: any) => {
   const { rows, collection, onUpdate, onDelete, onCreateField, recordMeta } = data;
   const row = rows[index];
+  if (!row) return null;
+
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: `record-${row.original.id}`,
+    data: {
+      type: 'pkm-record',
+      id: row.original.id,
+      collection: collection.name,
+      title: row.original.title || row.original.name || 'Untitled'
+    }
+  });
+
+  const rowColor = recordMeta?.[row.original.id]?.color;
+
+  const style = {
+    ...incomingStyle,
+    transform: CSS.Translate.toString(transform),
+    opacity: isDragging ? 0.5 : 1,
+    touchAction: 'none', // Important for touch drag
+    backgroundColor: rowColor ? `${rowColor}20` : undefined,
+    display: 'flex', // Crucial for virtualization 
+    width: '100%'
+  };
+
   if (!row) return null;
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -316,7 +339,7 @@ const DraggableRecordRow = ({ index, style: incomingStyle, data }: any) => {
       </div>
     </RecordContextMenu>
   );
-};
+});
 
 export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateField, onFieldUpdated: onFieldUpdatedCb, loading }: RecordTableProps) {
   const [hiddenColumns, setHiddenColumns] = useAppSetting<string[]>(
@@ -625,9 +648,9 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               <AutoSizer>
                 {({ height, width }: { height: number; width: number }) => (
                   <List
-                    rowCount={rows.length}
-                    rowHeight={40}
-                    rowProps={{
+                    itemCount={rows.length}
+                    itemSize={40}
+                    itemData={{
                       rows: rows,
                       collection,
                       onUpdate: onUpdateRecord,
@@ -635,9 +658,12 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                       onCreateField,
                       recordMeta
                     }}
-                    style={{ height, width }}
-                    rowComponent={DraggableRecordRow}
-                  />
+                    height={height}
+                    width={width}
+                    className="no-scrollbar"
+                  >
+                    {DraggableRecordRow}
+                  </List>
                 )}
               </AutoSizer>
             )}
