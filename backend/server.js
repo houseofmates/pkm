@@ -526,9 +526,11 @@ async function handleCsvImport(req, res) {
                 };
 
                 const sampleRows = rows.slice(0, 20);
+                const formatColName = (c) => c.replace(/[^a-zA-Z0-9_\-$]/g, '_');
+
                 for (const col of columns) {
                     const vals = sampleRows.map(r => r[col]);
-                    fieldsConfig.push({ name: col, type: guessType(vals) });
+                    fieldsConfig.push({ name: formatColName(col), type: guessType(vals) });
                 }
 
                 log(`creating collection: ${name} with ${columns.length} columns`);
@@ -544,7 +546,9 @@ async function handleCsvImport(req, res) {
                 let fileRecordsCreated = 0;
                 for (const row of rows) {
                     try {
-                        await client.post(`/${name}:create`, row);
+                        const safeRow = {};
+                        for (const key of Object.keys(row)) safeRow[formatColName(key)] = row[key];
+                        await client.post(`/${name}:create`, safeRow);
                         fileRecordsCreated++;
                         totalRecordsImported++;
                         if (fileRecordsCreated % 100 === 0) {
