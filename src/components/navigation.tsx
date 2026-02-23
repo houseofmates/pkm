@@ -290,9 +290,16 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       return;
     }
 
-    setItems(items.map(item =>
-      item.id === id ? { ...item, ...updates } : item
-    ));
+    // If renaming a collection, update both .name and .title fields for sidebar display
+    if (updates.name) {
+      setItems(items.map(item =>
+        item.id === id ? { ...item, name: updates.name, title: updates.name, ...updates } : item
+      ));
+    } else {
+      setItems(items.map(item =>
+        item.id === id ? { ...item, ...updates } : item
+      ));
+    }
   };
 
   // initialize/sync items from collections and local documents/drawings
