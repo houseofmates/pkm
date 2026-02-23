@@ -60,12 +60,10 @@ export function NotionImportWidget() {
         appendLog('uploading...');
         const fd = new FormData();
         files.forEach((f) => fd.append('files', f, f.name));
-        // determine target API base from VITE_API_URL or default to the
-        // same‑origin `/api` path. previously we rewrote the frontend host
-        // (`pkm.` -> `db.`) which forced cross‑origin requests and broke
-        // when the API is behind Cloudflare, so prefer relative unless
-        // the environment variable tells us something genuinely external.
-        let rawEnv = import.meta.env.VITE_API_URL as string | undefined;
+        // determine the backend URL for handling imports. this is **not** the
+        // nocobase API (VITE_API_URL) but the PKM backend service. the latter
+        // is exposed via VITE_BACKEND_URL or proxied under `/api` in dev.
+        let rawEnv = import.meta.env.VITE_BACKEND_URL as string | undefined;
         let envBase = rawEnv;
         if (envBase && envBase.endsWith('/')) envBase = envBase.slice(0, -1);
 
@@ -73,11 +71,11 @@ export function NotionImportWidget() {
         if (envBase && envBase.startsWith('http')) {
             baseUrl = envBase;
         } else {
-            // fallback to relative if env is missing or relative
+            // fallback to relative `/api` which the dev server proxies to backend
             baseUrl = '/api';
         }
         const url = `${baseUrl}/nb-import-csv`;
-        console.debug('[NotionImportWidget] raw VITE_API_URL=', rawEnv, 'env VITE_API_URL=', envBase, 'using url', url, '(legacy notion-import also accepted)');
+        console.debug('[NotionImportWidget] raw VITE_BACKEND_URL=', rawEnv, 'env BACKEND_URL=', envBase, 'using url', url, '(legacy notion-import also accepted)');
         try {
             const res = await fetch(url, {
                 method: 'POST',
