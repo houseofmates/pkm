@@ -555,7 +555,8 @@ async function handleCsvImport(req, res) {
                             log(`imported ${fileRecordsCreated}/${rows.length} into ${name}`);
                         }
                     } catch (err) {
-                        // ignore individual record failures to keep progress going
+                        const errorMsg = err.response?.data ? JSON.stringify(err.response.data) : err.message;
+                        log(`error creating record in ${name}: ${errorMsg}`);
                     }
                 }
                 log(`finished importing ${fileRecordsCreated} records into ${name}`);
