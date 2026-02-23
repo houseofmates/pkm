@@ -63,7 +63,7 @@ async function getdb(): Promise<IDBPDatabase<canvasdbschema>> {
 self.onmessage = async (e: MessageEvent) => {
     const { id, method, args } = e.data
     try {
-        const handler = handlers[method]
+        const handler = handlers[method.toLowerCase()]
         if (!handler) throw new Error(`unknown method: ${method}`)
         const result = await handler(...args)
         self.postMessage({ id, result })
