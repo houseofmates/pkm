@@ -121,7 +121,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       fabricCanvas.isDrawingMode = true
       // fabric's types do not export EraserBrush so we access dynamically to avoid
       // esbuild treating it as a named import and failing when the symbol is missing.
-      const EraserBrushConstructor = (fabric as any)['EraserBrush'];
+      const EraserBrushConstructor = (fabric as any)['Eraser' + 'Brush'];
       if (EraserBrushConstructor) {
         const eraser = new EraserBrushConstructor(fabricCanvas)
         eraser.width = eraserWidth
