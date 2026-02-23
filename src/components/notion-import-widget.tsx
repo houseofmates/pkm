@@ -110,7 +110,7 @@ export function NotionImportWidget() {
                 baseUrl = '/api';
             }
         }
-        const url = `http://192.168.4.233:4100/nb-import-csv`;
+        const url = `${baseUrl}/nb-import-csv`;
         console.debug('[NotionImportWidget] raw VITE_API_URL=', rawEnv, 'env VITE_API_URL=', envBase, 'using url', url, '(legacy notion-import also accepted)');
         try {
             const res = await fetch(url, {
@@ -120,7 +120,7 @@ export function NotionImportWidget() {
             });
             if (!res.ok) {
                 let text = '';
-                try { text = await res.text(); } catch {}
+                try { text = await res.text(); } catch { }
                 appendLog(`upload failed: ${res.status} ${text || res.statusText}`);
                 setRunning(false);
                 return;

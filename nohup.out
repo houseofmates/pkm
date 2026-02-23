@@ -57,3 +57,6 @@ Error: connect ECONNREFUSED 127.0.0.1:4100
 7:58:45 PM [vite] (client) hmr update /src/index.css, /src/components/notion-import-widget.tsx
 8:03:03 PM [vite] (client) hmr update /src/index.css, /src/components/notion-import-widget.tsx
 8:07:38 PM [vite] (client) hmr update /src/index.css, /src/components/notion-import-widget.tsx
+8:17:28 PM [vite] (client) hmr update /src/index.css, /src/components/notion-import-widget.tsx
+8:17:30 PM [vite] vite.config.ts changed, restarting server...
+8:17:30 PM [vite] server restarted.
