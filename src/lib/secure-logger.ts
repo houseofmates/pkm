@@ -90,10 +90,7 @@ function sanitizeMessage(message: string): string {
 }
 
 // check if message contains sensitive data
-function containsSensitiveData(message: string): boolean {
-  const sanitized = sanitizeMessage(message);
-  return sanitized !== message;
-}
+// (removed: unused function)
 
 // store log entry in history
 function storeLogEntry(entry: LogEntry): void {
