@@ -25,3 +25,13 @@
 5:41:50 PM [vite] http proxy error: /api/stats
 Error: connect ECONNREFUSED 127.0.0.1:4100
     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+Malformed URI sequence in request URL: /%c0
+The request id "/home/house/pkm/.env" is outside of Vite serving allow list.
+
+- /home/house/pkm
+
+Refer to docs https://vite.dev/config/server-options.html#server-fs-allow for configurations and more details.
+
+The request id "/home/house/pkm/.env.example" is outside of Vite serving allow list.
+The request id "/home/house/pkm/.env.local" is outside of Vite serving allow list.
+The request id "/home/house/pkm/.git/config" is outside of Vite serving allow list.
