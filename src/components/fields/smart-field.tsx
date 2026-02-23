@@ -1,12 +1,11 @@
 import * as React from 'react';
 import { useState, useEffect } from 'react';
-import type { ChangeEvent, MouseEvent } from 'react';
+import type { ChangeEvent } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-import { Check, X, Phone, Mail, MapPin, Lock, Terminal, Paperclip, Link as LinkIcon, Sparkles, Copy, Trash2, Edit2 } from 'lucide-react';
+import { Check, X, Phone, Mail, Lock, Terminal, Paperclip, Link as LinkIcon, Copy, Trash2, Edit2 } from 'lucide-react';
 
 import { LocationField } from './location-field';
 import ReactMarkdown from 'react-markdown';

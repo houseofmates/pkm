@@ -628,29 +628,25 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               </div>
             ) : (
               <div style={{ height: 'calc(100vh - 200px)', minHeight: '400px', width: '100%' }}>
-                {(AutoSizer as any) && (
-                  <AutoSizer>
-                    {({ height, width }: { height: number; width: number }) => (
-                      <List
-                        height={height}
-                        rowCount={table.getRowModel().rows.length}
-                        rowHeight={40} // matching h-10 height
-                        width={width}
-                        className="no-scrollbar"
-                        rowComponent={DraggableRecordRow as any}
-                        rowProps={{
-                          ariaAttributes,
-                          rows: table.getRowModel().rows,
-                          collection,
-                          onUpdate: onUpdateRecord,
-                          onDelete,
-                          onCreateField,
-                          recordMeta
-                        }}
-                      />
-                    )}
-                  </AutoSizer>
-                )}
+                <AutoSizer>
+                  {({ height, width }: any) => (
+                    <List
+                      style={{ height, width }}
+                      rowCount={table.getRowModel().rows.length}
+                      rowHeight={40} // matching h-10 height
+                      className="no-scrollbar"
+                      rowComponent={DraggableRecordRow as any}
+                      rowProps={{
+                        rows: table.getRowModel().rows,
+                        collection,
+                        onUpdate: onUpdateRecord,
+                        onDelete,
+                        onCreateField,
+                        recordMeta
+                      }}
+                    />
+                  )}
+                </AutoSizer>
               </div>
             )}
           </TableBody>
