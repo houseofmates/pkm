@@ -51,7 +51,8 @@ import {
 } from '@dnd-kit/sortable';
 import {
   DndContext,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   closestCenter,
@@ -96,10 +97,10 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
     touchAction: 'none',
   };
 
-  const saveTitle = async (newTitle: string) => {
+  const saveTitle = async (newTitle: string | undefined) => {
     const field = (header.column.columnDef as any).meta?.field;
     if (!field) return;
-    const trimmed = newTitle.trim();
+    const trimmed = (newTitle || '').trim();
     // prevent empty names
     if (!trimmed) {
       // restore previous title and exit
@@ -147,7 +148,10 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
     >
       <PropertyContextMenu
         field={(header.column.columnDef as any).meta?.field}
-        onRename={() => setIsEditing(true)}
+        onRename={() => {
+          setDraftTitle(computeTitle());
+          setIsEditing(true);
+        }}
         onEditSettings={() => onOpenFieldSettings?.((header.column.columnDef as any).meta?.field)}
         onHide={() => {
           toast.info("hiding feature coming soon");
@@ -161,13 +165,17 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
             "h-full w-full relative flex items-center group/header overflow-hidden",
             !isEditing && "cursor-grab"
           )}
-          {...attributes}
-          {...listeners}
+          {...(!isEditing ? attributes : {})}
+          {...(!isEditing ? listeners : {})}
         >
           {!isEditing ? (
             <div
               className="relative z-20 h-full w-full flex items-center px-1 select-none cursor-pointer hover:bg-white/5 transition-colors"
               onDoubleClick={startEditing}
+              onContextMenu={(e) => {
+                // Ensure context menu works even if drag listeners are active
+                e.stopPropagation();
+              }}
             >
               <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pr-5">
                 {header.isPlaceholder
@@ -179,13 +187,17 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
               </div>
             </div>
           ) : (
-            <div className="flex h-full items-center px-1">
-              <SmartField
+            <div className="flex h-full w-full items-center px-1 bg-black/40">
+              <Input
+                autoFocus
                 value={draftTitle}
-                field={{ interface: 'input', name: 'title' }}
-                collectionName={collectionName}
-                size="lg"
-                onChange={saveTitle}
+                onChange={(e) => setDraftTitle(e.target.value)}
+                onBlur={() => saveTitle(draftTitle)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') saveTitle(draftTitle);
+                  if (e.key === 'Escape') setIsEditing(false);
+                }}
+                className="h-7 text-sm bg-[#111] border-[#333] focus:border-primary text-white w-full rounded-none"
               />
             </div>
           )}
@@ -470,10 +482,15 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   }, [data, collection, columnHelper, onEdit, onDelete, hiddenColumns, setHiddenColumns]);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: {
-        distance: 5,
-        delay: 0, // immediate drag allowed
+        distance: 8,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 200,
+        tolerance: 5,
       },
     })
   );
