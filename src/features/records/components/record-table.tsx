@@ -221,6 +221,11 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
                 maxWidth: cell.column.getSize()
               }}
               className="border-r border-b border-[#222] overflow-hidden text-ellipsis whitespace-nowrap align-middle p-0 h-10 transition-colors group-hover:bg-white/5"
+              onContextMenu={(e) => {
+                // Stop propagation to prevent row-level RecordContextMenu from showing
+                // The SmartField's FieldContextMenu will handle this event
+                e.stopPropagation();
+              }}
             >
               <div className="flex items-center justify-start h-full w-full px-2">
                 <div className="flex-1 truncate">
