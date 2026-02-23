@@ -6,7 +6,8 @@
  * all operations are async and support transactions.
  */
 
-import { openDB, type IDBPDatabase, type DBSchema } from 'idb';
+import { openDB, type IDBPDatabase } from 'idb';
+import type { DBSchema } from 'idb';
 import type { TableDefinition, Record, QueryOptions, QueryResult, FilterCondition, FilterGroup } from './types';
 
 // database configuration

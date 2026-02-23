@@ -3,7 +3,7 @@
 // communicates with db-bridge.ts via structured message passing
 
 import { openDB } from 'idb'
-import type { DBSchema, IDBPDatabase } from 'idb'
+import type { DBSchema, IDBPDatabase } from 'idb' // DBSchema is purely a type and already imported as such
 
 interface canvasdbschema extends DBSchema {
     oplog: {
