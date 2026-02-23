@@ -35,3 +35,5 @@ Refer to docs https://vite.dev/config/server-options.html#server-fs-allow for co
 The request id "/home/house/pkm/.env.example" is outside of Vite serving allow list.
 The request id "/home/house/pkm/.env.local" is outside of Vite serving allow list.
 The request id "/home/house/pkm/.git/config" is outside of Vite serving allow list.
+7:40:22 PM [vite] (client) ✨ new dependencies optimized: react-intersection-observer, @tiptap/react/menus
+7:40:22 PM [vite] (client) ✨ optimized dependencies changed. reloading
