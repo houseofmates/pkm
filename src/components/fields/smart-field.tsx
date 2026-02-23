@@ -1010,7 +1010,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     if (isCode) {
       return (
         <div className="flex items-center gap-2 font-varela">
-          <div onClick={() => { setIsEditing(true); setShowFormulaEditor(true); }} className={cn("cursor-pointer font-mono bg-muted px-1 rounded text-muted-foreground truncate max-w-[100px] hover:text-foreground hover:bg-muted/80", size === 'lg' ? "text-sm" : "text-[10px]")}>
+          <div onClick={() => { setIsEditing(true); setShowFormulaEditor(true); }} className={cn("cursor-pointer font-mono bg-muted px-1 rounded text-muted-foreground truncate max-w-[100px] hover:text-foreground hover:bg-muted/80 focus:outline-none", size === 'lg' ? "text-sm" : "text-[10px]")}>
             {value ? '<script...>' : 'empty code'}
           </div>
           {value && (
