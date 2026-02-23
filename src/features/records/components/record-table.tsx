@@ -262,6 +262,7 @@ const DraggableRecordRow = React.memo(({ index, style: incomingStyle, ariaAttrib
           "transition-colors group border-b border-[#222] min-w-full",
           !rowColor && "hover:bg-gray-800/10"
         )}
+        {...ariaAttributes}
       >
         {/* drag handle area */}
         {onCreateField && (
@@ -630,25 +631,23 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               </div>
             ) : (
               <div style={{ height: 'calc(100vh - 200px)', minHeight: '400px', width: '100%' }}>
-                <AutoSizer>
-                  {((size: { height: number; width: number }) => (
-                    <List
-                      style={{ height: size.height, width: size.width }}
-                      rowCount={table.getRowModel().rows.length}
-                      rowHeight={40}
-                      className="no-scrollbar"
-                      rowComponent={DraggableRecordRow as any}
-                      rowProps={{
-                        rows: table.getRowModel().rows,
-                        collection,
-                        onUpdate: onUpdateRecord,
-                        onDelete,
-                        onCreateField,
-                        recordMeta
-                      }}
-                    />
-                  )) as any}
-                </AutoSizer>
+                {React.createElement(AutoSizer as any, {} as any, (size: any) => (
+                  <List
+                    style={{ height: size.height, width: size.width }}
+                    rowCount={table.getRowModel().rows.length}
+                    rowHeight={40}
+                    className="no-scrollbar"
+                    rowComponent={DraggableRecordRow as any}
+                    rowProps={{
+                      rows: table.getRowModel().rows,
+                      collection,
+                      onUpdate: onUpdateRecord,
+                      onDelete,
+                      onCreateField,
+                      recordMeta
+                    }}
+                  />
+                ))}
               </div>
             )}
           </TableBody>
