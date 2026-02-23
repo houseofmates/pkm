@@ -34,30 +34,30 @@ export function CollectionCard({ collection, className }: CollectionCardProps) {
 
   let visualPreview = null;
   if (isDrawing) {
-  // try to get thumbnail from localstorage
-  const key = `drawing-config-${collection.name.replace('drawing_', '')}`;
-  try {
-  const config = JSON.parse(localStorage.getItem(key) || '{}');
-  if (config.thumbnail) {
- visualPreview = config.thumbnail;
-  }
-  } catch (e) { /* ignore malformed localstorage */ }
+    // try to get thumbnail from localstorage
+    const key = `drawing-config-${collection.name.replace('drawing_', '')}`;
+    try {
+      const config = JSON.parse(localStorage.getItem(key) || '{}');
+      if (config.thumbnail) {
+        visualPreview = config.thumbnail;
+      }
+    } catch (e) { /* ignore malformed localstorage */ }
   }
 
   const hasFields = !isVisual && fields.length > 0;
   // actually, user wants: "if something is fully empty... remove the extra space on the bottom"
 
-  // for databses: if no fields, don't render the bottom part.
+  // for databases: if no fields, don't render the bottom part.
   // for visuals: if no thumbnail, don't render the bottom part? or render a small "empty" indicator?
   // "remove the extra space... add it when necessary"
-  const showbottom = (isvisual && visualpreview) || (!isvisual && hasfields);
+  const showBottom = (isVisual && visualPreview) || (!isVisual && hasFields);
 
   return (
   <Card
-  className={cn("hover:shadow-lg transition-all cursor-pointer relative overflow-hidden group flex flex-col rounded-xl isolate", className)}
-  style={borderColor ? { borderColor: borderColor, borderWidth: '2px' } : undefined}
+    className={cn("hover:shadow-lg transition-all cursor-pointer relative overflow-hidden group flex flex-col rounded-xl isolate", className)}
+    style={borderColor ? { borderColor: borderColor, borderWidth: '2px' } : undefined}
   >
-  {coverimage ? (
+    {coverImage ? (
  /* cover image mode - keep fixed height or aspect ratio? use aspect-video? */
  /* for consistency let's keep cover image cards fixed height or aspect ratio because the image is the content */
  <div className="absolute inset-0 h-40">
@@ -78,7 +78,7 @@ export function CollectionCard({ collection, className }: CollectionCardProps) {
  </div>
  </div>
   ) : (
- <CardHeader className={cn("flex flex-col relative transition-all", showBottom ? "h-40 p-6" : "h-auto p-3")}>
+ <CardHeader className={cn("flex flex-col relative transition-all", showBottom ? "h-40 p-6" : "h-auto p-3")}> 
  {/* if we have content, we use fixed height to align with grid? or let it grow?
  user said: "remove the extra space on the bottom... add it when necessary"
  this implies auto height when empty, but maybe fixed/expanded when full?
@@ -88,7 +88,7 @@ export function CollectionCard({ collection, className }: CollectionCardProps) {
  */}
 
  {/* top row: icon */}
- <div className={cn("flex items-center justify-between relative z-10", showBottom ? "mb-2" : "mb-0")}>
+ <div className={cn("flex items-center justify-between relative z-10", showBottom ? "mb-2" : "mb-0")}> 
  <Database
    className="h-5 w-5 text-primary"
    style={borderColor ? { color: borderColor } : undefined}
@@ -104,29 +104,29 @@ export function CollectionCard({ collection, className }: CollectionCardProps) {
  </CardTitle>
 
  {/* preview area - only render if we have something to show */}
- {showbottom && (
- isvisual ? (
-   /* visual preview */
-   <div className="absolute inset-x-0 bottom-0 top-[40%] overflow-hidden rounded-b-[inherit]">
-   <div className="w-full h-full relative">
-   <img src={visualPreview!} className="w-full h-full object-cover opacity-80" />
-   <div className="absolute inset-0 bg-gradient-to-t from-transparent to-background/10" />
-   </div>
-   </div>
- ) : (
-   /* database fields preview */
-   <div className="mt-4 relative z-10"> {/* added margin top instead of mt-auto if we are auto-height */}
-   <div className="flex flex-col gap-1">
-   {fields.slice(0, 3).map((f: any) => (
-  <div key={f.name} className="flex items-center text-[10px] text-muted-foreground gap-2">
-  <div className="w-1.5 h-1.5 rounded-full bg-primary/20" style={borderColor ? { backgroundColor: borderColor } : undefined} />
-  <span className="truncate opacity-70">{f.name}</span>
-  <span className="opacity-40 ml-auto">{f.interface || f.type}</span>
-  </div>
-   ))}
-   </div>
-   </div>
- )
+ {showBottom && (
+   isVisual ? (
+     /* visual preview */
+     <div className="absolute inset-x-0 bottom-0 top-[40%] overflow-hidden rounded-b-[inherit]">
+       <div className="w-full h-full relative">
+         <img src={visualPreview!} className="w-full h-full object-cover opacity-80" />
+         <div className="absolute inset-0 bg-gradient-to-t from-transparent to-background/10" />
+       </div>
+     </div>
+   ) : (
+     /* database fields preview */
+     <div className="mt-4 relative z-10"> {/* added margin top instead of mt-auto if we are auto-height */}
+       <div className="flex flex-col gap-1">
+         {fields.slice(0, 3).map((f: any) => (
+           <div key={f.name} className="flex items-center text-[10px] text-muted-foreground gap-2">
+             <div className="w-1.5 h-1.5 rounded-full bg-primary/20" style={borderColor ? { backgroundColor: borderColor } : undefined} />
+             <span className="truncate opacity-70">{f.name}</span>
+             <span className="opacity-40 ml-auto">{f.interface || f.type}</span>
+           </div>
+         ))}
+       </div>
+     </div>
+   )
  )}
  </CardHeader>
   )}
