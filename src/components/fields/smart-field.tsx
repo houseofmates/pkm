@@ -984,8 +984,8 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           className="cursor-pointer group relative min-h-[20px] font-varela w-full h-full overflow-hidden"
         >
           <div className={cn(
-            "prose prose-invert prose-xs line-clamp-2 leading-relaxed opacity-90 group-hover:opacity-100 transition-opacity",
-            "prose-p:my-0 prose-headings:my-0 prose-ul:my-0 prose-li:my-0 pb-1.5 pt-0.5",
+            "prose prose-invert prose-xs line-clamp-2 leading-tight opacity-90 group-hover:opacity-100 transition-opacity",
+            "prose-p:my-0 prose-headings:my-0 prose-ul:my-0 prose-li:my-0 pb-0.5 pt-0.5",
             size === 'lg' ? "text-base" : "text-[11px]"
           )}>
             <ReactMarkdown>{value || ''}</ReactMarkdown>
