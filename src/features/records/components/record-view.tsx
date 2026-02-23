@@ -54,7 +54,8 @@ export function RecordView({ collectionName: propCollection, recordId: propId, o
         if (!col.fields || col.fields.length === 0) {
           try {
             const fieldRes = await client.request('get', `collections/${collectionName}/fields`);
-            col.fields = fieldRes.data?.data || fieldRes.data || [];
+            // our normalization should put array on res.data
+            col.fields = Array.isArray(fieldRes.data) ? fieldRes.data : (fieldRes.data || []);
           } catch (e) {
             col.fields = [];
           }
