@@ -64,3 +64,5 @@ Error: connect ECONNREFUSED 127.0.0.1:4100
 8:23:42 PM [vite] http proxy error: /nb-import-csv
 Error: connect ECONNREFUSED 127.0.0.1:4110
     at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+8:28:32 PM [vite] vite.config.ts changed, restarting server...
+8:28:32 PM [vite] server restarted.
