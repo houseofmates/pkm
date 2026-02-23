@@ -136,41 +136,50 @@ function SortableHeader({ header, collectionName, onFieldUpdated }: any) {
     >
       <PropertyContextMenu
         field={(header.column.columnDef as any).meta?.field}
-        onRename={() => triggerSettings()}
-        onEditSettings={() => triggerSettings()}
+        onRename={() => {}}
+        onEditSettings={() => {}}
         onHide={() => {
-          // logic to hide field
           toast.info("hiding feature coming soon");
         }}
         onDelete={() => {
-          // logic to delete field
           toast.info("deletion feature coming soon");
         }}
       >
         <div className="h-full w-full relative flex items-center group/header overflow-hidden">
-          {/* foreground label - draggable when held, clickable for settings */}
-          <div
-            className="relative z-20 h-full w-full flex items-center px-1 select-none cursor-pointer hover:bg-white/5 transition-colors pointer-events-auto"
-            onClick={triggerSettings}
-            onDoubleClick={triggerSettings}
-          // Removed aggressive Capture phase blocks to allow sensors to see the "hold"
-          >
-            <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pr-5">
-              {header.isPlaceholder
-                ? null
-                : flexRender(
-                  header.column.columnDef.header,
-                  header.getContext()
-                )}
+          {!isEditing ? (
+            <div
+              className="relative z-20 h-full w-full flex items-center px-1 select-none cursor-pointer hover:bg-white/5 transition-colors"
+              onClick={() => setIsEditing(true)}
+              onDoubleClick={() => setIsEditing(true)}
+            >
+              <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pr-5">
+                {header.isPlaceholder
+                  ? null
+                  : flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex h-full items-center px-1">
+              <SmartField
+                value={draftTitle}
+                field={{ interface: 'input', name: 'title' }}
+                size="lg"
+                onChange={saveTitle}
+              />
+            </div>
+          )}
 
-          {/* drag handle area - attributes/listeners here for held drag */}
-          <div
-            className="absolute inset-0 z-10"
-            {...attributes}
-            {...listeners}
-          />
+          {/* drag handle area; clicking label no longer interferes */}
+          {!isEditing && (
+            <div
+              className="absolute right-0 top-0 h-full w-4 cursor-grab"
+              {...attributes}
+              {...listeners}
+            />
+          )}
         </div>
       </PropertyContextMenu>
       {/* resize handler */}
