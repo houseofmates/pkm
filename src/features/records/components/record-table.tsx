@@ -146,7 +146,10 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
         }}
       >
         <div
-          className="h-full w-full relative flex items-center group/header overflow-hidden"
+          className={cn(
+            "h-full w-full relative flex items-center group/header overflow-hidden",
+            !isEditing && "cursor-grab"
+          )}
           {...attributes}
           {...listeners}
         >
