@@ -28,9 +28,9 @@
     --popover-foreground: 0 0% 95%;
 
     /* the void blueprint default: warm yellow */
-    --primary: #f5af12;
+    --primary: currentColor;
     --primary-foreground: 0 0% 0%;
-    --primary-soft: rgba(245, 175, 18, 0.1);
+    --primary-soft: rgba(255, 255, 255, 0.1);
 
     /* recolorable white: defaults to white, becomes headmate color via usethemereactor */
     --headmate-white: 0 0% 100%;
@@ -347,7 +347,7 @@ header * {
 /* restore for header/sidebar only */
 /* .sidebar-container, removed to fix bottom border regression */
 .nav-header {
-  border-bottom: none !important;
+  border-bottom: var(--header-sep) solid var(--primary) !important;
 }
 
 /* 2. sidebar icons specific target */
@@ -376,7 +376,6 @@ header,
 .nav-header {
   background-color: #050505 !important;
   background: #050505 !important;
-  border-bottom: none !important;
 }
 
 /* 2. button outlines -> headmate color */
@@ -399,9 +398,12 @@ button,
   color: var(--primary) !important;
   border-radius: 0.5rem !important;
   border: none !important;
+  box-shadow: none !important;
 }
 
 /* 4. icons: always primary color & visible */
+svg,
+.lucide,
 .sidebar svg,
 .nav-item svg,
 .sidebar-icon,
@@ -412,8 +414,15 @@ button,
   color: var(--primary) !important;
   stroke: var(--primary) !important;
   opacity: 1 !important;
-  display: block !important;
   visibility: visible !important;
+}
+
+/* explicitly allow images like favicons/avatars to NOT be colored */
+img svg,
+img .lucide,
+.avatar svg {
+  color: inherit !important;
+  stroke: inherit !important;
 }
 
 /* clear shadow-sm on selected items to avoid "underneath" look */

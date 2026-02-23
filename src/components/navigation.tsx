@@ -131,7 +131,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
       )}
 
       <Button
-        variant={selected ? "secondary" : "ghost"}
+        variant="ghost"
         className={cn(
           "flex-1 justify-start text-sm font-normal h-8 px-2 overflow-hidden", // changed text-lg to text-sm to match premium PKM style and fix overflow
           selected && "font-medium shadow-none text-primary",
@@ -448,6 +448,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             </Button>
           ))}
         </div>
+        <div className="mx-4 mb-2 h-[2px] bg-primary opacity-50 rounded-full" />
 
 
         <div className="px-4 mb-2 flex items-center justify-between">
