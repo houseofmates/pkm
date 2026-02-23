@@ -474,7 +474,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
             placeholder="paste url or upload..."
             value={localValue || ''}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
-            className="h-8 text-xs border-none focus-visible:ring-0 rounded-none"
+            className="h-8 text-xs border-none focus-visible:ring-0 focus:outline-none rounded-none"
           />
           <div className="relative">
             <Input type="file" className="absolute inset-0 opacity-0 cursor-pointer w-6" onChange={handleFileChange} />
@@ -680,7 +680,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           type={isNumber ? "number" : "text"}
           value={localValue || ''}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
-          className={cn("h-8 text-xs focus-visible:ring-0 focus:ring-0", inputClassName)}
+          className={cn("h-8 text-xs focus-visible:ring-0 focus:ring-0 focus:outline-none", inputClassName)}
           onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
             if (e.key === 'Enter') handleSave();
             if (e.key === 'Escape') handleCancel();
