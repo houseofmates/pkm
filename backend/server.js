@@ -446,71 +446,126 @@ app.post('/api/notion-import', requireAuth, importUpload.single('file'), handleN
 
 // Multi-CSV import endpoint for notion databases
 async function handleCsvImport(req, res) {
-    try {
-        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-            return res.status(400).json({ error: 'no files uploaded' });
-        }
-        const databases = [];
-        for (const file of req.files) {
-            // Since we use diskStorage above, read from file.path
-            const content = fs.readFileSync(file.path, 'utf-8');
-            const parsed = Papa.parse(content, {
-                header: true,
-                skipEmptyLines: true,
-                dynamicTyping: true,
-                transformHeader: h => h.trim(),
-            });
-            if (parsed.errors.length) {
-                console.warn(`warnings parsing CSV ${file.originalname}:`, parsed.errors);
-            }
-            const rows = parsed.data;
-            const fields = rows.length > 0 ? Object.keys(rows[0]) : [];
-            // guess types for each field
-            const guessType = (values) => {
-                let hasString = false, hasNumber = false, hasBoolean = false;
-                for (const v of values) {
-                    if (v == null || v === '') continue;
-                    if (typeof v === 'number') hasNumber = true;
-                    else if (typeof v === 'boolean') hasBoolean = true;
-                    else if (typeof v === 'string') {
-                        const maybeNum = Number(v);
-                        if (!isNaN(maybeNum) && v.trim() !== '') hasNumber = true;
-                        else if (v === 'true' || v === 'false') hasBoolean = true;
-                        else hasString = true;
-                    } else hasString = true;
-                }
-                if (hasString || (hasString && hasNumber)) return 'string';
-                if (hasBoolean && !hasString && !hasNumber) return 'boolean';
-                if (hasNumber && !hasString) return 'number';
-                return 'string';
-            };
-            const sampleRows = rows.slice(0, 20);
-            const fieldTypes = {};
-            for (const field of fields) {
-                const colValues = sampleRows.map(r => r[field]);
-                fieldTypes[field] = guessType(colValues);
-            }
-            databases.push({
-                name: file.originalname.replace(/\.csv$/i, ''),
-                rows,
-                fields,
-                fieldTypes,
-            });
-        }
-
-        // Cleanup uploaded files to save disk space
-        req.files.forEach(f => {
-            try { fs.unlinkSync(f.path); } catch (e) { }
-        });
-
-        // TODO: smart property mapping between databases (connect relations, etc)
-        // For now, just return a taskId and summary
-        const taskId = 'csv-' + Date.now();
-        return res.json({ taskId, databases });
-    } catch (err) {
-        console.error('nb-import-csv error', err);
-        return res.status(500).json({ error: String(err) });
+    console.log('[CsvImport] request received, auth=', req.headers.authorization);
+    if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+        return res.status(400).json({ error: 'no files uploaded' });
     }
+
+    const taskId = `csv-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const emitter = new EventEmitter();
+    emitter.on('error', (err) => console.error('[CsvImport] emitter error', err));
+
+    console.log('[CsvImport] creating task', taskId, 'for', req.files.length, 'files');
+    importTasks.set(taskId, { emitter, status: 'running', logs: [] });
+
+    // run in background
+    (async () => {
+        function log(msg) {
+            emitter.emit('progress', msg);
+            const current = importTasks.get(taskId);
+            if (current) current.logs.push(msg);
+        }
+
+        try {
+            const client = getApiClient();
+            let totalRecordsImported = 0;
+
+            for (const file of req.files) {
+                log(`parsing CSV: ${file.originalname}`);
+                const content = fs.readFileSync(file.path, 'utf-8');
+                const parsed = Papa.parse(content, {
+                    header: true,
+                    skipEmptyLines: true,
+                    dynamicTyping: true,
+                    transformHeader: h => h.trim(),
+                });
+
+                if (parsed.errors.length) {
+                    console.warn(`[CsvImport] warnings parsing ${file.originalname}:`, parsed.errors);
+                }
+
+                const rows = parsed.data;
+                const fieldsConfig = {};
+                const name = path.basename(file.originalname, '.csv').replace(/[^a-zA-Z0-9_\-]/g, '_');
+                const columns = rows.length > 0 ? Object.keys(rows[0]) : [];
+
+                const guessType = (values) => {
+                    let hasString = false, hasNumber = false, hasBoolean = false, hasDate = false, hasArray = false;
+                    for (const v of values) {
+                        if (v == null || v === '') continue;
+                        if (Array.isArray(v)) hasArray = true;
+                        else if (typeof v === 'number') hasNumber = true;
+                        else if (typeof v === 'boolean') hasBoolean = true;
+                        else if (typeof v === 'string') {
+                            const trimmed = v.trim();
+                            if (trimmed === 'true' || trimmed === 'false') hasBoolean = true;
+                            else if (!isNaN(Number(trimmed)) && trimmed !== '') hasNumber = true;
+                            else if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) hasDate = true;
+                            else if (trimmed.includes(',') || trimmed.startsWith('[')) hasArray = true;
+                            else hasString = true;
+                        } else hasString = true;
+                    }
+                    if (hasArray) return 'string[]'; // fallback or json
+                    if (hasDate && !hasString) return 'date';
+                    if (hasString) return 'string';
+                    if (hasBoolean) return 'boolean';
+                    if (hasNumber) return 'number';
+                    return 'string'; // default
+                };
+
+                const sampleRows = rows.slice(0, 20);
+                for (const col of columns) {
+                    const vals = sampleRows.map(r => r[col]);
+                    fieldsConfig[col] = guessType(vals);
+                }
+
+                log(`creating collection: ${name} with ${columns.length} columns`);
+                try {
+                    await client.post(`/collections:create`, { name, fields: fieldsConfig });
+                } catch (err) {
+                    log(`failed to create collection ${name}: ${err.response?.data?.error?.message || err.message}`);
+                    continue; // skip importing rows if collection creation fails
+                }
+
+                log(`importing ${rows.length} rows into ${name}`);
+                let fileRecordsCreated = 0;
+                for (const row of rows) {
+                    try {
+                        await client.post(`/${name}:create`, row);
+                        fileRecordsCreated++;
+                        totalRecordsImported++;
+                        if (fileRecordsCreated % 100 === 0) {
+                            log(`imported ${fileRecordsCreated}/${rows.length} into ${name}`);
+                        }
+                    } catch (err) {
+                        // ignore individual record failures to keep progress going
+                    }
+                }
+                log(`finished importing ${fileRecordsCreated} records into ${name}`);
+            }
+
+            log(`import complete: ${totalRecordsImported} total records across ${req.files.length} collections`);
+            log('done');
+            emitter.emit('done');
+            const current = importTasks.get(taskId);
+            if (current) current.status = 'done';
+
+        } catch (err) {
+            console.error('[CsvImport] unhandled error', err);
+            log(`fatal error: ${err.message}`);
+            emitter.emit('error', err.message);
+            const current = importTasks.get(taskId);
+            if (current) current.status = 'error';
+        } finally {
+            // Cleanup uploaded files
+            req.files.forEach(f => {
+                try { fs.unlinkSync(f.path); } catch (e) { }
+            });
+        }
+    })();
+
+    // return immediately
+    return res.json({ taskId, summary: `Scheduled import of ${req.files.length} files` });
 }
 
 app.post('/nb-import-csv', csvUpload.array('files', 60), handleCsvImport);
