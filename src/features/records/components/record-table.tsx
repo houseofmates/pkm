@@ -315,7 +315,7 @@ const DraggableRecordRow = ({ index, style: incomingStyle, data }: any) => {
       </div>
     </RecordContextMenu>
   );
-});
+};
 
 export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateField, onFieldUpdated: onFieldUpdatedCb, loading }: RecordTableProps) {
   const [hiddenColumns, setHiddenColumns] = useAppSetting<string[]>(
