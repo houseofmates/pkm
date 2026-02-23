@@ -178,7 +178,7 @@ export function RootLayout() {
         <Navigation className="hidden lg:flex" activeTab={activeTab} onTabChange={handleTabChange} onSelectCollection={handleSelectCollection} selectedCollection={selectedCollection} items={sidebarItems} setItems={setSidebarItems} />
         <MobileSidebarDrawer isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} onTabChange={handleTabChange} onSelectCollection={handleSelectCollection} selectedCollection={selectedCollection} items={sidebarItems} />
 
-        <main className="flex-1 overflow-hidden h-full relative pb-20 lg:pb-0" style={{ touchAction: 'pan-y' }}>
+        <main className="flex-1 overflow-auto h-full relative pb-20 lg:pb-0" style={{ touchAction: 'pan-y' }}>
           {/* sync / health header bar (premium) */}
           {showHealthBar && (
             <div className="absolute top-4 right-4 z-50 flex items-center gap-3 px-3 py-1.5 rounded-full bg-background/40 backdrop-blur-xl border border-primary/10 text-[10px] font-medium transition-all hover:bg-background/60">
