@@ -537,7 +537,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       }
       return (
         <div className="flex items-center gap-1 cursor-pointer" onClick={() => setIsEditing(true)}>
-          <div className={cn("px-1.5 py-0.5 bg-blue-900/30 text-blue-300 rounded border border-blue-800 truncate max-w-[200px]", size === 'lg' ? "text-lg" : "text-xs")}>
+          <div className={cn("px-1.5 py-0.5 bg-blue-900/30 text-blue-300 rounded border border-blue-800 w-full", size === 'lg' ? "text-lg" : "text-xs")}>
             {display || <span className="opacity-50 italic">empty</span>}
           </div>
         </div>
@@ -556,8 +556,8 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     }
 
     if (isPhone) return <div className={cn("text-primary hover:underline flex items-center gap-1 cursor-pointer", size === 'lg' ? "text-lg" : "text-xs")} onClick={(e) => handlePhoneClick(e, strValue)}><Phone className="h-3 w-3" /> {formatPhoneNumber(strValue)}</div>;
-    if (isEmail) return <a href={`mailto:${strValue}`} className={cn("text-primary hover:underline flex items-center gap-1 truncate max-w-[200px]", size === 'lg' ? "text-lg" : "text-sm")} onClick={e => e.stopPropagation()}><Mail className="h-3 w-3" /> {strValue}</a>;
-    if (isUrl) return <a href={value} target="_blank" rel="noopener noreferrer" className={cn("text-blue-400 hover:underline flex items-center gap-1 truncate max-w-[150px]", size === 'lg' ? "text-lg" : "text-sm")} onClick={e => e.stopPropagation()}><LinkIcon className="h-3 w-3" /> {value}</a>;
+    if (isEmail) return <a href={`mailto:${strValue}`} className={cn("text-primary hover:underline flex items-center gap-1 w-full", size === 'lg' ? "text-lg" : "text-sm")} onClick={e => e.stopPropagation()}><Mail className="h-3 w-3" /> {strValue}</a>;
+    if (isUrl) return <a href={value} target="_blank" rel="noopener noreferrer" className={cn("text-blue-400 hover:underline flex items-center gap-1 w-full", size === 'lg' ? "text-lg" : "text-sm")} onClick={e => e.stopPropagation()}><LinkIcon className="h-3 w-3" /> {value}</a>;
     if (isPassword) return <div onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="cursor-pointer flex items-center gap-1 text-white/30 hover:text-white/60"><Lock className="h-3 w-3" /> <span className="font-mono">••••••••</span></div>;
     if (isColor) return <div onClick={() => setIsEditing(true)} className="flex items-center gap-2 cursor-pointer group"><div className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: value || 'transparent' }} /><span className={cn("font-mono text-white/70 text-xs", size === 'lg' && "text-base")}>{value}</span></div>;
     if (isCheckbox) return <div className="flex items-center justify-center h-full w-full cursor-pointer" onClick={() => onChange(!value)}><Checkbox checked={!!value} className="data-[state=checked]:bg-yellow-400 data-[state=checked]:text-black border-white/20" onCheckedChange={(checked: boolean) => onChange(checked)} /></div>;
