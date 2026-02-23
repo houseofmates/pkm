@@ -469,36 +469,36 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       };
 
       return (
-        <div className="flex items-center gap-2 border border-primary p-1 bg-background min-w-[200px]">
-          {
-            const editTextSize = size === 'lg' ? 'text-lg' : 'text-sm';
-            const editHeight = 'h-8';
-          }
-          <Input
-            placeholder="paste url or upload..."
-            value={localValue || ''}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
-            className={cn(editHeight, editTextSize, "border-none focus-visible:ring-0 focus:outline-none rounded-none")}
-          />
-          <div className="relative">
-            <Input type="file" className="absolute inset-0 opacity-0 cursor-pointer w-6" onChange={handleFileChange} />
-            <Paperclip className="h-4 w-4 text-muted-foreground" />
-          </div>
-          <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => handleSave()}><Check className="h-3 w-3" /></Button>
-        </div>
-      )
-    }
+        {
+          // define editTextSize and editHeight before JSX
+          const editTextSize = size === 'lg' ? 'text-lg' : 'text-sm';
+          const editHeight = 'h-8';
+          return (
+            <div className="flex items-center gap-2 border border-primary p-1 bg-background min-w-[200px]">
+              <Input
+                placeholder="paste url or upload..."
+                value={localValue || ''}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
+                className={cn(editHeight, editTextSize, "border-none focus-visible:ring-0 focus:outline-none rounded-none")}
+              />
+              <div className="relative">
+                <Input type="file" className="absolute inset-0 opacity-0 cursor-pointer w-6" onChange={handleFileChange} />
+                <Paperclip className="h-4 w-4 text-muted-foreground" />
+              </div>
+              <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => handleSave()}><Check className="h-3 w-3" /></Button>
+            </div>
+          )
+        }
 
     if (isDate || isDateTime || isTime) {
       // when time or datetime is requested, fall back to native input for simplicity
       if (isDateTime || isTime) {
         const inputType = isDateTime ? 'datetime-local' : 'time';
+        // define editTextSize and editHeight before JSX
+        const editTextSize = size === 'lg' ? 'text-lg' : 'text-sm';
+        const editHeight = 'h-8';
         return (
           <div className="flex items-center gap-1">
-            {
-              const editTextSize = size === 'lg' ? 'text-lg' : 'text-sm';
-              const editHeight = 'h-8';
-            }
             <Input
               type={inputType}
               value={localValue || ''}
