@@ -114,6 +114,19 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
 
   const content = (
     <div className="flex items-center">
+      {/* drag handle - moved attributes/listeners here to avoid stealing clicks from the whole item */}
+      <div
+        className="cursor-grab active:cursor-grabbing p-1 opacity-0 group-hover:opacity-40 hover:!opacity-100 transition-opacity"
+        {...attributes}
+        {...listeners}
+      >
+        <div className="w-1.5 h-3 flex flex-col gap-0.5">
+          <div className="w-full h-0.5 bg-primary/40 rounded-full" />
+          <div className="w-full h-0.5 bg-primary/40 rounded-full" />
+          <div className="w-full h-0.5 bg-primary/40 rounded-full" />
+        </div>
+      </div>
+
       {item.type === 'folder' && (
         <Button
           variant="ghost"
@@ -128,10 +141,10 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
       <Button
         variant={selected ? "secondary" : "ghost"}
         className={cn(
-          "flex-1 justify-start text-lg font-normal h-8 px-2 overflow-hidden",
-          selected && "bg-primary-soft font-medium shadow-sm text-primary", // user request: transparent primary background using soft variable
+          "flex-1 justify-start text-sm font-normal h-8 px-2 overflow-hidden", // changed text-lg to text-sm to match premium PKM style and fix overflow
+          selected && "bg-primary-soft font-medium shadow-sm text-primary",
           item.type === 'folder' && "font-semibold text-muted-foreground",
-          capsClass ? capsClass : "lowercase" // default to lowercase unless forced
+          capsClass ? capsClass : "lowercase"
         )}
         style={metaColor ? { color: metaColor } : undefined}
         onClick={() => onSelect(id)}
@@ -143,7 +156,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   );
 
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} className="mb-0.5 group relative">
+    <div ref={setNodeRef} style={style} className="mb-0.5 group relative">
       <IconPicker
         open={pickerOpen}
         onOpenChange={setPickerOpen}
@@ -410,7 +423,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
   return (
     <>
       {/* desktop sidebar */}
-      <div className={cn("hidden lg:flex flex-col w-64 py-4 sidebar-container", className)} style={{ backgroundColor: '#050505' }}>
+      <div className={cn("hidden lg:flex flex-col w-64 h-full py-4 sidebar-container", className)} style={{ backgroundColor: '#050505' }}>
         {/* top icons */}
         <div className="flex items-center justify-around px-2 mb-2">
           {tabs.map(tab => (
@@ -582,8 +595,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         />
 
 
-        <ScrollArea className="flex-1 px-2 overflow-y-auto min-h-0">
-          {/* dndcontext removed - controlled by parent */}
+        <ScrollArea className="flex-1 w-full px-2 overflow-y-auto">
           <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-0.5">
               {items.map((item) => (
@@ -593,23 +605,16 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   item={item}
                   selected={selectedCollection === item.id}
                   onSelect={(id: string) => {
-                    if (item.type === 'collection') {
-                      if (id.startsWith('doc_')) {
-                        // navigate to canvas
-                        // we need to bypass the standard onselectcollection logic which expects a db name
-                        // parent should ideally handle this, or we hack it here
-                        const docId = id.replace('doc_', '');
-                        navigate(`/page/${docId}`); // navigate to page mode
-                        // we don't have navigate here directly, but parent might.
-                        // actually, better to maintain spa state.
-                        // but navigation doesn't have `navigate`.
-                        // let's use `onselectcollection('doc:' + docid)` protocol?
-                        // or just simple window.location for now (safest)
-                        // or we can import usenavigate from wrapper?
-                        // navigation is used in rootlayout which has router.
-                      } else {
-                        onSelectCollection(id);
-                      }
+                    if (id.startsWith('doc_')) {
+                      const docId = id.replace('doc_', '');
+                      navigate(`/page/${docId}`);
+                      onSelectCollection(id);
+                    } else if (id.startsWith('drawing_')) {
+                      const drawingId = id.replace('drawing_', '');
+                      navigate(`/drawings/${drawingId}`);
+                      onSelectCollection(id);
+                    } else {
+                      onSelectCollection(id);
                     }
                   }}
                   onToggle={toggleFolder}
