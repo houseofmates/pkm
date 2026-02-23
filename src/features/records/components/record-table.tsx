@@ -69,10 +69,12 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
   const [isEditing, setIsEditing] = React.useState(false);
   const [draftTitle, setDraftTitle] = React.useState<string>('');
 
-  // helper to compute the current title from metadata
+  // helper to compute the current title from the column definition itself
   const computeTitle = () => {
-    const f = (header.column.columnDef as any).meta?.field;
-    return f?.uiSchema?.title || f?.name || '';
+    const h = header.column.columnDef.header;
+    if (typeof h === 'string') return h;
+    if (h == null) return '';
+    return String(h);
   };
 
   // whenever editing is enabled, refresh draftTitle from header metadata
@@ -353,7 +355,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         .filter((f: any) => !f.hidden) // Filter out system hidden fields
         .filter((f: any) => !hiddenColumns.includes(f.name)) // Filter out user hidden fields
         .map((field: any) => columnHelper.accessor(field.name, {
-          header: (field.uiSchema?.title || field.name).toLowerCase(),
+          header: (field.uiSchema?.title || field.name),
           meta: { field }, // added for header access
           cell: info => (
             <SmartField
@@ -377,7 +379,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         .filter(key => !hiddenColumns.includes(key)) // Filter user hidden
         .map((key) =>
           columnHelper.accessor(key, {
-            header: key.toLowerCase(),
+            header: key,
             meta: { field: { name: key, type: 'string', uiSchema: { title: key } } },
             cell: info => (
               <SmartField
