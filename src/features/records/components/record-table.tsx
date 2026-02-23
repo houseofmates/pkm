@@ -230,7 +230,7 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
   );
 }
 
-export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateRecord, onCreateField, loading }: RecordTableProps) {
+export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateField, loading }: RecordTableProps) {
   // hidden columns state persistence
   const [hiddenColumns, setHiddenColumns] = useAppSetting<string[]>(
     `hidden_columns_${collection?.name || 'unknown'}`,
@@ -247,7 +247,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
   // get collection color from metadata (source of truth)
   const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
-  const collectionColor = metadata[collection?.name]?.color || 'hsl(var(--border))';
 
   // column sizing state (stored in metadata)
   const columnSizing = metadata[collection?.name]?.columnWidths || {};
@@ -540,7 +539,10 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         open={isSettingsOpen}
         onOpenChange={setIsSettingsOpen}
         field={settingsField}
-        collection={collection}
+        collectionName={collection.name}
+        onFieldUpdated={() => {
+          // You might want to refresh data here or just let it be
+        }}
       />
     </div>
   );
