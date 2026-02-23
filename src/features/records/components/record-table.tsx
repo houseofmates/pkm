@@ -83,11 +83,12 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
         width: header.getSize(),
         minWidth: header.getSize(),
         maxWidth: header.getSize(),
+        paddingLeft: isFirst ? 24 : 8,
+        paddingRight: 8,
         background: 'transparent',
-        paddingLeft: isFirst ? 16 : undefined // 16px left padding for first header
       }}
       className={cn(
-        "border-r border-gray-700 group select-none relative text-left p-0 h-9 transition-colors",
+        "border-r border-[#222] group select-none relative text-left p-0 h-9 transition-colors",
         isDragging ? "bg-gray-800/40" : "hover:bg-gray-800/20"
       )}
     >
@@ -103,6 +104,10 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
           className="relative z-20 h-full w-full flex items-center px-2 select-none cursor-pointer"
           tabIndex={0}
           role="button"
+          onPointerDown={(e) => {
+            // prevent dnd-kit from stealing clicks for the interactive title
+            e.stopPropagation();
+          }}
           onClick={(e) => {
             e.preventDefault();
             e.stopPropagation();
@@ -131,7 +136,7 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
             }
           }}
         >
-          <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium">
+          <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pr-4">
             {header.isPlaceholder
               ? null
               : flexRender(
@@ -147,9 +152,9 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
         onTouchStart={header.getResizeHandler()}
         className={cn(
           "absolute -right-2 top-0 h-full w-4 z-20 cursor-col-resize touch-none select-none transition-opacity",
-          header.column.getIsResizing() ? "opacity-100 bg-gray-500 shadow-[0_4000px_0_0_currentColor]" : "opacity-0"
+          header.column.getIsResizing() ? "opacity-100 bg-[#333] shadow-[0_4000px_0_0_currentColor]" : "opacity-20 hover:opacity-100"
         )}
-        style={{ color: '#b0b0b0' }}
+        style={{ color: '#333' }}
       />
     </TableHead>
   );
@@ -189,14 +194,14 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
         {...attributes}
         {...listeners}
         className={cn(
-          "transition-colors group border-b border-gray-700",
+          "transition-colors group border-b border-[#222]",
           !rowColor && "hover:bg-gray-800/10"
         )}
       >
         {/* drag handle area or empty cell to match the add-field column */}
         {onCreateField && (
           <TableCell
-            className="w-10 border-r border-b border-white/40 border-border/50 p-0 flex items-center justify-center h-10 transition-colors"
+            className="w-10 border-r border-[#222] p-0 flex items-center justify-center h-10 transition-colors"
             {...attributes}
             {...listeners}
           >
@@ -213,7 +218,7 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
               minWidth: cell.column.getSize(),
               maxWidth: cell.column.getSize()
             }}
-            className="border-r border-b border-white/40 border-border/50 overflow-hidden text-ellipsis whitespace-nowrap align-middle p-1 h-10 transition-colors group-hover:bg-white/5"
+            className="border-r border-b border-[#222] overflow-hidden text-ellipsis whitespace-nowrap align-middle p-1 h-10 transition-colors group-hover:bg-white/5"
           >
             <div className="flex items-center justify-start h-full w-full px-1">
               {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -440,7 +445,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
   if (loading) {
     return (
-      <div className="rounded-md border p-4 space-y-2">
+      <div className="rounded-md border border-[#222] p-4 space-y-2">
         <div className="flex gap-4 mb-4">
           <Skeleton className="h-8 w-1/4" />
           <Skeleton className="h-8 w-1/4" />
@@ -470,10 +475,10 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         <Table style={{ width: table.getTotalSize(), tableLayout: 'fixed' }}>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="border-b border-white/60">
+              <TableRow key={headerGroup.id} className="border-b border-[#222]">
                 {/* add field button at the start */}
                 {onCreateField && (
-                  <TableHead className="w-10 border-r border-white/40 border-border/50 p-0 overflow-hidden">
+                  <TableHead className="w-10 border-r border-[#222] p-0 overflow-hidden">
                     <Button
                       variant="ghost"
                       size="icon"
