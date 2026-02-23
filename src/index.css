@@ -30,7 +30,7 @@
     /* the void blueprint default: warm yellow */
     --primary: 41 92% 52%;
     --primary-foreground: 0 0% 0%;
-    --primary-soft: rgba(245, 175, 18, 0.1) !important;
+    --primary-soft: var(--primary) / 0.1;
 
     /* recolorable white: defaults to white, becomes headmate color via usethemereactor */
     --headmate-white: 0 0% 100%;
@@ -89,7 +89,7 @@ nav,
 }
 
 aside {
-  border-right: 1px solid hsl(var(--primary)) !important;
+  border-right: none !important;
 }
 
 .card,
@@ -347,7 +347,7 @@ header * {
 /* restore for header/sidebar only */
 /* .sidebar-container, removed to fix bottom border regression */
 .nav-header {
-  border-bottom: var(--header-sep) solid hsl(var(--primary)) !important;
+  border-bottom: none !important;
 }
 
 /* 2. sidebar icons specific target */
@@ -365,8 +365,8 @@ header * {
 .sidebar,
 .nav-container,
 .nav-item.selected {
-  background-color: #050505 !important;
-  background: #050505 !important;
+  background-color: transparent !important;
+  background: transparent !important;
 }
 
 /* --- v5 emergency fix (coherent) --- */
@@ -376,10 +376,9 @@ header * {
 header,
 .nav-header,
 .nav-container {
-  background-color: #050505 !important;
-  background: #050505 !important;
-  border-bottom: var(--header-sep) solid hsl(var(--primary)) !important;
-  /* restore header separating line */
+  background-color: transparent !important;
+  background: transparent !important;
+  border-bottom: none !important;
 }
 
 /* 2. button outlines -> headmate color */
@@ -400,8 +399,6 @@ button,
 .nav-icon-btn:active,
 .nav-icon-btn:focus,
 .nav-icon-btn:hover {
-  background-color: transparent !important;
-  background: transparent !important;
   border: none !important;
   /* no box border around the item itself */
 }
