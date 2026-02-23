@@ -121,18 +121,18 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       fabricCanvas.isDrawingMode = true
       // fabric's types do not export EraserBrush so we access dynamically to avoid
       // esbuild treating it as a named import and failing when the symbol is missing.
-      const EraserBrushConstructor = (fabric as any).EraserBrush;
+      const EraserBrushConstructor = (fabric as any)['EraserBrush'];
       if (EraserBrushConstructor) {
-         const eraser = new EraserBrushConstructor(fabricCanvas)
-         eraser.width = eraserWidth
-         eraser.opacity = (eraserOpacity ?? 100) / 100
-         fabricCanvas.freeDrawingBrush = eraser
+        const eraser = new EraserBrushConstructor(fabricCanvas)
+        eraser.width = eraserWidth
+        eraser.opacity = (eraserOpacity ?? 100) / 100
+        fabricCanvas.freeDrawingBrush = eraser
       } else {
-         const brush = new fabric.PencilBrush(fabricCanvas)
-         brush.width = eraserWidth
-         brush.color = '#090909'
-         brush.opacity = (eraserOpacity ?? 100) / 100
-         fabricCanvas.freeDrawingBrush = brush
+        const brush = new fabric.PencilBrush(fabricCanvas)
+        brush.width = eraserWidth
+        brush.color = '#090909'
+        brush.opacity = (eraserOpacity ?? 100) / 100
+        fabricCanvas.freeDrawingBrush = brush
       }
     } else {
       fabricCanvas.isDrawingMode = false
@@ -149,7 +149,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         fabricCanvas.defaultCursor = 'grab'
         fabricCanvas.selection = false
         if (activeTool === 'draw' || activeTool === 'eraser') {
-            fabricCanvas.isDrawingMode = false
+          fabricCanvas.isDrawingMode = false
         }
         fabricCanvas.requestRenderAll()
       }
@@ -161,7 +161,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         fabricCanvas.defaultCursor = 'default'
         fabricCanvas.selection = true
         if (activeTool === 'draw' || activeTool === 'eraser') {
-            fabricCanvas.isDrawingMode = true
+          fabricCanvas.isDrawingMode = true
         }
         fabricCanvas.requestRenderAll()
       }
@@ -496,16 +496,16 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     reader.onload = (f) => {
       const data = f.target?.result
       if (typeof data === 'string') {
-          handleDrop({
-              dataTransfer: {
-                  types: ['Files'],
-                  files: [file]
-              },
-              preventDefault: () => {},
-              stopPropagation: () => {},
-              clientX: window.innerWidth / 2,
-              clientY: window.innerHeight / 2
-          } as any)
+        handleDrop({
+          dataTransfer: {
+            types: ['Files'],
+            files: [file]
+          },
+          preventDefault: () => { },
+          stopPropagation: () => { },
+          clientX: window.innerWidth / 2,
+          clientY: window.innerHeight / 2
+        } as any)
       }
     }
     reader.readAsDataURL(file)
