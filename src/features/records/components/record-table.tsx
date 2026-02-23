@@ -507,3 +507,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                 </DndContext>
               </TableRow>
             ))}
+          </TableHeader>
+          {/* TableBody and other table content should follow here */}
+        </Table>
+      </div>
