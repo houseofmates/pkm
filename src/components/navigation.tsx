@@ -192,7 +192,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   );
 }
 
-export function Navigation({ activeTab, onTabChange, className, onSelectCollection, selectedCollection, items, setItems }: NavigationProps) {
+export function Navigation({ activeTab, onTabChange, className, onSelectCollection, selectedCollection, items, setItems, accentBg }: NavigationProps) {
   const [searchOpen, setSearchOpen] = useState(false);
 
   const { collections, refresh } = useCollections();

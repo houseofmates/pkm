@@ -112,17 +112,14 @@ export function RootLayout() {
 
   useEffect(() => {
     const root = document.documentElement;
-    if (activeColor) {
-      const hslColor = hexToHSL(activeColor);
-      root.style.setProperty('--primary', hslColor);
-      root.style.setProperty('--ring', hslColor);
-      if (activeColor.startsWith('#')) {
-        root.style.setProperty('--primary-soft', activeColor + '1A');
-      } else {
-        root.style.setProperty('--primary-soft', `color-mix(in srgb, ${activeColor} 10%, transparent)`);
-      }
+    root.style.setProperty('--primary', accentColor);
+    root.style.setProperty('--primary-soft', getAccentBg(accentColor));
+
+    const favIcon = document.getElementById('favicon') as HTMLLinkElement;
+    if (favIcon) {
+      favIcon.href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>`;
     }
-  }, [activeColor]);
+  }, [accentColor]);
 
   const [sidebarItems, setSidebarItems] = useAppSetting<NavItem[]>('sidebar_items', []);
   const [activeDragItem, setActiveDragItem] = useState<NavItem | null>(null);
@@ -195,7 +192,7 @@ export function RootLayout() {
       <ProtocolShift />
       <div className="flex flex-col lg:flex-row h-screen w-full bg-background overflow-hidden transition-colors duration-700">
         <Navigation className="hidden lg:flex" activeTab={activeTab} onTabChange={handleTabChange} onSelectCollection={handleSelectCollection} selectedCollection={selectedCollection} items={sidebarItems} setItems={setSidebarItems} accentBg={accentBg} />
-        <MobileSidebarDrawer isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} onTabChange={handleTabChange} onSelectCollection={handleSelectCollection} selectedCollection={selectedCollection} items={sidebarItems} />
+        <MobileSidebarDrawer isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} onTabChange={handleTabChange} onSelectCollection={handleSelectCollection} selectedCollection={selectedCollection} items={sidebarItems} accentBg={accentBg} />
 
         <main className="flex-1 overflow-auto h-full relative pb-20 lg:pb-0" style={{ touchAction: 'pan-y' }}>
           {/* sync / health header bar (premium) */}
