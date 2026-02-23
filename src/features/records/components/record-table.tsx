@@ -20,12 +20,13 @@ import * as React from 'react';
 import { SmartField } from '@/components/fields/smart-field';
 import { RecordContextMenu } from './record-context-menu';
 import { useAppSetting } from '@/hooks/use-app-setting';
+import { PropertyContextMenu } from './property-context-menu';
+import { toast } from 'sonner';
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { FieldSettingsDialog } from '@/features/collections/components/field-settings-dialog';
-import { toast } from 'sonner';
 
 interface RecordTableProps {
   data: any[];
@@ -74,17 +75,15 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
     position: 'relative' as const,
   };
 
-  const triggerSettings = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
+  const triggerSettings = (e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
     const field = (header.column.columnDef as any).meta?.field;
-    console.log('triggerSettings hit', { field, columnId: header.id });
     if (field) {
       setSettingsField(field);
       setIsSettingsOpen(true);
-    } else {
-      // Fallback for diagnostic
-      toast.error(`Settings unavailable for property: ${header.id}`);
     }
   };
 
@@ -106,33 +105,45 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
         isDragging ? "bg-gray-800/40" : "hover:bg-gray-800/20"
       )}
     >
-      <div className="h-full w-full relative flex items-center group/header overflow-hidden">
-        {/* foreground label - fully interactive for settings */}
-        <div
-          className="relative z-20 h-full w-full flex items-center px-1 select-none cursor-pointer hover:bg-white/5 transition-colors pointer-events-auto"
-          onClick={triggerSettings}
-          onDoubleClick={triggerSettings}
-          onContextMenu={triggerSettings}
-          onPointerDownCapture={(e) => e.stopPropagation()}
-          onMouseDownCapture={(e) => e.stopPropagation()}
-        >
-          <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pr-5">
-            {header.isPlaceholder
-              ? null
-              : flexRender(
-                header.column.columnDef.header,
-                header.getContext()
-              )}
+      <PropertyContextMenu
+        field={(header.column.columnDef as any).meta?.field}
+        onRename={() => triggerSettings()}
+        onEditSettings={() => triggerSettings()}
+        onHide={() => {
+          // logic to hide field
+          toast.info("hiding feature coming soon");
+        }}
+        onDelete={() => {
+          // logic to delete field
+          toast.info("deletion feature coming soon");
+        }}
+      >
+        <div className="h-full w-full relative flex items-center group/header overflow-hidden">
+          {/* foreground label - draggable when held, clickable for settings */}
+          <div
+            className="relative z-20 h-full w-full flex items-center px-1 select-none cursor-pointer hover:bg-white/5 transition-colors pointer-events-auto"
+            onClick={triggerSettings}
+            onDoubleClick={triggerSettings}
+          // Removed aggressive Capture phase blocks to allow sensors to see the "hold"
+          >
+            <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pr-5">
+              {header.isPlaceholder
+                ? null
+                : flexRender(
+                  header.column.columnDef.header,
+                  header.getContext()
+                )}
+            </div>
           </div>
-        </div>
 
-        {/* drag handle - moved attributes here to avoid role="button" on TableHead */}
-        <div
-          className="absolute inset-0 z-10 cursor-grab active:cursor-grabbing"
-          {...attributes}
-          {...listeners}
-        />
-      </div>
+          {/* drag handle area - attributes/listeners here for held drag */}
+          <div
+            className="absolute inset-0 z-10"
+            {...attributes}
+            {...listeners}
+          />
+        </div>
+      </PropertyContextMenu>
       {/* resize handler */}
       <div
         onMouseDown={header.getResizeHandler()}
@@ -419,7 +430,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 15, // Increased constraint to allow more "slack" for clicks
+        distance: 5,
+        delay: 200, // drag-on-hold
       },
     })
   );
