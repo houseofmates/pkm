@@ -37,6 +37,7 @@ interface RecordTableProps {
   onUpdateRecord?: (id: string | number, data: any) => void;
   onCreateRecord?: () => void;
   onCreateField?: () => void;
+  onFieldUpdated?: () => void; // optional callback when a field/column is renamed or changed
   loading?: boolean;
   config?: any;
 }
@@ -560,8 +561,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                       <SortableHeader
                         key={header.id}
                         header={header}
-                        setSettingsField={setSettingsField}
-                        setIsSettingsOpen={setIsSettingsOpen}
+                        collectionName={collection?.name}
+                        onFieldUpdated={onFieldUpdated}
                       />
                     ))}
                   </SortableContext>
