@@ -76,6 +76,8 @@ app.post('/nb-import-csv', upload.array('files', 60), async (req, res) => {
     return res.status(500).json({ error: String(err) });
   }
 });
+
+async function start() {
   try {
     await indexer.init();
   } catch (err) {
