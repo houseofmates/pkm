@@ -579,7 +579,16 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     if (isMarkdown) {
       return (
         <div onDoubleClick={() => setIsEditing(true)} className="cursor-pointer group relative min-h-[20px] w-full h-full overflow-hidden text-white/90">
-          <div className={cn("prose prose-invert prose-xs line-clamp-2 leading-tight opacity-90", size === 'lg' ? "text-base" : "text-[11px]")}>
+          <div
+            className={cn(
+              // add extra left margin for first two lines, and reduce line gap
+              "prose prose-invert prose-xs line-clamp-2 opacity-90",
+              size === 'lg' ? "text-base" : "text-[11px]",
+              // custom: indent first two lines and reduce gap
+              "[&>p]:ml-2 [&>p]:first:mt-0 [&>p]:mb-0 [&>p]:leading-[1.1]"
+            )}
+            style={{ marginLeft: 0 }}
+          >
             <ReactMarkdown>{value || ''}</ReactMarkdown>
           </div>
           {!value && <span className="opacity-20 italic">empty</span>}
@@ -590,7 +599,13 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     return (
       <div
         onDoubleClick={() => setIsEditing(true)}
-        className={cn("cursor-pointer hover:bg-white/5 px-1 py-0.5 rounded transition-colors min-h-[20px] break-words text-white/90", size === 'lg' ? "text-lg" : "text-sm", className)}
+        className={cn(
+          "cursor-pointer hover:bg-white/5 px-1 py-0.5 rounded transition-colors min-h-[20px] break-words text-white/90",
+          size === 'lg' ? "text-lg" : "text-sm",
+          // custom: indent first two lines and reduce gap if multi-line
+          "[&]:ml-2 [&]:first:mt-0 [&]:mb-0 [&]:leading-[1.1]",
+          className
+        )}
         title="double-click to edit"
       >
         {value || <span className="opacity-20 italic">empty</span>}
