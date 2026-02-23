@@ -98,25 +98,20 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
         background: 'transparent',
       }}
       className={cn(
-        "border-r border-[#222] border-b group select-none relative text-left p-0 h-9 transition-colors cursor-pointer",
+        "border-r border-[#222] border-b group select-none relative text-left p-0 h-9 transition-colors",
         isDragging ? "bg-gray-800/40" : "hover:bg-gray-800/20"
       )}
-      onClick={triggerSettings}
-      onDoubleClick={triggerSettings}
-      onContextMenu={triggerSettings}
     >
       <div className="h-full w-full relative flex items-center group/header overflow-hidden">
-        {/* background drag zone - separate from text zone */}
+        {/* foreground label - fully interactive for settings */}
         <div
-          className="absolute inset-0 cursor-grab active:cursor-grabbing transition-colors"
-          {...attributes}
-          {...listeners}
-        />
-        {/* foreground label - clickable for settings */}
-        <div
-          className="relative z-20 h-full w-full flex items-center px-1 select-none pointer-events-none"
+          className="relative z-20 h-full w-full flex items-center px-1 select-none cursor-pointer hover:bg-white/5 transition-colors"
+          onClick={triggerSettings}
+          onDoubleClick={triggerSettings}
+          onContextMenu={triggerSettings}
+          onPointerDown={(e) => e.stopPropagation()} // prevent drag when interacting with title
         >
-          <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pr-4">
+          <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pr-5">
             {header.isPlaceholder
               ? null
               : flexRender(
@@ -125,12 +120,20 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
               )}
           </div>
         </div>
+
+        {/* drag zones - only active when NOT clicking the title or resize handle */}
+        {/* we keep attributes/listeners on the whole container but use stopPropagation on interactive parts */}
+        <div
+          className="absolute inset-0 z-10 cursor-grab active:cursor-grabbing"
+          {...attributes}
+          {...listeners}
+        />
       </div>
       {/* resize handler */}
       <div
         onMouseDown={header.getResizeHandler()}
         onTouchStart={header.getResizeHandler()}
-        onPointerDown={(e) => e.stopPropagation()} // prevent header click when resizing
+        onPointerDown={(e) => e.stopPropagation()} // prevent drag/settings when resizing
         className={cn(
           "absolute -right-2 top-0 h-full w-4 z-30 cursor-col-resize touch-none select-none transition-opacity",
           header.column.getIsResizing() ? "opacity-100 bg-[#333] shadow-[0_4000px_0_0_currentColor]" : "opacity-20 hover:opacity-100"
@@ -210,16 +213,18 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
                 minWidth: cell.column.getSize(),
                 maxWidth: cell.column.getSize()
               }}
-              className="border-r border-b border-[#222] overflow-hidden text-ellipsis whitespace-nowrap align-middle p-1 h-10 transition-colors group-hover:bg-white/5 cursor-pointer"
-              onClick={triggerSettings}
-              onDoubleClick={triggerSettings}
-              onContextMenu={triggerSettings}
+              className="border-r border-b border-[#222] overflow-hidden text-ellipsis whitespace-nowrap align-middle p-0 h-10 transition-colors group-hover:bg-white/5"
             >
               <div
-                className="flex items-center justify-start h-full w-full px-1"
+                className="flex items-center justify-start h-full w-full px-2 cursor-pointer"
+                onClick={triggerSettings}
+                onDoubleClick={triggerSettings}
+                onContextMenu={triggerSettings}
                 onPointerDown={(e) => e.stopPropagation()} // block dnd-kit from stealing interaction
               >
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                <div className="flex-1 truncate pointer-events-none">
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </div>
               </div>
             </TableCell>
           );
