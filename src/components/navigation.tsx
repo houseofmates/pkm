@@ -80,7 +80,8 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
     transform: CSS.Translate.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
-    paddingLeft: `${depth * 12 + 8}px`
+    paddingLeft: `${depth * 12 + 8}px`,
+    touchAction: 'none' // Important for hold-to-drag on touch
   };
 
 
@@ -112,18 +113,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
 
   const content = (
     <div className="flex items-center">
-      {/* drag handle - moved attributes/listeners here to avoid stealing clicks from the whole item */}
-      <div
-        className="cursor-grab active:cursor-grabbing p-1 opacity-0 group-hover:opacity-40 hover:!opacity-100 transition-opacity"
-        {...attributes}
-        {...listeners}
-      >
-        <div className="w-1.5 h-3 flex flex-col gap-0.5">
-          <div className="w-full h-0.5 bg-primary/40 rounded-full" />
-          <div className="w-full h-0.5 bg-primary/40 rounded-full" />
-          <div className="w-full h-0.5 bg-primary/40 rounded-full" />
-        </div>
-      </div>
+      {/* drag handle removed - now using hold-to-drag on the entire item */}
 
       {item.type === 'folder' && (
         <Button
@@ -154,7 +144,13 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   );
 
   return (
-    <div ref={setNodeRef} style={style} className="mb-0.5 group relative">
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="mb-0.5 group relative"
+      {...attributes}
+      {...listeners}
+    >
       <IconPicker
         open={pickerOpen}
         onOpenChange={setPickerOpen}
