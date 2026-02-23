@@ -5,7 +5,7 @@ import { GlobalSearchDialog } from '@/components/global-search-dialog';
 
 // helper to safely get lucide icon by name
 function getLucideIcon(name: string): LucideIcon | undefined {
-  return (Icons as Record<string, LucideIcon>)[name];
+  return (Icons as unknown as Record<string, LucideIcon>)[name];
 }
 
 import { Button } from '@/components/ui/button';
@@ -219,7 +219,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
           const data = results.data as any[];
           const headers = Object.keys(data[0]);
           const fields = headers.map(h => {
-            const detection = detectFieldType(h, data.map(row => row[h]), collections.map(c => c.name));
+            const detection = detectFieldType(h, data.map(row => row[h]), collections.map((c: any) => c.name));
             return {
               name: h.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, ''),
               title: h,
@@ -308,10 +308,8 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
           icon: 'PenTool',
           iconType: 'lucide',
         }));
-        setItems(prev => {
-          const nonDrawing = prev.filter(i => !i.id.startsWith('drawing_'));
-          return [...nonDrawing, ...dbItems];
-        });
+        const nonDrawing = items.filter((i: NavItem) => !i.id.startsWith('drawing_'));
+        setItems([...nonDrawing, ...dbItems]);
       } catch (e) {
         console.error('failed to load drawings from database', e);
       }
@@ -563,7 +561,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         {/* csv import dialog opened via sidebar button */}
         <CollectionDialog
           open={csvDialogOpen}
-          setOpen={setCsvDialogOpen}
+          onOpenChange={setCsvDialogOpen}
           onSuccess={() => {
             setCsvDialogOpen(false);
             setImportCsvData([]);
