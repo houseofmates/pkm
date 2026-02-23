@@ -32,7 +32,7 @@ export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardPr
     setIsProfileOpen(true);
   };
 
-  const titleField = collection?.fields?.find((f: any) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
+  const titleField = collection?.fields?.find((f: any) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'name' };
   const pronounsField = collection?.fields?.find((f: any) => f.name === 'pronouns') || { name: 'pronouns' };
   const avatarField = collection?.fields?.find((f: any) => f.name === 'avatar' || f.interface === 'attachment') || { name: 'avatar' };
   const colorField = collection?.fields?.find((f: any) => f.name === 'color') || { name: 'color' };
@@ -40,8 +40,19 @@ export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardPr
 
   let rawName = member[titleField.name];
   // fallback to member.name if rawName is missing or looks like an ID
-  if (!rawName || /^\d+$/.test(String(rawName))) {
-    rawName = member.name || rawName;
+  const isId = (val: any) => {
+    const s = String(val);
+    if (!s) return true;
+    // numeric IDs
+    if (/^\d+$/.test(s)) return true;
+    // SimplyPlural / PluralKit style alphanumeric IDs (often long, or member_ prefixes)
+    if (s.length > 15 && /^[a-zA-Z0-9_\-]+$/.test(s)) return true;
+    if (s.startsWith('member_') || s.startsWith('pk_')) return true;
+    return false;
+  };
+
+  if (!rawName || isId(rawName)) {
+    rawName = member.name || member.content?.name || rawName || "Unknown";
   }
   const displayTextColor = member[textColorField.name] || member[colorField.name] || getStringColor(rawName);
   const borderColor = member[colorField.name] || getStringColor(rawName);
@@ -112,7 +123,7 @@ export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardPr
               field={titleField}
               record={member}
               collectionName={collection?.name ?? 'headmates'}
-              onChange={() => {}}
+              onChange={() => { }}
             />
           </div>
         </div>
@@ -126,7 +137,7 @@ export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardPr
             field={pronounsField}
             record={member}
             collectionName={collection?.name ?? 'headmates'}
-            onChange={() => {}}
+            onChange={() => { }}
           />
         </div>
       )}
