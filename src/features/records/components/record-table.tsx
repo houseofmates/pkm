@@ -650,6 +650,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               )}
             </div>
           </div>
+        </div>
       </DndContext>
 
       <FieldSettingsDialog
