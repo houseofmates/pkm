@@ -82,41 +82,14 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
         ...style,
         width: header.getSize(),
         minWidth: header.getSize(),
-        maxWidth: header.getSize()
+        maxWidth: header.getSize(),
+        background: 'transparent',
+        paddingLeft: isFirst ? 16 : undefined // 16px left padding for first header
       }}
       className={cn(
-        "border-r border-border/50 group select-none relative text-left p-0 h-9 transition-colors",
-        isDragging ? "bg-gray-200/40" : "hover:bg-white/10",
-        isFirst && "pl-4"
+        "border-r border-gray-700 group select-none relative text-left p-0 h-9 transition-colors",
+        isDragging ? "bg-gray-800/40" : "hover:bg-gray-800/20"
       )}
-      // make the entire header clickable for settings
-      onClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const field = (header.column.columnDef as any).meta?.field;
-        if (field) {
-          setSettingsField(field);
-          setIsSettingsOpen(true);
-        }
-      }}
-      onDoubleClick={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const field = (header.column.columnDef as any).meta?.field;
-        if (field) {
-          setSettingsField(field);
-          setIsSettingsOpen(true);
-        }
-      }}
-      onContextMenu={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        const field = (header.column.columnDef as any).meta?.field;
-        if (field) {
-          setSettingsField(field);
-          setIsSettingsOpen(true);
-        }
-      }}
     >
       <div className="h-full w-full relative flex items-center group/header overflow-hidden">
         {/* background drag zone - separate from text zone */}
@@ -125,9 +98,40 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
           {...attributes}
           {...listeners}
         />
-        {/* foreground label */}
-        <div className="relative z-20 h-full w-full flex items-center px-2 select-none">
-          <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pointer-events-none">
+        {/* foreground label - clickable for settings */}
+        <div
+          className="relative z-20 h-full w-full flex items-center px-2 select-none cursor-pointer"
+          tabIndex={0}
+          role="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const field = (header.column.columnDef as any).meta?.field;
+            if (field) {
+              setSettingsField(field);
+              setIsSettingsOpen(true);
+            }
+          }}
+          onDoubleClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const field = (header.column.columnDef as any).meta?.field;
+            if (field) {
+              setSettingsField(field);
+              setIsSettingsOpen(true);
+            }
+          }}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const field = (header.column.columnDef as any).meta?.field;
+            if (field) {
+              setSettingsField(field);
+              setIsSettingsOpen(true);
+            }
+          }}
+        >
+          <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium">
             {header.isPlaceholder
               ? null
               : flexRender(
@@ -143,7 +147,7 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
         onTouchStart={header.getResizeHandler()}
         className={cn(
           "absolute -right-2 top-0 h-full w-4 z-20 cursor-col-resize touch-none select-none transition-opacity",
-          header.column.getIsResizing() ? "opacity-100 bg-gray-400 shadow-[0_4000px_0_0_currentColor]" : "opacity-0"
+          header.column.getIsResizing() ? "opacity-100 bg-gray-500 shadow-[0_4000px_0_0_currentColor]" : "opacity-0"
         )}
         style={{ color: '#b0b0b0' }}
       />
@@ -185,8 +189,8 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
         {...attributes}
         {...listeners}
         className={cn(
-          "transition-colors group border-b border-gray-300",
-          !rowColor && "hover:bg-white/10"
+          "transition-colors group border-b border-gray-700",
+          !rowColor && "hover:bg-gray-800/10"
         )}
       >
         {/* drag handle area or empty cell to match the add-field column */}
@@ -455,11 +459,11 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
   return (
     <div
-      className="rounded-md border overflow-hidden no-scrollbar relative border-gray-400"
+      className="rounded-md border overflow-hidden no-scrollbar relative border-gray-800 bg-[#0d0d0d]"
       style={{
-        borderColor: '#b0b0b0', // neutral grey
+        borderColor: '#222',
         borderWidth: '1px',
-        background: '#f8f8f8'
+        background: '#0d0d0d'
       }}
     >
       <div className="overflow-x-auto overflow-y-hidden no-scrollbar">
