@@ -4,6 +4,7 @@ import {
   flexRender,
   createColumnHelper,
 } from '@tanstack/react-table';
+import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Table,
@@ -191,9 +192,9 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
               <Input
                 autoFocus
                 value={draftTitle}
-                onChange={(e) => setDraftTitle(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDraftTitle(e.target.value)}
                 onBlur={() => saveTitle(draftTitle)}
-                onKeyDown={(e) => {
+                onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
                   if (e.key === 'Enter') saveTitle(draftTitle);
                   if (e.key === 'Escape') setIsEditing(false);
                 }}
