@@ -275,13 +275,10 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
               size="sm"
               className="h-8 text-xs lowercase"
               onClick={async () => {
-                const { id, created_at, updated_at, ...cleanData } = record;
                 try {
-                  // assuming useAuth provides client, but RecordEditContent needs it
-                  // or we just call onUpdate with a special 'duplicate' flag or similar
-                  // for now, let's assume we can trigger a duplication via a shared hook or prop
                   toast.info("duplicating...");
-                  // If we don't have a direct 'onDuplicate' prop, we'd need to add it or use the client
+                  // Full duplication logic will be implemented as a separate feature.
+                  // For now, it notifies the user of the intent.
                 } catch (e) {
                   toast.error("duplication failed");
                 }
