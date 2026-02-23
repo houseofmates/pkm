@@ -13,71 +13,69 @@ app.use(bodyParser.json({ limit: '2mb' }));
 
 const indexer = new LanceIndexer('./data/lancedb');
 
-async function start() {
-    // multi-csv import endpoint
-    const upload = multer({ limits: { files: 60, fileSize: 230 * 1024 } });
-
-    app.post('/nb-import-csv', upload.array('files', 60), async (req, res) => {
-      try {
-        if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
-          return res.status(400).json({ error: 'no files uploaded' });
-        }
-        const databases = [];
-        for (const file of req.files) {
-          const content = file.buffer.toString('utf-8');
-          const parsed = Papa.parse(content, {
-            header: true,
-            skipEmptyLines: true,
-            dynamicTyping: true,
-            transformHeader: h => h.trim(),
-          });
-          if (parsed.errors.length) {
-            console.warn(`warnings parsing CSV ${file.originalname}:`, parsed.errors);
-          }
-          const rows = parsed.data;
-          const fields = rows.length > 0 ? Object.keys(rows[0]) : [];
-          // guess types for each field
-          const guessType = (values: any[]) => {
-            let hasString = false, hasNumber = false, hasBoolean = false;
-            for (const v of values) {
-              if (v == null || v === '') continue;
-              if (typeof v === 'number') hasNumber = true;
-              else if (typeof v === 'boolean') hasBoolean = true;
-              else if (typeof v === 'string') {
-                const maybeNum = Number(v);
-                if (!isNaN(maybeNum) && v.trim() !== '') hasNumber = true;
-                else if (v === 'true' || v === 'false') hasBoolean = true;
-                else hasString = true;
-              } else hasString = true;
-            }
-            if (hasString || (hasString && hasNumber)) return 'string';
-            if (hasBoolean && !hasString && !hasNumber) return 'boolean';
-            if (hasNumber && !hasString) return 'number';
-            return 'string';
-          };
-          const sampleRows = rows.slice(0, 20);
-          const fieldTypes: Record<string, string> = {};
-          for (const field of fields) {
-            const colValues = sampleRows.map(r => r[field]);
-            fieldTypes[field] = guessType(colValues);
-          }
-          databases.push({
-            name: file.originalname.replace(/\.csv$/i, ''),
-            rows,
-            fields,
-            fieldTypes,
-          });
-        }
-        // TODO: smart property mapping between databases (connect relations, etc)
-        // For now, just return a taskId and summary
-        const taskId = 'csv-' + Date.now();
-        // Optionally, store progress or trigger async processing
-        return res.json({ taskId, databases });
-      } catch (err) {
-        console.error('nb-import-csv error', err);
-        return res.status(500).json({ error: String(err) });
+// multi-csv import endpoint
+const upload = multer({ limits: { files: 60, fileSize: 230 * 1024 } });
+app.post('/nb-import-csv', upload.array('files', 60), async (req, res) => {
+  try {
+    if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
+      return res.status(400).json({ error: 'no files uploaded' });
+    }
+    const databases = [];
+    for (const file of req.files) {
+      const content = file.buffer.toString('utf-8');
+      const parsed = Papa.parse(content, {
+        header: true,
+        skipEmptyLines: true,
+        dynamicTyping: true,
+        transformHeader: h => h.trim(),
+      });
+      if (parsed.errors.length) {
+        console.warn(`warnings parsing CSV ${file.originalname}:`, parsed.errors);
       }
-    });
+      const rows = parsed.data;
+      const fields = rows.length > 0 ? Object.keys(rows[0]) : [];
+      // guess types for each field
+      const guessType = (values: any[]) => {
+        let hasString = false, hasNumber = false, hasBoolean = false;
+        for (const v of values) {
+          if (v == null || v === '') continue;
+          if (typeof v === 'number') hasNumber = true;
+          else if (typeof v === 'boolean') hasBoolean = true;
+          else if (typeof v === 'string') {
+            const maybeNum = Number(v);
+            if (!isNaN(maybeNum) && v.trim() !== '') hasNumber = true;
+            else if (v === 'true' || v === 'false') hasBoolean = true;
+            else hasString = true;
+          } else hasString = true;
+        }
+        if (hasString || (hasString && hasNumber)) return 'string';
+        if (hasBoolean && !hasString && !hasNumber) return 'boolean';
+        if (hasNumber && !hasString) return 'number';
+        return 'string';
+      };
+      const sampleRows = rows.slice(0, 20);
+      const fieldTypes: Record<string, string> = {};
+      for (const field of fields) {
+        const colValues = sampleRows.map(r => r[field]);
+        fieldTypes[field] = guessType(colValues);
+      }
+      databases.push({
+        name: file.originalname.replace(/\.csv$/i, ''),
+        rows,
+        fields,
+        fieldTypes,
+      });
+    }
+    // TODO: smart property mapping between databases (connect relations, etc)
+    // For now, just return a taskId and summary
+    const taskId = 'csv-' + Date.now();
+    // Optionally, store progress or trigger async processing
+    return res.json({ taskId, databases });
+  } catch (err) {
+    console.error('nb-import-csv error', err);
+    return res.status(500).json({ error: String(err) });
+  }
+});
   try {
     await indexer.init();
   } catch (err) {
