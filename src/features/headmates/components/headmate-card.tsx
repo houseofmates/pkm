@@ -38,7 +38,11 @@ export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardPr
   const colorField = collection?.fields?.find((f: any) => f.name === 'color') || { name: 'color' };
   const textColorField = collection?.fields?.find((f: any) => f.name === 'textColor') || { name: 'textColor' };
 
-  const rawName = member[titleField.name];
+  let rawName = member[titleField.name];
+  // fallback to member.name if rawName is missing or looks like an ID
+  if (!rawName || /^\d+$/.test(String(rawName))) {
+    rawName = member.name || rawName;
+  }
   const displayTextColor = member[textColorField.name] || member[colorField.name] || getStringColor(rawName);
   const borderColor = member[colorField.name] || getStringColor(rawName);
 
