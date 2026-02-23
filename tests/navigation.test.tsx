@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { Navigation } from '@/components/navigation';
-import { BrowserRouter } from 'react-router-dom';
+import { BrowserRouter, MemoryRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { AuthProvider } from '@/contexts/auth-context';
 
 // mock useCollections to avoid API calls
@@ -42,7 +42,6 @@ describe('Navigation', () => {
           .find((ev: any) => ev && ev.type === 'pkm:open-search');
         expect(event).toBeDefined();
     });
-    });
 
     it('navigates to /settings when settings icon is clicked', () => {
         // render with memory router to inspect location
@@ -51,6 +50,7 @@ describe('Navigation', () => {
             return <div data-testid="loc">{loc.pathname}</div>;
         }
 
+        // reuse props from earlier test
         const props2 = { ...props };
         render(
             <MemoryRouter initialEntries={['/']}>
