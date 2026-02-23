@@ -617,36 +617,37 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               ))}
             </TableHeader>
           </Table>
+        </div>
 
-          <div className="flex-1 w-full min-h-[400px] relative overflow-x-auto no-scrollbar bg-[#0b0b0b]">
-            <div style={{ width: table.getTotalSize(), height: '100%' }}>
-              {rows.length === 0 ? (
-                <div className="flex items-center justify-center text-muted-foreground h-16 w-full lowercase">
-                  no records found
-                </div>
-              ) : (
-                <AutoSizer>
-                  {({ height, width }: { height: number; width: number }) => (
-                    <List
-                      rowCount={rows.length}
-                      rowHeight={40}
-                      rowProps={{
-                        rows: rows,
-                        collection,
-                        onUpdate: onUpdateRecord,
-                        onDelete,
-                        onCreateField,
-                        recordMeta
-                      }}
-                      style={{ height, width }}
-                      className="no-scrollbar"
-                      rowComponent={DraggableRecordRow}
-                    />
-                  )}
-                </AutoSizer>
-              )}
-            </div>
+        <div className="flex-1 w-full min-h-[400px] relative overflow-x-auto no-scrollbar bg-[#0b0b0b]">
+          <div style={{ width: table.getTotalSize(), height: '100%' }}>
+            {rows.length === 0 ? (
+              <div className="flex items-center justify-center text-muted-foreground h-16 w-full lowercase">
+                no records found
+              </div>
+            ) : (
+              <AutoSizer>
+                {({ height, width }: { height: number; width: number }) => (
+                  <List
+                    rowCount={rows.length}
+                    rowHeight={40}
+                    rowProps={{
+                      rows: rows,
+                      collection,
+                      onUpdate: onUpdateRecord,
+                      onDelete,
+                      onCreateField,
+                      recordMeta
+                    }}
+                    style={{ height, width }}
+                    className="no-scrollbar"
+                    rowComponent={DraggableRecordRow}
+                  />
+                )}
+              </AutoSizer>
+            )}
           </div>
+        </div>
       </DndContext>
 
       <FieldSettingsDialog
