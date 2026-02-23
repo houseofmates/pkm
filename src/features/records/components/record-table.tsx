@@ -172,10 +172,10 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
           {!isEditing ? (
             <div
               className="relative z-20 h-full w-full flex items-center px-0.5 select-none cursor-pointer hover:bg-white/5 transition-colors"
+              onClick={() => onOpenFieldSettings?.((header.column.columnDef as any).meta?.field)}
               onDoubleClick={startEditing}
-              onContextMenu={(e) => {
-                // Ensure context menu works even if drag listeners are active
-                e.stopPropagation();
+              onContextMenu={() => {
+                // Allow context menu to bubble up to PropertyContextMenu
               }}
             >
               <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pr-5">
