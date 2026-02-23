@@ -1,4 +1,3 @@
-import React from 'react';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { NotionImportWidget } from '@/components/notion-import-widget';
 import { TableManager } from '@/features/table-management/TableManager';
