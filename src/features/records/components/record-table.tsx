@@ -78,7 +78,7 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
         {...attributes}
         {...listeners}
         className={cn(
-          "cursor-grab active:cursor-grabbing border-b border-border/50 transition-colors",
+          "cursor-grab active:cursor-grabbing border-b border-border transition-colors",
           !rowColor && "hover:bg-muted/50"
         )}
       >
@@ -332,11 +332,26 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                       minWidth: header.getSize(),
                       maxWidth: header.getSize()
                     }}
-                    className="border-r border-border/50 group select-none relative text-left p-1 h-9"
+                    className="border-r border-border/50 group select-none relative text-left p-0 h-9"
                   >
                     <div
-                      className="overflow-hidden text-ellipsis whitespace-nowrap flex justify-start items-center w-full px-1 cursor-pointer hover:text-primary transition-colors"
+                      className="h-full w-full overflow-hidden text-ellipsis whitespace-nowrap flex justify-start items-center px-2 cursor-pointer hover:bg-muted/50 transition-colors"
                       onClick={() => {
+                        const field = (header.column.columnDef as any).meta?.field;
+                        if (field) {
+                          setSettingsField(field);
+                          setIsSettingsOpen(true);
+                        }
+                      }}
+                      onDoubleClick={() => {
+                        const field = (header.column.columnDef as any).meta?.field;
+                        if (field) {
+                          setSettingsField(field);
+                          setIsSettingsOpen(true);
+                        }
+                      }}
+                      onContextMenu={(e) => {
+                        e.preventDefault();
                         const field = (header.column.columnDef as any).meta?.field;
                         if (field) {
                           setSettingsField(field);
@@ -380,7 +395,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
             ))}
             {/* add row button at the bottom - border-t ensures separation from last row, no border-b to avoid container overlap */}
             <TableRow className="hover:bg-transparent !border-b-0 ring-0 h-10">
-              <TableCell colSpan={columnCount + (onCreateField ? 1 : 0)} className="p-0 border-t border-border/50 !border-b-0">
+              <TableCell colSpan={columnCount + (onCreateField ? 1 : 0)} className="p-0 border-t border-border !border-b-0">
                 <Button
                   variant="ghost"
                   className="w-full justify-start rounded-none h-10 text-muted-foreground hover:text-foreground !border-none"
