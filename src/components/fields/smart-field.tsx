@@ -470,11 +470,15 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
 
       return (
         <div className="flex items-center gap-2 border border-primary p-1 bg-background min-w-[200px]">
+          {
+            const editTextSize = size === 'lg' ? 'text-lg' : 'text-sm';
+            const editHeight = 'h-8';
+          }
           <Input
             placeholder="paste url or upload..."
             value={localValue || ''}
             onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
-            className="h-8 text-xs border-none focus-visible:ring-0 focus:outline-none rounded-none"
+            className={cn(editHeight, editTextSize, "border-none focus-visible:ring-0 focus:outline-none rounded-none")}
           />
           <div className="relative">
             <Input type="file" className="absolute inset-0 opacity-0 cursor-pointer w-6" onChange={handleFileChange} />
@@ -491,11 +495,15 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
         const inputType = isDateTime ? 'datetime-local' : 'time';
         return (
           <div className="flex items-center gap-1">
+            {
+              const editTextSize = size === 'lg' ? 'text-lg' : 'text-sm';
+              const editHeight = 'h-8';
+            }
             <Input
               type={inputType}
               value={localValue || ''}
               onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
-              className="h-8 text-xs"
+              className={cn(editHeight, editTextSize)}
             />
             <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => handleSave(localValue)}><Check className="h-3 w-3" /></Button>
             <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleCancel}><X className="h-3 w-3" /></Button>
@@ -673,14 +681,18 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       )
     }
 
-    return (
+    {
+      const editTextSize = size === 'lg' ? 'text-lg' : 'text-sm';
+      // keep height constant so cells don't resize; text will scale instead
+      const editHeight = 'h-8';
+      return (
       <div className={cn("flex items-center gap-1 min-w-[120px] bg-background relative z-10", className)}>
         <Input
           autoFocus
           type={isNumber ? "number" : "text"}
           value={localValue || ''}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setLocalValue(e.target.value)}
-          className={cn("h-8 text-xs border-0 shadow-none outline-none ring-0 focus:border-0 focus:shadow-none focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none", inputClassName)}
+          className={cn(editHeight, editTextSize, "border-0 shadow-none outline-none ring-0 focus:border-0 focus:shadow-none focus:outline-none focus:ring-0 focus-visible:ring-0 focus-visible:outline-none", inputClassName)}
           onKeyDown={(e: React.KeyboardEvent<HTMLInputElement>) => {
             if (e.key === 'Enter') handleSave();
             if (e.key === 'Escape') handleCancel();
