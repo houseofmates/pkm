@@ -449,7 +449,6 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
           ))}
         </div>
         <div className="mx-4 mb-2 h-[1px] rounded-full" style={{ backgroundColor: 'hsl(var(--primary))', opacity: 0.3 }} />
-        Riverside
 
         <div className="px-4 mb-2 flex items-center justify-between">
 
