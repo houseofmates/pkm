@@ -166,6 +166,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
               <SmartField
                 value={draftTitle}
                 field={{ interface: 'input', name: 'title' }}
+                collectionName={collectionName}
                 size="lg"
                 onChange={saveTitle}
               />
