@@ -297,9 +297,7 @@ const DraggableRecordRow = React.memo(({ index, style: incomingStyle, ariaAttrib
               }}
             >
               <div className="flex items-center justify-start h-full w-full px-0.5">
-                <div className="flex-1 truncate">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </div>
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </div>
             </TableCell>
           );
