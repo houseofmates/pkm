@@ -11,7 +11,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { DatabaseContextMenu } from '@/features/databases/components/database-context-menu';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Plus, GripVertical } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import {
   DndContext,
@@ -53,6 +53,7 @@ function SortableDatabaseItem({ collection, onSelect, onRefresh }: SortableDatab
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
+    touchAction: 'none',
   };
 
   return (
@@ -60,14 +61,9 @@ function SortableDatabaseItem({ collection, onSelect, onRefresh }: SortableDatab
       ref={setNodeRef}
       style={style}
       className="group relative"
+      {...attributes}
+      {...listeners}
     >
-      <div
-        {...attributes}
-        {...listeners}
-        className="absolute top-2 right-2 z-10 opacity-0 group-hover:opacity-100 cursor-grab active:cursor-grabbing p-1 bg-background/80 backdrop-blur rounded-md border shadow-sm transition-opacity"
-      >
-        <GripVertical className="h-4 w-4 text-muted-foreground" />
-      </div>
       <DatabaseContextMenu collection={collection} onUpdate={onRefresh}>
         <div onClick={() => onSelect(collection.name)} className="cursor-pointer">
           <CollectionCard collection={collection} />
@@ -100,7 +96,8 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        delay: 250,
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor, {
