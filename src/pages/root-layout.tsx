@@ -13,7 +13,8 @@ import {
   useSensors,
   DragOverlay,
   type DragEndEvent,
-  type DragStartEvent
+  MouseSensor,
+  TouchSensor,
 } from '@dnd-kit/core';
 import {
   arrayMove,
@@ -26,9 +27,8 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { useFronter } from '@/contexts/fronter-context';
 import { ProtocolShift } from '@/components/layout/ProtocolShift';
 import { walPendingCount } from '@/lib/write-ahead-log';
-import { MouseSensor, TouchSensor } from '@/lib/dnd-sensors'; // Import custom sensors
 
-// declare global window properties to fix TS errors // expose accentBg globally for SortableItem
+// declare global window properties to fix TS errors
 declare global {
   interface Window {
     accentBg?: string;
