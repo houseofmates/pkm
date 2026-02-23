@@ -185,9 +185,6 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
                 }
               }}
               onDoubleClick={startEditing}
-              onContextMenu={(e) => {
-                // PropertyContextMenu will handle this
-              }}
             >
               <div
                 className="whitespace-normal font-medium leading-[1.2] text-sm"
@@ -422,10 +419,13 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       cols.push(columnHelper.display({
         id: 'actions',
         header: () => (
-          <div className="flex items-center justify-center h-full">
+          <div
+            className="flex items-center justify-center h-full"
+            onDoubleClick={(e) => e.stopPropagation()}
+          >
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-6 -6">
+                <Button variant="ghost" size="icon" className="h-6 w-6">
                   <Settings2 className="h-4 w-4" />
                 </Button>
               </PopoverTrigger>
