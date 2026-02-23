@@ -340,16 +340,29 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
               fieldConfig.params = { expression: field.expression };
             }
 
-            await client.createField(finalName, fieldConfig);
+            try {
+              await client.createField(finalName, fieldConfig);
+            } catch (err: any) {
+              console.error(`failed to create field ${field.name}`, err);
+              toast.error(`field ${field.title} error: ${err?.message || err}`);
+            }
           }
 
           // 3. batch create records
           if (csvData.length > 0) {
+            // ensure we at least have a collection name
+            if (!finalName) {
+              throw new Error('unable to import csv: database name is empty');
+            }
+
             toast.info(`importing ${csvData.length} records...`);
             const batchSize = 10;
+            let successCount = 0;
+            let failureCount = 0;
+
             for (let i = 0; i < csvData.length; i += batchSize) {
               const chunk = csvData.slice(i, i + batchSize);
-              await Promise.all(chunk.map(row => {
+              await Promise.all(chunk.map(async (row, idx) => {
                 const record: any = {};
                 csvFields.forEach(f => {
                   let val = row[f.title];
@@ -361,9 +374,20 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                   }
                   record[f.name] = val;
                 });
-                return client.createRecord(finalName, record);
+                try {
+                  await client.createRecord(finalName, record);
+                  successCount++;
+                } catch (err: any) {
+                  failureCount++;
+                  console.error(`failed to import row ${i + idx}`, err);
+                  toast.error(`row ${i + idx + 1} import error: ${err?.message || err}`);
+                }
               }));
-              if (i % 50 === 0) toast.info(`imported ${i + chunk.length} / ${csvData.length} records...`);
+              if (i % 50 === 0) toast.info(`imported ${successCount} / ${csvData.length} records...`);
+            }
+
+            if (failureCount > 0) {
+              toast.error(`${failureCount} record${failureCount === 1 ? '' : 's'} failed to import`);
             }
           }
         }
