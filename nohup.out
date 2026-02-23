@@ -78,3 +78,18 @@ Error: connect ECONNREFUSED 127.0.0.1:4110
 9:33:28 PM [vite] server restarted.
 9:34:08 PM [vite] (client) hmr update /src/index.css, /src/components/notion-import-widget.tsx
 Killed
+
+  VITE v7.3.1  ready in 162 ms
+
+  ➜  Local:   http://localhost:3010/
+  ➜  Network: http://192.168.4.233:3010/
+  ➜  Network: http://172.18.0.1:3010/
+  ➜  Network: http://172.21.0.1:3010/
+  ➜  Network: http://172.20.0.1:3010/
+  ➜  Network: http://172.23.0.1:3010/
+  ➜  Network: http://172.22.0.1:3010/
+  ➜  Network: http://172.19.0.1:3010/
+1:41:34 AM [vite] http proxy error: /api/stats
+Error: connect ECONNREFUSED 127.0.0.1:4100
+    at TCPConnectWrap.afterConnect [as oncomplete] (node:net:1637:16)
+1:41:37 AM [vite] (client) hmr update /src/index.css, /src/components/fields/smart-field.tsx

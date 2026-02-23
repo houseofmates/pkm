@@ -225,7 +225,7 @@ export interface SmartFieldProps {
 }
 
 export function SmartField({ value, field, record, collectionName, mode: _mode = 'view', onChange, className, inputClassName, size = 'lg' }: SmartFieldProps) {
-  const [isEditing, setIsEditing] = useState(false);
+  console.debug('[SmartField] mount', field?.name, value);  const [isEditing, setIsEditing] = useState(false);
   const [localValue, setLocalValue] = useState(value);
   const [fullscreenIndex, setFullscreenIndex] = useState<number | null>(null);
   const [galleryImgs, setGalleryImgs] = useState<string[]>([]);
