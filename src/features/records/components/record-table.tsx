@@ -25,6 +25,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { FieldSettingsDialog } from '@/features/collections/components/field-settings-dialog';
+import { toast } from 'sonner';
 
 interface RecordTableProps {
   data: any[];
@@ -77,9 +78,13 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
     e.preventDefault();
     e.stopPropagation();
     const field = (header.column.columnDef as any).meta?.field;
+    console.log('triggerSettings hit', { field, columnId: header.id });
     if (field) {
       setSettingsField(field);
       setIsSettingsOpen(true);
+    } else {
+      // Fallback for diagnostic
+      toast.error(`Settings unavailable for property: ${header.id}`);
     }
   };
 
@@ -114,14 +119,9 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
           <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pr-5">
             {header.isPlaceholder
               ? null
-              : (
-                <span className="flex items-center gap-1">
-                  <span className="opacity-40 text-[8px] font-bold uppercase tracking-tighter">(live)</span>
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-                </span>
+              : flexRender(
+                header.column.columnDef.header,
+                header.getContext()
               )}
           </div>
         </div>
@@ -333,6 +333,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         .map((key) =>
           columnHelper.accessor(key, {
             header: key.toLowerCase(),
+            meta: { field: { name: key, type: 'string', uiSchema: { title: key } } },
             cell: info => (
               <SmartField
                 value={info.getValue()}
