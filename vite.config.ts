@@ -45,7 +45,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/simplyplural/, ''),
       },
       '/api/nocobase': {
-        target: 'http://192.168.254.33:8091/api',
+        target: 'https://db.houseofmates.space/api',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/nocobase/, ''),
       },
@@ -62,7 +62,7 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/api': {
-        target: 'http://192.168.254.33:8091/api',
+        target: 'https://db.houseofmates.space/api',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
