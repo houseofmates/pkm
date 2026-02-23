@@ -222,7 +222,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
   );
 }
 
-const DraggableRecordRow = React.memo(({ index, style: incomingStyle, ariaAttributes, rows, collection, onUpdate, onDelete, onCreateField, recordMeta, columns }: any) => {
+const DraggableRecordRow = React.memo(({ index, style: incomingStyle, ariaAttributes, rows, collection, onUpdate, onDelete, onCreateField, recordMeta }: any) => {
   const row = rows[index];
   if (!row) return null;
 
