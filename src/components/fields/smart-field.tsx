@@ -1060,7 +1060,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           console.debug('[SmartField] contextmenu on cell', field?.name, value);
         }}
         className={cn(
-          "cursor-pointer hover:bg-muted/50 px-1 py-0.5 rounded transition-colors min-h-[20px] break-words font-varela",
+          "cursor-pointer hover:bg-muted/50 px-1 py-0.5 rounded transition-colors min-h-[20px] break-words font-varela focus:outline-none",
           size === 'lg' ? "text-lg" : "text-sm",
           className
         )}
