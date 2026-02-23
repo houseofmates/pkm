@@ -62,7 +62,24 @@ import type {
 import { cn } from '@/lib/utils';
 
 // Sortable Header Component
-function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
+function SortableHeader({ header, collectionName, onFieldUpdated }: any) {
+  const { client } = useAuth();
+  const [isEditing, setIsEditing] = React.useState(false);
+  const [draftTitle, setDraftTitle] = React.useState<string>(
+    (header.column.columnDef as any).meta?.field?.uiSchema?.title ||
+      (header.column.columnDef as any).meta?.field?.name || ''
+  );
+
+  // keep draft synced when header props change (e.g. parent refresh)
+  React.useEffect(() => {
+    if (!isEditing) {
+      setDraftTitle(
+        (header.column.columnDef as any).meta?.field?.uiSchema?.title ||
+          (header.column.columnDef as any).meta?.field?.name || ''
+      );
+    }
+  }, [header, isEditing]);
+
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
     id: header.id,
   });
@@ -75,18 +92,28 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
     position: 'relative' as const,
   };
 
-  const triggerSettings = (e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
+  const saveTitle = async (newTitle: string) => {
     const field = (header.column.columnDef as any).meta?.field;
-    if (field) {
-      setSettingsField(field);
-      setIsSettingsOpen(true);
+    if (!field) return;
+    try {
+      await client.updateField(collectionName, field.name, {
+        uiSchema: {
+          ...field.uiSchema,
+          title: newTitle,
+        },
+      });
+      // update in-memory metadata so header updates immediately
+      field.uiSchema = { ...(field.uiSchema || {}), title: newTitle };
+      header.column.columnDef.header = newTitle.toLowerCase();
+      setDraftTitle(newTitle);
+      setIsEditing(false);
+      onFieldUpdated?.();
+      toast.success('field renamed');
+    } catch (err: any) {
+      console.error(err);
+      toast.error('failed to rename field');
     }
   };
-
 
   return (
     <TableHead
