@@ -307,7 +307,7 @@ const DraggableRecordRow = React.memo(({ index, style: incomingStyle, ariaAttrib
   );
 });
 
-export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateField, onFieldUpdated, loading }: RecordTableProps) {
+export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateField, onFieldUpdated: onFieldUpdatedCb, loading }: RecordTableProps) {
   // hidden columns state persistence
   const [hiddenColumns, setHiddenColumns] = useAppSetting<string[]>(
     `hidden_columns_${collection?.name || 'unknown'}`,
@@ -610,7 +610,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         key={header.id}
                         header={header}
                         collectionName={collection?.name}
-                        onFieldUpdated={onFieldUpdated}
+                        onFieldUpdated={onFieldUpdatedCb}
                         onOpenFieldSettings={(field: any) => {
                           setSettingsField(field);
                           setIsSettingsOpen(true);
@@ -657,7 +657,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         field={settingsField}
         collectionName={collection.name}
         onFieldUpdated={() => {
-          onFieldUpdated?.();
+          onFieldUpdatedCb?.();
         }}
       />
     </div>
