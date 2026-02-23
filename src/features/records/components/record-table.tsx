@@ -641,8 +641,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                       onCreateField,
                       recordMeta
                     }}
-                    height={height}
-                    width={width}
+                    style={{ height, width }}
                     className="no-scrollbar"
                     rowComponent={DraggableRecordRow}
                   />
