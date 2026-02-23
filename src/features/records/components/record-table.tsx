@@ -114,9 +114,14 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
           <div className="overflow-hidden text-ellipsis whitespace-nowrap font-medium pr-5">
             {header.isPlaceholder
               ? null
-              : flexRender(
-                header.column.columnDef.header,
-                header.getContext()
+              : (
+                <span className="flex items-center gap-1">
+                  <span className="opacity-40 text-[8px] font-bold uppercase tracking-tighter">(live)</span>
+                  {flexRender(
+                    header.column.columnDef.header,
+                    header.getContext()
+                  )}
+                </span>
               )}
           </div>
         </div>
@@ -413,7 +418,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 10,
+        distance: 15, // Increased constraint to allow more "slack" for clicks
       },
     })
   );
