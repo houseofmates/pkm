@@ -109,7 +109,7 @@ function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
       <div className="h-full w-full relative flex items-center group/header overflow-hidden">
         {/* foreground label - fully interactive for settings */}
         <div
-          className="relative z-20 h-full w-full flex items-center px-1 select-none cursor-pointer hover:bg-white/5 transition-colors"
+          className="relative z-20 h-full w-full flex items-center px-1 select-none cursor-pointer hover:bg-white/5 transition-colors pointer-events-auto"
           onClick={triggerSettings}
           onDoubleClick={triggerSettings}
           onContextMenu={triggerSettings}
