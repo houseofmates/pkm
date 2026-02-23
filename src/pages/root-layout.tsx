@@ -26,8 +26,9 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { useFronter } from '@/contexts/fronter-context';
 import { ProtocolShift } from '@/components/layout/ProtocolShift';
 import { walPendingCount } from '@/lib/write-ahead-log';
+import { MouseSensor, TouchSensor } from '@/lib/dnd-sensors'; // Import custom sensors
 
-// declare global window properties to fix TS errors
+// declare global window properties to fix TS errors // expose accentBg globally for SortableItem
 declare global {
   interface Window {
     accentBg?: string;
@@ -125,6 +126,7 @@ export function RootLayout() {
     const root = document.documentElement;
     root.style.setProperty('--primary', accentColor);
     root.style.setProperty('--primary-soft', getAccentBg(accentColor));
+    if (typeof window !== 'undefined') (window as any).accentBg = accentBg; // Expose globally for SortableItem
 
     const favIcon = document.getElementById('favicon') as HTMLLinkElement;
     if (favIcon) {
@@ -136,9 +138,15 @@ export function RootLayout() {
   const [activeDragItem, setActiveDragItem] = useState<NavItem | null>(null);
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor, {
       activationConstraint: {
         distance: 3,
+      },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
