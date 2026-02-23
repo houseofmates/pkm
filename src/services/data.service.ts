@@ -49,7 +49,12 @@ class DataService {
     // 2. Fetch fresh data from the network
     try {
       const response = await api.listCollections();
-      const freshCollections = response.data || [];
+      // Handle both array and object-with-data-array responses
+      const freshCollections = Array.isArray(response.data)
+        ? response.data
+        : Array.isArray(response.data?.data)
+          ? response.data.data
+          : [];
 
       console.log(`Fetched ${freshCollections.length} collections from NocoBase.`);
 
