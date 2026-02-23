@@ -212,7 +212,6 @@ export function RootLayout() {
 
         <BottomNav className="lg:hidden" activeTab={activeTab} onTabChange={handleTabChange} />
         <Spotlight />
-        <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
         <DragOverlay>
           {activeDragItem ? (
             <div className="bg-card border rounded shadow-lg p-2 flex items-center opacity-80 w-48 pointer-events-none">
