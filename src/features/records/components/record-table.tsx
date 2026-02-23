@@ -637,8 +637,9 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         rowHeight={40} // matching h-10 height
                         width={width}
                         className="no-scrollbar"
-                        rowComponent={DraggableRecordRow}
+                        rowComponent={DraggableRecordRow as any}
                         rowProps={{
+                          ariaAttributes,
                           rows: table.getRowModel().rows,
                           collection,
                           onUpdate: onUpdateRecord,
