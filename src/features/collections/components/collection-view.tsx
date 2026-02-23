@@ -152,6 +152,7 @@ export function collectionview({ collection, onback }: collectionviewprops) {
  collection={collection}
  onEdit={setEditingRecord}
  onDelete={handleDelete}
+ onFieldUpdated={() => { /* renamed field, nothing extra needed here */ }}
  />
   )}
 

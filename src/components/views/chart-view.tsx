@@ -388,6 +388,7 @@ export function ChartView(props: ViewProps) {
                 onUpdateRecord={onUpdateRecord}
                 onDelete={onDelete}
                 config={config}
+                onFieldUpdated={() => { /* nothing special needed here */ }}
               />
             )}
           </div>
