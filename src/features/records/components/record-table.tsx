@@ -4,7 +4,7 @@ import {
   flexRender,
   createColumnHelper,
 } from '@tanstack/react-table';
-import { FixedSizeList as List } from 'react-window';
+import { List } from 'react-window';
 import { AutoSizer } from 'react-virtualized-auto-sizer';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -233,30 +233,6 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
 const DraggableRecordRow = React.memo(({ index, style: incomingStyle, data }: any) => {
   const { rows, collection, onUpdate, onDelete, onCreateField, recordMeta } = data;
   const row = rows[index];
-  if (!row) return null;
-
-  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
-    id: `record-${row.original.id}`,
-    data: {
-      type: 'pkm-record',
-      id: row.original.id,
-      collection: collection.name,
-      title: row.original.title || row.original.name || 'Untitled'
-    }
-  });
-
-  const rowColor = recordMeta?.[row.original.id]?.color;
-
-  const style = {
-    ...incomingStyle,
-    transform: CSS.Translate.toString(transform),
-    opacity: isDragging ? 0.5 : 1,
-    touchAction: 'none', // Important for touch drag
-    backgroundColor: rowColor ? `${rowColor}20` : undefined,
-    display: 'flex', // Crucial for virtualization 
-    width: '100%'
-  };
-
   if (!row) return null;
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
