@@ -582,7 +582,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         />
 
 
-        <ScrollArea className="flex-1 px-2 [&>[data-orientation=vertical]]:!hidden [&>[data-orientation=horizontal]]:!hidden">
+        <ScrollArea className="flex-1 px-2 overflow-y-auto min-h-0">
           {/* dndcontext removed - controlled by parent */}
           <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-0.5">
