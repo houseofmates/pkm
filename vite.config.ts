@@ -102,9 +102,8 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/simplyplural/, ''),
       },
       '/api/nb-import-csv': {
-        target: 'http://127.0.0.1:4110',
+        target: 'http://127.0.0.1:4100',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/nb-import-csv/, '/nb-import-csv'),
       },
       '/api/nocobase': {
         target: 'https://db.houseofmates.space/api',
