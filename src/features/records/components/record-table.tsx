@@ -38,11 +38,105 @@ interface RecordTableProps {
   config?: any;
 }
 
-// draggable row wrapper
-import { useDraggable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
+import {
+  SortableContext,
+  horizontalListSortingStrategy,
+  useSortable,
+  arrayMove
+} from '@dnd-kit/sortable';
+import {
+  DndContext,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+  DragStartEvent,
+  closestCenter
+} from '@dnd-kit/core';
 
 import { cn } from '@/lib/utils';
+
+// Sortable Header Component
+function SortableHeader({ header, setSettingsField, setIsSettingsOpen }: any) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: header.id,
+  });
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.8 : 1,
+    zIndex: isDragging ? 100 : undefined,
+    position: 'relative' as const,
+  };
+
+  return (
+    <TableHead
+      ref={setNodeRef}
+      style={{
+        ...style,
+        width: header.getSize(),
+        minWidth: header.getSize(),
+        maxWidth: header.getSize()
+      }}
+      className={cn(
+        "border-r border-border/50 group select-none relative text-left p-0 h-9 transition-colors",
+        isDragging ? "bg-accent/20" : "hover:bg-white/10"
+      )}
+    >
+      <div
+        className="h-full w-full overflow-hidden text-ellipsis whitespace-nowrap flex justify-start items-center px-1 cursor-grab active:cursor-grabbing"
+        {...attributes}
+        {...listeners}
+      >
+        <div
+          className="h-full w-full flex items-center px-1 cursor-pointer hover:bg-white/10"
+          onClick={(e) => {
+            e.stopPropagation();
+            const field = (header.column.columnDef as any).meta?.field;
+            if (field) {
+              setSettingsField(field);
+              setIsSettingsOpen(true);
+            }
+          }}
+          onDoubleClick={(e) => {
+            e.stopPropagation();
+            const field = (header.column.columnDef as any).meta?.field;
+            if (field) {
+              setSettingsField(field);
+              setIsSettingsOpen(true);
+            }
+          }}
+          onContextMenu={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const field = (header.column.columnDef as any).meta?.field;
+            if (field) {
+              setSettingsField(field);
+              setIsSettingsOpen(true);
+            }
+          }}
+        >
+          {header.isPlaceholder
+            ? null
+            : flexRender(
+              header.column.columnDef.header,
+              header.getContext()
+            )}
+        </div>
+      </div>
+      {/* resize handler */}
+      <div
+        onMouseDown={header.getResizeHandler()}
+        onTouchStart={header.getResizeHandler()}
+        className={`absolute -right-2 top-0 h-full w-4 z-20 cursor-col-resize touch-none select-none lg:hover:bg-primary lg:hover:opacity-10 transition-opacity ${header.column.getIsResizing() ? 'opacity-100 bg-primary shadow-[0_4000px_0_0_currentColor]' : 'opacity-0'
+          }`}
+        style={{ color: 'var(--primary)' }}
+      />
+    </TableHead>
+  );
+}
 
 function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField, recordMeta }: any) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
@@ -78,8 +172,8 @@ function DraggableRecordRow({ row, collection, onUpdate, onDelete, onCreateField
         {...attributes}
         {...listeners}
         className={cn(
-          "cursor-grab active:cursor-grabbing border-b border-white/20 transition-colors",
-          !rowColor && "hover:bg-white/5"
+          "cursor-grab active:cursor-grabbing border-b border-white/40 transition-colors",
+          !rowColor && "hover:bg-white/10"
         )}
       >
         {/* empty cell to match the add-field column */}
@@ -125,6 +219,19 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
   // column sizing state (stored in metadata)
   const columnSizing = metadata[collection?.name]?.columnWidths || {};
+
+  // column ordering state
+  const columnOrder = metadata[collection?.name]?.columnOrder || [];
+
+  const setColumnOrder = (newOrder: string[]) => {
+    setMetadata({
+      ...metadata,
+      [collection.name]: {
+        ...metadata[collection.name],
+        columnOrder: newOrder
+      }
+    });
+  };
 
   const setColumnSizing = (updater: any) => {
     const newSizing = typeof updater === 'function' ? updater(columnSizing) : updater;
@@ -266,6 +373,28 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     return cols;
   }, [data, collection, columnHelper, onEdit, onDelete, hiddenColumns, setHiddenColumns]);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    })
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (active.id !== over?.id) {
+      const headerGroups = table.getHeaderGroups();
+      const headers = headerGroups[0].headers;
+      const oldIndex = headers.findIndex((h) => h.id === active.id);
+      const newIndex = headers.findIndex((h) => h.id === over?.id);
+
+      const newOrder = arrayMove(headers.map(h => h.id), oldIndex, newIndex);
+      table.setColumnOrder(newOrder);
+      setColumnOrder(newOrder);
+    }
+  };
+
   const table = useReactTable({
     data,
     columns,
@@ -273,8 +402,12 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     enableColumnResizing: true,
     columnResizeMode: 'onChange',
     onColumnSizingChange: setColumnSizing,
+    onColumnOrderChange: (order) => {
+      // we also persist it in handleDragEnd for robustness
+    },
     state: {
       columnSizing,
+      columnOrder,
     },
   });
 
@@ -309,7 +442,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         <Table style={{ width: table.getTotalSize(), tableLayout: 'fixed' }}>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="border-b border-white/40">
                 {/* add field button at the start */}
                 {onCreateField && (
                   <TableHead className="w-10 border-r border-border/50 p-0 overflow-hidden">
@@ -324,58 +457,25 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                     </Button>
                   </TableHead>
                 )}
-                {headerGroup.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    style={{
-                      width: header.getSize(),
-                      minWidth: header.getSize(),
-                      maxWidth: header.getSize()
-                    }}
-                    className="border-r border-border/50 group select-none relative text-left p-0 h-9 transition-colors hover:bg-white/5"
-                    onClick={() => {
-                      const field = (header.column.columnDef as any).meta?.field;
-                      if (field) {
-                        setSettingsField(field);
-                        setIsSettingsOpen(true);
-                      }
-                    }}
-                    onDoubleClick={() => {
-                      const field = (header.column.columnDef as any).meta?.field;
-                      if (field) {
-                        setSettingsField(field);
-                        setIsSettingsOpen(true);
-                      }
-                    }}
-                    onContextMenu={(e) => {
-                      e.preventDefault();
-                      const field = (header.column.columnDef as any).meta?.field;
-                      if (field) {
-                        setSettingsField(field);
-                        setIsSettingsOpen(true);
-                      }
-                    }}
+                <DndContext
+                  sensors={sensors}
+                  collisionDetection={closestCenter}
+                  onDragEnd={handleDragEnd}
+                >
+                  <SortableContext
+                    items={headerGroup.headers.map(h => h.id)}
+                    strategy={horizontalListSortingStrategy}
                   >
-                    <div className="h-full w-full overflow-hidden text-ellipsis whitespace-nowrap flex justify-start items-center px-2 cursor-pointer">
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                    </div>
-                    {/* resize handler */}
-                    <div
-                      onMouseDown={header.getResizeHandler()}
-                      onTouchStart={header.getResizeHandler()}
-                      // increased touch target width for mobile (w-4 instead of w-px)
-                      className={`absolute -right-2 top-0 h-full w-4 z-20 cursor-col-resize touch-none select-none lg:hover:bg-primary lg:hover:opacity-10 transition-opacity ${header.column.getIsResizing() ? 'opacity-100 bg-primary shadow-[0_4000px_0_0_currentColor]' : 'opacity-0'
-                        }`}
-                      // ensure color is always set for shadow usage
-                      style={{ color: 'var(--primary)' }}
-                    />
-                  </TableHead>
-                ))}
+                    {headerGroup.headers.map((header) => (
+                      <SortableHeader
+                        key={header.id}
+                        header={header}
+                        setSettingsField={setSettingsField}
+                        setIsSettingsOpen={setIsSettingsOpen}
+                      />
+                    ))}
+                  </SortableContext>
+                </DndContext>
               </TableRow>
             ))}
           </TableHeader>
@@ -393,7 +493,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
             ))}
             {/* add row button at the bottom - border-t ensures separation from last row, no border-b to avoid container overlap */}
             <TableRow className="hover:bg-transparent !border-b-0 ring-0 h-10">
-              <TableCell colSpan={columnCount + (onCreateField ? 1 : 0)} className="p-0 border-t border-white/20 !border-b-0">
+              <TableCell colSpan={columnCount + (onCreateField ? 1 : 0)} className="p-0 border-t border-white/40 !border-b-0">
                 <Button
                   variant="ghost"
                   className="w-full justify-start rounded-none h-10 text-muted-foreground hover:text-foreground !border-none"
