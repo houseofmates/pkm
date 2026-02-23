@@ -1,15 +1,16 @@
 import fs from 'fs';
 import path from 'path';
 import request from 'supertest';
+import type { Express } from 'express';
 
 // helper to create a tiny zip file for testing
-function createEmptyZip(filePath) {
+function createEmptyZip(filePath: string) {
   const hex = '504b0506000000000000000000';
   fs.writeFileSync(filePath, Buffer.from(hex, 'hex'));
 }
 
 // simple polling helper used by several tests
-async function waitForDone(taskId) {
+async function waitForDone(taskId: string) {
   for (let i = 0; i < 20; i++) {
     const r = await request(server)
       .get(`/api/nb-import/logs?id=${taskId}`)
@@ -27,7 +28,7 @@ process.env.BROADCAST_AUTH_KEY = 'test-secret';
 
 // import the server AFTER configuring env vars to ensure they are picked up
 // server.js exports { app, importTasks }
-const { app: server } = require('../../../../backend/server');
+import { app as server } from '../../../../backend/server';
 
 // ensure the public upload directory exists
 beforeAll(() => {
@@ -131,7 +132,7 @@ describe('backend /api/nb-import', () => {
     const { taskId } = r.body;
     const body = await waitForDone(taskId);
     // the logs should mention creating a collection from the csv name
-    expect(body.logs.some(l => /creating collection/i.test(l))).toBe(true);
+    expect(body.logs.some((l: string) => /creating collection/i.test(l))).toBe(true);
   });
 });
 
