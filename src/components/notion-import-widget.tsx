@@ -35,40 +35,35 @@ export function NotionImportWidget() {
             appendLog('error: file appears too small to be a Notion export');
             return;
         }
-        // inspect the first few bytes of the file to warn if it doesn't
-        // look like a ZIP. this isn't a hard failure because there are still
-        // legitimate ZIP variants that start with something unexpected, but
-        // seeing garbage (HTML login page, etc) is worth indicating in the
-        // UI. keep the try/catch so we don't crash when slice/arrayBuffer
-        // isn't available (should never happen in modern browsers).
+        // inspect the first few bytes of the file to warn if it looks like an HTML error page
+        // only block if the file starts with '<!DOCTYPE html' or '<html' (case-insensitive)
         try {
-            const hdr = await file.slice(0, 4).arrayBuffer();
-            const bytes = new Uint8Array(hdr);
-            // if the file starts with `<` we almost certainly fetched HTML
-            // (login page, error message, etc). abort early rather than
-            // sending nonsense to the server.
-            if (bytes[0] === 0x3c) {
-                appendLog('error: selected file appears to be HTML, not a ZIP');
+            const hdr = await file.slice(0, 32).text();
+            const trimmed = hdr.trimStart().toLowerCase();
+            if (trimmed.startsWith('<!doctype html') || trimmed.startsWith('<html')) {
+                appendLog('error: selected file appears to be an HTML page, not a valid Notion export');
                 return;
             }
-            if (!(bytes[0] === 0x50 && bytes[1] === 0x4B)) {
-                // log the first four bytes in hex for debugging
-                const hex = Array.from(bytes)
-                    .map(b => b.toString(16).padStart(2, '0'))
-                    .join(' ');
-                appendLog(`warning: file header does not begin with PK (${hex}); uploading anyway`);
+            // warn if not a zip, csv, or markdown file
+            if (
+                !file.name.toLowerCase().endsWith('.zip') &&
+                !file.name.toLowerCase().endsWith('.csv') &&
+                !file.name.toLowerCase().endsWith('.md')
+            ) {
+                appendLog('warning: file does not have a .zip, .csv, or .md extension; uploading anyway');
+            }
+            // warn if not a PK zip header for .zip files
+            if (file.name.toLowerCase().endsWith('.zip')) {
+                const ab = await file.slice(0, 4).arrayBuffer();
+                const bytes = new Uint8Array(ab);
+                if (!(bytes[0] === 0x50 && bytes[1] === 0x4b)) {
+                    const hex = Array.from(bytes)
+                        .map(b => b.toString(16).padStart(2, '0'))
+                        .join(' ');
+                    appendLog(`warning: .zip file header does not begin with PK (${hex}); uploading anyway`);
+                }
             }
         } catch (e) {
-            // header check failed (likely because arrayBuffer isn't supported
-            // in this environment). as a best effort, inspect the file as text
-            // so we can still catch HTML pages.
-            try {
-                const txt = await file.text();
-                if (txt.trim().startsWith('<')) {
-                    appendLog('error: selected file appears to be HTML, not a ZIP');
-                    return;
-                }
-            } catch {}
             appendLog('warning: could not inspect file header; uploading anyway');
         }
         setRunning(true);
