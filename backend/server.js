@@ -445,7 +445,7 @@ app.post('/api/nb-import', requireAuth, importUpload.single('file'), handleNotio
 app.post('/api/notion-import', requireAuth, importUpload.single('file'), handleNotionImport);
 
 // Multi-CSV import endpoint for notion databases
-app.post('/nb-import-csv', csvUpload.array('files', 60), async (req, res) => {
+async function handleCsvImport(req, res) {
     try {
         if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
             return res.status(400).json({ error: 'no files uploaded' });
@@ -511,17 +511,12 @@ app.post('/nb-import-csv', csvUpload.array('files', 60), async (req, res) => {
         console.error('nb-import-csv error', err);
         return res.status(500).json({ error: String(err) });
     }
-});
+}
+
+app.post('/nb-import-csv', csvUpload.array('files', 60), handleCsvImport);
 
 // Alias under /api path since Vite proxy rewrites to /api
-app.post('/api/nb-import-csv', requireAuth, csvUpload.array('files', 60), async (req, res) => {
-    // Just forward to the same handler above so either path works
-    // Express treats req.url, but we can't easily jump handlers. Just duplicate or redirect.
-    // Instead we can just register the exact route directly since my vite config rewrites /api/nb-import-csv to /nb-import-csv, but sometimes proxy doesn't rewrite fully in prod.
-    // Let's just make sure both exist.
-    req.url = '/nb-import-csv';
-    app._router.handle(req, res);
-});
+app.post('/api/nb-import-csv', requireAuth, csvUpload.array('files', 60), handleCsvImport);
 
 // streaming endpoint - still available for backwards compatibility but
 // may be unreliable through Cloudflare; prefer polling.
