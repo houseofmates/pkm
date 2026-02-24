@@ -451,6 +451,30 @@ img .lucide,
   display: block !important;
 }
 
+/* --- sidebar scrollbar fix --- */
+.sidebar-container div[class*="overflow-y-auto"]::-webkit-scrollbar,
+.sidebar-container ::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  display: block;
+}
+
+.sidebar-container div[class*="overflow-y-auto"]::-webkit-scrollbar-track,
+.sidebar-container ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sidebar-container div[class*="overflow-y-auto"]::-webkit-scrollbar-thumb,
+.sidebar-container ::-webkit-scrollbar-thumb {
+  background: hsl(var(--primary) / 0.3);
+  border-radius: 3px;
+}
+
+.sidebar-container div[class*="overflow-y-auto"]::-webkit-scrollbar-thumb:hover,
+.sidebar-container ::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.5);
+}
+
 /* --- blog custom scrollbar --- */
 .custom-scrollbar::-webkit-scrollbar {
   width: 8px;
