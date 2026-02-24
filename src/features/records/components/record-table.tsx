@@ -436,7 +436,26 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                   <h4 className="font-medium text-sm leading-none border-b pb-2 mb-2 lowercase">view settings</h4>
                   <div className="text-xs text-muted-foreground mb-2 lowercase">check to unhide properties</div>
                   <div className="max-h-60 overflow-y-auto space-y-1">
-                    {(collection.fields || Object.keys(data[0] || {})).map((f: any) => {
+                    {(() => {
+                    // figure out which fields to show in the settings menu.  if we
+                    // have collection definitions use them, otherwise fall back to
+                    // the first row of data.  when both are empty we render a
+                    // helpful message below instead of mapping over an empty list.
+                    const availableFields: any[] =
+                      collection.fields && collection.fields.length > 0
+                        ? collection.fields
+                        : data.length > 0
+                        ? Object.keys(data[0])
+                        : [];
+                    if (availableFields.length === 0) {
+                      return (
+                        <div className="text-xs text-muted-foreground lowercase">
+                          no properties yet – use the + button to add one
+                        </div>
+                      );
+                    }
+
+                    return availableFields.map((f: any) => {
                       const fieldName = f.name || f;
                       const isHidden = hiddenColumns.includes(fieldName);
                       return (
@@ -477,6 +496,25 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           </div>
         )
       }));
+    }
+
+    // if there are no defined columns (collection has no fields and there
+    // is no data to infer from) we still want to render something so the
+    // header area doesn't collapse to zero width, which makes the add-field
+    // button and settings gear inaccessible.  create a dummy placeholder
+    // column with a message.
+    if (cols.length === 0) {
+      cols = [
+        columnHelper.display({
+          id: '__placeholder',
+          header: () => (
+            <div className="px-2 py-1 text-xs text-muted-foreground lowercase">
+              no properties defined
+            </div>
+          ),
+          cell: () => null,
+        }),
+      ];
     }
 
     return cols;
@@ -579,7 +617,14 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       >
         <div className="h-full flex flex-col min-h-0">
           <div className="overflow-x-auto overflow-y-hidden no-scrollbar flex-shrink-0">
-            <Table style={{ width: table.getTotalSize(), tableLayout: 'fixed' }}>
+            {/* use full width when there are no columns so the header row
+                remains visible and the add/gear buttons are clickable */}
+            <Table
+              style={{
+                width: table.getTotalSize() || '100%',
+                tableLayout: 'fixed'
+              }}
+            >
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id} className="border-b border-[#222]">
