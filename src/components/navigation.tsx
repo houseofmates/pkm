@@ -613,7 +613,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         />
 
 
-        <ScrollArea className="flex-1 w-full px-2 overflow-y-auto">
+        <ScrollArea className="flex-1 w-full min-h-0 px-2 overflow-y-auto">
           <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-0.5">
               {items.map((item) => (
