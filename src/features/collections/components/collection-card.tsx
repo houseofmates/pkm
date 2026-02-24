@@ -2,6 +2,7 @@
 import type { Collection } from "@/types/nocobase";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import { storageManager } from '@/lib/storage-manager';
 import { Database } from "lucide-react";
 
 import { useAppSetting } from "@/hooks/use-app-setting";
@@ -34,14 +35,14 @@ export function CollectionCard({ collection, className }: CollectionCardProps) {
 
   let visualPreview = null;
   if (isDrawing) {
-    // try to get thumbnail from localstorage
+    // try to get thumbnail from storage manager
     const key = `drawing-config-${collection.name.replace('drawing_', '')}`;
     try {
-      const config = JSON.parse(localStorage.getItem(key) || '{}');
+      const config = JSON.parse(storageManager.getItem(key) || '{}');
       if (config.thumbnail) {
         visualPreview = config.thumbnail;
       }
-    } catch (e) { /* ignore malformed localstorage */ }
+    } catch (e) { /* ignore malformed storage */ }
   }
 
   const hasFields = !isVisual && fields.length > 0;
