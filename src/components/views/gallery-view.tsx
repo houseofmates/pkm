@@ -2,9 +2,62 @@ import type { ViewProps } from './registry';
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus } from 'lucide-react';
 import { RecordContextMenu } from '@/features/records/components/record-context-menu';
+import { RecordEditContent } from '@/features/records/components/record-context-menu';
 import { SmartField } from '@/components/fields/smart-field';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { useState, useCallback } from 'react';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  rectSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { cn } from '@/lib/utils';
 
 export function GalleryView({ data, loading, collection, config = {}, onUpdateRecord, onDelete, onConfigChange, onCreate }: ViewProps) {
+  const [selectedRecord, setSelectedRecord] = useState<any | null>(null);
+  const [editingTitleRecordId, setEditingTitleRecordId] = useState<string | number | null>(null);
+
+  const recordOrder: (string | number)[] = config.recordOrder || [];
+  const orderedData = recordOrder.length > 0
+    ? [...data].sort((a, b) => {
+        const ai = recordOrder.indexOf(a.id);
+        const bi = recordOrder.indexOf(b.id);
+        if (ai === -1 && bi === -1) return 0;
+        if (ai === -1) return 1;
+        if (bi === -1) return -1;
+        return ai - bi;
+      })
+    : data;
+
+  const handleDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const ids = orderedData.map((r: any) => r.id);
+    const oldIndex = ids.indexOf(active.id);
+    const newIndex = ids.indexOf(over.id);
+    if (oldIndex === -1 || newIndex === -1) return;
+    const next = [...ids];
+    const [removed] = next.splice(oldIndex, 1);
+    next.splice(newIndex, 0, removed);
+    onConfigChange?.('recordOrder', next);
+  }, [orderedData, onConfigChange]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
   if (loading || !collection) {
     return (
       <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
@@ -16,31 +69,36 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
     );
   }
 
-  // helper to get image url from a record field
+  // helper to get image url from a record field (or common record keys)
   const getImageUrl = (record: Record<string, any>, field: { name: string } | null) => {
-    if (!field) return null;
-    const value = record[field.name];
-    if (!value) return null;
-
-    // handle nocobase attachment array
-    if (Array.isArray(value) && value.length > 0) {
-      return value[0].url || value[0].url_thumbnail || null;
+    if (field) {
+      const value = record[field.name];
+      if (value != null) {
+        if (Array.isArray(value) && value.length > 0) {
+          return value[0].url || value[0].url_thumbnail || null;
+        }
+        if (typeof value === 'string' && (value.startsWith('http') || value.startsWith('/'))) {
+          return value;
+        }
+      }
     }
-    // handle string url
-    if (typeof value === 'string' && (value.startsWith('http') || value.startsWith('/'))) {
-      return value;
+    // fallback: common keys for headmates etc.
+    const fallbacks = ['avatar', 'image', 'photo', 'picture', 'icon', 'cover', 'url'];
+    for (const key of fallbacks) {
+      const v = record[key];
+      if (!v) continue;
+      if (Array.isArray(v) && v.length > 0) return v[0].url || v[0].url_thumbnail || null;
+      if (typeof v === 'string' && (v.startsWith('http') || v.startsWith('/'))) return v;
     }
     return null;
   };
 
   // detect fields if not configured
-  // priority: config -> explicit 'attachment' interface -> name includes 'image'/'cover'
   const imageField = config.coverField
     ? collection?.fields?.find((f: { name: string; interface?: string }) => f.name === config.coverField)
     : (collection?.fields?.find((f: { name: string; interface?: string }) => f.interface === 'attachment')
-      || collection?.fields?.find((f: { name: string }) => f.name.toLowerCase().includes('image') || f.name.toLowerCase().includes('cover')));
+      || collection?.fields?.find((f: { name: string }) => /image|cover|avatar|photo|picture|icon/.test(f.name.toLowerCase())));
 
-  // priority: config -> 'title'/'name' -> first input field
   const titleField = config.titleField
     ? collection?.fields?.find((f: { name: string; interface?: string }) => f.name === config.titleField)
     : (collection?.fields?.find((f: { name: string }) => f.name === 'title' || f.name === 'name')
@@ -49,99 +107,219 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
   const visibleFieldNames = config.visibleFields || [];
   const visibleFields = collection?.fields?.filter((f: { name: string }) => visibleFieldNames.includes(f.name)) || [];
 
+  const getTitle = (record: Record<string, any>) => {
+    if (titleField && record[titleField.name] != null) {
+      return String(record[titleField.name]);
+    }
+    return String(record.name ?? record.title ?? record.label ?? record.id ?? 'untitled');
+  };
+
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-      {onCreate && (
-        <div className="flex items-center justify-center border border-dashed rounded-lg p-4 cursor-pointer hover:bg-muted/20" onClick={() => onCreate({})} aria-label="add item">
-          <Plus className="h-6 w-6" />
+    <>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {onCreate && (
+            <div className="flex items-center justify-center border border-dashed rounded-lg p-4 cursor-pointer hover:bg-muted/20" onClick={() => onCreate({})} aria-label="add item">
+              <Plus className="h-6 w-6" />
+            </div>
+          )}
+          <SortableContext items={orderedData.map((r: any) => r.id)} strategy={rectSortingStrategy}>
+            {orderedData.map((record, i) => (
+              <GalleryCard
+                key={record.id || i}
+                record={record}
+                collection={collection}
+                imageUrl={getImageUrl(record, imageField)}
+                title={getTitle(record)}
+                titleField={titleField}
+                visibleFields={visibleFields}
+                config={config}
+                onUpdateRecord={onUpdateRecord}
+                onDelete={onDelete}
+                onConfigChange={onConfigChange}
+                isTitleEditing={editingTitleRecordId === record.id}
+                onTitleEditStart={() => setEditingTitleRecordId(record.id)}
+                onTitleEditEnd={() => setEditingTitleRecordId(null)}
+                onCardClick={() => setSelectedRecord(record)}
+              />
+            ))}
+          </SortableContext>
         </div>
-      )}
-      {data.map((record, i) => {
-        const imageUrl = getImageUrl(record, imageField);
-        const title = titleField ? record[titleField.name] : (record.id || 'untitled');
+        {data.length === 0 && <div className="col-span-full text-center p-10">no items found.</div>}
+      </DndContext>
 
-        return (
-          <RecordContextMenu
-            key={record.id || i}
-            record={record}
-            collection={collection}
-            onUpdate={onUpdateRecord}
-            onDelete={onDelete}
-            titleField={titleField}
-            config={config}
-            onConfigChange={onConfigChange}
-          >
-            <Card className="rounded-xl shadow-lg border-2 border-transparent p-0 relative hover:scale-[1.02] transition-all bg-card overflow-hidden flex flex-col group/card">
-              {/* inner content vessel */}
-              <div className="flex flex-col h-full w-full rounded-[inherit] overflow-hidden">
-                {imageUrl && (
-                  <div className="aspect-square bg-muted/30 flex items-center justify-center relative overflow-hidden rounded-t-[inherit]">
-                    <img
-                      src={imageUrl}
-                      alt="cover"
-                      className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110 rounded-t-[inherit]"
-                    />
+      {/* single-click: edit entry + pick title & 3 props */}
+      <Dialog open={!!selectedRecord} onOpenChange={(open) => !open && setSelectedRecord(null)}>
+        <DialogContent className="max-w-md max-h-[85vh] overflow-hidden p-0 bg-neutral-900 border border-border/50 shadow-2xl">
+          {selectedRecord && (
+            <RecordEditContent
+              record={selectedRecord}
+              collection={collection}
+              onUpdate={onUpdateRecord}
+              onDelete={(rec) => { onDelete?.(rec); setSelectedRecord(null); }}
+              titleField={titleField}
+              config={config}
+              onConfigChange={onConfigChange}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
 
-                    {/* hover overlay */}
-                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-t-[inherit]">
-                      <span className="text-white text-xs font-bold px-2 py-1 border border-primary bg-primary/20 rounded-full lowercase">
-                        view details
-                      </span>
-                    </div>
-                  </div>
-                )}
-                <CardContent className="p-3 bg-card/95 rounded-b-[inherit]">
-                  {/* editable title */}
-                  <div className="font-black text-xl mb-1 text-center" onClick={(e) => e.stopPropagation()}>
-                    {titleField ? (
-                      <SmartField
-                        value={record[titleField.name]}
-                        field={titleField}
-                        record={record}
-                        collectionName={collection.name}
-                        size="sm"
-                        onChange={(val) => {
-                          if (onUpdateRecord) {
-                            onUpdateRecord(record.id, { [titleField.name]: val });
-                          }
-                        }}
-                        className="h-auto p-0 border-none bg-transparent hover:bg-muted/50 rounded px-1 w-full font-bold text-center"
-                      />
-                    ) : (
-                      <span className="px-1 truncate block">{typeof title === 'string' ? title : String(title)}</span>
-                    )}
-                  </div>
-                  {/* editable properties (max 3) */}
-                  {visibleFields.length > 0 && (
-                    <div className="mt-2 space-y-1 text-center" onClick={(e) => e.stopPropagation()}>
-                      {visibleFields.slice(0, 3).map((f: { name: string; uiSchema?: { title?: string } }) => (
-                        <div key={f.name} className="text-xs text-muted-foreground truncate flex flex-col items-center gap-0.5">
-                          <span className="opacity-50 lowercase text-[10px] ">{f.uiSchema?.title || f.name}:</span>
-                          <div className="w-full">
-                            <SmartField
-                              value={record[f.name]}
-                              field={f}
-                              record={record}
-                              size="sm"
-                              onChange={(val) => {
-                                if (onUpdateRecord) {
-                                  onUpdateRecord(record.id, { [f.name]: val });
-                                }
-                              }}
-                              className="h-auto p-0 border-none bg-transparent hover:bg-muted/50 rounded px-1 text-center"
-                            />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
+function GalleryCard({
+  record,
+  collection,
+  imageUrl,
+  title,
+  titleField,
+  visibleFields,
+  config,
+  onUpdateRecord,
+  onDelete,
+  onConfigChange,
+  isTitleEditing,
+  onTitleEditStart,
+  onTitleEditEnd,
+  onCardClick,
+}: {
+  record: any;
+  collection: any;
+  imageUrl: string | null;
+  title: string;
+  titleField: any;
+  visibleFields: any[];
+  config: any;
+  onUpdateRecord?: (id: string | number, data: any) => void;
+  onDelete?: (rec: any) => void;
+  onConfigChange?: (key: string, value: any) => void;
+  isTitleEditing: boolean;
+  onTitleEditStart: () => void;
+  onTitleEditEnd: () => void;
+  onCardClick: () => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: record.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+  };
+
+  return (
+    <RecordContextMenu
+      record={record}
+      collection={collection}
+      onUpdate={onUpdateRecord}
+      onDelete={onDelete}
+      titleField={titleField}
+      config={config}
+      onConfigChange={onConfigChange}
+    >
+      <div
+        ref={setNodeRef}
+        style={style}
+        className={cn(
+          "rounded-xl shadow-lg border-2 border-transparent p-0 relative hover:scale-[1.02] transition-all bg-card overflow-hidden flex flex-col group/card cursor-pointer",
+          isDragging && "z-50 shadow-2xl"
+        )}
+        onClick={(e) => {
+          if ((e.target as HTMLElement).closest('[data-no-card-click]')) return;
+          onCardClick();
+        }}
+      >
+        {/* drag handle overlay - only blocks click when dragging */}
+        <div
+          className="absolute top-1 left-1 z-10 w-6 h-6 rounded bg-black/40 flex items-center justify-center cursor-grab active:cursor-grabbing opacity-0 group-hover/card:opacity-100 transition-opacity"
+          onClick={(e) => e.stopPropagation()}
+          data-no-card-click
+          {...attributes}
+          {...listeners}
+        >
+          <div className="w-1 h-3 rounded-full bg-white/50" />
+        </div>
+
+        <div className="flex flex-col h-full w-full rounded-[inherit] overflow-hidden">
+          {imageUrl ? (
+            <div className="aspect-square bg-muted/30 flex items-center justify-center relative overflow-hidden rounded-t-[inherit]">
+              <img
+                src={imageUrl}
+                alt=""
+                className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-110 rounded-t-[inherit]"
+              />
+              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/card:opacity-100 transition-opacity flex items-center justify-center rounded-t-[inherit]">
+                <span className="text-white text-xs font-bold px-2 py-1 border border-primary bg-primary/20 rounded-full lowercase">
+                  view details
+                </span>
               </div>
-            </Card>
-          </RecordContextMenu>
-        );
-      })}
-      {data.length === 0 && <div className="col-span-full text-center p-10">no items found.</div>}
-    </div>
+            </div>
+          ) : (
+            <div className="aspect-square bg-muted/30 flex items-center justify-center rounded-t-[inherit]">
+              <span className="text-muted-foreground text-sm lowercase">no image</span>
+            </div>
+          )}
+          <CardContent className="p-3 bg-card/95 rounded-b-[inherit]" onClick={(e) => e.stopPropagation()}>
+            {/* title: double-click to edit */}
+            <div
+              className="font-black text-xl mb-1 text-center"
+              onDoubleClick={(e) => { e.stopPropagation(); onTitleEditStart(); }}
+              data-no-card-click
+            >
+              {titleField ? (
+                isTitleEditing ? (
+                  <SmartField
+                    value={record[titleField.name]}
+                    field={titleField}
+                    record={record}
+                    collectionName={collection.name}
+                    size="sm"
+                    onChange={(val) => {
+                      onUpdateRecord?.(record.id, { [titleField.name]: val });
+                    }}
+                    onBlur={onTitleEditEnd}
+                    autoFocus
+                    className="h-auto p-0 border border-input rounded px-1 w-full font-bold text-center bg-background"
+                  />
+                ) : (
+                  <span className="px-1 truncate block cursor-text" title="double-click to edit">
+                    {title}
+                  </span>
+                )
+              ) : (
+                <span className="px-1 truncate block">{title}</span>
+              )}
+            </div>
+            {visibleFields.length > 0 && (
+              <div className="mt-2 space-y-1 text-center">
+                {visibleFields.slice(0, 3).map((f: { name: string; uiSchema?: { title?: string } }) => (
+                  <div key={f.name} className="text-xs text-muted-foreground truncate flex flex-col items-center gap-0.5">
+                    <span className="opacity-50 lowercase text-[10px]">{f.uiSchema?.title || f.name}:</span>
+                    <div className="w-full">
+                      <SmartField
+                        value={record[f.name]}
+                        field={f}
+                        record={record}
+                        size="sm"
+                        onChange={(val) => onUpdateRecord?.(record.id, { [f.name]: val })}
+                        collectionName={collection.name}
+                        className="h-auto p-0 border-none bg-transparent hover:bg-muted/50 rounded px-1 text-center"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </div>
+      </div>
+    </RecordContextMenu>
   );
 }
