@@ -34,13 +34,15 @@ const SENSITIVE_PATTERNS = [
   { pattern: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/gi, replacement: '[EMAIL_REDACTED]' }, // Emails
 ];
 
+import { storageManager } from './storage-manager';
+
 // check if user is properly authenticated
 function isAuthenticated(): boolean {
   if (typeof window === 'undefined') return false;
   
   try {
-    const token = localStorage.getItem('nocobase_token');
-    const homKey = localStorage.getItem('hom_api_key');
+    const token = storageManager.getItem('nocobase_token');
+    const homKey = storageManager.getItem('hom_api_key');
     
     // must have a real token (not null/undefined/empty)
     const hasValidToken = token && 
@@ -71,7 +73,7 @@ function isDebugMode(): boolean {
 function isPrivacyModeEnabled(): boolean {
   if (typeof window === 'undefined') return true; // Default to privacy on
   try {
-    const privacyMode = localStorage.getItem('pkm_privacy_mode');
+    const privacyMode = storageManager.getItem('pkm_privacy_mode');
     return privacyMode !== 'false'; // Default true unless explicitly disabled
   } catch (e) {
     return true;
