@@ -328,6 +328,8 @@ const DraggableRecordRow = (props: any) => {
 };
 
 const DEFAULT_COL_WIDTH = 150;
+const EMPTY_SIZING: Record<string, number> = {};
+const EMPTY_ORDER: string[] = [];
 
 export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateField, onCreateRecord, onFieldUpdated: onFieldUpdatedCb, loading }: RecordTableProps) {
   const [hiddenColumns, setHiddenColumns] = useAppSetting<string[]>(
@@ -341,29 +343,40 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   const [recordMeta] = useAppSetting<Record<string, any>>(`record_meta_${collection?.name || 'unknown'}`, {});
   const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
 
-  const columnSizing = metadata[collection?.name]?.columnWidths || {};
-  const columnOrder = metadata[collection?.name]?.columnOrder || [];
+  const columnSizing = metadata[collection?.name]?.columnWidths ?? EMPTY_SIZING;
+  const columnOrder = metadata[collection?.name]?.columnOrder ?? EMPTY_ORDER;
 
-  const setColumnOrder = (newOrder: string[]) => {
-    setMetadata({
-      ...metadata,
+  const setColumnOrder = React.useCallback((newOrder: string[]) => {
+    setMetadata((prev: Record<string, any>) => ({
+      ...prev,
       [collection.name]: {
-        ...metadata[collection.name],
+        ...prev[collection.name],
         columnOrder: newOrder
       }
-    });
-  };
+    }));
+  }, [collection?.name, setMetadata]);
 
-  const setColumnSizing = (updater: any) => {
-    const newSizing = typeof updater === 'function' ? updater(columnSizing) : updater;
-    setMetadata({
-      ...metadata,
-      [collection.name]: {
-        ...metadata[collection.name],
-        columnWidths: newSizing
-      }
+  const setColumnSizing = React.useCallback((updater: any) => {
+    setMetadata((prev: Record<string, any>) => {
+      const currentSizing = prev[collection.name]?.columnWidths ?? EMPTY_SIZING;
+      const newSizing = typeof updater === 'function' ? updater(currentSizing) : updater;
+      return {
+        ...prev,
+        [collection.name]: {
+          ...prev[collection.name],
+          columnWidths: newSizing
+        }
+      };
     });
-  };
+  }, [collection?.name, setMetadata]);
+
+  // stable refs for callbacks used inside column definitions
+  const onEditRef = React.useRef(onEdit);
+  const onDeleteRef = React.useRef(onDelete);
+  const onUpdateRecordRef = React.useRef(onUpdateRecord);
+  React.useEffect(() => { onEditRef.current = onEdit; }, [onEdit]);
+  React.useEffect(() => { onDeleteRef.current = onDelete; }, [onDelete]);
+  React.useEffect(() => { onUpdateRecordRef.current = onUpdateRecord; }, [onUpdateRecord]);
 
   if (!collection) {
     return (
@@ -376,6 +389,10 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     );
   }
   const columnHelper = React.useMemo(() => createColumnHelper<any>(), []);
+
+  // stable key for data-inferred columns (fallback when collection has no fields)
+  const dataColumnsKey = data.length > 0 ? Object.keys(data[0]).sort().join('\0') : '';
+  const hasActions = !!(onEdit || onDelete);
 
   const columns = React.useMemo(() => {
     let cols: any[] = [];
@@ -396,9 +413,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               collectionName={collection.name}
               size="lg"
               onChange={(val) => {
-                if (onUpdateRecord) {
-                  onUpdateRecord(info.row.original.id, { [field.name]: val });
-                }
+                onUpdateRecordRef.current?.(info.row.original.id, { [field.name]: val });
               }}
             />
           )
@@ -406,8 +421,9 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     }
     
     // fallback: if no collection fields are defined but we have data, infer columns from the first row
-    if (cols.length === 0 && data.length > 0) {
-      cols = Object.keys(data[0])
+    if (cols.length === 0 && dataColumnsKey) {
+      const keys = dataColumnsKey.split('\0');
+      cols = keys
         .filter(key => !hiddenColumns.includes(key))
         .map((key) =>
           columnHelper.accessor(key, {
@@ -421,9 +437,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                 collectionName={collection.name}
                 size="lg"
                 onChange={(val) => {
-                  if (onUpdateRecord) {
-                    onUpdateRecord(info.row.original.id, { [key]: val });
-                  }
+                  onUpdateRecordRef.current?.(info.row.original.id, { [key]: val });
                 }}
               />
             )
@@ -450,7 +464,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       ];
     }
 
-    if (onEdit || onDelete) {
+    if (hasActions) {
       cols.push(columnHelper.display({
         id: 'actions',
         header: () => (
@@ -477,8 +491,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                     const availableFields: any[] =
                       collection.fields && collection.fields.length > 0
                         ? collection.fields
-                        : data.length > 0
-                        ? Object.keys(data[0])
+                        : dataColumnsKey
+                        ? dataColumnsKey.split('\0')
                         : [];
                     if (availableFields.length === 0) {
                       return (
@@ -517,13 +531,13 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         ),
         cell: (props) => (
           <div className="flex items-center justify-center gap-1 h-7">
-            {onEdit && (
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onEdit(props.row.original); }}>
+            {onEditRef.current && (
+              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onEditRef.current!(props.row.original); }}>
                 <Edit2 className="h-3.5 w-3.5" />
               </Button>
             )}
-            {onDelete && (
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onDelete(props.row.original); }}>
+            {onDeleteRef.current && (
+              <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onDeleteRef.current!(props.row.original); }}>
                 <Trash2 className="h-3.5 w-3.5" />
               </Button>
             )}
@@ -533,7 +547,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     }
 
     return cols;
-  }, [data, collection, columnHelper, onEdit, onDelete, hiddenColumns, setHiddenColumns]);
+  }, [dataColumnsKey, collection, columnHelper, hasActions, hiddenColumns, setHiddenColumns]);
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
