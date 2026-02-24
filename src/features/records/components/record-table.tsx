@@ -707,6 +707,21 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         </div>
       </DndContext>
 
+      {/* add new record button — pinned to bottom, absolute so it doesn't affect autosizer layout */}
+      {onCreateRecord && (
+        <div className="absolute bottom-0 left-0 right-0 border-t border-[#222] bg-[#0b0b0b] z-10">
+          <Button
+            variant="ghost"
+            className="h-9 w-full rounded-none opacity-50 hover:opacity-100 hover:bg-white/10 flex items-center justify-start gap-2 px-3 transition-opacity"
+            onClick={onCreateRecord}
+            title="create new record"
+          >
+            <Plus className="h-4 w-4" />
+            <span className="text-xs text-muted-foreground lowercase">new record</span>
+          </Button>
+        </div>
+      )}
+
       <FieldSettingsDialog
         open={isSettingsOpen}
         onOpenChange={setIsSettingsOpen}
