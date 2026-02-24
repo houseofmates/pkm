@@ -37,7 +37,7 @@ export class CanvasErrorBoundary extends Component<Props, State> {
       if (drawingId) {
         const canvasData = (window as any).pkmGetCanvasJSON?.()
         if (canvasData) {
-          localStorage.setItem(`pkm-emergency-backup-${drawingId}`, JSON.stringify(canvasData))
+          storageManager.setItem(`pkm-emergency-backup-${drawingId}`, JSON.stringify(canvasData))
           console.log('[canvas error boundary] emergency backup saved')
         }
       }
