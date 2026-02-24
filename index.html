@@ -4,7 +4,10 @@
 <head>
   <meta charset="UTF-8" />
   <base href="/" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <!-- use a generic png icon instead of the vite logo; the
+         `root-layout` component will override this again later based
+         on the hostname. -->
+    <link rel="icon" type="image/png" href="/favicon.png" id="favicon" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
@@ -58,6 +61,19 @@
   </style>
 
   <title>pkm</title>
+  <!-- Immediately update title to hostname for houseofmates domains
+       so the user never sees "pkm" in their browser tab when on those
+       sites. This runs before React mounts. -->
+  <script>
+    try {
+      const host = window.location.hostname;
+      if (host && host.endsWith('houseofmates.space')) {
+        document.title = host;
+      }
+    } catch (e) {
+      console.warn('failed to set dynamic title', e);
+    }
+  </script>
 </head>
 
 <body class="fonts-loading">

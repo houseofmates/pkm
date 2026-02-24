@@ -64,7 +64,8 @@ export function LoginPage() {
         <div className="flex flex-col items-center gap-4">
           {isPublic ? (
             <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
-              <img src="/logo-hom.png" className="w-10 h-10 object-contain" alt="house of mates" />
+              {/* use the new transparent database icon as the login image */}
+              <img src="/favicon.png" className="w-10 h-10 object-contain" alt="house of mates" />
             </div>
           ) : (
             <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center">
