@@ -122,13 +122,14 @@ export function looksLikeSecret(value: string): boolean {
 /**
  * safe localstorage wrapper that warns about sensitive data
  */
-import { storageManager } from './storage-manager';
+// safeStorage no longer depends on storageManager; it wraps localStorage
+// directly and applies some heuristic warnings for sensitive values.
 
 export const safeStorage = {
   getItem(key: string): string | null {
     try {
-      return storageManager.getItem(key);
-    } catch (e) {
+      return localStorage.getItem(key);
+    } catch (_) {
       return null;
     }
   },
@@ -140,8 +141,8 @@ export const safeStorage = {
     }
     
     try {
-      storageManager.setItem(key, value);
-    } catch (e) {
+      localStorage.setItem(key, value);
+    } catch (_) {
       // ignore quota errors
     }
   },
