@@ -24,12 +24,12 @@ export interface SearchResult {
 const VECTOR_CONFIG = {
   // nocobase ai knowledge base endpoints
   knowledgeBaseId: 'pkm-global-kb',
-  chunkSize: 512,
-  chunkOverlap: 128,
-  topK: 8,
+  chunkSize: Number(import.meta.env.VITE_VECTOR_CHUNK_SIZE || 512),
+  chunkOverlap: Number(import.meta.env.VITE_VECTOR_CHUNK_OVERLAP || 128),
+  topK: Number(import.meta.env.VITE_VECTOR_TOP_K || 8),
   // local ollama embedding endpoint (fallback)
-  embeddingModel: 'nomic-embed-text',
-  embeddingEndpoint: 'http://localhost:11434/api/embeddings',
+  embeddingModel: import.meta.env.VITE_VECTOR_EMBEDDING_MODEL || 'nomic-embed-text',
+  embeddingEndpoint: import.meta.env.VITE_VECTOR_EMBEDDING_ENDPOINT || 'http://localhost:11434/api/embeddings',
 };
 
 // generate embeddings using ollama
