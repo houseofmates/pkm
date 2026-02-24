@@ -1,6 +1,7 @@
 import { Component, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
+import { storageManager } from '@/lib/storage-manager';
 
 interface Props {
   children: ReactNode
