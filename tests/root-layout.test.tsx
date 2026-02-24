@@ -47,7 +47,7 @@ describe('RootLayout', () => {
     }
     // allow controlling the hostname for title tests
     Object.defineProperty(window, 'location', {
-      value: { hostname: 'test.houseofmates.space' },
+      value: { hostname: 'dupe.houseofmates.space' },
       writable: true,
       configurable: true,
     });
@@ -72,8 +72,8 @@ describe('RootLayout', () => {
     );
     expect(screen.queryByText('connected')).toBeNull();
 
-    // title should reflect hostname stubbed above
-    expect(document.title).toBe('test.houseofmates.space');
+    // title should map according to our host rules
+    expect(document.title).toBe('dupemates');
   });
 
   it('can load with health bar env variable set', async () => {
