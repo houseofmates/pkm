@@ -4,6 +4,9 @@
     "short_name": "capture",
     "version": "1.3",
     "description": "capture content and summarize ai conversations to your pkm brain",
+    "icons": {
+        "48": "icon-database-transparent.png"
+    },
     "permissions": [
         "contextMenus",
         "storage",
