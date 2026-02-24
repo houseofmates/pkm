@@ -24,8 +24,8 @@ export const MemberService = {
   const uploadRes = await api.upload(file);
 
   // extract url (nocobase returns { data: { url: ... } })
-  const fileData = uploadRes.data || uploadRes;
-  const fileUrl = fileData.url;
+  const fileData = (uploadRes as any).data || uploadRes;
+  const fileUrl = (fileData as any).url;
 
   if (!fileUrl) {
  throw new Error("Upload succeeded but no URL returned from NocoBase");
