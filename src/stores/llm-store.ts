@@ -85,7 +85,7 @@ export const useLLMStore = create<LLMState>((set, get) => ({
     }
 
     // fallback to legacy non-rag mode
-    return get().askWilsonLegacy(text, isBackground)
+    return get().askWilsonLegacy(text)
   },
 
   // new rag-enabled method
