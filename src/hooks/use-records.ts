@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { useFronter } from '@/contexts/fronter-context';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -199,7 +199,7 @@ export function useRecord(collectionName: string, recordId: string | number) {
   const extractRecordData = (responseData: unknown): unknown => {
     if (!responseData) return null;
     if (typeof responseData !== 'object') return responseData;
-    
+
     // Try to extract from common wrapper formats
     const obj = responseData as Record<string, unknown>;
     return obj.data ?? responseData;

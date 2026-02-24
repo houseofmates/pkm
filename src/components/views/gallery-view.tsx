@@ -216,6 +216,8 @@ function GalleryCard({
     opacity: isDragging ? 0.6 : 1,
   };
 
+  const hasImage = !!imageUrl;
+
   return (
     <RecordContextMenu
       record={record}
@@ -229,8 +231,10 @@ function GalleryCard({
       <div
         ref={setNodeRef}
         style={style}
+        {...attributes}
+        {...listeners}
         className={cn(
-          "rounded-xl shadow-lg border-2 border-transparent p-0 relative hover:scale-[1.02] transition-all bg-card overflow-hidden flex flex-col group/card cursor-pointer",
+          "rounded-xl shadow-lg border-2 border-transparent p-0 relative hover:scale-[1.02] transition-all bg-card overflow-hidden flex flex-col group/card cursor-grab active:cursor-grabbing",
           isDragging && "z-50 shadow-2xl"
         )}
         onClick={(e) => {
@@ -238,91 +242,147 @@ function GalleryCard({
           onCardClick();
         }}
       >
-        {/* drag handle overlay - only blocks click when dragging */}
-        <div
-          className="absolute top-1 left-1 z-10 w-6 h-6 rounded bg-black/40 flex items-center justify-center cursor-grab active:cursor-grabbing opacity-0 group-hover/card:opacity-100 transition-opacity"
-          onClick={(e) => e.stopPropagation()}
-          data-no-card-click
-          {...attributes}
-          {...listeners}
-        >
-          <div className="w-1 h-3 rounded-full bg-white/50" />
-        </div>
-
-        <div className="flex flex-col h-full w-full rounded-[inherit] overflow-hidden">
-          {imageUrl ? (
-            <div className="aspect-square bg-muted/30 flex items-center justify-center relative overflow-hidden rounded-t-[inherit]">
-              <img
-                src={imageUrl}
-                alt=""
-                className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-110 rounded-t-[inherit]"
-              />
-              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/card:opacity-100 transition-opacity flex items-center justify-center rounded-t-[inherit]">
-                <span className="text-white text-xs font-bold px-2 py-1 border border-primary bg-primary/20 rounded-full lowercase">
-                  view details
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="aspect-square bg-muted/30 flex items-center justify-center rounded-t-[inherit]">
-              <span className="text-muted-foreground text-sm lowercase">no image</span>
-            </div>
-          )}
-          <CardContent className="p-3 bg-card/95 rounded-b-[inherit]" onClick={(e) => e.stopPropagation()}>
-            {/* title: double-click to edit (single-click on title does not open dialog) */}
-            <div
-              className="font-black text-xl mb-1 text-center"
-              onDoubleClick={(e) => { e.stopPropagation(); onTitleEditStart(); }}
-              data-no-card-click
-              title="double-click to edit"
-            >
-              {titleField ? (
-                isTitleEditing ? (
-                  <SmartField
-                    value={record[titleField.name]}
-                    field={titleField}
-                    record={record}
-                    collectionName={collection.name}
-                    size="sm"
-                    onChange={(val) => {
-                      onUpdateRecord?.(record.id, { [titleField.name]: val });
-                    }}
-                    onBlur={onTitleEditEnd}
-                    autoFocus
-                    className="h-auto p-0 border border-input rounded px-1 w-full font-bold text-center bg-background"
-                  />
-                ) : (
-                  <span className="px-1 truncate block cursor-text" title="double-click to edit">
-                    {title}
+        <div className={cn("flex flex-col w-full rounded-[inherit] overflow-hidden", !hasImage && "min-h-0")}>
+          {hasImage ? (
+            <>
+              <div className="aspect-square bg-muted/30 flex items-center justify-center relative overflow-hidden rounded-t-[inherit]">
+                <img
+                  src={imageUrl!}
+                  alt=""
+                  className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-110 rounded-t-[inherit]"
+                />
+                <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/card:opacity-100 transition-opacity flex items-center justify-center rounded-t-[inherit]">
+                  <span className="text-white text-xs font-bold px-2 py-1 border border-primary bg-primary/20 rounded-full lowercase">
+                    view details
                   </span>
-                )
-              ) : (
-                <span className="px-1 truncate block">{title}</span>
-              )}
-            </div>
-            {visibleFields.length > 0 && (
-              <div className="mt-2 space-y-1 text-center">
-                {visibleFields.slice(0, 3).map((f: { name: string; uiSchema?: { title?: string } }) => (
-                  <div key={f.name} className="text-xs text-muted-foreground truncate flex flex-col items-center gap-0.5">
-                    <span className="opacity-50 lowercase text-[10px]">{f.uiSchema?.title || f.name}:</span>
-                    <div className="w-full">
-                      <SmartField
-                        value={record[f.name]}
-                        field={f}
-                        record={record}
-                        size="sm"
-                        onChange={(val) => onUpdateRecord?.(record.id, { [f.name]: val })}
-                        collectionName={collection.name}
-                        className="h-auto p-0 border-none bg-transparent hover:bg-muted/50 rounded px-1 text-center"
-                      />
-                    </div>
-                  </div>
-                ))}
+                </div>
               </div>
-            )}
-          </CardContent>
+              <CardContent className="p-3 bg-card/95 rounded-b-[inherit]" onClick={(e) => e.stopPropagation()}>
+                <GalleryCardTitle
+                  record={record}
+                  title={title}
+                  titleField={titleField}
+                  isTitleEditing={isTitleEditing}
+                  onTitleEditStart={onTitleEditStart}
+                  onTitleEditEnd={onTitleEditEnd}
+                  onUpdateRecord={onUpdateRecord}
+                  collection={collection}
+                  compact={false}
+                />
+                {visibleFields.length > 0 && (
+                  <div className="mt-2 space-y-1 text-center">
+                    {visibleFields.slice(0, 3).map((f: { name: string; uiSchema?: { title?: string } }) => (
+                      <div key={f.name} className="text-xs text-muted-foreground truncate flex flex-col items-center gap-0.5">
+                        <span className="opacity-50 lowercase text-[10px]">{f.uiSchema?.title || f.name}:</span>
+                        <div className="w-full">
+                          <SmartField
+                            value={record[f.name]}
+                            field={f}
+                            record={record}
+                            size="sm"
+                            onChange={(val) => onUpdateRecord?.(record.id, { [f.name]: val })}
+                            collectionName={collection.name}
+                            className="h-auto p-0 border-none bg-transparent hover:bg-muted/50 rounded px-1 text-center"
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </CardContent>
+            </>
+          ) : (
+            <CardContent className="p-2 bg-card/95 rounded-[inherit] flex flex-col gap-1 min-w-0">
+              <GalleryCardTitle
+                record={record}
+                title={title}
+                titleField={titleField}
+                isTitleEditing={isTitleEditing}
+                onTitleEditStart={onTitleEditStart}
+                onTitleEditEnd={onTitleEditEnd}
+                onUpdateRecord={onUpdateRecord}
+                collection={collection}
+                compact
+              />
+              {visibleFields.length > 0 && (
+                <div className="space-y-0.5">
+                  {visibleFields.slice(0, 3).map((f: { name: string; uiSchema?: { title?: string } }) => (
+                    <div key={f.name} className="text-[10px] text-muted-foreground truncate flex items-center gap-1">
+                      <span className="opacity-50 lowercase shrink-0">{f.uiSchema?.title || f.name}:</span>
+                      <div className="min-w-0 flex-1">
+                        <SmartField
+                          value={record[f.name]}
+                          field={f}
+                          record={record}
+                          size="sm"
+                          onChange={(val) => onUpdateRecord?.(record.id, { [f.name]: val })}
+                          collectionName={collection.name}
+                          className="h-auto p-0 border-none bg-transparent hover:bg-muted/50 rounded px-0.5 text-left text-xs"
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          )}
         </div>
       </div>
     </RecordContextMenu>
+  );
+}
+
+function GalleryCardTitle({
+  record,
+  title,
+  titleField,
+  isTitleEditing,
+  onTitleEditStart,
+  onTitleEditEnd,
+  onUpdateRecord,
+  collection,
+  compact = false,
+}: {
+  record: any;
+  title: string;
+  titleField: any;
+  isTitleEditing: boolean;
+  onTitleEditStart: () => void;
+  onTitleEditEnd: () => void;
+  onUpdateRecord?: (id: string | number, data: any) => void;
+  collection: any;
+  compact?: boolean;
+}) {
+  return (
+    <div
+      className={cn("font-black mb-1 text-center", compact ? "text-sm" : "text-xl")}
+      onDoubleClick={(e) => { e.stopPropagation(); onTitleEditStart(); }}
+      data-no-card-click
+      title="double-click to edit"
+    >
+      {titleField ? (
+        isTitleEditing ? (
+          <SmartField
+            value={record[titleField.name]}
+            field={titleField}
+            record={record}
+            collectionName={collection.name}
+            size="sm"
+            onChange={(val) => {
+              onUpdateRecord?.(record.id, { [titleField.name]: val });
+            }}
+            onBlur={onTitleEditEnd}
+            autoFocus
+            className="h-auto p-0 border border-input rounded px-1 w-full font-bold text-center bg-background"
+          />
+        ) : (
+          <span className="px-1 truncate block cursor-text" title="double-click to edit">
+            {title}
+          </span>
+        )
+      ) : (
+        <span className="px-1 truncate block">{title}</span>
+      )}
+    </div>
   );
 }
