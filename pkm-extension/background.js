@@ -110,16 +110,18 @@ async function handleSummarize(tab) {
         showToast(tab.id, '🤖 extracting conversation...');
         
         // inject ai-summarizer.js to extract and summarize
-        const results = await browser.tabs.executeScript(tab.id, {
+        await browser.tabs.executeScript(tab.id, {
             file: 'ai-summarizer.js'
         });
         
-        // the script will handle everything and send messages back
-        console.log('[pkm] summarizer injected', results);
+        console.log('[pkm] summarizer injected, triggering...');
+        
+        // send message to trigger the summarization
+        await browser.tabs.sendMessage(tab.id, { action: 'trigger_summarize' });
         
     } catch (error) {
         console.error('[pkm] summarize error:', error);
-        showToast(tab.id, 'failed to summarize', true);
+        showToast(tab.id, 'failed to summarize: ' + error.message, true);
     }
 }
 
