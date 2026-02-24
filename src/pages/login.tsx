@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { isPublicDomain } from '@/utils/subdomain-router';
 import { Database } from 'lucide-react';
 import { NocoBaseClient } from '@/api/nocobase-client';
+import { normalizeAuthToken, toAuthorizationHeaderValue } from '@/lib/auth-token';
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -22,8 +23,8 @@ export function LoginPage() {
   // valid.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmedToken = inputToken.trim();
-    if (!trimmedToken) return;
+    const normalizedToken = normalizeAuthToken(inputToken);
+    if (!normalizedToken) return;
 
     setIsValidating(true);
     setError(null);
@@ -35,16 +36,14 @@ export function LoginPage() {
       // pass the token directly in headers so we don't rely on storage yet.
       await client.client.get('/collections:list', {
         headers: {
-          authorization: trimmedToken.startsWith('bearer ')
-            ? trimmedToken
-            : `bearer ${trimmedToken}`,
+          Authorization: toAuthorizationHeaderValue(normalizedToken),
         },
         params: { pageSize: 1 },
       });
 
       // if validation succeeded, store it and let the rest of the app handle
       // any additional initialization (e.g. ensureBackendCollection).
-      login(trimmedToken);
+      login(normalizedToken);
       // small delay to let state propagate
       await new Promise((resolve) => setTimeout(resolve, 100));
     } catch (err: any) {
