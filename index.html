@@ -67,9 +67,13 @@
   <script>
     try {
       const host = window.location.hostname;
-      if (host && host.endsWith('houseofmates.space')) {
-        document.title = host;
-      }
+      // map a few well-known hosts to friendly titles
+      let title = 'pkm';
+      if (host === 'dupe.houseofmates.space') title = 'dupemates';
+      else if (host === 'blog.houseofmates.space') title = 'blog';
+      else if (host === 'houseofmates.space') title = 'houseofmates';
+      else if (host === 'pkm.houseofmates.space') title = 'pkm';
+      document.title = title;
     } catch (e) {
       console.warn('failed to set dynamic title', e);
     }

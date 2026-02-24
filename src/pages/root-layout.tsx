@@ -123,8 +123,11 @@ export function RootLayout() {
 
     // also adjust document title for the same hosts
     const host = typeof window !== 'undefined' ? window.location.hostname : '';
-    if (host && host.endsWith('houseofmates.space')) {
-      document.title = host;
+    if (host) {
+      if (host === 'dupe.houseofmates.space') document.title = 'dupemates';
+      else if (host === 'blog.houseofmates.space') document.title = 'blog';
+      else if (host === 'houseofmates.space') document.title = 'houseofmates';
+      else document.title = 'pkm';
     }
   }, [accentColor]);
 
