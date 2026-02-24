@@ -256,8 +256,9 @@ const DraggableRecordRow = (props: any) => {
     opacity: isDragging ? 0.5 : 1,
     touchAction: 'none', // Important for touch drag
     backgroundColor: rowColor ? `${rowColor}20` : undefined,
-    display: 'flex', // Crucial for virtualization 
-    width: '100%'
+    display: 'flex', // Crucial for virtualization
+    minWidth: '100%',
+    width: 'fit-content'
   };
 
   return (
