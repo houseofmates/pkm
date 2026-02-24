@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useRef } from 'react';
 import { useFronter } from '@/contexts/fronter-context';
-import { useAuth } from '@/contexts/auth-context';
+import { AuthContext } from '@/contexts/auth-context';
 import type { LLMContextPayload, IdentityContext, AffectiveContext, ActivityContext } from '@/types/llm-context';
 // import { usecollections } from '@/hooks/use-collections';
 import { debounce } from 'lodash';
