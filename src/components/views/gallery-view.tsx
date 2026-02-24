@@ -99,19 +99,21 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
     : (collection?.fields?.find((f: { name: string; interface?: string }) => f.interface === 'attachment')
       || collection?.fields?.find((f: { name: string }) => /image|cover|avatar|photo|picture|icon/.test(f.name.toLowerCase())));
 
+  // prefer "title" as the gallery card title, then name, then first input
   const titleField = config.titleField
     ? collection?.fields?.find((f: { name: string; interface?: string }) => f.name === config.titleField)
-    : (collection?.fields?.find((f: { name: string }) => f.name === 'title' || f.name === 'name')
+    : (collection?.fields?.find((f: { name: string }) => f.name === 'title')
+      || collection?.fields?.find((f: { name: string }) => f.name === 'name')
       || collection?.fields?.find((f: { interface?: string }) => f.interface === 'input'));
 
   const visibleFieldNames = config.visibleFields || [];
   const visibleFields = collection?.fields?.filter((f: { name: string }) => visibleFieldNames.includes(f.name)) || [];
 
   const getTitle = (record: Record<string, any>) => {
-    if (titleField && record[titleField.name] != null) {
+    if (titleField && record[titleField.name] != null && record[titleField.name] !== '') {
       return String(record[titleField.name]);
     }
-    return String(record.name ?? record.title ?? record.label ?? record.id ?? 'untitled');
+    return String(record.title ?? record.name ?? record.label ?? record.id ?? 'untitled');
   };
 
   return (
