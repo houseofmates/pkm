@@ -118,7 +118,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
   if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
   saveTimeoutRef.current = setTimeout(async () => {
- if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) return;
+ if (!isAuthenticated || !token || !storageManager.getItem('nocobase_token')) return;
  const performSave = async (valueToSave: unknown): Promise<void> => {
  try {
  const payload = { value: valueToSave };
