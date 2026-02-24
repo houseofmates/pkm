@@ -21,6 +21,7 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
 
   const fetchRecords = async () => {
     const response = await client.listRecords(collectionName, queryParams);
+    console.debug('[useRecords] fetched', collectionName, queryParams, response);
     return response;
   };
 
@@ -30,6 +31,12 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
     enabled: !!collectionName,
     placeholderData: (previousData) => previousData,
   });
+
+  useEffect(() => {
+    if (data !== undefined) {
+      console.debug('[useRecords] data updated for', collectionName, data);
+    }
+  }, [data, collectionName]);
 
 
   const records: any[] = extractRecords(data);
