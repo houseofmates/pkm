@@ -1,5 +1,13 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+
+// some components in the tree rely on the classic JSX runtime and
+// therefore refer to the global `React` variable.  Vitest/app-bundler
+// sometimes compiles them without injecting an import, which causes
+// `ReferenceError: React is not defined` during tests.  Exposing React
+// globally prevents us from having to fix every component file in the
+// repo just for the tests.
+;(globalThis as any).React = React;
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { BrowserRouter } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
