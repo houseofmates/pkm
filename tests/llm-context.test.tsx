@@ -7,7 +7,9 @@ import { describe, it, expect, vi } from 'vitest';
 describe('LLMContextProvider', () => {
   it('renders children even when AuthProvider is missing', () => {
     // dynamically import to ensure we get the latest code after module reloads
-    const { LLMContextProvider } = require('@/contexts/llm-context');
+    // use dynamic import just like root-layout tests so the path alias works
+    const llmModule = await import('@/contexts/llm-context');
+    const { LLMContextProvider } = llmModule;
 
     // spy on console.warn so we can assert the guard path executed
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
