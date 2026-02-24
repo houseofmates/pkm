@@ -1016,7 +1016,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
 
   return (
     <>
-      {isediting && element.type !== 'text' && isadmin && (
+      {isEditing && element.type !== 'text' && isAdmin && (
         element.type === 'form' ? (
           <FormBuilder
             initialData={element}
