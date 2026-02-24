@@ -10,7 +10,23 @@ const LLMContext = createContext<LLMContextPayload | null>(null);
 
 export function LLMContextProvider({ children }: { children: React.ReactNode }) {
   const { activeFronters, overrides } = useFronter();
-  const { client, isAuthenticated } = useAuth();
+
+  // `LLMContextProvider` relies on `useAuth` but we sometimes hit a
+  // situation where the hook is accidentally called outside of an
+  // `AuthProvider` (especially during hot reloads or early renders).
+  // Rather than blowing up the whole app, we guard here and render
+  // the children directly if the context is unavailable.  This keeps
+  // the rest of the tree functional while we investigate why the
+  // provider chain was broken.
+  const authContext = useContext(AuthContext);
+  if (!authContext) {
+    // this log should surface in prod logs if it ever happens
+    // (it shouldn't under normal operation).
+    console.warn('LLMContextProvider rendered without surrounding AuthProvider');
+    return <>{children}</>;
+  }
+  const { client, isAuthenticated } = authContext;
+
   // const { collections } = usecollections(); // not used currently
 
   // local state for aggregated context
