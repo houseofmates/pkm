@@ -26,6 +26,7 @@ import { cn } from '@/lib/utils';
 
 export function GalleryView({ data, loading, collection, config = {}, onUpdateRecord, onDelete, onConfigChange, onCreate }: ViewProps) {
   const [selectedRecord, setSelectedRecord] = useState<any | null>(null);
+  const [viewConfigRecord, setViewConfigRecord] = useState<any | null>(null);
   const [editingTitleRecordId, setEditingTitleRecordId] = useState<string | number | null>(null);
 
   const recordOrder: (string | number)[] = config.recordOrder || [];
@@ -143,6 +144,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
                 onTitleEditStart={() => setEditingTitleRecordId(record.id)}
                 onTitleEditEnd={() => setEditingTitleRecordId(null)}
                 onCardClick={() => setSelectedRecord(record)}
+                onCardDoubleClick={() => setViewConfigRecord(record)}
               />
             ))}
           </SortableContext>
@@ -167,6 +169,24 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
           )}
         </DialogContent>
       </Dialog>
+
+      {/* double-click (not on title) or right-click: edit how this card looks (title field, 3 visible properties) */}
+      <Dialog open={!!viewConfigRecord} onOpenChange={(open) => !open && setViewConfigRecord(null)}>
+        <DialogContent className="max-w-md max-h-[85vh] overflow-hidden p-0 bg-neutral-900 border border-border/50 shadow-2xl">
+          {viewConfigRecord && (
+            <RecordEditContent
+              record={viewConfigRecord}
+              collection={collection}
+              onUpdate={onUpdateRecord}
+              onDelete={(rec) => { onDelete?.(rec); setViewConfigRecord(null); }}
+              titleField={titleField}
+              config={config}
+              onConfigChange={onConfigChange}
+              showViewConfig={true}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
@@ -186,6 +206,7 @@ function GalleryCard({
   onTitleEditStart,
   onTitleEditEnd,
   onCardClick,
+  onCardDoubleClick,
 }: {
   record: any;
   collection: any;
@@ -201,6 +222,7 @@ function GalleryCard({
   onTitleEditStart: () => void;
   onTitleEditEnd: () => void;
   onCardClick: () => void;
+  onCardDoubleClick: () => void;
 }) {
   const {
     attributes,
@@ -241,6 +263,11 @@ function GalleryCard({
         onClick={(e) => {
           if ((e.target as HTMLElement).closest('[data-no-card-click]')) return;
           onCardClick();
+        }}
+        onDoubleClick={(e) => {
+          if ((e.target as HTMLElement).closest('[data-no-card-click]')) return;
+          e.preventDefault();
+          onCardDoubleClick();
         }}
       >
         <div className={cn("flex flex-col w-full rounded-[inherit] overflow-hidden", !hasImage && "min-h-0")}>
