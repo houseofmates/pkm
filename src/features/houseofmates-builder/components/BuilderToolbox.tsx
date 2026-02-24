@@ -351,8 +351,8 @@ export function BuilderToolbox() {
  const uploaded = await api.upload(file);
  const url = uploaded?.url || uploaded?.data?.url;
  if (url) {
- addelement(createdefaultelement('image', { url, alt: file.name }));
- toast.success('image uploaded');
+    addElement(createDefaultElement('image', { url, alt: file.name }));
+    toast.success('image uploaded');
  }
   } catch (err) {
  console.error(err);
@@ -376,7 +376,7 @@ export function BuilderToolbox() {
  const uploaded = await api.upload(file);
  const url = uploaded?.url || uploaded?.data?.url;
  if (url) {
- addelement(createdefaultelement('video', {
+    addElement(createDefaultElement('video', {
  url,
  autoplay: false,
  loop: false,
@@ -394,7 +394,7 @@ export function BuilderToolbox() {
   input.click();
   };
 
-  const handleaddembed = () => {
+  const handleAddEmbed = () => {
   const url = prompt('enter embed url (youtube, spotify, etc.):');
   if (!url) return;
 
