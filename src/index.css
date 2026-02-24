@@ -405,8 +405,9 @@ button,
 .sidebar-icon,
 [class*='sidebar'] svg,
 .selected-icon-btn svg {
-  color: hsl(var(--primary)) !important;
-  stroke: hsl(var(--primary)) !important;
+  /* allow individual item color to dictate icon hue */
+  color: currentColor !important;
+  stroke: currentColor !important;
 }
 
 /* improve contrast for icons on dark bg */
