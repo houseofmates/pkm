@@ -138,9 +138,9 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
       ref={setNodeRef}
       style={{
         ...style,
-        width: header.getSize(),
-        minWidth: header.getSize(),
-        maxWidth: header.getSize(),
+          width: header.getSize() || DEFAULT_COL_WIDTH,
+        minWidth: header.getSize() || DEFAULT_COL_WIDTH,
+        maxWidth: header.getSize() || DEFAULT_COL_WIDTH,
         paddingLeft: 8,
         paddingRight: 8,
         background: 'transparent',
@@ -297,9 +297,9 @@ const DraggableRecordRow = (props: any) => {
             <div
               key={cell.id}
               style={{
-                width: cell.column.getSize(),
-                minWidth: cell.column.getSize(),
-                maxWidth: cell.column.getSize()
+                width: cell.column.getSize() || DEFAULT_COL_WIDTH,
+                minWidth: cell.column.getSize() || DEFAULT_COL_WIDTH,
+                maxWidth: cell.column.getSize() || DEFAULT_COL_WIDTH
               }}
               className="border-r border-[#222] align-middle p-0 h-10 transition-colors group-hover:bg-white/5 flex-shrink-0"
               onContextMenu={(e) => {
@@ -319,6 +319,8 @@ const DraggableRecordRow = (props: any) => {
     </RecordContextMenu>
   );
 };
+
+const DEFAULT_COL_WIDTH = 150;
 
 export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateField, onFieldUpdated: onFieldUpdatedCb, loading }: RecordTableProps) {
   const [hiddenColumns, setHiddenColumns] = useAppSetting<string[]>(
