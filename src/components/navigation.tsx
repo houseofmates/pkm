@@ -294,6 +294,9 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
           storageManager.removeItem(`canvas-content-${id.replace('doc_', '')}`);
         } else {
           storageManager.setItem(key, JSON.stringify(toSave));
+        }
+      } catch (e) {
+        console.error("Failed to save local doc", e);
       }
     }
 

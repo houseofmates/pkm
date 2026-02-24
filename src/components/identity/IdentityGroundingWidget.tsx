@@ -4,6 +4,7 @@ import { SimplyPluralClient } from '@/lib/simply-plural-client';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Target } from 'lucide-react';
+import { storageManager } from '@/lib/storage-manager';
 
 export function IdentityGroundingWidget({ className }: { className?: string }) {
   const { activeFronters, memberColors } = useFronter();
