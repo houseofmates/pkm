@@ -267,10 +267,10 @@ class CanvasSyncService {
 
   private getClientId(): string {
     // stable client identifier
-    let id = localStorage.getItem('pkm_client_id')
+    let id = storageManager.getItem('pkm_client_id')
     if (!id) {
       id = `client-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
-      localStorage.setItem('pkm_client_id', id)
+      storageManager.setItem('pkm_client_id', id)
     }
     return id
   }
