@@ -647,12 +647,13 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         style={{ height, width }}
                         rowComponent={DraggableRecordRow}
                       />
+                    </>
                   )}
-                    </AutoSizer>
+                </AutoSizer>
               )}
-                </div>
+            </div>
           </div>
-          </div>
+        </div>
       </DndContext>
 
       <FieldSettingsDialog
