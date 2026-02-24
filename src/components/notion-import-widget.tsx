@@ -7,6 +7,8 @@ export function NotionImportWidget() {
     const [files, setFiles] = useState<File[]>([]);
     const [logs, setLogs] = useState<string[]>([]);
     const [running, setRunning] = useState(false);
+    const [preview, setPreview] = useState<{ name: string; relations?: Array<{ field: string; target: string }> }[]>([]);
+    const [lastTaskId, setLastTaskId] = useState<string | null>(null);
     const [appApiKey] = useAppSetting('apiKey', '');
 
     const appendLog = (msg: string) => {
@@ -32,14 +34,18 @@ export function NotionImportWidget() {
         // sometimes storage contains the literal string "null" or "undefined";
         // treat those as empty.
         if (apiKey === 'null' || apiKey === 'undefined') apiKey = '';
-        console.debug('[NotionImportWidget] using apiKey', apiKey && maskString(apiKey));
+        if (import.meta.env.DEV) {
+            console.debug('[NotionImportWidget] using apiKey', apiKey && maskString(apiKey));
+        }
         if (!apiKey) {
             appendLog('error: missing API key (set in settings or hom_api_key/localStorage)');
             return;
         }
         appendLog(`using api key ${maskString(apiKey)}`);
         files.forEach(f => {
-            console.debug('[NotionImportWidget] file size', f.size, 'name', f.name, 'type', f.type);
+            if (import.meta.env.DEV) {
+                console.debug('[NotionImportWidget] file size', f.size, 'name', f.name, 'type', f.type);
+            }
             if (!f.name.toLowerCase().endsWith('.csv')) {
                 appendLog(`warning: file ${f.name} is not a CSV`);
             }
@@ -58,6 +64,7 @@ export function NotionImportWidget() {
             }
         }
         setRunning(true);
+        setPreview([]);
         appendLog('uploading...');
         const fd = new FormData();
         files.forEach((f) => fd.append('files', f, f.name));
@@ -76,7 +83,9 @@ export function NotionImportWidget() {
             baseUrl = '/api';
         }
         const url = `${baseUrl}/nb-import-csv`;
-        console.debug('[NotionImportWidget] raw VITE_BACKEND_URL=', rawEnv, 'env BACKEND_URL=', envBase, 'using url', url, '(legacy notion-import also accepted)');
+        if (import.meta.env.DEV) {
+            console.debug('[NotionImportWidget] raw VITE_BACKEND_URL=', rawEnv, 'env BACKEND_URL=', envBase, 'using url', url, '(legacy notion-import also accepted)');
+        }
         try {
             const res = await fetch(url, {
                 method: 'POST',
@@ -104,9 +113,14 @@ export function NotionImportWidget() {
                 return;
             }
             appendLog(`task ${data.taskId} started`);
+            setLastTaskId(data.taskId);
+            if (Array.isArray(data.databases)) {
+                setPreview(data.databases.map((d: any) => ({ name: d.name, relations: d.relations })));
+            }
 
             // poll for progress lines
             let pollTimer: any;
+            let pollTimeout: any;
             let lastLogCount = 0;
             const pollLogs = async () => {
                 try {
@@ -129,20 +143,60 @@ export function NotionImportWidget() {
                     if (pdata.status === 'done') {
                         appendLog('import task finished successfully.');
                         clearInterval(pollTimer);
+                        clearTimeout(pollTimeout);
                         setRunning(false);
                     } else if (pdata.status === 'error') {
                         appendLog('import task failed during background processing.');
                         clearInterval(pollTimer);
+                        clearTimeout(pollTimeout);
                         setRunning(false);
                     }
                 } catch (e) {
-                    console.warn('[NotionImportWidget] polling error', e);
+                    if (import.meta.env.DEV) console.warn('[NotionImportWidget] polling error', e);
                 }
             };
 
             pollTimer = setInterval(pollLogs, 2000);
+            pollTimeout = setTimeout(() => {
+                appendLog('polling timed out; you can retry polling.');
+                clearInterval(pollTimer);
+                setRunning(false);
+            }, 45_000);
         } catch (err: any) {
             appendLog('upload failed: ' + err.message);
+            setRunning(false);
+        }
+    };
+
+    const retryPoll = async () => {
+        if (!lastTaskId) return;
+        appendLog(`retrying poll for task ${lastTaskId}...`);
+        setRunning(true);
+        // reuse most recent API key lookup
+        const apiKey = appApiKey ||
+            storageManager.getItem('hom_api_key') ||
+            storageManager.getItem('nocobase_token') ||
+            storageManager.getItem('nocobase_api_key');
+        let rawEnv = import.meta.env.VITE_BACKEND_URL as string | undefined;
+        let envBase = rawEnv;
+        if (envBase && envBase.endsWith('/')) envBase = envBase.slice(0, -1);
+        const baseUrl = envBase && envBase.startsWith('http') ? envBase : '/api';
+        const pollUrl = `${baseUrl}/nb-import/logs?id=${encodeURIComponent(lastTaskId)}`;
+        try {
+            const pres = await fetch(pollUrl, { headers: { Authorization: `Bearer ${apiKey}` } });
+            if (!pres.ok) {
+                appendLog(`poll retry failed: ${pres.status} ${pres.statusText}`);
+                setRunning(false);
+                return;
+            }
+            const pdata = await pres.json();
+            if (pdata.logs && Array.isArray(pdata.logs)) {
+                setLogs(pdata.logs);
+            }
+            appendLog(`poll retry status: ${pdata.status || 'unknown'}`);
+        } catch (e: any) {
+            appendLog('poll retry error: ' + e.message);
+        } finally {
             setRunning(false);
         }
     };
@@ -167,6 +221,32 @@ export function NotionImportWidget() {
                     {running ? 'importing...' : 'start import'}
                 </button>
             </div>
+            {!!preview.length && (
+                <div className="mt-3 text-xs lowercase bg-black/20 p-2 rounded">
+                    <div className="font-semibold mb-1">inferred collections</div>
+                    <ul className="space-y-1">
+                        {preview.map((p) => (
+                            <li key={p.name}>
+                                <span className="font-semibold">{p.name}</span>
+                                {p.relations?.length ? (
+                                    <span className="ml-1 text-[11px] text-gray-300">relations: {p.relations.map(r => `${r.field}→${r.target}`).join(', ')}</span>
+                                ) : null}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+            {lastTaskId && !running && (
+                <div className="mt-2">
+                    <button
+                        className="px-3 py-1 bg-slate-700 text-white lowercase rounded disabled:opacity-50"
+                        onClick={retryPoll}
+                        disabled={running}
+                    >
+                        retry poll
+                    </button>
+                </div>
+            )}
             <pre className="mt-4 bg-black/10 p-2 h-40 overflow-auto lowercase text-xs">
                 {logs.join('\n')}
             </pre>
