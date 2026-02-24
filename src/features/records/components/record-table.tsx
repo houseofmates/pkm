@@ -474,7 +474,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                           <Label htmlFor={`col-${fieldName}`} className="text-xs">{f.uiSchema?.title || fieldName}</Label>
                         </div>
                       )
-                    })}
+                    });
+                  })()}
                   </div>
                 </div>
               </PopoverContent>
@@ -509,7 +510,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           id: '__placeholder',
           header: () => (
             <div className="px-2 py-1 text-xs text-muted-foreground lowercase">
-              no properties defined
+              no properties defined – use the + button to add one
             </div>
           ),
           cell: () => null,
