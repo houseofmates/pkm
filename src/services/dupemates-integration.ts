@@ -39,7 +39,7 @@ export async function indexDupemateInteraction(
     const success = await indexRecord('dupemates', dupemateId, {
       interactions: content,
       lastInteraction: interaction.timestamp,
-      relationshipHealth: calculateHealthScore(interaction),
+      relationshipHealth: String(calculateHealthScore(interaction)),
     });
 
     if (success) {
