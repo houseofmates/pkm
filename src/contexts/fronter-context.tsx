@@ -265,7 +265,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
 
     // cache to localstorage immediately
     try {
-      localStorage.setItem('pkm_active_fronters', JSON.stringify(newIds));
+      storageManager.setItem('pkm_active_fronters', JSON.stringify(newIds));
       secureLogger.info('Cached to localStorage:', newIds);
     } catch (e) {
       secureLogger.warn('Failed to cache fronters:', e);
