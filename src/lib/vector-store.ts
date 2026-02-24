@@ -110,14 +110,14 @@ async function fallbackLocalSearch(query: string, topK: number): Promise<SearchR
     // fetch records from each collection
     for (const col of userCollections.slice(0, 5)) {
       try {
-        const recordsRes = await api.listRecords(col.name, {
+        const recordsRes: any = await api.listRecords(col.name, {
           pageSize: 20,
           sort: ['-updatedAt'],
         });
 
         const records = Array.isArray(recordsRes.data)
           ? recordsRes.data
-          : (recordsResRes.data as any)?.data || [];
+          : (recordsRes.data as any)?.data || [];
 
         for (const record of records) {
           // extract text fields as chunks
@@ -293,7 +293,7 @@ export async function reindexCollection(collection: string): Promise<{ indexed: 
   const result = { indexed: 0, failed: 0 };
 
   try {
-    const recordsRes = await api.listRecords(collection, { paginate: false });
+    const recordsRes: any = await api.listRecords(collection, { paginate: false });
     const records = Array.isArray(recordsRes.data)
       ? recordsRes.data
       : (recordsRes.data as any)?.data || [];
