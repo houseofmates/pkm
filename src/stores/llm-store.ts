@@ -168,7 +168,7 @@ export const useLLMStore = create<LLMState>((set, get) => ({
     // get fronter info
     let fronterName = 'friend'
     try {
-      const fronterData = localStorage.getItem('active_fronters')
+      const fronterData = storageManager.getItem('active_fronters')
       if (fronterData) {
         const fronters = JSON.parse(fronterData)
         if (fronters && fronters.length > 0) {
