@@ -327,19 +327,20 @@ export function HouseofmatesBuilder() {
 
     const init = async () => {
       const key = storageManager.getItem('hom_api_key');
-        setIsAdmin(true);
-        // run collection ensures
-        try {
-          await ensureWebsiteCollection();
-          await ensureFormsCollection();
-        } catch (err) {
-          console.error('collection setup failed:', err);
-        }
+      setIsAdmin(true);
+      // run collection ensures
+      try {
+        await ensureWebsiteCollection();
+        await ensureFormsCollection();
+      } catch (err) {
+        console.error('collection setup failed:', err);
       }
-      fetchPage();
+      await fetchPage();
     };
 
-    init();
+    init().catch((e) => {
+      console.error('[HouseofmatesBuilder] init failed', e);
+    });
   }, []);
 
 
