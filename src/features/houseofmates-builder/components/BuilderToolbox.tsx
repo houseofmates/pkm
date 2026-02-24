@@ -343,7 +343,7 @@ export function BuilderToolbox() {
   input.type = 'file';
   input.accept = 'image/*';
   input.onchange = async (e) => {
-  const file = (e.target as htmlinputelement).files?.[0];
+  const file = (e.target as HTMLInputElement).files?.[0];
   if (!file) return;
 
   toast.info('uploading image...');
@@ -368,7 +368,7 @@ export function BuilderToolbox() {
   input.type = 'file';
   input.accept = 'video/*';
   input.onchange = async (e) => {
-  const file = (e.target as htmlinputelement).files?.[0];
+  const file = (e.target as HTMLInputElement).files?.[0];
   if (!file) return;
 
   toast.info('uploading video...');
