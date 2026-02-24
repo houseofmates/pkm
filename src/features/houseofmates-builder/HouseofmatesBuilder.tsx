@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, createContext, useContext, useRef, useMemo } from 'react';
+import { storageManager } from '@/lib/storage-manager';
 import { useParams } from 'react-router-dom';
 import { api } from '@/api/nocobase-client';
 import { toast } from 'sonner';
