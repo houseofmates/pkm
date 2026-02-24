@@ -105,9 +105,26 @@ export function RootLayout() {
     root.style.setProperty('--primary-soft', soft);
     if (typeof window !== 'undefined') (window as any).accentBg = soft;
 
+    // set favicon based on subdomain; avoid the default pkm bolt when
+    // viewing houseofmates.* sites so that those domains keep their own
+    // branding.
     const favIcon = document.getElementById('favicon') as HTMLLinkElement;
     if (favIcon) {
-      favIcon.href = `data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚡</text></svg>`;
+      const host = window.location.hostname;
+      if (host === 'dupe.houseofmates.space') {
+        favIcon.href = '/favicon-dupe.png';
+      } else if (host === 'blog.houseofmates.space' || host === 'houseofmates.space') {
+        favIcon.href = '/favicon-home.png';
+      } else {
+        // default pkm logo (transparent database icon)
+        favIcon.href = '/favicon.png';
+      }
+    }
+
+    // also adjust document title for the same hosts
+    const host = typeof window !== 'undefined' ? window.location.hostname : '';
+    if (host && host.endsWith('houseofmates.space')) {
+      document.title = host;
     }
   }, [accentColor]);
 
