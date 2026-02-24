@@ -2,14 +2,18 @@
     "manifest_version": 2,
     "name": "pkm capture",
     "short_name": "capture",
-    "version": "1.2",
-    "description": "capture content to your pkm brain",
+    "version": "1.3",
+    "description": "capture content and summarize ai conversations to your pkm brain",
     "permissions": [
         "contextMenus",
         "storage",
         "activeTab",
-        "http://*/*",
-        "https://*/*"
+        "http://localhost:11434/*",
+        "https://db.houseofmates.space/api/*",
+        "https://*.google.com/*",
+        "https://*.proton.me/*",
+        "https://*.ai/*",
+        "https://*.com/*"
     ],
     "browser_action": {
         "default_icon": {
@@ -31,6 +35,26 @@
             "js": [
                 "content.js"
             ]
+        },
+        {
+            "matches": [
+                "https://gemini.google.com/*",
+                "https://jules.google.com/*",
+                "https://www.perplexity.ai/*",
+                "https://lumo.proton.me/*",
+                "https://chatgpt.com/*",
+                "https://chat.deepseek.com/*",
+                "https://claude.ai/*",
+                "https://duck.ai/*",
+                "https://copilot.microsoft.com/*",
+                "https://ai.houseofmates.space/*",
+                "https://aistudio.google.com/*",
+                "https://grok.com/*"
+            ],
+            "js": [
+                "ai-summarizer.js"
+            ],
+            "run_at": "document_idle"
         }
     ],
     "browser_specific_settings": {
