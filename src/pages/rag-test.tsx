@@ -54,7 +54,7 @@ export default function RagTestPage() {
       // test 5: check for sample records
       addResult('\n5️⃣ checking for sample records...');
       try {
-        const records = await api.listRecords('notes', { pageSize: 1 });
+        const records = await api.listRecords('notes', { pageSize: 1 }) as { data: any[] };
         const hasRecords = records.data && records.data.length > 0;
         addResult(`   ${hasRecords ? '✅' : '⚠️'} notes collection: ${hasRecords ? 'has records' : 'empty'}`);
         if (hasRecords) {
