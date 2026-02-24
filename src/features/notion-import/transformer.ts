@@ -6,6 +6,11 @@ export type Instruction =
     | { type: 'createRecord'; collection: string; data: Record<string, any> }
     | { type: 'addRelation'; collection: string; field: string; targetCollection: string };
 
+const REL_MIN_MATCHES = 2;
+const REL_MIN_SCORE = 0.5;
+const REL_SAMPLE_SIZE = 120; // cap value comparisons for performance
+const REL_KEY_UNIQUENESS_MIN = 0.6; // require keys to be reasonably unique
+
 // enhanced guessing of field types based on sample values
 function guessType(values: any[]): string {
     let hasString = false;
@@ -109,7 +114,8 @@ export function transformWorkspace(ws: NotionWorkspace): Instruction[] {
         const flattened = fieldValues.flatMap(v => (Array.isArray(v) ? v : [v]))
             .filter(v => v != null && v !== '')
             .map(v => String(v).trim().toLowerCase())
-            .filter(v => v.length > 0);
+            .filter(v => v.length > 0)
+            .slice(0, REL_SAMPLE_SIZE);
         if (flattened.length === 0) return undefined;
 
         let best: { target?: string; score: number } = { score: 0 };
@@ -121,13 +127,15 @@ export function transformWorkspace(ws: NotionWorkspace): Instruction[] {
             const keyValues = db.rows
                 .map(r => r[keyField])
                 .filter(v => v != null && v !== '')
-                .map(v => String(v).trim().toLowerCase());
+                .map(v => String(v).trim().toLowerCase())
+                .slice(0, REL_SAMPLE_SIZE);
             if (keyValues.length === 0) continue;
             const keySet = new Set(keyValues);
+            const uniqueness = keySet.size / keyValues.length;
+            if (uniqueness < REL_KEY_UNIQUENESS_MIN) continue;
             const matches = flattened.filter(v => keySet.has(v)).length;
             const score = matches / flattened.length;
-            // require at least a minimal signal to avoid false positives
-            if (matches >= 2 && score >= 0.5 && score > best.score) {
+            if (matches >= REL_MIN_MATCHES && score >= REL_MIN_SCORE && score > best.score) {
                 best = { target: db.name, score };
             }
         }
