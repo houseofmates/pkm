@@ -134,3 +134,5 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
   </Card>
   );
 }
+
+export const CollectionCard = React.memo(CollectionCardImpl);
