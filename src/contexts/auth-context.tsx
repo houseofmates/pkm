@@ -90,6 +90,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+let warnedMissingProvider = false;
+
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
@@ -101,7 +103,10 @@ export function useAuth() {
     // tolerate a missing auth object by treating it as unauthenticated
     // state. Returning a lightweight stub avoids those crashes while the
     // warning helps us surface regressions during development.
-    console.warn('useAuth called outside of AuthProvider; returning fallback stub.');
+    if (process.env.NODE_ENV !== 'production' || !warnedMissingProvider) {
+      console.warn('useAuth called outside of AuthProvider; returning fallback stub.');
+      warnedMissingProvider = true;
+    }
     return {
       token: null,
       isAuthenticated: false,
