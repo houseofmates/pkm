@@ -42,6 +42,18 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   const records: any[] = extractRecords(data);
   const meta = (data as { meta?: any })?.meta;
 
+  // keep a copy of the last non-empty records so we can continue displaying
+  // something while the query is refetching (especially on window focus).
+  const [cachedRecords, setCachedRecords] = useState<any[]>(records);
+  React.useEffect(() => {
+    if (records && records.length > 0) {
+      setCachedRecords(records);
+    }
+  }, [records]);
+
+  // when loading and we have cached data, prefer that to avoid flicker
+  const displayedRecords = isLoading && cachedRecords.length > 0 ? cachedRecords : records;
+
   // If a non-zero page returns no records, try swapping between 0/1 once.
   const [pageFallbackTried, setPageFallbackTried] = useState(false);
   useEffect(() => {
