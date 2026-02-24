@@ -5,7 +5,7 @@ import { describe, it, expect, vi } from 'vitest';
 // we only need the provider itself for this test
 
 describe('LLMContextProvider', () => {
-  it('renders children even when AuthProvider is missing', () => {
+  it('renders children even when AuthProvider is missing', async () => {
     // dynamically import to ensure we get the latest code after module reloads
     // use dynamic import just like root-layout tests so the path alias works
     const llmModule = await import('@/contexts/llm-context');
