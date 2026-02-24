@@ -141,7 +141,7 @@ export async function getDupemateContext(dupemateId: string): Promise<DupemateCo
       .map(([topic]) => topic);
 
     // generate insights
-    const insights = generateDupemateInsights(dupemate, interactions);
+    const insights = generateDupemateInsights(interactions);
 
     return {
       dupemateId,
@@ -337,7 +337,6 @@ function calculateRelationshipHealth(interactions: DupemateInteraction[]): numbe
 
 // generate insights about dupemate relationship
 function generateDupemateInsights(
-  dupemate: any,
   interactions: DupemateInteraction[]
 ): string[] {
   const insights: string[] = [];
