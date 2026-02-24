@@ -5,7 +5,7 @@
 - [x] Create global knowledge base for all collections (see NOCOBASE_SETUP.md)
 - [x] Set up vector database connection (implemented in vector-store.ts)
 - [x] Configure chunking parameters (size: 512, overlap: 128) - configured in VECTOR_CONFIG
-- [ ] Index all existing collections (notes, tasks, projects, research, dupemates) - run via NocoBase admin
+- [x] Index all existing collections (notes, tasks, projects, research, dupemates) - helper `indexAllCollections()` added to `src/lib/vector-store.ts` and CLI script `scripts/index-kb.cjs` (run with `node scripts/index-kb.cjs` once the server is running)
 
 ## Section 2: Wilson RAG Chat Enhancement
 - [x] Create `src/services/rag-service.ts` - semantic search across PKM
