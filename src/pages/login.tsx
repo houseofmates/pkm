@@ -11,6 +11,14 @@ export function LoginPage() {
   const [isValidating, setIsValidating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // performs a quick sanity check against the backend before
+  // actually storing the token. previously we unconditionally saved the
+  // value and relied on the first API call to fail, which would dispatch
+  // an `auth-error` event and drop the token. this caused a confusing
+  // experience where users would paste a *bad* token and then immediately
+  // be asked to paste it again even though nothing looked wrong. instead we
+  // hit a lightweight endpoint and only resolve when the token appears to be
+  // valid.
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedToken = inputToken.trim();
@@ -19,13 +27,30 @@ export function LoginPage() {
     setIsValidating(true);
     setError(null);
     try {
-      // save token directly - it will be validated on first actual api call
+      // validate the token by making a simple collection list request. the
+      // endpoint itself doesn't matter much, it just has to be protected by
+      // nocobase so that an invalid/expired token returns 401/403.
+      const client = new NocoBaseClient();
+      // pass the token directly in headers so we don't rely on storage yet.
+      await client.client.get('/collections:list', {
+        headers: {
+          authorization: trimmedToken.startsWith('bearer ')
+            ? trimmedToken
+            : `bearer ${trimmedToken}`,
+        },
+        params: { pageSize: 1 },
+      });
+
+      // if validation succeeded, store it and let the rest of the app handle
+      // any additional initialization (e.g. ensureBackendCollection).
       login(trimmedToken);
       // small delay to let state propagate
       await new Promise((resolve) => setTimeout(resolve, 100));
     } catch (err: any) {
       console.error('token validation failed:', err);
-      setError('failed to save token. please try again.');
+      setError(
+        'token appears invalid or expired; please double-check and try again.'
+      );
     } finally {
       setIsValidating(false);
     }
