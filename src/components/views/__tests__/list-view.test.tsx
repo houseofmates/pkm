@@ -1,11 +1,11 @@
 // virtualization components are tricky in tests; stub them out to render all rows
 import { vi } from 'vitest';
 vi.mock('react-window', () => ({
-  List: ({ rowCount, rowComponent: Row, rowProps, style }: any) => (
+  List: ({ itemCount, itemSize, itemData, style, children }: any) => (
     <div style={style}>
-      {Array.from({ length: rowCount }).map((_, i) => (
-        <Row key={i} index={i} style={{}} data={rowProps} />
-      ))}
+      {Array.from({ length: itemCount }).map((_, i) =>
+        children({ index: i, style: {}, data: itemData })
+      )}
     </div>
   ),
 }));
