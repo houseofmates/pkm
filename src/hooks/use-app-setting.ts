@@ -106,7 +106,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
   setValue((prev) => {
   const resolvedValue = newValue instanceof Function ? newValue(prev) : newValue;
   try {
- localStorage.setItem(`pkm_setting:${key}`, JSON.stringify(resolvedValue));
+ storageManager.setItem(`pkm_setting:${key}`, JSON.stringify(resolvedValue));
  // broadcast change to other hooks
  setTimeout(() => {
  window.dispatchEvent(new CustomEvent(`pkm_setting_update:${key}`, { detail: resolvedValue }));
