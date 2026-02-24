@@ -31,6 +31,7 @@ import {
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatabaseSettingsForm } from '@/features/databases/components/database-settings-form';
+import { extractRecords } from '@/lib/nocobase-utils';
 
 export function CollectionDetailPage({ collectionName: propCollectionName, onBack: propOnBack }: CollectionDetailPageProps) {
     const { client, isAuthenticated, login } = useAuth();
@@ -208,9 +209,9 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                 }
             }
 
-            // 3. fetch records
+            // 3. fetch records (normalize in case api shape varies)
             const recRes = await client.listRecords(collectionName);
-            const recData = Array.isArray(recRes.data) ? recRes.data : (recRes.data as any)?.data || [];
+            const recData = extractRecords(recRes);
             setRecords(recData);
 
         } catch (error: any) {
@@ -233,7 +234,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                     toast.success("record created!");
                     // refresh
                     const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
-                    setRecords(Array.isArray(res.data) ? res.data : (res.data || []));
+                    setRecords(extractRecords(res));
                 } catch (err) {
                     console.error(err);
                     toast.error("failed to create record");
@@ -265,7 +266,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                 // fetch records for this collection
                 client.listRecords(collectionName).then(res => {
                     // normalized client ensures res.data is array
-                    setRecords(Array.isArray(res.data) ? res.data : (res.data || []));
+                    setRecords(extractRecords(res));
                 }).catch(e => console.error("Late-rescue record fetch failed", e));
             }
         }
@@ -325,7 +326,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             // optimistic update locally? 
             // for now, simple await and refetch
             setRecords(prev => prev.map(r => r.id === id ? { ...r, ...data } : r)); // optimistic ui
-            await client.updaterecord(collectionName, id, data);
+            await client.updateRecord(collectionName, id, data);
             // fetchData(); // optional: if we trust the return or optimistic update
         } catch (error) {
             console.error("failed to update record", error);
@@ -366,7 +367,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
 
             // refresh
             const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
-            setRecords(Array.isArray(res.data) ? res.data : (res.data || []));
+            setRecords(extractRecords(res));
         } catch (e) {
             console.error("failed to undo delete", e);
             toast.error("failed to undo delete");
@@ -408,7 +409,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             await client.createRecord(collectionName, rest);
             toast.success("deletion undone");
             const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
-            setRecords(Array.isArray(res.data) ? res.data : (res.data || []));
+            setRecords(extractRecords(res));
             setDeletedStack(prev => prev.filter(r => r.id !== recordToRestore.id));
         } catch (e) {
             console.error("failed to undo delete", e);
