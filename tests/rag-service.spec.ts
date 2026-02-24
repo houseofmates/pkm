@@ -40,6 +40,18 @@ describe('RAG service', () => {
     expect(ctx.sources).toEqual(expect.arrayContaining(['notes:a', 'tasks:b']));
   });
 
+  it('generateWilsonRagPrompt includes query and inserts context', async () => {
+    const fakeChunks: vectorStore.SearchResult[] = [
+      { chunk: { id: '1', collection: 'notes', recordId: 'a', field: 'body', content: 'some context text' }, score: 1 },
+    ];
+    vi.spyOn(vectorStore, 'searchKnowledgeBase').mockResolvedValue(fakeChunks);
+
+    const prompt = await (await import('@/services/rag-service')).generateWilsonRagPrompt('hello', 'alice');
+    expect(prompt).toContain('hello');
+    expect(prompt).toContain('some context text');
+    expect(prompt).toContain('alice');
+  });
+
   it('returns fallback message when nothing is found', async () => {
     vi.spyOn(vectorStore, 'searchKnowledgeBase').mockResolvedValue([]);
     const ctx = await buildRagContext('no results', 3);
