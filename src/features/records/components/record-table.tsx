@@ -272,7 +272,7 @@ const DraggableRecordRow = (props: any) => {
         ref={setNodeRef}
         style={style}
         className={cn(
-          "transition-colors group border-b border-r border-[#222] min-w-full",
+          "transition-colors group border-b border-[#222] min-w-full",
           !rowColor && "hover:bg-gray-800/10"
         )}
       >
@@ -607,23 +607,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       }}
     >
 
-      <style dangerouslySetInnerHTML={{
-        __html: `
-        .record-table-root * {
-          border-color: #222 !important;
-        }
-        .record-table-root th, 
-        .record-table-root td {
-          border-bottom: 1px solid #222 !important;
-          border-right: 1px solid #222 !important;
-        }
-        .record-table-root tr {
-          border-bottom: 1px solid #222 !important;
-        }
-        .record-table-root .hover\\:bg-white\\/10:hover {
-          background-color: rgba(255, 255, 255, 0.1) !important;
-        }
-      `}} />
 
       <DndContext
         sensors={sensors}
