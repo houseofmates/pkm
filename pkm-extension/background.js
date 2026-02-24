@@ -1,120 +1,89 @@
-// background.js
+// background.js - service worker for pkm capture extension
 
+// configuration
 const CONFIG = {
-    // Default config, will be overridden by storage
-    apiBase: 'https://db.houseofmates.space/api',
-    collectionName: 'captures',
-    defaultToken: 'PLACEHOLDER_KEY'
+    ollamaEndpoint: 'http://localhost:11434/api/generate',
+    model: 'qwen2.5:7b',
+    nocobaseApi: 'https://db.houseofmates.space/api/ai-convos',
+    collectionName: 'ai-convos'
 };
 
-// Initialize Context Menu safely
-function createMenu() {
-    // Attempt to create, swallowing 'duplicate id' errors if they occur
-    browser.contextMenus.create({
-        id: "save-to-pkm",
-        title: "save text to pkm",
-        contexts: ["selection"]
-    }, () => {
-        if (browser.runtime.lastError) { /* ignore */ }
-    });
+// supported ai platforms for context menu
+const AI_PLATFORMS = [
+    'gemini.google.com',
+    'jules.google.com',
+    'perplexity.ai',
+    'lumo.proton.me',
+    'chatgpt.com',
+    'chat.deepseek.com',
+    'claude.ai',
+    'duck.ai',
+    'copilot.microsoft.com',
+    'ai.houseofmates.space',
+    'aistudio.google.com',
+    'grok.com'
+];
 
-    browser.contextMenus.create({
-        id: "save-page-to-pkm",
-        title: "save page to pkm",
-        contexts: ["page"]
-    }, () => {
-        if (browser.runtime.lastError) { /* ignore */ }
-    });
-
-    browser.contextMenus.create({
-        id: "save-image-to-pkm",
-        title: "save image to pkm",
-        contexts: ["image"]
-    }, () => {
-        if (browser.runtime.lastError) { /* ignore */ }
-    });
-}
-
-// Ensure menu is created on install and startup
+// create context menu on install
 browser.runtime.onInstalled.addListener(() => {
-    browser.contextMenus.removeAll(() => {
-        createMenu();
+    // remove existing menu items
+    browser.contextMenus.removeAll().then(() => {
+        // create "save to pkm" menu for all pages
+        browser.contextMenus.create({
+            id: 'save-to-pkm',
+            title: 'save to pkm',
+            contexts: ['page', 'selection', 'link', 'image'],
+            documentUrlPatterns: ['<all_urls>']
+        });
+        
+        // create "summarize" menu for ai platforms only
+        browser.contextMenus.create({
+            id: 'summarize-conversation',
+            title: '🤖 summarize',
+            contexts: ['page'],
+            documentUrlPatterns: AI_PLATFORMS.map(host => `https://${host}/*`)
+        });
     });
 });
 
-browser.runtime.onStartup.addListener(() => {
-    // Re-create on startup just in case (though onInstalled usually persists)
-    // Actually, Firefox persists context menus, but re-creating ensures they exist.
-    // We try to create without removing to avoid flicker, relying on error suppression.
-    createMenu();
-});
-
-// Also run once immediately for reload cases during dev
-createMenu();
-
-// Context Menu Handler
+// handle context menu clicks
 browser.contextMenus.onClicked.addListener(async (info, tab) => {
-    const pageTitle = tab.title;
-    const pageUrl = tab.url;
-
-    if (info.menuItemId === "save-to-pkm") {
-        await handleCapture({
-            selection: info.selectionText,
-            title: pageTitle,
-            url: pageUrl
-        }, tab.id);
-    }
-    else if (info.menuItemId === "save-page-to-pkm") {
-        await handleCapture({
-            title: pageTitle,
-            url: pageUrl
-        }, tab.id);
-    }
-    else if (info.menuItemId === "save-image-to-pkm") {
-        await handleCapture({
-            title: `Image from ${pageTitle}`,
-            url: pageUrl,
-            imageUrl: info.srcUrl
-        }, tab.id);
+    if (info.menuItemId === 'save-to-pkm') {
+        handleSaveToPKM(info, tab);
+    } else if (info.menuItemId === 'summarize-conversation') {
+        handleSummarize(tab);
     }
 });
 
-async function handleCapture(captureData, tabId) {
-    const { selection, title, url, imageUrl } = captureData;
-    // 1. Get Token from Storage
-    const data = await browser.storage.sync.get('apiToken');
-    const apiToken = data.apiToken || CONFIG.defaultToken;
-
-    // Check for missing key
-    if (!apiToken || apiToken === 'PLACEHOLDER_KEY') {
-        browser.tabs.create({ url: "/popup.html" });
-        return;
-    }
-
-    // 2. Prepare Payload (Map to NocoBase 'captures' schema: label, url, text-content)
-    const payload = {
-        label: title || "Untitled Capture",
-        url: url,
-        "text-content": selection && selection.length > 0 ? selection : (imageUrl ? `Captured Image: ${imageUrl}` : ""),
-    };
-
-    // If it's an image, we try to put it in an 'image' or 'attachments' field if available.
-    // However, since we don't have the exact schema, we'll append it to text-content for visibility
-    // and also try to send it in a 'image_url' or 'img' field.
-    if (imageUrl) {
-        payload.image_url = imageUrl;
-        payload.img_url = imageUrl; // fallback name
-        // payload.img = [{ url: imageUrl }]; // NocoBase attachment format (requires client-side logic or server support)
-    }
-
-    console.log("sending payload:", payload);
-
-    // 3. Notify "Saving..."
-    notifyTab(tabId, 'connecting to brain...');
-
-    // 4. Send Request
+// handle save to pkm
+async function handleSaveToPKM(info, tab) {
     try {
-        const response = await fetch(`${CONFIG.apiBase}/${CONFIG.collectionName}`, {
+        // get selection from content script
+        const results = await browser.tabs.sendMessage(tab.id, { action: 'get_selection' });
+        
+        if (!results || !results.selection) {
+            showToast(tab.id, 'no content selected', true);
+            return;
+        }
+        
+        // get api token
+        const { apiToken } = await browser.storage.sync.get('apiToken');
+        if (!apiToken) {
+            showToast(tab.id, 'no api token configured', true);
+            return;
+        }
+        
+        // prepare payload
+        const payload = {
+            title: results.title || 'captured content',
+            content: results.selection,
+            url: results.url,
+            captured_at: new Date().toISOString(),
+            source: 'extension-capture'
+        };
+        
+        // send to nocobase
+        const response = await fetch(`${CONFIG.nocobaseApi}/notes`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -122,54 +91,103 @@ async function handleCapture(captureData, tabId) {
             },
             body: JSON.stringify(payload)
         });
-
-        if (response.ok) {
-            notifyTab(tabId, 'saved to brain');
-        } else {
-            console.error('PKM API Error:', response.status, response.statusText);
-            const text = await response.text();
-            console.error('Response Body:', text);
-
-            if (response.status === 401) {
-                notifyTab(tabId, 'error: unauthorized. opening settings...', true);
-                browser.tabs.create({ url: "/popup.html" });
-            }
-            else {
-                notifyTab(tabId, `error: ${response.status}`, true);
-            }
+        
+        if (!response.ok) {
+            throw new Error(`nocobase error: ${response.status}`);
         }
+        
+        showToast(tab.id, 'saved to pkm');
+        
     } catch (error) {
-        console.error('PKM Network Error:', error);
-        notifyTab(tabId, 'network error', true);
+        console.error('[pkm] save error:', error);
+        showToast(tab.id, 'failed to save', true);
     }
 }
 
-// handle messages from content scripts (including ai-summarizer)
-browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
-    if (request.action === 'show_toast') {
-        // forward toast to the sender's tab
-        if (sender.tab && sender.tab.id) {
-            browser.tabs.sendMessage(sender.tab.id, {
-                action: 'show_toast',
-                message: request.message,
-                isError: request.isError
-            }).catch(err => {
-                console.warn('[pkm-bg] could not forward toast:', err);
-            });
-        }
+// handle summarize conversation
+async function handleSummarize(tab) {
+    try {
+        showToast(tab.id, '🤖 extracting conversation...');
+        
+        // inject ai-summarizer.js to extract and summarize
+        const results = await browser.tabs.executeScript(tab.id, {
+            file: 'ai-summarizer.js'
+        });
+        
+        // the script will handle everything and send messages back
+        console.log('[pkm] summarizer injected', results);
+        
+    } catch (error) {
+        console.error('[pkm] summarize error:', error);
+        showToast(tab.id, 'failed to summarize', true);
     }
-    // return true to indicate we might send a response asynchronously
-    return true;
+}
+
+// show toast notification in tab
+function showToast(tabId, message, isError = false) {
+    browser.tabs.sendMessage(tabId, {
+        action: 'show_toast',
+        message: message,
+        isError: isError
+    }).catch(err => {
+        // content script might not be loaded, ignore
+        console.log('[pkm] toast failed (content script not ready):', err);
+    });
+}
+
+// listen for messages from content scripts
+browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'show_toast' && sender.tab) {
+        showToast(sender.tab.id, request.message, request.isError);
+    }
+    if (request.action === 'summarize_complete' && sender.tab) {
+        showToast(sender.tab.id, '🤖 conversation saved!');
+    }
+    if (request.action === 'summarize_error' && sender.tab) {
+        showToast(sender.tab.id, `🤖 error: ${request.error}`, true);
+    }
 });
 
-function notifyTab(tabId, message, isError = false) {
-    if (tabId) {
-        browser.tabs.sendMessage(tabId, {
-            action: 'show_toast',
-            message: message,
-            isError: isError
-        }).catch(err => {
-            console.warn('Could not send toast:', err);
-        });
-    }
+// system prompt for summarization
+function getSystemPrompt() {
+    return `you are a conversation analysis expert. your task is to create a comprehensive, detailed summary of the provided ai conversation.
+
+requirements:
+- extract all key information, insights, and decisions made
+- preserve important technical details, code snippets, and data
+- identify action items and next steps mentioned
+- note any questions that were asked and how they were answered
+- capture the full context so re-reading the original is unnecessary
+- use structured bullet points and clear headings
+- be thorough - include everything of value from the conversation
+
+output format:
+# conversation summary
+
+## overview
+brief description of what this conversation was about
+
+## key points
+- detailed point 1 with full context
+- detailed point 2 with full context
+- all significant information captured
+
+## technical details
+- code snippets, data, or technical explanations
+- specific configurations or parameters discussed
+
+## action items
+- [ ] task 1 (if mentioned)
+- [ ] task 2 (if mentioned)
+
+## insights & takeaways
+- important conclusions reached
+- recommendations made by the ai
+
+## follow-up questions
+- any questions that arose from this conversation that need further exploration
+
+remember: the user should be able to understand the entire conversation from this summary alone. be comprehensive.`;
 }
+
+console.log('[pkm] background script loaded');
