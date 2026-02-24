@@ -12,7 +12,7 @@ export default defineConfig({
     host: true,
     port: 3010,
     strictPort: true,
-    allowedHosts: ["app.houseofmates.space", "houseofmates.space", ".houseofmates.space", "pkm.houseofmates.space"],
+    allowedHosts: ["app.houseofmates.space", "houseofmates.space", ".houseofmates.space", "pkm.houseofmates.space", "dupe.houseofmates.space"],
     hmr: {
       protocol: 'wss',
       clientPort: 443,
@@ -79,7 +79,7 @@ export default defineConfig({
     },
   },
   preview: {
-    allowedHosts: ["app.houseofmates.space", "houseofmates.space", ".houseofmates.space"],
+    allowedHosts: ["app.houseofmates.space", "houseofmates.space", ".houseofmates.space", "dupe.houseofmates.space"],
     port: 3010,
     strictPort: true,
     proxy: {
