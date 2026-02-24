@@ -20,6 +20,8 @@ export interface NotionDatabase {
     props?: Record<string, any>;
 }
 
+const IMPORT_DEBUG = process.env.NOTION_IMPORT_DEBUG === 'true';
+
 export interface NotionWorkspace {
     pages: NotionPage[];
     databases: NotionDatabase[];
@@ -107,7 +109,7 @@ export async function parseNotionExport(root: string): Promise<NotionWorkspace> 
                 const parsed = JSON.parse(raw);
                 if (parsed && parsed.properties) props = parsed.properties;
             } catch (e) {
-                console.warn(`failed to parse metadata for ${name}:`, e);
+                if (IMPORT_DEBUG) console.warn(`failed to parse metadata for ${name}:`, e);
             }
         }
 

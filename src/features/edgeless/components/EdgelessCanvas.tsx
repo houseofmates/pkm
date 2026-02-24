@@ -35,6 +35,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
   const wrapperRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const isPanningRef = useRef(false)
+  const lastStateChangeRef = useRef<number>(0)
 
   const {
     fabricCanvas,
@@ -56,6 +57,40 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
   const { handleDrop } = useCanvasEvents()
   const { setRefs } = useCanvasSafe()
   const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 })
+
+  // track last stateful action to decide empty-space two-finger undo
+  useEffect(() => {
+    lastStateChangeRef.current = Date.now()
+  }, [viewPort, elements.length])
+
+  useGestureManager(
+    wrapperRef,
+    {
+      onTwoFingerTap: (e) => {
+        e.stopPropagation()
+        useEdgelessStore.getState().undo()
+      },
+      onThreeFingerTap: (e) => {
+        e.stopPropagation()
+        useEdgelessStore.getState().redo()
+      },
+      onEmptyTwoFingerTap: (e) => {
+        const target = e.target as HTMLElement
+        const isEmpty = wrapperRef.current === target
+        const recentChange = Date.now() - lastStateChangeRef.current < 4000
+        if (isEmpty && recentChange) {
+          e.stopPropagation()
+          useEdgelessStore.getState().undo()
+        }
+      },
+    },
+    {
+      movementTolerance: 10,
+      longPressMs: 400,
+      doubleTapMs: 280,
+      preventDefault: true,
+    }
+  )
 
   useEffect(() => {
     if (!canvasEl.current || fabricCanvas) return
