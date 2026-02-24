@@ -166,7 +166,7 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   });
 
   return {
-    records,
+    records: displayedRecords,
     meta,
     loading: isLoading,
     error: error ? (error as Error).message : null,
