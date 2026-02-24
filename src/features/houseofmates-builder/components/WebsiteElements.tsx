@@ -52,7 +52,7 @@ export function ServerIPDisplay({ javaIP, bedrockIP, bedrockPort = '19132', show
           <div className="flex flex-col gap-3 w-full">
             <div
               onClick={() => javaIP && copyToClipboard(javaIP, 'java')}
-              className="flex-1 flex items-center justify-between px-5 py-3 rounded-2xl bg-[var(--primary)]/10 border border-[var(--primary)]/30 hover:bg-[var(--primary)]/20 cursor-pointer transition-all group interactive-pop"
+              className="flex-1 flex items-center justify-between px-5 py-3 rounded-2xl bg-[var(--primary)]/10 border border-[var(--primary)]/30 hover:bg-[var(--primary)]/20 cursor-pointer transition-all group interactive-pop ring-1 ring-[var(--primary)]/30"
             >
               <div className="flex items-center gap-4">
                 <div className="p-2.5 rounded-xl bg-[var(--primary)]/20 text-[var(--primary)]">
@@ -80,7 +80,9 @@ export function ServerIPDisplay({ javaIP, bedrockIP, bedrockPort = '19132', show
                   </div>
                   <div>
                     <div className="text-sm text-[var(--primary)]/60 font-bold ">bedrock</div>
-                    <div className="text-xl text-[var(--primary)] font-mono font-bold">{bedrockIP || 'play.server.com'}</div>
+                    <div className="text-xl text-[var(--primary)] font-mono font-bold">
+                      {bedrockIP ? `${bedrockIP}${bedrockPort ? ':' + bedrockPort : ''}` : 'play.server.com'}
+                    </div>
                   </div>
                 </div>
                 {copiedBedrock ? <Check size={18} className="text-green-500" /> : <Copy size={18} className="text-[var(--primary)]/40 opacity-0 group-hover:opacity-100 transition-opacity" />}

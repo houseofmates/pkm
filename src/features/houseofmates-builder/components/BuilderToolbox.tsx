@@ -200,9 +200,9 @@ export function BuilderToolbox() {
   const handleAddServerIP = () => {
   addElement({
   ...createDefaultElement('serverip', {
- javaIP: 'play.dupemates.com',
- javaPort: '25565',
- bedrockIP: 'play.dupemates.com',
+ javaIP: 'dupemates.playit.pub',
+ javaPort: '',
+ bedrockIP: 'dupemates.playit.pub',
  bedrockPort: '19132',
  showBedrock: true,
   }),
