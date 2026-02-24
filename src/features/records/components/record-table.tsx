@@ -257,8 +257,7 @@ const DraggableRecordRow = (props: any) => {
     touchAction: 'none', // Important for touch drag
     backgroundColor: rowColor ? `${rowColor}20` : undefined,
     display: 'flex', // Crucial for virtualization
-    // keep width supplied by react-window, avoid forcing fit-content or 100%
-    width: incomingStyle?.width
+    width: '100%'
   };
 
   return (
@@ -708,26 +707,23 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                 </div>
               ) : (
               <AutoSizer
-                  renderProp={({ height, width }: { height: number | undefined; width: number | undefined }) => {
-                      if (!height || !width) return null;
-                      return (
-                        <List
-                          rowCount={rows.length}
-                          rowHeight={40}
-                          rowProps={{
-                            rows: rows,
-                            collection,
-                            onUpdate: onUpdateRecord,
-                            onDelete,
-                            onCreateField,
-                            onCreateRecord,
-                            recordMeta
-                          }}
-                          style={{ height, width }}
-                          rowComponent={DraggableRecordRow}
-                        />
-                      );
-                  }}
+                  renderProp={({ height, width }: { height: number | undefined; width: number | undefined }) => (
+                      <List
+                        rowCount={rows.length}
+                        rowHeight={40}
+                        rowProps={{
+                          rows: rows,
+                          collection,
+                          onUpdate: onUpdateRecord,
+                          onDelete,
+                          onCreateField,
+                          onCreateRecord,
+                          recordMeta
+                        }}
+                        style={{ height, width }}
+                        rowComponent={DraggableRecordRow}
+                      />
+                  )}
                 />
               )}
             </div>
