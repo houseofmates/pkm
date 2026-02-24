@@ -14,10 +14,14 @@ describe('LLMContextProvider', () => {
     // spy on console.warn so we can assert the guard path executed
     const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
 
+    // we need a fronter provider because the LLM context calls useFronter
+    const { FronterProvider } = await import('@/contexts/fronter-context');
     render(
-      <LLMContextProvider>
-        <div data-testid="child">ok</div>
-      </LLMContextProvider>
+      <FronterProvider>
+        <LLMContextProvider>
+          <div data-testid="child">ok</div>
+        </LLMContextProvider>
+      </FronterProvider>
     );
 
     expect(screen.getByTestId('child')).toHaveTextContent('ok');
