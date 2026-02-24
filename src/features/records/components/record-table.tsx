@@ -628,7 +628,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                 </div>
               ) : (
                 <AutoSizer>
-                  {({ height, width }: { height: number; width: number }) => (
+                  {({ height, width }: { height: number | undefined; width: number | undefined }) => (
                     <>
                       <div className="absolute top-0 right-40 p-1 text-[10px] text-white/40 z-50 pointer-events-none">
                         h: {height} | w: {width}
