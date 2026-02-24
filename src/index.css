@@ -357,7 +357,7 @@ header * {
   /* inherit the text color of parent (which may be a custom item color) */
   color: currentColor !important;
   stroke: currentColor !important;
-  fill: currentColor !important;
+  /* do not force fill: most icons are stroked/outline and should remain transparent inside */
   /* unify dimensions regardless of neighboring text length; bump size for better visibility */
   width: 1.5rem !important;
   height: 1.5rem !important;
@@ -409,7 +409,7 @@ button,
   /* allow individual item color to dictate icon hue */
   color: currentColor !important;
   stroke: currentColor !important;
-  fill: currentColor !important;
+  /* do not alter fill so outlines remain hollow */
 }
 
 /* improve contrast for icons on dark bg */
