@@ -278,7 +278,19 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             );
             if (found) {
                 console.log("Late-rescue: Found collection in availableCollections:", found.name);
-                setCollection(found);
+                
+                // if found collection lacks fields, try to fetch full metadata
+                if (!found.fields) {
+                    client.getCollection(collectionName).then(colRes => {
+                        setCollection(colRes.data);
+                    }).catch(e => {
+                        console.warn("Late-rescue getCollection failed, using basic metadata:", e.message);
+                        setCollection(found);
+                    });
+                } else {
+                    setCollection(found);
+                }
+                
                 // fetch records for this collection
                 client.listRecords(collectionName).then(res => {
                     setRecords(extractRecords(res));
