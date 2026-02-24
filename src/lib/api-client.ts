@@ -1,6 +1,7 @@
 import axios from 'axios';
 import { secureLogger } from './secure-logger';
 import { storageManager } from './storage-manager';
+import { normalizeAuthToken, toAuthorizationHeaderValue } from './auth-token';
 
 // api base: prefer the vite environment override, fall back to local backend for dev
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4100/api';
@@ -18,15 +19,19 @@ apiClient.interceptors.request.use((config) => {
  const gt = storageManager.getItem('hom_guest_key'); // guest token support
 
  // pick the best token we have: admin > nocobase jwt > guest (trim common placeholders)
- let token = null;
+ let token: string | null = null;
+ let tokenKind: 'hom_api_key' | 'nocobase_token' | 'hom_guest_key' | null = null;
  if (ht && ht !== 'null' && ht !== 'undefined' && ht.trim() !== '') {
-  token = ht.trim();
+  token = normalizeAuthToken(ht);
+  tokenKind = 'hom_api_key';
   // hom_api_key (admin-level token)
  } else if (nt && nt !== 'null' && nt !== 'undefined' && nt.trim() !== '') {
-  token = nt.trim();
+  token = normalizeAuthToken(nt);
+  tokenKind = 'nocobase_token';
   // nocobase jwt (standard user/session token)
  } else if (gt && gt !== 'null' && gt !== 'undefined' && gt.trim() !== '') {
-  token = gt.trim();
+  token = normalizeAuthToken(gt);
+  tokenKind = 'hom_guest_key';
   // guest token (read-only fallback)
  }
 
@@ -36,7 +41,7 @@ apiClient.interceptors.request.use((config) => {
  }
 
  if (token) {
-  const bearerToken = token.startsWith('Bearer ') ? token : `Bearer ${token}`;
+  const bearerToken = toAuthorizationHeaderValue(token);
   const hostname = window.location.hostname;
 
   // attach headers consistently for axios and fetch-like header objects
@@ -46,12 +51,13 @@ apiClient.interceptors.request.use((config) => {
    (config.headers as any).set('Authorization', bearerToken);
    (config.headers as any).set('X-Hostname', hostname);
   }
+  (config as any)._pkmAuth = { tokenKind };
  } else {
   // nocobase rejects anonymous requests; use a read-only public token if configured (vite env)
   const PUBLIC_ACCESS_TOKEN = import.meta.env.VITE_PUBLIC_ACCESS_TOKEN || '';
   if (PUBLIC_ACCESS_TOKEN) {
-   token = PUBLIC_ACCESS_TOKEN;
-   const bearerToken = `Bearer ${token}`;
+   token = normalizeAuthToken(PUBLIC_ACCESS_TOKEN);
+   const bearerToken = toAuthorizationHeaderValue(token);
    const hostname = window.location.hostname;
    config.headers['Authorization'] = bearerToken;
    config.headers['X-Hostname'] = hostname;
@@ -59,6 +65,7 @@ apiClient.interceptors.request.use((config) => {
     (config.headers as any).set('Authorization', bearerToken);
     (config.headers as any).set('X-Hostname', hostname);
    }
+   ;(config as any)._pkmAuth = { tokenKind: 'public' };
   } else {
    // no public access token configured — calls may 401 until user logs in
    secureLogger.warn('[auth] no public access token configured; anonymous requests may be rejected by nocobase');
@@ -72,15 +79,30 @@ apiClient.interceptors.response.use(
  (response) => response,
  (error) => {
   if (error.response?.status === 401) {
- // clear potentially expired/invalid tokens
- secureLogger.warn('[Auth] 401 Unauthorized - clearing stored tokens');
- storageManager.removeItem('hom_api_key');
- storageManager.removeItem('nocobase_token');
+   const kind = (error.config as any)?._pkmAuth?.tokenKind as
+     | 'hom_api_key'
+     | 'nocobase_token'
+     | 'hom_guest_key'
+     | 'public'
+     | null
+     | undefined;
 
- // show toast notification
- if (typeof window !== 'undefined' && (window as any).toast) {
-  (window as any).toast.error('session expired - please log in as admin to edit');
- }
+   secureLogger.warn('[auth] 401 unauthorized - clearing stored token', kind || 'unknown');
+
+   if (kind === 'hom_api_key') {
+    storageManager.removeItem('hom_api_key');
+   } else if (kind === 'nocobase_token') {
+    storageManager.removeItem('nocobase_token');
+    if (typeof window !== 'undefined') {
+     window.dispatchEvent(new Event('auth-error'));
+    }
+   } else if (kind === 'hom_guest_key') {
+    storageManager.removeItem('hom_guest_key');
+   }
+
+   if (typeof window !== 'undefined' && (window as any).toast) {
+    (window as any).toast.error('session expired - please log in again');
+   }
   }
   return Promise.reject(error);
  }
