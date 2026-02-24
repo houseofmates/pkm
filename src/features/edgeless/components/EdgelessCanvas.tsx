@@ -21,6 +21,7 @@ import { SmartTextElement } from './elements/SmartTextElement'
 import { useContextMenuStore } from '@/components/ui/context-menu-store'
 import { secureLogger } from '@/lib/secure-logger'
 import { useCanvasEvents } from '../hooks/use-canvas-events'
+import { useGestureManager } from '@/hooks/use-gesture-manager'
 
 export interface EdgelessCanvasProps {
   onObjectModified?: (e: any) => void

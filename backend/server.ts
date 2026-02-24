@@ -8,6 +8,7 @@ import * as Papa from 'papaparse';
 import { inferRelations, type Dataset } from './relation-inference';
 
 const PORT = process.env.PKM_BACKEND_PORT ? Number(process.env.PKM_BACKEND_PORT) : 4110;
+const RELATION_DEBUG = process.env.RELATION_DEBUG === 'true';
 const app = express();
 app.use(cors());
 app.use(bodyParser.json({ limit: '2mb' }));
@@ -76,7 +77,7 @@ app.post('/nb-import-csv', upload.array('files', 60), async (req, res) => {
         fieldTypes,
       });
     }
-    inferRelations(databases);
+    inferRelations(databases, { enableDebug: RELATION_DEBUG });
 
     // Return a task summary including inferred relations
     const taskId = 'csv-' + Date.now();
