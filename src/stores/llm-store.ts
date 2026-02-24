@@ -3,6 +3,7 @@ import { generateText } from '@/lib/llm-service'
 import { getOllamaGenerateUrl, normalizeGenerateEndpoint } from '@/lib/llm-config'
 import { secureLogger } from '@/lib/secure-logger'
 import { buildRagContext, generateWilsonRagPrompt } from '@/services/rag-service'
+import { storageManager } from '@/lib/storage-manager'
 
 export interface ChatMessage {
   id: number
@@ -39,7 +40,7 @@ interface LLMState {
 export const useLLMStore = create<LLMState>((set, get) => ({
   isConnected: true,
   activeModel: 'qwen2.5:7b',
-  apiUrl: (localStorage.getItem('wilson_api_url') ? normalizeGenerateEndpoint(localStorage.getItem('wilson_api_url')!) : getOllamaGenerateUrl()),
+  apiUrl: (storageManager.getItem('wilson_api_url') ? normalizeGenerateEndpoint(storageManager.getItem('wilson_api_url')!) : getOllamaGenerateUrl()),
   useRag: true, // default to enabled
 
   interactionHistory: [],
@@ -50,9 +51,7 @@ export const useLLMStore = create<LLMState>((set, get) => ({
 
   setApiUrl: (url) => {
     const normalized = normalizeGenerateEndpoint(url);
-    localStorage.setItem('wilson_api_url', normalized)
-    set({ apiUrl: normalized })
-  },
+    storageManager.setItem('wilson_api_url', normalized)
 
   toggleConnection: () => set((state) => ({ isConnected: !state.isConnected })),
   toggleRag: () => set((state) => ({ useRag: !state.useRag })),
@@ -108,7 +107,7 @@ export const useLLMStore = create<LLMState>((set, get) => ({
       // get fronter info
       let fronterName = 'friend'
       try {
-        const fronterData = localStorage.getItem('active_fronters')
+        const fronterData = storageManager.getItem('active_fronters')
         if (fronterData) {
           const fronters = JSON.parse(fronterData)
           if (fronters && fronters.length > 0) {
