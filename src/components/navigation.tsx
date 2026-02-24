@@ -148,7 +148,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
       <Button
         variant="ghost"
         className={cn(
-          "flex-1 justify-start text-sm font-normal h-8 px-2 overflow-hidden hover:bg-transparent", // changed text-lg to text-sm to match premium PKM style and fix overflow
+          "flex-1 justify-start text-base font-normal h-8 px-2 overflow-hidden hover:bg-transparent", // bumped up font size for better readability
           selected && "font-medium shadow-none",
           item.type === 'folder' && "font-semibold text-muted-foreground",
           capsClass ? capsClass : "lowercase"
