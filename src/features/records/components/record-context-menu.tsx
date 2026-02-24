@@ -31,7 +31,7 @@ interface RecordContextMenuProps {
   titleField?: any;
 }
 
-export function RecordEditContent({ record, collection, onUpdate, onDelete, onView, titleField: customTitleField, config, onConfigChange }: { record: any, collection: any, onUpdate?: any, onDelete?: any, onView?: any, titleField?: any, config?: any, onConfigChange?: any }) {
+export function RecordEditContent({ record, collection, onUpdate, onDelete, onView, titleField: customTitleField, config, onConfigChange, showViewConfig = true }: { record: any, collection: any, onUpdate?: any, onDelete?: any, onView?: any, titleField?: any, config?: any, onConfigChange?: any, showViewConfig?: boolean }) {
   const navigate = useNavigate();
   const [metadata, setMetadata] = useAppSetting<Record<string, { color?: string }>>(`record_meta_${collection?.name || 'unknown'}`, {});
 
@@ -128,8 +128,8 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
       {/* body: fields list */}
       <ScrollArea className="flex-1 p-2">
         <div className="space-y-3 p-1">
-          {/* view properties management (max 3) - only if config and onConfigChange provided */}
-          {onConfigChange && (
+          {/* view properties management (max 3) - only when editing how card looks (right-click / view config) */}
+          {showViewConfig && onConfigChange && (
             <div className="mb-4 p-2 border rounded-md bg-muted/20 space-y-2">
               <Label className="text-[10px] font-bold text-muted-foreground mb-2 block">display properties (max 3)</Label>
               <div className="space-y-1">
@@ -214,7 +214,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
                                   setPropertySearch('');
                                 }}
                               >
-                                {f.uischema?.title || f.name}
+                                {f.uiSchema?.title || f.name}
                               </Button>
                             ))
                           )}
@@ -228,24 +228,29 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
           )}
 
           <Label className="text-[10px] font-bold text-muted-foreground mb-2 block">all properties</Label>
-          {visibleFields.map((field: any) => (
-            <div key={field.name} className="gap-2 grid grid-cols-[100px_1fr] items-center group">
-              <Label className="text-xs text-muted-foreground font-medium truncate group-hover:text-foreground transition-colors lowercase" title={field.uiSchema?.title || field.name}>
-                {field.uischema?.title || field.name}
-              </Label>
-              <div className="min-w-0">
-                <SmartField
-                  field={field}
-                  value={record[field.name]}
-                  record={record}
-                  className="h-8 text-sm"
-                  onChange={(val: any) => {
-                    if (onUpdate) onUpdate(record.id, { [field.name]: val });
-                  }}
-                />
+          {visibleFields.length === 0 ? (
+            <p className="text-xs text-muted-foreground lowercase py-2">no properties in this collection</p>
+          ) : (
+            visibleFields.map((field: any) => (
+              <div key={field.name} className="gap-2 grid grid-cols-[100px_1fr] items-center group">
+                <Label className="text-xs text-muted-foreground font-medium truncate group-hover:text-foreground transition-colors lowercase" title={field.uiSchema?.title || field.name}>
+                  {field.uiSchema?.title || field.name}
+                </Label>
+                <div className="min-w-0">
+                  <SmartField
+                    field={field}
+                    value={record[field.name]}
+                    record={record}
+                    collectionName={collection?.name}
+                    className="h-8 text-sm"
+                    onChange={(val: any) => {
+                      if (onUpdate) onUpdate(record.id, { [field.name]: val });
+                    }}
+                  />
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </ScrollArea>
 
