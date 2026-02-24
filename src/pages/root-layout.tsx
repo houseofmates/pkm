@@ -38,7 +38,8 @@ declare global {
 function MobileSidebarDrawer({ isOpen, onClose, ...props }: any) {
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
-      <SheetContent side="left" className="p-0 w-[280px] bg-background border-r border-border">
+      {/* make the drawer stretch so the navigation inside can use flex-1 correctly */}
+      <SheetContent side="left" className="p-0 w-[280px] h-full bg-background border-r border-border">
         <Navigation className="flex h-full border-none" {...props} />
       </SheetContent>
     </Sheet>
