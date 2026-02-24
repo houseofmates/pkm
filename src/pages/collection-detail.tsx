@@ -202,6 +202,21 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
 
             setCollection(colData);
 
+            // 3. if collection still lacks fields, fetch them separately
+            if (!colData.fields || colData.fields.length === 0) {
+                try {
+                    console.log("Collection lacks fields, fetching them separately...");
+                    const fields = await client.listFields(collectionName);
+                    console.log("Fetched fields:", fields);
+                    if (fields && fields.length > 0) {
+                        colData.fields = fields;
+                        setCollection({ ...colData, fields });
+                    }
+                } catch (e) {
+                    console.warn("Failed to fetch fields separately:", e);
+                }
+            }
+
             // auto-create 'fronter' field if missing
             if (colData && colData.fields) {
                 const hasFronter = colData.fields.some((f: any) => f.name === 'fronter');
