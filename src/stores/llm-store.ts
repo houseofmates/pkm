@@ -51,7 +51,9 @@ export const useLLMStore = create<LLMState>((set, get) => ({
 
   setApiUrl: (url) => {
     const normalized = normalizeGenerateEndpoint(url);
-    storageManager.setItem('wilson_api_url', normalized)
+    storageManager.setItem('wilson_api_url', normalized);
+    set({ apiUrl: normalized });
+  },
 
   toggleConnection: () => set((state) => ({ isConnected: !state.isConnected })),
   toggleRag: () => set((state) => ({ useRag: !state.useRag })),
