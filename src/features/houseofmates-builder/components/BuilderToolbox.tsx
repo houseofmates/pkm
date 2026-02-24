@@ -21,13 +21,13 @@ export function BuilderToolbox() {
   const { previewMode, setPreviewMode } = useBuilder();
   const [isOpen, setIsOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<TabType>('basic');
-  const [searchquery, setsearchquery] = useState('');
-  const [searchresults, setsearchresults] = useState<any[]>([]);
-  const [searching, setsearching] = useState(false);
-  const [mediamode, setmediamode] = useState<'list' | 'image' | 'video'>('list');
-  const [showformbuilder, setshowformbuilder] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searching, setSearching] = useState(false);
+  const [mediaMode, setMediaMode] = useState<'list' | 'image' | 'video'>('list');
+  const [showFormBuilder, setShowFormBuilder] = useState(false);
 
-  const createdefaultelement = (type: elementdata['type'], content: any = {}): omit<ElementData, 'id'> => ({
+  const createDefaultElement = (type: ElementData['type'], content: any = {}): Omit<ElementData, 'id'> => ({
   type,
   x: 100 + Math.random() * 200,
   y: 100 + Math.random() * 200,
@@ -46,8 +46,8 @@ export function BuilderToolbox() {
 
   // --- basic elements ---
   const handleAddText = () => {
-  addelement(createdefaultelement('text', {
-  html: '<p style="color: white; font-size: 18px;">new text block</p>',
+  addElement(createDefaultElement('text', {
+    html: '<p style="color: white; font-size: 18px;">new text block</p>',
   }));
   setIsOpen(false);
   };
@@ -363,8 +363,8 @@ export function BuilderToolbox() {
   input.click();
   };
 
-  const handlevideoupload = () => {
-  const input = document.createelement('input');
+  const handleVideoUpload = () => {
+  const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'video/*';
   input.onchange = async (e) => {
@@ -400,15 +400,15 @@ export function BuilderToolbox() {
 
   let embedurl = url;
   if (url.includes('youtube.com/watch')) {
-  const videoid = new url(url).searchparams.get('v');
+    const videoid = new URL(url).searchParams.get('v');
   embedurl = `https://www.youtube.com/embed/${videoid}`;
   } else if (url.includes('youtu.be/')) {
   const videoid = url.split('youtu.be/')[1]?.split('?')[0];
   embedurl = `https://www.youtube.com/embed/${videoid}`;
   }
 
-  addelement({
-  ...createdefaultelement('embed', { url: embedurl }),
+  addElement({
+    ...createDefaultElement('embed', { url: embedurl }),
   width: 560,
   height: 315,
   });
@@ -416,22 +416,22 @@ export function BuilderToolbox() {
   };
 
   // unsplash search
-  const searchunsplash = async () => {
-  if (!searchquery.trim()) return;
-  setsearching(true);
+  const searchUnsplash = async () => {
+    if (!searchQuery.trim()) return;
+    setSearching(true);
   try {
-  let key = localstorage.getitem('unsplash_key');
+    let key = localStorage.getItem('unsplash_key');
   if (!key) {
  key = prompt('enter your unsplash access key (will be saved locally):') || '';
- if (key) localstorage.setitem('unsplash_key', key);
+ if (key) localStorage.setItem('unsplash_key', key);
   }
-  if (!key) throw new error('unsplash key missing');
+    if (!key) throw new Error('unsplash key missing');
 
   const res = await fetch(
- `https://api.unsplash.com/search/photos?query=${encodeuricomponent(searchquery)}&per_page=12&client_id=${key}`
+ `https://api.unsplash.com/search/photos?query=${encodeURIComponent(searchQuery)}&per_page=12&client_id=${key}`
   );
   const data = await res.json();
-  setsearchresults(data.results || []);
+    setSearchResults(data.results || []);
   } catch (e) {
   toast.error('unsplash search failed');
   } finally {
@@ -440,22 +440,22 @@ export function BuilderToolbox() {
   };
 
   // giphy search
-  const searchgiphy = async () => {
-  if (!searchquery.trim()) return;
-  setsearching(true);
+  const searchGiphy = async () => {
+    if (!searchQuery.trim()) return;
+    setSearching(true);
   try {
-  let key = localstorage.getitem('giphy_key');
+    let key = localStorage.getItem('giphy_key');
   if (!key) {
  key = prompt('enter your giphy api key (will be saved locally):') || '';
  if (key) localstorage.setitem('giphy_key', key);
   }
-  if (!key) throw new error('giphy key missing');
+    if (!key) throw new Error('giphy key missing');
 
   const res = await fetch(
- `https://api.giphy.com/v1/gifs/search?q=${encodeuricomponent(searchquery)}&limit=12&api_key=${key}`
+ `https://api.giphy.com/v1/gifs/search?q=${encodeURIComponent(searchQuery)}&limit=12&api_key=${key}`
   );
   const data = await res.json();
-  setsearchresults(data.data || []);
+    setSearchResults(data.data || []);
   } catch (e) {
   toast.error('giphy search failed');
   } finally {
@@ -463,11 +463,11 @@ export function BuilderToolbox() {
   }
   };
 
-  const handleselectmedia = (url: string, type: 'image' | 'video' = 'image') => {
-  addelement(createdefaultelement(type, { url }));
-  setisopen(false);
-  setsearchresults([]);
-  setsearchquery('');
+  const handleSelectMedia = (url: string, type: 'image' | 'video' = 'image') => {
+    addElement(createDefaultElement(type, { url }));
+    setIsOpen(false);
+    setSearchResults([]);
+    setSearchQuery('');
   };
 
   return (
@@ -486,11 +486,11 @@ export function BuilderToolbox() {
  className="fixed bottom-8 right-8 w-14 h-14 rounded-full bg-[var(--primary)] flex items-center justify-center z-[40001] transition-all duration-150"
  style={{ color: '#f5af12' }}
   >
- {isopen ? <X className="w-6 h-6" /> : <span className="text-3xl font-bold">+</span>}
+ {isOpen ? <X className="w-6 h-6" /> : <span className="text-3xl font-bold">+</span>}
   </button>
 
   {/* toolbox panel */}
-  {isopen && (
+  {isOpen && (
  <div className="fixed bottom-24 right-8 w-96 bg-[#050505] border border-white/10 rounded-2xl overflow-hidden z-[40000]">
  {/* tabs */}
  <div className="flex border-b border-white/10 overflow-x-auto">
@@ -515,7 +515,7 @@ export function BuilderToolbox() {
 
  {/* tab content */}
  <div className="p-4 max-h-[450px] overflow-y-auto">
- {activetab === 'basic' && (
+ {activeTab === 'basic' && (
    <div className="grid grid-cols-2 gap-3">
    <ToolButton icon={<Type className="w-5 h-5" />} label="text" onClick={handleAddText} />
    <ToolButton icon={<MousePointerClick className="w-5 h-5" />} label="slick button" onClick={handleAddSlickButton} />
@@ -525,14 +525,14 @@ export function BuilderToolbox() {
    </div>
  )}
 
- {activetab === 'home' && (
+ {activeTab === 'home' && (
    <div className="grid grid-cols-2 gap-3">
    <ToolButton icon={<Link2 className="w-5 h-5" />} label="link card" onClick={handleAddLinkCard} />
    <ToolButton icon={<Star className="w-5 h-5" />} label="status" onClick={handleAddStatusIndicator} />
    </div>
  )}
 
- {activetab === 'website' && (
+ {activeTab === 'website' && (
    <div className="grid grid-cols-2 gap-3">
    <ToolButton icon={<Layout className="w-5 h-5" />} label="hero" onClick={handleAddHero} />
    <ToolButton icon={<Users className="w-5 h-5" />} label="about" onClick={handleAddAbout} />
@@ -545,7 +545,7 @@ export function BuilderToolbox() {
    </div>
  )}
 
- {activetab === 'minecraft' && (
+ {activeTab === 'minecraft' && (
    <div className="grid grid-cols-2 gap-3">
    <ToolButton icon={<Server className="w-5 h-5" />} label="server ip" onClick={handleAddServerIP} />
    <ToolButton icon={<Gamepad2 className="w-5 h-5" />} label="status" onClick={handleAddServerStatus} />
@@ -619,7 +619,7 @@ export function BuilderToolbox() {
    </div>
  )}
 
- {activetab === 'media' && (
+ {activeTab === 'media' && (
    <div className="h-full">
    {mediamode === 'list' ? (
    <div className="grid grid-cols-2 gap-3">
@@ -710,7 +710,7 @@ export function BuilderToolbox() {
    </div>
  )}
 
- {activetab === 'embeds' && (
+ {activeTab === 'embeds' && (
    <div className="grid grid-cols-2 gap-3">
    <ToolButton icon={<Code className="w-5 h-5" />} label="embed" onClick={handleAddEmbed} />
    </div>
