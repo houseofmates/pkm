@@ -1,6 +1,7 @@
 import { useLayoutEffect } from 'react';
 import { useFronter } from '@/contexts/fronter-context';
 import { secureLogger } from '@/lib/secure-logger';
+import { storageManager } from '@/lib/storage-manager';
 
 export function useThemeReactor() {
   const { activeFronters, overrides, members } = useFronter();
@@ -29,9 +30,9 @@ export function useThemeReactor() {
       }
 
       if (!color) {
-        // check localstorage cache as last resort
+        // check storage manager cache as last resort
         try {
-          const colorCache = JSON.parse(localStorage.getItem('member_colors') || '{}');
+          const colorCache = JSON.parse(storageManager.getItem('member_colors') || '{}');
           color = colorCache[primaryFronterId];
         } catch (e) {
           secureLogger.warn('Failed to read color cache:', e);
@@ -44,7 +45,7 @@ export function useThemeReactor() {
 
     // if still no color found (e.g. initial load), try last_active_color
     if (!color) {
-      const cached = localStorage.getItem('last_active_color');
+      const cached = storageManager.getItem('last_active_color');
       if (cached) {
         color = cached;
       }
@@ -52,7 +53,7 @@ export function useThemeReactor() {
 
     if (color) {
       // persist for next load
-      localStorage.setItem('last_active_color', color);
+      storageManager.setItem('last_active_color', color);
 
       // special case: if color is very dark (like black), use white instead
       const hsl = HexToHsl(color);
