@@ -1,5 +1,5 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { LoginPage } from '../login';
+import { LoginPage } from '../../../pages/login';
 import { AuthContext } from '@/contexts/auth-context';
 import { NocoBaseClient } from '@/api/nocobase-client';
 import { vi } from 'vitest';

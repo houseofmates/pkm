@@ -38,7 +38,7 @@ export async function getAutoSuggestions(
     suggestions.push(...references);
 
     // 3. follow-up questions
-    const questions = generateQuestions(currentText, results);
+    const questions = generateQuestions(currentText);
     suggestions.push(...questions);
 
     // 4. suggested actions
@@ -122,7 +122,7 @@ function generateReferences(results: SearchResult[], currentCollection: string):
 }
 
 // generate follow-up question suggestions
-function generateQuestions(currentText: string, results: SearchResult[]): Suggestion[] {
+function generateQuestions(currentText: string): Suggestion[] {
   const questions: Suggestion[] = [];
   const lowerText = currentText.toLowerCase();
 
