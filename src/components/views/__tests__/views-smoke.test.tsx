@@ -1,7 +1,7 @@
 // same virtualization stubs used by list view tests
 import { vi } from 'vitest';
 vi.mock('react-window', () => ({
-  List: ({ itemCount, itemSize, itemData, style, children }: any) => (
+  List: ({ itemCount, itemData, style, children }: any) => (
     <div style={style}>
       {Array.from({ length: itemCount }).map((_, i) =>
         children({ index: i, style: {}, data: itemData })
