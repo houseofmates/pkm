@@ -42,17 +42,17 @@ interface Member {
     pronouns?: string;
     avatarUrl?: string;
     desc?: string;
+    color?: string;
+    textcolor?: string;
   };
 }
 
 function SortableHeadmateCard({
   id,
   children,
-  isDragging,
 }: {
   id: string;
   children: React.ReactNode;
-  isDragging: boolean;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
 
@@ -75,7 +75,6 @@ export function HeadmatesPage() {
   const [loading, setLoading] = useState(false);
   const [hasKey, setHasKey] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'contacts'>('grid');
-  const [isDragging, setIsDragging] = useState(false);
   // const [systemid, setsystemid] = useState<string | null>(null); // unused local state, context handles it.
 
   const members = allMembers.filter(m => !overrides[m.id]?.hidden);
@@ -87,9 +86,6 @@ export function HeadmatesPage() {
     console.log('All member IDs:', allMembers.map(m => ({ id: m.id, name: m.content.name })));
   }, [activeFronters, allMembers]);
 
-  const activeFrontColor = activeFrontId
-    ? (overrides[activeFrontId]?.color || allMembers.find(m => m.id === activeFrontId)?.content?.color)
-    : undefined;
 
   const baseOrderIndex = useMemo(() => {
     const map = new Map<string, number>();
@@ -432,7 +428,7 @@ export function HeadmatesPage() {
                         textcolor: overrides[member.id]?.textcolor || member.content.textcolor
                       };
                       return (
-                        <SortableHeadmateCard key={member.id} id={member.id} isDragging={isDragging}>
+                        <SortableHeadmateCard key={member.id} id={member.id}>
                           <HeadmateContextMenu
                             memberId={member.id}
                             memberName={member.content.name}
@@ -440,7 +436,8 @@ export function HeadmatesPage() {
                             {viewMode === 'grid' ? (
                               <HeadmateCard
                                 member={flatMember}
-                                onClick={isDragging ? undefined : () => toggleFronter(member.id)}
+                                collection={{ fields: [] }}
+                                onClick={() => toggleFronter(member.id)}
                               />
                             ) : (
                               // contacts view rendering (reusing headmatecard but maybe we can style it differently via classname?)
@@ -449,7 +446,8 @@ export function HeadmatesPage() {
                               // let's stick to headmatecard for consistency but bigger.
                               <HeadmateCard
                                 member={flatMember}
-                                onClick={isDragging ? undefined : () => toggleFronter(member.id)}
+                                collection={{ fields: [] }}
+                                onClick={() => toggleFronter(member.id)}
                                 className="aspect-[1.8/1]" // Wider aspect ratio for 'contact card' feel?
                               />
                             )}
