@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { secureLogger } from '@/lib/secure-logger';
+import { storageManager } from '@/lib/storage-manager';
 
 export interface AppSetting {
   id?: number | string;
@@ -18,7 +19,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
   // initialize from localstorage for immediate availability
   const [value, setValue] = useState<T>(() => {
   try {
-  const local = localStorage.getItem(`pkm_setting:${key}`);
+  const local = storageManager.getItem(`pkm_setting:${key}`);
   return local ? JSON.parse(local) : defaultValue;
   } catch (e) {
   return defaultValue;
@@ -59,7 +60,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
  if (setting.value !== undefined) {
  // deep compare to avoid redundant re-renders
  const newValueString = JSON.stringify(setting.value);
- const localValueString = localStorage.getItem(`pkm_setting:${key}`);
+ const localValueString = storageManager.getItem(`pkm_setting:${key}`);
 
  if (newValueString !== localValueString) {
  setValue(setting.value);
