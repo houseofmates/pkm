@@ -59,7 +59,6 @@
   * {
     border-color: hsl(var(--border));
   }
-
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
@@ -356,6 +355,10 @@ header * {
 .top-nav svg {
   color: hsl(var(--primary)) !important;
   stroke: hsl(var(--primary)) !important;
+  /* unify dimensions regardless of neighboring text length */
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  flex-shrink: 0 !important;
 }
 
 /* --- high contrast & visibility restoration (user request) --- */
