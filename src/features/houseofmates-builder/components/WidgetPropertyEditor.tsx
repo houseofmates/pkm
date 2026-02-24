@@ -132,6 +132,16 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: WidgetPrope
             </div>
           </>
         );
+      case 'serverip':
+        return (
+          <>
+            <Input label="java address" value={content.javaIP} onChange={(v: string) => updateField('javaIP', v)} placeholder="dupemates.playit.pub" />
+            <Input label="java port" value={content.javaPort} onChange={(v: string) => updateField('javaPort', v)} placeholder="25565 (optional)" />
+            <Input label="bedrock address" value={content.bedrockIP} onChange={(v: string) => updateField('bedrockIP', v)} placeholder="dupemates.playit.pub" />
+            <Input label="bedrock port" value={content.bedrockPort} onChange={(v: string) => updateField('bedrockPort', v)} placeholder="19132" />
+            <Checkbox label="show bedrock" checked={content.showBedrock !== false} onChange={(v: boolean) => updateField('showBedrock', v)} />
+          </>
+        );
       default:
         return <div className="text-white/50 italic">no specific editor for this widget type.</div>;
     }
