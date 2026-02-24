@@ -11,7 +11,6 @@ function getLucideIcon(name: string): LucideIcon | undefined {
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { detectFieldType } from '@/utils/csv-detector';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { useCollections } from '@/hooks/use-collections';
 import { useNavigate } from 'react-router-dom';
 import { formatHeadmateName, getCapitalizationClass } from '@/utils/text-formatting';
@@ -615,10 +614,10 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
 
         {/* scrollable list: must allow shrinking and include padding at bottom 
             so the last item isn't hidden behind the footer buttons. */}
-        <ScrollArea className="flex-1 w-full min-h-0 px-2 overflow-y-auto pb-24" style={{ height: '100%' }}>
+        <div className="flex-1 w-full min-h-0 px-2 overflow-y-auto pb-24">
 
           <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
-            <div className="space-y-0.5">
+            <div className="space-y-0.5 pb-20">
               {items.map((item) => (
                 <SortableItem
                   key={item.id}
@@ -645,7 +644,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
               ))}
             </div>
           </SortableContext>
-        </ScrollArea>
+        </div>
 
         <div className="mt-auto px-2 pt-4 !border-none shadow-none">
           <Button
