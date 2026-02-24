@@ -5,6 +5,7 @@ import LanceIndexer from './lancedb/index';
 import { getEmbedding } from './embeddings/ollama';
 import multer from 'multer';
 import * as Papa from 'papaparse';
+import { inferRelations, type Dataset } from './relation-inference';
 
 const PORT = process.env.PKM_BACKEND_PORT ? Number(process.env.PKM_BACKEND_PORT) : 4110;
 const app = express();
@@ -20,13 +21,7 @@ app.post('/nb-import-csv', upload.array('files', 60), async (req, res) => {
     if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
       return res.status(400).json({ error: 'no files uploaded' });
     }
-    const databases: Array<{
-      name: string;
-      rows: any[];
-      fields: string[];
-      fieldTypes: Record<string, string>;
-      relations?: Array<{ field: string; target: string }>;
-    }> = [];
+    const databases: Dataset[] = [];
     for (const file of req.files) {
       const content = file.buffer.toString('utf-8');
       const parsed = Papa.parse(content, {
@@ -81,50 +76,7 @@ app.post('/nb-import-csv', upload.array('files', 60), async (req, res) => {
         fieldTypes,
       });
     }
-    // infer relations by matching values to key fields in other datasets
-    const pickKeyField = (db: typeof databases[number]) => {
-      const preferred = db.fields.find(f => /^(name|title)$/i.test(f));
-      if (preferred) return preferred;
-      const firstString = db.fields.find(f => db.fieldTypes[f] === 'string' || db.fieldTypes[f] === 'text');
-      return firstString || db.fields[0];
-    };
-
-    for (const db of databases) {
-      const relations: Array<{ field: string; target: string }> = [];
-      for (const field of db.fields) {
-        const maybeLookup = db.fieldTypes[field] === 'lookup' || db.fieldTypes[field] === 'string';
-        if (!maybeLookup) continue;
-        const values = db.rows
-          .map(r => r[field])
-          .flatMap(v => (Array.isArray(v) ? v : [v]))
-          .filter(v => v != null && v !== '')
-          .map(v => String(v).trim().toLowerCase());
-        if (values.length === 0) continue;
-
-        let best: { target?: string; score: number } = { score: 0 };
-        for (const other of databases) {
-          if (other.name === db.name) continue;
-          const key = pickKeyField(other);
-          if (!key) continue;
-          const keyValues = other.rows
-            .map(r => r[key])
-            .filter(v => v != null && v !== '')
-            .map(v => String(v).trim().toLowerCase());
-          if (!keyValues.length) continue;
-          const keySet = new Set(keyValues);
-          const matches = values.filter(v => keySet.has(v)).length;
-          const score = matches / values.length;
-          if (matches >= 2 && score >= 0.5 && score > best.score) {
-            best = { target: other.name, score };
-          }
-        }
-        if (best.target) {
-          relations.push({ field, target: best.target });
-          db.fieldTypes[field] = 'lookup';
-        }
-      }
-      if (relations.length) db.relations = relations;
-    }
+    inferRelations(databases);
 
     // Return a task summary including inferred relations
     const taskId = 'csv-' + Date.now();
