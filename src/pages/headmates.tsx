@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { LayoutGrid, Contact } from 'lucide-react';
+import { storageManager } from '@/lib/storage-manager';
 import { HeadmateCard } from '@/features/headmates/components/headmate-card';
 import { HeadmateContextMenu } from '@/features/headmates/components/headmate-context-menu';
 import { useFronter } from '@/contexts/fronter-context';
