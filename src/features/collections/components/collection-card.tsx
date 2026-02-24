@@ -12,7 +12,7 @@ interface CollectionCardProps {
   className?: string;
 }
 
-export const CollectionCard = React.memo(const CollectionCard = React.memo(function CollectionCard({ collection, className }: CollectionCardProps) {
+function CollectionCardImpl({ collection, className }: CollectionCardProps) {
   const fields = collection.fields || [];
   const fieldCount = fields.length;
 
