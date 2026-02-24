@@ -394,7 +394,10 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
             />
           )
         }));
-    } else if (data.length > 0) {
+    }
+    
+    // fallback: if no collection fields are defined but we have data, infer columns from the first row
+    if (cols.length === 0 && data.length > 0) {
       cols = Object.keys(data[0])
         .filter(key => !hiddenColumns.includes(key))
         .map((key) =>
