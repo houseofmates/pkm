@@ -39,7 +39,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
 
   // fetch from backend on mount
   const fetchSetting = useCallback(async () => {
-  if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) return;
+  if (!isAuthenticated || !token || !storageManager.getItem('nocobase_token')) return;
   setLoading(true);
   try {
   // use :list instead of :get for filtering by key
@@ -166,7 +166,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
   }, [key, isAuthenticated, token, client, debounceMs]);
 
   const flush = useCallback(async (valueToSave?: T) => {
-  if (!isAuthenticated || !token || !localStorage.getItem('nocobase_token')) return;
+  if (!isAuthenticated || !token || !storageManager.getItem('nocobase_token')) return;
   const toSave = valueToSave === undefined ? valueRef.current : valueToSave;
 
   const attemptUpsert = async (attempt = 1): Promise<void> => {
