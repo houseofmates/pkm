@@ -3,6 +3,8 @@
 // eliminates dangling pointers on rename, move, and delete
 // persisted to localstorage with lazy hydration
 
+import { storageManager } from '@/lib/storage-manager';
+
 export interface LinkEntry {
     sourceId: string
     sourceCollection: string
