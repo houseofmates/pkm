@@ -612,11 +612,11 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         />
 
 
-        {/* scrollable list: fixed height calculation to ensure proper scrolling */}
-        <div className="flex-1 w-full px-2 overflow-y-auto" style={{ minHeight: 0 }}>
+        {/* scrollable list: h-0 forces proper flex shrinking, min-h-0 allows it to shrink below content size */}
+        <div className="flex-1 w-full h-0 min-h-0 px-2 overflow-y-auto">
 
           <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
-            <div className="space-y-0.5 pb-32">
+            <div className="space-y-0.5 pb-40">
               {items.map((item) => (
                 <SortableItem
                   key={item.id}

@@ -10,6 +10,7 @@ interface TableViewProps {
   isLoading: boolean;
   theme: any;
   onSelect?: (record: any) => void;
+  fields?: any[]; // optional schema fields from collection
 }
 
 export function TableView({ records, isLoading, theme, onSelect }: TableViewProps) {
