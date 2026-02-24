@@ -5,6 +5,68 @@ const CONFIG = {
     collectionName: 'captures'
 };
 
+const ext = (globalThis.browser ?? (globalThis.chrome as any)) as any;
+
+function storageGet(area: 'local' | 'sync', key: string): Promise<Record<string, any>> {
+    const storageArea = ext?.storage?.[area];
+    if (!storageArea) return Promise.resolve({});
+
+    try {
+        const res = storageArea.get(key);
+        if (res && typeof res.then === 'function') return res;
+    } catch (_) {
+        // fall through to callback form
+    }
+
+    return new Promise((resolve, reject) => {
+        try {
+            storageArea.get(key, (items: any) => {
+                const err = ext?.runtime?.lastError;
+                if (err) reject(err);
+                else resolve(items || {});
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+
+function storageSet(area: 'local' | 'sync', items: Record<string, any>): Promise<void> {
+    const storageArea = ext?.storage?.[area];
+    if (!storageArea) return Promise.resolve();
+
+    try {
+        const res = storageArea.set(items);
+        if (res && typeof res.then === 'function') return res;
+    } catch (_) {
+        // fall through to callback form
+    }
+
+    return new Promise((resolve, reject) => {
+        try {
+            storageArea.set(items, () => {
+                const err = ext?.runtime?.lastError;
+                if (err) reject(err);
+                else resolve();
+            });
+        } catch (e) {
+            reject(e);
+        }
+    });
+}
+
+async function getApiToken(): Promise<string> {
+    const local = await storageGet('local', 'apiToken').catch(() => ({}));
+    if (local?.apiToken) return String(local.apiToken);
+    const sync = await storageGet('sync', 'apiToken').catch(() => ({}));
+    return sync?.apiToken ? String(sync.apiToken) : '';
+}
+
+async function setApiToken(token: string): Promise<void> {
+    await storageSet('local', { apiToken: token }).catch(() => undefined);
+    await storageSet('sync', { apiToken: token }).catch(() => undefined);
+}
+
 // UI Elements
 const views = {
     capture: document.getElementById('capture-view'),
@@ -20,11 +82,11 @@ const inputs = {
 
 // Init
 document.addEventListener('DOMContentLoaded', async () => {
-    const data = await browser.storage.sync.get('apiToken');
-    if (!data.apiToken) {
+    const token = await getApiToken();
+    if (!token) {
         showSettings();
     } else {
-        inputs.token.value = data.apiToken;
+        inputs.token.value = token;
         loadCurrentPageData();
     }
 });
@@ -67,7 +129,7 @@ async function loadCurrentPageData() {
 document.getElementById('save-token').addEventListener('click', async () => {
     const token = inputs.token.value.trim();
     if (token) {
-        await browser.storage.sync.set({ apiToken: token });
+        await setApiToken(token);
         showCapture();
         loadCurrentPageData(); // Retry loading data
     }
@@ -92,8 +154,7 @@ document.getElementById('save-capture').addEventListener('click', async () => {
     btn.textContent = 'saving...';
 
     try {
-        const data = await browser.storage.sync.get('apiToken');
-        const token = data.apiToken;
+        const token = await getApiToken();
 
         if (!token) {
             showSettings();
