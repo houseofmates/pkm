@@ -64,6 +64,11 @@ describe('RootLayout', () => {
     // ensure env default state has no flag
     delete (import.meta as any).env.VITE_SHOW_HEALTH_BAR;
     const { RootLayout, AuthProvider, FronterProvider, LLMContextProvider } = await loadLayoutAndProviders();
+    // ensure a <link id="favicon"/> exists in the DOM for our later assertion
+    const linkEl = document.createElement('link');
+    linkEl.id = 'favicon';
+    linkEl.rel = 'icon';
+    document.head.appendChild(linkEl);
     render(
       <AuthProvider>
         <QueryClientProvider client={new QueryClient()}>
