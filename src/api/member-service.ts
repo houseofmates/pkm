@@ -2,6 +2,7 @@ import { api } from './nocobase-client';
 import { SimplyPluralClient } from '@/lib/simply-plural-client';
 import { toast } from 'sonner';
 import { secureLogger } from '@/lib/secure-logger';
+import { storageManager } from '@/lib/storage-manager';
 
 export const MemberService = {
   /**
@@ -41,7 +42,7 @@ export const MemberService = {
   }
 
   // 2. patch simplyplural
-  const apiKey = localStorage.getItem('pk_api_key');
+  const apiKey = storageManager.getItem('pk_api_key');
   if (apiKey) {
  secureLogger.info("MemberService: Patching SimplyPlural...");
 
