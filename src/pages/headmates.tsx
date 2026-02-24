@@ -78,7 +78,6 @@ export function HeadmatesPage() {
   // const [systemid, setsystemid] = useState<string | null>(null); // unused local state, context handles it.
 
   const members = allMembers.filter(m => !overrides[m.id]?.hidden);
-  const activeFrontId = activeFronters[0];
 
   // log for debugging
   useEffect(() => {
@@ -110,7 +109,6 @@ export function HeadmatesPage() {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    setIsDragging(false);
     if (!over || active.id === over.id) return;
 
     const oldIndex = orderedIds.indexOf(active.id as string);
@@ -402,8 +400,7 @@ export function HeadmatesPage() {
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
-                onDragStart={() => setIsDragging(true)}
-                onDragEnd={handleDragEnd}
+                            onDragEnd={handleDragEnd}
               >
                 <SortableContext
                   items={orderedIds}
