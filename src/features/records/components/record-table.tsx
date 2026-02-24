@@ -294,7 +294,8 @@ const DraggableRecordRow = (props: any) => {
         )}
 
 
-        {row.getVisibleCells().map((cell: any) => {
+        {row.getVisibleCells().map((cell: any, cellIdx: number, cellArr: any[]) => {
+          const isLastCell = cellIdx === cellArr.length - 1;
           return (
             <div
               key={cell.id}
@@ -303,7 +304,10 @@ const DraggableRecordRow = (props: any) => {
                 minWidth: cell.column.getSize() || DEFAULT_COL_WIDTH,
                 maxWidth: cell.column.getSize() || DEFAULT_COL_WIDTH
               }}
-              className="border-r border-[#222] align-middle p-0 h-10 transition-colors group-hover:bg-white/5 flex-shrink-0"
+              className={cn(
+                "align-middle p-0 h-10 transition-colors group-hover:bg-white/5 flex-shrink-0",
+                !isLastCell && "border-r border-[#222]"
+              )}
               onContextMenu={(e) => {
                 e.stopPropagation();
               }}
@@ -371,21 +375,15 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       </div>
     );
   }
-  const columnHelper = createColumnHelper<any>();
+  const columnHelper = React.useMemo(() => createColumnHelper<any>(), []);
 
   const columns = React.useMemo(() => {
     let cols: any[] = [];
-    
-    console.log('[RecordTable] Collection:', collection.name);
-    console.log('[RecordTable] Fields:', collection.fields);
-    console.log('[RecordTable] Hidden columns:', hiddenColumns);
     
     if (collection.fields && collection.fields.length > 0) {
       const visibleFields = (collection.fields || [])
         .filter((f: any) => !f.hidden)
         .filter((f: any) => f.name && !hiddenColumns.includes(f.name));
-      
-      console.log('[RecordTable] Visible fields after filtering:', visibleFields);
       
       cols = visibleFields.map((field: any) => columnHelper.accessor(field.name, {
           header: (field.uiSchema?.title || field.name),
@@ -406,8 +404,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           )
         }));
     }
-    
-    console.log('[RecordTable] Columns created:', cols.length);
     
     // fallback: if no collection fields are defined but we have data, infer columns from the first row
     if (cols.length === 0 && data.length > 0) {
