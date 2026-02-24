@@ -19,17 +19,18 @@ import { DatabaseWidget } from './database-widget';
 import type { ViewType } from '@/components/views/registry';
 import { useEdgelessStore } from '@/features/edgeless/store';
 import { apiClient } from '@/lib/api-client';
+import { storageManager } from '@/lib/storage-manager';
 
 export function DatabaseCanvasView() {
   const { collections } = useCollections();
   const [selectedCollection, setSelectedCollection] = useState<string | null>(() => {
-    try { return localstorage.getitem('last_db_canvas_collection'); } catch (e) { return null; }
+    try { return storageManager.getItem('last_db_canvas_collection'); } catch (e) { return null; }
   });
   const [viewtype, setviewtype] = useState<ViewType>('table');
   const store = useEdgelessStore();
 
   useEffect(() => {
-    if (selectedCollection) localStorage.setItem('last_db_canvas_collection', selectedCollection);
+    if (selectedCollection) storageManager.setItem('last_db_canvas_collection', selectedCollection);
   }, [selectedCollection]);
 
   // data loading logic (restored from previous implementation to ensure canvas has content)
