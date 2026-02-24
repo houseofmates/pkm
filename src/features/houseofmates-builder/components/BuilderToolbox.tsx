@@ -473,7 +473,7 @@ export function BuilderToolbox() {
   return (
   <>
   {/* form builder modal */}
-  {showformbuilder && (
+  {showFormBuilder && (
  <FormBuilder
  onSave={handleFormSave}
  onCancel={() => setShowFormBuilder(false)}
@@ -621,12 +621,12 @@ export function BuilderToolbox() {
 
  {activeTab === 'media' && (
    <div className="h-full">
-   {mediamode === 'list' ? (
+   {mediaMode === 'list' ? (
    <div className="grid grid-cols-2 gap-3">
   <ToolButton icon={<Image className="w-5 h-5" />} label="image" onClick={() => setMediaMode('image')} />
   <ToolButton icon={<Play className="w-5 h-5" />} label="video" onClick={() => setMediaMode('video')} />
    </div>
-   ) : mediamode === 'image' ? (
+   ) : mediaMode === 'image' ? (
    <div className="space-y-2">
   <button onClick={() => setMediaMode('list')} className="text-white/50 hover:text-white text-xs mb-2 flex items-center gap-1">
   <ChevronLeft className="w-3 h-3" /> back
