@@ -705,7 +705,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                     no records found
                   </div>
                   {onCreateRecord && (
-                    <div className="flex items-start pl-2 pt-2">
+                    <div className="flex items-start pl-2">
                       <Button
                         variant="ghost"
                         size="icon"
@@ -722,9 +722,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                 <AutoSizer
                   renderProp={({ height, width }: { height: number | undefined; width: number | undefined }) => (
                     <>
-                      <div className="absolute top-0 right-40 p-1 text-[10px] text-white/40 z-50 pointer-events-none">
-                        h: {height} | w: {width}
-                      </div>
                       <List
                         rowCount={rows.length}
                         rowHeight={40}
@@ -741,7 +738,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         rowComponent={DraggableRecordRow}
                       />
                       {onCreateRecord && (
-                        <div className="flex items-start pl-2 pt-2">
+                        <div className="flex items-start pl-2 pt-1">
                           <Button
                             variant="ghost"
                             size="icon"
