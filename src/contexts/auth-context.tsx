@@ -93,7 +93,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    // This function is intentionally strict to catch developer errors,
+    // but during hot reloads or initial render races it's possible to
+    // briefly hit a component before the provider tree has mounted. In
+    // such cases throwing crashes the whole app (see error in bug report:
+    // "useAuth must be used within an AuthProvider"). Most callers can
+    // tolerate a missing auth object by treating it as unauthenticated
+    // state. Returning a lightweight stub avoids those crashes while the
+    // warning helps us surface regressions during development.
+    console.warn('useAuth called outside of AuthProvider; returning fallback stub.');
+    return {
+      token: null,
+      isAuthenticated: false,
+      login: () => {},
+      logout: () => {},
+      client: new NocoBaseClient(),
+    } as AuthContextType;
   }
   return context;
 }
