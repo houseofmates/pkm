@@ -55,6 +55,22 @@ function DataEmbedContent({
     }
   }, [view]);
 
+  // fetch schema fields so we can show headers even when there are no records
+  const { data: schemaData } = useQuery(
+    ['embed', 'schema', collection],
+    async () => {
+      try {
+        const res: any = await api.getCollection(collection);
+        const fields = res && !Array.isArray(res) ? res.data?.fields : [];
+        return Array.isArray(fields) ? fields : [];
+      } catch {
+        return [];
+      }
+    },
+    { staleTime: 1000 * 60 * 5 }
+  );
+
+
   if (isError) {
     throw error;
   }
@@ -76,6 +92,7 @@ function DataEmbedContent({
         isLoading={isLoading}
         theme={theme}
         onSelect={onItemClick}
+        fields={schemaData}
       />
 
       {hasNextPage && (
