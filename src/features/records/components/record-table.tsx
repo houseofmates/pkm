@@ -630,21 +630,25 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                 <AutoSizer>
                   {({ height, width }: { height: number; width: number }) => (
                     <List
-                      rowCount={rows.length}
-                      rowHeight={40}
-                      rowProps={{
-                        rows: rows,
+                      // react-window FixedSizeList API
+                      itemCount={rows.length}
+                      itemSize={40}
+                      height={height}
+                      width={width}
+                      itemData={{
+                        rows,
                         collection,
                         onUpdate: onUpdateRecord,
                         onDelete,
                         onCreateField,
                         recordMeta
                       }}
-                      height={height}
-                      width={width}
                       style={{ height, width }}
-                      rowComponent={DraggableRecordRow}
-                    />
+                    >
+                      {({ index, style, data }: any) => (
+                        <DraggableRecordRow index={index} style={style} data={data} />
+                      )}
+                    </List>
                   )}
                 </AutoSizer>
               )}

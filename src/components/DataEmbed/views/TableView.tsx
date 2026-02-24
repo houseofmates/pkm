@@ -85,11 +85,14 @@ export function TableView({ records, isLoading, theme, onSelect }: TableViewProp
         <AutoSizer>
           {({ height, width }) => (
             <List
-              rowCount={rows.length}
-              rowHeight={40}
-              rowProps={{ rows, onSelect }}
+              itemCount={rows.length}
+              itemSize={40}
+              height={height}
+              width={width}
+              itemData={{ rows, onSelect }}
               style={{ height, width }}
-              rowComponent={({ index, style, data }: any) => {
+            >
+              {({ index, style, data }: any) => {
                 const row = data.rows[index];
                 return (
                   <div
@@ -109,7 +112,7 @@ export function TableView({ records, isLoading, theme, onSelect }: TableViewProp
                   </div>
                 );
               }}
-            />
+            </List>
           )}
         </AutoSizer>
       </div>

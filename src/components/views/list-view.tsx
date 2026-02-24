@@ -135,12 +135,17 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
         <AutoSizer>
           {({ height, width }: { height: number; width: number }) => (
             <List
-              rowCount={data.length}
-              rowHeight={100}
-              rowProps={{ rows: data, collection, config, onConfigChange, onEdit, onDelete, onUpdateRecord }}
+              itemCount={data.length}
+              itemSize={100}
+              height={height}
+              width={width}
+              itemData={{ rows: data, collection, config, onConfigChange, onEdit, onDelete, onUpdateRecord }}
               style={{ height, width }}
-              rowComponent={RowComponent}
-            />
+            >
+              {({ index, style, data }) => (
+                <RowComponent index={index} style={style} data={data} />
+              )}
+            </List>
           )}
         </AutoSizer>
       </div>
