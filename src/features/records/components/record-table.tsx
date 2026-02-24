@@ -606,10 +606,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         background: '#0b0b0b'
       }}
     >
-      {/* Temporary Debug Info */}
-      <div className="absolute top-0 right-0 p-1 text-[10px] text-white/20 z-50 pointer-events-none">
-        rows: {rows.length} | data: {data?.length || 0}
-      </div>
 
       <style dangerouslySetInnerHTML={{
         __html: `
