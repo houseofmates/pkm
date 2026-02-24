@@ -629,26 +629,30 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               ) : (
                 <AutoSizer>
                   {({ height, width }: { height: number; width: number }) => (
-                    <List
-                      rowCount={rows.length}
-                      rowHeight={40}
-                      rowProps={{
-                        rows: rows,
-                        collection,
-                        onUpdate: onUpdateRecord,
-                        onDelete,
-                        onCreateField,
-                        recordMeta
-                      }}
-                      style={{ height, width }}
-                      rowComponent={DraggableRecordRow}
-                    />
+                    <>
+                      <div className="absolute top-0 right-40 p-1 text-[10px] text-white/40 z-50 pointer-events-none">
+                        h: {height} | w: {width}
+                      </div>
+                      <List
+                        rowCount={rows.length}
+                        rowHeight={40}
+                        rowProps={{
+                          rows: rows,
+                          collection,
+                          onUpdate: onUpdateRecord,
+                          onDelete,
+                          onCreateField,
+                          recordMeta
+                        }}
+                        style={{ height, width }}
+                        rowComponent={DraggableRecordRow}
+                      />
                   )}
-                </AutoSizer>
+                    </AutoSizer>
               )}
-            </div>
+                </div>
           </div>
-        </div>
+          </div>
       </DndContext>
 
       <FieldSettingsDialog
