@@ -330,6 +330,17 @@ export class NocoBaseClient {
   }
 
   // --- field/record methods ---
+  async listFields(collectionName: string): Promise<Field[]> {
+    try {
+      const res = await this._axios.get(`/collections/${collectionName}/fields:list`);
+      const fields = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+      return fields;
+    } catch (error) {
+      secureLogger.warn(`Failed to fetch fields for ${collectionName}:`, error);
+      return [];
+    }
+  }
+  
   async createField(collection: string, data: Field): Promise<unknown> {
     const res = await this._axios.post(`/collections/${collection}/fields:create`, data);
     return GetRecordResponseSchema.parse(res.data);
