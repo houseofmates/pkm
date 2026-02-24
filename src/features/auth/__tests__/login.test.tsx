@@ -9,10 +9,12 @@ import { vi } from 'vitest';
 const mockGet = vi.fn();
 
 vi.mock('@/api/nocobase-client', () => {
+  // return a fake constructor so `new NocoBaseClient()` works correctly
+  function FakeClient(this: any) {
+    this.client = { get: mockGet };
+  }
   return {
-    NocoBaseClient: vi.fn().mockImplementation(() => ({
-      client: { get: mockGet },
-    })),
+    NocoBaseClient: FakeClient,
   };
 });
 
