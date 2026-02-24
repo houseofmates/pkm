@@ -8,8 +8,8 @@
 ## Phase 2: Performance Optimizations ⚡ - IN PROGRESS
 
 ### 2.1 Add React.memo to Pure Components
-- [ ] src/components/ui/card.tsx - Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter
-- [ ] src/components/ui/button.tsx - Button
+- [x] src/components/ui/card.tsx - Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter
+- [x] src/components/ui/button.tsx - Button
 - [ ] src/features/headmates/components/headmate-card.tsx - HeadmateCard
 - [ ] src/features/collections/components/collection-card.tsx - CollectionCard
 - [ ] src/features/blog-builder/components/BlogPostCard.tsx - BlogPostCard
@@ -69,9 +69,9 @@
 ### 5.1 Replace any Types
 - [ ] src/hooks/use-records.ts - 5 any types
 - [ ] src/hooks/use-collections.ts - 3 any types
-- [ ] src/hooks/use-app-setting.ts - 4 any types
+- [x] src/hooks/use-app-setting.ts - 4 any types (converted to storageManager, added types)
 - [ ] src/lib/context-builder.ts - 4 any types
-- [ ] src/stores/llm-store.ts - 2 any types
+- [x] src/stores/llm-store.ts - 2 any types (removed unused generics)
 - [ ] src/components/editor/slash-command.ts - 15 any types
 
 ### 5.2 Add Strict Null Checks
