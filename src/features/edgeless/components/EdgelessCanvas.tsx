@@ -36,6 +36,16 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
   const fileInputRef = useRef<HTMLInputElement>(null)
   const isPanningRef = useRef(false)
   const lastStateChangeRef = useRef<number>(0)
+  const pointerStateRef = useRef({
+    isPanning: false,
+    isPinching: false,
+    lastX: 0,
+    lastY: 0,
+    initialDistance: 0,
+    initialZoom: 1,
+    pointers: new Map<number, PointerEvent>(),
+  })
+  const viewportRafRef = useRef<number | null>(null)
 
   const {
     fabricCanvas,
@@ -43,7 +53,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     elements,
     updateElement,
     viewPort,
-    setViewPort,
+    setViewport,
     activeTool,
     selectionMode,
     setTool,
@@ -175,7 +185,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     }
   }, [activeTool, fabricCanvas, penWidth, penColor, penOpacity, eraserWidth, eraserOpacity, stabilizerLevel])
 
-  // Spacebar Pan Logic & Event Listeners
+  // Spacebar Pan Logic & Pointer-based pan/zoom
   useEffect(() => {
     if (!fabricCanvas) return
 
@@ -184,7 +194,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         isPanningRef.current = true
         fabricCanvas.defaultCursor = 'grab'
         fabricCanvas.selection = false
-        if (activeTool === 'draw' || activeTool === 'eraser') {
+        if (activeTool === 'pen' || activeTool === 'eraser' || activeTool === 'draw') {
           fabricCanvas.isDrawingMode = false
         }
         fabricCanvas.requestRenderAll()
@@ -196,7 +206,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         isPanningRef.current = false
         fabricCanvas.defaultCursor = 'default'
         fabricCanvas.selection = true
-        if (activeTool === 'draw' || activeTool === 'eraser') {
+        if (activeTool === 'pen' || activeTool === 'eraser' || activeTool === 'draw') {
           fabricCanvas.isDrawingMode = true
         }
         fabricCanvas.requestRenderAll()
@@ -206,82 +216,128 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     window.addEventListener('keydown', handleKeyDown)
     window.addEventListener('keyup', handleKeyUp)
 
-    // Wheel Zoom & Pan
-    const onWheel = (opt: any) => {
-      opt.e.preventDefault()
-      opt.e.stopPropagation()
+    const upperCanvas = fabricCanvas.upperCanvasEl as HTMLCanvasElement | undefined
+    if (upperCanvas) {
+      upperCanvas.style.touchAction = 'none'
+    }
 
-      if (opt.e.ctrlKey || opt.e.metaKey) {
-        const delta = opt.e.deltaY
+    const scheduleViewport = (vpt: number[]) => {
+      if (!vpt) return
+      if (viewportRafRef.current) cancelAnimationFrame(viewportRafRef.current)
+      viewportRafRef.current = requestAnimationFrame(() => {
+        setViewport({ zoom: vpt[0], x: vpt[4], y: vpt[5] })
+        viewportRafRef.current = null
+      })
+    }
+
+    const handleWheel = (event: WheelEvent) => {
+      event.preventDefault()
+      event.stopPropagation()
+
+      if (!fabricCanvas) return
+      if (event.ctrlKey || event.metaKey) {
         let zoom = fabricCanvas.getZoom()
-        zoom *= 0.999 ** delta
-        if (zoom > 20) zoom = 20
-        if (zoom < 0.01) zoom = 0.01
-        fabricCanvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom)
+        zoom *= 0.999 ** event.deltaY
+        zoom = Math.min(Math.max(zoom, 0.01), 20)
+        fabricCanvas.zoomToPoint({ x: event.offsetX, y: event.offsetY }, zoom)
       } else {
         const vpt = fabricCanvas.viewportTransform
         if (!vpt) return
-        vpt[4] -= opt.e.deltaX
-        vpt[5] -= opt.e.deltaY
+        vpt[4] -= event.deltaX
+        vpt[5] -= event.deltaY
         fabricCanvas.requestRenderAll()
+        scheduleViewport(vpt)
       }
 
       const vpt = fabricCanvas.viewportTransform
-      if (vpt) setViewPort({ zoom: vpt[0], x: vpt[4], y: vpt[5] })
+      if (vpt) scheduleViewport(vpt)
     }
 
-    // Mouse Pan
-    let isDragging = false
-    let lastPosX = 0
-    let lastPosY = 0
+    const getDistance = (a: PointerEvent, b: PointerEvent) => Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY)
 
-    const onMouseDown = (opt: any) => {
-      const evt = opt.e
-      if (isPanningRef.current || opt.button === 2 || (evt as any).altKey) {
-        isDragging = true
+    const handlePointerDown = (e: PointerEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      upperCanvas?.setPointerCapture?.(e.pointerId)
+      const state = pointerStateRef.current
+      state.pointers.set(e.pointerId, e)
+      state.lastX = e.clientX
+      state.lastY = e.clientY
+      const shouldPan = isPanningRef.current || e.button === 2 || e.altKey
+      state.isPanning = shouldPan
+      state.isPinching = state.pointers.size === 2
+      if (state.isPinching) {
+        const [p1, p2] = Array.from(state.pointers.values())
+        state.initialDistance = getDistance(p1, p2)
+        state.initialZoom = fabricCanvas.getZoom()
+      }
+      if (state.isPanning) {
         fabricCanvas.selection = false
-        lastPosX = evt.clientX
-        lastPosY = evt.clientY
         fabricCanvas.defaultCursor = 'grabbing'
       }
     }
 
-    const onMouseMove = (opt: any) => {
-      setCursorPos({ x: opt.e.clientX, y: opt.e.clientY })
+    const handlePointerMove = (e: PointerEvent) => {
+      setCursorPos({ x: e.clientX, y: e.clientY })
+      const state = pointerStateRef.current
+      if (!state.pointers.has(e.pointerId)) return
+      state.pointers.set(e.pointerId, e)
 
-      if (isDragging) {
-        const e = opt.e
-        const vpt = fabricCanvas.viewportTransform
-        if (!vpt) return
-        vpt[4] += e.clientX - lastPosX
-        vpt[5] += e.clientY - lastPosY
+      const vpt = fabricCanvas.viewportTransform
+      if (!vpt) return
+
+      if (state.isPinching && state.pointers.size >= 2) {
+        const [p1, p2] = Array.from(state.pointers.values())
+        const dist = getDistance(p1, p2)
+        if (state.initialDistance > 0) {
+          let zoom = state.initialZoom * (dist / state.initialDistance)
+          zoom = Math.min(Math.max(zoom, 0.01), 20)
+          fabricCanvas.zoomToPoint({ x: e.clientX, y: e.clientY }, zoom)
+          fabricCanvas.requestRenderAll()
+          scheduleViewport(fabricCanvas.viewportTransform!)
+        }
+      } else if (state.isPanning) {
+        vpt[4] += e.clientX - state.lastX
+        vpt[5] += e.clientY - state.lastY
         fabricCanvas.requestRenderAll()
-        lastPosX = e.clientX
-        lastPosY = e.clientY
-        setViewPort({ zoom: vpt[0], x: vpt[4], y: vpt[5] })
+        state.lastX = e.clientX
+        state.lastY = e.clientY
+        scheduleViewport(vpt)
       }
     }
 
-    const onMouseUp = () => {
-      if (isDragging) {
-        isDragging = false
+    const handlePointerUp = (e: PointerEvent) => {
+      e.preventDefault()
+      e.stopPropagation()
+      upperCanvas?.releasePointerCapture?.(e.pointerId)
+      const state = pointerStateRef.current
+      state.pointers.delete(e.pointerId)
+      if (state.pointers.size < 2) {
+        state.isPinching = false
+        state.initialDistance = 0
+      }
+      if (state.pointers.size === 0) {
+        state.isPanning = false
         fabricCanvas.selection = true
         fabricCanvas.defaultCursor = isPanningRef.current ? 'grab' : 'default'
       }
     }
 
-    fabricCanvas.on('mouse:wheel', onWheel)
-    fabricCanvas.on('mouse:down', onMouseDown)
-    fabricCanvas.on('mouse:move', onMouseMove)
-    fabricCanvas.on('mouse:up', onMouseUp)
+    upperCanvas?.addEventListener('wheel', handleWheel, { passive: false })
+    upperCanvas?.addEventListener('pointerdown', handlePointerDown, { passive: false })
+    upperCanvas?.addEventListener('pointermove', handlePointerMove, { passive: false })
+    upperCanvas?.addEventListener('pointerup', handlePointerUp, { passive: false })
+    upperCanvas?.addEventListener('pointercancel', handlePointerUp, { passive: false })
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown)
       window.removeEventListener('keyup', handleKeyUp)
-      fabricCanvas.off('mouse:wheel', onWheel)
-      fabricCanvas.off('mouse:down', onMouseDown)
-      fabricCanvas.off('mouse:move', onMouseMove)
-      fabricCanvas.off('mouse:up', onMouseUp)
+      upperCanvas?.removeEventListener('wheel', handleWheel)
+      upperCanvas?.removeEventListener('pointerdown', handlePointerDown)
+      upperCanvas?.removeEventListener('pointermove', handlePointerMove)
+      upperCanvas?.removeEventListener('pointerup', handlePointerUp)
+      upperCanvas?.removeEventListener('pointercancel', handlePointerUp)
+      if (viewportRafRef.current) cancelAnimationFrame(viewportRafRef.current)
     }
   }, [fabricCanvas, activeTool])
 
