@@ -150,7 +150,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
         {data.length === 0 && <div className="col-span-full text-center p-10">no items found.</div>}
       </DndContext>
 
-      {/* single-click: edit entry + pick title & 3 props */}
+      {/* single-click: view and edit this entry's properties only (not view/card config) */}
       <Dialog open={!!selectedRecord} onOpenChange={(open) => !open && setSelectedRecord(null)}>
         <DialogContent className="max-w-md max-h-[85vh] overflow-hidden p-0 bg-neutral-900 border border-border/50 shadow-2xl">
           {selectedRecord && (
@@ -162,6 +162,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
               titleField={titleField}
               config={config}
               onConfigChange={onConfigChange}
+              showViewConfig={false}
             />
           )}
         </DialogContent>
