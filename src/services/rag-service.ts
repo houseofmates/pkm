@@ -1,7 +1,7 @@
 // rag service for wilson chat and ai field generation
 // orchestrates retrieval, context building, and prompt assembly
 
-import { searchKnowledgeBase, formatChunksForPrompt, SearchResult } from '@/lib/vector-store';
+import { searchKnowledgeBase, formatChunksForPrompt, type SearchResult } from '@/lib/vector-store';
 import { getWilsonRagPrompt, getAiFieldPrompt } from '@/lib/rag-prompts';
 import { api } from '@/api/nocobase-client';
 import { secureLogger } from '@/lib/secure-logger';
@@ -76,10 +76,10 @@ export async function buildRowContext(
 
     // look for relation fields in the record
     for (const [key, value] of Object.entries(record)) {
-      if (Array.isArray(value) && value.length > 0 && value[0]?.id) {
+      if (Array.isArray(value) && value.length > 0 && (value[0] as any)?.id) {
         // likely a has-many relation
         relatedRecords[key] = value;
-      } else if (value && typeof value === 'object' && value.id) {
+      } else if (value && typeof value === 'object' && (value as any).id) {
         // likely a belongs-to relation
         relatedRecords[key] = [value];
       }
@@ -302,14 +302,3 @@ function isStopWord(word: string): boolean {
   ]);
   return stopWords.has(word.toLowerCase());
 }
-
-// export all functions
-export {
-  buildRagContext,
-  buildRowContext,
-  generateWilsonRagPrompt,
-  generateAiFieldContent,
-  expandQuery,
-  batchRetrieveContext,
-  getSuggestedQuestions,
-};

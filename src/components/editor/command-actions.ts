@@ -1,6 +1,7 @@
 
 import { Editor } from '@tiptap/core';
 import { secureLogger } from '@/lib/secure-logger';
+import { storageManager } from '@/lib/storage-manager';
 
 export type TiptapRange = { from: number; to: number };
 import { useEdgelessStore } from '@/features/edgeless/store';
@@ -9,12 +10,12 @@ import { toast } from 'sonner';
 // helper to get current fronter from localstorage (to avoid context dependency injection hell in tiptap extensions)
 const getActiveFronter = (): string | null => {
   try {
-  const stored = localStorage.getItem('pkm_active_fronters');
-  const list = stored ? JSON.parse(stored) : [];
-  if (list.length > 0) return list[0]; // Just grab the first one
-  return null;
+    const stored = storageManager.getItem('pkm_active_fronters');
+    const list = stored ? JSON.parse(stored) : [];
+    if (list.length > 0) return list[0]; // Just grab the first one
+    return null;
   } catch {
-  return null;
+    return null;
   }
 };
 
