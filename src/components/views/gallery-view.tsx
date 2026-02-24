@@ -267,11 +267,12 @@ function GalleryCard({
             </div>
           )}
           <CardContent className="p-3 bg-card/95 rounded-b-[inherit]" onClick={(e) => e.stopPropagation()}>
-            {/* title: double-click to edit */}
+            {/* title: double-click to edit (single-click on title does not open dialog) */}
             <div
               className="font-black text-xl mb-1 text-center"
               onDoubleClick={(e) => { e.stopPropagation(); onTitleEditStart(); }}
               data-no-card-click
+              title="double-click to edit"
             >
               {titleField ? (
                 isTitleEditing ? (
