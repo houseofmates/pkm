@@ -355,5 +355,3 @@ if (require.main === module) {
     process.exit(result.success ? 0 : 1);
   });
 }
-
-export { setupNocoBaseRag };

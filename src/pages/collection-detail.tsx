@@ -11,6 +11,7 @@ import { useFronter } from '@/contexts/fronter-context';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { generateAndSaveAiField } from '@/services/ai-field-generator';
 
 interface CollectionDetailPageProps {
   collectionName?: string;
@@ -22,6 +23,7 @@ import { type ViewType, VIEW_REGISTRY, VIEW_OPTIONS } from '@/components/views/r
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { Star } from 'lucide-react';
+import { secureLogger } from '@/lib/secure-logger';
 import {
   Dialog,
   DialogContent,
@@ -230,11 +232,25 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             if (e.detail?.collection === collectionName) {
                 console.log("Creating record via event:", e.detail.data);
                 try {
-                    await client.createRecord(collectionName, e.detail.data);
+                    const createRes: any = await client.createRecord(collectionName, e.detail.data);
+                    const newId = createRes?.id || (createRes?.data && createRes.data.id);
+
                     toast.success("record created!");
                     // refresh
                     const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
                     setRecords(extractRecords(res));
+
+                    // auto-suggest content if ai field exists
+                    if (newId && collection?.fields?.some((f: any) => f.name === 'ai')) {
+                      generateAndSaveAiField(collectionName, newId, 'ai', {
+                        instruction: 'provide a brief summary and initial ideas for this new entry',
+                        topK: 5
+                      }).then(r => {
+                        if (!r.success) {
+                          secureLogger.warn('auto-suggest generation failed', r.error);
+                        }
+                      });
+                    }
                 } catch (err) {
                     console.error(err);
                     toast.error("failed to create record");
