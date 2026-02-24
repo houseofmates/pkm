@@ -260,7 +260,7 @@ export function createDebouncedSuggestions(
   let timeoutId: ReturnType<typeof setTimeout> | null = null;
   let lastQuery: string = '';
 
-  return (currentText: string, collection: string, recordId?: string | number) => {
+  return (currentText: string, collection: string) => {
     // clear previous timeout
     if (timeoutId) {
       clearTimeout(timeoutId);
