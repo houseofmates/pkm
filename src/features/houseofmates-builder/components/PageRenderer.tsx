@@ -440,7 +440,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
               if (targets.some(t => t.id === other.id)) continue;
               const cx = other.x + (other.width || 0) / 2;
               const cy = other.y + (other.height || 0) / 2;
-              const dist = math.hypot(cx - movingcenterx, cy - movingcentery);
+              const dist = Math.hypot(cx - movingCenterX, cy - movingCenterY);
               if (!nearest || dist < nearest.dist) nearest = { cx, cy, dist };
             }
 
