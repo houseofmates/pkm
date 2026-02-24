@@ -706,7 +706,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="absolute left-2 bottom-1"
+                      className="absolute left-4 bottom-0"
                       onClick={onCreateRecord}
                       title="create new record"
                     >
