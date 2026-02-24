@@ -109,7 +109,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   const renderIcon = () => {
     // use current theme color if no local override
     // logic: if item.color is set, use it. if generic, use primary.
-    const iconColor = metaColor || 'var(--primary)';
+      // no explicit icon color, let CSS inherit from the button/text color
 
     if (item.icon && item.iconType) {
       // ... strict icon logic
@@ -117,14 +117,14 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
       if (item.iconType === 'image') return <img src={item.icon} alt="icon" className="h-6 w-6 mr-2 object-contain flex-shrink-0" />;
       if (item.iconType === 'lucide') {
         const Icon = getLucideIcon(item.icon);
-        if (Icon) return <Icon className="h-6 w-6 mr-2 flex-shrink-0" style={{ color: iconColor }} />;
+        if (Icon) return <Icon className="h-6 w-6 mr-2 flex-shrink-0" />;
       }
     }
     // fallback
     if (item.type === 'folder') return <Folder className="h-6 w-6 mr-2 flex-shrink-0" />;
 
     // default for collections/documents without explicit icon
-    return <Database className="h-6 w-6 mr-2 flex-shrink-0" style={{ color: iconColor }} />;
+    return <Database className="h-6 w-6 mr-2 flex-shrink-0" />;
   };
 
   const displayName = formatHeadmateName(item.name);

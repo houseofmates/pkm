@@ -354,8 +354,9 @@ header * {
 .sidebar svg,
 .nav-item svg,
 .top-nav svg {
-  color: hsl(var(--primary)) !important;
-  stroke: hsl(var(--primary)) !important;
+  /* inherit the text color of parent (which may be a custom item color) */
+  color: currentColor !important;
+  stroke: currentColor !important;
   /* unify dimensions regardless of neighboring text length; bump size for better visibility */
   width: 1.5rem !important;
   height: 1.5rem !important;
