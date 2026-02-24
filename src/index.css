@@ -356,9 +356,9 @@ header * {
 .top-nav svg {
   color: hsl(var(--primary)) !important;
   stroke: hsl(var(--primary)) !important;
-  /* unify dimensions regardless of neighboring text length */
-  width: 1.25rem !important;
-  height: 1.25rem !important;
+  /* unify dimensions regardless of neighboring text length; bump size for better visibility */
+  width: 1.5rem !important;
+  height: 1.5rem !important;
   flex-shrink: 0 !important;
 }
 
