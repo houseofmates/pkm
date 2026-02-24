@@ -708,9 +708,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                   )}
                 </div>
               ) : (
-                <AutoSizer
+              <AutoSizer
                   renderProp={({ height, width }: { height: number | undefined; width: number | undefined }) => (
-                    <>
                       <List
                         rowCount={rows.length}
                         rowHeight={40}
@@ -723,23 +722,9 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                           onCreateRecord,
                           recordMeta
                         }}
-                        style={{ height, width }}
+                        style={{ height: height ? height - 40 : height, width }}
                         rowComponent={DraggableRecordRow}
                       />
-                      {onCreateRecord && (
-                        <div className="flex items-start pl-2 pt-1">
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8 opacity-50 hover:opacity-100"
-                            onClick={onCreateRecord}
-                            title="create new record"
-                          >
-                            <Plus className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      )}
-                    </>
                   )}
                 />
               )}
