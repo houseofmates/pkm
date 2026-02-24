@@ -101,7 +101,7 @@ describe('View smoke tests', () => {
           data={dummyData}
           collection={emptyCollection}
           config={{}}
-          onCreate={(d) => {}}
+          onCreate={() => {}}
         />
       </AuthContext.Provider>
     );
@@ -117,7 +117,7 @@ describe('View smoke tests', () => {
           data={[...dummyData]}
           collection={emptyCollection}
           config={{}}
-          onCreate={(d) => {}}
+          onCreate={() => {}}
         />
       </AuthContext.Provider>
     );
