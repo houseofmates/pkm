@@ -331,7 +331,7 @@ export async function runSmokeTest(): Promise<boolean> {
 
   try {
     // test 1: can we search?
-    const searchResults = await searchKnowledgeBase('test', 1);
+    await searchKnowledgeBase('test', 1);
     console.log('✅ knowledge base search working');
 
     // test 2: can we build context?
