@@ -34,6 +34,7 @@ const WorkspacePage = lazy(() => import("@/pages/workspace").then(m => ({ defaul
 const NotionImportPage = lazy(() => import("@/pages/notion-import").then(m => ({ default: m.default })));
 const SettingsPage = lazy(() => import("@/pages/settings").then(m => ({ default: m.default })));
 const PublicDocViewer = lazy(() => import("@/components/journal/public-doc-viewer").then(m => ({ default: m.PublicDocViewer })));
+const RagTestPage = lazy(() => import("@/pages/rag-test").then(m => ({ default: m.default })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -135,6 +136,7 @@ function AppContent() {
                 <Route path="/workspace/:id" element={<WorkspacePage />} />
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/notion-import" element={<NotionImportPage />} />
+                <Route path="/rag-test" element={<RagTestPage />} />
               </Route>
             </Routes>
             <Spotlight />
