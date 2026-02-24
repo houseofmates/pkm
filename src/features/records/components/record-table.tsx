@@ -292,6 +292,22 @@ const DraggableRecordRow = (props: any) => {
             </div>
           </div>
         )}
+
+        {/* plus button moved left of data columns */}
+        {index === rows.length - 1 && onCreateRecord && (
+          <div className="w-10 border-r border-[#222] p-0 h-10 flex items-center justify-center flex-shrink-0">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-full w-full rounded-none opacity-50 hover:opacity-100 hover:bg-white/10 p-0"
+              onClick={(e) => { e.stopPropagation(); onCreateRecord(); }}
+              title="create new record"
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
+
         {row.getVisibleCells().map((cell: any) => {
           return (
             <div
@@ -315,20 +331,6 @@ const DraggableRecordRow = (props: any) => {
             </div>
           );
         })}
-{/* plus button attached to last row */}
-          {index === rows.length - 1 && onCreateRecord && (
-            <div className="w-10 border-l border-[#222] p-0 h-10 flex items-center justify-center">
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-full w-full rounded-none opacity-50 hover:opacity-100 hover:bg-white/10 p-0"
-                onClick={(e) => { e.stopPropagation(); onCreateRecord(); }}
-                title="create new record"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
         </div>
     </RecordContextMenu>
   );
@@ -386,11 +388,19 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
   const columns = React.useMemo(() => {
     let cols: any[] = [];
+    
+    console.log('[RecordTable] Collection:', collection.name);
+    console.log('[RecordTable] Fields:', collection.fields);
+    console.log('[RecordTable] Hidden columns:', hiddenColumns);
+    
     if (collection.fields && collection.fields.length > 0) {
-      cols = (collection.fields || [])
+      const visibleFields = (collection.fields || [])
         .filter((f: any) => !f.hidden)
-        .filter((f: any) => f.name && !hiddenColumns.includes(f.name))
-        .map((field: any) => columnHelper.accessor(field.name, {
+        .filter((f: any) => f.name && !hiddenColumns.includes(f.name));
+      
+      console.log('[RecordTable] Visible fields after filtering:', visibleFields);
+      
+      cols = visibleFields.map((field: any) => columnHelper.accessor(field.name, {
           header: (field.uiSchema?.title || field.name),
           meta: { field },
           cell: info => (
@@ -409,6 +419,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           )
         }));
     }
+    
+    console.log('[RecordTable] Columns created:', cols.length);
     
     // fallback: if no collection fields are defined but we have data, infer columns from the first row
     if (cols.length === 0 && data.length > 0) {
