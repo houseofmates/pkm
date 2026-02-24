@@ -74,6 +74,9 @@ describe('RootLayout', () => {
 
     // title should map according to our host rules
     expect(document.title).toBe('dupemates');
+    // favicon file should match dupe image
+    const link = document.getElementById('favicon') as HTMLLinkElement;
+    expect(link?.href).toContain('/favicon-dupe.png');
   });
 
   it('can load with health bar env variable set', async () => {
