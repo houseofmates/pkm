@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { secureLogger } from './secure-logger';
+import { storageManager } from './storage-manager';
 
 // api base: prefer the vite environment override, fall back to local backend for dev
 export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4100/api';
@@ -12,9 +13,9 @@ export const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
- const nt = localStorage.getItem('nocobase_token');
- const ht = localStorage.getItem('hom_api_key');
- const gt = localStorage.getItem('hom_guest_key'); // guest token support
+ const nt = storageManager.getItem('nocobase_token');
+ const ht = storageManager.getItem('hom_api_key');
+ const gt = storageManager.getItem('hom_guest_key'); // guest token support
 
  // pick the best token we have: admin > nocobase jwt > guest (trim common placeholders)
  let token = null;
@@ -73,11 +74,8 @@ apiClient.interceptors.response.use(
   if (error.response?.status === 401) {
  // clear potentially expired/invalid tokens
  secureLogger.warn('[Auth] 401 Unauthorized - clearing stored tokens');
- localStorage.removeItem('hom_api_key');
- localStorage.removeItem('nocobase_token');
-
- // dispatch event for auth context to handle
- window.dispatchEvent(new Event('auth-error'));
+ storageManager.removeItem('hom_api_key');
+ storageManager.removeItem('nocobase_token');
 
  // show toast notification
  if (typeof window !== 'undefined' && (window as any).toast) {
