@@ -730,6 +730,21 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               )}
             </div>
           </div>
+
+          {/* add new record button — always visible below rows */}
+          {onCreateRecord && (
+            <div className="flex-shrink-0 border-t border-[#222]">
+              <Button
+                variant="ghost"
+                className="h-9 w-full rounded-none opacity-50 hover:opacity-100 hover:bg-white/10 flex items-center justify-start gap-2 px-3 transition-opacity"
+                onClick={onCreateRecord}
+                title="create new record"
+              >
+                <Plus className="h-4 w-4" />
+                <span className="text-xs text-muted-foreground lowercase">new record</span>
+              </Button>
+            </div>
+          )}
         </div>
       </DndContext>
 
