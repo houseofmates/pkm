@@ -21,7 +21,6 @@ import {
   sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
 import { Folder, Database, Github, CheckCircle, RefreshCcw, AlertTriangle } from 'lucide-react';
-import { formatHeadmateName } from '@/utils/text-formatting';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { useThemeReactor, HexToHsl } from '@/hooks/use-theme-reactor';
 import { Sheet, SheetContent } from '@/components/ui/sheet';

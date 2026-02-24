@@ -11,7 +11,6 @@ interface AiFieldButtonProps {
   collection: string;
   recordId: string | number;
   fieldName?: string;
-  existingContent?: string;
   onGenerated?: (content: string) => void;
   variant?: 'icon' | 'button' | 'dropdown';
   className?: string;
@@ -22,7 +21,6 @@ export function AiFieldButton({
   collection,
   recordId,
   fieldName = 'ai',
-  existingContent,
   onGenerated,
   variant = 'button',
   className,

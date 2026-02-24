@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { generateText } from '@/lib/llm-service'
 import { getOllamaGenerateUrl, normalizeGenerateEndpoint } from '@/lib/llm-config'
 import { secureLogger } from '@/lib/secure-logger'
-import { buildRagContext, generateWilsonRagPrompt } from '@/services/rag-service'
+import { generateWilsonRagPrompt } from '@/services/rag-service'
 import { storageManager } from '@/lib/storage-manager'
 
 export interface ChatMessage {
@@ -33,7 +33,7 @@ interface LLMState {
   toggleRag: () => void
   askWilson: (text: string, isBackground?: boolean) => Promise<string | null>
   askWilsonWithRag: (text: string, isBackground?: boolean) => Promise<string | null>
-  askWilsonLegacy: (text: string, isBackground?: boolean) => Promise<string | null>
+  askWilsonLegacy: (text: string) => Promise<string | null>
   clearHistory: () => void
 }
 
@@ -77,7 +77,7 @@ export const useLLMStore = create<LLMState>((set, get) => ({
 
     set({ isThinking: true })
 
-    const { currentContext, useRag } = get()
+    const { useRag } = get()
 
     // if rag is enabled, use the new method
     if (useRag) {
@@ -162,7 +162,7 @@ export const useLLMStore = create<LLMState>((set, get) => ({
   },
 
   // legacy non-rag method (private)
-  askWilsonLegacy: async (text: string, isBackground: boolean = false) => {
+  askWilsonLegacy: async (text: string) => {
     const { currentContext, activeModel, apiUrl } = get()
 
     // get fronter info
