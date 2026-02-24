@@ -293,20 +293,6 @@ const DraggableRecordRow = (props: any) => {
           </div>
         )}
 
-        {/* plus button moved left of data columns */}
-        {index === rows.length - 1 && onCreateRecord && (
-          <div className="w-10 border-r border-[#222] p-0 h-10 flex items-center justify-center flex-shrink-0">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-full w-full rounded-none opacity-50 hover:opacity-100 hover:bg-white/10 p-0"
-              onClick={(e) => { e.stopPropagation(); onCreateRecord(); }}
-              title="create new record"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
 
         {row.getVisibleCells().map((cell: any) => {
           return (
@@ -331,6 +317,20 @@ const DraggableRecordRow = (props: any) => {
             </div>
           );
         })}
+{/* plus button attached to last row */}
+          {index === rows.length - 1 && onCreateRecord && (
+            <div className="w-10 border-l border-[#222] p-0 h-10 flex items-center justify-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-full w-full rounded-none opacity-50 hover:opacity-100 hover:bg-white/10 p-0"
+                onClick={(e) => { e.stopPropagation(); onCreateRecord(); }}
+                title="create new record"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
     </RecordContextMenu>
   );
@@ -700,18 +700,22 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           <div className="flex-1 w-full relative overflow-x-auto no-scrollbar bg-[#0b0b0b] min-h-0" style={{ minHeight: 200 }}>
             <div style={{ width: table.getTotalSize(), height: '100%', position: 'relative' }}>
               {rows.length === 0 ? (
-                <div className="flex items-center justify-center text-muted-foreground h-16 w-full lowercase relative">
-                  no records found
+                <div className="text-muted-foreground lowercase">
+                  <div className="flex items-center justify-center h-16 w-full">
+                    no records found
+                  </div>
                   {onCreateRecord && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="absolute left-4 bottom-0"
-                      onClick={onCreateRecord}
-                      title="create new record"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-start pl-2 pt-2">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 opacity-50 hover:opacity-100"
+                        onClick={onCreateRecord}
+                        title="create new record"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
                   )}
                 </div>
               ) : (
@@ -736,6 +740,19 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         style={{ height, width }}
                         rowComponent={DraggableRecordRow}
                       />
+                      {onCreateRecord && (
+                        <div className="flex items-start pl-2 pt-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 opacity-50 hover:opacity-100"
+                            onClick={onCreateRecord}
+                            title="create new record"
+                          >
+                            <Plus className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      )}
                     </>
                   )}
                 />
