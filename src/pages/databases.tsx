@@ -11,6 +11,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { DatabaseContextMenu } from '@/features/databases/components/database-context-menu';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { storageManager } from '@/lib/storage-manager';
 import { Plus } from 'lucide-react';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import {
@@ -105,7 +106,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   );
 
   useEffect(() => {
-    const allowed = (location.state as any)?.fromSidebar || localStorage.getItem('pkm:allow_databases_direct');
+    const allowed = (location.state as any)?.fromSidebar || storageManager.getItem('pkm:allow_databases_direct');
     if (!allowed) {
       navigate('/');
     }
