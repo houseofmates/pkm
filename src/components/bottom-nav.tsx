@@ -21,7 +21,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
       <div className={cn("fixed bottom-0 left-0 right-0 h-16 bg-card border-t flex items-center justify-between z-50 px-4 pb-safe", className)}>
         <Button
           variant="ghost"
-          className={cn("flex flex-col items-center gap-1 h-full flex-1 rounded-none", activeTab === 'home' && "text-primary")}
+          className={cn("flex flex-col justify-center items-center gap-1 h-full flex-1 rounded-none", activeTab === 'home' && "text-primary")}
           onClick={() => onTabChange('home')}
         >
           <Home className="h-5 w-5" />
@@ -30,7 +30,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
 
         <Button
           variant="ghost"
-          className={cn("flex flex-col items-center gap-1 h-full flex-1 rounded-none", activeTab === 'databases' && "text-primary")}
+          className={cn("flex flex-col justify-center items-center gap-1 h-full flex-1 rounded-none", activeTab === 'databases' && "text-primary")}
           onClick={() => onTabChange('databases')}
         >
           <Database className="h-5 w-5" />
@@ -39,7 +39,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
 
         <Button
           variant="ghost"
-          className={cn("flex flex-col items-center gap-1 h-full flex-1 rounded-none", activeTab === 'board' && "text-primary")}
+          className={cn("flex flex-col justify-center items-center gap-1 h-full flex-1 rounded-none", activeTab === 'board' && "text-primary")}
           onClick={() => onTabChange('board')}
         >
           <LayoutDashboard className="h-5 w-5" />
@@ -59,7 +59,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
 
         <Button
           variant="ghost"
-          className={cn("flex flex-col items-center gap-1 h-full flex-1 rounded-none", activeTab === 'headmates' && "text-primary")}
+          className={cn("flex flex-col justify-center items-center gap-1 h-full flex-1 rounded-none", activeTab === 'headmates' && "text-primary")}
           onClick={() => onTabChange('headmates')}
         >
           <Users className="h-5 w-5" />
@@ -68,7 +68,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
 
         <Button
           variant="ghost"
-          className={cn("flex flex-col items-center gap-1 h-full flex-1 rounded-none", activeTab === 'captures' && "text-primary")}
+          className={cn("flex flex-col justify-center items-center gap-1 h-full flex-1 rounded-none", activeTab === 'captures' && "text-primary")}
           onClick={() => onTabChange('captures')}
         >
           <Inbox className="h-5 w-5" />
@@ -77,7 +77,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
 
         <Button
           variant="ghost"
-          className="flex flex-col items-center gap-1 h-full flex-1 rounded-none text-muted-foreground hover:text-primary transition-colors"
+          className="flex flex-col justify-center items-center gap-1 h-full flex-1 rounded-none text-muted-foreground hover:text-primary transition-colors"
           onClick={() => navigate('/settings')}
         >
           <Settings className="h-5 w-5" />
