@@ -6,6 +6,7 @@ import { ZoomIn, ZoomOut, Save } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { RecordContextMenu } from '@/features/records/components/record-context-menu';
+import { storageManager } from '@/lib/storage-manager';
 import { SmartField } from '@/components/fields/smart-field';
 
 interface NodePosition {
@@ -30,7 +31,7 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
     if (!collection) return;
     // in a real app, this would be saved in 'config' prop passed from parent
     // for now, we'll try to load from config or localstorage fallback
-    const saved = config?.positions || localStorage.getItem(`mindmap_${collection.name}`);
+    const saved = config?.positions || storageManager.getItem(`mindmap_${collection.name}`);
     if (saved) {
       try {
         setPositions(typeof saved === 'string' ? JSON.parse(saved) : saved);
