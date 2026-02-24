@@ -16,7 +16,6 @@ export interface Suggestion {
 export async function getAutoSuggestions(
   currentText: string,
   collection: string,
-  recordId?: string | number,
   maxSuggestions: number = 5
 ): Promise<Suggestion[]> {
   if (!currentText.trim() || currentText.length < 3) {
@@ -273,7 +272,7 @@ export function createDebouncedSuggestions(
 
     // debounce
     timeoutId = setTimeout(async () => {
-      const suggestions = await getAutoSuggestions(currentText, collection, recordId);
+      const suggestions = await getAutoSuggestions(currentText, collection);
       callback(suggestions);
     }, delay);
   };
