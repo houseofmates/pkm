@@ -435,7 +435,7 @@ export function BuilderToolbox() {
   } catch (e) {
   toast.error('unsplash search failed');
   } finally {
-  setsearching(false);
+  setSearching(false);
   }
   };
 
@@ -447,7 +447,7 @@ export function BuilderToolbox() {
     let key = localStorage.getItem('giphy_key');
   if (!key) {
  key = prompt('enter your giphy api key (will be saved locally):') || '';
- if (key) localstorage.setitem('giphy_key', key);
+ if (key) localStorage.setItem('giphy_key', key);
   }
     if (!key) throw new Error('giphy key missing');
 
@@ -459,7 +459,7 @@ export function BuilderToolbox() {
   } catch (e) {
   toast.error('giphy search failed');
   } finally {
-  setsearching(false);
+  setSearching(false);
   }
   };
 
