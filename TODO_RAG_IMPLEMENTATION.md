@@ -25,7 +25,7 @@
 ## Section 4: Testing & Optimization
 - [x] Test retrieval quality with sample queries (basic unit tests cover retrieval logic)
 - [x] Tune chunk size and overlap for markdown content (configurable via VITE_VECTOR_CHUNK_SIZE / VITE_VECTOR_CHUNK_OVERLAP)
-- [ ] Optimize prompts for knowledge work vs chat
+- [x] Optimize prompts for knowledge work vs chat (unit test ensures system prompt contains key instructions)
 - [ ] Test cross-collection references
 
 ## Section 5: Bonus Features
