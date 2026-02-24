@@ -113,18 +113,18 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
 
     if (item.icon && item.iconType) {
       // ... strict icon logic
-      if (item.iconType === 'emoji') return <span className="mr-2 text-base leading-none">{item.icon}</span>;
-      if (item.iconType === 'image') return <img src={item.icon} alt="icon" className="h-4 w-4 mr-2 object-contain" />;
+      if (item.iconType === 'emoji') return <span className="mr-2 text-xl leading-none flex-shrink-0">{item.icon}</span>;
+      if (item.iconType === 'image') return <img src={item.icon} alt="icon" className="h-6 w-6 mr-2 object-contain flex-shrink-0" />;
       if (item.iconType === 'lucide') {
         const Icon = getLucideIcon(item.icon);
-        if (Icon) return <Icon className="h-4 w-4 mr-2" style={{ color: iconColor }} />;
+        if (Icon) return <Icon className="h-6 w-6 mr-2 flex-shrink-0" style={{ color: iconColor }} />;
       }
     }
     // fallback
-    if (item.type === 'folder') return <Folder className="h-4 w-4 mr-2" />;
+    if (item.type === 'folder') return <Folder className="h-6 w-6 mr-2 flex-shrink-0" />;
 
     // default for collections/documents without explicit icon
-    return <Database className="h-4 w-4 mr-2" style={{ color: iconColor }} />;
+    return <Database className="h-6 w-6 mr-2 flex-shrink-0" style={{ color: iconColor }} />;
   };
 
   const displayName = formatHeadmateName(item.name);
