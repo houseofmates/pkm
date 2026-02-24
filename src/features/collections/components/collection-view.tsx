@@ -153,6 +153,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
             collection={collection}
             onEdit={setEditingRecord}
             onDelete={handleDelete}
+            onCreateRecord={() => setIsCreateOpen(true)}
             onFieldUpdated={() => { /* renamed field, nothing extra needed here */ }}
           />
         </div>
