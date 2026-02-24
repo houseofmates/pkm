@@ -341,6 +341,9 @@ export class NocoBaseClient {
     // remove /obj/ prefix, use <collection>:list
     const res = await this._axios.get(`/${collection}:list`, { params });
 
+    // diagnostic logging so we can see what NocoBase actually returned
+    secureLogger.info(`[NocoBase] listRecords(${collection}) raw response:`, res.data);
+
     // normalize response to a consistent { data: Array, meta?: any } shape
     const normalized = normalizeListResponse(res.data);
 
