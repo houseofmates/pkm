@@ -23,7 +23,6 @@ vi.mock('lucide-react', () => {
   });
 });
 
-import React from 'react';
 import { render, screen } from '@testing-library/react';
 
 // replace actual views with lightweight mocks for smoke tests
