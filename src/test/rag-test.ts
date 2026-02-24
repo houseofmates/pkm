@@ -2,13 +2,11 @@
 // run this to verify the rag system is working correctly
 
 import { buildRagContext, generateWilsonRagPrompt, generateAiFieldContent } from '@/services/rag-service';
-import { searchKnowledgeBase, indexRecord, reindexCollection } from '@/lib/vector-store';
-import { generateAndSaveAiField, previewAiFieldContent } from '@/services/ai-field-generator';
+import { searchKnowledgeBase } from '@/lib/vector-store';
 import { getAutoSuggestions, getStarterSuggestions } from '@/services/auto-suggest-service';
 import { scheduler, previewScheduledRecords } from '@/services/scheduled-generation';
-import { getDupemateContext, findRelatedDupemates } from '@/services/dupemates-integration';
+import { findRelatedDupemates } from '@/services/dupemates-integration';
 import { api } from '@/api/nocobase-client';
-import { secureLogger } from '@/lib/secure-logger';
 
 export interface TestResult {
   name: string;
