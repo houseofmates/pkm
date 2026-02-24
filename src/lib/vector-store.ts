@@ -324,4 +324,31 @@ export async function reindexCollection(collection: string): Promise<{ indexed: 
   return result;
 }
 
+// index every user collection in the database
+export async function indexAllCollections(): Promise<Record<string, { indexed: number; failed: number }>> {
+  const results: Record<string, { indexed: number; failed: number }> = {};
+
+  try {
+    const colRes: any = await api.listCollections();
+    const allCols: any[] = Array.isArray(colRes.data) ? colRes.data : (colRes.data as any)?.data || [];
+
+    const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections'];
+    const userCols = allCols
+      .filter((c) => {
+        const name = (c.name || '').toLowerCase();
+        return !systemCollections.includes(name) && !c.hidden && !name.startsWith('pkm_');
+      })
+      .map((c) => c.name);
+
+    for (const col of userCols) {
+      secureLogger.info(`[vector-store] indexing collection: ${col}`);
+      results[col] = await reindexCollection(col);
+    }
+  } catch (error) {
+    secureLogger.error('failed to index all collections:', error);
+  }
+
+  return results;
+}
+
 export { VECTOR_CONFIG };
