@@ -521,11 +521,11 @@ remember: the user should be able to understand the entire conversation from thi
             text-transform: lowercase;
             letter-spacing: 0.3px;
             display: flex;
-            button.style.transform = 'translateY(-2px)';
-            button.style.boxShadow = '0 4px 12px rgba(246, 176, 18, 0.4)';
-        });
+            align-items: center;
+            gap: 6px;
+        `;
         
-        button.addEventListener('mouseleave', () => {
+        // hover effects
             button.style.transform = 'translateY(0)';
             button.style.boxShadow = '0 2px 8px rgba(246, 176, 18, 0.3)';
         });
