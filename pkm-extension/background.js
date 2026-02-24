@@ -144,6 +144,24 @@ async function handleCapture(captureData, tabId) {
     }
 }
 
+// handle messages from content scripts (including ai-summarizer)
+browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
+    if (request.action === 'show_toast') {
+        // forward toast to the sender's tab
+        if (sender.tab && sender.tab.id) {
+            browser.tabs.sendMessage(sender.tab.id, {
+                action: 'show_toast',
+                message: request.message,
+                isError: request.isError
+            }).catch(err => {
+                console.warn('[pkm-bg] could not forward toast:', err);
+            });
+        }
+    }
+    // return true to indicate we might send a response asynchronously
+    return true;
+});
+
 function notifyTab(tabId, message, isError = false) {
     if (tabId) {
         browser.tabs.sendMessage(tabId, {
