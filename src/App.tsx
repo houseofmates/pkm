@@ -34,7 +34,7 @@ const WorkspacePage = lazy(() => import("@/pages/workspace").then(m => ({ defaul
 const NotionImportPage = lazy(() => import("@/pages/notion-import").then(m => ({ default: m.default })));
 const SettingsPage = lazy(() => import("@/pages/settings").then(m => ({ default: m.default })));
 const PublicDocViewer = lazy(() => import("@/components/journal/public-doc-viewer").then(m => ({ default: m.PublicDocViewer })));
-const RagTestPage = lazy(() => import("@/pages/rag-test").then(m => ({ default: m.default })));
+const RagTestPage = lazy(() => import("@/pages/rag-test").then(m => ({ default: m.default || m.RagTestPage })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,7 +52,7 @@ const LoadingFallback = (
 )
 
 function AppContent() {
-  const { token, isLoading } = useAuth()
+  const { token } = useAuth()
   const [setupNeeded, setSetupNeeded] = useState<boolean | null>(null)
 
   // run link registry migration on mount
@@ -81,7 +81,7 @@ function AppContent() {
       .catch(() => setSetupNeeded(true))
   }, [])
 
-  if (setupNeeded === null || isLoading) {
+  if (setupNeeded === null) {
     return LoadingFallback
   }
 
