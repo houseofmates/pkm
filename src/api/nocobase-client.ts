@@ -1,6 +1,7 @@
 import { ListRecordsResponseSchema, GetRecordResponseSchema, ActionResponseSchema, ListCollectionsResponseSchema } from "@/lib/api/schemas";
 import { apiClient } from '@/lib/api-client';
 import { secureLogger } from '@/lib/secure-logger';
+import { storageManager } from '@/lib/storage-manager';
 import type { AxiosInstance } from 'axios';
 import { normalizeListResponse } from '@/lib/nocobase-utils';
 
@@ -217,7 +218,7 @@ export class NocoBaseClient {
 
     // check if we need to recreate (stored in localstorage)
     const schemaKey = `nocobase_schema_${COL_NAME}`;
-    const currentSchema = typeof localStorage !== 'undefined' ? localStorage.getItem(schemaKey) : null;
+    const currentSchema = typeof localStorage !== 'undefined' ? storageManager.getItem(schemaKey) : null;
 
     if (currentSchema === SCHEMA_VERSION) {
       // schema is up to date, just verify collection exists
@@ -260,7 +261,7 @@ export class NocoBaseClient {
 
       // mark schema as current
       if (typeof localStorage !== 'undefined') {
-        localStorage.setItem(schemaKey, SCHEMA_VERSION);
+        storageManager.setItem(schemaKey, SCHEMA_VERSION);
       }
 
       console.log(`[NocoBase] ${COL_NAME} collection created successfully`);
