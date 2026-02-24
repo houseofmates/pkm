@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { inferRelations, type Dataset } from '@/backend/relation-inference';
+import { inferRelations, type Dataset } from '../../backend/relation-inference';
 
 describe('relation inference', () => {
   it('infers relations only when uniqueness and score thresholds are met', () => {
@@ -27,7 +27,7 @@ describe('relation inference', () => {
     ];
 
     const result = inferRelations(dbs);
-    const tasks = result.find(d => d.name === 'Tasks');
+    const tasks = result.find((d: Dataset) => d.name === 'Tasks');
     expect(tasks?.relations).toEqual([{ field: 'Project', target: 'Projects' }]);
     expect(tasks?.fieldTypes.Project).toBe('lookup');
   });
@@ -49,7 +49,7 @@ describe('relation inference', () => {
     ];
 
     const result = inferRelations(dbs);
-    const orders = result.find(d => d.name === 'Orders');
+    const orders = result.find((d: Dataset) => d.name === 'Orders');
     expect(orders?.relations).toBeUndefined();
   });
 });
