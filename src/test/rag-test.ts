@@ -335,11 +335,11 @@ export async function runSmokeTest(): Promise<boolean> {
     console.log('✅ knowledge base search working');
 
     // test 2: can we build context?
-    const context = await buildRagContext('test', 1);
+    await buildRagContext('test', 1);
     console.log('✅ rag context building working');
 
     // test 3: can we generate a prompt?
-    const prompt = await generateWilsonRagPrompt('test', 'user');
+    await generateWilsonRagPrompt('test', 'user');
     console.log('✅ wilson prompt generation working');
 
     console.log('\n🎉 smoke test passed! core rag functionality is working.');
