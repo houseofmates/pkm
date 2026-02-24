@@ -612,12 +612,11 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         />
 
 
-        {/* scrollable list: must allow shrinking and include padding at bottom 
-            so the last item isn't hidden behind the footer buttons. */}
-        <div className="flex-1 w-full min-h-0 px-2 overflow-y-auto pb-24 relative">
+        {/* scrollable list: fixed height calculation to ensure proper scrolling */}
+        <div className="flex-1 w-full px-2 overflow-y-auto" style={{ minHeight: 0 }}>
 
           <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
-            <div className="space-y-0.5">
+            <div className="space-y-0.5 pb-32">
               {items.map((item) => (
                 <SortableItem
                   key={item.id}
