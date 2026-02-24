@@ -389,7 +389,7 @@ export function BuilderToolbox() {
  console.error(err);
  toast.error('upload failed');
   }
-  setisopen(false);
+  setIsOpen(false);
   };
   input.click();
   };
@@ -412,7 +412,7 @@ export function BuilderToolbox() {
   width: 560,
   height: 315,
   });
-  setisopen(false);
+  setIsOpen(false);
   };
 
   // unsplash search
