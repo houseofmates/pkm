@@ -13,35 +13,59 @@ interface TableViewProps {
 }
 
 export function TableView({ records, isLoading, theme, onSelect }: TableViewProps) {
-  // Generate columns dynamically from the first record or schema
-  // Ideally passed from parent, but inferring for now
-  const columns = useMemo<ColumnDef<any>[]>(() => {
-    if (!records.length) return [];
-    const keys = Object.keys(records[0]).filter(k =>
-      !['id', 'created_at', 'updated_at', 'created_by', 'updated_by'].includes(k)
-    );
+  // Generate columns dynamically from the first record or schema.  We
+  // also keep a ref to the last known column set so that headers remain
+  // visible when the record list becomes empty; this mirrors the behaviour
+  // in the main record table.
+  const prevColsRef = React.useRef<ColumnDef<any>[]>([]);
 
-    // Add primary column first (title/name)
-    const titleKey = keys.find(k => k === 'title' || k === 'name') || keys[0];
-    const otherKeys = keys.filter(k => k !== titleKey);
+  const columns = useMemo<ColumnDef<any>[]>(() => {
+    if (records.length) {
+      const keys = Object.keys(records[0]).filter(k =>
+        !['id', 'created_at', 'updated_at', 'created_by', 'updated_by'].includes(k)
+      );
+
+      // Add primary column first (title/name)
+      const titleKey = keys.find(k => k === 'title' || k === 'name') || keys[0];
+      const otherKeys = keys.filter(k => k !== titleKey);
+
+      const cols: ColumnDef<any>[] = [
+        {
+          accessorKey: titleKey,
+          header: titleKey,
+          cell: info => <span className="font-bold text-foreground">{String(info.getValue() || '')}</span>,
+          size: 200,
+        },
+        ...otherKeys.slice(0, 5).map(k => ({
+          accessorKey: k,
+          header: k,
+          cell: info => {
+              const val = info.getValue();
+              if (typeof val === 'object') return JSON.stringify(val).slice(0, 20);
+              return String(val || '');
+          },
+          size: 150,
+        }))
+      ];
+
+      prevColsRef.current = cols;
+      return cols;
+    }
+
+    // no records – fall back to previous columns if we have any, otherwise
+    // show a single placeholder column so the header bar doesn’t collapse to
+    // zero width.
+    if (prevColsRef.current.length) {
+      return prevColsRef.current;
+    }
 
     return [
       {
-        accessorKey: titleKey,
-        header: titleKey,
-        cell: info => <span className="font-bold text-foreground">{String(info.getValue() || '')}</span>,
-        size: 200,
-      },
-      ...otherKeys.slice(0, 5).map(k => ({
-        accessorKey: k,
-        header: k,
-        cell: info => {
-            const val = info.getValue();
-            if (typeof val === 'object') return JSON.stringify(val).slice(0, 20);
-            return String(val || '');
-        },
+        accessorKey: '__placeholder',
+        header: () => <span className="text-muted-foreground lowercase">no properties</span>,
+        cell: () => null,
         size: 150,
-      }))
+      },
     ];
   }, [records]);
 
@@ -57,9 +81,10 @@ export function TableView({ records, isLoading, theme, onSelect }: TableViewProp
     return <div className="p-4 text-muted-foreground animate-pulse">Loading table...</div>;
   }
 
-  if (!records.length) {
-    return <div className="p-4 text-muted-foreground">No records found.</div>;
-  }
+  // when there are no records we still want to render the header bar, and
+  // provide a helpful placeholder row in the body rather than removing the
+  // entire table from the DOM. the `isLoading` case above handles the
+  // spinner.
 
   return (
     <div className="w-full h-full bg-card/50 backdrop-blur-xl border border-white/10 rounded-xl flex flex-col text-sm overflow-hidden">
@@ -85,7 +110,7 @@ export function TableView({ records, isLoading, theme, onSelect }: TableViewProp
         <AutoSizer>
           {({ height, width }) => (
             <List
-              itemCount={rows.length}
+              itemCount={rows.length || 1}
               itemSize={40}
               height={height}
               width={width}
@@ -93,6 +118,17 @@ export function TableView({ records, isLoading, theme, onSelect }: TableViewProp
               style={{ height, width }}
             >
               {({ index, style, data }: any) => {
+                if (data.rows.length === 0) {
+                  return (
+                    <div
+                      style={style}
+                      className="flex items-center justify-center text-xs text-muted-foreground italic h-full w-full"
+                    >
+                      no records
+                    </div>
+                  );
+                }
+
                 const row = data.rows[index];
                 return (
                   <div
