@@ -3,6 +3,7 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 import { NocoBaseClient } from '@/api/nocobase-client';
 import { secureLogger } from '@/lib/secure-logger';
 import { storageManager } from '@/lib/storage-manager';
+import { normalizeAuthToken } from '@/lib/auth-token';
 
 interface AuthContextType {
   token: string | null;
@@ -48,13 +49,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // sync changes to localstorage is handled in login/logout to avoid race conditions with api clients
   const login = (newToken: string) => {
-    storageManager.setItem('nocobase_token', newToken);
-    setToken(newToken);
+    const normalized = normalizeAuthToken(newToken);
+    storageManager.setItem('nocobase_token', normalized);
+    setToken(normalized);
 
     // sync to electron
     const electron = (window as any).electron;
     if (electron?.syncState) {
-      electron.syncState({ token: newToken });
+      electron.syncState({ token: normalized });
     }
 
     // ensure backend collection exists after login
