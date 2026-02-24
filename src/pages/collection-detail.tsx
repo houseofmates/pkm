@@ -265,7 +265,6 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                 setCollection(found);
                 // fetch records for this collection
                 client.listRecords(collectionName).then(res => {
-                    // normalized client ensures res.data is array
                     setRecords(extractRecords(res));
                 }).catch(e => console.error("Late-rescue record fetch failed", e));
             }
