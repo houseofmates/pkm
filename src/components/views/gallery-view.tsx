@@ -5,7 +5,7 @@ import { RecordContextMenu } from '@/features/records/components/record-context-
 import { RecordEditContent } from '@/features/records/components/record-context-menu';
 import { SmartField } from '@/components/fields/smart-field';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import {
   DndContext,
   closestCenter,
@@ -28,6 +28,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
   const [selectedRecord, setSelectedRecord] = useState<any | null>(null);
   const [viewConfigRecord, setViewConfigRecord] = useState<any | null>(null);
   const [editingTitleRecordId, setEditingTitleRecordId] = useState<string | number | null>(null);
+  const singleClickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const recordOrder: (string | number)[] = config.recordOrder || [];
   const orderedData = recordOrder.length > 0
@@ -143,8 +144,17 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
                 isTitleEditing={editingTitleRecordId === record.id}
                 onTitleEditStart={() => setEditingTitleRecordId(record.id)}
                 onTitleEditEnd={() => setEditingTitleRecordId(null)}
-                onCardClick={() => setSelectedRecord(record)}
-                onCardDoubleClick={() => setViewConfigRecord(record)}
+                onCardClick={() => {
+                  if (singleClickTimer.current) clearTimeout(singleClickTimer.current);
+                  singleClickTimer.current = setTimeout(() => setSelectedRecord(record), 200);
+                }}
+                onCardDoubleClick={() => {
+                  if (singleClickTimer.current) {
+                    clearTimeout(singleClickTimer.current);
+                    singleClickTimer.current = null;
+                  }
+                  setViewConfigRecord(record);
+                }}
               />
             ))}
           </SortableContext>
