@@ -5,9 +5,9 @@ const CONFIG = {
     collectionName: 'captures'
 };
 
-const ext = (globalThis.browser ?? (globalThis.chrome as any)) as any;
+const ext = globalThis.browser ?? globalThis.chrome;
 
-function storageGet(area: 'local' | 'sync', key: string): Promise<Record<string, any>> {
+function storageGet(area, key) {
     const storageArea = ext?.storage?.[area];
     if (!storageArea) return Promise.resolve({});
 
@@ -20,7 +20,7 @@ function storageGet(area: 'local' | 'sync', key: string): Promise<Record<string,
 
     return new Promise((resolve, reject) => {
         try {
-            storageArea.get(key, (items: any) => {
+            storageArea.get(key, (items) => {
                 const err = ext?.runtime?.lastError;
                 if (err) reject(err);
                 else resolve(items || {});
@@ -31,7 +31,7 @@ function storageGet(area: 'local' | 'sync', key: string): Promise<Record<string,
     });
 }
 
-function storageSet(area: 'local' | 'sync', items: Record<string, any>): Promise<void> {
+function storageSet(area, items) {
     const storageArea = ext?.storage?.[area];
     if (!storageArea) return Promise.resolve();
 
@@ -55,14 +55,14 @@ function storageSet(area: 'local' | 'sync', items: Record<string, any>): Promise
     });
 }
 
-async function getApiToken(): Promise<string> {
+async function getApiToken() {
     const local = await storageGet('local', 'apiToken').catch(() => ({}));
     if (local?.apiToken) return String(local.apiToken);
     const sync = await storageGet('sync', 'apiToken').catch(() => ({}));
     return sync?.apiToken ? String(sync.apiToken) : '';
 }
 
-async function setApiToken(token: string): Promise<void> {
+async function setApiToken(token) {
     await storageSet('local', { apiToken: token }).catch(() => undefined);
     await storageSet('sync', { apiToken: token }).catch(() => undefined);
 }
