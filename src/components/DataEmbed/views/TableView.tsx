@@ -21,16 +21,17 @@ export function TableView({ records, isLoading, theme, onSelect }: TableViewProp
   const prevColsRef = React.useRef<ColumnDef<any>[]>([]);
 
   const columns = useMemo<ColumnDef<any>[]>(() => {
-    if (records.length) {
-      const keys = Object.keys(records[0]).filter(k =>
+    const makeColsFromKeys = (keys: string[]) => {
+      // filter out common metadata columns
+      const filtered = keys.filter(k =>
         !['id', 'created_at', 'updated_at', 'created_by', 'updated_by'].includes(k)
       );
+      if (filtered.length === 0) return [];
 
-      // Add primary column first (title/name)
-      const titleKey = keys.find(k => k === 'title' || k === 'name') || keys[0];
-      const otherKeys = keys.filter(k => k !== titleKey);
+      const titleKey = filtered.find(k => k === 'title' || k === 'name') || filtered[0];
+      const otherKeys = filtered.filter(k => k !== titleKey);
 
-      const cols: ColumnDef<any>[] = [
+      return [
         {
           accessorKey: titleKey,
           header: titleKey,
@@ -48,18 +49,33 @@ export function TableView({ records, isLoading, theme, onSelect }: TableViewProp
           size: 150,
         }))
       ];
+    };
 
-      prevColsRef.current = cols;
-      return cols;
+    if (records.length) {
+      const keys = Object.keys(records[0]);
+      const cols = makeColsFromKeys(keys);
+      if (cols.length) {
+        prevColsRef.current = cols;
+        return cols;
+      }
     }
 
-    // no records – fall back to previous columns if we have any, otherwise
-    // show a single placeholder column so the header bar doesn’t collapse to
-    // zero width.
+    // if we have explicit field definitions, use those next
+    if (fields && fields.length) {
+      const keys = fields.map(f => f.name).filter(Boolean);
+      const cols = makeColsFromKeys(keys as string[]);
+      if (cols.length) {
+        prevColsRef.current = cols;
+        return cols;
+      }
+    }
+
+    // if we previously computed columns keep them
     if (prevColsRef.current.length) {
       return prevColsRef.current;
     }
 
+    // otherwise show a generic placeholder
     return [
       {
         accessorKey: '__placeholder',
@@ -68,7 +84,7 @@ export function TableView({ records, isLoading, theme, onSelect }: TableViewProp
         size: 150,
       },
     ];
-  }, [records]);
+  }, [records, fields]);
 
   const table = useReactTable({
     data: records,
