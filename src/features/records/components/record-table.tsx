@@ -38,7 +38,6 @@ interface RecordTableProps {
   onUpdateRecord?: (id: string | number, data: any) => void;
   onCreateRecord?: () => void;
   onCreateField?: () => void;
-  onCreateRecord?: () => void;
   onFieldUpdated?: () => void; // optional callback when a field/column is renamed or changed
   loading?: boolean;
   config?: any;
@@ -337,7 +336,7 @@ const DraggableRecordRow = (props: any) => {
 
 const DEFAULT_COL_WIDTH = 150;
 
-export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateField, onFieldUpdated: onFieldUpdatedCb, loading }: RecordTableProps) {
+export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateField, onCreateRecord, onFieldUpdated: onFieldUpdatedCb, loading }: RecordTableProps) {
   const [hiddenColumns, setHiddenColumns] = useAppSetting<string[]>(
     `hidden_columns_${collection?.name || 'unknown'}`,
     []
