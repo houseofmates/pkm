@@ -32,6 +32,7 @@ interface LLMState {
   toggleRag: () => void
   askWilson: (text: string, isBackground?: boolean) => Promise<string | null>
   askWilsonWithRag: (text: string, isBackground?: boolean) => Promise<string | null>
+  askWilsonLegacy: (text: string, isBackground?: boolean) => Promise<string | null>
   clearHistory: () => void
 }
 
@@ -160,7 +161,7 @@ export const useLLMStore = create<LLMState>((set, get) => ({
   },
 
   // legacy non-rag method (private)
-  askWilsonLegacy: async (text, isBackground = false) => {
+  askWilsonLegacy: async (text: string, isBackground: boolean = false) => {
     const { currentContext, activeModel, apiUrl } = get()
 
     // get fronter info
