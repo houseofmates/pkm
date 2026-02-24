@@ -272,7 +272,7 @@ const DraggableRecordRow = (props: any) => {
         ref={setNodeRef}
         style={style}
         className={cn(
-          "transition-colors group border-b border-[#222] min-w-full",
+          "transition-colors group border-b border-r border-[#222] min-w-full",
           !rowColor && "hover:bg-gray-800/10"
         )}
       >
@@ -318,8 +318,6 @@ const DraggableRecordRow = (props: any) => {
           );
         })}
         
-        {/* right border spacer to close the row */}
-        <div className="flex-grow border-r border-[#222] h-10" />
       </div>
     </RecordContextMenu>
   );
