@@ -142,40 +142,65 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
 
 function TableView({ data, fields, visibleFields }: { data: any[], fields: any[], visibleFields?: string[] }) {
   const displayFields = visibleFields && visibleFields.length > 0
-  ? fields.filter(f => visibleFields.includes(f.name))
-  : fields.slice(0, 5);
+    ? fields.filter(f => visibleFields.includes(f.name))
+    : fields.slice(0, 5);
 
   if (displayFields.length > 0 && visibleFields) {
-  displayFields.sort((a, b) => visiblefields.indexof(a.name) - visiblefields.indexof(b.name));
+    displayFields.sort(
+      (a, b) =>
+        visibleFields.indexOf(a.name) -
+        visibleFields.indexOf(b.name)
+    );
   }
 
-  if (data.length === 0) return <EmptyState />;
-
+  // always render the table header even when there are no records, otherwise
+  // the consumer cannot see which properties exist. show a single placeholder
+  // row if the dataset is empty.
   return (
-  <div className="w-full overflow-x-auto custom-scrollbar">
-  <table className="w-full text-sm border-collapse">
- <thead>
- <tr className="border-b border-white/5">
- {displayFields.map(f => (
-   <th key={f.name} className="text-left px-3 py-3 text-white/40 font-black  text-[10px]">
-   {f.title || f.name}
-   </th>
- ))}
- </tr>
- </thead>
- <tbody>
- {data.map((row, i) => (
- <tr key={row.id || i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group">
-   {displayFields.map(f => (
-   <td key={f.name} className="px-3 py-3 text-white/80 truncate max-w-[200px] font-medium">
-   {formatvalue(row[f.name])}
-   </td>
-   ))}
- </tr>
- ))}
- </tbody>
-  </table>
-  </div>
+    <div className="w-full overflow-x-auto custom-scrollbar">
+      <table className="w-full text-sm border-collapse">
+        <thead>
+          <tr className="border-b border-white/5">
+            {displayFields.map((f) => (
+              <th
+                key={f.name}
+                className="text-left px-3 py-3 text-white/40 font-black  text-[10px]"
+              >
+                {f.title || f.name}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {data.length === 0 ? (
+            <tr className="border-b border-white/5">
+              <td
+                className="px-3 py-3 text-white/60 italic"
+                colSpan={displayFields.length || 1}
+              >
+                no records
+              </td>
+            </tr>
+          ) : (
+            data.map((row, i) => (
+              <tr
+                key={row.id || i}
+                className="border-b border-white/5 hover:bg-white/[0.02] transition-colors group"
+              >
+                {displayFields.map((f) => (
+                  <td
+                    key={f.name}
+                    className="px-3 py-3 text-white/80 truncate max-w-[200px] font-medium"
+                  >
+                    {formatValue(row[f.name])}
+                  </td>
+                ))}
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
