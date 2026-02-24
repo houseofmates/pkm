@@ -2,9 +2,41 @@
 
 ## Section 1: Prerequisites & Setup Steps
 
+### ⚠️ IMPORTANT: Plugin Installation Required
+
+The AI Knowledge Base and RAG features require the **@nocobase/plugin-ai** and **@nocobase/plugin-ai-knowledge-base** plugins to be installed.
+
+**If you don't see "AI Services", "AI Employees", or "AI Knowledge Base" in your admin:**
+
+1. **Install the plugins via CLI:**
+   ```bash
+   cd /path/to/nocobase
+   yarn pm add @nocobase/plugin-ai
+   yarn pm add @nocobase/plugin-ai-knowledge-base
+   yarn pm enable @nocobase/plugin-ai
+   yarn pm enable @nocobase/plugin-ai-knowledge-base
+   yarn nocobase upgrade
+   yarn start
+   ```
+
+2. **Or install via Admin (if available):**
+   - Go to **Settings > Plugin Manager**
+   - Click **Add New**
+   - Search for "AI" plugins
+   - Install and enable:
+     - `@nocobase/plugin-ai`
+     - `@nocobase/plugin-ai-knowledge-base`
+
+3. **Restart NocoBase** after installing plugins
+
+---
+
 ### 1.1 Configure Ollama LLM Service in NocoBase Admin
 
+**After installing the AI plugin:**
+
 1. **Navigate to Settings > AI Services**
+   - If you don't see this menu, the plugin isn't installed (see above)
    - Click "Add New" to create a service
    - Name: `ollama-local`
    - Type: `Ollama`
@@ -13,7 +45,7 @@
    - Test connection and save
 
 2. **Create AI Employee "wilson-rag"**
-   - Go to AI Employees
+   - Go to **AI Employees** (in the admin sidebar)
    - Click "Add New"
    - Name: `wilson-rag`
    - Display Name: `wilson (rag-enabled)`
@@ -38,11 +70,16 @@ when responding:
 
 retrieved context format:
 each chunk starts with [source: collection:id] so you can reference where information came from. use these citations naturally in your response.
-```
 
-### 1.2 Create Global Knowledge Base
+current user: {{fronter_name}}```
 
-1. **Navigate to AI Knowledge Base**
+---
+
+### 1.2 Create Global Knowledge Base (Requires Plugin)
+
+**If you have the AI Knowledge Base plugin installed:**
+
+1. **Navigate to AI Knowledge Base** (in admin sidebar)
 2. **Click "Add New"**
    - Name: `pkm-global-kb`
    - Title: `PKM Global Knowledge Base`
@@ -66,7 +103,11 @@ each chunk starts with [source: collection:id] so you can reference where inform
    - Turn on "Index on Update" for all collections
    - Set "Sync Interval" to `5 minutes` for near real-time updates
 
-### 1.3 Configure RAG Settings for Wilson Employee
+---
+
+### 1.3 Configure RAG Settings for Wilson Employee (Requires Plugin)
+
+**If you have the AI Knowledge Base plugin:**
 
 1. **Edit "wilson-rag" Employee**
 2. **Enable RAG**
@@ -81,6 +122,109 @@ each chunk starts with [source: collection:id] so you can reference where inform
    - Query Expansion: `Enabled`
    - Re-ranking: `Enabled`
    - Citation Format: `[source: {collection}:{id}]`
+
+---
+
+## 🔄 Alternative: Custom RAG Implementation (No Plugin Required)
+
+**If you cannot install the AI Knowledge Base plugin**, the code I've implemented includes a **fallback mode** that works with just the base AI plugin or even without any AI plugins:
+
+### Option A: Use the Custom RAG Service (Recommended)
+
+The `src/services/rag-service.ts` and `src/lib/vector-store.ts` I created implement RAG manually:
+
+```typescript
+// This works WITHOUT the AI Knowledge Base plugin
+import { buildRagContext } from '@/services/rag-service';
+
+// Searches your collections directly
+const context = await buildRagContext('what are my priorities?', 8);
+// Returns relevant chunks from notes, tasks, projects, etc.
+```
+
+**How it works:**
+- Fetches records from your collections directly via NocoBase API
+- Chunks text content intelligently
+- Performs keyword + recency scoring
+- Returns top matches formatted for prompts
+
+### Option B: Use LanceDB for Vectors (Local)
+
+If you want true semantic search without NocoBase's plugin:
+
+1. **Install LanceDB in your backend:**
+   ```bash
+   npm install @lancedb/lancedb
+   ```
+
+2. **Use the local vector store** (already implemented in `src/lib/vector-store.ts`):
+   ```typescript
+   import { generateEmbedding, searchWithEmbeddings } from '@/lib/vector-store';
+   
+   // Generate embeddings via Ollama
+   const embedding = await generateEmbedding('your query');
+   
+   // Search local vector DB
+   const results = await searchWithEmbeddings(embedding, 8);
+   ```
+
+### Option C: Pure Keyword Fallback (Always Works)
+
+The code automatically falls back to keyword search if vector search fails:
+- Searches all collections
+- Scores by keyword match + recency
+- No plugins or vector DB required
+
+---
+
+## ✅ Simplified Setup (No AI Knowledge Base Plugin)
+
+If you **only** have the base `@nocobase/plugin-ai` (or none), you can still use RAG:
+
+### Step 1: Basic AI Employee (If AI Plugin Available)
+
+1. **Settings > AI Services**
+   - Add Ollama service as described in 1.1
+
+2. **AI Employees**
+   - Create `wilson-rag` employee
+   - **Skip the RAG toggle** (it won't exist)
+   - Just set the system prompt
+
+### Step 2: Use the Custom Implementation
+
+The code in `src/stores/llm-store.ts` **automatically** uses the custom RAG service:
+
+```typescript
+// Wilson chat automatically retrieves context
+const { askWilson } = useLLMStore();
+await askWilson('what are my current priorities?');
+// ^ This will search your collections and inject context
+```
+
+### Step 3: Add "ai" Field to Collections
+
+**Via NocoBase Admin:**
+1. Collection Manager > Select collection
+2. Add Field:
+   - Name: `ai`
+   - Type: `Text (Long)`
+   - Interface: `Markdown` (or `Rich Text`)
+
+### Step 4: Use AI Field Button
+
+```typescript
+import { AiFieldButton } from '@/components/ai-field-button';
+
+<AiFieldButton
+  collection="notes"
+  recordId={record.id}
+  fieldName="ai"
+/>
+```
+
+**This works without any AI Knowledge Base plugin!** The custom implementation handles everything.
+
 
 ## Section 2: Wilson RAG Implementation
 
