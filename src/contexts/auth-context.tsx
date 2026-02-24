@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { NocoBaseClient } from '@/api/nocobase-client';
 import { secureLogger } from '@/lib/secure-logger';
+import { storageManager } from '@/lib/storage-manager';
 
 interface AuthContextType {
   token: string | null;
@@ -14,7 +15,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setToken] = useState<string | null>(localStorage.getItem('nocobase_token'));
+  const [token, setToken] = useState<string | null>(storageManager.getItem('nocobase_token'));
 
   // initialize client with a function to get the current token
   // this ensures the client always uses the latest token from the closure/state if we adjusted the client implementation,
@@ -47,7 +48,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // sync changes to localstorage is handled in login/logout to avoid race conditions with api clients
   const login = (newToken: string) => {
-    localStorage.setItem('nocobase_token', newToken);
+    storageManager.setItem('nocobase_token', newToken);
     setToken(newToken);
 
     // sync to electron
@@ -67,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    localStorage.removeItem('nocobase_token');
+    storageManager.removeItem('nocobase_token');
     setToken(null);
 
     // sync to electron
