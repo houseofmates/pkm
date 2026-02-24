@@ -326,8 +326,7 @@ export function HouseofmatesBuilder() {
     hasFetchedRef.current = true;
 
     const init = async () => {
-      const key = localStorage.getItem('hom_api_key');
-      if (key && key !== 'null' && key !== 'undefined') {
+      const key = storageManager.getItem('hom_api_key');
         setIsAdmin(true);
         // run collection ensures
         try {
@@ -349,7 +348,7 @@ export function HouseofmatesBuilder() {
     try {
       // save token directly - it will be validated on first actual api call
       // this avoids timeout issues during login
-      localStorage.setItem('hom_api_key', apiKey);
+      storageManager.setItem('hom_api_key', apiKey);
 
       setIsAdmin(true);
       setShowLoginModal(false);
