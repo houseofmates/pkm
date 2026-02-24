@@ -10,8 +10,8 @@
 ### 2.1 Add React.memo to Pure Components
 - [x] src/components/ui/card.tsx - Card, CardHeader, CardContent, CardTitle, CardDescription, CardFooter
 - [x] src/components/ui/button.tsx - Button
-- [ ] src/features/headmates/components/headmate-card.tsx - HeadmateCard
-- [ ] src/features/collections/components/collection-card.tsx - CollectionCard
+- [x] src/features/headmates/components/headmate-card.tsx - HeadmateCard
+- [x] src/features/collections/components/collection-card.tsx - CollectionCard
 - [ ] src/features/blog-builder/components/BlogPostCard.tsx - BlogPostCard
 - [ ] src/components/ui/badge.tsx - Badge
 - [ ] src/components/ui/avatar.tsx - Avatar, AvatarImage, AvatarFallback
