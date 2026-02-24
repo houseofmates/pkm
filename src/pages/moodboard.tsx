@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger, ContextMenuSub, ContextMenuSubTrigger, ContextMenuSubContent } from '@/components/ui/context-menu';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
+import { storageManager } from '@/lib/storage-manager';
 
 type ElementType = 'text' | 'image' | 'shape' | 'view';
 
@@ -27,7 +28,7 @@ interface BoardElement {
 
 export function MoodboardPage() {
   const [elements, setElements] = useState<BoardElement[]>(() => {
-    try { const saved = localStorage.getItem('moodboard_data'); return saved ? JSON.parse(saved) : []; } catch (e) { console.error(e); return []; }
+    try { const saved = storageManager.getItem('moodboard_data'); return saved ? JSON.parse(saved) : []; } catch (e) { console.error(e); return []; }
   });
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -39,7 +40,7 @@ export function MoodboardPage() {
 
 
   const handleSave = () => {
-    localStorage.setItem('moodboard_data', JSON.stringify(elements));
+    storageManager.setItem('moodboard_data', JSON.stringify(elements));
     toast.success("moodboard saved");
   };
 
