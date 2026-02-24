@@ -52,6 +52,12 @@ describe('RAG service', () => {
     expect(prompt).toContain('alice');
   });
 
+  it('system prompt contains expected personality traits', () => {
+    const { WILSON_RAG_SYSTEM_PROMPT } = require('@/lib/rag-prompts');
+    expect(WILSON_RAG_SYSTEM_PROMPT).toMatch(/warm, thoughtful/);
+    expect(WILSON_RAG_SYSTEM_PROMPT).toMatch(/retrieved context format/);
+  });
+
   it('returns fallback message when nothing is found', async () => {
     vi.spyOn(vectorStore, 'searchKnowledgeBase').mockResolvedValue([]);
     const ctx = await buildRagContext('no results', 3);
