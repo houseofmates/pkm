@@ -318,25 +318,8 @@ const DraggableRecordRow = (props: any) => {
           );
         })}
         
-        {/* plus button for adding new record */}
-        {onCreateRecord && (
-          <div className="w-10 border-r border-[#222] p-0 h-10 flex items-center justify-center flex-shrink-0">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-full w-full rounded-none opacity-0 group-hover:opacity-50 hover:opacity-100 hover:bg-white/10 p-0 transition-opacity"
-              onClick={(e) => { e.stopPropagation(); onCreateRecord(); }}
-              title="create new record"
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
-        
-        {/* right border to close the row */}
-        {!onCreateRecord && (
-          <div className="w-0 border-r border-[#222] h-10 flex-shrink-0" />
-        )}
+        {/* right border spacer to close the row */}
+        <div className="flex-grow border-r border-[#222] h-10" />
       </div>
     </RecordContextMenu>
   );
