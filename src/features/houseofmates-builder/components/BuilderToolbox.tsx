@@ -358,7 +358,7 @@ export function BuilderToolbox() {
  console.error(err);
  toast.error('upload failed');
   }
-  setisopen(false);
+  setIsOpen(false);
   };
   input.click();
   };
