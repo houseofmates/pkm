@@ -305,7 +305,7 @@ export function HeadmatesPage() {
   }, [allMembers, overrides, setOverrides]);
 
   useEffect(() => {
-    const storedKey = localStorage.getItem('pk_api_key');
+    const storedKey = storageManager.getItem('pk_api_key');
     if (storedKey) {
       setApiKey(storedKey);
       setHasKey(true);
@@ -315,7 +315,7 @@ export function HeadmatesPage() {
 
   const handleSaveKey = () => {
     if (!apiKey) return;
-    localStorage.setItem('pk_api_key', apiKey);
+    storageManager.setItem('pk_api_key', apiKey);
     setHasKey(true);
     toast.success("api key saved locally");
     fetchMembers(apiKey);
