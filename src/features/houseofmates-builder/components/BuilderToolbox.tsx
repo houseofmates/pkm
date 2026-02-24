@@ -420,10 +420,10 @@ export function BuilderToolbox() {
     if (!searchQuery.trim()) return;
     setSearching(true);
   try {
-    let key = localStorage.getItem('unsplash_key');
+    let key = storageManager.getItem('unsplash_key');
   if (!key) {
  key = prompt('enter your unsplash access key (will be saved locally):') || '';
- if (key) localStorage.setItem('unsplash_key', key);
+ if (key) storageManager.setItem('unsplash_key', key);
   }
     if (!key) throw new Error('unsplash key missing');
 
@@ -444,10 +444,10 @@ export function BuilderToolbox() {
     if (!searchQuery.trim()) return;
     setSearching(true);
   try {
-    let key = localStorage.getItem('giphy_key');
+    let key = storageManager.getItem('giphy_key');
   if (!key) {
  key = prompt('enter your giphy api key (will be saved locally):') || '';
- if (key) localStorage.setItem('giphy_key', key);
+ if (key) storageManager.setItem('giphy_key', key);
   }
     if (!key) throw new Error('giphy key missing');
 
