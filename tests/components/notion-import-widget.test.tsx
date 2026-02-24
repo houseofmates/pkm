@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { NotionImportWidget } from '@/components/notion-import-widget';
-import { vi, describe, it, beforeEach, expect } from 'vitest';
+import { vi, describe, it, beforeEach, afterEach, expect } from 'vitest';
 
 // mock useAppSetting hook so we can control returned apiKey
 vi.mock('@/hooks/use-app-setting', () => ({
@@ -44,6 +44,8 @@ class MockEventSource {
 (global as any).EventSource = MockEventSource;
 
 describe('NotionImportWidget', () => {
+  const originalNodeEnv = process.env.NODE_ENV;
+
   function makeFakeZip(size: number = 2048): File {
     const arr = new Uint8Array(size);
     arr[0] = 0x50;
@@ -60,6 +62,13 @@ describe('NotionImportWidget', () => {
     (useAppSetting as any).mockReturnValue(['', vi.fn()]);
     // run header check logic in tests by pretending we're not in test
     process.env.NODE_ENV = 'production';
+  });
+
+  afterEach(() => {
+    process.env.NODE_ENV = originalNodeEnv;
+    delete process.env.VITE_API_URL;
+    vi.restoreAllMocks();
+    localStorage.clear();
   });
 
   it('logs both raw and rewritten VITE_API_URL values', async () => {
