@@ -24,27 +24,61 @@ const AI_PLATFORMS = [
     'grok.com'
 ];
 
-// create context menu on install
-browser.runtime.onInstalled.addListener(() => {
-    // remove existing menu items
+// function to create context menus
+function createContextMenus() {
+    console.log('[pkm] creating context menus...');
+    
+    // remove existing menu items first
     browser.contextMenus.removeAll().then(() => {
+        console.log('[pkm] removed existing menus');
+        
         // create "save to pkm" menu for all pages
         browser.contextMenus.create({
             id: 'save-to-pkm',
             title: 'save to pkm',
             contexts: ['page', 'selection', 'link', 'image'],
             documentUrlPatterns: ['<all_urls>']
+        }, () => {
+            if (browser.runtime.lastError) {
+                console.error('[pkm] error creating save menu:', browser.runtime.lastError);
+            } else {
+                console.log('[pkm] created save-to-pkm menu');
+            }
         });
         
         // create "summarize" menu for ai platforms only
+        const aiPatterns = AI_PLATFORMS.map(host => `https://${host}/*`);
+        console.log('[pkm] ai patterns:', aiPatterns);
+        
         browser.contextMenus.create({
             id: 'summarize-conversation',
             title: '🤖 summarize',
             contexts: ['page'],
-            documentUrlPatterns: AI_PLATFORMS.map(host => `https://${host}/*`)
+            documentUrlPatterns: aiPatterns
+        }, () => {
+            if (browser.runtime.lastError) {
+                console.error('[pkm] error creating summarize menu:', browser.runtime.lastError);
+            } else {
+                console.log('[pkm] created summarize menu for ai platforms');
+            }
         });
     });
+}
+
+// create menus on install
+browser.runtime.onInstalled.addListener(() => {
+    console.log('[pkm] extension installed/updated');
+    createContextMenus();
 });
+
+// also create menus on startup (browser restart)
+browser.runtime.onStartup.addListener(() => {
+    console.log('[pkm] browser started');
+    createContextMenus();
+});
+
+// immediate creation for when background script loads
+createContextMenus();
 
 // handle context menu clicks
 browser.contextMenus.onClicked.addListener(async (info, tab) => {
