@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from '
 import { api } from '@/api/nocobase-client';
 import { toast } from 'sonner';
 import { secureLogger } from '@/lib/secure-logger';
+import { storageManager } from '@/lib/storage-manager';
 
 export interface Headmate {
   id: string;
@@ -53,7 +54,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   // member colors state
   const [memberColors, setMemberColors] = useState<Record<string, string>>(() => {
     try {
-      const stored = localStorage.getItem('member_colors');
+      const stored = storageManager.getItem('member_colors');
       return stored ? JSON.parse(stored) : {};
     } catch {
       return {};
@@ -63,7 +64,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
   // overrides for simplyplural integration
   const [overrides, setOverridesState] = useState<Record<string, any>>(() => {
     try {
-      const stored = localStorage.getItem('headmate_overrides');
+      const stored = storageManager.getItem('headmate_overrides');
       return stored ? JSON.parse(stored) : {};
     } catch {
       return {};
@@ -72,7 +73,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
 
   const setOverrides = (newOverrides: Record<string, any>) => {
     setOverridesState(newOverrides);
-    localStorage.setItem('headmate_overrides', JSON.stringify(newOverrides));
+    storageManager.setItem('headmate_overrides', JSON.stringify(newOverrides));
   };
 
   const updateOverride = (id: string, data: any) => {
@@ -97,7 +98,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
       }
     });
     setMemberColors(colorCache);
-    localStorage.setItem('member_colors', JSON.stringify(colorCache));
+    storageManager.setItem('member_colors', JSON.stringify(colorCache));
   };
 
   const updateFronters = (fronters: string[]) => {
@@ -165,26 +166,26 @@ export function FronterProvider({ children }: { children: ReactNode }) {
         secureLogger.info('Setting active fronters from history:', fronterIds);
         setActiveFronters(fronterIds);
 
-        // also cache to localStorage as backup
+        // also cache to storage manager as backup
         try {
-          localStorage.setItem('pkm_active_fronters', JSON.stringify(fronterIds));
+          storageManager.setItem('pkm_active_fronters', JSON.stringify(fronterIds));
         } catch (e) {
-          secureLogger.warn('Failed to cache fronters to localStorage:', e);
+          secureLogger.warn('Failed to cache fronters to storage manager:', e);
         }
       } else {
         secureLogger.info('No active front found in history, checking localStorage backup');
         // try to restore from localStorage if database has no active front
         try {
-          const cached = localStorage.getItem('pkm_active_fronters');
+          const cached = storageManager.getItem('pkm_active_fronters');
           if (cached) {
             const cachedIds = JSON.parse(cached);
-            secureLogger.info('Restoring fronters from localStorage:', cachedIds);
+            secureLogger.info('Restoring fronters from storage manager:', cachedIds);
             setActiveFronters(cachedIds);
           } else {
             setActiveFronters([]);
           }
         } catch (e) {
-          secureLogger.warn('Failed to restore from localStorage:', e);
+          secureLogger.warn('Failed to restore from storage manager:', e);
           setActiveFronters([]);
         }
       }
