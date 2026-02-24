@@ -257,8 +257,8 @@ const DraggableRecordRow = (props: any) => {
     touchAction: 'none', // Important for touch drag
     backgroundColor: rowColor ? `${rowColor}20` : undefined,
     display: 'flex', // Crucial for virtualization
-    minWidth: '100%',
-    width: 'fit-content'
+    // keep width supplied by react-window, avoid forcing fit-content or 100%
+    width: incomingStyle?.width
   };
 
   return (
