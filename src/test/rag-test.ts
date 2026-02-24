@@ -217,7 +217,6 @@ async function testAutoSuggestions(): Promise<TestResult> {
     const suggestions = await getAutoSuggestions(
       'working on a project about',
       'notes',
-      undefined,
       5
     );
 
