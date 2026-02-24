@@ -1,5 +1,8 @@
 // helper utilities for resolving the local llm endpoint (ollama/wilson)
 // - prefer a runtime user setting stored in localstorage ('wilson_api_url')
+// - storageManager wrapper used for safer access
+
+import { storageManager } from './storage-manager';
 // - fall back to vite_ollama_url if provided at build time
 // - default to the legacy localhost:11434 when nothing else is set
 // all helpers return normalized urls (no trailing slashes) or full '/api/*' endpoints
@@ -16,7 +19,7 @@ export function normalizeBaseUrl(urlOrEndpoint?: string): string {
 
 export function getOllamaBase(): string {
   try {
-    const stored = localStorage.getItem('wilson_api_url');
+    const stored = storageManager.getItem('wilson_api_url');
     if (stored && stored.trim()) {
       const base = normalizeBaseUrl(stored);
       if (base) return base;
