@@ -3,6 +3,7 @@
 
 import { updateDrawingMeta, saveCheckpoint } from './canvas-db'
 import { secureLogger } from '@/lib/secure-logger'
+import { storageManager } from '@/lib/storage-manager'
 
 interface LegacyDrawing {
   id: string
@@ -42,7 +43,7 @@ export async function migrateFromLocalStorage(): Promise<MigrationResult> {
 
       if (type === 'config') {
         // migrate config
-        const configStr = localStorage.getItem(key)
+        const configStr = storageManager.getItem(key)
         if (!configStr) continue
 
         const config = JSON.parse(configStr)
@@ -57,7 +58,7 @@ export async function migrateFromLocalStorage(): Promise<MigrationResult> {
         localStorage.removeItem(key)
       } else if (type === 'content') {
         // migrate content as checkpoint
-        const contentStr = localStorage.getItem(key)
+        const contentStr = storageManager.getItem(key)
         if (!contentStr) continue
 
         // decompress
@@ -72,7 +73,7 @@ export async function migrateFromLocalStorage(): Promise<MigrationResult> {
           result.migrated++
           result.details.push({ id, status: 'migrated' })
           // drop legacy content
-          localStorage.removeItem(key)
+          storageManager.removeItem(key)
         } else {
           secureLogger.warn('[migrate] failed to decompress', id)
           result.failed++
