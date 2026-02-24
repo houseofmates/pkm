@@ -7,8 +7,8 @@
 - [x] 4. fix response parsing in use-records.ts
 - [x] 5. improve error handling for schema validation
 - [x] 6. test and verify fix works
-- [x] 7. investigate react-window virtualization issue
-- [x] 8. check if rows are rendering but not visible
+- [x] 7. investigate react-window virtualization issue (was due to wrong props)
+- [x] 8. check if rows are rendering but not visible (debug badge confirmed data present)
 - [x] 9. verify data is reaching the table component
 
 ## summary of changes made:
