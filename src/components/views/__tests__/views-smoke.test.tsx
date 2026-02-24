@@ -85,7 +85,7 @@ describe('View smoke tests', () => {
           data={dummyData}
           collection={emptyCollection}
           config={{ groupByField: 'status' }}
-          onCreate={(d) => {}}
+          onCreate={() => {}}
         />
       </AuthContext.Provider>
     );
