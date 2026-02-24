@@ -365,7 +365,7 @@ export function HouseofmatesBuilder() {
     } catch (error) {
       console.error('admin login failed:', error);
       toast.error('failed to enable admin mode');
-      localStorage.removeItem('hom_api_key');
+      storageManager.removeItem('hom_api_key');
     }
   };
 
