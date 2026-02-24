@@ -60,7 +60,6 @@ const emptyCollection = { name: 'test', fields: [] };
 const dateCollection = { name: 'test', fields: [{ name: 'when', interface: 'date' }] };
 const dummyData: any[] = [{ id: '1', when: new Date().toISOString(), status: null }];
 
-
 describe('View smoke tests', () => {
   it('calendar shows add button when onCreate and dateField provided', () => {
     const authValue = { token: '', isAuthenticated: true, login: () => {}, logout: () => {}, client: {} };
@@ -70,7 +69,7 @@ describe('View smoke tests', () => {
           data={dummyData}
           collection={dateCollection}
           config={{ dateField: 'when' }}
-          onCreate={(d) => {}} // expect plus
+          onCreate={() => {}} // expect plus
         />
       </AuthContext.Provider>
     );
