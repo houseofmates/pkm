@@ -18,7 +18,10 @@ export function pickKeyField(db: Dataset) {
   return firstString || db.fields[0];
 }
 
-export function inferRelations(dbs: Dataset[]) {
+export function inferRelations(dbs: Dataset[], opts?: { enableDebug?: boolean }) {
+  const log = (...args: any[]) => {
+    if (opts?.enableDebug) console.debug('[relation-inference]', ...args);
+  };
   for (const db of dbs) {
     const relations: Array<{ field: string; target: string }> = [];
     for (const field of db.fields) {
@@ -57,6 +60,7 @@ export function inferRelations(dbs: Dataset[]) {
       if (best.target) {
         relations.push({ field, target: best.target });
         db.fieldTypes[field] = 'lookup';
+        log(`matched relation ${db.name}.${field} -> ${best.target} (score=${best.score?.toFixed?.(2) ?? best.score})`);
       }
     }
     if (relations.length) db.relations = relations;
