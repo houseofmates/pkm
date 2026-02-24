@@ -73,6 +73,15 @@
       else if (host === 'blog.houseofmates.space') title = 'blog';
       else if (host === 'houseofmates.space') title = 'houseofmates';
       else if (host === 'pkm.houseofmates.space') title = 'pkm';
+      // also set favicon before React loads
+      const favIcon = document.getElementById('favicon');
+      if (favIcon) {
+        if (host === 'dupe.houseofmates.space') favIcon.href = '/favicon-dupe.png';
+        else if (host === 'home.houseofmates.space') favIcon.href = '/favicon-home-subdomain.png';
+        else if (host === 'blog.houseofmates.space') favIcon.href = '/favicon-blog.png';
+        else if (host === 'houseofmates.space') favIcon.href = '/favicon-houseofmates.png';
+        else favIcon.href = '/favicon.png';
+      }
       document.title = title;
     } catch (e) {
       console.warn('failed to set dynamic title', e);

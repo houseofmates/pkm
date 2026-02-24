@@ -113,8 +113,12 @@ export function RootLayout() {
       const host = window.location.hostname;
       if (host === 'dupe.houseofmates.space') {
         favIcon.href = '/favicon-dupe.png';
-      } else if (host === 'blog.houseofmates.space' || host === 'houseofmates.space') {
-        favIcon.href = '/favicon-home.png';
+      } else if (host === 'home.houseofmates.space') {
+        favIcon.href = '/favicon-home-subdomain.png';
+      } else if (host === 'blog.houseofmates.space') {
+        favIcon.href = '/favicon-blog.png';
+      } else if (host === 'houseofmates.space') {
+        favIcon.href = '/favicon-houseofmates.png';
       } else {
         // default pkm logo (transparent database icon)
         favIcon.href = '/favicon.png';
@@ -125,6 +129,7 @@ export function RootLayout() {
     const host = typeof window !== 'undefined' ? window.location.hostname : '';
     if (host) {
       if (host === 'dupe.houseofmates.space') document.title = 'dupemates';
+      else if (host === 'home.houseofmates.space') document.title = 'home';
       else if (host === 'blog.houseofmates.space') document.title = 'blog';
       else if (host === 'houseofmates.space') document.title = 'houseofmates';
       else document.title = 'pkm';
