@@ -6,6 +6,8 @@ import { TableView } from './views/TableView';
 import { ErrorBoundary } from 'react-error-boundary';
 import { cn } from '@/lib/utils';
 import { Loader2, AlertCircle } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import api from '@/api/nocobase-client';
 
 export interface DataEmbedProps {
   collection: string;
