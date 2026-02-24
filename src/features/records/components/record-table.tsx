@@ -38,6 +38,7 @@ interface RecordTableProps {
   onUpdateRecord?: (id: string | number, data: any) => void;
   onCreateRecord?: () => void;
   onCreateField?: () => void;
+  onCreateRecord?: () => void;
   onFieldUpdated?: () => void; // optional callback when a field/column is renamed or changed
   loading?: boolean;
   config?: any;
@@ -233,7 +234,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
 const DraggableRecordRow = (props: any) => {
   const { index, style: incomingStyle } = props;
   const data = props.data || props;
-  const { rows, collection, onUpdate, onDelete, onCreateField, recordMeta } = data;
+  const { rows, collection, onUpdate, onDelete, onCreateField, onCreateRecord, recordMeta } = data;
 
   const row = rows[index];
   if (!row) return null;
@@ -315,7 +316,21 @@ const DraggableRecordRow = (props: any) => {
             </div>
           );
         })}
-      </div>
+{/* plus button attached to last row */}
+          {index === rows.length - 1 && onCreateRecord && (
+            <div className="w-10 border-l border-[#222] p-0 h-10 flex items-center justify-center">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-full w-full rounded-none opacity-50 hover:opacity-100 hover:bg-white/10 p-0"
+                onClick={(e) => { e.stopPropagation(); onCreateRecord(); }}
+                title="create new record"
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </div>
     </RecordContextMenu>
   );
 };
@@ -674,8 +689,19 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           <div className="flex-1 w-full relative overflow-x-auto no-scrollbar bg-[#0b0b0b] min-h-0" style={{ minHeight: 200 }}>
             <div style={{ width: table.getTotalSize(), height: '100%', position: 'relative' }}>
               {rows.length === 0 ? (
-                <div className="flex items-center justify-center text-muted-foreground h-16 w-full lowercase">
+                <div className="flex items-center justify-center text-muted-foreground h-16 w-full lowercase relative">
                   no records found
+                  {onCreateRecord && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="absolute right-2 bottom-1"
+                      onClick={onCreateRecord}
+                      title="create new record"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               ) : (
                 <AutoSizer
@@ -693,6 +719,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                           onUpdate: onUpdateRecord,
                           onDelete,
                           onCreateField,
+                          onCreateRecord,
                           recordMeta
                         }}
                         style={{ height, width }}
