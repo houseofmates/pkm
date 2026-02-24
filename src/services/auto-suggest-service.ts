@@ -42,7 +42,7 @@ export async function getAutoSuggestions(
     suggestions.push(...questions);
 
     // 4. suggested actions
-    const actions = generateActions(currentText, results);
+    const actions = generateActions(currentText);
     suggestions.push(...actions);
 
     // sort by confidence and return top N
@@ -158,7 +158,7 @@ function generateQuestions(currentText: string): Suggestion[] {
 }
 
 // generate action item suggestions
-function generateActions(currentText: string, results: SearchResult[]): Suggestion[] {
+function generateActions(currentText: string): Suggestion[] {
   const actions: Suggestion[] = [];
   const lowerText = currentText.toLowerCase();
 

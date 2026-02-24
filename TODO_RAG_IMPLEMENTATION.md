@@ -29,8 +29,8 @@
 
 ## Section 5: Bonus Features
 - [x] Auto-suggest on new row creation (automatic AI field fill when a record is created in a collection that has an `ai` field)
-- [ ] Scheduled generation for stale content
-- [ ] Dupemates integration hooks
+- [x] Scheduled generation for stale content
+- [x] Dupemates integration hooks
 
 ## Files Created/Modified:
 1. ✅ `src/lib/vector-store.ts` (new + indexing helpers)
