@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { DatabaseWidget } from '@/features/databases/components/database-widget';
 import { useFronter } from '@/contexts/fronter-context';
 import { HeadmateCard } from '@/features/headmates/components/headmate-card';
+import { storageManager } from '@/lib/storage-manager';
 // import { infinitecanvaswrapper } from '@/components/ui/infinite-canvas-wrapper';
 import { EdgelessCanvas } from '@/features/edgeless/components/EdgelessCanvas';
 import { Toolbar } from '@/features/edgeless/components/Toolbar';
@@ -59,9 +60,9 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
             if (key && key.startsWith('canvas-config-')) {
                 const id = key.replace('canvas-config-', '');
                 try {
-                    const config = JSON.parse(localStorage.getItem(key) || '{}');
+                    const config = JSON.parse(storageManager.getItem(key) || '{}');
                     docs.push({ id, title: config.title || 'Untitled Document' });
-                } catch (e) {/* ignore malformed localstorage entry */ }
+                } catch (e) {/* ignore malformed storage entry */ }
             }
         }
         setLocalDocs(docs);
