@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import { isPublicDomain } from '@/utils/subdomain-router';
 import { Database } from 'lucide-react';
+import { NocoBaseClient } from '@/api/nocobase-client';
 
 export function LoginPage() {
   const { login } = useAuth();
