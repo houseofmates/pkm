@@ -48,15 +48,27 @@ function simpleDecode(str: string): string {
 }
 
 export const storageManager = {
-  /** plain wrapper that respects safeStorage sanitization/warnings */
+  /** direct, unopinionated access to localStorage */
   getItem(key: string): string | null {
-    return safeStorage.getItem(key);
+    try {
+      return localStorage.getItem(key);
+    } catch {
+      return null;
+    }
   },
   setItem(key: string, value: string): void {
-    safeStorage.setItem(key, value);
+    try {
+      localStorage.setItem(key, value);
+    } catch {
+      // ignore quota errors
+    }
   },
   removeItem(key: string): void {
-    safeStorage.removeItem(key);
+    try {
+      localStorage.removeItem(key);
+    } catch {
+      // ignore
+    }
   },
   clear(): void {
     try {
