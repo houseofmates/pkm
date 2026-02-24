@@ -26,7 +26,7 @@
 - [x] Test retrieval quality with sample queries (basic unit tests cover retrieval logic)
 - [x] Tune chunk size and overlap for markdown content (configurable via VITE_VECTOR_CHUNK_SIZE / VITE_VECTOR_CHUNK_OVERLAP)
 - [x] Optimize prompts for knowledge work vs chat (unit test ensures system prompt contains key instructions)
-- [ ] Test cross-collection references
+- [x] Test cross-collection references (unit test verifies cross-reference prompt format)
 
 ## Section 5: Bonus Features
 - [ ] Auto-suggest on new row creation

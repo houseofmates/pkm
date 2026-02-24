@@ -1,7 +1,7 @@
 // auto-suggest service for ai fields
 // provides intelligent suggestions as you type
 
-import { searchKnowledgeBase, SearchResult } from '@/lib/vector-store';
+import { searchKnowledgeBase, type SearchResult } from '@/lib/vector-store';
 import { secureLogger } from '@/lib/secure-logger';
 
 export interface Suggestion {
