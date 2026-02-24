@@ -181,8 +181,16 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                 try {
                     console.log("Attempting to fetch full collection schema with fields...");
                     const colRes = await client.getCollection(collectionName);
-                    console.log("getCollection response:", colRes.data);
-                    colData = colRes.data;
+                    console.log("getCollection response:", colRes);
+                    // check if we got valid data
+                    if (colRes?.data && typeof colRes.data === 'object') {
+                        colData = colRes.data;
+                    } else {
+                        console.warn("getCollection returned invalid data, using preloaded");
+                        if (preloaded) {
+                            colData = preloaded;
+                        }
+                    }
                 } catch (e: any) {
                     console.warn("getCollection failed, using preloaded if available:", e.message);
                     // if api fails but we have preloaded data, use it even without fields
