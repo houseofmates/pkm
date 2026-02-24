@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { api } from '@/api/nocobase-client';
 import { toast } from 'sonner';
 import { secureLogger } from '@/lib/secure-logger';
