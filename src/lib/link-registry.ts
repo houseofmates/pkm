@@ -166,7 +166,7 @@ class LinkRegistry {
         if (!this.dirty) return
         try {
             const data = [...this.entries.values()]
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+            storageManager.setItem(STORAGE_KEY, JSON.stringify(data))
             this.dirty = false
         } catch (e) {
             console.error('link-Registry: persist failed', e)
@@ -175,7 +175,7 @@ class LinkRegistry {
 
     hydrate(): void {
         try {
-            const raw = localStorage.getItem(STORAGE_KEY)
+            const raw = storageManager.getItem(STORAGE_KEY)
             if (!raw) return
             const data: LinkEntry[] = JSON.parse(raw)
             this.outbound.clear()
