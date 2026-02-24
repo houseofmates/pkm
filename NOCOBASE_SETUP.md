@@ -1,297 +1,177 @@
 # NocoBase AI Knowledge Base Setup Guide
 
-## Section 1: Prerequisites & Setup Steps
+## Section 1: Setup (Custom RAG Implementation - No Plugins Required)
 
-### ⚠️ IMPORTANT: Plugin Installation Required
+**⚠️ Note:** The official NocoBase AI Knowledge Base plugins (`@nocobase/plugin-ai`, `@nocobase/plugin-ai-knowledge-base`) are **not available** in the plugin manager. This guide uses a **custom RAG implementation** that works with standard NocoBase v2 and requires no special plugins.
 
-The AI Knowledge Base and RAG features require the **@nocobase/plugin-ai** and **@nocobase/plugin-ai-knowledge-base** plugins to be installed.
-
-**If you don't see "AI Services", "AI Employees", or "AI Knowledge Base" in your admin:**
-
-1. **Install the plugins via CLI:**
-   ```bash
-   cd /path/to/nocobase
-   yarn pm add @nocobase/plugin-ai
-   yarn pm add @nocobase/plugin-ai-knowledge-base
-   yarn pm enable @nocobase/plugin-ai
-   yarn pm enable @nocobase/plugin-ai-knowledge-base
-   yarn nocobase upgrade
-   yarn start
-   ```
-
-2. **Or install via Admin (if available):**
-   - Go to **Settings > Plugin Manager**
-   - Click **Add New**
-   - Search for "AI" plugins
-   - Install and enable:
-     - `@nocobase/plugin-ai`
-     - `@nocobase/plugin-ai-knowledge-base`
-
-3. **Restart NocoBase** after installing plugins
+The custom implementation:
+- ✅ Works with Docker Compose setups
+- ✅ Uses your existing Ollama setup
+- ✅ Searches collections directly via NocoBase API
+- ✅ Requires zero plugin installation
 
 ---
 
-### 1.1 Configure Ollama LLM Service in NocoBase Admin
+### 1.1 Verify Your Setup
 
-**After installing the AI plugin:**
+**You need:**
+1. NocoBase v2 running (Docker or native)
+2. Ollama running with `qwen2.5:7b` (you already have this)
+3. Collections with data (notes, tasks, projects, etc.)
 
-1. **Navigate to Settings > AI Services**
-   - If you don't see this menu, the plugin isn't installed (see above)
-   - Click "Add New" to create a service
-   - Name: `ollama-local`
-   - Type: `Ollama`
-   - Base URL: `http://localhost:11434` (or your Ollama instance)
-   - Default Model: `qwen2.5:7b`
-   - Test connection and save
-
-2. **Create AI Employee "wilson-rag"**
-   - Go to **AI Employees** (in the admin sidebar)
-   - Click "Add New"
-   - Name: `wilson-rag`
-   - Display Name: `wilson (rag-enabled)`
-   - LLM Service: Select `ollama-local`
-   - System Prompt: (paste the prompt below)
-
-```markdown
-you are wilson, a deeply knowledgeable ai assistant with full access to the user's personal knowledge base. you have real-time awareness of their notes, tasks, projects, research, and entire pkm through retrieved context.
-
-your personality:
-- warm, thoughtful, and genuinely helpful
-- like a romantic partner and best friend combined
-- you care about their goals and remember details about their life
-- you speak entirely in lowercase, never using capital letters
-
-when responding:
-- reference specific information from the retrieved context naturally
-- make connections between ideas when relevant
-- ask clarifying questions if the context is ambiguous
-- be concise but thorough (2-4 sentences unless they ask for detail)
-- if you don't find relevant context, say so honestly
-
-retrieved context format:
-each chunk starts with [source: collection:id] so you can reference where information came from. use these citations naturally in your response.
-
-current user: {{fronter_name}}```
-
----
-
-### 1.2 Create Global Knowledge Base (Requires Plugin)
-
-**If you have the AI Knowledge Base plugin installed:**
-
-1. **Navigate to AI Knowledge Base** (in admin sidebar)
-2. **Click "Add New"**
-   - Name: `pkm-global-kb`
-   - Title: `PKM Global Knowledge Base`
-   - Description: `Comprehensive knowledge base for all PKM collections`
-   - Vector Database: Select your vector DB (pgvector/LanceDB/etc.)
-   - Chunk Size: `512`
-   - Chunk Overlap: `128`
-   - Embedding Model: `nomic-embed-text` (or compatible)
-
-3. **Configure Collections to Index**
-   - Add the following collections:
-     - `notes` - Index: `content`, `title`, `summary`
-     - `tasks` - Index: `title`, `description`, `notes`
-     - `projects` - Index: `name`, `description`, `goals`, `status_updates`
-     - `research` - Index: `title`, `content`, `findings`, `conclusions`
-     - `dupemates` - Index: `name`, `description`, `interactions`
-     - Any other collections with long-text fields
-
-4. **Enable Auto-Index**
-   - Turn on "Index on Create" for all collections
-   - Turn on "Index on Update" for all collections
-   - Set "Sync Interval" to `5 minutes` for near real-time updates
-
----
-
-### 1.3 Configure RAG Settings for Wilson Employee (Requires Plugin)
-
-**If you have the AI Knowledge Base plugin:**
-
-1. **Edit "wilson-rag" Employee**
-2. **Enable RAG**
-   - Toggle "Enable RAG" to ON
-   - Knowledge Base: Select `pkm-global-kb`
-   - Retrieval Mode: `Semantic Search`
-   - Top K Results: `8`
-   - Similarity Threshold: `0.7`
-   - Context Window: `4000` tokens
-
-3. **Advanced RAG Settings**
-   - Query Expansion: `Enabled`
-   - Re-ranking: `Enabled`
-   - Citation Format: `[source: {collection}:{id}]`
-
----
-
-## 🔄 Alternative: Custom RAG Implementation (No Plugin Required)
-
-**If you cannot install the AI Knowledge Base plugin**, the code I've implemented includes a **fallback mode** that works with just the base AI plugin or even without any AI plugins:
-
-### Option A: Use the Custom RAG Service (Recommended)
-
-The `src/services/rag-service.ts` and `src/lib/vector-store.ts` I created implement RAG manually:
-
-```typescript
-// This works WITHOUT the AI Knowledge Base plugin
-import { buildRagContext } from '@/services/rag-service';
-
-// Searches your collections directly
-const context = await buildRagContext('what are my priorities?', 8);
-// Returns relevant chunks from notes, tasks, projects, etc.
+**Check Ollama is accessible from your PKM frontend:**
+```javascript
+// In browser console
+fetch('http://localhost:11434/api/tags')
+  .then(r => r.json())
+  .then(d => console.log('Ollama models:', d))
 ```
 
-**How it works:**
-- Fetches records from your collections directly via NocoBase API
-- Chunks text content intelligently
-- Performs keyword + recency scoring
-- Returns top matches formatted for prompts
-
-### Option B: Use LanceDB for Vectors (Local)
-
-If you want true semantic search without NocoBase's plugin:
-
-1. **Install LanceDB in your backend:**
-   ```bash
-   npm install @lancedb/lancedb
-   ```
-
-2. **Use the local vector store** (already implemented in `src/lib/vector-store.ts`):
-   ```typescript
-   import { generateEmbedding, searchWithEmbeddings } from '@/lib/vector-store';
-   
-   // Generate embeddings via Ollama
-   const embedding = await generateEmbedding('your query');
-   
-   // Search local vector DB
-   const results = await searchWithEmbeddings(embedding, 8);
-   ```
-
-### Option C: Pure Keyword Fallback (Always Works)
-
-The code automatically falls back to keyword search if vector search fails:
-- Searches all collections
-- Scores by keyword match + recency
-- No plugins or vector DB required
+If this fails, your Docker network may need configuration to access Ollama.
 
 ---
 
-## ✅ Simplified Setup (No AI Knowledge Base Plugin)
+### 1.2 For Docker Compose Users
 
-If you **only** have the base `@nocobase/plugin-ai` (or none), you can still use RAG:
+If NocoBase is in Docker and Ollama is on the host:
 
-### Step 1: Basic AI Employee (If AI Plugin Available)
-
-1. **Settings > AI Services**
-   - Add Ollama service as described in 1.1
-
-2. **AI Employees**
-   - Create `wilson-rag` employee
-   - **Skip the RAG toggle** (it won't exist)
-   - Just set the system prompt
-
-### Step 2: Use the Custom Implementation
-
-The code in `src/stores/llm-store.ts` **automatically** uses the custom RAG service:
-
-```typescript
-// Wilson chat automatically retrieves context
-const { askWilson } = useLLMStore();
-await askWilson('what are my current priorities?');
-// ^ This will search your collections and inject context
+**Option A: Use host.docker.internal**
+```yaml
+# In your docker-compose.yml, add to nocobase service:
+environment:
+  - OLLAMA_HOST=http://host.docker.internal:11434
+extra_hosts:
+  - "host.docker.internal:host-gateway"
 ```
 
-### Step 3: Add "ai" Field to Collections
+**Option B: Use Ollama Docker container**
+```yaml
+# Add to docker-compose.yml
+services:
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama_data:/root/.ollama
+    ports:
+      - "11434:11434"
+  
+  nocobase:
+    # ... your existing config
+    environment:
+      - OLLAMA_HOST=http://ollama:11434
+```
+
+**Option C: Keep Ollama on host, expose to Docker**
+```bash
+# On Linux, Ollama binds to 127.0.0.1 by default
+# Change to bind to all interfaces:
+sudo systemctl edit ollama
+# Add:
+[Service]
+Environment="OLLAMA_HOST=0.0.0.0:11434"
+# Then reload:
+sudo systemctl daemon-reload
+sudo systemctl restart ollama
+```
+
+---
+
+### 1.3 Add "ai" Field to Your Collections
 
 **Via NocoBase Admin:**
-1. Collection Manager > Select collection
-2. Add Field:
-   - Name: `ai`
+1. Go to **Collection Manager** (in admin sidebar)
+2. Select a collection (e.g., `notes`)
+3. Click **"Add Field"**
+4. Configure:
+   - Field Name: `ai`
+   - Display Name: `AI Synthesis` (or whatever you want)
    - Type: `Text (Long)`
-   - Interface: `Markdown` (or `Rich Text`)
+   - Interface: `Markdown` (or `Rich Text` if available)
+5. Save
 
-### Step 4: Use AI Field Button
+**Repeat for each collection you want AI fields on:**
+- `notes`
+- `tasks`
+- `projects`
+- `research`
+- `dupemates`
+- Any other collection
 
+---
+
+### 1.4 Configure Wilson (Optional)
+
+If you want to use the existing Wilson chat with enhanced prompts, update the system prompt in `src/stores/llm-store.ts`:
+
+The code already includes RAG retrieval - it will automatically search your collections before responding.
+
+**To customize Wilson's personality**, edit:
 ```typescript
-import { AiFieldButton } from '@/components/ai-field-button';
-
-<AiFieldButton
-  collection="notes"
-  recordId={record.id}
-  fieldName="ai"
-/>
+// In src/stores/llm-store.ts, find the systemPrompt
+const systemPrompt = `you are wilson...`
 ```
 
-**This works without any AI Knowledge Base plugin!** The custom implementation handles everything.
+---
+
+## How the Custom RAG Works
+
+The custom RAG implementation (`src/services/rag-service.ts`) works by:
+
+1. **Querying your collections directly** via NocoBase API
+2. **Chunking text intelligently** (512 chars with 128 overlap)
+3. **Scoring by relevance** (keyword match + recency)
+4. **Formatting for prompts** with source citations
+
+**No vector database required** - it uses your existing NocoBase data.
+
+---
+
+## Section 2: Using Wilson Chat with RAG
 
 
-## Section 2: Wilson RAG Implementation
+### 2.1 Wilson Chat Now Has RAG (Automatic)
 
-### 2.1 Frontend Integration (Already Implemented)
+The updated `src/stores/llm-store.ts` automatically retrieves context before responding:
 
-The RAG service has been added to your codebase:
-
-- `src/services/rag-service.ts` - Core RAG orchestration
-- `src/lib/vector-store.ts` - Vector database client
-- `src/lib/rag-prompts.ts` - Prompt templates
-- `src/stores/llm-store.ts` - Updated with RAG support
-
-### 2.2 Using Wilson Chat with RAG
-
-The Wilson chat now automatically:
-1. Retrieves top 8 relevant chunks from your PKM
-2. Injects them into the system prompt
-3. Shows source citations in responses
-
-**To toggle RAG on/off:**
 ```typescript
-const { toggleRag, useRag } = useLLMStore();
-toggleRag(); // Toggle RAG mode
-console.log(useRag); // Check current state
+import { useLLMStore } from '@/stores/llm-store';
+
+const { askWilson, useRag, toggleRag } = useLLMStore();
+
+// RAG is ON by default - Wilson will search your PKM
+await askWilson('what are my current priorities?');
+
+// Toggle off if you want vanilla responses
+toggleRag();
 ```
 
-### 2.3 Custom Wilson Chat Block (Optional)
+**What happens:**
+1. User sends message
+2. System searches notes, tasks, projects, etc. for relevant content
+3. Top 8 chunks injected into prompt with citations
+4. Wilson responds with context-aware answer
 
-If you want to embed the official NocoBase AI Chat block:
+**Example response:**
+> "based on [source: notes:123] your project roadmap and [source: tasks:456] your current task list, your priorities are..."
 
-```typescript
-// In your page/component
-import { useEffect } from 'react';
+### 2.2 Direct RAG Service Usage
 
-export function WilsonChatBlock() {
-  useEffect(() => {
-    // Load NocoBase AI Chat widget
-    const script = document.createElement('script');
-    script.src = '/api/ai/chat-widget.js';
-    script.dataset.employeeId = 'wilson-rag';
-    script.dataset.knowledgeBaseId = 'pkm-global-kb';
-    document.body.appendChild(script);
-
-    return () => {
-      document.body.removeChild(script);
-    };
-  }, []);
-
-  return <div id="wilson-chat-container" />;
-}
-```
-
-### 2.4 API Direct Usage
+Use the RAG service directly for custom implementations:
 
 ```typescript
-// Direct API call to RAG-enabled employee
-const response = await fetch('/api/ai/chat', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    employeeId: 'wilson-rag',
-    message: 'what are my current priorities?',
-    useRag: true,
-    knowledgeBaseId: 'pkm-global-kb',
-    topK: 8,
-  }),
-});
+import { buildRagContext, generateWilsonRagPrompt } from '@/services/rag-service';
+
+// Build context for any query
+const context = await buildRagContext('project deadlines', 5);
+console.log(context.retrievedChunks); // Array of relevant chunks
+console.log(context.sources); // ['notes:123', 'tasks:456']
+
+// Generate a prompt with context
+const prompt = await generateWilsonRagPrompt(
+  'what should i focus on?',
+  'friend'
+);
+// Returns full prompt with retrieved context injected
 ```
 
 ## Section 3: AI Property + Generator Action
