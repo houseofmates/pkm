@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import SettingsPage from '../settings';
+import { storageManager } from '@/lib/storage-manager';
 import { AuthContext } from '@/contexts/auth-context';
 import { vi } from 'vitest';
 
@@ -12,7 +13,7 @@ const authValue = { token: '', isAuthenticated: true, login: () => {}, logout: (
 
 describe('Settings page', () => {
   beforeEach(() => {
-    localStorage.clear();
+    storageManager.clear();
   });
 
   it('renders general settings and import widget (with hint when api key missing)', () => {
@@ -47,6 +48,6 @@ describe('Settings page', () => {
     fireEvent.click(checkbox);
     expect(checkbox.checked).toBe(true);
     // drop into localStorage
-    expect(localStorage.getItem('pkm_setting:darkMode')).toBe('true');
+    expect(storageManager.getItem('pkm_setting:darkMode')).toBe('true');
   });
 });
