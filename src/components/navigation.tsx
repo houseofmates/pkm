@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings, UploadCloud, type LucideIcon } from 'lucide-react';
 import * as Icons from 'lucide-react';
 import { GlobalSearchDialog } from '@/components/global-search-dialog';
