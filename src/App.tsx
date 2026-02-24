@@ -34,7 +34,7 @@ const WorkspacePage = lazy(() => import("@/pages/workspace").then(m => ({ defaul
 const NotionImportPage = lazy(() => import("@/pages/notion-import").then(m => ({ default: m.default })));
 const SettingsPage = lazy(() => import("@/pages/settings").then(m => ({ default: m.default })));
 const PublicDocViewer = lazy(() => import("@/components/journal/public-doc-viewer").then(m => ({ default: m.PublicDocViewer })));
-const RagTestPage = lazy(() => import("@/pages/rag-test").then(m => ({ default: m.default || m.RagTestPage })));
+const RagTestPage = lazy(() => import("@/pages/rag-test").then(m => ({ default: m.default })));
 
 const queryClient = new QueryClient({
   defaultOptions: {
