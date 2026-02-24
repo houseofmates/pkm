@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { NotionImportWidget } from '@/components/notion-import-widget';
 import { vi, describe, it, beforeEach, afterEach, expect } from 'vitest';
@@ -69,6 +68,7 @@ describe('NotionImportWidget', () => {
     delete process.env.VITE_API_URL;
     vi.restoreAllMocks();
     localStorage.clear();
+    Object.defineProperty(window, 'location', { value: originalNodeEnv ? window.location : window.location, writable: true });
   });
 
   it('logs both raw and rewritten VITE_API_URL values', async () => {
@@ -180,8 +180,22 @@ describe('NotionImportWidget', () => {
     // simulate build-time env var and location
     process.env.VITE_API_URL = 'https://api.houseofmates.space';
     const originalLocation = window.location;
-    delete (window as any).location;
-    window.location = new URL('https://pkm.houseofmates.space/');
+    const fakeLocation: Location = {
+      ...originalLocation,
+      href: 'https://pkm.houseofmates.space/',
+      origin: 'https://pkm.houseofmates.space',
+      host: 'pkm.houseofmates.space',
+      hostname: 'pkm.houseofmates.space',
+      protocol: 'https:',
+      pathname: '/',
+      search: '',
+      hash: '',
+      assign: vi.fn(),
+      replace: vi.fn(),
+      reload: vi.fn(),
+      toString: () => 'https://pkm.houseofmates.space/',
+    } as Location;
+    Object.defineProperty(window, 'location', { value: fakeLocation, writable: true, configurable: true });
 
     localStorage.setItem('hom_api_key', 'key');
     const fakeResponse = { ok: false, status: 400, statusText: 'err', text: async () => '' };
@@ -197,7 +211,7 @@ describe('NotionImportWidget', () => {
     expect(fetch).toHaveBeenCalledWith(`/api/nb-import`, expect.any(Object));
 
     // cleanup
-    Object.defineProperty(window, 'location', { value: originalLocation, writable: true });
+    Object.defineProperty(window, 'location', { value: originalLocation, writable: true, configurable: true });
     delete process.env.VITE_API_URL;
   });
 
