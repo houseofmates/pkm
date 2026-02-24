@@ -1089,7 +1089,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
 
         {/* content wrapper - pointer shield to allow dragging from anywhere */}
         <div className={`w-full h-full ${isAdmin && !isEditing ? 'pointer-events-none' : 'pointer-events-auto'}`}>
-          {rendercontent()}
+          {renderContent()}
         </div>
       </div>
     </>
