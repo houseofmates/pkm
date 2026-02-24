@@ -208,9 +208,8 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                 throw new Error(`Collection ${collectionName} not found`);
             }
 
-            setCollection(colData);
-
-            // 3. if collection still lacks fields, fetch them separately
+            // 3. if collection still lacks fields, fetch them separately BEFORE setting collection
+            console.log("Checking fields:", colData.fields, "Length:", colData.fields?.length);
             if (!colData.fields || colData.fields.length === 0) {
                 try {
                     console.log("Collection lacks fields, fetching them separately...");
@@ -218,12 +217,15 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                     console.log("Fetched fields:", fields);
                     if (fields && fields.length > 0) {
                         colData.fields = fields;
-                        setCollection({ ...colData, fields });
+                    } else {
+                        console.warn("listFields returned no fields");
                     }
                 } catch (e) {
                     console.warn("Failed to fetch fields separately:", e);
                 }
             }
+
+            setCollection(colData);
 
             // auto-create 'fronter' field if missing
             if (colData && colData.fields) {
