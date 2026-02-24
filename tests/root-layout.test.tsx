@@ -1,6 +1,13 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 
+// prevent canvas storage code from running (avoids window errors in jest)
+vi.mock('@/features/edgeless/storage', () => ({
+  listPendingDrawings: async () => [],
+  updateDrawingMeta: vi.fn(),
+  deleteDrawing: vi.fn(),
+}));
+
 // some components in the tree rely on the classic JSX runtime and
 // therefore refer to the global `React` variable.  Vitest/app-bundler
 // sometimes compiles them without injecting an import, which causes
