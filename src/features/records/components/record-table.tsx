@@ -419,6 +419,25 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         );
     }
 
+    // if there are no defined columns (collection has no fields and there
+    // is no data to infer from) we still want to render something so the
+    // header area doesn't collapse to zero width, which makes the add-field
+    // button and settings gear inaccessible.  create a dummy placeholder
+    // column with a message.
+    if (cols.length === 0) {
+      cols = [
+        columnHelper.display({
+          id: '__placeholder',
+          header: () => (
+            <div className="px-2 py-1 text-xs text-muted-foreground lowercase">
+              no properties defined – use the + button to add one
+            </div>
+          ),
+          cell: () => null,
+        }),
+      ];
+    }
+
     if (onEdit || onDelete) {
       cols.push(columnHelper.display({
         id: 'actions',
@@ -499,25 +518,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           </div>
         )
       }));
-    }
-
-    // if there are no defined columns (collection has no fields and there
-    // is no data to infer from) we still want to render something so the
-    // header area doesn't collapse to zero width, which makes the add-field
-    // button and settings gear inaccessible.  create a dummy placeholder
-    // column with a message.
-    if (cols.length === 0) {
-      cols = [
-        columnHelper.display({
-          id: '__placeholder',
-          header: () => (
-            <div className="px-2 py-1 text-xs text-muted-foreground lowercase">
-              no properties defined – use the + button to add one
-            </div>
-          ),
-          cell: () => null,
-        }),
-      ];
     }
 
     return cols;
