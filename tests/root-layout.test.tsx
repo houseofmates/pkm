@@ -37,6 +37,12 @@ describe('RootLayout', () => {
     if (!(import.meta as any).env) {
       (import.meta as any).env = {};
     }
+    // allow controlling the hostname for title tests
+    Object.defineProperty(window, 'location', {
+      value: { hostname: 'test.houseofmates.space' },
+      writable: true,
+      configurable: true,
+    });
   });
 
   it('does not render health bar by default', async () => {
@@ -57,6 +63,9 @@ describe('RootLayout', () => {
       </AuthProvider>
     );
     expect(screen.queryByText('connected')).toBeNull();
+
+    // title should reflect hostname stubbed above
+    expect(document.title).toBe('test.houseofmates.space');
   });
 
   it('can load with health bar env variable set', async () => {
