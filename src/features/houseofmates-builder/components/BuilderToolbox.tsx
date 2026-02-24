@@ -560,7 +560,7 @@ export function BuilderToolbox() {
    </div>
  )}
 
- {activetab === 'integrations' && (
+ {activeTab === 'integrations' && (
    <div className="grid grid-cols-2 gap-3">
    <ToolButton
    icon={<BarChart size={18} />}
