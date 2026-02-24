@@ -652,7 +652,7 @@ export function BuilderToolbox() {
    </div>
  )}
 
- {activetab === 'integrations' && (
+ {activeTab === 'integrations' && (
    <div className="space-y-4">
    {/* search */}
    <div className="flex gap-2">
