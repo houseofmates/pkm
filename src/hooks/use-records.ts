@@ -45,7 +45,7 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   // keep a copy of the last non-empty records so we can continue displaying
   // something while the query is refetching (especially on window focus).
   const [cachedRecords, setCachedRecords] = useState<any[]>(records);
-  React.useEffect(() => {
+  useEffect(() => {
     if (records && records.length > 0) {
       setCachedRecords(records);
     }
