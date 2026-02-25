@@ -3,6 +3,7 @@
 
 import { toast } from 'sonner'
 import { storageManager } from '@/lib/storage-manager'
+import { secureLogger } from '@/lib/secure-logger'
 
 interface MemoryStats {
   used: number
