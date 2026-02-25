@@ -131,7 +131,7 @@ export function PageCanvas() {
     }
   }, [id, updateDoc]);
 
-  const handleLayoutChange = useCallback((layout: readonly LayoutItem[]) => {
+  const handleLayoutChange = useCallback((layout: LayoutItem[]) => {
     updateDoc((prev) => ({ ...prev, layout: [...layout] }));
   }, [updateDoc]);
 
