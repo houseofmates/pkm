@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import {
