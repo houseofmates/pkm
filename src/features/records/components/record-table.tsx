@@ -686,6 +686,9 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     setLastSelectedIndex(rowIndex);
   }, [lastSelectedIndex, rows]);
 
+  const headerRef = React.useRef<HTMLDivElement | null>(null);
+  const bodyRef = React.useRef<HTMLDivElement | null>(null);
+
   const clearSelection = React.useCallback(() => {
     setSelectedIds([]);
     setLastSelectedIndex(null);
@@ -723,7 +726,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         onDragEnd={handleDragEnd}
       >
         <div className="h-full flex flex-col min-h-0">
-          <div className="overflow-x-auto overflow-y-hidden no-scrollbar flex-shrink-0">
+          <div ref={headerRef} className="overflow-x-hidden overflow-y-hidden flex-shrink-0">
             {/* use full width when there are no columns so the header row
                 remains visible and the add/gear buttons are clickable */}
             <Table
@@ -773,8 +776,15 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           </div>
 
           <div
+            ref={bodyRef}
             className="flex-1 w-full relative overflow-x-auto no-scrollbar bg-[#0b0b0b] min-h-0 pb-10"
             style={{ minHeight: 200 }}
+            onScroll={(e) => {
+              // sync header position
+              if (headerRef.current) {
+                headerRef.current.scrollLeft = e.currentTarget.scrollLeft;
+              }
+            }}
             onClick={(e) => {
               // clicking empty space clears selection
               const target = e.target as HTMLElement;
