@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/table';
 import type { Collection } from '@/hooks/use-collections';
 import { Button } from '@/components/ui/button';
-import { Plus, Settings2, Trash2, Edit2, MoreVertical, MoveRight } from 'lucide-react';
+import { Plus, Settings2, Trash2, Edit2, MoreVertical, MoveRight, X } from 'lucide-react';
 import * as React from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { SmartField } from '@/components/fields/smart-field';
@@ -30,6 +30,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { FieldSettingsDialog } from '@/features/collections/components/field-settings-dialog';
 import { useGestureManager } from '@/hooks/use-gesture-manager';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 interface RecordTableProps {
   data: any[];
@@ -417,37 +418,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   React.useEffect(() => { onDeleteRef.current = onDelete; }, [onDelete]);
   React.useEffect(() => { onUpdateRecordRef.current = onUpdateRecord; }, [onUpdateRecord]);
 
-  const handleRowSelect = React.useCallback((rowId: string, rowIndex: number, event: React.MouseEvent) => {
-    setSelectedIds((prev) => {
-      // shift+click selects range from lastSelectedIndex (or current) to clicked
-      if (event.shiftKey && rows.length > 0) {
-        const anchor = lastSelectedIndex ?? rowIndex;
-        const [start, end] = [anchor, rowIndex].sort((a, b) => a - b);
-        const rangeIds = rows.slice(start, end + 1).map((r: any) => r.original.id);
-        const merged = new Set(prev);
-        rangeIds.forEach((id) => merged.add(id));
-        return Array.from(merged);
-      }
-
-      // ctrl/cmd toggles selection of the clicked row
-      if (event.metaKey || event.ctrlKey) {
-        if (prev.includes(rowId)) {
-          return prev.filter((id) => id !== rowId);
-        }
-        return [...prev, rowId];
-      }
-
-      // plain click selects only this row
-      return [rowId];
-    });
-    setLastSelectedIndex(rowIndex);
-  }, [lastSelectedIndex, rows]);
-
-  const clearSelection = React.useCallback(() => {
-    setSelectedIds([]);
-    setLastSelectedIndex(null);
-  }, []);
-
   if (!collection) {
     return (
       <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center">
@@ -660,6 +630,36 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     },
   });
 
+  const rows = table.getRowModel().rows;
+
+  const handleRowSelect = React.useCallback((rowId: string, rowIndex: number, event: React.MouseEvent) => {
+    setSelectedIds((prev) => {
+      if (event.shiftKey && rows.length > 0) {
+        const anchor = lastSelectedIndex ?? rowIndex;
+        const [start, end] = [anchor, rowIndex].sort((a, b) => a - b);
+        const rangeIds = rows.slice(start, end + 1).map((r: any) => r.original.id);
+        const merged = new Set(prev);
+        rangeIds.forEach((id) => merged.add(id));
+        return Array.from(merged);
+      }
+
+      if (event.metaKey || event.ctrlKey) {
+        if (prev.includes(rowId)) {
+          return prev.filter((id) => id !== rowId);
+        }
+        return [...prev, rowId];
+      }
+
+      return [rowId];
+    });
+    setLastSelectedIndex(rowIndex);
+  }, [lastSelectedIndex, rows]);
+
+  const clearSelection = React.useCallback(() => {
+    setSelectedIds([]);
+    setLastSelectedIndex(null);
+  }, []);
+
   if (loading) {
     return (
       <div className="rounded-md border border-[#222] p-4 space-y-2">
@@ -674,8 +674,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       </div>
     );
   }
-
-  const rows = table.getRowModel().rows;
 
   return (
     <div
@@ -744,6 +742,55 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           </div>
 
           <div className="flex-1 w-full relative overflow-x-auto no-scrollbar bg-[#0b0b0b] min-h-0 pb-10" style={{ minHeight: 200 }}>
+            {selectedIds.length > 0 && (
+              <div className="absolute top-2 right-2 z-30 flex items-center gap-2 bg-black/70 border border-border/70 rounded-md px-2 py-1 shadow-xl backdrop-blur">
+                <span className="text-xs lowercase text-muted-foreground">{selectedIds.length} selected</span>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-7 w-7" title="bulk actions">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-44 p-2 space-y-1" align="end">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start text-xs lowercase"
+                      onClick={() => setIsBulkEditOpen(true)}
+                    >
+                      bulk edit
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start text-xs lowercase text-red-500 hover:text-red-600"
+                      onClick={() => {
+                        selectedIds.forEach((id) => {
+                          const rec = rows.find((r: any) => r.original.id === id)?.original;
+                          if (rec) onDeleteRef.current?.(rec);
+                        });
+                        clearSelection();
+                      }}
+                    >
+                      bulk delete
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="w-full justify-start text-xs lowercase"
+                      onClick={() => {
+                        toast.info('bulk move coming soon');
+                      }}
+                    >
+                      <MoveRight className="h-3 w-3 mr-1" /> bulk move
+                    </Button>
+                  </PopoverContent>
+                </Popover>
+                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={clearSelection} title="clear selection">
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
             <div style={{ width: table.getTotalSize(), height: '100%', position: 'relative' }}>
               {rows.length === 0 ? (
                 <div className="text-muted-foreground lowercase">
@@ -778,7 +825,11 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                           onCreateField,
                           onCreateRecord,
                           recordMeta,
-                          onEdit: onEditRef.current
+                          onEdit: onEditRef.current,
+                          selectedIds,
+                          onRowSelect: handleRowSelect,
+                          clearSelection,
+                          enableSelection: true
                         }}
                         style={{ height, width }}
                         rowComponent={DraggableRecordRow}
@@ -816,6 +867,53 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           onFieldUpdatedCb?.();
         }}
       />
+
+      <Dialog open={isBulkEditOpen} onOpenChange={setIsBulkEditOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="lowercase">bulk edit ({selectedIds.length} entries)</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <Label className="text-xs lowercase">property</Label>
+              <select
+                className="w-full h-9 bg-[#0f0f0f] border border-border rounded-sm text-sm px-2"
+                value={bulkFieldName || ''}
+                onChange={(e) => setBulkFieldName(e.target.value || null)}
+              >
+                <option value="">select property</option>
+                {(collection.fields || []).map((f: any) => (
+                  <option key={f.name} value={f.name}>{f.uiSchema?.title || f.name}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1">
+              <Label className="text-xs lowercase">value</Label>
+              <Input
+                value={bulkValue ?? ''}
+                onChange={(e) => setBulkValue(e.target.value)}
+                placeholder="new value"
+              />
+            </div>
+          </div>
+          <DialogFooter className="pt-2">
+            <Button variant="ghost" onClick={() => setIsBulkEditOpen(false)}>cancel</Button>
+            <Button
+              disabled={!bulkFieldName || selectedIds.length === 0}
+              onClick={() => {
+                if (!bulkFieldName) return;
+                selectedIds.forEach((id) => {
+                  onUpdateRecordRef.current?.(id, { [bulkFieldName]: bulkValue });
+                });
+                toast.success('bulk update queued');
+                setIsBulkEditOpen(false);
+              }}
+            >
+              apply
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
