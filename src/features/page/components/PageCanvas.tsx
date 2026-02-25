@@ -232,11 +232,11 @@ export function PageCanvas() {
         <div className="mx-auto" style={{ maxWidth: gridWidth }}>
           <GridLayout
             className="layout"
-            cols={4}
+            numCols={4}
             rowHeight={120}
             width={gridWidth}
-            margin={[16, 16] as [number, number]}
-            containerPadding={[0, 0] as [number, number]}
+            margin={[16, 16]}
+            containerPadding={[0, 0]}
             layout={docLayout}
             onLayoutChange={handleLayoutChange}
             draggableHandle=".block-handle"
