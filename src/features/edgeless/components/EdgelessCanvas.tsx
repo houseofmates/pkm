@@ -367,8 +367,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       }
     }
 
-    // @ts-expect-error fabric-types-issue
-    const upperCanvas = fabricCanvas.upperCanvasEl
+    const upperCanvas = fabricCanvas.upperCanvasEl as HTMLCanvasElement | undefined
     upperCanvas.addEventListener('contextmenu', handleContextMenu)
     return () => upperCanvas.removeEventListener('contextmenu', handleContextMenu)
   }, [fabricCanvas])
@@ -402,7 +401,6 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     for (let i = 0; i < elements.length; i++) {
       const el = elements[i]
       const { x: screenX, y: screenY, w: screenW, h: screenH } = getScreenPos(el)
-      const isSelected = selectedIds.has(el.id)
 
       // If interact mode, always interact. If grab mode, only interact if explicitly not covering?
       // Actually, we want the ability to drag "windows".
