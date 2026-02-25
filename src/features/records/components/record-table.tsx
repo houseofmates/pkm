@@ -125,7 +125,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
       onFieldUpdated?.();
       toast.success('field renamed');
     } catch (err: any) {
-      secureLogger.error(err);
+      console.error(err);
       toast.error('failed to rename field');
     }
   };
@@ -161,7 +161,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
           try {
             onHide?.(field);
           } catch (e) {
-            secureLogger.error('onHide handler failed', e);
+            console.error('onHide handler failed', e);
             toast.error('failed to hide property');
           }
         }}
@@ -175,7 +175,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
             // clear sizing/order cache so removed column doesn't linger
             onFieldUpdated?.();
           } catch (err: any) {
-            secureLogger.error(err);
+            console.error(err);
             toast.error(err?.message || 'failed to delete property');
           }
         }}
