@@ -235,7 +235,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
 const DraggableRecordRow = (props: any) => {
   const { index, style: incomingStyle } = props;
   const data = props.data || props;
-  const { rows, collection, onUpdate, onDelete, onCreateField, onCreateRecord, recordMeta, onEdit } = data;
+  const { rows, collection, onUpdate, onDelete, onCreateField, onCreateRecord, recordMeta, onEdit, selectedIds, onRowSelect, clearSelection, enableSelection } = data;
 
   const row = rows[index];
   if (!row) return null;
@@ -254,13 +254,14 @@ const DraggableRecordRow = (props: any) => {
   });
 
   const rowColor = recordMeta?.[row.original.id]?.color;
+  const isSelected = selectedIds?.includes(row.original.id);
 
   const style = {
     ...incomingStyle,
     transform: [incomingStyle?.transform, CSS.Translate.toString(transform)].filter(Boolean).join(' '),
     opacity: isDragging ? 0.5 : 1,
     touchAction: 'none', // Important for touch drag
-    backgroundColor: rowColor ? `${rowColor}20` : undefined,
+    backgroundColor: isSelected ? '#1f2937' : (rowColor ? `${rowColor}20` : undefined),
     display: 'flex', // Crucial for virtualization
     width: '100%'
   };
@@ -303,9 +304,21 @@ const DraggableRecordRow = (props: any) => {
         style={style}
         className={cn(
           "transition-colors group border-b border-[#222] min-w-full",
-          !rowColor && "hover:bg-gray-800/10"
+          isSelected ? "ring-1 ring-primary/70 bg-gray-900/50" : (!rowColor && "hover:bg-gray-800/10")
         )}
         tabIndex={-1}
+        onClick={(e) => {
+          if (!enableSelection) return;
+          const target = e.target as HTMLElement;
+          const inCellContent = target.closest('[data-cell-content]');
+          if (!inCellContent && onRowSelect) {
+            onRowSelect(row.original.id, index, e);
+          }
+        }}
+        onDoubleClick={(e) => {
+          e.stopPropagation();
+          onEdit?.(row.original);
+        }}
       >
         {/* drag handle area */}
         {onCreateField && (
@@ -348,6 +361,7 @@ const DraggableRecordRow = (props: any) => {
               <div
                 className="flex items-center justify-start h-full w-full px-0.5 whitespace-normal leading-[1.2] text-sm"
                 style={{ wordBreak: 'break-word', minWidth: 0 }}
+                data-cell-content
               >
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
               </div>
