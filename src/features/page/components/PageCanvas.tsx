@@ -45,6 +45,13 @@ interface DocumentState {
   layout: Layout[];
 }
 
+interface DocumentConfig {
+  title?: string;
+  icon?: string;
+  iconType?: string;
+  color?: string;
+}
+
 const EMBED_VIEW_OPTIONS: { value: EmbedView; label: string }[] = [
   { value: 'table', label: 'table' },
   { value: 'gallery', label: 'gallery' },
@@ -64,8 +71,17 @@ export function PageCanvas() {
   const storageKey = useMemo(() => (id ? `canvas-content-${id}` : 'canvas-content'), [id]);
   const { collections, refresh } = useCollections();
 
-  const [documentState, setDocumentState] = useState<DocumentState>(() => loadDocument(storageKey));
+  const [documentState, setDocumentState] = useState<DocumentState>(() => {
+    const overrideTitle = id ? loadDocumentConfig(id)?.title : undefined;
+    return loadDocument(storageKey, overrideTitle);
+  });
   const [pendingSave, setPendingSave] = useState(false);
+
+  useEffect(() => {
+    const overrideTitle = id ? loadDocumentConfig(id)?.title : undefined;
+    setDocumentState(loadDocument(storageKey, overrideTitle));
+    setPendingSave(false);
+  }, [storageKey, id]);
 
   useEffect(() => {
     setDocumentState((prev) => ({ ...prev, layout: ensureLayoutForBlocks(prev.blocks, prev.layout) }));
@@ -94,6 +110,13 @@ export function PageCanvas() {
     });
     setPendingSave(true);
   }, []);
+
+  const handleTitleChange = useCallback((value: string) => {
+    updateDoc((prev) => ({ ...prev, title: value }));
+    if (id) {
+      saveDocumentConfig(id, { title: value });
+    }
+  }, [id, updateDoc]);
 
   const addTextBlock = () => {
     updateDoc((prev) => {
@@ -170,7 +193,7 @@ export function PageCanvas() {
           </Button>
           <Input
             value={documentState.title}
-            onChange={(event) => updateDoc((prev) => ({ ...prev, title: event.target.value }))}
+            onChange={(event) => handleTitleChange(event.target.value)}
             placeholder="untitled document"
             className="flex-1 min-w-[200px] bg-white/5 border-white/10 text-base font-semibold"
           />
