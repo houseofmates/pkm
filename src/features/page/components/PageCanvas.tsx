@@ -8,6 +8,7 @@ import { useEdgelessStore } from '@/features/edgeless/store';
 import { cn } from '@/lib/utils';
 import { GripVertical } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface PageItem {
   i: string;
@@ -35,7 +36,7 @@ export function PageCanvas() {
   // sync layout changes back to state
   // in a real app, save this to db
   // setitems(prev => ... merge layout changes)
-  console.log('Layout changed:', layout);
+  secureLogger.debug('Layout changed:', layout);
   };
 
   const addItem = () => {
