@@ -610,19 +610,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     // header area doesn't collapse to zero width, which makes the add-field
     // button and settings gear inaccessible.  create a dummy placeholder
     // column with a message.
-    if (cols.length === 0) {
-      cols = [
-        columnHelper.display({
-          id: '__placeholder',
-          header: () => (
-            <div className="px-2 py-1 text-xs text-muted-foreground lowercase">
-              no properties defined – use the + button to add one
-            </div>
-          ),
-          cell: () => null,
-        }),
-      ];
-    }
+    // removed placeholder cell for empty table
 
     if (hasActions) {
       cols.push(columnHelper.display({
