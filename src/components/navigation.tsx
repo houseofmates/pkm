@@ -500,7 +500,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   // create new document (canvas)
                   const id = crypto.randomUUID();
                   const config = { title: 'untitled document' };
-                  localStorage.setItem(`canvas-config-${id}`, JSON.stringify(config));
+                  storageManager.setItem(`canvas-config-${id}`, JSON.stringify(config));
                   // force refresh of local docs
                   navigate(`/page/${id}`);
 
