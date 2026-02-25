@@ -25,7 +25,7 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
     return response;
   };
 
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, isFetching, error, refetch } = useQuery({
     queryKey: ['records', collectionName, queryParams],
     queryFn: fetchRecords,
     enabled: !!collectionName,
@@ -42,23 +42,11 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   const records: any[] = extractRecords(data);
   const meta = (data as { meta?: any })?.meta;
 
-  // keep a copy of the last non-empty records so we can continue displaying
-  // something while the query is refetching (especially on window focus).
-  const [cachedRecords, setCachedRecords] = useState<any[]>(records);
-  useEffect(() => {
-    if (records && records.length > 0) {
-      setCachedRecords(records);
-    }
-  }, [records]);
-
-  // when loading and we have cached data, prefer that to avoid flicker
-  const displayedRecords = isLoading && cachedRecords.length > 0 ? cachedRecords : records;
-
   // If a non-zero page returns no records, try swapping between 0/1 once.
   const [pageFallbackTried, setPageFallbackTried] = useState(false);
   useEffect(() => {
     if (
-      !isLoading &&
+      !isFetching &&
       records.length === 0 &&
       !pageFallbackTried &&
       typeof queryParams.page === 'number'
@@ -68,7 +56,7 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
       setQueryParams((prev: Record<string, unknown>) => ({ ...prev, page: newPage }));
       setPageFallbackTried(true);
     }
-  }, [isLoading, records.length, pageFallbackTried, queryParams.page]);
+  }, [isFetching, records.length, pageFallbackTried, queryParams.page]);
 
   const refresh = (newParams?: Record<string, unknown>) => {
     if (newParams) {
@@ -166,7 +154,7 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   });
 
   return {
-    records: displayedRecords,
+    records,
     meta,
     loading: isLoading,
     error: error ? (error as Error).message : null,
