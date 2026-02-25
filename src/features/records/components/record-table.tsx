@@ -993,10 +993,9 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                     style={{ 
                       height, 
                       width,
-                      scrollbarWidth: 'none',
-                      msOverflowStyle: 'none',
                       overflow: 'auto'
                     }}
+                    className="no-scrollbar"
                     rowComponent={DraggableRecordRow}
                   />
                 )}
