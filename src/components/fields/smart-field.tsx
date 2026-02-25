@@ -149,7 +149,7 @@ function RelationPicker({ field, value, onChange, onCancel }: any) {
         const res = await client?.listRecords(field.target);
         const data = Array.isArray(res.data) ? res.data : (res.data as any)?.data || [];
         setOptions(data);
-      } catch (e) { secureLogger.error(String(e)); }
+      } catch (e) { secureLogger.error(e); }
       finally { setLoading(false); }
     };
     fetchTarget();

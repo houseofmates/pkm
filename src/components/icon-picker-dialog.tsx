@@ -5,7 +5,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Upload, type LucideIcon } from 'lucide-react';
+
+import { type LucideIcon } from 'lucide-react';
+import * as Icons from 'lucide-react';
+
+const { Upload } = Icons;
 // Dynamic icon loader for Lucide icons
 const lucideIconMap: Record<string, LucideIcon> = {};
 for (const iconName of common_icons) {
