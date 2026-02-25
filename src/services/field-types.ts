@@ -91,7 +91,14 @@ const colorField: FieldType = {
 
 const jsonField: FieldType = {
   typeName: 'json',
-  schema: z.any().nullable(),
+  schema: z.union([
+    z.record(z.string(), z.unknown()),
+    z.array(z.unknown()),
+    z.string(),
+    z.number(),
+    z.boolean(),
+    z.null(),
+  ]).nullable(),
   defaultValue: null,
 };
 
@@ -115,7 +122,11 @@ const formulaField: FieldType = {
 
 const relationField: FieldType = {
   typeName: 'relation',
-  schema: z.any().nullable(),
+  schema: z.object({
+    id: z.string().or(z.number()),
+    name: z.string().optional(),
+    type: z.string().optional(),
+  }).nullable(),
   defaultValue: null,
 };
 
