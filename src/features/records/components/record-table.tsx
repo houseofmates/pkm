@@ -4,7 +4,8 @@ import {
   flexRender,
   createColumnHelper,
 } from '@tanstack/react-table';
-import { FixedSizeList as List } from 'react-window';
+import * as ReactWindow from 'react-window';
+const List = ReactWindow.FixedSizeList;
 import { AutoSizer } from 'react-virtualized-auto-sizer';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
