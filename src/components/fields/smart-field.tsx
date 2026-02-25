@@ -811,7 +811,6 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
         <ContextMenu>
           <ContextMenuTrigger asChild>
             <div
-              onContextMenu={(e) => { e.stopPropagation(); }}
               className={cn("text-blue-400 hover:underline flex items-center gap-1 w-full cursor-pointer", size === 'lg' ? "text-lg" : "text-sm")}
               onClick={(e) => e.stopPropagation()}
             >
@@ -837,7 +836,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
         return (
           <ContextMenu>
             <ContextMenuTrigger asChild>
-              <div className="flex items-center justify-center gap-1 h-full w-full overflow-hidden px-1" onContextMenu={(e) => { e.stopPropagation(); }}>
+              <div className="flex items-center justify-center gap-1 h-full w-full overflow-hidden px-1">
                 <div
                   className="cursor-pointer flex items-center gap-1 transition-transform hover:scale-110"
                   onClick={(e) => { e.stopPropagation(); setFullscreenIndex(0); setGalleryImgs(imgArr); }}
@@ -861,7 +860,6 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           <ContextMenuTrigger asChild>
             <div
               onClick={() => setIsEditing(true)}
-              onContextMenu={(e) => { e.stopPropagation(); }}
               className="h-full w-full flex items-center justify-center cursor-pointer opacity-20 hover:opacity-100"
             >
               <Paperclip className="h-3 w-3 text-white" />
