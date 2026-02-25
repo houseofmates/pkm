@@ -234,10 +234,12 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
 const DraggableRecordRow = (props: any) => {
   const { index, style: incomingStyle } = props;
   const data = props.data || props;
-  const { rows, collection, onUpdate, onDelete, onCreateField, onCreateRecord, recordMeta } = data;
+  const { rows, collection, onUpdate, onDelete, onCreateField, onCreateRecord, recordMeta, onEdit } = data;
 
   const row = rows[index];
   if (!row) return null;
+
+  const rowRef = React.useRef<HTMLDivElement>(null);
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `record-${row.original.id}`,
@@ -261,6 +263,26 @@ const DraggableRecordRow = (props: any) => {
     width: '100%'
   };
 
+  useGestureManager(rowRef, {
+    onSingleTap: (event) => {
+      event.stopPropagation();
+      rowRef.current?.focus({ preventScroll: true });
+    },
+    onDoubleTap: (event) => {
+      event.stopPropagation();
+      onEdit?.(row.original);
+    },
+    onLongPress: (event) => {
+      event.stopPropagation();
+      if (!rowRef.current) return;
+      const rect = rowRef.current.getBoundingClientRect();
+      const clientX = event.clientX ?? rect.left + 10;
+      const clientY = event.clientY ?? rect.top + 10;
+      const cmEvent = new MouseEvent('contextmenu', { bubbles: true, clientX, clientY, cancelable: true });
+      rowRef.current.dispatchEvent(cmEvent);
+    },
+  });
+
   return (
     <RecordContextMenu
       record={row.original}
@@ -270,12 +292,13 @@ const DraggableRecordRow = (props: any) => {
       className="contents"
     >
       <div
-        ref={setNodeRef}
+        ref={rowRef}
         style={style}
         className={cn(
           "transition-colors group border-b border-[#222] min-w-full",
           !rowColor && "hover:bg-gray-800/10"
         )}
+        tabIndex={-1}
       >
         {/* drag handle area */}
         {onCreateField && (
@@ -286,6 +309,7 @@ const DraggableRecordRow = (props: any) => {
               className="absolute inset-0 cursor-move flex items-center justify-center group-hover:bg-white/5"
               {...attributes}
               {...listeners}
+              style={{ touchAction: 'none' }}
             >
               <div className="p-2 opacity-0 group-hover:opacity-60 transition-opacity">
                 <div className="w-1 h-3 bg-white/20 rounded-full" />
@@ -708,7 +732,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                           onDelete,
                           onCreateField,
                           onCreateRecord,
-                          recordMeta
+                          recordMeta,
+                          onEdit: onEditRef.current
                         }}
                         style={{ height, width }}
                         rowComponent={DraggableRecordRow}
