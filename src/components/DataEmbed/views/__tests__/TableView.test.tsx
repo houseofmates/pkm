@@ -1,6 +1,6 @@
-import * as React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import { TableView } from '../TableView';
+import { vi } from 'vitest';
 
 // minimal mocks for react-window and hooks
 vi.mock('@tanstack/react-table', () => {
