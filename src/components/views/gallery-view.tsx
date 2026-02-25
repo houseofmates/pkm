@@ -71,26 +71,34 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
     );
   }
 
-  // helper to get image url from a record field (or common record keys)
-  const getImageUrl = (record: Record<string, any>, field: { name: string } | null) => {
+  // helper to get media asset (url + kind) from record field or common keys
+  const getMediaAsset = (record: Record<string, any>, field: { name: string } | null) => {
+    const coerce = (val: any) => {
+      if (!val) return null;
+      const url = val.url || val.url_thumbnail || val.thumb || val.preview || (typeof val === 'string' ? val : null);
+      if (!url) return null;
+      const mime = (val.mimetype || val.mime || val.type || '').toLowerCase();
+      const isVideo = mime.includes('video') || /\.(mp4|webm|mov|m4v)$/i.test(url);
+      const isPdf = mime.includes('pdf') || /\.pdf$/i.test(url);
+      const kind: 'image' | 'video' | 'pdf' = isPdf ? 'pdf' : isVideo ? 'video' : 'image';
+      return { url, kind };
+    };
+
     if (field) {
       const value = record[field.name];
-      if (value != null) {
-        if (Array.isArray(value) && value.length > 0) {
-          return value[0].url || value[0].url_thumbnail || null;
-        }
-        if (typeof value === 'string' && (value.startsWith('http') || value.startsWith('/'))) {
-          return value;
-        }
-      }
+      if (Array.isArray(value) && value.length > 0) return coerce(value[0]);
+      const single = coerce(value);
+      if (single) return single;
     }
-    // fallback: common keys for headmates etc.
     const fallbacks = ['avatar', 'image', 'photo', 'picture', 'icon', 'cover', 'url'];
     for (const key of fallbacks) {
       const v = record[key];
-      if (!v) continue;
-      if (Array.isArray(v) && v.length > 0) return v[0].url || v[0].url_thumbnail || null;
-      if (typeof v === 'string' && (v.startsWith('http') || v.startsWith('/'))) return v;
+      if (Array.isArray(v) && v.length > 0) {
+        const c = coerce(v[0]);
+        if (c) return c;
+      }
+      const c = coerce(v);
+      if (c) return c;
     }
     return null;
   };
@@ -133,7 +141,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
                 key={record.id || i}
                 record={record}
                 collection={collection}
-                imageUrl={getImageUrl(record, imageField)}
+                mediaAsset={getMediaAsset(record, imageField)}
                 title={getTitle(record)}
                 titleField={titleField}
                 visibleFields={visibleFields}
