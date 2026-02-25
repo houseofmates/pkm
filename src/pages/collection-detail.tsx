@@ -240,6 +240,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                         console.log("Auto-creating 'fronter' field for", collectionName);
                         await client.createField(collectionName, {
                             name: 'fronter',
+                            type: 'string',
                             interface: 'input',
                             uiSchema: { title: 'Fronter' }
                         });
