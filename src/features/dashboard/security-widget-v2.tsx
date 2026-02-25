@@ -83,11 +83,11 @@ const runSecurityScan = (): Vulnerability[] => {
       id: 'console-1',
       severity: 'high',
       category: 'console',
-      title: 'console.log statements detected',
-      description: 'Found console.log statements that may leak sensitive data to browser dev tools. These should be replaced with secureLogger.',
+      title: 'secureLogger.info statements detected',
+      description: 'Found secureLogger.info statements that may leak sensitive data to browser dev tools. These should be replaced with secureLogger.',
       file: 'src/contexts/fronter-context.tsx',
       line: 165,
-      llmPrompt: `Replace all console.log, console.warn, and console.error in src/contexts/fronter-context.tsx with secureLogger.info, secureLogger.warn, and secureLogger.error from @/lib/secure-logger. Ensure all logged data is sanitized and only logs when user is authenticated.`,
+      llmPrompt: `Replace all secureLogger.info, secureLogger.warn, and secureLogger.error in src/contexts/fronter-context.tsx with secureLogger.info, secureLogger.warn, and secureLogger.error from @/lib/secure-logger. Ensure all logged data is sanitized and only logs when user is authenticated.`,
       quickFix: 'Replace console.* with secureLogger.*',
       verified: true
     });

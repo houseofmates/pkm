@@ -14,7 +14,7 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error("uncaught error:", error, errorInfo);
+    secureLogger.error("uncaught error:", error, errorInfo);
   }
 
   render() {
@@ -48,7 +48,7 @@ if (container) {
       </ErrorBoundary>,
     );
   } catch (e) {
-    console.error("root render failed:", e);
+    secureLogger.error("root render failed:", e);
     document.body.innerHTML = "<h1>root render failed</h1>";
   }
 }

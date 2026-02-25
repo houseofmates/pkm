@@ -76,7 +76,7 @@ export async function parseNotionExport(root: string): Promise<NotionWorkspace> 
         try {
             pages.push(await parseMarkdownFile(md));
         } catch (err) {
-            console.error(`failed to parse markdown ${md}:`, err);
+            secureLogger.error(`failed to parse markdown ${md}:`, err);
         }
     }
 
@@ -93,7 +93,7 @@ export async function parseNotionExport(root: string): Promise<NotionWorkspace> 
             transformHeader: h => h.trim(),
             complete: (res) => {
                 if (res.errors.length) {
-                    console.warn(`warnings parsing CSV ${csv}:`, res.errors);
+                    secureLogger.warn(`warnings parsing CSV ${csv}:`, res.errors);
                 }
                 rows.push(...(res.data as any[]));
             }
@@ -109,7 +109,7 @@ export async function parseNotionExport(root: string): Promise<NotionWorkspace> 
                 const parsed = JSON.parse(raw);
                 if (parsed && parsed.properties) props = parsed.properties;
             } catch (e) {
-                if (IMPORT_DEBUG) console.warn(`failed to parse metadata for ${name}:`, e);
+                if (IMPORT_DEBUG) secureLogger.warn(`failed to parse metadata for ${name}:`, e);
             }
         }
 

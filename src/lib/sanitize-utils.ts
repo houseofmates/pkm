@@ -137,7 +137,7 @@ export const safeStorage = {
   setItem(key: string, value: string): void {
     // warn if trying to store sensitive data
     if (looksLikeSecret(value) && !key.toLowerCase().includes('token') && !key.toLowerCase().includes('key')) {
-      console.warn(`[SECURITY] Potentially sensitive data being stored in localStorage key: ${key}`);
+      secureLogger.warn(`[SECURITY] Potentially sensitive data being stored in localStorage key: ${key}`);
     }
     
     try {

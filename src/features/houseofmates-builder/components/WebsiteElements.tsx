@@ -795,7 +795,7 @@ export function MinecraftStatsWidget() {
           // 3. socket: `setmessages(prev => [...prev, newitem])` (append to end)
         }
       } catch (err) {
-        console.error('[MinecraftStats] Failed to fetch initial data:', err);
+        secureLogger.error('[MinecraftStats] Failed to fetch initial data:', err);
         // set default state to prevent infinite loading
         setStatus({ online: false, count: 0 });
       } finally {
@@ -818,31 +818,31 @@ export function MinecraftStatsWidget() {
 
     // connection state handlers
     socket.on('connect', () => {
-      console.log('[MinecraftStats] Socket connected');
+      secureLogger.info('[MinecraftStats] Socket connected');
       setConnectionState('connected');
     });
 
     socket.on('disconnect', (reason) => {
-      console.log('[MinecraftStats] Socket disconnected:', reason);
+      secureLogger.info('[MinecraftStats] Socket disconnected:', reason);
       setConnectionState('disconnected');
     });
 
     socket.on('reconnect_attempt', (attemptNumber) => {
-      console.log(`[MinecraftStats] Reconnection attempt ${attemptNumber}`);
+      secureLogger.info(`[MinecraftStats] Reconnection attempt ${attemptNumber}`);
       setConnectionState('reconnecting');
     });
 
     socket.on('reconnect', (attemptNumber) => {
-      console.log(`[MinecraftStats] Reconnected after ${attemptNumber} attempts`);
+      secureLogger.info(`[MinecraftStats] Reconnected after ${attemptNumber} attempts`);
       setConnectionState('connected');
     });
 
     socket.on('reconnect_error', (error) => {
-      console.error('[MinecraftStats] Reconnection error:', error);
+      secureLogger.error('[MinecraftStats] Reconnection error:', error);
     });
 
     socket.on('reconnect_failed', () => {
-      console.error('[MinecraftStats] Reconnection failed');
+      secureLogger.error('[MinecraftStats] Reconnection failed');
       setConnectionState('disconnected');
     });
 
@@ -900,7 +900,7 @@ export function MinecraftStatsWidget() {
     });
 
     return () => {
-      console.log('[MinecraftStats] Cleaning up socket connection');
+      secureLogger.info('[MinecraftStats] Cleaning up socket connection');
       if (retryTimeoutRef.current) {
         clearTimeout(retryTimeoutRef.current);
       }
@@ -918,7 +918,7 @@ export function MinecraftStatsWidget() {
 
   // v7 deployment marker
   useEffect(() => {
-    console.log('🚀 [LiveStats] V7 LIVE - HyperSnap Scroll + Forced System (WebsiteElements)');
+    secureLogger.info('🚀 [LiveStats] V7 LIVE - HyperSnap Scroll + Forced System (WebsiteElements)');
   }, []);
 
   // hyper-snap scroll: multiple attempts to catch layout shifts

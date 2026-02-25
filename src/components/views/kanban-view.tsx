@@ -304,7 +304,7 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
         });
         toast.success("record updated");
       } catch (e) {
-        console.error("Failed to update kanban status", e);
+        secureLogger.error("Failed to update kanban status", e);
         toast.error("failed to update status");
         // revert? (requires tracking original state)
       }

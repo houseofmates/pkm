@@ -69,7 +69,7 @@ interface SecurityScanResult {
 }
 
 const SECURITY_PROMPTS = {
-  consoleLeak: (file: string, line: number) => `Fix console.log data leak in ${file}:${line}. Replace console.log with secureLogger.log and sanitize any sensitive data like tokens, API keys, or personal information before logging.`,
+  consoleLeak: (file: string, line: number) => `Fix secureLogger.info data leak in ${file}:${line}. Replace secureLogger.info with secureLogger.log and sanitize any sensitive data like tokens, API keys, or personal information before logging.`,
 
   localStorageToken: (key: string) => `Secure localStorage access for key "${key}". Add validation to ensure the key is expected, check for sensitive data patterns before storing, and consider using sessionStorage or memory-only storage for highly sensitive tokens.`,
 

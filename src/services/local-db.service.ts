@@ -43,7 +43,7 @@ class LocalDbService {
     const tx = db.transaction('collections', 'readwrite');
     await Promise.all(collections.map(collection => tx.store.put(collection)));
     await tx.done;
-    console.log(`Saved ${collections.length} collections to local DB.`);
+    secureLogger.info(`Saved ${collections.length} collections to local DB.`);
   }
 
   /**

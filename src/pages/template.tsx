@@ -94,7 +94,7 @@ export function TemplatePage() {
 
       } catch (e) {
         // invalid saved json, ignore and use default
-        console.warn('Saved template is invalid JSON, using default');
+        secureLogger.warn('Saved template is invalid JSON, using default');
       }
     }
   }, []); // only run on mount
@@ -290,7 +290,7 @@ export function TemplatePage() {
 
       toast.success('workspace built successfully', { id: t });
     } catch (e: any) {
-      console.error(e);
+      secureLogger.error(e);
       toast.error(`engine failure: ${e.message}`, { id: t });
     } finally {
       setIsBuilding(false);
@@ -348,7 +348,7 @@ export function TemplatePage() {
         navigate(`/databases/${collectionName}/${docId}`);
       }
     } catch (e: any) {
-      console.error(e);
+      secureLogger.error(e);
       toast.error(`failed to create document: ${e.message}`, { id: t });
     }
   };

@@ -21,7 +21,7 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
 
   const fetchRecords = async () => {
     const response = await client.listRecords(collectionName, queryParams);
-    console.debug('[useRecords] fetched', collectionName, queryParams, response);
+    secureLogger.debug('[useRecords] fetched', collectionName, queryParams, response);
     return response;
   };
 
@@ -37,7 +37,7 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
 
   useEffect(() => {
     if (data !== undefined) {
-      console.debug('[useRecords] data updated for', collectionName, data);
+      secureLogger.debug('[useRecords] data updated for', collectionName, data);
     }
   }, [data, collectionName]);
 

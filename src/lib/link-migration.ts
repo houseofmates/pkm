@@ -48,7 +48,7 @@ export async function backfillLinkRegistry(): Promise<{ documents: number, links
                     }
                 }
             } catch (e) {
-                console.warn(`[link-migration] skipping collection ${col}:`, e)
+                secureLogger.warn(`[link-migration] skipping collection ${col}:`, e)
             }
         }
 
@@ -58,7 +58,7 @@ export async function backfillLinkRegistry(): Promise<{ documents: number, links
 
         return { documents: totalDocs, links: totalLinks }
     } catch (e) {
-        console.error('[link-migration] migration failed:', e)
+        secureLogger.error('[link-migration] migration failed:', e)
         throw e
     }
 }

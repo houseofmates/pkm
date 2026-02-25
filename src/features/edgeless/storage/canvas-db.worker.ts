@@ -68,7 +68,7 @@ self.onmessage = async (e: MessageEvent) => {
         const result = await handler(...args)
         self.postMessage({ id, result })
     } catch (error) {
-        console.error(`[Worker] Error in ${method}:`, error)
+        secureLogger.error(`[Worker] Error in ${method}:`, error)
         self.postMessage({ id, error: (error as Error).message })
     }
 }
@@ -157,7 +157,7 @@ const handlers: Record<string, (...args: any[]) => Promise<unknown>> = {
             await tx.done
             return todelete.length
         } catch (e) {
-            console.error('[Worker] pruneoldops failed:', e)
+            secureLogger.error('[Worker] pruneoldops failed:', e)
             throw e
         }
     },

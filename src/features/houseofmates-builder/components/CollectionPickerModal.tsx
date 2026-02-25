@@ -46,7 +46,7 @@ export function CollectionPickerModal({ onSelect, onClose }: Props) {
         );
         setCollections(userCollections.map((c: any) => ({ name: c.name, title: c.title || c.name })));
       } catch (e: any) {
-        console.error('Failed to fetch collections:', e);
+        secureLogger.error('Failed to fetch collections:', e);
         if (e.response?.status === 401) {
           setError('Authentication failed. Please re-enter your API key.');
         } else if (e.message.includes('Network')) {

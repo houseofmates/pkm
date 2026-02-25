@@ -43,7 +43,7 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
  setVisibleFields(validFields.slice(0, 5).map((f: any) => f.name));
  }
   } catch (e) {
- console.error('Failed to fetch fields:', e);
+ secureLogger.error('Failed to fetch fields:', e);
   }
   };
   fetchFields();

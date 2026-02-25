@@ -523,7 +523,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   try {
                     await updateDrawingMeta(id, { title, syncState: 'pending' });
                   } catch (e) {
-                    console.error('failed to create new drawing metadata', e);
+                    secureLogger.error('failed to create new drawing metadata', e);
                   }
                   navigate(`/drawings/${id}`);
 

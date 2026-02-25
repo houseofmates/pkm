@@ -47,7 +47,7 @@ export function LoginPage() {
       // small delay to let state propagate
       await new Promise((resolve) => setTimeout(resolve, 100));
     } catch (err: any) {
-      console.error('token validation failed:', err);
+      secureLogger.error('token validation failed:', err);
       setError(
         'token appears invalid or expired; please double-check and try again.'
       );

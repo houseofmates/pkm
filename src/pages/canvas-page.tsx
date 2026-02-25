@@ -88,7 +88,7 @@ export function CanvasPage() {
                                     isPage={true}
                                     onDelete={() => {
                                         // handle delete?
-                                        console.log("Delete page", id)
+                                        secureLogger.info("Delete page", id)
                                     }}
                                 />
                                 {/* pdf upload section injected here or inside form? injected here is easier for now without huge refactor */}

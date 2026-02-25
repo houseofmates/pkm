@@ -60,7 +60,7 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
  }
   `);
 
-  // capture console.log
+  // capture secureLogger.info
   const logs: string[] = [];
   const mockConsole = {
  log: (...args: any[]) => logs.push(args.map(a => JSON.stringify(a)).join(' ')),

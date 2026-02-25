@@ -103,7 +103,7 @@ export class SyncService {
  }
  } else {
  // create new
- // console.log(`sync: writing new entry [${sp_id}] to nocobase...`);
+ // secureLogger.info(`sync: writing new entry [${sp_id}] to nocobase...`);
  await api.createRecord(this.COLLECTION, {
    sp_id,
    member_id,

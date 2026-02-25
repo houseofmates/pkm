@@ -139,4 +139,4 @@ schemaService.registerFieldType(attachmentsField);
 schemaService.registerFieldType(formulaField);
 schemaService.registerFieldType(relationField);
 
-console.log('Default field types registered (text, number, boolean, date, datetime, time, select, multipleSelect, percent, email, phone, url, color, json, attachment, attachments, relation).');
+secureLogger.info('Default field types registered (text, number, boolean, date, datetime, time, select, multipleSelect, percent, email, phone, url, color, json, attachment, attachments, relation).');

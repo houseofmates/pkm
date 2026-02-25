@@ -86,7 +86,7 @@ export function FieldSettingsDialog({ collectionName, field, open, onOpenChange,
             onFieldUpdated();
             onOpenChange(false);
         } catch (error: any) {
-            console.error(error);
+            secureLogger.error(error);
             toast.error(error.message || "failed to update field");
         } finally {
             setLoading(false);

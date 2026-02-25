@@ -35,7 +35,7 @@ export function NotionImportWidget() {
         // treat those as empty.
         if (apiKey === 'null' || apiKey === 'undefined') apiKey = '';
         if (import.meta.env.DEV) {
-            console.debug('[NotionImportWidget] using apiKey', apiKey && maskString(apiKey));
+            secureLogger.debug('[NotionImportWidget] using apiKey', apiKey && maskString(apiKey));
         }
         if (!apiKey) {
             appendLog('error: missing API key (set in settings or hom_api_key/localStorage)');
@@ -44,7 +44,7 @@ export function NotionImportWidget() {
         appendLog(`using api key ${maskString(apiKey)}`);
         files.forEach(f => {
             if (import.meta.env.DEV) {
-                console.debug('[NotionImportWidget] file size', f.size, 'name', f.name, 'type', f.type);
+                secureLogger.debug('[NotionImportWidget] file size', f.size, 'name', f.name, 'type', f.type);
             }
             if (!f.name.toLowerCase().endsWith('.csv')) {
                 appendLog(`warning: file ${f.name} is not a CSV`);
@@ -84,7 +84,7 @@ export function NotionImportWidget() {
         }
         const url = `${baseUrl}/nb-import-csv`;
         if (import.meta.env.DEV) {
-            console.debug('[NotionImportWidget] raw VITE_BACKEND_URL=', rawEnv, 'env BACKEND_URL=', envBase, 'using url', url, '(legacy notion-import also accepted)');
+            secureLogger.debug('[NotionImportWidget] raw VITE_BACKEND_URL=', rawEnv, 'env BACKEND_URL=', envBase, 'using url', url, '(legacy notion-import also accepted)');
         }
         try {
             const res = await fetch(url, {
@@ -129,7 +129,7 @@ export function NotionImportWidget() {
                         headers: { Authorization: `Bearer ${apiKey}` }
                     });
                     if (!pres.ok) {
-                        console.warn('[NotionImportWidget] poll log failed', pres.statusText);
+                        secureLogger.warn('[NotionImportWidget] poll log failed', pres.statusText);
                         return;
                     }
                     const pdata = await pres.json();
@@ -152,7 +152,7 @@ export function NotionImportWidget() {
                         setRunning(false);
                     }
                 } catch (e) {
-                    if (import.meta.env.DEV) console.warn('[NotionImportWidget] polling error', e);
+                    if (import.meta.env.DEV) secureLogger.warn('[NotionImportWidget] polling error', e);
                 }
             };
 
