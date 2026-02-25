@@ -68,7 +68,7 @@ import type {
 import { cn } from '@/lib/utils';
 
 // Sortable Header Component
-function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSettings, fieldColors, valueColorRules, setMetadata }: any) {
+function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSettings, fieldColors, valueColorRules, setMetadata, onHide }: any) {
   const { client } = useAuth();
   const [isEditing, setIsEditing] = React.useState(false);
   const [draftTitle, setDraftTitle] = React.useState<string>('');
@@ -164,7 +164,13 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
           onOpenFieldSettings?.(field);
         }}
         onHide={() => {
-          toast.info("hiding feature coming soon");
+          // call provided handler (from RecordTable) to toggle hidden columns
+          try {
+            onHide?.(field);
+          } catch (e) {
+            console.error('onHide handler failed', e);
+            toast.error('failed to hide property');
+          }
         }}
         onDelete={async () => {
           if (isSystemColumn) return;
@@ -853,6 +859,15 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                           fieldColors={fieldColors}
                           valueColorRules={valueColorRules}
                           setMetadata={setMetadata}
+                          onHide={(field: any) => {
+                            if (!field || !field.name) return;
+                            setHiddenColumns((prev: string[]) => {
+                              if (prev.includes(field.name)) {
+                                return prev.filter((c) => c !== field.name);
+                              }
+                              return [...prev, field.name];
+                            });
+                          }}
                         />
                       ))}
                     </SortableContext>
