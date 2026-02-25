@@ -1,108 +1,90 @@
 import React, { useState, useEffect } from 'react';
-import GridLayout from 'react-grid-layout';
-import 'react-grid-layout/css/styles.css';
-import 'react-resizable/css/styles.css';
-import { useWindowSize } from 'react-use';
+import { useParams } from 'react-router-dom';
 import { BlockEditor } from '@/components/editor/BlockEditor';
-import { useEdgelessStore } from '@/features/edgeless/store';
-import { cn } from '@/lib/utils';
-import { GripVertical } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
-
-interface PageItem {
-  i: string;
-  x: number;
-  y: number;
-  w: number;
-  h: number;
-  content?: string;
-}
+import { secureLogger } from '@/lib/secure-logger';
 
 export function PageCanvas() {
-  const { width } = useWindowSize();
-  // use state for items for now. ideally this would sync with a store or backend.
-  const [items, setItems] = useState<PageItem[]>([
-  { i: '1', x: 0, y: 0, w: 10, h: 4, content: '<p>welcome to your new page.</p>' },
-  ]);
+  const { id } = useParams();
+  const [content, setContent] = useState<string | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
+  const [title, setTitle] = useState('untitled document');
 
-  // 10 columns logic
-  const margin = 10;
-  const containerPadding = 20;
-  // calculate row height or keep it standard
-  const rowHeight = 30;
+  // Load content
+  useEffect(() => {
+    if (!id) return;
+    try {
+        // Load metadata
+        const configStr = localStorage.getItem(`canvas-config-${id}`);
+        if (configStr) {
+            const config = JSON.parse(configStr);
+            if (config.title) setTitle(config.title);
+        }
 
-  const onLayoutChange = (layout: any) => {
-  // sync layout changes back to state
-  // in a real app, save this to db
-  // setitems(prev => ... merge layout changes)
-  console.log('Layout changed:', layout);
-  };
+        // Load content
+        const savedContent = localStorage.getItem(`doc-content-${id}`);
+        if (savedContent) {
+            setContent(savedContent);
+        } else {
+            // Default content
+            setContent('<p>start typing...</p>');
+        }
+    } catch (e) {
+        secureLogger.error('Failed to load document:', e);
+    } finally {
+        setLoading(false);
+    }
+  }, [id]);
 
-  const addItem = () => {
-  const id = crypto.randomUUID();
-  setItems(prev => [
-  ...prev,
-  { i: id, x: 0, y: infinity, w: 10, h: 2, content: '' }
-  ]);
-  };
+  const handleTitleChange = (newTitle: string) => {
+      setTitle(newTitle);
+      if (id) {
+          try {
+              const config = JSON.parse(localStorage.getItem(`canvas-config-${id}`) || '{}');
+              config.title = newTitle;
+              localStorage.setItem(`canvas-config-${id}`, JSON.stringify(config));
+              // Dispatch event to update sidebar?
+              // For now, we rely on manual refresh or app logic
+          } catch (e) {
+              console.error(e);
+          }
+      }
+  }
 
-    return (
-        <div className="h-screen bg-[#050505] text-white flex flex-col font-['Varela_Round'] overflow-hidden">
-            {/* fixed header section matching sidebar alignment */}
-            <div className="pt-4 shrink-0 bg-[#050505] z-10 flex flex-col">
-                <div className="max-w-[1200px] mx-auto px-5">
-                    <div className="flex justify-between items-center mb-2 h-10">
-                        <h1 className="text-3xl font-bold text-[var(--primary)]">page mode</h1>
-                        <button
-                            onClick={addItem}
-                            className="px-4 py-2 bg-[var(--primary)] text-black font-bold rounded hover:bg-[#e5a010] transition-colors"
-                        >
-                            + add block
-                        </button>
-                    </div>
-                </div>
-                <Separator className="mb-2 bg-primary" />
-            </div>
+  if (loading) {
+      return <div className="flex items-center justify-center h-screen text-muted-foreground">loading page...</div>;
+  }
 
-            {/* scrollable content area */}
-            <div className="flex-1 overflow-x-hidden overflow-y-auto p-5 no-scrollbar">
-                <div className="max-w-[1200px] mx-auto relative">
-                    {/* the grid */}
-                    <GridLayout
-                        className="layout"
-                        layout={items}
-                        cols={10}
-                        rowHeight={rowHeight}
-                        width={Math.min(width - 40, 1200)} // Responsive max width
-                        margin={[margin, margin]}
-                        onLayoutChange={onLayoutChange}
-                        draggableHandle=".drag-handle"
-                        isDraggable={true}
-                        isResizable={true}
-                    >
-                        {items.map(item => (
-                            <div key={item.i} className={cn(
-                                "bg-[#111] border border-primary/20 rounded-lg overflow-hidden group hover:border-primary/40 transition-colors",
-                                "flex flex-col font-['Varela_Round']"
-                            )}>
-                                {/* drag handle (dedicated top bar) */}
-                                <div className="drag-handle h-6 w-full bg-primary/10 cursor-grab active:cursor-grabbing flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                    <GripVertical className="w-4 h-4 text-white/30" />
-                                </div>
+  return (
+    <div className="h-screen bg-[#050505] text-white flex flex-col font-['Varela_Round'] overflow-hidden">
+      {/* fixed header section matching sidebar alignment */}
+      <div className="pt-4 shrink-0 bg-[#050505] z-10 flex flex-col">
+        <div className="max-w-[900px] w-full mx-auto px-5 lg:px-0">
+          <div className="flex justify-between items-center mb-2 h-10">
+            <input
+                value={title}
+                onChange={(e) => handleTitleChange(e.target.value)}
+                className="text-3xl font-bold text-[var(--primary)] bg-transparent border-none outline-none placeholder:text-primary/50 w-full"
+                placeholder="untitled page"
+            />
+          </div>
+        </div>
+        <Separator className="mb-2 bg-primary opacity-20" />
+      </div>
 
-   {/* content area */}
-   <div className="flex-1 p-4 overflow-y-auto" style={{ fontFamily: '"Varela Round", sans-serif' }}>
-   <BlockEditor
-  content={item.content}
-  className="min-h-full font-['Varela_Round']"
-  placeholder="type here..."
-   />
-   </div>
-   </div>
- ))}
- </GridLayout>
- </div>
-  </div>
-  </div>
+      {/* scrollable content area */}
+      <div className="flex-1 overflow-x-hidden overflow-y-auto px-5 lg:px-0 py-8 no-scrollbar">
+        <div className="max-w-[900px] mx-auto relative pb-40">
+           <BlockEditor
+             content={content}
+             onChange={(html) => {
+                 if (id) localStorage.setItem(`doc-content-${id}`, html);
+             }}
+             className="min-h-[50vh] font-['Varela_Round']"
+             placeholder="type '/' for commands or drag blocks to columns..."
+           />
+        </div>
+      </div>
+    </div>
   );
 }

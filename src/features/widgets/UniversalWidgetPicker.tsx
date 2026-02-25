@@ -5,17 +5,19 @@ import { Input } from '@/components/ui/input';
 import { Search } from 'lucide-react';
 
 interface UniversalWidgetPickerProps {
+  filter?: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onSelect: (widgetType: string, defaultData: any) => void;
 }
 
-export function UniversalWidgetPicker({ open, onOpenChange, onSelect }: UniversalWidgetPickerProps) {
+export function UniversalWidgetPicker({ open, onOpenChange, onSelect, filter }: UniversalWidgetPickerProps) {
   const [search, setSearch] = useState('');
 
   const widgets = Object.values(WIDGET_REGISTRY).filter(w =>
-    w.label.toLowerCase().includes(search.toLowerCase()) ||
-    w.description.toLowerCase().includes(search.toLowerCase())
+    (w.label.toLowerCase().includes(search.toLowerCase()) ||
+    w.description.toLowerCase().includes(search.toLowerCase())) &&
+    (!filter || w.id.includes(filter) || w.label.toLowerCase().includes(filter) || (filter === 'database' && w.id === 'embed-nocobase'))
   );
 
   return (

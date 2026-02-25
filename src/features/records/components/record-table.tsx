@@ -4,7 +4,7 @@ import {
   flexRender,
   createColumnHelper,
 } from '@tanstack/react-table';
-import { List } from 'react-window';
+import { FixedSizeList as List } from 'react-window';
 import { AutoSizer } from 'react-virtualized-auto-sizer';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -712,9 +712,11 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                       if (!height || !width) return null;
                       return (
                         <List
-                          rowCount={rows.length}
-                          rowHeight={40}
-                          rowProps={{
+                          height={height}
+                          width={width}
+                          itemCount={rows.length}
+                          itemSize={40}
+                          itemData={{
                             rows: rows,
                             collection,
                             onUpdate: onUpdateRecord,
@@ -723,9 +725,9 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                             onCreateRecord,
                             recordMeta
                           }}
-                          style={{ height, width }}
-                          rowComponent={DraggableRecordRow}
-                        />
+                        >
+                          {DraggableRecordRow}
+                        </List>
                       );
                   }}
                 />

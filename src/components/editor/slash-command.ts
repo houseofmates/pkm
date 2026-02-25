@@ -64,12 +64,27 @@ export const getSuggestionItems = async ({ query }: { query: string }) => {
   },
   {
   title: '3 Columns',
+  },
+  {
+  title: '4 Columns',
+  description: 'Create four equal columns.',
+  command: ({ editor, range }: any) => {
+ editor.chain().focus().deleteRange(range).setColumns(4).run();
+  },
   description: 'Create three equal columns.',
   command: ({ editor, range }: any) => {
  editor.chain().focus().deleteRange(range).setColumns(3).run();
   },
   },
   // --- Widgets ---
+  {
+  title: 'Database View',
+  description: 'Embed a view from any database.',
+  command: ({ editor, range }: any) => {
+ editor.chain().focus().deleteRange(range).run();
+ window.dispatchEvent(new CustomEvent('pkm:open-widget-picker', { detail: { filter: 'database', onSelect: (type: string, data: any) => { editor.chain().focus().insertContent({ type: 'widgetBlock', attrs: { type, data } }).run(); } } }));
+  },
+  },
   {
   title: 'Insert Widget',
   description: 'Pick a widget from the registry.',
