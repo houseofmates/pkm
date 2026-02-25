@@ -18,6 +18,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { usePkmStore } from '@/store/usePkmStore';
+import { secureLogger } from '@/lib/secure-logger';
 
 // import formula editor
 import { FormulaEditor } from '@/components/formula-editor';
