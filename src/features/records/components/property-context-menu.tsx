@@ -39,6 +39,9 @@ export function PropertyContextMenu({
 }: PropertyContextMenuProps) {
     if (!field) return <>{children}</>;
 
+    const [newRuleValue, setNewRuleValue] = React.useState('');
+    const [newRuleColor, setNewRuleColor] = React.useState('#3b82f6');
+
     return (
         <ContextMenu>
             <ContextMenuTrigger asChild>
@@ -132,26 +135,25 @@ export function PropertyContextMenu({
                             <Input
                                 placeholder="match value (exact)"
                                 className="h-8 text-xs flex-1"
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter') {
-                                        const target = e.target as HTMLInputElement;
-                                        if (!target.value) return;
-                                        onSetValueColor?.(target.value, '#3b82f6');
-                                        target.value = '';
-                                    }
-                                }}
+                                value={newRuleValue}
+                                onChange={(e) => setNewRuleValue(e.target.value)}
+                            />
+                            <input
+                                type="color"
+                                value={newRuleColor}
+                                onChange={(e) => setNewRuleColor(e.target.value)}
+                                className="h-8 w-12 rounded border border-border bg-transparent"
+                                title="rule color"
                             />
                             <Button
                                 size="icon"
                                 variant="ghost"
                                 className="h-8 w-8"
                                 title="add rule"
-                                onClick={(e) => {
-                                    const parent = (e.currentTarget.previousElementSibling as HTMLInputElement);
-                                    if (parent && parent.value) {
-                                        onSetValueColor?.(parent.value, '#3b82f6');
-                                        parent.value = '';
-                                    }
+                                onClick={() => {
+                                    if (!newRuleValue) return;
+                                    onSetValueColor?.(newRuleValue, newRuleColor || '#3b82f6');
+                                    setNewRuleValue('');
                                 }}
                             >
                                 <Plus className="w-4 h-4" />
