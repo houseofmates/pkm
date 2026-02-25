@@ -281,7 +281,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
 }
 
 const DraggableRecordRow = (props: any) => {
-  const { index, style: incomingStyle } = props;
+  const { index, style: incomingStyle, leftColWidth } = props;
   const data = props.data || props;
   const { rows, collection, onUpdate, onDelete, onCreateField, recordMeta, onEdit, selectedIds, onRowSelect, clearSelection, enableSelection, columnVersion } = data;
 
@@ -1027,6 +1027,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                       enableSelection: true,
                       tableSize: table.getTotalSize(),
                       columnVersion,
+                      leftColWidth,
                     }}
                     style={{ 
                       height, 
