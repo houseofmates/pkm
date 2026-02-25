@@ -790,7 +790,17 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         onDragEnd={handleDragEnd}
       >
         <div className="h-full flex flex-col min-h-0">
-          <div ref={headerRef} data-testid="table-header-container" className="overflow-x-hidden overflow-y-hidden flex-shrink-0">
+          <div
+            ref={headerRef}
+            data-testid="table-header-container"
+            className="overflow-x-auto no-scrollbar overflow-y-hidden flex-shrink-0"
+            onScroll={(e) => {
+              // sync body when header moves (e.g. via trackpad)
+              if (bodyRef.current) {
+                bodyRef.current.scrollLeft = e.currentTarget.scrollLeft;
+              }
+            }}
+          >
             {/* use full width when there are no columns so the header row
                 remains visible and the add/gear buttons are clickable */}
             <Table
