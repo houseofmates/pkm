@@ -64,8 +64,6 @@ const WIDTH_OPTIONS = [1, 2, 3, 4];
 
 const CONFIG_PREFIX = 'canvas-config-';
 
-const CONFIG_PREFIX = 'canvas-config-';
-
 const makeId = () => (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2));
 
 export function PageCanvas() {
@@ -478,57 +476,5 @@ function loadDocument(key: string, overrideTitle?: string): DocumentState {
   } catch (error) {
     secureLogger.error('Failed to load document content', error);
     return createDefaultDocument(overrideTitle);
-  }
-}
-
-function getConfigKey(id: string) {
-  return `${CONFIG_PREFIX}${id}`;
-}
-
-function loadDocumentConfig(id?: string | null): DocumentConfig | null {
-  if (!id) return null;
-  try {
-    const stored = storageManager.getItem(getConfigKey(id));
-    if (!stored) return null;
-    return JSON.parse(stored) as DocumentConfig;
-  } catch (error) {
-    secureLogger.error('Failed to load document config', error);
-    return null;
-  }
-}
-
-function saveDocumentConfig(id: string, patch: DocumentConfig): void {
-  if (!id) return;
-  try {
-    const existing = loadDocumentConfig(id) || {};
-    storageManager.setItem(getConfigKey(id), JSON.stringify({ ...existing, ...patch }));
-  } catch (error) {
-    secureLogger.error('Failed to persist document config', error);
-  }
-}
-
-function getConfigKey(id: string) {
-  return `${CONFIG_PREFIX}${id}`;
-}
-
-function loadDocumentConfig(id?: string | null): DocumentConfig | null {
-  if (!id) return null;
-  try {
-    const stored = storageManager.getItem(getConfigKey(id));
-    if (!stored) return null;
-    return JSON.parse(stored) as DocumentConfig;
-  } catch (error) {
-    secureLogger.error('Failed to load document config', error);
-    return null;
-  }
-}
-
-function saveDocumentConfig(id: string, patch: DocumentConfig): void {
-  if (!id) return;
-  try {
-    const existing = loadDocumentConfig(id) || {};
-    storageManager.setItem(getConfigKey(id), JSON.stringify({ ...existing, ...patch }));
-  } catch (error) {
-    secureLogger.error('Failed to persist document config', error);
   }
 }
