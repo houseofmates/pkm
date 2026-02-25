@@ -761,7 +761,17 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
             </Table>
           </div>
 
-          <div className="flex-1 w-full relative overflow-x-auto no-scrollbar bg-[#0b0b0b] min-h-0 pb-10" style={{ minHeight: 200 }}>
+          <div
+            className="flex-1 w-full relative overflow-x-auto no-scrollbar bg-[#0b0b0b] min-h-0 pb-10"
+            style={{ minHeight: 200 }}
+            onClick={(e) => {
+              // clicking empty space clears selection
+              const target = e.target as HTMLElement;
+              if (target === e.currentTarget && selectedIds.length > 0) {
+                clearSelection();
+              }
+            }}
+          >
             {selectedIds.length > 0 && (
               <div className="absolute top-2 right-2 z-30 flex items-center gap-2 bg-black/70 border border-border/70 rounded-md px-2 py-1 shadow-xl backdrop-blur">
                 <span className="text-xs lowercase text-muted-foreground">{selectedIds.length} selected</span>
