@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import GridLayout, { type Layout } from 'react-grid-layout';
+import GridLayout, { type Layout, type LayoutItem } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import { useWindowSize } from 'react-use';
@@ -42,7 +42,7 @@ type DocumentBlock = TextBlock | DatabaseBlock;
 interface DocumentState {
   title: string;
   blocks: DocumentBlock[];
-  layout: Layout[];
+  layout: Layout;
 }
 
 interface DocumentConfig {
@@ -51,8 +51,6 @@ interface DocumentConfig {
   iconType?: string;
   color?: string;
 }
-
-type LayoutItem = Layout[number];
 
 const EMBED_VIEW_OPTIONS: { value: EmbedView; label: string }[] = [
   { value: 'table', label: 'table' },
@@ -151,7 +149,7 @@ export function PageCanvas() {
     updateDoc((prev) => ({
       ...prev,
       blocks: prev.blocks.filter((block) => block.id !== blockId),
-      layout: prev.layout.filter((item) => item.i !== blockId),
+      layout: prev.layout.filter((item) => item.i !== blockId) as Layout,
     }));
   };
 
@@ -182,12 +180,8 @@ export function PageCanvas() {
   const updateBlockWidth = (blockId: string, widthUnits: number) => {
     updateDoc((prev) => ({
       ...prev,
-      layout: prev.layout.map((item) => (item.i === blockId ? { ...item, w: Math.min(Math.max(widthUnits, 1), 4) } : item)),
+      layout: prev.layout.map((item) => (item.i === blockId ? { ...item, w: Math.min(Math.max(widthUnits, 1), 4) } : item)) as Layout,
     }));
-  };
-
-  const handleLayoutChange = (nextLayout: Layout[]) => {
-    updateDoc((prev) => ({ ...prev, layout: nextLayout }));
   };
 
   const docLayout = documentState.layout;
@@ -388,7 +382,7 @@ function DatabaseEmbedBlock({ block, onUpdate, collections }: DatabaseEmbedProps
   );
 }
 
-function createTextBlock(existingLayout: Layout[]): { block: TextBlock; layout: Layout } {
+function createTextBlock(existingLayout: Layout): { block: TextBlock; layout: LayoutItem } {
   const id = makeId();
   return {
     block: {
@@ -401,7 +395,7 @@ function createTextBlock(existingLayout: Layout[]): { block: TextBlock; layout: 
   };
 }
 
-function createDatabaseBlock(existingLayout: Layout[]): { block: DatabaseBlock; layout: Layout } {
+function createDatabaseBlock(existingLayout: Layout): { block: DatabaseBlock; layout: LayoutItem } {
   const id = makeId();
   return {
     block: {
@@ -415,7 +409,7 @@ function createDatabaseBlock(existingLayout: Layout[]): { block: DatabaseBlock; 
   };
 }
 
-function defaultLayoutForBlock(id: string, existingLayout: Layout[], type: BlockType): Layout {
+function defaultLayoutForBlock(id: string, existingLayout: Layout, type: BlockType): LayoutItem {
   const nextY = getNextY(existingLayout);
   const defaultWidth = type === 'database' ? 4 : 2;
   const defaultHeight = type === 'database' ? 9 : 6;
@@ -431,7 +425,7 @@ function defaultLayoutForBlock(id: string, existingLayout: Layout[], type: Block
   };
 }
 
-function getNextY(layout: Layout[]): number {
+function getNextY(layout: Layout): number {
   if (layout.length === 0) return 0;
   return Math.max(...layout.map((item) => item.y + item.h)) + 1;
 }
@@ -445,14 +439,14 @@ function createDefaultDocument(title = 'untitled document'): DocumentState {
   };
 }
 
-function ensureLayoutForBlocks(blocks: DocumentBlock[], layout: Layout[]): Layout[] {
+function ensureLayoutForBlocks(blocks: DocumentBlock[], layout: Layout): Layout {
   const result = layout.filter((item) => blocks.some((block) => block.id === item.i));
   blocks.forEach((block) => {
     if (!result.find((item) => item.i === block.id)) {
       result.push(defaultLayoutForBlock(block.id, result, block.type));
     }
   });
-  return result;
+  return result as Layout;
 }
 
 function loadDocument(key: string, overrideTitle?: string): DocumentState {
