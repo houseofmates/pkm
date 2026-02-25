@@ -736,8 +736,13 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
   const rows = table.getRowModel().rows;
 
-  // track column sizing changes (local state) so virtualization updates
+  // bump version when table's internal sizing state changes (runs during drag)
+  const columnSizingState = table.getState().columnSizing;
   const [columnVersion, setColumnVersion] = React.useState(0);
+  React.useEffect(() => {
+    setColumnVersion(v => v + 1);
+  }, [columnSizingState]);
+  // also bump when our persisted sizing updates
   React.useEffect(() => {
     setColumnVersion(v => v + 1);
   }, [columnSizing]);
