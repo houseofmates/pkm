@@ -604,8 +604,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       cols.push(columnHelper.display({
         id: 'actions',
         size: 90,
-        minSize: 72,
-        maxSize: 120,
+        minSize: 20,
         header: () => (
           <div
             className="flex items-center justify-center h-full"
@@ -669,7 +668,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           </div>
         ),
         cell: (props) => (
-          <div className="flex items-center justify-center gap-1 h-7">
+          <div className="flex items-center justify-center gap-1 h-7 overflow-hidden">
             {onEditRef.current && (
               <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onEditRef.current!(props.row.original); }}>
                 <Edit2 className="h-3.5 w-3.5" />
