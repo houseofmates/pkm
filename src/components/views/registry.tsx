@@ -26,6 +26,7 @@ export type ViewProps = {
   onCreateRecord?: () => void;
   onCreate?: (data: any) => Promise<void> | void;
   onCreateField?: () => void;
+  onFieldUpdated?: () => void;
 };
 
 export const VIEW_REGISTRY: Record<ViewType, React.ComponentType<ViewProps>> = {
