@@ -108,7 +108,7 @@ export function Toolbar() {
   };
 
   return (
-    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-3 px-6 py-3 bg-[#050505]/80 backdrop-blur-md border border-white/10 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5)] border-t-primary/20 transition-all duration-300 z-50">
+    <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex items-center gap-3 px-6 py-3 bg-[#050505]/80 backdrop-blur-md border border-white/10 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5)] border-t-primary/20 transition-all duration-300 z-50">
 
       {/* undo/redo */}
       <div className="flex items-center gap-1 mr-2 border-r border-white/10 pr-4">
