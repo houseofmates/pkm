@@ -169,6 +169,7 @@ function AppContent() {
                 <Route path="/settings" element={<SettingsPage />} />
                 <Route path="/notion-import" element={<NotionImportPage />} />
                 <Route path="/rag-test" element={<RagTestPage />} />
+                <Route path="*" element={<HomePage />} />
               </Route>
             </Routes>
             <Spotlight />
