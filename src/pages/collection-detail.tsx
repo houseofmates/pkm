@@ -267,7 +267,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     // --- event listeners ---
     useEffect(() => {
         const handleCreate = async (evt: Event) => {
-            const e = evt as customevent<any>;
+            const e = evt as CustomEvent<any>;
             if (e.detail?.collection === collectionName) {
                 console.log("Creating record via event:", e.detail.data);
                 try {
