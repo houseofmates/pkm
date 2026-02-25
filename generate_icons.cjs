@@ -28,7 +28,7 @@ try {
 
             const roundFile = path.join(targetDir, 'ic_launcher_round.png');
             if (fs.existsSync(roundFile)) {
-                execSync(`ffmpeg -y -i "${SOURCE_IMAGE}" -vf scale=${size}:${size} "${roundFile}"`);
+                execSync(`ffmpeg -f lavfi -i color=black:s=${size}x${size} -i "${SOURCE_IMAGE}" -filter_complex "[1:v]scale=${size}:${size}[scaled]; [0:v][scaled]overlay=(W-w)/2:(H-h)/2" -y "${roundFile}"`);
             }
         }
     });
