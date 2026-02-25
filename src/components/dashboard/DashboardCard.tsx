@@ -96,4 +96,4 @@ export const DashboardCard: React.FC<DashboardCardProps> = React.memo(({ collect
   </div>
   </div>
   );
-};
+});
