@@ -50,25 +50,13 @@ function simpleDecode(str: string): string {
 export const storageManager = {
   /** direct, unopinionated access to localStorage */
   getItem(key: string): string | null {
-    try {
-      return localStorage.getItem(key);
-    } catch {
-      return null;
-    }
+    return safeStorage.getItem(key);
   },
   setItem(key: string, value: string): void {
-    try {
-      localStorage.setItem(key, value);
-    } catch {
-      // ignore quota errors
-    }
+    safeStorage.setItem(key, value);
   },
   removeItem(key: string): void {
-    try {
-      localStorage.removeItem(key);
-    } catch {
-      // ignore
-    }
+    safeStorage.removeItem(key);
   },
   clear(): void {
     try {
