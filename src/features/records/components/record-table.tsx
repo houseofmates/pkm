@@ -528,20 +528,24 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       cols = visibleFields.map((field: any) => columnHelper.accessor(field.name, {
           header: (field.uiSchema?.title || field.name),
           meta: { field },
-          cell: info => (
-            <SmartField
-              value={info.getValue()}
-              field={field}
-              record={info.row.original}
-              collectionName={collection.name}
-              size="lg"
-              className="w-full"
-              style={{ color: getValueColor(valueColorRules, field.name, info.getValue()) || undefined }}
-              onChange={(val) => {
-                onUpdateRecordRef.current?.(info.row.original.id, { [field.name]: val });
-              }}
-            />
-          )
+          cell: info => {
+            const color = getValueColor(valueColorRules, field.name, info.getValue());
+            return (
+              <span style={{ color: color || undefined }} className="w-full block">
+                <SmartField
+                  value={info.getValue()}
+                  field={field}
+                  record={info.row.original}
+                  collectionName={collection.name}
+                  size="lg"
+                  className="w-full"
+                  onChange={(val) => {
+                    onUpdateRecordRef.current?.(info.row.original.id, { [field.name]: val });
+                  }}
+                />
+              </span>
+            );
+          }
         }));
     }
     
@@ -554,20 +558,24 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           columnHelper.accessor(key, {
             header: key,
             meta: { field: { name: key, type: 'string', uiSchema: { title: key } } },
-            cell: info => (
-              <SmartField
-                value={info.getValue()}
-                field={{ type: 'string', name: key }}
-                record={info.row.original}
-                collectionName={collection.name}
-                size="lg"
-                className="w-full"
-                style={{ color: getValueColor(valueColorRules, key, info.getValue()) || undefined }}
-                onChange={(val) => {
-                  onUpdateRecordRef.current?.(info.row.original.id, { [key]: val });
-                }}
-              />
-            )
+            cell: info => {
+              const color = getValueColor(valueColorRules, key, info.getValue());
+              return (
+                <span style={{ color: color || undefined }} className="w-full block">
+                  <SmartField
+                    value={info.getValue()}
+                    field={{ type: 'string', name: key }}
+                    record={info.row.original}
+                    collectionName={collection.name}
+                    size="lg"
+                    className="w-full"
+                    onChange={(val) => {
+                      onUpdateRecordRef.current?.(info.row.original.id, { [key]: val });
+                    }}
+                  />
+                </span>
+              );
+            }
           })
         );
     }
