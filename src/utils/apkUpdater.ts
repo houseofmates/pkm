@@ -25,10 +25,12 @@ export async function checkForApkUpdate(currentVersion: string, apiKey: string):
 }
 
 export async function downloadAndPromptInstall(apkUrl: string) {
-  // Try Capacitor Browser plugin if available, otherwise fallback to web download
-  if (window && (window as any).Capacitor) {
+  // Only attempt import if running in Capacitor environment
+  if (typeof window !== 'undefined' && typeof (window as any).Capacitor !== 'undefined') {
     try {
-      const { Browser } = await import('@capacitor/browser');
+      // Use eval to avoid static analysis by Vite
+      const browserImport = eval('import("@capacitor/browser")');
+      const { Browser } = await browserImport;
       await Browser.open({ url: apkUrl });
       return;
     } catch (e) {
