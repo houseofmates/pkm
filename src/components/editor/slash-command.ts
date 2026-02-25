@@ -64,16 +64,16 @@ export const getSuggestionItems = async ({ query }: { query: string }) => {
   },
   {
   title: '3 Columns',
+  description: 'Create three equal columns.',
+  command: ({ editor, range }: any) => {
+ editor.chain().focus().deleteRange(range).setColumns(3).run();
+  },
   },
   {
   title: '4 Columns',
   description: 'Create four equal columns.',
   command: ({ editor, range }: any) => {
  editor.chain().focus().deleteRange(range).setColumns(4).run();
-  },
-  description: 'Create three equal columns.',
-  command: ({ editor, range }: any) => {
- editor.chain().focus().deleteRange(range).setColumns(3).run();
   },
   },
   // --- Widgets ---

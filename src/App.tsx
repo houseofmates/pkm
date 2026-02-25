@@ -53,23 +53,23 @@ const LoadingFallback = (
 )
 
 function AppContent() {
-  const { token, apiKey } = useAuth() // assuming apiKey is available
+  const { token } = useAuth()
   const [updateChecked, setUpdateChecked] = useState(false)
-    // check for APK update on mount
-    useEffect(() => {
-      if (!updateChecked && apiKey) {
-        // get current app version from package.json or hardcoded
-        const currentVersion = "0.0.0" // TODO: replace with actual version
-        checkForApkUpdate(currentVersion, apiKey).then(manifest => {
-          if (manifest) {
-            if (window.confirm(`a new version (${manifest.version}) is available. update now?`)) {
-              downloadAndPromptInstall(manifest.apkUrl)
-            }
+  // check for APK update on mount
+  useEffect(() => {
+    if (!updateChecked && token) {
+      // get current app version from package.json or hardcoded
+      const currentVersion = "0.0.0" // TODO: replace with actual version
+      checkForApkUpdate(currentVersion, token).then(manifest => {
+        if (manifest) {
+          if (window.confirm(`a new version (${manifest.version}) is available. update now?`)) {
+            downloadAndPromptInstall(manifest.apkUrl)
           }
-          setUpdateChecked(true)
-        })
-      }
-    }, [updateChecked, apiKey])
+        }
+        setUpdateChecked(true)
+      })
+    }
+  }, [updateChecked, token])
   const [setupNeeded, setSetupNeeded] = useState<boolean | null>(null)
 
   // run link registry migration on mount
