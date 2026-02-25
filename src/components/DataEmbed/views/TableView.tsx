@@ -97,7 +97,7 @@ export function TableView({ records, isLoading, theme, onSelect, fields }: Table
 
   const { rows } = table.getRowModel();
 
-  const columnSizingState = table.getState().columnSizing;
+  const columnSizingState = table.getState ? table.getState().columnSizing : null;
   const [columnVersion, setColumnVersion] = React.useState(0);
   React.useEffect(() => {
     setColumnVersion(v => v + 1);
