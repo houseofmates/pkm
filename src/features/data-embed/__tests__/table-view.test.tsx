@@ -29,7 +29,7 @@ describe('DataEmbed TableView', () => {
   it('syncs header/body scrolling', () => {
     const { getByTestId } = render(
       <div style={{ width: 200, height: 200 }}>
-        <TableView records={makeData()} isLoading={false} theme={{}} />
+        <TableView records={makeData()} isLoading={false} theme={{}} fields={[]} />
       </div>
     );
 
