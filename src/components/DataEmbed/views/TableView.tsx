@@ -13,7 +13,7 @@ interface TableViewProps {
   fields?: any[]; // optional schema fields from collection
 }
 
-export function TableView({ records, isLoading, theme, onSelect }: TableViewProps) {
+export function TableView({ records, isLoading, theme, onSelect, fields }: TableViewProps) {
   // Generate columns dynamically from the first record or schema.  We
   // also keep a ref to the last known column set so that headers remain
   // visible when the record list becomes empty; this mirrors the behaviour
