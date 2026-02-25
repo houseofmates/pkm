@@ -281,7 +281,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     if (id.startsWith('doc_')) {
       const key = `canvas-config-${id.replace('doc_', '')}`;
       try {
-        const existing = JSON.parse(localStorage.getItem(key) || '{}');
+        const existing = JSON.parse(storageManager.getItem(key) || '{}');
         const toSave = { ...existing };
         if (updates.name) toSave.title = updates.name;
         if (updates.icon) toSave.icon = updates.icon;
@@ -289,10 +289,10 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         if (updates.color) toSave.color = updates.color;
 
         if (updates.delete) {
-          localStorage.removeItem(key);
-          localStorage.removeItem(`canvas-content-${id.replace('doc_', '')}`);
+          storageManager.removeItem(key);
+          storageManager.removeItem(`canvas-content-${id.replace('doc_', '')}`);
         } else {
-          localStorage.setItem(key, JSON.stringify(toSave));
+          storageManager.setItem(key, JSON.stringify(toSave));
         }
       } catch (e) {
         secureLogger.error("Failed to save local doc", e);
