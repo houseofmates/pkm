@@ -1131,7 +1131,6 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       const mime = (first?.mime || '').toLowerCase();
       const isVideo = mime.includes('video') || (firstUrl || '').match(/\.(mp4|webm|mov|m4v)$/i);
       const isPdf = mime.includes('pdf') || (firstUrl || '').match(/\.pdf$/i);
-      const isImage = !isVideo && !isPdf; // default to image/gif for existing behavior
 
       if (firstUrl) {
         return (
