@@ -602,6 +602,9 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     if (hasActions) {
       cols.push(columnHelper.display({
         id: 'actions',
+        size: 90,
+        minSize: 72,
+        maxSize: 120,
         header: () => (
           <div
             className="flex items-center justify-center h-full"
@@ -958,7 +961,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                           selectedIds,
                           onRowSelect: handleRowSelect,
                           clearSelection,
-                          enableSelection: true
+                          enableSelection: true,
+                          tableSize: table.getTotalSize() || '100%'
                         }}
                         style={{ height, width }}
                         rowComponent={DraggableRecordRow}
