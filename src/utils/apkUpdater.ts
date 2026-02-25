@@ -25,8 +25,21 @@ export async function checkForApkUpdate(currentVersion: string, apiKey: string):
 }
 
 export async function downloadAndPromptInstall(apkUrl: string) {
-  // For Capacitor: use Browser plugin to open APK URL
-  // User must confirm install due to Android security
-  const { Browser } = await import('@capacitor/browser');
-  await Browser.open({ url: apkUrl });
+  // Try Capacitor Browser plugin if available, otherwise fallback to web download
+  if (window && (window as any).Capacitor) {
+    try {
+      const { Browser } = await import('@capacitor/browser');
+      await Browser.open({ url: apkUrl });
+      return;
+    } catch (e) {
+      // fallback if plugin not available
+    }
+  }
+  // fallback: trigger web download
+  const link = document.createElement('a');
+  link.href = apkUrl;
+  link.download = 'pkm-latest.apk';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
 }
