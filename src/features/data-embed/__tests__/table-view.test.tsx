@@ -11,15 +11,11 @@ vi.mock('@tanstack/react-table', () => ({
   flexRender: (comp: any) => comp,
 }));
 
-vi.mock('react-window', () => {
-  const original = jest.requireActual('react-window');
-  return {
-    ...original,
-    List: ({ children, ...props }: any) => {
-      return <div data-testid="virtual-list" {...props}>{children({index:0,style:{},data:{rows:[]}})}</div>;
-    },
-  };
-});
+vi.mock('react-window', () => ({
+  List: ({ children, ...props }: any) => {
+    return <div data-testid="virtual-list" {...props}>{children({index:0,style:{},data:{rows:[]}})}</div>;
+  },
+}));
 
 vi.mock('react-virtualized-auto-sizer', () => ({
   AutoSizer: ({ children }: any) => <div style={{ width: 200, height: 200 }}>{children({ width: 200, height: 200 })}</div>
