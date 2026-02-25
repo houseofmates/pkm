@@ -143,8 +143,6 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
           width: header.getSize() || DEFAULT_COL_WIDTH,
         minWidth: header.getSize() || DEFAULT_COL_WIDTH,
         maxWidth: header.getSize() || DEFAULT_COL_WIDTH,
-        paddingLeft: 8,
-        paddingRight: 8,
         background: 'transparent',
       }}
       className={cn(
