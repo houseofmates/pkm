@@ -726,7 +726,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         onDragEnd={handleDragEnd}
       >
         <div className="h-full flex flex-col min-h-0">
-          <div ref={headerRef} className="overflow-x-hidden overflow-y-hidden flex-shrink-0">
+          <div ref={headerRef} data-testid="table-header-container" className="overflow-x-hidden overflow-y-hidden flex-shrink-0">
             {/* use full width when there are no columns so the header row
                 remains visible and the add/gear buttons are clickable */}
             <Table
@@ -777,6 +777,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
           <div
             ref={bodyRef}
+            data-testid="table-body-container"
             className="flex-1 w-full relative overflow-x-auto no-scrollbar bg-[#0b0b0b] min-h-0 pb-10"
             style={{ minHeight: 200 }}
             onScroll={(e) => {
