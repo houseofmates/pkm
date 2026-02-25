@@ -368,6 +368,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     }
 
     const upperCanvas = fabricCanvas.upperCanvasEl as HTMLCanvasElement | undefined
+    if (!upperCanvas) return
     upperCanvas.addEventListener('contextmenu', handleContextMenu)
     return () => upperCanvas.removeEventListener('contextmenu', handleContextMenu)
   }, [fabricCanvas])
