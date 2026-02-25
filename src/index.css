@@ -8,10 +8,9 @@
   src: url('/fonts/VarelaRound-Regular.woff2') format('woff2');
 }
 
-/* If your build tool does not support @tailwind, import the compiled Tailwind CSS instead */
-@import 'tailwindcss/base.css';
-@import 'tailwindcss/components.css';
-@import 'tailwindcss/utilities.css';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 * {
   font-family: 'varela round', sans-serif !important;
