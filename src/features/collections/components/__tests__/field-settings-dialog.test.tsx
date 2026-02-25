@@ -1,5 +1,5 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import * as React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { FieldSettingsDialog } from '../field-settings-dialog';
 
 // stub auth client
