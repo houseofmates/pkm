@@ -19,6 +19,7 @@ export interface GestureManagerOptions {
   doubleTapMs?: number;
   movementTolerance?: number;
   preventDefault?: boolean;
+  maxTapMs?: number;
 }
 
 /**
@@ -35,6 +36,7 @@ export function useGestureManager(
     doubleTapMs = 280,
     movementTolerance = 12,
     preventDefault = true,
+    maxTapMs = 220,
   } = options;
 
   const stateRef = useRef({
@@ -44,6 +46,7 @@ export function useGestureManager(
     startX: 0,
     startY: 0,
     pointers: new Map<number, PointerEvent>(),
+    downTime: new Map<number, number>(),
   });
 
   useEffect(() => {
@@ -60,6 +63,7 @@ export function useGestureManager(
     const handlePointerDown = (event: PointerEvent) => {
       if (preventDefault) event.preventDefault();
       stateRef.current.pointers.set(event.pointerId, event);
+      stateRef.current.downTime.set(event.pointerId, performance.now());
       stateRef.current.startX = event.clientX;
       stateRef.current.startY = event.clientY;
       stateRef.current.isDragging = false;
@@ -87,14 +91,18 @@ export function useGestureManager(
     const handlePointerUp = (event: PointerEvent) => {
       if (preventDefault) event.preventDefault();
       const now = performance.now();
+      const downAt = stateRef.current.downTime.get(event.pointerId) ?? now;
+      const tapDuration = now - downAt;
       const wasDragging = stateRef.current.isDragging;
       clearLongPress();
       handlers.onDragEnd?.(event);
 
       // Multi-touch tap detection
       stateRef.current.pointers.delete(event.pointerId);
+      stateRef.current.downTime.delete(event.pointerId);
       const activePointers = [...stateRef.current.pointers.values()];
       if (!wasDragging) {
+        if (tapDuration > maxTapMs) return;
         if (event.pointerType === 'touch') {
           const touchCount = activePointers.length + 1; // include current lifting pointer
           if (touchCount === 2) {
