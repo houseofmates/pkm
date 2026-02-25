@@ -1,10 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import { ExternalLink, Type, Eye, File, type LucideIcon } from 'lucide-react';
-import * as Icons from 'lucide-react';
-
-// helper to safely get lucide icon by name
+// Dynamic icon loader for Lucide icons
+const lucideIconMap: Record<string, LucideIcon> = {};
 function getLucideIcon(name: string): LucideIcon | undefined {
-  return (Icons as Record<string, LucideIcon>)[name];
+  return lucideIconMap[name];
 }
 import { useEdgelessStore } from '../../store';
 import {
