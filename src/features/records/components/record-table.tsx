@@ -166,8 +166,19 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
         onHide={() => {
           toast.info("hiding feature coming soon");
         }}
-        onDelete={() => {
-          toast.info("deletion feature coming soon");
+        onDelete={async () => {
+          if (isSystemColumn) return;
+          const confirmed = window.confirm(`Delete property "${field?.uiSchema?.title || field?.name}"? This cannot be undone.`);
+          if (!confirmed) return;
+          try {
+            await client.deleteField(collectionName, field.name);
+            toast.success('property deleted');
+            // clear sizing/order cache so removed column doesn't linger
+            onFieldUpdated?.();
+          } catch (err: any) {
+            console.error(err);
+            toast.error(err?.message || 'failed to delete property');
+          }
         }}
       >
         <div
