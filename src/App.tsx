@@ -55,10 +55,9 @@ const LoadingFallback = (
 function AppContent() {
   const { token } = useAuth()
   const [updateChecked, setUpdateChecked] = useState(false)
-  // check for APK update on mount
+  // check for APK update ONLY on /apk
   useEffect(() => {
-    if (!updateChecked && token) {
-      // get current app version from package.json or hardcoded
+    if (window.location.pathname === "/apk" && !updateChecked && token) {
       const currentVersion = "0.0.0" // TODO: replace with actual version
       checkForApkUpdate(currentVersion, token).then(manifest => {
         if (manifest) {
