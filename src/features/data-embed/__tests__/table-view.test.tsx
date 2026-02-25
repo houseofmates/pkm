@@ -1,5 +1,6 @@
 import { render, fireEvent } from '@testing-library/react';
 import { TableView } from '@/components/DataEmbed/views/TableView';
+import { vi } from 'vitest';
 
 vi.mock('@tanstack/react-table', () => ({
   useReactTable: vi.fn().mockReturnValue({
