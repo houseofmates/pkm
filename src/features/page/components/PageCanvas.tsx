@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import GridLayout, { type Layout } from 'react-grid-layout';
+import GridLayout, { type Layout, type Layouts, type Layout as GridLayoutType } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import { useWindowSize } from 'react-use';
@@ -42,7 +42,7 @@ type DocumentBlock = TextBlock | DatabaseBlock;
 interface DocumentState {
   title: string;
   blocks: DocumentBlock[];
-  layout: Layout[];
+  layout: Layout;
 }
 
 interface DocumentConfig {
@@ -120,7 +120,7 @@ export function PageCanvas() {
     }
   }, [id, updateDoc]);
 
-  const handleLayoutChange = useCallback((nextLayout: Layout[]) => {
+  const handleLayoutChange = useCallback((nextLayout: LayoutItem[]) => {
     updateDoc((prev) => ({ ...prev, layout: nextLayout }));
   }, [updateDoc]);
 
