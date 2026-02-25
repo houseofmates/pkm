@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { toast } from 'sonner';
+import { secureLogger } from '@/lib/secure-logger';
 import { useBlogBuilder } from './BlogContext';
 import { useInView } from 'react-intersection-observer';
 import { FormRenderer, type FormElementData } from '@/features/houseofmates-builder/components/FormRenderer';
@@ -79,7 +80,7 @@ export function BlogCanvas() {
   const isClickingModal = target.closest('.widget-property-editor') || target.closest('.builder-context-menu') || target.closest('.builder-toolbox');
 
   if (!isModifier && !isClickingElement && !isClickingHandle && !isClickingBubbleMenu && !isClickingModal) {
- // console.log('[blogcanvas] global deselection triggered (no modifier)');
+ secureLogger.debug('[blogcanvas] global deselection triggered (no modifier)');
  setSelectedElementIds([]);
   }
   };
