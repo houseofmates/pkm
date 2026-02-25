@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import GridLayout, { type Layout, type LayoutItem } from 'react-grid-layout';
+import GridLayout, { type Layout } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import { useWindowSize } from 'react-use';
@@ -42,7 +42,7 @@ type DocumentBlock = TextBlock | DatabaseBlock;
 interface DocumentState {
   title: string;
   blocks: DocumentBlock[];
-  layout: Layout;
+  layout: Layout[];
 }
 
 interface DocumentConfig {
@@ -73,7 +73,7 @@ export function PageCanvas() {
   const storageKey = useMemo(() => (id ? `canvas-content-${id}` : 'canvas-content'), [id]);
   const { collections, refresh } = useCollections();
 
-  const [documentState, setDocumentState] = useState<DocumentState>(() => {
+    const [documentState, setDocumentState] = useState<DocumentState>(() => {
     const overrideTitle = id ? loadDocumentConfig(id)?.title : undefined;
     return loadDocument(storageKey, overrideTitle);
   });
@@ -149,7 +149,7 @@ export function PageCanvas() {
     updateDoc((prev) => ({
       ...prev,
       blocks: prev.blocks.filter((block) => block.id !== blockId),
-      layout: prev.layout.filter((item) => item.i !== blockId) as Layout,
+      layout: prev.layout.filter((item) => item.i !== blockId),
     }));
   };
 
@@ -180,7 +180,7 @@ export function PageCanvas() {
   const updateBlockWidth = (blockId: string, widthUnits: number) => {
     updateDoc((prev) => ({
       ...prev,
-      layout: prev.layout.map((item) => (item.i === blockId ? { ...item, w: Math.min(Math.max(widthUnits, 1), 4) } : item)) as Layout,
+      layout: prev.layout.map((item) => (item.i === blockId ? { ...item, w: Math.min(Math.max(widthUnits, 1), 4) } : item)),
     }));
   };
 
@@ -226,7 +226,7 @@ export function PageCanvas() {
             margin={[16, 16]}
             containerPadding={[0, 0]}
             layout={docLayout}
-            onLayoutChange={(layout) => handleLayoutChange(layout)}
+            onLayoutChange={handleLayoutChange}
             draggableHandle=".block-handle"
             isDraggable
             isResizable
@@ -382,7 +382,7 @@ function DatabaseEmbedBlock({ block, onUpdate, collections }: DatabaseEmbedProps
   );
 }
 
-function createTextBlock(existingLayout: Layout): { block: TextBlock; layout: LayoutItem } {
+function createTextBlock(existingLayout: Layout[]): { block: TextBlock; layout: Layout } {
   const id = makeId();
   return {
     block: {
@@ -395,7 +395,7 @@ function createTextBlock(existingLayout: Layout): { block: TextBlock; layout: La
   };
 }
 
-function createDatabaseBlock(existingLayout: Layout): { block: DatabaseBlock; layout: LayoutItem } {
+function createDatabaseBlock(existingLayout: Layout[]): { block: DatabaseBlock; layout: Layout } {
   const id = makeId();
   return {
     block: {
@@ -409,7 +409,7 @@ function createDatabaseBlock(existingLayout: Layout): { block: DatabaseBlock; la
   };
 }
 
-function defaultLayoutForBlock(id: string, existingLayout: Layout, type: BlockType): LayoutItem {
+function defaultLayoutForBlock(id: string, existingLayout: Layout[], type: BlockType): Layout {
   const nextY = getNextY(existingLayout);
   const defaultWidth = type === 'database' ? 4 : 2;
   const defaultHeight = type === 'database' ? 9 : 6;
@@ -425,7 +425,7 @@ function defaultLayoutForBlock(id: string, existingLayout: Layout, type: BlockTy
   };
 }
 
-function getNextY(layout: Layout): number {
+function getNextY(layout: Layout[]): number {
   if (layout.length === 0) return 0;
   return Math.max(...layout.map((item) => item.y + item.h)) + 1;
 }
@@ -439,14 +439,14 @@ function createDefaultDocument(title = 'untitled document'): DocumentState {
   };
 }
 
-function ensureLayoutForBlocks(blocks: DocumentBlock[], layout: Layout): Layout {
+function ensureLayoutForBlocks(blocks: DocumentBlock[], layout: Layout[]): Layout[] {
   const result = layout.filter((item) => blocks.some((block) => block.id === item.i));
   blocks.forEach((block) => {
     if (!result.find((item) => item.i === block.id)) {
       result.push(defaultLayoutForBlock(block.id, result, block.type));
     }
   });
-  return result as Layout;
+  return result;
 }
 
 function loadDocument(key: string, overrideTitle?: string): DocumentState {
