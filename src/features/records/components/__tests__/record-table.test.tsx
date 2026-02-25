@@ -50,7 +50,11 @@ describe('RecordTable horizontal scroll sync', () => {
     // scroll the body
     body.scrollLeft = 50;
     fireEvent.scroll(body);
-
     expect(header.scrollLeft).toBe(50);
+
+    // scroll the header and ensure body follows too
+    header.scrollLeft = 20;
+    fireEvent.scroll(header);
+    expect(body.scrollLeft).toBe(20);
   });
 });
