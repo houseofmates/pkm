@@ -1,38 +1,56 @@
 #!/bin/bash
-# create-apk.sh: Build APK, generate version manifest, upload to server
-# Requirements: Android SDK, Capacitor CLI, scp, jq
+
+# Build signed APK for PKM with database icon on black background
+# This script ensures:
+# 1. Icons are generated from the database icon with black background
+# 2. The app auto-updates from the remote server (like a live dev server)
 
 set -e
 
-# CONFIGURATION
-APK_OUTPUT_PATH="android/app/build/outputs/apk/release/app-release.apk"
-APK_HOST="pkm.houseofmates.space"
-APK_REMOTE_DIR="/var/www/pkm/apk"   # adjust if needed
-APK_URL="https://pkm.houseofmates.space/apk/pkm-latest.apk"
-VERSION_MANIFEST="version.json"
+echo "🚀 Building PKM Signed APK..."
+echo ""
 
-# 1. Build APK
-npm run build:android
+# Step 1: Generate icons with database icon on black background
+echo "📱 Step 1: Generating app icons..."
+node generate_icons.cjs
+echo "✅ Icons generated successfully"
+echo ""
 
-# 2. Get version from package.json
-VERSION=$(jq -r .version package.json)
+# Step 2: Build the web app
+echo "🌐 Step 2: Building web app..."
+npm run build
+echo "✅ Web app built successfully"
+echo ""
 
-# 3. Copy APK to local slug
-cp "$APK_OUTPUT_PATH" "pkm-latest.apk"
+# Step 3: Sync capacitor with Android
+echo "🤖 Step 3: Syncing with Android..."
+npx cap sync android
+echo "✅ Android sync complete"
+echo ""
 
-# 4. Generate version manifest
-cat > "$VERSION_MANIFEST" <<EOF
-{
-  "version": "$VERSION",
-  "apkUrl": "$APK_URL"
-}
-EOF
+# Step 4: Build signed APK
+echo "📦 Step 4: Building signed APK..."
+cd android
+./gradlew assembleRelease
+echo "✅ Signed APK built successfully"
+echo ""
 
-# 5. Upload APK and manifest via SCP
-scp pkm-latest.apk "$APK_HOST:$APK_REMOTE_DIR/pkm-latest.apk"
-scp "$VERSION_MANIFEST" "$APK_HOST:$APK_REMOTE_DIR/$VERSION_MANIFEST"
-
-# 6. Clean up local files
-rm pkm-latest.apk "$VERSION_MANIFEST"
-
-echo "APK and manifest uploaded to $APK_HOST:$APK_REMOTE_DIR"
+# Step 5: Show output location
+APK_PATH="app/build/outputs/apk/release/app-release.apk"
+if [ -f "$APK_PATH" ]; then
+    echo "🎉 Success! Signed APK location:"
+    echo "   $APK_PATH"
+    echo ""
+    ls -lh "$APK_PATH"
+    echo ""
+    echo "📋 Configuration Summary:"
+    echo "   • Icon: Database icon on black background"
+    echo "   • Auto-update: Enabled from http://pkm.houseofmates.space:3010"
+    echo "   • The app will fetch latest code on each launch"
+    echo ""
+    echo "🔧 To install on device:"
+    echo "   adb install -r $APK_PATH"
+else
+    echo "❌ APK not found at expected location"
+    exit 1
+fi
