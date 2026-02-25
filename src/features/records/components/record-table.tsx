@@ -314,10 +314,11 @@ const DraggableRecordRow = (props: any) => {
     ...incomingStyle,
     transform: [incomingStyle?.transform, CSS.Translate.toString(transform)].filter(Boolean).join(' '),
     opacity: isDragging ? 0.5 : 1,
-    touchAction: 'none', // Important for touch drag
+    touchAction: 'none',
     backgroundColor: isSelected ? '#1f2937' : (rowColor ? `${rowColor}20` : undefined),
-    display: 'flex', // Crucial for virtualization
-    width: '100%'
+    display: 'flex',
+    width: tableSize,
+    minWidth: tableSize
   };
 
   isDraggingRef.current = isDragging;
@@ -356,9 +357,9 @@ const DraggableRecordRow = (props: any) => {
           rowRef.current = node;
           setNodeRef(node);
         }}
-        style={{ ...style, width: tableSize || '100%', minWidth: tableSize || '100%' }}
+        style={style}
         className={cn(
-          "transition-colors group border-b border-[#222] min-w-full",
+          "transition-colors group border-b border-[#222]",
           isSelected ? "ring-1 ring-primary/70 bg-gray-900/50" : (!rowColor && "hover:bg-gray-800/10")
         )}
         tabIndex={-1}
@@ -738,9 +739,16 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   // bump version when table's internal sizing state changes (runs during drag)
   const columnSizingState = table.getState().columnSizing;
   const [columnVersion, setColumnVersion] = React.useState(0);
+  const columnSizingRef = React.useRef(columnSizingState);
+  
   React.useEffect(() => {
-    setColumnVersion(v => v + 1);
+    // only update if sizing actually changed to avoid unnecessary re-renders
+    if (JSON.stringify(columnSizingRef.current) !== JSON.stringify(columnSizingState)) {
+      columnSizingRef.current = columnSizingState;
+      setColumnVersion(v => v + 1);
+    }
   }, [columnSizingState]);
+  
   // also bump when our persisted sizing updates
   React.useEffect(() => {
     setColumnVersion(v => v + 1);
@@ -824,7 +832,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                 remains visible and the add/gear buttons are clickable */}
             <Table
               style={{
-                width: table.getTotalSize() || '100%',
+                width: table.getTotalSize(),
+                minWidth: table.getTotalSize(),
                 tableLayout: 'fixed'
               }}
             >
@@ -948,7 +957,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                 </Button>
               </div>
             )}
-            <div style={{ width: table.getTotalSize(), height: '100%', position: 'relative' }}>
+            <div style={{ width: table.getTotalSize(), minWidth: table.getTotalSize(), height: '100%', position: 'relative' }}>
               {rows.length === 0 ? (
                 <div className="text-muted-foreground lowercase">
                   <div className="flex items-center justify-center h-16 w-full">
@@ -988,7 +997,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                           onRowSelect: handleRowSelect,
                           clearSelection,
                           enableSelection: true,
-                          tableSize: table.getTotalSize() || '100%',
+                          tableSize: table.getTotalSize(),
                           columnVersion,
                         }}
                         style={{ height, width }}
