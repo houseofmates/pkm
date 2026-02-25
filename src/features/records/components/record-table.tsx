@@ -240,6 +240,7 @@ const DraggableRecordRow = (props: any) => {
   if (!row) return null;
 
   const rowRef = React.useRef<HTMLDivElement>(null);
+  const isDraggingRef = React.useRef(false);
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `record-${row.original.id}`,
@@ -263,6 +264,8 @@ const DraggableRecordRow = (props: any) => {
     width: '100%'
   };
 
+  isDraggingRef.current = isDragging;
+
   useGestureManager(rowRef, {
     onSingleTap: (event) => {
       event.stopPropagation();
@@ -274,7 +277,7 @@ const DraggableRecordRow = (props: any) => {
     },
     onLongPress: (event) => {
       event.stopPropagation();
-      if (!rowRef.current) return;
+      if (!rowRef.current || isDraggingRef.current) return;
       const rect = rowRef.current.getBoundingClientRect();
       const clientX = event.clientX ?? rect.left + 10;
       const clientY = event.clientY ?? rect.top + 10;
@@ -292,7 +295,10 @@ const DraggableRecordRow = (props: any) => {
       className="contents"
     >
       <div
-        ref={rowRef}
+        ref={(node) => {
+          rowRef.current = node;
+          setNodeRef(node);
+        }}
         style={style}
         className={cn(
           "transition-colors group border-b border-[#222] min-w-full",
@@ -324,15 +330,16 @@ const DraggableRecordRow = (props: any) => {
           return (
             <div
               key={cell.id}
-              style={{
-                width: cell.column.getSize() || DEFAULT_COL_WIDTH,
-                minWidth: cell.column.getSize() || DEFAULT_COL_WIDTH,
-                maxWidth: cell.column.getSize() || DEFAULT_COL_WIDTH
-              }}
               className={cn(
                 "align-middle p-0 h-10 transition-colors group-hover:bg-white/5 flex-shrink-0",
                 !isLastCell && "border-r border-[#222]"
               )}
+              style={{
+                width: cell.column.getSize() || DEFAULT_COL_WIDTH,
+                minWidth: cell.column.getSize() || DEFAULT_COL_WIDTH,
+                maxWidth: cell.column.getSize() || DEFAULT_COL_WIDTH,
+                touchAction: 'manipulation',
+              }}
               onContextMenu={(e) => {
                 e.stopPropagation();
               }}
