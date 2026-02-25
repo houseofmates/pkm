@@ -13,11 +13,16 @@ vi.mock('@tanstack/react-table', () => ({
 
 vi.mock('react-window', () => ({
   List: ({ children, outerRef, onScroll, ...props }: any) => {
+    const handleScroll = (e: any) => {
+      if (onScroll) {
+        onScroll({ scrollOffset: e.currentTarget.scrollLeft });
+      }
+    };
     return (
       <div
         data-testid="virtual-list"
         ref={outerRef}
-        onScroll={onScroll}
+        onScroll={handleScroll}
         {...props}
       >
         {children({index:0,style:{},data:{rows:[]}})}
