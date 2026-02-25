@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import GridLayout, { type Layout, type Layouts, type Layout as GridLayoutType } from 'react-grid-layout';
+import GridLayout, { type Layout } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import { useWindowSize } from 'react-use';
@@ -42,7 +42,7 @@ type DocumentBlock = TextBlock | DatabaseBlock;
 interface DocumentState {
   title: string;
   blocks: DocumentBlock[];
-  layout: Layout;
+  layout: Layout[];
 }
 
 interface DocumentConfig {
@@ -64,6 +64,8 @@ const WIDTH_OPTIONS = [1, 2, 3, 4];
 
 const CONFIG_PREFIX = 'canvas-config-';
 
+const CONFIG_PREFIX = 'canvas-config-';
+
 const makeId = () => (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2));
 
 export function PageCanvas() {
@@ -73,7 +75,18 @@ export function PageCanvas() {
   const storageKey = useMemo(() => (id ? `canvas-content-${id}` : 'canvas-content'), [id]);
   const { collections, refresh } = useCollections();
 
-    const [documentState, setDocumentState] = useState<DocumentState>(() => {
+  const loadDocumentConfig = (id: string) => {
+    const configKey = `${CONFIG_PREFIX}${id}`;
+    const config = storageManager.getItem(configKey);
+    return config ? JSON.parse(config) : undefined;
+  };
+
+  const saveDocumentConfig = (id: string, config: DocumentConfig) => {
+    const configKey = `${CONFIG_PREFIX}${id}`;
+    storageManager.setItem(configKey, JSON.stringify(config));
+  };
+
+  const [documentState, setDocumentState] = useState<DocumentState>(() => {
     const overrideTitle = id ? loadDocumentConfig(id)?.title : undefined;
     return loadDocument(storageKey, overrideTitle);
   });
@@ -120,7 +133,7 @@ export function PageCanvas() {
     }
   }, [id, updateDoc]);
 
-  const handleLayoutChange = useCallback((nextLayout: LayoutItem[]) => {
+  const handleLayoutChange = useCallback((nextLayout: Layout[]) => {
     updateDoc((prev) => ({ ...prev, layout: nextLayout }));
   }, [updateDoc]);
 
@@ -465,6 +478,32 @@ function loadDocument(key: string, overrideTitle?: string): DocumentState {
   } catch (error) {
     secureLogger.error('Failed to load document content', error);
     return createDefaultDocument(overrideTitle);
+  }
+}
+
+function getConfigKey(id: string) {
+  return `${CONFIG_PREFIX}${id}`;
+}
+
+function loadDocumentConfig(id?: string | null): DocumentConfig | null {
+  if (!id) return null;
+  try {
+    const stored = storageManager.getItem(getConfigKey(id));
+    if (!stored) return null;
+    return JSON.parse(stored) as DocumentConfig;
+  } catch (error) {
+    secureLogger.error('Failed to load document config', error);
+    return null;
+  }
+}
+
+function saveDocumentConfig(id: string, patch: DocumentConfig): void {
+  if (!id) return;
+  try {
+    const existing = loadDocumentConfig(id) || {};
+    storageManager.setItem(getConfigKey(id), JSON.stringify({ ...existing, ...patch }));
+  } catch (error) {
+    secureLogger.error('Failed to persist document config', error);
   }
 }
 
