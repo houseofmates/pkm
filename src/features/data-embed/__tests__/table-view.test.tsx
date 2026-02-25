@@ -2,16 +2,14 @@ import * as React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import { TableView } from '@/components/DataEmbed/views/TableView';
 
-vi.mock('@tanstack/react-table', () => {
-  return {
-    useReactTable: jest.fn().mockReturnValue({
-      getHeaderGroups: () => [],
-      getRowModel: () => ({ rows: [] })
-    }),
-    getCoreRowModel: jest.fn(),
-    flexRender: (comp: any) => comp,
-  };
-});
+vi.mock('@tanstack/react-table', () => ({
+  useReactTable: vi.fn().mockReturnValue({
+    getHeaderGroups: () => [],
+    getRowModel: () => ({ rows: [] })
+  }),
+  getCoreRowModel: vi.fn(),
+  flexRender: (comp: any) => comp,
+}));
 
 vi.mock('react-window', () => {
   const original = jest.requireActual('react-window');
