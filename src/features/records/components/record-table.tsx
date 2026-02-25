@@ -8,12 +8,7 @@ import { List } from 'react-window';
 import { AutoSizer } from 'react-virtualized-auto-sizer';
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  Table,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+
 import type { Collection } from '@/hooks/use-collections';
 import { Button } from '@/components/ui/button';
 import { Plus, Settings2, Trash2, Edit2, MoreVertical, MoveRight, X } from 'lucide-react';
@@ -136,7 +131,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
   };
 
   return (
-    <TableHead
+    <div
       ref={setNodeRef}
       style={{
         ...style,
@@ -146,7 +141,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
         background: 'transparent',
       }}
       className={cn(
-        "group select-none relative text-left p-0 transition-colors border-r border-[#222] border-b border-b-[#222]",
+        "group select-none relative text-left p-0 transition-colors border-r border-[#222] border-b border-b-[#222] flex-shrink-0 h-10 align-middle font-medium text-muted-foreground text-sm",
         isDragging ? "bg-gray-800/40" : "hover:bg-gray-800/20"
       )}
     >
@@ -282,7 +277,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
         )}
         style={{ color: '#333' }}
       />
-    </TableHead>
+    </div>
   );
 }
 
