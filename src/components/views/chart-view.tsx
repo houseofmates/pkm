@@ -64,7 +64,12 @@ export function ChartView(props: ViewProps) {
           });
         }
       });
-      return Array.from(map.entries()).map(([name, data]) => ({ name, value: data.value, records: data.records }));
+      return Array.from(map.entries()).map(([name, data]) => ({
+        name,
+        value: data.value,
+        records: data.records,
+        count: data.records.length
+      }));
     }
 
     // multi-series aggregation
@@ -97,11 +102,14 @@ export function ChartView(props: ViewProps) {
 
     const rows: any[] = [];
     xMap.forEach((inner, xVal) => {
-      const row: any = { name: xVal, _records: {} }; // Store records map in _records
+      const row: any = { name: xVal, _records: {}, count: 0 };
       seriesList.forEach(s => {
         const data = inner.get(s);
         row[String(s)] = data?.value || 0;
-        if (data) row._records[String(s)] = data.records;
+        if (data) {
+          row._records[String(s)] = data.records;
+          row.count += data.records.length;
+        }
       });
       rows.push(row);
     });
