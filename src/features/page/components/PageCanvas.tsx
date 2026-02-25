@@ -235,8 +235,8 @@ export function PageCanvas() {
             cols={4}
             rowHeight={120}
             width={gridWidth}
-            margin={[16, 16]}
-            containerPadding={[0, 0]}
+            margin={[16, 16] as [number, number]}
+            containerPadding={[0, 0] as [number, number]}
             layout={docLayout}
             onLayoutChange={handleLayoutChange}
             draggableHandle=".block-handle"
