@@ -111,6 +111,7 @@ export function TableView({ records, isLoading, theme, onSelect, fields }: Table
       {/* Header */}
       <div
         ref={headerRef}
+        data-testid="table-header-container"
         className="flex bg-muted/50 border-b border-white/5 font-medium text-xs uppercase tracking-wider text-muted-foreground overflow-x-auto no-scrollbar"
         onScroll={(e) => {
           if (bodyRef.current) {
