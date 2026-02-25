@@ -36,7 +36,7 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
       try {
         setPositions(typeof saved === 'string' ? JSON.parse(saved) : saved);
       } catch (e) {
-        console.error("Failed to load positions", e);
+        secureLogger.error("Failed to load positions", e);
       }
     } else {
       // initial auto-layout (grid)
@@ -92,8 +92,8 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
     if (onConfigChange) {
       onConfigChange('positions', positions);
     }
-    // also local backup
-    localStorage.setItem(`mindmap_${collection.name}`, JSON.stringify(positions));
+    // also local backup (use storageManager for safety)
+    storageManager.setItem(`mindmap_${collection.name}`, JSON.stringify(positions));
     toast.success("mind map layout saved");
   };
 

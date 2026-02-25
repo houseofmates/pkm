@@ -22,7 +22,7 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
   if (!authContext) {
     // this log should surface in prod logs if it ever happens
     // (it shouldn't under normal operation).
-    console.warn('LLMContextProvider rendered without surrounding AuthProvider');
+    secureLogger.warn('LLMContextProvider rendered without surrounding AuthProvider');
     return <>{children}</>;
   }
   const { client, isAuthenticated } = authContext;
@@ -147,7 +147,7 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
   const pushContext = useRef(debounce((payload: LLMContextPayload) => {
     const str = JSON.stringify(payload);
     if (str !== lastPushedRef.current) {
-      console.log("Pushing LLM Context to Electron:", payload);
+      secureLogger.info("Pushing LLM Context to Electron:", payload);
       if (window.electron && window.electron.updateContext) {
         window.electron.updateContext(payload);
       }

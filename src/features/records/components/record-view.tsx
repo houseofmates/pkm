@@ -71,7 +71,7 @@ export function RecordView({ collectionName: propCollection, recordId: propId, o
           try {
             setTemplateConfig(typeof data.template_data === 'string' ? JSON.parse(data.template_data) : data.template_data);
           } catch (e) {
-            console.error("Failed to parse template_data", e);
+            secureLogger.error("Failed to parse template_data", e);
           }
         } else if (data.content && data.content.trim().startsWith('{') && data.content.trim().endsWith('}')) {
           // heuristic: check if content is json
@@ -83,7 +83,7 @@ export function RecordView({ collectionName: propCollection, recordId: propId, o
           } catch (e) {/* not json */ }
         }
       } catch (e) {
-        console.error("Failed to fetch record view", e);
+        secureLogger.error("Failed to fetch record view", e);
       } finally {
         setLoading(false);
       }
@@ -97,7 +97,7 @@ export function RecordView({ collectionName: propCollection, recordId: propId, o
     try {
       await client.updateRecord(collectionName!, recordId!, data);
     } catch (e) {
-      console.error("Update failed", e);
+      secureLogger.error("Update failed", e);
       toast.error("Failed to update record");
     }
   };

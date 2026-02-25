@@ -62,7 +62,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
       toast.success(`deleted ${collection.title || collection.name}`);
       onUpdate();
     } catch (error) {
-      console.error(error);
+      secureLogger.error(error);
       toast.error("failed to delete database");
     }
   };
@@ -100,7 +100,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
 
               onUpdate();
             } catch (error) {
-              console.error("Update failed:", error);
+              secureLogger.error("Update failed:", error);
               toast.error("failed to update database");
             }
           }}

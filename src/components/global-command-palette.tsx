@@ -155,7 +155,7 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   }
 
   } catch (e) {
-  console.error(e);
+  secureLogger.error(e);
   } finally {
   setIsSearching(false);
   }
@@ -209,7 +209,7 @@ your response (all lowercase):`;
   const response = data.response?.toLowerCase() || data.response;
   setAiInsight(response);
   } catch (e) {
-  console.error("LLM Failed:", e);
+  secureLogger.error("LLM Failed:", e);
   setAiInsight("could not generate insight.");
   } finally {
   setIsReasoning(false);

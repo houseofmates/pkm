@@ -19,7 +19,7 @@ interface Field {
   unique?: boolean;
   interface?: string;
   hidden?: boolean;
-  uiSchema?: any;
+  uiSchema?: Record<string, string | number | boolean | null | undefined>;
 }
 
 interface CollectionResponse {
@@ -29,14 +29,14 @@ interface CollectionResponse {
 interface ApiError {
   response?: {
     status?: number;
-    data?: unknown;
+    data?: Record<string, unknown>;
   };
   message?: string;
 }
 
 interface RequestParams {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-  [key: string]: unknown;
+  [key: string]: string | number | boolean | undefined;
 }
 
 
@@ -152,7 +152,7 @@ export class NocoBaseClient {
     const res = await this._axios.post('/collections:create', data);
     return GetRecordResponseSchema.parse(res.data);
   }
-  async updateCollection(name: string, data: Partial<Collection>): Promise<unknown> {
+  async updateCollection(name: string, data: Partial<Collection>): Promise<Record<string, unknown>> {
     try {
       // use filterbytk for better compatibility
       const res = await this._axios.post(`/collections:update?filterByTk=${name}`, data);
@@ -179,7 +179,7 @@ export class NocoBaseClient {
       throw error;
     }
   }
-  async deleteCollection(name: string): Promise<unknown> {
+  async deleteCollection(name: string): Promise<Record<string, unknown>> {
     const res = await this._axios.delete(`/collections/${name}`);
     return ActionResponseSchema.parse(res.data);
   }
@@ -264,7 +264,7 @@ export class NocoBaseClient {
         storageManager.setItem(schemaKey, SCHEMA_VERSION);
       }
 
-      console.log(`[NocoBase] ${COL_NAME} collection created successfully`);
+      secureLogger.info(`[NocoBase] ${COL_NAME} collection created successfully`);
       return true;
     } catch (createError: unknown) {
       const errMsg = createError instanceof Error ? createError.message : String(createError);
@@ -341,15 +341,19 @@ export class NocoBaseClient {
     }
   }
   
-  async createField(collection: string, data: Field): Promise<unknown> {
+  async createField(collection: string, data: Field): Promise<Record<string, unknown>> {
     const res = await this._axios.post(`/collections/${collection}/fields:create`, data);
     return GetRecordResponseSchema.parse(res.data);
   }
-  async updateField(collection: string, name: string, data: Partial<Field>): Promise<unknown> {
+  async updateField(collection: string, name: string, data: Partial<Field>): Promise<Record<string, unknown>> {
     const res = await this._axios.post(`/collections/${collection}/fields:update?filterByTk=${name}`, data);
     return ActionResponseSchema.parse(res.data);
   }
-  async listRecords(collection: string, params: Record<string, unknown> = {}): Promise<unknown> {
+  async deleteField(collection: string, name: string): Promise<Record<string, unknown>> {
+    const res = await this._axios.post(`/collections/${collection}/fields:destroy?filterByTk=${name}`);
+    return ActionResponseSchema.parse(res.data);
+  }
+  async listRecords(collection: string, params: Record<string, string | number | boolean | undefined> = {}): Promise<Record<string, unknown>> {
     // remove /obj/ prefix, use <collection>:list
     const res = await this._axios.get(`/${collection}:list`, { params });
 
@@ -369,11 +373,11 @@ export class NocoBaseClient {
       return normalized;
     }
   }
-  async getRecord(collection: string, id: string | number): Promise<unknown> {
+  async getRecord(collection: string, id: string | number): Promise<Record<string, unknown>> {
     const res = await this._axios.get(`/${collection}:get?filterByTk=${id}`);
     return GetRecordResponseSchema.parse(res.data);
   }
-  async createRecord(collection: string, data: Record<string, unknown>): Promise<unknown> {
+  async createRecord(collection: string, data: Record<string, string | number | boolean | undefined>): Promise<Record<string, unknown>> {
     // normalize: ensure notes created via ui/backend include entity_type: 'note'
     // this enforces metadata consistency for note templates and downstream plugins
     if (collection === 'notes' && data && typeof data === 'object' && !('entity_type' in data)) {
@@ -384,19 +388,19 @@ export class NocoBaseClient {
     const res = await this._axios.post(`/${collection}:create`, data);
     return GetRecordResponseSchema.parse(res.data);
   }
-  async updateRecord(collection: string, id: string | number, data: Record<string, unknown>): Promise<unknown> {
+  async updateRecord(collection: string, id: string | number, data: Record<string, string | number | boolean | undefined>): Promise<Record<string, unknown>> {
     // use filterbytk query param for reliable update, matching deleterecord
     const res = await this._axios.post(`/${collection}:update?filterByTk=${id}`, data);
     return ActionResponseSchema.parse(res.data);
   }
-  async deleteRecord(collection: string, id: string | number): Promise<unknown> {
+  async deleteRecord(collection: string, id: string | number): Promise<Record<string, unknown>> {
     // use filterbytk query param for reliable deletion
     const res = await this._axios.post(`/${collection}:destroy?filterByTk=${id}`);
     return ActionResponseSchema.parse(res.data);
   }
 
   // --- file/storage methods ---
-  async upload(file: File): Promise<unknown> {
+  async upload(file: File): Promise<Record<string, unknown>> {
     const formData = new FormData();
     formData.append('file', file);
 
@@ -425,7 +429,7 @@ export class NocoBaseClient {
   }
 
   // --- generic request ---
-  async request(resource: string, action: string, params: RequestParams = {}): Promise<unknown> {
+  async request(resource: string, action: string, params: RequestParams = {}): Promise<Record<string, unknown>> {
     const { method = 'GET', ...rest } = params;
     return this._axios.request({
       url: `/${resource}:${action}`,

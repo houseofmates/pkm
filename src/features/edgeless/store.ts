@@ -4,6 +4,7 @@ import { appendOp, saveCheckpoint, getLatestCheckpoint, getRecentOps } from './s
 import type { DrawOp } from './storage/oplog'
 import { canvasSync } from './sync/canvas-sync'
 import { SpatialIndex } from './spatial/spatial-index'
+import type fabric from 'fabric'
 
 export type ElementType =
   | 'pdf-page'
@@ -115,8 +116,6 @@ interface EdgelessState {
   penColor: string
   penOpacity: number
   eraserOpacity: number
-  penOpacity: number
-  eraserOpacity: number
   stabilizerLevel: number
   pressureEnabled: boolean
 
@@ -154,6 +153,8 @@ interface EdgelessState {
   setIsLinking: (linking: boolean) => void
   setPenWidth: (width: number) => void
   setPenColor: (color: string) => void
+  setPenOpacity: (opacity: number) => void
+  setEraserOpacity: (opacity: number) => void
   setStabilizerLevel: (level: number) => void
   setPressureEnabled: (enabled: boolean) => void
 }
@@ -306,7 +307,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
 
     // reload state from oplog minus the undone op
     // (in a full implementation, we'd compute inverse ops or reload from checkpoint)
-    console.log('undo:', lastId)
+    secureLogger.info('undo:', lastId)
 
     // save checkpoint after significant undo
     if (remaining.length % 20 === 0) {
@@ -328,7 +329,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
       },
     })
 
-    console.log('redo:', nextId)
+    secureLogger.info('redo:', nextId)
   },
 
   loadFromOplog: async (drawingId) => {
@@ -336,7 +337,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
     const checkpoint = await getLatestCheckpoint(drawingId)
     const ops = await getRecentOps(drawingId, 500)
 
-    console.log('loading drawing', drawingId, {
+    secureLogger.info('loading drawing', drawingId, {
       hasCheckpoint: !!checkpoint,
       opCount: ops.length,
     })
@@ -399,7 +400,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   setFabricCanvas: (c) => set({ fabricCanvas: c }),
   setSelectedIds: (ids) => set({ selectedIds: ids }),
   setPdfDoc: (doc) => set({ pdfDoc: doc }),
-  addHistoryOp: async (op) => { // alias to recordOp
+  addHistoryOp: async (op: DrawOp) => { // alias to recordOp
     await get().recordOp(op as any)
   },}))
 

@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useState } from 'react';
 
 export function ChartView(props: ViewProps) {
-  const { data, collection, config, onConfigChange, onUpdateRecord, onDelete } = props;
+  const { data, collection, config, onConfigChange, onUpdateRecord, onDelete, onCreateRecord } = props;
   const [drillDown, setDrillDown] = useState<{ xKey: string, seriesKey?: string } | null>(null);
   const [virtualMenu, setVirtualMenu] = useState<{ x: number, y: number, records: any[] } | null>(null);
 
@@ -64,7 +64,12 @@ export function ChartView(props: ViewProps) {
           });
         }
       });
-      return Array.from(map.entries()).map(([name, data]) => ({ name, value: data.value, records: data.records }));
+      return Array.from(map.entries()).map(([name, data]) => ({
+        name,
+        value: data.value,
+        records: data.records,
+        count: data.records.length
+      }));
     }
 
     // multi-series aggregation
@@ -97,11 +102,14 @@ export function ChartView(props: ViewProps) {
 
     const rows: any[] = [];
     xMap.forEach((inner, xVal) => {
-      const row: any = { name: xVal, _records: {} }; // Store records map in _records
+      const row: any = { name: xVal, _records: {}, count: 0 };
       seriesList.forEach(s => {
         const data = inner.get(s);
         row[String(s)] = data?.value || 0;
-        if (data) row._records[String(s)] = data.records;
+        if (data) {
+          row._records[String(s)] = data.records;
+          row.count += data.records.length;
+        }
       });
       rows.push(row);
     });
@@ -137,8 +145,11 @@ export function ChartView(props: ViewProps) {
                     <SelectItem value="area">area chart</SelectItem>
                     <SelectItem value="pie">donut chart</SelectItem>
                     <SelectItem value="scatter">scatter plot</SelectItem>
+                    <SelectItem value="bubble">bubble chart</SelectItem>
                     <SelectItem value="radar">radar chart</SelectItem>
+                    <SelectItem value="radialbar">radial bar</SelectItem>
                     <SelectItem value="treemap">treemap</SelectItem>
+                    <SelectItem value="heatmap">heatmap</SelectItem>
                     <SelectItem value="funnel">funnel</SelectItem>
                     <SelectItem value="gauge">gauge (speedometer)</SelectItem>
                     <SelectItem value="kpi">scorecard / kpi</SelectItem>

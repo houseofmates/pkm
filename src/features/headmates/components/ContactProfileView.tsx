@@ -86,7 +86,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
         toast.success('banner uploaded');
       }
     } catch (e) {
-      console.error(e);
+      secureLogger.error(e);
       toast.error('failed to upload banner');
     }
   };
@@ -108,7 +108,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
       toast.success("profile updated");
       setIsEditing(false);
     } catch (e) {
-      console.error(e);
+      secureLogger.error(e);
       toast.error("failed to update profile");
     }
   };

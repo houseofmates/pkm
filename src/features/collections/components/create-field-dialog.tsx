@@ -99,7 +99,7 @@ export function CreateFieldDialog({ collectionName, onFieldCreated, open: contro
       setName('');
       onFieldCreated();
     } catch (error: any) {
-      console.error(error);
+      secureLogger.error(error);
       toast.error(error.message || "failed to create field");
     } finally {
       setLoading(false);

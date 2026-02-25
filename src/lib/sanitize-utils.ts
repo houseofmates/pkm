@@ -128,20 +128,19 @@ export function looksLikeSecret(value: string): boolean {
 export const safeStorage = {
   getItem(key: string): string | null {
     try {
-      return localStorage.getItem(key);
+      return window.localStorage.getItem(key);
     } catch (_) {
       return null;
     }
   },
-  
+
   setItem(key: string, value: string): void {
     // warn if trying to store sensitive data
     if (looksLikeSecret(value) && !key.toLowerCase().includes('token') && !key.toLowerCase().includes('key')) {
-      console.warn(`[SECURITY] Potentially sensitive data being stored in localStorage key: ${key}`);
+      secureLogger.warn(`[SECURITY] Potentially sensitive data being stored in localStorage key: ${key}`);
     }
-    
     try {
-      localStorage.setItem(key, value);
+      window.localStorage.setItem(key, value);
     } catch (_) {
       // ignore quota errors
     }

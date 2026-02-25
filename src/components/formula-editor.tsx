@@ -7,6 +7,7 @@ import { Terminal, Send, Play, Sparkles, X, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
 import { getOllamaGenerateUrl } from '@/lib/llm-config';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface FormulaEditorProps {
   value: string;
@@ -32,7 +33,7 @@ const fetchAIResponse = async (prompt: string, context: any) => {
   const data = await res.json();
   return data.response?.toLowerCase() || data.response;
   } catch (e) {
-  console.error("ai error", e);
+  secureLogger.error("ai error", e);
   return "error connecting to the ai assistant.";
   }
 };
@@ -59,7 +60,7 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
  }
   `);
 
-  // capture console.log
+  // capture secureLogger.info
   const logs: string[] = [];
   const mockConsole = {
  log: (...args: any[]) => logs.push(args.map(a => JSON.stringify(a)).join(' ')),

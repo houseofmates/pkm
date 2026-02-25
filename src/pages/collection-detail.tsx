@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useCollections } from '@/hooks/use-collections';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Settings2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { storageManager } from '@/lib/storage-manager';
 import { CreateFieldDialog } from '@/features/collections/components/create-field-dialog';
 import { toast } from 'sonner';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';
@@ -125,6 +126,10 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     // get collections list early - this is already loaded from databases page
     const { collections: availableCollections, loading: collectionsLoading } = useCollections();
 
+    // ref to avoid fetchData depending on availableCollections (which gets a new reference every render)
+    const availableCollectionsRef = useRef(availableCollections);
+    availableCollectionsRef.current = availableCollections;
+
     const handleLogin = () => {
         if (!apiKey) return;
         login(apiKey);
@@ -154,7 +159,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             toast.success("record created");
             fetchData();
         } catch (error) {
-            console.error(error);
+            secureLogger.error(error instanceof Error ? error.message : String(error));
             toast.error("failed to create record");
         }
     };
@@ -167,35 +172,36 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             // 1. try to find collection in already-loaded list first (from usecollections)
             // this fixes mobile issue where getcollection api call fails but listcollections works
             let colData: any = null;
-            const preloaded = availableCollections.find(
+            const currentCollections = availableCollectionsRef.current;
+            const preloaded = currentCollections.find(
                 (c: any) => (c.name || '').toLowerCase() === (collectionName || '').toLowerCase()
             );
 
             if (preloaded) {
-                console.log("Found preloaded collection:", preloaded.name);
+                secureLogger.info("Found preloaded collection:", preloaded.name);
                 colData = preloaded;
             }
 
             // 2. if no preloaded or preloaded lacks fields, try to fetch full schema
             if (!colData?.fields) {
                 try {
-                    console.log("Attempting to fetch full collection schema with fields...");
+                    secureLogger.info("Attempting to fetch full collection schema with fields...");
                     const colRes = await client.getCollection(collectionName);
-                    console.log("getCollection response:", colRes);
+                    secureLogger.info("getCollection response:", colRes);
                     // check if we got valid data
                     if (colRes?.data && typeof colRes.data === 'object') {
                         colData = colRes.data;
                     } else {
-                        console.warn("getCollection returned invalid data, using preloaded");
+                        secureLogger.warn("getCollection returned invalid data, using preloaded");
                         if (preloaded) {
                             colData = preloaded;
                         }
                     }
                 } catch (e: any) {
-                    console.warn("getCollection failed, using preloaded if available:", e.message);
+                    secureLogger.warn("getCollection failed, using preloaded if available:", e.message);
                     // if api fails but we have preloaded data, use it even without fields
                     if (preloaded) {
-                        console.log("Using preloaded collection without fields");
+                        secureLogger.info("Using preloaded collection without fields");
                         colData = preloaded;
                     } else {
                         throw e; // No fallback available
@@ -209,19 +215,19 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             }
 
             // 3. if collection still lacks fields, fetch them separately BEFORE setting collection
-            console.log("Checking fields:", colData.fields, "Length:", colData.fields?.length);
+            secureLogger.info("Checking fields:", colData.fields, "Length:", colData.fields?.length);
             if (!colData.fields || colData.fields.length === 0) {
                 try {
-                    console.log("Collection lacks fields, fetching them separately...");
+                    secureLogger.info("Collection lacks fields, fetching them separately...");
                     const fields = await client.listFields(collectionName);
-                    console.log("Fetched fields:", fields);
+                    secureLogger.info("Fetched fields:", fields);
                     if (fields && fields.length > 0) {
                         colData.fields = fields;
                     } else {
-                        console.warn("listFields returned no fields");
+                        secureLogger.warn("listFields returned no fields");
                     }
                 } catch (e) {
-                    console.warn("Failed to fetch fields separately:", e);
+                    secureLogger.warn("Failed to fetch fields separately:", e);
                 }
             }
 
@@ -232,14 +238,15 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                 const hasFronter = colData.fields.some((f: any) => f.name === 'fronter');
                 if (!hasFronter) {
                     try {
-                        console.log("Auto-creating 'fronter' field for", collectionName);
+                        secureLogger.info("Auto-creating 'fronter' field for", collectionName);
                         await client.createField(collectionName, {
                             name: 'fronter',
+                            type: 'string',
                             interface: 'input',
                             uiSchema: { title: 'Fronter' }
                         });
                     } catch (e) {
-                        console.warn("Failed to auto-create fronter field", e);
+                        secureLogger.warn("Failed to auto-create fronter field", e);
                     }
                 }
             }
@@ -250,20 +257,20 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             setRecords(recData);
 
         } catch (error: any) {
-            console.error(error);
+            secureLogger.error(error);
             setFetchError(error.message || "Unknown Error");
             toast.error("failed to load collection data");
         } finally {
             setLoading(false);
         }
-    }, [client, collectionName, availableCollections]);
+    }, [client, collectionName]);
 
     // --- event listeners ---
     useEffect(() => {
         const handleCreate = async (evt: Event) => {
-            const e = evt as customevent<any>;
+            const e = evt as CustomEvent<any>;
             if (e.detail?.collection === collectionName) {
-                console.log("Creating record via event:", e.detail.data);
+                secureLogger.info("Creating record via event:", e.detail.data);
                 try {
                     const createRes: any = await client.createRecord(collectionName, e.detail.data);
                     const newId = createRes?.id || (createRes?.data && createRes.data.id);
@@ -285,7 +292,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                       });
                     }
                 } catch (err) {
-                    console.error(err);
+                    secureLogger.error(String(err));
                     toast.error("failed to create record");
                 }
             }
@@ -310,12 +317,12 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                 (c: any) => (c.name || '').toLowerCase() === (collectionName || '').toLowerCase()
             );
             if (found) {
-                console.log("Late-rescue: Found collection in availableCollections:", found.name);
+                secureLogger.info("Late-rescue: Found collection in availableCollections:", found.name);
                 setCollection(found);
                 // fetch records for this collection
                 client.listRecords(collectionName).then(res => {
                     setRecords(extractRecords(res));
-                }).catch(e => console.error("Late-rescue record fetch failed", e));
+                }).catch(e => secureLogger.error("Late-rescue record fetch failed", e));
             }
         }
     }, [collection, loading, availableCollections, collectionName, client]);
@@ -328,7 +335,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             if (saved) setViewConfig(JSON.parse(saved));
             else setViewConfig({});
         } catch (e) {
-            console.error("Failed to load view config", e);
+            secureLogger.error("Failed to load view config", e);
         }
     }, [collectionName, currentView]);
 
@@ -377,7 +384,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             await client.updateRecord(collectionName, id, data);
             // fetchData(); // optional: if we trust the return or optimistic update
         } catch (error) {
-            console.error("failed to update record", error);
+            secureLogger.error("failed to update record", error);
             toast.error("failed to update record");
             fetchData(); // revert on error
         }
@@ -417,7 +424,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
             setRecords(extractRecords(res));
         } catch (e) {
-            console.error("failed to undo delete", e);
+            secureLogger.error("failed to undo delete", e);
             toast.error("failed to undo delete");
         }
     };
@@ -443,7 +450,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             });
             setRecords(prev => prev.filter(r => r.id !== record.id));
         } catch (error) {
-            console.error("failed to delete record", error);
+            secureLogger.error("failed to delete record", error);
             toast.error("failed to delete record");
         }
     }, [client, collectionName, deletedStack]); // Added deletedStack dependency to update closure? No, that causes re-renders of list.
@@ -460,7 +467,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             setRecords(extractRecords(res));
             setDeletedStack(prev => prev.filter(r => r.id !== recordToRestore.id));
         } catch (e) {
-            console.error("failed to undo delete", e);
+            secureLogger.error("failed to undo delete", e);
             toast.error("failed to undo delete");
         }
     }
@@ -624,6 +631,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                     onCreateRecord={() => handleDirectCreate()}
                     onCreate={(data: any) => handleDirectCreate(data)}
                     onCreateField={() => setFieldDialogOpen(true)}
+                    onFieldUpdated={fetchData}
                 />
             </div>
 

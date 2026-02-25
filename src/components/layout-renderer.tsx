@@ -26,6 +26,13 @@ export function LayoutRenderer({
     const colCount = Math.max(1, Math.min(columns.length, 4));
     const widths = layout.columnWidths || Array(colCount).fill(100 / colCount);
 
+    const handleUpdateWidget = React.useCallback(
+        (widget: any) => (patch: any) => {
+            onUpdateWidget?.(widget, patch);
+        },
+        [onUpdateWidget]
+    );
+
     return (
         <div
             className={cn("w-full grid gap-6 items-start", className)}
@@ -40,7 +47,7 @@ export function LayoutRenderer({
                             <WidgetRenderer
                                 widget={widget}
                                 data={data}
-                                onUpdateWidget={(patch) => onUpdateWidget?.(widget, patch)}
+                                onUpdateWidget={handleUpdateWidget(widget)}
                                 onUpdateData={onUpdateData}
                                 onAddData={onAddData}
                             />

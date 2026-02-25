@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings, UploadCloud, type LucideIcon } from 'lucide-react';
-import * as Icons from 'lucide-react';
+import { GlobalSearchDialog } from '@/components/global-search-dialog';
 
-
-// helper to safely get lucide icon by name
+// Dynamic icon loader for Lucide icons
+const lucideIconMap: Record<string, LucideIcon> = {};
 function getLucideIcon(name: string): LucideIcon | undefined {
-  return (Icons as unknown as Record<string, LucideIcon>)[name];
+  return lucideIconMap[name];
 }
 
 import { Button } from '@/components/ui/button';
@@ -109,22 +109,22 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   const renderIcon = () => {
     // use current theme color if no local override
     // logic: if item.color is set, use it. if generic, use primary.
-    const iconColor = metaColor || 'var(--primary)';
+      // no explicit icon color, let CSS inherit from the button/text color
 
     if (item.icon && item.iconType) {
       // ... strict icon logic
-      if (item.iconType === 'emoji') return <span className="mr-2 text-base leading-none">{item.icon}</span>;
-      if (item.iconType === 'image') return <img src={item.icon} alt="icon" className="h-4 w-4 mr-2 object-contain" />;
+      if (item.iconType === 'emoji') return <span className="mr-2 text-xl leading-none flex-shrink-0">{item.icon}</span>;
+      if (item.iconType === 'image') return <img src={item.icon} alt="icon" className="h-6 w-6 mr-2 object-contain flex-shrink-0" />;
       if (item.iconType === 'lucide') {
         const Icon = getLucideIcon(item.icon);
-        if (Icon) return <Icon className="h-4 w-4 mr-2" style={{ color: iconColor }} />;
+        if (Icon) return <Icon className="h-6 w-6 mr-2 flex-shrink-0" />;
       }
     }
     // fallback
-    if (item.type === 'folder') return <Folder className="h-4 w-4 mr-2" />;
+    if (item.type === 'folder') return <Folder className="h-6 w-6 mr-2 flex-shrink-0" />;
 
     // default for collections/documents without explicit icon
-    return <Database className="h-4 w-4 mr-2" style={{ color: iconColor }} />;
+    return <Database className="h-6 w-6 mr-2 flex-shrink-0" />;
   };
 
   const displayName = formatHeadmateName(item.name);
@@ -148,7 +148,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
       <Button
         variant="ghost"
         className={cn(
-          "flex-1 justify-start text-sm font-normal h-8 px-2 overflow-hidden hover:bg-transparent", // changed text-lg to text-sm to match premium PKM style and fix overflow
+          "flex-1 justify-start text-base font-normal h-8 px-2 overflow-hidden hover:bg-transparent", // bumped up font size for better readability
           selected && "font-medium shadow-none",
           item.type === 'folder' && "font-semibold text-muted-foreground",
           capsClass ? capsClass : "lowercase"
@@ -281,7 +281,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     if (id.startsWith('doc_')) {
       const key = `canvas-config-${id.replace('doc_', '')}`;
       try {
-        const existing = JSON.parse(localStorage.getItem(key) || '{}');
+        const existing = JSON.parse(storageManager.getItem(key) || '{}');
         const toSave = { ...existing };
         if (updates.name) toSave.title = updates.name;
         if (updates.icon) toSave.icon = updates.icon;
@@ -289,13 +289,13 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         if (updates.color) toSave.color = updates.color;
 
         if (updates.delete) {
-          localStorage.removeItem(key);
-          localStorage.removeItem(`canvas-content-${id.replace('doc_', '')}`);
+          storageManager.removeItem(key);
+          storageManager.removeItem(`canvas-content-${id.replace('doc_', '')}`);
         } else {
-          localStorage.setItem(key, JSON.stringify(toSave));
+          storageManager.setItem(key, JSON.stringify(toSave));
         }
       } catch (e) {
-        console.error("Failed to save local doc", e);
+        secureLogger.error("Failed to save local doc", e);
       }
     }
 
@@ -304,11 +304,11 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       const drawingId = id.replace('drawing_', '');
       if (updates.delete) {
         deleteDrawing(drawingId).catch((e) => {
-          console.error('failed to delete drawing', e);
+          secureLogger.error('failed to delete drawing', e);
         });
       } else if (updates.name) {
         updateDrawingMeta(drawingId, { title: updates.name }).catch((e) => {
-          console.error('failed to update drawing meta', e);
+          secureLogger.error('failed to update drawing meta', e);
         });
       }
     }
@@ -346,7 +346,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         const nonDrawing = items.filter((i: NavItem) => !i.id.startsWith('drawing_'));
         setItems([...nonDrawing, ...dbItems]);
       } catch (e) {
-        console.error('failed to load drawings from database', e);
+        secureLogger.error('failed to load drawings from database', e);
       }
     };
 
@@ -500,7 +500,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   // create new document (canvas)
                   const id = crypto.randomUUID();
                   const config = { title: 'untitled document' };
-                  localStorage.setItem(`canvas-config-${id}`, JSON.stringify(config));
+                  storageManager.setItem(`canvas-config-${id}`, JSON.stringify(config));
                   // force refresh of local docs
                   navigate(`/page/${id}`);
 
@@ -523,7 +523,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   try {
                     await updateDrawingMeta(id, { title, syncState: 'pending' });
                   } catch (e) {
-                    console.error('failed to create new drawing metadata', e);
+                    secureLogger.error('failed to create new drawing metadata', e);
                   }
                   navigate(`/drawings/${id}`);
 

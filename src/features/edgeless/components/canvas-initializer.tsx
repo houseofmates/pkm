@@ -6,6 +6,7 @@ import { useCanvasSafe } from '../hooks/use-canvas-safe'
 import { hasLegacyDrawings, migrateFromLocalStorage } from '../storage'
 import { productionGuard, checkStorageHealth } from '../lib/production-guards'
 import { toast } from 'sonner'
+import { secureLogger } from '@/lib/secure-logger'
 
 interface CanvasInitializerProps {
   children: React.ReactNode
@@ -40,9 +41,9 @@ export function CanvasInitializer({ children, onReady, onError }: CanvasInitiali
           toast.error(`failed to migrate ${result.failed} drawings`)
         }
 
-        console.log('[canvas initializer] migration result:', result)
+        secureLogger.debug('[canvas initializer] migration result:', result)
       } catch (e) {
-        console.error('[canvas initializer] migration failed:', e)
+        secureLogger.error('[canvas initializer] migration failed:', e)
         toast.error('migration failed - some data may be lost')
       } finally {
         setIsMigrating(false)
@@ -52,7 +53,7 @@ export function CanvasInitializer({ children, onReady, onError }: CanvasInitiali
     const checkHealth = async () => {
       const { healthy, issues } = await checkStorageHealth()
       if (!healthy) {
-        console.warn('[canvas initializer] storage health issues:', issues)
+        secureLogger.warn('[canvas initializer] storage health issues:', issues)
         toast.warning('storage issues detected: ' + issues.join(', '))
       }
     }

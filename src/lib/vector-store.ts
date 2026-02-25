@@ -11,7 +11,7 @@ export interface VectorChunk {
   field: string;
   content: string;
   embedding?: number[];
-  metadata?: Record<string, any>;
+  metadata?: Record<string, string | number | boolean | null | undefined>;
   score?: number;
 }
 
@@ -70,7 +70,15 @@ export async function searchKnowledgeBase(
     });
 
     if (response.data?.data) {
-      return response.data.data.map((item: any) => ({
+      return response.data.data.map((item: {
+        id: string;
+        collection: string;
+        recordId: string | number;
+        field: string;
+        content: string;
+        metadata?: Record<string, string | number | boolean | null | undefined>;
+        score?: number;
+      }) => ({
         chunk: {
           id: item.id,
           collection: item.collection,
@@ -97,10 +105,10 @@ async function fallbackLocalSearch(query: string, topK: number): Promise<SearchR
     const collectionsRes = await api.listCollections();
     const collections = Array.isArray(collectionsRes.data)
       ? collectionsRes.data
-      : (collectionsRes.data as any)?.data || [];
+      : (collectionsRes.data as { data?: unknown })?.data || [];
 
     const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections'];
-    const userCollections = collections.filter((c: any) => {
+    const userCollections = collections.filter((c: { name?: string; hidden?: boolean }) => {
       const name = (c.name || '').toLowerCase();
       return !systemCollections.includes(name) && !c.hidden && !name.includes('pkm_');
     });
@@ -110,14 +118,14 @@ async function fallbackLocalSearch(query: string, topK: number): Promise<SearchR
     // fetch records from each collection
     for (const col of userCollections.slice(0, 5)) {
       try {
-        const recordsRes: any = await api.listRecords(col.name, {
+        const recordsRes = await api.listRecords(col.name, {
           pageSize: 20,
           sort: ['-updatedAt'],
         });
 
-        const records = Array.isArray(recordsRes.data)
-          ? recordsRes.data
-          : (recordsRes.data as any)?.data || [];
+        const records = Array.isArray((recordsRes as { data?: unknown }).data)
+          ? (recordsRes as { data: unknown[] }).data
+          : ((recordsRes as { data?: { data?: unknown[] } }).data as { data?: unknown[] })?.data || [];
 
         for (const record of records) {
           // extract text fields as chunks
@@ -293,10 +301,10 @@ export async function reindexCollection(collection: string): Promise<{ indexed: 
   const result = { indexed: 0, failed: 0 };
 
   try {
-    const recordsRes: any = await api.listRecords(collection, { paginate: false });
-    const records = Array.isArray(recordsRes.data)
-      ? recordsRes.data
-      : (recordsRes.data as any)?.data || [];
+    const recordsRes = await api.listRecords(collection, { paginate: false });
+    const records = Array.isArray((recordsRes as { data?: unknown }).data)
+      ? (recordsRes as { data: unknown[] }).data
+      : ((recordsRes as { data?: { data?: unknown[] } }).data as { data?: unknown[] })?.data || [];
 
     for (const record of records) {
       // extract all text fields
@@ -326,11 +334,14 @@ export async function reindexCollection(collection: string): Promise<{ indexed: 
 
 // index every user collection in the database
 export async function indexAllCollections(): Promise<Record<string, { indexed: number; failed: number }>> {
+
   const results: Record<string, { indexed: number; failed: number }> = {};
 
   try {
-    const colRes: any = await api.listCollections();
-    const allCols: any[] = Array.isArray(colRes.data) ? colRes.data : (colRes.data as any)?.data || [];
+    const colRes = await api.listCollections();
+    const allCols: { name?: string; hidden?: boolean }[] = Array.isArray((colRes as { data?: unknown }).data)
+      ? (colRes as { data: unknown[] }).data as { name?: string; hidden?: boolean }[]
+      : ((colRes as { data?: { data?: unknown[] } }).data as { data?: unknown[] })?.data as { name?: string; hidden?: boolean }[] || [];
 
     const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections'];
     const userCols = allCols
@@ -338,7 +349,7 @@ export async function indexAllCollections(): Promise<Record<string, { indexed: n
         const name = (c.name || '').toLowerCase();
         return !systemCollections.includes(name) && !c.hidden && !name.startsWith('pkm_');
       })
-      .map((c) => c.name);
+      .map((c) => c.name as string);
 
     for (const col of userCols) {
       secureLogger.info(`[vector-store] indexing collection: ${col}`);

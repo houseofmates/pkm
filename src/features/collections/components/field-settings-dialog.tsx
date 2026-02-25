@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -86,7 +86,7 @@ export function FieldSettingsDialog({ collectionName, field, open, onOpenChange,
             onFieldUpdated();
             onOpenChange(false);
         } catch (error: any) {
-            console.error(error);
+            secureLogger.error(error);
             toast.error(error.message || "failed to update field");
         } finally {
             setLoading(false);
@@ -134,7 +134,7 @@ export function FieldSettingsDialog({ collectionName, field, open, onOpenChange,
                     <div className="space-y-2">
                         <Label className="lowercase">property type</Label>
                         <Select value={interfaceType} onValueChange={setInterfaceType}>
-                            <SelectTrigger>
+                            <SelectTrigger className="lowercase">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -160,7 +160,6 @@ export function FieldSettingsDialog({ collectionName, field, open, onOpenChange,
                                 />
                             </div>
                         </div>
-                        <p className="text-[10px] text-muted-foreground lowercase">this color is used for icons and indicators for this property.</p>
                     </div>
 
                     <DialogFooter className="pt-4">

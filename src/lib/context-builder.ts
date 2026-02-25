@@ -1,5 +1,6 @@
 
 import { NocoBaseClient } from '@/api/nocobase-client';
+import type { Collection, Field } from '@/api/nocobase-client';
 
 
 export async function buildKnowledgeContext(client: NocoBaseClient): Promise<string> {
@@ -21,7 +22,7 @@ export async function buildKnowledgeContext(client: NocoBaseClient): Promise<str
 
   // filter collections like in usecollections hook
   const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections', 'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers'];
-  const collections = rawCollections.filter((col: any) => {
+  const collections = rawCollections.filter((col: Collection) => {
   const name = (col.name || '').toLowerCase().trim();
   const title = (col.title || '').toLowerCase().trim();
 
@@ -58,8 +59,8 @@ export async function buildKnowledgeContext(client: NocoBaseClient): Promise<str
   // describe fields
   if (col.fields && col.fields.length > 0) {
  const fieldDesc = col.fields
- .filter((f: any) => !f.hidden && f.interface !== 'subTable') // Skip complex relations for brevity
- .map((f: any) => `${f.title} (${f.type})`)
+ .filter((f: Field) => !f.hidden && f.interface !== 'subTable') // Skip complex relations for brevity
+ .map((f: Field) => `${f.title || f.name} (${f.type})`)
  .join(', ');
  context += `Fields: ${fieldDesc}\n`;
   }
@@ -71,11 +72,11 @@ export async function buildKnowledgeContext(client: NocoBaseClient): Promise<str
  sort: ['-createdAt', '-id'] // Recent first
  });
 
- const records = Array.isArray(recordsRes.data) ? recordsRes.data : (recordsRes.data as any)?.data || [];
+ const records = Array.isArray(recordsRes.data) ? recordsRes.data : (recordsRes.data as { data?: Record<string, unknown>[] })?.data || [];
 
  if (records.length > 0) {
  context += "Recent 5 Records:\n";
- records.forEach((rec: any) => {
+ records.forEach((rec: Record<string, unknown>) => {
  // simplify record to json string but remove heavy metadata
  const simpleRec = { ...rec };
  delete simpleRec.created_at;
@@ -99,7 +100,7 @@ export async function buildKnowledgeContext(client: NocoBaseClient): Promise<str
   return context;
 
   } catch (error) {
-  console.error("Failed to build knowledge context", error);
+  secureLogger.error("Failed to build knowledge context", error);
   return "Error loading database context.";
   }
 }

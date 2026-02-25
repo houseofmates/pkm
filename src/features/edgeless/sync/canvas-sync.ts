@@ -143,7 +143,7 @@ class CanvasSyncService {
         throw new Error(result.error || 'sync failed')
       }
     } catch (err) {
-      console.error('sync failed for drawing', drawingId, err)
+      secureLogger.error('sync failed for drawing', drawingId, err)
       state.isSyncing = false
       this.syncState.set(drawingId, state)
 
