@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { api } from '@/api/nocobase-client';
 import { Loader2 } from 'lucide-react';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface DashboardCardProps {
   collectionName: string;
@@ -24,7 +25,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
  try {
  queryFilter = JSON.parse(filter);
  } catch (_e) {
- console.warn('Invalid filter JSON:', filter);
+ secureLogger.warn('Invalid filter JSON:', filter);
  }
  }
 
@@ -37,7 +38,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
  const items = Array.isArray(res?.data) ? res.data : (res?.data as { data?: unknown[] })?.data || [];
  setData(items);
   } catch (err) {
- console.error('Dashboard fetching error:', err);
+ secureLogger.error('Dashboard fetching error:', err);
  setError('Failed to load data');
   } finally {
  setLoading(false);
@@ -74,7 +75,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
  style={{ fontFamily: '"Varela Round", sans-serif' }}
  onClick={() => {
    // ideally open a drawer or navigate
-   console.log('Clicked item', item);
+   secureLogger.info('Clicked item', item);
  }}
  >
  <div className="font-semibold truncate">
