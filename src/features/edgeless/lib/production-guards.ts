@@ -2,6 +2,7 @@
 // error recovery, memory management, and performance monitoring
 
 import { toast } from 'sonner'
+import { storageManager } from '@/lib/storage-manager'
 
 interface MemoryStats {
   used: number
@@ -89,7 +90,7 @@ class ProductionGuard {
           drawingId,
           data: canvasData,
         }
-        localStorage.setItem(`pkm-emergency-${drawingId}`, JSON.stringify(backup))
+        storageManager.setItem(`pkm-emergency-${drawingId}`, JSON.stringify(backup))
         secureLogger.info('[production guard] emergency checkpoint saved')
       }
     } catch (e) {
