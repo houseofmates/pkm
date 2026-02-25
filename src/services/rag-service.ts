@@ -16,8 +16,8 @@ export interface RagContext {
 export interface RowContext {
   collection: string;
   recordId: string | number;
-  data: Record<string, any>;
-  relatedRecords: Record<string, any[]>;
+  data: Record<string, string | number | boolean | null | undefined>;
+  relatedRecords: Record<string, Record<string, string | number | boolean | null | undefined>[]>;
 }
 
 // build rag context for a user query
@@ -68,20 +68,20 @@ export async function buildRowContext(
 ): Promise<RowContext> {
   try {
     // fetch the record
-    const recordRes: any = await api.getRecord(collection, recordId);
-    const record = recordRes.data || recordRes;
+    const recordRes = await api.getRecord(collection, recordId);
+    const record: Record<string, string | number | boolean | null | undefined> = (recordRes as { data?: unknown }).data as any || (recordRes as any);
 
     // fetch related records if relations exist
-    const relatedRecords: Record<string, any[]> = {};
+    const relatedRecords: Record<string, Record<string, string | number | boolean | null | undefined>[]> = {};
 
     // look for relation fields in the record
     for (const [key, value] of Object.entries(record)) {
-      if (Array.isArray(value) && value.length > 0 && (value[0] as any)?.id) {
+      if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object' && value[0] !== null && 'id' in value[0]) {
         // likely a has-many relation
-        relatedRecords[key] = value;
-      } else if (value && typeof value === 'object' && (value as any).id) {
+        relatedRecords[key] = value as Record<string, string | number | boolean | null | undefined>[];
+      } else if (value && typeof value === 'object' && value !== null && 'id' in value) {
         // likely a belongs-to relation
-        relatedRecords[key] = [value];
+        relatedRecords[key] = [value as Record<string, string | number | boolean | null | undefined>];
       }
     }
 
@@ -162,7 +162,7 @@ export async function generateAiFieldContent(
 }
 
 // build an effective search query from row data
-function buildSearchQuery(rowData: Record<string, any>, instruction: string): string {
+function buildSearchQuery(rowData: Record<string, string | number | boolean | null | undefined>, instruction: string): string {
   // extract key terms from the row
   const keyFields = ['title', 'name', 'description', 'content', 'body', 'text', 'summary', 'tags', 'category'];
   const terms: string[] = [];
@@ -181,7 +181,7 @@ function buildSearchQuery(rowData: Record<string, any>, instruction: string): st
 }
 
 // format related records for context
-function formatRelatedRecords(related: Record<string, any[]>): string {
+function formatRelatedRecords(related: Record<string, Record<string, string | number | boolean | null | undefined>[]>): string {
   const parts: string[] = ['\n## related records'];
 
   for (const [relationName, records] of Object.entries(related)) {
@@ -196,7 +196,7 @@ function formatRelatedRecords(related: Record<string, any[]>): string {
 }
 
 // create a brief summary of a record
-function summarizeRecord(record: Record<string, any>): string {
+function summarizeRecord(record: Record<string, string | number | boolean | null | undefined>): string {
   const titleFields = ['title', 'name', 'subject', 'headline', 'summary'];
   for (const field of titleFields) {
     if (record[field] && typeof record[field] === 'string') {
