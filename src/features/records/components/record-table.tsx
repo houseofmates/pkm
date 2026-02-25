@@ -353,6 +353,7 @@ const DraggableRecordRow = (props: any) => {
       className="contents"
     >
       <div
+        key={columnVersion}
         ref={(node) => {
           rowRef.current = node;
           setNodeRef(node);
