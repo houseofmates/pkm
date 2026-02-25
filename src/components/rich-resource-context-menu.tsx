@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { Upload, Search, Loader2, type LucideIcon } from 'lucide-react';
+import * as Icons from 'lucide-react';
 // Dynamic icon loader for Lucide icons
 const lucideIconMap: Record<string, LucideIcon> = {};
 // ALL_ICONS is defined below, so we fill the map after its definition
