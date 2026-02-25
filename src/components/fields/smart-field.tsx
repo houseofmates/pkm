@@ -1572,10 +1572,12 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           <ContextMenuTrigger asChild>
             <div
               onContextMenu={(e) => { e.stopPropagation(); }}
-              className={cn("text-blue-400 hover:underline flex items-center gap-1 w-full cursor-pointer", size === 'lg' ? "text-lg" : "text-sm")}
+              className={cn("text-blue-400 hover:underline flex items-center gap-1 w-full cursor-pointer truncate", size === 'lg' ? "text-lg" : "text-sm")}
               onClick={(e) => e.stopPropagation()}
+              title={value}
             >
-              <LinkIcon className="h-3 w-3" /> {value}
+              <LinkIcon className="h-3 w-3 shrink-0" /> 
+              <span className="truncate">{value}</span>
             </div>
           </ContextMenuTrigger>
           <ContextMenuContent className="w-48">
