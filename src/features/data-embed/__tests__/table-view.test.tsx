@@ -12,8 +12,17 @@ vi.mock('@tanstack/react-table', () => ({
 }));
 
 vi.mock('react-window', () => ({
-  List: ({ children, ...props }: any) => {
-    return <div data-testid="virtual-list" {...props}>{children({index:0,style:{},data:{rows:[]}})}</div>;
+  List: ({ children, outerRef, onScroll, ...props }: any) => {
+    return (
+      <div
+        data-testid="virtual-list"
+        ref={outerRef}
+        onScroll={onScroll}
+        {...props}
+      >
+        {children({index:0,style:{},data:{rows:[]}})}
+      </div>
+    );
   },
 }));
 
