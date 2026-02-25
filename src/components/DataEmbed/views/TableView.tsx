@@ -134,10 +134,16 @@ export function TableView({ records, isLoading, theme, onSelect }: TableViewProp
       </div>
 
       {/* Body (Virtualized) */}
-      <div ref={bodyRef} className="flex-1 relative">
+      <div className="flex-1 relative">
         <AutoSizer>
           {({ height, width }) => (
             <List
+              outerRef={bodyRef}
+              onScroll={({ scrollOffset, scrollUpdateWasRequested, scrollDirection, scrollLeft }) => {
+                if (headerRef.current) {
+                  headerRef.current.scrollLeft = scrollLeft;
+                }
+              }}
               itemCount={rows.length || 1}
               itemSize={40}
               height={height}
