@@ -349,6 +349,10 @@ export class NocoBaseClient {
     const res = await this._axios.post(`/collections/${collection}/fields:update?filterByTk=${name}`, data);
     return ActionResponseSchema.parse(res.data);
   }
+  async deleteField(collection: string, name: string): Promise<unknown> {
+    const res = await this._axios.post(`/collections/${collection}/fields:destroy?filterByTk=${name}`);
+    return ActionResponseSchema.parse(res.data);
+  }
   async listRecords(collection: string, params: Record<string, unknown> = {}): Promise<unknown> {
     // remove /obj/ prefix, use <collection>:list
     const res = await this._axios.get(`/${collection}:list`, { params });
