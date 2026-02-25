@@ -8,9 +8,9 @@ export const FieldTypeSchema = z.object({
   // The programmatic name of the field type, e.g., "text", "number", "date"
   typeName: z.string(),
   // A Zod schema that validates the data for this field type
-  schema: z.custom<z.ZodType>(),
+  schema: z.instanceof(z.ZodType),
   // Optional: A default value for this field type
-  defaultValue: z.any().optional(),
+  defaultValue: z.unknown().optional(),
 });
 
 export type FieldType = z.infer<typeof FieldTypeSchema>;
