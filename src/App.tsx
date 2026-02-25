@@ -1,4 +1,5 @@
 import { AuthProvider, useAuth } from "@/contexts/auth-context"
+import { checkForApkUpdate, downloadAndPromptInstall } from "@/utils/apkUpdater"
 import { LoginPage } from "@/pages/login"
 import { RootLayout } from "@/pages/root-layout"
 import { Toaster } from "@/components/ui/sonner"
@@ -52,7 +53,23 @@ const LoadingFallback = (
 )
 
 function AppContent() {
-  const { token } = useAuth()
+  const { token, apiKey } = useAuth() // assuming apiKey is available
+  const [updateChecked, setUpdateChecked] = useState(false)
+    // check for APK update on mount
+    useEffect(() => {
+      if (!updateChecked && apiKey) {
+        // get current app version from package.json or hardcoded
+        const currentVersion = "0.0.0" // TODO: replace with actual version
+        checkForApkUpdate(currentVersion, apiKey).then(manifest => {
+          if (manifest) {
+            if (window.confirm(`a new version (${manifest.version}) is available. update now?`)) {
+              downloadAndPromptInstall(manifest.apkUrl)
+            }
+          }
+          setUpdateChecked(true)
+        })
+      }
+    }, [updateChecked, apiKey])
   const [setupNeeded, setSetupNeeded] = useState<boolean | null>(null)
 
   // run link registry migration on mount
