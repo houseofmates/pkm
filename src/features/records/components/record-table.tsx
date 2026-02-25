@@ -317,8 +317,8 @@ const DraggableRecordRow = (props: any) => {
     touchAction: 'none',
     backgroundColor: isSelected ? '#1f2937' : (rowColor ? `${rowColor}20` : undefined),
     display: 'flex',
-    width: tableSize,
-    minWidth: tableSize
+    width: '100%',
+    minWidth: '100%'
   };
 
   isDraggingRef.current = isDragging;
@@ -832,8 +832,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                 remains visible and the add/gear buttons are clickable */}
             <Table
               style={{
-                width: table.getTotalSize(),
-                minWidth: table.getTotalSize(),
+                width: table.getTotalSize() + (onCreateField ? 40 : 0),
+                minWidth: table.getTotalSize() + (onCreateField ? 40 : 0),
                 tableLayout: 'fixed'
               }}
             >
@@ -957,7 +957,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                 </Button>
               </div>
             )}
-            <div style={{ width: table.getTotalSize(), minWidth: table.getTotalSize(), height: '100%', position: 'relative' }}>
+            <div style={{ width: table.getTotalSize() + (onCreateField ? 40 : 0), minWidth: table.getTotalSize() + (onCreateField ? 40 : 0), height: '100%', position: 'relative' }}>
               {rows.length === 0 ? (
                 <div className="text-muted-foreground lowercase">
                   <div className="flex items-center justify-center h-16 w-full">
