@@ -736,12 +736,11 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
   const rows = table.getRowModel().rows;
 
-  // track column sizing changes so virtualization updates
-  const columnSizingState = table.getState().columnSizing;
+  // track column sizing changes (local state) so virtualization updates
   const [columnVersion, setColumnVersion] = React.useState(0);
   React.useEffect(() => {
     setColumnVersion(v => v + 1);
-  }, [columnSizingState]);
+  }, [columnSizing]);
 
   const handleRowSelect = React.useCallback((rowId: string, rowIndex: number, event: React.MouseEvent) => {
     setSelectedIds((prev) => {
