@@ -12,6 +12,7 @@ interface SemanticSearchProps {
   className?: string;
 }
 
+export function SemanticSearch({ onSelect, initialQuery = '', className }: SemanticSearchProps) {
   const { search, results, loading, source } = useSemanticSearch();
   const [query, setQuery] = useState(initialQuery);
   const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
