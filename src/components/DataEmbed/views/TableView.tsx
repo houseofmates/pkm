@@ -20,6 +20,9 @@ export function TableView({ records, isLoading, theme, onSelect }: TableViewProp
   // in the main record table.
   const prevColsRef = React.useRef<ColumnDef<any>[]>([]);
 
+  const headerRef = React.useRef<HTMLDivElement | null>(null);
+  const bodyRef = React.useRef<HTMLDivElement | null>(null);
+
   const columns = useMemo<ColumnDef<any>[]>(() => {
     const makeColsFromKeys = (keys: string[]) => {
       // filter out common metadata columns
@@ -106,7 +109,15 @@ export function TableView({ records, isLoading, theme, onSelect }: TableViewProp
   return (
     <div className="w-full h-full bg-card/50 backdrop-blur-xl border border-white/10 rounded-xl flex flex-col text-sm overflow-hidden">
       {/* Header */}
-      <div className="flex bg-muted/50 border-b border-white/5 font-medium text-xs uppercase tracking-wider text-muted-foreground">
+      <div
+        ref={headerRef}
+        className="flex bg-muted/50 border-b border-white/5 font-medium text-xs uppercase tracking-wider text-muted-foreground overflow-x-auto no-scrollbar"
+        onScroll={(e) => {
+          if (bodyRef.current) {
+            bodyRef.current.scrollLeft = e.currentTarget.scrollLeft;
+          }
+        }}
+      >
         {table.getHeaderGroups().map(headerGroup => (
           <div key={headerGroup.id} className="flex w-full">
             {headerGroup.headers.map(header => (
@@ -123,7 +134,7 @@ export function TableView({ records, isLoading, theme, onSelect }: TableViewProp
       </div>
 
       {/* Body (Virtualized) */}
-      <div className="flex-1 relative">
+      <div ref={bodyRef} className="flex-1 relative">
         <AutoSizer>
           {({ height, width }) => (
             <List
