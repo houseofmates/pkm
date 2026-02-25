@@ -62,13 +62,13 @@ export function DrawingPage() {
         // wait for canvas to render
         await new Promise((r) => setTimeout(r, 100))
       } catch (e) {
-        console.error('failed to load drawing:', e)
+        secureLogger.error('failed to load drawing:', e)
         toast.error('failed to load drawing')
       } finally {
         setLoading(false)
         setTimeout(() => {
           initialLoadCompleteRef.current = true
-          console.log('[drawing] load complete, saves enabled')
+          secureLogger.info('[drawing] load complete, saves enabled')
         }, 500)
       }
     }
@@ -136,10 +136,10 @@ export function DrawingPage() {
           await updateDrawingMeta(id, { thumbnail })
         }
 
-        console.log('[drawing] checkpoint saved')
+        secureLogger.info('[drawing] checkpoint saved')
       }
     } catch (e) {
-      console.error('checkpoint save failed:', e)
+      secureLogger.error('checkpoint save failed:', e)
     } finally {
       setSaving(false)
     }
@@ -166,7 +166,7 @@ export function DrawingPage() {
       if (e.detail?.drawingId === id) {
         setSyncStatus('conflict')
         toast.error('sync conflict detected - manual resolution required')
-        console.warn('[drawing] sync conflict:', e.detail)
+        secureLogger.warn('[drawing] sync conflict:', e.detail)
       }
     }
 
@@ -257,7 +257,7 @@ export function DrawingPage() {
         <div className="pointer-events-auto w-full h-full">
           <Toolbar />
           <CanvasControls />
-          <EdgelessCanvas onLoad={() => console.log('[drawing] canvas ready')} />
+          <EdgelessCanvas onLoad={() => secureLogger.info('[drawing] canvas ready')} />
         </div>
       </div>
 

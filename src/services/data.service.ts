@@ -21,7 +21,7 @@ class DataService {
       type: field.type,
     }));
 
-    console.log(`Creating collection "${name}" in NocoBase...`);
+    secureLogger.info(`Creating collection "${name}" in NocoBase...`);
     await api.createCollection({ name, fields: backendFields });
 
     // After creating, trigger a sync to refresh the UI and cache
@@ -39,11 +39,11 @@ class DataService {
     try {
       const cachedCollections = await localDbService.getAllCollections();
       if (cachedCollections && cachedCollections.length > 0) {
-        console.log(`Loaded ${cachedCollections.length} collections from cache.`);
+        secureLogger.info(`Loaded ${cachedCollections.length} collections from cache.`);
         usePkmStore.getState().setCollections(cachedCollections);
       }
     } catch (error) {
-      console.error('Failed to load collections from cache:', error);
+      secureLogger.error('Failed to load collections from cache:', error);
     }
 
     // 2. Fetch fresh data from the network
@@ -56,7 +56,7 @@ class DataService {
           ? response.data.data
           : [];
 
-      console.log(`Fetched ${freshCollections.length} collections from NocoBase.`);
+      secureLogger.info(`Fetched ${freshCollections.length} collections from NocoBase.`);
 
       // 3. Update the local cache with fresh data
       await localDbService.saveCollections(freshCollections);
@@ -64,7 +64,7 @@ class DataService {
       // 4. Update the UI (Zustand store) with fresh data
       usePkmStore.getState().setCollections(freshCollections);
     } catch (error) {
-      console.error('Failed to sync collections from NocoBase. App may be offline.', error);
+      secureLogger.error('Failed to sync collections from NocoBase. App may be offline.', error);
       // If the network fails, the app will continue to run with the cached data.
     }
   }

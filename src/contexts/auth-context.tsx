@@ -104,7 +104,7 @@ export function useAuth() {
     // state. Returning a lightweight stub avoids those crashes while the
     // warning helps us surface regressions during development.
     if (process.env.NODE_ENV !== 'production' || !warnedMissingProvider) {
-      console.warn('useAuth called outside of AuthProvider; returning fallback stub.');
+      secureLogger.warn('useAuth called outside of AuthProvider; returning fallback stub.');
       warnedMissingProvider = true;
     }
     return {

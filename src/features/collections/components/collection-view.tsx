@@ -57,7 +57,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
       refresh();
       toast.success("record created successfully");
     } catch (err) {
-      console.error("Failed to create record", err);
+      secureLogger.error("Failed to create record", err);
       toast.error("failed to create record");
     }
   };
@@ -71,7 +71,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
       refresh();
       toast.success("record updated successfully");
     } catch (err) {
-      console.error("Failed to update record", err);
+      secureLogger.error("Failed to update record", err);
       toast.error("failed to update record");
     }
   };
@@ -83,7 +83,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
       refresh();
       toast.success("record deleted successfully");
     } catch (err) {
-      console.error("Failed to delete record", err);
+      secureLogger.error("Failed to delete record", err);
       toast.error("failed to delete record");
     }
   };

@@ -171,7 +171,7 @@ class LinkRegistry {
             storageManager.setItem(STORAGE_KEY, JSON.stringify(data))
             this.dirty = false
         } catch (e) {
-            console.error('link-Registry: persist failed', e)
+            secureLogger.error('link-Registry: persist failed', e)
         }
     }
 
@@ -186,7 +186,7 @@ class LinkRegistry {
             for (const e of data) this.register(e)
             this.dirty = false
         } catch (e) {
-            console.error('link-Registry: hydrate failed', e)
+            secureLogger.error('link-Registry: hydrate failed', e)
         }
     }
 

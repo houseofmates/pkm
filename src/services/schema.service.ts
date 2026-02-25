@@ -39,7 +39,7 @@ class SchemaService {
    */
   public registerFieldType(fieldType: FieldType) {
     if (this.fieldTypes.has(fieldType.typeName)) {
-      console.warn(`Field type "${fieldType.typeName}" is already registered. Overwriting.`);
+      secureLogger.warn(`Field type "${fieldType.typeName}" is already registered. Overwriting.`);
     }
     FieldTypeSchema.parse(fieldType); // Validate the field type definition itself
     this.fieldTypes.set(fieldType.typeName, fieldType);

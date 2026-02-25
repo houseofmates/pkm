@@ -32,7 +32,7 @@ export async function generateText(prompt: string, model: string = 'qwen2.5:7b',
 
   return data.response
   } catch (e) {
-  console.warn("Wilson Silent Fail:", e)
+  secureLogger.warn("Wilson Silent Fail:", e)
   return null
   }
 }

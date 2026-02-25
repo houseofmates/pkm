@@ -38,7 +38,7 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
   const records = Array.isArray(res) ? res : (res as { data?: any[] }).data || [];
   setData(Array.isArray(records) ? records : []);
   } catch (e: any) {
-  console.error('DatabaseViewElement error:', e);
+  secureLogger.error('DatabaseViewElement error:', e);
   if (e.response?.status === 401) {
  setError('Authentication required');
   } else if (e.response?.status === 404) {

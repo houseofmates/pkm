@@ -41,7 +41,7 @@ export function DatabaseCanvasView() {
         // we might want to clear the canvas first or load specific "canvas view" data
         // for now, preserving the user's request to "add back the tools" implies
         // they want the drawing canvas back.
-      } catch (e) { console.error(e); }
+      } catch (e) { secureLogger.error(e); }
     };
     load();
   }, [selectedcollection]);

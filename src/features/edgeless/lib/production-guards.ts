@@ -43,7 +43,7 @@ class ProductionGuard {
         const usedRatio = memory.usedJSHeapSize / memory.jsHeapSizeLimit
 
         if (usedRatio > this.memoryThreshold) {
-          console.warn('[production guard] high memory usage:', Math.round(usedRatio * 100) + '%')
+          secureLogger.warn('[production guard] high memory usage:', Math.round(usedRatio * 100) + '%')
           toast.warning('memory usage high - consider saving and refreshing', {
             duration: 5000,
           })
@@ -59,7 +59,7 @@ class ProductionGuard {
     this.lastError = event.error
     this.errorCount++
 
-    console.error('[production guard] global error:', event.error)
+    secureLogger.error('[production guard] global error:', event.error)
 
     if (this.errorCount >= this.maxErrors) {
       toast.error('multiple errors detected - please refresh the page')
@@ -69,7 +69,7 @@ class ProductionGuard {
   }
 
   private handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-    console.error('[production guard] unhandled rejection:', event.reason)
+    secureLogger.error('[production guard] unhandled rejection:', event.reason)
 
     // check if it's an indexeddb error
     if (event.reason?.name?.includes('IndexedDB') || event.reason?.message?.includes('indexeddb')) {
@@ -90,10 +90,10 @@ class ProductionGuard {
           data: canvasData,
         }
         localStorage.setItem(`pkm-emergency-${drawingId}`, JSON.stringify(backup))
-        console.log('[production guard] emergency checkpoint saved')
+        secureLogger.info('[production guard] emergency checkpoint saved')
       }
     } catch (e) {
-      console.error('[production guard] emergency checkpoint failed:', e)
+      secureLogger.error('[production guard] emergency checkpoint failed:', e)
     }
   }
 

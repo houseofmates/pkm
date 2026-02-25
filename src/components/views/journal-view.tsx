@@ -57,7 +57,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
       setEntry('');
       toast.success("Entry captured!");
     } catch (error) {
-      console.error("JournalView: Failed to create entry", error);
+      secureLogger.error("JournalView: Failed to create entry", error);
       toast.error("Could not save entry");
     }
   };

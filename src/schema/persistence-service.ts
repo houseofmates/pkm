@@ -86,7 +86,7 @@ class PersistenceService {
       },
     });
 
-    console.log('persistence service initialized - database:', DB_NAME, 'version:', DB_VERSION);
+    secureLogger.info('persistence service initialized - database:', DB_NAME, 'version:', DB_VERSION);
   }
 
   /**
@@ -424,7 +424,7 @@ class PersistenceService {
     await tx.objectStore('records').clear();
     await tx.objectStore('metadata').clear();
     await tx.done;
-    console.log('all data cleared from database');
+    secureLogger.info('all data cleared from database');
   }
 
   /**
@@ -473,7 +473,7 @@ class PersistenceService {
     }
     
     await tx.done;
-    console.log('data imported successfully:', data.tables.length, 'tables,', data.records.length, 'records');
+    secureLogger.info('data imported successfully:', data.tables.length, 'tables,', data.records.length, 'records');
   }
 }
 

@@ -264,7 +264,7 @@ export class NocoBaseClient {
         storageManager.setItem(schemaKey, SCHEMA_VERSION);
       }
 
-      console.log(`[NocoBase] ${COL_NAME} collection created successfully`);
+      secureLogger.info(`[NocoBase] ${COL_NAME} collection created successfully`);
       return true;
     } catch (createError: unknown) {
       const errMsg = createError instanceof Error ? createError.message : String(createError);

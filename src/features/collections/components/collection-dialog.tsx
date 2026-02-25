@@ -173,7 +173,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
           return true;
         });
         setCollectionsList(filteredCollections);
-      }).catch(console.error);
+      }).catch(secureLogger.error);
 
       if (isEdit) {
         setDisplayName(initialTitle || collection.title || '');
@@ -343,7 +343,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
             try {
               await client.createField(finalName, fieldConfig);
             } catch (err: any) {
-              console.error(`failed to create field ${field.name}`, err);
+              secureLogger.error(`failed to create field ${field.name}`, err);
               toast.error(`field ${field.title} error: ${err?.message || err}`);
             }
           }
@@ -379,7 +379,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
                   successCount++;
                 } catch (err: any) {
                   failureCount++;
-                  console.error(`failed to import row ${i + idx}`, err);
+                  secureLogger.error(`failed to import row ${i + idx}`, err);
                   toast.error(`row ${i + idx + 1} import error: ${err?.message || err}`);
                 }
               }));
@@ -408,7 +408,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
       if (setOpen) setOpen(false);
       onSuccess();
     } catch (error: any) {
-      console.error(error);
+      secureLogger.error(error);
       toast.error(error.message || `failed to ${isEdit ? 'update' : 'create'} database`);
     } finally {
       setLoading(false);
@@ -431,7 +431,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
       setImageUrl(uploadedfile.url);
       toast.success("image uploaded", { id: toastid });
     } catch (error) {
-      console.error(error);
+      secureLogger.error(error);
       toast.error("failed to upload image", { id: toastid });
     }
   };

@@ -82,7 +82,7 @@ export function FormRenderer({ element, isAdmin }: FormRendererProps) {
             setSubmitted(true);
             toast.success(content.successMessage);
         } catch (error: any) {
-            console.error('Form submission failed:', error);
+            secureLogger.error('Form submission failed:', error);
             toast.error('submission failed. please try again.');
         } finally {
             setSubmitting(false);

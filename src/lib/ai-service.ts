@@ -29,7 +29,7 @@ export async function generateResponse(context: string, prompt: string, model: s
   const data = await res.json();
   return data.response;
   } catch (err) {
-  console.error('AI Service Error:', err);
+  secureLogger.error('AI Service Error:', err);
   return "sorry, i couldn't reach the ai right now. is ollama running?";
   }
 }

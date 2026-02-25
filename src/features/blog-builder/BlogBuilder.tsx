@@ -123,7 +123,7 @@ export function BlogBuilder() {
           }
         }
       } catch (error) {
-        console.error('[BlogBuilder] Error fetching data:', error);
+        secureLogger.error('[BlogBuilder] Error fetching data:', error);
         toast.error('failed to load blog posts');
       } finally {
         setLoading(false);
@@ -149,7 +149,7 @@ export function BlogBuilder() {
         },
       });
     } catch (error) {
-      console.error('[blogbuilder] error updating view count:', error);
+      secureLogger.error('[blogbuilder] error updating view count:', error);
     }
   };
 

@@ -152,7 +152,7 @@ export function RichEditor({ value = '', placeholder, className, onChange, uploa
         const url = await uploadImage(file);
         exec('insertImage', url);
       } catch (e) {
-        console.error('Image upload failed', e);
+        secureLogger.error('Image upload failed', e);
       }
     } else {
       const url = URL.createObjectURL(file);

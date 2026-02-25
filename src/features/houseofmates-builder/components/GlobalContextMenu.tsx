@@ -71,30 +71,30 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   const file = e.target.files[0];
   if (!file) return;
 
-  console.log('[globalcontextmenu] uploading file:', file.name, file.type, file.size);
+  secureLogger.info('[globalcontextmenu] uploading file:', file.name, file.type, file.size);
   toast.info('uploading background...');
   try {
  const uploaded = await api.upload(file);
- console.log('[globalcontextmenu] upload response:', uploaded);
+ secureLogger.info('[globalcontextmenu] upload response:', uploaded);
 
  // try multiple possible response structures
  const url = uploaded?.url || uploaded?.data?.url || uploaded?.data?.data?.url;
- console.log('[globalcontextmenu] extracted url:', url);
+ secureLogger.info('[globalcontextmenu] extracted url:', url);
 
  if (url) {
  const bgstyle = `url("${url}") center center / cover no-repeat fixed`;
- console.log('[globalcontextmenu] setting background to:', bgstyle);
- console.log('[globalcontextmenu] current page:', page);
+ secureLogger.info('[globalcontextmenu] setting background to:', bgstyle);
+ secureLogger.info('[globalcontextmenu] current page:', page);
 
  updatepage({ background: bgstyle });
  toast.success('background uploaded successfully');
  } else {
- console.error('[globalcontextmenu] no url found in upload response:', uploaded);
+ secureLogger.error('[globalcontextmenu] no url found in upload response:', uploaded);
  throw new error('no url in response - upload may have failed');
  }
   } catch (err: any) {
- console.error('[globalcontextmenu] upload error:', err);
- console.error('[globalcontextmenu] error details:', err?.response || err?.message);
+ secureLogger.error('[globalcontextmenu] upload error:', err);
+ secureLogger.error('[globalcontextmenu] error details:', err?.response || err?.message);
  toast.error('failed to upload background: ' + (err?.message || 'unknown error'));
   }
   onclose();
@@ -359,7 +359,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   toast.success('page open sound updated');
   }
   } catch (err) {
-  console.error(err);
+  secureLogger.error(err);
   toast.error('upload failed');
   }
   onclose();
@@ -388,7 +388,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   toast.success('page close sound updated');
   }
   } catch (err) {
-  console.error(err);
+  secureLogger.error(err);
   toast.error('upload failed');
   }
   onclose();

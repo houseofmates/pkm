@@ -958,7 +958,7 @@ function PageSoundEffect({ enabled, customEnterUrl, customExitUrl }: { enabled?:
  await audio.play();
  return true;
   } catch (e) {
- console.error(`Failed to play custom ${type} sound:`, e);
+ secureLogger.error(`Failed to play custom ${type} sound:`, e);
  return false;
   }
   };

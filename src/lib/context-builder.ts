@@ -99,7 +99,7 @@ export async function buildKnowledgeContext(client: NocoBaseClient): Promise<str
   return context;
 
   } catch (error) {
-  console.error("Failed to build knowledge context", error);
+  secureLogger.error("Failed to build knowledge context", error);
   return "Error loading database context.";
   }
 }

@@ -44,7 +44,7 @@ export function LocationField({ value, onChange, readOnly }: LocationFieldProps)
   try {
   const [lat, lng] = str.split(',').map(number);
   if (!isnan(lat) && !isnan(lng)) return new l.latlng(lat, lng);
-  } catch (e) { console.error(e); }
+  } catch (e) { secureLogger.error(e); }
   return null; // default null
   };
 

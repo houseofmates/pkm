@@ -177,7 +177,7 @@ export function HouseofmatesBuilder() {
 
       // logic: if (on background or (not element and not handle and not ui)) and no modifier
       if (!isModifier && (isBackground || (!isClickingElement && !isClickingHandle && !isClickingUI))) {
-        console.log('[HouseofmatesBuilder] Context/Background Deselection');
+        secureLogger.info('[HouseofmatesBuilder] Context/Background Deselection');
         setSelectedElementIds([]);
         setContextMenu(null);
       }
@@ -213,24 +213,24 @@ export function HouseofmatesBuilder() {
       api.updateRecord(collectionNames.website, previousPage.id, {
         ...previousPage,
         elements: JSON.stringify(previousPage.elements)
-      }).catch(console.error);
+      }).catch(secureLogger.error);
     }
   }, [history, historyIndex, collectionNames]);
 
   // --- fetch page ---
   const fetchPage = useCallback(async () => {
-    console.log('[HouseofmatesBuilder] fetchPage called', { slug, site_identifier });
-    console.log('[HouseofmatesBuilder] collectionNames:', collectionNames);
+    secureLogger.info('[HouseofmatesBuilder] fetchPage called', { slug, site_identifier });
+    secureLogger.info('[HouseofmatesBuilder] collectionNames:', collectionNames);
     setLoading(true);
 
     try {
-      console.log('[HouseofmatesBuilder] About to make API request to:', collectionNames.website);
-      console.log('[HouseofmatesBuilder] api object:', api);
-      console.log('[HouseofmatesBuilder] api.request:', typeof api.request);
+      secureLogger.info('[HouseofmatesBuilder] About to make API request to:', collectionNames.website);
+      secureLogger.info('[HouseofmatesBuilder] api object:', api);
+      secureLogger.info('[HouseofmatesBuilder] api.request:', typeof api.request);
 
       let pageRes;
       try {
-        console.log('[HouseofmatesBuilder] Calling api.request...');
+        secureLogger.info('[HouseofmatesBuilder] Calling api.request...');
         pageRes = await api.request(collectionNames.website, 'list', {
           params: {
             filter: {
@@ -240,26 +240,26 @@ export function HouseofmatesBuilder() {
             pageSize: 1
           }
         });
-        console.log('[HouseofmatesBuilder] ✅ API request completed successfully!');
+        secureLogger.info('[HouseofmatesBuilder] ✅ API request completed successfully!');
       } catch (apiError: any) {
-        console.error('[HouseofmatesBuilder] ❌ API request error:', apiError);
-        console.error('[HouseofmatesBuilder] Error name:', apiError?.name);
-        console.error('[HouseofmatesBuilder] Error message:', apiError?.message);
-        console.error('[HouseofmatesBuilder] Error response:', apiError?.response);
-        console.error('[HouseofmatesBuilder] Error stack:', apiError?.stack);
+        secureLogger.error('[HouseofmatesBuilder] ❌ API request error:', apiError);
+        secureLogger.error('[HouseofmatesBuilder] Error name:', apiError?.name);
+        secureLogger.error('[HouseofmatesBuilder] Error message:', apiError?.message);
+        secureLogger.error('[HouseofmatesBuilder] Error response:', apiError?.response);
+        secureLogger.error('[HouseofmatesBuilder] Error stack:', apiError?.stack);
         throw apiError;
       }
-      console.log('[HouseofmatesBuilder] RAW page response:', JSON.stringify(pageRes, null, 2));
-      console.log('[HouseofmatesBuilder] pageRes.data:', pageRes?.data);
-      console.log('[HouseofmatesBuilder] pageRes.data type:', typeof pageRes?.data);
-      console.log('[HouseofmatesBuilder] pageRes.data is array?', Array.isArray(pageRes?.data));
+      secureLogger.info('[HouseofmatesBuilder] RAW page response:', JSON.stringify(pageRes, null, 2));
+      secureLogger.info('[HouseofmatesBuilder] pageRes.data:', pageRes?.data);
+      secureLogger.info('[HouseofmatesBuilder] pageRes.data type:', typeof pageRes?.data);
+      secureLogger.info('[HouseofmatesBuilder] pageRes.data is array?', Array.isArray(pageRes?.data));
 
       let foundPage = pageRes?.data?.[0] || pageRes?.data?.data?.[0];
-      console.log('[HouseofmatesBuilder] foundPage:', foundPage);
+      secureLogger.info('[HouseofmatesBuilder] foundPage:', foundPage);
 
       // if no page found and we're looking for home, try is_home and site_identifier
       if (!foundPage && (slug === 'home' || !slug)) {
-        console.log('[HouseofmatesBuilder] No page found with slug, trying is_home filter');
+        secureLogger.info('[HouseofmatesBuilder] No page found with slug, trying is_home filter');
         pageRes = await api.request(collectionNames.website, 'list', {
           params: {
             filter: {
@@ -269,47 +269,47 @@ export function HouseofmatesBuilder() {
             pageSize: 1
           }
         });
-        console.log('[HouseofmatesBuilder] home page RAW response:', JSON.stringify(pageRes, null, 2));
+        secureLogger.info('[HouseofmatesBuilder] home page RAW response:', JSON.stringify(pageRes, null, 2));
         foundPage = pageRes?.data?.[0] || pageRes?.data?.data?.[0];
-        console.log('[HouseofmatesBuilder] foundPage after home filter:', foundPage);
+        secureLogger.info('[HouseofmatesBuilder] foundPage after home filter:', foundPage);
       }
 
       if (foundPage) {
-        console.log('[HouseofmatesBuilder] ✓ FOUND PAGE:', foundPage);
+        secureLogger.info('[HouseofmatesBuilder] ✓ FOUND PAGE:', foundPage);
         const elements = typeof foundPage.elements === 'string'
           ? JSON.parse(foundPage.elements)
           : (foundPage.elements || []);
         const loadedPage = { ...foundPage, elements };
-        console.log('[HouseofmatesBuilder] loaded page:', loadedPage);
+        secureLogger.info('[HouseofmatesBuilder] loaded page:', loadedPage);
         setPage(loadedPage);
 
         // init history
         setHistory([loadedPage]);
         setHistoryIndex(0);
       } else {
-        console.error('[HouseofmatesBuilder] ✗ NO PAGE FOUND FOR:', { slug, site_identifier, collection: collectionNames.website });
-        console.error('[HouseofmatesBuilder] This means either:');
-        console.error(' 1. No pages exist in the database');
-        console.error(' 2. The API key lacks read permissions');
-        console.error(' 3. The page was deleted or data was cleared');
+        secureLogger.error('[HouseofmatesBuilder] ✗ NO PAGE FOUND FOR:', { slug, site_identifier, collection: collectionNames.website });
+        secureLogger.error('[HouseofmatesBuilder] This means either:');
+        secureLogger.error(' 1. No pages exist in the database');
+        secureLogger.error(' 2. The API key lacks read permissions');
+        secureLogger.error(' 3. The page was deleted or data was cleared');
         setPage(null);
       }
     } catch (error: any) {
-      console.error('Failed to fetch page:', error);
+      secureLogger.error('Failed to fetch page:', error);
       if (error.response) {
-        console.error('Error response data:', error.response.data);
-        console.error('Error response status:', error.response.status);
+        secureLogger.error('Error response data:', error.response.data);
+        secureLogger.error('Error response status:', error.response.status);
 
         // handle 401 specifically
         if (error.response.status === 401) {
-          console.warn('[HouseofmatesBuilder] 401 Unauthorized - prompting for login');
+          secureLogger.warn('[HouseofmatesBuilder] 401 Unauthorized - prompting for login');
           toast.error('you need to log in as admin to create/edit pages');
           setShowLoginModal(true);
         }
       }
       setPage(null);
     } finally {
-      console.log('[HouseofmatesBuilder] setting loading to false');
+      secureLogger.info('[HouseofmatesBuilder] setting loading to false');
       setLoading(false);
     }
   }, [slug, site_identifier, collectionNames]);
@@ -319,11 +319,11 @@ export function HouseofmatesBuilder() {
   useEffect(() => {
     // only fetch once on mount
     if (hasFetchedRef.current) {
-      console.log('[HouseofmatesBuilder] Skipping duplicate fetch');
+      secureLogger.info('[HouseofmatesBuilder] Skipping duplicate fetch');
       return;
     }
 
-    console.log('[HouseofmatesBuilder] init useEffect running');
+    secureLogger.info('[HouseofmatesBuilder] init useEffect running');
     hasFetchedRef.current = true;
 
     const init = async () => {
@@ -334,13 +334,13 @@ export function HouseofmatesBuilder() {
         await ensureWebsiteCollection();
         await ensureFormsCollection();
       } catch (err) {
-        console.error('collection setup failed:', err);
+        secureLogger.error('collection setup failed:', err);
       }
       await fetchPage();
     };
 
     init().catch((e) => {
-      console.error('[HouseofmatesBuilder] init failed', e);
+      secureLogger.error('[HouseofmatesBuilder] init failed', e);
     });
   }, []);
 
@@ -362,10 +362,10 @@ export function HouseofmatesBuilder() {
         ensureFormsCollection(),
         fetchPage()
       ]).catch(err => {
-        console.error('background setup failed:', err);
+        secureLogger.error('background setup failed:', err);
       });
     } catch (error) {
-      console.error('admin login failed:', error);
+      secureLogger.error('admin login failed:', error);
       toast.error('failed to enable admin mode');
       storageManager.removeItem('hom_api_key');
     }
@@ -377,7 +377,7 @@ export function HouseofmatesBuilder() {
     const colTitle = site_identifier === 'dupe' ? 'dupe mates pages' : 'website pages';
 
     try {
-      console.log(`[ensureWebsiteCollection] Checking for ${colName}...`);
+      secureLogger.info(`[ensureWebsiteCollection] Checking for ${colName}...`);
       const collectionsRes = await api.listCollections();
       const collectionsData = Array.isArray(collectionsRes) ? collectionsRes : (collectionsRes as { data?: any[] }).data;
       const col = collectionsData?.find((c: any) => c.name === colName);
@@ -397,7 +397,7 @@ export function HouseofmatesBuilder() {
       ];
 
       if (!col) {
-        console.log(`[ensureWebsiteCollection] Creating ${colName} collection...`);
+        secureLogger.info(`[ensureWebsiteCollection] Creating ${colName} collection...`);
         await api.createCollection({
           name: colName,
           title: colTitle,
@@ -411,11 +411,11 @@ export function HouseofmatesBuilder() {
           const parentData = Array.isArray(parentRes) ? parentRes : (parentRes as { data?: any[] }).data;
           const parent = parentData?.find((p: any) => col.inherits.includes(p.name));
           if (!parent) {
-            console.warn(`[ensureWebsiteCollection] Broken inheritance detected for ${colName}! Resetting inherits.`);
+            secureLogger.warn(`[ensureWebsiteCollection] Broken inheritance detected for ${colName}! Resetting inherits.`);
             try {
               await api.updateCollection(colName, { inherits: [] });
             } catch (e) {
-              console.error(`Failed to reset broken inheritance for ${colName}:`, e);
+              secureLogger.error(`Failed to reset broken inheritance for ${colName}:`, e);
             }
           }
         }
@@ -423,7 +423,7 @@ export function HouseofmatesBuilder() {
         // ensure metadata (title/hidden) normalized
         try {
           await api.updateCollection(colName, { title: colTitle, hidden: true }).catch((err) => {
-            console.warn(`Primary update metadata failed for ${colName}, trying fallback:`, err.message);
+            secureLogger.warn(`Primary update metadata failed for ${colName}, trying fallback:`, err.message);
             return api.request('collections', 'update', {
               method: 'POST',
               params: { filterByTk: colName },
@@ -431,7 +431,7 @@ export function HouseofmatesBuilder() {
             });
           });
         } catch (e) {
-          console.warn(`Failed to normalize collection metadata for ${colName}:`, e);
+          secureLogger.warn(`Failed to normalize collection metadata for ${colName}:`, e);
         }
 
         // check fields - try to use list if get fails
@@ -440,12 +440,12 @@ export function HouseofmatesBuilder() {
           const colDetail = await api.getCollection(colName);
           existingFields = colDetail.data?.fields || [];
         } catch (e) {
-          console.warn(`Failed to get fields for ${colName} via getCollection, trying listFields fallback`);
+          secureLogger.warn(`Failed to get fields for ${colName} via getCollection, trying listFields fallback`);
           try {
             const fieldListRes = await api.request('fields', 'list', { params: { 'filter[collectionName]': colName } });
             existingFields = fieldListRes.data || [];
           } catch (fe) {
-            console.error(`Giving up on field check for ${colName}:`, fe);
+            secureLogger.error(`Giving up on field check for ${colName}:`, fe);
           }
         }
 
@@ -453,24 +453,24 @@ export function HouseofmatesBuilder() {
           const existing = existingFields.find((f: any) => f.name === field.name);
           if (!existing) {
             try {
-              console.log(`Adding missing field ${field.name} to ${colName} collection`);
+              secureLogger.info(`Adding missing field ${field.name} to ${colName} collection`);
               await api.createField(colName, field);
             } catch (err: any) {
-              if (err.response?.status !== 400) console.warn(`Failed to add field ${field.name}:`, err.message);
+              if (err.response?.status !== 400) secureLogger.warn(`Failed to add field ${field.name}:`, err.message);
             }
           } else if (existing.interface !== field.interface) {
             try {
-              console.log(`Updating field ${field.name} interface in ${colName} collection`);
+              secureLogger.info(`Updating field ${field.name} interface in ${colName} collection`);
               // @ts-expect-error -- api typings do not include updatefield overload used here
               await api.updateField(colName, field.name, { interface: field.interface });
             } catch (err) {
-              console.warn(`Failed to update field ${field.name}:`, err);
+              secureLogger.warn(`Failed to update field ${field.name}:`, err);
             }
           }
         }
       }
     } catch (error) {
-      console.error(`Failed to ensure website collection:`, error);
+      secureLogger.error(`Failed to ensure website collection:`, error);
     }
   };
 
@@ -507,18 +507,18 @@ export function HouseofmatesBuilder() {
           const parentRes = await api.listCollections();
           const parentData = Array.isArray(parentRes) ? parentRes : (parentRes as { data?: any[] }).data;
           if (!parentData?.find((p: any) => col.inherits.includes(p.name))) {
-            console.warn(`[ensureFormsCollection] Broken inheritance detected for ${colName}! Resetting inherits.`);
-            await api.updateCollection(colName, { inherits: [] }).catch(console.error);
+            secureLogger.warn(`[ensureFormsCollection] Broken inheritance detected for ${colName}! Resetting inherits.`);
+            await api.updateCollection(colName, { inherits: [] }).catch(secureLogger.error);
           }
         }
 
         // ensure metadata (title/hidden) normalized
         try {
           await api.updateCollection(colName, { title: colTitle, hidden: true }).catch(err => {
-            console.warn(`Metadata update fail for ${colName}:`, err.message);
+            secureLogger.warn(`Metadata update fail for ${colName}:`, err.message);
           });
         } catch (e) {
-          console.warn(`Failed to normalize collection metadata for ${colName}:`, e);
+          secureLogger.warn(`Failed to normalize collection metadata for ${colName}:`, e);
         }
 
         // try to get fields more reliably
@@ -533,15 +533,15 @@ export function HouseofmatesBuilder() {
 
         for (const field of fields) {
           if (!existingFields.some((ef: any) => ef.name === field.name)) {
-            console.log(`Adding missing field ${field.name} to ${colName} collection`);
+            secureLogger.info(`Adding missing field ${field.name} to ${colName} collection`);
             await api.createField(colName, field).catch(err => {
-              if (err.response?.status !== 400) console.warn(`Field add fail: ${field.name}`, err.message);
+              if (err.response?.status !== 400) secureLogger.warn(`Field add fail: ${field.name}`, err.message);
             });
           }
         }
       }
     } catch (error) {
-      console.error(`Failed to update ${colName} collection:`, error);
+      secureLogger.error(`Failed to update ${colName} collection:`, error);
     }
   };
 
@@ -599,13 +599,13 @@ export function HouseofmatesBuilder() {
     const newPage = { ...page, elements: newElements };
     addToHistory(newPage);
     setPage(newPage);
-    console.log('[updateElements] Saving to database:', { pageId: page.id, elementCount: newElements.length, updates: batchUpdates });
+    secureLogger.info('[updateElements] Saving to database:', { pageId: page.id, elementCount: newElements.length, updates: batchUpdates });
     api.updateRecord(collectionNames.website, page.id, { elements: JSON.stringify(newElements) })
       .then(() => {
-        console.log('[updateElements] ✓ Successfully saved to database');
+        secureLogger.info('[updateElements] ✓ Successfully saved to database');
       })
       .catch((error) => {
-        console.error('[updateElements] ✗ failed to save to database:', error);
+        secureLogger.error('[updateElements] ✗ failed to save to database:', error);
       });
   }, [page, collectionNames, previewMode, addToHistory]);
 
@@ -622,7 +622,7 @@ export function HouseofmatesBuilder() {
     setSelectedElementIds([]);
     api.updateRecord(collectionNames.website, page.id, { elements: JSON.stringify(newElements) })
       .then(() => toast.success(`${ids.length} element(s) deleted`))
-      .catch(console.error);
+      .catch(secureLogger.error);
   }, [page, collectionNames]);
 
   const deleteElement = useCallback((id: string) => {
@@ -652,7 +652,7 @@ export function HouseofmatesBuilder() {
 
     api.updateRecord(collectionNames.website, page.id, { elements: JSON.stringify(newElements) })
       .then(() => toast.success('element added'))
-      .catch(console.error);
+      .catch(secureLogger.error);
   }, [page, collectionNames, previewMode, addToHistory]);
 
   const copySelection = useCallback(() => {
@@ -707,17 +707,17 @@ export function HouseofmatesBuilder() {
 
     api.updateRecord(collectionNames.website, page.id, { elements: JSON.stringify(newElements) })
       .then(() => toast.success(`${clipboard.length} element(s) pasted`))
-      .catch(console.error);
+      .catch(secureLogger.error);
   }, [page, clipboard, pasteCount, collectionNames, addToHistory]);
 
   const updatePage = useCallback((updates: Partial<PageData>) => {
     if (!page) {
-      console.error('[Builder] Cannot update page - no page loaded');
+      secureLogger.error('[Builder] Cannot update page - no page loaded');
       return;
     }
 
     if (!isAdmin) {
-      console.error('[Builder] Cannot update page - not logged in as admin');
+      secureLogger.error('[Builder] Cannot update page - not logged in as admin');
       toast.error('you must be logged in as admin to edit');
       setShowLoginModal(true);
       return;
@@ -731,16 +731,16 @@ export function HouseofmatesBuilder() {
     const { elements, ...pageUpdates } = updates;
     const payload = elements ? { ...pageUpdates, elements: JSON.stringify(elements) } : pageUpdates;
 
-    console.log('[Builder] Updating page:', page.id, 'with payload:', payload);
+    secureLogger.info('[Builder] Updating page:', page.id, 'with payload:', payload);
 
     api.updateRecord(collectionNames.website, page.id, payload)
       .then((res) => {
-        console.log('[Builder] Update successful:', res);
+        secureLogger.info('[Builder] Update successful:', res);
         toast.success('page updated');
       })
       .catch((e) => {
-        console.error('[Builder] Update failed:', e);
-        console.error('[Builder] Error response:', e.response);
+        secureLogger.error('[Builder] Update failed:', e);
+        secureLogger.error('[Builder] Error response:', e.response);
         if (e.response?.status === 401) {
           toast.error('session expired - please log in again');
           setShowLoginModal(true);
@@ -804,7 +804,7 @@ export function HouseofmatesBuilder() {
   // --- context menu ---
   const handleContextMenu = (e: React.MouseEvent) => {
     // toast.success('debug: right click detected'); // removed to avoid spam, uncomment if needed
-    console.log('Context menu event triggered', { isAdmin, target: e.target });
+    secureLogger.info('Context menu event triggered', { isAdmin, target: e.target });
 
     // always prevent default to take control
     e.preventDefault();
@@ -816,11 +816,11 @@ export function HouseofmatesBuilder() {
 
     // don't show if clicking interactive elements inside elements
     if ((e.target as HTMLElement).closest('button, input, select, textarea')) {
-      console.log('Context menu suppressed by interactive element');
+      secureLogger.info('Context menu suppressed by interactive element');
       return;
     }
 
-    console.log('Opening global context menu');
+    secureLogger.info('Opening global context menu');
     setContextMenu({ type: 'global', x: e.clientX, y: e.clientY });
   };
 
@@ -907,7 +907,7 @@ export function HouseofmatesBuilder() {
         addElement(newElement);
 
       } catch (err: any) {
-        console.error('Upload failed:', err);
+        secureLogger.error('Upload failed:', err);
         toast.error(`failed to upload ${file.name}`);
       }
     }

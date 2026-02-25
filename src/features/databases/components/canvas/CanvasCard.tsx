@@ -91,7 +91,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
     try {
       // upload to nocobase
       const uploaded = await api.upload(file);
-      console.log("Uploaded:", uploaded);
+      secureLogger.info("Uploaded:", uploaded);
 
       // structure expected by nocobase attachment field is usually an array of objects
       // or just the object depending on the field config.
@@ -101,7 +101,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
 
       handleSave(imageField, newValue);
     } catch (error) {
-      console.error("Upload failed", error);
+      secureLogger.error("Upload failed", error);
       // optional: show toast error
     }
   };
