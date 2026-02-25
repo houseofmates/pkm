@@ -393,7 +393,13 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         if (itemIdLower.startsWith('drawing_')) {
           return true;
         }
-        return collectionNames.has(itemIdLower);
+        // Only filter out collections if we have loaded collections data
+        // This prevents items from disappearing while collections are still loading
+        if (collections.length > 0) {
+          return collectionNames.has(itemIdLower);
+        }
+        // If collections haven't loaded yet, keep the item to avoid blank sidebar
+        return true;
       }
       return true;
     });
