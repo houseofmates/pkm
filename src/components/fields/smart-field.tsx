@@ -330,6 +330,12 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     return val;
   };
 
+  const dataUrlToFile = async (dataUrl: string, filename = 'edited.png') => {
+    const res = await fetch(dataUrl);
+    const blob = await res.blob();
+    return new File([blob], filename, { type: blob.type || 'image/png' });
+  };
+
   const renderImageEditor = (src: string) => {
     const drawPreview = async () => {
       const canvas = previewRef.current;
@@ -493,7 +499,15 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
               <Button size="sm" onClick={async () => {
                 const dataUrl = await exportImage();
                 if (dataUrl) {
-                  handleSave(dataUrl);
+                  try {
+                    const file = await dataUrlToFile(dataUrl);
+                    const uploaded = await client?.upload?.(file);
+                    const url = uploaded?.data?.url || uploaded?.url;
+                    handleSave(url || dataUrl);
+                  } catch (e) {
+                    // fallback to data URL if upload fails
+                    handleSave(dataUrl);
+                  }
                   setEditorOpen(false);
                 }
               }}>apply</Button>
