@@ -180,6 +180,41 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
             toast.error(err?.message || 'failed to delete property');
           }
         }}
+        fieldColor={fieldColors[field?.name]}
+        onSetFieldColor={(color) => {
+          setMetadata((prev: Record<string, any>) => ({
+            ...prev,
+            [collectionName]: {
+              ...(prev[collectionName] || {}),
+              fieldColors: {
+                ...(prev[collectionName]?.fieldColors || {}),
+                [field.name]: color,
+              }
+            }
+          }));
+        }}
+        valueColorRules={valueColorRules[field?.name] || {}}
+        onSetValueColor={(val, color) => {
+          setMetadata((prev: Record<string, any>) => {
+            const existingRules = (prev[collectionName]?.valueColorRules?.[field.name]) || {};
+            const updatedRules = { ...existingRules } as Record<string, string>;
+            if (!color) {
+              delete updatedRules[val];
+            } else {
+              updatedRules[val] = color;
+            }
+            return {
+              ...prev,
+              [collectionName]: {
+                ...(prev[collectionName] || {}),
+                valueColorRules: {
+                  ...(prev[collectionName]?.valueColorRules || {}),
+                  [field.name]: updatedRules,
+                }
+              }
+            };
+          });
+        }}
       >
         <div
           className={cn(
@@ -201,7 +236,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
             >
               <div
                 className="whitespace-normal font-medium leading-[1.2] text-sm"
-                style={{ wordBreak: 'break-word', minWidth: 0 }}
+                style={{ wordBreak: 'break-word', minWidth: 0, color: fieldColors[field?.name] || undefined }}
               >
                 {header.isPlaceholder
                   ? null
@@ -406,6 +441,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
   const [recordMeta] = useAppSetting<Record<string, any>>(`record_meta_${collection?.name || 'unknown'}`, {});
   const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
+  const fieldColors = metadata[collection?.name]?.fieldColors || {};
+  const valueColorRules = metadata[collection?.name]?.valueColorRules || {} as Record<string, Record<string, string>>;
 
   // selection state for bulk actions
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
@@ -483,6 +520,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               record={info.row.original}
               collectionName={collection.name}
               size="lg"
+              className="w-full"
+              style={{ color: getValueColor(valueColorRules, field.name, info.getValue()) || undefined }}
               onChange={(val) => {
                 onUpdateRecordRef.current?.(info.row.original.id, { [field.name]: val });
               }}
@@ -507,6 +546,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                 record={info.row.original}
                 collectionName={collection.name}
                 size="lg"
+                className="w-full"
+                style={{ color: getValueColor(valueColorRules, key, info.getValue()) || undefined }}
                 onChange={(val) => {
                   onUpdateRecordRef.current?.(info.row.original.id, { [key]: val });
                 }}
