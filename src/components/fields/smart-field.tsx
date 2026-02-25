@@ -1100,11 +1100,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
         <ContextMenu>
           <ContextMenuTrigger asChild>
             <div
-              onContextMenu={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsEditing(true);
-              }}
+              onContextMenu={(e) => { e.stopPropagation(); }}
               className={cn("text-blue-400 hover:underline flex items-center gap-1 w-full cursor-pointer", size === 'lg' ? "text-lg" : "text-sm")}
               onClick={(e) => e.stopPropagation()}
             >
@@ -1119,76 +1115,32 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
         </ContextMenu>
       );
     }
+    if (isPassword) return <div onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="cursor-pointer flex items-center gap-1 text-white/30 hover:text-white/60"><Lock className="h-3 w-3" /> <span className="font-mono">••••••••</span></div>;
+    if (isColor) return <div onClick={() => setIsEditing(true)} className="flex items-center gap-2 cursor-pointer group"><div className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: value || 'transparent' }} /><span className={cn("font-mono text-white/70 text-xs", size === 'lg' && "text-base")}>{value}</span></div>;
+    if (isCheckbox) return <div className="flex items-center justify-center h-full w-full cursor-pointer" onClick={() => onChange(!value)}><Checkbox checked={!!value} className="data-[state=checked]:bg-yellow-400 data-[state=checked]:text-black border-white/20" onCheckedChange={(checked: boolean) => onChange(checked)} /></div>;
+
     if (isFile) {
-      const attachments: { url: string; mime?: string }[] = Array.isArray(value)
-        ? value.map((v: any) => ({ url: v?.url || v, mime: v?.mimetype || v?.mime || v?.type }))
-        : (value?.url || (typeof value === 'string' && value.startsWith('http') ? value : null))
-          ? [{ url: value?.url || value, mime: (value as any)?.mimetype || (value as any)?.mime || (value as any)?.type }]
-          : [];
-
-      const first = attachments.find(a => !!a.url);
-      const firstUrl = first?.url;
-      const mime = (first?.mime || '').toLowerCase();
-      const isVideo = mime.includes('video') || (firstUrl || '').match(/\.(mp4|webm|mov|m4v)$/i);
-      const isPdf = mime.includes('pdf') || (firstUrl || '').match(/\.pdf$/i);
-
-      if (firstUrl) {
+      const imgs: string[] = Array.isArray(value) ? value.map((v: any) => v?.url || v).filter(Boolean) : (value?.url || (typeof value === 'string' && value.startsWith('http') ? value : null));
+      const imgArr = Array.isArray(imgs) ? imgs : (imgs ? [imgs] : []);
+      if (imgArr.length > 0) {
         return (
           <ContextMenu>
             <ContextMenuTrigger asChild>
-              <div
-                className="flex items-center justify-center gap-1 h-full w-full overflow-hidden px-1"
-                onContextMenu={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  if (!isPdf) {
-                    setEditorImage(firstUrl);
-                    setEditorOpen(true);
-                  }
-                }}
-              >
+              <div className="flex items-center justify-center gap-1 h-full w-full overflow-hidden px-1" onContextMenu={(e) => { e.stopPropagation(); }}>
                 <div
                   className="cursor-pointer flex items-center gap-1 transition-transform hover:scale-110"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (isPdf) {
-                      window.open(firstUrl, '_blank');
-                      return;
-                    }
-                    setFullscreenIndex(0);
-                    setGalleryImgs(attachments.map(a => a.url).filter(Boolean));
-                  }}
+                  onClick={(e) => { e.stopPropagation(); setFullscreenIndex(0); setGalleryImgs(imgArr); }}
                 >
-                  {isPdf ? (
-                    <div className="h-9 w-9 rounded border border-white/15 bg-white/5 flex items-center justify-center text-[9px] uppercase font-semibold text-white/70 px-1">
-                      pdf
-                    </div>
-                  ) : isVideo ? (
-                    <video
-                      src={firstUrl}
-                      className="h-9 w-9 object-cover rounded border border-white/10"
-                      muted
-                      autoPlay
-                      loop
-                      playsInline
-                    />
-                  ) : (
-                    <img src={firstUrl} className="h-9 w-9 object-cover rounded border border-white/10" alt="attachment" />
-                  )}
-                  {attachments.length > 1 && <span className="text-[10px] text-white/50">+{attachments.length - 1}</span>}
+                  <img src={imgArr[0]} className="h-7 w-7 object-cover rounded border border-white/10" alt="p" />
+                  {imgArr.length > 1 && <span className="text-[10px] text-white/50">+{imgArr.length - 1}</span>}
                 </div>
               </div>
             </ContextMenuTrigger>
             <ContextMenuContent className="w-52">
-              <ContextMenuItem onSelect={() => {
-                if (isPdf) window.open(firstUrl, '_blank');
-                else { setFullscreenIndex(0); setGalleryImgs(attachments.map(a => a.url)); }
-              }}>view</ContextMenuItem>
-              {!isPdf && (
-                <ContextMenuItem onSelect={() => { setEditorImage(firstUrl); setEditorOpen(true); }}>edit</ContextMenuItem>
-              )}
-              <ContextMenuItem onSelect={() => window.open(firstUrl, '_blank')}>open externally</ContextMenuItem>
-              <ContextMenuItem onSelect={() => { navigator.clipboard.writeText(String(firstUrl)); toast.success('copied'); }}>copy url</ContextMenuItem>
+              <ContextMenuItem onSelect={() => { setFullscreenIndex(0); setGalleryImgs(imgArr); }}>view</ContextMenuItem>
+              <ContextMenuItem onSelect={() => { setEditorImage(imgArr[0]); setEditorOpen(true); }}>edit image</ContextMenuItem>
+              <ContextMenuItem onSelect={() => window.open(imgArr[0], '_blank')}>open externally</ContextMenuItem>
+              <ContextMenuItem onSelect={() => { navigator.clipboard.writeText(String(imgArr[0])); toast.success('copied'); }}>copy url</ContextMenuItem>
             </ContextMenuContent>
           </ContextMenu>
         );
