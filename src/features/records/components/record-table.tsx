@@ -141,7 +141,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
         background: 'transparent',
       }}
       className={cn(
-        "group select-none relative text-left p-0 transition-colors border-r border-[#222] border-b border-b-[#222] flex-shrink-0 h-10 align-middle font-medium text-muted-foreground text-sm",
+        "group select-none relative text-left p-0 transition-colors border-r border-[#222] border-b border-b-[#222] flex-shrink-0 h-10 align-middle font-medium text-foreground text-sm",
         isDragging ? "bg-gray-800/40" : "hover:bg-gray-800/20"
       )}
     >
@@ -289,8 +289,7 @@ const DraggableRecordRow = (props: any) => {
   const row = rows[index];
   if (!row) return null;
 
-  const rowRef = React.useRef<HTMLDivElement>(null);
-  const isDraggingRef = React.useRef(false);
+i  const isDraggingRef = React.useRef(false);
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `record-${row.original.id}`,
