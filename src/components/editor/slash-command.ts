@@ -4,8 +4,6 @@ import { ReactRenderer } from '@tiptap/react';
 import tippy, { type Instance } from 'tippy.js';
 import { SlashMenu } from './SlashMenu';
 import { CommandActions } from './command-actions';
-import { api } from '@/api/nocobase-client';
-import { secureLogger } from '@/lib/secure-logger';
 
 export const SlashCommand = Extension.create({
   name: 'slashCommand',
@@ -155,7 +153,6 @@ export const renderItems = () => {
  return;
   }
 
-  // @ts-expect-error -- tippy popper types incompatible with reactrenderer return type
   popup = tippy('body', {
  getReferenceClientRect: props.clientRect,
  appendTo: () => document.body,
