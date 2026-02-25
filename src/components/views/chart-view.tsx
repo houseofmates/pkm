@@ -15,7 +15,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { useState } from 'react';
 
 export function ChartView(props: ViewProps) {
-  const { data, collection, config, onConfigChange, onUpdateRecord, onDelete } = props;
+  const { data, collection, config, onConfigChange, onUpdateRecord, onDelete, onCreateRecord } = props;
   const [drillDown, setDrillDown] = useState<{ xKey: string, seriesKey?: string } | null>(null);
   const [virtualMenu, setVirtualMenu] = useState<{ x: number, y: number, records: any[] } | null>(null);
 
@@ -145,8 +145,11 @@ export function ChartView(props: ViewProps) {
                     <SelectItem value="area">area chart</SelectItem>
                     <SelectItem value="pie">donut chart</SelectItem>
                     <SelectItem value="scatter">scatter plot</SelectItem>
+                    <SelectItem value="bubble">bubble chart</SelectItem>
                     <SelectItem value="radar">radar chart</SelectItem>
+                    <SelectItem value="radialbar">radial bar</SelectItem>
                     <SelectItem value="treemap">treemap</SelectItem>
+                    <SelectItem value="heatmap">heatmap</SelectItem>
                     <SelectItem value="funnel">funnel</SelectItem>
                     <SelectItem value="gauge">gauge (speedometer)</SelectItem>
                     <SelectItem value="kpi">scorecard / kpi</SelectItem>
