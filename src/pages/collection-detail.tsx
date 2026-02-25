@@ -630,6 +630,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                     onCreateRecord={() => handleDirectCreate()}
                     onCreate={(data: any) => handleDirectCreate(data)}
                     onCreateField={() => setFieldDialogOpen(true)}
+                    onFieldUpdated={fetchData}
                 />
             </div>
 
