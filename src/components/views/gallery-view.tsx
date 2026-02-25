@@ -212,7 +212,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
 function GalleryCard({
   record,
   collection,
-  imageUrl,
+  mediaAsset,
   title,
   titleField,
   visibleFields,
@@ -228,7 +228,7 @@ function GalleryCard({
 }: {
   record: any;
   collection: any;
-  imageUrl: string | null;
+  mediaAsset: { url: string; kind: 'image' | 'video' | 'pdf' } | null;
   title: string;
   titleField: any;
   visibleFields: any[];
@@ -257,7 +257,7 @@ function GalleryCard({
     opacity: isDragging ? 0.6 : 1,
   };
 
-  const hasImage = !!imageUrl;
+  const hasMedia = !!mediaAsset?.url;
 
   return (
     <RecordContextMenu
@@ -288,15 +288,30 @@ function GalleryCard({
           onCardDoubleClick();
         }}
       >
-        <div className={cn("flex flex-col w-full rounded-[inherit] overflow-hidden", !hasImage && "min-h-0")}>
-          {hasImage ? (
+        <div className={cn("flex flex-col w-full rounded-[inherit] overflow-hidden", !hasMedia && "min-h-0")}> 
+          {hasMedia ? (
             <>
               <div className="aspect-square bg-muted/30 flex items-center justify-center relative overflow-hidden rounded-t-[inherit]">
-                <img
-                  src={imageUrl!}
-                  alt=""
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-110 rounded-t-[inherit]"
-                />
+                {mediaAsset?.kind === 'pdf' ? (
+                  <div className="h-full w-full flex items-center justify-center bg-white/5 text-white/80 font-semibold uppercase text-xs tracking-wide">
+                    pdf preview
+                  </div>
+                ) : mediaAsset?.kind === 'video' ? (
+                  <video
+                    src={mediaAsset.url}
+                    className="h-full w-full object-cover"
+                    muted
+                    autoPlay
+                    loop
+                    playsInline
+                  />
+                ) : (
+                  <img
+                    src={mediaAsset?.url}
+                    alt=""
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-110 rounded-t-[inherit]"
+                  />
+                )}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/card:opacity-100 transition-opacity flex items-center justify-center rounded-t-[inherit]">
                   <span className="text-white text-xs font-bold px-2 py-1 border border-primary bg-primary/20 rounded-full lowercase">
                     view details
