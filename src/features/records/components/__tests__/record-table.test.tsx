@@ -1,6 +1,6 @@
 import { render, fireEvent } from '@testing-library/react';
-import * as React from 'react';
 import { RecordTable } from '../record-table';
+import { vi } from 'vitest';
 
 // simple mocks to avoid worrying about context dependencies
 vi.mock('@/features/records/components/record-context-menu', () => ({
