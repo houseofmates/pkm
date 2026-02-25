@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/table';
 import type { Collection } from '@/hooks/use-collections';
 import { Button } from '@/components/ui/button';
-import { Plus, Settings2, Trash2, Edit2 } from 'lucide-react';
+import { Plus, Settings2, Trash2, Edit2, MoreVertical, MoveRight } from 'lucide-react';
 import * as React from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { SmartField } from '@/components/fields/smart-field';
@@ -375,6 +375,13 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   const [recordMeta] = useAppSetting<Record<string, any>>(`record_meta_${collection?.name || 'unknown'}`, {});
   const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
 
+  // selection state for bulk actions
+  const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
+  const [lastSelectedIndex, setLastSelectedIndex] = React.useState<number | null>(null);
+  const [isBulkEditOpen, setIsBulkEditOpen] = React.useState(false);
+  const [bulkFieldName, setBulkFieldName] = React.useState<string | null>(null);
+  const [bulkValue, setBulkValue] = React.useState<any>(null);
+
   const columnSizing = metadata[collection?.name]?.columnWidths ?? EMPTY_SIZING;
   const columnOrder = metadata[collection?.name]?.columnOrder ?? EMPTY_ORDER;
 
@@ -409,6 +416,37 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   React.useEffect(() => { onEditRef.current = onEdit; }, [onEdit]);
   React.useEffect(() => { onDeleteRef.current = onDelete; }, [onDelete]);
   React.useEffect(() => { onUpdateRecordRef.current = onUpdateRecord; }, [onUpdateRecord]);
+
+  const handleRowSelect = React.useCallback((rowId: string, rowIndex: number, event: React.MouseEvent) => {
+    setSelectedIds((prev) => {
+      // shift+click selects range from lastSelectedIndex (or current) to clicked
+      if (event.shiftKey && rows.length > 0) {
+        const anchor = lastSelectedIndex ?? rowIndex;
+        const [start, end] = [anchor, rowIndex].sort((a, b) => a - b);
+        const rangeIds = rows.slice(start, end + 1).map((r: any) => r.original.id);
+        const merged = new Set(prev);
+        rangeIds.forEach((id) => merged.add(id));
+        return Array.from(merged);
+      }
+
+      // ctrl/cmd toggles selection of the clicked row
+      if (event.metaKey || event.ctrlKey) {
+        if (prev.includes(rowId)) {
+          return prev.filter((id) => id !== rowId);
+        }
+        return [...prev, rowId];
+      }
+
+      // plain click selects only this row
+      return [rowId];
+    });
+    setLastSelectedIndex(rowIndex);
+  }, [lastSelectedIndex, rows]);
+
+  const clearSelection = React.useCallback(() => {
+    setSelectedIds([]);
+    setLastSelectedIndex(null);
+  }, []);
 
   if (!collection) {
     return (
