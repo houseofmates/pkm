@@ -295,7 +295,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
           localStorage.setItem(key, JSON.stringify(toSave));
         }
       } catch (e) {
-        console.error("Failed to save local doc", e);
+        secureLogger.error("Failed to save local doc", e);
       }
     }
 
@@ -304,11 +304,11 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       const drawingId = id.replace('drawing_', '');
       if (updates.delete) {
         deleteDrawing(drawingId).catch((e) => {
-          console.error('failed to delete drawing', e);
+          secureLogger.error('failed to delete drawing', e);
         });
       } else if (updates.name) {
         updateDrawingMeta(drawingId, { title: updates.name }).catch((e) => {
-          console.error('failed to update drawing meta', e);
+          secureLogger.error('failed to update drawing meta', e);
         });
       }
     }
@@ -346,7 +346,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         const nonDrawing = items.filter((i: NavItem) => !i.id.startsWith('drawing_'));
         setItems([...nonDrawing, ...dbItems]);
       } catch (e) {
-        console.error('failed to load drawings from database', e);
+        secureLogger.error('failed to load drawings from database', e);
       }
     };
 
