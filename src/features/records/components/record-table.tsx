@@ -68,7 +68,7 @@ import type {
 import { cn } from '@/lib/utils';
 
 // Sortable Header Component
-function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSettings }: any) {
+function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSettings, fieldColors, valueColorRules, setMetadata }: any) {
   const { client } = useAuth();
   const [isEditing, setIsEditing] = React.useState(false);
   const [draftTitle, setDraftTitle] = React.useState<string>('');
@@ -189,7 +189,11 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
               fieldColors: {
                 ...(prev[collectionName]?.fieldColors || {}),
                 [field.name]: color,
-              }
+              },
+              valueColorRules: {
+                ...(prev[collectionName]?.valueColorRules || {}),
+                [field.name]: valueColorRules?.[field.name] || {},
+              },
             }
           }));
         }}
@@ -429,6 +433,17 @@ const DraggableRecordRow = (props: any) => {
 const DEFAULT_COL_WIDTH = 150;
 const EMPTY_SIZING: Record<string, number> = {};
 const EMPTY_ORDER: string[] = [];
+
+const getValueColor = (
+  rules: Record<string, Record<string, string>>,
+  fieldName: string,
+  value: any
+) => {
+  const fieldRules = rules?.[fieldName];
+  if (!fieldRules) return undefined;
+  const key = value == null ? '' : String(value);
+  return fieldRules[key];
+};
 
 export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateField, onCreateRecord, onFieldUpdated: onFieldUpdatedCb, loading }: RecordTableProps) {
   const [hiddenColumns, setHiddenColumns] = useAppSetting<string[]>(
@@ -807,6 +822,9 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                             setSettingsField(field);
                             setIsSettingsOpen(true);
                           }}
+                          fieldColors={fieldColors}
+                          valueColorRules={valueColorRules}
+                          setMetadata={setMetadata}
                         />
                       ))}
                     </SortableContext>
