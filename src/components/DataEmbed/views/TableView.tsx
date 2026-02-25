@@ -97,6 +97,12 @@ export function TableView({ records, isLoading, theme, onSelect, fields }: Table
 
   const { rows } = table.getRowModel();
 
+  const columnSizingState = table.getState().columnSizing;
+  const [columnVersion, setColumnVersion] = React.useState(0);
+  React.useEffect(() => {
+    setColumnVersion(v => v + 1);
+  }, [columnSizingState]);
+
   if (isLoading && !records.length) {
     return <div className="p-4 text-muted-foreground animate-pulse">Loading table...</div>;
   }
@@ -139,6 +145,7 @@ export function TableView({ records, isLoading, theme, onSelect, fields }: Table
         <AutoSizer>
           {({ height, width }) => (
             <List
+              key={columnVersion}
               outerRef={bodyRef}
               onScroll={({ scrollOffset }) => {
                 if (headerRef.current) {
