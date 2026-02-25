@@ -6,8 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
-
-
+import { type LucideIcon } from 'lucide-react';
+import * as Icons from 'lucide-react';
 const { Upload } = Icons;
 // Dynamic icon loader for Lucide icons
 const lucideIconMap: Record<string, LucideIcon> = {};
