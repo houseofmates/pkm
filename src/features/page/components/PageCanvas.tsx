@@ -42,7 +42,7 @@ type DocumentBlock = TextBlock | DatabaseBlock;
 interface DocumentState {
   title: string;
   blocks: DocumentBlock[];
-  layout: Layout;
+  layout: Layout[];
 }
 
 interface DocumentConfig {
@@ -75,13 +75,13 @@ export function PageCanvas() {
   const storageKey = useMemo(() => (id ? `canvas-content-${id}` : 'canvas-content'), [id]);
   const { collections, refresh } = useCollections();
 
-    const [documentState, setDocumentState] = useState<DocumentState>(() => {
+  const [documentState, setDocumentState] = useState<DocumentState>(() => {
     const overrideTitle = id ? loadDocumentConfig(id)?.title : undefined;
     return loadDocument(storageKey, overrideTitle);
   });
   const [pendingSave, setPendingSave] = useState(false);
 
-    useEffect(() => {
+  useEffect(() => {
     const overrideTitle = id ? loadDocumentConfig(id)?.title : undefined;
     setDocumentState(loadDocument(storageKey, overrideTitle));
     setPendingSave(false);
@@ -121,6 +121,10 @@ export function PageCanvas() {
       saveDocumentConfig(id, { title: value });
     }
   }, [id, updateDoc]);
+
+  const handleLayoutChange = useCallback((nextLayout: Layout[]) => {
+    updateDoc((prev) => ({ ...prev, layout: nextLayout }));
+  }, [updateDoc]);
 
   const addTextBlock = () => {
     updateDoc((prev) => {
@@ -228,7 +232,7 @@ export function PageCanvas() {
             margin={[16, 16]}
             containerPadding={[0, 0]}
             layout={docLayout}
-            onLayoutChange={handleLayoutChange}
+            onLayoutChange={(layout) => handleLayoutChange(layout)}
             draggableHandle=".block-handle"
             isDraggable
             isResizable
@@ -432,10 +436,10 @@ function getNextY(layout: Layout[]): number {
   return Math.max(...layout.map((item) => item.y + item.h)) + 1;
 }
 
-function createDefaultDocument(): DocumentState {
+function createDefaultDocument(title = 'untitled document'): DocumentState {
   const { block, layout } = createTextBlock([]);
   return {
-    title: 'untitled document',
+    title,
     blocks: [block],
     layout: [layout],
   };
@@ -451,21 +455,47 @@ function ensureLayoutForBlocks(blocks: DocumentBlock[], layout: Layout[]): Layou
   return result;
 }
 
-function loadDocument(key: string): DocumentState {
-  if (typeof window === 'undefined') return createDefaultDocument();
+function loadDocument(key: string, overrideTitle?: string): DocumentState {
+  if (typeof window === 'undefined') return createDefaultDocument(overrideTitle);
   try {
     const stored = storageManager.getItem(key);
-    if (!stored) return createDefaultDocument();
+    if (!stored) return createDefaultDocument(overrideTitle);
     const parsed = JSON.parse(stored);
     const blocks = Array.isArray(parsed?.blocks) ? parsed.blocks : [];
-    if (blocks.length === 0) return createDefaultDocument();
+    if (blocks.length === 0) return createDefaultDocument(overrideTitle);
     return {
-      title: typeof parsed?.title === 'string' ? parsed.title : 'untitled document',
+      title: overrideTitle ?? (typeof parsed?.title === 'string' ? parsed.title : 'untitled document'),
       blocks,
       layout: ensureLayoutForBlocks(blocks, Array.isArray(parsed?.layout) ? parsed.layout : []),
     };
   } catch (error) {
     secureLogger.error('Failed to load document content', error);
-    return createDefaultDocument();
+    return createDefaultDocument(overrideTitle);
+  }
+}
+
+function getConfigKey(id: string) {
+  return `${CONFIG_PREFIX}${id}`;
+}
+
+function loadDocumentConfig(id?: string | null): DocumentConfig | null {
+  if (!id) return null;
+  try {
+    const stored = storageManager.getItem(getConfigKey(id));
+    if (!stored) return null;
+    return JSON.parse(stored) as DocumentConfig;
+  } catch (error) {
+    secureLogger.error('Failed to load document config', error);
+    return null;
+  }
+}
+
+function saveDocumentConfig(id: string, patch: DocumentConfig): void {
+  if (!id) return;
+  try {
+    const existing = loadDocumentConfig(id) || {};
+    storageManager.setItem(getConfigKey(id), JSON.stringify({ ...existing, ...patch }));
+  } catch (error) {
+    secureLogger.error('Failed to persist document config', error);
   }
 }
