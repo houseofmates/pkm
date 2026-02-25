@@ -45,9 +45,13 @@ export function useThemeReactor() {
 
     // if still no color found (e.g. initial load), try last_active_color
     if (!color) {
-      const cached = storageManager.getItem('last_active_color');
-      if (cached) {
-        color = cached;
+      try {
+        const cached = storageManager.getItem('last_active_color');
+        if (cached) {
+          color = cached;
+        }
+      } catch (e) {
+        secureLogger.warn('Failed to read last_active_color', e);
       }
     }
 
@@ -56,7 +60,7 @@ export function useThemeReactor() {
       storageManager.setItem('last_active_color', color);
 
       // special case: if color is very dark (like black), use white instead
-      const hsl = HexToHsl(color);
+      const hsl = hexToHsl(color);
       if (hsl) {
         // parse lightness from "h s% l%" format
         const lightnessMatch = hsl.match(/(\d+)%$/);
@@ -77,7 +81,7 @@ export function useThemeReactor() {
           secureLogger.info('Dark color detected, using white instead');
         }
 
-        const finalHsl = HexToHsl(finalColor);
+        const finalHsl = hexToHsl(finalColor);
         if (finalHsl) {
           // force injection on both documentelement and body for max coverage
           document.documentElement.style.setProperty('--primary', finalHsl);
@@ -106,7 +110,7 @@ export function useThemeReactor() {
 }
 
 // helper: hex to hsl string "h s% l%"
-export function HexToHsl(hex: string): string | null {
+export function hexToHsl(hex: string): string | null {
   // remove #
   hex = hex.replace(/^#/, '');
 

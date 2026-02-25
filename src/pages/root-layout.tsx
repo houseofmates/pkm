@@ -22,7 +22,7 @@ import {
 } from '@dnd-kit/sortable';
 import { Folder, Database, Github, CheckCircle, RefreshCcw, AlertTriangle } from 'lucide-react';
 import { useAppSetting } from '@/hooks/use-app-setting';
-import { useThemeReactor, HexToHsl } from '@/hooks/use-theme-reactor';
+import { useThemeReactor, hexToHsl } from '@/hooks/use-theme-reactor';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { useFronter } from '@/contexts/fronter-context';
 import { ProtocolShift } from '@/components/layout/ProtocolShift';
@@ -98,7 +98,7 @@ export function RootLayout() {
 
   useEffect(() => {
     const root = document.documentElement;
-    const hsl = HexToHsl(accentColor);
+    const hsl = hexToHsl(accentColor);
     if (hsl) {
       root.style.setProperty('--primary', hsl);
     }

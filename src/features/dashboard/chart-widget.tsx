@@ -497,7 +497,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
             aspectRatio={4 / 3}
             stroke="var(--background)"
             fill={isPlaceholder ? "var(--muted)" : "#000000"}
-            isAnimationActive={false}
+            isAnimationActive={true}
             content={(props: any) => {
               const { x, y, width, height, index, name, value } = props;
               if (isPlaceholder) {

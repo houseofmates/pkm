@@ -71,12 +71,13 @@ const debounceBroadcast = (event, payload, delay = 500) => {
         io.emit(event, payload);
         return;
     }
-    const type = payload.type || "generic";
-    if (pendingEmits[type]) clearTimeout(pendingEmits[type].timeout);
-    pendingEmits[type] = {
+    const key = `${payload.type}:${payload.uuid || payload.source || payload.player || 'global'}`;
+
+    if (pendingEmits[key]) clearTimeout(pendingEmits[key].timeout);
+    pendingEmits[key] = {
         timeout: setTimeout(() => {
             io.emit(event, payload);
-            delete pendingEmits[type];
+            delete pendingEmits[key];
         }, delay)
     };
 };
@@ -747,7 +748,7 @@ app.get('/api/public/doc/:slug', (req, res) => {
 
 // Webhook Handler (from previous implementation, consolidated)
 const sendWebhook = async (type, player, message, timestamp, online) => {
-    const webhookUrl = 'http://192.168.4.233:5678/webhook/leave-join';
+    const webhookUrl = process.env.N8N_WEBHOOK_URL || 'http://localhost:5678/webhook/leave-join';
     try {
         await axios.post(webhookUrl, {
             type: type === 'quit' ? 'leave' : type,
