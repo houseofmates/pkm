@@ -6,7 +6,18 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Upload, type LucideIcon } from 'lucide-react';
-import * as Icons from 'lucide-react';
+// Dynamic icon loader for Lucide icons
+const lucideIconMap: Record<string, LucideIcon> = {};
+for (const iconName of common_icons) {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    lucideIconMap[iconName.charAt(0).toUpperCase() + iconName.slice(1)] = require('lucide-react')[iconName.charAt(0).toUpperCase() + iconName.slice(1)];
+  } catch {}
+}
+
+function getLucideIcon(name: string): LucideIcon | undefined {
+  return lucideIconMap[name.charAt(0).toUpperCase() + name.slice(1)];
+}
 
 // helper to safely get lucide icon by name
 function getLucideIcon(name: string): LucideIcon | undefined {
