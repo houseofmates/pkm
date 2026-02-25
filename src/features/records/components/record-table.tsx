@@ -289,7 +289,7 @@ const DraggableRecordRow = (props: any) => {
   const row = rows[index];
   if (!row) return null;
 
-i  const isDraggingRef = React.useRef(false);
+  const isDraggingRef = React.useRef(false);
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: `record-${row.original.id}`,
