@@ -1,4 +1,4 @@
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEditor, EditorContent, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import Typography from '@tiptap/extension-typography';
@@ -29,9 +29,10 @@ interface BlockEditorProps {
   editable?: boolean;
   className?: string;
   placeholder?: string;
+  onEditorReady?: (editor: Editor | null) => void;
 }
 
-export function BlockEditor({ content, onChange, editable = true, className, placeholder = "type '/' for commands" }: BlockEditorProps) {
+export function BlockEditor({ content, onChange, editable = true, className, placeholder = "type '/' for commands", onEditorReady }: BlockEditorProps) {
   const [widgetPickerOpen, setWidgetPickerOpen] = useState(false);
   const [onWidgetSelect, setOnWidgetSelect] = useState<((type: string, data: any) => void) | null>(null);
 
@@ -85,6 +86,15 @@ export function BlockEditor({ content, onChange, editable = true, className, pla
       if (onChange) onChange(html);
     },
   });
+
+  useEffect(() => {
+    if (onEditorReady) {
+      onEditorReady(editor);
+      return () => {
+        onEditorReady(null);
+      };
+    }
+  }, [editor, onEditorReady]);
 
   if (!editor) return null;
 
