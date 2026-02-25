@@ -159,7 +159,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             toast.success("record created");
             fetchData();
         } catch (error) {
-            secureLogger.error(error);
+            secureLogger.error(error instanceof Error ? error.message : String(error));
             toast.error("failed to create record");
         }
     };
@@ -292,7 +292,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                       });
                     }
                 } catch (err) {
-                    secureLogger.error(err);
+                    secureLogger.error(String(err));
                     toast.error("failed to create record");
                 }
             }
