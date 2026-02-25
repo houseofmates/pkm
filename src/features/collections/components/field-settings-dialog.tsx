@@ -160,7 +160,6 @@ export function FieldSettingsDialog({ collectionName, field, open, onOpenChange,
                                 />
                             </div>
                         </div>
-                        <p className="text-[10px] text-muted-foreground lowercase">this color is used for icons and indicators for this property.</p>
                     </div>
 
                     <DialogFooter className="pt-4">
