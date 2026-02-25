@@ -232,7 +232,7 @@ export function PageCanvas() {
         <div className="mx-auto" style={{ maxWidth: gridWidth }}>
           <GridLayout
             className="layout"
-            numCols={4}
+            cols={4}
             rowHeight={120}
             width={gridWidth}
             margin={[16, 16]}
