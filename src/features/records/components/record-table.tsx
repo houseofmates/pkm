@@ -140,7 +140,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
       ref={setNodeRef}
       style={{
         ...style,
-          width: header.getSize() || DEFAULT_COL_WIDTH,
+        width: header.getSize() || DEFAULT_COL_WIDTH,
         minWidth: header.getSize() || DEFAULT_COL_WIDTH,
         maxWidth: header.getSize() || DEFAULT_COL_WIDTH,
         background: 'transparent',
@@ -430,7 +430,7 @@ const DraggableRecordRow = (props: any) => {
             </div>
           );
         })}
-        
+
       </div>
     </RecordContextMenu>
   );
@@ -525,36 +525,36 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
   const columns = React.useMemo(() => {
     let cols: any[] = [];
-    
+
     if (collection.fields && collection.fields.length > 0) {
       const visibleFields = (collection.fields || [])
         .filter((f: any) => !f.hidden)
         .filter((f: any) => f.name && !hiddenColumns.includes(f.name));
-      
+
       cols = visibleFields.map((field: any) => columnHelper.accessor(field.name, {
-          header: (field.uiSchema?.title || field.name),
-          meta: { field },
-          cell: info => {
-            const color = getValueColor(valueColorRules, field.name, info.getValue());
-            return (
-              <span style={{ color: color || undefined }} className="w-full block">
-                <SmartField
-                  value={info.getValue()}
-                  field={field}
-                  record={info.row.original}
-                  collectionName={collection.name}
-                  size="lg"
-                  className="w-full"
-                  onChange={(val) => {
-                    onUpdateRecordRef.current?.(info.row.original.id, { [field.name]: val });
-                  }}
-                />
-              </span>
-            );
-          }
-        }));
+        header: (field.uiSchema?.title || field.name),
+        meta: { field },
+        cell: info => {
+          const color = getValueColor(valueColorRules, field.name, info.getValue());
+          return (
+            <span style={{ color: color || undefined }} className="w-full block">
+              <SmartField
+                value={info.getValue()}
+                field={field}
+                record={info.row.original}
+                collectionName={collection.name}
+                size="lg"
+                className="w-full"
+                onChange={(val) => {
+                  onUpdateRecordRef.current?.(info.row.original.id, { [field.name]: val });
+                }}
+              />
+            </span>
+          );
+        }
+      }));
     }
-    
+
     // fallback: if no collection fields are defined but we have data, infer columns from the first row
     if (cols.length === 0 && dataColumnsKey) {
       const keys = dataColumnsKey.split('\0');
@@ -628,45 +628,45 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                   <div className="text-xs text-muted-foreground mb-2 lowercase">check to unhide properties</div>
                   <div className="max-h-60 overflow-y-auto space-y-1">
                     {(() => {
-                    // figure out which fields to show in the settings menu.  if we
-                    // have collection definitions use them, otherwise fall back to
-                    // the first row of data.  when both are empty we render a
-                    // helpful message below instead of mapping over an empty list.
-                    const availableFields: any[] =
-                      collection.fields && collection.fields.length > 0
-                        ? collection.fields
-                        : dataColumnsKey
-                        ? dataColumnsKey.split('\0')
-                        : [];
-                    if (availableFields.length === 0) {
-                      return (
-                        <div className="text-xs text-muted-foreground lowercase">
-                          no properties yet – use the + button to add one
-                        </div>
-                      );
-                    }
+                      // figure out which fields to show in the settings menu.  if we
+                      // have collection definitions use them, otherwise fall back to
+                      // the first row of data.  when both are empty we render a
+                      // helpful message below instead of mapping over an empty list.
+                      const availableFields: any[] =
+                        collection.fields && collection.fields.length > 0
+                          ? collection.fields
+                          : dataColumnsKey
+                            ? dataColumnsKey.split('\0')
+                            : [];
+                      if (availableFields.length === 0) {
+                        return (
+                          <div className="text-xs text-muted-foreground lowercase">
+                            no properties yet – use the + button to add one
+                          </div>
+                        );
+                      }
 
-                    return availableFields.map((f: any) => {
-                      const fieldName = f.name || f;
-                      const isHidden = hiddenColumns.includes(fieldName);
-                      return (
-                        <div key={fieldName} className="flex items-center space-x-2">
-                          <Checkbox
-                            id={`col-${fieldName}`}
-                            checked={!isHidden}
-                            onCheckedChange={(checked: boolean) => {
-                              if (checked) {
-                                setHiddenColumns(prev => prev.filter(c => c !== fieldName));
-                              } else {
-                                setHiddenColumns(prev => [...prev, fieldName]);
-                              }
-                            }}
-                          />
-                          <Label htmlFor={`col-${fieldName}`} className="text-xs">{f.uiSchema?.title || fieldName}</Label>
-                        </div>
-                      )
-                    });
-                  })()}
+                      return availableFields.map((f: any) => {
+                        const fieldName = f.name || f;
+                        const isHidden = hiddenColumns.includes(fieldName);
+                        return (
+                          <div key={fieldName} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`col-${fieldName}`}
+                              checked={!isHidden}
+                              onCheckedChange={(checked: boolean) => {
+                                if (checked) {
+                                  setHiddenColumns(prev => prev.filter(c => c !== fieldName));
+                                } else {
+                                  setHiddenColumns(prev => [...prev, fieldName]);
+                                }
+                              }}
+                            />
+                            <Label htmlFor={`col-${fieldName}`} className="text-xs">{f.uiSchema?.title || fieldName}</Label>
+                          </div>
+                        )
+                      });
+                    })()}
                   </div>
                 </div>
               </PopoverContent>
@@ -740,7 +740,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   const columnSizingState = table.getState().columnSizing;
   const [columnVersion, setColumnVersion] = React.useState(0);
   const columnSizingRef = React.useRef(columnSizingState);
-  
+
   React.useEffect(() => {
     // only update if sizing actually changed to avoid unnecessary re-renders
     if (JSON.stringify(columnSizingRef.current) !== JSON.stringify(columnSizingState)) {
@@ -748,7 +748,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       setColumnVersion(v => v + 1);
     }
   }, [columnSizingState]);
-  
+
   // also bump when our persisted sizing updates
   React.useEffect(() => {
     setColumnVersion(v => v + 1);
@@ -828,65 +828,62 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               }
             }}
           >
-            {/* use full width when there are no columns so the header row
-                remains visible and the add/gear buttons are clickable */}
-            <Table
+            {/* div-based header row – mirrors the body's flex div layout so
+                column widths are pixel-identical during resize */}
+            <div
               style={{
                 width: table.getTotalSize() + (onCreateField ? 40 : 0),
                 minWidth: table.getTotalSize() + (onCreateField ? 40 : 0),
-                tableLayout: 'fixed'
               }}
             >
-              <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                  <TableRow key={headerGroup.id} className="border-b border-[#222]">
-                    {onCreateField && (
-                      <TableHead className="w-10 border-r border-[#222] border-b border-b-[#222] p-0 overflow-hidden">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-full w-full rounded-none opacity-50 hover:opacity-100 hover:bg-white/10 flex items-center justify-center p-0"
-                          onClick={(e) => { e.stopPropagation(); onCreateField(); }}
-                          onDoubleClick={(e) => { e.stopPropagation(); }}
-                          title="add new property"
-                        >
-                          <Plus className="h-4 w-4" />
-                        </Button>
-                      </TableHead>
-                    )}
-                    <SortableContext
-                      items={headerGroup.headers.map(h => h.id)}
-                      strategy={horizontalListSortingStrategy}
-                    >
-                      {headerGroup.headers.map((header) => (
-                        <SortableHeader
-                          key={header.id}
-                          header={header}
-                          collectionName={collection?.name}
-                          onFieldUpdated={onFieldUpdatedCb}
-                          onOpenFieldSettings={(field: any) => {
-                            setSettingsField(field);
-                            setIsSettingsOpen(true);
-                          }}
-                          fieldColors={fieldColors}
-                          valueColorRules={valueColorRules}
-                          setMetadata={setMetadata}
-                          onHide={(field: any) => {
-                            if (!field || !field.name) return;
-                            setHiddenColumns((prev: string[]) => {
-                              if (prev.includes(field.name)) {
-                                return prev.filter((c) => c !== field.name);
-                              }
-                              return [...prev, field.name];
-                            });
-                          }}
-                        />
-                      ))}
-                    </SortableContext>
-                  </TableRow>
-                ))}
-              </TableHeader>
-            </Table>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <div key={headerGroup.id} className="flex border-b border-[#222]" style={{ width: '100%', minWidth: '100%' }}>
+                  {onCreateField && (
+                    <div className="w-10 border-r border-[#222] border-b border-b-[#222] p-0 overflow-hidden flex-shrink-0">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-full w-full rounded-none opacity-50 hover:opacity-100 hover:bg-white/10 flex items-center justify-center p-0"
+                        onClick={(e) => { e.stopPropagation(); onCreateField(); }}
+                        onDoubleClick={(e) => { e.stopPropagation(); }}
+                        title="add new property"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+                  <SortableContext
+                    items={headerGroup.headers.map(h => h.id)}
+                    strategy={horizontalListSortingStrategy}
+                  >
+                    {headerGroup.headers.map((header) => (
+                      <SortableHeader
+                        key={header.id}
+                        header={header}
+                        collectionName={collection?.name}
+                        onFieldUpdated={onFieldUpdatedCb}
+                        onOpenFieldSettings={(field: any) => {
+                          setSettingsField(field);
+                          setIsSettingsOpen(true);
+                        }}
+                        fieldColors={fieldColors}
+                        valueColorRules={valueColorRules}
+                        setMetadata={setMetadata}
+                        onHide={(field: any) => {
+                          if (!field || !field.name) return;
+                          setHiddenColumns((prev: string[]) => {
+                            if (prev.includes(field.name)) {
+                              return prev.filter((c) => c !== field.name);
+                            }
+                            return [...prev, field.name];
+                          });
+                        }}
+                      />
+                    ))}
+                  </SortableContext>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div
@@ -978,31 +975,31 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                   )}
                 </div>
               ) : (
-              <AutoSizer
+                <AutoSizer
                   renderProp={({ height, width }: { height: number | undefined; width: number | undefined }) => (
-                      <List
-                        key={columnVersion}
-                        rowCount={rows.length}
-                        rowHeight={40}
-                        rowProps={{
-                          rows: rows,
-                          collection,
-                          onUpdate: onUpdateRecord,
-                          onDelete,
-                          onCreateField,
-                          onCreateRecord,
-                          recordMeta,
-                          onEdit: onEditRef.current,
-                          selectedIds,
-                          onRowSelect: handleRowSelect,
-                          clearSelection,
-                          enableSelection: true,
-                          tableSize: table.getTotalSize(),
-                          columnVersion,
-                        }}
-                        style={{ height, width }}
-                        rowComponent={DraggableRecordRow}
-                      />
+                    <List
+                      key={columnVersion}
+                      rowCount={rows.length}
+                      rowHeight={40}
+                      rowProps={{
+                        rows: rows,
+                        collection,
+                        onUpdate: onUpdateRecord,
+                        onDelete,
+                        onCreateField,
+                        onCreateRecord,
+                        recordMeta,
+                        onEdit: onEditRef.current,
+                        selectedIds,
+                        onRowSelect: handleRowSelect,
+                        clearSelection,
+                        enableSelection: true,
+                        tableSize: table.getTotalSize(),
+                        columnVersion,
+                      }}
+                      style={{ height, width }}
+                      rowComponent={DraggableRecordRow}
+                    />
                   )}
                 />
               )}
