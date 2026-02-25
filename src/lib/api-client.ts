@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { secureLogger } from './secure-logger';
+import { secureLogger, sanitizeForLogging } from './secure-logger';
 import { storageManager } from './storage-manager';
 import { normalizeAuthToken, toAuthorizationHeaderValue } from './auth-token';
 
@@ -14,6 +14,10 @@ export const apiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
+  // sanitize request data before logging
+  if (config.data) {
+    config.data = sanitizeForLogging(config.data);
+  }
  const nt = storageManager.getItem('nocobase_token');
  const ht = storageManager.getItem('hom_api_key');
  const gt = storageManager.getItem('hom_guest_key'); // guest token support
@@ -76,7 +80,13 @@ apiClient.interceptors.request.use((config) => {
 });
 
 apiClient.interceptors.response.use(
- (response) => response,
+ (response) => {
+   // sanitize response data before logging
+   if (response.data) {
+     response.data = sanitizeForLogging(response.data);
+   }
+   return response;
+ },
  (error) => {
   if (error.response?.status === 401) {
    const kind = (error.config as any)?._pkmAuth?.tokenKind as
@@ -119,7 +129,8 @@ export const apiRequest = async (resource: string, action: string, options: Reco
   });
   return res.data;
  } catch (e) {
-  secureLogger.error("API Error:", e);
+  // sanitize error before logging
+  secureLogger.error("API Error:", sanitizeForLogging(e));
   throw e;
  }
 };
