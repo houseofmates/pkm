@@ -330,7 +330,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     useEffect(() => {
         const key = `view_config_${collectionName}_${currentView}`;
         try {
-            const saved = storageManager.getItem(key);
+            const saved = localStorage.getItem(key);
             if (saved) setViewConfig(JSON.parse(saved));
             else setViewConfig({});
         } catch (e) {
@@ -371,7 +371,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     const handleConfigChange = (key: string, value: any) => {
         const newConfig = { ...viewConfig, [key]: value };
         setViewConfig(newConfig);
-        storageManager.setItem(`view_config_${collectionName}_${currentView}`, JSON.stringify(newConfig));
+        localStorage.setItem(`view_config_${collectionName}_${currentView}`, JSON.stringify(newConfig));
     };
 
 
