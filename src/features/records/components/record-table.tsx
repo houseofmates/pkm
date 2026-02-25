@@ -396,13 +396,11 @@ const DraggableRecordRow = (props: any) => {
 
 
         {row.getVisibleCells().map((cell: any, cellIdx: number, cellArr: any[]) => {
-          const isLastCell = cellIdx === cellArr.length - 1;
           return (
             <div
               key={cell.id}
               className={cn(
-                "align-middle p-0 h-10 transition-colors group-hover:bg-white/5 flex-shrink-0",
-                !isLastCell && "border-r border-[#222]"
+                "align-middle p-0 h-10 transition-colors group-hover:bg-white/5 flex-shrink-0 border-r border-[#222]"
               )}
               style={{
                 width: cell.column.getSize() || DEFAULT_COL_WIDTH,
