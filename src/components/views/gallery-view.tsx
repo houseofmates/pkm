@@ -1,5 +1,5 @@
 import type { ViewProps } from './registry';
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Plus } from 'lucide-react';
 import { RecordContextMenu } from '@/features/records/components/record-context-menu';
 import { RecordEditContent } from '@/features/records/components/record-context-menu';
@@ -178,7 +178,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
               record={selectedRecord}
               collection={collection}
               onUpdate={onUpdateRecord}
-              onDelete={(rec) => { onDelete?.(rec); setSelectedRecord(null); }}
+              onDelete={(rec: any) => { onDelete?.(rec); setSelectedRecord(null); }}
               titleField={titleField}
               config={config}
               onConfigChange={onConfigChange}
@@ -196,7 +196,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
               record={viewConfigRecord}
               collection={collection}
               onUpdate={onUpdateRecord}
-              onDelete={(rec) => { onDelete?.(rec); setViewConfigRecord(null); }}
+              onDelete={(rec: any) => { onDelete?.(rec); setViewConfigRecord(null); }}
               titleField={titleField}
               config={config}
               onConfigChange={onConfigChange}
@@ -423,19 +423,20 @@ function GalleryCardTitle({
     >
       {titleField ? (
         isTitleEditing ? (
-          <SmartField
-            value={record[titleField.name]}
-            field={titleField}
-            record={record}
-            collectionName={collection.name}
-            size="sm"
-            onChange={(val) => {
-              onUpdateRecord?.(record.id, { [titleField.name]: val });
-            }}
-            onBlur={onTitleEditEnd}
-            autoFocus
-            className="h-auto p-0 border border-input rounded px-1 w-full font-bold text-center bg-background"
-          />
+          <div onBlur={onTitleEditEnd}>
+            <SmartField
+              value={record[titleField.name]}
+              field={titleField}
+              record={record}
+              collectionName={collection.name}
+              size="sm"
+              onChange={(val) => {
+                onUpdateRecord?.(record.id, { [titleField.name]: val });
+              }}
+              autoFocus
+              className="h-auto p-0 border border-input rounded px-1 w-full font-bold text-center bg-background"
+            />
+          </div>
         ) : (
           <span className="px-1 truncate block cursor-text" title="double-click to edit">
             {title}
