@@ -285,7 +285,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
 const DraggableRecordRow = (props: any) => {
   const { index, style: incomingStyle } = props;
   const data = props.data || props;
-  const { rows, collection, onUpdate, onDelete, onCreateField, onCreateRecord, recordMeta, onEdit, selectedIds, onRowSelect, clearSelection, enableSelection } = data;
+  const { rows, collection, onUpdate, onDelete, onCreateField, onCreateRecord, recordMeta, onEdit, selectedIds, onRowSelect, clearSelection, enableSelection, tableSize } = data;
 
   const row = rows[index];
   if (!row) return null;
@@ -351,7 +351,7 @@ const DraggableRecordRow = (props: any) => {
           rowRef.current = node;
           setNodeRef(node);
         }}
-        style={style}
+        style={{ ...style, width: tableSize || '100%', minWidth: tableSize || '100%' }}
         className={cn(
           "transition-colors group border-b border-[#222] min-w-full",
           isSelected ? "ring-1 ring-primary/70 bg-gray-900/50" : (!rowColor && "hover:bg-gray-800/10")
