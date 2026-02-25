@@ -11,6 +11,17 @@ import * as Icons from 'lucide-react';
 
 
 
+const common_icons = [
+  "folder", "file", "database", "layout", "settings", "user", "users",
+  "home", "search", "menu", "morevertical", "morehorizontal", "plus", "minus",
+  "x", "check", "chevronright", "chevrondown", "arrowright", "arrowleft",
+  "calendar", "clock", "bell", "mail", "messagesquare", "phone", "video",
+  "image", "music", "map", "globe", "sun", "moon", "cloud",
+  "zap", "activity", "barchart", "piechart", "trendingup", "dollarsign",
+  "creditcard", "shoppingbag", "gift", "heart", "star", "flag",
+  "bookmark", "tag", "link", "lock", "unlock", "eye", "eyeoff"
+];
+
 const { Upload } = Icons;
 // Dynamic icon loader for Lucide icons
 const lucideIconMap: Record<string, LucideIcon> = {};
@@ -42,16 +53,6 @@ const common_emojis = [
   "🍎", "🥦", "🐶", "🐱", "🐰", "🦊", "🐻", "🐼", "🐨", "🐯"
 ];
 
-const common_icons = [
-  "folder", "file", "database", "layout", "settings", "user", "users",
-  "home", "search", "menu", "morevertical", "morehorizontal", "plus", "minus",
-  "x", "check", "chevronright", "chevrondown", "arrowright", "arrowleft",
-  "calendar", "clock", "bell", "mail", "messagesquare", "phone", "video",
-  "image", "music", "map", "globe", "sun", "moon", "cloud",
-  "zap", "activity", "barchart", "piechart", "trendingup", "dollarsign",
-  "creditcard", "shoppingbag", "gift", "heart", "star", "flag",
-  "bookmark", "tag", "link", "lock", "unlock", "eye", "eyeoff"
-];
 
 export function IconPicker({ onSelect, trigger, open, onOpenChange }: IconPickerProps) {
   const [, setActiveTab] = useState('icons');
