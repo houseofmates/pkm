@@ -142,12 +142,12 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
         </div>
       )}
 
-      {loading && records.length === 0 ? (
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      ) : (
-        <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0">
+        {loading && records.length === 0 ? (
+          <div className="flex items-center justify-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
           <RecordTable
             data={records}
             collection={collection}
@@ -156,8 +156,8 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
             onCreateRecord={() => setIsCreateOpen(true)}
             onFieldUpdated={() => { /* renamed field, nothing extra needed here */ }}
           />
-        </div>
-      )}
+        )}
+      </div>
 
       {/* create dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
