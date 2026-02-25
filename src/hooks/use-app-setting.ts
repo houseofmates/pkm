@@ -65,7 +65,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
  if (newValueString !== localValueString) {
  setValue(setting.value);
  try {
-   localStorage.setItem(`pkm_setting:${key}`, newValueString);
+   storageManager.setItem(`pkm_setting:${key}`, newValueString);
  } catch (e) {
    secureLogger.warn(`Failed to update local cache for ${key}`, e);
  }

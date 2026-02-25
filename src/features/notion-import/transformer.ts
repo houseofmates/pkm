@@ -1,10 +1,15 @@
-import { NotionWorkspace, NotionDatabase, NotionPage } from './parser';
+import type { NotionWorkspace, NotionDatabase } from './parser';
 
 // instructions that can later be executed against nocobase
 export type Instruction =
     | { type: 'createCollection'; name: string; fields: Record<string, string> }
     | { type: 'createRecord'; collection: string; data: Record<string, any> }
     | { type: 'addRelation'; collection: string; field: string; targetCollection: string };
+
+const REL_MIN_MATCHES = 2;
+const REL_MIN_SCORE = 0.5;
+const REL_SAMPLE_SIZE = 120; // cap value comparisons for performance
+const REL_KEY_UNIQUENESS_MIN = 0.6; // require keys to be reasonably unique
 
 // enhanced guessing of field types based on sample values
 function guessType(values: any[]): string {
@@ -92,6 +97,54 @@ function notionPropertyToType(type: string): string {
 export function transformWorkspace(ws: NotionWorkspace): Instruction[] {
     const instructions: Instruction[] = [];
 
+    // helper to pick the likely title/key field of a database
+    const pickKeyField = (db: NotionDatabase, fieldTypes: Record<string, string>) => {
+        const preferred = db.fields.find(f => /^(name|title)$/i.test(f));
+        if (preferred) return preferred;
+        const firstString = db.fields.find(f => fieldTypes[f] === 'string' || fieldTypes[f] === 'text');
+        return firstString || db.fields[0];
+    };
+
+    // infer a relation target by matching values to candidate key fields in other databases
+    const inferRelationTarget = (
+        fieldValues: any[],
+        currentDb: string,
+        dbFieldTypes: Record<string, Record<string, string>>,
+    ): string | undefined => {
+        const flattened = fieldValues.flatMap(v => (Array.isArray(v) ? v : [v]))
+            .filter(v => v != null && v !== '')
+            .map(v => String(v).trim().toLowerCase())
+            .filter(v => v.length > 0)
+            .slice(0, REL_SAMPLE_SIZE);
+        if (flattened.length === 0) return undefined;
+
+        let best: { target?: string; score: number } = { score: 0 };
+        for (const db of ws.databases) {
+            if (db.name === currentDb) continue;
+            const fieldTypes = dbFieldTypes[db.name] || {};
+            const keyField = pickKeyField(db, fieldTypes);
+            if (!keyField) continue;
+            const keyValues = db.rows
+                .map(r => r[keyField])
+                .filter(v => v != null && v !== '')
+                .map(v => String(v).trim().toLowerCase())
+                .slice(0, REL_SAMPLE_SIZE);
+            if (keyValues.length === 0) continue;
+            const keySet = new Set(keyValues);
+            const uniqueness = keySet.size / keyValues.length;
+            if (uniqueness < REL_KEY_UNIQUENESS_MIN) continue;
+            const matches = flattened.filter(v => keySet.has(v)).length;
+            const score = matches / flattened.length;
+            if (matches >= REL_MIN_MATCHES && score >= REL_MIN_SCORE && score > best.score) {
+                best = { target: db.name, score };
+            }
+        }
+        return best.target;
+    };
+
+    // cache field type guesses per database for reuse during relation inference
+    const dbFieldTypes: Record<string, Record<string, string>> = {};
+
     // databases -> collection + createRecords
     for (const db of ws.databases) {
         // build field definitions (try to respect Notion props if available)
@@ -107,6 +160,7 @@ export function transformWorkspace(ws: NotionWorkspace): Instruction[] {
             }
             fields[field] = ftype;
         }
+        dbFieldTypes[db.name] = fields;
         instructions.push({ type: 'createCollection', name: db.name, fields });
         for (const row of db.rows) {
             const data = { ...row };
@@ -135,7 +189,26 @@ export function transformWorkspace(ws: NotionWorkspace): Instruction[] {
         instructions.push({ type: 'createRecord', collection: 'pages', data });
     }
 
-    // TODO: handle relations / lookup fields in the future by analyzing values
+    // infer and register relations based on Notion metadata or cross-dataset value matching
+    for (const db of ws.databases) {
+        const fieldTypes = dbFieldTypes[db.name] || {};
+        for (const field of db.fields) {
+            const propType = db.props?.[field]?.type;
+            const looksLikeRelation = propType === 'relation' || fieldTypes[field] === 'lookup';
+            if (!looksLikeRelation) continue;
+            const target = inferRelationTarget(db.rows.map(r => r[field]), db.name, dbFieldTypes);
+            if (target) {
+                instructions.push({
+                    type: 'addRelation',
+                    collection: db.name,
+                    field,
+                    targetCollection: target,
+                });
+                // make sure schema reflects lookup type
+                dbFieldTypes[db.name][field] = 'lookup';
+            }
+        }
+    }
 
     return instructions;
 }

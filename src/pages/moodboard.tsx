@@ -28,7 +28,7 @@ interface BoardElement {
 
 export function MoodboardPage() {
   const [elements, setElements] = useState<BoardElement[]>(() => {
-    try { const saved = storageManager.getItem('moodboard_data'); return saved ? JSON.parse(saved) : []; } catch (e) { console.error(e); return []; }
+    try { const saved = storageManager.getItem('moodboard_data'); return saved ? JSON.parse(saved) : []; } catch (e) { secureLogger.error(e); return []; }
   });
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });

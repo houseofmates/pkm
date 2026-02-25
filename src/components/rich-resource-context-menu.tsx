@@ -1,11 +1,11 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { Upload, Search, Loader2, type LucideIcon } from 'lucide-react';
-import * as Icons from 'lucide-react';
-
-// helper to safely get lucide icon by name
+// Dynamic icon loader for Lucide icons
+const lucideIconMap: Record<string, LucideIcon> = {};
+// ALL_ICONS is defined below, so we fill the map after its definition
 function getLucideIcon(name: string): LucideIcon | undefined {
-  return (Icons as Record<string, LucideIcon>)[name];
+  return lucideIconMap[name];
 }
 import { ContextMenuContent } from "@/components/ui/context-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";

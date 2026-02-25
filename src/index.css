@@ -61,7 +61,8 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
     font-feature-settings: "rlig" 1, "calt" 1;
     font-family: 'varela round', sans-serif !important;
   }
@@ -354,11 +355,13 @@ header * {
 .sidebar svg,
 .nav-item svg,
 .top-nav svg {
-  color: hsl(var(--primary)) !important;
-  stroke: hsl(var(--primary)) !important;
-  /* unify dimensions regardless of neighboring text length */
-  width: 1.25rem !important;
-  height: 1.25rem !important;
+  /* inherit the text color of parent (which may be a custom item color) */
+  color: currentColor !important;
+  stroke: currentColor !important;
+  /* do not force fill: most icons are stroked/outline and should remain transparent inside */
+  /* unify dimensions regardless of neighboring text length; bump size for better visibility */
+  width: 1.5rem !important;
+  height: 1.5rem !important;
   flex-shrink: 0 !important;
 }
 
@@ -404,8 +407,10 @@ button,
 .sidebar-icon,
 [class*='sidebar'] svg,
 .selected-icon-btn svg {
-  color: hsl(var(--primary)) !important;
-  stroke: hsl(var(--primary)) !important;
+  /* allow individual item color to dictate icon hue */
+  color: currentColor !important;
+  stroke: currentColor !important;
+  /* do not alter fill so outlines remain hollow */
 }
 
 /* improve contrast for icons on dark bg */

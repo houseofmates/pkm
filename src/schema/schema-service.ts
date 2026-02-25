@@ -38,7 +38,7 @@ class SchemaService {
     await persistenceService.initialize();
     this.initialized = true;
     
-    console.log('schema service initialized');
+    secureLogger.info('schema service initialized');
   }
 
   /**
@@ -110,7 +110,7 @@ class SchemaService {
     // save to persistence
     await persistenceService.saveTable(table);
 
-    console.log('table created:', table.name, 'with', table.fields.length, 'fields');
+    secureLogger.info('table created:', table.name, 'with', table.fields.length, 'fields');
     return table;
   }
 
@@ -194,7 +194,7 @@ class SchemaService {
     }
 
     await persistenceService.deleteTable(table.id);
-    console.log('table deleted:', name);
+    secureLogger.info('table deleted:', name);
   }
 
   // ============================================================================

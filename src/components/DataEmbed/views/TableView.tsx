@@ -1,6 +1,6 @@
 import { useReactTable, getCoreRowModel, flexRender } from '@tanstack/react-table';
 import type { ColumnDef } from '@tanstack/react-table';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { List } from 'react-window';
 import { AutoSizer } from 'react-virtualized-auto-sizer';
 import { cn } from '@/lib/utils';
@@ -13,12 +13,15 @@ interface TableViewProps {
   fields?: any[]; // optional schema fields from collection
 }
 
-export function TableView({ records, isLoading, theme, onSelect }: TableViewProps) {
+export function TableView({ records, isLoading, theme, onSelect, fields }: TableViewProps) {
   // Generate columns dynamically from the first record or schema.  We
   // also keep a ref to the last known column set so that headers remain
   // visible when the record list becomes empty; this mirrors the behaviour
   // in the main record table.
   const prevColsRef = React.useRef<ColumnDef<any>[]>([]);
+
+  const headerRef = React.useRef<HTMLDivElement | null>(null);
+  const bodyRef = React.useRef<HTMLDivElement | null>(null);
 
   const columns = useMemo<ColumnDef<any>[]>(() => {
     const makeColsFromKeys = (keys: string[]) => {
@@ -94,6 +97,12 @@ export function TableView({ records, isLoading, theme, onSelect }: TableViewProp
 
   const { rows } = table.getRowModel();
 
+  const columnSizingState = table.getState ? table.getState().columnSizing : null;
+  const [columnVersion, setColumnVersion] = React.useState(0);
+  React.useEffect(() => {
+    setColumnVersion(v => v + 1);
+  }, [columnSizingState]);
+
   if (isLoading && !records.length) {
     return <div className="p-4 text-muted-foreground animate-pulse">Loading table...</div>;
   }
@@ -106,7 +115,16 @@ export function TableView({ records, isLoading, theme, onSelect }: TableViewProp
   return (
     <div className="w-full h-full bg-card/50 backdrop-blur-xl border border-white/10 rounded-xl flex flex-col text-sm overflow-hidden">
       {/* Header */}
-      <div className="flex bg-muted/50 border-b border-white/5 font-medium text-xs uppercase tracking-wider text-muted-foreground">
+      <div
+        ref={headerRef}
+        data-testid="table-header-container"
+        className="flex bg-muted/50 border-b border-white/5 font-medium text-xs uppercase tracking-wider text-muted-foreground overflow-x-auto no-scrollbar"
+        onScroll={(e) => {
+          if (bodyRef.current) {
+            bodyRef.current.scrollLeft = e.currentTarget.scrollLeft;
+          }
+        }}
+      >
         {table.getHeaderGroups().map(headerGroup => (
           <div key={headerGroup.id} className="flex w-full">
             {headerGroup.headers.map(header => (
@@ -127,6 +145,13 @@ export function TableView({ records, isLoading, theme, onSelect }: TableViewProp
         <AutoSizer>
           {({ height, width }) => (
             <List
+              key={columnVersion}
+              outerRef={bodyRef}
+              onScroll={({ scrollOffset }) => {
+                if (headerRef.current) {
+                  headerRef.current.scrollLeft = scrollOffset;
+                }
+              }}
               itemCount={rows.length || 1}
               itemSize={40}
               height={height}

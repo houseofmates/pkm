@@ -355,7 +355,7 @@ export function BuilderToolbox() {
     toast.success('image uploaded');
  }
   } catch (err) {
- console.error(err);
+ secureLogger.error(err);
  toast.error('upload failed');
   }
   setIsOpen(false);
@@ -386,7 +386,7 @@ export function BuilderToolbox() {
  toast.success('video uploaded');
  }
   } catch (err) {
- console.error(err);
+ secureLogger.error(err);
  toast.error('upload failed');
   }
   setIsOpen(false);

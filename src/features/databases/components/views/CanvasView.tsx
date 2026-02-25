@@ -191,7 +191,7 @@ export function CanvasView({ data: rows, collection, loading, config: _config }:
       // parent view should refresh automatically if using userecords or similar,
       // but manual refresh or optimistic ui might be needed depending on parent.
     } catch (e) {
-      console.error("Failed to update row", e);
+      secureLogger.error("Failed to update row", e);
     }
   };
 

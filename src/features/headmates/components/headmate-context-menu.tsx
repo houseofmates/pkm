@@ -72,7 +72,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   try {
  await flushOverrides();
   } catch (flushError) {
- console.warn('Failed to flush overrides:', flushError);
+ secureLogger.warn('Failed to flush overrides:', flushError);
   }
   });
 
@@ -91,7 +91,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   try {
   await flushOverrides();
   } catch (flushError) {
-  console.warn('Failed to flush overrides:', flushError);
+  secureLogger.warn('Failed to flush overrides:', flushError);
   }
 
   toast.success("image link saved");

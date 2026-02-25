@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import {
@@ -16,6 +16,7 @@ import { SmartField } from '@/components/fields/smart-field';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 
 interface RecordContextMenuProps {
@@ -348,24 +349,58 @@ export function RecordContextMenu({ record, collection, children, onUpdate, onDe
 
   if (!collection) return <>{children}</>;
 
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   return (
-    <ContextMenu>
-      <ContextMenuTrigger asChild>
-        <div className={cn("h-full w-full interactive-el", className)} style={style} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} onTouchMove={handleTouchMove}>
-          {children}
-        </div>
-      </ContextMenuTrigger>
-      <ContextMenuContent className="w-[380px] p-0 bg-neutral-900 backdrop-blur-none border border-border/50 shadow-2xl flex flex-col max-h-[85vh] z-[9999]">
-        <RecordEditContent
-          record={record}
-          collection={collection}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
-          titleField={titleField}
-          config={config}
-          onConfigChange={onConfigChange}
-        />
-      </ContextMenuContent>
-    </ContextMenu>
+    <>
+      <ContextMenu>
+        <ContextMenuTrigger asChild>
+          <div className={cn("h-full w-full interactive-el", className)} style={style} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd} onTouchMove={handleTouchMove}>
+            {children}
+          </div>
+        </ContextMenuTrigger>
+        <ContextMenuContent className="w-[380px] p-0 bg-neutral-900 backdrop-blur-none border border-border/50 shadow-2xl flex flex-col max-h-[85vh] z-[9999]">
+          {/* quick edit header with explicit edit button */}
+          <div className="p-2 border-b flex justify-end">
+            <Button
+              variant="outline"
+              size="xs"
+              className="lowercase"
+              onClick={() => setDialogOpen(true)}
+            >
+              edit
+            </Button>
+          </div>
+          <RecordEditContent
+            record={record}
+            collection={collection}
+            onUpdate={onUpdate}
+            onDelete={onDelete}
+            titleField={titleField}
+            config={config}
+            onConfigChange={onConfigChange}
+          />
+        </ContextMenuContent>
+      </ContextMenu>
+
+      {/* full popup dialog invoked by "edit" button above */}
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent className="max-w-[90vw] max-h-[90vh] overflow-auto">
+          <DialogHeader>
+            <DialogTitle className="lowercase">edit item</DialogTitle>
+          </DialogHeader>
+          <RecordEditContent
+            record={record}
+            collection={collection}
+            onUpdate={onUpdate}
+            onDelete={onDelete}
+            titleField={titleField}
+            config={config}
+            onConfigChange={onConfigChange}
+            showViewConfig={true}
+          />
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }

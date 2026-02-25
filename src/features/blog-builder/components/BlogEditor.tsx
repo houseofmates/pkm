@@ -43,7 +43,7 @@ function blogdashboard() {
   });
   setPosts(res.data || []);
   } catch (e) {
-  console.error(e);
+  secureLogger.error(e);
   toast.error('failed to load posts');
   } finally {
   setLoading(false);
@@ -193,7 +193,7 @@ function blogeditorparamswrapper({ slug }: { slug: string }) {
  }
  }
   } catch (e) {
- console.error(e);
+ secureLogger.error(e);
  toast.error('failed to load post');
   } finally {
  setLoading(false);
@@ -267,7 +267,7 @@ function blogeditorparamswrapper({ slug }: { slug: string }) {
  toast.success('saved');
   }
   } catch (e) {
-  console.error(e);
+  secureLogger.error(e);
   toast.error('failed to save');
   }
   };

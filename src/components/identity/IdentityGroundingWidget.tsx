@@ -33,7 +33,7 @@ export function IdentityGroundingWidget({ className }: { className?: string }) {
  }
  }
  } catch (e) {
- console.error("Failed to fetch fronter info", e);
+ secureLogger.error("Failed to fetch fronter info", e);
  }
   } else {
  setFronterName('System');

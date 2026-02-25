@@ -57,7 +57,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
       refresh();
       toast.success("record created successfully");
     } catch (err) {
-      console.error("Failed to create record", err);
+      secureLogger.error("Failed to create record", err);
       toast.error("failed to create record");
     }
   };
@@ -71,7 +71,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
       refresh();
       toast.success("record updated successfully");
     } catch (err) {
-      console.error("Failed to update record", err);
+      secureLogger.error("Failed to update record", err);
       toast.error("failed to update record");
     }
   };
@@ -83,7 +83,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
       refresh();
       toast.success("record deleted successfully");
     } catch (err) {
-      console.error("Failed to delete record", err);
+      secureLogger.error("Failed to delete record", err);
       toast.error("failed to delete record");
     }
   };
@@ -142,12 +142,12 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
         </div>
       )}
 
-      {loading && records.length === 0 ? (
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      ) : (
-        <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0">
+        {loading && records.length === 0 ? (
+          <div className="flex items-center justify-center h-64">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        ) : (
           <RecordTable
             data={records}
             collection={collection}
@@ -156,8 +156,8 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
             onCreateRecord={() => setIsCreateOpen(true)}
             onFieldUpdated={() => { /* renamed field, nothing extra needed here */ }}
           />
-        </div>
-      )}
+        )}
+      </div>
 
       {/* create dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>

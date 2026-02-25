@@ -1,12 +1,14 @@
 import express from 'express';
 import bodyParser from 'body-parser';
-import cors from 'cors';
+import * as cors from 'cors';
 import LanceIndexer from './lancedb/index';
 import { getEmbedding } from './embeddings/ollama';
 import multer from 'multer';
-import Papa from 'papaparse';
+import * as Papa from 'papaparse';
+import { inferRelations, type Dataset } from './relation-inference';
 
 const PORT = process.env.PKM_BACKEND_PORT ? Number(process.env.PKM_BACKEND_PORT) : 4110;
+const RELATION_DEBUG = process.env.RELATION_DEBUG === 'true';
 const app = express();
 app.use(cors());
 app.use(bodyParser.json({ limit: '2mb' }));
@@ -20,7 +22,7 @@ app.post('/nb-import-csv', upload.array('files', 60), async (req, res) => {
     if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
       return res.status(400).json({ error: 'no files uploaded' });
     }
-    const databases = [];
+    const databases: Dataset[] = [];
     for (const file of req.files) {
       const content = file.buffer.toString('utf-8');
       const parsed = Papa.parse(content, {
@@ -36,21 +38,30 @@ app.post('/nb-import-csv', upload.array('files', 60), async (req, res) => {
       const fields = rows.length > 0 ? Object.keys(rows[0]) : [];
       // guess types for each field
       const guessType = (values: any[]) => {
-        let hasString = false, hasNumber = false, hasBoolean = false;
+        let hasString = false, hasNumber = false, hasBoolean = false, hasDate = false, hasArray = false;
         for (const v of values) {
           if (v == null || v === '') continue;
+          if (Array.isArray(v)) {
+            hasArray = true;
+            continue;
+          }
           if (typeof v === 'number') hasNumber = true;
           else if (typeof v === 'boolean') hasBoolean = true;
           else if (typeof v === 'string') {
-            const maybeNum = Number(v);
-            if (!isNaN(maybeNum) && v.trim() !== '') hasNumber = true;
-            else if (v === 'true' || v === 'false') hasBoolean = true;
+            const trimmed = v.trim();
+            const maybeNum = Number(trimmed);
+            if (!isNaN(maybeNum) && trimmed !== '') hasNumber = true;
+            else if (trimmed === 'true' || trimmed === 'false') hasBoolean = true;
+            else if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) hasDate = true;
+            else if (trimmed.includes(',') || trimmed.startsWith('[')) hasArray = true;
             else hasString = true;
           } else hasString = true;
         }
-        if (hasString || (hasString && hasNumber)) return 'string';
-        if (hasBoolean && !hasString && !hasNumber) return 'boolean';
-        if (hasNumber && !hasString) return 'number';
+        if (hasArray) return 'string[]';
+        if (hasDate && !hasString) return 'date';
+        if (hasString) return 'string';
+        if (hasBoolean) return 'boolean';
+        if (hasNumber) return 'number';
         return 'string';
       };
       const sampleRows = rows.slice(0, 20);
@@ -66,8 +77,9 @@ app.post('/nb-import-csv', upload.array('files', 60), async (req, res) => {
         fieldTypes,
       });
     }
-    // TODO: smart property mapping between databases (connect relations, etc)
-    // For now, just return a taskId and summary
+    inferRelations(databases, { enableDebug: RELATION_DEBUG });
+
+    // Return a task summary including inferred relations
     const taskId = 'csv-' + Date.now();
     // Optionally, store progress or trigger async processing
     return res.json({ taskId, databases });

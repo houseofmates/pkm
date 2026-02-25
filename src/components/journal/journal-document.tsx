@@ -124,7 +124,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
   onUpdate({ banner_image: data.url });
   setShowBannerUpload(false);
   } catch (error) {
-  console.error('Banner upload failed:', error);
+  secureLogger.error('Banner upload failed:', error);
   }
   };
 

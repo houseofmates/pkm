@@ -82,7 +82,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   const navigate = useNavigate();
   const location = useLocation();
 
-  console.log('databasespage:', {
+  secureLogger.info('databasespage:', {
     isAuthenticated,
     hastoken: !!token,
     token: token?.substring(0, 20) + '...',
@@ -186,7 +186,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
       await new Promise(resolve => setTimeout(resolve, 100));
       await refresh();
     } catch (error: any) {
-      console.error('[DatabasesPage] login failed:', error);
+      secureLogger.error('[DatabasesPage] login failed:', error);
       toast.error('failed to save token. please try again.');
     } finally {
       setValidating(false);

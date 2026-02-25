@@ -12,7 +12,6 @@ interface SemanticSearchProps {
   className?: string;
 }
 
-export function SemanticSearch({ onSelect, initialQuery = '', className }: SemanticSearchProps) {
   const { search, results, loading, source } = useSemanticSearch();
   const [query, setQuery] = useState(initialQuery);
   const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
@@ -28,13 +27,17 @@ export function SemanticSearch({ onSelect, initialQuery = '', className }: Seman
     }
   }, [debouncedQuery, search]);
 
+  const handleInputChange = React.useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    setQuery(e.target.value);
+  }, []);
+
   return (
     <div className={cn("flex flex-col h-full bg-popover text-popover-foreground", className)}>
       <div className="p-3 border-b flex items-center gap-2 shrink-0">
         <BrainCircuit className="h-4 w-4 text-primary animate-pulse" />
         <Input
           value={query}
-          onChange={e => setQuery(e.target.value)}
+          onChange={handleInputChange}
           placeholder="ask anything..."
           className="border-none shadow-none focus-visible:ring-0 bg-transparent h-8 flex-1 placeholder:lowercase"
           autoFocus

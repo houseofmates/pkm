@@ -55,7 +55,7 @@ export async function migrateFromLocalStorage(): Promise<MigrationResult> {
 
         secureLogger.info('[migrate] migrated config for', id)
         // drop legacy config
-        localStorage.removeItem(key)
+        storageManager.removeItem(key)
       } else if (type === 'content') {
         // migrate content as checkpoint
         const contentStr = storageManager.getItem(key)

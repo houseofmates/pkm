@@ -62,17 +62,26 @@ export async function indexAllDupemateInteractions(): Promise<{
 
   try {
     // fetch all dupemates
-    const response: any = await api.listRecords('dupemates', { paginate: false });
-    const dupemates = Array.isArray(response.data)
-      ? response.data
-      : response.data?.data || [];
+    const response = await api.listRecords('dupemates', { paginate: false });
+    const dupemates: Array<{
+      id: string;
+      name: string;
+      description?: string;
+      interactions?: DupemateInteraction[];
+      traits?: string;
+      preferences?: string;
+      boundaries?: string;
+      relationshipHealth?: number;
+    }> = Array.isArray((response as { data?: unknown }).data)
+      ? (response as { data: unknown[] }).data as any
+      : ((response as { data?: { data?: unknown[] } }).data as { data?: unknown[] })?.data as any || [];
 
     for (const dupemate of dupemates) {
       try {
         // extract interaction data
-        const interactions = dupemate.interactions || [];
+        const interactions: DupemateInteraction[] = dupemate.interactions || [];
         const formattedInteractions = interactions
-          .map((i: any) => formatInteractionForIndexing(i))
+          .map((i: DupemateInteraction) => formatInteractionForIndexing(i))
           .join('\n\n');
 
         // index dupemate data
@@ -107,15 +116,25 @@ export async function indexAllDupemateInteractions(): Promise<{
 export async function getDupemateContext(dupemateId: string): Promise<DupemateContext | null> {
   try {
     // fetch dupemate record
-    const response: any = await api.getRecord('dupemates', dupemateId);
-    const dupemate = response.data || response;
+    const response = await api.getRecord('dupemates', dupemateId);
+    const dupemate: {
+      id: string;
+      name: string;
+      description?: string;
+      interactions?: DupemateInteraction[];
+      traits?: string;
+      preferences?: string;
+      boundaries?: string;
+      relationshipHealth?: number;
+      updatedAt?: string;
+    } = (response as { data?: unknown }).data as any || (response as any);
 
     if (!dupemate) return null;
 
     // fetch recent interactions
-    const interactions = (dupemate.interactions || [])
-      .slice(-10) // last 10
-      .map((i: any) => ({
+    const interactions: DupemateInteraction[] = (dupemate.interactions || [])
+      .slice(-10)
+      .map((i: Partial<DupemateInteraction> & { notes?: string; createdAt?: string; createdBy?: string }) => ({
         id: i.id || String(Math.random()),
         dupemateId,
         type: i.type || 'conversation',
@@ -173,7 +192,7 @@ export async function findRelatedDupemates(query: string, topK: number = 3): Pro
 
     return dupemateResults.slice(0, topK).map(r => ({
       dupemateId: String(r.chunk.recordId),
-      name: r.chunk.metadata?.recordTitle || `dupemate ${r.chunk.recordId}`,
+      name: r.chunk.metadata?.recordTitle?.toString() || `dupemate ${r.chunk.recordId}`,
       relevance: r.score,
       context: r.chunk.content.slice(0, 200),
     }));
@@ -191,10 +210,14 @@ export async function getAllDupematesSummary(): Promise<{
   recentActivity: number;
 }> {
   try {
-    const response: any = await api.listRecords('dupemates', { paginate: false });
-    const dupemates = Array.isArray(response.data)
-      ? response.data
-      : response.data?.data || [];
+    const response = await api.listRecords('dupemates', { paginate: false });
+    const dupemates: Array<{
+      relationshipHealth?: number;
+      lastInteraction?: string;
+      updatedAt?: string;
+    }> = Array.isArray((response as { data?: unknown }).data)
+      ? (response as { data: unknown[] }).data as any
+      : ((response as { data?: { data?: unknown[] } }).data as { data?: unknown[] })?.data as any || [];
 
     let healthy = 0;
     let needsAttention = 0;

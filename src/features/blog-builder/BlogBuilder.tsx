@@ -37,7 +37,7 @@ export function BlogBuilder() {
 
   // check auth on mount
   useEffect(() => {
-    const key = localStorage.getItem('hom_api_key');
+    const key = storageManager.getItem('hom_api_key');
     if (key) setIsAdmin(true);
   }, []);
 
@@ -46,7 +46,7 @@ export function BlogBuilder() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key.toLowerCase() === 'e') {
         e.preventDefault();
-        const key = localStorage.getItem('hom_api_key');
+        const key = storageManager.getItem('hom_api_key');
         if (key) {
           setIsAdmin(true);
           toast.info('admin mode active');
@@ -60,7 +60,7 @@ export function BlogBuilder() {
   }, []);
 
   const handleLogin = (key: string) => {
-    localStorage.setItem('hom_api_key', key);
+    storageManager.setItem('hom_api_key', key);
     setIsAdmin(true);
     setShowLoginModal(false);
     toast.success('admin mode enabled');
@@ -76,7 +76,7 @@ export function BlogBuilder() {
 
   // load scroll direction preference from localstorage
   useEffect(() => {
-    const saved = localStorage.getItem('blog-scroll-direction');
+    const saved = storageManager.getItem('blog-scroll-direction');
     if (saved === 'vertical' || saved === 'horizontal') {
       setScrollDirection(saved);
     }
@@ -85,7 +85,7 @@ export function BlogBuilder() {
   // save scroll direction preference
   const handleScrollDirectionChange = (direction: 'horizontal' | 'vertical') => {
     setScrollDirection(direction);
-    localStorage.setItem('blog-scroll-direction', direction);
+    storageManager.setItem('blog-scroll-direction', direction);
   };
 
   // fetch posts or individual post
@@ -123,7 +123,7 @@ export function BlogBuilder() {
           }
         }
       } catch (error) {
-        console.error('[BlogBuilder] Error fetching data:', error);
+        secureLogger.error('[BlogBuilder] Error fetching data:', error);
         toast.error('failed to load blog posts');
       } finally {
         setLoading(false);
@@ -149,7 +149,7 @@ export function BlogBuilder() {
         },
       });
     } catch (error) {
-      console.error('[blogbuilder] error updating view count:', error);
+      secureLogger.error('[blogbuilder] error updating view count:', error);
     }
   };
 

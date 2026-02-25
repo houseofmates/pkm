@@ -342,5 +342,5 @@ export function registerBuiltinFieldTypes(): void {
     filterable: true,
   });
 
-  console.log('registered', fieldRegistry.getTypeNames().length, 'built-in field types');
+  secureLogger.info('registered', fieldRegistry.getTypeNames().length, 'built-in field types');
 }

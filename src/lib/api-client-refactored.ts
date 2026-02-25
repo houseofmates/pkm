@@ -179,7 +179,7 @@ export const apiRequest = async (
     })
     return res.data
   } catch (e) {
-    console.error('api error:', e)
+    secureLogger.error('api error:', e)
     throw e
   }
 }

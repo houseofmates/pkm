@@ -1,5 +1,5 @@
 import type { ViewProps } from './registry';
-import { Card, CardContent } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import { Plus } from 'lucide-react';
 import { RecordContextMenu } from '@/features/records/components/record-context-menu';
 import { RecordEditContent } from '@/features/records/components/record-context-menu';
@@ -71,26 +71,34 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
     );
   }
 
-  // helper to get image url from a record field (or common record keys)
-  const getImageUrl = (record: Record<string, any>, field: { name: string } | null) => {
+  // helper to get media asset (url + kind) from record field or common keys
+  const getMediaAsset = (record: Record<string, any>, field: { name: string } | null) => {
+    const coerce = (val: any) => {
+      if (!val) return null;
+      const url = val.url || val.url_thumbnail || val.thumb || val.preview || (typeof val === 'string' ? val : null);
+      if (!url) return null;
+      const mime = (val.mimetype || val.mime || val.type || '').toLowerCase();
+      const isVideo = mime.includes('video') || /\.(mp4|webm|mov|m4v)$/i.test(url);
+      const isPdf = mime.includes('pdf') || /\.pdf$/i.test(url);
+      const kind: 'image' | 'video' | 'pdf' = isPdf ? 'pdf' : isVideo ? 'video' : 'image';
+      return { url, kind };
+    };
+
     if (field) {
       const value = record[field.name];
-      if (value != null) {
-        if (Array.isArray(value) && value.length > 0) {
-          return value[0].url || value[0].url_thumbnail || null;
-        }
-        if (typeof value === 'string' && (value.startsWith('http') || value.startsWith('/'))) {
-          return value;
-        }
-      }
+      if (Array.isArray(value) && value.length > 0) return coerce(value[0]);
+      const single = coerce(value);
+      if (single) return single;
     }
-    // fallback: common keys for headmates etc.
     const fallbacks = ['avatar', 'image', 'photo', 'picture', 'icon', 'cover', 'url'];
     for (const key of fallbacks) {
       const v = record[key];
-      if (!v) continue;
-      if (Array.isArray(v) && v.length > 0) return v[0].url || v[0].url_thumbnail || null;
-      if (typeof v === 'string' && (v.startsWith('http') || v.startsWith('/'))) return v;
+      if (Array.isArray(v) && v.length > 0) {
+        const c = coerce(v[0]);
+        if (c) return c;
+      }
+      const c = coerce(v);
+      if (c) return c;
     }
     return null;
   };
@@ -133,7 +141,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
                 key={record.id || i}
                 record={record}
                 collection={collection}
-                imageUrl={getImageUrl(record, imageField)}
+                mediaAsset={getMediaAsset(record, imageField)}
                 title={getTitle(record)}
                 titleField={titleField}
                 visibleFields={visibleFields}
@@ -170,7 +178,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
               record={selectedRecord}
               collection={collection}
               onUpdate={onUpdateRecord}
-              onDelete={(rec) => { onDelete?.(rec); setSelectedRecord(null); }}
+              onDelete={(rec: any) => { onDelete?.(rec); setSelectedRecord(null); }}
               titleField={titleField}
               config={config}
               onConfigChange={onConfigChange}
@@ -188,7 +196,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
               record={viewConfigRecord}
               collection={collection}
               onUpdate={onUpdateRecord}
-              onDelete={(rec) => { onDelete?.(rec); setViewConfigRecord(null); }}
+              onDelete={(rec: any) => { onDelete?.(rec); setViewConfigRecord(null); }}
               titleField={titleField}
               config={config}
               onConfigChange={onConfigChange}
@@ -204,7 +212,7 @@ export function GalleryView({ data, loading, collection, config = {}, onUpdateRe
 function GalleryCard({
   record,
   collection,
-  imageUrl,
+  mediaAsset,
   title,
   titleField,
   visibleFields,
@@ -220,7 +228,7 @@ function GalleryCard({
 }: {
   record: any;
   collection: any;
-  imageUrl: string | null;
+  mediaAsset: { url: string; kind: 'image' | 'video' | 'pdf' } | null;
   title: string;
   titleField: any;
   visibleFields: any[];
@@ -249,7 +257,7 @@ function GalleryCard({
     opacity: isDragging ? 0.6 : 1,
   };
 
-  const hasImage = !!imageUrl;
+  const hasMedia = !!mediaAsset?.url;
 
   return (
     <RecordContextMenu
@@ -280,15 +288,30 @@ function GalleryCard({
           onCardDoubleClick();
         }}
       >
-        <div className={cn("flex flex-col w-full rounded-[inherit] overflow-hidden", !hasImage && "min-h-0")}>
-          {hasImage ? (
+        <div className={cn("flex flex-col w-full rounded-[inherit] overflow-hidden", !hasMedia && "min-h-0")}> 
+          {hasMedia ? (
             <>
               <div className="aspect-square bg-muted/30 flex items-center justify-center relative overflow-hidden rounded-t-[inherit]">
-                <img
-                  src={imageUrl!}
-                  alt=""
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-110 rounded-t-[inherit]"
-                />
+                {mediaAsset?.kind === 'pdf' ? (
+                  <div className="h-full w-full flex items-center justify-center bg-white/5 text-white/80 font-semibold uppercase text-xs tracking-wide">
+                    pdf preview
+                  </div>
+                ) : mediaAsset?.kind === 'video' ? (
+                  <video
+                    src={mediaAsset.url}
+                    className="h-full w-full object-cover"
+                    muted
+                    autoPlay
+                    loop
+                    playsInline
+                  />
+                ) : (
+                  <img
+                    src={mediaAsset?.url}
+                    alt=""
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover/card:scale-110 rounded-t-[inherit]"
+                  />
+                )}
                 <div className="absolute inset-0 bg-black/50 opacity-0 group-hover/card:opacity-100 transition-opacity flex items-center justify-center rounded-t-[inherit]">
                   <span className="text-white text-xs font-bold px-2 py-1 border border-primary bg-primary/20 rounded-full lowercase">
                     view details
@@ -400,19 +423,19 @@ function GalleryCardTitle({
     >
       {titleField ? (
         isTitleEditing ? (
-          <SmartField
-            value={record[titleField.name]}
-            field={titleField}
-            record={record}
-            collectionName={collection.name}
-            size="sm"
-            onChange={(val) => {
-              onUpdateRecord?.(record.id, { [titleField.name]: val });
-            }}
-            onBlur={onTitleEditEnd}
-            autoFocus
-            className="h-auto p-0 border border-input rounded px-1 w-full font-bold text-center bg-background"
-          />
+          <div onBlur={onTitleEditEnd}>
+            <SmartField
+              value={record[titleField.name]}
+              field={titleField}
+              record={record}
+              collectionName={collection.name}
+              size="sm"
+              onChange={(val) => {
+                onUpdateRecord?.(record.id, { [titleField.name]: val });
+              }}
+              className="h-auto p-0 border border-input rounded px-1 w-full font-bold text-center bg-background"
+            />
+          </div>
         ) : (
           <span className="px-1 truncate block cursor-text" title="double-click to edit">
             {title}

@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { api } from '@/api/nocobase-client';
 import { Loader2 } from 'lucide-react';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface DashboardCardProps {
   collectionName: string;
@@ -8,7 +9,7 @@ interface DashboardCardProps {
   title?: string;
 }
 
-export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, filter, title }) => {
+export const DashboardCard: React.FC<DashboardCardProps> = React.memo(({ collectionName, filter, title }) => {
   const [data, setData] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -24,7 +25,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
  try {
  queryFilter = JSON.parse(filter);
  } catch (_e) {
- console.warn('Invalid filter JSON:', filter);
+ secureLogger.warn('Invalid filter JSON:', filter);
  }
  }
 
@@ -37,7 +38,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
  const items = Array.isArray(res?.data) ? res.data : (res?.data as { data?: unknown[] })?.data || [];
  setData(items);
   } catch (err) {
- console.error('Dashboard fetching error:', err);
+ secureLogger.error('Dashboard fetching error:', err);
  setError('Failed to load data');
   } finally {
  setLoading(false);
@@ -51,7 +52,12 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
   return () => clearInterval(interval);
   }, [collectionName, filter]);
 
-  if (!collectionName) return null;
+  if (!collectionName) return null;  
+
+  const handleClick = useCallback((item: Record<string, unknown>) => {
+    // ideally open a drawer or navigate
+    secureLogger.info('Clicked item', item);
+  }, []);
 
   return (
   <div className="dashboard-card my-4 p-4 border rounded-xl bg-card text-card-foreground shadow-sm overflow-hidden isolate relative">
@@ -72,10 +78,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
  key={String(item.id ?? '')}
  className="p-3 border rounded-md bg-background hover:bg-accent/50 transition-colors cursor-pointer"
  style={{ fontFamily: '"Varela Round", sans-serif' }}
- onClick={() => {
-   // ideally open a drawer or navigate
-   console.log('Clicked item', item);
- }}
+ onClick={() => handleClick(item)}
  >
  <div className="font-semibold truncate">
    {string(item.title ?? item.name ?? item.id ?? '')}
@@ -93,4 +96,4 @@ export const DashboardCard: React.FC<DashboardCardProps> = ({ collectionName, fi
   </div>
   </div>
   );
-};
+});

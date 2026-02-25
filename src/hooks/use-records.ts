@@ -6,14 +6,27 @@ import { walWrite, walCommit, walFail } from '@/lib/write-ahead-log';
 import { registry } from '@/lib/link-registry';
 import { extractRecords } from '@/lib/nocobase-utils';
 
-export function useRecords(collectionName: string, initialParams: any = {}) {
+import type { Collection, Field } from '@/api/nocobase-client';
+
+interface QueryParams {
+  page?: number;
+  pageSize?: number;
+  [key: string]: unknown;
+}
+
+interface Meta {
+  total?: number;
+  [key: string]: unknown;
+}
+
+export function useRecords(collectionName: string, initialParams: QueryParams = {}) {
   const { client } = useAuth();
   const { activeFronters } = useFronter();
   const activeFronterId = activeFronters[0] || null;
   const queryClient = useQueryClient();
 
   // state for dynamic query parameters (pagination, filtering)
-  const [queryParams, setQueryParams] = useState<any>({
+  const [queryParams, setQueryParams] = useState<QueryParams>({
     page: 1,
     pageSize: 20,
     ...initialParams
@@ -21,44 +34,35 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
 
   const fetchRecords = async () => {
     const response = await client.listRecords(collectionName, queryParams);
-    console.debug('[useRecords] fetched', collectionName, queryParams, response);
+    secureLogger.debug('[useRecords] fetched', collectionName, queryParams, response);
     return response;
   };
 
-  const { data, isLoading, error, refetch } = useQuery({
+  const { data, isLoading, isFetching, error, refetch } = useQuery({
     queryKey: ['records', collectionName, queryParams],
     queryFn: fetchRecords,
     enabled: !!collectionName,
     placeholderData: (previousData) => previousData,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    staleTime: 30000, // Consider data fresh for 30 seconds
   });
 
   useEffect(() => {
     if (data !== undefined) {
-      console.debug('[useRecords] data updated for', collectionName, data);
+      secureLogger.debug('[useRecords] data updated for', collectionName, data);
     }
   }, [data, collectionName]);
 
 
-  const records: any[] = extractRecords(data);
-  const meta = (data as { meta?: any })?.meta;
-
-  // keep a copy of the last non-empty records so we can continue displaying
-  // something while the query is refetching (especially on window focus).
-  const [cachedRecords, setCachedRecords] = useState<any[]>(records);
-  React.useEffect(() => {
-    if (records && records.length > 0) {
-      setCachedRecords(records);
-    }
-  }, [records]);
-
-  // when loading and we have cached data, prefer that to avoid flicker
-  const displayedRecords = isLoading && cachedRecords.length > 0 ? cachedRecords : records;
+  const records: Record<string, unknown>[] = extractRecords(data);
+  const meta: Meta | undefined = (data as { meta?: Meta })?.meta;
 
   // If a non-zero page returns no records, try swapping between 0/1 once.
   const [pageFallbackTried, setPageFallbackTried] = useState(false);
   useEffect(() => {
     if (
-      !isLoading &&
+      !isFetching &&
       records.length === 0 &&
       !pageFallbackTried &&
       typeof queryParams.page === 'number'
@@ -68,7 +72,7 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
       setQueryParams((prev: Record<string, unknown>) => ({ ...prev, page: newPage }));
       setPageFallbackTried(true);
     }
-  }, [isLoading, records.length, pageFallbackTried, queryParams.page]);
+  }, [isFetching, records.length, pageFallbackTried, queryParams.page]);
 
   const refresh = (newParams?: Record<string, unknown>) => {
     if (newParams) {

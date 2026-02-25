@@ -43,7 +43,7 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
         setContent(recordData.content || '');
       }
     } catch (err) {
-      console.error('Failed to fetch echo block content:', err);
+      secureLogger.error('Failed to fetch echo block content:', err);
       setError('Failed to load content.');
     }
   }, [recordId, collectionName, content]);
@@ -126,7 +126,7 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
         if (socket) socket.emit('typing', { recordId, isTyping: false });
 
       } catch (err) {
-        console.error("failed to save echo block:", err);
+        secureLogger.error("failed to save echo block:", err);
         setError("save failed.");
         setIsSyncing(false);
       }

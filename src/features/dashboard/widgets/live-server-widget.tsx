@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Activity, Users, AlertTriangle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { io } from 'socket.io-client';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface ServerStats {
   online: boolean;
@@ -47,7 +48,7 @@ export function LiveServerWidget() {
  });
  }
   } catch (e) {
- console.warn("Failed to fetch initial server stats", e);
+ secureLogger.warn("Failed to fetch initial server stats", e);
   } finally {
  setLoading(false);
   }
@@ -64,7 +65,7 @@ export function LiveServerWidget() {
  setChatMessages(history);
  }
   } catch (e) {
- console.warn("Failed to fetch chat history", e);
+ secureLogger.warn("Failed to fetch chat history", e);
   }
   };
 
@@ -77,7 +78,7 @@ export function LiveServerWidget() {
  setPlayerData(data);
  }
   } catch (e) {
- console.warn("Failed to fetch player data", e);
+ secureLogger.warn("Failed to fetch player data", e);
   }
   };
 
@@ -91,7 +92,7 @@ export function LiveServerWidget() {
   const socket = io(SOCKET_URL, { path: '/socket.io' });
 
   socket.on('connect', () => {
-  console.log("Connected to Live Feed");
+  secureLogger.info("Connected to Live Feed");
   });
 
   socket.on('minecraft_update', (data: any) => {

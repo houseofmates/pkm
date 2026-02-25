@@ -81,8 +81,8 @@ export function HeadmatesPage() {
 
   // log for debugging
   useEffect(() => {
-    console.log('Active fronters:', activeFronters);
-    console.log('All member IDs:', allMembers.map(m => ({ id: m.id, name: m.content.name })));
+    secureLogger.info('Active fronters:', activeFronters);
+    secureLogger.info('All member IDs:', allMembers.map(m => ({ id: m.id, name: m.content.name })));
   }, [activeFronters, allMembers]);
 
 
@@ -125,7 +125,7 @@ export function HeadmatesPage() {
 
   const fetchMembers = async (key: string) => {
     setLoading(true);
-    console.log("Fetching SimplyPlural members with key length:", key?.length);
+    secureLogger.info("Fetching SimplyPlural members with key length:", key?.length);
 
     try {
       // 1. fetch "me" to get system id
@@ -136,19 +136,19 @@ export function HeadmatesPage() {
 
       if (!meRes.ok) {
         const errText = await meRes.text();
-        console.error("SimplyPlural 'me' Error:", meRes.status, errText);
+        secureLogger.error("SimplyPlural 'me' Error:", meRes.status, errText);
         throw new Error(`SimplyPlural Login Failed (${meRes.status}): ${errText}`);
       }
 
       const meData = await meRes.json();
       if (!meData || !meData.id) {
-        console.error("SimplyPlural Invalid Me Data:", meData);
+        secureLogger.error("SimplyPlural Invalid Me Data:", meData);
         throw new Error("Could not fetch system information. Response invalid.");
       }
 
       const sid = meData.id;
       // setsystemid(sid); // store system id
-      console.log("SimplyPlural System ID:", sid);
+      secureLogger.info("SimplyPlural System ID:", sid);
 
       // 2. fetch members
       const membersRes = await fetch(SimplyPluralClient.url(`/members/${sid}`), {
@@ -157,13 +157,13 @@ export function HeadmatesPage() {
 
       if (!membersRes.ok) {
         const errText = await membersRes.text();
-        console.error("SimplyPlural 'members' Error:", membersRes.status, errText);
+        secureLogger.error("SimplyPlural 'members' Error:", membersRes.status, errText);
         throw new Error(`Failed to fetch members (${membersRes.status}): ${errText}`);
       }
 
       const membersData = await membersRes.json();
       const rawMembers = Array.isArray(membersData) ? membersData : [];
-      console.log("SimplyPlural Members Found:", rawMembers.length);
+      secureLogger.info("SimplyPlural Members Found:", rawMembers.length);
 
       // sanitize members (aggressive pre-render check)
       const sanitizedMembers = rawMembers.map((m: any) => {
@@ -185,7 +185,7 @@ export function HeadmatesPage() {
           color = `#${color}`;
         }
 
-        console.log(`[Headmate] ${formattedName}: color=${color}`);
+        secureLogger.info(`[Headmate] ${formattedName}: color=${color}`);
 
         return {
           ...m,
@@ -229,7 +229,7 @@ export function HeadmatesPage() {
           if (!matches && spAvatar.length > 0) {
             // sp has a valid avatar that does not match our override.
             // we trust sp as the source of truth for updates.
-            console.log(`Sync Logic: Removing stale avatar override for ${m.content.name}. SP: ${spAvatar.slice(-20)} vs Local: ${overrideAvatar.slice(-20)}`);
+            secureLogger.info(`Sync Logic: Removing stale avatar override for ${m.content.name}. SP: ${spAvatar.slice(-20)} vs Local: ${overrideAvatar.slice(-20)}`);
 
             // remove avatarurl from override, keep other fields
             delete (currentOverride as any).avatarUrl;
@@ -242,12 +242,12 @@ export function HeadmatesPage() {
       });
 
       if (overridesChanged) {
-        console.log("Sync Logic: Applying override updates...");
+        secureLogger.info("Sync Logic: Applying override updates...");
         setOverrides(newOverrides);
       }
 
     } catch (error: any) {
-      // console.error("full simplyplural error:", error);
+      // secureLogger.error("full simplyplural error:", error);
       // keep console error minimal or remove if not needed for user debugging
       toast.error(error.message || "Failed to load headmates");
     } finally {
@@ -282,7 +282,7 @@ export function HeadmatesPage() {
 
         // if sp has a valid avatar that does not match our override
         if (!matches && spAvatar.length > 0) {
-          console.log(`Sync Logic: Removing stale avatar override for ${m.content.name}`);
+          secureLogger.info(`Sync Logic: Removing stale avatar override for ${m.content.name}`);
 
           // remove avatarurl from override
           delete (currentOverride as any).avatarUrl;
@@ -376,7 +376,7 @@ export function HeadmatesPage() {
                   setLoading(true);
                   await syncHeadmatesToNocoBase(apiKey);
                 } catch (e) {
-                  console.error('Sync failed:', e);
+                  secureLogger.error('Sync failed:', e);
                 } finally {
                   setLoading(false);
                 }
