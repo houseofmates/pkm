@@ -134,7 +134,7 @@ export function FieldSettingsDialog({ collectionName, field, open, onOpenChange,
                     <div className="space-y-2">
                         <Label className="lowercase">property type</Label>
                         <Select value={interfaceType} onValueChange={setInterfaceType}>
-                            <SelectTrigger>
+                            <SelectTrigger className="lowercase">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
