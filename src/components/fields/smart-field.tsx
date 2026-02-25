@@ -855,7 +855,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   };
 
   return (
-    <div className={cn("font-varela", size === 'lg' ? "text-lg" : "text-sm w-full h-full")}>
+    <div className={cn("font-varela", size === 'lg' ? "text-lg" : "text-sm", "w-full h-full")}>
       <FieldContextMenu onEdit={() => setIsEditing(true)} onClear={() => onChange(null)} value={value} record={record} collectionName={collectionName}>
         {renderView()}
       </FieldContextMenu>
