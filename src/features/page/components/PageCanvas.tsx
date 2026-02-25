@@ -231,7 +231,6 @@ export function PageCanvas() {
       <main className="flex-1 overflow-auto px-5 pb-8">
         <div className="mx-auto" style={{ maxWidth: gridWidth }}>
           // @ts-ignore
-          // @ts-ignore
           <GridLayout
             className="layout"
             cols={4}
