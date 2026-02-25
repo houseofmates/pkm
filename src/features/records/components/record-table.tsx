@@ -311,8 +311,14 @@ const DraggableRecordRow = (props: any) => {
           if (!enableSelection) return;
           const target = e.target as HTMLElement;
           const inCellContent = target.closest('[data-cell-content]');
-          if (!inCellContent && onRowSelect) {
-            onRowSelect(row.original.id, index, e);
+          if (!inCellContent) {
+            if (isSelected && selectedIds?.length === 1 && clearSelection) {
+              clearSelection();
+              return;
+            }
+            if (onRowSelect) {
+              onRowSelect(row.original.id, index, e);
+            }
           }
         }}
         onDoubleClick={(e) => {
