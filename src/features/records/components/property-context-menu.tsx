@@ -41,6 +41,9 @@ export function PropertyContextMenu({
 
     const [newRuleValue, setNewRuleValue] = React.useState('');
     const [newRuleColor, setNewRuleColor] = React.useState('#3b82f6');
+    const [showRules, setShowRules] = React.useState(false);
+
+    const typeLabel = (field?.interface || field?.type || 'value').toLowerCase();
 
     return (
         <ContextMenu>
@@ -71,7 +74,12 @@ export function PropertyContextMenu({
                     <span>delete property</span>
                 </ContextMenuItem>
                 <ContextMenuSeparator />
+                <ContextMenuItem onClick={() => setShowRules((v) => !v)}>
+                    <Palette className="mr-2 h-4 w-4" />
+                    <span>if/then color rules</span>
+                </ContextMenuItem>
 
+                {showRules && (
                 <div className="p-3 space-y-3 text-xs text-muted-foreground">
                     <div className="space-y-2">
                         <div className="flex items-center gap-2 text-foreground">
@@ -97,7 +105,7 @@ export function PropertyContextMenu({
                     <div className="space-y-2">
                         <div className="flex items-center gap-2 text-foreground">
                             <Palette className="w-4 h-4" />
-                            <span>value color rules (if → color)</span>
+                            <span>value color rules (if {typeLabel} → color)</span>
                         </div>
                         <ScrollArea className="max-h-40">
                             <div className="space-y-2 pr-1">
@@ -126,14 +134,14 @@ export function PropertyContextMenu({
                                     </div>
                                 ))}
                                 {Object.keys(valueColorRules || {}).length === 0 && (
-                                    <div className="text-[11px] text-muted-foreground">no rules yet</div>
+                                    <div className="text-[11px] text-muted-foreground">no rules yet – match exact text/numbers or select options</div>
                                 )}
                             </div>
                         </ScrollArea>
 
                         <div className="flex items-center gap-2">
                             <Input
-                                placeholder="match value (exact)"
+                                placeholder={`match ${typeLabel} (exact)`}
                                 className="h-8 text-xs flex-1"
                                 value={newRuleValue}
                                 onChange={(e) => setNewRuleValue(e.target.value)}
@@ -161,6 +169,7 @@ export function PropertyContextMenu({
                         </div>
                     </div>
                 </div>
+                )}
             </ContextMenuContent>
         </ContextMenu>
     );
