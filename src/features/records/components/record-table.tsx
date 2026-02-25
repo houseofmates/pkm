@@ -175,8 +175,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
             // clear sizing/order cache so removed column doesn't linger
             onFieldUpdated?.();
           } catch (err: any) {
-            console.error(err);
-            toast.error(err?.message || 'failed to delete property');
+       toast.error(err?.message || 'failed to delete property');
           }
         }}
         fieldColor={fieldColors[field?.name]}
