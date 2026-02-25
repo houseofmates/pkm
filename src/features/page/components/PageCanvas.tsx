@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import GridLayout from 'react-grid-layout';
-import { LayoutItem } from 'react-grid-layout';
+import type { LayoutItem } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import { useWindowSize } from 'react-use';
@@ -230,6 +230,7 @@ export function PageCanvas() {
 
       <main className="flex-1 overflow-auto px-5 pb-8">
         <div className="mx-auto" style={{ maxWidth: gridWidth }}>
+          // @ts-ignore
           <GridLayout
             className="layout"
             cols={4}
