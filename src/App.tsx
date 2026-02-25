@@ -106,10 +106,25 @@ function AppContent() {
     return <SetupRequired />
   }
 
-  // if we reach here the backend is configured; show login / normal app
-  if (!token && !isPublicDomain()) {
-    return <LoginPage />
+  // show huge download button for APK slug
+  if (window.location.pathname === "/apk") {
+    return (
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", height: "100vh", background: "#000" }}>
+        <button
+          style={{ fontSize: "4rem", padding: "2rem 4rem", background: "#ffb300", color: "#000", border: "none", borderRadius: "2rem", cursor: "pointer", textTransform: "lowercase", fontWeight: "bold" }}
+          onClick={() => {
+            const link = document.createElement("a");
+            link.href = "https://pkm.houseofmates.space/apk/pkm-latest.apk";
+            link.download = "pkm-latest.apk";
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }}
+        >download!</button>
+      </div>
+    )
   }
+  // ...existing code...
 
   // public domain rendering
   if (isPublicDomain()) {
