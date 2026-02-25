@@ -4,6 +4,7 @@ import { appendOp, saveCheckpoint, getLatestCheckpoint, getRecentOps } from './s
 import type { DrawOp } from './storage/oplog'
 import { canvasSync } from './sync/canvas-sync'
 import { SpatialIndex } from './spatial/spatial-index'
+import type { fabric } from 'fabric'
 
 export type ElementType =
   | 'pdf-page'
@@ -113,8 +114,6 @@ interface EdgelessState {
   isLinking: boolean
   penWidth: number
   penColor: string
-  penOpacity: number
-  eraserOpacity: number
   penOpacity: number
   eraserOpacity: number
   stabilizerLevel: number
@@ -395,15 +394,13 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   setIsLinking: (linking) => set({ isLinking: linking }),
   setPenWidth: (width) => set({ penWidth: width }),
   setPenColor: (color) => set({ penColor: color }),
-  setPenOpacity: (opacity) => set({ penOpacity: opacity }),
-  setEraserOpacity: (opacity) => set({ eraserOpacity: opacity }),
   setStabilizerLevel: (level) => set({ stabilizerLevel: level }),
   setPressureEnabled: (enabled) => set({ pressureEnabled: enabled }),
   // new canvas helpers
   setFabricCanvas: (c) => set({ fabricCanvas: c }),
   setSelectedIds: (ids) => set({ selectedIds: ids }),
   setPdfDoc: (doc) => set({ pdfDoc: doc }),
-  addHistoryOp: async (op) => { // alias to recordOp
+  addHistoryOp: async (op: DrawOp) => { // alias to recordOp
     await get().recordOp(op as any)
   },}))
 
