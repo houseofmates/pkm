@@ -42,7 +42,7 @@ export const WidgetBlock = Node.create({
                  Widget: {type}
                </span>
             </div>
-            <WidgetRenderer widget={widgetConfig} data={{}} />
+            <WidgetRenderer widget={widgetConfig} data={{}} onUpdateWidget={(patch: any) => props.updateAttributes({ data: { ...data, ...patch.data, ...patch } })} />
           </div>
         </NodeViewWrapper>
       );
