@@ -30,6 +30,9 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
     queryFn: fetchRecords,
     enabled: !!collectionName,
     placeholderData: (previousData) => previousData,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    staleTime: 30000, // Consider data fresh for 30 seconds
   });
 
   useEffect(() => {
