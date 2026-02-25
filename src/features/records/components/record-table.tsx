@@ -968,33 +968,40 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                   )}
                 </div>
               ) : (
-                <AutoSizer
-                  renderProp={({ height, width }: { height: number | undefined; width: number | undefined }) => (
-                    <List
-                      key={columnVersion}
-                      rowCount={rows.length}
-                      rowHeight={40}
-                      rowProps={{
-                        rows: rows,
-                        collection,
-                        onUpdate: onUpdateRecord,
-                        onDelete,
-                        onCreateField,
-                        onCreateRecord,
-                        recordMeta,
-                        onEdit: onEditRef.current,
-                        selectedIds,
-                        onRowSelect: handleRowSelect,
-                        clearSelection,
-                        enableSelection: true,
-                        tableSize: table.getTotalSize(),
-                        columnVersion,
-                      }}
-                      style={{ height, width }}
-                      rowComponent={DraggableRecordRow}
-                    />
-                  )}
-                />
+              <AutoSizer
+                renderProp={({ height, width }: { height: number | undefined; width: number | undefined }) => (
+                  <List
+                    key={columnVersion}
+                    rowCount={rows.length}
+                    rowHeight={40}
+                    rowProps={{
+                      rows: rows,
+                      collection,
+                      onUpdate: onUpdateRecord,
+                      onDelete,
+                      onCreateField,
+                      onCreateRecord,
+                      recordMeta,
+                      onEdit: onEditRef.current,
+                      selectedIds,
+                      onRowSelect: handleRowSelect,
+                      clearSelection,
+                      enableSelection: true,
+                      tableSize: table.getTotalSize(),
+                      columnVersion,
+                    }}
+                    style={{ 
+                      height, 
+                      width,
+                      scrollbarWidth: 'none',
+                      msOverflowStyle: 'none',
+                      overflow: 'auto'
+                    }}
+                    rowComponent={DraggableRecordRow}
+                  />
+                )}
+              />
+
               )}
             </div>
           </div>

@@ -49,8 +49,3 @@ if [ -f "$APK_PATH" ]; then
     echo "   • The app will fetch latest code on each launch"
     echo ""
     echo "🔧 To install on device:"
-    echo "   adb install -r $APK_PATH"
-else
-    echo "❌ APK not found at expected location"
-    exit 1
-fi
