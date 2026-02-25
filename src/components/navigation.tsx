@@ -313,6 +313,16 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       }
     }
 
+    // for collections (databases), refresh from server to ensure sync
+    if (!id.startsWith('doc_') && !id.startsWith('drawing_') && !id.startsWith('folder_')) {
+      if (updates.delete) {
+        // immediately remove from local state and refresh collections from server
+        setItems(items.filter(i => i.id !== id));
+        refresh();
+        return;
+      }
+    }
+
     if (updates.delete) {
       setItems(items.filter(i => i.id !== id));
       return;
