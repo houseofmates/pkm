@@ -154,6 +154,8 @@ interface EdgelessState {
   setIsLinking: (linking: boolean) => void
   setPenWidth: (width: number) => void
   setPenColor: (color: string) => void
+  setPenOpacity: (opacity: number) => void
+  setEraserOpacity: (opacity: number) => void
   setStabilizerLevel: (level: number) => void
   setPressureEnabled: (enabled: boolean) => void
 }
@@ -393,6 +395,8 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   setIsLinking: (linking) => set({ isLinking: linking }),
   setPenWidth: (width) => set({ penWidth: width }),
   setPenColor: (color) => set({ penColor: color }),
+  setPenOpacity: (opacity) => set({ penOpacity: opacity }),
+  setEraserOpacity: (opacity) => set({ eraserOpacity: opacity }),
   setStabilizerLevel: (level) => set({ stabilizerLevel: level }),
   setPressureEnabled: (enabled) => set({ pressureEnabled: enabled }),
   // new canvas helpers
