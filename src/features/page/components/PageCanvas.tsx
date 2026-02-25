@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import GridLayout from 'react-grid-layout';
-import type { LayoutItem } from 'react-grid-layout';
+import type { Layout, LayoutItem } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import { useWindowSize } from 'react-use';
@@ -132,7 +132,7 @@ export function PageCanvas() {
     }
   }, [id, updateDoc]);
 
-  const handleLayoutChange = useCallback((layout: readonly LayoutItem[]) => {
+  const handleLayoutChange = useCallback((layout: Layout) => {
     updateDoc((prev) => ({ ...prev, layout: [...layout] }));
   }, [updateDoc]);
 
@@ -232,18 +232,12 @@ export function PageCanvas() {
         <div className="mx-auto" style={{ maxWidth: gridWidth }}>
           <GridLayout
             className="layout"
-            cols={4}
-            rowHeight={120}
+            gridConfig={{ cols: 4, rowHeight: 120, margin: [16, 16], containerPadding: [0, 0] }}
             width={gridWidth}
-            margin={[16, 16]}
-            containerPadding={[0, 0]}
             layout={docLayout}
             onLayoutChange={handleLayoutChange}
-            draggableHandle=".block-handle"
-            isDraggable={true}
-            isResizable={true}
-            compactType="vertical"
-            preventCollision={false}
+            dragConfig={{ enabled: true, handle: '.block-handle' }}
+            resizeConfig={{ enabled: true }}
           >
             {documentState.blocks.map((block) => {
               const layoutItem = docLayout.find((item) => item.i === block.id);
