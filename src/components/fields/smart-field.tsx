@@ -231,11 +231,21 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   const [showFormulaEditor, setShowFormulaEditor] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editorImage, setEditorImage] = useState<string | null>(null);
-  const [filters, setFilters] = useState({ brightness: 100, contrast: 100, saturation: 100, hue: 0, blur: 0, sharpness: 0, clarity: 0 });
+  const [filters, setFilters] = useState({ 
+    brightness: 100, contrast: 100, saturation: 100, hue: 0, blur: 0, sharpness: 0, clarity: 0,
+    shadowR: 0, shadowG: 0, shadowB: 0, shadowAmount: 0,
+    midR: 0, midG: 0, midB: 0, midAmount: 0,
+    highlightR: 0, highlightG: 0, highlightB: 0, highlightAmount: 0
+  });
   const [crop, setCrop] = useState<{ x: number; y: number; w: number; h: number } | null>(null);
+  const [cropAspect, setCropAspect] = useState<number | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
-  const [strokes, setStrokes] = useState<{ points: { x: number; y: number }[]; color: string; width: number }[]>([]);
-  const [currentStroke, setCurrentStroke] = useState<{ points: { x: number; y: number }[]; color: string; width: number } | null>(null);
+  const [isHighlighting, setIsHighlighting] = useState(false);
+  const [drawColor, setDrawColor] = useState('#3b82f6');
+  const [drawOpacity, setDrawOpacity] = useState(0.5);
+  const [drawWidth, setDrawWidth] = useState(3);
+  const [strokes, setStrokes] = useState<{ points: { x: number; y: number }[]; color: string; width: number; opacity: number; isHighlight: boolean }[]>([]);
+  const [currentStroke, setCurrentStroke] = useState<{ points: { x: number; y: number }[]; color: string; width: number; opacity: number; isHighlight: boolean } | null>(null);
   const previewRef = useRef<HTMLCanvasElement | null>(null);
   const overlayRef = useRef<HTMLDivElement | null>(null);
 
@@ -358,18 +368,48 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       ctx.filter = filterStr;
       ctx.drawImage(img, 0, 0, w, h);
       ctx.filter = 'none';
+      
+      // apply color grading via overlay blending
+      if (filters.shadowAmount > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.fillStyle = `rgba(${filters.shadowR}, ${filters.shadowG}, ${filters.shadowB}, ${filters.shadowAmount / 100})`;
+        ctx.fillRect(0, 0, w, h);
+        ctx.restore();
+      }
+      if (filters.highlightAmount > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+        ctx.fillStyle = `rgba(${filters.highlightR}, ${filters.highlightG}, ${filters.highlightB}, ${filters.highlightAmount / 100})`;
+        ctx.fillRect(0, 0, w, h);
+        ctx.restore();
+      }
+      if (filters.midAmount > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'overlay';
+        ctx.fillStyle = `rgba(${filters.midR}, ${filters.midG}, ${filters.midB}, ${filters.midAmount / 100})`;
+        ctx.fillRect(0, 0, w, h);
+        ctx.restore();
+      }
+      
       strokes.forEach(stroke => {
         if (stroke.points.length < 2) return;
+        ctx.save();
         ctx.strokeStyle = stroke.color;
         ctx.lineWidth = stroke.width;
         ctx.lineJoin = 'round';
         ctx.lineCap = 'round';
+        if (stroke.isHighlight) {
+          ctx.globalAlpha = stroke.opacity;
+          ctx.globalCompositeOperation = 'multiply';
+        }
         ctx.beginPath();
         stroke.points.forEach((p, idx) => {
           if (idx === 0) ctx.moveTo(p.x, p.y);
           else ctx.lineTo(p.x, p.y);
         });
         ctx.stroke();
+        ctx.restore();
       });
     };
 
@@ -418,18 +458,48 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       ctx.filter = filterStr;
       ctx.drawImage(img, 0, 0, w, h);
       ctx.filter = 'none';
+      
+      // apply color grading via overlay blending
+      if (filters.shadowAmount > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'multiply';
+        ctx.fillStyle = `rgba(${filters.shadowR}, ${filters.shadowG}, ${filters.shadowB}, ${filters.shadowAmount / 100})`;
+        ctx.fillRect(0, 0, w, h);
+        ctx.restore();
+      }
+      if (filters.highlightAmount > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'screen';
+        ctx.fillStyle = `rgba(${filters.highlightR}, ${filters.highlightG}, ${filters.highlightB}, ${filters.highlightAmount / 100})`;
+        ctx.fillRect(0, 0, w, h);
+        ctx.restore();
+      }
+      if (filters.midAmount > 0) {
+        ctx.save();
+        ctx.globalCompositeOperation = 'overlay';
+        ctx.fillStyle = `rgba(${filters.midR}, ${filters.midG}, ${filters.midB}, ${filters.midAmount / 100})`;
+        ctx.fillRect(0, 0, w, h);
+        ctx.restore();
+      }
+      
       strokes.forEach(stroke => {
         if (stroke.points.length < 2) return;
+        ctx.save();
         ctx.strokeStyle = stroke.color;
         ctx.lineWidth = stroke.width;
         ctx.lineJoin = 'round';
         ctx.lineCap = 'round';
+        if (stroke.isHighlight) {
+          ctx.globalAlpha = stroke.opacity;
+          ctx.globalCompositeOperation = 'multiply';
+        }
         ctx.beginPath();
         stroke.points.forEach((p, idx) => {
           if (idx === 0) ctx.moveTo(p.x, p.y);
           else ctx.lineTo(p.x, p.y);
         });
         ctx.stroke();
+        ctx.restore();
       });
 
       let exportCanvas = canvas;
@@ -460,8 +530,8 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       const rect = overlayRef.current.getBoundingClientRect();
       const x = e.clientX - rect.left;
       const y = e.clientY - rect.top;
-      if (isDrawing) {
-        const stroke = { points: [{ x, y }], color: '#3b82f6', width: 3 };
+      if (isDrawing || isHighlighting) {
+        const stroke = { points: [{ x, y }], color: drawColor, width: drawWidth, opacity: drawOpacity, isHighlight: isHighlighting };
         setCurrentStroke(stroke);
       } else {
         setCrop({ x, y, w: 0, h: 0 });
@@ -476,7 +546,22 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       if (currentStroke) {
         setCurrentStroke({ ...currentStroke, points: [...currentStroke.points, { x, y }] });
       } else if (crop) {
-        setCrop({ ...crop, w: x - crop.x, h: y - crop.y });
+        let w = x - crop.x;
+        let h = y - crop.y;
+        // apply aspect ratio constraint if set
+        if (cropAspect && cropAspect > 0) {
+          const absW = Math.abs(w);
+          const absH = Math.abs(h);
+          const targetH = absW / cropAspect;
+          if (targetH > absH) {
+            // adjust width to match height
+            w = w > 0 ? absH * cropAspect : -absH * cropAspect;
+          } else {
+            // adjust height to match width
+            h = h > 0 ? targetH : -targetH;
+          }
+        }
+        setCrop({ ...crop, w, h });
       }
     };
 
@@ -523,46 +608,240 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
             >
               <canvas ref={previewRef} className="w-full h-full" />
               {crop && (
-                <div className="absolute border border-primary/70 bg-primary/10" style={{ left: crop.x, top: crop.y, width: crop.w, height: crop.h }} />
+                <div className="absolute border-2 border-primary/80 bg-primary/5 backdrop-blur-[1px]" style={{ left: Math.min(crop.x, crop.x + crop.w), top: Math.min(crop.y, crop.y + crop.h), width: Math.abs(crop.w), height: Math.abs(crop.h) }}>
+                  <div className="absolute -top-5 left-0 text-[10px] text-primary bg-black/50 px-1 rounded">
+                    {Math.round(Math.abs(crop.w))}×{Math.round(Math.abs(crop.h))}
+                  </div>
+                </div>
               )}
               {currentStroke && currentStroke.points.length > 0 && (
                 <svg className="absolute inset-0 pointer-events-none">
                   <polyline
                     points={currentStroke.points.map(p => `${p.x},${p.y}`).join(' ')}
                     fill="none"
-                    stroke="#3b82f6"
+                    stroke={currentStroke.color}
                     strokeWidth={currentStroke.width}
                     strokeLinecap="round"
                     strokeLinejoin="round"
+                    opacity={currentStroke.isHighlight ? currentStroke.opacity : 1}
                   />
                 </svg>
               )}
             </div>
             <div className="w-80 border-l border-[#222] p-4 space-y-4 overflow-y-auto">
-              <div className="flex items-center justify-between">
-                <span className="text-xs text-muted-foreground">draw mode</span>
-                <Button size="sm" variant={isDrawing ? 'secondary' : 'outline'} onClick={() => setIsDrawing(!isDrawing)}>{isDrawing ? 'drawing...' : 'markup'}</Button>
+              {/* tool mode selection */}
+              <div className="space-y-2">
+                <div className="text-xs text-muted-foreground">tool mode</div>
+                <div className="flex gap-1">
+                  <Button size="sm" variant={!isDrawing && !isHighlighting ? 'secondary' : 'outline'} onClick={() => { setIsDrawing(false); setIsHighlighting(false); }} className="flex-1 text-xs">crop</Button>
+                  <Button size="sm" variant={isDrawing ? 'secondary' : 'outline'} onClick={() => { setIsDrawing(true); setIsHighlighting(false); }} className="flex-1 text-xs">draw</Button>
+                  <Button size="sm" variant={isHighlighting ? 'secondary' : 'outline'} onClick={() => { setIsDrawing(false); setIsHighlighting(true); }} className="flex-1 text-xs">highlight</Button>
+                </div>
               </div>
-              {['brightness','contrast','saturation','hue','blur','clarity','sharpness'].map((key) => {
-                const min = key === 'hue' ? -180 : 0;
-                const max = key === 'hue' ? 180 : key === 'blur' ? 10 : 200;
-                return (
-                  <div key={key} className="space-y-1">
+
+              {/* drawing/highlighting controls */}
+              {(isDrawing || isHighlighting) && (
+                <div className="space-y-3 p-3 rounded-md border border-[#333] bg-[#111]">
+                  <div className="space-y-1">
                     <div className="text-xs text-muted-foreground flex justify-between">
-                      <span>{key}</span>
-                      <span>{filters[key as keyof typeof filters]}</span>
+                      <span>color</span>
+                    </div>
+                    <div className="flex flex-wrap gap-1">
+                      {['#3b82f6', '#ef4444', '#22c55e', '#eab308', '#a855f7', '#ec4899', '#ffffff', '#000000'].map(c => (
+                        <div
+                          key={c}
+                          className={`w-5 h-5 rounded-full cursor-pointer hover:scale-110 transition-transform border ${drawColor === c ? 'border-white ring-1 ring-white' : 'border-white/20'}`}
+                          style={{ backgroundColor: c }}
+                          onClick={() => setDrawColor(c)}
+                        />
+                      ))}
+                      <input
+                        type="color"
+                        value={drawColor}
+                        onChange={(e) => setDrawColor(e.target.value)}
+                        className="w-5 h-5 rounded-full border-0 p-0 overflow-hidden cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-xs text-muted-foreground flex justify-between">
+                      <span>width</span>
+                      <span>{drawWidth}px</span>
                     </div>
                     <input
                       type="range"
-                      min={min}
-                      max={max}
-                      value={filters[key as keyof typeof filters]}
-                      onChange={(e) => setFilters(prev => ({ ...prev, [key]: Number(e.target.value) }))}
+                      min={1}
+                      max={20}
+                      value={drawWidth}
+                      onChange={(e) => setDrawWidth(Number(e.target.value))}
                       className="w-full accent-primary"
                     />
                   </div>
-                );
-              })}
+                  {isHighlighting && (
+                    <div className="space-y-1">
+                      <div className="text-xs text-muted-foreground flex justify-between">
+                        <span>opacity</span>
+                        <span>{Math.round(drawOpacity * 100)}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min={10}
+                        max={90}
+                        value={Math.round(drawOpacity * 100)}
+                        onChange={(e) => setDrawOpacity(Number(e.target.value) / 100)}
+                        className="w-full accent-primary"
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* crop aspect ratio presets */}
+              {!isDrawing && !isHighlighting && (
+                <div className="space-y-2">
+                  <div className="text-xs text-muted-foreground">crop aspect ratio</div>
+                  <div className="flex flex-wrap gap-1">
+                    <Button size="sm" variant={cropAspect === null ? 'secondary' : 'outline'} onClick={() => setCropAspect(null)} className="text-xs">free</Button>
+                    <Button size="sm" variant={cropAspect === 1 ? 'secondary' : 'outline'} onClick={() => setCropAspect(1)} className="text-xs">1:1</Button>
+                    <Button size="sm" variant={cropAspect === 16/9 ? 'secondary' : 'outline'} onClick={() => setCropAspect(16/9)} className="text-xs">16:9</Button>
+                    <Button size="sm" variant={cropAspect === 4/3 ? 'secondary' : 'outline'} onClick={() => setCropAspect(4/3)} className="text-xs">4:3</Button>
+                    <Button size="sm" variant={cropAspect === 3/2 ? 'secondary' : 'outline'} onClick={() => setCropAspect(3/2)} className="text-xs">3:2</Button>
+                    <Button size="sm" variant={cropAspect === 9/16 ? 'secondary' : 'outline'} onClick={() => setCropAspect(9/16)} className="text-xs">9:16</Button>
+                  </div>
+                  {crop && (
+                    <Button size="sm" variant="ghost" className="w-full text-xs text-red-400" onClick={() => setCrop(null)}>
+                      clear crop
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              {/* basic adjustments */}
+              <div className="space-y-2 pt-2 border-t border-[#333]">
+                <div className="text-xs text-muted-foreground">basic adjustments</div>
+                {['brightness','contrast','saturation','hue','blur','clarity','sharpness'].map((key) => {
+                  const min = key === 'hue' ? -180 : 0;
+                  const max = key === 'hue' ? 180 : key === 'blur' ? 10 : 200;
+                  return (
+                    <div key={key} className="space-y-1">
+                      <div className="text-xs text-muted-foreground flex justify-between">
+                        <span>{key}</span>
+                        <span>{filters[key as keyof typeof filters]}</span>
+                      </div>
+                      <input
+                        type="range"
+                        min={min}
+                        max={max}
+                        value={filters[key as keyof typeof filters]}
+                        onChange={(e) => setFilters(prev => ({ ...prev, [key]: Number(e.target.value) }))}
+                        className="w-full accent-primary"
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* color grading - shadows */}
+              <div className="space-y-2 pt-2 border-t border-[#333]">
+                <div className="text-xs text-muted-foreground">shadow tint</div>
+                <div className="flex gap-1 mb-1">
+                  <input
+                    type="color"
+                    value={`rgb(${filters.shadowR}, ${filters.shadowG}, ${filters.shadowB})`}
+                    onChange={(e) => {
+                      const rgb = e.target.value;
+                      const r = parseInt(rgb.slice(1, 3), 16);
+                      const g = parseInt(rgb.slice(3, 5), 16);
+                      const b = parseInt(rgb.slice(5, 7), 16);
+                      setFilters(prev => ({ ...prev, shadowR: r, shadowG: g, shadowB: b }));
+                    }}
+                    className="w-6 h-6 rounded border-0 p-0"
+                  />
+                  <span className="text-xs text-muted-foreground flex-1">color</span>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-xs text-muted-foreground flex justify-between">
+                    <span>amount</span>
+                    <span>{filters.shadowAmount}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={filters.shadowAmount}
+                    onChange={(e) => setFilters(prev => ({ ...prev, shadowAmount: Number(e.target.value) }))}
+                    className="w-full accent-primary"
+                  />
+                </div>
+              </div>
+
+              {/* color grading - midtones */}
+              <div className="space-y-2 pt-2 border-t border-[#333]">
+                <div className="text-xs text-muted-foreground">midtone tint</div>
+                <div className="flex gap-1 mb-1">
+                  <input
+                    type="color"
+                    value={`rgb(${filters.midR}, ${filters.midG}, ${filters.midB})`}
+                    onChange={(e) => {
+                      const rgb = e.target.value;
+                      const r = parseInt(rgb.slice(1, 3), 16);
+                      const g = parseInt(rgb.slice(3, 5), 16);
+                      const b = parseInt(rgb.slice(5, 7), 16);
+                      setFilters(prev => ({ ...prev, midR: r, midG: g, midB: b }));
+                    }}
+                    className="w-6 h-6 rounded border-0 p-0"
+                  />
+                  <span className="text-xs text-muted-foreground flex-1">color</span>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-xs text-muted-foreground flex justify-between">
+                    <span>amount</span>
+                    <span>{filters.midAmount}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={filters.midAmount}
+                    onChange={(e) => setFilters(prev => ({ ...prev, midAmount: Number(e.target.value) }))}
+                    className="w-full accent-primary"
+                  />
+                </div>
+              </div>
+
+              {/* color grading - highlights */}
+              <div className="space-y-2 pt-2 border-t border-[#333]">
+                <div className="text-xs text-muted-foreground">highlight tint</div>
+                <div className="flex gap-1 mb-1">
+                  <input
+                    type="color"
+                    value={`rgb(${filters.highlightR}, ${filters.highlightG}, ${filters.highlightB})`}
+                    onChange={(e) => {
+                      const rgb = e.target.value;
+                      const r = parseInt(rgb.slice(1, 3), 16);
+                      const g = parseInt(rgb.slice(3, 5), 16);
+                      const b = parseInt(rgb.slice(5, 7), 16);
+                      setFilters(prev => ({ ...prev, highlightR: r, highlightG: g, highlightB: b }));
+                    }}
+                    className="w-6 h-6 rounded border-0 p-0"
+                  />
+                  <span className="text-xs text-muted-foreground flex-1">color</span>
+                </div>
+                <div className="space-y-1">
+                  <div className="text-xs text-muted-foreground flex justify-between">
+                    <span>amount</span>
+                    <span>{filters.highlightAmount}%</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={0}
+                    max={100}
+                    value={filters.highlightAmount}
+                    onChange={(e) => setFilters(prev => ({ ...prev, highlightAmount: Number(e.target.value) }))}
+                    className="w-full accent-primary"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -811,6 +1090,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
         <ContextMenu>
           <ContextMenuTrigger asChild>
             <div
+              onContextMenu={(e) => { e.stopPropagation(); }}
               className={cn("text-blue-400 hover:underline flex items-center gap-1 w-full cursor-pointer", size === 'lg' ? "text-lg" : "text-sm")}
               onClick={(e) => e.stopPropagation()}
             >
@@ -836,7 +1116,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
         return (
           <ContextMenu>
             <ContextMenuTrigger asChild>
-              <div className="flex items-center justify-center gap-1 h-full w-full overflow-hidden px-1">
+              <div className="flex items-center justify-center gap-1 h-full w-full overflow-hidden px-1" onContextMenu={(e) => { e.stopPropagation(); }}>
                 <div
                   className="cursor-pointer flex items-center gap-1 transition-transform hover:scale-110"
                   onClick={(e) => { e.stopPropagation(); setFullscreenIndex(0); setGalleryImgs(imgArr); }}
@@ -860,6 +1140,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           <ContextMenuTrigger asChild>
             <div
               onClick={() => setIsEditing(true)}
+              onContextMenu={(e) => { e.stopPropagation(); }}
               className="h-full w-full flex items-center justify-center cursor-pointer opacity-20 hover:opacity-100"
             >
               <Paperclip className="h-3 w-3 text-white" />
