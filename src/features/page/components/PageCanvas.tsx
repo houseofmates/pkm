@@ -131,8 +131,8 @@ export function PageCanvas() {
     }
   }, [id, updateDoc]);
 
-  const handleLayoutChange = useCallback((nextLayout: LayoutItem[]) => {
-    updateDoc((prev) => ({ ...prev, layout: nextLayout }));
+  const handleLayoutChange = useCallback((layout: readonly LayoutItem[]) => {
+    updateDoc((prev) => ({ ...prev, layout: [...layout] }));
   }, [updateDoc]);
 
   const addTextBlock = () => {
