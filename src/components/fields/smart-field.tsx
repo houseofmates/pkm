@@ -5,7 +5,7 @@ import { HexColorPicker } from 'react-colorful';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Check, X, Phone, Mail, Lock, Terminal, Paperclip, Link as LinkIcon, Copy, Trash2, Edit2 } from 'lucide-react';
+import { Check, X, Phone, Mail, Lock, Terminal, Paperclip, Link as LinkIcon, Copy, Trash2, Edit2, Database, FileText, Layout } from 'lucide-react';
 
 import { LocationField } from './location-field';
 import ReactMarkdown from 'react-markdown';
@@ -16,6 +16,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
+import { usePkmStore } from '@/store/usePkmStore';
 
 // import formula editor
 import { FormulaEditor } from '@/components/formula-editor';
@@ -211,6 +213,241 @@ function RelationPicker({ field, value, onChange, onCancel }: any) {
   )
 }
 
+// --- link database picker component ---
+function LinkDatabasePicker({ value, onChange, onCancel }: any) {
+  const collections = usePkmStore((state) => state.collections);
+  const [search, setSearch] = useState('');
+
+  const filteredCollections = collections.filter((c: any) => 
+    c.name?.toLowerCase().includes(search.toLowerCase()) ||
+    c.title?.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const handleSelect = (collection: any) => {
+    onChange({
+      id: collection.name,
+      name: collection.title || collection.name
+    });
+  };
+
+  return (
+    <div className="absolute z-50 bg-popover border shadow-lg rounded-md p-2 w-[280px] max-h-[350px] flex flex-col gap-2">
+      <div className="text-xs font-semibold text-muted-foreground px-1 flex items-center gap-1">
+        <Database className="h-3 w-3" /> link database
+      </div>
+      <Input
+        placeholder="search databases..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="h-7 text-xs bg-transparent"
+      />
+      <div className="flex-1 overflow-y-auto space-y-1 max-h-[200px]">
+        {filteredCollections.map((col: any) => {
+          const isSelected = value?.id === col.name;
+          return (
+            <div
+              key={col.name}
+              onClick={() => handleSelect(col)}
+              className={cn(
+                "text-sm p-2 rounded cursor-pointer hover:bg-accent flex items-center justify-between",
+                isSelected && "bg-accent/50 font-medium"
+              )}
+            >
+              <div className="flex items-center gap-2">
+                <Database className="h-3 w-3 text-muted-foreground" />
+                <span className="truncate">{col.title || col.name}</span>
+              </div>
+              {isSelected && <Check className="h-3 w-3 opacity-50" />}
+            </div>
+          );
+        })}
+        {filteredCollections.length === 0 && (
+          <div className="text-xs p-2 text-muted-foreground italic">no databases found</div>
+        )}
+      </div>
+      <div className="flex justify-end gap-1 pt-2 border-t mt-1">
+        <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={onCancel}>cancel</Button>
+      </div>
+    </div>
+  );
+}
+
+// --- link item picker component ---
+function LinkItemPicker({ value, onChange, onCancel }: any) {
+  const { client } = useAuth() as any;
+  const collections = usePkmStore((state) => state.collections);
+  const [search, setSearch] = useState('');
+  const [results, setResults] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [selectedType, setSelectedType] = useState<'all' | 'record' | 'canvas' | 'document'>('all');
+
+  useEffect(() => {
+    if (!search.trim()) {
+      setResults([]);
+      return;
+    }
+
+    const searchItems = async () => {
+      setLoading(true);
+      const allResults: any[] = [];
+
+      try {
+        // Search in collections (records)
+        if (selectedType === 'all' || selectedType === 'record') {
+          for (const collection of collections.slice(0, 5)) { // limit to first 5 collections for performance
+            try {
+              const res = await client?.listRecords(collection.name, { 
+                filter: { title: { $includes: search } },
+                pageSize: 5
+              });
+              const data = Array.isArray(res?.data) ? res.data : res?.data?.data || [];
+              data.forEach((item: any) => {
+                allResults.push({
+                  id: item.id,
+                  collection: collection.name,
+                  title: item.title || item.name || `Item ${item.id}`,
+                  type: 'record' as const,
+                });
+              });
+            } catch (e) { /* ignore errors for individual collections */ }
+          }
+        }
+
+        // Search in canvases (from local storage or API)
+        if (selectedType === 'all' || selectedType === 'canvas') {
+          try {
+            const canvasData = localStorage.getItem('edgeless_canvases');
+            if (canvasData) {
+              const canvases = JSON.parse(canvasData);
+              Object.entries(canvases).forEach(([id, canvas]: [string, any]) => {
+                if (canvas.title?.toLowerCase().includes(search.toLowerCase())) {
+                  allResults.push({
+                    id,
+                    collection: 'canvases',
+                    title: canvas.title,
+                    type: 'canvas' as const,
+                  });
+                }
+              });
+            }
+          } catch (e) { /* ignore */ }
+        }
+
+        // Search in documents
+        if (selectedType === 'all' || selectedType === 'document') {
+          try {
+            const docsData = localStorage.getItem('pkm_documents');
+            if (docsData) {
+              const docs = JSON.parse(docsData);
+              Object.entries(docs).forEach(([id, doc]: [string, any]) => {
+                if (doc.title?.toLowerCase().includes(search.toLowerCase())) {
+                  allResults.push({
+                    id,
+                    collection: 'documents',
+                    title: doc.title,
+                    type: 'document' as const,
+                  });
+                }
+              });
+            }
+          } catch (e) { /* ignore */ }
+        }
+      } catch (e) {
+        secureLogger.error('Error searching items:', e);
+      }
+
+      setResults(allResults.slice(0, 20)); // limit results
+      setLoading(false);
+    };
+
+    const timeoutId = setTimeout(searchItems, 300);
+    return () => clearTimeout(timeoutId);
+  }, [search, selectedType, collections, client]);
+
+  const handleSelect = (item: any) => {
+    onChange(item);
+  };
+
+  const getIcon = (type: string) => {
+    switch (type) {
+      case 'canvas': return <Layout className="h-3 w-3 text-purple-400" />;
+      case 'document': return <FileText className="h-3 w-3 text-blue-400" />;
+      default: return <Database className="h-3 w-3 text-green-400" />;
+    }
+  };
+
+  return (
+    <div className="absolute z-50 bg-popover border shadow-lg rounded-md p-2 w-[320px] max-h-[400px] flex flex-col gap-2">
+      <div className="text-xs font-semibold text-muted-foreground px-1 flex items-center gap-1">
+        <LinkIcon className="h-3 w-3" /> link item
+      </div>
+      
+      <Input
+        placeholder="search items..."
+        value={search}
+        onChange={(e) => setSearch(e.target.value)}
+        className="h-7 text-xs bg-transparent"
+        autoFocus
+      />
+      
+      <div className="flex gap-1">
+        {(['all', 'record', 'canvas', 'document'] as const).map((type) => (
+          <Button
+            key={type}
+            size="sm"
+            variant={selectedType === type ? 'secondary' : 'ghost'}
+            className="h-5 text-[10px] px-2 capitalize"
+            onClick={() => setSelectedType(type)}
+          >
+            {type}
+          </Button>
+        ))}
+      </div>
+
+      <div className="flex-1 overflow-y-auto space-y-1 max-h-[250px]">
+        {loading && <div className="text-xs p-2">searching...</div>}
+        
+        {!loading && results.map((item: any) => {
+          const isSelected = value?.id === item.id && value?.collection === item.collection;
+          return (
+            <div
+              key={`${item.collection}-${item.id}`}
+              onClick={() => handleSelect(item)}
+              className={cn(
+                "text-sm p-2 rounded cursor-pointer hover:bg-accent flex items-center justify-between",
+                isSelected && "bg-accent/50 font-medium"
+              )}
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                {getIcon(item.type)}
+                <div className="flex flex-col min-w-0">
+                  <span className="truncate font-medium">{item.title}</span>
+                  <span className="text-[10px] text-muted-foreground truncate">
+                    {item.collection} • {item.type}
+                  </span>
+                </div>
+              </div>
+              {isSelected && <Check className="h-3 w-3 opacity-50 shrink-0" />}
+            </div>
+          );
+        })}
+        
+        {!loading && search && results.length === 0 && (
+          <div className="text-xs p-2 text-muted-foreground italic">no items found</div>
+        )}
+        
+        {!search && (
+          <div className="text-xs p-2 text-muted-foreground italic">type to search...</div>
+        )}
+      </div>
+      
+      <div className="flex justify-end gap-1 pt-2 border-t mt-1">
+        <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={onCancel}>cancel</Button>
+      </div>
+    </div>
+  );
+}
+
 export interface SmartFieldProps {
   value: any;
   field: any;
@@ -299,6 +536,8 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   const isId = name === 'id' || name === 'uuid' || detectedType === 'uid' || detectedType === 'uuid';
   const isRelation = detectedType === 'relation' || detectedType === 'linkToAnotherRecord' || field?.interface === 'linkToAnotherRecord' || baseType === 'hasOne' || baseType === 'hasMany' || baseType === 'belongsTo' || baseType === 'belongsToMany';
   const isJson = detectedType === 'json' || detectedType === 'array' || detectedType === 'object' || (typeof value === 'object' && value !== null);
+  const isLinkDatabase = detectedType === 'linkDatabase' || field?.type === 'linkDatabase' || field?.interface === 'linkDatabase';
+  const isLinkItem = detectedType === 'linkItem' || field?.type === 'linkItem' || field?.interface === 'linkItem';
 
   const formatPhoneNumber = (val: string) => {
     const d = val.replace(/\D/g, '');
@@ -1025,6 +1264,14 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       return <RelationPicker field={field} value={localValue} onChange={handleSave} onCancel={handleCancel} />;
     }
 
+    if (isLinkDatabase) {
+      return <LinkDatabasePicker value={localValue} onChange={handleSave} onCancel={handleCancel} />;
+    }
+
+    if (isLinkItem) {
+      return <LinkItemPicker value={localValue} onChange={handleSave} onCancel={handleCancel} />;
+    }
+
     if (isJson) {
       return (
         <div className="flex flex-col gap-1 min-w-[200px] bg-[#111] border border-[#333] p-2 rounded shadow-2xl z-50">
@@ -1061,8 +1308,56 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     );
   }
 
+  const navigate = useNavigate();
+
   const renderView = () => {
     if (isId) return <span className={cn("font-mono opacity-50 select-text text-white/70", size === 'lg' ? "text-lg" : "text-[10px]")}>{value?.toString()}</span>;
+
+    if (isLinkDatabase && value) {
+      return (
+        <div 
+          className="flex items-center gap-1 cursor-pointer group"
+          onClick={() => navigate(`/databases/${encodeURIComponent(value.id)}`)}
+        >
+          <div className={cn(
+            "px-2 py-1 bg-indigo-900/40 text-indigo-300 rounded border border-indigo-700/50 hover:bg-indigo-800/50 hover:border-indigo-600 transition-colors flex items-center gap-1.5",
+            size === 'lg' ? "text-lg" : "text-xs"
+          )}>
+            <Database className="h-3 w-3" />
+            <span className="truncate">{value.name || value.id}</span>
+          </div>
+        </div>
+      );
+    }
+
+    if (isLinkItem && value) {
+      const handleClick = () => {
+        if (value.type === 'canvas') {
+          navigate(`/canvas/${value.id}`);
+        } else if (value.type === 'document') {
+          navigate(`/page/${value.id}`);
+        } else {
+          navigate(`/databases/${encodeURIComponent(value.collection)}/${value.id}`);
+        }
+      };
+
+      return (
+        <div 
+          className="flex items-center gap-1 cursor-pointer group"
+          onClick={handleClick}
+        >
+          <div className={cn(
+            "px-2 py-1 bg-emerald-900/40 text-emerald-300 rounded border border-emerald-700/50 hover:bg-emerald-800/50 hover:border-emerald-600 transition-colors flex items-center gap-1.5",
+            size === 'lg' ? "text-lg" : "text-xs"
+          )}>
+            {value.type === 'canvas' && <Layout className="h-3 w-3" />}
+            {value.type === 'document' && <FileText className="h-3 w-3" />}
+            {value.type === 'record' && <Database className="h-3 w-3" />}
+            <span className="truncate">{value.title || 'Untitled'}</span>
+          </div>
+        </div>
+      );
+    }
 
     if (isRelation) {
       let display = '';
