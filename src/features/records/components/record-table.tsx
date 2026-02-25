@@ -289,6 +289,7 @@ const DraggableRecordRow = (props: any) => {
   const row = rows[index];
   if (!row) return null;
 
+  const rowRef = React.useRef<HTMLDivElement>(null);
   const isDraggingRef = React.useRef(false);
 
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
