@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useCollections } from '@/hooks/use-collections';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
@@ -125,6 +125,10 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     // get collections list early - this is already loaded from databases page
     const { collections: availableCollections, loading: collectionsLoading } = useCollections();
 
+    // ref to avoid fetchData depending on availableCollections (which gets a new reference every render)
+    const availableCollectionsRef = useRef(availableCollections);
+    availableCollectionsRef.current = availableCollections;
+
     const handleLogin = () => {
         if (!apiKey) return;
         login(apiKey);
@@ -167,7 +171,8 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             // 1. try to find collection in already-loaded list first (from usecollections)
             // this fixes mobile issue where getcollection api call fails but listcollections works
             let colData: any = null;
-            const preloaded = availableCollections.find(
+            const currentCollections = availableCollectionsRef.current;
+            const preloaded = currentCollections.find(
                 (c: any) => (c.name || '').toLowerCase() === (collectionName || '').toLowerCase()
             );
 
@@ -256,7 +261,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         } finally {
             setLoading(false);
         }
-    }, [client, collectionName, availableCollections]);
+    }, [client, collectionName]);
 
     // --- event listeners ---
     useEffect(() => {

@@ -1,5 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react';
 import * as React from 'react';
+import { MemoryRouter } from 'react-router-dom';
 import { RecordContextMenu } from '../record-context-menu';
 
 // simple collection/record fixtures
@@ -12,9 +13,13 @@ const mockRecord = { id: '1', title: 'hello' };
 describe('RecordContextMenu', () => {
   it('renders children and opens context menu with edit button', () => {
     render(
-      <RecordContextMenu record={mockRecord} collection={mockCollection}>
-        <div data-testid="target">row</div>
-      </RecordContextMenu>
+      <React.Suspense fallback={null}>
+        <MemoryRouter>
+          <RecordContextMenu record={mockRecord} collection={mockCollection}>
+            <div data-testid="target">row</div>
+          </RecordContextMenu>
+        </MemoryRouter>
+      </React.Suspense>
     );
 
     const target = screen.getByTestId('target');
