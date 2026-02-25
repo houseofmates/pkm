@@ -4,7 +4,7 @@ import { appendOp, saveCheckpoint, getLatestCheckpoint, getRecentOps } from './s
 import type { DrawOp } from './storage/oplog'
 import { canvasSync } from './sync/canvas-sync'
 import { SpatialIndex } from './spatial/spatial-index'
-import type { fabric } from 'fabric'
+import type fabric from 'fabric'
 
 export type ElementType =
   | 'pdf-page'
