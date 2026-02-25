@@ -1,4 +1,30 @@
 /**
+ * Deep sanitization utility for logging objects/arrays
+ */
+export function sanitizeForLogging(input: any): any {
+  if (typeof input === 'string') {
+    return sanitizeMessage(input);
+  }
+  if (Array.isArray(input)) {
+    return input.map(sanitizeForLogging);
+  }
+  if (typeof input === 'object' && input !== null) {
+    const sanitized: any = {};
+    for (const key in input) {
+      if (Object.prototype.hasOwnProperty.call(input, key)) {
+        // never log keys named token, api_key, password, secret, credential
+        if (/token|api[_-]?key|password|secret|credential/i.test(key)) {
+          sanitized[key] = '[REDACTED]';
+        } else {
+          sanitized[key] = sanitizeForLogging(input[key]);
+        }
+      }
+    }
+    return sanitized;
+  }
+  return input;
+}
+/**
  * secure logger - privacy-first logging system
  * 
  * this logger ensures no sensitive data leaks to browser console unless:
