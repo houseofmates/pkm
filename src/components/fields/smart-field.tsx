@@ -806,7 +806,26 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
 
     if (isPhone) return <div className={cn("text-primary hover:underline flex items-center gap-1 cursor-pointer", size === 'lg' ? "text-lg" : "text-xs")} onClick={(e) => handlePhoneClick(e, strValue)}><Phone className="h-3 w-3" /> {formatPhoneNumber(strValue)}</div>;
     if (isEmail) return <a href={`mailto:${strValue}`} className={cn("text-primary hover:underline flex items-center gap-1 w-full", size === 'lg' ? "text-lg" : "text-sm")} onClick={e => e.stopPropagation()}><Mail className="h-3 w-3" /> {strValue}</a>;
-    if (isUrl) return <a href={value} target="_blank" rel="noopener noreferrer" className={cn("text-blue-400 hover:underline flex items-center gap-1 w-full", size === 'lg' ? "text-lg" : "text-sm")} onClick={e => e.stopPropagation()}><LinkIcon className="h-3 w-3" /> {value}</a>;
+    if (isUrl) {
+      return (
+        <ContextMenu>
+          <ContextMenuTrigger asChild>
+            <div
+              onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              className={cn("text-blue-400 hover:underline flex items-center gap-1 w-full cursor-pointer", size === 'lg' ? "text-lg" : "text-sm")}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <LinkIcon className="h-3 w-3" /> {value}
+            </div>
+          </ContextMenuTrigger>
+          <ContextMenuContent className="w-48">
+            <ContextMenuItem onSelect={() => window.open(value, '_blank')}>open externally</ContextMenuItem>
+            <ContextMenuItem onSelect={() => { setIsEditing(true); }}>edit url</ContextMenuItem>
+            <ContextMenuItem onSelect={() => { navigator.clipboard.writeText(String(value || '')); toast.success('copied'); }}>copy</ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
+      );
+    }
     if (isPassword) return <div onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="cursor-pointer flex items-center gap-1 text-white/30 hover:text-white/60"><Lock className="h-3 w-3" /> <span className="font-mono">••••••••</span></div>;
     if (isColor) return <div onClick={() => setIsEditing(true)} className="flex items-center gap-2 cursor-pointer group"><div className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: value || 'transparent' }} /><span className={cn("font-mono text-white/70 text-xs", size === 'lg' && "text-base")}>{value}</span></div>;
     if (isCheckbox) return <div className="flex items-center justify-center h-full w-full cursor-pointer" onClick={() => onChange(!value)}><Checkbox checked={!!value} className="data-[state=checked]:bg-yellow-400 data-[state=checked]:text-black border-white/20" onCheckedChange={(checked: boolean) => onChange(checked)} /></div>;
@@ -816,19 +835,44 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       const imgArr = Array.isArray(imgs) ? imgs : (imgs ? [imgs] : []);
       if (imgArr.length > 0) {
         return (
-          <div className="flex items-center justify-center gap-1 h-full w-full overflow-hidden px-1">
-            <div
-              className="cursor-pointer flex items-center gap-1 transition-transform hover:scale-110"
-              onClick={(e) => { e.stopPropagation(); setFullscreenIndex(0); setGalleryImgs(imgArr); }}
-              onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); setEditorImage(imgArr[0]); setEditorOpen(true); }}
-            >
-              <img src={imgArr[0]} className="h-7 w-7 object-cover rounded border border-white/10" alt="p" />
-              {imgArr.length > 1 && <span className="text-[10px] text-white/50">+{imgArr.length - 1}</span>}
-            </div>
-          </div>
+          <ContextMenu>
+            <ContextMenuTrigger asChild>
+              <div className="flex items-center justify-center gap-1 h-full w-full overflow-hidden px-1" onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                <div
+                  className="cursor-pointer flex items-center gap-1 transition-transform hover:scale-110"
+                  onClick={(e) => { e.stopPropagation(); setFullscreenIndex(0); setGalleryImgs(imgArr); }}
+                >
+                  <img src={imgArr[0]} className="h-7 w-7 object-cover rounded border border-white/10" alt="p" />
+                  {imgArr.length > 1 && <span className="text-[10px] text-white/50">+{imgArr.length - 1}</span>}
+                </div>
+              </div>
+            </ContextMenuTrigger>
+            <ContextMenuContent className="w-52">
+              <ContextMenuItem onSelect={() => { setFullscreenIndex(0); setGalleryImgs(imgArr); }}>view</ContextMenuItem>
+              <ContextMenuItem onSelect={() => { setEditorImage(imgArr[0]); setEditorOpen(true); }}>edit image</ContextMenuItem>
+              <ContextMenuItem onSelect={() => window.open(imgArr[0], '_blank')}>open externally</ContextMenuItem>
+              <ContextMenuItem onSelect={() => { navigator.clipboard.writeText(String(imgArr[0])); toast.success('copied'); }}>copy url</ContextMenuItem>
+            </ContextMenuContent>
+          </ContextMenu>
         );
       }
-      return <div onClick={() => setIsEditing(true)} onContextMenu={(e) => { e.preventDefault(); setEditorOpen(true); }} className="h-full w-full flex items-center justify-center cursor-pointer opacity-20 hover:opacity-100"><Paperclip className="h-3 w-3 text-white" /></div>;
+      return (
+        <ContextMenu>
+          <ContextMenuTrigger asChild>
+            <div
+              onClick={() => setIsEditing(true)}
+              onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
+              className="h-full w-full flex items-center justify-center cursor-pointer opacity-20 hover:opacity-100"
+            >
+              <Paperclip className="h-3 w-3 text-white" />
+            </div>
+          </ContextMenuTrigger>
+          <ContextMenuContent className="w-48">
+            <ContextMenuItem onSelect={() => setIsEditing(true)}>add/upload</ContextMenuItem>
+            <ContextMenuItem onSelect={() => setEditorOpen(true)}>open editor</ContextMenuItem>
+          </ContextMenuContent>
+        </ContextMenu>
+      );
     }
 
     if (isMarkdown) {
