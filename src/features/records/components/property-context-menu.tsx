@@ -7,10 +7,9 @@ import {
     ContextMenuSeparator,
     ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { Edit2, Settings2, Trash2, EyeOff, Type, Palette, Plus } from "lucide-react";
+import { Edit2, Settings2, Trash2, EyeOff, Type, Palette } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ValueColorRulesDialog } from "./value-color-rules-dialog";
 
 interface PropertyContextMenuProps {
     children: React.ReactNode;
