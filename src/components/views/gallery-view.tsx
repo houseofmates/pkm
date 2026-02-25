@@ -433,7 +433,6 @@ function GalleryCardTitle({
               onChange={(val) => {
                 onUpdateRecord?.(record.id, { [titleField.name]: val });
               }}
-              autoFocus
               className="h-auto p-0 border border-input rounded px-1 w-full font-bold text-center bg-background"
             />
           </div>
