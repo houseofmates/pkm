@@ -238,7 +238,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
               onDoubleClick={startEditing}
             >
               <div
-                className="whitespace-normal font-medium leading-[1.2] text-sm"
+                className="whitespace-normal font-medium leading-[1.2] text-base text-center w-full"
                 style={{ wordBreak: 'break-word', minWidth: 0, color: fieldColors[field?.name] || undefined }}
               >
                 {header.isPlaceholder
