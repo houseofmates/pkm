@@ -121,7 +121,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
   const handleCreateDocument = (mode: 'edgeless' | 'desktop-8k' | 'iphone-8k') => {
     const id = Math.random().toString(36).substring(7);
     // stash config
-    localStorage.setItem(`canvas-config-${id}`, JSON.stringify({ title: "untitled document", mode }));
+    storageManager.setItem(`canvas-config-${id}`, JSON.stringify({ title: "untitled document", mode }));
     navigate(`/canvas/${id}`);
     if (setOpen) setOpen(false);
   };

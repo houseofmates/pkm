@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Settings2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
+import { storageManager } from '@/lib/storage-manager';
 import { CreateFieldDialog } from '@/features/collections/components/create-field-dialog';
 import { toast } from 'sonner';
 import { useNavigate, useParams, useLocation } from 'react-router-dom';

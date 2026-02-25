@@ -92,8 +92,8 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
     if (onConfigChange) {
       onConfigChange('positions', positions);
     }
-    // also local backup
-    localStorage.setItem(`mindmap_${collection.name}`, JSON.stringify(positions));
+    // also local backup (use storageManager for safety)
+    storageManager.setItem(`mindmap_${collection.name}`, JSON.stringify(positions));
     toast.success("mind map layout saved");
   };
 
