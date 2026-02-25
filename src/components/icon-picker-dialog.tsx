@@ -19,9 +19,6 @@ for (const iconName of common_icons) {
   } catch {}
 }
 
-function getLucideIcon(name: string): LucideIcon | undefined {
-  return lucideIconMap[name.charAt(0).toUpperCase() + name.slice(1)];
-}
 
 // helper to safely get lucide icon by name
 function getLucideIcon(name: string): LucideIcon | undefined {
