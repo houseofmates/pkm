@@ -36,51 +36,36 @@ export function PropertyContextMenu({
     valueColorRules,
     onSetValueColor
 }: PropertyContextMenuProps) {
+    const [rulesDialogOpen, setRulesDialogOpen] = React.useState(false);
+
     if (!field) return <>{children}</>;
 
-    const [newRuleValue, setNewRuleValue] = React.useState('');
-    const [newRuleColor, setNewRuleColor] = React.useState('#3b82f6');
-    const [showRules, setShowRules] = React.useState(false);
-
-    const typeLabel = (field?.interface || field?.type || 'value').toLowerCase();
+    const ruleCount = Object.keys(valueColorRules || {}).length;
 
     return (
-        <ContextMenu>
-            <ContextMenuTrigger asChild>
-                {children}
-            </ContextMenuTrigger>
-            <ContextMenuContent className="w-72 lowercase p-0 overflow-hidden">
-                <ContextMenuLabel className="flex items-center gap-2 pb-1">
-                    <Settings2 className="w-3.5 h-3.5 opacity-50" />
-                    <span>property: {field.name}</span>
-                </ContextMenuLabel>
-                <ContextMenuSeparator />
-                <ContextMenuItem onClick={onRename}>
-                    <Edit2 className="mr-2 h-4 w-4" />
-                    <span>rename</span>
-                </ContextMenuItem>
-                <ContextMenuItem onClick={onEditSettings}>
-                    <Type className="mr-2 h-4 w-4" />
-                    <span>edit settings</span>
-                </ContextMenuItem>
-                <ContextMenuSeparator />
-                <ContextMenuItem onClick={onHide}>
-                    <EyeOff className="mr-2 h-4 w-4" />
-                    <span>hide property</span>
-                </ContextMenuItem>
-                <ContextMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    <span>delete property</span>
-                </ContextMenuItem>
-                <ContextMenuSeparator />
-                <ContextMenuItem onClick={() => setShowRules((v) => !v)}>
-                    <Palette className="mr-2 h-4 w-4" />
-                    <span>if/then color rules</span>
-                </ContextMenuItem>
+        <>
+            <ContextMenu>
+                <ContextMenuTrigger asChild>
+                    {children}
+                </ContextMenuTrigger>
+                <ContextMenuContent className="w-64 lowercase p-0 overflow-hidden">
+                    <ContextMenuLabel className="flex items-center gap-2 pb-1">
+                        <Settings2 className="w-3.5 h-3.5 opacity-50" />
+                        <span>property: {field.name}</span>
+                    </ContextMenuLabel>
+                    <ContextMenuSeparator />
+                    <ContextMenuItem onClick={onRename}>
+                        <Edit2 className="mr-2 h-4 w-4" />
+                        <span>rename</span>
+                    </ContextMenuItem>
+                    <ContextMenuItem onClick={onEditSettings}>
+                        <Type className="mr-2 h-4 w-4" />
+                        <span>edit settings</span>
+                    </ContextMenuItem>
+                    <ContextMenuSeparator />
 
-                {showRules && (
-                <div className="p-3 space-y-3 text-xs text-muted-foreground">
-                    <div className="space-y-2">
+                    {/* header color inline picker */}
+                    <div className="px-3 py-2 space-y-2 text-xs text-muted-foreground">
                         <div className="flex items-center gap-2 text-foreground">
                             <Palette className="w-4 h-4" />
                             <span>header color</span>
@@ -101,75 +86,39 @@ export function PropertyContextMenu({
                         </div>
                     </div>
 
-                    <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-foreground">
-                            <Palette className="w-4 h-4" />
-                            <span>value color rules (if {typeLabel} → color)</span>
-                        </div>
-                        <ScrollArea className="max-h-40">
-                            <div className="space-y-2 pr-1">
-                                {Object.entries(valueColorRules || {}).map(([val, color]) => (
-                                    <div key={val} className="flex items-center gap-2">
-                                        <Input
-                                            value={val}
-                                            readOnly
-                                            className="h-8 text-xs bg-muted/40"
-                                        />
-                                        <input
-                                            type="color"
-                                            value={color}
-                                            onChange={(e) => onSetValueColor?.(val, e.target.value)}
-                                            className="h-8 w-12 rounded border border-border bg-transparent"
-                                        />
-                                        <Button
-                                            size="icon"
-                                            variant="ghost"
-                                            className="h-8 w-8"
-                                            onClick={() => onSetValueColor?.(val, '')}
-                                            title="clear"
-                                        >
-                                            <Trash2 className="w-3 h-3" />
-                                        </Button>
-                                    </div>
-                                ))}
-                                {Object.keys(valueColorRules || {}).length === 0 && (
-                                    <div className="text-[11px] text-muted-foreground">no rules yet – match exact text/numbers or select options</div>
-                                )}
-                            </div>
-                        </ScrollArea>
+                    <ContextMenuSeparator />
 
-                        <div className="flex items-center gap-2">
-                            <Input
-                                placeholder={`match ${typeLabel} (exact)`}
-                                className="h-8 text-xs flex-1"
-                                value={newRuleValue}
-                                onChange={(e) => setNewRuleValue(e.target.value)}
-                            />
-                            <input
-                                type="color"
-                                value={newRuleColor}
-                                onChange={(e) => setNewRuleColor(e.target.value)}
-                                className="h-8 w-12 rounded border border-border bg-transparent"
-                                title="rule color"
-                            />
-                            <Button
-                                size="icon"
-                                variant="ghost"
-                                className="h-8 w-8"
-                                title="add rule"
-                                onClick={() => {
-                                    if (!newRuleValue) return;
-                                    onSetValueColor?.(newRuleValue, newRuleColor || '#3b82f6');
-                                    setNewRuleValue('');
-                                }}
-                            >
-                                <Plus className="w-4 h-4" />
-                            </Button>
-                        </div>
-                    </div>
-                </div>
-                )}
-            </ContextMenuContent>
-        </ContextMenu>
+                    {/* value color rules — button that opens a dialog */}
+                    <ContextMenuItem onClick={() => setRulesDialogOpen(true)}>
+                        <Palette className="mr-2 h-4 w-4" />
+                        <span>value color rules</span>
+                        {ruleCount > 0 && (
+                            <span className="ml-auto text-[10px] text-muted-foreground bg-white/10 px-1.5 py-0.5 rounded-full">
+                                {ruleCount}
+                            </span>
+                        )}
+                    </ContextMenuItem>
+
+                    <ContextMenuSeparator />
+                    <ContextMenuItem onClick={onHide}>
+                        <EyeOff className="mr-2 h-4 w-4" />
+                        <span>hide property</span>
+                    </ContextMenuItem>
+                    <ContextMenuItem onClick={onDelete} className="text-destructive focus:text-destructive">
+                        <Trash2 className="mr-2 h-4 w-4" />
+                        <span>delete property</span>
+                    </ContextMenuItem>
+                </ContextMenuContent>
+            </ContextMenu>
+
+            {/* value color rules dialog — rendered outside context menu so it persists */}
+            <ValueColorRulesDialog
+                open={rulesDialogOpen}
+                onOpenChange={setRulesDialogOpen}
+                field={field}
+                rules={valueColorRules || {}}
+                onSetRule={(val, color) => onSetValueColor?.(val, color)}
+            />
+        </>
     );
 }
