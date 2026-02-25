@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useCallback, useMemo, useState } from 'react'
+import React, { useRef, useEffect, useMemo, useState } from 'react'
 import * as fabric from 'fabric'
 import { useEdgelessStore } from '../store'
 import { useCanvasSafe } from '../hooks/use-canvas-safe'
@@ -19,7 +19,6 @@ import { SleepRing } from './elements/SleepRing'
 import { ConnectorElement } from './elements/ConnectorElement'
 import { SmartTextElement } from './elements/SmartTextElement'
 import { useContextMenuStore } from '@/components/ui/context-menu-store'
-import { secureLogger } from '@/lib/secure-logger'
 import { useCanvasEvents } from '../hooks/use-canvas-events'
 import { useGestureManager } from '@/hooks/use-gesture-manager'
 
@@ -30,7 +29,7 @@ export interface EdgelessCanvasProps {
   children?: React.ReactNode
 }
 
-export function EdgelessCanvas({ onObjectModified, className, onLoad, children }: EdgelessCanvasProps) {
+export function EdgelessCanvas({ onObjectModified: _onObjectModified, className, onLoad, children }: EdgelessCanvasProps) {
   const canvasEl = useRef<HTMLCanvasElement>(null)
   const wrapperRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
@@ -51,21 +50,17 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
     fabricCanvas,
     setFabricCanvas,
     elements,
-    updateElement,
     viewPort,
     setViewport,
     activeTool,
     selectionMode,
-    setTool,
-    addHistoryOp,
     selectedIds,
-    setSelectedIds,
     pdfDoc,
     canvasConfig
   } = useEdgelessStore()
 
   const { handleDrop } = useCanvasEvents()
-  const { setRefs } = useCanvasSafe()
+  useCanvasSafe()
   const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 })
 
   // track last stateful action to decide empty-space two-finger undo
@@ -105,7 +100,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
   useEffect(() => {
     if (!canvasEl.current || fabricCanvas) return
 
-    const canvas = new fabric.Canvas(canvasEl.current, {
+    const canvas = new fabric.Canvas(canvasEl.current as HTMLCanvasElement, {
       width: window.innerWidth,
       height: window.innerHeight,
       selection: true,
@@ -117,12 +112,9 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       stopContextMenu: true,
     })
 
-    // @ts-expect-error fabric-types-issue
-    fabric.Object.prototype.transparentCorners = false
-    // @ts-expect-error fabric-types-issue
-    fabric.Object.prototype.cornerColor = '#f6b012'
-    // @ts-expect-error fabric-types-issue
-    fabric.Object.prototype.cornerStyle = 'circle'
+    ;(fabric.Object.prototype as any).transparentCorners = false
+    ;(fabric.Object.prototype as any).cornerColor = '#f6b012'
+    ;(fabric.Object.prototype as any).cornerStyle = 'circle'
 
     setFabricCanvas(canvas)
     if (onLoad) onLoad()
@@ -152,15 +144,14 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
   useEffect(() => {
     if (!fabricCanvas) return
 
-    if (activeTool === 'draw') {
+    if (activeTool === 'pen') {
       fabricCanvas.isDrawingMode = true
-      const brush = new fabric.PencilBrush(fabricCanvas)
+      const brush = new fabric.PencilBrush(fabricCanvas) as any
       brush.width = penWidth
       brush.color = penColor
       brush.opacity = (penOpacity ?? 100) / 100
       // apply smoothing/decimation; higher stabilizer => less decimate
       // cap between 1 and 8
-      // @ts-expect-error fabric-types-issue
       brush.decimate = Math.max(1, 8 - (stabilizerLevel || 0))
       fabricCanvas.freeDrawingBrush = brush
     } else if (activeTool === 'eraser') {
@@ -169,12 +160,12 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
       // esbuild treating it as a named import and failing when the symbol is missing.
       const EraserBrushConstructor = Object.getOwnPropertyDescriptor(fabric, ['Eraser', 'Brush'].join(''))?.value;
       if (EraserBrushConstructor) {
-        const eraser = new EraserBrushConstructor(fabricCanvas)
+        const eraser = new EraserBrushConstructor(fabricCanvas) as any
         eraser.width = eraserWidth
         eraser.opacity = (eraserOpacity ?? 100) / 100
         fabricCanvas.freeDrawingBrush = eraser
       } else {
-        const brush = new fabric.PencilBrush(fabricCanvas)
+        const brush = new fabric.PencilBrush(fabricCanvas) as any
         brush.width = eraserWidth
         brush.color = '#090909'
         brush.opacity = (eraserOpacity ?? 100) / 100
@@ -194,7 +185,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         isPanningRef.current = true
         fabricCanvas.defaultCursor = 'grab'
         fabricCanvas.selection = false
-        if (activeTool === 'pen' || activeTool === 'eraser' || activeTool === 'draw') {
+        if (activeTool === 'pen' || activeTool === 'eraser') {
           fabricCanvas.isDrawingMode = false
         }
         fabricCanvas.requestRenderAll()
@@ -206,7 +197,7 @@ export function EdgelessCanvas({ onObjectModified, className, onLoad, children }
         isPanningRef.current = false
         fabricCanvas.defaultCursor = 'default'
         fabricCanvas.selection = true
-        if (activeTool === 'pen' || activeTool === 'eraser' || activeTool === 'draw') {
+        if (activeTool === 'pen' || activeTool === 'eraser') {
           fabricCanvas.isDrawingMode = true
         }
         fabricCanvas.requestRenderAll()
