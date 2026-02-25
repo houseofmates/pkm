@@ -42,7 +42,7 @@ type DocumentBlock = TextBlock | DatabaseBlock;
 interface DocumentState {
   title: string;
   blocks: DocumentBlock[];
-  layout: Layout[];
+  layout: Layout;
 }
 
 interface DocumentConfig {
@@ -51,6 +51,8 @@ interface DocumentConfig {
   iconType?: string;
   color?: string;
 }
+
+type LayoutItem = Layout[number];
 
 const EMBED_VIEW_OPTIONS: { value: EmbedView; label: string }[] = [
   { value: 'table', label: 'table' },
@@ -61,6 +63,8 @@ const EMBED_VIEW_OPTIONS: { value: EmbedView; label: string }[] = [
 ];
 
 const WIDTH_OPTIONS = [1, 2, 3, 4];
+
+const CONFIG_PREFIX = 'canvas-config-';
 
 const makeId = () => (typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).slice(2));
 
