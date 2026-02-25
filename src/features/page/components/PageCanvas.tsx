@@ -230,7 +230,6 @@ export function PageCanvas() {
 
       <main className="flex-1 overflow-auto px-5 pb-8">
         <div className="mx-auto" style={{ maxWidth: gridWidth }}>
-          // @ts-ignore
           <GridLayout
             className="layout"
             cols={4}
@@ -241,8 +240,8 @@ export function PageCanvas() {
             layout={docLayout}
             onLayoutChange={handleLayoutChange}
             draggableHandle=".block-handle"
-            isDraggable
-            isResizable
+            isDraggable={true}
+            isResizable={true}
             compactType="vertical"
             preventCollision={false}
           >
