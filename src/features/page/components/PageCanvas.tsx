@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import GridLayout, { type Layout } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
@@ -71,13 +71,13 @@ export function PageCanvas() {
   const storageKey = useMemo(() => (id ? `canvas-content-${id}` : 'canvas-content'), [id]);
   const { collections, refresh } = useCollections();
 
-  const [documentState, setDocumentState] = useState<DocumentState>(() => {
+    const [documentState, setDocumentState] = useState<DocumentState>(() => {
     const overrideTitle = id ? loadDocumentConfig(id)?.title : undefined;
     return loadDocument(storageKey, overrideTitle);
   });
   const [pendingSave, setPendingSave] = useState(false);
 
-  useEffect(() => {
+    useEffect(() => {
     const overrideTitle = id ? loadDocumentConfig(id)?.title : undefined;
     setDocumentState(loadDocument(storageKey, overrideTitle));
     setPendingSave(false);
