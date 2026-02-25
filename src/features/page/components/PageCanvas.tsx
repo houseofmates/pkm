@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import GridLayout, { type LayoutItem } from 'react-grid-layout';
+import GridLayout from 'react-grid-layout';
+import { LayoutItem } from 'react-grid-layout';
 import 'react-grid-layout/css/styles.css';
 import 'react-resizable/css/styles.css';
 import { useWindowSize } from 'react-use';
@@ -131,7 +132,7 @@ export function PageCanvas() {
     }
   }, [id, updateDoc]);
 
-  const handleLayoutChange = useCallback((layout: LayoutItem[]) => {
+  const handleLayoutChange = useCallback((layout: readonly LayoutItem[]) => {
     updateDoc((prev) => ({ ...prev, layout: [...layout] }));
   }, [updateDoc]);
 
