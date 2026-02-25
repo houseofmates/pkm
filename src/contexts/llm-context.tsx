@@ -5,6 +5,7 @@ import type { LLMContextPayload, IdentityContext, AffectiveContext, ActivityCont
 // import { usecollections } from '@/hooks/use-collections';
 import { debounce } from 'lodash';
 import { formatHeadmateName } from '@/utils/text-formatting';
+import { secureLogger } from '@/lib/secure-logger';
 
 const LLMContext = createContext<LLMContextPayload | null>(null);
 
