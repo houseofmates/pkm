@@ -140,9 +140,9 @@ export function TableView({ records, isLoading, theme, onSelect, fields }: Table
           {({ height, width }) => (
             <List
               outerRef={bodyRef}
-              onScroll={({ scrollOffset, scrollUpdateWasRequested, scrollDirection, scrollLeft }) => {
+              onScroll={({ scrollOffset }) => {
                 if (headerRef.current) {
-                  headerRef.current.scrollLeft = scrollLeft;
+                  headerRef.current.scrollLeft = scrollOffset;
                 }
               }}
               itemCount={rows.length || 1}
