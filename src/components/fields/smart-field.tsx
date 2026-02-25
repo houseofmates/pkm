@@ -217,11 +217,29 @@ function RelationPicker({ field, value, onChange, onCancel }: any) {
 function LinkDatabasePicker({ value, onChange, onCancel }: any) {
   const collections = usePkmStore((state) => state.collections);
   const [search, setSearch] = useState('');
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   const filteredCollections = collections.filter((c: any) => 
     c.name?.toLowerCase().includes(search.toLowerCase()) ||
     c.title?.toLowerCase().includes(search.toLowerCase())
   );
+
+  // Reset highlight when search changes
+  useEffect(() => {
+    setHighlightedIndex(0);
+  }, [search]);
+
+  // Click outside to close
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        onCancel();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [onCancel]);
 
   const handleSelect = (collection: any) => {
     onChange({
@@ -230,8 +248,35 @@ function LinkDatabasePicker({ value, onChange, onCancel }: any) {
     });
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case 'Escape':
+        e.preventDefault();
+        onCancel();
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        setHighlightedIndex(i => Math.min(i + 1, filteredCollections.length - 1));
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setHighlightedIndex(i => Math.max(i - 1, 0));
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (filteredCollections[highlightedIndex]) {
+          handleSelect(filteredCollections[highlightedIndex]);
+        }
+        break;
+    }
+  };
+
   return (
-    <div className="absolute z-50 bg-popover border shadow-lg rounded-md p-2 w-[280px] max-h-[350px] flex flex-col gap-2">
+    <div 
+      ref={containerRef}
+      className="absolute z-50 bg-popover border shadow-lg rounded-md p-2 w-[280px] max-h-[350px] flex flex-col gap-2"
+      onKeyDown={handleKeyDown}
+    >
       <div className="text-xs font-semibold text-muted-foreground px-1 flex items-center gap-1">
         <Database className="h-3 w-3" /> link database
       </div>
@@ -240,32 +285,45 @@ function LinkDatabasePicker({ value, onChange, onCancel }: any) {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         className="h-7 text-xs bg-transparent"
+        autoFocus
+        aria-label="Search databases"
       />
       <div className="flex-1 overflow-y-auto space-y-1 max-h-[200px]">
-        {filteredCollections.map((col: any) => {
-          const isSelected = value?.id === col.name;
-          return (
-            <div
-              key={col.name}
-              onClick={() => handleSelect(col)}
-              className={cn(
-                "text-sm p-2 rounded cursor-pointer hover:bg-accent flex items-center justify-between",
-                isSelected && "bg-accent/50 font-medium"
-              )}
-            >
-              <div className="flex items-center gap-2">
-                <Database className="h-3 w-3 text-muted-foreground" />
-                <span className="truncate">{col.title || col.name}</span>
+        {filteredCollections.length === 0 ? (
+          <div className="text-xs p-3 text-muted-foreground italic text-center">
+            {search ? 'no databases match your search' : 'no databases available'}
+          </div>
+        ) : (
+          filteredCollections.map((col: any, index: number) => {
+            const isSelected = value?.id === col.name;
+            const isHighlighted = index === highlightedIndex;
+            return (
+              <div
+                key={col.name}
+                onClick={() => handleSelect(col)}
+                className={cn(
+                  "text-sm p-2 rounded cursor-pointer flex items-center justify-between transition-colors",
+                  isHighlighted && "bg-accent/30",
+                  isSelected && "bg-accent/50 font-medium",
+                  !isHighlighted && !isSelected && "hover:bg-accent"
+                )}
+                role="option"
+                aria-selected={isSelected}
+              >
+                <div className="flex items-center gap-2">
+                  <Database className="h-3 w-3 text-muted-foreground" />
+                  <span className="truncate">{col.title || col.name}</span>
+                </div>
+                {isSelected && <Check className="h-3 w-3 opacity-50" />}
               </div>
-              {isSelected && <Check className="h-3 w-3 opacity-50" />}
-            </div>
-          );
-        })}
-        {filteredCollections.length === 0 && (
-          <div className="text-xs p-2 text-muted-foreground italic">no databases found</div>
+            );
+          })
         )}
       </div>
-      <div className="flex justify-end gap-1 pt-2 border-t mt-1">
+      <div className="flex justify-between items-center pt-2 border-t mt-1">
+        <span className="text-[10px] text-muted-foreground">
+          {filteredCollections.length} database{filteredCollections.length !== 1 ? 's' : ''}
+        </span>
         <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={onCancel}>cancel</Button>
       </div>
     </div>
@@ -279,41 +337,63 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
   const [search, setSearch] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selectedType, setSelectedType] = useState<'all' | 'record' | 'canvas' | 'document'>('all');
+  const [highlightedIndex, setHighlightedIndex] = useState(0);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Debounced search with cleanup
   useEffect(() => {
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
     if (!search.trim()) {
       setResults([]);
+      setError(null);
+      setLoading(false);
       return;
     }
 
-    const searchItems = async () => {
-      setLoading(true);
+    setLoading(true);
+    setError(null);
+
+    searchTimeoutRef.current = setTimeout(async () => {
       const allResults: any[] = [];
+      let hasErrors = false;
 
       try {
         // Search in collections (records)
         if (selectedType === 'all' || selectedType === 'record') {
-          for (const collection of collections.slice(0, 5)) { // limit to first 5 collections for performance
+          const searchPromises = collections.slice(0, 5).map(async (collection: any) => {
             try {
               const res = await client?.listRecords(collection.name, { 
                 filter: { title: { $includes: search } },
                 pageSize: 5
               });
               const data = Array.isArray(res?.data) ? res.data : res?.data?.data || [];
-              data.forEach((item: any) => {
-                allResults.push({
-                  id: item.id,
-                  collection: collection.name,
-                  title: item.title || item.name || `Item ${item.id}`,
-                  type: 'record' as const,
-                });
-              });
-            } catch (e) { /* ignore errors for individual collections */ }
-          }
+              return data.map((item: any) => ({
+                id: item.id,
+                collection: collection.name,
+                title: item.title || item.name || `Item ${item.id}`,
+                type: 'record' as const,
+              }));
+            } catch (e) {
+              hasErrors = true;
+              return [];
+            }
+          });
+          
+          const searchResults = await Promise.allSettled(searchPromises);
+          searchResults.forEach(result => {
+            if (result.status === 'fulfilled') {
+              allResults.push(...result.value);
+            }
+          });
         }
 
-        // Search in canvases (from local storage or API)
+        // Search in canvases (from local storage)
         if (selectedType === 'all' || selectedType === 'canvas') {
           try {
             const canvasData = localStorage.getItem('edgeless_canvases');
@@ -330,7 +410,9 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
                 }
               });
             }
-          } catch (e) { /* ignore */ }
+          } catch (e) { 
+            hasErrors = true;
+          }
         }
 
         // Search in documents
@@ -350,22 +432,71 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
                 }
               });
             }
-          } catch (e) { /* ignore */ }
+          } catch (e) { 
+            hasErrors = true;
+          }
+        }
+
+        setResults(allResults.slice(0, 20));
+        if (hasErrors && allResults.length === 0) {
+          setError('Some searches failed. Showing partial results.');
         }
       } catch (e) {
         secureLogger.error('Error searching items:', e);
+        setError('Search failed. Please try again.');
+      } finally {
+        setLoading(false);
       }
+    }, 300);
 
-      setResults(allResults.slice(0, 20)); // limit results
-      setLoading(false);
+    return () => {
+      if (searchTimeoutRef.current) {
+        clearTimeout(searchTimeoutRef.current);
+      }
     };
-
-    const timeoutId = setTimeout(searchItems, 300);
-    return () => clearTimeout(timeoutId);
   }, [search, selectedType, collections, client]);
+
+  // Reset highlight when results change
+  useEffect(() => {
+    setHighlightedIndex(0);
+  }, [results.length]);
+
+  // Click outside to close
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        onCancel();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [onCancel]);
 
   const handleSelect = (item: any) => {
     onChange(item);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case 'Escape':
+        e.preventDefault();
+        onCancel();
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        setHighlightedIndex(i => Math.min(i + 1, results.length - 1));
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setHighlightedIndex(i => Math.max(i - 1, 0));
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (results[highlightedIndex]) {
+          handleSelect(results[highlightedIndex]);
+        }
+        break;
+    }
   };
 
   const getIcon = (type: string) => {
@@ -376,21 +507,43 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
     }
   };
 
+  const clearSearch = () => {
+    setSearch('');
+    setResults([]);
+    setError(null);
+  };
+
   return (
-    <div className="absolute z-50 bg-popover border shadow-lg rounded-md p-2 w-[320px] max-h-[400px] flex flex-col gap-2">
+    <div 
+      ref={containerRef}
+      className="absolute z-50 bg-popover border shadow-lg rounded-md p-2 w-[320px] max-h-[400px] flex flex-col gap-2"
+      onKeyDown={handleKeyDown}
+    >
       <div className="text-xs font-semibold text-muted-foreground px-1 flex items-center gap-1">
         <LinkIcon className="h-3 w-3" /> link item
       </div>
       
-      <Input
-        placeholder="search items..."
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="h-7 text-xs bg-transparent"
-        autoFocus
-      />
+      <div className="relative">
+        <Input
+          placeholder="search items..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="h-7 text-xs bg-transparent pr-7"
+          autoFocus
+          aria-label="Search items"
+        />
+        {search && (
+          <button
+            onClick={clearSearch}
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            aria-label="Clear search"
+          >
+            <X className="h-3 w-3" />
+          </button>
+        )}
+      </div>
       
-      <div className="flex gap-1">
+      <div className="flex gap-1 flex-wrap">
         {(['all', 'record', 'canvas', 'document'] as const).map((type) => (
           <Button
             key={type}
@@ -404,19 +557,34 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
         ))}
       </div>
 
-      <div className="flex-1 overflow-y-auto space-y-1 max-h-[250px]">
-        {loading && <div className="text-xs p-2">searching...</div>}
+      {error && (
+        <div className="text-xs p-2 text-red-400 bg-red-950/20 rounded border border-red-900/30">
+          {error}
+        </div>
+      )}
+
+      <div className="flex-1 overflow-y-auto space-y-1 max-h-[250px] min-h-[60px]">
+        {loading && (
+          <div className="flex items-center justify-center p-4">
+            <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
+          </div>
+        )}
         
-        {!loading && results.map((item: any) => {
+        {!loading && results.length > 0 && results.map((item: any, index: number) => {
           const isSelected = value?.id === item.id && value?.collection === item.collection;
+          const isHighlighted = index === highlightedIndex;
           return (
             <div
               key={`${item.collection}-${item.id}`}
               onClick={() => handleSelect(item)}
               className={cn(
-                "text-sm p-2 rounded cursor-pointer hover:bg-accent flex items-center justify-between",
-                isSelected && "bg-accent/50 font-medium"
+                "text-sm p-2 rounded cursor-pointer flex items-center justify-between transition-colors",
+                isHighlighted && "bg-accent/30",
+                isSelected && "bg-accent/50 font-medium",
+                !isHighlighted && !isSelected && "hover:bg-accent"
               )}
+              role="option"
+              aria-selected={isSelected}
             >
               <div className="flex items-center gap-2 min-w-0">
                 {getIcon(item.type)}
@@ -432,16 +600,23 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
           );
         })}
         
-        {!loading && search && results.length === 0 && (
-          <div className="text-xs p-2 text-muted-foreground italic">no items found</div>
+        {!loading && search && results.length === 0 && !error && (
+          <div className="text-xs p-3 text-muted-foreground italic text-center">
+            no items found matching "{search}"
+          </div>
         )}
         
-        {!search && (
-          <div className="text-xs p-2 text-muted-foreground italic">type to search...</div>
+        {!loading && !search && (
+          <div className="text-xs p-3 text-muted-foreground italic text-center">
+            type to search across databases, canvases, and documents...
+          </div>
         )}
       </div>
       
-      <div className="flex justify-end gap-1 pt-2 border-t mt-1">
+      <div className="flex justify-between items-center pt-2 border-t mt-1">
+        <span className="text-[10px] text-muted-foreground">
+          {results.length > 0 ? `${results.length} result${results.length !== 1 ? 's' : ''}` : ''}
+        </span>
         <Button variant="ghost" size="sm" className="h-6 text-xs" onClick={onCancel}>cancel</Button>
       </div>
     </div>
