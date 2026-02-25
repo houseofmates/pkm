@@ -379,7 +379,12 @@ const DraggableRecordRow = (props: any) => {
         {/* drag handle area */}
         {onCreateField && (
           <div
-            className="w-10 border-r border-[#222] p-0 h-10 transition-colors relative flex-shrink-0"
+            className="border-r border-[#222] p-0 h-10 transition-colors relative flex-shrink-0"
+            style={{
+              width: leftColWidth,
+              minWidth: leftColWidth,
+              maxWidth: leftColWidth,
+            }}
           >
             <div
               className="absolute inset-0 cursor-move flex items-center justify-center group-hover:bg-white/5"
@@ -444,6 +449,28 @@ const getValueColor = (
 };
 
 export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateField, onCreateRecord, onFieldUpdated: onFieldUpdatedCb, loading }: RecordTableProps) {
+    // leftmost column width state
+    const DEFAULT_LEFT_COL_WIDTH = 40;
+    const [leftColWidth, setLeftColWidth] = React.useState<number>(DEFAULT_LEFT_COL_WIDTH);
+    const leftColResizeRef = React.useRef<boolean>(false);
+    const handleLeftColResizeStart = (e: React.MouseEvent) => {
+      leftColResizeRef.current = true;
+      const startX = e.clientX;
+      const startWidth = leftColWidth;
+      const onMouseMove = (moveEvent: MouseEvent) => {
+        if (!leftColResizeRef.current) return;
+        const delta = moveEvent.clientX - startX;
+        let newWidth = Math.max(24, startWidth + delta);
+        setLeftColWidth(newWidth);
+      };
+      const onMouseUp = () => {
+        leftColResizeRef.current = false;
+        window.removeEventListener('mousemove', onMouseMove);
+        window.removeEventListener('mouseup', onMouseUp);
+      };
+      window.addEventListener('mousemove', onMouseMove);
+      window.addEventListener('mouseup', onMouseUp);
+    };
   const [hiddenColumns, setHiddenColumns] = useAppSetting<string[]>(
     `hidden_columns_${collection?.name || 'unknown'}`,
     []
@@ -823,14 +850,21 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                 column widths are pixel-identical during resize */}
             <div
               style={{
-                width: table.getTotalSize() + (onCreateField ? 40 : 0),
-                minWidth: table.getTotalSize() + (onCreateField ? 40 : 0),
+                width: table.getTotalSize() + (onCreateField ? leftColWidth : 0),
+                minWidth: table.getTotalSize() + (onCreateField ? leftColWidth : 0),
               }}
             >
               {table.getHeaderGroups().map((headerGroup) => (
                 <div key={headerGroup.id} className="flex border-b border-[#222]" style={{ width: '100%', minWidth: '100%' }}>
                   {onCreateField && (
-                    <div className="w-10 border-r border-[#222] border-b border-b-[#222] p-0 overflow-hidden flex-shrink-0">
+                    <div
+                      className="border-r border-[#222] border-b border-b-[#222] p-0 overflow-hidden flex-shrink-0 relative"
+                      style={{
+                        width: leftColWidth,
+                        minWidth: leftColWidth,
+                        maxWidth: leftColWidth,
+                      }}
+                    >
                       <Button
                         variant="ghost"
                         size="icon"
@@ -841,6 +875,12 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                       >
                         <Plus className="h-4 w-4" />
                       </Button>
+                      {/* resize handle */}
+                      <div
+                        className="absolute right-0 top-0 h-full w-2 cursor-ew-resize group"
+                        onMouseDown={handleLeftColResizeStart}
+                        style={{ zIndex: 10 }}
+                      />
                     </div>
                   )}
                   <SortableContext
