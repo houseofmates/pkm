@@ -284,7 +284,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
 const DraggableRecordRow = (props: any) => {
   const { index, style: incomingStyle } = props;
   const data = props.data || props;
-  const { rows, collection, onUpdate, onDelete, onCreateField, recordMeta, onEdit, selectedIds, onRowSelect, clearSelection, enableSelection, tableSize, columnVersion } = data;
+  const { rows, collection, onUpdate, onDelete, onCreateField, recordMeta, onEdit, selectedIds, onRowSelect, clearSelection, enableSelection, columnVersion } = data;
 
   const row = rows[index];
   if (!row) return null;
