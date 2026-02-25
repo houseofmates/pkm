@@ -29,6 +29,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { FieldSettingsDialog } from '@/features/collections/components/field-settings-dialog';
+import { useGestureManager } from '@/hooks/use-gesture-manager';
 
 interface RecordTableProps {
   data: any[];
