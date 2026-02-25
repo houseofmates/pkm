@@ -580,7 +580,17 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           <div className="flex items-center justify-between px-4 py-3 border-b border-[#222]">
             <div className="text-sm font-semibold text-white">image editor</div>
             <div className="flex gap-2">
-              <Button size="sm" variant="ghost" onClick={() => { setStrokes([]); setCrop(null); setFilters({ brightness:100, contrast:100, saturation:100, hue:0, blur:0, sharpness:0, clarity:0 }); }}>reset</Button>
+              <Button size="sm" variant="ghost" onClick={() => { 
+                setStrokes([]); 
+                setCrop(null); 
+                setCropAspect(null);
+                setFilters({ 
+                  brightness:100, contrast:100, saturation:100, hue:0, blur:0, sharpness:0, clarity:0,
+                  shadowR: 0, shadowG: 0, shadowB: 0, shadowAmount: 0,
+                  midR: 0, midG: 0, midB: 0, midAmount: 0,
+                  highlightR: 0, highlightG: 0, highlightB: 0, highlightAmount: 0
+                }); 
+              }}>reset</Button>
               <Button size="sm" onClick={async () => {
                 const dataUrl = await exportImage();
                 if (dataUrl) {
