@@ -6,14 +6,27 @@ import { walWrite, walCommit, walFail } from '@/lib/write-ahead-log';
 import { registry } from '@/lib/link-registry';
 import { extractRecords } from '@/lib/nocobase-utils';
 
-export function useRecords(collectionName: string, initialParams: any = {}) {
+import type { Collection, Field } from '@/api/nocobase-client';
+
+interface QueryParams {
+  page?: number;
+  pageSize?: number;
+  [key: string]: unknown;
+}
+
+interface Meta {
+  total?: number;
+  [key: string]: unknown;
+}
+
+export function useRecords(collectionName: string, initialParams: QueryParams = {}) {
   const { client } = useAuth();
   const { activeFronters } = useFronter();
   const activeFronterId = activeFronters[0] || null;
   const queryClient = useQueryClient();
 
   // state for dynamic query parameters (pagination, filtering)
-  const [queryParams, setQueryParams] = useState<any>({
+  const [queryParams, setQueryParams] = useState<QueryParams>({
     page: 1,
     pageSize: 20,
     ...initialParams
@@ -42,8 +55,8 @@ export function useRecords(collectionName: string, initialParams: any = {}) {
   }, [data, collectionName]);
 
 
-  const records: any[] = extractRecords(data);
-  const meta = (data as { meta?: any })?.meta;
+  const records: Record<string, unknown>[] = extractRecords(data);
+  const meta: Meta | undefined = (data as { meta?: Meta })?.meta;
 
   // If a non-zero page returns no records, try swapping between 0/1 once.
   const [pageFallbackTried, setPageFallbackTried] = useState(false);
