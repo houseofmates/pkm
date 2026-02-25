@@ -46,11 +46,6 @@
 - [ ] Standardize error handling patterns
 - [ ] Add loading states for async operations
 
-## Complex Files to Restore (Too Many Errors)
-- [x] `src/pages/template.tsx` - Restored from git
-- [x] `src/features/houseofmates-builder/components/WidgetPropertyEditor.tsx` - Restored from git
-- [x] `src/features/houseofmates-builder/components/WebsiteElements.tsx` - Restored from git
-
 # Complete Codebase Optimization TODO
 
 - [ ] src/features/blog-builder/components/BlogPostCard.tsx - BlogPostCard
