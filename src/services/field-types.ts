@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { schemaService } from './schema.service';
 import type { FieldType } from './schema.service';
+import { secureLogger } from '@/lib/secure-logger';
 
 /**
  * Text Field Type
@@ -130,6 +131,36 @@ const relationField: FieldType = {
   defaultValue: null,
 };
 
+/**
+ * Link Database Field Type
+ * References another database/collection in the PKM system.
+ * Stores the database name and display info.
+ */
+const linkDatabaseField: FieldType = {
+  typeName: 'linkDatabase',
+  schema: z.object({
+    id: z.string(), // the database/collection name
+    name: z.string(), // display name
+  }).nullable(),
+  defaultValue: null,
+};
+
+/**
+ * Link Item Field Type
+ * References a specific item/record in any database, canvas, or document.
+ * Stores the item id, collection name, title, and item type.
+ */
+const linkItemField: FieldType = {
+  typeName: 'linkItem',
+  schema: z.object({
+    id: z.string().or(z.number()), // the item/record id
+    collection: z.string(), // the collection/database name
+    title: z.string(), // display title
+    type: z.enum(['record', 'canvas', 'document']), // item type for routing
+  }).nullable(),
+  defaultValue: null,
+};
+
 // register all of them
 schemaService.registerFieldType(textField);
 schemaService.registerFieldType(numberField);
@@ -149,5 +180,7 @@ schemaService.registerFieldType(attachmentField);
 schemaService.registerFieldType(attachmentsField);
 schemaService.registerFieldType(formulaField);
 schemaService.registerFieldType(relationField);
+schemaService.registerFieldType(linkDatabaseField);
+schemaService.registerFieldType(linkItemField);
 
-secureLogger.info('Default field types registered (text, number, boolean, date, datetime, time, select, multipleSelect, percent, email, phone, url, color, json, attachment, attachments, relation).');
+secureLogger.info('Default field types registered (text, number, boolean, date, datetime, time, select, multipleSelect, percent, email, phone, url, color, json, attachment, attachments, relation, linkDatabase, linkItem).');
