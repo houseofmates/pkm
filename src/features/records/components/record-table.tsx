@@ -954,6 +954,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               <AutoSizer
                   renderProp={({ height, width }: { height: number | undefined; width: number | undefined }) => (
                       <List
+                        key={columnVersion}
                         rowCount={rows.length}
                         rowHeight={40}
                         rowProps={{
