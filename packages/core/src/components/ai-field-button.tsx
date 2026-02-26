@@ -6,6 +6,7 @@ import { Sparkles, Loader2, Wand2, BrainCircuit } from 'lucide-react';
 import { generateAndSaveAiField, previewAiFieldContent, getSuggestedInstructions } from '@/services/ai-field-generator';
 import { secureLogger } from '@/lib/secure-logger';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface AiFieldButtonProps {
   collection: string;
@@ -57,11 +58,11 @@ export function AiFieldButton({
         secureLogger.info(`[AI Field] generated content for ${collection}:${recordId}`);
       } else {
         secureLogger.error('[AI Field] generation failed:', result.error);
-        alert(`generation failed: ${result.error}`);
+        toast.error(`generation failed: ${result.error}`);
       }
     } catch (error) {
       secureLogger.error('[AI Field] unexpected error:', error);
-      alert('unexpected error during generation');
+      toast.error('unexpected error during generation');
     } finally {
       setIsGenerating(false);
     }
@@ -85,7 +86,7 @@ export function AiFieldButton({
           await handleGenerate(instruction);
         }
       } else {
-        alert(`preview failed: ${result.error}`);
+        toast.error(`preview failed: ${result.error}`);
       }
     } catch (error) {
       secureLogger.error('[AI Field] preview error:', error);

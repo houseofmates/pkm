@@ -5,6 +5,7 @@ import type { FieldInstance } from '@/services/schema.service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { toast } from 'sonner';
 
 export const TableManager: React.FC = () => {
   // Subscribe to the collections from the central Zustand store
@@ -19,7 +20,7 @@ export const TableManager: React.FC = () => {
 
   const handleCreateTable = async () => {
     if (newTableName.trim() === '') {
-      alert('Table name cannot be empty.');
+      toast.error('table name cannot be empty.');
       return;
     }
 
@@ -30,11 +31,12 @@ export const TableManager: React.FC = () => {
       await dataService.createTable(newTableName, defaultFields);
       setNewTableName('');
       // No need to manually refresh; createTable now triggers a sync automatically.
+      toast.success(`collection '${newTableName}' created successfully`);
     } catch (error) {
       if (error instanceof Error) {
-        alert(`Failed to create table: ${error.message}`);
+        toast.error(`failed to create table: ${error.message}`);
       } else {
-        alert('An unknown error occurred.');
+        toast.error('an unknown error occurred.');
       }
     } finally {
       setIsCreating(false);
