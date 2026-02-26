@@ -46,12 +46,12 @@ export function TemplatePage() {
   }
 }`);
   const [isValid, setIsValid] = useState<boolean | null>(null);
-  const [error, seterror] = useState<string | null>(null);
-  const [isbuilding, setisbuilding] = useState(false);
-  const [previewstate, setpreviewstate] = useState<Record<string, any>>({});
-  const [previewdata, setpreviewdata] = useState<Record<string, any[]>>({});
-  // livecolumns holds interactive layout state for preview and persists to json
-  const [livecolumns, setlivecolumns] = useState<any[][]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [isBuilding, setIsBuilding] = useState(false);
+  const [previewState, setPreviewState] = useState<Record<string, any>>({});
+  const [previewData, setPreviewData] = useState<Record<string, any[]>>({});
+  // liveColumns holds interactive layout state for preview and persists to json
+  const [liveColumns, setLiveColumns] = useState<any[][]>([]);
 
   // fullscreen preview dialog state
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
@@ -73,15 +73,15 @@ export function TemplatePage() {
       const hist = s.history || [];
       if (hist.length === 0) return s;
       const last = hist[hist.length - 1];
-      try { setjson(last); } catch (e) { /* ignore malformed json in local storage */ }
+      try { setJson(last); } catch (e) { /* ignore malformed json in local storage */ }
       return { ...s, history: hist.slice(0, -1) };
     });
   };
 
-  const updatewidgetconfig = (targetwidget: any, patch: Record<string, any>) => {
-    // shallow-merge patch into the matching widget in livecolumns and persist
-    const cols = livecolumns.map(col => col.map((w: any) => w === targetwidget ? ({ ...w, ...patch }) : w));
-    setlivecolumns(cols);
+  const updateWidgetConfig = (targetWidget: any, patch: Record<string, any>) => {
+    // shallow-merge patch into the matching widget in liveColumns and persist
+    const cols = liveColumns.map(col => col.map((w: any) => w === targetWidget ? ({ ...w, ...patch }) : w));
+    setLiveColumns(cols);
     persistColumns(cols);
   };
 
@@ -91,7 +91,7 @@ export function TemplatePage() {
       try {
         // validate it's proper json before setting
         JSON.parse(savedTemplate);
-        setjson(savedTemplate);
+        setJson(savedTemplate);
 
       } catch (e) {
         // invalid saved json, ignore and use default
@@ -105,7 +105,7 @@ export function TemplatePage() {
     try {
       // validate json before saving
       JSON.parse(json);
-      await setsavedTemplate(json);
+      await setSavedTemplate(json);
     } catch (e) {
       toast.error('cannot save: invalid json');
     }
@@ -114,7 +114,7 @@ export function TemplatePage() {
   useEffect(() => {
     try {
       const parsed = JSON.parse(json);
-      // seed previewdata from parsed.data if present, or from databases rows/sample/records
+      // seed previewData from parsed.data if present, or from databases rows/sample/records
       const seed: Record<string, any[]> = {};
       if (parsed?.data && typeof parsed.data === 'object') {
         Object.keys(parsed.data).forEach(k => { seed[k] = Array.isArray(parsed.data[k]) ? parsed.data[k] : []; });
@@ -126,17 +126,17 @@ export function TemplatePage() {
           }
         }
       }
-      setpreviewdata(seed);
+      setPreviewData(seed);
       // initialize column widths if provided
       try {
         const parsed = JSON.parse(json);
         if (parsed?.layout?.columnWidths && Array.isArray(parsed.layout.columnWidths)) {
-          setpreviewstate(s => ({ ...s, columnWidths: parsed.layout.columnWidths.slice(0, 4) }));
+          setPreviewState(s => ({ ...s, columnWidths: parsed.layout.columnWidths.slice(0, 4) }));
         } else {
           // equal widths for up to 4 columns
           const cols = (parsed?.layout?.columns?.length) || 1;
           const w = Math.floor(100 / cols);
-          setpreviewstate(s => ({ ...s, columnWidths: Array(cols).fill(w) }));
+          setPreviewState(s => ({ ...s, columnWidths: Array(cols).fill(w) }));
         }
       } catch (e) { }
     } catch (e) {
@@ -144,22 +144,22 @@ export function TemplatePage() {
     }
   }, [json]);
 
-  // sync livecolumns from json when preview is validated or json changes
+  // sync liveColumns from json when preview is validated or json changes
   useEffect(() => {
-    if (!isvalid) return;
+    if (!isValid) return;
     try {
       const parsed = JSON.parse(json);
       const cols = parsed?.layout?.columns && Array.isArray(parsed.layout.columns) && parsed.layout.columns.length > 0
         ? parsed.layout.columns
         : [parsed?.layout?.widgets || []];
-      setlivecolumns(cols.map((c: any) => Array.isArray(c) ? c : []));
+      setLiveColumns(cols.map((c: any) => Array.isArray(c) ? c : []));
     } catch (e) {
       // ignore
     }
-  }, [json, isvalid]);
+  }, [json, isValid]);
 
   const { client } = useAuth();
-  const [sidebaritems, setsidebaritems] = useAppSetting<NavItem[]>('sidebar_items', []);
+  const [sidebarItems, setSidebarItems] = useAppSetting<NavItem[]>('sidebar_items', []);
 
   const validateJson = () => {
 
@@ -167,29 +167,29 @@ export function TemplatePage() {
       const parsed = JSON.parse(json);
       if (!parsed.meta?.name) throw new Error('Missing meta.name');
       if (!Array.isArray(parsed.databases)) throw new Error('databases must be an array');
-      setisvalid(true);
-      seterror(null);
+      setIsValid(true);
+      setError(null);
 
       return parsed;
     } catch (e: any) {
-      setisvalid(false);
-      seterror(e.message);
+      setIsValid(false);
+      setError(e.message);
       toast.error(`invalid json: ${e.message}`);
       return null;
     }
   };
 
   const loadSample = () => {
-    setjson('{\n "meta": {\n  "name": "journal system",\n  "icon": "BookOpen"\n },\n "databases": [\n  {\n "key": "entries",\n "properties": [\n  { "name": "content", "type": "text" },\n  { "name": "mood", "type": "select", "options": ["happy", "neutral", "sad"] }\n ]\n  }\n ],\n "layout": {\n  "widgets": [\n { "view_type": "journal", "source": "entries", "title": "daily reflections" }\n  ]\n }\n}');
-    setisvalid(null);
-    seterror(null);
+    setJson('{\n "meta": {\n  "name": "journal system",\n  "icon": "BookOpen"\n },\n "databases": [\n  {\n "key": "entries",\n "properties": [\n  { "name": "content", "type": "text" },\n  { "name": "mood", "type": "select", "options": ["happy", "neutral", "sad"] }\n ]\n  }\n ],\n "layout": {\n  "widgets": [\n { "view_type": "journal", "source": "entries", "title": "daily reflections" }\n  ]\n }\n}');
+    setIsValid(null);
+    setError(null);
   };
 
   const buildWorkspace = async () => {
     const config = validateJson();
     if (!config) return;
 
-    setisbuilding(true);
+    setIsBuilding(true);
     const t = toast.loading('initializing workspace engine...');
 
     try {
@@ -294,7 +294,7 @@ export function TemplatePage() {
       secureLogger.error(e);
       toast.error(`engine failure: ${e.message}`, { id: t });
     } finally {
-      setisbuilding(false);
+      setIsBuilding(false);
     }
   };
 
@@ -426,17 +426,16 @@ export function TemplatePage() {
                     isValid === false ? "bg-red-500/20 text-red-500" :
                       "bg-white/10 text-white/40"
                 )}>
-                  {isvalid === true ? 'ready' : isvalid === false ? 'failure' : 'pending'}
+                  {isValid === true ? 'ready' : isValid === false ? 'failure' : 'pending'}
                 </span>
               </div>
               {error && <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-xs text-red-400 font-mono">{error}</div>}
-            <div className="flex flex-col gap-2 pt-4">
-              <Button className="w-full gap-2 font-bold lowercase" onClick={buildWorkspace} disabled={!isvalid || isbuilding}>
-                <Play className="h-4 w-4" />
-                {isbuilding ? 'building system...' : 'build workspace'}
-              </Button>
-            </div>
-
+              <div className="flex flex-col gap-2 pt-4">
+                <Button className="w-full gap-2 font-bold lowercase" onClick={buildWorkspace} disabled={!isValid || isBuilding}>
+                  <Play className="h-4 w-4" />
+                  {isBuilding ? 'building system...' : 'build workspace'}
+                </Button>
+              </div>
             </CardContent>
           </Card>
 
@@ -456,18 +455,18 @@ export function TemplatePage() {
               </div>
             </CardHeader>
             <CardContent className="p-6 flex-1 overflow-y-auto no-scrollbar">
-              {isvalid ? (
+              {isValid ? (
                 <div className="space-y-6">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2 bg-primary/10 rounded-lg"><Layout className="h-4 w-4 text-primary" /></div>
                     <span className="font-bold lowercase text-lg">{(() => { try { return JSON.parse(json).meta?.name; } catch { return 'untitled'; } })()}</span>
                   </div>
                   <LayoutRenderer
-                    layout={{ columns: livecolumns, columnWidths: previewstate.columnWidths }}
-                    data={previewdata}
-                    onUpdateWidget={updatewidgetconfig}
+                    layout={{ columns: liveColumns, columnWidths: previewState.columnWidths }}
+                    data={previewData}
+                    onUpdateWidget={updateWidgetConfig}
                     onUpdateData={(source: string, ri: number, patch: any) => {
-                      setpreviewdata(d => {
+                      setPreviewData(d => {
                         const copy = { ...d };
                         copy[source] = copy[source] ? [...copy[source]] : [];
                         copy[source][ri] = { ...(copy[source][ri] || {}), ...patch };
@@ -475,7 +474,7 @@ export function TemplatePage() {
                       });
                     }}
                     onAddData={(source: string, vals: any) => {
-                      setpreviewdata(d => {
+                      setPreviewData(d => {
                         const copy = { ...d };
                         copy[source] = [vals, ...(copy[source] || [])];
                         return copy;
@@ -501,7 +500,7 @@ export function TemplatePage() {
             <div>
               <DialogTitle className="text-2xl font-bold lowercase flex items-center gap-3">
                 <Wand2 className="h-6 w-6 text-primary" />
-                {(() => { try { return json.parse(json).meta?.name; } catch { return 'preview'; } })()}
+                {(() => { try { return JSON.parse(json).meta?.name; } catch { return 'preview'; } })()}
               </DialogTitle>
               <DialogDescription className="lowercase">meticulous layout preview for template ingestion</DialogDescription>
             </div>
@@ -516,11 +515,11 @@ export function TemplatePage() {
           </DialogHeader>
           <div className="flex-1 overflow-auto p-12 no-scrollbar">
             <LayoutRenderer
-              layout={{ columns: livecolumns, columnWidths: previewstate.columnWidths }}
-              data={previewdata}
-              onUpdateWidget={updatewidgetconfig}
+              layout={{ columns: liveColumns, columnWidths: previewState.columnWidths }}
+              data={previewData}
+              onUpdateWidget={updateWidgetConfig}
               onUpdateData={(source: string, ri: number, patch: any) => {
-                setpreviewdata(d => {
+                setPreviewData(d => {
                   const copy = { ...d };
                   copy[source] = copy[source] ? [...copy[source]] : [];
                   copy[source][ri] = { ...(copy[source][ri] || {}), ...patch };
