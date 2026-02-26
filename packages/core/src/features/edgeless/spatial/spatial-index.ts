@@ -245,6 +245,37 @@ export class SpatialIndex {
     return new Set(visible.map(obj => obj.id))
   }
 
+  /**
+   * Convenience method for overlay elements: convert viewport params (pan + zoom
+   * + screen dimensions) into world-space bounds and return visible element IDs.
+   *
+   * @param panX - viewport pan X (viewPort.x)
+   * @param panY - viewport pan Y (viewPort.y)
+   * @param zoom - current zoom level
+   * @param screenW - visible screen width in pixels
+   * @param screenH - visible screen height in pixels
+   * @param margin - world-space margin for prefetching (default 300)
+   */
+  queryViewportIds(
+    panX: number,
+    panY: number,
+    zoom: number,
+    screenW: number,
+    screenH: number,
+    margin: number = 300,
+  ): Set<string> {
+    // Convert screen-space viewport rectangle to world-space coordinates.
+    // Screen point (sx, sy) maps to world point:  wx = (sx - panX) / zoom
+    const worldBounds: Bounds = {
+      minX: -panX / zoom,
+      minY: -panY / zoom,
+      maxX: (screenW - panX) / zoom,
+      maxY: (screenH - panY) / zoom,
+    }
+
+    return this.getVisibleIds(worldBounds, margin)
+  }
+
   getObject(id: string): SpatialObject | undefined {
     return this.objects.get(id)
   }
@@ -297,6 +328,30 @@ export function buildSpatialIndex(canvas: any): SpatialIndex {
       layerId: obj.data?.layerId || 'default',
       visible: obj.visible !== false,
       ref: obj,
+    })
+  }
+
+  return index
+}
+
+/**
+ * Build a spatial index from EdgelessElement overlay elements (not fabric objects).
+ * Used for viewport culling of the HTML overlay layer.
+ */
+export function buildOverlaySpatialIndex(elements: { id: string; x: number; y: number; width: number; height: number; layerId?: string }[]): SpatialIndex {
+  const index = new SpatialIndex(200) // larger cells for overlay elements (they're bigger than strokes)
+
+  for (const el of elements) {
+    index.insert({
+      id: el.id,
+      bounds: {
+        minX: el.x,
+        minY: el.y,
+        maxX: el.x + el.width,
+        maxY: el.y + el.height,
+      },
+      layerId: el.layerId || 'default',
+      visible: true,
     })
   }
 
