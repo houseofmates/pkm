@@ -10,6 +10,7 @@ import { HeadmateCard } from '@/features/headmates/components/headmate-card';
 import { HeadmateContextMenu } from '@/features/headmates/components/headmate-context-menu';
 import { useFronter } from '@/contexts/fronter-context';
 import { PLACEHOLDER_IMAGE } from '@/lib/discord-utils';
+import { secureLogger } from '@/lib/secure-logger';
 import { SimplyPluralClient } from '@/lib/simply-plural-client';
 import {
   DndContext,
