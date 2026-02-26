@@ -13,6 +13,7 @@ import { useAppSetting } from '@/hooks/use-app-setting';
 import { generateSlug } from '@/features/blog-builder/utils/blog-utils';
 import type { NavItem } from '@/components/navigation';
 import { LayoutRenderer } from '@/components/layout-renderer';
+import { secureLogger } from '@/lib/secure-logger';
 
 
 export function TemplatePage() {
@@ -77,10 +78,10 @@ export function TemplatePage() {
     });
   };
 
-  const updatewidgetconfig = (targetwidget: any, patch: record<string, any>) => {
+  const updatewidgetconfig = (targetwidget: any, patch: Record<string, any>) => {
     // shallow-merge patch into the matching widget in livecolumns and persist
-    const cols = liveColumns.map(col => col.map(w => w === targetWidget ? ({ ...w, ...patch }) : w));
-    setLiveColumns(cols);
+    const cols = livecolumns.map(col => col.map((w: any) => w === targetwidget ? ({ ...w, ...patch }) : w));
+    setlivecolumns(cols);
     persistColumns(cols);
   };
 
@@ -90,7 +91,7 @@ export function TemplatePage() {
       try {
         // validate it's proper json before setting
         JSON.parse(savedTemplate);
-        setJson(savedTemplate);
+        setjson(savedTemplate);
 
       } catch (e) {
         // invalid saved json, ignore and use default
@@ -104,7 +105,7 @@ export function TemplatePage() {
     try {
       // validate json before saving
       JSON.parse(json);
-      await setSavedTemplate(json);
+      await setsavedTemplate(json);
     } catch (e) {
       toast.error('cannot save: invalid json');
     }
@@ -112,9 +113,9 @@ export function TemplatePage() {
 
   useEffect(() => {
     try {
-      const parsed = json.parse(json);
+      const parsed = JSON.parse(json);
       // seed previewdata from parsed.data if present, or from databases rows/sample/records
-      const seed: record<string, any[]> = {};
+      const seed: Record<string, any[]> = {};
       if (parsed?.data && typeof parsed.data === 'object') {
         Object.keys(parsed.data).forEach(k => { seed[k] = Array.isArray(parsed.data[k]) ? parsed.data[k] : []; });
       }
@@ -125,17 +126,17 @@ export function TemplatePage() {
           }
         }
       }
-      setPreviewData(seed);
+      setpreviewdata(seed);
       // initialize column widths if provided
       try {
         const parsed = JSON.parse(json);
         if (parsed?.layout?.columnWidths && Array.isArray(parsed.layout.columnWidths)) {
-          setPreviewState(s => ({ ...s, columnWidths: parsed.layout.columnWidths.slice(0, 4) }));
+          setpreviewstate(s => ({ ...s, columnWidths: parsed.layout.columnWidths.slice(0, 4) }));
         } else {
           // equal widths for up to 4 columns
           const cols = (parsed?.layout?.columns?.length) || 1;
           const w = Math.floor(100 / cols);
-          setPreviewState(s => ({ ...s, columnWidths: Array(cols).fill(w) }));
+          setpreviewstate(s => ({ ...s, columnWidths: Array(cols).fill(w) }));
         }
       } catch (e) { }
     } catch (e) {
@@ -145,20 +146,20 @@ export function TemplatePage() {
 
   // sync livecolumns from json when preview is validated or json changes
   useEffect(() => {
-    if (!isValid) return;
+    if (!isvalid) return;
     try {
       const parsed = JSON.parse(json);
       const cols = parsed?.layout?.columns && Array.isArray(parsed.layout.columns) && parsed.layout.columns.length > 0
         ? parsed.layout.columns
         : [parsed?.layout?.widgets || []];
-      setLiveColumns(cols.map((c: any) => array.isarray(c) ? c : []));
+      setlivecolumns(cols.map((c: any) => Array.isArray(c) ? c : []));
     } catch (e) {
       // ignore
     }
   }, [json, isvalid]);
 
-  const { client } = useauth();
-  const [sidebaritems, setsidebaritems] = useappsetting<NavItem[]>('sidebar_items', []);
+  const { client } = useAuth();
+  const [sidebaritems, setsidebaritems] = useAppSetting<NavItem[]>('sidebar_items', []);
 
   const validateJson = () => {
 
@@ -166,29 +167,29 @@ export function TemplatePage() {
       const parsed = JSON.parse(json);
       if (!parsed.meta?.name) throw new Error('Missing meta.name');
       if (!Array.isArray(parsed.databases)) throw new Error('databases must be an array');
-      setIsValid(true);
-      setError(null);
+      setisvalid(true);
+      seterror(null);
 
       return parsed;
     } catch (e: any) {
-      setIsValid(false);
-      setError(e.message);
+      setisvalid(false);
+      seterror(e.message);
       toast.error(`invalid json: ${e.message}`);
       return null;
     }
   };
 
   const loadSample = () => {
-    setJson('{\n "meta": {\n  "name": "journal system",\n  "icon": "BookOpen"\n },\n "databases": [\n  {\n "key": "entries",\n "properties": [\n  { "name": "content", "type": "text" },\n  { "name": "mood", "type": "select", "options": ["happy", "neutral", "sad"] }\n ]\n  }\n ],\n "layout": {\n  "widgets": [\n { "view_type": "journal", "source": "entries", "title": "daily reflections" }\n  ]\n }\n}');
-    setIsValid(null);
-    setError(null);
+    setjson('{\n "meta": {\n  "name": "journal system",\n  "icon": "BookOpen"\n },\n "databases": [\n  {\n "key": "entries",\n "properties": [\n  { "name": "content", "type": "text" },\n  { "name": "mood", "type": "select", "options": ["happy", "neutral", "sad"] }\n ]\n  }\n ],\n "layout": {\n  "widgets": [\n { "view_type": "journal", "source": "entries", "title": "daily reflections" }\n  ]\n }\n}');
+    setisvalid(null);
+    seterror(null);
   };
 
   const buildWorkspace = async () => {
     const config = validateJson();
     if (!config) return;
 
-    setIsBuilding(true);
+    setisbuilding(true);
     const t = toast.loading('initializing workspace engine...');
 
     try {
@@ -293,7 +294,7 @@ export function TemplatePage() {
       secureLogger.error(e);
       toast.error(`engine failure: ${e.message}`, { id: t });
     } finally {
-      setIsBuilding(false);
+      setisbuilding(false);
     }
   };
 
@@ -338,7 +339,10 @@ export function TemplatePage() {
       };
       if (slug) docData.slug = slug;
 
-      const result = await client.createRecord(collectionName, docData);
+      const result = await client.request(collectionName, 'create', {
+        method: 'POST',
+        data: docData
+      });
       const docId = result.data?.id || result.data?.data?.id;
 
       toast.success('document created', { id: t });
@@ -426,12 +430,13 @@ export function TemplatePage() {
                 </span>
               </div>
               {error && <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-xs text-red-400 font-mono">{error}</div>}
-              <div className="flex flex-col gap-2 pt-4">
-                <Button className="w-full gap-2 font-bold lowercase" onClick={buildWorkspace} disabled={!isValid || isBuilding}>
-                  <Play className="h-4 w-4" />
-                  {isbuilding ? 'building system...' : 'build workspace'}
-                </Button>
-              </div>
+            <div className="flex flex-col gap-2 pt-4">
+              <Button className="w-full gap-2 font-bold lowercase" onClick={buildWorkspace} disabled={!isvalid || isbuilding}>
+                <Play className="h-4 w-4" />
+                {isbuilding ? 'building system...' : 'build workspace'}
+              </Button>
+            </div>
+
             </CardContent>
           </Card>
 
@@ -455,22 +460,22 @@ export function TemplatePage() {
                 <div className="space-y-6">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2 bg-primary/10 rounded-lg"><Layout className="h-4 w-4 text-primary" /></div>
-                    <span className="font-bold lowercase text-lg">{(() => { try { return json.parse(json).meta?.name; } catch { return 'untitled'; } })()}</span>
+                    <span className="font-bold lowercase text-lg">{(() => { try { return JSON.parse(json).meta?.name; } catch { return 'untitled'; } })()}</span>
                   </div>
                   <LayoutRenderer
-                    layout={{ columns: liveColumns, columnWidths: previewState.columnWidths }}
-                    data={previewData}
-                    onUpdateWidget={updateWidgetConfig}
-                    onUpdateData={(source, ri, patch) => {
-                      setPreviewData(d => {
+                    layout={{ columns: livecolumns, columnWidths: previewstate.columnWidths }}
+                    data={previewdata}
+                    onUpdateWidget={updatewidgetconfig}
+                    onUpdateData={(source: string, ri: number, patch: any) => {
+                      setpreviewdata(d => {
                         const copy = { ...d };
                         copy[source] = copy[source] ? [...copy[source]] : [];
                         copy[source][ri] = { ...(copy[source][ri] || {}), ...patch };
                         return copy;
                       });
                     }}
-                    onAddData={(source, vals) => {
-                      setPreviewData(d => {
+                    onAddData={(source: string, vals: any) => {
+                      setpreviewdata(d => {
                         const copy = { ...d };
                         copy[source] = [vals, ...(copy[source] || [])];
                         return copy;
@@ -511,11 +516,11 @@ export function TemplatePage() {
           </DialogHeader>
           <div className="flex-1 overflow-auto p-12 no-scrollbar">
             <LayoutRenderer
-              layout={{ columns: liveColumns, columnWidths: previewState.columnWidths }}
-              data={previewData}
-              onUpdateWidget={updateWidgetConfig}
-              onUpdateData={(source, ri, patch) => {
-                setPreviewData(d => {
+              layout={{ columns: livecolumns, columnWidths: previewstate.columnWidths }}
+              data={previewdata}
+              onUpdateWidget={updatewidgetconfig}
+              onUpdateData={(source: string, ri: number, patch: any) => {
+                setpreviewdata(d => {
                   const copy = { ...d };
                   copy[source] = copy[source] ? [...copy[source]] : [];
                   copy[source][ri] = { ...(copy[source][ri] || {}), ...patch };
@@ -529,4 +534,3 @@ export function TemplatePage() {
     </div>
   );
 }
-
