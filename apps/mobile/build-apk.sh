@@ -58,6 +58,11 @@ echo -e "${YELLOW}step 4: syncing capacitor configuration...${NC}"
 npx cap sync android
 
 echo ""
+echo -e "${YELLOW}step 4.5: patching java version...${NC}"
+# Capacitor 6 defaults to Java 21, but system has Java 17. Patching the generated configs.
+find android -type f -name "*.gradle" -exec sed -i 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' {} +
+
+echo ""
 echo -e "${YELLOW}step 5: building release APK...${NC}"
 cd android
 ./gradlew assembleRelease
