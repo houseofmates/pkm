@@ -9,8 +9,8 @@
   "type": "module",
   "main": "electron/main.js",
   "scripts": {
-    "predev": "node setup-env.cjs",
-    "prebuild": "node setup-env.cjs",
+    "predev": "node scripts/utils/setup-env.cjs",
+    "prebuild": "node scripts/utils/setup-env.cjs",
     "dev": "concurrently -k \"npm run dev --workspace=pkm-web\" \"npm run backend\"",
     "dev:dupe": "concurrently -k \"npm run dev --workspace=pkm-web -- --port 3010\" \"npm run backend\"",
     "build": "npm run build --workspace=pkm-web",
