@@ -47,18 +47,19 @@ export function getCanvasDB(): Promise<IDBPDatabase<CanvasDBSchema>> {
   if (dbPromise) return dbPromise
 
   dbPromise = openDB<CanvasDBSchema>(DB_NAME, DB_VERSION, {
-    upgrade(db) {
+    upgrade(db, _oldVersion, _newVersion, transaction) {
       // ensure stores exist even if a prior version was created without them
       const ensureStore = (
         name: 'oplog' | 'checkpoints' | 'drawings' | 'tokens',
         options: IDBObjectStoreParameters,
-        indexes: Array<{ name: string; keyPath: string }>,
+        indexes: Array<{ name: IDBValidKey; keyPath: string }>,
       ) => {
         const store = db.objectStoreNames.contains(name)
-          ? db.transaction(name, 'readwrite').objectStore(name)
+          ? transaction.objectStore(name)
           : db.createObjectStore(name, options)
         indexes.forEach(({ name: idxName, keyPath }) => {
-          if (!store.indexNames.contains(idxName)) store.createIndex(idxName, keyPath)
+          const indexName = String(idxName)
+          if (!store.indexNames.contains(indexName)) store.createIndex(indexName, keyPath)
         })
       }
 
