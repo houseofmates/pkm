@@ -22,10 +22,20 @@
 ## Progress Tracking
 
 ### Completed
-- [ ] Created TODO file for tracking
+- [x] Created TODO file for tracking
+- [x] Fixed App.tsx - Replaced hardcoded version TODO with environment variable
+- [x] Created vite-env.d.ts - Added proper TypeScript declarations for Vite environment variables
+- [x] Fixed apkUpdater.ts - Removed eval() usage, replaced with safe dynamic import
 
 ### In Progress
-- [ ] Starting with high priority security fixes
+- [ ] Replace alert() calls with toast notifications in components
+- [ ] Fix empty catch blocks to properly handle errors
+- [ ] Clean up console.log statements in production code
 
 ### Pending
-- [ ] All other items
+- [ ] Add proper TypeScript types to replace `any` usage (critical files)
+- [ ] Remove unused code and comments
+- [ ] Fix ESLint disable comments where possible
+- [ ] Update README with detailed architecture explanations
+- [ ] Add JSDoc comments to key functions
+- [ ] Optimize spatial index usage in edgeless canvas
