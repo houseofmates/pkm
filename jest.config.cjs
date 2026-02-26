@@ -8,6 +8,7 @@ module.exports = {
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/src/$1',
     '^@pkm/core/(.*)$': '<rootDir>/packages/core/src/$1',
+    '^@pkm/backend/(.*)$': '<rootDir>/packages/backend/$1',
     '\\.(css|less|scss|sass)$': '<rootDir>/__mocks__/styleMock.js'
   },
   // Transform ESM packages in node_modules (like react-leaflet)

@@ -38,6 +38,12 @@
       ],
       "@pkm/core/*": [
         "./src/*"
+      ],
+      "@pkm/backend": [
+        "../backend"
+      ],
+      "@pkm/backend/*": [
+        "../backend/*"
       ]
     }
   },
