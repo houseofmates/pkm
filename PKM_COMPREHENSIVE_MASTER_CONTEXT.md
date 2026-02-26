@@ -541,7 +541,7 @@ all custom-built to match "glass & void" aesthetic
 
 ### 4.1 pkm backend server
 
-**location**: `backend/server.js`
+**location**: `packages/backend/server.js`
 
 **purpose**: file uploads, socket.io, webhook bridge
 
