@@ -6,6 +6,12 @@ apply plugin: 'com.android.application'
 android {
     namespace "com.houseofmates.pkm"
     compileSdk rootProject.ext.compileSdkVersion
+    
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    
     defaultConfig {
         applicationId "com.houseofmates.pkm"
         minSdkVersion rootProject.ext.minSdkVersion
