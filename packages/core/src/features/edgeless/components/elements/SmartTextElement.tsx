@@ -1,3 +1,4 @@
+import React from 'react';
 import { BlockEditor } from '@/components/editor/BlockEditor';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
@@ -7,7 +8,7 @@ interface SmartTextElementProps {
   onChange?: (content: string) => void;
 }
 
-export function SmartTextElement({ element }: SmartTextElementProps) {
+export const SmartTextElement = React.memo(function SmartTextElement({ element }: SmartTextElementProps) {
   const [content, setContent] = useState(element.data?.content || '');
   const styles = element.data || {};
 
@@ -45,4 +46,4 @@ export function SmartTextElement({ element }: SmartTextElementProps) {
       />
     </div>
   );
-}
+}, (prev: any, next: any) => prev.element === next.element)

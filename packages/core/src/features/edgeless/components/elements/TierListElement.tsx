@@ -37,4 +37,4 @@ export const TierListElement = React.memo(function TierListElement({ element: _e
       ))}
     </div>
   );
-}
+}, (prev: any, next: any) => prev.element === next.element)

@@ -93,4 +93,4 @@ export const ShoppingCard = React.memo(function ShoppingCard({ element }: { elem
       )}
     </div>
   );
-}
+}, (prev: any, next: any) => prev.element === next.element)

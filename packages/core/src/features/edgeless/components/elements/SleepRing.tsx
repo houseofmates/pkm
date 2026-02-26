@@ -74,4 +74,4 @@ export const SleepRing = React.memo(function SleepRing({ element }: { element: a
       </div>
     </div>
   );
-}
+}, (prev: any, next: any) => prev.element === next.element)

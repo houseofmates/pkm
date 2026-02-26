@@ -95,4 +95,4 @@ export const GoldPile = React.memo(function GoldPile({ element }: { element: any
       )}
     </div>
   );
-}
+}, (prev: any, next: any) => prev.element === next.element)

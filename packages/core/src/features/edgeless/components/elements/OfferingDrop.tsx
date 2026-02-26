@@ -47,4 +47,4 @@ export const OfferingDrop = React.memo(function OfferingDrop({ element: _element
       </div>
     </div>
   );
-}
+}, (prev: any, next: any) => prev.element === next.element)

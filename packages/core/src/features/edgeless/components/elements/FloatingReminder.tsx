@@ -81,4 +81,4 @@ export const FloatingReminder = React.memo(function FloatingReminder({ element }
       </div>
     </div>
   );
-}
+}, (prev: any, next: any) => prev.element === next.element)
