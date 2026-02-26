@@ -16,6 +16,7 @@ import {
 import { RecordForm } from '@/features/records/components/record-form';
 import { Input } from '@/components/ui/input';
 import { toast } from "sonner"
+import { secureLogger } from '@/lib/secure-logger';
 
 import { useLLMStore } from '@/stores/llm-store';
 

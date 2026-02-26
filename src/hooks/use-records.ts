@@ -5,13 +5,14 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { walWrite, walCommit, walFail } from '@/lib/write-ahead-log';
 import { registry } from '@/lib/link-registry';
 import { extractRecords } from '@/lib/nocobase-utils';
+import { secureLogger } from '@/lib/secure-logger';
 
-import type { Collection, Field } from '@/api/nocobase-client';
+import type { Collection, Field } from '@/types/nocobase';
 
 interface QueryParams {
   page?: number;
   pageSize?: number;
-  [key: string]: unknown;
+  [key: string]: string | number | boolean | undefined;
 }
 
 interface Meta {
