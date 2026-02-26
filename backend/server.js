@@ -230,6 +230,16 @@ app.get('/api/status', (req, res) => {
     res.json({ status: 'online', clients: io.engine.clientsCount });
 });
 
+// version endpoint for update checking
+const BUILD_TIME = new Date().toISOString();
+app.get('/api/version', (req, res) => {
+    res.json({ 
+        version: BUILD_TIME,
+        buildTime: BUILD_TIME,
+        env: process.env.NODE_ENV || 'production'
+    });
+});
+
 app.get('/api/stats', (req, res) => {
     res.json(lastServerStats);
 });
