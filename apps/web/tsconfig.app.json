@@ -32,6 +32,12 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      "@pkm/core": [
+        "../packages/core/src"
+      ],
+      "@pkm/core/*": [
+        "../packages/core/src/*"
       ]
     }
   },
