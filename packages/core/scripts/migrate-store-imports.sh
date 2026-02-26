@@ -3,7 +3,7 @@
 # A script to fix misplaced Zustand store imports across the components directory.
 # Run this from the root of the core package or root of the workspace.
 
-TARGET_DIR="packages/core/src/components"
+TARGET_DIR="src/components"
 
 # 1. Update the 'src/src/store' -> 'src/store' or '@/src/store' -> '@/store' paths.
 echo "Migrating discrete store imports in $TARGET_DIR..."
