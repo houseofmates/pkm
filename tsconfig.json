@@ -1,0 +1,10 @@
+{
+  "files": [],
+  "references": [
+    { "path": "packages/core" },
+    { "path": "apps/web" },
+    { "path": "apps/desktop-electron" },
+    { "path": "apps/desktop-tauri" },
+    { "path": "apps/mobile" }
+  ]
+}
