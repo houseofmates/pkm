@@ -30,7 +30,7 @@ export function useCanvasSafe(options: UseCanvasSafeOptions = {}): UseCanvasSafe
       // check storage health first
       const { healthy, issues } = await import('../lib/production-guards').then(m => m.checkStorageHealth())
       if (!healthy) {
-        secureLogger.warn('[UseCanvasSafe] storage issues:', issues)
+        console.warn('[UseCanvasSafe] storage issues:', issues)
       }
 
       // start production monitoring
@@ -47,7 +47,7 @@ export function useCanvasSafe(options: UseCanvasSafeOptions = {}): UseCanvasSafe
       options.onReady?.()
     } catch (e) {
       const err = e instanceof Error ? e : new Error(String(e))
-      secureLogger.error('[UseCanvasSafe] initialization failed:', err)
+      console.error('[UseCanvasSafe] initialization failed:', err)
 
       setIsError(true)
       setError(err)
