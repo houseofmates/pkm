@@ -1,0 +1,9 @@
+{
+  "name": "pkm-desktop-electron",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --workspace=pkm-web",
+    "build": "npm run build --workspace=pkm-web && electron-builder"
+  }
+}
