@@ -5,8 +5,19 @@ export default {
     content: [
         "./index.html",
         "./src/**/*.{js,ts,jsx,tsx}",
+        "./apps/web/**/*.{js,ts,jsx,tsx}",
+        "./packages/core/src/**/*.{js,ts,jsx,tsx}",
+        "./packages/core/components/**/*.{js,ts,jsx,tsx}",
+        "./packages/core/pages/**/*.{js,ts,jsx,tsx}",
+        "./packages/core/features/**/*.{js,ts,jsx,tsx}",
+        "./packages/core/hooks/**/*.{js,ts,jsx,tsx}",
+        "./packages/core/components/**/*.{js,ts,jsx,tsx}",
+        "./packages/core/contexts/**/*.{js,ts,jsx,tsx}",
+        "./packages/core/lib/**/*.{js,ts,jsx,tsx}",
+        "./packages/core/types/**/*.{js,ts,jsx,tsx}",
         // exclude test files (they trigger PostCSS errors when being read)
         "!./src/**/*.test.{js,ts,jsx,tsx}",
+        "!./packages/core/src/**/*.test.{js,ts,jsx,tsx}",
     ],
     theme: {
         extend: {
