@@ -28,9 +28,9 @@ export async function downloadAndPromptInstall(apkUrl: string) {
   // Only attempt import if running in Capacitor environment
   if (typeof window !== 'undefined' && typeof (window as any).Capacitor !== 'undefined') {
     try {
-      // Use eval to avoid static analysis by Vite
-      const browserImport = eval('import("@capacitor/browser")');
-      const { Browser } = await browserImport;
+      // Dynamic import with proper error handling - avoids eval() security risk
+      const browserModule = await import('@capacitor/browser');
+      const { Browser } = browserModule;
       await Browser.open({ url: apkUrl });
       return;
     } catch (e) {
