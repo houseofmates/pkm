@@ -3,8 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Trash2, MoreHorizontal, Plus } from 'lucide-react';
 import { RecordContextMenu } from '@/features/records/components/record-context-menu';
 import { SmartField } from '@/components/fields/smart-field';
-import { List } from 'react-window';
+import { List as _List } from 'react-window';
 import { AutoSizer } from 'react-virtualized-auto-sizer';
+
+// react-window v2 ships its own types that conflict with @types/react-window v1 API.
+// The v1 API (itemCount, itemSize, etc) works at runtime; cast to bypass the type mismatch.
+const List = _List as any;
 
 // Row component for react-window List
 const RowComponent = ({ index, style, data }: { index: number; style: React.CSSProperties; data: any }): React.ReactElement | null => {
