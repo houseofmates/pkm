@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings, UploadCloud, type LucideIcon } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 
 // Dynamic icon loader for Lucide icons
-const lucideIconMap: Record<string, LucideIcon> = {};
 function getLucideIcon(name: string): LucideIcon | undefined {
-  return lucideIconMap[name];
+  return (LucideIcons as unknown as Record<string, unknown>)[name] as LucideIcon | undefined;
 }
 
 import { Button } from '@/components/ui/button';
