@@ -1,10 +1,11 @@
+import React from 'react';
 import { DataEmbed } from '@/components/DataEmbed/DataEmbed';
 
 interface EmbedElementProps {
   element: any;
 }
 
-export function EmbedElement({ element }: EmbedElementProps) {
+export const EmbedElement = React.memo(function EmbedElement({ element }: EmbedElementProps) {
   // NocoBase collection embed
   if (element.data.subType === 'nocobase' || element.data.collection) {
     const colName = element.data.collection || element.data.id; // fallback
@@ -14,14 +15,14 @@ export function EmbedElement({ element }: EmbedElementProps) {
       <div className="w-full h-full bg-card/10 backdrop-blur-md border border-white/5 rounded-xl overflow-hidden shadow-2xl flex flex-col">
         {/* Header/Handle */}
         <div className="h-8 bg-black/20 border-b border-white/5 flex items-center px-3 justify-between shrink-0 select-none">
-           <div className="flex items-center gap-2">
-             <div className="w-2 h-2 rounded-full bg-red-500/50" />
-             <div className="w-2 h-2 rounded-full bg-yellow-500/50" />
-             <span className="text-[10px] uppercase font-bold tracking-widest opacity-50">
-               {element.data.title || colName}
-             </span>
-           </div>
-           <span className="text-[9px] opacity-30 font-mono">LIVE</span>
+          <div className="flex items-center gap-2">
+            <div className="w-2 h-2 rounded-full bg-red-500/50" />
+            <div className="w-2 h-2 rounded-full bg-yellow-500/50" />
+            <span className="text-[10px] uppercase font-bold tracking-widest opacity-50">
+              {element.data.title || colName}
+            </span>
+          </div>
+          <span className="text-[9px] opacity-30 font-mono">LIVE</span>
         </div>
 
         {/* Content */}

@@ -1,18 +1,17 @@
-import { useEdgelessStore } from '../../store';
-import { useMemo } from 'react';
+import React, { useMemo } from 'react';
+import { useElement, useViewport } from '../../store';
 
-export function ConnectorElement({ element }: { element: any }) {
-  const { elements, viewPort } = useEdgelessStore();
+export const ConnectorElement = React.memo(function ConnectorElement({ element }: { element: any }) {
   const { connectorData } = element;
 
-  const startNode = useMemo(() => elements.find((el) => el.id === connectorData?.startId), [elements, connectorData?.startId]);
-  const endNode = useMemo(() => elements.find((el) => el.id === connectorData?.endId), [elements, connectorData?.endId]);
+  // ── Granular subscriptions: only re-render when THIS specific connected node changes ──
+  const startNode = useElement(connectorData?.startId || '');
+  const endNode = useElement(connectorData?.endId || '');
+  const viewPort = useViewport();
 
   if (!startNode || !endNode || !connectorData) return null;
 
   // calculate positions in screen coordinates
-  // this component is rendered in a container that matches the viewport, so convert
-  // element canvas coords into screen coords using viewPort (zoom + pan).
   const { zoom, x: panX, y: panY } = viewPort;
 
   const sx = startNode.x * zoom + panX + (startNode.width * zoom) / 2;
@@ -33,7 +32,7 @@ export function ConnectorElement({ element }: { element: any }) {
         left: 0,
         width: '100%',
         height: '100%',
-        zIndex: -1, // Behind nodes if possible (controlled by parent order usually)
+        zIndex: -1,
       }}
     >
       <line
@@ -50,4 +49,4 @@ export function ConnectorElement({ element }: { element: any }) {
       <circle cx={ex} cy={ey} r={4} fill={color} />
     </svg>
   );
-}
+}, (prev, next) => prev.element === next.element);
