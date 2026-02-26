@@ -270,7 +270,8 @@ app.post('/api/upload/banner', requireAuth, upload.single('file'), (req, res) =>
 });
 
 // Notion import support
-import { run as notionRun, getApiClient } from '../scripts/notion-import.js';
+// path to shared scripts folder (moves mean backend is nested)
+import { run as notionRun, getApiClient } from '../../scripts/notion-import.js';
 import EventEmitter from 'events';
 import Papa from 'papaparse';
 
