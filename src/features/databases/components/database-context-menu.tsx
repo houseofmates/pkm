@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import type { Collection } from '@/types/nocobase';
+import { secureLogger } from '@/lib/secure-logger';
 import {
   ContextMenu,
   ContextMenuItem,
@@ -62,7 +63,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
       toast.success(`deleted ${collection.title || collection.name}`);
       onUpdate();
     } catch (error) {
-      secureLogger.error(error);
+      secureLogger.error("Delete failed:", error instanceof Error ? error.message : String(error));
       toast.error("failed to delete database");
     }
   };
