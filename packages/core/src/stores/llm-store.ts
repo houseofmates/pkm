@@ -3,6 +3,7 @@ import { secureLogger } from '@/lib/secure-logger'
 import { storageManager } from '@/lib/storage-manager'
 import { getOllamaGenerateUrl, normalizeGenerateEndpoint } from '@/lib/llm-config'
 import { getAIWorkerProxy } from '@/hooks/use-ai-worker'
+import { isCapacitorNative, resolveOllamaEndpoint, MOBILE_SERVER_ORIGIN } from '@/lib/platform'
 import * as Comlink from 'comlink'
 
 export interface ChatMessage {
@@ -123,7 +124,8 @@ export const useLLMStore = create<LLMState>((set, get) => ({
       } catch (e) { /* ignore parse errors */ }
 
       const { activeModel, apiUrl } = get()
-      const worker = getAIWorkerProxy()
+      const resolvedUrl = isCapacitorNative() ? resolveOllamaEndpoint(apiUrl, MOBILE_SERVER_ORIGIN) : apiUrl
+      const worker = await getAIWorkerProxy()
 
       // stream tokens from the worker — each callback updates streamingContent
       // which only the StreamingBubble component subscribes to
@@ -131,13 +133,18 @@ export const useLLMStore = create<LLMState>((set, get) => ({
         set({ streamingContent: cumulativeContent.toLowerCase() })
       })
 
-      const result = await worker.askWithRag(
-        text,
-        fronterName,
-        activeModel,
-        apiUrl,
-        onToken,
-      )
+      let result: any
+      try {
+        result = await worker.askWithRag(
+          text,
+          fronterName,
+          activeModel,
+          resolvedUrl,
+          onToken,
+        )
+      } finally {
+        (onToken as any)[Comlink.releaseProxy]?.()
+      }
 
       if (!result?.response) {
         secureLogger.warn("wilson returned no response.")
@@ -207,14 +214,20 @@ important rules:
     const fullPrompt = `${systemPrompt}\n\n${fronterName}: ${text}\nwilson:`
 
     try {
-      const worker = getAIWorkerProxy()
+      const resolvedUrl = isCapacitorNative() ? resolveOllamaEndpoint(apiUrl, MOBILE_SERVER_ORIGIN) : apiUrl
+      const worker = await getAIWorkerProxy()
 
       // stream even in legacy mode for consistent ux
       const onToken = Comlink.proxy((cumulativeContent: string) => {
         set({ streamingContent: cumulativeContent.toLowerCase() })
       })
 
-      const response = await worker.chatStream(fullPrompt, activeModel, apiUrl, onToken)
+      let response: string
+      try {
+        response = await worker.chatStream(fullPrompt, activeModel, resolvedUrl, onToken)
+      } finally {
+        (onToken as any)[Comlink.releaseProxy]?.()
+      }
 
       if (!response) {
         secureLogger.warn("wilson returned no response.")
