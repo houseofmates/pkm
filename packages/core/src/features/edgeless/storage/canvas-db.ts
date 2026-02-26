@@ -4,7 +4,8 @@ import type { DrawOp, OpLogEntry, CanvasCheckpoint } from './oplog'
 import { secureLogger } from '@/lib/secure-logger'
 
 const DB_NAME = 'pkm-canvas-v1'
-const DB_VERSION = 1
+// bump version to ensure upgrade runs for clients that created the DB without stores
+const DB_VERSION = 2
 
 interface CanvasDBSchema extends DBSchema {
   oplog: {
@@ -47,21 +48,36 @@ export function getCanvasDB(): Promise<IDBPDatabase<CanvasDBSchema>> {
 
   dbPromise = openDB<CanvasDBSchema>(DB_NAME, DB_VERSION, {
     upgrade(db) {
-      // oplog store: all drawing operations
-      const oplogStore = db.createObjectStore('oplog', { keyPath: 'id' })
-      oplogStore.createIndex('by-timestamp', 'timestamp')
-      oplogStore.createIndex('by-drawing', 'drawingId')
+      // ensure stores exist even if a prior version was created without them
+      const ensureStore = (
+        name: keyof CanvasDBSchema,
+        options: IDBObjectStoreParameters,
+        indexes: Array<{ name: string; keyPath: string }>,
+      ) => {
+        const store = db.objectStoreNames.contains(name)
+          ? db.transaction.objectStore(name)
+          : db.createObjectStore(name, options)
+        indexes.forEach(({ name: idxName, keyPath }) => {
+          if (!store.indexNames.contains(idxName)) store.createIndex(idxName, keyPath)
+        })
+      }
 
-      // checkpoints: periodic full state snapshots
-      const checkpointStore = db.createObjectStore('checkpoints', { keyPath: 'id' })
-      checkpointStore.createIndex('by-drawing', 'drawingId')
+      ensureStore('oplog', { keyPath: 'id' }, [
+        { name: 'by-timestamp', keyPath: 'timestamp' },
+        { name: 'by-drawing', keyPath: 'drawingId' },
+      ])
 
-      // drawings metadata
-      const drawingStore = db.createObjectStore('drawings', { keyPath: 'id' })
-      drawingStore.createIndex('by-sync-state', 'syncState')
+      ensureStore('checkpoints', { keyPath: 'id' }, [
+        { name: 'by-drawing', keyPath: 'drawingId' },
+      ])
 
-      // tokens (in-memory refresh pattern)
-      db.createObjectStore('tokens', { keyPath: 'key' })
+      ensureStore('drawings', { keyPath: 'id' }, [
+        { name: 'by-sync-state', keyPath: 'syncState' },
+      ])
+
+      if (!db.objectStoreNames.contains('tokens')) {
+        db.createObjectStore('tokens', { keyPath: 'key' })
+      }
     },
   })
 
