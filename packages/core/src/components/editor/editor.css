@@ -36,7 +36,8 @@
 }
 
 .ProseMirror blockquote {
-    @apply border-l-4 border-primary pl-4 py-1 italic my-4 bg-muted rounded-r;
+    @apply border-l-4 pl-4 py-1 italic my-4 bg-muted rounded-r;
+    border-left-color: hsl(var(--primary));
 }
 
 .ProseMirror pre {
