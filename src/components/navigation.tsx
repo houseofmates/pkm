@@ -57,7 +57,7 @@ interface NavigationProps {
 
   // lifted state props
   items: NavItem[];
-  setItems: (items: NavItem[]) => void; // for local updates like folder creation
+  setItems: (items: NavItem[] | ((prev: NavItem[]) => NavItem[])) => void; // for local updates like folder creation
   accentBg?: string;
 }
 
@@ -405,7 +405,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
           }));
 
         // also deduplicate drawing items
-        const allIds = new Set([...existingIds, ...newCols.map(c => c.id.toLowerCase())]);
+        const allIds = new Set([...existingIds, ...newCols.map((c: NavItem) => c.id.toLowerCase())]);
         const uniqueDrawings = drawingItems.filter(d => !allIds.has(d.id.toLowerCase()));
 
         // merge: existing cleaned items + new collections + fresh drawings
