@@ -40,17 +40,17 @@ export const EternalFlame = React.memo(function EternalFlame({ element: _element
       }
 
       particles.forEach((p, index) => {
-        p.y -= p.speedy;
+        p.y -= p.speedY;
         p.size *= 0.95; // shrink
         p.life--;
 
         // sway
-        p.x += math.sin(p.life / 10) * 0.5;
+        p.x += Math.sin(p.life / 10) * 0.5;
 
-        ctx.globalalpha = p.life / p.maxlife;
-        ctx.fillstyle = p.color;
-        ctx.beginpath();
-        ctx.arc(p.x, p.y, p.size, 0, math.pi * 2);
+        ctx.globalAlpha = p.life / p.maxLife;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
 
         if (p.life <= 0) particles.splice(index, 1);
@@ -69,7 +69,7 @@ export const EternalFlame = React.memo(function EternalFlame({ element: _element
     const interval = setInterval(() => {
       setFuel(prev => Math.max(0, prev - 1));
     }, 60000); // Burn 1% every minute (fast for demo, normally 24h = 1440 mins, so 1% every 15 mins)
-    return () => clearinterval(interval);
+    return () => clearInterval(interval);
   }, []);
 
   return (

@@ -39,7 +39,7 @@ export const PortalElement = React.memo(function PortalElement({ element }: Port
             🌀
           </div>
           <div className="text-xs  text-primary font-bold">
-            {targetname}
+            {targetName}
           </div>
         </div>
       </div>

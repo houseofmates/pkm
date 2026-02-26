@@ -4,8 +4,8 @@ import { appendOp, saveCheckpoint, getLatestCheckpoint, getRecentOps } from './s
 import type { DrawOp } from './storage/oplog'
 import { canvasSync } from './sync/canvas-sync'
 import { SpatialIndex } from './spatial/spatial-index'
-import type fabric from 'fabric'
-import { shallow } from 'zustand/shallow'
+import type * as fabric from 'fabric'
+import { useShallow } from 'zustand/react/shallow'
 import { useCallback, useMemo, useRef } from 'react'
 
 export type ElementType =
@@ -337,7 +337,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
 
     // reload state from oplog minus the undone op
     // (in a full implementation, we'd compute inverse ops or reload from checkpoint)
-    secureLogger.info('undo:', lastId)
+    console.info('undo:', lastId)
 
     // save checkpoint after significant undo
     if (remaining.length % 20 === 0) {
@@ -359,7 +359,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
       },
     })
 
-    secureLogger.info('redo:', nextId)
+    console.info('redo:', nextId)
   },
 
   loadFromOplog: async (drawingId) => {
@@ -367,7 +367,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
     const checkpoint = await getLatestCheckpoint(drawingId)
     const ops = await getRecentOps(drawingId, 500)
 
-    secureLogger.info('loading drawing', drawingId, {
+    console.info('loading drawing', drawingId, {
       hasCheckpoint: !!checkpoint,
       opCount: ops.length,
     })
@@ -447,15 +447,14 @@ export function useElement(id: string): EdgelessElement | undefined {
 /** Subscribe to the viewport with shallow equality – prevents re-render
  *  when the reference changes but x/y/zoom values are identical. */
 export function useViewport() {
-  return useEdgelessStore((s) => s.viewPort, shallow)
+  return useEdgelessStore(useShallow((s: EdgelessState) => s.viewPort))
 }
 
 /** Subscribe to the element IDs array only (not the element objects).
  *  Re-renders only when elements are added/removed, not when one is moved. */
 export function useElementIds(): string[] {
   return useEdgelessStore(
-    useCallback((s: EdgelessState) => s.elements.map((e) => e.id), []),
-    shallow
+    useShallow((s: EdgelessState) => s.elements.map((e) => e.id))
   )
 }
 

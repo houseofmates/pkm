@@ -21,11 +21,11 @@ export const RecordNodeElement = React.memo<RecordNodeElementProps>(({ element }
   const isExpanded = element.data.mode === 'card';
 
   const toggleExpand = (_e: React.MouseEvent) => {
-    _e.stoppropagation();
-    updateelement(element.id, {
-      width: isexpanded ? 200 : 400,
-      height: isexpanded ? 60 : 500,
-      data: { ...element.data, mode: isexpanded ? 'node' : 'card' }
+    _e.stopPropagation();
+    updateElement(element.id, {
+      width: isExpanded ? 200 : 400,
+      height: isExpanded ? 60 : 500,
+      data: { ...element.data, mode: isExpanded ? 'node' : 'card' }
     });
   };
 
@@ -62,13 +62,13 @@ export const RecordNodeElement = React.memo<RecordNodeElementProps>(({ element }
         </div>
         <div className="flex items-center gap-1">
           <Button variant="ghost" size="icon" className="h-6 w-6" onClick={toggleExpand}>
-            {isexpanded ? <Minimize2 className="h-3 w-3" /> : <Maximize2 className="h-3 w-3" />}
+            {isExpanded ? <Minimize2 className="h-3 w-3" /> : <Maximize2 className="h-3 w-3" />}
           </Button>
         </div>
       </div>
 
       {/* expanded content (card view) */}
-      {isexpanded && (
+      {isExpanded && (
         <div className="flex-1 overflow-y-auto p-2 bg-background/50">
           {/* reuse recordform for full editing power! */}
           <RecordForm

@@ -36,7 +36,7 @@ class LocalDbService {
   public async saveCollections(collections: any[]): Promise<void> {
     const db = await this.dbPromise;
     const CHUNK_SIZE = 200;
-    
+
     let savedCount = 0;
     for (let i = 0; i < collections.length; i += CHUNK_SIZE) {
       const chunk = collections.slice(i, i + CHUNK_SIZE);
@@ -44,19 +44,14 @@ class LocalDbService {
       await Promise.all(chunk.map(collection => tx.store.put(collection)));
       await tx.done;
       savedCount += chunk.length;
-      
+
       // Yield to the event loop between chunks to prevent UI lockup
       if (i + CHUNK_SIZE < collections.length) {
         await new Promise(resolve => setTimeout(resolve, 0));
       }
     }
-    
-    // @ts-ignore - assuming secureLogger is global or injected
-    if (typeof secureLogger !== 'undefined') {
-      secureLogger.info(`Saved ${savedCount} collections to local DB in batches of ${CHUNK_SIZE}.`);
-    } else {
-      console.log(`Saved ${savedCount} collections to local DB in batches of ${CHUNK_SIZE}.`);
-    }
+
+    console.log(`Saved ${savedCount} collections to local DB in batches of ${CHUNK_SIZE}.`);
   }
 
   /**
