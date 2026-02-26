@@ -127,7 +127,7 @@ export async function parseNotionExport(sources: NotionSource[]): Promise<Notion
             }
 
             databases.push({ name, rows, fields, props });
-        } else if (source.getPath().includes('/assets/') || source.getPath().includes('\\assets\\')) {
+        } else if (source.getPath().split(/[\\/]/).includes('assets')) {
             assets.push(source.getPath());
         }
     }
