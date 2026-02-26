@@ -46,14 +46,14 @@ android/.gradle/
 android/local.properties
 
 # Backend data
-backend/server-data.json
-backend/server-data.json.backup
-backend/public/*.png
-backend/public/*.jpg
-backend/public/*.jpeg
-backend/public/*.gif
-backend/public/*.webp
-backend/public/*.pdf
+packages/backend/server-data.json
+packages/backend/server-data.json.backup
+packages/backend/public/*.png
+packages/backend/public/*.jpg
+packages/backend/public/*.jpeg
+packages/backend/public/*.gif
+packages/backend/public/*.webp
+packages/backend/public/*.pdf
 
 # Personal files
 !releases/

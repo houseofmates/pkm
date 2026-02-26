@@ -27,7 +27,7 @@ process.env.BROADCAST_AUTH_KEY = 'test-secret';
 
 // import the server AFTER configuring env vars to ensure they are picked up
 // server.js exports { app, importTasks }
-import { app as server } from '../../../../../backend/server.js';
+import { app as server } from '../../../../../packages/backend/server.js';
 
 // ensure the public upload directory exists
 beforeAll(() => {
