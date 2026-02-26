@@ -5,6 +5,8 @@ import type { DrawOp } from './storage/oplog'
 import { canvasSync } from './sync/canvas-sync'
 import { SpatialIndex } from './spatial/spatial-index'
 import type fabric from 'fabric'
+import { shallow } from 'zustand/shallow'
+import { useCallback, useMemo, useRef } from 'react'
 
 export type ElementType =
   | 'pdf-page'
@@ -85,6 +87,8 @@ interface EdgelessState {
 
   // elements (non-canvas html overlays)
   elements: EdgelessElement[]
+  // O(1) lookup map kept in sync with elements array
+  elementMap: Map<string, EdgelessElement>
 
   // viewport
   viewPort: { x: number; y: number; zoom: number }
@@ -159,6 +163,17 @@ interface EdgelessState {
   setPressureEnabled: (enabled: boolean) => void
 }
 
+// ─── helpers ────────────────────────────────────────────────────────────────────
+
+/** Build a Map<id, element> from an array – used by every mutation */
+function buildMap(elements: EdgelessElement[]): Map<string, EdgelessElement> {
+  const m = new Map<string, EdgelessElement>()
+  for (const el of elements) m.set(el.id, el)
+  return m
+}
+
+// ─── store ──────────────────────────────────────────────────────────────────────
+
 export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   // identity
   drawingId: '',
@@ -174,6 +189,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
 
   // elements
   elements: [],
+  elementMap: new Map(),
 
   // viewport
   viewPort: { x: 0, y: 0, zoom: 1 },
@@ -198,8 +214,8 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   isChatOpen: false,
   isLinking: false,
   penWidth: 10,
-  penColor: 'var(--primary)',  penOpacity: 100,
-  eraserOpacity: 100,  stabilizerLevel: 0,
+  penColor: 'var(--primary)', penOpacity: 100,
+  eraserOpacity: 100, stabilizerLevel: 0,
   pressureEnabled: true,
 
   // canvas refs and helpers
@@ -221,10 +237,12 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
     set((state) => {
       if (state.layers.length <= 1) return state
       const remaining = state.layers.filter((l) => l.id !== id)
+      const newElements = state.elements.filter((el) => el.layerId !== id)
       return {
         layers: remaining,
         activeLayerId: state.activeLayerId === id ? remaining[0].id : state.activeLayerId,
-        elements: state.elements.filter((el) => el.layerId !== id),
+        elements: newElements,
+        elementMap: buildMap(newElements),
       }
     }),
 
@@ -235,26 +253,38 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
 
   setActiveLayer: (id) => set({ activeLayerId: id }),
 
-  // element actions
+  // element actions ─── all keep elementMap in sync ──────────────────────────
   addElement: (el) =>
-    set((state) => ({
-      elements: [
-        ...state.elements,
-        { ...el, id: uuidv4(), layerId: el.layerId || state.activeLayerId },
-      ],
-    })),
+    set((state) => {
+      const newEl: EdgelessElement = { ...el, id: uuidv4(), layerId: el.layerId || state.activeLayerId }
+      const newElements = [...state.elements, newEl]
+      const newMap = new Map(state.elementMap)
+      newMap.set(newEl.id, newEl)
+      return { elements: newElements, elementMap: newMap }
+    }),
 
-  setElements: (elements) => set({ elements }),
+  setElements: (elements) => set({ elements, elementMap: buildMap(elements) }),
 
   updateElement: (id, patch) =>
-    set((state) => ({
-      elements: state.elements.map((el) => (el.id === id ? { ...el, ...patch } : el)),
-    })),
+    set((state) => {
+      const existing = state.elementMap.get(id)
+      if (!existing) return state
+      const updated = { ...existing, ...patch }
+      // Only create a new array if something actually changed
+      if (updated === existing) return state
+      const newMap = new Map(state.elementMap)
+      newMap.set(id, updated)
+      const newElements = state.elements.map((el) => (el.id === id ? updated : el))
+      return { elements: newElements, elementMap: newMap }
+    }),
 
   removeElement: (id) =>
-    set((state) => ({
-      elements: state.elements.filter((el) => el.id !== id),
-    })),
+    set((state) => {
+      const newElements = state.elements.filter((el) => el.id !== id)
+      const newMap = new Map(state.elementMap)
+      newMap.delete(id)
+      return { elements: newElements, elementMap: newMap }
+    }),
 
   // mode actions
   setMode: (mode) => set({ mode }),
@@ -272,7 +302,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
 
     // ensure op has layer context
     if ('layerId' in op && !op.layerId) {
-      ;(op as any).layerId = activeLayerId
+      ; (op as any).layerId = activeLayerId
     }
 
     // append to persistent oplog
@@ -402,7 +432,42 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   setPdfDoc: (doc) => set({ pdfDoc: doc }),
   addHistoryOp: async (op: DrawOp) => { // alias to recordOp
     await get().recordOp(op as any)
-  },}))
+  },
+}))
+
+// ─── granular selectors ─────────────────────────────────────────────────────────
+// These hooks subscribe to a single slice of state, preventing cascading re-renders.
+
+/** Subscribe to a single element by ID. Returns undefined if not found.
+ *  The component only re-renders when *this specific element object* changes. */
+export function useElement(id: string): EdgelessElement | undefined {
+  return useEdgelessStore((s) => s.elementMap.get(id))
+}
+
+/** Subscribe to the viewport with shallow equality – prevents re-render
+ *  when the reference changes but x/y/zoom values are identical. */
+export function useViewport() {
+  return useEdgelessStore((s) => s.viewPort, shallow)
+}
+
+/** Subscribe to the element IDs array only (not the element objects).
+ *  Re-renders only when elements are added/removed, not when one is moved. */
+export function useElementIds(): string[] {
+  return useEdgelessStore(
+    useCallback((s: EdgelessState) => s.elements.map((e) => e.id), []),
+    shallow
+  )
+}
+
+/** Subscribe to the active tool */
+export function useActiveTool(): ToolType {
+  return useEdgelessStore((s) => s.activeTool)
+}
+
+/** Subscribe to selection mode */
+export function useSelectionMode() {
+  return useEdgelessStore((s) => s.selectionMode)
+}
 
 // import for meta update
 import { updateDrawingMeta } from './storage/canvas-db'
