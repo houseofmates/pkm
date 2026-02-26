@@ -31,6 +31,7 @@ export async function downloadAndPromptInstall(apkUrl: string) {
       // Dynamic import with proper error handling - avoids eval() security risk
       // Using variable to prevent vite from trying to resolve at build time
       const moduleName = '@capacitor/browser';
+
       const browserModule = await import(moduleName) as { Browser: any };
       const { Browser } = browserModule;
       await Browser.open({ url: apkUrl });
