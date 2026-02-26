@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Webhook, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface N8nWidgetProps {
   data: {

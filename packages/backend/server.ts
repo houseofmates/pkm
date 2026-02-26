@@ -1,12 +1,14 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import * as cors from 'cors';
+import { createRequire } from 'node:module';
 import LanceIndexer from './lancedb/index';
 import { getEmbedding } from './embeddings/ollama';
-import multer from 'multer';
-import * as Papa from 'papaparse';
 import { inferRelations, type Dataset } from './relation-inference';
-import { createProxyMiddleware } from 'http-proxy-middleware';
+
+const require = createRequire(import.meta.url);
+const express = require('express');
+const bodyParser = require('body-parser');
+const cors = require('cors');
+const multer = require('multer');
+const Papa = require('papaparse');
 
 const PORT = process.env.PKM_BACKEND_PORT ? Number(process.env.PKM_BACKEND_PORT) : 4110;
 const RELATION_DEBUG = process.env.RELATION_DEBUG === 'true';
@@ -18,7 +20,7 @@ const indexer = new LanceIndexer('./data/lancedb');
 
 // multi-csv import endpoint
 const upload = multer({ limits: { files: 60, fileSize: 230 * 1024 } });
-app.post('/nb-import-csv', upload.array('files', 60), async (req, res) => {
+app.post('/nb-import-csv', upload.array('files', 60), async (req: any, res: any) => {
   try {
     if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
       return res.status(400).json({ error: 'no files uploaded' });
@@ -30,7 +32,7 @@ app.post('/nb-import-csv', upload.array('files', 60), async (req, res) => {
         header: true,
         skipEmptyLines: true,
         dynamicTyping: true,
-        transformHeader: h => h.trim(),
+        transformHeader: (h: string) => h.trim(),
       });
       if (parsed.errors.length) {
         console.warn(`warnings parsing CSV ${file.originalname}:`, parsed.errors);
@@ -68,7 +70,7 @@ app.post('/nb-import-csv', upload.array('files', 60), async (req, res) => {
       const sampleRows = rows.slice(0, 20);
       const fieldTypes: Record<string, string> = {};
       for (const field of fields) {
-        const colValues = sampleRows.map(r => r[field]);
+        const colValues = sampleRows.map((r: any) => r[field]);
         fieldTypes[field] = guessType(colValues);
       }
       databases.push({
@@ -97,11 +99,11 @@ async function start() {
     console.error('failed to init lancedb', err);
   }
 
-  app.get('/health', (_req, res) => res.json({ status: 'ok' }));
+  app.get('/health', (_req: any, res: any) => res.json({ status: 'ok' }));
 
   // version endpoint for update checking
   const BUILD_TIME = new Date().toISOString();
-  app.get('/api/version', (_req, res) => {
+  app.get('/api/version', (_req: any, res: any) => {
     res.json({ 
       version: BUILD_TIME,
       buildTime: BUILD_TIME,
@@ -110,7 +112,7 @@ async function start() {
   });
 
   // webhook from nocobase to sync records
-  app.post('/sync-webhook', async (req, res) => {
+  app.post('/sync-webhook', async (req: any, res: any) => {
     try {
       const payload = req.body;
       if (!payload) return res.status(400).json({ error: 'missing payload' });
@@ -136,7 +138,7 @@ async function start() {
   });
 
   // semantic search endpoint
-  app.post('/search', async (req, res) => {
+  app.post('/search', async (req: any, res: any) => {
     try {
       const { q, topK = 10 } = req.body;
       if (!q || typeof q !== 'string') return res.status(400).json({ error: 'invalid query' });
@@ -150,26 +152,41 @@ async function start() {
     }
   });
 
-  // Proxy configuration for Ollama
-  const ollamaProxy = createProxyMiddleware('/api/ollama', {
-    target: 'http://192.168.254.33:11434',
-    changeOrigin: true,
-    pathRewrite: {
-      '^/api/ollama': '', // Remove `/api/ollama` from the path
-    },
-    onProxyReq: (proxyReq, req, res) => {
-      console.log(`Proxying request to Ollama: ${req.url}`);
-    },
-  });
-
-  // Enable CORS for the proxy route
+  // enable cors for the proxy route
   const corsOptions = {
     origin: ['capacitor://localhost', 'http://localhost'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
   };
 
-  app.use('/api/ollama', cors(corsOptions), ollamaProxy);
+  app.use('/api/ollama', cors(corsOptions), async (req: any, res: any) => {
+    try {
+      const upstreamPath = String(req.originalUrl || req.url || '').replace(/^\/api\/ollama/, '') || '/';
+      const upstreamUrl = `http://192.168.254.33:11434${upstreamPath}`;
+      const method = String(req.method || 'GET').toUpperCase();
+      const headers = { ...req.headers };
+      delete headers.host;
+
+      const response = await fetch(upstreamUrl, {
+        method,
+        headers,
+        body: method === 'GET' || method === 'HEAD' ? undefined : JSON.stringify(req.body ?? {}),
+      });
+
+      res.status(response.status);
+      response.headers.forEach((value, key) => {
+        if (key.toLowerCase() !== 'transfer-encoding') {
+          res.setHeader(key, value);
+        }
+      });
+
+      const text = await response.text();
+      res.send(text);
+    } catch (err) {
+      console.error('ollama proxy error', err);
+      res.status(502).json({ error: 'ollama proxy failed' });
+    }
+  });
 
   app.listen(PORT, () => console.log(`pkm backend listening ${PORT}`));
 }

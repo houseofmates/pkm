@@ -52,7 +52,11 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
   });
 
   // nocobase :list returns { data: [...] }
-  const data = response?.data || (Array.isArray(response) ? response : []);
+  const data = Array.isArray((response as any)?.data)
+    ? (response as any).data
+    : Array.isArray(response)
+      ? response
+      : [];
   if (data.length > 0) {
  const setting = data[0];
  settingIdRef.current = setting.id;
@@ -144,7 +148,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
    method: 'POST',
    data: { key, value: valueToSave },
    silent: true
- });
+ }) as { data?: { id?: string | number } };
  if (createRes?.data?.id) {
    settingIdRef.current = createRes.data.id;
  }
@@ -192,7 +196,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
  method: 'POST',
  data: { key, value: toSave },
  silent: true
- });
+ }) as { data?: { id?: string | number } };
  if (createRes?.data?.id) settingIdRef.current = createRes.data.id;
 
   } catch (err: unknown) {

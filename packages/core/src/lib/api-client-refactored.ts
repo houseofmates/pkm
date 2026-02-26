@@ -130,7 +130,7 @@ export async function setAuthToken(
     guest: 'hom_guest_key',
   }
 
-  const cacheMap: Record<'nocobase' | 'hom' | 'guest', keyof TokenCache> = {
+  const cacheMap: Record<'nocobase' | 'hom' | 'guest', 'nocobaseToken' | 'homApiKey' | 'guestKey'> = {
     nocobase: 'nocobaseToken',
     hom: 'homApiKey',
     guest: 'guestKey',

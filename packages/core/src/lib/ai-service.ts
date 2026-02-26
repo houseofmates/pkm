@@ -1,4 +1,5 @@
 import { getOllamaGenerateUrl } from '@/lib/llm-config';
+import { secureLogger } from './secure-logger';
 
 export interface AIResponse {
   response: string;
