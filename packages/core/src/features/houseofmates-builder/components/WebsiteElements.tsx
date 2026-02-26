@@ -14,6 +14,7 @@ function getLucideIcon(name: string): LucideIcon | undefined {
 }
 import { toast } from 'sonner';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip, Cell } from 'recharts';
+import { secureLogger } from '@/lib/secure-logger';
 
 // --- server ip display ---
 interface ServerIPProps {
@@ -1325,7 +1326,7 @@ export function SlickButton({ text, url, icon, bgColor, textColor, iconColor, bo
         borderRadius: borderRadius || 16,
       }}
     >
-      {icon && (
+      {icon && Icon && (
         <div className="relative z-10 group-hover:scale-110 transition-transform duration-300 flex items-center justify-center shrink-0">
           <Icon size={32} style={{ color: iconColor || textColor || 'rgba(0,0,0,0.6)' }} strokeWidth={2.5} />
         </div>
