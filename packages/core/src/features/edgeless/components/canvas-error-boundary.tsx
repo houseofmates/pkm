@@ -25,7 +25,7 @@ export class CanvasErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    secureLogger.error('[canvas error boundary]', error, errorInfo)
+    console.error('[canvas error boundary]', error, errorInfo)
     this.setState({
       error,
       errorInfo: errorInfo?.componentStack || '',
@@ -38,11 +38,11 @@ export class CanvasErrorBoundary extends Component<Props, State> {
         const canvasData = (window as any).pkmGetCanvasJSON?.()
         if (canvasData) {
           storageManager.setItem(`pkm-emergency-backup-${drawingId}`, JSON.stringify(canvasData))
-          secureLogger.info('[canvas error boundary] emergency backup saved')
+          console.info('[canvas error boundary] emergency backup saved')
         }
       }
     } catch (e) {
-      secureLogger.error('[canvas error boundary] backup failed:', e)
+      console.error('[canvas error boundary] backup failed:', e)
     }
   }
 

@@ -9,29 +9,29 @@ export const SleepRing = React.memo(function SleepRing({ element }: { element: a
     return ((h + m / 60) / 24) * 360; // 0-360 degrees
   };
 
+  const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => {
+    const angleInRadians = (angleInDegrees) * Math.PI / 180.0;
+    return {
+      x: centerX + (radius * Math.cos(angleInRadians)),
+      y: centerY + (radius * Math.sin(angleInRadians))
+    };
+  };
+
   // calculate arc path
   const describeArc = (x: number, y: number, radius: number, startAngle: number, endAngle: number) => {
-    const start = polartocartesian(x, y, radius, endangle - 90);
-    const end = polartocartesian(x, y, radius, startangle - 90);
-    const largearcflag = endangle - startangle <= 180 ? "0" : "1";
+    const start = polarToCartesian(x, y, radius, endAngle - 90);
+    const end = polarToCartesian(x, y, radius, startAngle - 90);
+    const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
     return [
       "M", start.x, start.y,
       "A", radius, radius, 0, largeArcFlag, 0, end.x, end.y
     ].join(" ");
   };
 
-  const polarToCartesian = (centerX: number, centerY: number, radius: number, angleInDegrees: number) => {
-    const angleinradians = (angleindegrees) * math.pi / 180.0;
-    return {
-      x: centerx + (radius * math.cos(angleinradians)),
-      y: centery + (radius * math.sin(angleinradians))
-    };
-  };
-
-  const sangle = timetoangle(start);
-  const eangle = timetoangle(end);
+  const sAngle = timeToAngle(start);
+  const eAngle = timeToAngle(end);
   // handle crossing midnight
-  const adjustedend = eangle < sAngle ? eAngle + 360 : eAngle;
+  const adjustedEnd = eAngle < sAngle ? eAngle + 360 : eAngle;
 
   return (
     <div className="w-full h-full relative flex items-center justify-center select-none bg-black/60 rounded-full border border-white/10 backdrop-blur-md">

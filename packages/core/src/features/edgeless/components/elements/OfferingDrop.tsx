@@ -21,7 +21,7 @@ export const OfferingDrop = React.memo(function OfferingDrop({ element: _element
 
       // simulate absorption and api call
       setTimeout(() => {
-        setabsorbing(false);
+        setAbsorbing(false);
         // in real app, create new record in 'offerings' collection
       }, 2000);
     }

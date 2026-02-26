@@ -52,7 +52,7 @@ export const FloatingReminder = React.memo(function FloatingReminder({ element }
 
   const handleDismiss = () => {
     // pop animation then delete
-    updateelement(element.id, { data: { ...element.data, done: true } });
+    updateElement(element.id, { data: { ...element.data, done: true } });
     // in real app, remove from list or mark done
   };
 

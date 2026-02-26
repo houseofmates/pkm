@@ -8,20 +8,20 @@ export const ShoppingCard = React.memo(function ShoppingCard({ element }: { elem
   const updateElement = useEdgelessStore(state => state.updateElement);
 
   const toggleStatus = () => {
-    const newstatus = localstatus === 'desire' ? 'bought' : 'desire';
-    setlocalstatus(newstatus);
+    const newStatus = localStatus === 'desire' ? 'bought' : 'desire';
+    setLocalStatus(newStatus);
 
     // update store
-    updateelement(element.id, {
-      data: { ...element.data, status: newstatus }
+    updateElement(element.id, {
+      data: { ...element.data, status: newStatus }
     });
 
     // loop logic: if bought, drop to "inventory" (visual interaction)
     // for now, we just change visual style
   };
 
-  const isamazon = service === 'amazon';
-  const issteam = service === 'steam';
+  const isAmazon = service === 'amazon';
+  const isSteam = service === 'steam';
 
   return (
     <div
@@ -74,7 +74,7 @@ export const ShoppingCard = React.memo(function ShoppingCard({ element }: { elem
         <div className="p-4 flex flex-col h-full">
           <div className="flex justify-between items-start mb-2">
             <div className={`text-[10px] px-2 py-0.5 rounded border ${isAmazon ? 'border-orange-500 text-orange-400' : isSteam ? 'border-blue-500 text-blue-400' : 'border-white/20'}`}>
-              {service.touppercase()}
+              {service.toUpperCase()}
             </div>
             <button onClick={toggleStatus} className="text-green-500 hover:text-green-400">
               <Check className="w-4 h-4" />
