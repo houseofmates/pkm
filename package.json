@@ -1,6 +1,10 @@
 {
-  "name": "pkm",
+  "name": "pkm-monorepo",
   "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "version": "0.0.0",
   "type": "module",
   "main": "electron/main.js",
