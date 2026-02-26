@@ -167,7 +167,7 @@ async function unzipToTemp(zipPath) {
     return tempDir;
 }
 
-function getApiClient() {
+export function getApiClient() {
     const base = process.env.NOCOBASE_URL || 'http://localhost:4100/api';
     const apiKey = process.env.ADMIN_API_KEY || process.env.NOCOBASE_API_KEY || process.env.AUTH;
     if (!apiKey) {
