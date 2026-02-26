@@ -11,6 +11,18 @@ const REL_MIN_SCORE = 0.5;
 const REL_SAMPLE_SIZE = 120; // cap value comparisons for performance
 const REL_KEY_UNIQUENESS_MIN = 0.6; // require keys to be reasonably unique
 
+/**
+ * Utility to yield control back to the main thread.
+ * Uses requestAnimationFrame if in browser, otherwise setTimeout.
+ */
+const yieldControl = () => new Promise(resolve => {
+    if (typeof requestAnimationFrame !== 'undefined') {
+        requestAnimationFrame(() => resolve(undefined));
+    } else {
+        setTimeout(resolve, 0);
+    }
+});
+
 // enhanced guessing of field types based on sample values
 function guessType(values: any[]): string {
     let hasString = false;
@@ -94,8 +106,20 @@ function notionPropertyToType(type: string): string {
     }
 }
 
-export function transformWorkspace(ws: NotionWorkspace): Instruction[] {
+export async function transformWorkspace(
+    ws: NotionWorkspace,
+    onProgress?: (progress: number, message: string) => void
+): Promise<Instruction[]> {
     const instructions: Instruction[] = [];
+    const totalSteps = ws.databases.length + ws.pages.length + ws.databases.reduce((acc, db) => acc + db.rows.length, 0);
+    let completedSteps = 0;
+
+    const reportProgress = (message: string) => {
+        if (onProgress) {
+            const percent = Math.round((completedSteps / totalSteps) * 100);
+            onProgress(percent, message);
+        }
+    };
 
     // helper to pick the likely title/key field of a database
     const pickKeyField = (db: NotionDatabase, fieldTypes: Record<string, string>) => {
@@ -147,6 +171,7 @@ export function transformWorkspace(ws: NotionWorkspace): Instruction[] {
 
     // databases -> collection + createRecords
     for (const db of ws.databases) {
+        reportProgress(`Analyzing database: ${db.name}`);
         // build field definitions (try to respect Notion props if available)
         const sampleRows = db.rows.slice(0, 20);
         const fields: Record<string, string> = {};
@@ -162,15 +187,25 @@ export function transformWorkspace(ws: NotionWorkspace): Instruction[] {
         }
         dbFieldTypes[db.name] = fields;
         instructions.push({ type: 'createCollection', name: db.name, fields });
+        completedSteps++;
+
+        let rowCount = 0;
         for (const row of db.rows) {
             const data = { ...row };
-            // if fields include lookup placeholders, we might need relation handling later
             instructions.push({ type: 'createRecord', collection: db.name, data });
+            completedSteps++;
+            rowCount++;
+
+            // yield every 200 rows to keep UI responsive
+            if (rowCount % 200 === 0) {
+                reportProgress(`Transforming records for ${db.name}...`);
+                await yieldControl();
+            }
         }
+        await yieldControl();
     }
 
     // pages -> pages collection (body should be long text)
-    // also include any frontmatter keys as fields, guessing their type
     const pageFields: Record<string, string> = { title: 'string', body: 'text' };
     for (const page of ws.pages) {
         for (const key of Object.keys(page.frontmatter)) {
@@ -180,6 +215,7 @@ export function transformWorkspace(ws: NotionWorkspace): Instruction[] {
         }
     }
     instructions.push({ type: 'createCollection', name: 'pages', fields: pageFields });
+
     for (const page of ws.pages) {
         const data: Record<string, any> = {
             title: page.title,
@@ -187,6 +223,12 @@ export function transformWorkspace(ws: NotionWorkspace): Instruction[] {
             ...page.frontmatter,
         };
         instructions.push({ type: 'createRecord', collection: 'pages', data });
+        completedSteps++;
+
+        if (completedSteps % 100 === 0) {
+            reportProgress(`Transforming pages...`);
+            await yieldControl();
+        }
     }
 
     // infer and register relations based on Notion metadata or cross-dataset value matching
@@ -208,7 +250,10 @@ export function transformWorkspace(ws: NotionWorkspace): Instruction[] {
                 dbFieldTypes[db.name][field] = 'lookup';
             }
         }
+        await yieldControl();
     }
 
+    reportProgress('Transformation complete');
     return instructions;
 }
+
