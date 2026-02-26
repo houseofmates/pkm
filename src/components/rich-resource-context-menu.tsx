@@ -3,10 +3,8 @@ import { HexColorPicker } from 'react-colorful';
 import { Upload, Search, Loader2, type LucideIcon } from 'lucide-react';
 import * as Icons from 'lucide-react';
 // Dynamic icon loader for Lucide icons
-const lucideIconMap: Record<string, LucideIcon> = {};
-// ALL_ICONS is defined below, so we fill the map after its definition
 function getLucideIcon(name: string): LucideIcon | undefined {
-  return lucideIconMap[name];
+  return (Icons as unknown as Record<string, unknown>)[name] as LucideIcon | undefined;
 }
 import { ContextMenuContent } from "@/components/ui/context-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -319,263 +317,263 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
 
   // load emojis (twemoji based source or standard list)
   useEffect(() => {
-  if (activeTab === 'emojis' && emojis.length === DEFAULT_EMOJIS.length) {
-    const raf = requestAnimationFrame(() => setLoadingEmojis(true));
-    // fetch a comprehensive emoji list
-    fetch('https://unpkg.com/emoji-datasource-twitter@15.0.0/emoji.json')
-      .then(res => res.json())
-      .then((data: any[]) => {
-        // sort by sort_order to ensure smileys are first (fixing the "flags only" issue)
-        const sorted = data.sort((a, b) => a.sort_order - b.sort_order);
-        setEmojis(sorted);
-        setLoadingEmojis(false);
-      })
-      .catch(() => {
-        // fail silently, we have defaults
-        setLoadingEmojis(false);
-      });
-    return () => cancelAnimationFrame(raf);
-  }
+    if (activeTab === 'emojis' && emojis.length === DEFAULT_EMOJIS.length) {
+      const raf = requestAnimationFrame(() => setLoadingEmojis(true));
+      // fetch a comprehensive emoji list
+      fetch('https://unpkg.com/emoji-datasource-twitter@15.0.0/emoji.json')
+        .then(res => res.json())
+        .then((data: any[]) => {
+          // sort by sort_order to ensure smileys are first (fixing the "flags only" issue)
+          const sorted = data.sort((a, b) => a.sort_order - b.sort_order);
+          setEmojis(sorted);
+          setLoadingEmojis(false);
+        })
+        .catch(() => {
+          // fail silently, we have defaults
+          setLoadingEmojis(false);
+        });
+      return () => cancelAnimationFrame(raf);
+    }
   }, [activeTab, emojis.length]);
 
   const filteredEmojis = useMemo(() => {
-  if (!search) return emojis.slice(0, 200); // limit initial render
-  return emojis.filter(e => e.short_name.includes(search.toLowerCase())).slice(0, 100);
+    if (!search) return emojis.slice(0, 200); // limit initial render
+    return emojis.filter(e => e.short_name.includes(search.toLowerCase())).slice(0, 100);
   }, [emojis, search]);
 
   const filteredIcons = useMemo(() => {
-  if (!search) return ALL_ICONS.slice(0, 200);
+    if (!search) return ALL_ICONS.slice(0, 200);
 
-  const lowerSearch = search.toLowerCase();
+    const lowerSearch = search.toLowerCase();
 
-  // 1. direct search
-  const directMatches = ALL_ICONS.filter(name => name.toLowerCase().includes(lowerSearch));
+    // 1. direct search
+    const directMatches = ALL_ICONS.filter(name => name.toLowerCase().includes(lowerSearch));
 
-  // 2. keyword search
-  const keywordMatches = Object.entries(iconKeywords)
-  .filter(([key]) => key.includes(lowerSearch))
-  .flatMap(([, icons]) => icons);
+    // 2. keyword search
+    const keywordMatches = Object.entries(iconKeywords)
+      .filter(([key]) => key.includes(lowerSearch))
+      .flatMap(([, icons]) => icons);
 
-  // combine and dedup
-  const unique = Array.from(new Set([...directMatches, ...keywordMatches]));
-  return unique.slice(0, 100);
+    // combine and dedup
+    const unique = Array.from(new Set([...directMatches, ...keywordMatches]));
+    return unique.slice(0, 100);
   }, [search]);
 
   // twemoji url helper
   const getTwemojiUrl = (unified: string) => {
-  const code = unified.toLowerCase().replace(/-fe0f/g, '');
-  return `https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/${code}.png`;
+    const code = unified.toLowerCase().replace(/-fe0f/g, '');
+    return `https://cdnjs.cloudflare.com/ajax/libs/twemoji/14.0.2/72x72/${code}.png`;
   };
 
   // file upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (file) {
-  const reader = new FileReader();
-  reader.onloadend = () => {
- onUpdate({ icon: reader.result as string, iconType: 'image' });
-  };
-  reader.readAsDataURL(file);
-  }
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        onUpdate({ icon: reader.result as string, iconType: 'image' });
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   return (
-  <ContextMenuContent ref={contextMenuRef} className="w-[90vw] sm:w-[360px] p-0 overflow-hidden bg-[#050505] border-border/50 flex flex-col transition-all duration-300">
-  {/* header: name & color toggle */}
-  <div className="p-4 border-b shrink-0 relative flex items-center gap-3">
- <div className="flex-1 space-y-1.5">
- <Label className="text-[10px] font-bold  text-muted-foreground/70">name</Label>
- <Input
-   value={localName}
-   onChange={(e) => {
-     const val = e.target.value;
-     setLocalName(val);
-     // debounce rename to avoid multiple updates per spacebar tap
-     if (renameDebounce.current) clearTimeout(renameDebounce.current);
-     renameDebounce.current = setTimeout(() => {
-       if (val !== currentName && val.trim()) {
-         onUpdate({ name: val });
-         // close context menu after rename
-         setTimeout(() => {
-           // try to close the menu (works for Radix UI context menu)
-           if (contextMenuRef.current) {
-             const evt = new Event('pointerdown', { bubbles: true });
-             contextMenuRef.current.dispatchEvent(evt);
-           }
-         }, 100);
-       }
-     }, 200);
-   }}
-   onBlur={() => {
-     if (localName !== currentName && localName.trim()) {
-       onUpdate({ name: localName });
-       setTimeout(() => {
-         if (contextMenuRef.current) {
-           const evt = new Event('pointerdown', { bubbles: true });
-           contextMenuRef.current.dispatchEvent(evt);
-         }
-       }, 100);
-     }
-   }}
-   onKeyDown={(e) => {
-     if (e.key === 'Enter') {
-       e.currentTarget.blur();
-     }
-   }}
-   className="h-9 font-medium text-sm bg-transparent border-transparent hover:border-input focus:border-ring transition-colors px-2 shadow-none"
-   placeholder="untitled"
- />
- </div>
+    <ContextMenuContent ref={contextMenuRef} className="w-[90vw] sm:w-[360px] p-0 overflow-hidden bg-[#050505] border-border/50 flex flex-col transition-all duration-300">
+      {/* header: name & color toggle */}
+      <div className="p-4 border-b shrink-0 relative flex items-center gap-3">
+        <div className="flex-1 space-y-1.5">
+          <Label className="text-[10px] font-bold  text-muted-foreground/70">name</Label>
+          <Input
+            value={localName}
+            onChange={(e) => {
+              const val = e.target.value;
+              setLocalName(val);
+              // debounce rename to avoid multiple updates per spacebar tap
+              if (renameDebounce.current) clearTimeout(renameDebounce.current);
+              renameDebounce.current = setTimeout(() => {
+                if (val !== currentName && val.trim()) {
+                  onUpdate({ name: val });
+                  // close context menu after rename
+                  setTimeout(() => {
+                    // try to close the menu (works for Radix UI context menu)
+                    if (contextMenuRef.current) {
+                      const evt = new Event('pointerdown', { bubbles: true });
+                      contextMenuRef.current.dispatchEvent(evt);
+                    }
+                  }, 100);
+                }
+              }, 200);
+            }}
+            onBlur={() => {
+              if (localName !== currentName && localName.trim()) {
+                onUpdate({ name: localName });
+                setTimeout(() => {
+                  if (contextMenuRef.current) {
+                    const evt = new Event('pointerdown', { bubbles: true });
+                    contextMenuRef.current.dispatchEvent(evt);
+                  }
+                }, 100);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.currentTarget.blur();
+              }
+            }}
+            className="h-9 font-medium text-sm bg-transparent border-transparent hover:border-input focus:border-ring transition-colors px-2 shadow-none"
+            placeholder="untitled"
+          />
+        </div>
 
-  </div>
+      </div>
 
-  {/* color dot toggle removed - moved to tabs */}
+      {/* color dot toggle removed - moved to tabs */}
 
-  {/* main content area */}
-  <div className="h-[400px] relative">
- <Tabs defaultValue="icons" className="w-full h-full flex flex-col" onValueChange={setActiveTab}>
- <div className="px-0 border-b bg-muted/30 shrink-0 flex items-center">
- <TabsList className="bg-transparent p-0 h-12 w-full flex justify-between gap-0">
-   <TabsTrigger
-   value="icons"
-   className="flex-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-foreground data-[state=active]:underline underline-offset-8 rounded-none h-full px-0 font-semibold text-base text-muted-foreground/60 transition-all hover:text-foreground/80"
-   >
-   icons
-   </TabsTrigger>
-   <TabsTrigger
-   value="emojis"
-   className="flex-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-foreground data-[state=active]:underline underline-offset-8 rounded-none h-full px-0 font-semibold text-base text-muted-foreground/60 transition-all hover:text-foreground/80"
-   >
-   emojis
-   </TabsTrigger>
-   <TabsTrigger
-   value="color"
-   className="flex-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:underline underline-offset-8 rounded-none h-full px-0 font-semibold text-base transition-all hover:opacity-80"
-   style={{ color: localColor }}
-   >
-   color
-   </TabsTrigger>
- </TabsList>
- </div>
+      {/* main content area */}
+      <div className="h-[400px] relative">
+        <Tabs defaultValue="icons" className="w-full h-full flex flex-col" onValueChange={setActiveTab}>
+          <div className="px-0 border-b bg-muted/30 shrink-0 flex items-center">
+            <TabsList className="bg-transparent p-0 h-12 w-full flex justify-between gap-0">
+              <TabsTrigger
+                value="icons"
+                className="flex-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-foreground data-[state=active]:underline underline-offset-8 rounded-none h-full px-0 font-semibold text-base text-muted-foreground/60 transition-all hover:text-foreground/80"
+              >
+                icons
+              </TabsTrigger>
+              <TabsTrigger
+                value="emojis"
+                className="flex-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:text-foreground data-[state=active]:underline underline-offset-8 rounded-none h-full px-0 font-semibold text-base text-muted-foreground/60 transition-all hover:text-foreground/80"
+              >
+                emojis
+              </TabsTrigger>
+              <TabsTrigger
+                value="color"
+                className="flex-1 data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:underline underline-offset-8 rounded-none h-full px-0 font-semibold text-base transition-all hover:opacity-80"
+                style={{ color: localColor }}
+              >
+                color
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
- {/* search bar - moved below tabs to prevent overlap */}
- {(activeTab === 'icons' || activeTab === 'emojis') && (
- <div className="p-2 border-b bg-muted/10 shrink-0 relative">
-   <div className="relative">
-   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-   <Input
-   value={search}
-   onChange={(e) => setSearch(e.target.value)}
-   placeholder="search..."
-   className="h-9 pl-9 text-sm bg-background border-input shadow-sm w-full"
-   />
-   </div>
- </div>
- )}
+          {/* search bar - moved below tabs to prevent overlap */}
+          {(activeTab === 'icons' || activeTab === 'emojis') && (
+            <div className="p-2 border-b bg-muted/10 shrink-0 relative">
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="search..."
+                  className="h-9 pl-9 text-sm bg-background border-input shadow-sm w-full"
+                />
+              </div>
+            </div>
+          )}
 
- <div className="flex-1 min-h-0 relative">
- <TabsContent value="emojis" className="absolute inset-0 m-0">
-   {loadingEmojis ? (
-   <div className="flex items-center justify-center h-full text-muted-foreground">
-   <Loader2 className="h-6 w-6 animate-spin mr-2" /> loading...
-   </div>
-   ) : (
-   <ScrollArea className="h-full p-2">
-   <div className="grid grid-cols-7 gap-1">
-  {filteredEmojis.map((emoji: any) => (
-    <button
-      key={emoji.unified}
-      className="flex items-center justify-center h-9 w-9 text-xl hover:bg-muted rounded-md active:scale-90 transition-transform"
-      onClick={() => onUpdate({ icon: emoji.unified, iconType: 'emoji' })}
-      title={emoji.short_name}
-    >
-      <img
-        src={getTwemojiUrl(emoji.unified)}
-        alt={emoji.short_name}
-        className="h-6 w-6 object-contain pointer-events-none"
-        loading="lazy"
-        onError={(e) => { e.currentTarget.style.display = 'none'; }}
-      />
-    </button>
-  ))}
-   </div>
-   {!filteredEmojis.length && (
-    <div className="flex flex-col items-center justify-center h-full text-muted-foreground pb-8">
-      <span className="text-2xl mb-2">🤔</span>
-      <span className="text-xs">no emojis found</span>
-    </div>
-   )}
-   </ScrollArea>
-   )}
- </TabsContent>
+          <div className="flex-1 min-h-0 relative">
+            <TabsContent value="emojis" className="absolute inset-0 m-0">
+              {loadingEmojis ? (
+                <div className="flex items-center justify-center h-full text-muted-foreground">
+                  <Loader2 className="h-6 w-6 animate-spin mr-2" /> loading...
+                </div>
+              ) : (
+                <ScrollArea className="h-full p-2">
+                  <div className="grid grid-cols-7 gap-1">
+                    {filteredEmojis.map((emoji: any) => (
+                      <button
+                        key={emoji.unified}
+                        className="flex items-center justify-center h-9 w-9 text-xl hover:bg-muted rounded-md active:scale-90 transition-transform"
+                        onClick={() => onUpdate({ icon: emoji.unified, iconType: 'emoji' })}
+                        title={emoji.short_name}
+                      >
+                        <img
+                          src={getTwemojiUrl(emoji.unified)}
+                          alt={emoji.short_name}
+                          className="h-6 w-6 object-contain pointer-events-none"
+                          loading="lazy"
+                          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                        />
+                      </button>
+                    ))}
+                  </div>
+                  {!filteredEmojis.length && (
+                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground pb-8">
+                      <span className="text-2xl mb-2">🤔</span>
+                      <span className="text-xs">no emojis found</span>
+                    </div>
+                  )}
+                </ScrollArea>
+              )}
+            </TabsContent>
 
- <TabsContent value="icons" className="absolute inset-0 m-0">
-   <ScrollArea className="h-full p-2">
-   <div className="grid grid-cols-7 gap-1">
-   {filteredIcons.map(name => {
-    const IconComponent = getLucideIcon(name);
-    if (!IconComponent) return null;
-    return (
-      <button
-        key={name}
-        className="flex items-center justify-center h-9 w-9 hover:bg-muted rounded-md active:scale-90 transition-transform"
-        onClick={() => onUpdate({ icon: name, iconType: 'lucide' })}
-        style={{ color: localColor }}
-        title={name}
-      >
-        <IconComponent className="h-5 w-5 pointer-events-none" strokeWidth={1.5} />
-      </button>
-    );
-   })}
-   </div>
-   {!filteredIcons.length && (
-     <div className="flex flex-col items-center justify-center h-full text-muted-foreground pb-8">
-       <Search className="h-8 w-8 mb-2 opacity-50" />
-       <span className="text-xs">no icons found</span>
-     </div>
-   )}
-   </ScrollArea>
- </TabsContent>
+            <TabsContent value="icons" className="absolute inset-0 m-0">
+              <ScrollArea className="h-full p-2">
+                <div className="grid grid-cols-7 gap-1">
+                  {filteredIcons.map(name => {
+                    const IconComponent = getLucideIcon(name);
+                    if (!IconComponent) return null;
+                    return (
+                      <button
+                        key={name}
+                        className="flex items-center justify-center h-9 w-9 hover:bg-muted rounded-md active:scale-90 transition-transform"
+                        onClick={() => onUpdate({ icon: name, iconType: 'lucide' })}
+                        style={{ color: localColor }}
+                        title={name}
+                      >
+                        <IconComponent className="h-5 w-5 pointer-events-none" strokeWidth={1.5} />
+                      </button>
+                    );
+                  })}
+                </div>
+                {!filteredIcons.length && (
+                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground pb-8">
+                    <Search className="h-8 w-8 mb-2 opacity-50" />
+                    <span className="text-xs">no icons found</span>
+                  </div>
+                )}
+              </ScrollArea>
+            </TabsContent>
 
- <TabsContent value="color" className="absolute inset-0 m-0 flex flex-col items-center justify-center p-4 bg-muted/10">
-   <div
-   className="bg-popover p-2 rounded-xl shadow-xl border animate-in fade-in zoom-in-95 duration-200"
-   onPointerDown={(e) => e.stopPropagation()}
-   >
-   <HexColorPicker
-   color={localColor}
-   onChange={(c) => { setLocalColor(c); onUpdate({ color: c }); }}
-   style={{ width: '220px', height: '220px' }}
-   />
-   </div>
- </TabsContent>
- </div>
- </Tabs>
-  </div>
+            <TabsContent value="color" className="absolute inset-0 m-0 flex flex-col items-center justify-center p-4 bg-muted/10">
+              <div
+                className="bg-popover p-2 rounded-xl shadow-xl border animate-in fade-in zoom-in-95 duration-200"
+                onPointerDown={(e) => e.stopPropagation()}
+              >
+                <HexColorPicker
+                  color={localColor}
+                  onChange={(c) => { setLocalColor(c); onUpdate({ color: c }); }}
+                  style={{ width: '220px', height: '220px' }}
+                />
+              </div>
+            </TabsContent>
+          </div>
+        </Tabs>
+      </div>
 
-  {/* footer: upload */}
-  <div className="p-3 border-t bg-muted/30 shrink-0">
- <Button
- variant="outline"
- className="w-full h-10 text-sm font-medium border-dashed border-muted-foreground/30 hover:bg-muted hover:text-foreground transition-all rounded-xl"
- onClick={() => document.getElementById('icon-upload')?.click()}
- >
- <Upload className="h-4 w-4 mr-2" /> upload custom icon
- </Button>
- {/* hidden children or separator logic if needed, but 'children' props seemed unused in snippet view context or just generic actions */}
- {children && (
- <div className="mt-2 pt-2 border-t border-border/50 flex flex-col gap-1">
- {children}
- </div>
- )}
- <input
- id="icon-upload"
- type="file"
- accept="image/*"
- className="hidden"
- onChange={handleFileUpload}
- />
-  </div>
-  </ContextMenuContent >
+      {/* footer: upload */}
+      <div className="p-3 border-t bg-muted/30 shrink-0">
+        <Button
+          variant="outline"
+          className="w-full h-10 text-sm font-medium border-dashed border-muted-foreground/30 hover:bg-muted hover:text-foreground transition-all rounded-xl"
+          onClick={() => document.getElementById('icon-upload')?.click()}
+        >
+          <Upload className="h-4 w-4 mr-2" /> upload custom icon
+        </Button>
+        {/* hidden children or separator logic if needed, but 'children' props seemed unused in snippet view context or just generic actions */}
+        {children && (
+          <div className="mt-2 pt-2 border-t border-border/50 flex flex-col gap-1">
+            {children}
+          </div>
+        )}
+        <input
+          id="icon-upload"
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleFileUpload}
+        />
+      </div>
+    </ContextMenuContent >
   );
 }
