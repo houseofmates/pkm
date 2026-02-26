@@ -72,7 +72,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/ollama/, ''),
       },
       '/storage': {
-        target: 'https://db.houseofmates.space',
+        target: 'http://192.168.4.233:8091',
         changeOrigin: true,
         secure: true,
       },
@@ -132,7 +132,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/ollama/, ''),
       },
       '/storage': {
-        target: 'https://db.houseofmates.space',
+        target: 'http://192.168.4.233:8091',
         changeOrigin: true,
         secure: true,
       },
