@@ -5,8 +5,12 @@
   "main": "src/index.ts",
   "types": "src/index.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
     "lint": "eslint src",
-    "test": "vitest"
+    "test": "vitest",
+    "tsc": "tsc -p tsconfig.json",
+    "build:ts": "tsc -p tsconfig.json"
   }
 }
