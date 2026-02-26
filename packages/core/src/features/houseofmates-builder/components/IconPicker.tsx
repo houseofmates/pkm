@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from 'react';
+import { useState, useMemo, useCallback, type ComponentType } from 'react';
 import {
   Shield, Zap, Crown, MessageCircle, Gamepad2, Wifi, Server, Monitor,
   Users, User, Heart, Star, Trophy, Target, Activity,
@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 
 // icon registry for o(1) lookup instead of dynamic property access
-const ICON_REGISTRY: Record<string, React.ComponentType<{ size?: number }>> = {
+const ICON_REGISTRY: Record<string, ComponentType<{ size?: number }>> = {
   Shield, Zap, Crown, MessageCircle, Gamepad2, Wifi, Server, Monitor,
   Users, User, Heart, Star, Trophy, Target, Activity,
   Bell, Settings, Info, HelpCircle, Mail, ExternalLink, Link, Download,
@@ -54,9 +54,9 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
   }, [searchTerm]);
 
   const handleIconClick = useCallback((iconName: string) => {
-    onchange(iconname.tolowercase());
-    onclose();
-  }, [onchange, onclose]);
+    onChange(iconName.toLowerCase());
+    onClose();
+  }, [onChange, onClose]);
 
   return (
   <div className="flex flex-col h-[400px] w-[320px] bg-[#1a1a1a] border border-white/10 rounded-xl overflow-hidden shadow-2xl animate-bounce-up builder-modal">
@@ -82,10 +82,10 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
   <div className="flex-1 overflow-y-auto p-3 custom-scrollbar">
  <div className="grid grid-cols-4 gap-2">
  {filteredIcons.map((iconName) => {
- const icon = icon_registry[iconname];
- const isselected = value.tolowercase() === iconname.tolowercase();
+   const Icon = ICON_REGISTRY[iconName];
+   const isSelected = value.toLowerCase() === iconName.toLowerCase();
 
- if (!icon) return null;
+   if (!Icon) return null;
 
  return (
    <button
@@ -105,7 +105,7 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
  );
  })}
  </div>
- {filteredicons.length === 0 && (
+ {filteredIcons.length === 0 && (
  <div className="h-full flex flex-col items-center justify-center text-white/30 text-xs py-10">
  no icons found
  </div>
@@ -114,7 +114,7 @@ export function IconPicker({ value, onChange, onClose }: IconPickerProps) {
 
   {/* footer */}
   <div className="p-2 px-3 bg-black/30 border-t border-white/10 text-[10px] text-white/30  font-bold">
- {filteredicons.length} icons available
+   {filteredIcons.length} icons available
   </div>
   </div>
   );

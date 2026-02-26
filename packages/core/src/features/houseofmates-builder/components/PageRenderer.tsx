@@ -34,6 +34,7 @@ import {
 } from './WebsiteElements';
 import { RichTextEditor } from './RichTextEditor';
 import { WidgetPropertyEditor } from './WidgetPropertyEditor';
+import { secureLogger } from '@/lib/secure-logger';
 
 export function PageRenderer() {
   const {

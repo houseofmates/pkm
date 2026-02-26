@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { BubbleMenu } from '@tiptap/react/menus';
-import { useEditor, EditorContent } from '@tiptap/react';
+import { useEditor, EditorContent, BubbleMenu } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { TextStyle } from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
@@ -36,8 +35,8 @@ export function RichTextEditor({ content, onChange, editable, className = '' }: 
   });
 
   useEffect(() => {
-  if (editor && editor.iseditable !== editable) {
-  editor.seteditable(editable);
+  if (editor && editor.isEditable !== editable) {
+  editor.setEditable(editable);
   if (editable) {
  editor.commands.focus('end');
   }

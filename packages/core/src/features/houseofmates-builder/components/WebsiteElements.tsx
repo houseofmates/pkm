@@ -10,7 +10,7 @@ import * as Icons from 'lucide-react';
 
 // helper to safely get lucide icon by name
 function getLucideIcon(name: string): LucideIcon | undefined {
-  return (Icons as Record<string, LucideIcon>)[name];
+  return (Icons as unknown as Record<string, LucideIcon>)[name];
 }
 import { toast } from 'sonner';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip as RechartsTooltip, Cell } from 'recharts';
