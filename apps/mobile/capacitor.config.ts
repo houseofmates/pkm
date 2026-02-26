@@ -5,17 +5,13 @@ const config: CapacitorConfig = {
   appName: 'pkm',
   webDir: 'dist',
   server: {
-    // Auto-update: Load app from remote server so code changes update the APK automatically
-    // without requiring a new APK build. The app will fetch latest code on each launch.
-    url: 'http://pkm.houseofmates.space:3010',
+    // allow navigation to the nocobase API and other houseofmates services
     allowNavigation: [
       'pkm.houseofmates.space',
       '*.houseofmates.space',
     ],
     cleartext: true,
-    // use http scheme to match the server url and avoid mixed-content blocks
-    // (https scheme + http server url = android blocks all non-tls fetches)
-    androidScheme: 'http'
+    androidScheme: 'https',
   },
   plugins: {
     SplashScreen: {
@@ -25,7 +21,6 @@ const config: CapacitorConfig = {
   android: {
     webContentsDebuggingEnabled: true,
     backgroundColor: '#050505',
-    // allow the webview to load content from the remote server and localhost
     allowMixedContent: true,
   }
 };

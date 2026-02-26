@@ -1,5 +1,5 @@
 #!/bin/bash
-# build signed APK for PKM with live update and offline support
+# build signed APK for PKM with bundled web assets
 
 set -e
 
@@ -19,31 +19,59 @@ if [ ! -f "capacitor.config.ts" ]; then
     exit 1
 fi
 
+MONOREPO_ROOT="$(cd ../.. && pwd)"
+
 echo ""
-echo -e "${YELLOW}step 1: generating app icons...${NC}"
+echo -e "${YELLOW}step 1: building web assets...${NC}"
+# build the web app from monorepo root
+(cd "$MONOREPO_ROOT" && npm run build)
+
+echo ""
+echo -e "${YELLOW}step 2: copying build output to capacitor webDir...${NC}"
+# the vite build outputs to packages/core/dist (via apps/web -> @pkm/core)
+# capacitor.config.ts has webDir: 'dist', so copy there
+rm -rf dist
+if [ -d "$MONOREPO_ROOT/packages/core/dist" ]; then
+    cp -r "$MONOREPO_ROOT/packages/core/dist" dist
+    echo "  copied from packages/core/dist"
+elif [ -d "$MONOREPO_ROOT/dist" ]; then
+    cp -r "$MONOREPO_ROOT/dist" dist
+    echo "  copied from root dist"
+else
+    echo -e "${RED}error: no build output found. check that 'npm run build' produces output.${NC}"
+    exit 1
+fi
+
+# verify index.html exists
+if [ ! -f "dist/index.html" ]; then
+    echo -e "${RED}error: dist/index.html not found after build${NC}"
+    exit 1
+fi
+echo -e "  ${GREEN}✓ dist/index.html present${NC}"
+
+echo ""
+echo -e "${YELLOW}step 3: generating app icons...${NC}"
 node generate-icons.cjs
 
 echo ""
-echo -e "${YELLOW}step 2: syncing capacitor configuration...${NC}"
+echo -e "${YELLOW}step 4: syncing capacitor configuration...${NC}"
 npx cap sync android
 
 echo ""
-echo -e "${YELLOW}step 3: building release APK...${NC}"
+echo -e "${YELLOW}step 5: building release APK...${NC}"
 cd android
 ./gradlew assembleRelease
 
 echo ""
 echo -e "${GREEN}==========================================${NC}"
 echo -e "${GREEN}  APK build complete!${NC}"
-echo -e "${GREEN}=========================================="
+echo -e "${GREEN}==========================================${NC}"
 echo ""
 echo "output: android/app/build/outputs/apk/release/app-release.apk"
 echo ""
 echo "features configured:"
 echo "  ✓ database icon on black background"
-echo "  ✓ live update from http://pkm.houseofmates.space:3010"
-echo "  ✓ offline mode (200 records cached)"
-echo "  ✓ auto-sync when back online"
+echo "  ✓ bundled web assets (works offline)"
 echo ""
 echo "to install on device:"
 echo "  adb install -r android/app/build/outputs/apk/release/app-release.apk"
