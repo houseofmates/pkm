@@ -31,8 +31,21 @@ server: {
 2. close and reopen the APK
 3. the APK will load the latest code from the server
 
+### Offline Mode (New!)
+the APK now supports offline functionality:
+
+**what works offline:**
+- view up to 200 recently accessed records (cached locally)
+- create, edit, delete records (changes are queued)
+- all changes sync automatically when back online
+
+**how it works:**
+- records are cached as you view them (LRU eviction when full)
+- changes are queued and retried up to 5 times
+- sync happens automatically when connection restored
+
 ### Limitations
-- the APK only checks for updates on **cold start** (fully close and reopen)
+- the APK only checks for code updates on **cold start** (fully close and reopen)
 - to force a refresh: close the app completely (swipe away from recents) and reopen
 - some native plugin changes may still require an APK rebuild
 
