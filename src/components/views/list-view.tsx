@@ -3,12 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Trash2, MoreHorizontal, Plus } from 'lucide-react';
 import { RecordContextMenu } from '@/features/records/components/record-context-menu';
 import { SmartField } from '@/components/fields/smart-field';
-import { List } from 'react-window';
-import { AutoSizer } from 'react-virtualized-auto-sizer';
-import { memo } from 'react';
+import { FixedSizeList as List } from 'react-window';
+import AutoSizer from 'react-virtualized-auto-sizer';
 
 // Row component for react-window List
-const RowComponent = ({ index, style, data }: any): React.ReactElement | null => {
+const RowComponent = ({ index, style, data }: { index: number; style: React.CSSProperties; data: any }): React.ReactElement | null => {
   const { rows, collection, config, onConfigChange, onEdit, onDelete, onUpdateRecord } = data;
   const record = rows[index];
 
@@ -140,11 +139,8 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
               height={height}
               width={width}
               itemData={{ rows: data, collection, config, onConfigChange, onEdit, onDelete, onUpdateRecord }}
-              style={{ height, width }}
             >
-              {({ index, style, data }) => (
-                <RowComponent index={index} style={style} data={data} />
-              )}
+              {RowComponent}
             </List>
           )}
         </AutoSizer>
@@ -152,3 +148,4 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
     </div>
   );
 }
+
