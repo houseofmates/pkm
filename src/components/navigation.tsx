@@ -185,7 +185,11 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
 
       {/* context menu logic */}
       {item.type === 'collection' && collection ? (
-        <DatabaseContextMenu collection={collection} onUpdate={() => onUpdate(id, { refresh: true })}>
+        <DatabaseContextMenu 
+          collection={collection} 
+          onUpdate={() => onUpdate(id, { refresh: true })}
+          onDelete={() => onUpdate(id, { delete: true })}
+        >
           {content}
         </DatabaseContextMenu>
       ) : (
@@ -630,11 +634,11 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         />
 
 
-        {/* scrollable list: h-0 forces proper flex shrinking, min-h-0 allows it to shrink below content size */}
-        <div className="flex-1 w-full h-0 min-h-0 px-2 overflow-y-auto">
+        {/* scrollable list: flex-1 takes available space, overflow-y-auto enables scrolling */}
+        <div className="flex-1 w-full min-h-0 px-2 overflow-y-auto">
 
           <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
-            <div className="space-y-0.5 pb-40">
+            <div className="space-y-0.5 pb-4">
               {items.map((item) => (
                 <SortableItem
                   key={item.id}
