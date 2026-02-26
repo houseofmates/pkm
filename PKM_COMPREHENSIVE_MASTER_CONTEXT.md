@@ -1161,7 +1161,7 @@ this section documents the projects and integrations that live alongside `pkm` i
 - typical flow:
   1. the mod emits/serializes events (via `ChestrayPackets`) from server or client.
  2. a handler (`ChestrayServerHandler`) can POST or send websocket messages to an external receiver (n8n webhook or pkm backend) depending on server config in `ChestrayConfig`.
- 3. n8n or pkm accepts the event and broadcasts it to connected clients via socket.io (see `backend/server.js` in `pkm`).
+ 3. n8n or pkm accepts the event and broadcasts it to connected clients via socket.io (see `packages/backend/server.js` in `pkm`).
 - notes: when changing packet formats update `ChestrayPackets.java` and corresponding parsing code in the receiver(s).
 
 ### 14.3 how minecraft ↔ discord flows normally connect
