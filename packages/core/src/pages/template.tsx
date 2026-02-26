@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Editor from '@monaco-editor/react';
 import { Button } from '@/components/ui/button';
@@ -65,7 +65,7 @@ export function TemplatePage() {
       // push history
       setPreviewState(s => ({ ...s, history: [...(s.history || []), json] }));
       setJson(JSON.stringify(parsed, null, 2));
-    } catch (e) { /* ignore */ }
+    } catch { /* ignore */ }
   };
 
   const undoLastChange = () => {
@@ -73,7 +73,7 @@ export function TemplatePage() {
       const hist = s.history || [];
       if (hist.length === 0) return s;
       const last = hist[hist.length - 1];
-      try { setJson(last); } catch (e) { /* ignore malformed json in local storage */ }
+      try { setJson(last); } catch { /* ignore malformed json in local storage */ }
       return { ...s, history: hist.slice(0, -1) };
     });
   };
@@ -93,7 +93,7 @@ export function TemplatePage() {
         JSON.parse(savedTemplate);
         setJson(savedTemplate);
 
-      } catch (e) {
+      } catch {
         // invalid saved json, ignore and use default
         secureLogger.warn('Saved template is invalid JSON, using default');
       }
@@ -106,7 +106,7 @@ export function TemplatePage() {
       // validate json before saving
       JSON.parse(json);
       await setSavedTemplate(json);
-    } catch (e) {
+    } catch {
       toast.error('cannot save: invalid json');
     }
   };
@@ -138,8 +138,8 @@ export function TemplatePage() {
           const w = Math.floor(100 / cols);
           setPreviewState(s => ({ ...s, columnWidths: Array(cols).fill(w) }));
         }
-      } catch (e) { }
-    } catch (e) {
+      } catch { /* ignore */ }
+    } catch {
       // ignore parse errors here
     }
   }, [json]);
@@ -153,7 +153,7 @@ export function TemplatePage() {
         ? parsed.layout.columns
         : [parsed?.layout?.widgets || []];
       setLiveColumns(cols.map((c: any) => Array.isArray(c) ? c : []));
-    } catch (e) {
+    } catch {
       // ignore
     }
   }, [json, isValid]);
@@ -203,7 +203,7 @@ export function TemplatePage() {
         try {
           const res = await api.getCollection(collectionName);
           collection = res.data || res;
-        } catch (e) { }
+        } catch { /* collection doesn't exist, will create */ }
 
         if (!collection) {
           await api.createCollection({
@@ -224,7 +224,7 @@ export function TemplatePage() {
                 dataSource: prop.options?.map((o: string) => ({ label: o, value: o, color: 'default' }))
               })
             });
-          } catch (e) {
+          } catch {
             // ignore if exists
           }
         }
@@ -311,7 +311,7 @@ export function TemplatePage() {
       try {
         const res = await api.getCollection(collectionName);
         collection = res.data || res;
-      } catch (e) {
+      } catch {
         // create collection if doesn't exist
         try {
           await api.createCollection({
@@ -323,8 +323,8 @@ export function TemplatePage() {
           await api.createField(collectionName, { name: 'content', type: 'text', title: 'Content' });
           await api.createField(collectionName, { name: 'layout', type: 'json', title: 'Layout' });
           // support slug so documents can be referenced by url if desired
-          try { await api.createField(collectionName, { name: 'slug', type: 'string', title: 'Slug', unique: true }); } catch (e) { /* ok if not supported */ }
-        } catch (createErr) {
+          try { await api.createField(collectionName, { name: 'slug', type: 'string', title: 'Slug', unique: true }); } catch { /* ok if not supported */ }
+        } catch {
           // ignore field creation errors (may already exist)
         }
       }

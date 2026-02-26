@@ -31,7 +31,7 @@ export function DragHandle({ editor }: DragHandleProps) {
 
         if (pos) {
           // Find the block node
-          let resolvedPos = editor.state.doc.resolve(pos.pos);
+          const resolvedPos = editor.state.doc.resolve(pos.pos);
           let depth = resolvedPos.depth;
           // Walk up to find a block level node that is a direct child of doc or column
           // We want the "block" (paragraph, heading, etc)
