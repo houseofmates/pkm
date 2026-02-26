@@ -57,7 +57,7 @@ export const RecordNodeElement = React.memo<RecordNodeElementProps>(({ element }
             <span className="text-primary text-xs">r</span>
           </div>
           <span className="text-sm font-medium text-primary truncate max-w-[120px]">
-            {record?.title || element.data.title || 'loading...'}
+            {(record as any)?.title || element.data.title || 'loading...'}
           </span>
         </div>
         <div className="flex items-center gap-1">
