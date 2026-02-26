@@ -66,4 +66,4 @@ export const EmbedElement = React.memo(function EmbedElement({ element }: EmbedE
       Empty Embed
     </div>
   );
-}
+}, (prev, next) => prev.element === next.element)

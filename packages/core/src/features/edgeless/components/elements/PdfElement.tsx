@@ -76,4 +76,4 @@ export const PdfElement = React.memo(function PdfElement({ element, pdfDocument 
       </div>
     </div>
   )
-}
+}, (prev, next) => prev.element === next.element && prev.pdfDocument === next.pdfDocument)
