@@ -33,17 +33,30 @@ class LocalDbService {
 
   // --- Collection Methods ---
 
-  /**
-   * Saves an array of NocoBase collections to the local database.
-   * This will overwrite any existing collections with the same name.
-   * @param collections The array of collection objects to save.
-   */
   public async saveCollections(collections: any[]): Promise<void> {
     const db = await this.dbPromise;
-    const tx = db.transaction('collections', 'readwrite');
-    await Promise.all(collections.map(collection => tx.store.put(collection)));
-    await tx.done;
-    secureLogger.info(`Saved ${collections.length} collections to local DB.`);
+    const CHUNK_SIZE = 200;
+    
+    let savedCount = 0;
+    for (let i = 0; i < collections.length; i += CHUNK_SIZE) {
+      const chunk = collections.slice(i, i + CHUNK_SIZE);
+      const tx = db.transaction('collections', 'readwrite');
+      await Promise.all(chunk.map(collection => tx.store.put(collection)));
+      await tx.done;
+      savedCount += chunk.length;
+      
+      // Yield to the event loop between chunks to prevent UI lockup
+      if (i + CHUNK_SIZE < collections.length) {
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
+    }
+    
+    // @ts-ignore - assuming secureLogger is global or injected
+    if (typeof secureLogger !== 'undefined') {
+      secureLogger.info(`Saved ${savedCount} collections to local DB in batches of ${CHUNK_SIZE}.`);
+    } else {
+      console.log(`Saved ${savedCount} collections to local DB in batches of ${CHUNK_SIZE}.`);
+    }
   }
 
   /**
