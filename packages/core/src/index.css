@@ -5,7 +5,8 @@
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/VarelaRound-Regular.woff2') format('woff2');
+  /* use gstatic CDN to avoid sanitizer rejecting the local font */
+  src: url('https://fonts.gstatic.com/s/varelaround/v18/w8gdH283Tvk__Lua32TysjIfp8uP.woff2') format('woff2');
 }
 
 @tailwind base;
