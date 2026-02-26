@@ -29,10 +29,13 @@
 - [x] Fixed navigation.tsx - Replaced alert() with toast.error() for CSV parsing errors
 - [x] Fixed ai-field-button.tsx - Replaced alert() with toast.error() for AI generation errors
 - [x] Fixed TableManager.tsx - Replaced alert() with toast notifications for table creation
+- [x] Fixed DragHandle.tsx - Replaced alert() with toast.info() for columns extension
+- [x] Fixed template.tsx - Fixed multiple TypeScript errors (case sensitivity, type annotations, API calls)
 
 ### In Progress
 - [ ] Fix empty catch blocks to properly handle errors
 - [ ] Clean up console.log statements in production code
+
 
 ### Pending
 - [ ] Add proper TypeScript types to replace `any` usage (critical files)
