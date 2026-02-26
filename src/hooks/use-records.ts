@@ -7,7 +7,7 @@ import { registry } from '@/lib/link-registry';
 import { extractRecords } from '@/lib/nocobase-utils';
 import { secureLogger } from '@/lib/secure-logger';
 
-import type { Collection, Field } from '@/types/nocobase';
+// types available from @/types/nocobase if needed
 
 interface QueryParams {
   page?: number;
@@ -70,14 +70,14 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
     ) {
       const current = queryParams.page as number;
       const newPage = current === 0 ? 1 : 0;
-      setQueryParams((prev: Record<string, unknown>) => ({ ...prev, page: newPage }));
+      setQueryParams((prev) => ({ ...prev, page: newPage }));
       setPageFallbackTried(true);
     }
   }, [isFetching, records.length, pageFallbackTried, queryParams.page]);
 
-  const refresh = (newParams?: Record<string, unknown>) => {
+  const refresh = (newParams?: Partial<QueryParams>) => {
     if (newParams) {
-      setQueryParams((prev: Record<string, unknown>) => ({ ...prev, ...newParams }));
+      setQueryParams((prev) => ({ ...prev, ...newParams }));
     } else {
       refetch();
     }
@@ -86,13 +86,13 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
   // create
   const createMutation = useMutation({
     mutationFn: async (data: Record<string, unknown>) => {
-      const payload = { ...data };
+      const payload: Record<string, any> = { ...data };
       if (activeFronterId) {
         payload.fronter = activeFronterId;
       }
       const walId = await walWrite(collectionName, 'new', 'create', payload);
       try {
-        const result = await client.createRecord(collectionName, payload);
+        const result = await client.createRecord(collectionName, payload as any);
         await walCommit(walId);
         return result;
       } catch (err) {
@@ -108,13 +108,13 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
   // update (optimistic)
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string | number; data: Record<string, unknown> }) => {
-      const payload = { ...data };
+      const payload: Record<string, any> = { ...data };
       if (activeFronterId) {
         payload.lastEditedByFronter = activeFronterId;
       }
       const walId = await walWrite(collectionName, String(id), 'update', payload);
       try {
-        const result = await client.updateRecord(collectionName, id, payload);
+        const result = await client.updateRecord(collectionName, id, payload as any);
         await walCommit(walId);
         if (typeof payload.content === 'string') {
           registry.rescan(String(id), collectionName, payload.content);
@@ -200,11 +200,11 @@ export function useRecord(collectionName: string, recordId: string | number) {
 
   const updateMutation = useMutation({
     mutationFn: async (data: Record<string, unknown>) => {
-      const payload = { ...data };
+      const payload: Record<string, any> = { ...data };
       if (activeFronterId) {
         payload.lastEditedByFronter = activeFronterId;
       }
-      return client.updateRecord(collectionName, recordId, payload);
+      return client.updateRecord(collectionName, recordId, payload as any);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['record', collectionName, recordId] });
