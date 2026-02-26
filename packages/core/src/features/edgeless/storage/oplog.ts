@@ -159,8 +159,76 @@ export async function replayOplog(
     })
   }
 
+  // resolve conflicts and compact before applying
+  const resolvedOps = resolveConflicts(ops)
+  const compactedOps = compactOplog(resolvedOps)
+
   // apply ops in order
-  for (const entry of ops) {
+  for (const entry of compactedOps) {
     applyOp(canvas, entry.op)
   }
+}
+
+/**
+ * Deterministically resolves conflicts between concurrent operations.
+ * Implements Last-Write-Wins (LWW) based on timestamp.
+ * In case of a tie (same timestamp), it falls back to string comparison of the operation ID.
+ */
+export function resolveConflicts(ops: OpLogEntry[]): OpLogEntry[] {
+  return [...ops].sort((a, b) => {
+    if (a.timestamp !== b.timestamp) {
+      return a.timestamp - b.timestamp;
+    }
+    // Tie-breaker: sort by ID to ensure deterministic ordering across all clients
+    return a.id.localeCompare(b.id);
+  });
+}
+
+/**
+ * Compacts an array of operations by removing redundant intermediate states.
+ * - Keeps only the latest TransformOp for a given targetId.
+ * - Removes TransformOp and EraseOp that precede a DeleteOp for the same targetId.
+ * 
+ * Assumes the input `ops` array is already sorted chronologically (e.g., via resolveConflicts).
+ */
+export function compactOplog(ops: OpLogEntry[]): OpLogEntry[] {
+  const result: OpLogEntry[] = [];
+  const processedTransforms = new Set<string>();
+  const deletedTargets = new Set<string>();
+
+  // Process from newest to oldest to preserve the latest state
+  for (let i = ops.length - 1; i >= 0; i--) {
+    const entry = ops[i];
+    const op = entry.op;
+
+    if (op.type === 'delete') {
+      deletedTargets.add(op.targetId);
+      result.unshift(entry); // Keep the delete op
+      continue;
+    }
+
+    // Skip operations on deleted targets if they are erase or transform
+    // Note: 'path' ops could technically be deleted, but they are creation ops.
+    // If a path is deleted later, we STILL need the 'path' op to exist so that it can be applied and then deleted,
+    // OR we could remove the 'path' op entirely if it was created and deleted in the same sync cycle.
+    // To be safe and ensure correct ID mapping, we keep 'path' ops unless it's strictly a self-contained creation and deletion without syncing intermediate.
+    // Let's optimize: if a target is deleted, any previous erase/transform for it is redundant.
+    if ((op.type === 'transform' || op.type === 'erase') && deletedTargets.has(op.targetId)) {
+      continue;
+    }
+
+    if (op.type === 'transform') {
+      // Keep only the latest transform for a given target
+      if (!processedTransforms.has(op.targetId)) {
+        processedTransforms.add(op.targetId);
+        result.unshift(entry);
+      }
+      continue;
+    }
+
+    // Keep all other operations
+    result.unshift(entry);
+  }
+
+  return result;
 }
