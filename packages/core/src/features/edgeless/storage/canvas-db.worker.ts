@@ -58,11 +58,48 @@ interface canvasdbschema extends DBSchema {
     }
 }
 
+const DB_NAME = 'pkm-canvas-v1'
+// bump version to ensure upgrade runs for clients that created the DB without stores
+const DB_VERSION = 2
+
 let db: IDBPDatabase<canvasdbschema> | null = null
 
 async function getdb(): Promise<IDBPDatabase<canvasdbschema>> {
     if (db) return db
-    db = await openDB<canvasdbschema>('pkm-canvas-v1', 1)
+    db = await openDB<canvasdbschema>(DB_NAME, DB_VERSION, {
+        upgrade(upgradeDb, _oldVersion, _newVersion, transaction) {
+            const ensureStore = (
+                name: 'oplog' | 'checkpoints' | 'drawings' | 'tokens',
+                options: IDBObjectStoreParameters,
+                indexes: Array<{ name: string; keyPath: string }>,
+            ) => {
+                const store = (upgradeDb.objectStoreNames.contains(name)
+                    ? transaction.objectStore(name)
+                    : upgradeDb.createObjectStore(name, options)) as unknown as IDBObjectStore
+                indexes.forEach(({ name: idxName, keyPath }) => {
+                    const indexName = String(idxName)
+                    if (!store.indexNames.contains(indexName)) store.createIndex(indexName, keyPath)
+                })
+            }
+
+            ensureStore('oplog', { keyPath: 'id' }, [
+                { name: 'by-timestamp', keyPath: 'timestamp' },
+                { name: 'by-drawing', keyPath: 'drawingId' },
+            ])
+
+            ensureStore('checkpoints', { keyPath: 'id' }, [
+                { name: 'by-drawing', keyPath: 'drawingId' },
+            ])
+
+            ensureStore('drawings', { keyPath: 'id' }, [
+                { name: 'by-sync-state', keyPath: 'syncState' },
+            ])
+
+            if (!upgradeDb.objectStoreNames.contains('tokens')) {
+                upgradeDb.createObjectStore('tokens', { keyPath: 'key' })
+            }
+        },
+    })
     return db
 }
 

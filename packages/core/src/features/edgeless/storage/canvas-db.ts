@@ -52,11 +52,11 @@ export function getCanvasDB(): Promise<IDBPDatabase<CanvasDBSchema>> {
       const ensureStore = (
         name: 'oplog' | 'checkpoints' | 'drawings' | 'tokens',
         options: IDBObjectStoreParameters,
-        indexes: Array<{ name: IDBValidKey; keyPath: string }>,
+        indexes: Array<{ name: string; keyPath: string }>,
       ) => {
-        const store = db.objectStoreNames.contains(name)
-          ? (transaction.objectStore(name) as unknown as IDBObjectStore)
-          : db.createObjectStore(name, options)
+        const store = (db.objectStoreNames.contains(name)
+          ? transaction.objectStore(name)
+          : db.createObjectStore(name, options)) as unknown as IDBObjectStore
         indexes.forEach(({ name: idxName, keyPath }) => {
           const indexName = String(idxName)
           if (!store.indexNames.contains(indexName)) store.createIndex(indexName, keyPath)
