@@ -27,7 +27,7 @@ export function RecordForm({ collection, initialData, onSubmit, onCancel }: Reco
     if (!isNaN(p) && !isNaN(q)) {
       const total = (p * q).toFixed(2);
       if (values.total !== total) {
-        setValues(v => ({ ...v, total }));
+        setValues((v: any) => ({ ...v, total }));
       }
     }
   }, [values.price, values.quantity, values.qty, values.total]);
@@ -44,7 +44,7 @@ export function RecordForm({ collection, initialData, onSubmit, onCancel }: Reco
   );
 
   const handleChange = (name: string, val: any) => {
-    setValues(v => ({ ...v, [name]: val }));
+    setValues((v: any) => ({ ...v, [name]: val }));
   };
 
   const handleSubmit = (e: React.FormEvent) => {

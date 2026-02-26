@@ -14,6 +14,7 @@ import {
 import { BacklinksFooter } from '@/components/BacklinksFooter';
 import { LayoutRenderer } from '@/components/layout-renderer';
 import { toast } from 'sonner';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface RecordViewProps {
   collectionName?: string;
@@ -55,7 +56,7 @@ export function RecordView({ collectionName: propCollection, recordId: propId, o
           try {
             const fieldRes = await client.request('get', `collections/${collectionName}/fields`);
             // our normalization should put array on res.data
-            col.fields = Array.isArray(fieldRes.data) ? fieldRes.data : (fieldRes.data || []);
+            col.fields = Array.isArray((fieldRes as any)?.data) ? (fieldRes as any).data : [];
           } catch (e) {
             col.fields = [];
           }
@@ -63,7 +64,7 @@ export function RecordView({ collectionName: propCollection, recordId: propId, o
         setCollection(col);
 
         const recRes = await client.getRecord(collectionName!, recordId!);
-        const data = recRes.data || recRes;
+        const data = (recRes.data || recRes) as Record<string, any>;
         setRecord(data);
 
         // detect template configuration
