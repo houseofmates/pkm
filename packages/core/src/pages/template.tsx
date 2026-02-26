@@ -315,11 +315,11 @@ export function TemplatePage() {
             title: 'Documents',
           });
           // add basic fields
-          await api.createField(collectionName, { name: 'title', type: 'string', title: 'Title' });
-          await api.createField(collectionName, { name: 'content', type: 'text', title: 'Content' });
-          await api.createField(collectionName, { name: 'layout', type: 'json', title: 'Layout' });
+          await api.createField(collectionName, { name: 'title', type: 'string', uiSchema: { title: 'title' } });
+          await api.createField(collectionName, { name: 'content', type: 'text', uiSchema: { title: 'content' } });
+          await api.createField(collectionName, { name: 'layout', type: 'json', uiSchema: { title: 'layout' } });
           // support slug so documents can be referenced by url if desired
-          try { await api.createField(collectionName, { name: 'slug', type: 'string', title: 'Slug', unique: true }); } catch { /* ok if not supported */ }
+          try { await api.createField(collectionName, { name: 'slug', type: 'string', unique: true, uiSchema: { title: 'slug' } }); } catch { /* ok if not supported */ }
         } catch {
           // ignore field creation errors (may already exist)
         }
@@ -338,7 +338,7 @@ export function TemplatePage() {
       const result = await client.request(collectionName, 'create', {
         method: 'POST',
         data: docData
-      });
+      }) as { data?: { id?: string | number; data?: { id?: string | number } } };
       const docId = result.data?.id || result.data?.data?.id;
 
       toast.success('document created', { id: t });
