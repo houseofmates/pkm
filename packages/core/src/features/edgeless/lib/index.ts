@@ -7,6 +7,6 @@ export {
 } from './production-guards'
 
 export {
-  smartLinks,
-  extractMentionedLinks,
+  parseSmartLinks,
+  createSmartLinkElement,
 } from './smart-links'

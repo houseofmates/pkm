@@ -143,7 +143,7 @@ class CanvasSyncService {
         throw new Error(result.error || 'sync failed')
       }
     } catch (err) {
-      secureLogger.error('sync failed for drawing', drawingId, err)
+      console.error('sync failed for drawing', drawingId, err)
       state.isSyncing = false
       this.syncState.set(drawingId, state)
 
@@ -165,7 +165,7 @@ class CanvasSyncService {
           title: (payload as any).title,
           content: JSON.stringify(payload),
           clientId: this.getClientId(),
-        },
+        } as Record<string, unknown>,
       })
 
       return { success: true, serverDrawingId: res?.data?.id }
@@ -193,10 +193,10 @@ class CanvasSyncService {
           filter: { 'content.drawingId': drawingId },
           sort: ['-createdAt'],
           pageSize: 1,
-        },
+        } as Record<string, unknown>,
       })
 
-      const record = res?.data?.[0]
+      const record = (res?.data as any)?.[0]
       if (record?.content) {
         const content = JSON.parse(record.content)
         return content.ops || []
@@ -267,10 +267,10 @@ class CanvasSyncService {
 
   private getClientId(): string {
     // stable client identifier
-    let id = storageManager.getItem('pkm_client_id')
+    let id = localStorage.getItem('pkm_client_id')
     if (!id) {
       id = `client-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`
-      storageManager.setItem('pkm_client_id', id)
+      localStorage.setItem('pkm_client_id', id)
     }
     return id
   }
@@ -290,5 +290,5 @@ export const canvasSync = new CanvasSyncService()
 
 // react hook for sync status
 export function useSyncStatus(drawingId: string) {
-  return CanvasSync.getSyncState(drawingId)
+  return canvasSync.getSyncState(drawingId)
 }

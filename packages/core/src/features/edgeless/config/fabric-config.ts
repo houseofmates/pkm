@@ -85,8 +85,8 @@ export function createConfiguredCanvas(
   width: number,
   height: number,
   config: FabricConfig = DEFAULT_DARK_CONFIG
-): Canvas {
-  const { Canvas: FabricCanvas } = window.fabric as any
+  const fabric = await import('fabric')
+  const FabricCanvas = fabric.Canvas
 
   const canvas = new FabricCanvas(canvasEl, {
     width,
@@ -102,5 +102,5 @@ export function createConfiguredCanvas(
 
   applyFabricConfig(canvas, config)
 
-  return canvas
+return canvas
 }
