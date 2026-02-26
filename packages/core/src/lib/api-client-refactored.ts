@@ -3,6 +3,7 @@
 
 import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import { getToken, setToken, clearToken } from '@/features/edgeless/storage'
+import { secureLogger } from './secure-logger'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4100/api'
 
@@ -63,7 +64,7 @@ export const apiClient: AxiosInstance = axios.create({
 })
 
 // request interceptor with non-blocking token refresh
-ApiClient.interceptors.request.use(async (config) => {
+apiClient.interceptors.request.use(async (config) => {
   // refresh tokens if needed (async, non-blocking after first load)
   await refreshTokensFromDB()
 
@@ -90,9 +91,9 @@ ApiClient.interceptors.request.use(async (config) => {
 })
 
 // response interceptor for 401 handling
-ApiClient.interceptors.response.use(
-  (response) => response,
-  async (error) => {
+apiClient.interceptors.response.use(
+  (response: any) => response,
+  async (error: any) => {
     if (error.response?.status === 401) {
       // clear tokens
       tokenCache.nocobaseToken = null
@@ -129,7 +130,7 @@ export async function setAuthToken(
     guest: 'hom_guest_key',
   }
 
-  const cacheMap = {
+  const cacheMap: Record<'nocobase' | 'hom' | 'guest', keyof TokenCache> = {
     nocobase: 'nocobaseToken',
     hom: 'homApiKey',
     guest: 'guestKey',
@@ -171,9 +172,9 @@ export const apiRequest = async (
 ) => {
   const { method = 'get', data, ...rest } = options
   try {
-    const res = await ApiClient({
+    const res = await apiClient({
       url: `/${resource}:${action}`,
-      method: method as any,
+      method,
       data,
       ...rest,
     })
@@ -184,4 +185,4 @@ export const apiRequest = async (
   }
 }
 
-export default ApiClient
+export default apiClient
