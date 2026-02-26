@@ -96,11 +96,11 @@ function tryCreateWorker(ollamaBaseUrl: string): { worker: Worker; proxy: Comlin
 // main-thread fallback path
 // ---------------------------------------------------------------------------
 
-async function getMainThreadAPI(): Promise<WorkerAPIWithInit> {
+async function getMainThreadAPI(ollamaBaseUrl: string): Promise<WorkerAPIWithInit> {
     if (_mainThreadAPI) return _mainThreadAPI;
     // dynamic import so the bundle only loads this when the worker path fails
     const { createWorkerAPI } = await import('../workers/ai-worker-core');
-    _mainThreadAPI = createWorkerAPI(globalThis.fetch.bind(globalThis));
+    _mainThreadAPI = createWorkerAPI(globalThis.fetch.bind(globalThis), { ollamaBaseUrl });
     console.info('[ai-worker] falling back to main thread execution');
     return _mainThreadAPI;
 }
@@ -318,13 +318,14 @@ export function useAIWorker() {
 // ---------------------------------------------------------------------------
 
 export async function getAIWorkerProxy(): Promise<AnyAPI> {
-    const { api, isMainThread: mt } = getOrCreate();
+    const ollamaBaseUrl = resolveWorkerOllamaBase();
+    const { api, isMainThread: mt } = getOrCreate(ollamaBaseUrl);
     let resolvedAPI: AnyAPI;
     if (mt && !api) {
-        resolvedAPI = await getMainThreadAPI();
+        resolvedAPI = await getMainThreadAPI(ollamaBaseUrl);
     } else {
         resolvedAPI = api;
     }
-    await initAPI(resolvedAPI);
+    await initAPI(resolvedAPI, ollamaBaseUrl);
     return resolvedAPI;
 }
