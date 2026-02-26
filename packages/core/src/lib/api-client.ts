@@ -3,8 +3,7 @@ import { secureLogger, sanitizeForLogging } from './secure-logger';
 import { storageManager } from './storage-manager';
 import { normalizeAuthToken, toAuthorizationHeaderValue } from './auth-token';
 
-// api base: prefer the vite environment override, fall back to local backend for dev
-export const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4100/api';
+export const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 export const apiClient = axios.create({
  baseURL: API_URL,
