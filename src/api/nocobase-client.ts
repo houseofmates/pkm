@@ -180,7 +180,7 @@ export class NocoBaseClient {
     }
   }
   async deleteCollection(name: string): Promise<Record<string, unknown>> {
-    const res = await this._axios.delete(`/collections/${name}`);
+    const res = await this._axios.post(`/collections:destroy?filterByTk=${name}`);
     return ActionResponseSchema.parse(res.data);
   }
   async ensureBackendCollection() {
@@ -340,7 +340,7 @@ export class NocoBaseClient {
       return [];
     }
   }
-  
+
   async createField(collection: string, data: Field): Promise<Record<string, unknown>> {
     const res = await this._axios.post(`/collections/${collection}/fields:create`, data);
     return GetRecordResponseSchema.parse(res.data);

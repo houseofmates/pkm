@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings, UploadCloud, type LucideIcon } from 'lucide-react';
 
 // Dynamic icon loader for Lucide icons
@@ -110,7 +110,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   const renderIcon = () => {
     // use current theme color if no local override
     // logic: if item.color is set, use it. if generic, use primary.
-      // no explicit icon color, let CSS inherit from the button/text color
+    // no explicit icon color, let CSS inherit from the button/text color
 
     if (item.icon && item.iconType) {
       // ... strict icon logic
@@ -184,8 +184,8 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
 
       {/* context menu logic */}
       {item.type === 'collection' && collection ? (
-        <DatabaseContextMenu 
-          collection={collection} 
+        <DatabaseContextMenu
+          collection={collection}
           onUpdate={() => onUpdate(id, { refresh: true })}
           onDelete={() => onUpdate(id, { delete: true })}
         >
@@ -216,6 +216,8 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
 
 export function Navigation({ activeTab, onTabChange, className, onSelectCollection, selectedCollection, items, setItems, accentBg }: NavigationProps) {
 
+  // track recently deleted items to prevent useEffect from re-adding them
+  const deletedItemsRef = useRef<Set<string>>(new Set());
 
   const { collections, refresh } = useCollections();
   const navigate = useNavigate();
@@ -321,10 +323,18 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     // for collections (databases), refresh from server to ensure sync
     if (!id.startsWith('doc_') && !id.startsWith('drawing_') && !id.startsWith('folder_')) {
       if (updates.delete) {
+        // track this deletion so the useEffect won't re-add it
+        deletedItemsRef.current.add(id.toLowerCase());
         // immediately remove from local state for instant feedback
         setItems(items.filter(i => i.id !== id));
-        // then refresh to sync with server
-        refresh();
+        // refresh after a delay to allow the server delete to complete
+        setTimeout(() => {
+          refresh();
+          // clear the deleted tracker after sync window
+          setTimeout(() => {
+            deletedItemsRef.current.delete(id.toLowerCase());
+          }, 5000);
+        }, 1000);
         return;
       }
     }
@@ -385,7 +395,11 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     const existingIds = new Set(items.map(i => String(i.id).toLowerCase()));
 
     const newCols = visibleCollections
-      .filter((c: any) => !existingIds.has(String(c.name).toLowerCase()))
+      .filter((c: any) => {
+        const nameLC = String(c.name).toLowerCase();
+        // skip if already in items or was recently deleted
+        return !existingIds.has(nameLC) && !deletedItemsRef.current.has(nameLC);
+      })
       .map((c: any) => ({
         id: c.name,
         type: 'collection' as const,
