@@ -131,9 +131,11 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
         </div>
       )}
       <div className="flex-1">
+        {/* eslint-disable-next-line @typescript-eslint/ban-ts-comment */}
+        {/* @ts-ignore - react-window v2 types conflict with @types/react-window v1 API */}
         <AutoSizer>
           {({ height, width }: { height: number; width: number }) => (
-            /* @ts-expect-error - react-window v2 types conflict with @types/react-window v1 API */
+            // @ts-ignore - react-window v2 List type conflicts with v1 FixedSizeList props
             <List
               itemCount={data.length}
               itemSize={100}
