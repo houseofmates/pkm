@@ -31,13 +31,13 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "../packages/core/src/*"
+        "./src/*"
       ],
       "@pkm/core": [
-        "../packages/core/src"
+        "./src"
       ],
       "@pkm/core/*": [
-        "../packages/core/src/*"
+        "./src/*"
       ]
     }
   },
