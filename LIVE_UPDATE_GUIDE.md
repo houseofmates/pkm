@@ -44,6 +44,16 @@ the APK now supports offline functionality:
 - changes are queued and retried up to 5 times
 - sync happens automatically when connection restored
 
+**does the cache persist across app restarts?**
+yes! the 200 cached records and any pending changes are stored in the WebView's localStorage. they survive:
+- closing and reopening the app
+- phone restarts
+- temporary loss of internet
+
+the cache only clears if you:
+- explicitly clear app data (android settings > apps > pkm > storage > clear data)
+- the app evicts old records to make room for new ones (LRU)
+
 ### Limitations
 - the APK only checks for code updates on **cold start** (fully close and reopen)
 - to force a refresh: close the app completely (swipe away from recents) and reopen
