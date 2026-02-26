@@ -5,7 +5,7 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import { getToken, setToken, clearToken } from '@/features/edgeless/storage'
 import { secureLogger } from './secure-logger'
 
-const API_URL = import.meta.env.VITE_API_URL || '/api'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4100/api'
 
 // token cache in memory (not localstorage)
 interface TokenCache {
@@ -111,7 +111,7 @@ apiClient.interceptors.response.use(
 
       // toast notification
       if (typeof window !== 'undefined' && (window as any).toast) {
-        ;(window as any).toast.error('session expired - please log in as admin to edit')
+        ; (window as any).toast.error('session expired - please log in as admin to edit')
       }
     }
     return Promise.reject(error)
