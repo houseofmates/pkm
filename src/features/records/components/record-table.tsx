@@ -400,7 +400,7 @@ const DraggableRecordRow = (props: any) => {
         )}
 
 
-        {row.getVisibleCells().map((cell: any, cellIdx: number, cellArr: any[]) => {
+        {row.getVisibleCells().map((cell: any) => {
           return (
             <div
               key={cell.id}
