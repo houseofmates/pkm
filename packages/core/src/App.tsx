@@ -58,7 +58,8 @@ function AppContent() {
   // check for APK update ONLY on /apk
   useEffect(() => {
     if (window.location.pathname === "/apk" && !updateChecked && token) {
-      const currentVersion = "0.0.0" // TODO: replace with actual version
+      // Get version from package.json or environment variable
+      const currentVersion = import.meta.env.VITE_APP_VERSION || "0.0.0"
       checkForApkUpdate(currentVersion, token).then(manifest => {
         if (manifest) {
           if (window.confirm(`a new version (${manifest.version}) is available. update now?`)) {
@@ -104,9 +105,6 @@ function AppContent() {
   if (setupNeeded) {
     return <SetupRequired />
   }
-
-  // ...existing code...
-  // ...existing code...
 
   // public domain rendering
   if (isPublicDomain()) {
