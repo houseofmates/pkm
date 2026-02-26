@@ -147,6 +147,39 @@ describe('edgeless canvas integration', () => {
       expect(results).toHaveLength(1)
       expect(results[0].id).toBe('obj-1')
     })
+
+    it('should query viewport with 20% buffer', () => {
+      const index = new SpatialIndex(100)
+      // Screen 1000x1000, 20% buffer = 200px
+      // World bounds: (0,0) to (1000,1000)
+      // Buffered bounds: (-200,-200) to (1200,1200)
+
+      index.insert({
+        id: 'visible',
+        bounds: { minX: 100, minY: 100, maxX: 200, maxY: 200 },
+        layerId: 'default',
+        visible: true,
+      })
+
+      index.insert({
+        id: 'in-buffer',
+        bounds: { minX: -150, minY: -150, maxX: -50, maxY: -50 },
+        layerId: 'default',
+        visible: true,
+      })
+
+      index.insert({
+        id: 'outside',
+        bounds: { minX: -300, minY: -300, maxX: -250, maxY: -250 },
+        layerId: 'default',
+        visible: true,
+      })
+
+      const visibleIds = index.queryViewportIds(0, 0, 1, 1000, 1000, 0.2)
+      expect(visibleIds.has('visible')).toBe(true)
+      expect(visibleIds.has('in-buffer')).toBe(true)
+      expect(visibleIds.has('outside')).toBe(false)
+    })
   })
 
   describe('sync service', () => {
