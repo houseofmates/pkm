@@ -36,6 +36,7 @@ import { CollectionDialog } from '@/features/collections/components/collection-d
 import { updateDrawingMeta, deleteDrawing, listPendingDrawings } from '@/features/edgeless/storage';
 import { secureLogger } from '@/lib/secure-logger';
 import { storageManager } from '@/lib/storage-manager';
+import { toast } from 'sonner';
 
 export interface NavItem {
   id: string;
@@ -271,7 +272,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         }
       },
       error: (err: any) => {
-        alert('failed to parse csv: ' + err.message);
+        toast.error('failed to parse csv: ' + err.message);
       }
     });
     setCsvInputKey(k => k + 1);
