@@ -131,12 +131,17 @@ app.use(express.json());
 app.use('/public', express.static(path.join(process.cwd(), 'public')));
 
 // Serve APK files from web public directory
-const apkDir = path.join(process.cwd(), '..', 'apps', 'web', 'public', 'apk');
+// Note: server runs from pkm root, so path is relative to cwd
+const apkDir = path.join(process.cwd(), 'apps', 'web', 'public', 'apk');
+console.log('[APK] serving from:', apkDir);
+
 app.use('/apk', express.static(apkDir));
 
 // APK download endpoint - serves latest APK with proper headers
 app.get('/apk', (req, res) => {
     const latestApk = path.join(apkDir, 'pkm-latest.apk');
+    console.log('[APK] looking for:', latestApk);
+    console.log('[APK] exists:', fs.existsSync(latestApk));
     if (fs.existsSync(latestApk)) {
         res.setHeader('Content-Type', 'application/vnd.android.package-archive');
         res.setHeader('Content-Disposition', 'attachment; filename="pkm-latest.apk"');
