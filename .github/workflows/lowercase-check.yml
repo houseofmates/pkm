@@ -31,5 +31,15 @@ jobs:
       - name: lint (optional)
         run: npm run lint --if-present
 
-      - name: run tests
-        run: npm test
+      - name: run core tests
+        run: npm run test --workspace=@pkm/core
+
+      - name: build core
+        run: npm run build --workspace=@pkm/core
+
+      - name: build apps
+        run: |
+          npm run build --workspace=pkm-web
+          npm run build --workspace=pkm-desktop-electron
+          npm run build --workspace=pkm-desktop-tauri
+          npm run build --workspace=pkm-mobile

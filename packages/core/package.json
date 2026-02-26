@@ -12,5 +12,11 @@
     "test": "vitest",
     "tsc": "tsc -p tsconfig.json",
     "build:ts": "tsc -p tsconfig.json"
+  },
+  "peerDependencies": {
+    "framer-motion": "^12.25.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "zustand": "^5.0.9"
   }
 }

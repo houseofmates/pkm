@@ -5,5 +5,12 @@
   "scripts": {
     "dev": "npm run dev --workspace=pkm-web",
     "build": "npm run build --workspace=pkm-web && electron-builder"
+  },
+  "dependencies": {
+    "@pkm/core": "*",
+    "framer-motion": "^12.25.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0",
+    "zustand": "^5.0.9"
   }
 }
