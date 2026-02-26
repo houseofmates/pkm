@@ -3,6 +3,14 @@
 
 import axios from 'axios';
 
+// Type declaration for optional @capacitor/browser dependency
+declare module '@capacitor/browser' {
+  export interface BrowserPlugin {
+    open(options: { url: string }): Promise<void>;
+  }
+  export const Browser: BrowserPlugin;
+}
+
 export interface ApkVersionManifest {
   version: string;
   apkUrl: string;

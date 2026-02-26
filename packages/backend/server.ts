@@ -6,6 +6,7 @@ import { getEmbedding } from './embeddings/ollama';
 import multer from 'multer';
 import * as Papa from 'papaparse';
 import { inferRelations, type Dataset } from './relation-inference';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const PORT = process.env.PKM_BACKEND_PORT ? Number(process.env.PKM_BACKEND_PORT) : 4110;
 const RELATION_DEBUG = process.env.RELATION_DEBUG === 'true';
@@ -148,6 +149,27 @@ async function start() {
       return res.status(500).json({ error: String(err) });
     }
   });
+
+  // Proxy configuration for Ollama
+  const ollamaProxy = createProxyMiddleware('/api/ollama', {
+    target: 'http://192.168.254.33:11434',
+    changeOrigin: true,
+    pathRewrite: {
+      '^/api/ollama': '', // Remove `/api/ollama` from the path
+    },
+    onProxyReq: (proxyReq, req, res) => {
+      console.log(`Proxying request to Ollama: ${req.url}`);
+    },
+  });
+
+  // Enable CORS for the proxy route
+  const corsOptions = {
+    origin: ['capacitor://localhost', 'http://localhost'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+  };
+
+  app.use('/api/ollama', cors(corsOptions), ollamaProxy);
 
   app.listen(PORT, () => console.log(`pkm backend listening ${PORT}`));
 }
