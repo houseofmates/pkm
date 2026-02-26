@@ -137,7 +137,7 @@ class CanvasSyncService {
         return true
       } else if (result.conflict) {
         // handle collision
-        await this.resolveConflict(drawingId, batch, result.serverOps)
+        await this.resolveConflict(drawingId, batch, result.serverOps || [])
         return false
       } else {
         throw new Error(result.error || 'sync failed')
@@ -166,9 +166,9 @@ class CanvasSyncService {
           content: JSON.stringify(payload),
           clientId: this.getClientId(),
         } as Record<string, unknown>,
-      })
+      } as any)
 
-      return { success: true, serverDrawingId: res?.data?.id }
+      return { success: true, serverDrawingId: (res?.data as any)?.id }
     } catch (err: any) {
       // check for duplicate key (409 or 400 with unique constraint)
       if (err.response?.status === 409 || err.response?.data?.errors?.[0]?.type === 'unique violation') {
@@ -194,7 +194,7 @@ class CanvasSyncService {
           sort: ['-createdAt'],
           pageSize: 1,
         } as Record<string, unknown>,
-      })
+      } as any)
 
       const record = (res?.data as any)?.[0]
       if (record?.content) {
