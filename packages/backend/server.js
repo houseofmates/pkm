@@ -130,6 +130,22 @@ app.use(express.json());
 // Serve static files from public directory
 app.use('/public', express.static(path.join(process.cwd(), 'public')));
 
+// Serve APK files from web public directory
+const apkDir = path.join(process.cwd(), '..', 'apps', 'web', 'public', 'apk');
+app.use('/apk', express.static(apkDir));
+
+// APK download endpoint - serves latest APK with proper headers
+app.get('/apk', (req, res) => {
+    const latestApk = path.join(apkDir, 'pkm-latest.apk');
+    if (fs.existsSync(latestApk)) {
+        res.setHeader('Content-Type', 'application/vnd.android.package-archive');
+        res.setHeader('Content-Disposition', 'attachment; filename="pkm-latest.apk"');
+        res.sendFile(latestApk);
+    } else {
+        res.status(404).json({ error: 'APK not found', path: latestApk });
+    }
+});
+
 // Authentication Middleware
 const authenticate = (req, res, next) => {
     const authHeader = req.headers['authorization'];
