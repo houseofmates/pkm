@@ -131,9 +131,9 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
         </div>
       )}
       <div className="flex-1">
-        {/* @ts-expect-error - react-window v2 types conflict with @types/react-window v1 API */}
         <AutoSizer>
           {({ height, width }: { height: number; width: number }) => (
+            /* @ts-expect-error - react-window v2 types conflict with @types/react-window v1 API */
             <List
               itemCount={data.length}
               itemSize={100}

@@ -100,7 +100,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
     const searchField = collection.fields?.find((f: any) => f.name === 'title' || f.name === 'name' || f.type === 'string')?.name || 'id';
 
     const filter = searchTerm ? { [searchField]: { $includes: searchTerm } } : undefined;
-    refresh({ filter });
+    refresh({ filter } as any);
   };
 
   return (
