@@ -1,67 +1,146 @@
-// use-ai-worker.ts — react hook that lazily spins up the ai web worker
-// and exposes typed async methods via comlink.
+// use-ai-worker.ts — react hook that provides typed async ai methods.
 //
-// usage:
-//   const { worker, isReady } = useAIWorker()
-//   const results = await worker.searchKnowledgeBase('my query')
+// strategy:
+//   1. try to spin up a web worker + comlink proxy (fast, off main thread)
+//   2. if the worker fails (mobile webview, CSP, etc) fall back to
+//      importing ai-worker-core.ts directly and running on the main thread
 //
-// the worker is a singleton — every call to useAIWorker() returns the same
-// instance so we don't spawn duplicate threads.
+// the hook is a singleton — every consumer gets the same instance.
+// comlink proxy callbacks are properly released after each streaming call
+// to prevent MessageChannel / MessagePort memory leaks.
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import * as Comlink from 'comlink';
 import type { AIWorkerAPI } from '@/workers/ai-worker-types';
 import { storageManager } from '@/lib/storage-manager';
 import { normalizeAuthToken } from '@/lib/auth-token';
-
-type WorkerWithInit = AIWorkerAPI & {
-    init(apiBaseUrl: string, authToken: string, vectorConfig?: Record<string, unknown>): void;
-};
+import { isCapacitorNative, resolveOllamaEndpoint, MOBILE_SERVER_ORIGIN } from '@/lib/platform';
+import type { WorkerAPIWithInit } from '@/workers/ai-worker-core';
 
 // ---------------------------------------------------------------------------
-// singleton — shared across all hook consumers
+// singleton state
 // ---------------------------------------------------------------------------
 
 let _workerInstance: Worker | null = null;
-let _proxy: Comlink.Remote<WorkerWithInit> | null = null;
+let _proxy: Comlink.Remote<WorkerAPIWithInit> | null = null;
+let _mainThreadAPI: WorkerAPIWithInit | null = null;
 let _initialized = false;
 let _refCount = 0;
+let _isMainThread = false;
 
-function getOrCreateWorker(): { worker: Worker; proxy: Comlink.Remote<WorkerWithInit> } {
-    if (!_workerInstance || !_proxy) {
-        _workerInstance = new Worker(
-            new URL('../workers/ai.worker.ts', import.meta.url),
-            { type: 'module' },
-        );
-        _proxy = Comlink.wrap<WorkerWithInit>(_workerInstance);
-    }
-    return { worker: _workerInstance, proxy: _proxy };
-}
+// ---------------------------------------------------------------------------
+// resolve auth + api base (shared by both paths)
+// ---------------------------------------------------------------------------
 
-async function ensureInitialized(proxy: Comlink.Remote<WorkerWithInit>) {
-    if (_initialized) return;
-
-    // resolve auth token from storage (same priority as api-client.ts)
+function resolveAuth() {
     const ht = storageManager.getItem('hom_api_key');
     const nt = storageManager.getItem('nocobase_token');
     const gt = storageManager.getItem('hom_guest_key');
     const raw = ht || nt || gt || '';
-    const token = normalizeAuthToken(raw);
+    return normalizeAuthToken(raw);
+}
 
-    // resolve api base url from current origin (vite proxy forwards /api to nocobase)
-    const apiBaseUrl = `${window.location.origin}/api`;
+function resolveApiBase(): string {
+    if (isCapacitorNative()) {
+        // on mobile the app loads from the remote server, so origin is already correct
+        return `${window.location.origin}/api`;
+    }
+    return `${window.location.origin}/api`;
+}
 
-    await proxy.init(apiBaseUrl, token);
+// ---------------------------------------------------------------------------
+// build vector config overrides for mobile
+// ---------------------------------------------------------------------------
+
+function buildVectorConfig(): Record<string, unknown> | undefined {
+    if (!isCapacitorNative()) return undefined;
+    // rewrite the hardcoded localhost embedding endpoint to go through the server proxy
+    return {
+        embeddingEndpoint: resolveOllamaEndpoint(
+            'http://localhost:11434/api/embeddings',
+            MOBILE_SERVER_ORIGIN,
+        ),
+    };
+}
+
+// ---------------------------------------------------------------------------
+// worker path — comlink proxy
+// ---------------------------------------------------------------------------
+
+function tryCreateWorker(): { worker: Worker; proxy: Comlink.Remote<WorkerAPIWithInit> } | null {
+    try {
+        const worker = new Worker(
+            new URL('../workers/ai.worker.ts', import.meta.url),
+            { type: 'module' },
+        );
+        const proxy = Comlink.wrap<WorkerAPIWithInit>(worker);
+        return { worker, proxy };
+    } catch (err) {
+        console.warn('[ai-worker] web worker creation failed, will use main-thread fallback:', err);
+        return null;
+    }
+}
+
+// ---------------------------------------------------------------------------
+// main-thread fallback path
+// ---------------------------------------------------------------------------
+
+async function getMainThreadAPI(): Promise<WorkerAPIWithInit> {
+    if (_mainThreadAPI) return _mainThreadAPI;
+    // dynamic import so the bundle only loads this when the worker path fails
+    const { createWorkerAPI } = await import('../workers/ai-worker-core');
+    _mainThreadAPI = createWorkerAPI(globalThis.fetch.bind(globalThis));
+    console.info('[ai-worker] falling back to main thread execution');
+    return _mainThreadAPI;
+}
+
+// ---------------------------------------------------------------------------
+// unified init
+// ---------------------------------------------------------------------------
+
+type AnyAPI = Comlink.Remote<WorkerAPIWithInit> | WorkerAPIWithInit;
+
+async function initAPI(api: AnyAPI): Promise<void> {
+    if (_initialized) return;
+    const token = resolveAuth();
+    const apiBase = resolveApiBase();
+    const vectorConfig = buildVectorConfig();
+    await api.init(apiBase, token, vectorConfig);
     _initialized = true;
 }
 
-function teardownWorker() {
+function getOrCreate(): { api: AnyAPI; isMainThread: boolean } {
+    // fast path — already created
+    if (_proxy) return { api: _proxy, isMainThread: false };
+    if (_mainThreadAPI) return { api: _mainThreadAPI, isMainThread: true };
+
+    // try worker first
+    const result = tryCreateWorker();
+    if (result) {
+        _workerInstance = result.worker;
+        _proxy = result.proxy;
+        return { api: _proxy, isMainThread: false };
+    }
+
+    // worker failed — we'll lazily init main-thread in the async path
+    // for now return a marker
+    _isMainThread = true;
+    return { api: null as any, isMainThread: true };
+}
+
+// ---------------------------------------------------------------------------
+// teardown
+// ---------------------------------------------------------------------------
+
+function teardown() {
     if (_workerInstance) {
         _workerInstance.terminate();
         _workerInstance = null;
         _proxy = null;
-        _initialized = false;
     }
+    _mainThreadAPI = null;
+    _initialized = false;
+    _isMainThread = false;
 }
 
 // ---------------------------------------------------------------------------
@@ -70,38 +149,57 @@ function teardownWorker() {
 
 export function useAIWorker() {
     const [isReady, setIsReady] = useState(_initialized);
-    const proxyRef = useRef<Comlink.Remote<WorkerWithInit> | null>(_proxy);
+    const [isMainThread, setIsMainThread] = useState(_isMainThread);
+    const apiRef = useRef<AnyAPI | null>(null);
 
     useEffect(() => {
         _refCount++;
-        const { proxy } = getOrCreateWorker();
-        proxyRef.current = proxy;
+        let cancelled = false;
 
-        ensureInitialized(proxy).then(() => setIsReady(true));
+        (async () => {
+            const { api, isMainThread: mt } = getOrCreate();
+
+            let resolvedAPI: AnyAPI;
+            if (mt && !api) {
+                // need to async-load the main-thread fallback
+                resolvedAPI = await getMainThreadAPI();
+            } else {
+                resolvedAPI = api;
+            }
+
+            apiRef.current = resolvedAPI;
+            if (!cancelled) setIsMainThread(mt);
+
+            await initAPI(resolvedAPI);
+            if (!cancelled) setIsReady(true);
+        })().catch(err => {
+            console.error('[ai-worker] initialization failed:', err);
+        });
 
         return () => {
+            cancelled = true;
             _refCount--;
-            // only terminate if no consumers remain
             if (_refCount <= 0) {
-                teardownWorker();
+                teardown();
                 _refCount = 0;
             }
         };
     }, []);
 
-    // wrap comlink methods in stable callbacks
+    // --- stable callback wrappers ---
+
     const search = useCallback(
         async (query: string, topK?: number) => {
-            if (!proxyRef.current) throw new Error('ai worker not ready');
-            return proxyRef.current.searchKnowledgeBase(query, topK);
+            if (!apiRef.current) throw new Error('ai worker not ready');
+            return apiRef.current.searchKnowledgeBase(query, topK);
         },
         [],
     );
 
     const embed = useCallback(
         async (text: string) => {
-            if (!proxyRef.current) throw new Error('ai worker not ready');
-            return proxyRef.current.generateEmbedding(text);
+            if (!apiRef.current) throw new Error('ai worker not ready');
+            return apiRef.current.generateEmbedding(text);
         },
         [],
     );
@@ -113,8 +211,25 @@ export function useAIWorker() {
             endpoint: string,
             onToken: (content: string) => void,
         ) => {
-            if (!proxyRef.current) throw new Error('ai worker not ready');
-            return proxyRef.current.chatStream(prompt, model, endpoint, Comlink.proxy(onToken));
+            if (!apiRef.current) throw new Error('ai worker not ready');
+
+            // on mobile, rewrite localhost endpoints to the server proxy
+            const resolvedEndpoint = isCapacitorNative()
+                ? resolveOllamaEndpoint(endpoint, MOBILE_SERVER_ORIGIN)
+                : endpoint;
+
+            if (_isMainThread) {
+                // main-thread path — call directly, no comlink proxy needed
+                return apiRef.current.chatStream(prompt, model, resolvedEndpoint, onToken);
+            }
+
+            // worker path — wrap callback with comlink proxy and release after
+            const proxiedOnToken = Comlink.proxy(onToken);
+            try {
+                return await apiRef.current.chatStream(prompt, model, resolvedEndpoint, proxiedOnToken);
+            } finally {
+                (proxiedOnToken as any)[Comlink.releaseProxy]?.();
+            }
         },
         [],
     );
@@ -127,36 +242,56 @@ export function useAIWorker() {
             endpoint: string,
             onToken: (content: string) => void,
         ) => {
-            if (!proxyRef.current) throw new Error('ai worker not ready');
-            return proxyRef.current.askWithRag(
-                query,
-                fronterName,
-                model,
-                endpoint,
-                Comlink.proxy(onToken),
-            );
+            if (!apiRef.current) throw new Error('ai worker not ready');
+
+            const resolvedEndpoint = isCapacitorNative()
+                ? resolveOllamaEndpoint(endpoint, MOBILE_SERVER_ORIGIN)
+                : endpoint;
+
+            if (_isMainThread) {
+                return apiRef.current.askWithRag(query, fronterName, model, resolvedEndpoint, onToken);
+            }
+
+            const proxiedOnToken = Comlink.proxy(onToken);
+            try {
+                return await apiRef.current.askWithRag(
+                    query,
+                    fronterName,
+                    model,
+                    resolvedEndpoint,
+                    proxiedOnToken,
+                );
+            } finally {
+                (proxiedOnToken as any)[Comlink.releaseProxy]?.();
+            }
         },
         [],
     );
 
     const generateText = useCallback(
         async (prompt: string, model: string, endpoint: string) => {
-            if (!proxyRef.current) throw new Error('ai worker not ready');
-            return proxyRef.current.generateText(prompt, model, endpoint);
+            if (!apiRef.current) throw new Error('ai worker not ready');
+
+            const resolvedEndpoint = isCapacitorNative()
+                ? resolveOllamaEndpoint(endpoint, MOBILE_SERVER_ORIGIN)
+                : endpoint;
+
+            return apiRef.current.generateText(prompt, model, resolvedEndpoint);
         },
         [],
     );
 
     const buildRagPrompt = useCallback(
         async (query: string, fronterName?: string) => {
-            if (!proxyRef.current) throw new Error('ai worker not ready');
-            return proxyRef.current.buildRagPrompt(query, fronterName);
+            if (!apiRef.current) throw new Error('ai worker not ready');
+            return apiRef.current.buildRagPrompt(query, fronterName);
         },
         [],
     );
 
     return {
         isReady,
+        isMainThread,
         search,
         embed,
         chatStream,
@@ -167,12 +302,17 @@ export function useAIWorker() {
 }
 
 // ---------------------------------------------------------------------------
-// standalone (non-hook) accessor for use inside zustand stores
+// standalone (non-hook) accessor for zustand stores
 // ---------------------------------------------------------------------------
 
-export function getAIWorkerProxy(): Comlink.Remote<WorkerWithInit> {
-    const { proxy } = getOrCreateWorker();
-    // fire-and-forget init — if it's already initialized this is a no-op
-    ensureInitialized(proxy);
-    return proxy;
+export async function getAIWorkerProxy(): Promise<AnyAPI> {
+    const { api, isMainThread: mt } = getOrCreate();
+    let resolvedAPI: AnyAPI;
+    if (mt && !api) {
+        resolvedAPI = await getMainThreadAPI();
+    } else {
+        resolvedAPI = api;
+    }
+    await initAPI(resolvedAPI);
+    return resolvedAPI;
 }

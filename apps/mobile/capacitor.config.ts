@@ -8,21 +8,25 @@ const config: CapacitorConfig = {
     // Auto-update: Load app from remote server so code changes update the APK automatically
     // without requiring a new APK build. The app will fetch latest code on each launch.
     url: 'http://pkm.houseofmates.space:3010',
-    allowNavigation: ['*'],
+    allowNavigation: [
+      'pkm.houseofmates.space',
+      '*.houseofmates.space',
+    ],
     cleartext: true,
-    // Enable offline caching - app will work offline and sync when back online
-    androidScheme: 'https'
+    // use http scheme to match the server url and avoid mixed-content blocks
+    // (https scheme + http server url = android blocks all non-tls fetches)
+    androidScheme: 'http'
   },
   plugins: {
-    // Enable background app refresh and offline capabilities
     SplashScreen: {
       launchShowDuration: 0
     }
   },
   android: {
-    // Allow WebView to cache content for offline use
     webContentsDebuggingEnabled: true,
-    backgroundColor: '#050505'
+    backgroundColor: '#050505',
+    // allow the webview to load content from the remote server and localhost
+    allowMixedContent: true,
   }
 };
 
