@@ -98,6 +98,16 @@ async function start() {
 
   app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
+  // version endpoint for update checking
+  const BUILD_TIME = new Date().toISOString();
+  app.get('/api/version', (_req, res) => {
+    res.json({ 
+      version: BUILD_TIME,
+      buildTime: BUILD_TIME,
+      env: process.env.NODE_ENV || 'production'
+    });
+  });
+
   // webhook from nocobase to sync records
   app.post('/sync-webhook', async (req, res) => {
     try {
