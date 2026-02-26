@@ -3,22 +3,22 @@ import React, { useEffect, useRef, useState } from 'react';
 export const GoldPile = React.memo(function GoldPile({ element }: { element: any }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { current_amount = 0, target_amount = 1000 } = element.data;
-  const [coins, setcoins] = useState<any[]>([]);
+  const [coins, setCoins] = useState<any[]>([]);
   const [multiplier, setMultiplier] = useState(1);
 
   useEffect(() => {
     // optimization: cap at 50 coins
-    const numCoins = Math.floor(current_amount / 10);
+    let numCoins = Math.floor(current_amount / 10);
     let mult = 1;
 
     if (numCoins > 50) {
-      mult = math.ceil(numcoins / 50);
-      numcoins = 50;
+      mult = Math.ceil(numCoins / 50);
+      numCoins = 50;
     }
 
-    setmultiplier(mult);
+    setMultiplier(mult);
 
-    const newcoins = [];
+    const newCoins = [];
     for (let i = 0; i < numCoins; i++) {
       newCoins.push({
         x: Math.random() * 200 + 50,
@@ -79,7 +79,7 @@ export const GoldPile = React.memo(function GoldPile({ element }: { element: any
       animationFrame = requestAnimationFrame(animate);
     };
     animate();
-    return () => cancelAnimationFrame(animationframe);
+    return () => cancelAnimationFrame(animationFrame);
   }, [coins, current_amount, target_amount]);
 
   return (
