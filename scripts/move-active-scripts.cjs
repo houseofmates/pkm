@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// move-active-scripts.js
+// move-active-scripts.cjs
 // Moves active utility/maintenance scripts from root to /scripts/utils and updates references in package.json and .github workflows.
 
 const fs = require('fs');

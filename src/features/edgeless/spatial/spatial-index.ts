@@ -191,6 +191,60 @@ export class SpatialIndex {
     return results
   }
 
+  // query objects within viewport bounds with optional margin for smooth scrolling
+  // this is the primary method for viewport culling - aggressively strips off-screen elements
+  queryVisible(viewportBounds: Bounds, margin: number = 200): SpatialObject[] {
+    // expand viewport bounds with margin to include elements near screen edge
+    // this prevents flickering when elements are just outside the viewport
+    const expandedBounds: Bounds = {
+      minX: viewportBounds.minX - margin,
+      minY: viewportBounds.minY - margin,
+      maxX: viewportBounds.maxX + margin,
+      maxY: viewportBounds.maxY + margin,
+    }
+
+    const cells = this.getCellsForBounds(expandedBounds)
+    const candidates = new Set<string>()
+
+    for (const cellKey of cells) {
+      const cell = this.grid.get(cellKey)
+      if (cell) {
+        for (const id of cell.objects) {
+          candidates.add(id)
+        }
+      }
+    }
+
+    // fast rejection: check expanded bounds first before precise check
+    const results: SpatialObject[] = []
+    for (const id of candidates) {
+      const obj = this.objects.get(id)
+      if (!obj) continue
+      if (!obj.visible) continue
+      if (this.layerFilter && obj.layerId !== this.layerFilter) continue
+
+      // final precise bounds check against expanded viewport
+      if (
+        obj.bounds.maxX < expandedBounds.minX ||
+        obj.bounds.minX > expandedBounds.maxX ||
+        obj.bounds.maxY < expandedBounds.minY ||
+        obj.bounds.minY > expandedBounds.maxY
+      ) {
+        continue
+      }
+
+      results.push(obj)
+    }
+
+    return results
+  }
+
+  // get all visible object ids for quick lookup
+  getVisibleIds(viewportBounds: Bounds, margin: number = 200): Set<string> {
+    const visible = this.queryVisible(viewportBounds, margin)
+    return new Set(visible.map(obj => obj.id))
+  }
+
   getObject(id: string): SpatialObject | undefined {
     return this.objects.get(id)
   }
