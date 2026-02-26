@@ -15,6 +15,7 @@ import type { AIWorkerAPI } from '@/workers/ai-worker-types';
 import { storageManager } from '@/lib/storage-manager';
 import { normalizeAuthToken } from '@/lib/auth-token';
 import { isCapacitorNative, resolveOllamaEndpoint, MOBILE_SERVER_ORIGIN } from '@/lib/platform';
+import { getOllamaBase } from '@/lib/llm-config';
 import type { WorkerAPIWithInit } from '@/workers/ai-worker-core';
 
 // ---------------------------------------------------------------------------
@@ -53,26 +54,36 @@ function resolveApiBase(): string {
 // ---------------------------------------------------------------------------
 
 function buildVectorConfig(): Record<string, unknown> | undefined {
-    if (!isCapacitorNative()) return undefined;
+    if (!isMobileWebView()) return undefined;
     // rewrite the hardcoded localhost embedding endpoint to go through the server proxy
     return {
-        embeddingEndpoint: resolveOllamaEndpoint(
-            'http://localhost:11434/api/embeddings',
-            MOBILE_SERVER_ORIGIN,
-        ),
+        embeddingEndpoint: `${MOBILE_SERVER_ORIGIN}/api/ollama/api/embeddings`,
     };
+}
+
+function isMobileWebView(): boolean {
+    if (isCapacitorNative()) return true;
+    if (typeof navigator === 'undefined') return false;
+    const ua = navigator.userAgent || navigator.vendor || '';
+    return /android|iphone|ipad|ipod|iemobile|mobile/i.test(ua);
+}
+
+function resolveWorkerOllamaBase(): string {
+    if (isMobileWebView()) {
+        return `${MOBILE_SERVER_ORIGIN}/api/ollama`;
+    }
+    return getOllamaBase();
 }
 
 // ---------------------------------------------------------------------------
 // worker path — comlink proxy
 // ---------------------------------------------------------------------------
 
-function tryCreateWorker(): { worker: Worker; proxy: Comlink.Remote<WorkerAPIWithInit> } | null {
+function tryCreateWorker(ollamaBaseUrl: string): { worker: Worker; proxy: Comlink.Remote<WorkerAPIWithInit> } | null {
     try {
-        const worker = new Worker(
-            new URL('../workers/ai.worker.ts', import.meta.url),
-            { type: 'module' },
-        );
+        const workerUrl = new URL('../workers/ai.worker.ts', import.meta.url);
+        workerUrl.searchParams.set('ollamaBaseUrl', ollamaBaseUrl);
+        const worker = new Worker(workerUrl, { type: 'module' });
         const proxy = Comlink.wrap<WorkerAPIWithInit>(worker);
         return { worker, proxy };
     } catch (err) {
@@ -100,22 +111,22 @@ async function getMainThreadAPI(): Promise<WorkerAPIWithInit> {
 
 type AnyAPI = Comlink.Remote<WorkerAPIWithInit> | WorkerAPIWithInit;
 
-async function initAPI(api: AnyAPI): Promise<void> {
+async function initAPI(api: AnyAPI, ollamaBaseUrl: string): Promise<void> {
     if (_initialized) return;
     const token = resolveAuth();
     const apiBase = resolveApiBase();
     const vectorConfig = buildVectorConfig();
-    await api.init(apiBase, token, vectorConfig);
+    await api.init(apiBase, token, vectorConfig, undefined, ollamaBaseUrl);
     _initialized = true;
 }
 
-function getOrCreate(): { api: AnyAPI; isMainThread: boolean } {
+function getOrCreate(ollamaBaseUrl: string): { api: AnyAPI; isMainThread: boolean } {
     // fast path — already created
     if (_proxy) return { api: _proxy, isMainThread: false };
     if (_mainThreadAPI) return { api: _mainThreadAPI, isMainThread: true };
 
     // try worker first
-    const result = tryCreateWorker();
+    const result = tryCreateWorker(ollamaBaseUrl);
     if (result) {
         _workerInstance = result.worker;
         _proxy = result.proxy;
@@ -155,14 +166,15 @@ export function useAIWorker() {
     useEffect(() => {
         _refCount++;
         let cancelled = false;
+        const ollamaBaseUrl = resolveWorkerOllamaBase();
 
         (async () => {
-            const { api, isMainThread: mt } = getOrCreate();
+            const { api, isMainThread: mt } = getOrCreate(ollamaBaseUrl);
 
             let resolvedAPI: AnyAPI;
             if (mt && !api) {
                 // need to async-load the main-thread fallback
-                resolvedAPI = await getMainThreadAPI();
+                resolvedAPI = await getMainThreadAPI(ollamaBaseUrl);
             } else {
                 resolvedAPI = api;
             }
@@ -170,7 +182,7 @@ export function useAIWorker() {
             apiRef.current = resolvedAPI;
             if (!cancelled) setIsMainThread(mt);
 
-            await initAPI(resolvedAPI);
+            await initAPI(resolvedAPI, ollamaBaseUrl);
             if (!cancelled) setIsReady(true);
         })().catch(err => {
             console.error('[ai-worker] initialization failed:', err);
