@@ -74,7 +74,7 @@ export default defineConfig({
       '/storage': {
         target: 'http://192.168.4.233:8091',
         changeOrigin: true,
-        secure: true,
+        secure: false,
       },
     },
   },
@@ -134,7 +134,7 @@ export default defineConfig({
       '/storage': {
         target: 'http://192.168.4.233:8091',
         changeOrigin: true,
-        secure: true,
+        secure: false,
       },
     }
   },
