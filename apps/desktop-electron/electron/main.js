@@ -10,33 +10,33 @@ let updateCheckInterval = null;
 // Fetch version from server to detect updates
 async function checkForUpdates() {
     if (!mainWindow || isDev) return;
-    
+
     const remoteUrl = process.env.PKM_REMOTE_URL || 'http://pkm.houseofmates.space:3010';
-    
+
     try {
-        const response = await fetch(`${remoteUrl}/api/version`, { 
+        const response = await fetch(`${remoteUrl}/api/version`, {
             method: 'GET',
             headers: { 'Accept': 'application/json' }
         });
-        
+
         if (!response.ok) return;
-        
+
         const data = await response.json();
         const serverVersion = data.version || data.buildTime || data.hash;
-        
+
         if (!serverVersion) return;
-        
+
         // First check - just store the version
         if (!currentVersion) {
             currentVersion = serverVersion;
             console.log(`[Update Check] Initial version: ${currentVersion}`);
             return;
         }
-        
+
         // Version changed - update available
         if (serverVersion !== currentVersion) {
             console.log(`[Update Check] Update available! ${currentVersion} -> ${serverVersion}`);
-            
+
             const result = dialog.showMessageBoxSync(mainWindow, {
                 type: 'info',
                 title: 'Update Available',
@@ -46,7 +46,7 @@ async function checkForUpdates() {
                 defaultId: 0,
                 cancelId: 1
             });
-            
+
             if (result === 0) {
                 currentVersion = serverVersion;
                 mainWindow.loadURL(remoteUrl);
@@ -96,14 +96,14 @@ function createWindow() {
     const remoteUrl = process.env.PKM_REMOTE_URL || 'http://pkm.houseofmates.space:3010';
 
     if (isDev) {
-        mainWindow.loadURL('http://localhost:5173');
+        mainWindow.loadURL('http://localhost:3010');
         mainWindow.webContents.openDevTools();
     } else if (process.env.PKM_REMOTE_URL || !app.isPackaged) {
         // Live update mode: load from remote and check for updates
         mainWindow.loadURL(remoteUrl);
         console.log(`[PKM] Live-update mode: Loading from ${remoteUrl}`);
         console.log(`[PKM] The app will auto-reload when code changes are deployed.`);
-        
+
         // Start checking for updates after initial load
         mainWindow.webContents.on('did-finish-load', () => {
             // Wait a bit then do first version check
@@ -112,7 +112,7 @@ function createWindow() {
         });
     } else {
         // Offline mode: load bundled files
-        mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+        mainWindow.loadFile(path.join(__dirname, '../../web/dist/index.html'));
         console.log('[PKM] Offline mode: Loading bundled files');
     }
 
@@ -147,7 +147,7 @@ function createWindow() {
             ]
         }
     ];
-    
+
     const menu = Menu.buildFromTemplate(template);
     Menu.setApplicationMenu(menu);
 
@@ -171,7 +171,7 @@ app.whenReady().then(() => {
     ipcMain.on('context:update', (event, data) => {
         contextServer.updateContext(data);
     });
-    
+
     // Handle update check from renderer
     ipcMain.on('app:check-update', () => {
         checkForUpdates();
