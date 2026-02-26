@@ -191,22 +191,23 @@ const OverlayLayer = memo(function OverlayLayer({ pointerClass, pdfDoc }: Overla
     return buildOverlaySpatialIndex(elements)
   }, [elements])
 
-  // Compute visible IDs – we allow a generous 300 world-unit margin so elements
-  // entering the screen are pre-mounted before they become visible.
+  // Compute visible IDs – we use a strict 20% screen buffer for aggressive virtualization.
+  // Nodes outside this buffer are completely unmounted from the DOM.
   const visibleIds = useMemo(() => {
     const screenW = typeof window !== 'undefined' ? window.innerWidth : 1920
     const screenH = typeof window !== 'undefined' ? window.innerHeight : 1080
+    // queryViewportIds now handles the 20% buffer calculation internally
     return overlaySpatialIndex.queryViewportIds(
       viewPort.x, viewPort.y, viewPort.zoom,
-      screenW, screenH, 300
+      screenW, screenH, 0.2
     )
   }, [overlaySpatialIndex, viewPort.x, viewPort.y, viewPort.zoom])
 
-  // If there are very few elements, skip culling and render all
-  const shouldCull = elementIds.length > 20
-  const idsToRender = shouldCull
-    ? elementIds.filter((id) => visibleIds.has(id))
-    : elementIds
+  // True virtualization: only render elements that are within the buffered viewport.
+  // This ensures nodes are completely unmounted when off-screen.
+  const idsToRender = useMemo(() => {
+    return elementIds.filter((id) => visibleIds.has(id))
+  }, [elementIds, visibleIds])
 
   return (
     <>
