@@ -33,7 +33,7 @@ export const ShoppingCard = React.memo(function ShoppingCard({ element }: { elem
   `}
     >
       {/* desire mode (bubble) */}
-      {localstatus === 'desire' && (
+      {localStatus === 'desire' && (
         <>
           <div className="absolute -top-2 -right-2 bg-primary text-black text-xs font-bold px-2 py-1 rounded-full animate-bounce">
             wish
@@ -70,7 +70,7 @@ export const ShoppingCard = React.memo(function ShoppingCard({ element }: { elem
       )}
 
       {/* bought mode (inventory card) */}
-      {localstatus === 'bought' && (
+      {localStatus === 'bought' && (
         <div className="p-4 flex flex-col h-full">
           <div className="flex justify-between items-start mb-2">
             <div className={`text-[10px] px-2 py-0.5 rounded border ${isAmazon ? 'border-orange-500 text-orange-400' : isSteam ? 'border-blue-500 text-blue-400' : 'border-white/20'}`}>
