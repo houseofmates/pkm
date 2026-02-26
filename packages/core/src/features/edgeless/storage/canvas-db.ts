@@ -50,12 +50,12 @@ export function getCanvasDB(): Promise<IDBPDatabase<CanvasDBSchema>> {
     upgrade(db) {
       // ensure stores exist even if a prior version was created without them
       const ensureStore = (
-        name: keyof CanvasDBSchema,
+        name: 'oplog' | 'checkpoints' | 'drawings' | 'tokens',
         options: IDBObjectStoreParameters,
         indexes: Array<{ name: string; keyPath: string }>,
       ) => {
         const store = db.objectStoreNames.contains(name)
-          ? db.transaction.objectStore(name)
+          ? db.transaction(name, 'readwrite').objectStore(name)
           : db.createObjectStore(name, options)
         indexes.forEach(({ name: idxName, keyPath }) => {
           if (!store.indexNames.contains(idxName)) store.createIndex(idxName, keyPath)
@@ -217,11 +217,12 @@ export async function updateDrawingMeta(
   const db = await getCanvasDB()
   const existing = await db.get('drawings', id)
   const updated = {
-    ...(existing || { id, createdAt: Date.now() }),
+    ...(existing || { id, createdAt: Date.now(), title: 'untitled', syncState: 'pending' as const }),
     ...patch,
+    title: (patch as { title?: string }).title ?? existing?.title ?? 'untitled',
     updatedAt: Date.now(),
   }
-  await db.put('drawings', updated)
+  await db.put('drawings', updated as CanvasDBSchema['drawings']['value'])
   return updated
 }
 
