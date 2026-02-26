@@ -269,10 +269,8 @@ export function TemplatePage() {
       // store layout in pkm_settings
       await client.request('pkm_settings', 'create', {
         method: 'POST',
-        data: {
-          key: `layout_${workspaceId}`,
-          value: JSON.stringify(widgets)
-        }
+        key: `layout_${workspaceId}`,
+        value: JSON.stringify(widgets)
       });
 
       // 3. update sidebar
