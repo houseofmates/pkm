@@ -29,9 +29,9 @@ export async function downloadAndPromptInstall(apkUrl: string) {
   if (typeof window !== 'undefined' && typeof (window as any).Capacitor !== 'undefined') {
     try {
       // Dynamic import with proper error handling - avoids eval() security risk
-      // Using template literal to prevent vite from trying to resolve at build time
-      // @ts-expect-error - @capacitor/browser is an optional dependency
-      const browserModule = await import(`@capacitor/browser`);
+      // Using variable to prevent vite from trying to resolve at build time
+      const moduleName = '@capacitor/browser';
+      const browserModule = await import(moduleName) as { Browser: any };
       const { Browser } = browserModule;
       await Browser.open({ url: apkUrl });
       return;
