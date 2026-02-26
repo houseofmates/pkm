@@ -358,67 +358,64 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
 
   // initialize/sync items from collections and local documents/drawings
   useEffect(() => {
-    // load drawings stored in indexeddb (and documents separately)
-    const loadDbItems = async () => {
+    if (collections.length === 0) return;
+
+    const forbiddenCollections = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website'];
+    const visibleCollections = collections.filter((c: any) => !forbiddenCollections.includes(String(c.name).toLowerCase()));
+
+    // load drawings from indexeddb, then merge everything in one atomic update
+    const syncAll = async () => {
+      let drawingItems: NavItem[] = [];
       try {
         const drawings = await listPendingDrawings();
-        const dbItems: NavItem[] = drawings.map((d: any) => ({
+        drawingItems = drawings.map((d: any) => ({
           id: `drawing_${d.id}`,
-          type: 'collection',
+          type: 'collection' as const,
           name: (d.title as string) || 'untitled drawing',
           icon: 'PenTool',
-          iconType: 'lucide',
+          iconType: 'lucide' as const,
         }));
-        const nonDrawing = items.filter((i: NavItem) => !i.id.startsWith('drawing_'));
-        setItems([...nonDrawing, ...dbItems]);
       } catch (e) {
         secureLogger.error('failed to load drawings from database', e);
       }
+
+      // use functional updater to always get the latest items
+      setItems((prevItems: NavItem[]) => {
+        // strip forbidden items + old drawings (will re-add fresh ones)
+        const cleaned = prevItems.filter(item => {
+          const idLower = String(item.id).toLowerCase();
+          if (forbiddenCollections.includes(idLower)) return false;
+          if (item.id.startsWith('drawing_')) return false; // will re-add below
+          return true;
+        });
+
+        // build a set of existing IDs (non-drawing, non-forbidden)
+        const existingIds = new Set(cleaned.map(i => String(i.id).toLowerCase()));
+
+        // add new collections that aren't already present and weren't recently deleted
+        const newCols = visibleCollections
+          .filter((c: any) => {
+            const nameLC = String(c.name).toLowerCase();
+            return !existingIds.has(nameLC) && !deletedItemsRef.current.has(nameLC);
+          })
+          .map((c: any) => ({
+            id: c.name,
+            type: 'collection' as const,
+            name: c.title || c.name,
+          }));
+
+        // also deduplicate drawing items
+        const allIds = new Set([...existingIds, ...newCols.map(c => c.id.toLowerCase())]);
+        const uniqueDrawings = drawingItems.filter(d => !allIds.has(d.id.toLowerCase()));
+
+        // merge: existing cleaned items + new collections + fresh drawings
+        return [...cleaned, ...newCols, ...uniqueDrawings];
+      });
     };
 
-    if (collections.length === 0 && items.length === 0) {
-      loadDbItems().catch(() => { });
-      return;
-    }
-
-    // ensure DB items are also fetched on every navigation refresh
-    loadDbItems();
-
-    // 0. aggressive pruning: remove names that should never be in the sidebar
-    const forbiddenCollections = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website'];
-
-    // filter out pkm_canvases and others from incoming collections
-    const visibleCollections = collections.filter((c: any) => !forbiddenCollections.includes(String(c.name).toLowerCase()));
-
-    // 1. only add new collections that don't exist in items yet
-    // don't remove items automatically - only explicit user delete should remove
-    const existingIds = new Set(items.map(i => String(i.id).toLowerCase()));
-
-    const newCols = visibleCollections
-      .filter((c: any) => {
-        const nameLC = String(c.name).toLowerCase();
-        // skip if already in items or was recently deleted
-        return !existingIds.has(nameLC) && !deletedItemsRef.current.has(nameLC);
-      })
-      .map((c: any) => ({
-        id: c.name,
-        type: 'collection' as const,
-        name: c.title || c.name,
-      }));
-
-    // 2. add new local docs that aren't in items yet
-    const newLocalItems = items.filter(d => d.id.startsWith('doc_') && !existingIds.has(d.id.toLowerCase()));
-
-    // 3. remove only forbidden collections
-    const filteredItems = items.filter(item => {
-      const itemIdLower = String(item.id).toLowerCase();
-      return !forbiddenCollections.includes(itemIdLower);
-    });
-
-    if (newCols.length > 0 || newLocalItems.length > 0 || filteredItems.length !== items.length) {
-      setItems([...filteredItems, ...newCols, ...newLocalItems]);
-    }
-  }, [collections, items, setItems]);
+    syncAll();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [collections]);
 
   // create folder logic
   const createFolder = () => {
