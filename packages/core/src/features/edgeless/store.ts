@@ -6,7 +6,8 @@ import { canvasSync } from './sync/canvas-sync'
 import { SpatialIndex } from './spatial/spatial-index'
 import type * as fabric from 'fabric'
 import { useShallow } from 'zustand/react/shallow'
-import { useCallback, useMemo, useRef } from 'react'
+
+
 
 export type ElementType =
   | 'pdf-page'
