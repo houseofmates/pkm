@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import usePkmStore from '../../store/usePkmStore';
+import { useSearchStore } from '@/store/useSearchStore';
 import type { SearchHit } from '../../types';
 import { secureLogger } from '@/lib/secure-logger';
 
@@ -19,7 +19,7 @@ async function doSearch(q: string, topK = 10): Promise<SearchHit[]> {
 
 export function SearchBar({ onSearched }: { onSearched?: (q: string) => void }) {
   const [query, setQuery] = useState('');
-  const setSearchResults = usePkmStore((s: { setSearchResults: (results: SearchHit[]) => void }) => s.setSearchResults);
+  const setSearchResults = useSearchStore((s) => s.setSearchResults);
 
   const { data, error, refetch } = useQuery({
     queryKey: ['search', query],

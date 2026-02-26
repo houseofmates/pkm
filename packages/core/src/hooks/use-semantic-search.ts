@@ -4,7 +4,7 @@
 // client-side cosine similarity against cached embeddings
 
 import { useState, useCallback } from 'react'
-import usePkmStore from '@/store/usePkmStore'
+import { useSearchStore } from '@/store/useSearchStore';
 import { secureLogger } from '@/lib/secure-logger'
 
 const api_base = (import.meta.env.VITE_PKM_API_URL as string) || 'http://localhost:4100'
@@ -51,7 +51,7 @@ export function useSemanticSearch() {
     const [results, setResults] = useState<SemanticSearchResult[]>([])
     const [loading, setLoading] = useState(false)
     const [source, setSource] = useState<'backend' | 'local' | null>(null)
-    const setSearchResults = usePkmStore((s: { setSearchResults: (r: SemanticSearchResult[]) => void }) => s.setSearchResults)
+    const setSearchResults = useSearchStore((s) => s.setSearchResults);
 
     const search = useCallback(
         async (query: string, topk = 10) => {
