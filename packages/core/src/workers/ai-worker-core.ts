@@ -30,6 +30,7 @@ const VECTOR_CONFIG = {
 let _apiBaseUrl = '';
 let _authToken = '';
 let _fetch: typeof globalThis.fetch = globalThis.fetch?.bind(globalThis);
+let _ollamaBaseUrl = 'http://localhost:11434';
 
 // ---------------------------------------------------------------------------
 // init
@@ -40,10 +41,18 @@ export function init(
     authToken: string,
     vectorConfig?: Partial<typeof VECTOR_CONFIG>,
     fetchImpl?: typeof globalThis.fetch,
+    ollamaBaseUrl?: string,
 ): void {
     _apiBaseUrl = apiBaseUrl.replace(/\/+$/, '');
     _authToken = authToken;
+    _ollamaBaseUrl = (ollamaBaseUrl || _ollamaBaseUrl || 'http://localhost:11434').replace(/\/+$/, '');
+
+    const defaultEmbeddingEndpoint = `${_ollamaBaseUrl}/api/embeddings`;
     if (vectorConfig) Object.assign(VECTOR_CONFIG, vectorConfig);
+    if (!VECTOR_CONFIG.embeddingEndpoint) {
+        VECTOR_CONFIG.embeddingEndpoint = defaultEmbeddingEndpoint;
+    }
+
     if (fetchImpl) _fetch = fetchImpl;
 }
 
@@ -82,7 +91,8 @@ async function apiGet(path: string): Promise<any> {
 // ---------------------------------------------------------------------------
 
 async function generateEmbedding(text: string): Promise<number[]> {
-    const res = await _fetch(VECTOR_CONFIG.embeddingEndpoint, {
+    const embeddingEndpoint = VECTOR_CONFIG.embeddingEndpoint || `${_ollamaBaseUrl}/api/embeddings`;
+    const res = await _fetch(embeddingEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -298,7 +308,7 @@ async function chatStream(
     endpoint: string,
     onToken: (cumulativeContent: string) => void,
 ): Promise<string> {
-    const response = await _fetch(endpoint, {
+    const response = await _fetch(resolveOllamaEndpointForWorker(endpoint, '/api/generate'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ model, prompt, stream: true }),
@@ -354,7 +364,7 @@ async function generateTextLegacy(
     endpoint: string,
 ): Promise<string | null> {
     try {
-        const res = await _fetch(endpoint, {
+        const res = await _fetch(resolveOllamaEndpointForWorker(endpoint, '/api/generate'), {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ model, prompt, stream: false }),
@@ -393,12 +403,36 @@ export type WorkerAPIWithInit = AIWorkerAPI & {
         authToken: string,
         vectorConfig?: Partial<typeof VECTOR_CONFIG>,
         fetchImpl?: typeof globalThis.fetch,
+        ollamaBaseUrl?: string,
     ): void;
 };
 
-export function createWorkerAPI(fetchImpl?: typeof globalThis.fetch): WorkerAPIWithInit {
+function resolveOllamaEndpointForWorker(endpoint: string, fallbackPath: string = '/api/generate'): string {
+    const normalizedBase = (_ollamaBaseUrl || 'http://localhost:11434').replace(/\/+$/, '');
+    if (!endpoint) return `${normalizedBase}${fallbackPath}`;
+
+    const stripped = endpoint.replace(/\/+$/, '');
+    const localhostPattern = /^https?:\/\/localhost:11434/;
+    if (localhostPattern.test(stripped)) {
+        return stripped.replace(localhostPattern, normalizedBase);
+    }
+
+    if (stripped.startsWith('/')) {
+        return `${normalizedBase}${stripped}`;
+    }
+
+    return stripped;
+}
+
+export function createWorkerAPI(
+    fetchImpl?: typeof globalThis.fetch,
+    options?: { ollamaBaseUrl?: string },
+): WorkerAPIWithInit {
     // set the fetch implementation if provided at creation time
     if (fetchImpl) _fetch = fetchImpl;
+    if (options?.ollamaBaseUrl) {
+        _ollamaBaseUrl = options.ollamaBaseUrl.replace(/\/+$/, '') || _ollamaBaseUrl;
+    }
 
     return {
         init,
