@@ -1,5 +1,7 @@
 /* src/components/editor/editor.css */
 
+@tailwind components;
+
 @layer components {
 
 .ProseMirror {
