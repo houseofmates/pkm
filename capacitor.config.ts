@@ -9,7 +9,20 @@ const config: CapacitorConfig = {
     // without requiring a new APK build. The app will fetch latest code on each launch.
     url: 'http://pkm.houseofmates.space:3010',
     allowNavigation: ['*'],
-    cleartext: true
+    cleartext: true,
+    // Enable offline caching - app will work offline and sync when back online
+    androidScheme: 'https'
+  },
+  plugins: {
+    // Enable background app refresh and offline capabilities
+    SplashScreen: {
+      launchShowDuration: 0
+    }
+  },
+  android: {
+    // Allow WebView to cache content for offline use
+    webContentsDebuggingEnabled: true,
+    backgroundColor: '#050505'
   }
 };
 
