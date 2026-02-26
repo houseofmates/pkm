@@ -6,7 +6,10 @@
 import * as Comlink from 'comlink';
 import { createWorkerAPI } from './ai-worker-core';
 
-const api = createWorkerAPI(self.fetch.bind(self));
+const params = new URL(self.location.href).searchParams;
+const ollamaBaseUrl = params.get('ollamaBaseUrl') || undefined;
+
+const api = createWorkerAPI(self.fetch.bind(self), { ollamaBaseUrl });
 
 Comlink.expose(api);
 
