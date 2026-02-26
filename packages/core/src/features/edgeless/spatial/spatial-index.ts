@@ -193,14 +193,14 @@ export class SpatialIndex {
 
   // query objects within viewport bounds with optional margin for smooth scrolling
   // this is the primary method for viewport culling - aggressively strips off-screen elements
-  queryVisible(viewportBounds: Bounds, margin: number = 200): SpatialObject[] {
+  queryVisible(viewportBounds: Bounds, marginX: number = 200, marginY: number = 200): SpatialObject[] {
     // expand viewport bounds with margin to include elements near screen edge
     // this prevents flickering when elements are just outside the viewport
     const expandedBounds: Bounds = {
-      minX: viewportBounds.minX - margin,
-      minY: viewportBounds.minY - margin,
-      maxX: viewportBounds.maxX + margin,
-      maxY: viewportBounds.maxY + margin,
+      minX: viewportBounds.minX - marginX,
+      minY: viewportBounds.minY - marginY,
+      maxX: viewportBounds.maxX + marginX,
+      maxY: viewportBounds.maxY + marginY,
     }
 
     const cells = this.getCellsForBounds(expandedBounds)
@@ -240,8 +240,8 @@ export class SpatialIndex {
   }
 
   // get all visible object ids for quick lookup
-  getVisibleIds(viewportBounds: Bounds, margin: number = 200): Set<string> {
-    const visible = this.queryVisible(viewportBounds, margin)
+  getVisibleIds(viewportBounds: Bounds, marginX: number = 200, marginY: number = 200): Set<string> {
+    const visible = this.queryVisible(viewportBounds, marginX, marginY)
     return new Set(visible.map(obj => obj.id))
   }
 
@@ -254,7 +254,7 @@ export class SpatialIndex {
    * @param zoom - current zoom level
    * @param screenW - visible screen width in pixels
    * @param screenH - visible screen height in pixels
-   * @param margin - world-space margin for prefetching (default 300)
+   * @param bufferPercent - percentage of screen size to use as buffer (default 0.2)
    */
   queryViewportIds(
     panX: number,
@@ -262,7 +262,7 @@ export class SpatialIndex {
     zoom: number,
     screenW: number,
     screenH: number,
-    margin: number = 300,
+    bufferPercent: number = 0.2,
   ): Set<string> {
     // Convert screen-space viewport rectangle to world-space coordinates.
     // Screen point (sx, sy) maps to world point:  wx = (sx - panX) / zoom
@@ -273,7 +273,11 @@ export class SpatialIndex {
       maxY: (screenH - panY) / zoom,
     }
 
-    return this.getVisibleIds(worldBounds, margin)
+    // Buffer in world units
+    const marginX = (screenW * bufferPercent) / zoom
+    const marginY = (screenH * bufferPercent) / zoom
+
+    return this.getVisibleIds(worldBounds, marginX, marginY)
   }
 
   getObject(id: string): SpatialObject | undefined {
