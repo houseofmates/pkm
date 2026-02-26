@@ -1,6 +1,6 @@
 import { api } from '@/api/nocobase-client';
 import { localDbService } from './local-db.service';
-import { usePkmStore } from '@/store/usePkmStore';
+import { useCollectionsStore } from '@/store/useCollectionsStore';
 import './field-types'; // For side-effect: registers default field types.
 import type { FieldInstance } from './schema.service';
 
@@ -40,7 +40,7 @@ class DataService {
       const cachedCollections = await localDbService.getAllCollections();
       if (cachedCollections && cachedCollections.length > 0) {
         secureLogger.info(`Loaded ${cachedCollections.length} collections from cache.`);
-        usePkmStore.getState().setCollections(cachedCollections);
+        useCollectionsStore.getState().setCollections(cachedCollections);
       }
     } catch (error) {
       secureLogger.error('Failed to load collections from cache:', error);
@@ -62,7 +62,7 @@ class DataService {
       await localDbService.saveCollections(freshCollections);
 
       // 4. Update the UI (Zustand store) with fresh data
-      usePkmStore.getState().setCollections(freshCollections);
+      useCollectionsStore.getState().setCollections(freshCollections);
     } catch (error) {
       secureLogger.error('Failed to sync collections from NocoBase. App may be offline.', error);
       // If the network fails, the app will continue to run with the cached data.

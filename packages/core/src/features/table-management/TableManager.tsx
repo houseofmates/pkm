@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { dataService } from '@/services/data.service';
-import { usePkmStore } from '@/store/usePkmStore';
+import { useCollectionsStore } from '@/store/useCollectionsStore';
 import type { FieldInstance } from '@/services/schema.service';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export const TableManager: React.FC = () => {
   // Subscribe to the collections from the central Zustand store
-  const collections = usePkmStore((state) => state.collections);
+  const collections = useCollectionsStore((state) => state.collections);
   const [newTableName, setNewTableName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 

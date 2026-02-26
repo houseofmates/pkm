@@ -17,7 +17,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import { usePkmStore } from '@/store/usePkmStore';
+import { useCollectionsStore } from '@/store/useCollectionsStore';
 import { secureLogger } from '@/lib/secure-logger';
 
 // import formula editor
@@ -216,7 +216,7 @@ function RelationPicker({ field, value, onChange, onCancel }: any) {
 
 // --- link database picker component ---
 function LinkDatabasePicker({ value, onChange, onCancel }: any) {
-  const collections = usePkmStore((state) => state.collections);
+  const collections = useCollectionsStore((state) => state.collections);
   const [search, setSearch] = useState('');
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -334,7 +334,7 @@ function LinkDatabasePicker({ value, onChange, onCancel }: any) {
 // --- link item picker component ---
 function LinkItemPicker({ value, onChange, onCancel }: any) {
   const { client } = useAuth() as any;
-  const collections = usePkmStore((state) => state.collections);
+  const collections = useCollectionsStore((state) => state.collections);
   const [search, setSearch] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);

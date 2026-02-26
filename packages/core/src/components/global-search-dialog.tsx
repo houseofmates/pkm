@@ -5,7 +5,7 @@ import { OllamaClient } from '@/api/ollama-client';
 import { getOllamaBase } from '@/lib/llm-config';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import usePkmStore from '@/store/usePkmStore';
+import { useSearchStore } from '@/store/useSearchStore';
 import SearchBar from './search/SearchBar';
 import { secureLogger } from '@/lib/secure-logger';
 
@@ -21,7 +21,7 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
   const [response, setResponse] = useState<string | null>(null);
   const [status, setStatus] = useState<string>('');
   const [loading, setLoading] = useState(false);
-  const searchResults = usePkmStore((s: { searchResults: Array<{ collectionName?: string; collectionTitle?: string; record?: Record<string, unknown>; id?: string; score?: number }> }) => s.searchResults);
+  const searchResults = useSearchStore((s) => s.searchResults);
 
   const inputRef = useRef<HTMLInputElement>(null);
 
