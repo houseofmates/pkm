@@ -38,9 +38,7 @@ interface DatabaseContextMenuProps {
 export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }: DatabaseContextMenuProps) {
   const { client } = useAuth();
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [editOpen, setEditOpen] = useState(false);
   const [colorOpen, setColorOpen] = useState(false);
-  const [proposedTitle, setProposedTitle] = useState<string | undefined>(undefined);
   const [imageOpen, setImageOpen] = useState(false);
 
   // metadata for cosmetics
@@ -108,7 +106,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
           }}
         >
           <ContextMenuLabel className="lowercase font-bold px-2 py-1.5 text-xs text-muted-foreground">{collection.title || collection.name}</ContextMenuLabel>
-          <ContextMenuItem onSelect={() => setEditOpen(true)}>
+          <ContextMenuItem>
             <Edit className="mr-2 h-4 w-4" />
             rename
           </ContextMenuItem>

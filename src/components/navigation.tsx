@@ -321,8 +321,8 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     // for collections (databases), refresh from server to ensure sync
     if (!id.startsWith('doc_') && !id.startsWith('drawing_') && !id.startsWith('folder_')) {
       if (updates.delete) {
-        // immediately remove from local state and refresh collections from server
-        setItems(items.filter(i => i.id !== id));
+        // just refresh - the useEffect will remove the item when collections update
+        // don't manually filter here or useEffect will re-add it before refresh completes
         refresh();
         return;
       }
@@ -633,8 +633,8 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         />
 
 
-        {/* scrollable list: flex-1 takes available space, overflow-y-auto enables scrolling */}
-        <div className="flex-1 w-full min-h-0 px-2 overflow-y-auto">
+        {/* scrollable list: flex-1 takes available space, h-0 forces proper flex shrinking */}
+        <div className="flex-1 w-full h-0 min-h-0 px-2 overflow-y-auto">
 
           <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-0.5 pb-4">
