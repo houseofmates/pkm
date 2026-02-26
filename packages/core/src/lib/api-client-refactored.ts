@@ -5,7 +5,7 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import { getToken, setToken, clearToken } from '@/features/edgeless/storage'
 import { secureLogger } from './secure-logger'
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4100/api'
+const API_URL = import.meta.env.VITE_API_URL || '/api'
 
 // token cache in memory (not localstorage)
 interface TokenCache {

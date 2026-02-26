@@ -45,7 +45,7 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/simplyplural/, ''),
       },
       '/api/nocobase': {
-        target: 'https://db.houseofmates.space/api',
+        target: 'http://127.0.0.1:8091/api',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/nocobase/, ''),
       },
@@ -62,7 +62,7 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/api': {
-        target: 'https://db.houseofmates.space/api',
+        target: 'http://127.0.0.1:8091/api',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
@@ -72,9 +72,9 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/ollama/, ''),
       },
       '/storage': {
-        target: 'https://db.houseofmates.space',
+        target: 'http://127.0.0.1:8091',
         changeOrigin: true,
-        secure: true,
+        secure: false,
       },
     },
   },
@@ -122,7 +122,7 @@ export default defineConfig({
         changeOrigin: true,
       },
       '/api/nocobase': {
-        target: 'https://db.houseofmates.space/api',
+        target: 'http://127.0.0.1:8091/api',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/nocobase/, ''),
       },
@@ -132,9 +132,9 @@ export default defineConfig({
         rewrite: (path) => path.replace(/^\/api\/ollama/, ''),
       },
       '/storage': {
-        target: 'https://db.houseofmates.space',
+        target: 'http://127.0.0.1:8091',
         changeOrigin: true,
-        secure: true,
+        secure: false,
       },
     }
   },
