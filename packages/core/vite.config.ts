@@ -185,8 +185,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "../packages/core/src"),
-      "@pkm/core": path.resolve(__dirname, "../packages/core/src")
+      "@": path.resolve(__dirname, "./src"),
+      "@pkm/core": path.resolve(__dirname, "./src")
     },
   },
   optimizeDeps: {
