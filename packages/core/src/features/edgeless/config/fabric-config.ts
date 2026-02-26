@@ -80,13 +80,13 @@ export function cleanupFabricConfig(canvas: Canvas): void {
 }
 
 // canvas initialization with isolated config
-export function createConfiguredCanvas(
+export async function createConfiguredCanvas(
   canvasEl: HTMLCanvasElement,
   width: number,
   height: number,
   config: FabricConfig = DEFAULT_DARK_CONFIG
-  const fabric = await import('fabric')
-  const FabricCanvas = fabric.Canvas
+): Promise<Canvas> {
+  const { Canvas: FabricCanvas } = await import('fabric')
 
   const canvas = new FabricCanvas(canvasEl, {
     width,
@@ -102,5 +102,5 @@ export function createConfiguredCanvas(
 
   applyFabricConfig(canvas, config)
 
-return canvas
+  return canvas
 }
