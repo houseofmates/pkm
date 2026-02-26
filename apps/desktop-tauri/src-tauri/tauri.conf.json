@@ -1,13 +1,13 @@
 {
-  "$schema": "../node_modules/@tauri-apps/cli/config.schema.json",
+  "$schema": "../../../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "PKM",
   "version": "0.1.0",
   "identifier": "com.tauri.dev",
   "build": {
-    "frontendDist": "../dist",
-    "devUrl": "http://localhost:3011",
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
+    "frontendDist": "../../web/dist",
+    "devUrl": "http://localhost:3010",
+    "beforeDevCommand": "npm run dev --workspace=pkm-web",
+    "beforeBuildCommand": "npm run build --workspace=pkm-web"
   },
   "app": {
     "windows": [

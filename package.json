@@ -7,7 +7,7 @@
   ],
   "version": "0.0.0",
   "type": "module",
-  "main": "electron/main.js",
+  "main": "apps/desktop-electron/electron/main.js",
   "scripts": {
     "predev": "node scripts/utils/setup-env.cjs",
     "prebuild": "node scripts/utils/setup-env.cjs",
@@ -183,25 +183,5 @@
       "eslint --fix",
       "git add"
     ]
-  },
-  "build": {
-    "appId": "com.houseofmates.pkm",
-    "productName": "pkm",
-    "directories": {
-      "output": "release"
-    },
-    "files": [
-      "dist/**/*",
-      "electron/**/*"
-    ],
-    "mac": {
-      "target": "dmg"
-    },
-    "win": {
-      "target": "nsis"
-    },
-    "linux": {
-      "target": "AppImage"
-    }
   }
 }

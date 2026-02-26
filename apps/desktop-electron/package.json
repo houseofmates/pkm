@@ -2,8 +2,9 @@
   "name": "pkm-desktop-electron",
   "version": "0.0.0",
   "private": true,
+  "main": "electron/main.js",
   "scripts": {
-    "dev": "npm run dev --workspace=pkm-web",
+    "dev": "concurrently -k \"npm run dev --workspace=pkm-web\" \"wait-on http://localhost:3010 && electron .\"",
     "build": "npm run build --workspace=pkm-web && electron-builder"
   },
   "dependencies": {
@@ -12,5 +13,28 @@
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "zustand": "^5.0.9"
+  },
+  "build": {
+    "appId": "com.houseofmates.pkm",
+    "productName": "pkm",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "../../apps/web/dist/**/*",
+      "electron/**/*"
+    ],
+    "extraMetadata": {
+      "main": "electron/main.js"
+    },
+    "mac": {
+      "target": "dmg"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "linux": {
+      "target": "AppImage"
+    }
   }
 }
