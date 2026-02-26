@@ -33,9 +33,10 @@ interface DatabaseContextMenuProps {
   collection: Collection;
   children: React.ReactNode;
   onUpdate: () => void;
+  onDelete?: () => void;
 }
 
-export function DatabaseContextMenu({ collection, children, onUpdate }: DatabaseContextMenuProps) {
+export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }: DatabaseContextMenuProps) {
   const { client } = useAuth();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -62,6 +63,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate }: Database
       await client.deleteCollection(collection.name);
       toast.success(`deleted ${collection.title || collection.name}`);
       onUpdate();
+      onDelete?.();
     } catch (error) {
       secureLogger.error("Delete failed:", error instanceof Error ? error.message : String(error));
       toast.error("failed to delete database");
