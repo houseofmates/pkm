@@ -1,6 +1,7 @@
-import React, { useRef, useEffect, useMemo, useState } from 'react'
+import React, { useRef, useEffect, useMemo, useState, useCallback, memo } from 'react'
 import * as fabric from 'fabric'
-import { useEdgelessStore } from '../store'
+import { useEdgelessStore, useViewport, useElementIds, useElement, useActiveTool, useSelectionMode } from '../store'
+import type { EdgelessElement } from '../store'
 import { useCanvasSafe } from '../hooks/use-canvas-safe'
 import { PdfElement } from './elements/PdfElement'
 import { EmbedElement } from './elements/EmbedElement'
@@ -21,6 +22,203 @@ import { SmartTextElement } from './elements/SmartTextElement'
 import { useContextMenuStore } from '@/components/ui/context-menu-store'
 import { useCanvasEvents } from '../hooks/use-canvas-events'
 import { useGestureManager } from '@/hooks/use-gesture-manager'
+import { buildOverlaySpatialIndex } from '../spatial/spatial-index'
+
+// ─── Memoized per-element wrapper ─────────────────────────────────────────────
+// Each element subscribes to its own data via useElement(id).
+// Re-renders ONLY when that specific element object changes in the store.
+
+interface CanvasElementProps {
+  id: string
+  pointerClass: string
+  pdfDoc: any
+}
+
+const CanvasElement = memo(function CanvasElement({ id, pointerClass, pdfDoc }: CanvasElementProps) {
+  const element = useElement(id)
+  if (!element) return null
+
+  const style: React.CSSProperties = {
+    position: 'absolute',
+    left: element.x,
+    top: element.y,
+    width: element.width,
+    height: element.height,
+    transformOrigin: 'top left',
+  }
+
+  switch (element.type) {
+    case 'pdf-page':
+      return (
+        <div className={`absolute bg-[#090909] border border-white/10 shadow-lg ${pointerClass}`} style={style}>
+          <PdfElement element={element} pdfDocument={pdfDoc} />
+        </div>
+      )
+    case 'image':
+      return (
+        <div className={`absolute shadow-lg ${pointerClass}`} style={style}>
+          <img src={element.data?.src || element.data?.url} className="w-full h-full object-cover" draggable={false} />
+        </div>
+      )
+    case 'embed':
+    case 'embed-web':
+    case 'embed-nocobase':
+      return (
+        <div className={`absolute ${pointerClass}`} style={style}>
+          <EmbedElement element={element} />
+        </div>
+      )
+    case 'link-card':
+      return (
+        <div className={`absolute ${pointerClass}`} style={style}>
+          <LinkElement element={element} />
+        </div>
+      )
+    case 'record-node':
+      return (
+        <div className={`absolute ${pointerClass}`} style={style}>
+          <RecordNodeElement element={element} />
+        </div>
+      )
+    case 'database-card':
+      return (
+        <div className={`absolute ${pointerClass}`} style={style}>
+          <CanvasCard
+            data={element.data.row}
+            collection={element.data.collection}
+            fields={element.data.fields || []}
+            layout={{ x: 0, y: 0, width: element.width, height: element.height }}
+            isSelected={false}
+            className="w-full h-full"
+            onUpdate={element.data.onUpdate}
+          />
+        </div>
+      )
+    case 'portal':
+      return (
+        <div className={`absolute ${pointerClass}`} style={style}>
+          <PortalElement element={element} />
+        </div>
+      )
+    case 'eternal-flame':
+      return (
+        <div className={`absolute ${pointerClass}`} style={style}>
+          <EternalFlame element={element} />
+        </div>
+      )
+    case 'contact-card':
+      return (
+        <div className={`absolute ${pointerClass}`} style={style}>
+          <ContactElement element={element} />
+        </div>
+      )
+    case 'offering-drop':
+      return (
+        <div className={`absolute ${pointerClass}`} style={style}>
+          <OfferingDrop element={element} />
+        </div>
+      )
+    case 'shopping-card':
+      return (
+        <div className={`absolute ${pointerClass}`} style={style}>
+          <ShoppingCard element={element} />
+        </div>
+      )
+    case 'gold-pile':
+      return (
+        <div className={`absolute ${pointerClass}`} style={style}>
+          <GoldPile element={element} />
+        </div>
+      )
+    case 'floating-reminder':
+      return (
+        <div className={`absolute ${pointerClass}`} style={style}>
+          <FloatingReminder element={element} />
+        </div>
+      )
+    case 'tier-list':
+      return (
+        <div className={`absolute ${pointerClass}`} style={style}>
+          <TierListElement element={element} />
+        </div>
+      )
+    case 'sleep-ring':
+      return (
+        <div className={`absolute ${pointerClass}`} style={style}>
+          <SleepRing element={element} />
+        </div>
+      )
+    case 'connector':
+      return <ConnectorElement element={element} />
+    case 'smart-text':
+      return (
+        <div
+          className={`absolute ${pointerClass}`}
+          style={{
+            ...style,
+            height: 'auto',
+            minHeight: 50,
+            zIndex: 10,
+          }}
+        >
+          <SmartTextElement element={element} />
+        </div>
+      )
+    default:
+      return null
+  }
+}, (prev, next) => prev.id === next.id && prev.pointerClass === next.pointerClass && prev.pdfDoc === next.pdfDoc)
+
+
+// ─── Visible element list (viewport-culled) ────────────────────────────────────
+
+interface OverlayLayerProps {
+  pointerClass: string
+  pdfDoc: any
+}
+
+/** Renders only elements whose IDs are within the current viewport.
+ *  The overlay container uses a CSS transform so pan/zoom is handled by the
+ *  GPU compositor — no React re-renders needed for viewport movement. */
+const OverlayLayer = memo(function OverlayLayer({ pointerClass, pdfDoc }: OverlayLayerProps) {
+  const elementIds = useElementIds()
+  const elements = useEdgelessStore((s) => s.elements)
+  const viewPort = useViewport()
+
+  // Build a lightweight spatial index from the current elements for viewport culling.
+  // This recomputes only when the elements array reference changes (add/remove/move).
+  const overlaySpatialIndex = useMemo(() => {
+    return buildOverlaySpatialIndex(elements)
+  }, [elements])
+
+  // Compute visible IDs – we allow a generous 300 world-unit margin so elements
+  // entering the screen are pre-mounted before they become visible.
+  const visibleIds = useMemo(() => {
+    const screenW = typeof window !== 'undefined' ? window.innerWidth : 1920
+    const screenH = typeof window !== 'undefined' ? window.innerHeight : 1080
+    return overlaySpatialIndex.queryViewportIds(
+      viewPort.x, viewPort.y, viewPort.zoom,
+      screenW, screenH, 300
+    )
+  }, [overlaySpatialIndex, viewPort.x, viewPort.y, viewPort.zoom])
+
+  // If there are very few elements, skip culling and render all
+  const shouldCull = elementIds.length > 20
+  const idsToRender = shouldCull
+    ? elementIds.filter((id) => visibleIds.has(id))
+    : elementIds
+
+  return (
+    <>
+      {idsToRender.map((id) => (
+        <CanvasElement key={id} id={id} pointerClass={pointerClass} pdfDoc={pdfDoc} />
+      ))}
+    </>
+  )
+})
+
+
+// ─── Main canvas component ─────────────────────────────────────────────────────
 
 export interface EdgelessCanvasProps {
   onObjectModified?: (e: any) => void
@@ -46,27 +244,37 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
   })
   const viewportRafRef = useRef<number | null>(null)
 
-  const {
-    fabricCanvas,
-    setFabricCanvas,
-    elements,
-    viewPort,
-    setViewport,
-    activeTool,
-    selectionMode,
-    selectedIds,
-    pdfDoc,
-    canvasConfig
-  } = useEdgelessStore()
+  // ── Ref-based cursor tracking (no React state) ──
+  const cursorPosRef = useRef({ x: -100, y: -100 })
+  const eraserCursorRef = useRef<HTMLDivElement>(null)
+  const cursorRafRef = useRef<number | null>(null)
+
+  // ── Store subscriptions (granular) ──
+  const fabricCanvas = useEdgelessStore((s) => s.fabricCanvas)
+  const setFabricCanvas = useEdgelessStore((s) => s.setFabricCanvas)
+  const viewPort = useViewport()
+  const setViewport = useEdgelessStore((s) => s.setViewport)
+  const activeTool = useActiveTool()
+  const selectionMode = useSelectionMode()
+  const pdfDoc = useEdgelessStore((s) => s.pdfDoc)
+  const canvasConfig = useEdgelessStore((s) => s.canvasConfig)
+  const elementsLength = useEdgelessStore((s) => s.elements.length)
 
   const { handleDrop } = useCanvasEvents()
   useCanvasSafe()
-  const [cursorPos, setCursorPos] = useState({ x: -100, y: -100 })
+
+  // Pen/eraser settings
+  const penWidth = useEdgelessStore((s) => s.penWidth)
+  const penColor = useEdgelessStore((s) => s.penColor)
+  const penOpacity = useEdgelessStore((s) => s.penOpacity)
+  const eraserWidth = useEdgelessStore((s) => s.eraserWidth)
+  const eraserOpacity = useEdgelessStore((s) => s.eraserOpacity)
+  const stabilizerLevel = useEdgelessStore((s) => s.stabilizerLevel)
 
   // track last stateful action to decide empty-space two-finger undo
   useEffect(() => {
     lastStateChangeRef.current = Date.now()
-  }, [viewPort, elements.length])
+  }, [viewPort, elementsLength])
 
   useGestureManager(
     wrapperRef,
@@ -137,10 +345,6 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
   }, [])
 
   // Tool Configuration (Drawing / Eraser)
-  // read reactive brush/eraser settings from the store so we can
-  // reconfigure the fabric brush whenever they change.
-  const { penWidth, penColor, penOpacity, eraserWidth, eraserOpacity, stabilizerLevel } = useEdgelessStore();
-
   useEffect(() => {
     if (!fabricCanvas) return
 
@@ -150,14 +354,10 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       brush.width = penWidth
       brush.color = penColor
       brush.opacity = (penOpacity ?? 100) / 100
-      // apply smoothing/decimation; higher stabilizer => less decimate
-      // cap between 1 and 8
       brush.decimate = Math.max(1, 8 - (stabilizerLevel || 0))
       fabricCanvas.freeDrawingBrush = brush
     } else if (activeTool === 'eraser') {
       fabricCanvas.isDrawingMode = true
-      // fabric's types do not export EraserBrush so we access dynamically to avoid
-      // esbuild treating it as a named import and failing when the symbol is missing.
       const EraserBrushConstructor = Object.getOwnPropertyDescriptor(fabric, ['Eraser', 'Brush'].join(''))?.value;
       if (EraserBrushConstructor) {
         const eraser = new EraserBrushConstructor(fabricCanvas) as any
@@ -268,8 +468,24 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       }
     }
 
+    // ── pointer move: ref-based cursor, no React state ──
     const handlePointerMove = (e: PointerEvent) => {
-      setCursorPos({ x: e.clientX, y: e.clientY })
+      // Update cursor position via ref + RAF (bypasses React entirely)
+      cursorPosRef.current.x = e.clientX
+      cursorPosRef.current.y = e.clientY
+      if (!cursorRafRef.current) {
+        cursorRafRef.current = requestAnimationFrame(() => {
+          const el = eraserCursorRef.current
+          if (el) {
+            const { x, y } = cursorPosRef.current
+            const r = useEdgelessStore.getState().eraserWidth / 2
+            el.style.transform = `translate(${x - r}px, ${y - r}px)`
+            el.style.display = x > -50 ? 'block' : 'none'
+          }
+          cursorRafRef.current = null
+        })
+      }
+
       const state = pointerStateRef.current
       if (!state.pointers.has(e.pointerId)) return
       state.pointers.set(e.pointerId, e)
@@ -329,9 +545,11 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       upperCanvas?.removeEventListener('pointerup', handlePointerUp)
       upperCanvas?.removeEventListener('pointercancel', handlePointerUp)
       if (viewportRafRef.current) cancelAnimationFrame(viewportRafRef.current)
+      if (cursorRafRef.current) cancelAnimationFrame(cursorRafRef.current)
     }
   }, [fabricCanvas, activeTool])
 
+  // Context menu
   useEffect(() => {
     if (!fabricCanvas) return
 
@@ -352,7 +570,6 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
           { ...data, type: (target as any).type }
         )
       } else {
-        // blank canvas click: if drawing or eraser tool active, show tool menu
         if (activeTool === 'pen' || activeTool === 'eraser') {
           const extra: any = { tool: activeTool };
           if (activeTool === 'pen') extra.color = useEdgelessStore.getState().penColor;
@@ -373,205 +590,12 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     return () => upperCanvas.removeEventListener('contextmenu', handleContextMenu)
   }, [fabricCanvas])
 
-  const getScreenPos = (el: any) => {
-    if (!fabricCanvas) return { x: 0, y: 0, w: 0, h: 0 }
-    const vpt = fabricCanvas.viewportTransform || [1, 0, 0, 1, 0, 0]
-    const zoom = vpt[0]
-    const panX = vpt[4]
-    const panY = vpt[5]
-
-    return {
-      x: el.x * zoom + panX,
-      y: el.y * zoom + panY,
-      w: el.width * zoom,
-      h: el.height * zoom,
-    }
-  }
-
-  const overlayElements = useMemo(() => {
-    if (!fabricCanvas) return null
-    const out: React.ReactNode[] = []
-
-    // Determine pointer behavior based on tool mode
-    // GRAB (Select Tool) -> pointer-events: none (pass through to canvas for drag)
-    // CURSOR (Interact Tool) -> pointer-events: auto (interact with widget)
-    // Draw/Eraser -> pointer-events: none
-    const isInteractMode = activeTool === 'select' && selectionMode === 'cursor';
-    const globalPointerEvents = isInteractMode ? 'pointer-events-auto' : 'pointer-events-none';
-
-    for (let i = 0; i < elements.length; i++) {
-      const el = elements[i]
-      const { x: screenX, y: screenY, w: screenW, h: screenH } = getScreenPos(el)
-
-      // If interact mode, always interact. If grab mode, only interact if explicitly not covering?
-      // Actually, we want the ability to drag "windows".
-      // If Grab mode: pointer-events: none on content, but maybe auto on a "handle"?
-      // The overlay is the *content*. The fabric object underneath handles the drag.
-      // So if pointer-events is none, clicks go to fabric -> drag works.
-      // If pointer-events is auto, clicks go to overlay -> drag FAILS.
-
-      // So:
-      // Grab Mode -> pointer-events: none
-      // Interact Mode -> pointer-events: auto
-
-      const pointerClass = globalPointerEvents;
-
-      const elementStyle = {
-        left: screenX,
-        top: screenY,
-        width: screenW,
-        height: screenH,
-        transformOrigin: 'top left',
-      }
-
-      switch (el.type) {
-        case 'pdf-page':
-          out.push(
-            <div
-              key={el.id}
-              className={`absolute bg-[#090909] border border-white/10 shadow-lg ${pointerClass}`}
-              style={elementStyle}
-            >
-              <PdfElement element={el} pdfDocument={pdfDoc} />
-            </div>
-          )
-          break
-        case 'image':
-          out.push(
-            <div key={el.id} className={`absolute shadow-lg ${pointerClass}`} style={elementStyle}>
-              <img src={el.data?.src || el.data?.url} className="w-full h-full object-cover" draggable={false} />
-            </div>
-          )
-          break
-        case 'embed':
-        case 'embed-web':
-        case 'embed-nocobase':
-          out.push(
-            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
-              <EmbedElement element={el} />
-            </div>
-          )
-          break
-        case 'link-card':
-          out.push(
-            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
-              <LinkElement element={el} />
-            </div>
-          )
-          break
-        case 'record-node':
-          out.push(
-            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
-              <RecordNodeElement element={el} />
-            </div>
-          )
-          break
-        case 'database-card':
-          out.push(
-            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
-              <CanvasCard
-                data={el.data.row}
-                collection={el.data.collection}
-                fields={el.data.fields || []}
-                layout={{ x: 0, y: 0, width: el.width, height: el.height }}
-                isSelected={false}
-                className="w-full h-full"
-                onUpdate={el.data.onUpdate}
-              />
-            </div>
-          )
-          break
-        case 'portal':
-          out.push(
-            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
-              <PortalElement element={el} />
-            </div>
-          )
-          break
-        case 'eternal-flame':
-          out.push(
-            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
-              <EternalFlame element={el} />
-            </div>
-          )
-          break
-        case 'contact-card':
-          out.push(
-            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
-              <ContactElement element={el} />
-            </div>
-          )
-          break
-        case 'offering-drop':
-          out.push(
-            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
-              <OfferingDrop element={el} />
-            </div>
-          )
-          break
-        case 'shopping-card':
-          out.push(
-            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
-              <ShoppingCard element={el} />
-            </div>
-          )
-          break
-        case 'gold-pile':
-          out.push(
-            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
-              <GoldPile element={el} />
-            </div>
-          )
-          break
-        case 'floating-reminder':
-          out.push(
-            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
-              <FloatingReminder element={el} />
-            </div>
-          )
-          break
-        case 'tier-list':
-          out.push(
-            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
-              <TierListElement element={el} />
-            </div>
-          )
-          break
-        case 'sleep-ring':
-          out.push(
-            <div key={el.id} className={`absolute ${pointerClass}`} style={elementStyle}>
-              <SleepRing element={el} />
-            </div>
-          )
-          break
-        case 'connector':
-          out.push(<ConnectorElement key={el.id} element={el} />)
-          break
-        case 'smart-text':
-          out.push(
-            <div
-              key={el.id}
-              className={`absolute ${pointerClass}`}
-              style={{
-                ...elementStyle,
-                height: 'auto',
-                minHeight: 50,
-                zIndex: 10,
-              }}
-            >
-              <SmartTextElement element={el} />
-            </div>
-          )
-          break
-        default:
-          break
-      }
-    }
-    return out
-  }, [elements, selectedIds, fabricCanvas, viewPort.x, viewPort.y, viewPort.zoom, pdfDoc, activeTool, selectionMode])
+  // ── Pointer interaction class ──
+  const isInteractMode = activeTool === 'select' && selectionMode === 'cursor'
+  const pointerClass = isInteractMode ? 'pointer-events-auto' : 'pointer-events-none'
 
   // Upload
-  const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
     const reader = new FileReader()
@@ -591,7 +615,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       }
     }
     reader.readAsDataURL(file)
-  }
+  }, [handleDrop])
 
   return (
     <div
@@ -652,6 +676,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         )
       })()}
 
+      {/* Children transform layer */}
       <div
         className="absolute inset-0 pointer-events-none origin-top-left"
         style={{
@@ -663,21 +688,39 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         <div className="pointer-events-auto">{children}</div>
       </div>
 
-      {fabricCanvas && overlayElements}
+      {/* ── Overlay elements: rendered in canvas-space inside a CSS-transformed container ──
+           Pan/zoom is handled entirely by the CSS transform on this wrapper div.
+           Individual elements render at their raw (x, y, w, h) world coordinates.
+           The GPU compositor handles the transform — zero React re-renders for pan/zoom. */}
+      {fabricCanvas && (
+        <div
+          className="absolute inset-0 pointer-events-none origin-top-left"
+          style={{
+            transform: `matrix(${viewPort.zoom}, 0, 0, ${viewPort.zoom}, ${viewPort.x}, ${viewPort.y})`,
+            width: '100%',
+            height: '100%',
+          }}
+        >
+          <OverlayLayer pointerClass={pointerClass} pdfDoc={pdfDoc} />
+        </div>
+      )}
 
+      {/* Eraser cursor — driven by ref + RAF, no React state */}
       {activeTool === 'eraser' && (
         <div
+          ref={eraserCursorRef}
           className="pointer-events-none fixed rounded-full"
           style={{
-            top: cursorPos.y - eraserWidth / 2,
-            left: cursorPos.x - eraserWidth / 2,
+            top: 0,
+            left: 0,
             width: eraserWidth,
             height: eraserWidth,
-            display: cursorPos.x > -50 ? 'block' : 'none',
+            display: 'none',
             zIndex: 99999,
             boxSizing: 'border-box',
             border: '3px solid #f6b012',
             backgroundColor: 'rgba(255, 255, 255, 0.1)',
+            willChange: 'transform',
           }}
         />
       )}
