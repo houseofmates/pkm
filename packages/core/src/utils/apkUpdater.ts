@@ -3,14 +3,6 @@
 
 import axios from 'axios';
 
-// Type declaration for optional @capacitor/browser dependency
-declare module '@capacitor/browser' {
-  export interface BrowserPlugin {
-    open(options: { url: string }): Promise<void>;
-  }
-  export const Browser: BrowserPlugin;
-}
-
 export interface ApkVersionManifest {
   version: string;
   apkUrl: string;
@@ -37,7 +29,8 @@ export async function downloadAndPromptInstall(apkUrl: string) {
   if (typeof window !== 'undefined' && typeof (window as any).Capacitor !== 'undefined') {
     try {
       // Dynamic import with proper error handling - avoids eval() security risk
-      const browserModule = await import('@capacitor/browser');
+      // Use type assertion since @capacitor/browser is an optional dependency
+      const browserModule = await import('@capacitor/browser') as { Browser: { open: (options: { url: string }) => Promise<void> } };
       const { Browser } = browserModule;
       await Browser.open({ url: apkUrl });
       return;
