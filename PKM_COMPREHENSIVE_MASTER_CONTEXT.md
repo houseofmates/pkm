@@ -1169,7 +1169,7 @@ this section documents the projects and integrations that live alongside `pkm` i
   - minecraft plugin -> POST webhook -> n8n workflow `minecraft-chat-bridge` -> pkm `POST /api/broadcast` -> socket.io -> frontend toast/log
   - discord bot can subscribe to the same broadcasts (either by listening to pkm socket.io endpoints or by having n8n forward messages to the bot).
 - files to inspect:
-  - `pkm/backend/server.js` — socket.io and `/api/broadcast` bridge
+  - `pkm/packages/backend/server.js` — socket.io and `/api/broadcast` bridge
   - `discord-qwen-bot/index.js` — does the bot connect to pkm directly or via webhook forwarding? check `index.js` for http/socket code.
 
 ### 14.4 nocobase (headless cms)
