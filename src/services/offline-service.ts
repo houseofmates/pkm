@@ -206,17 +206,18 @@ class OfflineService {
   }
 
   private async syncChange(change: QueuedChange): Promise<void> {
-    const { client } = await import('@/contexts/auth-context');
+    // import the singleton api instance directly
+    const { api } = await import('@/api/nocobase-client');
     
     switch (change.action) {
       case 'create':
-        await client.createRecord(change.collection, change.data);
+        await api.createRecord(change.collection, change.data);
         break;
       case 'update':
-        await client.updateRecord(change.collection, change.data.id, change.data);
+        await api.updateRecord(change.collection, change.data.id, change.data);
         break;
       case 'delete':
-        await client.deleteRecord(change.collection, change.data.id);
+        await api.deleteRecord(change.collection, change.data.id);
         break;
     }
   }
