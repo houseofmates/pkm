@@ -3,7 +3,7 @@ import { transformWorkspace } from '../transformer';
 import type { NotionWorkspace } from '../parser';
 
 describe('Notion transformer', () => {
-    it('generates collections, records, and infers types', () => {
+    it('generates collections, records, and infers types', async () => {
         const ws: NotionWorkspace = {
             pages: [
                 { path: '/foo.md', title: 'T', frontmatter: { a: 1 }, content: 'c' },
@@ -21,7 +21,7 @@ describe('Notion transformer', () => {
             ],
             assets: [],
         };
-        const ins = transformWorkspace(ws);
+        const ins = await transformWorkspace(ws);
         const collections = ins.filter(i => i.type === 'createCollection') as any[];
         const records = ins.filter(i => i.type === 'createRecord');
         expect(collections.map(c => c.name)).toEqual(expect.arrayContaining(['db', 'pages']));
@@ -35,7 +35,7 @@ describe('Notion transformer', () => {
         expect(pagesDef.fields).toHaveProperty('a');
     });
 
-    it('infers relations from Notion relation props and matching values', () => {
+    it('infers relations from Notion relation props and matching values', async () => {
         const ws: NotionWorkspace = {
             pages: [],
             databases: [
@@ -61,7 +61,7 @@ describe('Notion transformer', () => {
             ],
             assets: [],
         };
-        const ins = transformWorkspace(ws);
+        const ins = await transformWorkspace(ws);
         const relations = ins.filter(i => i.type === 'addRelation') as any[];
         expect(relations).toHaveLength(1);
         expect(relations[0]).toMatchObject({ collection: 'Tasks', field: 'Project', targetCollection: 'Projects' });
@@ -69,9 +69,9 @@ describe('Notion transformer', () => {
         expect(taskCollection.fields.Project).toBe('lookup');
     });
 
-    it('gracefully handles empty datasets', () => {
+    it('gracefully handles empty datasets', async () => {
         const ws: NotionWorkspace = { pages: [], databases: [{ name: 'Empty', fields: [], rows: [], props: {} }], assets: [] };
-        const ins = transformWorkspace(ws);
+        const ins = await transformWorkspace(ws);
         expect(ins.filter(i => i.type === 'createCollection').length).toBe(2); // Empty + pages
         expect(ins.filter(i => i.type === 'createRecord').length).toBe(0);
         expect(ins.filter(i => i.type === 'addRelation').length).toBe(0);

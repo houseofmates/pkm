@@ -1,7 +1,23 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
-import { parseNotionExport } from '../parser';
+import { parseNotionExport, NodeFsSource } from '../parser';
+
+// helper to recursively find files and create NodeFsSource
+async function walkSources(dir: string, root: string = dir): Promise<NodeFsSource[]> {
+    const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+    const results: NodeFsSource[] = [];
+    for (const ent of entries) {
+        const full = path.join(dir, ent.name);
+        const rel = path.relative(root, full);
+        if (ent.isDirectory()) {
+            results.push(...await walkSources(full, root));
+        } else if (ent.isFile()) {
+            results.push(new NodeFsSource(full, rel));
+        }
+    }
+    return results;
+}
 
 // helper create a temporary test directory structure
 async function makeSampleDir(): Promise<string> {
@@ -26,7 +42,8 @@ async function makeSampleDir(): Promise<string> {
 describe('Notion parser', () => {
     it('should read pages, csvs and assets', async () => {
         const dir = await makeSampleDir();
-        const ws = await parseNotionExport(dir);
+        const sources = await walkSources(dir);
+        const ws = await parseNotionExport(sources);
         // two pages from root and nested folder
         expect(ws.pages.length).toBe(2);
         const titles = ws.pages.map(p => p.title).sort();
