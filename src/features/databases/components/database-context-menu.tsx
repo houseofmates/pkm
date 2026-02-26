@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { toast } from 'sonner';
 import { Trash2, Edit } from 'lucide-react';
-import { CollectionDialog } from '@/features/collections/components/collection-dialog';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from '@/components/ui/input';
