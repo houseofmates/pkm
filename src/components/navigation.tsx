@@ -466,11 +466,11 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
               size="icon"
               className={cn(
                 "rounded-xl w-10 h-10 transition-all nav-icon-btn",
-                activeTab === tab.id && !selectedCollection
+                (tab.id === 'databases' ? activeTab === 'databases' : activeTab === tab.id && !selectedCollection)
                   ? "text-primary font-bold shadow-none"
                   : "text-muted-foreground hover:text-primary"
               )}
-              style={activeTab === tab.id && !selectedCollection ? { background: accentBg } : undefined}
+              style={(tab.id === 'databases' ? activeTab === 'databases' : activeTab === tab.id && !selectedCollection) ? { background: accentBg } : undefined}
               onClick={() => {
                 onTabChange(tab.id as any);
                 onSelectCollection(null);
@@ -628,8 +628,8 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         />
 
 
-        {/* scrollable list: flex-1 takes available space, h-0 forces proper flex shrinking */}
-        <div className="flex-1 w-full h-0 min-h-0 px-2 overflow-y-auto">
+        {/* scrollable list: flex-1 takes available space, min-h-0 forces proper flex shrinking */}
+        <div className="flex-1 w-full min-h-0 px-2 overflow-y-auto">
 
           <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
             <div className="space-y-0.5 pb-4">
@@ -661,7 +661,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
           </SortableContext>
         </div>
 
-        <div className="mt-auto px-2 pt-4 !border-none shadow-none">
+        <div className="shrink-0 px-2 pt-2 !border-none shadow-none">
           <Button
             variant="outline"
             className="w-full justify-start gap-2 text-muted-foreground border-solid hover:bg-white/5 transition-colors"
