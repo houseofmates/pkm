@@ -31,7 +31,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": [
-        "./src/*"
+        "../packages/core/src/*"
       ],
       "@pkm/core": [
         "../packages/core/src"
