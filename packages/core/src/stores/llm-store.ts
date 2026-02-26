@@ -1,9 +1,9 @@
 import { create } from 'zustand'
-import { generateText } from '@/lib/llm-service'
-import { getOllamaGenerateUrl, normalizeGenerateEndpoint } from '@/lib/llm-config'
 import { secureLogger } from '@/lib/secure-logger'
-import { generateWilsonRagPrompt } from '@/services/rag-service'
 import { storageManager } from '@/lib/storage-manager'
+import { getOllamaGenerateUrl, normalizeGenerateEndpoint } from '@/lib/llm-config'
+import { getAIWorkerProxy } from '@/hooks/use-ai-worker'
+import * as Comlink from 'comlink'
 
 export interface ChatMessage {
   id: number
@@ -22,6 +22,9 @@ interface LLMState {
   // chat history
   interactionHistory: ChatMessage[]
   isThinking: boolean
+
+  // streaming state — only the active bubble subscribes to this via a selector
+  streamingContent: string
 
   // context state
   currentContext: any
@@ -45,6 +48,7 @@ export const useLLMStore = create<LLMState>((set, get) => ({
 
   interactionHistory: [],
   isThinking: false,
+  streamingContent: '',
 
   currentContext: null,
   setContext: (data) => set({ currentContext: data }),
@@ -58,9 +62,9 @@ export const useLLMStore = create<LLMState>((set, get) => ({
   toggleConnection: () => set((state) => ({ isConnected: !state.isConnected })),
   toggleRag: () => set((state) => ({ useRag: !state.useRag })),
 
-  clearHistory: () => set({ interactionHistory: [] }),
+  clearHistory: () => set({ interactionHistory: [], streamingContent: '' }),
 
-  // legacy method without rag (kept for compatibility)
+  // primary entry point — delegates to rag or legacy based on toggle
   askWilson: async (text, isBackground = false) => {
     if (!text.trim()) return null
 
@@ -75,25 +79,25 @@ export const useLLMStore = create<LLMState>((set, get) => ({
       }))
     }
 
-    set({ isThinking: true })
+    set({ isThinking: true, streamingContent: '' })
 
     const { useRag } = get()
 
-    // if rag is enabled, use the new method
+    // if rag is enabled, use the worker-backed streaming method
     if (useRag) {
       return get().askWilsonWithRag(text, isBackground)
     }
 
-    // fallback to legacy non-rag mode
+    // fallback to legacy non-rag mode (still offloaded to worker)
     return get().askWilsonLegacy(text)
   },
 
-  // new rag-enabled method
+  // rag-enabled method — runs entirely in the web worker with streaming
   askWilsonWithRag: async (text, isBackground = false) => {
     if (!text.trim()) return null
 
-    // add user message if not background
-    if (!isBackground) {
+    // add user message if not background and not already added by askWilson
+    if (!isBackground && get().interactionHistory[get().interactionHistory.length - 1]?.content !== text) {
       set((state) => ({
         interactionHistory: [...state.interactionHistory, {
           id: Date.now(),
@@ -103,7 +107,7 @@ export const useLLMStore = create<LLMState>((set, get) => ({
       }))
     }
 
-    set({ isThinking: true })
+    set({ isThinking: true, streamingContent: '' })
 
     try {
       // get fronter info
@@ -118,35 +122,42 @@ export const useLLMStore = create<LLMState>((set, get) => ({
         }
       } catch (e) { /* ignore parse errors */ }
 
-      // build rag-enhanced prompt
-      const prompt = await generateWilsonRagPrompt(text, fronterName)
-
       const { activeModel, apiUrl } = get()
+      const worker = getAIWorkerProxy()
 
-      // generate response
-      const response = await generateText(prompt, activeModel, apiUrl)
+      // stream tokens from the worker — each callback updates streamingContent
+      // which only the StreamingBubble component subscribes to
+      const onToken = Comlink.proxy((cumulativeContent: string) => {
+        set({ streamingContent: cumulativeContent.toLowerCase() })
+      })
 
-      if (!response) {
+      const result = await worker.askWithRag(
+        text,
+        fronterName,
+        activeModel,
+        apiUrl,
+        onToken,
+      )
+
+      if (!result?.response) {
         secureLogger.warn("wilson returned no response.")
-        set({ isThinking: false })
+        set({ isThinking: false, streamingContent: '' })
         return null
       }
 
-      // extract sources from the prompt (they're embedded in the context)
-      const sources = extractSourcesFromPrompt(prompt)
-
-      // add wilson message with sources
+      // finalize: push the completed message into history, clear streaming
       set((state) => ({
         interactionHistory: [...state.interactionHistory, {
           id: Date.now() + 1,
           role: 'assistant',
-          content: response,
-          sources
+          content: result.response,
+          sources: result.sources,
         }],
-        isThinking: false
+        isThinking: false,
+        streamingContent: '',
       }))
 
-      return response
+      return result.response
     } catch (e) {
       secureLogger.error("wilson rag error", e)
       set((state) => ({
@@ -155,13 +166,14 @@ export const useLLMStore = create<LLMState>((set, get) => ({
           role: 'assistant',
           content: "[wilson encountered an error. try again?]"
         }],
-        isThinking: false
+        isThinking: false,
+        streamingContent: '',
       }))
       return null
     }
   },
 
-  // legacy non-rag method (private)
+  // legacy non-rag method — also offloaded to worker for consistency
   askWilsonLegacy: async (text: string) => {
     const { currentContext, activeModel, apiUrl } = get()
 
@@ -195,25 +207,35 @@ important rules:
     const fullPrompt = `${systemPrompt}\n\n${fronterName}: ${text}\nwilson:`
 
     try {
-      const response = await generateText(fullPrompt, activeModel, apiUrl)
+      const worker = getAIWorkerProxy()
+
+      // stream even in legacy mode for consistent ux
+      const onToken = Comlink.proxy((cumulativeContent: string) => {
+        set({ streamingContent: cumulativeContent.toLowerCase() })
+      })
+
+      const response = await worker.chatStream(fullPrompt, activeModel, apiUrl, onToken)
 
       if (!response) {
         secureLogger.warn("wilson returned no response.")
-        set({ isThinking: false })
+        set({ isThinking: false, streamingContent: '' })
         return null
       }
+
+      const finalContent = response.toLowerCase()
 
       // add wilson message
       set((state) => ({
         interactionHistory: [...state.interactionHistory, {
           id: Date.now() + 1,
           role: 'assistant',
-          content: response
+          content: finalContent
         }],
-        isThinking: false
+        isThinking: false,
+        streamingContent: '',
       }))
 
-      return response
+      return finalContent
     } catch (e) {
       secureLogger.error("wilson silent fail", e)
       set((state) => ({
@@ -222,7 +244,8 @@ important rules:
           role: 'assistant',
           content: "[wilson is offline or unreachable]"
         }],
-        isThinking: false
+        isThinking: false,
+        streamingContent: '',
       }))
       return null
     }
