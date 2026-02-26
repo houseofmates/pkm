@@ -131,6 +131,7 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
         </div>
       )}
       <div className="flex-1">
+        {/* @ts-expect-error - react-window v2 types conflict with @types/react-window v1 API */}
         <AutoSizer>
           {({ height, width }: { height: number; width: number }) => (
             <List
@@ -140,7 +141,7 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
               width={width}
               itemData={{ rows: data, collection, config, onConfigChange, onEdit, onDelete, onUpdateRecord }}
             >
-              {RowComponent}
+              {RowComponent as any}
             </List>
           )}
         </AutoSizer>

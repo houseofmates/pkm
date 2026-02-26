@@ -112,9 +112,9 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       stopContextMenu: true,
     })
 
-    ;(fabric.Object.prototype as any).transparentCorners = false
-    ;(fabric.Object.prototype as any).cornerColor = '#f6b012'
-    ;(fabric.Object.prototype as any).cornerStyle = 'circle'
+      ; (fabric.Object.prototype as any).transparentCorners = false
+      ; (fabric.Object.prototype as any).cornerColor = '#f6b012'
+      ; (fabric.Object.prototype as any).cornerStyle = 'circle'
 
     setFabricCanvas(canvas)
     if (onLoad) onLoad()
@@ -230,7 +230,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         let zoom = fabricCanvas.getZoom()
         zoom *= 0.999 ** event.deltaY
         zoom = Math.min(Math.max(zoom, 0.01), 20)
-        fabricCanvas.zoomToPoint({ x: event.offsetX, y: event.offsetY }, zoom)
+        fabricCanvas.zoomToPoint(new fabric.Point(event.offsetX, event.offsetY), zoom)
       } else {
         const vpt = fabricCanvas.viewportTransform
         if (!vpt) return
@@ -283,7 +283,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         if (state.initialDistance > 0) {
           let zoom = state.initialZoom * (dist / state.initialDistance)
           zoom = Math.min(Math.max(zoom, 0.01), 20)
-          fabricCanvas.zoomToPoint({ x: e.clientX, y: e.clientY }, zoom)
+          fabricCanvas.zoomToPoint(new fabric.Point(e.clientX, e.clientY), zoom)
           fabricCanvas.requestRenderAll()
           scheduleViewport(fabricCanvas.viewportTransform!)
         }
@@ -337,10 +337,10 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
 
     const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault()
-      const target = fabricCanvas.findTarget(e as any, false)
+      const target = (fabricCanvas as any).findTarget(e)
 
       if (target) {
-        fabricCanvas.setActiveObject(target)
+        fabricCanvas.setActiveObject(target as any)
         fabricCanvas.requestRenderAll()
 
         const data = (target as any).data || {}
@@ -349,7 +349,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
           e.clientY,
           data.id || (target as any).name,
           'canvas-object',
-          { ...data, type: target.type }
+          { ...data, type: (target as any).type }
         )
       } else {
         // blank canvas click: if drawing or eraser tool active, show tool menu
