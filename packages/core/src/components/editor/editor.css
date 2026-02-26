@@ -1,5 +1,7 @@
 /* src/components/editor/editor.css */
 
+@layer components {
+
 .ProseMirror {
     outline: none !important;
 }
@@ -66,3 +68,5 @@
     border-left: 2px solid var(--primary) !important;
     background: rgba(var(--primary), 0.1);
 }
+
+} /* end @layer components */
