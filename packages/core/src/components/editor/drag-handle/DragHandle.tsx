@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { Editor } from '@tiptap/react';
 import { GripVertical, Columns } from 'lucide-react';
 import { createPortal } from 'react-dom';
+import { toast } from 'sonner';
 
 interface DragHandleProps {
   editor: Editor;
@@ -120,9 +121,9 @@ export function DragHandle({ editor }: DragHandleProps) {
         onClick={() => {
             if (currentNodePos !== null) {
                 // Replace setColumns with a valid command or show a placeholder
-                // Example: wrap node in columns extension if available, otherwise show alert
+                // Example: wrap node in columns extension if available, otherwise show toast
                 // editor.chain().setNodeSelection(currentNodePos).wrapInColumns(2).run();
-                alert('columns extension not available');
+                toast.info('columns extension not available');
             }
         }}
       >
