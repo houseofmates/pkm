@@ -3,7 +3,7 @@ Description=PKM Backend Server (Live Stats)
 After=network.target
 
 [Service]
-ExecStart=/home/house/.nvm/versions/node/v24.12.0/bin/node /home/house/pkm/backend/server.js
+ExecStart=/home/house/.nvm/versions/node/v24.12.0/bin/node /home/house/pkm/packages/backend/server.js
 WorkingDirectory=/home/house/pkm
 Restart=always
 User=house

@@ -28,7 +28,7 @@
     "precommit": "npx lint-staged",
     "preview": "vite preview",
     "serve:prod": "concurrently -k \"npm run backend\" \"npm run preview\"",
-    "backend": "PORT=4100 node backend/server.js",
+    "backend": "PORT=4100 node packages/backend/server.js",
     "electron:dev": "npm run electron:dev --workspace=pkm-desktop-electron",
     "electron:build": "npm run build --workspace=pkm-desktop-electron",
     "tauri": "npm run tauri --workspace=pkm-desktop-tauri",

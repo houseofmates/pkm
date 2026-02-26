@@ -43,8 +43,8 @@ echo ""
 
 # 3. Check required files exist
 echo "[2] Required Files"
-[ -f "/home/house/pkm/backend/server.js" ]
-check "backend/server.js exists"
+[ -f "/home/house/pkm/packages/backend/server.js" ]
+check "packages/backend/server.js exists"
 
 [ -f "/home/house/pkm/src/api/nocobase-client.ts" ]
 check "src/api/nocobase-client.ts exists"

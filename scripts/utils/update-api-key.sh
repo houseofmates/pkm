@@ -33,9 +33,9 @@ echo "🔄 Updating API key in all files..."
 echo ""
 
 # Update backend/server.js
-if [ -f backend/server.js ]; then
-    sed -i "s|$OLD_KEY|$NEW_KEY|g" backend/server.js
-    echo "✅ Updated backend/server.js"
+if [ -f packages/backend/server.js ]; then
+    sed -i "s|$OLD_KEY|$NEW_KEY|g" packages/backend/server.js
+    echo "✅ Updated packages/backend/server.js"
 fi
 
 # Update pkm-control.sh
