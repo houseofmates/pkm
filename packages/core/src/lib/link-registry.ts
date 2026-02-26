@@ -4,6 +4,7 @@
 // persisted to localstorage with lazy hydration
 
 import { storageManager } from '@/lib/storage-manager';
+import { secureLogger } from './secure-logger';
 
 export interface LinkEntry {
     sourceId: string

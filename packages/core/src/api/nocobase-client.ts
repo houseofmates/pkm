@@ -6,16 +6,18 @@ import type { AxiosInstance } from 'axios';
 import { normalizeListResponse } from '@/lib/nocobase-utils';
 
 // Type definitions for NocoBase API
-interface Collection {
+export interface Collection {
   name: string;
   title?: string;
+  displayName?: string;
   fields?: Field[];
   hidden?: boolean;
 }
 
-interface Field {
+export interface Field {
   name: string;
   type: string;
+  title?: string;
   unique?: boolean;
   interface?: string;
   hidden?: boolean;
@@ -36,7 +38,7 @@ interface ApiError {
 
 interface RequestParams {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-  [key: string]: string | number | boolean | undefined;
+  [key: string]: unknown;
 }
 
 

@@ -5,6 +5,8 @@
  * to browser console, network logs, or localstorage.
  */
 
+import { secureLogger } from './secure-logger';
+
 // characters to use for masking
 const MASK_CHAR = '•';
 
@@ -148,7 +150,7 @@ export const safeStorage = {
   
   removeItem(key: string): void {
     try {
-      storageManager.removeItem(key);
+      window.localStorage.removeItem(key);
     } catch (e) {
       // ignore
     }

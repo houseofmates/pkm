@@ -1,6 +1,7 @@
 
 import { NocoBaseClient } from '@/api/nocobase-client';
 import type { Collection, Field } from '@/api/nocobase-client';
+import { secureLogger } from './secure-logger';
 
 
 export async function buildKnowledgeContext(client: NocoBaseClient): Promise<string> {
@@ -15,7 +16,11 @@ export async function buildKnowledgeContext(client: NocoBaseClient): Promise<str
   }
   });
 
-  const rawCollections = collectionsRes.data;
+  const rawCollections = Array.isArray((collectionsRes as any)?.data)
+    ? (collectionsRes as any).data
+    : Array.isArray(collectionsRes)
+      ? collectionsRes
+      : [];
   if (!rawCollections || rawCollections.length === 0) {
   return "No databases found.";
   }
@@ -69,7 +74,7 @@ export async function buildKnowledgeContext(client: NocoBaseClient): Promise<str
   try {
  const recordsRes = await client.listRecords(col.name, {
  pageSize: 5,
- sort: ['-createdAt', '-id'] // Recent first
+ sort: '-createdAt,-id' // Recent first
  });
 
  const records = Array.isArray(recordsRes.data) ? recordsRes.data : (recordsRes.data as { data?: Record<string, unknown>[] })?.data || [];

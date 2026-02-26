@@ -4,6 +4,7 @@
 import { registry } from './link-registry'
 import { api } from '@/api/nocobase-client'
 import { storageManager } from './storage-manager'
+import { secureLogger } from './secure-logger'
 
 const MIGRATION_KEY = 'pkm_link_registry_migrated'
 

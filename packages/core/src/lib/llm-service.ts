@@ -1,3 +1,5 @@
+import { secureLogger } from './secure-logger'
+
 export interface LLMRequest {
   model: string
   prompt: string
