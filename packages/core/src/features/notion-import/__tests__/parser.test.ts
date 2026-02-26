@@ -59,6 +59,6 @@ describe('Notion parser', () => {
         expect(db.rows.length).toBe(2);
         expect(db.rows[0].Name).toBe('Alice');
 
-        expect(ws.assets).toContain(path.join('assets', 'img.png'));
+        expect(ws.assets).toContain('assets/img.png');
     });
 });
