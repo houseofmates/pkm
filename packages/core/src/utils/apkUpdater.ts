@@ -29,8 +29,8 @@ export async function downloadAndPromptInstall(apkUrl: string) {
   if (typeof window !== 'undefined' && typeof (window as any).Capacitor !== 'undefined') {
     try {
       // Dynamic import with proper error handling - avoids eval() security risk
-      // Use type assertion since @capacitor/browser is an optional dependency
-      const browserModule = await import('@capacitor/browser') as { Browser: { open: (options: { url: string }) => Promise<void> } };
+      // @ts-expect-error - @capacitor/browser is an optional dependency, may not be available at build time
+      const browserModule = await import('@capacitor/browser');
       const { Browser } = browserModule;
       await Browser.open({ url: apkUrl });
       return;
