@@ -14,6 +14,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { storageManager } from '@/lib/storage-manager';
 import { Plus } from 'lucide-react';
 import { useAppSetting } from '@/hooks/use-app-setting';
+import { secureLogger } from '@/lib/secure-logger';
 import {
   DndContext,
   closestCenter,
