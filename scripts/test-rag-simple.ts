@@ -1,8 +1,8 @@
 // simple rag test that doesn't rely on path aliases
 // run with: npx ts-node scripts/test-rag-simple.ts
 
-import { searchKnowledgeBase, formatChunksForPrompt } from '../src/lib/vector-store';
-import { buildRagContext, generateWilsonRagPrompt } from '../src/services/rag-service';
+import { searchKnowledgeBase, formatChunksForPrompt } from '../packages/core/src/lib/vector-store';
+import { buildRagContext, generateWilsonRagPrompt } from '../packages/core/src/services/rag-service';
 
 async function runSimpleTest() {
   console.log('🧪 simple rag test\n');

@@ -6,7 +6,7 @@ require('ts-node').register({ transpileOnly: true });
 
 (async () => {
   try {
-    const { indexAllCollections } = require('../src/lib/vector-store');
+    const { indexAllCollections } = require('../packages/core/src/lib/vector-store');
     console.log('starting knowledge base indexing...');
     const results = await indexAllCollections();
     console.log('indexing results:');

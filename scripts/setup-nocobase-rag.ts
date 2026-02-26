@@ -1,9 +1,9 @@
 // nocobase rag quick-start script
 // auto-configures collections, ai employee, and knowledge base via api
 
-import { api } from '../src/api/nocobase-client';
-import { secureLogger } from '../src/lib/secure-logger';
-import { reindexCollection } from '../src/lib/vector-store';
+import { api } from '../packages/core/src/api/nocobase-client';
+import { secureLogger } from '../packages/core/src/lib/secure-logger';
+import { reindexCollection } from '../packages/core/src/lib/vector-store';
 
 // configuration
 const CONFIG = {
