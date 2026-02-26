@@ -115,4 +115,4 @@ export const LinkElement = React.memo(function LinkElement({ element }: LinkElem
       </ContextMenuContent>
     </ContextMenu>
   );
-}
+}, (prev: any, next: any) => prev.element === next.element)

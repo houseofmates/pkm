@@ -89,4 +89,4 @@ export const EternalFlame = React.memo(function EternalFlame({ element: _element
       </div>
     </div>
   );
-}
+}, (prev: any, next: any) => prev.element === next.element)

@@ -48,4 +48,4 @@ export const PortalElement = React.memo(function PortalElement({ element }: Port
       <div className="absolute inset-0 bg-gradient-to-tr from-white/5 to-transparent pointer-events-none" />
     </div>
   );
-}
+}, (prev: any, next: any) => prev.element === next.element)

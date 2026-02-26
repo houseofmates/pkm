@@ -84,4 +84,4 @@ export const RecordNodeElement = React.memo<RecordNodeElementProps>(({ element }
       )}
     </div>
   );
-};
+})
