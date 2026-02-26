@@ -218,7 +218,6 @@ export function TemplatePage() {
             await api.createField(collectionName, {
               name: prop.name,
               type: prop.type,
-              title: prop.name,
               // handle select options if present
               ...(prop.type === 'select' && {
                 dataSource: prop.options?.map((o: string) => ({ label: o, value: o, color: 'default' }))
