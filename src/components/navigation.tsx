@@ -379,37 +379,10 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
 
     // filter out pkm_canvases and others from incoming collections
     const visibleCollections = collections.filter((c: any) => !forbiddenCollections.includes(String(c.name).toLowerCase()));
-    const collectionNames = new Set(visibleCollections.map((c: any) => String(c.name).toLowerCase()));
 
-    // 1. filter out items that were collections but are no longer in the db (or are hidden/forbidden)
-    const filteredItems = items.filter(item => {
-      const itemIdLower = String(item.id).toLowerCase();
-
-      // hard block forbidden collections
-      if (forbiddenCollections.includes(itemIdLower)) return false;
-
-      if (item.type === 'collection') {
-        // if it's a doc, keep it if it exists in local items
-        if (itemIdLower.startsWith('doc_')) {
-          return items.some(d => d.id === item.id);
-        }
-        // if it's a drawing, always keep it; metadata persistence handled elsewhere
-        if (itemIdLower.startsWith('drawing_')) {
-          return true;
-        }
-        // Only filter out collections if we have loaded collections data
-        // This prevents items from disappearing while collections are still loading
-        if (collections.length > 0) {
-          return collectionNames.has(itemIdLower);
-        }
-        // If collections haven't loaded yet, keep the item to avoid blank sidebar
-        return true;
-      }
-      return true;
-    });
-
-    // 2. add new collections and local items
-    const existingIds = new Set(filteredItems.map(i => String(i.id).toLowerCase()));
+    // 1. only add new collections that don't exist in items yet
+    // don't remove items automatically - only explicit user delete should remove
+    const existingIds = new Set(items.map(i => String(i.id).toLowerCase()));
 
     const newCols = visibleCollections
       .filter((c: any) => !existingIds.has(String(c.name).toLowerCase()))
@@ -419,7 +392,14 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         name: c.title || c.name,
       }));
 
+    // 2. add new local docs that aren't in items yet
     const newLocalItems = items.filter(d => d.id.startsWith('doc_') && !existingIds.has(d.id.toLowerCase()));
+
+    // 3. remove only forbidden collections
+    const filteredItems = items.filter(item => {
+      const itemIdLower = String(item.id).toLowerCase();
+      return !forbiddenCollections.includes(itemIdLower);
+    });
 
     if (newCols.length > 0 || newLocalItems.length > 0 || filteredItems.length !== items.length) {
       setItems([...filteredItems, ...newCols, ...newLocalItems]);
