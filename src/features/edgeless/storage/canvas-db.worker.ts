@@ -5,6 +5,13 @@
 import { openDB } from 'idb'
 import type { DBSchema, IDBPDatabase } from 'idb' // DBSchema is purely a type and already imported as such
 
+// simple logger for worker context (no access to main thread secureLogger)
+const workerLogger = {
+  error: (...args: unknown[]) => console.error('[Worker]', ...args),
+  warn: (...args: unknown[]) => console.warn('[Worker]', ...args),
+  info: (...args: unknown[]) => console.info('[Worker]', ...args),
+}
+
 interface canvasdbschema extends DBSchema {
     oplog: {
         key: string
@@ -68,7 +75,7 @@ self.onmessage = async (e: MessageEvent) => {
         const result = await handler(...args)
         self.postMessage({ id, result })
     } catch (error) {
-        secureLogger.error(`[Worker] Error in ${method}:`, error)
+        workerLogger.error(`Error in ${method}:`, error)
         self.postMessage({ id, error: (error as Error).message })
     }
 }
@@ -157,7 +164,7 @@ const handlers: Record<string, (...args: any[]) => Promise<unknown>> = {
             await tx.done
             return todelete.length
         } catch (e) {
-            secureLogger.error('[Worker] pruneoldops failed:', e)
+            workerLogger.error('pruneoldops failed:', e)
             throw e
         }
     },
