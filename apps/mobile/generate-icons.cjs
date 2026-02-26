@@ -17,6 +17,15 @@ const SIZES = {
   'mipmap-xxxhdpi': 192
 };
 
+// adaptive icon foreground sizes (108dp safe zone, icon goes inside the inner 72dp circle)
+const FOREGROUND_SIZES = {
+  'mipmap-mdpi': 108,
+  'mipmap-hdpi': 162,
+  'mipmap-xhdpi': 216,
+  'mipmap-xxhdpi': 324,
+  'mipmap-xxxhdpi': 432
+};
+
 // background color (black)
 const BG_COLOR = '#050505';
 
@@ -39,25 +48,23 @@ function generateIcons() {
     process.exit(1);
   }
 
-  // generate icons for each density
+  // generate launcher icons for each density
   Object.entries(SIZES).forEach(([dir, size]) => {
     const targetDir = path.join(RES_DIR, dir);
-    
+
     if (!fs.existsSync(targetDir)) {
-      console.log(`skipping ${dir} (directory not found)`);
-      return;
+      fs.mkdirSync(targetDir, { recursive: true });
     }
 
     console.log(`generating ${size}px icon for ${dir}...`);
 
-    // create a black background with the database icon centered
-    // using ffmpeg: create black canvas, overlay icon centered
     const targetFile = path.join(targetDir, 'ic_launcher.png');
     const roundFile = path.join(targetDir, 'ic_launcher_round.png');
-    
-    // generate square icon with black background
-    const cmd = `ffmpeg -y -f lavfi -i "color=c=${BG_COLOR}:s=${size}x${size}" -i "${SOURCE_IMAGE}" -filter_complex "[0:v][1:v]overlay=(W-w)/2:(H-h)/2:format=auto" -vframes 1 "${targetFile}"`;
-    
+
+    // scale the icon to ~80% of canvas with padding, centered on black background
+    const iconSize = Math.round(size * 0.75);
+    const cmd = `ffmpeg -y -f lavfi -i "color=c=${BG_COLOR}:s=${size}x${size}" -i "${SOURCE_IMAGE}" -filter_complex "[1:v]scale=${iconSize}:${iconSize}:flags=lanczos[icon];[0:v][icon]overlay=(W-w)/2:(H-h)/2:format=auto" -vframes 1 "${targetFile}"`;
+
     try {
       execSync(cmd, { stdio: 'ignore' });
       console.log(`  ✓ ${targetFile}`);
@@ -65,14 +72,37 @@ function generateIcons() {
       console.error(`  ✗ failed to generate ${targetFile}:`, e.message);
     }
 
-    // generate round icon (same for now, android handles masking)
-    if (fs.existsSync(roundFile)) {
-      try {
-        execSync(cmd.replace(targetFile, roundFile), { stdio: 'ignore' });
-        console.log(`  ✓ ${roundFile}`);
-      } catch (e) {
-        console.error(`  ✗ failed to generate ${roundFile}:`, e.message);
-      }
+    // generate round icon (same image, android handles circular masking)
+    try {
+      execSync(cmd.replace(targetFile, roundFile), { stdio: 'ignore' });
+      console.log(`  ✓ ${roundFile}`);
+    } catch (e) {
+      console.error(`  ✗ failed to generate ${roundFile}:`, e.message);
+    }
+  });
+
+  // generate adaptive icon foreground PNGs (larger canvas with icon centered)
+  Object.entries(FOREGROUND_SIZES).forEach(([dir, size]) => {
+    const targetDir = path.join(RES_DIR, dir);
+
+    if (!fs.existsSync(targetDir)) {
+      fs.mkdirSync(targetDir, { recursive: true });
+    }
+
+    const fgFile = path.join(targetDir, 'ic_launcher_foreground.png');
+    // the icon should fill about 66% of the adaptive icon canvas (the safe zone)
+    const iconSize = Math.round(size * 0.55);
+
+    console.log(`generating ${size}px adaptive foreground for ${dir}...`);
+
+    // transparent background so only the foreground icon shows
+    const cmd = `ffmpeg -y -f lavfi -i "color=c=black@0:s=${size}x${size},format=rgba" -i "${SOURCE_IMAGE}" -filter_complex "[1:v]scale=${iconSize}:${iconSize}:flags=lanczos[icon];[0:v][icon]overlay=(W-w)/2:(H-h)/2:format=auto" -vframes 1 "${fgFile}"`;
+
+    try {
+      execSync(cmd, { stdio: 'ignore' });
+      console.log(`  ✓ ${fgFile}`);
+    } catch (e) {
+      console.error(`  ✗ failed to generate ${fgFile}:`, e.message);
     }
   });
 
