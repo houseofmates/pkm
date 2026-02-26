@@ -1,10 +1,19 @@
-import fs from 'fs';
-import path from 'path';
 import { parse as csvParse } from 'papaparse';
 import yaml from 'js-yaml';
 
+/**
+ * Interface for a file-like object that can be read as a stream or text.
+ * This allows the parser to work with both Node.js filesystem and Web File/Blob APIs.
+ */
+export interface NotionSource {
+    name: string;
+    getPath(): string;
+    getText(): Promise<string>;
+    getStream(): ReadableStream<Uint8Array> | NodeJS.ReadableStream;
+}
+
 export interface NotionPage {
-    /** filesystem path to the markdown file */
+    /** filesystem path or identifier for the markdown file */
     path: string;
     title: string;
     frontmatter: Record<string, any>;
@@ -20,7 +29,7 @@ export interface NotionDatabase {
     props?: Record<string, any>;
 }
 
-const IMPORT_DEBUG = process.env.NOTION_IMPORT_DEBUG === 'true';
+const IMPORT_DEBUG = typeof process !== 'undefined' && process.env.NOTION_IMPORT_DEBUG === 'true';
 
 export interface NotionWorkspace {
     pages: NotionPage[];
@@ -29,24 +38,24 @@ export interface NotionWorkspace {
 }
 
 /**
- * Walk a directory recursively and collect file paths matching predicate.
+ * Node.js implementation of NotionSource using the filesystem.
  */
-async function walk(dir: string, predicate: (f: string) => boolean): Promise<string[]> {
-    const entries = await fs.promises.readdir(dir, { withFileTypes: true });
-    const results: string[] = [];
-    for (const ent of entries) {
-        const full = path.join(dir, ent.name);
-        if (ent.isDirectory()) {
-            results.push(...await walk(full, predicate));
-        } else if (ent.isFile() && predicate(full)) {
-            results.push(full);
-        }
+export class NodeFsSource implements NotionSource {
+    constructor(private filePath: string, private rootRelativePath: string = filePath) { }
+    get name() { return this.filePath; }
+    getPath() { return this.rootRelativePath; }
+    async getText() {
+        const fs = await import('fs');
+        return fs.promises.readFile(this.filePath, 'utf-8');
     }
-    return results;
+    getStream() {
+        const fs = require('fs');
+        return fs.createReadStream(this.filePath);
+    }
 }
 
-async function parseMarkdownFile(filePath: string): Promise<NotionPage> {
-    const raw = await fs.promises.readFile(filePath, 'utf-8');
+async function parseMarkdownSource(source: NotionSource): Promise<NotionPage> {
+    const raw = await source.getText();
     let frontmatter: Record<string, any> = {};
     let content = raw;
     if (raw.startsWith('---')) {
@@ -61,67 +70,68 @@ async function parseMarkdownFile(filePath: string): Promise<NotionPage> {
             content = raw.slice(end + 3).trimStart();
         }
     }
-    const title = frontmatter.title || path.basename(filePath).replace(/\.md$/, '');
-    return { path: filePath, title, frontmatter, content };
+    const title = frontmatter.title || source.name.split(/[\\/]/).pop()?.replace(/\.md$/, '') || '';
+    return { path: source.getPath(), title, frontmatter, content };
 }
 
-export async function parseNotionExport(root: string): Promise<NotionWorkspace> {
+/**
+ * Parses a Notion export. Accept sources instead of a root path to support streaming/Web APIs.
+ */
+export async function parseNotionExport(sources: NotionSource[]): Promise<NotionWorkspace> {
     const pages: NotionPage[] = [];
     const databases: NotionDatabase[] = [];
     const assets: string[] = [];
 
-    // find markdown pages (.md)
-    const mdFiles = await walk(root, f => f.toLowerCase().endsWith('.md'));
-    for (const md of mdFiles) {
-        try {
-            pages.push(await parseMarkdownFile(md));
-        } catch (err) {
-            secureLogger.error(`failed to parse markdown ${md}:`, err);
-        }
-    }
+    for (const source of sources) {
+        const lowerName = source.name.toLowerCase();
 
-    // find CSV files (databases) and any accompanying JSON metadata
-    const csvFiles = await walk(root, f => f.toLowerCase().endsWith('.csv'));
-    for (const csv of csvFiles) {
-        const name = path.basename(csv, '.csv');
-        const rows: Record<string, any>[] = [];
-        const content = await fs.promises.readFile(csv, 'utf-8');
-        csvParse(content, {
-            header: true,
-            skipEmptyLines: true,
-            dynamicTyping: true,
-            transformHeader: h => h.trim(),
-            complete: (res) => {
-                if (res.errors.length) {
-                    secureLogger.warn(`warnings parsing CSV ${csv}:`, res.errors);
-                }
-                rows.push(...(res.data as any[]));
-            }
-        });
-        const fields = rows.length > 0 ? Object.keys(rows[0]) : [];
-
-        // try to load metadata JSON with same basename (e.g. db.json)
-        let props: Record<string, any> | undefined;
-        const jsonPath = path.join(path.dirname(csv), `${name}.json`);
-        if (fs.existsSync(jsonPath)) {
+        if (lowerName.endsWith('.md')) {
             try {
-                const raw = await fs.promises.readFile(jsonPath, 'utf-8');
-                const parsed = JSON.parse(raw);
-                if (parsed && parsed.properties) props = parsed.properties;
-            } catch (e) {
-                if (IMPORT_DEBUG) secureLogger.warn(`failed to parse metadata for ${name}:`, e);
+                pages.push(await parseMarkdownSource(source));
+            } catch (err) {
+                console.error(`failed to parse markdown ${source.name}:`, err);
             }
+        } else if (lowerName.endsWith('.csv')) {
+            const name = source.name.split(/[\\/]/).pop()?.replace(/\.csv$/, '') || 'database';
+            const rows: Record<string, any>[] = [];
+
+            await new Promise<void>((resolve, reject) => {
+                csvParse(source.getStream() as any, {
+                    header: true,
+                    skipEmptyLines: true,
+                    dynamicTyping: true,
+                    chunkSize: 1024 * 128, // process in 128KB chunks
+                    transformHeader: h => h.trim(),
+                    chunk: (results) => {
+                        rows.push(...(results.data as any[]));
+                    },
+                    complete: () => resolve(),
+                    error: (error) => reject(error)
+                });
+            });
+
+            const fields = rows.length > 0 ? Object.keys(rows[0]) : [];
+
+            // try to find matching metadata JSON among sources
+            let props: Record<string, any> | undefined;
+            const jsonName = source.name.replace(/\.csv$/, '.json');
+            const jsonSource = sources.find(s => s.name === jsonName);
+            if (jsonSource) {
+                try {
+                    const raw = await jsonSource.getText();
+                    const parsed = JSON.parse(raw);
+                    if (parsed && parsed.properties) props = parsed.properties;
+                } catch (e) {
+                    if (IMPORT_DEBUG) console.warn(`failed to parse metadata for ${name}:`, e);
+                }
+            }
+
+            databases.push({ name, rows, fields, props });
+        } else if (source.getPath().includes('/assets/') || source.getPath().includes('\\assets\\')) {
+            assets.push(source.getPath());
         }
-
-        databases.push({ name, rows, fields, props });
-    }
-
-    // collect assets directory if present
-    const assetsDir = path.join(root, 'assets');
-    if (fs.existsSync(assetsDir)) {
-        const assetFiles = await walk(assetsDir, _ => true);
-        assets.push(...assetFiles.map(f => path.relative(root, f)));
     }
 
     return { pages, databases, assets };
 }
+
