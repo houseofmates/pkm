@@ -321,8 +321,9 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     // for collections (databases), refresh from server to ensure sync
     if (!id.startsWith('doc_') && !id.startsWith('drawing_') && !id.startsWith('folder_')) {
       if (updates.delete) {
-        // just refresh - the useEffect will remove the item when collections update
-        // don't manually filter here or useEffect will re-add it before refresh completes
+        // immediately remove from local state for instant feedback
+        setItems(items.filter(i => i.id !== id));
+        // then refresh to sync with server
         refresh();
         return;
       }

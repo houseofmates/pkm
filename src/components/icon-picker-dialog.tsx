@@ -35,7 +35,7 @@ for (const iconName of common_icons) {
 
 // helper to safely get lucide icon by name
 function getLucideIcon(name: string): LucideIcon | undefined {
-  return (Icons as Record<string, LucideIcon>)[name];
+  return (Icons as unknown as Record<string, unknown>)[name] as LucideIcon | undefined;
 }
 
 interface IconPickerProps {
