@@ -2,6 +2,7 @@ import React from 'react';
 import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
+import { secureLogger } from '@/lib/secure-logger';
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null }> {
   constructor(props: { children: React.ReactNode }) {
