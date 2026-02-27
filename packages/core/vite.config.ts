@@ -151,39 +151,6 @@ export default defineConfig({
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
       output: {
-        manualChunks(id) {
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
-              return 'react-core';
-            }
-            if (id.includes('@radix-ui')) {
-              return 'ui-vendor';
-            }
-            if (id.includes('fabric')) {
-              return 'canvas-vendor';
-            }
-            if (id.includes('@tiptap') || id.includes('prosemirror')) {
-              return 'editor-vendor';
-            }
-            if (id.includes('framer-motion')) {
-              return 'motion-vendor';
-            }
-            if (id.includes('recharts') || id.includes('react-force-graph')) {
-              return 'viz-vendor';
-            }
-            if (id.includes('@monaco-editor') || id.includes('monaco-editor')) {
-              return 'monaco-vendor';
-            }
-            if (id.includes('pdfjs-dist') || id.includes('jspdf')) {
-              return 'pdf-vendor';
-            }
-            if (id.includes('lucide-react')) {
-              return 'icons-vendor';
-            }
-            // Group all other node_modules into a generic vendor chunk
-            return 'vendor';
-          }
-        }
       }
     }
   },
