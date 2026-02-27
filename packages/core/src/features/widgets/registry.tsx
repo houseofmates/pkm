@@ -1,4 +1,4 @@
-import { Clock, Webhook, Database, Type, Activity, Scroll, BarChart3 } from 'lucide-react';
+import { Clock, Webhook, Database, Type, Activity, Scroll, BarChart3, Inbox } from 'lucide-react';
 
 export interface WidgetDefinition {
   id: string;
@@ -73,5 +73,14 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
     defaultData: { content: 'New text...', backgroundColor: 'transparent', borderColor: 'transparent' },
     defaultWidth: 300,
     defaultHeight: 100
+  },
+  capture: {
+    id: 'capture',
+    label: 'Capture',
+    icon: Inbox,
+    description: 'Quickly log data into captures db',
+    defaultData: { title: '', content: '', tags: '' },
+    defaultWidth: 350,
+    defaultHeight: 450
   }
 };
