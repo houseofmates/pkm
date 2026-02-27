@@ -31,6 +31,7 @@ export type ElementType =
   | 'connector'
   | 'smart-text'
   | 'contact-card'
+  | 'widget'
 
 export interface EdgelessLayer {
   id: string
