@@ -11,7 +11,7 @@ const mockData = [
   { day: 'Sun', efficiency: 60, friction: 50 },
 ];
 
-export function OptimizationDashboard() {
+export function OptimizationDashboard({ data }: { data?: any }) {
   return (
     <div className="w-full h-full bg-[#050505] border border-white/10 rounded-xl p-4 flex flex-col">
       <div className="flex items-center justify-between mb-4">

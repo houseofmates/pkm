@@ -3,9 +3,9 @@ import { Loader2 } from 'lucide-react';
 
 const ClockWidget = lazy(() => import('@/features/widgets/ClockWidget').then(m => ({ default: m.ClockWidget })));
 const N8nWidget = lazy(() => import('@/features/widgets/N8nWidget').then(m => ({ default: m.N8nWidget })));
-const BiometricTracker = lazy(() => import('@/features/widgets/BiometricTracker'));
-const NarrativeLog = lazy(() => import('@/features/widgets/NarrativeLog'));
-const OptimizationDashboard = lazy(() => import('@/features/widgets/OptimizationDashboard'));
+const BiometricTracker = lazy(() => import('@/features/widgets/BiometricTracker').then(m => ({ default: m.BiometricTracker })));
+const NarrativeLog = lazy(() => import('@/features/widgets/NarrativeLog').then(m => ({ default: m.NarrativeLog })));
+const OptimizationDashboard = lazy(() => import('@/features/widgets/OptimizationDashboard').then(m => ({ default: m.OptimizationDashboard })));
 const CaptureWidget = lazy(() => import('@/features/widgets/CaptureWidget'));
 
 interface WidgetElementProps {
