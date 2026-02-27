@@ -60,6 +60,32 @@
     }
   </style>
 
+  <script>
+    window._startupErrors = [];
+    window.addEventListener('error', function(e) {
+      window._startupErrors.push(e.message + '\n' + e.filename + ':' + e.lineno + ':' + e.colno + '\n' + (e.error && e.error.stack ? e.error.stack : ''));
+      showErrors();
+    });
+    window.addEventListener('unhandledrejection', function(e) {
+      window._startupErrors.push('Promise Rejection: ' + (e.reason && e.reason.stack ? e.reason.stack : e.reason));
+      showErrors();
+    });
+    function showErrors() {
+      var errDiv = document.getElementById('global-error-display');
+      if (!errDiv) {
+        errDiv = document.createElement('div');
+        errDiv.id = 'global-error-display';
+        errDiv.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:#900;color:#fff;padding:20px;font-family:monospace;white-space:pre-wrap;overflow-y:auto;z-index:999999;';
+        if (document.body) {
+          document.body.appendChild(errDiv);
+        } else {
+          document.addEventListener('DOMContentLoaded', () => document.body.appendChild(errDiv));
+        }
+      }
+      errDiv.innerHTML = '<h2>Fatal Startup Error</h2>\n' + window._startupErrors.join('\n\n---\n\n');
+    }
+  </script>
+
   <title>pkm</title>
   <!-- Immediately update title to hostname for houseofmates domains
        so the user never sees "pkm" in their browser tab when on those
