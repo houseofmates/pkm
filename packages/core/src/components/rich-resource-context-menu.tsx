@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { HexColorPicker } from 'react-colorful';
-import { Upload, Search, Loader2, Wand2, Undo2, Save, RotateCcw, Sparkles, Check, type LucideIcon } from 'lucide-react';
+import { Upload, Search, Loader2, Wand2, Undo2, Save, RotateCcw, Sparkles, Check, Image as ImageIcon, type LucideIcon } from 'lucide-react';
 import * as Icons from 'lucide-react';
 // Dynamic icon loader for Lucide icons
 function getLucideIcon(name: string): LucideIcon | undefined {
@@ -318,6 +318,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   const [generating, setGenerating] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showPromptInput, setShowPromptInput] = useState(false);
   const renameDebounce = useRef<NodeJS.Timeout | null>(null);
 
   // sync local name if prop changes
