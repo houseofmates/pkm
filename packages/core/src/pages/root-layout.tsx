@@ -51,7 +51,7 @@ export function RootLayout() {
   const { activeFronters, overrides, members } = useFronter();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<'databases' | 'home' | 'headmates' | 'board' | 'captures'>('home');
+  const [activeTab, setActiveTab] = useState<'databases' | 'home' | 'headmates' | 'captures'>('home');
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -193,7 +193,7 @@ export function RootLayout() {
     if (tab === 'home') navigate('/');
     else if (tab === 'captures') navigate('/captures');
     else if (tab === 'headmates') navigate('/headmates');
-    else if (tab === 'board') navigate('/board');
+
     else if (tab === 'databases') navigate('/databases', { state: { fromSidebar: true } });
     setActiveTab(tab);
     if (tab !== 'databases') setSelectedCollection(null);

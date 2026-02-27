@@ -3,8 +3,8 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface BottomNavProps {
-  activeTab: 'databases' | 'home' | 'headmates' | 'captures' | 'board';
-  onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'captures' | 'board') => void;
+  activeTab: 'databases' | 'home' | 'headmates' | 'captures';
+  onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'captures') => void;
   className?: string;
 }
 
