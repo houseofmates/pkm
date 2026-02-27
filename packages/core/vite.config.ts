@@ -1,12 +1,18 @@
 import path from "path"
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
+import legacy from '@vitejs/plugin-legacy'
 
 // https://vite.dev/config/
 export default defineConfig({
   base: '/',
   plugins: [
     react(),
+    // ensure older android webviews can execute the bundle (avoids createContext undefined)
+    legacy({
+      targets: ['Android >= 10', 'Chrome >= 80'],
+      modernPolyfills: true,
+    }),
   ],
   server: {
     host: true,
@@ -139,6 +145,7 @@ export default defineConfig({
     }
   },
   build: {
+    target: 'es2019',
     sourcemap: false,
     reportCompressedSize: false,
     chunkSizeWarningLimit: 1500,
