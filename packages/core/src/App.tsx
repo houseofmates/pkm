@@ -90,7 +90,11 @@ function AppContent() {
 
   // perform a quick backend health check to decide if configuration is missing
   useEffect(() => {
-    fetch('/api/stats')
+    // try to fetch stats from the absolute api url if available, otherwise relative
+    const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') || '';
+    const statsUrl = `${baseUrl}/api/stats`;
+
+    fetch(statsUrl)
       .then((r) => {
         if (r.ok) setSetupNeeded(false)
         else setSetupNeeded(true)
@@ -103,7 +107,11 @@ function AppContent() {
   }
 
   if (setupNeeded) {
-    return <SetupRequired />
+    return (
+      <Suspense fallback={LoadingFallback}>
+        <SetupRequired />
+      </Suspense>
+    )
   }
 
   // public domain rendering
