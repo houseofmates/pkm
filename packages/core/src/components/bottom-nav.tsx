@@ -44,9 +44,9 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
 
   return (
     <>
-      <div className="fixed bottom-6 left-0 right-0 z-50 px-4 pointer-events-none flex justify-center w-full">
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex justify-center w-full">
         <div className={cn(
-          "w-max mx-auto flex items-center gap-1 bg-black/90 backdrop-blur-xl border border-white/10 rounded-[2rem] shadow-[0_8px_32px_rgba(0,0,0,0.5)] p-2 pointer-events-auto",
+          "w-max flex items-center gap-1 bg-black/90 backdrop-blur-xl border border-white/10 rounded-[2rem] shadow-[0_8px_32px_rgba(0,0,0,0.5)] p-2 pointer-events-auto",
           className
         )}>
           <Button
