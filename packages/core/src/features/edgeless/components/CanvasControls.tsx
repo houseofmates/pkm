@@ -1,4 +1,4 @@
-import { Undo, Redo } from 'lucide-react'
+import { Undo2, Redo2 } from 'lucide-react'
 import { useEdgelessStore } from '../store'
 import { Button } from '@/components/ui/button'
 
@@ -10,7 +10,7 @@ export function CanvasControls() {
   const canRedo = history.undone.length > 0
 
   return (
-    <div className="absolute bottom-4 left-4 z-50 flex gap-2">
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex gap-2">
       <Button
         variant="outline"
         size="icon"
@@ -19,7 +19,7 @@ export function CanvasControls() {
         className="rounded-full bg-background/80 backdrop-blur border-white/10 hover:bg-white/10"
         title="undo (ctrl+z)"
       >
-        <Undo className="h-4 w-4" />
+        <Undo2 className="h-4 w-4" />
       </Button>
       <Button
         variant="outline"
@@ -29,7 +29,7 @@ export function CanvasControls() {
         className="rounded-full bg-background/80 backdrop-blur border-white/10 hover:bg-white/10"
         title="redo (ctrl+x)"
       >
-        <Redo className="h-4 w-4" />
+        <Redo2 className="h-4 w-4" />
       </Button>
 
       {/* op count indicator */}
