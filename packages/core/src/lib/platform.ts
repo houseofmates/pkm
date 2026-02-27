@@ -52,5 +52,8 @@ export function resolveOllamaEndpoint(
  * the remote server origin for the mobile app.
  * mirrors the value in capacitor.config.ts so the core package can use it
  * without importing capacitor config directly.
+ *
+ * use https on the public hostname so the bundled apk (capacitor://localhost)
+ * avoids mixed-content blocks when calling the backend.
  */
-export const MOBILE_SERVER_ORIGIN = 'http://pkm.houseofmates.space:3010';
+export const MOBILE_SERVER_ORIGIN = 'https://pkm.houseofmates.space';
