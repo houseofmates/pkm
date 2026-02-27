@@ -119,10 +119,10 @@ export function Toolbar() {
 
         {/* undo/redo */}
         <div className="flex items-center gap-1">
-          <button onClick={store.undo} className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors">
+          <button onClick={store.undo} className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors" title="undo">
             <Undo2 size={18} />
           </button>
-          <button onClick={store.redo} className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors">
+          <button onClick={store.redo} className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors" title="redo">
             <Redo2 size={18} />
           </button>
         </div>
@@ -269,6 +269,14 @@ export function Toolbar() {
             <Plus size={24} />
           </button>
 
+          {/* wilson chat button at the end */}
+          <button
+            onClick={() => store.setChatOpen(true)}
+            className="h-[48px] w-[48px] flex items-center justify-center rounded-full text-primary hover:bg-primary/20 hover:scale-105 transition-all ml-2"
+            title="open wilson chat"
+          >
+            <BrainCircuit size={24} />
+          </button>
         </div>
 
         <div className="w-px h-6 bg-white/10 mx-1" />
