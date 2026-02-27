@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { HexColorPicker } from 'react-colorful';
-import { Upload, Search, Loader2, type LucideIcon } from 'lucide-react';
+import { Upload, Search, Loader2, Wand2, Undo2, Save, RotateCcw, Sparkles, Check } from 'lucide-react';
 import * as Icons from 'lucide-react';
 // Dynamic icon loader for Lucide icons
 function getLucideIcon(name: string): LucideIcon | undefined {
@@ -12,12 +12,21 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { useAppSetting } from '@/hooks/use-app-setting';
+import { generateVertexIcon } from '@/lib/vertex-image';
 
 interface RichResourceContextMenuProps {
   currentName?: string;
   currentColor?: string;
   onUpdate: (data: { name?: string; color?: string; icon?: string; iconType?: 'emoji' | 'lucide' | 'image' }) => void;
   children?: React.ReactNode;
+}
+
+interface CustomIconEntry {
+  id: string;
+  dataUrl: string;
+  prompt?: string;
+  createdAt?: string;
 }
 
 // full icon list derived from lucide
@@ -295,12 +304,20 @@ const DEFAULT_EMOJIS = [
 ];
 
 export function RichResourceContextMenuContent({ currentName, currentColor, onUpdate, children }: RichResourceContextMenuProps) {
-  const [activeTab, setActiveTab] = useState('icons');
-  const [localColor, setLocalColor] = useState(currentColor || 'var(--primary)');
-  const [localName, setLocalName] = useState(currentName || '');
   const [search, setSearch] = useState('');
-  const contextMenuRef = useRef<HTMLDivElement>(null);
-  // debounce timer for rename
+  const [tab, setTab] = useState<'icons' | 'emoji' | 'color'>('icons');
+  const [localColor, setLocalColor] = useState(currentColor || '#8b5cf6');
+  const [filteredIcons, setFilteredIcons] = useState<string[]>(ALL_ICONS);
+  const [filteredEmojis, setFilteredEmojis] = useState(DEFAULT_EMOJIS);
+  const emojiSearchRef = useRef<HTMLInputElement | null>(null);
+  const iconSearchRef = useRef<HTMLInputElement | null>(null);
+  const [customIcons, setCustomIcons] = useAppSetting<CustomIconEntry[]>('custom_icons', []);
+  const [aiMode, setAiMode] = useState(false);
+  const [prompt, setPrompt] = useState('');
+  const [lastPrompt, setLastPrompt] = useState('');
+  const [generating, setGenerating] = useState(false);
+  const [generatedImage, setGeneratedImage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const renameDebounce = useRef<NodeJS.Timeout | null>(null);
 
   // sync local name if prop changes
