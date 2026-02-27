@@ -10,6 +10,8 @@ interface BottomNavProps {
 
 import { useNavigate } from 'react-router-dom';
 import { useEdgelessStore } from '@/features/edgeless/store';
+import { useLLMContext } from '@/contexts/llm-context';
+import { useLLMStore } from '@/stores/llm-store';
 
 export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps) {
 
@@ -20,6 +22,25 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
   const navigate = useNavigate();
   const setChatOpen = useEdgelessStore((s) => s.setChatOpen);
   const isChatOpen = useEdgelessStore((s) => s.isChatOpen);
+
+  const llmContext = useLLMContext();
+  const askWilson = useLLMStore((s) => s.askWilson);
+  const interactionHistory = useLLMStore((s) => s.interactionHistory);
+
+  const handleWilsonClick = () => {
+    if (!isChatOpen) {
+      setChatOpen(true);
+      const recent = llmContext?.activity?.recentActions?.map(a => a.summary).join(', ') || 'no recent data';
+      useLLMStore.getState().setContext({ recentInteractions: recent });
+
+      // if this is the first open, trigger a proactive greeting with context
+      if (interactionHistory.length === 0) {
+        askWilson(`hello wilson! i just opened the chat. here are the last few databases and entries i interacted with: ${recent}. please give me a brief, natural greeting referencing what i've been doing.`, true);
+      }
+    } else {
+      setChatOpen(false);
+    }
+  };
 
   return (
     <>
