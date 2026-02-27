@@ -73,11 +73,16 @@ function AppContent() {
   }, [updateChecked, token])
   const [setupNeeded, setSetupNeeded] = useState<boolean | null>(null)
 
-  // run link registry migration on mount
+  // run link registry migration on mount (non-blocking)
   useEffect(() => {
+    // skip migration on mobile until after app loads
+    if (isCapacitorNative()) {
+      return;
+    }
+
     const runMigration = async () => {
       try {
-        const migrated = await isLinkRegistryMigrated()
+        const migrated = isLinkRegistryMigrated()
         if (!migrated) {
           secureLogger.info('running link registry backfill migration')
           await backfillLinkRegistry()
@@ -86,7 +91,8 @@ function AppContent() {
         secureLogger.error('link registry migration failed:', error)
       }
     }
-    runMigration()
+    // run in background, don't block UI
+    setTimeout(runMigration, 1000)
   }, [])
 
   // perform a quick backend health check to decide if configuration is missing
