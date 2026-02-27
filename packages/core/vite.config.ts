@@ -197,6 +197,8 @@ export default defineConfig({
     }
   },
   define: {
-    'process.env': {}
+    'process.env': {},
+    'import.meta.env.VITE_NOCOBASE_API_TOKEN': JSON.stringify(process.env.VITE_NOCOBASE_API_TOKEN || ''),
+    'import.meta.env.VITE_PUBLIC_ACCESS_TOKEN': JSON.stringify(process.env.VITE_NOCOBASE_API_TOKEN || '')
   }
 })
