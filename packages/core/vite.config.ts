@@ -151,36 +151,39 @@ export default defineConfig({
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
       output: {
-        manualChunks: {
-          'vendor': [
-            'react',
-            'react-dom',
-            'react-router-dom',
-            '@radix-ui/react-dialog',
-            '@radix-ui/react-slot',
-            '@radix-ui/react-popover',
-            '@radix-ui/react-dropdown-menu',
-            '@radix-ui/react-tabs',
-            '@radix-ui/react-select'
-          ],
-          'canvas-vendor': ['fabric'],
-          'editor-vendor': [
-            '@tiptap/react',
-            '@tiptap/starter-kit',
-            '@tiptap/extension-mention',
-            '@tiptap/extension-image',
-            '@tiptap/extension-placeholder'
-          ],
-          'motion-vendor': ['framer-motion'],
-          'viz-vendor': ['recharts', 'react-force-graph-2d'],
-          'util-vendor': ['clsx', 'date-fns', 'leaflet', 'lodash', 'axios', 'uuid', 'zod'],
-          'dnd-vendor': ['@dnd-kit/core', '@dnd-kit/utilities', '@dnd-kit/sortable'],
-          'monaco-vendor': ['@monaco-editor/react'],
-          'pdf-vendor': ['pdfjs-dist', 'jspdf'],
-          'lucide-vendor': ['lucide-react']
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+              return 'react-core';
+            }
+            if (id.includes('@radix-ui')) {
+              return 'ui-vendor';
+            }
+            if (id.includes('fabric')) {
+              return 'canvas-vendor';
+            }
+            if (id.includes('@tiptap') || id.includes('prosemirror')) {
+              return 'editor-vendor';
+            }
+            if (id.includes('framer-motion')) {
+              return 'motion-vendor';
+            }
+            if (id.includes('recharts') || id.includes('react-force-graph')) {
+              return 'viz-vendor';
+            }
+            if (id.includes('@monaco-editor') || id.includes('monaco-editor')) {
+              return 'monaco-vendor';
+            }
+            if (id.includes('pdfjs-dist') || id.includes('jspdf')) {
+              return 'pdf-vendor';
+            }
+            if (id.includes('lucide-react')) {
+              return 'icons-vendor';
+            }
+            // Group all other node_modules into a generic vendor chunk
+            return 'vendor';
+          }
         }
-
-
       }
     }
   },
