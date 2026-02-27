@@ -134,8 +134,6 @@ app.use('/public', express.static(path.join(process.cwd(), 'public')));
 const apkDir = path.join(process.cwd(), 'releases');
 console.log('[APK] serving from:', apkDir);
 
-app.use('/apk', express.static(apkDir));
-
 // APK download endpoint - serves latest APK file in releases directory
 app.get('/apk', (req, res) => {
     try {
@@ -164,6 +162,10 @@ app.get('/apk', (req, res) => {
         res.status(500).json({ error: 'Failed to serve APK' });
     }
 });
+
+// Static file serving for direct APK file paths (e.g., /apk/pkm-v1.apk)
+// placed after the /apk handler to avoid directory redirects overriding the download endpoint
+app.use('/apk', express.static(apkDir, { redirect: false }));
 
 // Authentication Middleware
 const authenticate = (req, res, next) => {
