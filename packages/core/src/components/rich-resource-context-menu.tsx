@@ -500,7 +500,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
 
       {/* main content area */}
       <div className="h-[400px] relative">
-        <Tabs defaultValue="icons" className="w-full h-full flex flex-col" onValueChange={setActiveTab}>
+        <Tabs defaultValue="icons" className="w-full h-full flex flex-col" onValueChange={(v) => setActiveTab(v as 'icons' | 'emojis' | 'color')}>
           <div className="px-0 border-b bg-muted/30 shrink-0 flex items-center">
             <TabsList className="bg-transparent p-0 h-12 w-full flex justify-between gap-0">
               <TabsTrigger
@@ -577,30 +577,60 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
             </TabsContent>
 
             <TabsContent value="icons" className="absolute inset-0 m-0">
-              <ScrollArea className="h-full p-2">
-                <div className="grid grid-cols-7 gap-1">
-                  {filteredIcons.map(name => {
-                    const IconComponent = getLucideIcon(name);
-                    if (!IconComponent) return null;
-                    return (
-                      <button
-                        key={name}
-                        className="flex items-center justify-center h-9 w-9 hover:bg-muted rounded-md active:scale-90 transition-transform"
-                        onClick={() => onUpdate({ icon: name, iconType: 'lucide' })}
-                        style={{ color: localColor }}
-                        title={name}
-                      >
-                        <IconComponent className="h-5 w-5 pointer-events-none" strokeWidth={1.5} />
-                      </button>
-                    );
-                  })}
-                </div>
-                {!filteredIcons.length && (
-                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground pb-8">
-                    <Search className="h-8 w-8 mb-2 opacity-50" />
-                    <span className="text-xs">no icons found</span>
+              <ScrollArea className="h-full p-2 space-y-3">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
+                    <span>custom icons</span>
+                    <Button variant="ghost" size="xs" className="h-7 text-[11px] gap-1" onClick={() => setShowPromptInput(true)}>
+                      <Sparkles className="h-3 w-3" /> ai icon
+                    </Button>
                   </div>
-                )}
+                  {sortedCustomIcons.length ? (
+                    <div className="grid grid-cols-6 gap-2">
+                      {sortedCustomIcons.map((c) => (
+                        <button
+                          key={c.id}
+                          className="flex items-center justify-center h-12 w-12 rounded-md border border-border/50 bg-background/40 hover:border-primary/60 hover:shadow-sm transition"
+                          onClick={() => onUpdate({ icon: c.dataUrl, iconType: 'image' })}
+                          title={c.prompt || 'custom icon'}
+                        >
+                          <img src={c.dataUrl} alt="icon" className="h-8 w-8 object-contain" />
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-[11px] text-muted-foreground px-1">no saved custom icons yet</div>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
+                    <span>lucide icons</span>
+                  </div>
+                  <div className="grid grid-cols-7 gap-1">
+                    {filteredIcons.map(name => {
+                      const IconComponent = getLucideIcon(name);
+                      if (!IconComponent) return null;
+                      return (
+                        <button
+                          key={name}
+                          className="flex items-center justify-center h-9 w-9 hover:bg-muted rounded-md active:scale-90 transition-transform"
+                          onClick={() => onUpdate({ icon: name, iconType: 'lucide' })}
+                          style={{ color: localColor }}
+                          title={name}
+                        >
+                          <IconComponent className="h-5 w-5 pointer-events-none" strokeWidth={1.5} />
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {!filteredIcons.length && (
+                    <div className="flex flex-col items-center justify-center h-full text-muted-foreground pb-8">
+                      <Search className="h-8 w-8 mb-2 opacity-50" />
+                      <span className="text-xs">no icons found</span>
+                    </div>
+                  )}
+                </div>
               </ScrollArea>
             </TabsContent>
 
