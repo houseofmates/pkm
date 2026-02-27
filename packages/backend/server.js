@@ -130,24 +130,38 @@ app.use(express.json());
 // Serve static files from public directory
 app.use('/public', express.static(path.join(process.cwd(), 'public')));
 
-// Serve APK files from web public directory
-// Note: server runs from pkm root, so path is relative to cwd
-const apkDir = path.join(process.cwd(), 'apps', 'web', 'public', 'apk');
+// Serve APK files from releases directory (cwd/release)
+const apkDir = path.join(process.cwd(), 'releases');
 console.log('[APK] serving from:', apkDir);
 
 app.use('/apk', express.static(apkDir));
 
-// APK download endpoint - serves latest APK with proper headers
+// APK download endpoint - serves latest APK file in releases directory
 app.get('/apk', (req, res) => {
-    const latestApk = path.join(apkDir, 'pkm-latest.apk');
-    console.log('[APK] looking for:', latestApk);
-    console.log('[APK] exists:', fs.existsSync(latestApk));
-    if (fs.existsSync(latestApk)) {
+    try {
+        if (!fs.existsSync(apkDir)) {
+            return res.status(404).json({ error: 'APK directory not found', path: apkDir });
+        }
+
+        const apkFiles = fs.readdirSync(apkDir)
+            .filter(file => file.toLowerCase().endsWith('.apk'))
+            .map(file => ({ file, mtime: fs.statSync(path.join(apkDir, file)).mtimeMs }))
+            .sort((a, b) => a.mtime - b.mtime);
+
+        const latest = apkFiles.at(-1);
+        if (!latest) {
+            return res.status(404).json({ error: 'No APK files found', path: apkDir });
+        }
+
+        const latestApk = path.join(apkDir, latest.file);
+        console.log('[APK] serving latest:', latestApk);
+
         res.setHeader('Content-Type', 'application/vnd.android.package-archive');
-        res.setHeader('Content-Disposition', 'attachment; filename="pkm-latest.apk"');
+        res.setHeader('Content-Disposition', `attachment; filename="${latest.file}"`);
         res.sendFile(latestApk);
-    } else {
-        res.status(404).json({ error: 'APK not found', path: latestApk });
+    } catch (err) {
+        console.error('[APK] error serving APK:', err);
+        res.status(500).json({ error: 'Failed to serve APK' });
     }
 });
 
