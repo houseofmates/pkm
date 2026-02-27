@@ -99,13 +99,16 @@ export function useThemeReactor() {
         }
       }
     } else {
-      // no color found AND no cache, revert to default (will use index.css default which is yellow)
-      document.documentElement.style.removeProperty('--primary');
-      document.documentElement.style.removeProperty('--ring');
-      document.documentElement.style.removeProperty('--headmate-white');
-      document.body.style.removeProperty('--primary');
-      document.body.style.removeProperty('--ring');
-      document.body.style.removeProperty('--headmate-white');
+      // no color found AND no cache, use default #f6b012
+      const defaultColor = '#f6b012';
+      const defaultHsl = hexToHsl(defaultColor);
+      if (defaultHsl) {
+        document.documentElement.style.setProperty('--primary', defaultHsl);
+        document.documentElement.style.setProperty('--ring', defaultHsl);
+        document.documentElement.style.setProperty('--headmate-white', '0 0% 100%');
+        document.body.style.setProperty('--primary', defaultHsl, 'important');
+        document.body.style.setProperty('--ring', defaultHsl, 'important');
+      }
     }
 
   }, [activeFronters, overrides, members]);
