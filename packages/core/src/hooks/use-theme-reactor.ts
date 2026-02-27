@@ -38,9 +38,6 @@ export function useThemeReactor() {
           secureLogger.warn('Failed to read color cache:', e);
         }
       }
-    } else if (members.length > 0) {
-      // no one is fronting, use the first member
-      color = members[0].color;
     }
 
     // if still no color found (e.g. initial load), try last_active_color
