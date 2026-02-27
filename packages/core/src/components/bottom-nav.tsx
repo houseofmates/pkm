@@ -23,74 +23,63 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
 
   return (
     <>
-      <div className="fixed bottom-6 left-0 right-0 flex justify-center z-50 px-4 pointer-events-none">
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-4 pointer-events-none w-full max-w-full flex justify-center">
         <div className={cn(
-          "flex items-center gap-1 bg-black/80 backdrop-blur-xl border border-white/10 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5)] p-1.5 pointer-events-auto",
+          "w-max mx-auto flex items-center gap-1 bg-black/90 backdrop-blur-xl border border-white/10 rounded-[2rem] shadow-[0_8px_32px_rgba(0,0,0,0.5)] p-2 pointer-events-auto",
           className
         )}>
           <Button
             variant="ghost"
-            size="icon"
-            className={cn("h-12 w-12 rounded-full", activeTab === 'home' && "bg-primary/20 text-primary")}
+            className={cn("flex flex-col items-center justify-center h-[60px] w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'home' && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => onTabChange('home')}
           >
             <Home className="h-5 w-5" />
+            <span className="text-[11px] font-medium lowercase">home</span>
           </Button>
 
           <Button
             variant="ghost"
-            size="icon"
-            className={cn("h-12 w-12 rounded-full", activeTab === 'databases' && "bg-primary/20 text-primary")}
+            className={cn("flex flex-col items-center justify-center h-[60px] w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'databases' && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => onTabChange('databases')}
           >
             <Database className="h-5 w-5" />
+            <span className="text-[11px] font-medium lowercase">data</span>
           </Button>
 
           <Button
             variant="ghost"
             size="icon"
-            className="h-12 w-12 rounded-full hover:bg-white/10"
+            className="h-[60px] w-[60px] rounded-full hover:bg-white/10 scale-110 mx-1"
             onClick={handleOpenSearch}
           >
-            <Search className="h-5 w-5" />
+            <Search className="h-6 w-6" />
           </Button>
 
           <Button
             variant="ghost"
-            size="icon"
-            className={cn("h-12 w-12 rounded-full", activeTab === 'headmates' && "bg-primary/20 text-primary")}
+            className={cn("flex flex-col items-center justify-center h-[60px] w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'headmates' && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => onTabChange('headmates')}
           >
             <Users className="h-5 w-5" />
+            <span className="text-[11px] font-medium lowercase">mates</span>
           </Button>
 
           <Button
             variant="ghost"
-            size="icon"
-            className={cn("h-12 w-12 rounded-full", activeTab === 'captures' && "bg-primary/20 text-primary")}
+            className={cn("flex flex-col items-center justify-center h-[60px] w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'captures' && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => onTabChange('captures')}
           >
             <Inbox className="h-5 w-5" />
+            <span className="text-[11px] font-medium lowercase">inbox</span>
           </Button>
 
           <Button
             variant="ghost"
-            size="icon"
-            className="h-12 w-12 rounded-full hover:bg-white/10"
-            onClick={() => navigate('/settings')}
-          >
-            <Settings className="h-5 w-5" />
-          </Button>
-
-          <div className="w-px h-6 bg-white/10 mx-1" />
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn("h-12 w-12 rounded-full", isChatOpen && "bg-primary/20 text-primary")}
+            className={cn("flex flex-col items-center justify-center h-[60px] w-[60px] rounded-2xl gap-1 hover:bg-white/10", isChatOpen && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => setChatOpen(!isChatOpen)}
           >
             <BrainCircuit className="h-5 w-5" />
+            <span className="text-[11px] font-medium lowercase">wilson</span>
           </Button>
         </div>
       </div>
