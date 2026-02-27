@@ -78,6 +78,11 @@ export function useThemeReactor() {
           secureLogger.info('Dark color detected, using white instead');
         }
 
+        // enforce global yellow default if it's white 
+        if (finalColor.toLowerCase() === '#ffffff' || finalColor.toLowerCase() === '#fff') {
+          finalColor = '#f6b012';
+        }
+
         const finalHsl = hexToHsl(finalColor);
         if (finalHsl) {
           // force injection on both documentelement and body for max coverage
