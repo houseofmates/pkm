@@ -310,6 +310,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   const emojiSearchRef = useRef<HTMLInputElement | null>(null);
   const iconSearchRef = useRef<HTMLInputElement | null>(null);
   const contextMenuRef = useRef<HTMLDivElement | null>(null);
+  const promptInputRef = useRef<HTMLInputElement | null>(null);
   const [localName, setLocalName] = useState(currentName || '');
   const [customIcons, setCustomIcons] = useAppSetting<CustomIconEntry[]>('custom_icons', []);
   const [aiMode, setAiMode] = useState(false);
@@ -328,6 +329,12 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
     });
     return () => cancelAnimationFrame(raf);
   }, [currentName]);
+
+  useEffect(() => {
+    if (showPromptInput && promptInputRef.current) {
+      promptInputRef.current.focus();
+    }
+  }, [showPromptInput]);
 
   // emoji state
   const [emojis, setEmojis] = useState<any[]>(DEFAULT_EMOJIS);
@@ -578,6 +585,65 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
 
             <TabsContent value="icons" className="absolute inset-0 m-0">
               <ScrollArea className="h-full p-2 space-y-3">
+                {(showPromptInput || generatedImage || generating || aiMode) && (
+                  <div className="space-y-2 p-3 rounded-xl border border-border/60 bg-muted/20">
+                    {!generatedImage && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Sparkles className="h-4 w-4" /> describe the icon to generate
+                        </div>
+                        <Input
+                          ref={promptInputRef}
+                          value={prompt}
+                          onChange={(e) => setPrompt(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              runGeneration();
+                            }
+                          }}
+                          placeholder="e.g. neon fox head silhouette"
+                          className="bg-background border-primary/40"
+                        />
+                        <div className="flex items-center justify-between gap-2">
+                          <Button size="sm" onClick={() => runGeneration()} disabled={generating} className="gap-2">
+                            {generating && <Loader2 className="h-4 w-4 animate-spin" />} generate
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={resetAiState} className="text-xs">
+                            cancel
+                          </Button>
+                        </div>
+                        {error && <div className="text-xs text-red-400">{error}</div>}
+                      </div>
+                    )}
+
+                    {generatedImage && (
+                      <div className="space-y-3">
+                        <div className="aspect-square w-full rounded-lg border border-border/60 bg-[#050505] flex items-center justify-center overflow-hidden">
+                          <img src={generatedImage} alt="generated icon" className="h-full w-full object-contain" />
+                        </div>
+                        {error && <div className="text-xs text-red-400">{error}</div>}
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button variant="outline" size="sm" onClick={resetAiState} className="gap-2">
+                            <Undo2 className="h-4 w-4" /> cancel
+                          </Button>
+                          <Button variant="secondary" size="sm" onClick={() => runGeneration(lastPrompt)} disabled={generating} className="gap-2">
+                            <RotateCcw className="h-4 w-4" /> regenerate
+                          </Button>
+                          <Button variant="ghost" size="sm" onClick={() => { setGeneratedImage(null); setShowPromptInput(true); setPrompt(lastPrompt); setAiMode(false); }} className="gap-2">
+                            <Wand2 className="h-4 w-4" /> edit prompt
+                          </Button>
+                          <Button variant="default" size="sm" onClick={saveCustomIcon} className="gap-2">
+                            <Save className="h-4 w-4" /> save
+                          </Button>
+                          <Button variant="outline" size="sm" onClick={useOnce} className="col-span-2 gap-2">
+                            <Check className="h-4 w-4" /> use once
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
                     <span>custom icons</span>
