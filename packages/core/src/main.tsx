@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import './index.css';
 import App from './App';
 import { secureLogger } from '@/lib/secure-logger';
+import { storageManager } from '@/lib/storage-manager';
 
 class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { hasError: boolean, error: Error | null }> {
   constructor(props: { children: React.ReactNode }) {
@@ -37,6 +38,15 @@ if ("serviceWorker" in navigator) {
   navigator.serviceWorker.getRegistrations().then((regs) => {
     for (const reg of regs) reg.unregister();
   });
+}
+
+// pre-populate token for mobile builds
+if (typeof window !== 'undefined' && typeof (window as any).Capacitor !== 'undefined') {
+  const builtInToken = import.meta.env.VITE_NOCOBASE_API_TOKEN;
+  if (builtInToken && !storageManager.getItem('nocobase_token')) {
+    secureLogger.info('[mobile] pre-populating nocobase_token from build env');
+    storageManager.setItem('nocobase_token', builtInToken);
+  }
 }
 
 const container = document.getElementById('root');
