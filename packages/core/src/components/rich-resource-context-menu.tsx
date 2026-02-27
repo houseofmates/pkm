@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { HexColorPicker } from 'react-colorful';
-import { Upload, Search, Loader2, Wand2, Undo2, Save, RotateCcw, Sparkles, Check } from 'lucide-react';
+import { Upload, Search, Loader2, Wand2, Undo2, Save, RotateCcw, Sparkles, Check, type LucideIcon } from 'lucide-react';
 import * as Icons from 'lucide-react';
 // Dynamic icon loader for Lucide icons
 function getLucideIcon(name: string): LucideIcon | undefined {
@@ -305,12 +305,12 @@ const DEFAULT_EMOJIS = [
 
 export function RichResourceContextMenuContent({ currentName, currentColor, onUpdate, children }: RichResourceContextMenuProps) {
   const [search, setSearch] = useState('');
-  const [tab, setTab] = useState<'icons' | 'emoji' | 'color'>('icons');
+  const [activeTab, setActiveTab] = useState<'icons' | 'emojis' | 'color'>('icons');
   const [localColor, setLocalColor] = useState(currentColor || '#8b5cf6');
-  const [filteredIcons, setFilteredIcons] = useState<string[]>(ALL_ICONS);
-  const [filteredEmojis, setFilteredEmojis] = useState(DEFAULT_EMOJIS);
   const emojiSearchRef = useRef<HTMLInputElement | null>(null);
   const iconSearchRef = useRef<HTMLInputElement | null>(null);
+  const contextMenuRef = useRef<HTMLDivElement | null>(null);
+  const [localName, setLocalName] = useState(currentName || '');
   const [customIcons, setCustomIcons] = useAppSetting<CustomIconEntry[]>('custom_icons', []);
   const [aiMode, setAiMode] = useState(false);
   const [prompt, setPrompt] = useState('');
@@ -392,6 +392,46 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const resetAiState = () => {
+    setAiMode(false);
+    setPrompt('');
+    setGeneratedImage(null);
+    setError(null);
+  };
+
+  const runGeneration = async (p?: string) => {
+    const effectivePrompt = (p ?? prompt).trim();
+    if (!effectivePrompt) {
+      setError('prompt required');
+      return;
+    }
+    setError(null);
+    setGenerating(true);
+    try {
+      const img = await generateVertexIcon(effectivePrompt);
+      setGeneratedImage(img);
+      setLastPrompt(effectivePrompt);
+      setAiMode(true);
+    } catch (err: any) {
+      setError(err?.message || 'failed to generate');
+    } finally {
+      setGenerating(false);
+    }
+  };
+
+  const saveCustomIcon = () => {
+    if (!generatedImage) return;
+    const entry: CustomIconEntry = {
+      id: crypto.randomUUID(),
+      dataUrl: generatedImage,
+      prompt: lastPrompt,
+      createdAt: new Date().toISOString(),
+    };
+    setCustomIcons((prev) => [entry, ...(prev || [])].slice(0, 50));
+    onUpdate({ icon: generatedImage, iconType: 'image' });
+    resetAiState();
   };
 
   return (
