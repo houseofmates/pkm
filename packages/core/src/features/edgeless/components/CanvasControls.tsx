@@ -10,7 +10,7 @@ export function CanvasControls() {
   const canRedo = history.undone.length > 0
 
   return (
-    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex gap-2">
+    <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 flex gap-2 justify-center items-center w-max">
       <Button
         variant="outline"
         size="icon"
