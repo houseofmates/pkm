@@ -400,6 +400,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
     setPrompt('');
     setGeneratedImage(null);
     setError(null);
+    setShowPromptInput(false);
   };
 
   const runGeneration = async (p?: string) => {
@@ -430,10 +431,20 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
       prompt: lastPrompt,
       createdAt: new Date().toISOString(),
     };
-    setCustomIcons((prev) => [entry, ...(prev || [])].slice(0, 50));
+    setCustomIcons((prev = []) => [entry, ...prev].slice(0, 50));
     onUpdate({ icon: generatedImage, iconType: 'image' });
     resetAiState();
   };
+
+  const useOnce = () => {
+    if (!generatedImage) return;
+    onUpdate({ icon: generatedImage, iconType: 'image' });
+    resetAiState();
+  };
+
+  const sortedCustomIcons = useMemo(() => {
+    return [...(customIcons || [])].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+  }, [customIcons]);
 
   return (
     <ContextMenuContent ref={contextMenuRef} className="w-[90vw] sm:w-[360px] p-0 overflow-hidden bg-[#050505] border-border/50 flex flex-col transition-all duration-300">
