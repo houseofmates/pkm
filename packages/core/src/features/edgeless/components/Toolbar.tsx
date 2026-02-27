@@ -16,13 +16,15 @@ import {
   Link as LinkIcon,
   Plus,
   Eye,
-  EyeOff
+  EyeOff,
+  Inbox
 } from 'lucide-react'
 import { useEdgelessStore } from '../store'
 import { useCanvasEvents } from '../hooks/use-canvas-events'
 import { useState, useRef, useEffect } from 'react'
 import { useThemeReactor } from '@/hooks/use-theme-reactor'
 import { UniversalWidgetPicker } from '@/features/widgets/UniversalWidgetPicker'
+import { CaptureDialog } from '@/features/captures/components/CaptureDialog'
 
 // tool button helper
 const ToolBtn = ({ tool, icon: Icon, store, activeMenu, openMenu, closeMenu, onClickOverride, specialModeIcon, menuContent }: any) => {
@@ -76,6 +78,7 @@ export function Toolbar() {
 
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const [widgetPickerOpen, setWidgetPickerOpen] = useState(false)
+  const [captureDialogOpen, setCaptureDialogOpen] = useState(false)
 
   const openMenu = (tool: string) => setActiveMenu(tool)
   const closeMenu = () => setActiveMenu(null)
@@ -248,6 +251,15 @@ export function Toolbar() {
           {/* text */}
           <ToolBtn tool="text" icon={Type} store={store} activeMenu={activeMenu} openMenu={openMenu} closeMenu={closeMenu} />
 
+          {/* capture button */}
+          <button
+            onClick={() => setCaptureDialogOpen(true)}
+            className="h-[48px] w-[48px] flex items-center justify-center rounded-full text-primary hover:bg-primary/20 hover:scale-105 transition-all"
+            title="quick capture"
+          >
+            <Inbox size={24} />
+          </button>
+
           {/* widget picker trigger */}
           <button
             onClick={() => setWidgetPickerOpen(true)}
@@ -307,6 +319,11 @@ export function Toolbar() {
           open={widgetPickerOpen}
           onOpenChange={setWidgetPickerOpen}
           onSelect={handleAddWidget}
+        />
+
+        <CaptureDialog
+          open={captureDialogOpen}
+          onOpenChange={setCaptureDialogOpen}
         />
       </div>
     </div>
