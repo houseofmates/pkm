@@ -23,8 +23,10 @@ MONOREPO_ROOT="$(cd ../.. && pwd)"
 
 echo ""
 echo -e "${YELLOW}step 1: building web assets...${NC}"
-# build the web app from monorepo root, injecting VITE_API_URL to point to production
-(cd "$MONOREPO_ROOT" && VITE_API_URL="https://pkm.houseofmates.space/api" npm run build)
+# build the web app from monorepo root, injecting VITE_API_URL via .env.production.local
+echo "VITE_API_URL=https://pkm.houseofmates.space/api" > "$MONOREPO_ROOT/packages/core/.env.production.local"
+(cd "$MONOREPO_ROOT" && npm run build)
+rm -f "$MONOREPO_ROOT/packages/core/.env.production.local"
 
 echo ""
 echo -e "${YELLOW}step 2: copying build output to capacitor webDir...${NC}"
