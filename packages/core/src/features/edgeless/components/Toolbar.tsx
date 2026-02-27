@@ -111,7 +111,7 @@ export function Toolbar() {
     <div className="absolute bottom-0 left-1/2 -translate-x-1/2 flex items-center gap-3 px-6 py-3 bg-[#050505]/80 backdrop-blur-md border border-white/10 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5)] border-t-primary/20 transition-all duration-300 z-50">
 
       {/* undo/redo */}
-      <div className="flex items-center gap-1 mr-2 border-r border-white/10 pr-4">
+      <div className="flex items-center gap-1 px-2">
         <button onClick={store.undo} className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors">
           <Undo2 size={18} />
         </button>
@@ -119,6 +119,8 @@ export function Toolbar() {
           <Redo2 size={18} />
         </button>
       </div>
+
+      <div className="w-px h-6 bg-white/10 mx-1" />
 
       {/* primary tools */}
       <div className="flex items-center gap-2">
@@ -140,13 +142,13 @@ export function Toolbar() {
           specialModeIcon={store.selectionMode === 'cursor' ? <MousePointer2 size={24} /> : <Hand size={24} />}
           menuContent={
             <div className="flex flex-col gap-2">
-                <span className="text-xs text-primary font-bold lowercase">mode</span>
-                <button onClick={() => { store.setSelectionMode('grab'); closeMenu() }} className={`text-sm p-2 rounded flex items-center gap-2 lowercase ${store.selectionMode === 'grab' ? 'bg-primary/20 text-primary' : 'text-zinc-300 hover:bg-white/10'}`}>
-                    <Hand size={16} /> grab (pan)
-                </button>
-                <button onClick={() => { store.setSelectionMode('cursor'); closeMenu() }} className={`text-sm p-2 rounded flex items-center gap-2 lowercase ${store.selectionMode === 'cursor' ? 'bg-primary/20 text-primary' : 'text-zinc-300 hover:bg-white/10'}`}>
-                    <MousePointer2 size={16} /> interact
-                </button>
+              <span className="text-xs text-primary font-bold lowercase">mode</span>
+              <button onClick={() => { store.setSelectionMode('grab'); closeMenu() }} className={`text-sm p-2 rounded flex items-center gap-2 lowercase ${store.selectionMode === 'grab' ? 'bg-primary/20 text-primary' : 'text-zinc-300 hover:bg-white/10'}`}>
+                <Hand size={16} /> grab (pan)
+              </button>
+              <button onClick={() => { store.setSelectionMode('cursor'); closeMenu() }} className={`text-sm p-2 rounded flex items-center gap-2 lowercase ${store.selectionMode === 'cursor' ? 'bg-primary/20 text-primary' : 'text-zinc-300 hover:bg-white/10'}`}>
+                <MousePointer2 size={16} /> interact
+              </button>
             </div>
           }
         />
@@ -216,27 +218,27 @@ export function Toolbar() {
 
         {/* eraser */}
         <ToolBtn tool="eraser" icon={Eraser} store={store} activeMenu={activeMenu} openMenu={openMenu} closeMenu={closeMenu}
-            menuContent={
-                <>
-                  <label className="text-xs text-primary lowercase">width: {store.eraserWidth}px</label>
-                  <input
-                    type="range" min="5" max="100"
-                    value={store.eraserWidth}
-                    onChange={(e) => store.setEraserWidth(Number(e.target.value))}
-                    className="accent-primary"
-                  />
-                <label className="text-xs text-primary lowercase flex justify-between mt-2">
-                  <span>opacity</span>
-                  <span>{store.eraserOpacity}%</span>
-                </label>
-                  <input
-                    type="range" min="0" max="100"
-                    value={store.eraserOpacity}
-                    onChange={(e) => store.setEraserOpacity(Number(e.target.value))}
-                    className="accent-primary"
-                  />
-                </>
-              }
+          menuContent={
+            <>
+              <label className="text-xs text-primary lowercase">width: {store.eraserWidth}px</label>
+              <input
+                type="range" min="5" max="100"
+                value={store.eraserWidth}
+                onChange={(e) => store.setEraserWidth(Number(e.target.value))}
+                className="accent-primary"
+              />
+              <label className="text-xs text-primary lowercase flex justify-between mt-2">
+                <span>opacity</span>
+                <span>{store.eraserOpacity}%</span>
+              </label>
+              <input
+                type="range" min="0" max="100"
+                value={store.eraserOpacity}
+                onChange={(e) => store.setEraserOpacity(Number(e.target.value))}
+                className="accent-primary"
+              />
+            </>
+          }
         />
 
         {/* text */}
@@ -244,55 +246,57 @@ export function Toolbar() {
 
         {/* widget picker trigger */}
         <button
-            onClick={() => setWidgetPickerOpen(true)}
-            className="h-[48px] w-[48px] flex items-center justify-center rounded-full text-primary hover:bg-primary/20 hover:scale-105 transition-all"
-            title="add widget"
+          onClick={() => setWidgetPickerOpen(true)}
+          className="h-[48px] w-[48px] flex items-center justify-center rounded-full text-primary hover:bg-primary/20 hover:scale-105 transition-all"
+          title="add widget"
         >
-            <Plus size={24} />
+          <Plus size={24} />
         </button>
 
       </div>
 
+      <div className="w-px h-6 bg-white/10 mx-1" />
+
       {/* secondary / layers */}
-      <div className="flex items-center gap-1 ml-2 border-l border-white/10 pl-4">
-         <ToolBtn
-            tool="layers"
-            icon={Layers}
-            store={store}
-            activeMenu={activeMenu}
-            openMenu={openMenu}
-            closeMenu={closeMenu}
-            menuContent={
-                <div className="flex flex-col gap-2 min-w-[200px]">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold text-primary">layers</span>
-                    <button onClick={() => store.addLayer(`Layer ${store.layers.length + 1}`)} className="text-xs px-2 py-1 bg-primary/20 hover:bg-primary/40 rounded text-primary">
-                      + add
+      <div className="flex items-center gap-1 px-4">
+        <ToolBtn
+          tool="layers"
+          icon={Layers}
+          store={store}
+          activeMenu={activeMenu}
+          openMenu={openMenu}
+          closeMenu={closeMenu}
+          menuContent={
+            <div className="flex flex-col gap-2 min-w-[200px]">
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-xs font-bold text-primary">layers</span>
+                <button onClick={() => store.addLayer(`Layer ${store.layers.length + 1}`)} className="text-xs px-2 py-1 bg-primary/20 hover:bg-primary/40 rounded text-primary">
+                  + add
+                </button>
+              </div>
+              <div className="flex flex-col gap-1 max-h-[200px] overflow-y-auto">
+                {store.layers.map(layer => (
+                  <div key={layer.id} className={`flex items-center gap-2 p-2 rounded ${store.activeLayerId === layer.id ? 'bg-primary/20 border border-primary/50' : 'hover:bg-white/5'}`}>
+                    <button onClick={() => store.toggleLayerVisibility(layer.id)} className="text-zinc-400 hover:text-white">
+                      {layer.visible ? <Eye size={14} /> : <EyeOff size={14} />}
+                    </button>
+                    <span
+                      className={`flex-1 text-xs cursor-pointer truncate ${store.activeLayerId === layer.id ? 'text-primary' : 'text-zinc-300'}`}
+                      onClick={() => store.setActiveLayer(layer.id)}
+                    >
+                      {layer.name}
+                    </span>
+                    <button onClick={() => {
+                      if (confirm('Delete layer?')) store.removeLayer(layer.id)
+                    }} className="text-red-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Trash2 size={12} />
                     </button>
                   </div>
-                  <div className="flex flex-col gap-1 max-h-[200px] overflow-y-auto">
-                    {store.layers.map(layer => (
-                      <div key={layer.id} className={`flex items-center gap-2 p-2 rounded ${store.activeLayerId === layer.id ? 'bg-primary/20 border border-primary/50' : 'hover:bg-white/5'}`}>
-                        <button onClick={() => store.toggleLayerVisibility(layer.id)} className="text-zinc-400 hover:text-white">
-                          {layer.visible ? <Eye size={14} /> : <EyeOff size={14} />}
-                        </button>
-                        <span
-                          className={`flex-1 text-xs cursor-pointer truncate ${store.activeLayerId === layer.id ? 'text-primary' : 'text-zinc-300'}`}
-                          onClick={() => store.setActiveLayer(layer.id)}
-                        >
-                          {layer.name}
-                        </span>
-                        <button onClick={() => {
-                          if (confirm('Delete layer?')) store.removeLayer(layer.id)
-                        }} className="text-red-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Trash2 size={12} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              }
-         />
+                ))}
+              </div>
+            </div>
+          }
+        />
       </div>
 
       <UniversalWidgetPicker

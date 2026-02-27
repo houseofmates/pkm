@@ -1,4 +1,4 @@
-import { Home, Database, Users, LayoutDashboard, Search, Inbox, Settings } from 'lucide-react';
+import { Home, Database, Users, Search, Inbox, Settings, BrainCircuit } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -9,6 +9,7 @@ interface BottomNavProps {
 }
 
 import { useNavigate } from 'react-router-dom';
+import { useEdgelessStore } from '@/features/edgeless/store';
 
 export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps) {
 
@@ -16,74 +17,82 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
     window.dispatchEvent(new CustomEvent('pkm:open-search'));
   };
 
+  const navigate = useNavigate();
+  const setChatOpen = useEdgelessStore((s) => s.setChatOpen);
+  const isChatOpen = useEdgelessStore((s) => s.isChatOpen);
+
   return (
     <>
-      <div className={cn("fixed bottom-0 left-0 right-0 h-16 bg-card border-t flex items-center justify-between z-50 px-4 pb-safe", className)}>
-        <Button
-          variant="ghost"
-          className={cn("flex flex-col justify-center items-center gap-1 h-full flex-1 rounded-none w-full text-center", activeTab === 'home' && "text-primary")}
-          onClick={() => onTabChange('home')}
-        >
-          <Home className="h-5 w-5" />
-          <span className="text-[10px] font-medium lowercase">home</span>
-        </Button>
-
-        <Button
-          variant="ghost"
-          className={cn("flex flex-col justify-center items-center gap-1 h-full flex-1 rounded-none w-full text-center", activeTab === 'databases' && "text-primary")}
-          onClick={() => onTabChange('databases')}
-        >
-          <Database className="h-5 w-5" />
-          <span className="text-[10px] font-medium lowercase">data</span>
-        </Button>
-
-        <Button
-          variant="ghost"
-          className={cn("flex flex-col justify-center items-center gap-1 h-full flex-1 rounded-none w-full text-center", activeTab === 'board' && "text-primary")}
-          onClick={() => onTabChange('board')}
-        >
-          <LayoutDashboard className="h-5 w-5" />
-          <span className="text-[10px] font-medium lowercase">board</span>
-        </Button>
-
-        <div className="flex-1 flex justify-center">
+      <div className="fixed bottom-6 left-0 right-0 flex justify-center z-50 px-4 pointer-events-none">
+        <div className={cn(
+          "flex items-center gap-1 bg-black/80 backdrop-blur-xl border border-white/10 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5)] p-1.5 pointer-events-auto",
+          className
+        )}>
           <Button
             variant="ghost"
             size="icon"
-            className="h-12 w-12 rounded-full hover:bg-primary/10 transition-colors"
+            className={cn("h-12 w-12 rounded-full", activeTab === 'home' && "bg-primary/20 text-primary")}
+            onClick={() => onTabChange('home')}
+          >
+            <Home className="h-5 w-5" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn("h-12 w-12 rounded-full", activeTab === 'databases' && "bg-primary/20 text-primary")}
+            onClick={() => onTabChange('databases')}
+          >
+            <Database className="h-5 w-5" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-12 w-12 rounded-full hover:bg-white/10"
             onClick={handleOpenSearch}
           >
-            <Search className="h-6 w-6" />
+            <Search className="h-5 w-5" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn("h-12 w-12 rounded-full", activeTab === 'headmates' && "bg-primary/20 text-primary")}
+            onClick={() => onTabChange('headmates')}
+          >
+            <Users className="h-5 w-5" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn("h-12 w-12 rounded-full", activeTab === 'captures' && "bg-primary/20 text-primary")}
+            onClick={() => onTabChange('captures')}
+          >
+            <Inbox className="h-5 w-5" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-12 w-12 rounded-full hover:bg-white/10"
+            onClick={() => navigate('/settings')}
+          >
+            <Settings className="h-5 w-5" />
+          </Button>
+
+          <div className="w-px h-6 bg-white/10 mx-1" />
+
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn("h-12 w-12 rounded-full", isChatOpen && "bg-primary/20 text-primary")}
+            onClick={() => setChatOpen(!isChatOpen)}
+          >
+            <BrainCircuit className="h-5 w-5" />
           </Button>
         </div>
-
-        <Button
-          variant="ghost"
-          className={cn("flex flex-col justify-center items-center gap-1 h-full flex-1 rounded-none w-full text-center", activeTab === 'headmates' && "text-primary")}
-          onClick={() => onTabChange('headmates')}
-        >
-          <Users className="h-5 w-5" />
-          <span className="text-[10px] font-medium lowercase">mates</span>
-        </Button>
-
-        <Button
-          variant="ghost"
-          className={cn("flex flex-col justify-center items-center gap-1 h-full flex-1 rounded-none w-full text-center", activeTab === 'captures' && "text-primary")}
-          onClick={() => onTabChange('captures')}
-        >
-          <Inbox className="h-5 w-5" />
-          <span className="text-[10px] font-medium lowercase">inbox</span>
-        </Button>
-
-        <Button
-          variant="ghost"
-          className="flex flex-col justify-center items-center gap-1 h-full flex-1 rounded-none text-muted-foreground hover:text-primary transition-colors"
-          onClick={() => navigate('/settings')}
-        >
-          <Settings className="h-5 w-5" />
-          <span className="text-[10px] font-medium lowercase">settings</span>
-        </Button>
-
       </div>
 
       {/* render the search palette here so the button can trigger it */}
