@@ -13,6 +13,7 @@ import { CanvasErrorBoundary } from "@/features/edgeless"
 import { CanvasInitializer } from "@/features/edgeless/components/canvas-initializer"
 import { isLinkRegistryMigrated, backfillLinkRegistry } from "@/lib/link-migration"
 import { secureLogger } from "@/lib/secure-logger"
+import { isCapacitorNative } from "@/lib/platform"
 
 // lazy load heavy components
 const Spotlight = lazy(() => import("@/components/Spotlight").then(m => ({ default: m.Spotlight })));
@@ -90,6 +91,12 @@ function AppContent() {
 
   // perform a quick backend health check to decide if configuration is missing
   useEffect(() => {
+    // on mobile (capacitor), always skip setup check - backend is always remote
+    if (isCapacitorNative()) {
+      setSetupNeeded(false);
+      return;
+    }
+    
     // try to fetch stats from the absolute api url if available, otherwise relative
     const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') || '';
     const statsUrl = `${baseUrl}/api/stats`;
