@@ -97,7 +97,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
           <Button
             variant="ghost"
             className={cn("flex flex-col items-center justify-center h-[60px] w-[60px] rounded-2xl gap-1 hover:bg-white/10", isChatOpen && "bg-primary/20 text-primary hover:bg-primary/30")}
-            onClick={() => setChatOpen(!isChatOpen)}
+            onClick={handleWilsonClick}
           >
             <BrainCircuit className="h-5 w-5" />
             <span className="text-[11px] font-medium lowercase">wilson</span>
