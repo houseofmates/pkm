@@ -72,10 +72,10 @@ export function RootLayout() {
   const subdomain = window.location.hostname.split('.')[0];
   const isAphrodite = subdomain === 'aphrodite';
 
-  let accentColor = "#ffffff";
+  let accentColor = "#f6b012";
   if (activeFronters.length > 0) {
     const fronterId = activeFronters[0];
-    accentColor = overrides[fronterId]?.color || members.find(m => m.id === fronterId)?.color || "#ffffff";
+    accentColor = overrides[fronterId]?.color || members.find(m => m.id === fronterId)?.color || "#f6b012";
   }
   if (isAphrodite) accentColor = "#e0a6b5";
 
