@@ -19,6 +19,7 @@ import { TierListElement } from './elements/TierListElement'
 import { SleepRing } from './elements/SleepRing'
 import { ConnectorElement } from './elements/ConnectorElement'
 import { SmartTextElement } from './elements/SmartTextElement'
+import { WidgetElement } from './elements/WidgetElement'
 import { useContextMenuStore } from '@/components/ui/context-menu-store'
 import { useCanvasEvents } from '../hooks/use-canvas-events'
 import { useGestureManager } from '@/hooks/use-gesture-manager'
@@ -162,6 +163,12 @@ const CanvasElement = memo(function CanvasElement({ id, pointerClass, pdfDoc }: 
           }}
         >
           <SmartTextElement element={element} />
+        </div>
+      )
+    case 'widget':
+      return (
+        <div className={`absolute ${pointerClass}`} style={style}>
+          <WidgetElement element={element} />
         </div>
       )
     default:

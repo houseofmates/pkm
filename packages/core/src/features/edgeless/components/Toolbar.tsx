@@ -98,12 +98,15 @@ export function Toolbar() {
     const centerY = (-y / zoom) + (window.innerHeight / 2 / zoom);
 
     store.addElement({
-      type: type as any,
+      type: 'widget' as any,
       x: centerX - (data.defaultWidth || 200) / 2,
       y: centerY - (data.defaultHeight || 200) / 2,
       width: data.defaultWidth || 200,
       height: data.defaultHeight || 200,
-      data: data
+      data: {
+        ...data,
+        widgetId: type
+      }
     });
   };
 
