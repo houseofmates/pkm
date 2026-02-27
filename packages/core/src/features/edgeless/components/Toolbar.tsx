@@ -309,5 +309,6 @@ export function Toolbar() {
           onSelect={handleAddWidget}
         />
       </div>
-      )
+    </div>
+  );
 }
