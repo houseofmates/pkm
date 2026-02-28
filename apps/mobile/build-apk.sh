@@ -73,7 +73,7 @@ echo -e "${GREEN}  APK build complete!${NC}"
 echo -e "${GREEN}==========================================${NC}"
 echo ""
 
-APK_SOURCE="android/app/build/outputs/apk/release/app-release.apk"
+APK_SOURCE="app/build/outputs/apk/release/app-release.apk"
 RELEASES_DIR="$MONOREPO_ROOT/releases"
 TIMESTAMP=$(date +%s)
 NEW_APK_NAME="pkm-release-$TIMESTAMP.apk"
