@@ -1,5 +1,5 @@
 import { AuthProvider, useAuth } from "@/contexts/auth-context"
-import { checkForApkUpdate, downloadAndPromptInstall } from "@/utils/apkUpdater"
+// import apkUpdater only when needed
 import { LoginPage } from "@/pages/login"
 import { RootLayout } from "@/pages/root-layout"
 import { Toaster } from "@/components/ui/sonner"
@@ -59,15 +59,16 @@ function AppContent() {
   // check for APK update ONLY on /apk
   useEffect(() => {
     if (window.location.pathname === "/apk" && !updateChecked && token) {
-      // Get version from package.json or environment variable
       const currentVersion = import.meta.env.VITE_APP_VERSION || "0.0.0"
-      checkForApkUpdate(currentVersion, token).then(manifest => {
-        if (manifest) {
-          if (window.confirm(`a new version (${manifest.version}) is available. update now?`)) {
-            downloadAndPromptInstall(manifest.apkUrl)
+      import("@/utils/apkUpdater").then(({ checkForApkUpdate, downloadAndPromptInstall }) => {
+        checkForApkUpdate(currentVersion, token).then(manifest => {
+          if (manifest) {
+            if (window.confirm(`a new version (${manifest.version}) is available. update now?`)) {
+              downloadAndPromptInstall(manifest.apkUrl)
+            }
           }
-        }
-        setUpdateChecked(true)
+          setUpdateChecked(true)
+        })
       })
     }
   }, [updateChecked, token])

@@ -5,16 +5,15 @@ const config: CapacitorConfig = {
   appName: 'pkm',
   webDir: 'dist',
   server: {
-    // Load from public server for access anywhere (data, away from home)
-    url: 'https://pkm.houseofmates.space',
+    // Load from local dev server for LIVE RELOAD (same WiFi required)
+    url: 'http://192.168.4.233:3010',
     // allow navigation to the nocobase API and other houseofmates services
     allowNavigation: [
-      'pkm.houseofmates.space',
+      '192.168.4.233',
       '*.houseofmates.space',
-      'houseofmates.space',
     ],
-    cleartext: false,
-    androidScheme: 'https',
+    cleartext: true,
+    androidScheme: 'http',
   },
 
   plugins: {
