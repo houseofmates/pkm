@@ -11,8 +11,10 @@ const config: CapacitorConfig = {
     // allow navigation to the nocobase API and other houseofmates services
     allowNavigation: [
       '192.168.4.233',
+      '*.192.168.4.233',
       'pkm.houseofmates.space',
       '*.houseofmates.space',
+      '*',
     ],
     cleartext: true,
     androidScheme: 'https',
