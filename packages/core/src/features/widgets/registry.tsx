@@ -1,4 +1,4 @@
-import { Clock, Webhook, Database, Type, Activity, Scroll, BarChart3, Inbox } from 'lucide-react';
+import { Clock, Webhook, Database, Type, Activity, Scroll, BarChart3, Inbox, PlusCircle } from 'lucide-react';
 
 export interface WidgetDefinition {
   id: string;
