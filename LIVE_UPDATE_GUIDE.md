@@ -153,10 +153,22 @@ when you make code changes:
 ## Troubleshooting
 
 ### APK not showing updates
+
+**Most common issue:** You didn't fully close the app!
+
+On Android, swiping up to go home doesn't close the app - it just minimizes it. The app continues running in the background with the old code loaded.
+
+**To properly close the app:**
+1. Open the recent apps view (swipe up from bottom or press square button)
+2. Find the PKM app
+3. Swipe it away to the side (or tap X)
+4. Now reopen the app from your home screen
+
+**Other things to check:**
 - ensure the APK has internet access
 - check that `http://pkm.houseofmates.space:3010` is reachable from the device
 - try clearing the app's cache (android settings > apps > pkm > storage > clear cache)
-- fully close the app (swipe away) and reopen
+- verify your changes are actually deployed to the server by checking in a web browser
 
 ### Electron not detecting updates
 - check the console for errors (view > toggle developer tools)
