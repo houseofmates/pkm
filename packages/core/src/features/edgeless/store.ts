@@ -79,6 +79,9 @@ interface EdgelessState {
   selectedIds: Set<string>
   setSelectedIds: (ids: Set<string>) => void
 
+  activeElementId: string | null
+  setActiveElementId: (id: string | null) => void
+
   // pdf document
   pdfDoc: any | null
   setPdfDoc: (doc: any | null) => void
@@ -129,11 +132,13 @@ interface EdgelessState {
   addLayer: (name: string) => void
   removeLayer: (id: string) => void
   toggleLayerVisibility: (id: string) => void
+  toggleLayerLock: (id: string) => void
   setActiveLayer: (id: string) => void
 
   addElement: (el: Omit<EdgelessElement, 'id'>) => void
   setElements: (elements: EdgelessElement[]) => void
   updateElement: (id: string, patch: Partial<EdgelessElement>) => void
+  toggleElementLock: (id: string) => void
   removeElement: (id: string) => void
 
   setMode: (mode: 'interact' | 'draw') => void
@@ -223,6 +228,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   // canvas refs and helpers
   fabricCanvas: null,
   selectedIds: new Set(),
+  activeElementId: null,
   pdfDoc: null,
 
   // layer actions
@@ -253,6 +259,11 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
       layers: state.layers.map((l) => (l.id === id ? { ...l, visible: !l.visible } : l)),
     })),
 
+  toggleLayerLock: (id) =>
+    set((state) => ({
+      layers: state.layers.map((l) => (l.id === id ? { ...l, locked: !l.locked } : l)),
+    })),
+
   setActiveLayer: (id) => set({ activeLayerId: id }),
 
   // element actions ─── all keep elementMap in sync ──────────────────────────
@@ -274,6 +285,17 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
       const updated = { ...existing, ...patch }
       // Only create a new array if something actually changed
       if (updated === existing) return state
+      const newMap = new Map(state.elementMap)
+      newMap.set(id, updated)
+      const newElements = state.elements.map((el) => (el.id === id ? updated : el))
+      return { elements: newElements, elementMap: newMap }
+    }),
+
+  toggleElementLock: (id) =>
+    set((state) => {
+      const existing = state.elementMap.get(id)
+      if (!existing) return state
+      const updated = { ...existing, locked: !existing.locked }
       const newMap = new Map(state.elementMap)
       newMap.set(id, updated)
       const newElements = state.elements.map((el) => (el.id === id ? updated : el))
@@ -431,6 +453,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   // new canvas helpers
   setFabricCanvas: (c) => set({ fabricCanvas: c }),
   setSelectedIds: (ids) => set({ selectedIds: ids }),
+  setActiveElementId: (id) => set({ activeElementId: id }),
   setPdfDoc: (doc) => set({ pdfDoc: doc }),
   addHistoryOp: async (op: DrawOp) => { // alias to recordOp
     await get().recordOp(op as any)
