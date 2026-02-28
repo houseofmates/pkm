@@ -638,7 +638,31 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         e.preventDefault()
       }}
     >
-      <div className="absolute top-4 right-4 z-50 flex flex-row items-center gap-2">
+      <div className="absolute top-4 right-4 z-50 flex flex-row items-center gap-2 pointer-events-auto">
+        {/* Lock / Unlock Button */}
+        <button
+          className="p-2 bg-black/80 backdrop-blur border border-white/20 rounded-md shadow hover:bg-white/10 transition-colors text-zinc-400 hover:text-white"
+          onClick={() => {
+            const el = useEdgelessStore.getState().elements.find(e => e.id === useEdgelessStore.getState().activeElementId)
+            if (el) useEdgelessStore.getState().toggleElementLock(el.id)
+            else if (useEdgelessStore.getState().activeLayerId) {
+              const layer = useEdgelessStore.getState().layers.find(l => l.id === useEdgelessStore.getState().activeLayerId)
+              if (layer) useEdgelessStore.getState().toggleLayerLock(layer.id)
+            }
+          }}
+          title="lock/unlock (ctrl+l)"
+        >
+          {(() => {
+            const el = useEdgelessStore.getState().elements.find(e => e.id === useEdgelessStore.getState().activeElementId)
+            const isLocked = el ? el.locked : useEdgelessStore.getState().layers.find(l => l.id === useEdgelessStore.getState().activeLayerId)?.locked
+            return isLocked ? (
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 9.9-1"></path></svg>
+            )
+          })()}
+        </button>
+
         <input
           type="file"
           ref={fileInputRef}
@@ -647,7 +671,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
           accept="image/*,application/pdf"
         />
         <button
-          className="p-2 bg-black border border-white/20 rounded-md shadow hover:bg-white/10 transition-colors text-foreground"
+          className="p-2 bg-black/80 backdrop-blur border border-white/20 rounded-md shadow hover:bg-white/10 transition-colors text-foreground"
           onClick={() => fileInputRef.current?.click()}
           title="upload image/pdf"
         >
