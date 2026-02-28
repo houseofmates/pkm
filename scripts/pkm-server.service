@@ -5,7 +5,7 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/home/house/pkm
-ExecStart=/home/house/.nvm/versions/node/v24.12.0/bin/node scripts/auto-deploy.js
+ExecStart=/home/house/.nvm/versions/node/v24.12.0/bin/node packages/backend/server.js
 Restart=always
 RestartSec=10
 Environment=PATH=/home/house/.nvm/versions/node/v24.12.0/bin:/usr/local/bin:/usr/bin:/bin
