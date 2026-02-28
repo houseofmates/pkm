@@ -344,8 +344,17 @@ export class NocoBaseClient {
   }
 
   async createField(collection: string, data: Field): Promise<Record<string, unknown>> {
-    const res = await this._axios.post(`/collections/${collection}/fields:create`, data);
-    return GetRecordResponseSchema.parse(res.data);
+    try {
+      secureLogger.info(`[NocoBase] Sending fields:create payload:`, JSON.stringify(data, null, 2));
+      const res = await this._axios.post(`/collections/${collection}/fields:create`, data);
+      return GetRecordResponseSchema.parse(res.data);
+    } catch (error: any) {
+      if (error.response?.data) {
+        secureLogger.error(`[NocoBase] fields:create API Error Payload:`, JSON.stringify(error.response.data, null, 2));
+        alert(`NocoBase Field Create Error:\n` + JSON.stringify(error.response.data, null, 2));
+      }
+      throw error;
+    }
   }
   async updateField(collection: string, name: string, data: Partial<Field>): Promise<Record<string, unknown>> {
     const res = await this._axios.post(`/collections/${collection}/fields:update?filterByTk=${name}`, data);
