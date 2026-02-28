@@ -4,6 +4,20 @@ this document explains how the live update system works for both the linux elect
 
 ---
 
+## ⚡ Quick Answer: Do I Need to Rebuild the APK?
+
+**NO** - For most changes, you do NOT need to create a new APK. Just:
+1. Deploy your code changes to the server
+2. Fully close the app (swipe it away from recents)
+3. Reopen the app - changes will load automatically
+
+**YES** - You only need a new APK when:
+- Changing native Android code or Capacitor plugins
+- Changing the server URL in capacitor.config.ts
+- Changing app icons or native configuration
+
+---
+
 ## How It Works
 
 both apps are configured to load the pkm web app from a remote server (`http://pkm.houseofmates.space:3010`) instead of bundling the web assets locally. this means:
@@ -26,10 +40,20 @@ server: {
 }
 ```
 
-### How to Update
-1. deploy your code changes to `http://pkm.houseofmates.space:3010`
-2. close and reopen the APK
-3. the APK will load the latest code from the server
+### How to Update (Important!)
+
+**The APK loads code from the server on EVERY cold start.**
+
+To see your changes:
+1. **Deploy** your code changes to `http://pkm.houseofmates.space:3010`
+2. **Fully close** the APK (swipe it away from recent apps - NOT just minimize)
+3. **Reopen** the APK - it will fetch the latest code from the server
+
+**Why didn't my changes show up?**
+- ❌ Minimizing and reopening the app (app was still running in background)
+- ❌ The WebView cached the old version
+- ❌ The server wasn't updated yet
+- ✅ **Fix:** Swipe the app away from recents completely, then reopen
 
 ### Offline Mode (New!)
 the APK now supports offline functionality:
