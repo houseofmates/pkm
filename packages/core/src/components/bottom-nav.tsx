@@ -106,8 +106,6 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
             </Button>
           </div>
       </div>
-
-      {/* render the search palette here so the button can trigger it */}
       {/* note: globalcommandpalette is usually rendered at root, but we can control its open state here if we modify it to accept props,
  or we let it handle its own state via context/events.
  looking at existing globalcommandpalette, it handles its own 'open' state via ctrl+k.
