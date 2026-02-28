@@ -82,5 +82,14 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
     defaultData: { title: '', content: '', tags: '' },
     defaultWidth: 350,
     defaultHeight: 450
+  },
+  create_capture: {
+    id: 'create_capture',
+    label: 'Create Capture',
+    icon: PlusCircle,
+    description: 'Button to open capture creation dialog',
+    defaultData: {},
+    defaultWidth: 280,
+    defaultHeight: 200
   }
 };
