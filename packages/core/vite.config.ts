@@ -15,13 +15,15 @@ export default defineConfig({
     }),
   ],
   server: {
-    host: true,
+    host: '0.0.0.0',
     port: 3010,
     strictPort: true,
-    allowedHosts: ["app.houseofmates.space", "houseofmates.space", ".houseofmates.space", "pkm.houseofmates.space", "dupe.houseofmates.space"],
+    allowedHosts: true,
+    cors: true,
     hmr: {
-      protocol: 'wss',
-      clientPort: 443,
+      host: '192.168.4.233',
+      port: 3010,
+      protocol: 'ws',
     },
     proxy: {
       '/api/broadcast': {
