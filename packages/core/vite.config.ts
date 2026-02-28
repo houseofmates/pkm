@@ -21,9 +21,8 @@ export default defineConfig({
     allowedHosts: true,
     cors: true,
     hmr: {
-      host: '192.168.4.233',
-      port: 3010,
-      protocol: 'ws',
+      clientPort: 443,
+      path: '/vite-hmr',
     },
     proxy: {
       '/api/broadcast': {
