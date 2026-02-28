@@ -52,6 +52,10 @@ const ADMIN_SECRET = process.env.BROADCAST_AUTH_KEY || process.env.ADMIN_SECRET 
 const app = express();
 // create http server from express app for socket.io
 const server = http.createServer(app);
+
+// Serve static assets for mobile and web clients
+app.use('/assets', express.static(path.join(process.cwd(), 'dist/assets')));
+app.use('/assets', express.static(path.join(process.cwd(), 'public/assets')));
 const io = new Server(server, {
     cors: {
         origin: "*", // Adjust to your frontend URL in production
