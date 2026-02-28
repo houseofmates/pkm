@@ -7,6 +7,7 @@ const BiometricTracker = lazy(() => import('@/features/widgets/BiometricTracker'
 const NarrativeLog = lazy(() => import('@/features/widgets/NarrativeLog').then(m => ({ default: m.NarrativeLog })));
 const OptimizationDashboard = lazy(() => import('@/features/widgets/OptimizationDashboard').then(m => ({ default: m.OptimizationDashboard })));
 const CaptureWidget = lazy(() => import('@/features/widgets/CaptureWidget'));
+const CreateCaptureWidget = lazy(() => import('@/features/widgets/CreateCaptureWidget'));
 
 interface WidgetElementProps {
     element: any;
@@ -29,6 +30,8 @@ export const WidgetElement = React.memo(function WidgetElement({ element }: Widg
                 return <OptimizationDashboard data={data} />;
             case 'capture':
                 return <CaptureWidget data={data} />;
+            case 'create_capture':
+                return <CreateCaptureWidget data={data} />;
             default:
                 return (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-black/40 border border-dashed border-white/20 rounded-xl text-[10px] text-muted-foreground lowercase">
