@@ -7,7 +7,7 @@ const config: CapacitorConfig = {
   server: {
     // For production APK builds, comment out the url line below to use bundled assets
     // For development with live reload, uncomment and set your dev machine IP
-    // url: 'http://192.168.1.100:3010',
+    // url: 'http://pkm.houseofmates.space',
     // allow navigation to the nocobase API and other houseofmates services
     allowNavigation: [
       '192.168.*',
