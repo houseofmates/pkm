@@ -72,12 +72,39 @@ echo -e "${GREEN}==========================================${NC}"
 echo -e "${GREEN}  APK build complete!${NC}"
 echo -e "${GREEN}==========================================${NC}"
 echo ""
-echo "output: android/app/build/outputs/apk/release/app-release.apk"
+
+APK_SOURCE="android/app/build/outputs/apk/release/app-release.apk"
+RELEASES_DIR="$MONOREPO_ROOT/releases"
+TIMESTAMP=$(date +%s)
+NEW_APK_NAME="pkm-release-$TIMESTAMP.apk"
+
+if [ -f "$APK_SOURCE" ]; then
+    echo -e "${YELLOW}step 6: deploying to releases directory...${NC}"
+    mkdir -p "$RELEASES_DIR"
+    cp "$APK_SOURCE" "$RELEASES_DIR/$NEW_APK_NAME"
+    
+    # Update version.json for the app's internal updater
+    cat > "$RELEASES_DIR/version.json" <<EOF
+{
+  "version": "$TIMESTAMP",
+  "apkUrl": "https://pkm.houseofmates.space/apk/$NEW_APK_NAME",
+  "releaseDate": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+}
+EOF
+    echo -e "  ${GREEN}✓ deployed as $NEW_APK_NAME${NC}"
+    echo -e "  ${GREEN}✓ updated version.json${NC}"
+else
+    echo -e "${RED}error: build output file not found at $APK_SOURCE${NC}"
+    exit 1
+fi
+
+echo ""
+echo "output: $RELEASES_DIR/$NEW_APK_NAME"
 echo ""
 echo "features configured:"
 echo "  ✓ database icon on black background"
 echo "  ✓ bundled web assets (works offline)"
 echo ""
 echo "to install on device:"
-echo "  adb install -r android/app/build/outputs/apk/release/app-release.apk"
+echo "  adb install -r $APK_SOURCE"
 echo ""
