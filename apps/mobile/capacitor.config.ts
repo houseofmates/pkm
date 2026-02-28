@@ -6,9 +6,11 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     // load app from remote server for live updates (no rebuild needed!)
-    url: 'http://pkm.houseofmates.space:3010',
+    // use your machine's local IP so the phone can reach it on same wifi
+    url: 'http://192.168.4.233:3010',
     // allow navigation to the nocobase API and other houseofmates services
     allowNavigation: [
+      '192.168.4.233',
       'pkm.houseofmates.space',
       '*.houseofmates.space',
     ],
