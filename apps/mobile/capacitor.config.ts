@@ -5,6 +5,8 @@ const config: CapacitorConfig = {
   appName: 'pkm',
   webDir: 'dist',
   server: {
+    // load app from remote server for live updates (no rebuild needed!)
+    url: 'http://pkm.houseofmates.space:3010',
     // allow navigation to the nocobase API and other houseofmates services
     allowNavigation: [
       'pkm.houseofmates.space',
