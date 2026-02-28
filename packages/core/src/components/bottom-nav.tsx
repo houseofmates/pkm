@@ -69,20 +69,20 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
 
           <Button
             variant="ghost"
-            className={cn("flex flex-col items-center justify-center h-[60px] w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'captures' && "bg-primary/20 text-primary hover:bg-primary/30")}
-            onClick={() => onTabChange('captures')}
-          >
-            <Inbox className="h-5 w-5" />
-            <span className="text-[11px] font-medium lowercase">inbox</span>
-          </Button>
-
-          <Button
-            variant="ghost"
             size="icon"
             className="h-[60px] w-[60px] rounded-full hover:bg-white/10 scale-110 mx-1"
             onClick={handleOpenSearch}
           >
             <Search className="h-6 w-6" />
+          </Button>
+
+          <Button
+            variant="ghost"
+            className={cn("flex flex-col items-center justify-center h-[60px] w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'captures' && "bg-primary/20 text-primary hover:bg-primary/30")}
+            onClick={() => onTabChange('captures')}
+          >
+            <Inbox className="h-5 w-5" />
+            <span className="text-[11px] font-medium lowercase">inbox</span>
           </Button>
 
           <Button
@@ -94,6 +94,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
             <span className="text-[11px] font-medium lowercase">mates</span>
           </Button>
 
+          {/* wilson chat button at the very end */}
           <Button
             variant="ghost"
             className={cn("flex flex-col items-center justify-center h-[60px] w-[60px] rounded-2xl gap-1 hover:bg-white/10", isChatOpen && "bg-primary/20 text-primary hover:bg-primary/30")}
