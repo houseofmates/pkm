@@ -51,7 +51,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
         )}>
           <Button
             variant="ghost"
-            className={cn("flex flex-col items-center justify-center h-[60px] w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'home' && "bg-primary/20 text-primary hover:bg-primary/30")}
+            className={cn("flex flex-col items-center justify-center h-[60px] flex-1 max-w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'home' && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => onTabChange('home')}
           >
             <Home className="h-5 w-5" />
@@ -60,7 +60,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
 
           <Button
             variant="ghost"
-            className={cn("flex flex-col items-center justify-center h-[60px] w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'databases' && "bg-primary/20 text-primary hover:bg-primary/30")}
+            className={cn("flex flex-col items-center justify-center h-[60px] flex-1 max-w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'databases' && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => onTabChange('databases')}
           >
             <Database className="h-5 w-5" />
@@ -70,7 +70,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
           <Button
             variant="ghost"
             size="icon"
-            className="h-[60px] w-[60px] rounded-full hover:bg-white/10 scale-110 mx-2"
+            className="h-[60px] flex-1 max-w-[60px] rounded-full hover:bg-white/10 scale-110 shrink-0 mx-flex-1"
             onClick={handleOpenSearch}
           >
             <Search className="h-6 w-6" />
@@ -78,7 +78,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
 
           <Button
             variant="ghost"
-            className={cn("flex flex-col items-center justify-center h-[60px] w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'captures' && "bg-primary/20 text-primary hover:bg-primary/30")}
+            className={cn("flex flex-col items-center justify-center h-[60px] flex-1 max-w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'captures' && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => onTabChange('captures')}
           >
             <Inbox className="h-5 w-5" />
@@ -87,7 +87,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
 
           <Button
             variant="ghost"
-            className={cn("flex flex-col items-center justify-center h-[60px] w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'headmates' && "bg-primary/20 text-primary hover:bg-primary/30")}
+            className={cn("flex flex-col items-center justify-center h-[60px] flex-1 max-w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'headmates' && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => onTabChange('headmates')}
           >
             <Users className="h-5 w-5" />
@@ -97,7 +97,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
           {/* wilson chat button at the very end */}
           <Button
             variant="ghost"
-            className={cn("flex flex-col items-center justify-center h-[60px] w-[60px] rounded-2xl gap-1 hover:bg-white/10", isChatOpen && "bg-primary/20 text-primary hover:bg-primary/30")}
+            className={cn("flex flex-col items-center justify-center h-[60px] flex-1 max-w-[60px] rounded-2xl gap-1 hover:bg-white/10", isChatOpen && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={handleWilsonClick}
           >
             <BrainCircuit className="h-5 w-5" />
