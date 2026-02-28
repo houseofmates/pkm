@@ -272,6 +272,8 @@ export function Toolbar() {
 
         <div className="w-px h-6 bg-white/10" />
 
+        <div className="w-px h-6 bg-white/10" />
+
         {/* secondary / layers */}
         <div className="flex items-center gap-1 px-2">
           <ToolBtn
@@ -312,6 +314,19 @@ export function Toolbar() {
               </div>
             }
           />
+        </div>
+
+        <div className="w-px h-6 bg-white/10" />
+
+        {/* wilson chat button at the very end */}
+        <div className="flex items-center px-2">
+          <button
+            onClick={() => store.setChatOpen(true)}
+            className="h-[48px] w-[48px] flex items-center justify-center rounded-full text-primary hover:bg-primary/20 hover:scale-105 transition-all"
+            title="open wilson chat"
+          >
+            <BrainCircuit size={24} />
+          </button>
         </div>
 
         <UniversalWidgetPicker
