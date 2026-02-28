@@ -99,15 +99,16 @@ export function useThemeReactor() {
         }
       }
     } else {
-      // no color found AND no cache, use default #f6b012
+      // no color found AND no cache, use default #f6b012 immediately
       const defaultColor = '#f6b012';
       const defaultHsl = hexToHsl(defaultColor);
       if (defaultHsl) {
         document.documentElement.style.setProperty('--primary', defaultHsl);
         document.documentElement.style.setProperty('--ring', defaultHsl);
-        document.documentElement.style.setProperty('--headmate-white', '0 0% 100%');
+        document.documentElement.style.setProperty('--headmate-white', defaultHsl);
         document.body.style.setProperty('--primary', defaultHsl, 'important');
         document.body.style.setProperty('--ring', defaultHsl, 'important');
+        document.body.style.setProperty('--headmate-white', defaultHsl, 'important');
       }
     }
 
