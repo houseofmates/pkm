@@ -105,23 +105,29 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   const metaColor = item.color || (item.type === 'collection' ? metadata[id]?.color : undefined);
 
   // determine highlight color based on item type
-  function getHighlightColor() {
+  function getHighlightColor(opacity = 0.22) {
     // sidebar items: use their own color if available, else accent
-    if (metaColor) {
-      // Always use hex or rgb for fidelity
-      if (metaColor.startsWith('#')) {
-        return metaColor;
-      }
-      if (metaColor.startsWith('rgb')) {
-        return metaColor;
-      }
-      // fallback to hex if hsl or other
-      return '#f5af12';
+    let base = metaColor || '#f5af12';
+    if (base.startsWith('#')) {
+      // Convert hex to rgba
+      const hex = base.replace('#', '');
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     }
-    return '#f5af12';
+    if (base.startsWith('rgb')) {
+      // Replace any existing alpha with desired opacity
+      if (base.startsWith('rgba')) {
+        return base.replace(/rgba\(([^,]+),([^,]+),([^,]+),[^)]+\)/, `rgba($1,$2,$3,${opacity})`);
+      }
+      return base.replace(/rgb\(([^)]+)\)/, `rgba($1,${opacity})`);
+    }
+    // fallback
+    return `rgba(245, 175, 18, ${opacity})`;
   }
 
-  const highlightColor = getHighlightColor();
+  const highlightColor = getHighlightColor(0.22);
 
   const style = {
     transform: CSS.Translate.toString(transform),
