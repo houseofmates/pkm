@@ -95,7 +95,7 @@ export function Toolbar() {
   }, [activeMenu])
 
   const handleAddWidget = (type: string, data: any) => {
-    // Calculate center of viewport
+    // calculate center of viewport
     const { x, y, zoom } = store.viewPort;
     const centerX = (-x / zoom) + (window.innerWidth / 2 / zoom);
     const centerY = (-y / zoom) + (window.innerHeight / 2 / zoom);
@@ -114,7 +114,7 @@ export function Toolbar() {
   };
 
   return (
-    <div className="absolute md:bottom-0 bottom-[90px] left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+    <div className="absolute bottom-0 md:bottom-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
       <div className="flex items-center gap-1 p-2 bg-[#050505]/80 backdrop-blur-md border border-white/10 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5)] border-t-primary/20 transition-all duration-300 pointer-events-auto">
 
         {/* primary tools - centered */}
