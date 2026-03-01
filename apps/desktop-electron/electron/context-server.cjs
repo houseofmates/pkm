@@ -1,5 +1,6 @@
 const express = require('express');
 const cors = require('cors');
+const sidebarColorsRouter = require('./sidebar-colors');
 
 class ContextServer {
     constructor(port = 3100) {
@@ -15,6 +16,7 @@ class ContextServer {
     start() {
         this.app.use(cors());
         this.app.use(express.json());
+        this.app.use(sidebarColorsRouter); // <-- add this line
 
         // middleware to validate the api key (lightweight check)
         this.app.use((req, res, next) => {
