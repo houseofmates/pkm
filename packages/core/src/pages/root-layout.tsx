@@ -106,15 +106,6 @@ export function RootLayout() {
   const accentBg = getAccentBg(accentColor);
 
   useEffect(() => {
-    const root = document.documentElement;
-    const hsl = hexToHsl(accentColor);
-    if (hsl) {
-      root.style.setProperty('--primary', hsl);
-    }
-    const soft = getAccentBg(accentColor);
-    root.style.setProperty('--primary-soft', soft);
-    if (typeof window !== 'undefined') (window as any).accentBg = soft;
-
     // set favicon based on subdomain; avoid the default pkm bolt when
     // viewing houseofmates.* sites so that those domains keep their own
     // branding.
@@ -144,7 +135,7 @@ export function RootLayout() {
       else if (host === 'houseofmates.space') document.title = 'houseofmates';
       else document.title = 'pkm';
     }
-  }, [accentColor]);
+  }, []);
 
   const [sidebarItems, setSidebarItems] = useAppSetting<NavItem[]>('sidebar_items', []);
   const [activeDragItem, setActiveDragItem] = useState<NavItem | null>(null);
