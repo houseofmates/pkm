@@ -62,7 +62,7 @@ interface NavigationProps {
   accentBg?: string;
 }
 
-function NavIconButton({ tab, isActive, accentBg, onClick }: { tab: any, isActive: boolean, accentBg?: string, onClick: () => void }) {
+function NavIconButton({ tab, isActive, onClick }: { tab: any, isActive: boolean, onClick: () => void }) {
   const [hovered, setHovered] = useState(false);
 
   return (
@@ -75,7 +75,7 @@ function NavIconButton({ tab, isActive, accentBg, onClick }: { tab: any, isActiv
           ? "text-primary font-bold shadow-none"
           : "text-muted-foreground hover:text-primary"
       )}
-      style={(isActive || hovered) ? { background: accentBg } : undefined}
+      style={(isActive || hovered) ? { backgroundColor: 'var(--primary-soft)' } : undefined}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onClick={onClick}
@@ -93,7 +93,7 @@ function NavIconButton({ tab, isActive, accentBg, onClick }: { tab: any, isActiv
 import { DatabaseContextMenu } from '@/features/databases/components/database-context-menu';
 import { useAppSetting } from '@/hooks/use-app-setting';
 
-export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle, onUpdate, collection, accentBg }: any) {
+export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle, onUpdate, collection }: any) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: id, data: { type: item.type, item } });
   const [pickerOpen, setPickerOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -104,16 +104,8 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   // prefer local item color if set (for folders/docs), then metadata color (for collections)
   const metaColor = item.color || (item.type === 'collection' ? metadata[id]?.color : undefined);
 
-  // accentBg passed from Navigation (prop wins over window fallback)
-  const currentAccentBg = accentBg || (typeof window !== 'undefined' && (window as any).accentBg ? (window as any).accentBg : undefined);
-
   // determine highlight color based on item type
   function getHighlightColor() {
-    // main/top sidebar buttons: always use accent color
-    const mainTypes = ['home', 'headmates', 'captures'];
-    if (mainTypes.includes(item.id)) {
-      return accentBg;
-    }
     // sidebar items: use their own color if available, else accent
     if (metaColor) {
       if (metaColor.startsWith('#')) {
@@ -131,7 +123,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
       }
       return metaColor;
     }
-    return currentAccentBg;
+    return 'var(--primary-soft)';
   }
 
   const highlightColor = getHighlightColor();
