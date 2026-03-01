@@ -62,6 +62,31 @@ interface NavigationProps {
   accentBg?: string;
 }
 
+function NavIconButton({ tab, isActive, accentBg, onClick }: { tab: any, isActive: boolean, accentBg?: string, onClick: () => void }) {
+  const [hovered, setHovered] = useState(false);
+
+  return (
+    <Button
+      variant="ghost"
+      size="icon"
+      className={cn(
+        "rounded-xl w-10 h-10 transition-all nav-icon-btn",
+        isActive
+          ? "text-primary font-bold shadow-none"
+          : "text-muted-foreground hover:text-primary"
+      )}
+      style={(isActive || hovered) ? { background: accentBg } : undefined}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={onClick}
+      title={tab.label}
+      aria-label={tab.label}
+    >
+      <tab.icon className="h-5 w-5" />
+    </Button>
+  );
+}
+
 
 // --- sortable components ---
 
@@ -100,6 +125,9 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
       }
       if (metaColor.startsWith('rgb')) {
         return metaColor.replace(/rgb\(([^)]+)\)/, 'rgba($1, 0.15)');
+      }
+      if (metaColor.startsWith('hsl')) {
+        return metaColor.replace(/hsl\(([^)]+)\)/, 'hsl($1 / 0.15)');
       }
       return metaColor;
     }
@@ -469,26 +497,16 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       <div className={cn("hidden lg:flex flex-col w-64 h-full min-h-0 py-4 sidebar-container", className)} style={{ backgroundColor: '#050505' }}>
         {/* top icons */}
         <div className="flex items-center justify-around px-2 mb-2">
-          {tabs.map(tab => (
-            <Button
-              key={tab.id}
-              variant="ghost"
-              size="icon"
-              className={cn(
-                "rounded-xl w-10 h-10 transition-all nav-icon-btn",
-                (tab.id === 'databases' ? activeTab === 'databases' : activeTab === tab.id && !selectedCollection)
-                  ? "text-primary font-bold shadow-none"
-                  : "text-muted-foreground hover:text-primary"
-              )}
-              style={(tab.id === 'databases' ? activeTab === 'databases' : activeTab === tab.id && !selectedCollection) ? { background: accentBg } : undefined}
-              onClick={() => {
-                onTabChange(tab.id as any);
-                onSelectCollection(null);
-              }}
-              title={tab.label} aria-label={tab.label}
-            >
-              <tab.icon className="h-5 w-5" />
-            </Button>
+          <NavIconButton
+            key={tab.id}
+            tab={tab}
+            isActive={tab.id === 'databases' ? activeTab === 'databases' : activeTab === tab.id && !selectedCollection}
+            accentBg={accentBg}
+            onClick={() => {
+              onTabChange(tab.id as any);
+              onSelectCollection(null);
+            }}
+          />
           ))}
         </div>
         <div className="mx-4 mb-2 h-[1px] rounded-full" style={{ backgroundColor: 'hsl(var(--primary))', opacity: 0.3 }} />
