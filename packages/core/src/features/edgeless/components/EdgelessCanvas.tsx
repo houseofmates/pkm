@@ -356,6 +356,11 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
   useEffect(() => {
     if (!fabricCanvas) return
 
+    // Tool logic overrides
+    fabricCanvas.isDrawingMode = false;
+    fabricCanvas.selection = true;
+    fabricCanvas.defaultCursor = 'default';
+
     if (activeTool === 'pen') {
       fabricCanvas.isDrawingMode = true
       const brush = new fabric.PencilBrush(fabricCanvas) as any
@@ -379,8 +384,20 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         brush.opacity = (eraserOpacity ?? 100) / 100
         fabricCanvas.freeDrawingBrush = brush
       }
-    } else {
-      fabricCanvas.isDrawingMode = false
+    } else if (activeTool === 'lasso' || activeTool === 'hand' || activeTool === 'text' || activeTool === 'smart-text' || activeTool === 'select') {
+      fabricCanvas.isDrawingMode = false;
+
+      if (activeTool === 'lasso') {
+        // enable freeform selection (lasso) logic if supported by library, else we use custom approach
+        // Fabric doesn't have native lasso, but we emulate it via select mode with a custom indicator
+        fabricCanvas.selection = true;
+      } else if (activeTool === 'hand') {
+        fabricCanvas.selection = false;
+        fabricCanvas.defaultCursor = 'grab';
+      } else if (activeTool === 'text' || activeTool === 'smart-text') {
+        fabricCanvas.selection = false;
+        fabricCanvas.defaultCursor = 'text';
+      }
     }
   }, [activeTool, fabricCanvas, penWidth, penColor, penOpacity, eraserWidth, eraserOpacity, stabilizerLevel])
 
@@ -458,13 +475,53 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       e.preventDefault()
       e.stopPropagation()
       upperCanvas?.setPointerCapture?.(e.pointerId)
+
       const state = pointerStateRef.current
       state.pointers.set(e.pointerId, e)
       state.lastX = e.clientX
       state.lastY = e.clientY
-      const shouldPan = isPanningRef.current || e.button === 2 || e.altKey
+
+      // Hand tool panning override OR Spacebar/Middle-click OR Alt Key
+      const shouldPan = isPanningRef.current || e.button === 2 || e.altKey || activeTool === 'hand'
       state.isPanning = shouldPan
       state.isPinching = state.pointers.size === 2
+
+      // Text tool creation (on pointer down)
+      if (!shouldPan && (activeTool === 'text' || activeTool === 'smart-text')) {
+        const { x: vx, y: vy, zoom } = useEdgelessStore.getState().viewPort;
+        const canvasX = (e.clientX - vx) / zoom;
+        const canvasY = (e.clientY - vy) / zoom;
+
+        if (activeTool === 'text') {
+          // Fabric Text
+          const textObj = new fabric.IText('Text', {
+            left: canvasX,
+            top: canvasY,
+            fill: penColor,
+            fontSize: useEdgelessStore.getState().textSize,
+            fontFamily: 'Varela Round'
+          });
+          fabricCanvas.add(textObj);
+          fabricCanvas.setActiveObject(textObj);
+          textObj.enterEditing();
+          textObj.selectAll();
+          fabricCanvas.requestRenderAll();
+        } else if (activeTool === 'smart-text') {
+          // Smart Text Overlay
+          useEdgelessStore.getState().addElement({
+            type: 'smart-text',
+            x: canvasX,
+            y: canvasY,
+            width: 300,
+            height: 100,
+            data: { text: '' }
+          });
+        }
+
+        // switch back to select after dropping text
+        useEdgelessStore.getState().setTool('select');
+      }
+
       if (state.isPinching) {
         const [p1, p2] = Array.from(state.pointers.values())
         state.initialDistance = getDistance(p1, p2)
@@ -599,7 +656,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
   }, [fabricCanvas])
 
   // ── Pointer interaction class ──
-  const isInteractMode = activeTool === 'select' && selectionMode === 'cursor'
+  const isInteractMode = (activeTool === 'select' && selectionMode === 'cursor') || activeTool === 'hand'
   const pointerClass = isInteractMode ? 'pointer-events-auto' : 'pointer-events-none'
 
   // Upload

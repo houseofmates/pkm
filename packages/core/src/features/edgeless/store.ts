@@ -58,7 +58,7 @@ export interface EdgelessElement {
   }
 }
 
-export type ToolType = 'select' | 'hand' | 'pen' | 'eraser' | 'text' | 'smart-text'
+export type ToolType = 'select' | 'hand' | 'pen' | 'eraser' | 'text' | 'smart-text' | 'lasso'
 
 // oplog-based history state (replaces json snapshot stack)
 interface OplogHistory {
