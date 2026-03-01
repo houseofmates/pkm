@@ -119,6 +119,13 @@ export function Toolbar() {
 
         {/* primary tools - centered */}
         <div className="flex items-center gap-1 px-2">
+          <button onClick={store.undo} className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors" title="undo">
+            <Undo2 size={20} />
+          </button>
+          <button onClick={store.redo} className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors" title="redo">
+            <Redo2 size={20} />
+          </button>
+          <div className="w-px h-6 bg-white/10 mx-1" />
 
           {/* select tool */}
           <ToolBtn
@@ -239,15 +246,6 @@ export function Toolbar() {
           {/* text */}
           <ToolBtn tool="text" icon={Type} store={store} activeMenu={activeMenu} openMenu={openMenu} closeMenu={closeMenu} />
 
-          {/* capture button */}
-          <button
-            onClick={() => setCaptureDialogOpen(true)}
-            className="h-[48px] w-[48px] flex items-center justify-center rounded-full text-primary hover:bg-primary/20 hover:scale-105 transition-all"
-            title="quick capture"
-          >
-            <Inbox size={24} />
-          </button>
-
           {/* widget picker trigger */}
           <button
             onClick={() => setWidgetPickerOpen(true)}
@@ -260,15 +258,8 @@ export function Toolbar() {
 
         <div className="w-px h-6 bg-white/10" />
 
-        {/* secondary / layers / undo */}
+        {/* secondary / layers */}
         <div className="flex items-center gap-1 px-2">
-          <button onClick={store.undo} className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors" title="undo">
-            <Undo2 size={20} />
-          </button>
-          <button onClick={store.redo} className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors" title="redo">
-            <Redo2 size={20} />
-          </button>
-          <div className="w-px h-4 bg-white/10 mx-1" />
           <ToolBtn
             tool="layers"
             icon={Layers}
@@ -318,7 +309,7 @@ export function Toolbar() {
             className="h-[48px] w-[48px] flex items-center justify-center rounded-full text-primary hover:bg-primary/20 hover:scale-105 transition-all"
             title="open wilson chat"
           >
-            <BrainCircuit size={24} />
+            <MessageCircle size={24} />
           </button>
         </div>
 
