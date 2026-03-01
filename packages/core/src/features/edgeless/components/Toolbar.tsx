@@ -115,7 +115,7 @@ export function Toolbar() {
 
   return (
     <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
-      <div className="flex items-center gap-1 p-1 bg-[#050505]/80 backdrop-blur-md border border-white/10 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5)] border-t-primary/20 transition-all duration-300 pointer-events-auto">
+      <div className="flex items-center gap-1 p-1 bg-[#050505]/80 backdrop-blur-md border border-white/10 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.5)] border-t-primary/20 transition-all duration-300 pointer-events-auto" style={{borderRadius: '999px'}}>
 
         {/* primary tools - centered */}
         <div className="flex items-center gap-1 px-2">
