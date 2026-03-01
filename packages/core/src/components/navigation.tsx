@@ -93,7 +93,7 @@ function NavIconButton({ tab, isActive, accentBg, onClick }: { tab: any, isActiv
 import { DatabaseContextMenu } from '@/features/databases/components/database-context-menu';
 import { useAppSetting } from '@/hooks/use-app-setting';
 
-export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle, onUpdate, collection }: any) {
+export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle, onUpdate, collection, accentBg }: any) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: id, data: { type: item.type, item } });
   const [pickerOpen, setPickerOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
@@ -104,8 +104,8 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   // prefer local item color if set (for folders/docs), then metadata color (for collections)
   const metaColor = item.color || (item.type === 'collection' ? metadata[id]?.color : undefined);
 
-  // accentBg passed from Navigation
-  const accentBg = typeof window !== 'undefined' && (window as any).accentBg ? (window as any).accentBg : undefined;
+  // accentBg passed from Navigation (prop wins over window fallback)
+  const currentAccentBg = accentBg || (typeof window !== 'undefined' && (window as any).accentBg ? (window as any).accentBg : undefined);
 
   // determine highlight color based on item type
   function getHighlightColor() {
@@ -131,7 +131,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
       }
       return metaColor;
     }
-    return accentBg;
+    return currentAccentBg;
   }
 
   const highlightColor = getHighlightColor();
@@ -684,6 +684,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   onToggle={toggleFolder}
                   onUpdate={handleUpdateItem}
                   collection={item.type === 'collection' ? collections.find((c: any) => c.name === item.id) : undefined}
+                  accentBg={accentBg}
                 />
               ))}
             </div>
