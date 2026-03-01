@@ -127,7 +127,6 @@ export function CanvasPage() {
                     </div>
                     {/* toolbar might need z-index adjustment if it overlaps header */}
                     <Toolbar />
-                    <CanvasControls />
                     <WilsonChat />
                     <EdgelessCanvas />
                 </div>

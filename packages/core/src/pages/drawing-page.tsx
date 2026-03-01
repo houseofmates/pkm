@@ -2,7 +2,6 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { EdgelessCanvas } from '@/features/edgeless/components/EdgelessCanvas'
 import { Toolbar } from '@/features/edgeless/components/Toolbar'
-import { CanvasControls } from '@/features/edgeless/components/CanvasControls'
 import { useEdgelessStore } from '@/features/edgeless/store'
 import { Button } from '@/components/ui/button'
 import { ArrowLeft } from 'lucide-react'
@@ -18,7 +17,7 @@ export function DrawingPage() {
   const [saving, setSaving] = useState(false)
   const [syncStatus, setSyncStatus] = useState<'synced' | 'pending' | 'conflict'>('synced')
   // migration is now handled globally via CanvasInitializer
-  
+
   const initialLoadCompleteRef = useRef(false)
   const lastCheckpointRef = useRef(0)
   const syncIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -221,13 +220,12 @@ export function DrawingPage() {
             />
             <div className="flex items-center gap-2">
               <span
-                className={`text-[10px] lowercase ${
-                  syncStatus === 'synced'
+                className={`text-[10px] lowercase ${syncStatus === 'synced'
                     ? 'text-green-500'
                     : syncStatus === 'conflict'
-                    ? 'text-red-500'
-                    : 'text-yellow-500'
-                }`}
+                      ? 'text-red-500'
+                      : 'text-yellow-500'
+                  }`}
               >
                 {syncstatus}
               </span>
@@ -256,7 +254,6 @@ export function DrawingPage() {
       <div className="flex-1 relative z-10 pointer-events-none">
         <div className="pointer-events-auto w-full h-full">
           <Toolbar />
-          <CanvasControls />
           <EdgelessCanvas onLoad={() => secureLogger.info('[drawing] canvas ready')} />
         </div>
       </div>
