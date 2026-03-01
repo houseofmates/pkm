@@ -17,7 +17,8 @@ import {
   Plus,
   Eye,
   EyeOff,
-  Inbox
+  Inbox,
+  Lasso
 } from 'lucide-react'
 import { useEdgelessStore } from '../store'
 import { useCanvasEvents } from '../hooks/use-canvas-events'
@@ -153,6 +154,16 @@ export function Toolbar() {
                 </button>
               </div>
             }
+          />
+
+          {/* lasso tool (freeform selection) */}
+          <ToolBtn
+            tool="lasso"
+            icon={Lasso}
+            store={store}
+            activeMenu={activeMenu}
+            openMenu={openMenu}
+            closeMenu={closeMenu}
           />
 
           {/* pen */}
