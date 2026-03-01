@@ -480,8 +480,6 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     { id: 'headmates', icon: Users, label: 'headmates' },
   ] as const;
 
-  // expose accentBg globally for SortableItem
-  if (typeof window !== 'undefined') (window as any).accentBg = accentBg;
   return (
     <>
       {/* desktop sidebar */}
@@ -493,7 +491,6 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
               key={tab.id}
               tab={tab}
               isActive={tab.id === 'databases' ? activeTab === 'databases' : activeTab === tab.id && !selectedCollection}
-              accentBg={accentBg}
               onClick={() => {
                 onTabChange(tab.id as any);
                 onSelectCollection(null);
