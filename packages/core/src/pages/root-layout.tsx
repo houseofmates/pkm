@@ -46,7 +46,7 @@ function MobileSidebarDrawer({ isOpen, onClose, ...props }: any) {
   );
 }
 
-export function RootLayout() {
+export function RootLayout(props) {
   useThemeReactor(); // activate dynamic theming
   const { activeFronters, overrides, members } = useFronter();
   const navigate = useNavigate();
@@ -81,12 +81,18 @@ export function RootLayout() {
   const subdomain = window.location.hostname.split('.')[0];
   const isAphrodite = subdomain === 'aphrodite';
 
-  let accentColor = "#f6b012";
+  const [sidebarColors, setSidebarColors] = useState({});
+
+  useEffect(() => {
+    getSidebarColors().then(setSidebarColors);
+  }, []);
+
+  let accentColor = sidebarColors.sidebar?.active || '#f6b012';
   if (activeFronters.length > 0) {
     const fronterId = activeFronters[0];
-    accentColor = overrides[fronterId]?.color || members.find(m => m.id === fronterId)?.color || "#f6b012";
+    accentColor = overrides[fronterId]?.color || members.find(m => m.id === fronterId)?.color || sidebarColors.sidebar?.active || '#f6b012';
   }
-  if (isAphrodite) accentColor = "#e0a6b5";
+  if (isAphrodite) accentColor = '#e0a6b5';
 
   // helper to get low opacity background
   function getAccentBg(color: string) {
