@@ -306,7 +306,7 @@ const DEFAULT_EMOJIS = [
 export function RichResourceContextMenuContent({ currentName, currentColor, onUpdate, children }: RichResourceContextMenuProps) {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'icons' | 'emojis' | 'color'>('icons');
-  const [localColor, setLocalColor] = useState(currentColor || '#8b5cf6');
+  const [localColor, setLocalColor] = useState(currentColor || '#f5af12');
   const emojiSearchRef = useRef<HTMLInputElement | null>(null);
   const iconSearchRef = useRef<HTMLInputElement | null>(null);
   const contextMenuRef = useRef<HTMLDivElement | null>(null);

@@ -108,22 +108,17 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   function getHighlightColor() {
     // sidebar items: use their own color if available, else accent
     if (metaColor) {
+      // Always use hex or rgb for fidelity
       if (metaColor.startsWith('#')) {
-        const hex = metaColor.replace('#', '');
-        const r = parseInt(hex.substring(0, 2), 16);
-        const g = parseInt(hex.substring(2, 4), 16);
-        const b = parseInt(hex.substring(4, 6), 16);
-        return `rgba(${r}, ${g}, ${b}, 0.15)`;
+        return metaColor;
       }
       if (metaColor.startsWith('rgb')) {
-        return metaColor.replace(/rgb\(([^)]+)\)/, 'rgba($1, 0.15)');
+        return metaColor;
       }
-      if (metaColor.startsWith('hsl')) {
-        return metaColor.replace(/hsl\(([^)]+)\)/, 'hsl($1 / 0.15)');
-      }
-      return metaColor;
+      // fallback to hex if hsl or other
+      return '#f5af12';
     }
-    return 'var(--primary-soft)';
+    return '#f5af12';
   }
 
   const highlightColor = getHighlightColor();
