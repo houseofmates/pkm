@@ -51,7 +51,16 @@ export function RootLayout() {
   const { activeFronters, overrides, members } = useFronter();
   const navigate = useNavigate();
 
-  const [activeTab, setActiveTab] = useState<'databases' | 'home' | 'headmates' | 'captures'>('home');
+  // map initial path to tab to ensure sidebar highlights correctly on reload
+  const getInitialTab = () => {
+    const path = window.location.pathname;
+    if (path.startsWith('/databases')) return 'databases';
+    if (path.startsWith('/headmates')) return 'headmates';
+    if (path.startsWith('/captures')) return 'captures';
+    return 'home';
+  };
+
+  const [activeTab, setActiveTab] = useState<'databases' | 'home' | 'headmates' | 'captures'>(getInitialTab());
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
