@@ -59,7 +59,6 @@ interface NavigationProps {
   // lifted state props
   items: NavItem[];
   setItems: (items: NavItem[] | ((prev: NavItem[]) => NavItem[])) => void; // for local updates like folder creation
-  accentBg?: string;
 }
 
 function NavIconButton({ tab, isActive, onClick }: { tab: any, isActive: boolean, onClick: () => void }) {
