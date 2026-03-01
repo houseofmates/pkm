@@ -96,6 +96,11 @@ export function useThemeReactor() {
           document.body.style.setProperty('--primary', finalHsl, 'important');
           document.body.style.setProperty('--ring', finalHsl, 'important');
           document.body.style.setProperty('--headmate-white', finalHsl, 'important');
+
+          // ensure window.accentBg is synced for components that use it (sidebar)
+          const soft = getAccentBg(finalColor);
+          if (typeof window !== 'undefined') (window as any).accentBg = soft;
+          document.documentElement.style.setProperty('--primary-soft', soft);
         }
       }
     } else {
@@ -109,6 +114,10 @@ export function useThemeReactor() {
         document.body.style.setProperty('--primary', defaultHsl, 'important');
         document.body.style.setProperty('--ring', defaultHsl, 'important');
         document.body.style.setProperty('--headmate-white', defaultHsl, 'important');
+
+        const soft = getAccentBg(defaultColor);
+        if (typeof window !== 'undefined') (window as any).accentBg = soft;
+        document.documentElement.style.setProperty('--primary-soft', soft);
       }
     }
 
@@ -146,4 +155,20 @@ export function hexToHsl(hex: string): string | null {
   // format for tailwind/shadcn: "h s% l%" (no commas)
   // h is 0-360, s/l are 0-100
   return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+}
+
+// helper to get low opacity background (mirrored from root-layout for consistency)
+export function getAccentBg(color: string) {
+  if (color.startsWith('#')) {
+    const hex = color.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    return `rgba(${r}, ${g}, ${b}, 0.15)`;
+  }
+  if (color.startsWith('rgb')) {
+    return color.replace(/rgb\(([^)]+)\)/, 'rgba($1, 0.15)');
+  }
+  // generic fallback that respects the CSS variable
+  return `hsl(var(--primary) / 0.15)`;
 }
