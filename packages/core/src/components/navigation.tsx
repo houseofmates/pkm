@@ -246,7 +246,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   );
 }
 
-export function Navigation({ activeTab, onTabChange, className, onSelectCollection, selectedCollection, items, setItems, accentBg }: NavigationProps) {
+export function Navigation({ activeTab, onTabChange, className, onSelectCollection, selectedCollection, items, setItems }: NavigationProps) {
 
   // track recently deleted items to prevent useEffect from re-adding them
   const deletedItemsRef = useRef<Set<string>>(new Set());
