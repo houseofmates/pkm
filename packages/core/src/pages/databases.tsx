@@ -281,7 +281,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
           strategy={rectSortingStrategy}
         >
           {/* masonry-style column layout: uses css columns for vertical packing while keeping dnd-kit context */}
-          <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-4 xl:columns-5 gap-4 space-y-4">
+          <div className="columns-1 sm:columns-2 md:columns-3 lg:columns-5 xl:columns-5 gap-4 space-y-4">
             {sortedCollections.map(collection => (
               <div key={collection.name} className="break-inside-avoid mb-4">
                 <SortableDatabaseItem
