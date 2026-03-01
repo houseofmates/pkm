@@ -684,7 +684,6 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   onToggle={toggleFolder}
                   onUpdate={handleUpdateItem}
                   collection={item.type === 'collection' ? collections.find((c: any) => c.name === item.id) : undefined}
-                  accentBg={accentBg}
                 />
               ))}
             </div>
