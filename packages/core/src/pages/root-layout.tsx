@@ -27,6 +27,7 @@ import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { useFronter } from '@/contexts/fronter-context';
 import { ProtocolShift } from '@/components/layout/ProtocolShift';
 import { walPendingCount } from '@/lib/write-ahead-log';
+import { getSidebarColors } from '@/utils/getSidebarColors';
 
 // declare global window properties to fix TS errors
 declare global {

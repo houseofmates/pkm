@@ -13,6 +13,7 @@ import { detectFieldType } from '@/utils/csv-detector';
 import { useCollections } from '@/hooks/use-collections';
 import { useNavigate } from 'react-router-dom';
 import { formatHeadmateName, getCapitalizationClass } from '@/utils/text-formatting';
+import { getSidebarColors } from '@/utils/getSidebarColors';
 
 import {
   SortableContext,
