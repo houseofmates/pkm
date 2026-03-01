@@ -12,9 +12,11 @@ interface HeadmateCardProps {
   collection: any;
   onClick?: () => void;
   className?: string;
+  selected?: boolean;
 }
 
 export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardProps & React.HTMLAttributes<HTMLDivElement>>(({ member, collection, onClick, className, ...props }, ref) => {
+  const { selected = false } = props;
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
   const handleCardClick = (_e: React.MouseEvent) => {
@@ -70,7 +72,7 @@ export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardPr
   return (
     <div
       ref={ref}
-      className={cn("group flex flex-col gap-2 cursor-pointer", className)}
+      className={cn("group flex flex-col gap-2 cursor-pointer", className, selected && "z-10")}
       onClick={(e) => {
         secureLogger.debug('OUTER DIV CLICK:', member[titleField.name]);
         handleCardClick(e);
@@ -83,12 +85,13 @@ export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardPr
           transition: "all 0.3s ease",
           border: `3px solid ${borderColor}`,
           borderRadius: 0,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-          transform: 'scale(1)',
-          filter: 'brightness(1)',
+          boxShadow: selected ? '0 6px 24px rgba(0,0,0,0.5)' : '0 2px 8px rgba(0,0,0,0.3)',
+          transform: selected ? 'scale(1.06)' : 'scale(1)',
+          filter: selected ? 'brightness(1.08)' : 'brightness(1)',
         }}
         className={cn(
-          "aspect-square relative overflow-hidden w-full rounded-none shadow-none"
+          "aspect-square relative overflow-hidden w-full rounded-none shadow-none",
+          selected && "ring-4 ring-primary"
         )}
       >
         {/* background image */}

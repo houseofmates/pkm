@@ -436,6 +436,7 @@ export function HeadmatesPage() {
                                 member={flatMember}
                                 collection={{ fields: [] }}
                                 onClick={() => toggleFronter(member.id)}
+                                selected={activeFronters.includes(member.id)}
                               />
                             ) : (
                               // contacts view rendering (reusing headmatecard but maybe we can style it differently via classname?)
@@ -446,7 +447,8 @@ export function HeadmatesPage() {
                                 member={flatMember}
                                 collection={{ fields: [] }}
                                 onClick={() => toggleFronter(member.id)}
-                                className="aspect-[1.8/1]" // Wider aspect ratio for 'contact card' feel?
+                                className="aspect-[1.8/1]"
+                                selected={activeFronters.includes(member.id)}
                               />
                             )}
                           </HeadmateContextMenu>
