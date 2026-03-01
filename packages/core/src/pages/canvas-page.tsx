@@ -3,7 +3,6 @@ import { EdgelessCanvas } from '@/features/edgeless/components/EdgelessCanvas'
 import { useEdgelessStore } from '@/features/edgeless/store'
 import { useEffect, useRef } from 'react'
 import { Toolbar } from '@/features/edgeless/components/Toolbar'
-import { CanvasControls } from '@/features/edgeless/components/CanvasControls'
 import { WilsonChat } from '@/features/chat/wilson-chat'
 import { DatabaseSettingsForm } from '@/features/databases/components/database-settings-form'
 import { Button } from '@/components/ui/button'
@@ -14,32 +13,32 @@ import { useAppSetting } from '@/hooks/use-app-setting'
 import { Separator } from '@/components/ui/separator'
 
 export function CanvasPage() {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
-  const pageMeta = metadata[id || ''] || {};
-  const title = pageMeta.title || 'Untitled';
-  const pdfUrl = pageMeta['pdf_url'];
+    const { id } = useParams();
+    const navigate = useNavigate();
+    const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
+    const pageMeta = metadata[id || ''] || {};
+    const title = pageMeta.title || 'Untitled';
+    const pdfUrl = pageMeta['pdf_url'];
 
-  const updatePdf = (url: string) => {
-  const next = { ...metadata, [id || '']: { ...pagemeta, pdf_url: url } };
-  setmetadata(next);
-  }
+    const updatePdf = (url: string) => {
+        const next = { ...metadata, [id || '']: { ...pagemeta, pdf_url: url } };
+        setmetadata(next);
+    }
 
-  // pdf handling
-  const handlepdfupload = (e: react.changeevent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (file) {
-  const reader = new FileReader();
-  reader.onloadend = () => {
- const res = reader.result as string;
- updatepdf(res);
-  };
-  reader.readAsDataURL(file);
-  }
-  }
+    // pdf handling
+    const handlepdfupload = (e: react.changeevent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                const res = reader.result as string;
+                updatepdf(res);
+            };
+            reader.readAsDataURL(file);
+        }
+    }
 
-  const pdfInputRef = useRef<HTMLInputElement>(null);
+    const pdfInputRef = useRef<HTMLInputElement>(null);
 
 
     // --- header structure aligned with sidebar / page ---
@@ -122,8 +121,8 @@ export function CanvasPage() {
                     <div className="px-5 pb-4">
                         <PreviewCanvas
                             columns={[[{ view_type: 'text', title: 'Column A' }, { view_type: 'embed', title: 'PDF Layer' }], [{ view_type: 'notes', title: 'Column B' }]]}
-                            columnWidths={[60,40]}
-                            renderWidget={(w:any)=> <div className="p-2 text-sm">{w.title}</div>}
+                            columnWidths={[60, 40]}
+                            renderWidget={(w: any) => <div className="p-2 text-sm">{w.title}</div>}
                         />
                     </div>
                     {/* toolbar might need z-index adjustment if it overlaps header */}
