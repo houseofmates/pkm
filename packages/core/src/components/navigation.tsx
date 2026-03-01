@@ -73,6 +73,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   const [pickerOpen, setPickerOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
 
+
   // global metadata for collections
   const [metadata] = useAppSetting<Record<string, { color?: string }>>('collection_metadata', {});
   // prefer local item color if set (for folders/docs), then metadata color (for collections)
@@ -81,20 +82,31 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   // accentBg passed from Navigation
   const accentBg = typeof window !== 'undefined' && (window as any).accentBg ? (window as any).accentBg : undefined;
 
-  // calculate a custom highlight color for this specific item (hover or selected)
-  function getHighlightColor(baseColor: string | undefined) {
-    if (!baseColor) return accentBg; // fallback to fronter accent
-    if (baseColor.startsWith('#')) {
-      const hex = baseColor.replace('#', '');
-      const r = parseInt(hex.substring(0, 2), 16);
-      const g = parseInt(hex.substring(2, 4), 16);
-      const b = parseInt(hex.substring(4, 6), 16);
-      return `rgba(${r}, ${g}, ${b}, 0.15)`;
+  // determine highlight color based on item type
+  function getHighlightColor() {
+    // main/top sidebar buttons: always use accent color
+    const mainTypes = ['home', 'headmates', 'captures'];
+    if (mainTypes.includes(item.id)) {
+      return accentBg;
     }
-    return baseColor.replace(/rgb\(([^)]+)\)/, 'rgba($1, 0.15)');
+    // sidebar items: use their own color if available, else accent
+    if (metaColor) {
+      if (metaColor.startsWith('#')) {
+        const hex = metaColor.replace('#', '');
+        const r = parseInt(hex.substring(0, 2), 16);
+        const g = parseInt(hex.substring(2, 4), 16);
+        const b = parseInt(hex.substring(4, 6), 16);
+        return `rgba(${r}, ${g}, ${b}, 0.15)`;
+      }
+      if (metaColor.startsWith('rgb')) {
+        return metaColor.replace(/rgb\(([^)]+)\)/, 'rgba($1, 0.15)');
+      }
+      return metaColor;
+    }
+    return accentBg;
   }
 
-  const highlightColor = getHighlightColor(metaColor);
+  const highlightColor = getHighlightColor();
 
   const style = {
     transform: CSS.Translate.toString(transform),
