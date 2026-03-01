@@ -98,12 +98,10 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   const [hovered, setHovered] = useState(false);
 
 
-  // global metadata for items
-  const [metadata, setMetadata] = useAppSetting<Record<string, { color?: string; icon?: string; iconType?: string }>>('collection_metadata', {});
-  // prefer metadata (cross-device) over local item config
-  const metaColor = metadata[id]?.color || item.color;
-  const metaIcon = metadata[id]?.icon || item.icon;
-  const metaIconType = metadata[id]?.iconType || item.iconType;
+  // global metadata for collections
+  const [metadata] = useAppSetting<Record<string, { color?: string }>>('collection_metadata', {});
+  // prefer local item color if set (for folders/docs), then metadata color (for collections)
+  const metaColor = item.color || (item.type === 'collection' ? metadata[id]?.color : undefined);
 
   // determine highlight color based on item type
   function getHighlightColor() {
@@ -146,12 +144,12 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
     // logic: if item.color is set, use it. if generic, use primary.
     // no explicit icon color, let CSS inherit from the button/text color
 
-    if (metaIcon && metaIconType) {
+    if (item.icon && item.iconType) {
       // ... strict icon logic
-      if (metaIconType === 'emoji') return <span className="mr-2 text-xl leading-none flex-shrink-0">{metaIcon}</span>;
-      if (metaIconType === 'image') return <img src={metaIcon} alt="icon" className="h-6 w-6 mr-2 object-contain flex-shrink-0" />;
-      if (metaIconType === 'lucide') {
-        const Icon = getLucideIcon(metaIcon);
+      if (item.iconType === 'emoji') return <span className="mr-2 text-xl leading-none flex-shrink-0">{item.icon}</span>;
+      if (item.iconType === 'image') return <img src={item.icon} alt="icon" className="h-6 w-6 mr-2 object-contain flex-shrink-0" />;
+      if (item.iconType === 'lucide') {
+        const Icon = getLucideIcon(item.icon);
         if (Icon) return <Icon className="h-6 w-6 mr-2 flex-shrink-0" />;
       }
     }
@@ -233,21 +231,8 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
 
           <RichResourceContextMenuContent
             currentName={item.name}
-            currentColor={metaColor}
-            onUpdate={(updates) => {
-              if (updates.color || updates.icon || updates.iconType) {
-                setMetadata((prev: any) => ({
-                  ...prev,
-                  [id]: {
-                    ...(prev?.[id] || {}),
-                    ...(updates.color ? { color: updates.color } : {}),
-                    ...(updates.icon ? { icon: updates.icon } : {}),
-                    ...(updates.iconType ? { iconType: updates.iconType } : {})
-                  }
-                }));
-              }
-              onUpdate(id, updates);
-            }}
+            currentColor={item.color || metaColor}
+            onUpdate={(updates) => onUpdate(id, updates)}
           >
             {/* "rename" menu item removed as it opens a dialog we want to avoid */}
             <ContextMenuSeparator />
