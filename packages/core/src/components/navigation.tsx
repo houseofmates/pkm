@@ -497,16 +497,17 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       <div className={cn("hidden lg:flex flex-col w-64 h-full min-h-0 py-4 sidebar-container", className)} style={{ backgroundColor: '#050505' }}>
         {/* top icons */}
         <div className="flex items-center justify-around px-2 mb-2">
-          <NavIconButton
-            key={tab.id}
-            tab={tab}
-            isActive={tab.id === 'databases' ? activeTab === 'databases' : activeTab === tab.id && !selectedCollection}
-            accentBg={accentBg}
-            onClick={() => {
-              onTabChange(tab.id as any);
-              onSelectCollection(null);
-            }}
-          />
+          {tabs.map(tab => (
+            <NavIconButton
+              key={tab.id}
+              tab={tab}
+              isActive={tab.id === 'databases' ? activeTab === 'databases' : activeTab === tab.id && !selectedCollection}
+              accentBg={accentBg}
+              onClick={() => {
+                onTabChange(tab.id as any);
+                onSelectCollection(null);
+              }}
+            />
           ))}
         </div>
         <div className="mx-4 mb-2 h-[1px] rounded-full" style={{ backgroundColor: 'hsl(var(--primary))', opacity: 0.3 }} />
