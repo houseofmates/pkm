@@ -391,7 +391,7 @@ button,
 .bg-primary-soft,
 .nav-selected,
 [data-selected="true"] {
-  background-color: var(--primary-soft) !important;
+  background-color: var(--primary-soft);
   border-radius: 0.5rem !important;
   border: none !important;
   box-shadow: none !important;
