@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { secureLogger } from '@/lib/secure-logger';
 import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import { isPublicDomain } from '@/utils/subdomain-router';
