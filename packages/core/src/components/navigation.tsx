@@ -59,7 +59,8 @@ interface NavigationProps {
 
   // lifted state props
   items: NavItem[];
-  setItems: (items: NavItem[] | ((prev: NavItem[]) => NavItem[])) => void; // for local updates like folder creation
+  // setItems can be omitted for read-only renders (e.g. mobile drawer that just displays the list)
+  setItems?: (items: NavItem[] | ((prev: NavItem[]) => NavItem[])) => void; // for local updates like folder creation
 }
 
 function NavIconButton({ tab, isActive, onClick }: { tab: any, isActive: boolean, onClick: () => void }) {
@@ -249,6 +250,8 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
 }
 
 export function Navigation({ activeTab, onTabChange, className, onSelectCollection, selectedCollection, items, setItems }: NavigationProps) {
+  // provide a no-op setter if the caller didn't supply one (mobile drawer sometimes omits it)
+  const safeSetItems = setItems ?? (() => {});
 
   // track recently deleted items to prevent useEffect from re-adding them
   const deletedItemsRef = useRef<Set<string>>(new Set());
@@ -360,7 +363,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         // track this deletion so the useEffect won't re-add it
         deletedItemsRef.current.add(id.toLowerCase());
         // immediately remove from local state for instant feedback
-        setItems(items.filter(i => i.id !== id));
+        safeSetItems(items.filter(i => i.id !== id));
         // refresh after a delay to allow the server delete to complete
         setTimeout(() => {
           refresh();
@@ -374,17 +377,17 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     }
 
     if (updates.delete) {
-      setItems(items.filter(i => i.id !== id));
+      safeSetItems(items.filter(i => i.id !== id));
       return;
     }
 
     // If renaming a collection, update both .name and .title fields for sidebar display
     if (updates.name) {
-      setItems(items.map(item =>
+      safeSetItems(items.map(item =>
         item.id === id ? { ...item, name: updates.name, title: updates.name, ...updates } : item
       ));
     } else {
-      setItems(items.map(item =>
+      safeSetItems(items.map(item =>
         item.id === id ? { ...item, ...updates } : item
       ));
     }
@@ -414,7 +417,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       }
 
       // use functional updater to always get the latest items
-      setItems((prevItems: NavItem[]) => {
+      safeSetItems((prevItems: NavItem[]) => {
         // strip forbidden items + old drawings (will re-add fresh ones)
         const cleaned = prevItems.filter(item => {
           const idLower = String(item.id).toLowerCase();
@@ -462,7 +465,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       children: [],
       collapsed: false
     };
-    setItems([folder, ...items]);
+    safeSetItems([folder, ...items]);
     setFolderDialogOpen(false);
     setNewFolderName('');
   };
