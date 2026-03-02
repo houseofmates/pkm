@@ -526,16 +526,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   React.useEffect(() => { onDeleteRef.current = onDelete; }, [onDelete]);
   React.useEffect(() => { onUpdateRecordRef.current = onUpdateRecord; }, [onUpdateRecord]);
 
-  if (!collection) {
-    return (
-      <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center">
-        <div className="flex flex-col items-center gap-2">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-600"></div>
-          <p className="text-sm">loading collection...</p>
-        </div>
-      </div>
-    );
-  }
   const columnHelper = React.useMemo(() => createColumnHelper<any>(), []);
 
   // stable key for data-inferred columns (fallback when collection has no fields)
