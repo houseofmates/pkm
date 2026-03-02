@@ -126,9 +126,9 @@ function createWindow() {
             startUpdateChecker();
         });
     } else {
-        // Offline mode: load bundled files
-        mainWindow.loadFile(path.join(__dirname, '../../web/dist/index.html'));
-        console.log('[PKM] Offline mode: Loading bundled files');
+        // Offline mode: load bundled files from custom protocol to fix localStorage and IndexedDB origin
+        mainWindow.loadURL('pkm://app/index.html');
+        console.log('[PKM] Offline mode: Loading bundled files via pkm://');
     }
 
     // Add reload menu
@@ -173,6 +173,17 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+    protocol.handle('pkm', (request) => {
+        let urlPath = request.url.slice('pkm://app/'.length);
+        urlPath = urlPath.split('?')[0].split('#')[0];
+        if (!urlPath) urlPath = 'index.html';
+        let filePath = path.join(__dirname, '../../web/dist', urlPath);
+        if (!fs.existsSync(filePath)) {
+            filePath = path.join(__dirname, '../../web/dist/index.html');
+        }
+        return net.fetch(url.pathToFileURL(filePath).toString());
+    });
+
     createWindow();
 
     // start the context api server (serves llm context to renderer)
