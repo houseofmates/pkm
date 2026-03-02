@@ -4,7 +4,7 @@ async function testDelete() {
     try {
         const loginRes = await axios.post('https://db.houseofmates.space/api/auth:signIn', {
             authenticator: 'email',
-            username: 'house@houseofmates.space',
+            account: 'house@houseofmates.space',
             password: 'password'
         });
 
