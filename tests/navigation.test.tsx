@@ -6,8 +6,9 @@ import { BrowserRouter, MemoryRouter, Routes, Route, useLocation } from 'react-r
 import { AuthProvider } from '@/contexts/auth-context';
 
 // mock useCollections to avoid API calls
+const collectionsMock: { collections: any[]; refresh: () => void } = { collections: [], refresh: () => {} };
 vi.mock('@/hooks/use-collections', () => ({
-  useCollections: () => ({ collections: [], refresh: () => {} }),
+  useCollections: () => collectionsMock,
 }));
 
 describe('Navigation', () => {
@@ -81,5 +82,45 @@ describe('Navigation', () => {
         );
         // verify something from the UI is present
         expect(screen.getByTitle('search / ask ai...')).toBeTruthy();
+    });
+
+    it('cleans up stale collections when server list changes', async () => {
+        // initial server has a collection named foo
+        collectionsMock.collections = [{ name: 'foo', title: 'Foo' }];
+        const setItemsSpy = vi.fn();
+        render(
+            <BrowserRouter>
+                <Navigation
+                    activeTab="home"
+                    onTabChange={() => {}}
+                    onSelectCollection={() => {}}
+                    selectedCollection={null}
+                    items={[{ id: 'foo', type: 'collection', name: 'Foo' }]}
+                    setItems={setItemsSpy}
+                />
+            </BrowserRouter>
+        );
+        // allow effect to run
+        await screen.findByText('search / ask ai...');
+        // now simulate deletion on server
+        collectionsMock.collections = [];
+        // re-render with same props to trigger effect
+        render(
+            <BrowserRouter>
+                <Navigation
+                    activeTab="home"
+                    onTabChange={() => {}}
+                    onSelectCollection={() => {}}
+                    selectedCollection={null}
+                    items={[{ id: 'foo', type: 'collection', name: 'Foo' }]}
+                    setItems={setItemsSpy}
+                />
+            </BrowserRouter>
+        );
+        // wait for syncAll to call setItems with filtered array
+        await new Promise((r) => setTimeout(r, 50));
+        expect(setItemsSpy).toHaveBeenCalled();
+        const lastCall = setItemsSpy.mock.calls[setItemsSpy.mock.calls.length - 1][0];
+        expect(lastCall).not.toEqual(expect.arrayContaining([{ id: 'foo', type: 'collection', name: 'Foo' }]));
     });
 });
