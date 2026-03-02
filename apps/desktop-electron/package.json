@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "description": "PKM Desktop App",
   "author": "houseofmates",
+  "homepage": "https://houseofmates.space",
   "private": true,
   "main": "electron/main.js",
   "scripts": {
