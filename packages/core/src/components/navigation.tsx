@@ -453,9 +453,9 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             if (!stillExists) {
               // server confirms deletion; remove from storage
               removeStoredDeleted(idLower);
-              return false;
             }
-            // if server still returns it, keep it temporarily (maybe delay)
+            // always drop the item while it's marked deleted
+            return false;
           }
 
           // if it's a normal database/collection (not a local doc/folder)
