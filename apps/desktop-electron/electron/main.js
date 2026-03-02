@@ -1,6 +1,21 @@
-const { app, BrowserWindow, shell, ipcMain, dialog, Menu } = require('electron');
+const { app, BrowserWindow, shell, ipcMain, dialog, Menu, protocol, net } = require('electron');
 const path = require('path');
+const url = require('url');
+const fs = require('fs');
 const contextServer = require('./context-server.cjs');
+
+protocol.registerSchemesAsPrivileged([
+    {
+        scheme: 'pkm',
+        privileges: {
+            standard: true,
+            secure: true,
+            supportFetchAPI: true,
+            bypassCSP: false,
+            corsEnabled: true
+        }
+    }
+]);
 
 const isDev = !app.isPackaged;
 let mainWindow = null;
