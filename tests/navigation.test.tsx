@@ -123,4 +123,30 @@ describe('Navigation', () => {
         const lastCall = setItemsSpy.mock.calls[setItemsSpy.mock.calls.length - 1][0];
         expect(lastCall).not.toEqual(expect.arrayContaining([{ id: 'foo', type: 'collection', name: 'Foo' }]));
     });
+
+    it('hides a collection if it exists server-side but was locally deleted', async () => {
+        // simulate persisted deletion
+        localStorage.setItem('sidebar_deleted_collections', JSON.stringify(['foo']));
+        collectionsMock.collections = [{ name: 'foo', title: 'Foo' }];
+        const setItemsSpy = vi.fn();
+        render(
+            <BrowserRouter>
+                <Navigation
+                    activeTab="home"
+                    onTabChange={() => {}}
+                    onSelectCollection={() => {}}
+                    selectedCollection={null}
+                    items={[{ id: 'foo', type: 'collection', name: 'Foo' }]}
+                    setItems={setItemsSpy}
+                />
+            </BrowserRouter>
+        );
+        await screen.findByText('search / ask ai...');
+        // item should be filtered out immediately
+        expect(setItemsSpy).toHaveBeenCalled();
+        const call = setItemsSpy.mock.calls[setItemsSpy.mock.calls.length - 1][0];
+        expect(call).not.toEqual(expect.arrayContaining([{ id: 'foo', type: 'collection', name: 'Foo' }]));
+        // storage entry remains until server stops returning it
+        expect(JSON.parse(localStorage.getItem('sidebar_deleted_collections') || '[]')).toContain('foo');
+    });
 });
