@@ -66,4 +66,20 @@ describe('Navigation', () => {
         fireEvent.click(button);
         expect(screen.getByTestId('loc')).toHaveTextContent('/settings');
     });
+
+    it('renders without crashing when setItems prop is omitted (mobile drawer case)', () => {
+        render(
+            <BrowserRouter>
+                <Navigation
+                    activeTab="home"
+                    onTabChange={() => {}}
+                    onSelectCollection={() => {}}
+                    selectedCollection={null}
+                    items={[]}
+                />
+            </BrowserRouter>
+        );
+        // verify something from the UI is present
+        expect(screen.getByTitle('search / ask ai...')).toBeTruthy();
+    });
 });
