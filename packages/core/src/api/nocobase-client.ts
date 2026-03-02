@@ -182,8 +182,14 @@ export class NocoBaseClient {
     }
   }
   async deleteCollection(name: string): Promise<Record<string, unknown>> {
-    const res = await this._axios.post(`/collections:destroy?filterByTk=${name}`);
-    return ActionResponseSchema.parse(res.data);
+    try {
+      const res = await this._axios.delete(`/collections/${name}`);
+      return ActionResponseSchema.parse(res.data);
+    } catch (error) {
+      secureLogger.warn(`DELETE /collections/${name} failed, falling back to POST /collections:destroy`);
+      const res = await this._axios.post(`/collections:destroy?filterByTk=${name}`, { drop: true, force: true });
+      return ActionResponseSchema.parse(res.data);
+    }
   }
   async ensureBackendCollection() {
     try {
