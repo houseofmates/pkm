@@ -418,11 +418,20 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
 
       // use functional updater to always get the latest items
       safeSetItems((prevItems: NavItem[]) => {
-        // strip forbidden items + old drawings (will re-add fresh ones)
+        // strip forbidden items, stale collections, and old drawings (will re-add fresh ones)
         const cleaned = prevItems.filter(item => {
           const idLower = String(item.id).toLowerCase();
           if (forbiddenCollections.includes(idLower)) return false;
           if (item.id.startsWith('drawing_')) return false; // will re-add below
+
+          // if it's a normal database/collection (not a local doc/folder)
+          if (!item.id.startsWith('doc_') && !item.id.startsWith('folder_')) {
+            const stillExists = visibleCollections.some((c: any) => String(c.name).toLowerCase() === idLower);
+            if (!stillExists) {
+              // removed on server
+              return false;
+            }
+          }
           return true;
         });
 
