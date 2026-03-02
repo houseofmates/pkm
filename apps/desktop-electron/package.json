@@ -19,7 +19,7 @@
   "build": {
     "appId": "com.houseofmates.pkm",
     "productName": "pkm",
-    "electronVersion": "32.1.2",
+    "electronVersion": "39.2.7",
     "directories": {
       "output": "release"
     },
