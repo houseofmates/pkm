@@ -157,7 +157,7 @@ export function RootLayout(props) {
     }
   }, []);
 
-  const [sidebarItems, setSidebarItems] = useAppSetting<NavItem[]>('sidebar_items', []);
+  const [sidebarItems, setSidebarItems] = useAppSetting<NavItem[]>('sidebar_items', [], { pollIntervalMs: 5000 });
   const [activeDragItem, setActiveDragItem] = useState<NavItem | null>(null);
 
   const sensors = useSensors(
