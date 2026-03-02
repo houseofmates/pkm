@@ -781,6 +781,17 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     setLastSelectedIndex(null);
   }, []);
 
+  if (!collection) {
+    return (
+      <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center">
+        <div className="flex flex-col items-center gap-2">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-600"></div>
+          <p className="text-sm">loading collection...</p>
+        </div>
+      </div>
+    );
+  }
+
   if (loading) {
     return (
       <div className="rounded-md border border-[#222] p-4 space-y-2">
