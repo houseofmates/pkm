@@ -44,9 +44,15 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
 }
 
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.getRegistrations().then((regs) => {
-    for (const reg of regs) reg.unregister();
-  });
+  try {
+    navigator.serviceWorker.getRegistrations().then((regs) => {
+      for (const reg of regs) reg.unregister();
+    }).catch(e => {
+      secureLogger.warn("Failed to get service worker registrations (promise rejection):", e);
+    });
+  } catch (e) {
+    secureLogger.warn("Service worker access not allowed or invalid state:", e);
+  }
 }
 
 // pre-populate token for mobile builds
