@@ -71,6 +71,10 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
             setValue(setting.value);
             try {
               storageManager.setItem(`pkm_setting:${key}`, newValueString);
+              // broadcast change to other hooks in the same window
+              setTimeout(() => {
+                window.dispatchEvent(new CustomEvent(`pkm_setting_update:${key}`, { detail: setting.value }));
+              }, 0);
             } catch (e) {
               secureLogger.warn(`Failed to update local cache for ${key}`, e);
             }
@@ -91,6 +95,13 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
   useEffect(() => {
     fetchSetting();
   }, [fetchSetting]);
+
+  // optional polling interval sync across devices
+  useEffect(() => {
+    if (!pollIntervalMs) return;
+    const interval = setInterval(fetchSetting, pollIntervalMs);
+    return () => clearInterval(interval);
+  }, [fetchSetting, pollIntervalMs]);
 
   // event bus listener for cross-component sync
   useEffect(() => {
