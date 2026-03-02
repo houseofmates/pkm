@@ -177,9 +177,17 @@ app.whenReady().then(() => {
         let urlPath = request.url.slice('pkm://app/'.length);
         urlPath = urlPath.split('?')[0].split('#')[0];
         if (!urlPath) urlPath = 'index.html';
-        let filePath = path.join(__dirname, '../../web/dist', urlPath);
+
+        let basePath;
+        if (app.isPackaged) {
+            basePath = path.join(__dirname, '../node_modules/@pkm/core/dist');
+        } else {
+            basePath = path.join(__dirname, '../../../packages/core/dist');
+        }
+
+        let filePath = path.join(basePath, urlPath);
         if (!fs.existsSync(filePath)) {
-            filePath = path.join(__dirname, '../../web/dist/index.html');
+            filePath = path.join(basePath, 'index.html');
         }
         return net.fetch(url.pathToFileURL(filePath).toString());
     });
