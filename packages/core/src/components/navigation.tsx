@@ -256,6 +256,27 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
   // track recently deleted items to prevent useEffect from re-adding them
   const deletedItemsRef = useRef<Set<string>>(new Set());
 
+  // persistent deletions (survive reloads until server omits them)
+  function getStoredDeleted(): Set<string> {
+    try {
+      const raw = localStorage.getItem('sidebar_deleted_collections');
+      if (raw) return new Set(JSON.parse(raw));
+    } catch {};
+    return new Set();
+  }
+  function storeDeleted(ids: Set<string>) {
+    try { localStorage.setItem('sidebar_deleted_collections', JSON.stringify(Array.from(ids))); } catch {}
+  }
+  function addStoredDeleted(id: string) {
+    const s = getStoredDeleted();
+    s.add(id.toLowerCase());
+    storeDeleted(s);
+  }
+  function removeStoredDeleted(id: string) {
+    const s = getStoredDeleted();
+    if (s.delete(id.toLowerCase())) storeDeleted(s);
+  }
+
   const { collections, refresh } = useCollections();
   const navigate = useNavigate();
 
@@ -362,6 +383,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       if (updates.delete) {
         // track this deletion so the useEffect won't re-add it
         deletedItemsRef.current.add(id.toLowerCase());
+        addStoredDeleted(id);
         // immediately remove from local state for instant feedback
         safeSetItems(items.filter(i => i.id !== id));
         // refresh after a delay to allow the server delete to complete
@@ -419,10 +441,22 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       // use functional updater to always get the latest items
       safeSetItems((prevItems: NavItem[]) => {
         // strip forbidden items, stale collections, and old drawings (will re-add fresh ones)
+        const storedDeleted = getStoredDeleted();
         const cleaned = prevItems.filter(item => {
           const idLower = String(item.id).toLowerCase();
           if (forbiddenCollections.includes(idLower)) return false;
           if (item.id.startsWith('drawing_')) return false; // will re-add below
+
+          // if the item is persistently deleted, drop it unless server still returns it (we'll clear below)
+          if (storedDeleted.has(idLower)) {
+            const stillExists = visibleCollections.some((c: any) => String(c.name).toLowerCase() === idLower);
+            if (!stillExists) {
+              // server confirms deletion; remove from storage
+              removeStoredDeleted(idLower);
+              return false;
+            }
+            // if server still returns it, keep it temporarily (maybe delay)
+          }
 
           // if it's a normal database/collection (not a local doc/folder)
           if (!item.id.startsWith('doc_') && !item.id.startsWith('folder_')) {
