@@ -36,7 +36,20 @@ declare global {
   }
 }
 
-function MobileSidebarDrawer({ isOpen, onClose, ...props }: any) {
+interface MobileSidebarDrawerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  activeTab: 'databases' | 'home' | 'headmates' | 'captures';
+  onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'captures') => void;
+  onSelectCollection: (name: string | null) => void;
+  selectedCollection: string | null;
+  items: any[];
+  setItems?: (items: any[] | ((prev: any[]) => any[])) => void;
+  accentBg?: string;
+  className?: string;
+}
+
+function MobileSidebarDrawer({ isOpen, onClose, ...props }: MobileSidebarDrawerProps) {
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       {/* make the drawer stretch so the navigation inside can use flex-1 correctly */}
@@ -221,7 +234,16 @@ export function RootLayout(props) {
       <ProtocolShift />
       <div className="flex flex-col lg:flex-row h-screen w-full bg-background overflow-hidden transition-colors duration-700">
         <Navigation className="hidden lg:flex" activeTab={activeTab} onTabChange={handleTabChange} onSelectCollection={handleSelectCollection} selectedCollection={selectedCollection} items={sidebarItems} setItems={setSidebarItems} accentBg={accentBg} />
-        <MobileSidebarDrawer isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} onTabChange={handleTabChange} onSelectCollection={handleSelectCollection} selectedCollection={selectedCollection} items={sidebarItems} accentBg={accentBg} />
+        <MobileSidebarDrawer
+          isOpen={sidebarOpen}
+          onClose={() => setSidebarOpen(false)}
+          onTabChange={handleTabChange}
+          onSelectCollection={handleSelectCollection}
+          selectedCollection={selectedCollection}
+          items={sidebarItems}
+          setItems={setSidebarItems}
+          accentBg={accentBg}
+        />
 
         <main className="flex-1 overflow-auto h-full relative pb-20 lg:pb-0" style={{ touchAction: 'pan-y' }}>
           {/* sync / health header bar (premium) */}

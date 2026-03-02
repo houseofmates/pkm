@@ -472,7 +472,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
 
   // toggle folder
   const toggleFolder = (id: string) => {
-    setItems(items.map(item =>
+    safeSetItems(items.map(item =>
       item.id === id ? { ...item, collapsed: !item.collapsed } : item
     ));
   };
@@ -543,7 +543,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   navigate(`/page/${id}`);
 
                   // manually add to items to ensure immediate sidebar update
-                  setItems([...items, {
+                  safeSetItems([...items, {
                     id: `doc_${id}`,
                     type: 'collection',
                     name: config.title,
@@ -566,7 +566,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   navigate(`/drawings/${id}`);
 
                   // manually add to items so sidebar updates immediately
-                  setItems([...items, {
+                  safeSetItems([...items, {
                     id: `drawing_${id}`,
                     type: 'collection',
                     name: title,

@@ -16,7 +16,11 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    // include component stack for easier debugging of hook errors or other render problems
     secureLogger.error("uncaught error:", error, errorInfo);
+    if (errorInfo && errorInfo.componentStack) {
+      secureLogger.error("component stack:", errorInfo.componentStack);
+    }
   }
 
   render() {
@@ -26,6 +30,11 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
           <h1>something went wrong.</h1>
           <pre>{this.state.error?.toString()}</pre>
           <pre>{this.state.error?.stack}</pre>
+          {this.state.error && (
+            <pre style={{ marginTop: '1rem', fontSize: '0.75rem', color: '#ccc' }}>
+              {String((this.state.error as any).componentStack || '')}
+            </pre>
+          )}
         </div>
       );
     }
