@@ -101,14 +101,18 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
 
 
   // global metadata for collections
-  const [metadata] = useAppSetting<Record<string, { color?: string }>>('collection_metadata', {});
+  const [metadata] = useAppSetting<Record<string, { color?: string }>>('collection_metadata', {}, { pollIntervalMs: 5000 });
   // prefer local item color if set (for folders/docs), then metadata color (for collections)
   const metaColor = item.color || (item.type === 'collection' ? metadata[id]?.color : undefined);
 
   // determine highlight color based on item type
   function getHighlightColor(opacity = 0.22) {
+    if (!metaColor) {
+      return `rgba(255, 255, 255, 0.08)`;
+    }
+
     // sidebar items: use their own color if available, else accent
-    let base = metaColor || '#f5af12';
+    let base = metaColor;
     if (base.startsWith('#')) {
       // Convert hex to rgba
       const hex = base.replace('#', '');
@@ -251,7 +255,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
 
 export function Navigation({ activeTab, onTabChange, className, onSelectCollection, selectedCollection, items, setItems }: NavigationProps) {
   // provide a no-op setter if the caller didn't supply one (mobile drawer sometimes omits it)
-  const safeSetItems = setItems ?? (() => {});
+  const safeSetItems = setItems ?? (() => { });
 
   // track recently deleted items to prevent useEffect from re-adding them
   const deletedItemsRef = useRef<Set<string>>(new Set());
@@ -261,11 +265,11 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     try {
       const raw = localStorage.getItem('sidebar_deleted_collections');
       if (raw) return new Set(JSON.parse(raw));
-    } catch {};
+    } catch { };
     return new Set();
   }
   function storeDeleted(ids: Set<string>) {
-    try { localStorage.setItem('sidebar_deleted_collections', JSON.stringify(Array.from(ids))); } catch {}
+    try { localStorage.setItem('sidebar_deleted_collections', JSON.stringify(Array.from(ids))); } catch { }
   }
   function addStoredDeleted(id: string) {
     const s = getStoredDeleted();
