@@ -92,7 +92,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
   const titleInputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const [metadata, setMetadata] = useAppSetting<Record<string, CollectionMetadata>>('collection_metadata', {});
+  const [metadata, setMetadata] = useAppSetting<Record<string, CollectionMetadata>>('collection_metadata', {}, { pollIntervalMs: 3000 });
   const [collectionsList, setCollectionsList] = useState<Collection[]>([]);
 
   useEffect(() => {

@@ -480,7 +480,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
 
   const [recordMeta] = useAppSetting<Record<string, any>>(`record_meta_${collection?.name || 'unknown'}`, {});
-  const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
+  const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
   const fieldColors = metadata[collection?.name]?.fieldColors || {};
   const valueColorRules = metadata[collection?.name]?.valueColorRules || {} as Record<string, Record<string, string>>;
 

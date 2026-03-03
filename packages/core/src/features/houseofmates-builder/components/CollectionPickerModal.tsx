@@ -30,7 +30,7 @@ export function CollectionPickerModal({ onSelect, onClose }: Props) {
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const [selectedViewType, setSelectedViewType] = useState<string | null>(null);
 
-  const [metadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
+  const [metadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
 
   useEffect(() => {
     const fetchCollections = async () => {

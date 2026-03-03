@@ -42,7 +42,7 @@ export function DatabaseSettingsForm({
   onDelete,
   isPage = false
 }: DatabaseSettingsFormProps) {
-  const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
+  const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
   const info = metadata[collectionName] || {};
 
   const [localName, setLocalName] = useState(title || info.title || collectionName);

@@ -57,7 +57,7 @@ export function FieldSettingsDialog({ collectionName, field, open, onOpenChange,
     const [interfaceType, setInterfaceType] = useState('');
 
     // local metadata for property colors
-    const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
+    const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
     const fieldColor = metadata[collectionName]?.fieldColors?.[field?.name] || '#64748b';
 
     useEffect(() => {

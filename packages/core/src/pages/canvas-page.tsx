@@ -15,7 +15,7 @@ import { Separator } from '@/components/ui/separator'
 export function CanvasPage() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
+    const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
     const pageMeta = metadata[id || ''] || {};
     const title = pageMeta.title || 'Untitled';
     const pdfUrl = pageMeta['pdf_url'];

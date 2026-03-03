@@ -52,7 +52,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     const { activeFronters } = useFronter();
 
     // metadata for cosmetics and defaults
-    const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {});
+    const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
     // get collection color for header using metadata (source of truth)
     const collectionColor = metadata[collectionName]?.color;
     const defaultView = metadata[collectionName]?.default_view as ViewType | undefined;
