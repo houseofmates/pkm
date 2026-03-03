@@ -4,14 +4,14 @@
 <head>
   <meta charset="UTF-8" />
   <base href="/" />
-    <!-- use a generic png icon instead of the vite logo; the
+  <!-- use a generic png icon instead of the vite logo; the
          `root-layout` component will override this again later based
          on the hostname. -->
-    <link rel="icon" type="image/png" href="/favicon.png" id="favicon" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/png" href="/favicon.png" id="favicon" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
 
 
@@ -30,18 +30,20 @@
     body {
       height: 100%;
       font-family: 'Varela Round', sans-serif;
-      background-color: #050505; /* full-viewport void background */
+      background-color: #050505;
+      /* full-viewport void background */
       color: #ffffff;
-      overflow-x: hidden;
+      overflow: hidden;
     }
 
     /* Hide all content until React loads */
     #root {
-      min-height: 100vh;
+      height: 100vh;
       background-color: #050505;
       display: flex;
       align-items: center;
       justify-content: center;
+      overflow: hidden;
     }
 
     /* Simple circular spinner (yellow) */
@@ -49,25 +51,31 @@
       width: 48px;
       height: 48px;
       border-radius: 50%;
-      border: 4px solid rgba(255,255,255,0.06);
-      border-top-color: #f6b012; /* yellow accent */
+      border: 4px solid rgba(255, 255, 255, 0.06);
+      border-top-color: #f6b012;
+      /* yellow accent */
       animation: spin 1s linear infinite;
     }
 
     @keyframes spin {
-      from { transform: rotate(0deg); }
-      to { transform: rotate(360deg); }
+      from {
+        transform: rotate(0deg);
+      }
+
+      to {
+        transform: rotate(360deg);
+      }
     }
   </style>
 
   <script>
     window._startupErrors = [];
-    window.addEventListener('error', function(e) {
+    window.addEventListener('error', function (e) {
       if (window.__APP_MOUNTED__) return;
       window._startupErrors.push(e.message + '\n' + e.filename + ':' + e.lineno + ':' + e.colno + '\n' + (e.error && e.error.stack ? e.error.stack : ''));
       showErrors();
     });
-    window.addEventListener('unhandledrejection', function(e) {
+    window.addEventListener('unhandledrejection', function (e) {
       if (window.__APP_MOUNTED__) return;
       window._startupErrors.push('Promise Rejection: ' + (e.reason && e.reason.stack ? e.reason.stack : e.reason));
       showErrors();
