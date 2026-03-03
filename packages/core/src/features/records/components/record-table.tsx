@@ -175,7 +175,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
             // clear sizing/order cache so removed column doesn't linger
             onFieldUpdated?.();
           } catch (err: any) {
-       toast.error(err?.message || 'failed to delete property');
+            toast.error(err?.message || 'failed to delete property');
           }
         }}
         fieldColor={fieldColors[field?.name]}
@@ -413,9 +413,6 @@ const DraggableRecordRow = (props: any) => {
                 maxWidth: cell.column.getSize() || DEFAULT_COL_WIDTH,
                 touchAction: 'manipulation',
               }}
-              onContextMenu={(e) => {
-                e.stopPropagation();
-              }}
             >
               <div
                 className="flex items-center justify-start h-full w-full px-0.5 whitespace-normal leading-[1.2] text-sm"
@@ -449,28 +446,28 @@ const getValueColor = (
 };
 
 export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord, onCreateField, onCreateRecord, onFieldUpdated: onFieldUpdatedCb, loading }: RecordTableProps) {
-    // leftmost column width state
-    const DEFAULT_LEFT_COL_WIDTH = 40;
-    const [leftColWidth, setLeftColWidth] = React.useState<number>(DEFAULT_LEFT_COL_WIDTH);
-    const leftColResizeRef = React.useRef<boolean>(false);
-    const handleLeftColResizeStart = (e: React.MouseEvent) => {
-      leftColResizeRef.current = true;
-      const startX = e.clientX;
-      const startWidth = leftColWidth;
-      const onMouseMove = (moveEvent: MouseEvent) => {
-        if (!leftColResizeRef.current) return;
-        const delta = moveEvent.clientX - startX;
-        let newWidth = Math.max(24, startWidth + delta);
-        setLeftColWidth(newWidth);
-      };
-      const onMouseUp = () => {
-        leftColResizeRef.current = false;
-        window.removeEventListener('mousemove', onMouseMove);
-        window.removeEventListener('mouseup', onMouseUp);
-      };
-      window.addEventListener('mousemove', onMouseMove);
-      window.addEventListener('mouseup', onMouseUp);
+  // leftmost column width state
+  const DEFAULT_LEFT_COL_WIDTH = 40;
+  const [leftColWidth, setLeftColWidth] = React.useState<number>(DEFAULT_LEFT_COL_WIDTH);
+  const leftColResizeRef = React.useRef<boolean>(false);
+  const handleLeftColResizeStart = (e: React.MouseEvent) => {
+    leftColResizeRef.current = true;
+    const startX = e.clientX;
+    const startWidth = leftColWidth;
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      if (!leftColResizeRef.current) return;
+      const delta = moveEvent.clientX - startX;
+      let newWidth = Math.max(24, startWidth + delta);
+      setLeftColWidth(newWidth);
     };
+    const onMouseUp = () => {
+      leftColResizeRef.current = false;
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+  };
   const [hiddenColumns, setHiddenColumns] = useAppSetting<string[]>(
     `hidden_columns_${collection?.name || 'unknown'}`,
     []
@@ -995,39 +992,39 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                   )}
                 </div>
               ) : (
-              <AutoSizer
-                renderProp={({ height, width }: { height: number | undefined; width: number | undefined }) => (
-                  <List
-                    key={columnVersion}
-                    rowCount={rows.length}
-                    rowHeight={40}
-                    rowProps={{
-                      rows: rows,
-                      collection,
-                      onUpdate: onUpdateRecord,
-                      onDelete,
-                      onCreateField,
-                      onCreateRecord,
-                      recordMeta,
-                      onEdit: onEditRef.current,
-                      selectedIds,
-                      onRowSelect: handleRowSelect,
-                      clearSelection,
-                      enableSelection: true,
-                      tableSize: table.getTotalSize(),
-                      columnVersion,
-                      leftColWidth,
-                    }}
-                    style={{ 
-                      height, 
-                      width,
-                      overflow: 'auto'
-                    }}
-                    className="no-scrollbar"
-                    rowComponent={DraggableRecordRow}
-                  />
-                )}
-              />
+                <AutoSizer
+                  renderProp={({ height, width }: { height: number | undefined; width: number | undefined }) => (
+                    <List
+                      key={columnVersion}
+                      rowCount={rows.length}
+                      rowHeight={40}
+                      rowProps={{
+                        rows: rows,
+                        collection,
+                        onUpdate: onUpdateRecord,
+                        onDelete,
+                        onCreateField,
+                        onCreateRecord,
+                        recordMeta,
+                        onEdit: onEditRef.current,
+                        selectedIds,
+                        onRowSelect: handleRowSelect,
+                        clearSelection,
+                        enableSelection: true,
+                        tableSize: table.getTotalSize(),
+                        columnVersion,
+                        leftColWidth,
+                      }}
+                      style={{
+                        height,
+                        width,
+                        overflow: 'auto'
+                      }}
+                      className="no-scrollbar"
+                      rowComponent={DraggableRecordRow}
+                    />
+                  )}
+                />
 
               )}
             </div>
