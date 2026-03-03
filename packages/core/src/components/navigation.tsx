@@ -100,8 +100,8 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   const [hovered, setHovered] = useState(false);
 
 
-  // global metadata for collections
-  const [metadata] = useAppSetting<Record<string, { color?: string }>>('collection_metadata', {}, { pollIntervalMs: 5000 });
+  // global metadata for collections (syncs every 3 seconds across devices)
+  const [metadata] = useAppSetting<Record<string, { color?: string }>>('collection_metadata', {}, { pollIntervalMs: 3000 });
   // prefer local item color if set (for folders/docs), then metadata color (for collections)
   const metaColor = item.color || (item.type === 'collection' ? metadata[id]?.color : undefined);
 

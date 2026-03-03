@@ -41,8 +41,8 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
   const [colorOpen, setColorOpen] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
 
-  // metadata for cosmetics
-  const [metadata, setMetadata] = useAppSetting<Record<string, { image?: string; color?: string }>>('collection_metadata', {});
+  // metadata for cosmetics (syncs every 3 seconds across devices)
+  const [metadata, setMetadata] = useAppSetting<Record<string, { image?: string; color?: string }>>('collection_metadata', {}, { pollIntervalMs: 3000 });
 
   const updateMeta = (key: 'image' | 'color', value: string | undefined) => {
     setMetadata({
