@@ -655,6 +655,43 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     return () => upperCanvas.removeEventListener('contextmenu', handleContextMenu)
   }, [fabricCanvas])
 
+  // ── Make drawn paths selectable/editable vector objects ──
+  useEffect(() => {
+    if (!fabricCanvas) return
+
+    const handlePathCreated = (e: any) => {
+      const path = e.path
+      if (!path) return
+
+      // Ensure the drawn path is a fully interactive vector object
+      path.set({
+        selectable: true,
+        evented: true,
+        hasControls: true,
+        hasBorders: true,
+        lockMovementX: false,
+        lockMovementY: false,
+        lockRotation: false,
+        lockScalingX: false,
+        lockScalingY: false,
+        perPixelTargetFind: true,
+        transparentCorners: false,
+        cornerColor: '#f6b012',
+        cornerStyle: 'circle',
+        cornerSize: 8,
+        borderColor: '#f6b012',
+        borderScaleFactor: 1.5,
+      })
+
+      fabricCanvas.requestRenderAll()
+    }
+
+    fabricCanvas.on('path:created', handlePathCreated)
+    return () => {
+      fabricCanvas.off('path:created', handlePathCreated)
+    }
+  }, [fabricCanvas])
+
   // ── Pointer interaction class ──
   const isInteractMode = (activeTool === 'select' && selectionMode === 'cursor') || activeTool === 'hand'
   const pointerClass = isInteractMode ? 'pointer-events-auto' : 'pointer-events-none'
