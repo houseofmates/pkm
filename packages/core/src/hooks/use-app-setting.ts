@@ -143,7 +143,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
             try {
               const res = await client.request('pkm_settings', 'update', {
                 method: 'POST',
-                params: { filter: { key: { $eq: key } } },
+                params: settingIdRef.current ? { filterByTk: settingIdRef.current } : { filter: { key: { $eq: key } } },
                 data: payload,
                 silent: true
               });
@@ -192,7 +192,7 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
         try {
           const res = await client.request('pkm_settings', 'update', {
             method: 'POST',
-            params: { filter: { key: { $eq: key } } },
+            params: settingIdRef.current ? { filterByTk: settingIdRef.current } : { filter: { key: { $eq: key } } },
             data: payload,
             silent: true
           });
