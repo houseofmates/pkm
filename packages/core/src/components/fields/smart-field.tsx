@@ -221,7 +221,7 @@ function LinkDatabasePicker({ value, onChange, onCancel }: any) {
   const [highlightedIndex, setHighlightedIndex] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const filteredCollections = collections.filter((c: any) => 
+  const filteredCollections = collections.filter((c: any) =>
     c.name?.toLowerCase().includes(search.toLowerCase()) ||
     c.title?.toLowerCase().includes(search.toLowerCase())
   );
@@ -273,7 +273,7 @@ function LinkDatabasePicker({ value, onChange, onCancel }: any) {
   };
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="absolute z-50 bg-popover border shadow-lg rounded-md p-2 w-[280px] max-h-[350px] flex flex-col gap-2"
       onKeyDown={handleKeyDown}
@@ -369,7 +369,7 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
         if (selectedType === 'all' || selectedType === 'record') {
           const searchPromises = collections.slice(0, 5).map(async (collection: any) => {
             try {
-              const res = await client?.listRecords(collection.name, { 
+              const res = await client?.listRecords(collection.name, {
                 filter: { title: { $includes: search } },
                 pageSize: 5
               });
@@ -385,7 +385,7 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
               return [];
             }
           });
-          
+
           const searchResults = await Promise.allSettled(searchPromises);
           searchResults.forEach(result => {
             if (result.status === 'fulfilled') {
@@ -411,7 +411,7 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
                 }
               });
             }
-          } catch (e) { 
+          } catch (e) {
             hasErrors = true;
           }
         }
@@ -433,7 +433,7 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
                 }
               });
             }
-          } catch (e) { 
+          } catch (e) {
             hasErrors = true;
           }
         }
@@ -515,7 +515,7 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
   };
 
   return (
-    <div 
+    <div
       ref={containerRef}
       className="absolute z-50 bg-popover border shadow-lg rounded-md p-2 w-[320px] max-h-[400px] flex flex-col gap-2"
       onKeyDown={handleKeyDown}
@@ -523,7 +523,7 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
       <div className="text-xs font-semibold text-muted-foreground px-1 flex items-center gap-1">
         <LinkIcon className="h-3 w-3" /> link item
       </div>
-      
+
       <div className="relative">
         <Input
           placeholder="search items..."
@@ -543,7 +543,7 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
           </button>
         )}
       </div>
-      
+
       <div className="flex gap-1 flex-wrap">
         {(['all', 'record', 'canvas', 'document'] as const).map((type) => (
           <Button
@@ -570,7 +570,7 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
             <div className="animate-spin h-4 w-4 border-2 border-primary border-t-transparent rounded-full" />
           </div>
         )}
-        
+
         {!loading && results.length > 0 && results.map((item: any, index: number) => {
           const isSelected = value?.id === item.id && value?.collection === item.collection;
           const isHighlighted = index === highlightedIndex;
@@ -600,20 +600,20 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
             </div>
           );
         })}
-        
+
         {!loading && search && results.length === 0 && !error && (
           <div className="text-xs p-3 text-muted-foreground italic text-center">
             no items found matching "{search}"
           </div>
         )}
-        
+
         {!loading && !search && (
           <div className="text-xs p-3 text-muted-foreground italic text-center">
             type to search across databases, canvases, and documents...
           </div>
         )}
       </div>
-      
+
       <div className="flex justify-between items-center pt-2 border-t mt-1">
         <span className="text-[10px] text-muted-foreground">
           {results.length > 0 ? `${results.length} result${results.length !== 1 ? 's' : ''}` : ''}
@@ -644,7 +644,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   const [showFormulaEditor, setShowFormulaEditor] = useState(false);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editorImage, setEditorImage] = useState<string | null>(null);
-  const [filters, setFilters] = useState({ 
+  const [filters, setFilters] = useState({
     brightness: 100, contrast: 100, saturation: 100, hue: 0, blur: 0, sharpness: 0, clarity: 0,
     shadowR: 0, shadowG: 0, shadowB: 0, shadowAmount: 0,
     midR: 0, midG: 0, midB: 0, midAmount: 0,
@@ -663,6 +663,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   const overlayRef = useRef<HTMLDivElement | null>(null);
 
   const { client } = useAuth() as any;
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!isEditing) setLocalValue(value);
@@ -783,7 +784,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       ctx.filter = filterStr;
       ctx.drawImage(img, 0, 0, w, h);
       ctx.filter = 'none';
-      
+
       // apply color grading via overlay blending
       if (filters.shadowAmount > 0) {
         ctx.save();
@@ -806,7 +807,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
         ctx.fillRect(0, 0, w, h);
         ctx.restore();
       }
-      
+
       strokes.forEach(stroke => {
         if (stroke.points.length < 2) return;
         ctx.save();
@@ -873,7 +874,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       ctx.filter = filterStr;
       ctx.drawImage(img, 0, 0, w, h);
       ctx.filter = 'none';
-      
+
       // apply color grading via overlay blending
       if (filters.shadowAmount > 0) {
         ctx.save();
@@ -896,7 +897,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
         ctx.fillRect(0, 0, w, h);
         ctx.restore();
       }
-      
+
       strokes.forEach(stroke => {
         if (stroke.points.length < 2) return;
         ctx.save();
@@ -995,16 +996,16 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
           <div className="flex items-center justify-between px-4 py-3 border-b border-[#222]">
             <div className="text-sm font-semibold text-white">image editor</div>
             <div className="flex gap-2">
-              <Button size="sm" variant="ghost" onClick={() => { 
-                setStrokes([]); 
-                setCrop(null); 
+              <Button size="sm" variant="ghost" onClick={() => {
+                setStrokes([]);
+                setCrop(null);
                 setCropAspect(null);
-                setFilters({ 
-                  brightness:100, contrast:100, saturation:100, hue:0, blur:0, sharpness:0, clarity:0,
+                setFilters({
+                  brightness: 100, contrast: 100, saturation: 100, hue: 0, blur: 0, sharpness: 0, clarity: 0,
                   shadowR: 0, shadowG: 0, shadowB: 0, shadowAmount: 0,
                   midR: 0, midG: 0, midB: 0, midAmount: 0,
                   highlightR: 0, highlightG: 0, highlightB: 0, highlightAmount: 0
-                }); 
+                });
               }}>reset</Button>
               <Button size="sm" onClick={async () => {
                 const dataUrl = await exportImage();
@@ -1128,10 +1129,10 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
                   <div className="flex flex-wrap gap-1">
                     <Button size="sm" variant={cropAspect === null ? 'secondary' : 'outline'} onClick={() => setCropAspect(null)} className="text-xs">free</Button>
                     <Button size="sm" variant={cropAspect === 1 ? 'secondary' : 'outline'} onClick={() => setCropAspect(1)} className="text-xs">1:1</Button>
-                    <Button size="sm" variant={cropAspect === 16/9 ? 'secondary' : 'outline'} onClick={() => setCropAspect(16/9)} className="text-xs">16:9</Button>
-                    <Button size="sm" variant={cropAspect === 4/3 ? 'secondary' : 'outline'} onClick={() => setCropAspect(4/3)} className="text-xs">4:3</Button>
-                    <Button size="sm" variant={cropAspect === 3/2 ? 'secondary' : 'outline'} onClick={() => setCropAspect(3/2)} className="text-xs">3:2</Button>
-                    <Button size="sm" variant={cropAspect === 9/16 ? 'secondary' : 'outline'} onClick={() => setCropAspect(9/16)} className="text-xs">9:16</Button>
+                    <Button size="sm" variant={cropAspect === 16 / 9 ? 'secondary' : 'outline'} onClick={() => setCropAspect(16 / 9)} className="text-xs">16:9</Button>
+                    <Button size="sm" variant={cropAspect === 4 / 3 ? 'secondary' : 'outline'} onClick={() => setCropAspect(4 / 3)} className="text-xs">4:3</Button>
+                    <Button size="sm" variant={cropAspect === 3 / 2 ? 'secondary' : 'outline'} onClick={() => setCropAspect(3 / 2)} className="text-xs">3:2</Button>
+                    <Button size="sm" variant={cropAspect === 9 / 16 ? 'secondary' : 'outline'} onClick={() => setCropAspect(9 / 16)} className="text-xs">9:16</Button>
                   </div>
                   {crop && (
                     <Button size="sm" variant="ghost" className="w-full text-xs text-red-400" onClick={() => setCrop(null)}>
@@ -1144,7 +1145,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
               {/* basic adjustments */}
               <div className="space-y-2 pt-2 border-t border-[#333]">
                 <div className="text-xs text-muted-foreground">basic adjustments</div>
-                {['brightness','contrast','saturation','hue','blur','clarity','sharpness'].map((key) => {
+                {['brightness', 'contrast', 'saturation', 'hue', 'blur', 'clarity', 'sharpness'].map((key) => {
                   const min = key === 'hue' ? -180 : 0;
                   const max = key === 'hue' ? 180 : key === 'blur' ? 10 : 200;
                   return (
@@ -1491,7 +1492,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
 
     if (isLinkDatabase && value) {
       return (
-        <div 
+        <div
           className="flex items-center gap-1 cursor-pointer group"
           onClick={() => navigate(`/databases/${encodeURIComponent(value.id)}`)}
         >
@@ -1518,7 +1519,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       };
 
       return (
-        <div 
+        <div
           className="flex items-center gap-1 cursor-pointer group"
           onClick={handleClick}
         >
@@ -1576,7 +1577,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
               onClick={(e) => e.stopPropagation()}
               title={value}
             >
-              <LinkIcon className="h-3 w-3 shrink-0" /> 
+              <LinkIcon className="h-3 w-3 shrink-0" />
               <span className="truncate">{value}</span>
             </div>
           </ContextMenuTrigger>
