@@ -74,9 +74,19 @@ function GalleryItem({ record, collection, onUpdate, onDelete }: { record: any, 
 }
 
 export function RecordGallery({ data, collection, onUpdateRecord, onDelete }: RecordGalleryProps) {
+  const validRecords = data?.filter((r: any) => r && r.id) || [];
+
+  if (validRecords.length === 0) {
+    return (
+      <div className="flex-1 flex flex-col items-center justify-center p-8 text-center h-[50vh] text-primary/60">
+        <span className="text-sm font-medium lowercase">no entries in {collection?.title || collection?.name || 'this collection'}</span>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3 p-2">
-      {data.map((record) => (
+      {validRecords.map((record) => (
         <GalleryItem
           key={record.id}
           record={record}
