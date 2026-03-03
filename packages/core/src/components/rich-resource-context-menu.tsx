@@ -456,8 +456,8 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   return (
     <ContextMenuContent
       ref={contextMenuRef}
-      className="w-[90vw] sm:w-[360px] p-0 overflow-hidden bg-[#050505] border-border/50 flex flex-col transition-all duration-300"
-      style={{ maxHeight: '90vh' }}
+      className="w-[90vw] sm:w-[360px] p-0 overflow-y-auto bg-[#050505] border-border/50 flex flex-col transition-all duration-300"
+      style={{ maxHeight: '70vh' }}
     >
       {/* header: name & color toggle */}
       <div className="p-4 border-b shrink-0 relative flex items-center gap-3">
@@ -510,7 +510,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
       {/* color dot toggle removed - moved to tabs */}
 
       {/* main content area */}
-      <div className="flex-1 min-h-[200px] max-h-[400px] w-full flex flex-col relative">
+      <div className="flex-1 min-h-[200px] max-h-[300px] w-full flex flex-col relative">
         <Tabs defaultValue="icons" className="w-full h-full flex flex-col" onValueChange={(v) => setActiveTab(v as 'icons' | 'emojis' | 'color')}>
           <div className="px-0 border-b bg-muted/30 shrink-0 flex items-center">
             <TabsList className="bg-transparent p-0 h-12 w-full flex justify-between gap-0">
