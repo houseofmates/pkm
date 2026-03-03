@@ -63,10 +63,12 @@
   <script>
     window._startupErrors = [];
     window.addEventListener('error', function(e) {
+      if (window.__APP_MOUNTED__) return;
       window._startupErrors.push(e.message + '\n' + e.filename + ':' + e.lineno + ':' + e.colno + '\n' + (e.error && e.error.stack ? e.error.stack : ''));
       showErrors();
     });
     window.addEventListener('unhandledrejection', function(e) {
+      if (window.__APP_MOUNTED__) return;
       window._startupErrors.push('Promise Rejection: ' + (e.reason && e.reason.stack ? e.reason.stack : e.reason));
       showErrors();
     });

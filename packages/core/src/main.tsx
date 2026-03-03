@@ -68,6 +68,7 @@ const container = document.getElementById('root');
 if (container) {
   try {
     const root = createRoot(container);
+    (window as any).__APP_MOUNTED__ = true;
     root.render(
       <ErrorBoundary>
         <App />
