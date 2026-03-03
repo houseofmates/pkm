@@ -1485,8 +1485,6 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     );
   }
 
-  const navigate = useNavigate();
-
   const renderView = () => {
     if (isId) return <span className={cn("font-mono opacity-50 select-text text-white/70", size === 'lg' ? "text-lg" : "text-[10px]")}>{value?.toString()}</span>;
 
