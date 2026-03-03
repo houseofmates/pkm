@@ -74,7 +74,11 @@ function GalleryItem({ record, collection, onUpdate, onDelete }: { record: any, 
 }
 
 export function RecordGallery({ data, collection, onUpdateRecord, onDelete }: RecordGalleryProps) {
-  const validRecords = data?.filter((r: any) => { \n    if (!r || !r.id) return false; \n    if (!r.title && !r.name && !r.content && !r.image && !r.url && !r.file) return false; \n    return true; \n }) || [];
+  const validRecords = data?.filter((r: any) => {
+    if (!r || !r.id) return false;
+    if (!r.title && !r.name && !r.content && !r.image && !r.url && !r.file) return false;
+    return true;
+  }) || [];
 
   if (validRecords.length === 0) {
     return (
