@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react';
 export function CapturesPage() {
   const { data: collection, loading: colLoading } = useCollection('captures');
   const { records, loading: recLoading, error, updateRecord, deleteRecord } = useRecords('captures', {
-    sort: ['-createdAt'], // Newest first
+    sort: '-createdAt', // Newest first
     pageSize: 50
   });
 
