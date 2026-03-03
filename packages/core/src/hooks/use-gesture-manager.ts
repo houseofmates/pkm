@@ -123,8 +123,10 @@ export function useGestureManager(
     };
 
     const handleContextMenu = (event: PointerEvent) => {
-      event.preventDefault();
-      handlers.onContextMenu?.(event);
+      if (handlers.onContextMenu) {
+        if (preventDefault) event.preventDefault();
+        handlers.onContextMenu(event);
+      }
     };
 
     target.addEventListener('pointerdown', handlePointerDown, { passive: !preventDefault });
