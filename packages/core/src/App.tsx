@@ -146,9 +146,9 @@ function AppContent() {
   }
 
   return (
-    <CanvasInitializer>
-      {token ? (
-        <BrowserRouter>
+    <BrowserRouter>
+      <CanvasInitializer>
+        {token ? (
           <Suspense fallback={LoadingFallback}>
             <Routes>
               <Route element={<RootLayout />}>
@@ -179,10 +179,10 @@ function AppContent() {
             <Spotlight />
             <WilsonChat />
           </Suspense>
-        </BrowserRouter>
-      ) : <LoginPage />}
-      <Toaster />
-    </CanvasInitializer>
+        ) : <LoginPage />}
+        <Toaster />
+      </CanvasInitializer>
+    </BrowserRouter>
   )
 }
 
