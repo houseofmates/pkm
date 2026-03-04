@@ -115,12 +115,12 @@ export function Toolbar() {
   };
 
   return (
-    // use safe-area inset on mobile so toolbar isn't hidden behind home indicator / navigation bar
     <div
-      className="absolute left-1/2 -translate-x-1/2 z-50 pointer-events-none"
+      className="fixed inset-x-0 z-50 pointer-events-none px-3 sm:px-4"
       style={{ bottom: 'max(12px, calc(env(safe-area-inset-bottom, 0px) + 8px))' }}
     >
-      <div className="flex items-center gap-0 bg-[#050505] backdrop-blur-md border border-white/10 rounded-full shadow-lg border-t-primary/20 transition-all duration-300 pointer-events-auto" style={{ borderRadius: '999px', padding: 0, height: '48px' }}>
+      <div className="flex justify-center">
+        <div className="flex items-center gap-0 bg-[#050505] backdrop-blur-md border border-white/10 rounded-full shadow-lg border-t-primary/20 transition-all duration-300 pointer-events-auto max-w-full overflow-x-auto px-1" style={{ borderRadius: '999px', padding: 0, height: '48px' }}>
 
         {/* primary tools - centered */}
         <div className="flex items-center gap-1 px-2">
@@ -338,7 +338,8 @@ export function Toolbar() {
           open={captureDialogOpen}
           onOpenChange={setCaptureDialogOpen}
         />
+        </div>
       </div>
     </div>
-  );
+  )
 }
