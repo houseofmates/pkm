@@ -102,7 +102,7 @@ const RowComponent = ({ index, style, data }: { index: number; style: React.CSSP
                         className="h-auto p-0 border-none bg-transparent hover:bg-muted/30 rounded px-1 text-sm truncate"
                       />
                     </div>
-                  ))}
+                  )})}
                 </div>
               )}
             </div>
