@@ -5,12 +5,13 @@ const config: CapacitorConfig = {
   appName: 'pkm',
   webDir: 'dist',
   server: {
-    // Load from local dev server for LIVE RELOAD (same WiFi required)
-    // allow navigation to the nocobase API and other houseofmates services
-    allowNavigation: [
-      '192.168.4.233',
-      '*.houseofmates.space',
-    ],
+    // when building a release APK we point at the public host so that
+    // the package auto‑updates from the live server. a dev build can override
+    // via PKM_REMOTE_URL (see LIVE_UPDATE_GUIDE.md).
+    url: process.env.PKM_REMOTE_URL || 'http://pkm.houseofmates.space:3010',
+    // allow navigation to our domain(s) only; the IP was only needed for
+    // local development.
+    allowNavigation: ['pkm.houseofmates.space', '*.houseofmates.space'],
     cleartext: true,
     androidScheme: 'http',
   },
