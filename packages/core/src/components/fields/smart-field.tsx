@@ -1644,6 +1644,25 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       );
     }
 
+    // show label text instead of raw value for select/multi-select, and open on click
+    if (isSelect) {
+      const options = field?.uiSchema?.enum || [];
+      let display = '';
+      if (isMultiSelect) {
+        if (Array.isArray(value)) display = value.map(v => options.find(o => o.value === v)?.label || v).join(', ');
+      } else {
+        display = options.find(o => o.value === value)?.label || value;
+      }
+      return (
+        <div
+          onClick={() => setIsEditing(true)}
+          className={cn("cursor-pointer text-right min-h-[20px] font-varela text-white/90", size === 'lg' ? "text-lg" : "text-sm")}
+        >
+          {display || <span className="opacity-20">-</span>}
+        </div>
+      );
+    }
+
     if (isPhone) return <div className={cn("text-primary hover:underline flex items-center gap-1 cursor-pointer", size === 'lg' ? "text-lg" : "text-xs")} onClick={(e) => handlePhoneClick(e, strValue)}><Phone className="h-3 w-3" /> {formatPhoneNumber(strValue)}</div>;
     if (isEmail) return <a href={`mailto:${strValue}`} className={cn("text-primary hover:underline flex items-center gap-1 w-full", size === 'lg' ? "text-lg" : "text-sm")} onClick={e => e.stopPropagation()}><Mail className="h-3 w-3" /> {strValue}</a>;
     if (isUrl) {

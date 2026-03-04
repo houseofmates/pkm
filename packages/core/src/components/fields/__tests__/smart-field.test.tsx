@@ -117,12 +117,29 @@ describe('SmartField', () => {
     expect(onChange).toHaveBeenCalledWith(true);
   });
 
-  it('renders select and allows choice', () => {
+  it('renders select view using label and allows choice', async () => {
     const onChange = vi.fn();
     const options = [{ label: 'One', value: '1' }, { label: 'Two', value: '2' }];
     const { container } = withAuth(<SmartField value="1" field={{ interface: 'select', name: 'sel', uiSchema: { enum: options } }} onChange={onChange} />);
-    // the displayed value should equal the raw value
-    expect(container.textContent).toContain('1');
+    // the displayed text should use the label, not the raw value
+    expect(container.textContent).toContain('One');
+
+    // open editor by clicking
+    fireEvent.click(screen.getByText('One'));
+    const input = await screen.findByPlaceholderText('search...');
+    expect(input).toBeInTheDocument();
+
+    // choose second option via search
+    fireEvent.change(input, { target: { value: 'Two' } });
+    const opt = await screen.findByText('Two');
+    fireEvent.click(opt);
+    expect(onChange).toHaveBeenCalledWith('2');
+
+    // type a new option and add it
+    fireEvent.change(input, { target: { value: 'Three' } });
+    const add = await screen.findByText(/add "Three"/i);
+    fireEvent.click(add);
+    expect(onChange).toHaveBeenCalledWith('three');
   });
   it('opens relation picker when editing relation', () => {
     const onChange = vi.fn();
@@ -194,14 +211,16 @@ describe('SmartField', () => {
     });
   });
 
-  it('handles multipleSelect editing with checkboxes', () => {
+  it('handles multipleSelect editing with search and checkboxes', async () => {
     const onChange = vi.fn();
     const options = [{ label: 'A', value: 'a' }, { label: 'B', value: 'b' }];
     withAuth(<SmartField value={["a"]} field={{ interface: 'multipleSelect', name: 'multi', uiSchema: { enum: options } }} onChange={onChange} />);
     fireEvent.click(screen.getByText('a'));
-    // open editing to show checkboxes
-    const checkbox = screen.getByLabelText('B');
-    fireEvent.click(checkbox);
+    const input = await screen.findByPlaceholderText('search...');
+    expect(input).toBeInTheDocument();
+    fireEvent.change(input, { target: { value: 'B' } });
+    const item = await screen.findByText('B');
+    fireEvent.click(item);
     fireEvent.click(screen.getByText('done'));
     expect(onChange).toHaveBeenCalledWith(["a", "b"]);
   });
