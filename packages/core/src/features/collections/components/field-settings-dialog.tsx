@@ -56,9 +56,15 @@ export function FieldSettingsDialog({ collectionName, field, open, onOpenChange,
     const [title, setTitle] = useState('');
     const [interfaceType, setInterfaceType] = useState('');
 
-    // local metadata for property colors
+    // local metadata for property colors/icons
     const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
-    const fieldColor = metadata[collectionName]?.fieldColors?.[field?.name] || '#64748b';
+    const collMeta = metadata[collectionName] || {};
+    const fieldColor = collMeta.fieldColors?.[field?.name] || '#64748b';
+    const fieldIconInfo: { icon?: string; iconType?: 'lucide'|'emoji'|'image'; iconColor?: string } =
+        collMeta.fieldIcons?.[field?.name] || {};
+    const [iconPickerOpen, setIconPickerOpen] = useState(false);
+
+    const fieldIconColor = fieldIconInfo.iconColor || '#ffffff';
 
     useEffect(() => {
         if (field && open) {
@@ -109,6 +115,43 @@ export function FieldSettingsDialog({ collectionName, field, open, onOpenChange,
         });
     };
 
+    const setFieldIcon = (icon: string, type: 'lucide'|'emoji'|'image') => {
+        const collMeta = metadata[collectionName] || {};
+        const icons = collMeta.fieldIcons || {};
+        setMetadata({
+            ...metadata,
+            [collectionName]: {
+                ...collMeta,
+                fieldIcons: {
+                    ...icons,
+                    [field.name]: {
+                        ...icons[field.name],
+                        icon,
+                        iconType: type
+                    }
+                }
+            }
+        });
+    };
+
+    const setFieldIconColor = (color: string) => {
+        const collMeta = metadata[collectionName] || {};
+        const icons = collMeta.fieldIcons || {};
+        setMetadata({
+            ...metadata,
+            [collectionName]: {
+                ...collMeta,
+                fieldIcons: {
+                    ...icons,
+                    [field.name]: {
+                        ...icons[field.name],
+                        iconColor: color
+                    }
+                }
+            }
+        });
+    };
+
     if (!field) return null;
 
     return (
@@ -145,6 +188,44 @@ export function FieldSettingsDialog({ collectionName, field, open, onOpenChange,
                         </Select>
                     </div>
 
+                    {/* icon selection */}
+                    <div className="space-y-2">
+                        <Label className="lowercase">icon</Label>
+                        <div className="flex gap-1 items-center">
+                            <Button variant="outline" size="sm" className="w-full justify-start gap-2 h-8" onClick={() => setIconPickerOpen(true)}>
+                                {fieldIconInfo.iconType === 'image' ? (
+                                    <img src={fieldIconInfo.icon} className="h-4 w-4 object-contain" />
+                                ) : (
+                                    <span className="text-xs" style={{ color: fieldIconColor }}>
+                                        {fieldIconInfo.icon || 'select'}
+                                    </span>
+                                )}
+                            </Button>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8" title="icon color">
+                                        <Palette className="h-4 w-4" />
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-64 p-2">
+                                    <div className="grid grid-cols-7 gap-1">
+                                        {COLORS.map(c => (
+                                            <Button
+                                                key={c}
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-6 w-6 rounded-full border border-border/50 hover:scale-110 transition-transform p-0"
+                                                style={{ backgroundColor: c }}
+                                                onClick={() => setFieldIconColor(c)}
+                                            />
+                                        ))}
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
+                        </div>
+                    </div>
+
+                    {/* associated color for text */}
                     <div className="space-y-2">
                         <Label className="lowercase">associated color</Label>
                         <div className="flex gap-4 items-start">
@@ -168,6 +249,16 @@ export function FieldSettingsDialog({ collectionName, field, open, onOpenChange,
                         </Button>
                     </DialogFooter>
                 </form>
+
+                <IconPicker
+                    onSelect={(icon, type) => setFieldIcon(icon, type)}
+                    open={iconPickerOpen}
+                    onOpenChange={setIconPickerOpen}
+                />
+            </DialogContent>
+        </Dialog>
+    );
+}                </form>
             </DialogContent>
         </Dialog>
     );

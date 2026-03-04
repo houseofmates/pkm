@@ -63,12 +63,13 @@ import type {
 import { cn } from '@/lib/utils';
 
 // Sortable Header Component
-function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSettings, fieldColors, valueColorRules, setMetadata, onHide }: any) {
+function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSettings, fieldColors, fieldIcons, valueColorRules, setMetadata, onHide }: any) {
   const { client } = useAuth();
   const [isEditing, setIsEditing] = React.useState(false);
   const [draftTitle, setDraftTitle] = React.useState<string>('');
 
   const field = (header.column.columnDef as any).meta?.field;
+  const iconInfo = field && fieldIcons ? fieldIcons[field.name] || {} : {};
   const isSystemColumn = !field;
 
   // helper to compute the current title from the column definition itself
@@ -237,9 +238,21 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
               onDoubleClick={startEditing}
             >
               <div
-                className="whitespace-normal font-medium leading-[1.2] text-base text-center w-full"
+                className="whitespace-normal font-medium leading-[1.2] text-base text-center w-full flex items-center justify-center gap-1"
                 style={{ wordBreak: 'break-word', minWidth: 0, color: fieldColors[field?.name] || undefined }}
               >
+                {iconInfo.icon && iconInfo.iconType === 'emoji' && (
+                  <span style={{ color: iconInfo.iconColor || fieldColors[field?.name] }} className="text-lg">
+                    {iconInfo.icon}
+                  </span>
+                )}
+                {iconInfo.icon && iconInfo.iconType === 'lucide' && (() => {
+                  const IconComp = getLucideIcon(iconInfo.icon);
+                  return IconComp ? <IconComp className="h-4 w-4" style={{ color: iconInfo.iconColor || fieldColors[field?.name] }} /> : null;
+                })()}
+                {iconInfo.icon && iconInfo.iconType === 'image' && (
+                  <img src={iconInfo.icon} alt="" className="h-4 w-4 object-contain" style={{ filter: iconInfo.iconColor ? `drop-shadow(0 0 0 ${iconInfo.iconColor})` : undefined }} />
+                )}
                 {header.isPlaceholder
                   ? null
                   : flexRender(
@@ -479,6 +492,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   const [recordMeta] = useAppSetting<Record<string, any>>(`record_meta_${collection?.name || 'unknown'}`, {});
   const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
   const fieldColors = metadata[collection?.name]?.fieldColors || {};
+  const fieldIcons = metadata[collection?.name]?.fieldIcons || {};
   const valueColorRules = metadata[collection?.name]?.valueColorRules || {} as Record<string, Record<string, string>>;
 
   // selection state for bulk actions
@@ -884,6 +898,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                           setIsSettingsOpen(true);
                         }}
                         fieldColors={fieldColors}
+                        fieldIcons={fieldIcons}
                         valueColorRules={valueColorRules}
                         setMetadata={setMetadata}
                         onHide={(field: any) => {
