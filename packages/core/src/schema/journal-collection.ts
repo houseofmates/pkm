@@ -16,7 +16,7 @@
  *  updatedAt   | updatedAt       | date         | auto-managed by nocobase
  *  timestamp   | datetime        | string       | ISO 8601 client timestamp (e.g. 2026-03-04T14:32:00.000Z)
  *  date        | input           | string       | YYYY-MM-DD local date (e.g. 2026-03-04), used for grouping/filtering
- *  mood        | select          | string       | one of: rad | good | meh | bad | awful   (nullable)
+ *  mood        | select          | string       | one of: 6 | 5 | 4 | 2 | 1 | 0   (nullable) (labels: amazing!, great, good, fine, bad, terrible)
  *  activities  | input           | string       | JSON-serialised string array (e.g. '["sleep","exercise"]')
  *  body        | textarea        | text         | long-form journal text (nullable / empty)
  *
@@ -28,7 +28,7 @@
  *    "id": 1,
  *    "timestamp": "2026-03-04T14:32:00.000Z",
  *    "date": "2026-03-04",
- *    "mood": "good",
+ *    "mood": "4", // good
  *    "activities": "[\"sleep\",\"exercise\",\"hydrated\"]",
  *    "body": "today felt okay. switched a bit in the morning.",
  *    "createdAt": "2026-03-04T14:32:05.000Z",
