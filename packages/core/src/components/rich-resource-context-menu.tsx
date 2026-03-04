@@ -457,7 +457,6 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
     <ContextMenuContent
       ref={contextMenuRef}
       className="w-[90vw] sm:w-[360px] p-0 overflow-y-auto bg-[#050505] border-border/50 flex flex-col transition-all duration-300"
-      style={{ maxHeight: '70vh' }}
     >
       {/* header: name & color toggle */}
       <div className="p-4 border-b shrink-0 relative flex items-center gap-3">
