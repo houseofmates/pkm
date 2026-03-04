@@ -1,5 +1,5 @@
 
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { NocoBaseClient } from '@/api/nocobase-client';
 import { secureLogger } from '@/lib/secure-logger';
 import { storageManager } from '@/lib/storage-manager';
@@ -16,6 +16,23 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
+  // React's hook dispatcher is only populated during a proper render cycle.
+  // Tools like react-refresh (used by Vite's HMR) sometimes invoke the
+  // component function outside of that context in order to inspect it,
+  // which would trigger a crash when the first hook is called:
+  // "TypeError: can't access property 'useState', resolveDispatcher() is null".
+  //
+  // Guarding here avoids the crash by returning the children unchanged when
+  // the dispatcher is missing.  We also log a warning in development so the
+  // condition can be investigated if it ever happens in production.
+  const internals = (React as any).__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+  if (internals?.ReactCurrentDispatcher?.current == null) {
+    if (process.env.NODE_ENV !== 'production') {
+      secureLogger.warn('AuthProvider rendered outside of React dispatcher; falling back to children');
+    }
+    return <>{children}</>;
+  }
+
   const [token, setToken] = useState<string | null>(() => {
     const stored = storageManager.getItem('nocobase_token');
     return stored ? normalizeAuthToken(stored) : null;
