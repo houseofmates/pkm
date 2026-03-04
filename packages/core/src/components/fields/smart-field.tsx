@@ -5,7 +5,7 @@ import { HexColorPicker } from 'react-colorful';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Check, X, Phone, Mail, Lock, Terminal, Paperclip, Link as LinkIcon, Copy, Trash2, Edit2, Database, FileText, Layout } from 'lucide-react';
+import { Check, X, Phone, Mail, Lock, Terminal, Paperclip, Link as LinkIcon, Copy, Trash2, Edit2, Database, FileText, Layout, Plus } from 'lucide-react';
 
 import { LocationField } from './location-field';
 import ReactMarkdown from 'react-markdown';
