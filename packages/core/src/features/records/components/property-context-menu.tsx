@@ -47,9 +47,27 @@ export function PropertyContextMenu({
 
     if (!field) return <>{children}</>;
 
-    // try load icon info for display
-    const [metadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
+    // try load icon info for display and update functions
+    const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
     const iconInfo = collectionName && metadata[collectionName]?.fieldIcons?.[field.name] || {};
+
+    const updateIconColor = (color: string) => {
+        if (!collectionName) return;
+        const coll = metadata[collectionName] || {};
+        setMetadata({
+            ...metadata,
+            [collectionName]: {
+                ...coll,
+                fieldIcons: {
+                    ...(coll.fieldIcons || {}),
+                    [field.name]: {
+                        ...((coll.fieldIcons || {})[field.name] || {}),
+                        iconColor: color,
+                    }
+                }
+            }
+        });
+    };
 
     const ruleCount = Object.keys(valueColorRules || {}).length;
 
@@ -98,6 +116,28 @@ export function PropertyContextMenu({
                             <Input
                                 value={fieldColor || ''}
                                 onChange={(e) => onSetFieldColor?.(e.target.value)}
+                                placeholder="#3b82f6"
+                                className="h-8 text-xs"
+                            />
+                        </div>
+                    </div>
+
+                    {/* icon color inline picker */}
+                    <div className="px-3 py-2 space-y-2 text-xs text-muted-foreground">
+                        <div className="flex items-center gap-2 text-foreground">
+                            <Palette className="w-4 h-4" />
+                            <span>icon color</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="color"
+                                value={iconInfo.iconColor || '#3b82f6'}
+                                onChange={(e) => updateIconColor(e.target.value)}
+                                className="h-8 w-12 rounded border border-border bg-transparent"
+                            />
+                            <Input
+                                value={iconInfo.iconColor || ''}
+                                onChange={(e) => updateIconColor(e.target.value)}
                                 placeholder="#3b82f6"
                                 className="h-8 text-xs"
                             />
