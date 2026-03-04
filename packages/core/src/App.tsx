@@ -132,22 +132,19 @@ function AppContent() {
   // public domain rendering
   if (isPublicDomain()) {
     return (
-      <BrowserRouter>
-        <Suspense fallback={LoadingFallback}>
-          <Routes>
-            <Route path="/" element={<HouseofmatesBuilder />} />
-            <Route path="/doc/:slug" element={<PublicDocViewer slug={window.location.pathname.split('/doc/')[1]} />} />
-            <Route path="/:slug" element={<HouseofmatesBuilder />} />
-          </Routes>
-        </Suspense>
-        <Toaster />
-      </BrowserRouter>
+      <Suspense fallback={LoadingFallback}>
+        <Routes>
+          <Route path="/" element={<HouseofmatesBuilder />} />
+          <Route path="/doc/:slug" element={<PublicDocViewer slug={window.location.pathname.split('/doc/')[1]} />} />
+          <Route path="/:slug" element={<HouseofmatesBuilder />} />
+        </Routes>
+      </Suspense>
+      <Toaster />
     );
   }
 
   return (
-    <BrowserRouter>
-      <CanvasInitializer>
+    <CanvasInitializer>
         {token ? (
           <Suspense fallback={LoadingFallback}>
             <Routes>
@@ -180,9 +177,8 @@ function AppContent() {
             <WilsonChat />
           </Suspense>
         ) : <LoginPage />}
-        <Toaster />
-      </CanvasInitializer>
-    </BrowserRouter>
+      <Toaster />
+    </CanvasInitializer>
   )
 }
 
