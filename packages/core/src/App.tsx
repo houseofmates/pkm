@@ -191,25 +191,29 @@ function App() {
   if (isPublic) {
     // public site doesn't need fronterprovider or llmcontextprovider
     return (
-      <AuthProvider>
-        <QueryClientProvider client={queryClient}>
-          <AppContent />
-        </QueryClientProvider>
-      </AuthProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <QueryClientProvider client={queryClient}>
+            <AppContent />
+          </QueryClientProvider>
+        </AuthProvider>
+      </BrowserRouter>
     );
   }
 
   // private pkm site needs all providers
   return (
-    <AuthProvider>
-      <QueryClientProvider client={queryClient}>
-        <FronterProvider>
-          <LLMContextProvider>
-            <AppContent />
-          </LLMContextProvider>
-        </FronterProvider>
-      </QueryClientProvider>
-    </AuthProvider>
+    <BrowserRouter>
+      <AuthProvider>
+        <QueryClientProvider client={queryClient}>
+          <FronterProvider>
+            <LLMContextProvider>
+              <AppContent />
+            </LLMContextProvider>
+          </FronterProvider>
+        </QueryClientProvider>
+      </AuthProvider>
+    </BrowserRouter>
   )
 }
 
