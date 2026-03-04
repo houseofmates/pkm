@@ -1,9 +1,7 @@
 import { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import { useAuth } from '@/contexts/auth-context';
-import { nocobaseApi } from '@/api/nocobase';
+import api from '@/api/nocobase-client';
 
 // ─────────────────────────────────────────────
 //  constants
@@ -52,9 +50,6 @@ const B = '#3c9fdd';
 // ─────────────────────────────────────────────
 
 export function JournalPage() {
-  const navigate = useNavigate();
-  const { token } = useAuth();
-
   const [mood, setMood] = useState<string | null>(null);
   const [activities, setActivities] = useState<Set<string>>(new Set());
   const [body, setBody] = useState('');
@@ -77,16 +72,16 @@ export function JournalPage() {
     }
 
     setSaving(true);
-    const payload: JournalEntry = {
-      mood: mood ?? null,
-      activities: Array.from(activities),
+    const payload = {
+      mood: mood ?? undefined,
+      activities: JSON.stringify(Array.from(activities)),
       body: body.trim(),
       timestamp: new Date().toISOString(),
       date: new Date().toLocaleDateString('en-CA'), // YYYY-MM-DD
     };
 
     try {
-      await nocobaseApi.createRecord('journal', payload, token!);
+      await api.createRecord('journal', payload);
       toast.success('entry saved ✓');
       // reset
       setMood(null);
