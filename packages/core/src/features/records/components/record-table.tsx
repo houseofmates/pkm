@@ -11,14 +11,20 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 import type { Collection } from '@/hooks/use-collections';
 import { Button } from '@/components/ui/button';
-import { Plus, Settings2, Trash2, Edit2, MoreVertical, MoveRight, X } from 'lucide-react';
+import { Plus, Settings2, Trash2, Edit2, MoreVertical, MoveRight, X, type LucideIcon } from 'lucide-react';
 import * as React from 'react';
+import * as Icons from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
 import { SmartField } from '@/components/fields/smart-field';
 import { RecordContextMenu } from './record-context-menu';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { PropertyContextMenu } from './property-context-menu';
 import { toast } from 'sonner';
+
+// helper to grab lucide icons dynamically (used in headers for property icons)
+function getLucideIcon(name: string): LucideIcon | undefined {
+  return (Icons as unknown as Record<string, unknown>)[name] as LucideIcon | undefined;
+}
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
