@@ -39,8 +39,8 @@ declare global {
 interface MobileSidebarDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  activeTab: 'databases' | 'home' | 'headmates' | 'captures';
-  onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'captures') => void;
+  activeTab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal';
+  onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal') => void;
   onSelectCollection: (name: string | null) => void;
   selectedCollection: string | null;
   items: any[];
@@ -71,10 +71,11 @@ export function RootLayout(props) {
     if (path.startsWith('/databases')) return 'databases';
     if (path.startsWith('/headmates')) return 'headmates';
     if (path.startsWith('/captures')) return 'captures';
+    if (path.startsWith('/journal')) return 'journal';
     return 'home';
   };
 
-  const [activeTab, setActiveTab] = useState<'databases' | 'home' | 'headmates' | 'captures'>(getInitialTab());
+  const [activeTab, setActiveTab] = useState<'databases' | 'home' | 'headmates' | 'captures' | 'journal'>(getInitialTab());
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -213,7 +214,7 @@ export function RootLayout(props) {
     if (tab === 'home') navigate('/');
     else if (tab === 'captures') navigate('/captures');
     else if (tab === 'headmates') navigate('/headmates');
-
+    else if (tab === 'journal') navigate('/journal');
     else if (tab === 'databases') navigate('/databases', { state: { fromSidebar: true } });
     setActiveTab(tab);
     if (tab !== 'databases') setSelectedCollection(null);
