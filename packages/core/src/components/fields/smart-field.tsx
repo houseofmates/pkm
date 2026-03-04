@@ -701,6 +701,13 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   const isCheckbox = detectedType === 'boolean' || detectedType === 'checkbox';
   const isMultiSelect = field?.interface === 'multipleSelect' || detectedType === 'multipleSelect' || field?.interface === 'checkboxgroup';
   const isSelect = detectedType === 'select' || detectedType === 'multipleSelect' || field?.interface === 'radiogroup';
+
+  // searchable dropdown state for select fields
+  const [searchText, setSearchText] = useState('');
+  const [localOptions, setLocalOptions] = useState<any[]>(field?.uiSchema?.enum || []);
+  useEffect(() => {
+    setLocalOptions(field?.uiSchema?.enum || []);
+  }, [field?.uiSchema?.enum]);
   const isCode = detectedType === 'code' || name === 'code' || name === 'formula' || field?.type === 'formula';
   const isMarkdown = detectedType === 'markdown' || detectedType === 'richText' || name.includes('desc') || name.includes('note');
   const isNumber = detectedType === 'number' || detectedType === 'integer' || detectedType === 'percent';
@@ -1408,21 +1415,95 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     }
 
     if (isMultiSelect || isSelect) {
-      const options = field?.uiSchema?.enum || [];
+      // searchable dropdown with add-option support
+      const options = localOptions;
+      const filtered = options.filter((o) => o.label.toLowerCase().includes(searchText.toLowerCase()));
+      const showAdd = searchText && !options.some(o => o.label.toLowerCase() === searchText.toLowerCase());
+
+      const addOption = async (label: string) => {
+        const value = label.toLowerCase().replace(/\s+/g, '_');
+        const newOpt = { label, value };
+        setLocalOptions(prev => [...prev, newOpt]);
+        // persist back to field configuration
+        try {
+          await client.updateField(collectionName, field.name, {
+            uiSchema: { ...field.uiSchema, enum: [...options, newOpt] }
+          });
+        } catch (err) {
+          secureLogger.error('failed to persist new option', err);
+        }
+        if (isMultiSelect) {
+          const arr = Array.isArray(localValue) ? [...localValue] : [];
+          arr.push(value);
+          setLocalValue(arr);
+        } else {
+          setLocalValue(value);
+          handleSave(value);
+        }
+        setSearchText('');
+      };
+
       return (
-        <div className="flex items-center gap-1 bg-[#111] border border-[#333] p-1 rounded min-w-[150px]">
-          <Select value={localValue} onValueChange={setLocalValue}>
-            <SelectTrigger className="h-7 border-0 bg-transparent text-white text-xs">
-              <SelectValue placeholder="select..." />
-            </SelectTrigger>
-            <SelectContent className="bg-[#111] border-[#333] text-white">
-              {options.map((opt: any) => (
-                <SelectItem key={opt.value} value={opt.value} className="text-xs">{opt.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => handleSave()}><Check className="h-3 w-3" /></Button>
-          <Button variant="ghost" size="icon" className="h-6 w-6 text-white/50" onClick={handleCancel}><X className="h-3 w-3" /></Button>
+        <div className="flex flex-col bg-[#111] border border-[#333] p-1 rounded min-w-[150px]">
+          <input
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            placeholder="search..."
+            className="bg-transparent text-white border-b border-[#333] h-7 text-xs px-1"
+            autoFocus
+          />
+          <div className="max-h-40 overflow-auto mt-1">
+            {filtered.map(opt => {
+              const checked = isMultiSelect
+                ? Array.isArray(localValue) && localValue.includes(opt.value)
+                : localValue === opt.value;
+              return (
+                <div
+                  key={opt.value}
+                  className="flex items-center gap-2 p-1 hover:bg-[#222] cursor-pointer"
+                  onClick={() => {
+                    if (isMultiSelect) {
+                      let newArr = Array.isArray(localValue) ? [...localValue] : [];
+                      if (newArr.includes(opt.value)) newArr = newArr.filter(v => v !== opt.value);
+                      else newArr.push(opt.value);
+                      setLocalValue(newArr);
+                    } else {
+                      setLocalValue(opt.value);
+                      handleSave(opt.value);
+                    }
+                  }}
+                >
+                  {isMultiSelect && (
+                    <Checkbox
+                      checked={!!checked}
+                      onCheckedChange={() => {
+                        let newArr = Array.isArray(localValue) ? [...localValue] : [];
+                        if (newArr.includes(opt.value)) newArr = newArr.filter(v => v !== opt.value);
+                        else newArr.push(opt.value);
+                        setLocalValue(newArr);
+                      }}
+                    />
+                  )}
+                  <span className="text-xs">{opt.label}</span>
+                </div>
+              );
+            })}
+            {showAdd && (
+              <div
+                className="flex items-center gap-2 p-1 text-primary cursor-pointer hover:bg-[#222]"
+                onClick={() => addOption(searchText)}
+              >
+                <Plus className="h-3 w-3" />
+                <span className="text-xs">add "{searchText}"</span>
+              </div>
+            )}
+          </div>
+          {isMultiSelect && (
+            <div className="flex justify-end gap-1 mt-1">
+              <Button size="sm" onClick={() => handleSave()} className="h-6 text-xs">done</Button>
+              <Button size="sm" onClick={handleCancel} className="h-6 text-xs">cancel</Button>
+            </div>
+          )}
         </div>
       );
     }
@@ -1567,7 +1648,6 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     if (isEmail) return <a href={`mailto:${strValue}`} className={cn("text-primary hover:underline flex items-center gap-1 w-full", size === 'lg' ? "text-lg" : "text-sm")} onClick={e => e.stopPropagation()}><Mail className="h-3 w-3" /> {strValue}</a>;
     if (isUrl) {
       return (
-        <ContextMenu>
           <ContextMenuTrigger asChild>
             <div
               onContextMenu={(e) => { e.stopPropagation(); }}

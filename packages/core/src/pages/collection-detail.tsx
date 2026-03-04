@@ -234,8 +234,27 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             setCollection(colData);
 
             // auto-create 'fronter' field if missing
-            if (colData && colData.fields) {
-                const hasFronter = colData.fields.some((f: any) => f.name === 'fronter');
+            // fields may be empty if the collection was preloaded without them or if listFields failed,
+            // so we only attempt creation if we are reasonably sure the field isn't there and we ignore
+            // duplicate errors in case the check was inaccurate.  After we successfully create the
+            // field we also push a dummy entry into the local `colData.fields` array so subsequent
+            // runs don't try again.
+            if (colData) {
+                let hasFronter = Array.isArray(colData.fields) && colData.fields.some((f: any) => f.name === 'fronter');
+                if (!hasFronter && (!colData.fields || colData.fields.length === 0)) {
+                    // fields array was blank; try fetching separately just in case
+                    try {
+                        const fields = await client.listFields(collectionName);
+                        if (fields && fields.length > 0) {
+                            colData.fields = fields;
+                            hasFronter = fields.some((f: any) => f.name === 'fronter');
+                        }
+                    } catch (e) {
+                        secureLogger.warn("Failed to fetch fields separately when checking for fronter:", e);
+                        // leave hasFronter as-is; we'll catch duplicate errors below
+                    }
+                }
+
                 if (!hasFronter) {
                     try {
                         secureLogger.info("Auto-creating 'fronter' field for", collectionName);
@@ -245,8 +264,17 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                             interface: 'input',
                             uiSchema: { title: 'Fronter' }
                         });
-                    } catch (e) {
-                        secureLogger.warn("Failed to auto-create fronter field", e);
+                        // pretend the field exists so we don't try again later
+                        if (!colData.fields) colData.fields = [];
+                        colData.fields.push({ name: 'fronter', interface: 'input', type: 'string', uiSchema: { title: 'Fronter' } });
+                    } catch (e: any) {
+                        // ignore already-exists error, log others
+                        const msg = e?.response?.data?.errors?.[0]?.message || String(e);
+                        if (msg.includes('already exists')) {
+                            secureLogger.info("'fronter' field already exists, skipping creation");
+                        } else {
+                            secureLogger.warn("Failed to auto-create fronter field", e);
+                        }
                     }
                 }
             }
@@ -431,6 +459,12 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
 
     const handleDeleteRecord = useCallback(async (record: any) => {
         // removed confirmation as requested
+        if (!record || record.id === undefined || record.id === null) {
+            secureLogger.warn("attempted to delete record with missing id", record);
+            toast.error("cannot delete record: missing id");
+            return;
+        }
+
         try {
             await client.deleteRecord(collectionName, record.id);
 
@@ -440,12 +474,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             toast.success("record deleted", {
                 action: {
                     label: "undo",
-                    onClick: () => handleUndoDelete() // This might refer to stale closure if not careful, but state updates via prev are fine. 
-                    // actually handleundodelete needs access to latest state? 
-                    // we better use a ref or ensure this closure captures the needed info.
-                    // but handleundodelete depends on deletedstack. 
-                    // this closure might capture old handleundodelete.
-                    // simplification: trigger the same undo logic. 
+                    onClick: () => handleUndoDelete()
                 }
             });
             setRecords(prev => prev.filter(r => r.id !== record.id));
@@ -453,7 +482,8 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             secureLogger.error("failed to delete record", error);
             toast.error("failed to delete record");
         }
-    }, [client, collectionName, deletedStack]); // Added deletedStack dependency to update closure? No, that causes re-renders of list.
+    }, [client, collectionName, deletedStack]);
+ // Added deletedStack dependency to update closure? No, that causes re-renders of list.
     // better: helper function for restore that takes the record as arg, valid for toast.
     // for ctrl+z, we need state. 
 

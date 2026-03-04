@@ -110,12 +110,18 @@ export function ContextMenu() {
   if (targetType === 'canvas-object') {
   useEdgelessStore.getState().removeElement(targetId!);
   } else if (targetType === 'dashboard-card' && data?.collection) {
-  if (confirm("Delete this record?")) {
- await client.deleteRecord(data.collection, targetId!);
+  if (!targetId) {
+    toast.error("unable to delete: no id");
+  } else if (confirm("Delete this record?")) {
+ try {
+ await client.deleteRecord(data.collection, targetId);
  toast.success("deleted");
  // trigger refresh? dashboardcard relies on parent list update.
  // we might need to dispatch an event.
  window.dispatchEvent(new CustomEvent('pkm:record-deleted', { detail: { id: targetId, collection: data.collection } }));
+ } catch (e) {
+   toast.error("delete failed");
+ }
   }
   }
   closeMenu();
