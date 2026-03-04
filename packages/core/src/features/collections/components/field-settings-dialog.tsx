@@ -201,6 +201,11 @@ export function FieldSettingsDialog({ collectionName, field, open, onOpenChange,
                                     </span>
                                 )}
                             </Button>
+                            {fieldIconInfo.icon && (
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setFieldIcon('', 'lucide')} title="clear icon">
+                                    <Trash2 className="h-3 w-3" />
+                                </Button>
+                            )}
                             <Popover>
                                 <PopoverTrigger asChild>
                                     <Button variant="ghost" size="icon" className="h-8 w-8" title="icon color">
