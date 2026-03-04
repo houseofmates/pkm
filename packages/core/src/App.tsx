@@ -132,14 +132,16 @@ function AppContent() {
   // public domain rendering
   if (isPublicDomain()) {
     return (
-      <Suspense fallback={LoadingFallback}>
-        <Routes>
-          <Route path="/" element={<HouseofmatesBuilder />} />
-          <Route path="/doc/:slug" element={<PublicDocViewer slug={window.location.pathname.split('/doc/')[1]} />} />
-          <Route path="/:slug" element={<HouseofmatesBuilder />} />
-        </Routes>
-      </Suspense>
-      <Toaster />
+      <>
+        <Suspense fallback={LoadingFallback}>
+          <Routes>
+            <Route path="/" element={<HouseofmatesBuilder />} />
+            <Route path="/doc/:slug" element={<PublicDocViewer slug={window.location.pathname.split('/doc/')[1]} />} />
+            <Route path="/:slug" element={<HouseofmatesBuilder />} />
+          </Routes>
+        </Suspense>
+        <Toaster />
+      </>
     );
   }
 
