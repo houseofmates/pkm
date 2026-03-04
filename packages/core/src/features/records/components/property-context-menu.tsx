@@ -9,9 +9,15 @@ import {
 } from "@/components/ui/context-menu";
 import { Edit2, Settings2, Trash2, EyeOff, Type, Palette } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { ValueColorRulesDialog } from "./value-color-rules-dialog";
+import { ValueColorRulesDialog } from "./value-color-rules-dialog";import { useAppSetting } from '@/hooks/use-app-setting';
+import * as Icons from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
+function getLucideIcon(name: string): LucideIcon | undefined {
+    return (Icons as unknown as Record<string, unknown>)[name] as LucideIcon | undefined;
+}
 interface PropertyContextMenuProps {
+    collectionName?: string;
     children: React.ReactNode;
     field: any;
     onRename: () => void;
@@ -41,6 +47,10 @@ export function PropertyContextMenu({
 
     if (!field) return <>{children}</>;
 
+    // try load icon info for display
+    const [metadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
+    const iconInfo = collectionName && metadata[collectionName]?.fieldIcons?.[field.name] || {};
+
     const ruleCount = Object.keys(valueColorRules || {}).length;
 
     return (
@@ -52,6 +62,13 @@ export function PropertyContextMenu({
                 <ContextMenuContent className="w-64 lowercase p-0 overflow-hidden">
                     <ContextMenuLabel className="flex items-center gap-2 pb-1">
                         <Settings2 className="w-3.5 h-3.5 opacity-50" />
+                        {iconInfo.icon && iconInfo.iconType === 'emoji' && (
+                            <span className="text-sm" style={{ color: iconInfo.iconColor || fieldColor }}>{iconInfo.icon}</span>
+                        )}
+                        {iconInfo.icon && iconInfo.iconType === 'lucide' && (() => {
+                            const IconComp = getLucideIcon(iconInfo.icon);
+                            return IconComp ? <IconComp className="h-4 w-4" style={{ color: iconInfo.iconColor || fieldColor }} /> : null;
+                        })()}
                         <span>property: {field.name}</span>
                     </ContextMenuLabel>
                     <ContextMenuSeparator />
