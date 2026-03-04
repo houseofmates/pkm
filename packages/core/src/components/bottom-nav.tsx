@@ -1,10 +1,10 @@
-import { Home, Database, Users, Search, Inbox, Settings, BrainCircuit } from 'lucide-react';
+import { Home, Database, Users, Search, Inbox, Settings, BrainCircuit, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 interface BottomNavProps {
-  activeTab: 'databases' | 'home' | 'headmates' | 'captures';
-  onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'captures') => void;
+  activeTab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal';
+  onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal') => void;
   className?: string;
 }
 
@@ -83,6 +83,15 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
           >
             <Inbox className="h-5 w-5" />
             <span className="text-[11px] font-medium lowercase">inbox</span>
+          </Button>
+
+          <Button
+            variant="ghost"
+            className={cn("flex flex-col items-center justify-center h-[60px] flex-1 max-w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'journal' && "bg-primary/20 text-primary hover:bg-primary/30")}
+            onClick={() => onTabChange('journal')}
+          >
+            <BookOpen className="h-5 w-5" />
+            <span className="text-[11px] font-medium lowercase">journal</span>
           </Button>
 
           <Button
