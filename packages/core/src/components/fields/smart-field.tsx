@@ -1667,6 +1667,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     if (isEmail) return <a href={`mailto:${strValue}`} className={cn("text-primary hover:underline flex items-center gap-1 w-full", size === 'lg' ? "text-lg" : "text-sm")} onClick={e => e.stopPropagation()}><Mail className="h-3 w-3" /> {strValue}</a>;
     if (isUrl) {
       return (
+        <ContextMenu>
           <ContextMenuTrigger asChild>
             <div
               onContextMenu={(e) => { e.stopPropagation(); }}
