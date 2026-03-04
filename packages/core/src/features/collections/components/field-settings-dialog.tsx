@@ -263,8 +263,4 @@ export function FieldSettingsDialog({ collectionName, field, open, onOpenChange,
             </DialogContent>
         </Dialog>
     );
-}                </form>
-            </DialogContent>
-        </Dialog>
-    );
 }
