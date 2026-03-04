@@ -5,6 +5,8 @@ import type { Collection } from "@/hooks/use-collections";
 import { Loader2 } from "lucide-react";
 import { SmartField } from '@/components/fields/smart-field';
 import { toast } from 'sonner';
+import { useAppSetting } from '@/hooks/use-app-setting';
+import { getLucideIcon } from '@/lib/field-meta';
 
 interface RecordFormProps {
   collection: Collection;
@@ -43,6 +45,26 @@ export function RecordForm({ collection, initialData, onSubmit, onCancel }: Reco
     !['createdat', 'updatedat', 'createdby', 'updatedby'].includes(f.name)
   );
 
+  const [metadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
+  const collMeta = metadata[collection.name] || {};
+  const renderFieldLabel = (field: any) => {
+    const fieldColor: string | undefined = collMeta.fieldColors?.[field.name];
+    const iconInfo = collMeta.fieldIcons?.[field.name] || {};
+    const text = field.uiSchema?.title || field.name;
+    return (
+      <span className="flex items-center gap-1" style={{ color: fieldColor || undefined }}>
+        {iconInfo.icon && iconInfo.iconType === 'emoji' && (
+          <span style={{ color: iconInfo.iconColor || fieldColor }}>{iconInfo.icon}</span>
+        )}
+        {iconInfo.icon && iconInfo.iconType === 'lucide' && (() => {
+          const Icon = getLucideIcon(iconInfo.icon);
+          return Icon ? <Icon className="h-4 w-4" style={{ color: iconInfo.iconColor || fieldColor }} /> : null;
+        })()}
+        {text}
+      </span>
+    );
+  };
+
   const handleChange = (name: string, val: any) => {
     setValues((v: any) => ({ ...v, [name]: val }));
   };
@@ -63,7 +85,7 @@ export function RecordForm({ collection, initialData, onSubmit, onCancel }: Reco
         <div className="grid grid-cols-1 gap-4">
           {fields.map((field: any) => (
             <div key={field.name} className="space-y-2">
-              <Label htmlFor={field.name}>{field.uiSchema?.title || field.name}</Label>
+              <Label htmlFor={field.name}>{renderFieldLabel(field)}</Label>
               <SmartField
                 value={values[field.name]}
                 field={field}

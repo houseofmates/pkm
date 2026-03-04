@@ -5,6 +5,8 @@ import { useFronter } from '@/contexts/fronter-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useAppSetting } from '@/hooks/use-app-setting';
+import { getLucideIcon } from '@/lib/field-meta';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { Plus } from 'lucide-react';
 import { toast } from 'sonner';
@@ -30,6 +32,26 @@ export function CreateRecordDialog({ collectionName, fields, onRecordCreated, op
     else setInternalOpen(v);
   };
   const [formData, setFormData] = useState<Record<string, any>>({});
+  const [metadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
+  const collMeta = metadata[collectionName] || {};
+
+  const renderFieldLabel = (field: any) => {
+    const fieldColor: string | undefined = collMeta.fieldColors?.[field.name];
+    const iconInfo = collMeta.fieldIcons?.[field.name] || {};
+    const text = field.uiSchema?.title || field.name;
+    return (
+      <span className="flex items-center gap-1" style={{ color: fieldColor || undefined }}>
+        {iconInfo.icon && iconInfo.iconType === 'emoji' && (
+          <span style={{ color: iconInfo.iconColor || fieldColor }}>{iconInfo.icon}</span>
+        )}
+        {iconInfo.icon && iconInfo.iconType === 'lucide' && (() => {
+          const Icon = getLucideIcon(iconInfo.icon);
+          return Icon ? <Icon className="h-4 w-4" style={{ color: iconInfo.iconColor || fieldColor }} /> : null;
+        })()}
+        {text}
+      </span>
+    );
+  };
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -100,7 +122,7 @@ export function CreateRecordDialog({ collectionName, fields, onRecordCreated, op
  )} */}
           {editableFields.map(field => (
             <div key={field.name} className="space-y-2">
-              <Label className="">{field.uiSchema?.title || field.name}</Label>
+              <Label className="">{renderFieldLabel(field)}</Label>
               <Input
                 value={formData[field.name] || ''}
                 onChange={(e) => handleInputChange(field.name, e.target.value)}
