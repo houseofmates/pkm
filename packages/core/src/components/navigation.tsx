@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings, UploadCloud, type LucideIcon } from 'lucide-react';
+import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings, UploadCloud, BookOpen, type LucideIcon } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 
 // Dynamic icon loader for Lucide icons
@@ -51,8 +51,8 @@ export interface NavItem {
 }
 
 interface NavigationProps {
-  activeTab: 'databases' | 'home' | 'headmates' | 'captures';
-  onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'captures') => void;
+  activeTab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal';
+  onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal') => void;
   className?: string;
   onSelectCollection: (name: string | null) => void;
   selectedCollection: string | null;
@@ -100,19 +100,15 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   const [hovered, setHovered] = useState(false);
 
 
-  // global metadata for collections (syncs every 3 seconds across devices)
-  const [metadata] = useAppSetting<Record<string, { color?: string }>>('collection_metadata', {}, { pollIntervalMs: 3000 });
+  // global metadata for collections
+  const [metadata] = useAppSetting<Record<string, { color?: string }>>('collection_metadata', {});
   // prefer local item color if set (for folders/docs), then metadata color (for collections)
   const metaColor = item.color || (item.type === 'collection' ? metadata[id]?.color : undefined);
 
   // determine highlight color based on item type
   function getHighlightColor(opacity = 0.22) {
-    if (!metaColor) {
-      return `rgba(255, 255, 255, 0.08)`;
-    }
-
     // sidebar items: use their own color if available, else accent
-    let base = metaColor;
+    let base = metaColor || '#f5af12';
     if (base.startsWith('#')) {
       // Convert hex to rgba
       const hex = base.replace('#', '');
@@ -255,7 +251,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
 
 export function Navigation({ activeTab, onTabChange, className, onSelectCollection, selectedCollection, items, setItems }: NavigationProps) {
   // provide a no-op setter if the caller didn't supply one (mobile drawer sometimes omits it)
-  const safeSetItems = setItems ?? (() => { });
+  const safeSetItems = setItems ?? (() => {});
 
   // track recently deleted items to prevent useEffect from re-adding them
   const deletedItemsRef = useRef<Set<string>>(new Set());
@@ -265,11 +261,11 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     try {
       const raw = localStorage.getItem('sidebar_deleted_collections');
       if (raw) return new Set(JSON.parse(raw));
-    } catch { };
+    } catch {};
     return new Set();
   }
   function storeDeleted(ids: Set<string>) {
-    try { localStorage.setItem('sidebar_deleted_collections', JSON.stringify(Array.from(ids))); } catch { }
+    try { localStorage.setItem('sidebar_deleted_collections', JSON.stringify(Array.from(ids))); } catch {}
   }
   function addStoredDeleted(id: string) {
     const s = getStoredDeleted();
@@ -529,6 +525,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     { id: 'databases', icon: Database, label: 'databases' },
     { id: 'home', icon: Home, label: 'home' },
     { id: 'captures', icon: Inbox, label: 'captures' },
+    { id: 'journal', icon: BookOpen, label: 'journal' },
     { id: 'headmates', icon: Users, label: 'headmates' },
   ] as const;
 
