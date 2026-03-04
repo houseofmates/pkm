@@ -7,12 +7,16 @@ import api from '@/api/nocobase-client';
 //  constants
 // ─────────────────────────────────────────────
 
+// options mirror the select choices defined in the journal collection on nocobase
+// value strings are the raw option values; labels/emoji match the names & custom
+// icons the user uploaded in the screenshot earlier.
 const MOODS = [
-  { id: 'rad',     label: 'rad',     emoji: '🌟' },
-  { id: 'good',    label: 'good',    emoji: '😊' },
-  { id: 'meh',     label: 'meh',     emoji: '😐' },
-  { id: 'bad',     label: 'bad',     emoji: '😞' },
-  { id: 'awful',   label: 'awful',   emoji: '💀' },
+  { id: '6', label: 'amazing!', emoji: '😁' },    // green / happiest face
+  { id: '5', label: 'great',    emoji: '😃' },    // light green
+  { id: '4', label: 'good',     emoji: '😊' },    // gold/yellow
+  { id: '2', label: 'fine',     emoji: '😐' },    // orange/neutral
+  { id: '1', label: 'bad',      emoji: '😞' },    // volcano / unhappy
+  { id: '0', label: 'terrible', emoji: '😡' },    // red / angry
 ];
 
 const ACTIVITIES = [
