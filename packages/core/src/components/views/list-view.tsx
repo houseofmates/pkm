@@ -3,6 +3,8 @@ import { Button } from '@/components/ui/button';
 import { Trash2, MoreHorizontal, Plus } from 'lucide-react';
 import { RecordContextMenu } from '@/features/records/components/record-context-menu';
 import { SmartField } from '@/components/fields/smart-field';
+import { useAppSetting } from '@/hooks/use-app-setting';
+import { getLucideIcon } from '@/lib/field-meta';
 import { List as _List } from 'react-window';
 import { AutoSizer as _AutoSizer } from 'react-virtualized-auto-sizer';
 
@@ -73,10 +75,24 @@ const RowComponent = ({ index, style, data }: { index: number; style: React.CSSP
 
               {visibleFields.length > 0 && (
                 <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1 h-6 overflow-hidden">
-                  {visibleFields.map((f: { name: string; uiSchema?: { title?: string } }) => (
-                    <div key={f.name} className="flex items-center gap-1.5 min-w-0 max-w-[200px]">
-                      <span className="text-[10px] text-muted-foreground lowercase shrink-0">{f.uiSchema?.title || f.name}:</span>
-                      <SmartField
+                  {visibleFields.map((f: { name: string; uiSchema?: { title?: string } }) => {
+                    const collMeta = metadata[collection.name] || {};
+                    const fieldColor = collMeta.fieldColors?.[f.name];
+                    const iconInfo = collMeta.fieldIcons?.[f.name] || {};
+                    const labelText = f.uiSchema?.title || f.name;
+                    return (
+                      <div key={f.name} className="flex items-center gap-1.5 min-w-0 max-w-[200px]">
+                        <span className="text-[10px] text-muted-foreground lowercase shrink-0 flex items-center gap-1" style={{ color: fieldColor || undefined }}>
+                          {iconInfo.icon && iconInfo.iconType === 'emoji' && (
+                            <span style={{ color: iconInfo.iconColor || fieldColor }}>{iconInfo.icon}</span>
+                          )}
+                          {iconInfo.icon && iconInfo.iconType === 'lucide' && (() => {
+                            const Icon = getLucideIcon(iconInfo.icon);
+                            return Icon ? <Icon className="h-3 w-3" style={{ color: iconInfo.iconColor || fieldColor }} /> : null;
+                          })()}
+                          {labelText}:
+                        </span>
+                        <SmartField
                         value={record[f.name]}
                         field={f}
                         record={record}
