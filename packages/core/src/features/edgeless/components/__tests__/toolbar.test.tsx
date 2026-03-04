@@ -14,6 +14,13 @@ function render(ui: React.ReactElement) {
 // The Toolbar doesn't need router
 
 describe('Toolbar', () => {
+  it('renders with bottom safe-area class', () => {
+    render(<Toolbar />);
+    const wrapper = document.querySelector('div.absolute');
+    expect(wrapper).toBeTruthy();
+    expect(wrapper?.className).toContain('bottom-[calc(1rem+env(safe-area-inset-bottom))]');
+  });
+
   it('shows brush opacity and smoothness sliders in brush menu', () => {
     // ensure default tool is pen/brush
     useEdgelessStore.setState({ activeTool: 'pen' });
