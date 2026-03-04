@@ -127,6 +127,7 @@ const RowComponent = ({ index, style, data }: { index: number; style: React.CSSP
 };
 
 export function ListView({ data, collection, config = {}, onConfigChange, onEdit, onDelete, onUpdateRecord, onCreate }: ViewProps) {
+  const [metadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
   if (!collection) {
     return (
       <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
