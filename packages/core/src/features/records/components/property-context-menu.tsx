@@ -25,6 +25,7 @@ interface PropertyContextMenuProps {
 }
 
 export function PropertyContextMenu({
+    collectionName,
     children,
     field,
     onRename,

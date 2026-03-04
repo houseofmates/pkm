@@ -153,6 +153,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
       )}
     >
       <PropertyContextMenu
+        collectionName={collectionName}
         field={field}
         onRename={() => {
           if (isSystemColumn) return;
