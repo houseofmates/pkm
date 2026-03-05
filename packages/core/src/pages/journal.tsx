@@ -732,3 +732,264 @@ export function JournalPage() {
     );
   };
 
+
+  // ── main render ──
+  return (
+    <div className="min-h-screen bg-black text-white font-varela p-4 pb-24 flex flex-col gap-6 max-w-2xl mx-auto">
+      {/* header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs text-white/40 lowercase">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+          <h1 className="text-2xl font-bold lowercase tracking-tight">journal</h1>
+        </div>
+        <div className="flex items-center gap-3">
+          {streak > 0 && (
+            <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20">
+              <span className="text-sm">🔥</span>
+              <span className="text-xs text-yellow-400">{streak}</span>
+            </div>
+          )}
+          <button
+            onClick={() => setShowAchievements(v => !v)}
+            className="text-lg hover:scale-110 transition-transform"
+            title="achievements"
+          >🏆</button>
+          <button
+            onClick={() => setShowCalendar(v => !v)}
+            className="text-lg hover:scale-110 transition-transform"
+            title="calendar"
+          >📅</button>
+          <button
+            onClick={() => setShowStats(v => !v)}
+            className="text-lg hover:scale-110 transition-transform"
+            title="stats"
+          >📊</button>
+          <button
+            onClick={() => setShowQuickCheckin(v => !v)}
+            className="text-sm px-3 py-1 rounded-full border border-white/10 text-white/60 hover:border-white/30 lowercase"
+          >quick check-in</button>
+        </div>
+      </div>
+
+      {/* quote */}
+      <div className="text-center py-2 border-y border-white/5">
+        <p className="text-sm italic text-white/40 lowercase">"{todayQuote.text}"</p>
+        {todayQuote.author !== 'unknown' && (
+          <p className="text-xs text-white/20 mt-0.5 lowercase">— {todayQuote.author}</p>
+        )}
+      </div>
+
+      {/* quick check-in */}
+      {showQuickCheckin && (
+        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+          <p className="text-xs text-white/40 lowercase mb-3">quick mood check-in</p>
+          <div className="flex gap-3 justify-center">
+            {MOODS.map(m => renderMoodButton(m, true))}
+          </div>
+          {quickMood && (
+            <p className="text-center text-xs text-white/40 mt-2 lowercase">
+              feeling {MOODS.find(m => m.id === quickMood)?.label}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* daily prompt */}
+      <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02] text-center">
+        <p className="text-xs text-white/30 lowercase mb-1">today's prompt</p>
+        <p className="text-sm text-white/70 lowercase italic">{todayPrompt}</p>
+      </div>
+
+      {/* mood section */}
+      <section className="flex flex-col gap-3">
+        <p className="text-xs text-white/40 uppercase tracking-widest">mood</p>
+        <div className="flex gap-4 flex-wrap justify-center">
+          {MOODS.map(m => renderMoodButton(m))}
+        </div>
+        {mood && (
+          <p className="text-center text-xs text-white/40 lowercase">
+            feeling {MOODS.find(m => m.id === mood)?.label}
+          </p>
+        )}
+      </section>
+
+      {/* emotions section */}
+      <section className="flex flex-col gap-3">
+        <p className="text-xs text-white/40 uppercase tracking-widest">emotions</p>
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={emotionQuery}
+            onChange={e => setEmotionQuery(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter') handleAddEmotion();
+            }}
+            placeholder="search or add emotion…"
+            className="flex-1 bg-transparent border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white/70 placeholder:text-white/20 focus:outline-none focus:border-white/30 lowercase"
+          />
+          {emotionQuery && (
+            <button
+              onClick={handleAddEmotion}
+              className="text-xs px-2 py-1 rounded-lg border border-white/20 text-white/60 hover:border-white/40 lowercase"
+            >add</button>
+          )}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {availableEmotions
+            .filter(e => !emotionQuery || e.includes(emotionQuery.toLowerCase()))
+            .map(e => {
+              const active = emotions.has(e);
+              const color = emotionColors[e] || B;
+              return (
+                <button
+                  key={e}
+                  onClick={() => toggleEmotion(e)}
+                  onContextMenu={ev => handleContextMenu(ev, 'emotion', e)}
+                  className={cn(
+                    'px-3 py-2 rounded-full text-base font-medium lowercase transition-all duration-150 text-white',
+                    active ? 'opacity-100' : 'opacity-50 hover:opacity-80'
+                  )}
+                  style={{
+                    background: active ? `${color}33` : '#000',
+                    border: `2px solid ${active ? color : 'rgba(255,255,255,0.08)'}`,
+                    boxShadow: active ? `0 0 10px ${color}55` : 'none',
+                  }}
+                >
+                  {e}
+                </button>
+              );
+            })}
+        </div>
+        {emotions.size > 0 && (
+          <p className="text-xs text-white/30 lowercase">{emotions.size} selected</p>
+        )}
+      </section>
+
+      {/* activities section */}
+      <section className="flex flex-col gap-3">
+        <p className="text-xs text-white/40 uppercase tracking-widest">activities</p>
+        <div className="flex items-center gap-2">
+          <input
+            type="text"
+            value={activityQuery}
+            onChange={e => setActivityQuery(e.target.value)}
+            placeholder="search activities…"
+            className="flex-1 bg-transparent border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white/70 placeholder:text-white/20 focus:outline-none focus:border-white/30 lowercase"
+          />
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {availableActivities
+            .filter(a => !activityQuery || a.label.includes(activityQuery.toLowerCase()) || a.id.includes(activityQuery.toLowerCase()))
+            .map(a => {
+              const active = activities.has(a.id);
+              const color = activityColors[a.id] || B;
+              return (
+                <button
+                  key={a.id}
+                  onClick={() => toggleActivity(a.id)}
+                  onContextMenu={ev => handleContextMenu(ev, 'activity', a.id)}
+                  className={cn(
+                    'px-3 py-2 rounded-full text-sm font-medium lowercase transition-all duration-150 text-white flex items-center gap-1.5',
+                    active ? 'opacity-100' : 'opacity-50 hover:opacity-80'
+                  )}
+                  style={{
+                    background: active ? `${color}33` : '#000',
+                    border: `2px solid ${active ? color : 'rgba(255,255,255,0.08)'}`,
+                    boxShadow: active ? `0 0 10px ${color}55` : 'none',
+                  }}
+                >
+                  <span>{a.emoji}</span>
+                  <span>{a.label}</span>
+                </button>
+              );
+            })}
+        </div>
+        {activities.size > 0 && (
+          <p className="text-xs text-white/30 lowercase">{activities.size} selected</p>
+        )}
+      </section>
+
+      {/* notes */}
+      <section className="flex flex-col gap-3">
+        <p className="text-xs text-white/40 uppercase tracking-widest">notes</p>
+        <textarea
+          ref={textareaRef}
+          value={body}
+          onChange={e => setBody(e.target.value)}
+          placeholder={todayPrompt}
+          rows={5}
+          className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white/80 placeholder:text-white/20 resize-none focus:outline-none focus:border-white/30 lowercase font-varela"
+        />
+      </section>
+
+      {/* save button */}
+      <button
+        onClick={handleSave}
+        disabled={saving}
+        className="w-full py-3 rounded-xl font-medium lowercase text-base transition-all duration-200"
+        style={{
+          background: saving ? '#222' : `linear-gradient(135deg, ${Y}22, ${B}22)`,
+          border: `1px solid ${saving ? 'rgba(255,255,255,0.1)' : B}`,
+          color: saving ? 'rgba(255,255,255,0.4)' : 'white',
+        }}
+      >
+        {saving ? 'saving…' : 'save entry'}
+      </button>
+
+      {/* stats panel */}
+      {showStats && (
+        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+          <p className="text-xs text-white/40 lowercase mb-3">stats</p>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex flex-col items-center p-3 rounded-lg bg-white/[0.03]">
+              <span className="text-2xl font-bold text-yellow-400">{streak}</span>
+              <span className="text-xs text-white/40 lowercase">day streak</span>
+            </div>
+            <div className="flex flex-col items-center p-3 rounded-lg bg-white/[0.03]">
+              <span className="text-2xl font-bold text-blue-400">{entryCount}</span>
+              <span className="text-xs text-white/40 lowercase">total entries</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* achievements panel */}
+      {showAchievements && (
+        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+          <p className="text-xs text-white/40 lowercase mb-3">achievements ({unlockedAchievements.length})</p>
+          <div className="grid grid-cols-1 gap-2">
+            {ACHIEVEMENTS.map(ach => {
+              const unlocked = unlockedAchievements.includes(ach.id);
+              return (
+                <div
+                  key={ach.id}
+                  className={cn(
+                    'flex items-center gap-3 p-2 rounded-lg transition-colors',
+                    unlocked ? 'bg-yellow-500/10 border border-yellow-500/20' : 'opacity-30'
+                  )}
+                >
+                  <span className="text-xl">{ach.icon}</span>
+                  <div>
+                    <p className="text-xs font-medium lowercase">{ach.name}</p>
+                    <p className="text-xs text-white/40 lowercase">{ach.description}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* color picker overlay */}
+      <ColorPicker
+        isOpen={colorPickerOpen}
+        onClose={() => setColorPickerOpen(false)}
+        onSelectColor={handleColorSelect}
+        currentColor={currentPickerColor}
+        savedDots={colorDots}
+        onSaveDot={handleSaveDot}
+        dotIndex={activeDotIndex}
+      />
+    </div>
+  );
+}
