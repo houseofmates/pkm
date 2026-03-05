@@ -23,6 +23,18 @@ const MOODS = [
   { id: '6', label: 'amazing!', emoji: '😁', img: '/images/moods/amazing.png' },
 ];
 
+// emotion options correspond exactly to the multi-select values in the
+// journal collection's "emotions" field on NocoBase.  they should be kept in
+// sync with the backend dataset so that the string we send matches an option.
+const EMOTIONS = [
+  'elated','ecstatic','exhilarated','euphoric','horny','inspired','empowered',
+  'determined','focused','motivated','playful','ambitious','adventurous',
+  'confident','content','peaceful','grateful','connected','relaxed','grounded',
+  'nostalgic','sentimental','sleepy','bored','uninterested','dull','distracted',
+  'exhausted','unmotivated','sad','depressed','miserable','insecure','lonely',
+  'embarrassed','jealous','guilty','frustrated','angry','anxious','overwhelmed'
+];
+
 const ACTIVITIES = [
   { id: 'sleep',      label: 'slept well',   emoji: '😴' },
   { id: 'exercise',   label: 'exercised',    emoji: '🏃' },
@@ -54,6 +66,8 @@ const Y = '#f5af12';
 const B = '#3c9fdd';
 export function JournalPage() {
   const [mood, setMood] = useState<string | null>(null);
+  const [emotions, setEmotions] = useState<Set<string>>(new Set());
+  const [emotionQuery, setEmotionQuery] = useState('');
   const [activities, setActivities] = useState<Set<string>>(new Set());
 
   // hover/active scale applied via class on mood buttons
@@ -61,6 +75,14 @@ export function JournalPage() {
   const [saving, setSaving] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  const toggleEmotion = (id: string) => {
+    setEmotions(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
 
   const toggleActivity = (id: string) => {
     setActivities(prev => {
@@ -152,6 +174,40 @@ export function JournalPage() {
                       e.currentTarget.remove();
                     }}
                   />
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* ── emotions picker ── */}
+        <section>
+          <p className="text-[11px] uppercase tracking-widest mb-3 lowercase" style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em' }}>
+            emotions
+          </p>
+          <input
+            type="text"
+            placeholder="search emotions…"
+            value={emotionQuery}
+            onChange={e => setEmotionQuery(e.target.value)}
+            className="mb-2 w-full px-2 py-1 rounded bg-[#000] text-white placeholder-gray-500"
+          />
+          <div className="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto">
+            {EMOTIONS.filter(e => e.includes(emotionQuery.toLowerCase())).map(e => {
+              const active = emotions.has(e);
+              return (
+                <button
+                  key={e}
+                  onClick={() => toggleEmotion(e)}
+                  className="px-3 py-2 rounded-full text-sm lowercase transition-all duration-150 select-none"
+                  style={{
+                    background: active ? `${B}22` : '#000000',
+                    borderColor: active ? B : 'rgba(255,255,255,0.08)',
+                    color: active ? B : 'rgba(255,255,255,0.55)',
+                    boxShadow: active ? `0 0 0 1.5px ${B}` : 'none',
+                  }}
+                >
+                  {e}
                 </button>
               );
             })}
