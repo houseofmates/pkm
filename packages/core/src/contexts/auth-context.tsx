@@ -27,10 +27,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // condition can be investigated if it ever happens in production.
   const internals = (React as any).__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
   if (internals?.ReactCurrentDispatcher?.current == null) {
+    // dispatcher missing – render a minimal provider so that downstream
+    // callers of `useAuth` still receive a context object instead of
+    // triggering the "outside of AuthProvider" warning.  The values are
+    // essentially a no‑op stub similar to what `useAuth` would return in
+    // that warning path.
+    const stub: AuthContextType = {
+      token: null,
+      isAuthenticated: false,
+      login: () => {},
+      logout: () => {},
+      client: new NocoBaseClient(),
+    };
+
     if (process.env.NODE_ENV !== 'production') {
-      secureLogger.warn('AuthProvider rendered outside of React dispatcher; falling back to children');
+      secureLogger.warn(
+        'AuthProvider rendered outside of React dispatcher; providing stub context'
+      );
     }
-    return <>{children}</>;
+    return <AuthContext.Provider value={stub}>{children}</AuthContext.Provider>;
   }
 
   const [token, setToken] = useState<string | null>(() => {
