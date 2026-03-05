@@ -40,13 +40,17 @@ describe('AuthProvider', () => {
       expect(auth.isAuthenticated).toBe(false);
       return <span data-testid="auth-ok" />;
     };
-    // now render via React test utils to exercise hooks
-    const { render } = await import('@testing-library/react');
-    render(
+    // now render using react-test-renderer instead of testing-library so
+    // we don't pull in DOM dependencies which aren't available in the
+    // core package's test environment.
+    const { create } = await import('react-test-renderer');
+    const Wrapper: React.FC = () => (
       <FronterProvider>
         {rendered}
+        <Consumer />
       </FronterProvider>
     );
+    create(<Wrapper />);
     expect(warnSpy).not.toHaveBeenCalled();
     warnSpy.mockRestore();
 
