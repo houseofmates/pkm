@@ -5,7 +5,7 @@ import { describe, it, expect } from 'vitest';
 import { SetupRequired } from '../setup-required';
 
 describe('SetupRequired component', () => {
-  it('displays updated instructions without assuming .env is missing', () => {
+  it('SetupRequired: displays updated instructions without assuming .env is missing', () => {
     render(<SetupRequired />);
 
     // key phrases from the new copy
