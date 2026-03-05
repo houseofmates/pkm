@@ -2861,12 +2861,15 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
       <button
         key={m.id}
         onClick={() => isQuick ? handleQuickMood(m.id) : setMood(active ? null : m.id)}
-        className={`${size} rounded-full transition-all duration-150 flex items-center justify-center hover:scale-110 hover:-translate-y-1 active:scale-105 active:translate-y-0`}
+        className={`${size} rounded-full transition-all duration-150 flex items-center justify-center hover:scale-110 hover:-translate-y-1 active:scale-105 active:translate-y-0 focus:outline-none`}
         style={{
           background: active ? `${m.color}33` : '#000000',
           border: `2px solid ${m.color}`,
           boxShadow: active ? `0 0 15px ${m.color}66` : 'none',
           outline: `2px solid ${m.color}`,
+          outlineOffset: '2px',
+          // ensure custom focus colors override browser/accent
+          outlineColor: m.color,
         }}
       >
         {moodImageFor(m.id)}
@@ -3286,11 +3289,13 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
                   key={emotion}
                   onClick={() => toggleEmotion(emotion)}
                   onContextMenu={e => handleContextMenu(e, 'emotion', emotion)}
-                  className="px-3 py-1.5 rounded-full text-xs lowercase transition-all"
+                  className="px-3 py-1.5 rounded-full text-xs lowercase transition-all focus:outline-none"
                   style={{
                     // always show border with emotion color
                     border: `1px solid ${emotionColors[emotion]}`,
                     outline: `1px solid ${emotionColors[emotion]}`,
+                    outlineOffset: '1px',
+                    outlineColor: emotionColors[emotion],
                     color: emotions.has(emotion) ? '#ffffff' : emotionColors[emotion],
                     backgroundColor: emotions.has(emotion) ? `${emotionColors[emotion]}33` : 'transparent',
                   }}
