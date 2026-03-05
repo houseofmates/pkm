@@ -80,4 +80,23 @@ describe('JournalPage', () => {
     expect(blobText).toContain('2026-03-05');
     expect(blobText).not.toContain('2026-03-01');
   });
+
+  it('lets user set a daily reminder time', () => {
+    localStorage.clear();
+    const { getByTitle, container } = render(
+      <MemoryRouter>
+        <AuthProvider>
+          <JournalPage />
+        </AuthProvider>
+      </MemoryRouter>
+    );
+    const remBtn = getByTitle('reminder');
+    fireEvent.click(remBtn);
+    const timeInput = container.querySelector('input[type=time]');
+    expect(timeInput).toBeTruthy();
+    if (timeInput) {
+      fireEvent.change(timeInput, { target: { value: '08:30' } });
+      expect(localStorage.getItem('journal_reminder')).toBe('08:30');
+    }
+  });
 });
