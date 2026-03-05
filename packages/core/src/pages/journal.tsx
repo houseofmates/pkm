@@ -140,16 +140,17 @@ export function JournalPage() {
                 >
                   <img
                     src={m.img}
-                    alt={m.emoji}
-                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                    className={m.id === '6' ? "w-28 h-28 object-contain" : "w-24 h-24 object-contain"}
+                    alt={m.label}
+                    className={m.id === '6' ? "w-32 h-32 object-contain" : "w-28 h-28 object-contain"}
                     style={{
                       opacity: active ? 1 : 0.7,
                     }}
+                    onError={(e) => {
+                      // in case the PNG fails, reveal the emoji via alt text and
+                      // remove the broken img from layout so the text is visible
+                      e.currentTarget.remove();
+                    }}
                   />
-                  <span className="absolute inset-0 flex items-center justify-center text-3xl pointer-events-none">
-                    {m.emoji}
-                  </span>
                 </button>
               );
             })}
