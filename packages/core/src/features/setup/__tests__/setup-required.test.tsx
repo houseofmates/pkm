@@ -2,7 +2,7 @@ import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { renderToStaticMarkup } from 'react-dom/server';
 
-import { SetupRequired } from '../setup-required';
+import { SetupRequired } from '../../../components/setup-required';
 
 describe('SetupRequired component', () => {
   it('SetupRequired: displays updated instructions without assuming .env is missing', () => {
