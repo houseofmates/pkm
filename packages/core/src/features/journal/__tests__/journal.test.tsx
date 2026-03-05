@@ -1,35 +1,35 @@
 import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
-import { create, act } from 'react-test-renderer';
+import { describe, it, expect } from 'vitest';
+import { render, fireEvent } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 
 import { JournalPage } from '@/pages/journal';
+import { AuthProvider } from '@/contexts/auth-context';
 
 // basic smoke test for mood buttons reflecting MOODS constant and behavior
 
 describe('JournalPage', () => {
   it('renders mood emoji images and can toggle selection', () => {
-    const tree = create(<JournalPage />);
-    const root = tree.root;
+    const { getByAltText } = render(
+      <MemoryRouter>
+        <AuthProvider>
+          <JournalPage />
+        </AuthProvider>
+      </MemoryRouter>
+    );
 
-    // find the mood button for the first mood (amazing!) by alt text
-    const moodImages = root.findAll((n) => n.type === 'img' && n.props.alt?.toLowerCase().includes('amazing'));
-    expect(moodImages.length).toBe(1);
-    expect(moodImages[0].props.src).toMatch(/amazing\.png$/);
-    const btn = moodImages[0].parent; // image is direct child of button
+    const img = getByAltText(/amazing/i) as HTMLImageElement;
+    expect(img).toBeInTheDocument();
+    expect(img.src).toMatch(/amazing\.png$/);
 
-    // initially not active (no boxShadow prop)
-    expect(btn.props.style.boxShadow).toBeUndefined();
+    const btn = img.closest('button');
+    expect(btn).toBeTruthy();
 
-    act(() => {
-      btn.props.onClick();
-    });
-
-    expect(btn.props.style.boxShadow).toContain('0 0 0 2px');
-
-    act(() => {
-      btn.props.onClick();
-    });
-
-    expect(btn.props.style.boxShadow).toBe('none');
+    // opacity should change when active
+    expect(img).toHaveStyle('opacity: 0.7');
+    fireEvent.click(btn!);
+    expect(img).toHaveStyle('opacity: 1');
+    fireEvent.click(btn!);
+    expect(img).toHaveStyle('opacity: 0.7');
   });
 });
