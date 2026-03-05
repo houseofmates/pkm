@@ -3401,6 +3401,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
               <button onClick={() => insertMarkdown('- ' , '')} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">•</button>
               <button onClick={() => insertMarkdown('> ', '')} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">"</button>
               <button onClick={() => insertMarkdown('[', '](url)')} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">link</button>
+              <button onClick={() => setShowPreview(v => !v)} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">{showPreview ? 'edit' : 'preview'}</button>
             </div>
             <textarea
               ref={textareaRef}
@@ -3409,6 +3410,11 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
               placeholder="write your thoughts here..."
               className="w-full h-32 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase placeholder:text-white/30 focus:outline-none focus:border-white/30 resize-none"
             />
+            {showPreview && (
+              <div className="p-2 bg-white/10 rounded-lg mt-2 prose prose-invert text-sm max-w-none">
+                <ReactMarkdown remarkPlugins={[remarkGfm]}>{body}</ReactMarkdown>
+              </div>
+            )
             <div className="flex justify-between items-center mt-2">
               <p className="text-xs text-white/30 lowercase">{wordCount} words • {charCount} chars</p>
               {wordCount >= 500 && <p className="text-xs text-yellow-400 lowercase">✦ word warrior!</p>}
