@@ -195,6 +195,8 @@ function getYesterday(): string {
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
   return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }
+  \);
+}
 
 // ─────────────────────────────────────────────
 //  main journal page component
