@@ -631,8 +631,6 @@ export function JournalPage() {
     </div>
   );
 }
-);
-}
 
 function getDaysAgo(days: number): string {
   const d = new Date();
