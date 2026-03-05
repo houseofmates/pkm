@@ -2224,7 +2224,11 @@ export function JournalPage() {
       const mood = MOODS.find(m => m.id === e.mood)?.label || '';
       return `<div style="margin-bottom:1em;"><strong>${e.date} (${mood})</strong><p>${e.body?.replace(/\n/g,'<br>') || ''}</p></div>`;
     }).join('');
-    const printHtml = `<!doctype html><html><head><meta charset="utf-8"><title>journal report</title><style>body{font-family:sans-serif;padding:1em;color:#000}h1{text-transform:lowercase}p,div{page-break-inside:avoid}a{color:#000}</style></head><body><h1>journal report (last 14 days)</h1><div>${summary}</div>${htmlEntries}</body></html>`;
+    // compute simple stats
+    const moods = recent.map(e => getMoodValue(e.mood || ''));
+    const avgMood = moods.length ? (moods.reduce((a,b)=>a+b,0)/moods.length).toFixed(2) : 'n/a';
+    const statsHtml = `<p>entries: ${recent.length} &nbsp; average mood: ${avgMood}</p>`;
+    const printHtml = `<!doctype html><html><head><meta charset="utf-8"><title>journal report</title><style>body{font-family:sans-serif;padding:1em;color:#000}h1{text-transform:lowercase}p,div{page-break-inside:avoid}a{color:#000}</style></head><body><h1>journal report (last 14 days)</h1>${statsHtml}<div>${summary}</div>${htmlEntries}</body></html>`;
     const win = window.open('','_blank');
     if (win) {
       win.document.write(printHtml);
