@@ -2212,6 +2212,10 @@ ${entriesText}`;
   const checkAchievements = (newXp: number, newStreak: number, newCount: number, wordCount: number, emotionCount: number) => {
     const newUnlocks: string[] = [];
     
+    // voice memo count tracked separately
+    const memoCount = getStoredData(STORAGE_KEYS.VOICE_MEMOS_COUNT, 0);
+    if (memoCount >= 10 && !unlockedAchievements.includes('voice_memoir')) newUnlocks.push('voice_memoir');
+
     if (newCount >= 1 && !unlockedAchievements.includes('first_entry')) newUnlocks.push('first_entry');
     if (newStreak >= 7 && !unlockedAchievements.includes('week_streak')) newUnlocks.push('week_streak');
     if (newStreak >= 14 && !unlockedAchievements.includes('streak_14')) newUnlocks.push('streak_14');
@@ -2265,6 +2269,7 @@ ${entriesText}`;
       timestamp: new Date().toISOString(),
       date: editingEntry?.date || new Date().toLocaleDateString('en-CA'),
       tags: JSON.stringify(Array.from(tags)),
+      ...(transcript && { transcript }),
     };
 
     // optional geolocation/weather stamping
@@ -2329,6 +2334,7 @@ ${entriesText}`;
         if (g.id === 'add_emotions') return { ...g, completed: emotions.size >= 3 };
         if (g.id === 'write_note') return { ...g, completed: body.trim().length >= 50 };
         if (g.id === 'complete_activities') return { ...g, completed: activities.size >= 3 };
+        if (g.id === 'voice_summary_goal') return { ...g, completed: !!transcriptionSummary };
         return g;
       });
       setDailyGoals(updatedGoals);
