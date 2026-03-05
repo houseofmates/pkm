@@ -20,7 +20,7 @@ describe('JournalPage', () => {
     );
 
     const img = getByAltText(/amazing/i) as HTMLImageElement;
-    expect(img).toBeInTheDocument();
+    // element existence is implied by getByAltText; just verify src
     expect(img.src).toMatch(/amazing\.png$/);
 
     const btn = img.closest('button');
