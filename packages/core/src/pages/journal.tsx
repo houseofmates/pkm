@@ -8,6 +8,7 @@ import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tool
 import { Sparkles, Mic, Image, Calendar, TrendingUp, Heart, Zap, Target, Award, BookOpen, Wind, Clock, Download, Bell, Plus, X, ChevronLeft, ChevronRight, Search, Filter, Edit2, Trash2, Lock, FileText, LayoutGrid } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { PushToTalkWidget } from '@/components/push-to-talk-widget';
 
 // ─────────────────────────────────────────────
 //  constants
@@ -2975,6 +2976,8 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
         </div>
       )}
 
+      {showHabitCalendar && <HabitCalendar entries={entries} />}
+
       {/* stats panel */}
       {showStats && (
         <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
@@ -3397,18 +3400,20 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
               <button onClick={() => insertMarkdown('[', '](url)')} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">link</button>
               <button onClick={() => setShowPreview(v => !v)} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">{showPreview ? 'edit' : 'preview'}</button>
             </div>
-            <textarea
-              ref={textareaRef}
-              value={body}
-              onChange={e => setBody(e.target.value)}
-              placeholder="write your thoughts here..."
-              className="w-full h-32 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase placeholder:text-white/30 focus:outline-none focus:border-white/30 resize-none"
-            />
-            {showPreview && (
-              <div className="p-2 bg-white/10 rounded-lg mt-2 prose prose-invert text-sm max-w-none">
-                <ReactMarkdown remarkPlugins={[remarkGfm]}>{body}</ReactMarkdown>
-              </div>
-            )}
+            <div className="flex flex-col lg:flex-row gap-2">
+              <textarea
+                ref={textareaRef}
+                value={body}
+                onChange={e => setBody(e.target.value)}
+                placeholder="write your thoughts here..."
+                className="w-full h-32 lg:flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase placeholder:text-white/30 focus:outline-none focus:border-white/30 resize-none"
+              />
+              {showPreview && (
+                <div className="p-2 bg-white/10 rounded-lg mt-2 lg:mt-0 lg:flex-1 prose prose-invert text-sm max-w-none">
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{body}</ReactMarkdown>
+                </div>
+              )}
+            </div>}
             <div className="flex justify-between items-center mt-2">
               <p className="text-xs text-white/30 lowercase">{wordCount} words • {charCount} chars</p>
               {wordCount >= 500 && <p className="text-xs text-yellow-400 lowercase">✦ word warrior!</p>}
@@ -3457,25 +3462,5 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
   );
 }
 
-
-
-function PushToTalkWidget() {
-  const [active, setActive] = useState(false);
-  const toggle = () => {
-    // use existing transcription logic if available
-    handleVoiceTranscription();
-    setActive(!active);
-  };
-  return (
-    <div
-      onClick={toggle}
-      className="fixed bottom-4 right-4 w-12 h-12 rounded-full flex items-center justify-center cursor-pointer shadow-lg"
-      style={{ background: active ? '#f5af12' : '#888' }}
-      title="push to talk"
-    >
-      <Mic size={24} className={active ? 'text-black' : 'text-white/50'} />
-    </div>
-  );
-}
 
 export default JournalPage;
