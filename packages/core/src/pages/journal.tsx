@@ -3280,7 +3280,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
           <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
             <p className="text-xs text-white/40 lowercase mb-3">what emotions are you experiencing?</p>
             <div className="flex flex-wrap gap-2 mb-3">
-              {availableEmotions.filter(e => e.toLowerCase().includes(emotionQuery.toLowerCase())).slice(0, 12).map(emotion => (
+              {availableEmotions.filter(e => e.toLowerCase().includes(emotionQuery.toLowerCase())).map(emotion => (
                 <button
                   key={emotion}
                   onClick={() => toggleEmotion(emotion)}
