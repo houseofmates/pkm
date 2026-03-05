@@ -1764,6 +1764,11 @@ export function JournalPage() {
   const [saving, setSaving] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
+
+  // predictions
+  const [predictedMood, setPredictedMood] = useState<string | null>(null);
+  const [predictedSentiment, setPredictedSentiment] = useState<string | null>(null);
+  const [predictedActivities, setPredictedActivities] = useState<string[]>([]);
   
   // ── state: gamification ──
   const [streak, setStreak] = useState(0);
@@ -1818,6 +1823,19 @@ export function JournalPage() {
   const [showCalendar, setShowCalendar] = useState(false);
   const [showHabitCalendar, setShowHabitCalendar] = useState(false);
   const [showPastEntries, setShowPastEntries] = useState(false);
+
+  const handleHabitDateClick = (date: string) => {
+    const existing = entriesByDate[date];
+    if (existing) {
+      populateForm(existing);
+    } else {
+      // create provisional entry to edit
+      const temp: JournalRecord = { date, timestamp: new Date().toISOString(), mood: null, activities: '[]', body: '' };
+      populateForm(temp);
+    }
+    setShowCalendar(false);
+    setShowHabitCalendar(false);
+  };
   const [showBreathing, setShowBreathing] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
   const [showWeeklyReview, setShowWeeklyReview] = useState(false);
@@ -1971,6 +1989,34 @@ export function JournalPage() {
     setWordCount(words);
     setCharCount(body.length);
   }, [body]);
+
+  // ── predictions based on body ──
+  useEffect(() => {
+    if (body.trim().length < 20) {
+      setPredictedMood(null);
+      setPredictedSentiment(null);
+      setPredictedActivities([]);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      try {
+        const ollama = new OllamaClient();
+        const prompt = `analyze the following journal text and respond as json with keys mood, sentiment, activities. mood should be one of 0,1,2,4,5,6. sentiment should be positive neutral or negative. activities should be an array with up to three ids chosen from ${availableActivities.map(a=>a.id).join(',')}. text: """${body}"""`;
+        const resp = await ollama.ask(prompt);
+        try {
+          const parsed = JSON.parse(resp);
+          if (parsed.mood) setPredictedMood(String(parsed.mood));
+          if (parsed.sentiment) setPredictedSentiment(parsed.sentiment);
+          if (Array.isArray(parsed.activities)) setPredictedActivities(parsed.activities.map(String));
+        } catch (e) {
+          console.error('prediction parse error', resp, e);
+        }
+      } catch (err) {
+        console.error('prediction failed', err);
+      }
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [body, availableActivities]);
 
   // ── auto-save draft ──
   useEffect(() => {
@@ -2978,7 +3024,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
         </div>
       )}
 
-      {showHabitCalendar && <HabitCalendar entries={entries} />}
+      {showHabitCalendar && <HabitCalendar entries={entries} onDateClick={handleHabitDateClick} />}
 
       {/* stats panel */}
       {showStats && (
