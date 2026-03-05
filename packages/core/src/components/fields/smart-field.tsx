@@ -1645,6 +1645,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   }
 
   const renderView = () => {
+    console.log('enter renderView');
     if (isId) return <span className={cn("font-mono opacity-50 select-text text-white/70", size === 'lg' ? "text-lg" : "text-[10px]")}>{value?.toString()}</span>;
 
     if (isLinkDatabase && value) {
@@ -1875,7 +1876,6 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   const viewContent = renderView();
   console.log('has viewContent', !!viewContent);
   console.log('about to return outer markup');
-  throw new Error('viewContent check');
   return (
     <div className={cn("font-varela", size === 'lg' ? "text-lg" : "text-sm", "w-full h-full")}>
       <FieldContextMenu onEdit={() => setIsEditing(true)} onClear={() => onChange(null)} value={value} record={record} collectionName={collectionName}>
