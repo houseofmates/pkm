@@ -2277,8 +2277,19 @@ export function JournalPage() {
     // compute simple stats
     const moods = recent.map(e => getMoodValue(e.mood || ''));
     const avgMood = moods.length ? (moods.reduce((a,b)=>a+b,0)/moods.length).toFixed(2) : 'n/a';
+    const activityCounts: Record<string, number> = {};
+    recent.forEach(e => {
+      parseActivities(e.activities).forEach(a => {
+        activityCounts[a] = (activityCounts[a] || 0) + 1;
+      });
+    });
+    const labels = Object.keys(activityCounts);
+    const data = labels.map(l => activityCounts[l]);
+    const moodData = moods;
     const statsHtml = `<p>entries: ${recent.length} &nbsp; average mood: ${avgMood}</p>`;
-    const printHtml = `<!doctype html><html><head><meta charset="utf-8"><title>journal report</title><style>body{font-family:sans-serif;padding:1em;color:#000}h1{text-transform:lowercase}p,div{page-break-inside:avoid}a{color:#000}</style></head><body><h1>journal report (last 14 days)</h1>${statsHtml}<div>${summary}</div>${htmlEntries}</body></html>`;
+    const moodChartUrl = `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify({type:'line',data:{labels:recent.map(r=>r.date),datasets:[{label:'mood',data:moodData,fill:false,borderColor:'blue'}]}}))}`;
+    const activityChartUrl = labels.length ? `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify({type:'bar',data:{labels, datasets:[{label:'activities',data}]}}))}` : '';
+    const printHtml = `<!doctype html><html><head><meta charset="utf-8"><title>journal report</title><style>body{font-family:sans-serif;padding:1em;color:#000}h1{text-transform:lowercase}p,div{page-break-inside:avoid}a{color:#000}</style></head><body><h1>journal report (last 14 days)</h1>${statsHtml}${moodChartUrl?`<img src="${moodChartUrl}" style="width:100%;max-width:600px;"/>`:''}${activityChartUrl?`<img src="${activityChartUrl}" style="width:100%;max-width:600px;"/>`:''}<div>${summary}</div>${htmlEntries}</body></html>`;
     const win = window.open('','_blank');
     if (win) {
       win.document.write(printHtml);
@@ -3478,6 +3489,29 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
                 </>
               )}
             </div>
+
+            {/* prediction suggestions */}
+            {(predictedMood || predictedSentiment || predictedActivities.length) && (
+              <div className="p-2 bg-white/5 rounded-lg mb-2 text-xs lowercase">
+                {predictedMood && (
+                  <p>predicted mood: <span className="font-medium">{MOODS.find(m=>m.id===predictedMood)?.label}</span> <button onClick={() => setMood(predictedMood)} className="ml-1 underline">apply</button></p>
+                )}
+                {predictedSentiment && <p>sentiment: {predictedSentiment}</p>}
+                {predictedActivities.length>0 && (
+                  <p>suggested activities: <span className="flex gap-1 flex-wrap">{predictedActivities.map(a=>{
+                    const act = DEFAULT_ACTIVITIES.find(x=>x.id===a);
+                    return act ? (
+                      <button
+                        key={a}
+                        onClick={() => toggleActivity(a)}
+                        className="px-2 py-0.5 rounded-full text-xs"
+                        style={{ color: act.color, border: `1px solid ${act.color}` }}
+                      >{act.label}</button>
+                    ) : null;
+                  })}</span></p>
+                )}
+              </div>
+            )
             <div className="flex justify-between items-center mt-2">
               <p className="text-xs text-white/30 lowercase">{wordCount} words • {charCount} chars</p>
               {wordCount >= 500 && <p className="text-xs text-yellow-400 lowercase">✦ word warrior!</p>}
