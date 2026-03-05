@@ -2866,6 +2866,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
           background: active ? `${m.color}33` : '#000000',
           border: `2px solid ${m.color}`,
           boxShadow: active ? `0 0 15px ${m.color}66` : 'none',
+          outline: `2px solid ${m.color}`,
         }}
       >
         {moodImageFor(m.id)}
@@ -3289,6 +3290,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
                   style={{
                     // always show border with emotion color
                     border: `1px solid ${emotionColors[emotion]}`,
+                    outline: `1px solid ${emotionColors[emotion]}`,
                     color: emotions.has(emotion) ? '#ffffff' : emotionColors[emotion],
                     backgroundColor: emotions.has(emotion) ? `${emotionColors[emotion]}33` : 'transparent',
                   }}
