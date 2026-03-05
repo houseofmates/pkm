@@ -2803,9 +2803,16 @@ ${entriesText}`;
             <select
               value={pastEntriesFilter.mood}
               onChange={e => setPastEntriesFilter(f => ({ ...f, mood: e.target.value }))}
+
         <div className="mt-6">
           <p className="text-xs text-white/40 lowercase mb-1">weekly ai summary</p>
           {isSummarizing ? (
+            <p className="text-sm text-white/50 italic">generating...</p>
+          ) : (
+            <p className="text-sm text-white/70 lowercase">{summary || 'no summary available'}</p>
+          )}
+        </div>
+        <div className="mt-6">
             <p className="text-sm text-white/50 italic">generating...</p>
           ) : (
             <p className="text-sm text-white/70 lowercase">{summary || 'no summary available'}</p>
