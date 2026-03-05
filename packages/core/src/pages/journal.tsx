@@ -1343,6 +1343,16 @@ export function JournalPage() {
   const [showTemplates, setShowTemplates] = useState(false);
   const [showGratitude, setShowGratitude] = useState(false);
   const [currentMonth, setCurrentMonth] = useState(new Date());
+
+  // ── state: export options ──
+  const [exportFrom, setExportFrom] = useState<string>('');
+  const [exportTo, setExportTo] = useState<string>('');
+
+  // ── state: daily reminder ──
+  const [reminderTime, setReminderTime] = useState<string>(() =>
+    localStorage.getItem('journal_reminder') || ''
+  );
+  const [reminderEnabled, setReminderEnabled] = useState<boolean>(!!reminderTime);
   
   // ── state: past entries filter ──
   const [pastEntriesFilter, setPastEntriesFilter] = useState({ search: '', mood: '', tag: '' });
@@ -1525,27 +1535,35 @@ export function JournalPage() {
     }
   };
 
+  
   const handleExport = async () => {
     try {
       const res: any = await api.listRecords('journal', { sort: '-date', pageSize: 1000 });
-      const recs: JournalRecord[] = res?.data || [];
+      let recs: JournalRecord[] = res?.data || [];
+      if (exportFrom) {
+        recs = recs.filter(r => r.date >= exportFrom);
+      }
+      if (exportTo) {
+        recs = recs.filter(r => r.date <= exportTo);
+      }
       const lines = ['date,mood,emotions,activities,body,timestamp,tags'];
       recs.forEach(r => {
         const emos = JSON.parse((r as any).emotions || '[]') as string[];
         const acts = parseActivities(r.activities);
         const tags = JSON.parse((r as any).tags || '[]') as string[];
         const row = [
-          r.date, 
-          r.mood || '', 
-          emos.join(';'), 
-          acts.join(';'), 
-          (r.body || '').replace(/"/g,'""'), 
+          r.date,
+          r.mood || '',
+          emos.join(';'),
+          acts.join(';'),
+          (r.body || '').replace(/\"/g,'\"\"'),
           r.timestamp,
           tags.join(';')
-        ].map(v => `"${v}"`).join(',');
+        ].map(v => `\"${v}\"`).join(',');
         lines.push(row);
       });
-      const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+      const blob = new Blob([lines.join('
+')], { type: 'text/csv' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -1557,6 +1575,7 @@ export function JournalPage() {
       toast.error('export failed');
     }
   };
+
 
   const checkAchievements = (newXp: number, newStreak: number, newCount: number, wordCount: number, emotionCount: number) => {
     const newUnlocks: string[] = [];
