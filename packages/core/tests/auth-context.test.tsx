@@ -79,18 +79,17 @@ describe('AuthProvider', () => {
     const origLoc = (globalThis as any).location;
     const fakeReload = vi.fn();
     (globalThis as any).location = { reload: fakeReload } as any;
-    const storage = (globalThis as any).localStorage ?? {
-      _data: {} as Record<string,string>,
-      getItem(key: string) { return this._data[key] ?? null; },
-      setItem(key: string, val: string) { this._data[key] = String(val); },
-      removeItem(key: string) { delete this._data[key]; },
-    };
-    storage.removeItem('nocobase_token');
+    // instead of poking at localStorage directly we spy on the
+    // shared storageManager which the provider uses.
+    const { storageManager } = await import('@/lib/storage-manager');
+    const setSpy = vi.spyOn(storageManager, 'setItem');
+    setSpy.mockImplementation(() => {});
 
     stub.login(' test-token ');
 
-    expect(storage.getItem('nocobase_token')).toBe('test-token');
+    expect(setSpy).toHaveBeenCalledWith('nocobase_token', 'test-token');
     expect(fakeReload).toHaveBeenCalled();
+    setSpy.mockRestore();
 
     // restore location to avoid side effects
     (globalThis as any).location = origLoc;
