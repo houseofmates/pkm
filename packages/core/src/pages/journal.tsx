@@ -5,7 +5,7 @@ import api from '@/api/nocobase-client';
 import { OllamaClient } from '@/api/ollama-client';
 import { JournalRecord, parseActivities } from '@/schema/journal-collection';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, AreaChart, Area } from 'recharts';
-import { Sparkles, Mic, Image, Calendar, TrendingUp, Heart, Zap, Target, Award, BookOpen, Wind, Clock, Download, Bell, Plus, X, ChevronLeft, ChevronRight, Search, Filter, Edit2, Trash2, Lock, FileText } from 'lucide-react';
+import { Sparkles, Mic, Image, Calendar, TrendingUp, Heart, Zap, Target, Award, BookOpen, Wind, Clock, Download, Bell, Plus, X, ChevronLeft, ChevronRight, Search, Filter, Edit2, Trash2, Lock, FileText, LayoutGrid } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
@@ -1813,6 +1813,7 @@ export function JournalPage() {
   // ── state: view toggles ──
   const [showQuickCheckin, setShowQuickCheckin] = useState(false);
   const [showCalendar, setShowCalendar] = useState(false);
+  const [showHabitCalendar, setShowHabitCalendar] = useState(false);
   const [showPastEntries, setShowPastEntries] = useState(false);
   const [showBreathing, setShowBreathing] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
@@ -2818,6 +2819,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
           <button onClick={() => setShowGoals(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="daily goals"><Target size={18} /></button>
           <button onClick={() => setShowAchievements(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="achievements"><Award size={18} /></button>
           <button onClick={() => setShowCalendar(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="calendar"><Calendar size={18} /></button>
+          <button onClick={() => setShowHabitCalendar(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="habit calendar"><LayoutGrid size={18} /></button>
           <button onClick={() => setShowPastEntries(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="past entries"><BookOpen size={18} /></button>
           <button onClick={() => setShowStats(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="stats"><TrendingUp size={18} /></button>
           <button onClick={() => setShowCorrelations(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="mood correlations"><Zap size={18} /></button>
