@@ -26,9 +26,11 @@ export function SetupRequired() {
  <CardContent className="space-y-6">
  <div className="space-y-4">
  <p className="text-sm lowercase leading-relaxed text-muted-foreground">
-   this screen appears when the backend isn't reachable or hasn't been set up yet.
-   if you've just logged out you can safely <strong>reload</strong> to return to the login page.
-   otherwise you may need to create a <code className="text-amber-500">.env</code> file in the root directory.
+   this screen appears when the backend isn't reachable or hasn't been configured
+   correctly. if you've just logged out you can safely <strong>reload</strong> to return
+   to the login page. otherwise check that your API/sharing URLs are correct in the
+   <code className="text-amber-500">.env</code> file (it may already exist) or that the
+   server is running. once you've fixed the issue, restart the application.
  </p>
 
  <div className="relative group">
@@ -50,10 +52,10 @@ export function SetupRequired() {
  </div>
 
  <ul className="space-y-2 text-xs lowercase text-muted-foreground list-disc pl-4 italic">
-   <li>copy the example file using the command above</li>
+   <li>if you don't already have one, copy the example file using the command above</li>
    <li>open <code className="text-white/80">.env</code> in your editor</li>
-   <li>set your api and sharing urls</li>
-   <li>restart the application</li>
+   <li>verify the <code>VITE_API_URL</code> and <code>VITE_SHARING_URL</code> values</li>
+   <li>restart the application or start the backend server</li>
  </ul>
  </div>
 
