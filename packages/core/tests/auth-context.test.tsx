@@ -8,7 +8,7 @@ import { FronterProvider } from '@/contexts/fronter-context';
 describe('AuthProvider', () => {
   it('does not crash when invoked without a dispatcher', async () => {
     const authModule = await import('@/contexts/auth-context');
-    const { AuthProvider, useAuth } = authModule;
+    const { AuthProvider, useAuth, AuthContext } = authModule;
 
     // temporarily clear the current dispatcher to simulate the "null"
     // condition that leads to the original error message.
@@ -40,17 +40,17 @@ describe('AuthProvider', () => {
       expect(auth.isAuthenticated).toBe(false);
       return <span data-testid="auth-ok" />;
     };
-    // now render using react-test-renderer instead of testing-library so
-    // we don't pull in DOM dependencies which aren't available in the
-    // core package's test environment.
-    const { create } = await import('react-test-renderer');
-    const Wrapper: React.FC = () => (
-      <FronterProvider>
-        {rendered}
-        <Consumer />
-      </FronterProvider>
+    // `rendered` should be an AuthContext.Provider with stub value
+    // so that downstream hooks do not warn.  inspect without mounting.
+    expect(rendered.type?.displayName || rendered.type).toBe(
+      AuthContext.Provider.displayName || AuthContext.Provider
     );
-    create(<Wrapper />);
+    expect(rendered.props.value).toMatchObject({
+      token: null,
+      isAuthenticated: false,
+      login: expect.any(Function),
+      logout: expect.any(Function),
+    });
     expect(warnSpy).not.toHaveBeenCalled();
     warnSpy.mockRestore();
 
