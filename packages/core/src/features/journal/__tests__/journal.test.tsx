@@ -27,10 +27,10 @@ describe('JournalPage', () => {
     expect(btn).toBeTruthy();
 
     // opacity should change when active
-    expect(img).toHaveStyle('opacity: 0.7');
+    expect(img.style.opacity).toBe('0.7');
     fireEvent.click(btn!);
-    expect(img).toHaveStyle('opacity: 1');
+    expect(img.style.opacity).toBe('1');
     fireEvent.click(btn!);
-    expect(img).toHaveStyle('opacity: 0.7');
+    expect(img.style.opacity).toBe('0.7');
   });
 });
