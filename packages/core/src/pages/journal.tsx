@@ -2775,9 +2775,9 @@ ${entriesText}`;
       {/* past entries panel */}
 {showPastEntries ? (
         <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-          <p className="text-xs text-white/40 lowercase mb-3">past entries ({filteredPastEntries.length})</p>
-          
-          {/* filters */}
+            {filteredPastEntries.length === 0 && (
+              <p className="text-center text-white/30 lowercase text-sm py-8">no entries found</p>
+            )}
           {/* filters */}
           <div className="flex gap-2 mb-3 flex-wrap">
             <div className="flex-1 min-w-[120px] relative">
