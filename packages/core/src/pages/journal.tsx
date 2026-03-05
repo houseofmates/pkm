@@ -2021,6 +2021,22 @@ export function JournalPage() {
     setStoredData(STORAGE_KEYS.ACTIVITY_COLORS, colors);
   }, []);
 
+  const insertMarkdown = (before: string, after: string = before) => {
+    const ta = textareaRef.current;
+    if (!ta) return;
+    const start = ta.selectionStart;
+    const end = ta.selectionEnd;
+    const val = ta.value;
+    const selected = val.slice(start, end);
+    const newText = val.slice(0, start) + before + selected + after + val.slice(end);
+    setBody(newText);
+    setTimeout(() => {
+      ta.selectionStart = start + before.length;
+      ta.selectionEnd = start + before.length + selected.length;
+      ta.focus();
+    }, 0);
+  };
+
   const toggleEmotion = (id: string) => {
     setEmotions(prev => {
       const next = new Set(prev);
@@ -2711,7 +2727,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white font-varela p-4 pb-24 flex flex-col gap-6 max-w-2xl mx-auto">
+    <div className="min-h-screen bg-black text-white font-varela p-4 pb-24 flex flex-col gap-6 max-w-full lg:max-w-4xl mx-auto">
       {/* achievement celebration */}
       {celebratingAchievement && (
         <AchievementCelebration achievement={celebratingAchievement} onClose={() => setCelebratingAchievement(null)} />
@@ -2789,6 +2805,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
             <div className="absolute right-0 top-full mt-1 hidden group-hover:block bg-[#0a0a0a] border border-white/10 rounded-lg p-1 min-w-[120px] z-50">
               <button onClick={handleExport} className="w-full px-3 py-2 text-left text-xs lowercase hover:bg-white/5 rounded">export csv</button>
               <button onClick={handleExportJSON} className="w-full px-3 py-2 text-left text-xs lowercase hover:bg-white/5 rounded">export json</button>
+              <button onClick={handlePrint} className="w-full px-3 py-2 text-left text-xs lowercase hover:bg-white/5 rounded">print report</button>
             </div>
           </div>
         </div>
@@ -3334,6 +3351,16 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
               <p className="text-xs text-white/40 lowercase mb-2 line-clamp-3">transcript: {transcript}</p>
             )}
 
+            {/* markdown toolbar */}
+            <div className="flex gap-2 mb-1 text-xs">
+              <button onClick={() => insertMarkdown('**')} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">B</button>
+              <button onClick={() => insertMarkdown('*')} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">i</button>
+              <button onClick={() => insertMarkdown('# ' , '')} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">H1</button>
+              <button onClick={() => insertMarkdown('## ', '')} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">H2</button>
+              <button onClick={() => insertMarkdown('- ' , '')} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">•</button>
+              <button onClick={() => insertMarkdown('> ', '')} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">"</button>
+              <button onClick={() => insertMarkdown('[', '](url)')} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">link</button>
+            </div>
             <textarea
               ref={textareaRef}
               value={body}
