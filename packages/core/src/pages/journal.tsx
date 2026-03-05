@@ -124,7 +124,7 @@ export function JournalPage() {
           <p className="text-[11px] uppercase tracking-widest mb-3 lowercase" style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em' }}>
             how are you feeling?
           </p>
-          <div className="flex gap-10 justify-center">
+          <div className="flex gap-12 justify-center">
             {MOODS.map(m => {
               const active = mood === m.id;
               return (
@@ -142,7 +142,7 @@ export function JournalPage() {
                     src={m.img}
                     alt={m.emoji}
                     onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                    className={m.id === '6' ? "w-24 h-24 object-contain" : "w-20 h-20 object-contain"}
+                    className={m.id === '6' ? "w-28 h-28 object-contain" : "w-24 h-24 object-contain"}
                     style={{
                       opacity: active ? 1 : 0.7,
                     }}
