@@ -2431,6 +2431,15 @@ ${entriesText}`;
 
   const filteredPastEntries = useMemo(() => {
     let filtered = [...entries];
+
+    // if semantic search has produced a result set, use that as the primary filter
+    if (nlIds !== null) {
+      filtered = filtered.filter(e => nlIds.includes(String(e.id)));
+      // preserve the order returned by the model
+      filtered.sort((a, b) => nlIds.indexOf(String(a.id)) - nlIds.indexOf(String(b.id)));
+      return filtered;
+    }
+
     if (showBookmarksOnly) {
       filtered = filtered.filter(e => bookmarkedEntries.includes(e.id!));
     }
@@ -2454,7 +2463,7 @@ ${entriesText}`;
       });
     }
     return filtered;
-  }, [entries, pastEntriesFilter, showBookmarksOnly, bookmarkedEntries]);
+  }, [entries, pastEntriesFilter, showBookmarksOnly, bookmarkedEntries, nlIds]);
 
   const entriesGroupedByMonth = useMemo(() => {
     const groups: Record<string, typeof filteredPastEntries> = {};
@@ -2468,7 +2477,17 @@ ${entriesText}`;
 
   const pastEntriesPanel = showPastEntries ? (
     <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-      <p className="text-xs text-white/40 lowercase mb-3">past entries ({filteredPastEntries.length})</p>
+      <p className="text-xs text-white/40 lowercase mb-3">
+        {nlIds !== null ? 'semantic search results' : 'past entries'} ({filteredPastEntries.length})
+        {nlIds !== null && (
+          <button
+            onClick={() => setNlIds(null)}
+            className="ml-2 text-xs text-white/40 hover:text-white lowercase"
+          >
+            clear
+          </button>
+        )}
+      </p>
       {/* filters */}
       <div className="flex gap-2 mb-3 flex-wrap">
         <div className="flex-1 min-w-[120px] relative">
@@ -2507,7 +2526,9 @@ ${entriesText}`;
         </select>
       </div>
       {filteredPastEntries.length === 0 && (
-        <p className="text-center text-white/30 lowercase text-sm py-8">no entries found</p>
+        <p className="text-center text-white/30 lowercase text-sm py-8">
+          {nlIds !== null ? 'no semantic search results' : 'no entries found'}
+        </p>
       )}
     </div>
   ) : null;
