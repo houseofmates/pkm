@@ -818,7 +818,7 @@ function AchievementCelebration({ achievement, onClose }: { achievement: typeof 
 //  weekly review component
 // ─────────────────────────────────────────────
 
-function WeeklyReviewModal({ isOpen, onClose, entries }: { isOpen: boolean; onClose: () => void; entries: JournalRecord[] }) {
+function WeeklyReviewModal({ isOpen, onClose, entries, onSummaryGenerated }: { isOpen: boolean; onClose: () => void; entries: JournalRecord[]; onSummaryGenerated?: () => void }) {
   const weekStart = getWeekStart();
   const [summary, setSummary] = useState('');
   const [isSummarizing, setIsSummarizing] = useState(false);
@@ -850,10 +850,8 @@ ${text}`;
       const result = await ollama.ask(prompt);
       setSummary(result);
       localStorage.setItem(key, result);
-      // unlock achievement
-      if (!unlockedAchievements.includes('weekly_summary')) {
-        setUnlockedAchievements(prev => [...prev, 'weekly_summary']);
-        setStoredData(STORAGE_KEYS.ACHIEVEMENTS, [...unlockedAchievements, 'weekly_summary']);
+      if (onSummaryGenerated) {
+        onSummaryGenerated();
       }
     } catch (err) {
       console.error('weekly summary failed', err);
@@ -2521,7 +2519,18 @@ ${entriesText}`;
       {/* modals */}
       <BreathingExerciseModal isOpen={showBreathing} onClose={() => setShowBreathing(false)} />
       <ReflectionTimer isOpen={showTimer} onClose={() => setShowTimer(false)} prompt={todayPrompt} />
-      <WeeklyReviewModal isOpen={showWeeklyReview} onClose={() => setShowWeeklyReview(false)} entries={entries} />
+      <WeeklyReviewModal
+        isOpen={showWeeklyReview}
+        onClose={() => setShowWeeklyReview(false)}
+        entries={entries}
+        onSummaryGenerated={() => {
+          if (!unlockedAchievements.includes('weekly_summary')) {
+            const updated = [...unlockedAchievements, 'weekly_summary'];
+            setUnlockedAchievements(updated);
+            setStoredData(STORAGE_KEYS.ACHIEVEMENTS, updated);
+          }
+        }}
+      />
       <TemplateSelector isOpen={showTemplates} onClose={() => setShowTemplates(false)} onSelect={handleSelectTemplate} />
       <ColorPicker 
         isOpen={colorPickerOpen} 
