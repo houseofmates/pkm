@@ -2863,9 +2863,9 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
         onClick={() => isQuick ? handleQuickMood(m.id) : setMood(active ? null : m.id)}
         className={`${size} rounded-full transition-all duration-150 flex items-center justify-center hover:scale-110 hover:-translate-y-1 active:scale-105 active:translate-y-0`}
         style={{
-          background: '#000000',
-          border: `2px solid rgba(255,255,255,0.08)`,
-          boxShadow: active ? '0 0 6px rgba(255,255,255,0.3)' : 'none',
+          background: active ? `${m.color}33` : '#000000',
+          border: `2px solid ${m.color}`,
+          boxShadow: active ? `0 0 15px ${m.color}66` : 'none',
         }}
       >
         {moodImageFor(m.id)}
