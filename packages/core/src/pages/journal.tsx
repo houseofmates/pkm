@@ -733,3 +733,4 @@ export function JournalPage() {
   };
 
 // ── render: emotion chip ─
+                      <p className="text-xs font-medium lowercase truncate">{ach.name}</p>
