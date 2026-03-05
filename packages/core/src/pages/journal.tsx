@@ -1379,6 +1379,12 @@ export function JournalPage() {
     };
     schedule();
   }, [reminderEnabled, reminderTime]);
+  useEffect(() => {
+    if (!reminderEnabled) {
+      localStorage.removeItem("journal_reminder");
+    }
+  }, [reminderEnabled]);
+
 
   
   // ── state: past entries filter ──
