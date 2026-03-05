@@ -1,3 +1,5 @@
+// leaflet must be mocked before any imports that might load it
+vi.mock('leaflet', () => ({ map: () => ({ remove: () => null }), tileLayer: () => ({ addTo: () => null }), polyline: () => ({ addTo: () => null }), icon: () => ({}) }));
 import React from 'react';
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 // leaflet uses window which isn't available in node; provide a minimal mock
