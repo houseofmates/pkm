@@ -30,11 +30,14 @@ describe('JournalPage', () => {
     fireEvent.click(moodBtn);
     expect(moodBtn).toHaveStyle('border: 2px solid rgba(255,255,255,0.08)');
 
-    // emotions section: typing 'sad' should show that emotion button only
+    // emotions section: default list includes 'sad' and new ones like 'infuriated'
     const searchInput = getByPlaceholderText(/search emotions/i);
     fireEvent.change(searchInput, { target: { value: 'sad' } });
     expect(queryByText('sad')).toBeTruthy();
     expect(queryByText('happy')).toBeNull();
+    // and ensure the newly added emotion appears in the searchable list
+    fireEvent.change(searchInput, { target: { value: 'infuriated' } });
+    expect(queryByText('infuriated')).toBeTruthy();
 
     // select 'sad'
     const sadBtn = queryByText('sad');

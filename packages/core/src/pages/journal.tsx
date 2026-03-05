@@ -35,7 +35,8 @@ const INITIAL_EMOTIONS = [
   'confident','content','peaceful','grateful','connected','relaxed','grounded',
   'nostalgic','sentimental','sleepy','bored','uninterested','dull','distracted',
   'exhausted','unmotivated','sad','depressed','miserable','insecure','lonely',
-  'embarrassed','jealous','guilty','frustrated','angry','anxious','overwhelmed'
+  'embarrassed','jealous','guilty','frustrated','angry','anxious','overwhelmed',
+  'infuriated' // new emotion added from nocobase list
 ];
 
 const DEFAULT_ACTIVITIES = [
