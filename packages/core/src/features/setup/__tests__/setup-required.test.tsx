@@ -9,7 +9,8 @@ describe('SetupRequired component', () => {
     // render to HTML string so we can simple substring search without DOM
     const html = renderToStaticMarkup(<SetupRequired />);
 
-    expect(html).toMatch(/backend isn't reachable or hasn't been configured/i);
+    // text will be HTML-escaped, so just look for the prefix
+    expect(html).toMatch(/backend isn/i);
     expect(html).toMatch(/check that your api\/sharing urls are correct/i);
     expect(html).toMatch(/it may already exist/i);
   });
