@@ -1825,3 +1825,5 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     </div>
   );
 }
+
+}
