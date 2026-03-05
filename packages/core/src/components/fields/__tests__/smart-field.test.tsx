@@ -35,17 +35,23 @@ const authValue = {
 };
 
 function withAuth(ui: React.ReactElement) {
-    return render(
-      <MemoryRouter>
-        <AuthContext.Provider value={authValue as any}>{ui}</AuthContext.Provider>
-      </MemoryRouter>
-    );
+    try {
+      return render(
+        <MemoryRouter>
+          <AuthContext.Provider value={authValue as any}>{ui}</AuthContext.Provider>
+        </MemoryRouter>
+      );
+    } catch (e) {
+      console.error('render error', e);
+      throw e;
+    }
 }
 
 describe('SmartField', () => {
   it('renders string value and allows editing', () => {
     const onChange = vi.fn();
-    withAuth(<SmartField value="hello" field={{ interface: 'input', name: 'foo' }} onChange={onChange} />);
+    const { container } = withAuth(<SmartField value="hello" field={{ interface: 'input', name: 'foo' }} onChange={onChange} />);
+    console.log('container html:', container.innerHTML);
     expect(screen.getByText('hello')).toBeInTheDocument();
     fireEvent.click(screen.getByText('hello'));
     const input = screen.getByRole('textbox') as HTMLInputElement;
