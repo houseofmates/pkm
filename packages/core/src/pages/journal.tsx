@@ -50,6 +50,8 @@ const Y = '#f5af12';
 // powder blue
 const B = '#3c9fdd';
 export function JournalPage() {
+  const [mood, setMood] = useState<string | null>(null);
+  const [activities, setActivities] = useState<Set<string>>(new Set());
 
   // hover/active scale applied via class on mood buttons
   const [body, setBody] = useState('');
