@@ -5,6 +5,7 @@ import { render, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 
 import { JournalPage } from '@/pages/journal';
+import api from '@/api/nocobase-client';
 import { AuthProvider } from '@/contexts/auth-context';
 
 // basic smoke test for mood buttons reflecting MOODS constant and behavior
@@ -49,5 +50,34 @@ describe('JournalPage', () => {
     expect(curiousBtn).toBeTruthy();
     if (curiousBtn) fireEvent.click(curiousBtn);
     // style should reflect selection (we only check existence here)
+  });
+
+  it('exports entries within selected date range', async () => {
+    const record1: any = { date: '2026-03-01', mood: '2', activities: '[]', body: '', timestamp: '2026-03-01T00:00:00Z', tags: '[]' };
+    const record2: any = { date: '2026-03-05', mood: '4', activities: '[]', body: '', timestamp: '2026-03-05T00:00:00Z', tags: '[]' };
+    vi.spyOn(api, 'listRecords').mockResolvedValue({ data: [record1, record2] });
+    let blobText = '';
+    vi.spyOn(URL, 'createObjectURL').mockImplementation((blob: any) => {
+      blob.text().then((t: string) => { blobText = t; });
+      return 'blob://fake';
+    });
+
+    const { getByTitle, getAllByDisplayValue } = render(
+      <MemoryRouter>
+        <AuthProvider>
+          <JournalPage />
+        </AuthProvider>
+      </MemoryRouter>
+    );
+
+    const dateInputs = getAllByDisplayValue('', { selector: 'input[type=date]' });
+    const fromInput = dateInputs[0];
+    const toInput = dateInputs[1];
+    fireEvent.change(fromInput, { target: { value: '2026-03-03' } });
+    fireEvent.change(toInput, { target: { value: '2026-03-10' } });
+    fireEvent.click(getByTitle('export'));
+    await new Promise(res => setTimeout(res, 0));
+    expect(blobText).toContain('2026-03-05');
+    expect(blobText).not.toContain('2026-03-01');
   });
 });
