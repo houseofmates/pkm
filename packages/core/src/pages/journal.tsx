@@ -1821,6 +1821,8 @@ export function JournalPage() {
   
   // ── state: past entries filter ──
   const [pastEntriesFilter, setPastEntriesFilter] = useState({ search: '', mood: '', tag: '' });
+  const [nlIds, setNlIds] = useState<string[] | null>(null);            // natural language search results
+  const [isNlSearching, setIsNlSearching] = useState(false);            
   
   // ── state: entry metadata ──
   const [selectedTemplate, setSelectedTemplate] = useState<typeof JOURNAL_TEMPLATES[0] | null>(null);
@@ -2050,7 +2052,15 @@ export function JournalPage() {
     }
   };
 
-  
+  const toggleBookmark = (entryId: number) => {
+    const newBookmarks = bookmarkedEntries.includes(entryId)
+      ? bookmarkedEntries.filter(id => id !== entryId)
+      : [...bookmarkedEntries, entryId];
+    setBookmarkedEntries(newBookmarks);
+    setStoredData('pkm:journal:bookmarks', newBookmarks);
+    toast.success(bookmarkedEntries.includes(entryId) ? 'bookmark removed' : 'entry bookmarked');
+  };
+
   const handleExport = async () => {
     try {
       const res: any = await api.listRecords('journal', { sort: '-date', pageSize: 1000 });
@@ -2375,8 +2385,11 @@ export function JournalPage() {
         } catch { return false; }
       });
     }
+    if (nlIds) {
+      filtered = filtered.filter(e => nlIds.includes(String(e.id)));
+    }
     return filtered;
-  }, [entries, pastEntriesFilter]);
+  }, [entries, pastEntriesFilter, nlIds]);
 
   const entriesGroupedByMonth = useMemo(() => {
     const groups: Record<string, typeof filteredPastEntries> = {};
