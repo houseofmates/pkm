@@ -2820,47 +2820,6 @@ ${entriesText}`;
 
       {/* past entries panel */}
       {pastEntriesPanel}
-          {/* filters */}
-          <div className="flex gap-2 mb-3 flex-wrap">
-            <div className="flex-1 min-w-[120px] relative">
-              <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-white/30" />
-              <input
-                type="text"
-                value={pastEntriesFilter.search}
-                onChange={e => { setPastEntriesFilter(f => ({ ...f, search: e.target.value })); setNlIds(null); }}
-                placeholder="search entries..."
-                className="w-full pl-8 pr-8 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase placeholder:text-white/30 focus:outline-none focus:border-white/30"
-              />
-              <button
-                onClick={handleNLSearch}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-white/30 hover:text-white"
-                title={isNlSearching ? 'searching...' : 'semantic search'}
-                disabled={isNlSearching || !pastEntriesFilter.search.trim()}
-              >
-                <Filter size={12} />
-              </button>
-            </div>
-            <select
-              value={pastEntriesFilter.mood}
-              onChange={e => setPastEntriesFilter(f => ({ ...f, mood: e.target.value }))}
-              className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase text-white/70 focus:outline-none"
-            >
-              <option value="">all moods</option>
-              {MOODS.map(m => <option key={m.id} value={m.id}>{m.label}</option>)}
-            </select>
-            <select
-              value={pastEntriesFilter.tag}
-              onChange={e => setPastEntriesFilter(f => ({ ...f, tag: e.target.value }))}
-              className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase text-white/70 focus:outline-none"
-            >
-              <option value="">all tags</option>
-              {availableTags.map(t => <option key={t} value={t}>{t}</option>)}
-            </select>
-          </div>
-            {filteredPastEntries.length === 0 && (
-              <p className="text-center text-white/30 lowercase text-sm py-8">no entries found</p>
-            )}
-          </div>
         </div>
       )}
 
