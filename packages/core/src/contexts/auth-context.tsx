@@ -63,6 +63,39 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return stored ? normalizeAuthToken(stored) : null;
   });
 
+  // proactively clear and warn when the JWT expires. a later 401 would
+  // accomplish the same thing, but that typically happens after the user
+  // has already been kicked out and confused; better to do it ourselves so
+  // the app can immediately flip to login and we can show a toast.
+  useEffect(() => {
+    if (!token) return;
+    try {
+      const parts = token.split('.');
+      if (parts.length === 3) {
+        const payload = JSON.parse(atob(parts[1]));
+        if (payload && payload.exp) {
+          const expireMs = payload.exp * 1000;
+          const now = Date.now();
+          if (expireMs <= now) {
+            storageManager.removeItem('nocobase_token');
+            setToken(null);
+            window.dispatchEvent(new Event('auth-error'));
+            return;
+          }
+          const timeout = setTimeout(() => {
+            secureLogger.info('token has expired, clearing');
+            storageManager.removeItem('nocobase_token');
+            setToken(null);
+            window.dispatchEvent(new Event('auth-error'));
+          }, expireMs - now);
+          return () => clearTimeout(timeout);
+        }
+      }
+    } catch (e) {
+      // ignore malformed token
+    }
+  }, [token]);
+
   // initialize client with a function to get the current token
   // this ensures the client always uses the latest token from the closure/state if we adjusted the client implementation,
   // but here we are passing a fresh client or using the ref pattern.
