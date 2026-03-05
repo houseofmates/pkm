@@ -44,12 +44,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (normalized) {
           storageManager.setItem('nocobase_token', normalized);
           // reload so the proper AuthProvider picks up the value
-          window.location.reload();
+          (globalThis as any).location?.reload?.();
         }
       },
       logout: () => {
         storageManager.removeItem('nocobase_token');
-        window.location.reload();
+        (globalThis as any).location?.reload?.();
       },
       client: new NocoBaseClient(),
     };
