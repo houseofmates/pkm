@@ -3292,7 +3292,6 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
                     color: emotions.has(emotion) ? '#ffffff' : emotionColors[emotion],
                     backgroundColor: emotions.has(emotion) ? `${emotionColors[emotion]}33` : 'transparent',
                   }}
-                  } : {}}
                   title="right-click to change color"
                 >
                   {emotion}
