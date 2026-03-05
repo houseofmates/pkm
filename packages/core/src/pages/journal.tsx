@@ -5,7 +5,7 @@ import api from '@/api/nocobase-client';
 import { OllamaClient } from '@/api/ollama-client';
 import { JournalRecord, parseActivities } from '@/schema/journal-collection';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, AreaChart, Area } from 'recharts';
-import { Sparkles, Mic, Image, Calendar, TrendingUp, Heart, Zap, Target, Award, BookOpen, Wind, Clock, Download, Bell, Plus, X, ChevronLeft, ChevronRight, Search, Filter, Edit2, Trash2, Lock } from 'lucide-react';
+import { Sparkles, Mic, Image, Calendar, TrendingUp, Heart, Zap, Target, Award, BookOpen, Wind, Clock, Download, Bell, Plus, X, ChevronLeft, ChevronRight, Search, Filter, Edit2, Trash2, Lock, FileText } from 'lucide-react';
 
 // ─────────────────────────────────────────────
 //  constants
@@ -181,6 +181,7 @@ const ACHIEVEMENTS = [
   { id: 'breathing_master', name: 'breathing master', description: 'completed 10 breathing sessions', icon: '🧘', category: 'wellness' },
   { id: 'photo_journalist', name: 'photo journalist', description: 'added 10 photos to entries', icon: '📸', category: 'creativity' },
   { id: 'voice_memoir', name: 'voice memoir', description: 'recorded 10 voice memos', icon: '🎙️', category: 'creativity' },
+  { id: 'audio_transcriber', name: 'audio transcriber', description: 'used voice transcription to generate a summary', icon: '🎧', category: 'creativity' },
   { id: 'weekly_summary', name: 'weekly philosopher', description: 'generated an ai summary of the week', icon: '📜', category: 'insights' },
   { id: 'social_butterfly', name: 'social butterfly', description: 'logged 20 social activities', icon: '🦋', category: 'social' },
   { id: 'health_hero', name: 'health hero', description: 'logged 50 health activities', icon: '❤️', category: 'wellness' },
@@ -1775,6 +1776,7 @@ export function JournalPage() {
     { id: 'add_emotions', label: 'add 3+ emotions', completed: false, icon: '💭' },
     { id: 'write_note', label: 'write 50+ characters', completed: false, icon: '✍️' },
     { id: 'complete_activities', label: 'complete 3+ activities', completed: false, icon: '✓' },
+    { id: 'voice_summary_goal', label: 'summarize a voice note', completed: false, icon: '📝' },
   ]);
   const [showGoals, setShowGoals] = useState(false);
   
@@ -1886,6 +1888,13 @@ export function JournalPage() {
     getStoredData('pkm:journal:bookmarks', [])
   );
   const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
+
+  // ── voice transcription states ──
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [transcript, setTranscript] = useState('');
+  const [isSummarizingVoice, setIsSummarizingVoice] = useState(false);
+  const [transcriptionSummary, setTranscriptionSummary] = useState('');
+  const recognitionRef = useRef<any>(null);
 
   // ── derived state ──
   const entriesByDate = useMemo(() => {
@@ -2421,6 +2430,76 @@ ${entriesText}`;
         setRecordingTime(prev => prev + 1);
       }, 1000);
     }
+  };
+
+  const generateTranscriptionSummary = async (text: string) => {
+    setIsSummarizingVoice(true);
+    setTranscriptionSummary('');
+    try {
+      const ollama = new OllamaClient();
+      const prompt = `you are wilson, a helpful personal assistant. given the following speech-to-text transcript of a voice journal entry, write a long, detailed, humanized, casual summary. elaborate on each topic mentioned, note any emotions or reflections, and respond entirely in lowercase.
+
+transcript: "${text}"
+
+summary:`;
+      const resp = await ollama.ask(prompt, undefined, (chunk) => {
+        setTranscriptionSummary(chunk);
+      });
+      setBody(resp);
+      // unlock achievement
+      if (!unlockedAchievements.includes('audio_transcriber')) {
+        const updated = [...unlockedAchievements, 'audio_transcriber'];
+        setUnlockedAchievements(updated);
+        setStoredData(STORAGE_KEYS.ACHIEVEMENTS, updated);
+        setCelebratingAchievement(ACHIEVEMENTS.find(a => a.id === 'audio_transcriber') || null);
+      }
+      // mark daily goal
+      setDailyGoals(prev => prev.map(g => g.id === 'voice_summary_goal' ? { ...g, completed: true } : g));
+      toast.success('voice summary generated');
+    } catch (e) {
+      console.error('summary failed', e);
+      toast.error('voice summary failed');
+    } finally {
+      setIsSummarizingVoice(false);
+    }
+  };
+
+  const handleVoiceTranscription = () => {
+    if (isTranscribing && recognitionRef.current) {
+      recognitionRef.current.stop();
+      return;
+    }
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      toast.error('speech recognition not supported in this browser');
+      return;
+    }
+    const recog = new SpeechRecognition();
+    recog.lang = 'en-US';
+    recog.interimResults = true;
+    recog.continuous = true;
+    recog.onresult = (e: any) => {
+      let text = '';
+      for (let i = 0; i < e.results.length; i++) {
+        text += e.results[i][0].transcript;
+      }
+      setTranscript(text);
+    };
+    recog.onend = () => {
+      setIsTranscribing(false);
+      if (transcript.trim()) {
+        generateTranscriptionSummary(transcript);
+      }
+    };
+    recog.onerror = (e: any) => {
+      console.error('speech recognition error', e);
+      toast.error('speech recognition error');
+      setIsTranscribing(false);
+    };
+    recognitionRef.current = recog;
+    recog.start();
+    setIsTranscribing(true);
+    setTranscript('');
   };
 
   // ── derived state for UI ──
