@@ -109,7 +109,7 @@ function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleF
 }
 
 // helper for droppable/sortable column
-function KanbanColumn({ id, title, items, children, onCreate, groupByField }: { id: string; title: string; items: any[]; children: React.ReactNode; onCreate?: (data: any) => void; groupByField?: string }) {
+function KanbanColumn({ id, title, items, children, onCreate, groupByField, color }: { id: string; title: string; items: any[]; children: React.ReactNode; onCreate?: (data: any) => void; groupByField?: string; color?: string }) {
   const { setNodeRef } = useSortable({
     id: id,
     data: {
@@ -119,7 +119,11 @@ function KanbanColumn({ id, title, items, children, onCreate, groupByField }: { 
   });
 
   return (
-    <div ref={setNodeRef} className="relative w-72 flex-shrink-0 flex flex-col h-full max-h-full rounded-lg bg-muted/40 border ml-4 first:ml-0">
+    <div
+      ref={setNodeRef}
+      className="relative w-72 flex-shrink-0 flex flex-col h-full max-h-full rounded-lg bg-muted/40 border ml-4 first:ml-0"
+      style={color ? { borderLeft: `4px solid ${color}` } : undefined}
+    >
       <div className="absolute top-1 right-1">
         {onCreate && groupByField && (
           <Button variant="ghost" size="icon" className="h-5 w-5" onClick={() => onCreate({ [groupByField]: id })} title="new" aria-label="add card">
@@ -128,7 +132,7 @@ function KanbanColumn({ id, title, items, children, onCreate, groupByField }: { 
         )}
       </div>
       <div className="p-3 font-semibold text-sm flex items-center justify-between border-b bg-muted/20">
-        <span className="lowercase">{title}</span>
+        <span className="lowercase" style={color ? { color: getContrastColor(color) } : undefined}>{title}</span>
         <span className="text-xs text-muted-foreground font-normal bg-background px-2 py-0.5 rounded-full border">
           {items.length}
         </span>
@@ -157,6 +161,7 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
   const { client } = useAuth();
   const [columns, setColumns] = useState<Record<string, any[]>>({});
   const [columnOrder, setColumnOrder] = useState<string[]>([]);
+  const [colColors, setColColors] = useState<Record<string,string>>({});
   const [activeId, setActiveId] = useState<string | number | null>(null);
   const [draggedRecord, setDraggedRecord] = useState<any>(null);
 
@@ -190,13 +195,17 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
     const newOrder: string[] = [];
 
     // pre-fill columns from schema options if available (select/radio)
+    const colorsMap: Record<string,string> = {};
     if (fieldSchema?.uiSchema?.enum) {
-      fieldSchema.uiSchema.enum.forEach((opt: { value: string }) => {
+      const colorsArr: string[] = (fieldSchema as any).optionColors || [];
+      fieldSchema.uiSchema.enum.forEach((opt: { value: string }, idx: number) => {
         const val = opt.value;
         newColumns[val] = [];
         newOrder.push(val);
+        if (colorsArr[idx]) colorsMap[val] = colorsArr[idx];
       });
     }
+    setColColors(colorsMap);
 
     // always add uncategorized if not present or for safety
     if (!newColumns['uncategorized']) {

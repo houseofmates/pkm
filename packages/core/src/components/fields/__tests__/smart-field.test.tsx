@@ -119,10 +119,13 @@ describe('SmartField', () => {
 
   it('renders select view using label and allows choice', async () => {
     const onChange = vi.fn();
-    const options = [{ label: 'One', value: '1' }, { label: 'Two', value: '2' }];
+    const options = [{ label: 'One', value: '1', color: '#ff0000' }, { label: 'Two', value: '2' }];
     const { container } = withAuth(<SmartField value="1" field={{ interface: 'select', name: 'sel', uiSchema: { enum: options } }} onChange={onChange} />);
     // the displayed text should use the label, not the raw value
     expect(container.textContent).toContain('One');
+    // and the background color of the pill should come from the option
+    const pill = container.querySelector('div > span');
+    expect(pill).toHaveStyle('background: #ff0000');
 
     // open editor by clicking
     fireEvent.click(screen.getByText('One'));
