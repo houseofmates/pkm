@@ -14,12 +14,12 @@ import api from '@/api/nocobase-client';
 // note: order determines layout left→right; "amazing" moved last to
 // appear on the rightmost side and get a larger hit area.
 const MOODS = [
-  { id: '5', label: 'great',    img: '/images/moods/5.png' },
-  { id: '4', label: 'good',     img: '/images/moods/4.png' },
-  { id: '2', label: 'fine',     img: '/images/moods/2.png' },
-  { id: '1', label: 'bad',      img: '/images/moods/1.png' },
-  { id: '0', label: 'terrible', img: '/images/moods/0.png' },
-  { id: '6', label: 'amazing!', img: '/images/moods/amazing.png' },
+  { id: '5', label: 'great',    emoji: '😃', img: '/images/moods/5.png' },
+  { id: '4', label: 'good',     emoji: '😊', img: '/images/moods/4.png' },
+  { id: '2', label: 'fine',     emoji: '😐', img: '/images/moods/2.png' },
+  { id: '1', label: 'bad',      emoji: '😞', img: '/images/moods/1.png' },
+  { id: '0', label: 'terrible', emoji: '😡', img: '/images/moods/0.png' },
+  { id: '6', label: 'amazing!', emoji: '😁', img: '/images/moods/amazing.png' },
 ];
 
 const ACTIVITIES = [
