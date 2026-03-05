@@ -3285,15 +3285,13 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
                   key={emotion}
                   onClick={() => toggleEmotion(emotion)}
                   onContextMenu={e => handleContextMenu(e, 'emotion', emotion)}
-                  className={cn(
-                    "px-3 py-1.5 rounded-full text-xs lowercase transition-all",
-                    emotions.has(emotion) 
-                      ? "text-white" 
-                      : "bg-white/5 text-white/50 hover:bg-white/10"
-                  )}
-                  style={emotions.has(emotion) ? {
-                    backgroundColor: `${emotionColors[emotion]}33`,
+                  className="px-3 py-1.5 rounded-full text-xs lowercase transition-all"
+                  style={{
+                    // always show border with emotion color
                     border: `1px solid ${emotionColors[emotion]}`,
+                    color: emotions.has(emotion) ? '#ffffff' : emotionColors[emotion],
+                    backgroundColor: emotions.has(emotion) ? `${emotionColors[emotion]}33` : 'transparent',
+                  }}
                   } : {}}
                   title="right-click to change color"
                 >
