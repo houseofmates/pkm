@@ -12,6 +12,18 @@ import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import { PushToTalkWidget } from '@/components/push-to-talk-widget';
 
+// override focus/accent for journal buttons so color comes from the element itself
+const journalStyles = `
+  .journal-mood-btn:focus, .journal-emotion-btn:focus {
+    outline: none !important;
+    box-shadow: 0 0 0 2px currentColor !important;
+  }
+`;
+
+const styleEl = document.createElement('style');
+styleEl.textContent = journalStyles;
+document.head.appendChild(styleEl);
+
 // ─────────────────────────────────────────────
 //  constants
 // ─────────────────────────────────────────────
@@ -2861,8 +2873,9 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
       <button
         key={m.id}
         onClick={() => isQuick ? handleQuickMood(m.id) : setMood(active ? null : m.id)}
-        className={`${size} rounded-full transition-all duration-150 flex items-center justify-center hover:scale-110 hover:-translate-y-1 active:scale-105 active:translate-y-0 focus:outline-none ring-0 focus:ring-0 focus:ring-offset-0`}
+        className={`${size} journal-mood-btn rounded-full transition-all duration-150 flex items-center justify-center hover:scale-110 hover:-translate-y-1 active:scale-105 active:translate-y-0 focus:outline-none ring-0 focus:ring-0 focus:ring-offset-0`}
         style={{
+          color: m.color,
           background: active ? `${m.color}33` : '#000000',
           border: `2px solid ${m.color}`,
           boxShadow: active ? `0 0 0 2px ${m.color} !important` : 'none',
@@ -3286,7 +3299,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
                   key={emotion}
                   onClick={() => toggleEmotion(emotion)}
                   onContextMenu={e => handleContextMenu(e, 'emotion', emotion)}
-                  className="px-3 py-1.5 rounded-full text-xs lowercase transition-all focus:outline-none ring-0 focus:ring-0 focus:ring-offset-0"
+                  className="px-3 py-1.5 rounded-full text-xs lowercase transition-all journal-emotion-btn focus:outline-none ring-0 focus:ring-0 focus:ring-offset-0"
                   style={{
                     // always show border with emotion color
                     border: `1px solid ${emotionColors[emotion]}`,
