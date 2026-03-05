@@ -2366,6 +2366,9 @@ export function JournalPage() {
 
   const filteredPastEntries = useMemo(() => {
     let filtered = [...entries];
+    if (showBookmarksOnly) {
+      filtered = filtered.filter(e => bookmarkedEntries.includes(e.id!));
+    }
     if (pastEntriesFilter.search) {
       const q = pastEntriesFilter.search.toLowerCase();
       filtered = filtered.filter(e => 
@@ -2385,11 +2388,8 @@ export function JournalPage() {
         } catch { return false; }
       });
     }
-    if (nlIds) {
-      filtered = filtered.filter(e => nlIds.includes(String(e.id)));
-    }
     return filtered;
-  }, [entries, pastEntriesFilter, nlIds]);
+  }, [entries, pastEntriesFilter, showBookmarksOnly, bookmarkedEntries]);
 
   const entriesGroupedByMonth = useMemo(() => {
     const groups: Record<string, typeof filteredPastEntries> = {};
@@ -2708,10 +2708,18 @@ export function JournalPage() {
               <input
                 type="text"
                 value={pastEntriesFilter.search}
-                onChange={e => setPastEntriesFilter(f => ({ ...f, search: e.target.value }))}
+                onChange={e => { setPastEntriesFilter(f => ({ ...f, search: e.target.value })); setNlIds(null); }}
                 placeholder="search entries..."
-                className="w-full pl-8 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase placeholder:text-white/30 focus:outline-none focus:border-white/30"
+                className="w-full pl-8 pr-8 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase placeholder:text-white/30 focus:outline-none focus:border-white/30"
               />
+              <button
+                onClick={handleNLSearch}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-white/30 hover:text-white"
+                title={isNlSearching ? 'searching...' : 'semantic search'}
+                disabled={isNlSearching || !pastEntriesFilter.search.trim()}
+              >
+                <Filter size={12} />
+              </button>
             </div>
             <select
               value={pastEntriesFilter.mood}
@@ -2729,6 +2737,17 @@ export function JournalPage() {
               <option value="">all tags</option>
               {availableTags.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
+            <button
+              onClick={() => setShowBookmarksOnly(v => !v)}
+              className={cn(
+                "px-3 py-2 rounded-lg border text-sm lowercase transition-colors",
+                showBookmarksOnly 
+                  ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-400" 
+                  : "bg-white/5 border-white/10 text-white/70"
+              )}
+            >
+              ★ bookmarks
+            </button>
           </div>
 
           {/* entries list */}
