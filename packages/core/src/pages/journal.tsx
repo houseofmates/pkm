@@ -1905,6 +1905,52 @@ export function JournalPage() {
     setCharCount(body.length);
   }, [body]);
 
+  // ── auto-save draft ──
+  useEffect(() => {
+    const saveDraft = () => {
+      const draft = {
+        mood,
+        emotions: Array.from(emotions),
+        activities: Array.from(activities),
+        body,
+        tags: Array.from(tags),
+        timestamp: Date.now(),
+      };
+      localStorage.setItem('pkm:journal:draft', JSON.stringify(draft));
+    };
+    
+    const interval = setInterval(saveDraft, 30000); // auto-save every 30 seconds
+    return () => clearInterval(interval);
+  }, [mood, emotions, activities, body, tags]);
+
+  // ── load draft on mount ──
+  useEffect(() => {
+    const savedDraft = localStorage.getItem('pkm:journal:draft');
+    if (savedDraft) {
+      try {
+        const draft = JSON.parse(savedDraft);
+        const hoursSince = (Date.now() - draft.timestamp) / (1000 * 60 * 60);
+        if (hoursSince < 24) { // only restore drafts less than 24 hours old
+          if (draft.mood) setMood(draft.mood);
+          if (draft.emotions?.length) setEmotions(new Set(draft.emotions));
+          if (draft.activities?.length) setActivities(new Set(draft.activities));
+          if (draft.body) setBody(draft.body);
+          if (draft.tags?.length) setTags(new Set(draft.tags));
+          if (draft.body || draft.mood) {
+            toast.success('restored draft from earlier');
+          }
+        }
+      } catch {}
+    }
+  }, []);
+
+  // ── clear draft on save ──
+  useEffect(() => {
+    if (!saving && !editingEntry) {
+      localStorage.removeItem('pkm:journal:draft');
+    }
+  }, [saving, editingEntry]);
+
   // ── helpers ──
   const saveEmotionColors = useCallback((colors: Record<string, string>) => {
     setEmotionColors(colors);
