@@ -2530,6 +2530,29 @@ ${entriesText}`;
           {nlIds !== null ? 'no semantic search results' : 'no entries found'}
         </p>
       )}
+
+      {/* list of entries grouped by month */}
+      {filteredPastEntries.length > 0 && Object.keys(entriesGroupedByMonth).map(month => (
+        <div key={month} className="mb-4">
+          <p className="text-xs text-white/50 lowercase mb-2">{month}</p>
+          {entriesGroupedByMonth[month].map(e => {
+            const highlight = nlIds !== null;
+            return (
+              <div
+                key={e.id}
+                onClick={() => setViewingEntry(e)}
+                className={cn(
+                  "p-2 rounded-lg mb-1 cursor-pointer",
+                  highlight ? "bg-yellow-500/10 border border-yellow-400" : "bg-white/5"
+                )}
+              >
+                <p className="text-xs text-white/40 lowercase">{new Date(e.date).toLocaleDateString()}</p>
+                <p className="text-sm line-clamp-2">{e.body || ''}</p>
+              </div>
+            );
+          })}
+        </div>
+      ))}
     </div>
   ) : null;
 
