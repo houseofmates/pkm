@@ -2938,7 +2938,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
       />
 
       {/* header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between pl-2">
         <div>
           <p className="text-xs text-white/40 lowercase">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
           <h1 className="text-2xl font-bold lowercase tracking-tight">journal</h1>
