@@ -2675,9 +2675,16 @@ summary:`;
     ? availableActivities.filter(a => a.category === activityFilter)
     : availableActivities;
 
-  const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
+  function moodImageFor(id?: string) {
+    const m = MOODS.find(x => x.id === id);
+    if (!m) return null;
+    const name = m.label.replace(/[^a-z]/g, '');
+    return <img src={`/images/moods/${name}.png`} alt={m.label} className="w-full h-full object-contain" />;
+  }
+
+const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
     const active = (isQuick ? quickMood : mood) === m.id;
-    const size = isQuick ? 'w-10 h-10 text-xl' : 'w-14 h-14 text-2xl';
+    const size = isQuick ? 'w-10 h-10' : 'w-14 h-14';
     return (
       <button
         key={m.id}
@@ -2689,7 +2696,7 @@ summary:`;
           boxShadow: active ? `0 0 15px ${m.color}66` : 'none',
         }}
       >
-        {m.emoji}
+        {moodImageFor(m.id)}
       </button>
     );
   };
@@ -2985,7 +2992,9 @@ summary:`;
         <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <span className="text-2xl">{MOODS.find(m => m.id === viewingEntry.mood)?.emoji || '📝'}</span>
+              <span className="text-2xl w-8 h-8 inline-block">
+            {moodImageFor(viewingEntry.mood) || '📝'}
+          </span>
               <div>
                 <p className="text-sm font-medium lowercase">{formatDate(viewingEntry.date)}</p>
                 <p className="text-xs text-white/40 lowercase">
@@ -3028,6 +3037,22 @@ summary:`;
                 </span>
               ) : null;
             })}
+            {(() => {
+              try {
+                const tgs = JSON.parse((viewingEntry as any).tags || '[]');
+                return tgs.map((tg: string) => (
+                  <span
+                    key={tg}
+                    className="px-2 py-1 rounded-full text-xs lowercase"
+                    style={{
+                      color: tagColors[tg] || '#fff',
+                      backgroundColor: `${tagColors[tg] || '#fff'}33`,
+                      border: `1px solid ${tagColors[tg] || '#fff'}`
+                    }}
+                  >#{tg}</span>
+                ));
+              } catch { return null; }
+            })()}
           </div>
           
           <div className="flex gap-2 mt-3">
