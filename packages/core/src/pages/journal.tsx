@@ -131,7 +131,7 @@ export function JournalPage() {
                 <button
                   key={m.id}
                   onClick={() => setMood(active ? null : m.id)}
-                  className="p-1 rounded-full transition-transform duration-150 select-none focus:outline-none"
+                  className="p-1 rounded-full transition-transform duration-150 select-none focus:outline-none hover:scale-110 active:scale-90"
                   style={{
                     transform: 'translateZ(0)',
                     // active outline
@@ -141,7 +141,7 @@ export function JournalPage() {
                   <img
                     src={m.img}
                     alt={m.label}
-                    className="w-10 h-10 object-contain"
+                    className={m.id === '6' ? "w-12 h-12 object-contain" : "w-10 h-10 object-contain"}
                     style={{
                       opacity: active ? 1 : 0.7,
                     }}
