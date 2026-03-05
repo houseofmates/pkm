@@ -142,6 +142,17 @@ describe('SmartField', () => {
     fireEvent.click(opt);
     expect(onChange).toHaveBeenCalledWith('2');
 
+    // right-click the first option to set a color
+    const firstDiv = screen.getByText('One').closest('div');
+    expect(firstDiv).toBeTruthy();
+    if (firstDiv) fireEvent.contextMenu(firstDiv);
+    const colorInput = document.querySelector('input[type="color"]') as HTMLInputElement;
+    expect(colorInput).toBeInTheDocument();
+    fireEvent.change(colorInput, { target: { value: '#00ff00' } });
+    // pill color should now be applied when rendering view mode again
+    fireEvent.click(screen.getByText('One')); // close editor
+    expect(colorInput.value).toBe('#00ff00');
+
     // type a new option and add it
     fireEvent.change(input, { target: { value: 'Three' } });
     const add = await screen.findByText(/add "Three"/i);
