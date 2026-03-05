@@ -3402,7 +3402,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
               <div className="p-2 bg-white/10 rounded-lg mt-2 prose prose-invert text-sm max-w-none">
                 <ReactMarkdown remarkPlugins={[remarkGfm]}>{body}</ReactMarkdown>
               </div>
-            )
+            )}
             <div className="flex justify-between items-center mt-2">
               <p className="text-xs text-white/30 lowercase">{wordCount} words • {charCount} chars</p>
               {wordCount >= 500 && <p className="text-xs text-yellow-400 lowercase">✦ word warrior!</p>}
