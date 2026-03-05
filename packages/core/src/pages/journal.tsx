@@ -142,7 +142,7 @@ export function JournalPage() {
                     src={m.img}
                     alt={m.emoji}
                     onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                    className={m.id === '6' ? "w-14 h-14 object-contain" : "w-12 h-12 object-contain"}
+                    className={m.id === '6' ? "w-20 h-20 object-contain" : "w-16 h-16 object-contain"}
                     style={{
                       opacity: active ? 1 : 0.7,
                     }}
