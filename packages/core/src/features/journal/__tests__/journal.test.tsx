@@ -14,6 +14,7 @@ describe('JournalPage', () => {
     // find the mood button for the first mood (amazing!) by alt text
     const moodImages = root.findAll((n) => n.type === 'img' && n.props.alt?.toLowerCase().includes('amazing'));
     expect(moodImages.length).toBe(1);
+    expect(moodImages[0].props.src).toMatch(/amazing\.png$/);
     const btn = moodImages[0].parent; // image is direct child of button
 
     // initially not active (no boxShadow prop)
