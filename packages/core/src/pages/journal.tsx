@@ -842,8 +842,7 @@ function WeeklyReviewModal({ isOpen, onClose, entries, onSummaryGenerated }: { i
     setIsSummarizing(true);
     try {
       const ollama = new OllamaClient();
-      const text = weekEntries.map(e => e.body || '').join('\n---\n');
----
+      const text = weekEntries.map(e => e.body || '').join('\\n---\\n');
 ');
       const prompt = `summarize these journal entries in a few sentences, highlighting mood trends and key events:
 ${text}`;
