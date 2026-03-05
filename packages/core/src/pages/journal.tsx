@@ -929,3 +929,338 @@ function TemplateSelector({ isOpen, onClose, onSelect }: { isOpen: boolean; onCl
     </div>
   );
 }
+
+
+// ─────────────────────────────────────────────
+//  stats charts component
+// ─────────────────────────────────────────────
+
+interface StatsChartsProps {
+  entries: JournalRecord[];
+}
+
+function StatsCharts({ entries }: StatsChartsProps) {
+  const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year' | 'all'>('month');
+  const [chartType, setChartType] = useState<'trend' | 'mood' | 'activities' | 'emotions'>('trend');
+
+  const filteredEntries = useMemo(() => {
+    if (timeRange === 'all') return entries;
+    const now = new Date();
+    const cutoff = new Date();
+    if (timeRange === 'week') cutoff.setDate(now.getDate() - 7);
+    else if (timeRange === 'month') cutoff.setDate(now.getDate() - 30);
+    else cutoff.setDate(now.getDate() - 365);
+    return entries.filter(e => new Date(e.date) >= cutoff);
+  }, [entries, timeRange]);
+
+  const moodTrendData = useMemo(() => {
+    const sorted = [...filteredEntries].filter(e => e.mood).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    return sorted.map(e => ({
+      date: formatDate(e.date),
+      mood: getMoodValue(e.mood!),
+      fullDate: e.date,
+    }));
+  }, [filteredEntries]);
+
+  const emotionFrequency = useMemo(() => {
+    const freq: Record<string, number> = {};
+    filteredEntries.forEach(e => {
+      try {
+        const emos = JSON.parse((e as any).emotions || '[]');
+        emos.forEach((em: string) => { freq[em] = (freq[em] || 0) + 1; });
+      } catch {}
+    });
+    return Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([name, count]) => ({ name, count }));
+  }, [filteredEntries]);
+
+  const activityBreakdown = useMemo(() => {
+    const freq: Record<string, number> = {};
+    filteredEntries.forEach(e => {
+      const acts = parseActivities(e.activities);
+      acts.forEach((a: string) => { freq[a] = (freq[a] || 0) + 1; });
+    });
+    return Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([name, value]) => {
+      const act = DEFAULT_ACTIVITIES.find(a => a.id === name);
+      return { name: act?.label || name, value };
+    });
+  }, [filteredEntries]);
+
+  const moodDistribution = useMemo(() => {
+    const dist: Record<string, number> = {};
+    filteredEntries.filter(e => e.mood).forEach(e => {
+      const label = MOODS.find(m => m.id === e.mood)?.label || 'unknown';
+      dist[label] = (dist[label] || 0) + 1;
+    });
+    return Object.entries(dist).map(([name, value]) => ({ name, value }));
+  }, [filteredEntries]);
+
+  const moodByDayOfWeek = useMemo(() => {
+    const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+    const dayMoods: Record<string, number[]> = {};
+    days.forEach(d => dayMoods[d] = []);
+    
+    filteredEntries.filter(e => e.mood).forEach(e => {
+      const day = days[new Date(e.date).getDay()];
+      dayMoods[day].push(getMoodValue(e.mood!));
+    });
+    
+    return days.map(day => ({
+      day,
+      avg: dayMoods[day].length > 0 
+        ? Number((dayMoods[day].reduce((a, b) => a + b, 0) / dayMoods[day].length).toFixed(1))
+        : 0
+    }));
+  }, [filteredEntries]);
+
+  const MOOD_COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#8b5cf6'];
+
+  const averageMood = useMemo(() => calculateAverageMood(filteredEntries), [filteredEntries]);
+  const totalEntries = filteredEntries.length;
+  const longestStreak = getStoredData(STORAGE_KEYS.LONGEST_STREAK, 0);
+
+  return (
+    <div className="space-y-4">
+      {/* summary stats */}
+      <div className="grid grid-cols-3 gap-2">
+        <div className="p-2 rounded-lg bg-white/[0.03] text-center">
+          <span className="text-lg font-bold text-blue-400">{totalEntries}</span>
+          <p className="text-[10px] text-white/40 lowercase">entries</p>
+        </div>
+        <div className="p-2 rounded-lg bg-white/[0.03] text-center">
+          <span className="text-lg font-bold text-green-400">{averageMood}</span>
+          <p className="text-[10px] text-white/40 lowercase">avg mood</p>
+        </div>
+        <div className="p-2 rounded-lg bg-white/[0.03] text-center">
+          <span className="text-lg font-bold text-yellow-400">{longestStreak}</span>
+          <p className="text-[10px] text-white/40 lowercase">best streak</p>
+        </div>
+      </div>
+
+      {/* time range selector */}
+      <div className="flex justify-center gap-1 flex-wrap">
+        {(['week', 'month', 'year', 'all'] as const).map(r => (
+          <button
+            key={r}
+            onClick={() => setTimeRange(r)}
+            className={cn("px-2 py-1 rounded-full text-[10px] lowercase", timeRange === r ? "bg-blue-600" : "bg-white/10")}
+          >
+            {r}
+          </button>
+        ))}
+      </div>
+
+      {/* chart type selector */}
+      <div className="flex justify-center gap-1 flex-wrap">
+        {[
+          { id: 'trend', label: 'trend', icon: TrendingUp },
+          { id: 'mood', label: 'moods', icon: Heart },
+          { id: 'activities', label: 'activities', icon: Zap },
+          { id: 'emotions', label: 'emotions', icon: Sparkles },
+        ].map(({ id, label, icon: Icon }) => (
+          <button
+            key={id}
+            onClick={() => setChartType(id as any)}
+            className={cn(
+              "px-2 py-1 rounded-full text-[10px] lowercase flex items-center gap-1",
+              chartType === id ? "bg-purple-600" : "bg-white/10"
+            )}
+          >
+            <Icon size={10} />
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* trend chart */}
+      {chartType === 'trend' && moodTrendData.length > 0 && (
+        <div>
+          <p className="text-xs text-white/40 lowercase mb-2">mood trend</p>
+          <div className="h-40">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={moodTrendData}>
+                <defs>
+                  <linearGradient id="moodGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={B} stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor={B} stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <XAxis dataKey="date" stroke="rgba(255,255,255,0.3)" fontSize={9} tickLine={false} />
+                <YAxis domain={[0, 6]} ticks={[1, 2, 3, 4, 5, 6]} stroke="rgba(255,255,255,0.3)" fontSize={9} tickLine={false} />
+                <Tooltip 
+                  contentStyle={{ background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                  labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
+                />
+                <Area type="monotone" dataKey="mood" stroke={B} strokeWidth={2} fill="url(#moodGradient)" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* mood by day of week */}
+      {chartType === 'trend' && (
+        <div>
+          <p className="text-xs text-white/40 lowercase mb-2">mood by day</p>
+          <div className="h-32">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={moodByDayOfWeek}>
+                <XAxis dataKey="day" stroke="rgba(255,255,255,0.3)" fontSize={9} tickLine={false} />
+                <YAxis domain={[0, 6]} stroke="rgba(255,255,255,0.3)" fontSize={9} tickLine={false} />
+                <Tooltip 
+                  contentStyle={{ background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                />
+                <Bar dataKey="avg" fill={Y} radius={[4, 4, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* emotions chart */}
+      {chartType === 'emotions' && emotionFrequency.length > 0 && (
+        <div>
+          <p className="text-xs text-white/40 lowercase mb-2">top emotions</p>
+          <div className="h-40">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={emotionFrequency} layout="vertical">
+                <XAxis type="number" stroke="rgba(255,255,255,0.3)" fontSize={9} tickLine={false} />
+                <YAxis type="category" dataKey="name" width={70} stroke="rgba(255,255,255,0.3)" fontSize={9} tickLine={false} />
+                <Tooltip 
+                  contentStyle={{ background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                />
+                <Bar dataKey="count" fill={Y} radius={[0, 4, 4, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* activities pie chart */}
+      {chartType === 'activities' && activityBreakdown.length > 0 && (
+        <div>
+          <p className="text-xs text-white/40 lowercase mb-2">activities</p>
+          <div className="h-40">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={activityBreakdown}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={35}
+                  outerRadius={60}
+                  dataKey="value"
+                  nameKey="name"
+                  label={({ name }) => name.length > 8 ? name.slice(0, 8) + '...' : name}
+                  labelLine={false}
+                >
+                  {activityBreakdown.map((_, i) => (
+                    <Cell key={i} fill={COLOR_PALETTE[i % COLOR_PALETTE.length]} />
+                  ))}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {/* mood distribution */}
+      {chartType === 'mood' && moodDistribution.length > 0 && (
+        <div>
+          <p className="text-xs text-white/40 lowercase mb-2">mood distribution</p>
+          <div className="h-40">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={moodDistribution}
+                  cx="50%"
+                  cy="50%"
+                  outerRadius={60}
+                  dataKey="value"
+                  nameKey="name"
+                  label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                >
+                  {moodDistribution.map((entry, i) => {
+                    const moodColor = MOODS.find(m => m.label === entry.name)?.color || MOOD_COLORS[i % MOOD_COLORS.length];
+                    return <Cell key={i} fill={moodColor} />;
+                  })}
+                </Pie>
+                <Tooltip 
+                  contentStyle={{ background: '#111', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px' }}
+                />
+                <Legend fontSize={9} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
+
+      {filteredEntries.length === 0 && (
+        <p className="text-center text-white/30 lowercase text-sm py-8">no data for this period</p>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+//  gratitude tracker component
+// ─────────────────────────────────────────────
+
+function GratitudeTracker() {
+  const [gratitudes, setGratitudes] = useState<string[]>([]);
+  const [input, setInput] = useState('');
+  const [count, setCount] = useState(() => getStoredData(STORAGE_KEYS.GRATITUDE_COUNT, 0));
+
+  const addGratitude = () => {
+    if (!input.trim()) return;
+    const newGratitudes = [...gratitudes, input.trim()];
+    setGratitudes(newGratitudes);
+    const newCount = count + 1;
+    setCount(newCount);
+    setStoredData(STORAGE_KEYS.GRATITUDE_COUNT, newCount);
+    setInput('');
+    toast.success('gratitude added! ✨');
+  };
+
+  return (
+    <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <Heart size={16} className="text-pink-400" />
+          <p className="text-xs text-white/40 lowercase">gratitude tracker</p>
+        </div>
+        <span className="text-xs text-pink-400">{count} total</span>
+      </div>
+      
+      <div className="flex gap-2 mb-3">
+        <input
+          type="text"
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && addGratitude()}
+          placeholder="i'm grateful for..."
+          className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase placeholder:text-white/30 focus:outline-none focus:border-white/30"
+        />
+        <button
+          onClick={addGratitude}
+          className="px-3 py-2 rounded-lg bg-pink-500/20 text-pink-400 hover:bg-pink-500/30"
+        >
+          <Plus size={16} />
+        </button>
+      </div>
+
+      {gratitudes.length > 0 && (
+        <div className="space-y-2">
+          {gratitudes.map((g, i) => (
+            <div key={i} className="flex items-center gap-2 text-sm text-white/70 lowercase">
+              <span className="text-pink-400">✦</span>
+              {g}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
