@@ -2820,8 +2820,6 @@ ${entriesText}`;
 
       {/* past entries panel */}
       {pastEntriesPanel}
-        </div>
-      )}
 
       {/* entry detail view */}
       {viewingEntry && (
