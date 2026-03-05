@@ -4,7 +4,7 @@ import { toast } from 'sonner';
 import api from '@/api/nocobase-client';
 import { JournalRecord, parseActivities } from '@/schema/journal-collection';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, AreaChart, Area } from 'recharts';
-import { Sparkles, Mic, Image, Calendar, TrendingUp, Heart, Zap, Target, Award, BookOpen, Wind, Clock, Download, Plus, X, ChevronLeft, ChevronRight, Search, Filter, Edit2, Trash2, Lock } from 'lucide-react';
+import { Sparkles, Mic, Image, Calendar, TrendingUp, Heart, Zap, Target, Award, BookOpen, Wind, Clock, Download, Bell, Plus, X, ChevronLeft, ChevronRight, Search, Filter, Edit2, Trash2, Lock } from 'lucide-react';
 
 // ─────────────────────────────────────────────
 //  constants
@@ -1353,6 +1353,33 @@ export function JournalPage() {
     localStorage.getItem('journal_reminder') || ''
   );
   const [reminderEnabled, setReminderEnabled] = useState<boolean>(!!reminderTime);
+
+  useEffect(() => {
+    if (!reminderEnabled || !reminderTime) return;
+    localStorage.setItem("journal_reminder", reminderTime);
+    const schedule = () => {
+      const now = new Date();
+      const [h,m] = reminderTime.split(":").map(Number);
+      const next = new Date();
+      next.setHours(h, m, 0, 0);
+      if (next <= now) next.setDate(next.getDate() + 1);
+      const timeout = next.getTime() - now.getTime();
+      setTimeout(() => {
+        if (Notification.permission === "granted") {
+          new Notification("Journal Reminder", { body: "Time to write your journal!" });
+        } else {
+          Notification.requestPermission().then(p => {
+            if (p === "granted") {
+              new Notification("Journal Reminder", { body: "Time to write your journal!" });
+            }
+          });
+        }
+        schedule();
+      }, timeout);
+    };
+    schedule();
+  }, [reminderEnabled, reminderTime]);
+
   
   // ── state: past entries filter ──
   const [pastEntriesFilter, setPastEntriesFilter] = useState({ search: '', mood: '', tag: '' });
@@ -1926,6 +1953,8 @@ export function JournalPage() {
           <button onClick={() => setShowWeeklyReview(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="weekly review"><Sparkles size={18} /></button>
           <button onClick={() => setShowBreathing(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="breathing"><Wind size={18} /></button>
           <button onClick={() => setShowTimer(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="timer"><Clock size={18} /></button>
+          <button onClick={() => setReminderEnabled(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="reminder"><Bell size={18} /></button>
+          {reminderEnabled && <input type="time" value={reminderTime} onChange={e => setReminderTime(e.target.value)} className="h-7 text-xs bg-transparent border border-white/20 rounded px-1" />}
           <input type="date" value={exportFrom} onChange={e => setExportFrom(e.target.value)} className="h-7 text-xs bg-transparent border border-white/20 rounded px-1" />
           <input type="date" value={exportTo} onChange={e => setExportTo(e.target.value)} className="h-7 text-xs bg-transparent border border-white/20 rounded px-1" />
           <button onClick={handleExport} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="export"><Download size={18} /></button>
