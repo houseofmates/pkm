@@ -2217,3 +2217,267 @@ export function JournalPage() {
           </div>
         </div>
       )}
+
+
+      {/* main journal entry form */}
+      {!viewingEntry && (
+        <>
+          {/* mood selector */}
+          <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+            <p className="text-xs text-white/40 lowercase mb-3">how are you feeling?</p>
+            <div className="flex gap-3 justify-center">
+              {MOODS.map(m => renderMoodButton(m))}
+            </div>
+            {mood && (
+              <p className="text-center text-xs text-white/40 mt-3 lowercase">
+                feeling {MOODS.find(m => m.id === mood)?.label}
+              </p>
+            )}
+          </div>
+
+          {/* emotions */}
+          <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+            <p className="text-xs text-white/40 lowercase mb-3">what emotions are you experiencing?</p>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {availableEmotions.filter(e => e.toLowerCase().includes(emotionQuery.toLowerCase())).slice(0, 12).map(emotion => (
+                <button
+                  key={emotion}
+                  onClick={() => toggleEmotion(emotion)}
+                  onContextMenu={e => handleContextMenu(e, 'emotion', emotion)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-full text-xs lowercase transition-all",
+                    emotions.has(emotion) 
+                      ? "text-white" 
+                      : "bg-white/5 text-white/50 hover:bg-white/10"
+                  )}
+                  style={emotions.has(emotion) ? {
+                    backgroundColor: `${emotionColors[emotion]}33`,
+                    border: `1px solid ${emotionColors[emotion]}`,
+                  } : {}}
+                  title="right-click to change color"
+                >
+                  {emotion}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={emotionQuery}
+                onChange={e => setEmotionQuery(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleAddEmotion()}
+                placeholder="add custom emotion..."
+                className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase placeholder:text-white/30 focus:outline-none focus:border-white/30"
+              />
+              <button
+                onClick={handleAddEmotion}
+                disabled={!emotionQuery.trim()}
+                className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 transition-colors"
+              >
+                <Plus size={16} />
+              </button>
+            </div>
+            {emotions.size > 0 && (
+              <p className="text-xs text-white/30 mt-2 lowercase">{emotions.size} emotion{emotions.size !== 1 ? 's' : ''} selected</p>
+            )}
+          </div>
+
+          {/* activities */}
+          <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs text-white/40 lowercase">what have you done today?</p>
+              <div className="flex gap-1">
+                {['health', 'productivity', 'creative', 'social', 'leisure', 'wellness'].map(cat => (
+                  <button
+                    key={cat}
+                    onClick={() => setActivityFilter(activityFilter === cat ? null : cat)}
+                    className={cn(
+                      "px-2 py-0.5 rounded-full text-[10px] lowercase",
+                      activityFilter === cat ? "bg-blue-600" : "bg-white/5 text-white/40"
+                    )}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {filteredActivities.map(activity => (
+                <button
+                  key={activity.id}
+                  onClick={() => toggleActivity(activity.id)}
+                  onContextMenu={e => handleContextMenu(e, 'activity', activity.id)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-full text-xs lowercase transition-all flex items-center gap-1.5",
+                    activities.has(activity.id) 
+                      ? "text-white" 
+                      : "bg-white/5 text-white/50 hover:bg-white/10"
+                  )}
+                  style={activities.has(activity.id) ? {
+                    backgroundColor: `${activityColors[activity.id]}33`,
+                    border: `1px solid ${activityColors[activity.id]}`,
+                  } : {}}
+                  title="right-click to change color"
+                >
+                  <span>{activity.emoji}</span>
+                  {activity.label}
+                </button>
+              ))}
+            </div>
+            {activities.size > 0 && (
+              <p className="text-xs text-white/30 lowercase">{activities.size} activit{activities.size !== 1 ? 'ies' : 'y'} selected</p>
+            )}
+          </div>
+
+          {/* tags */}
+          <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+            <p className="text-xs text-white/40 lowercase mb-3">add tags</p>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {availableTags.filter(t => t.toLowerCase().includes(tagQuery.toLowerCase())).slice(0, 10).map(tag => (
+                <button
+                  key={tag}
+                  onClick={() => toggleTag(tag)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-full text-xs lowercase transition-all",
+                    tags.has(tag) 
+                      ? "bg-purple-500/30 text-purple-300 border border-purple-500/50" 
+                      : "bg-white/5 text-white/50 hover:bg-white/10"
+                  )}
+                >
+                  #{tag}
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={tagQuery}
+                onChange={e => setTagQuery(e.target.value)}
+                onKeyDown={e => e.key === 'Enter' && handleAddTag()}
+                placeholder="add custom tag..."
+                className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase placeholder:text-white/30 focus:outline-none focus:border-white/30"
+              />
+              <button
+                onClick={handleAddTag}
+                disabled={!tagQuery.trim()}
+                className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 transition-colors"
+              >
+                <Plus size={16} />
+              </button>
+            </div>
+          </div>
+
+          {/* notes */}
+          <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-xs text-white/40 lowercase">journal notes</p>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors"
+                  title="add photo"
+                >
+                  <Image size={16} />
+                </button>
+                <button 
+                  onClick={handleVoiceRecord}
+                  className={cn(
+                    "p-1.5 rounded-lg transition-colors",
+                    isRecording ? "bg-red-500/20 text-red-400 animate-pulse" : "hover:bg-white/10 text-white/40 hover:text-white"
+                  )}
+                  title={isRecording ? `recording ${formatTime(recordingTime)}` : "voice memo"}
+                >
+                  <Mic size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* photos preview */}
+            {photos.length > 0 && (
+              <div className="flex gap-2 mb-3 flex-wrap">
+                {photos.map((photo, i) => (
+                  <div key={i} className="relative">
+                    <img src={photo} alt={`upload ${i}`} className="w-16 h-16 object-cover rounded-lg" />
+                    <button 
+                      onClick={() => setPhotos(photos.filter((_, idx) => idx !== i))}
+                      className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* voice memos */}
+            {voiceMemos.length > 0 && (
+              <div className="flex gap-2 mb-3 flex-wrap">
+                {voiceMemos.map((memo, i) => (
+                  <div key={i} className="flex items-center gap-1 px-2 py-1 rounded-full bg-white/5 text-xs">
+                    <Mic size={12} />
+                    <span>memo {i + 1}</span>
+                    <button 
+                      onClick={() => setVoiceMemos(voiceMemos.filter((_, idx) => idx !== i))}
+                      className="ml-1 text-red-400"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            <textarea
+              ref={textareaRef}
+              value={body}
+              onChange={e => setBody(e.target.value)}
+              placeholder="write your thoughts here..."
+              className="w-full h-32 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase placeholder:text-white/30 focus:outline-none focus:border-white/30 resize-none"
+            />
+            <div className="flex justify-between items-center mt-2">
+              <p className="text-xs text-white/30 lowercase">{wordCount} words • {charCount} chars</p>
+              {wordCount >= 500 && <p className="text-xs text-yellow-400 lowercase">✦ word warrior!</p>}
+            </div>
+          </div>
+
+          {/* save button */}
+          <button
+            onClick={handleSave}
+            disabled={saving || (!mood && activities.size === 0 && !body.trim())}
+            className={cn(
+              "w-full py-3 rounded-xl font-medium lowercase transition-all",
+              saving || (!mood && activities.size === 0 && !body.trim())
+                ? "bg-white/5 text-white/30 cursor-not-allowed"
+                : "bg-gradient-to-r from-yellow-500 to-blue-500 text-black hover:opacity-90"
+            )}
+          >
+            {saving ? 'saving...' : editingEntry ? 'update entry' : 'save entry'}
+          </button>
+
+          {editingEntry && (
+            <button
+              onClick={() => {
+                setEditingEntry(null);
+                setMood(null);
+                setEmotions(new Set());
+                setActivities(new Set());
+                setBody('');
+                setTags(new Set());
+                setPhotos([]);
+                setVoiceMemos([]);
+              }}
+              className="w-full py-2 rounded-xl text-sm lowercase text-white/40 hover:text-white transition-colors"
+            >
+              cancel editing
+            </button>
+          )}
+        </>
+      )}
+
+      {/* footer spacer */}
+      <div className="h-8" />
+    </div>
+  );
+}
+
+export default JournalPage;
