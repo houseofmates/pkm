@@ -189,7 +189,7 @@ function getToday(): string {
 function getYesterday(): string {
   const d = new Date();
   d.setDate(d.getDate() - 1);
-  return d.toLocaleDateString('en-CA');
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 }
 
 function formatDate(dateStr: string): string {
@@ -638,7 +638,7 @@ export function JournalPage() {
 function getDaysAgo(days: number): string {
   const d = new Date();
   d.setDate(d.getDate() - days);
-  return d.toLocaleDateString('en-CA');
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
 }
 
 function getMonthData(year: number, month: number): { date: string, day: number, isCurrentMonth: boolean }[] {
