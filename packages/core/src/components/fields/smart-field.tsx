@@ -1844,8 +1844,8 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     if (isCheckbox) return <div className="flex items-center justify-center h-full w-full cursor-pointer" onClick={() => onChange(!value)}><Checkbox checked={!!value} className="data-[state=checked]:bg-yellow-400 data-[state=checked]:text-black border-white/20" onCheckedChange={(checked: boolean) => onChange(checked)} /></div>;
 
     if (isFile) {
-      const imgs: string[] = Array.isArray(value) ? value.map((v: any) => v?.url || v).filter(Boolean) : (value?.url || (typeof value === 'string' && value.startsWith('http') ? value : null));
-      const imgArr = Array.isArray(imgs) ? imgs : (imgs ? [imgs] : []);
+      const _imgsRaw: string | string[] | null = Array.isArray(value) ? (value as any[]).map((v: any) => v?.url || v).filter(Boolean) : (value?.url || (typeof value === 'string' && value.startsWith('http') ? value : null));
+      const imgArr: string[] = Array.isArray(_imgsRaw) ? _imgsRaw : (_imgsRaw ? [_imgsRaw as string] : []);
       if (imgArr.length > 0) {
         return (
           <ContextMenu>
