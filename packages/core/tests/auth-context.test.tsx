@@ -87,7 +87,6 @@ describe('AuthProvider', () => {
     (globalThis as any).location = { reload: fakeReload } as any;
     // instead of poking at localStorage directly we spy on the
     // shared storageManager which the provider uses.
-    const { storageManager } = await import('@/lib/storage-manager');
     const setSpy = vi.spyOn(storageManager, 'setItem');
     setSpy.mockImplementation(() => {});
 
