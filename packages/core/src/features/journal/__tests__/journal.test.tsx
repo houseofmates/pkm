@@ -7,7 +7,7 @@ import { JournalPage } from '@/pages/journal';
 // basic smoke test for mood buttons reflecting MOODS constant and behavior
 
 describe('JournalPage', () => {
-  it.skip('renders mood emoji images and can toggle selection', () => {
+  it('renders mood emoji images and can toggle selection', () => {
     const tree = create(<JournalPage />);
     const root = tree.root;
 
