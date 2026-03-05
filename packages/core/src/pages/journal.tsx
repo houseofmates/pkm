@@ -142,7 +142,7 @@ export function JournalPage() {
                   <img
                     src={m.img}
                     alt={m.label}
-                    className={m.id === '6' ? "w-44 h-44 object-contain" : "w-36 h-36 object-contain"}
+                    className="w-36 h-36 object-contain"
                     style={{
                       opacity: active ? 1 : 0.7,
                     }}
