@@ -1808,7 +1808,10 @@ export function JournalPage() {
   const [mood, setMood] = useState<string | null>(null);
   const [emotions, setEmotions] = useState<Set<string>>(new Set());
   const [emotionQuery, setEmotionQuery] = useState('');
-  const [availableEmotions, setAvailableEmotions] = useState<string[]>(INITIAL_EMOTIONS.slice());
+  const [availableEmotions, setAvailableEmotions] = useState<string[]>(() => {
+    const stored = getStoredData(STORAGE_KEYS.CUSTOM_EMOTIONS, [] as string[]);
+    return Array.from(new Set([...INITIAL_EMOTIONS, ...stored]));
+  });
 
   // ── state: activities ──
   const [activities, setActivities] = useState<Set<string>>(new Set());
