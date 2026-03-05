@@ -40,7 +40,15 @@ describe('JournalPage', () => {
     const sadBtn = queryByText('sad');
     expect(sadBtn).toBeTruthy();
     if (sadBtn) fireEvent.click(sadBtn);
-    // clicking again should deselect (opacity toggles via inline style)
     fireEvent.click(sadBtn);
+
+    // now try typing a new emotion and hitting enter
+    const search = getByPlaceholderText(/search emotions/i);
+    fireEvent.change(search, { target: { value: 'curious' } });
+    fireEvent.keyDown(search, { key: 'Enter', code: 'Enter' });
+    const curiousBtn = queryByText('curious');
+    expect(curiousBtn).toBeTruthy();
+    if (curiousBtn) fireEvent.click(curiousBtn);
+    // style should reflect selection (we only check existence here)
   });
 });

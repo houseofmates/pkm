@@ -26,7 +26,9 @@ const MOODS = [
 // emotion options correspond exactly to the multi-select values in the
 // journal collection's "emotions" field on NocoBase.  they should be kept in
 // sync with the backend dataset so that the string we send matches an option.
-const EMOTIONS = [
+// we also allow arbitrary values to be added on the fly by typing and hitting
+// enter; the backend collection must permit custom options for this to work.
+const INITIAL_EMOTIONS = [
   'elated','ecstatic','exhilarated','euphoric','horny','inspired','empowered',
   'determined','focused','motivated','playful','ambitious','adventurous',
   'confident','content','peaceful','grateful','connected','relaxed','grounded',
@@ -68,6 +70,9 @@ export function JournalPage() {
   const [mood, setMood] = useState<string | null>(null);
   const [emotions, setEmotions] = useState<Set<string>>(new Set());
   const [emotionQuery, setEmotionQuery] = useState('');
+  // dynamic list of available options (includes initial values plus any
+  // user‑added ones).
+  const [availableEmotions, setAvailableEmotions] = useState<string[]>(INITIAL_EMOTIONS.slice());
   const [activities, setActivities] = useState<Set<string>>(new Set());
 
   // hover/active scale applied via class on mood buttons
@@ -192,16 +197,28 @@ export function JournalPage() {
             placeholder="search emotions…"
             value={emotionQuery}
             onChange={e => setEmotionQuery(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && emotionQuery.trim()) {
+                const val = emotionQuery.trim();
+                if (!availableEmotions.includes(val)) {
+                  setAvailableEmotions(prev => [...prev, val]);
+                }
+                toggleEmotion(val);
+                setEmotionQuery('');
+              }
+            }}
             className="mb-2 w-full px-2 py-1 rounded bg-[#000] text-white placeholder-gray-500"
           />
           <div className="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto">
-            {EMOTIONS.filter(e => e.includes(emotionQuery.toLowerCase())).map(e => {
+            {availableEmotions
+              .filter(e => e.includes(emotionQuery.toLowerCase()))
+              .map(e => {
               const active = emotions.has(e);
               return (
                 <button
                   key={e}
                   onClick={() => toggleEmotion(e)}
-                  className="px-3 py-2 rounded-full text-sm lowercase transition-all duration-150 select-none"
+                  className="px-3 py-2 rounded-full text-base font-medium lowercase transition-all duration-150 select-none text-white"
                   style={{
                     background: active ? `${B}22` : '#000000',
                     borderColor: active ? B : 'rgba(255,255,255,0.08)',
