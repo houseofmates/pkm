@@ -1872,7 +1872,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   };
 
   const viewContent = renderView();
-  console.log('renderView produced', viewContent);
+  console.log('has viewContent', !!viewContent);
   return (
     <div className={cn("font-varela", size === 'lg' ? "text-lg" : "text-sm", "w-full h-full")}>
       <FieldContextMenu onEdit={() => setIsEditing(true)} onClear={() => onChange(null)} value={value} record={record} collectionName={collectionName}>
