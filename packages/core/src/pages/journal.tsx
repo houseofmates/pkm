@@ -34,34 +34,34 @@ const INITIAL_EMOTIONS = [
 ];
 
 const DEFAULT_ACTIVITIES = [
-  { id: 'take_pills',      label: 'take pills',      emoji: '💊', category: 'health' },
-  { id: 'put_patches_on',  label: 'put patches on',  emoji: '🩹', category: 'health' },
-  { id: 'water_floss',     label: 'water floss',     emoji: '🚿', category: 'health' },
-  { id: 'brush_teeth',     label: 'brush teeth',      emoji: '🦷', category: 'health' },
-  { id: 'wash_face',       label: 'wash face',       emoji: '🧴', category: 'health' },
-  { id: 'nail_care',       label: 'nail care',       emoji: '💅', category: 'health' },
-  { id: 'body_wipe',       label: 'body wipe',        emoji: '🧻', category: 'health' },
-  { id: 'shower',          label: 'shower',          emoji: '🚿', category: 'health' },
-  { id: 'journal_plan_write', label: 'journal/plan/write', emoji: '📝', category: 'productivity' },
-  { id: 'tidy',            label: 'tidy',            emoji: '🧹', category: 'productivity' },
-  { id: 'worship',         label: 'worship',         emoji: '🙏', category: 'wellness' },
-  { id: 'laundry',         label: 'laundry',         emoji: '👕', category: 'productivity' },
-  { id: 'go_outside',      label: 'go outside',      emoji: '🚪', category: 'wellness' },
-  { id: 'leave_house',     label: 'leave house',     emoji: '🏠', category: 'wellness' },
-  { id: 'online_social_int', label: 'online social int', emoji: '💬', category: 'social' },
-  { id: 'eat_meal',        label: 'eat meal',         emoji: '🍽️', category: 'health' },
-  { id: 'draw',            label: 'draw',            emoji: '✏️', category: 'creative' },
-  { id: 'vibecode',        label: 'vibecode',         emoji: '💻', category: 'creative' },
-  { id: 'paint',           label: 'paint',            emoji: '🎨', category: 'creative' },
-  { id: 'play_a_game',     label: 'play a game',      emoji: '🎮', category: 'leisure' },
-  { id: 'llm_rp',          label: 'llm rp',          emoji: '🤖', category: 'creative' },
-  { id: 'llm_int',         label: 'llm int',          emoji: '💬', category: 'creative' },
-  { id: 'watch_content',   label: 'watch content',    emoji: '📺', category: 'leisure' },
-  { id: 'masturbate',      label: 'masturbate',       emoji: '🍆', category: 'health' },
-  { id: 'nap',             label: 'nap',              emoji: '😴', category: 'health' },
-  { id: 'int_w_family',    label: 'int w family',     emoji: '👨‍👩‍👧‍👦', category: 'social' },
-  { id: 'remove_patches',  label: 'remove patches',   emoji: '🩹', category: 'health' },
-  { id: 'sleep',           label: 'sleep',            emoji: '🛏️', category: 'health' },
+  { id: 'take_pills',      label: 'take pills',      emoji: '💊', category: 'health', color: '#ffd700' },
+  { id: 'put_patches_on',  label: 'put patches on',  emoji: '🩹', category: 'health', color: '#ffa500' },
+  { id: 'water_floss',     label: 'water floss',     emoji: '🚿', category: 'health', color: '#0000ff' },
+  { id: 'brush_teeth',     label: 'brush teeth',      emoji: '🦷', category: 'health', color: '#00ffff' },
+  { id: 'wash_face',       label: 'wash face',       emoji: '🧴', category: 'health', color: '#5b6dfb' },
+  { id: 'nail_care',       label: 'nail care',       emoji: '💅', category: 'health', color: '#ff00ff' },
+  { id: 'body_wipe',       label: 'body wipe',        emoji: '🧻', category: 'health', color: '#ffffff' },
+  { id: 'shower',          label: 'shower',          emoji: '🚿', category: 'health', color: '#0000ff' },
+  { id: 'journal_plan_write', label: 'journal/plan/write', emoji: '📝', category: 'productivity', color: '#32cd32' },
+  { id: 'tidy',            label: 'tidy',            emoji: '🧹', category: 'productivity', color: '#ffffff' },
+  { id: 'worship',         label: 'worship',         emoji: '🙏', category: 'wellness', color: '#ffd700' },
+  { id: 'laundry',         label: 'laundry',         emoji: '👕', category: 'productivity', color: '#ffffff' },
+  { id: 'go_outside',      label: 'go outside',      emoji: '🚪', category: 'wellness', color: '#008000' },
+  { id: 'leave_house',     label: 'leave house',     emoji: '🏠', category: 'wellness', color: '#32cd32' },
+  { id: 'online_social_int', label: 'online social int', emoji: '💬', category: 'social', color: '#ffa500' },
+  { id: 'eat_meal',        label: 'eat meal',         emoji: '🍽️', category: 'health', color: '#ff4500' },
+  { id: 'draw',            label: 'draw',            emoji: '✏️', category: 'creative', color: '#ffd700' },
+  { id: 'vibecode',        label: 'vibecode',         emoji: '💻', category: 'creative', color: '#800080' },
+  { id: 'paint',           label: 'paint',            emoji: '🎨', category: 'creative', color: '#ff00ff' },
+  { id: 'play_a_game',     label: 'play a game',      emoji: '🎮', category: 'leisure', color: '#008000' },
+  { id: 'llm_rp',          label: 'llm rp',          emoji: '🤖', category: 'creative', color: '#ffffff' },
+  { id: 'llm_int',         label: 'llm int',          emoji: '💬', category: 'creative', color: '#ffffff' },
+  { id: 'watch_content',   label: 'watch content',    emoji: '📺', category: 'leisure', color: '#0000ff' },
+  { id: 'masturbate',      label: 'masturbate',       emoji: '🍆', category: 'health', color: '#ff00ff' },
+  { id: 'nap',             label: 'nap',              emoji: '😴', category: 'health', color: '#ffa500' },
+  { id: 'int_w_family',    label: 'int w family',     emoji: '👨‍👩‍👧‍👦', category: 'social', color: '#32cd32' },
+  { id: 'remove_patches',  label: 'remove patches',   emoji: '🩹', category: 'health', color: '#ff0000' },
+  { id: 'sleep',           label: 'sleep',            emoji: '🛏️', category: 'health', color: '#800080' },
 ];
 
 const DAILY_PROMPTS = [
@@ -3131,13 +3131,16 @@ summary:`;
                   className={cn(
                     "px-3 py-1.5 rounded-full text-xs lowercase transition-all flex items-center gap-1.5",
                     activities.has(activity.id) 
-                      ? "text-white" 
-                      : "bg-white/5 text-white/50 hover:bg-white/10"
+                      ? "" 
+                      : "bg-white/5 hover:bg-white/10"
                   )}
-                  style={activities.has(activity.id) ? {
-                    backgroundColor: `${activityColors[activity.id]}33`,
-                    border: `1px solid ${activityColors[activity.id]}`,
-                  } : {}}
+                  style={{
+                    color: activity.color,
+                    ...(activities.has(activity.id) ? {
+                      backgroundColor: `${activity.color}33`,
+                      border: `1px solid ${activity.color}`,
+                    } : {})
+                  }}
                   title="right-click to change color"
                 >
                   <span>{activity.emoji}</span>
