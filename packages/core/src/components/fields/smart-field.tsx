@@ -1941,11 +1941,6 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       {editorOpen && editorImage && renderImageEditor(editorImage)}
     </div>
   );
-  console.log('SmartField exiting');
-  } catch (e) {
-    console.error('SmartField top error', e);
-    throw e;
-  }
 }
 
 }
