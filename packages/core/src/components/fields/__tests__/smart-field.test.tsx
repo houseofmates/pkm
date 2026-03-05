@@ -52,6 +52,7 @@ describe('SmartField', () => {
     const onChange = vi.fn();
     const { container } = withAuth(<SmartField value="hello" field={{ interface: 'input', name: 'foo' }} onChange={onChange} />);
     console.log('container html:', container.innerHTML);
+    console.log('body html:', document.body.innerHTML);
     expect(screen.getByText('hello')).toBeInTheDocument();
     fireEvent.click(screen.getByText('hello'));
     const input = screen.getByRole('textbox') as HTMLInputElement;
