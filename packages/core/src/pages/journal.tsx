@@ -2266,7 +2266,25 @@ ${entriesText}`;
       date: editingEntry?.date || new Date().toLocaleDateString('en-CA'),
       tags: JSON.stringify(Array.from(tags)),
     };
-    
+
+    // optional geolocation/weather stamping
+    try {
+      if (navigator.geolocation) {
+        const pos: GeolocationPosition = await new Promise((res, rej) =>
+          navigator.geolocation.getCurrentPosition(res, rej)
+        );
+        payload.location = `${pos.coords.latitude.toFixed(3)},${pos.coords.longitude.toFixed(3)}`;
+        try {
+          const wresp = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current_weather=true&timezone=auto`);
+          const wjson = await wresp.json();
+          if (wjson.current_weather) {
+            payload.weather = `${wjson.current_weather.temperature}°C`;
+            payload.body += `\n\nweather: ${payload.weather}`;
+          }
+        } catch {}
+      }
+    } catch {}
+
     try {
       if (editingEntry?.id) {
         await api.request('journal', 'update', { filterByTk: editingEntry.id, ...payload });
@@ -3185,6 +3203,16 @@ summary:`;
                 >
                   <Mic size={16} />
                 </button>
+                <button
+                  onClick={handleVoiceTranscription}
+                  className={cn(
+                    "p-1.5 rounded-lg transition-colors",
+                    isTranscribing ? "bg-red-500/20 text-red-400 animate-pulse" : "hover:bg-white/10 text-white/40 hover:text-white"
+                  )}
+                  title={isTranscribing ? `transcribing` : "voice summary"}
+                >
+                  <FileText size={16} />
+                </button>
               </div>
             </div>
 
@@ -3221,6 +3249,24 @@ summary:`;
                   </div>
                 ))}
               </div>
+            )}
+
+            {/* transcription info */}
+            {isTranscribing && (
+              <p className="text-xs text-yellow-400 lowercase mb-2">listening{recordingTime ? ` (${formatTime(recordingTime)})` : ''}</p>
+            )}
+            {isSummarizingVoice && (
+              <div className="p-2 bg-white/10 rounded-lg text-xs lowercase mb-2">
+                {transcriptionSummary || 'generating summary...'}
+              </div>
+            )}
+            {transcriptionSummary && !isSummarizingVoice && (
+              <div className="p-2 bg-white/10 rounded-lg text-xs lowercase mb-2">
+                {transcriptionSummary}
+              </div>
+            )}
+            {transcript && !isTranscribing && (
+              <p className="text-xs text-white/40 lowercase mb-2 line-clamp-3">transcript: {transcript}</p>
             )}
 
             <textarea
