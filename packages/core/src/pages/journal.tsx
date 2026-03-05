@@ -2184,7 +2184,6 @@ export function JournalPage() {
     try {
       const ollama = new OllamaClient();
       const entriesText = entries.map(e => `${e.id}: ${e.body || ''}`).join('\n');
-");
       const prompt = `given the following journal entries in the format id: text, return a json array of ids that best match this query: "${q}". entries:
 ${entriesText}`;
       const resp = await ollama.ask(prompt);
