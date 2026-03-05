@@ -1,5 +1,7 @@
 // leaflet must be mocked before any imports that might load it
 vi.mock('leaflet', () => ({ map: () => ({ remove: () => null }), tileLayer: () => ({ addTo: () => null }), polyline: () => ({ addTo: () => null }), icon: () => ({}) }));
+// also stub the related LocationField which internally uses react-leaflet
+vi.mock('../location-field', () => ({ LocationField: () => <div data-testid="location-field" /> }));
 import React from 'react';
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import { SmartField } from '../smart-field';
