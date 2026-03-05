@@ -185,26 +185,11 @@ function hslToHex(h: number, s: number, l: number): string {
   l /= 100;
   const a = s * Math.min(l, 1 - l);
   const f = (n: number) => {
-    return defaultValue;
-  }
-}
-
-function setStoredData<T>(key: string, value: T): void {
-  try {
-    localStorage.setItem(key, JSON.stringify(value));
-  } catch (e) {
-    console.warn('failed to save to localStorage:', e);
-  }
-}
-
-function getToday(): string {
-  return new Date().toLocaleDateString('en-CA');
-}
-
-function getYesterday(): string {
-  const d = new Date();
-  d.setDate(d.getDate() - 1);
-  return d.toLocaleDateString('en-CA');
+    const k = (n + h / 30) % 12;
+    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return Math.round(255 * color).toString(16).padStart(2, '0');
+  };
+  return `#${f(0)}${f(8)}${f(4)}`;
 }
 
 // ─────────────────────────────────────────────
