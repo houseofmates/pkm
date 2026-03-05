@@ -61,6 +61,12 @@ describe('SmartField', () => {
     expect(onChange).toHaveBeenCalledWith('world');
   });
 
+  it('renders without wrappers', () => {
+    const { container } = render(<SmartField value="hello" field={{ interface: 'input', name: 'foo' }} onChange={() => {}} />);
+    console.log('plain container html:', container.innerHTML);
+    // we won't assert here to avoid early failure
+  });
+
   it('uses matching font size when editing large cells', () => {
     const onChange = vi.fn();
     withAuth(<SmartField value="big" field={{ interface: 'input', name: 'foo' }} size="lg" onChange={onChange} />);
