@@ -49,6 +49,7 @@ const ACTIVITIES = [
 const Y = '#f5af12';
 // powder blue
 const B = '#3c9fdd';
+export function JournalPage() {
 
   // hover/active scale applied via class on mood buttons
   const [body, setBody] = useState('');
