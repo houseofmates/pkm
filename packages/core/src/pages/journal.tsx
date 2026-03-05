@@ -124,14 +124,14 @@ export function JournalPage() {
           <p className="text-[11px] uppercase tracking-widest mb-3 lowercase" style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em' }}>
             how are you feeling?
           </p>
-          <div className="flex gap-2 justify-between">
+          <div className="flex gap-4 justify-center">
             {MOODS.map(m => {
               const active = mood === m.id;
               return (
                 <button
                   key={m.id}
                   onClick={() => setMood(active ? null : m.id)}
-                  className="p-1 rounded-full transition-transform duration-150 select-none focus:outline-none hover:scale-110 active:scale-90"
+                  className="relative p-1 rounded-full transition-transform duration-150 select-none focus:outline-none hover:scale-110 active:scale-90"
                   style={{
                     transform: 'translateZ(0)',
                     // active outline
@@ -140,12 +140,16 @@ export function JournalPage() {
                 >
                   <img
                     src={m.img}
-                    alt={m.label}
-                    className={m.id === '6' ? "w-12 h-12 object-contain" : "w-10 h-10 object-contain"}
+                    alt={m.emoji}
+                    onError={(e) => { e.currentTarget.style.display = 'none'; }}
+                    className={m.id === '6' ? "w-14 h-14 object-contain" : "w-12 h-12 object-contain"}
                     style={{
                       opacity: active ? 1 : 0.7,
                     }}
                   />
+                  <span className="absolute inset-0 flex items-center justify-center text-2xl pointer-events-none">
+                    {m.emoji}
+                  </span>
                 </button>
               );
             })}
