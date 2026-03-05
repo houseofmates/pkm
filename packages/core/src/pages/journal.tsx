@@ -14,11 +14,11 @@ import api from '@/api/nocobase-client';
 // note: order determines layout left→right; "amazing" moved last to
 // appear on the rightmost side and get a larger hit area.
 const MOODS = [
-  { id: '5', label: 'great',    emoji: '😃', img: '/images/moods/5.png' },
-  { id: '4', label: 'good',     emoji: '😊', img: '/images/moods/4.png' },
-  { id: '2', label: 'fine',     emoji: '😐', img: '/images/moods/2.png' },
-  { id: '1', label: 'bad',      emoji: '😞', img: '/images/moods/1.png' },
-  { id: '0', label: 'terrible', emoji: '😡', img: '/images/moods/0.png' },
+  { id: '5', label: 'great',    emoji: '😃', img: '/images/moods/great.png' },
+  { id: '4', label: 'good',     emoji: '😊', img: '/images/moods/good.png' },
+  { id: '2', label: 'fine',     emoji: '😐', img: '/images/moods/fine.png' },
+  { id: '1', label: 'bad',      emoji: '😞', img: '/images/moods/bad.png' },
+  { id: '0', label: 'terrible', emoji: '😡', img: '/images/moods/terrible.png' },
   { id: '6', label: 'amazing!', emoji: '😁', img: '/images/moods/amazing.png' },
 ];
 
@@ -124,7 +124,7 @@ export function JournalPage() {
           <p className="text-[11px] uppercase tracking-widest mb-3 lowercase" style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em' }}>
             how are you feeling?
           </p>
-          <div className="flex gap-12 justify-center">
+          <div className="flex gap-16 justify-center">
             {MOODS.map(m => {
               const active = mood === m.id;
               return (
@@ -141,7 +141,7 @@ export function JournalPage() {
                   <img
                     src={m.img}
                     alt={m.label}
-                    className={m.id === '6' ? "w-32 h-32 object-contain" : "w-28 h-28 object-contain"}
+                    className={m.id === '6' ? "w-44 h-44 object-contain" : "w-36 h-36 object-contain"}
                     style={{
                       opacity: active ? 1 : 0.7,
                     }}
