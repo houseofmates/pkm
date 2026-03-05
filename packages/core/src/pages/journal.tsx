@@ -842,7 +842,7 @@ function WeeklyReviewModal({ isOpen, onClose, entries, onSummaryGenerated }: { i
     setIsSummarizing(true);
     try {
       const ollama = new OllamaClient();
-      const text = weekEntries.map(e => e.body || '').join('
+      const text = weekEntries.map(e => e.body || '').join('\n---\n');
 ---
 ');
       const prompt = `summarize these journal entries in a few sentences, highlighting mood trends and key events:
@@ -2184,7 +2184,7 @@ export function JournalPage() {
     setIsNlSearching(true);
     try {
       const ollama = new OllamaClient();
-      const entriesText = entries.map(e => `${e.id}: ${e.body || ''}`).join("
+      const entriesText = entries.map(e => `${e.id}: ${e.body || ''}`).join('\n');
 ");
       const prompt = `given the following journal entries in the format id: text, return a json array of ids that best match this query: "${q}". entries:
 ${entriesText}`;
