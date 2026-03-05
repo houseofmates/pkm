@@ -1536,6 +1536,29 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
             className="bg-transparent text-white border-b border-[#333] h-7 text-xs px-1"
             autoFocus
           />
+          {/* hidden color picker used for right-click */}
+          <input
+            type="color"
+            ref={colorInputRef}
+            value={currentColor}
+            onChange={(e) => {
+              const col = e.target.value;
+              setCurrentColor(col);
+              if (colorTarget) changeOptionColor(colorTarget, col);
+            }}
+            style={{ display: 'none' }}
+          />
+          {/* palette dots */}
+          <div className="flex gap-1 mb-1">
+            {palette.map((c, i) => (
+              <button
+                key={i}
+                style={{ background: c }}
+                className="w-4 h-4 rounded"
+                onClick={() => setCurrentColor(c)}
+              />
+            ))}
+          </div>
           {palette.length > 0 && (
             <div className="flex gap-1 my-1">
               {palette.map((c, i) => (
