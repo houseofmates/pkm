@@ -2571,6 +2571,28 @@ export function JournalPage() {
         </div>
       )}
 
+      {/* mood-activity correlations panel */}
+      {showCorrelations && (
+        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+          <p className="text-xs text-white/40 lowercase mb-3">mood insights</p>
+          <MoodActivityCorrelation entries={entries} />
+        </div>
+      )}
+
+      {/* mood heatmap panel */}
+      {showHeatmap && <MoodHeatmap entries={entries} />}
+
+      {/* word cloud panel */}
+      {showWordCloud && <WordCloud entries={entries} />}
+
+      {/* time insights panel */}
+      {showTimeInsights && (
+        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+          <p className="text-xs text-white/40 lowercase mb-3">time insights</p>
+          <TimeInsights entries={entries} />
+        </div>
+      )}
+
       {/* past entries panel */}
       {showPastEntries && (
         <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
