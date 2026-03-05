@@ -59,4 +59,33 @@ describe('AuthProvider', () => {
       internals.ReactCurrentDispatcher.current = prevDispatcher;
     }
   });
+
+  it('stub login persists token and reloads when dispatcher missing', async () => {
+    const authModule = await import('@/contexts/auth-context');
+    const { AuthProvider } = authModule;
+
+    // simulate missing dispatcher again
+    const internals = (React as any).__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+    const prevDispatcher = internals?.ReactCurrentDispatcher?.current;
+    if (internals && internals.ReactCurrentDispatcher) {
+      internals.ReactCurrentDispatcher.current = null;
+    }
+
+    const rendered = AuthProvider({ children: null });
+    const stub = rendered.props.value as any;
+
+    // spy on reload + clear storage
+    const reloadSpy = vi.spyOn(window.location, 'reload').mockImplementation(() => {});
+    localStorage.removeItem('nocobase_token');
+
+    stub.login(' test-token ');
+
+    expect(localStorage.getItem('nocobase_token')).toBe('test-token');
+    expect(reloadSpy).toHaveBeenCalled();
+
+    reloadSpy.mockRestore();
+    if (internals && internals.ReactCurrentDispatcher) {
+      internals.ReactCurrentDispatcher.current = prevDispatcher;
+    }
+  });
 });
