@@ -101,6 +101,7 @@ export function JournalPage() {
     setSaving(true);
     const payload = {
       mood: mood ?? undefined,
+      emotions: JSON.stringify(Array.from(emotions)),
       activities: JSON.stringify(Array.from(activities)),
       body: body.trim(),
       timestamp: new Date().toISOString(),
@@ -112,6 +113,7 @@ export function JournalPage() {
       toast.success('entry saved ✓');
       // reset
       setMood(null);
+      setEmotions(new Set());
       setActivities(new Set());
       setBody('');
     } catch (err: any) {

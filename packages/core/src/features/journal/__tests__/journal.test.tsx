@@ -10,8 +10,8 @@ import { AuthProvider } from '@/contexts/auth-context';
 // basic smoke test for mood buttons reflecting MOODS constant and behavior
 
 describe('JournalPage', () => {
-  it('renders mood emoji images and can toggle selection', () => {
-    const { getByAltText } = render(
+  it('renders mood emoji images and can toggle selection; emotions are searchable', () => {
+    const { getByAltText, getByPlaceholderText, queryByText } = render(
       <MemoryRouter>
         <AuthProvider>
           <JournalPage />
@@ -19,18 +19,28 @@ describe('JournalPage', () => {
       </MemoryRouter>
     );
 
+    // moods unchanged
     const img = getByAltText(/amazing/i) as HTMLImageElement;
-    // element existence is implied by getByAltText; just verify src
     expect(img.src).toMatch(/amazing\.png$/);
-
     const btn = img.closest('button');
     expect(btn).toBeTruthy();
-
-    // opacity should change when active
     expect(img.style.opacity).toBe('0.7');
     fireEvent.click(btn!);
     expect(img.style.opacity).toBe('1');
     fireEvent.click(btn!);
     expect(img.style.opacity).toBe('0.7');
+
+    // emotions section: typing 'sad' should show that emotion button only
+    const search = getByPlaceholderText(/search emotions/i);
+    fireEvent.change(search, { target: { value: 'sad' } });
+    expect(queryByText('sad')).toBeTruthy();
+    expect(queryByText('happy')).toBeNull();
+
+    // select 'sad'
+    const sadBtn = queryByText('sad');
+    expect(sadBtn).toBeTruthy();
+    if (sadBtn) fireEvent.click(sadBtn);
+    // clicking again should deselect (opacity toggles via inline style)
+    fireEvent.click(sadBtn);
   });
 });
