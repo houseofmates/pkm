@@ -523,3 +523,409 @@ function hslColorToHex(h: number, s: number, l: number): string {
   };
   return `#${f(0)}${f(8)}${f(4)}`;
 }
+
+// ─────────────────────────────────────────────
+//  breathing exercise component
+// ─────────────────────────────────────────────
+
+function BreathingExerciseModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const [technique, setTechnique] = useState<'4-7-8' | 'box'>('4-7-8');
+  const [phase, setPhase] = useState<'inhale' | 'hold' | 'exhale' | 'hold2'>('inhale');
+  const [count, setCount] = useState(4);
+  const [isActive, setIsActive] = useState(false);
+  const [sessions, setSessions] = useState(0);
+  const [cycles, setCycles] = useState(0);
+
+  const getCounts = () => technique === '4-7-8' 
+    ? { inhale: 4, hold: 7, exhale: 8, hold2: 0 } 
+    : { inhale: 4, hold: 4, exhale: 4, hold2: 4 };
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isActive) {
+      interval = setInterval(() => {
+        setCount(prev => {
+          if (prev <= 1) {
+            const counts = getCounts();
+            if (phase === 'inhale') {
+              setPhase('hold');
+              return counts.hold;
+            } else if (phase === 'hold') {
+              setPhase('exhale');
+              return counts.exhale;
+            } else if (phase === 'exhale') {
+              if (counts.hold2 > 0) {
+                setPhase('hold2');
+                return counts.hold2;
+              } else {
+                setPhase('inhale');
+                setCycles(c => c + 1);
+                return counts.inhale;
+              }
+            } else if (phase === 'hold2') {
+              setPhase('inhale');
+              setCycles(c => c + 1);
+              return counts.inhale;
+            }
+          }
+          return prev - 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isActive, phase, technique]);
+
+  const handleComplete = () => {
+    setIsActive(false);
+    const newSessions = sessions + 1;
+    setSessions(newSessions);
+    const history = getStoredData(STORAGE_KEYS.BREATHING_HISTORY, [] as { date: string; sessions: number }[]);
+    const today = getToday();
+    const existing = history.find(h => h.date === today);
+    if (existing) {
+      existing.sessions += 1;
+    } else {
+      history.push({ date: today, sessions: 1 });
+    }
+    setStoredData(STORAGE_KEYS.BREATHING_HISTORY, history);
+    toast.success(`breathing session complete! ${cycles} cycles`);
+  };
+
+  const circleSize = phase === 'inhale' ? 160 : phase === 'hold' || phase === 'hold2' ? 160 : 100;
+  const phaseText = phase === 'inhale' ? 'breathe in' : phase === 'hold' ? 'hold' : phase === 'hold2' ? 'hold' : 'breathe out';
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 w-80 text-center" onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute top-3 right-3 text-white/40 hover:text-white"><X size={18} /></button>
+        <p className="text-xs text-white/40 lowercase mb-2">breathing exercise</p>
+        
+        <div className="flex justify-center gap-2 mb-4">
+          <button 
+            onClick={() => { setTechnique('4-7-8'); setCount(4); setPhase('inhale'); setCycles(0); }}
+            className={cn("px-3 py-1 rounded-full text-xs lowercase", technique === '4-7-8' ? "bg-blue-600" : "bg-white/10")}
+          >
+            4-7-8
+          </button>
+          <button 
+            onClick={() => { setTechnique('box'); setCount(4); setPhase('inhale'); setCycles(0); }}
+            className={cn("px-3 py-1 rounded-full text-xs lowercase", technique === 'box' ? "bg-blue-600" : "bg-white/10")}
+          >
+            box breathing
+          </button>
+        </div>
+        
+        <div className="flex justify-center items-center mb-6">
+          <div 
+            className="rounded-full flex items-center justify-center transition-all duration-1000"
+            style={{
+              width: circleSize,
+              height: circleSize,
+              backgroundColor: 'rgba(59, 130, 246, 0.3)',
+              boxShadow: '0 0 30px rgba(59, 130, 246, 0.3)'
+            }}
+          >
+            <span className="text-3xl font-bold text-white">{count}</span>
+          </div>
+        </div>
+        
+        <p className="text-lg text-white/80 lowercase mb-4">{phaseText}</p>
+        
+        <div className="flex justify-center gap-3">
+          {!isActive ? (
+            <button 
+              onClick={() => setIsActive(true)}
+              className="px-6 py-2 rounded-full bg-blue-600 text-white lowercase"
+            >
+              start
+            </button>
+          ) : (
+            <>
+              <button 
+                onClick={() => setIsActive(false)}
+                className="px-4 py-2 rounded-full bg-white/10 text-white lowercase"
+              >
+                pause
+              </button>
+              <button 
+                onClick={handleComplete}
+                className="px-4 py-2 rounded-full bg-green-600 text-white lowercase"
+              >
+                done
+              </button>
+            </>
+          )}
+        </div>
+        
+        <div className="flex justify-center gap-4 mt-4 text-xs text-white/30 lowercase">
+          <span>cycles: {cycles}</span>
+          <span>sessions today: {sessions}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+//  reflection timer component
+// ─────────────────────────────────────────────
+
+function ReflectionTimer({ isOpen, onClose, prompt }: { isOpen: boolean; onClose: () => void; prompt: string }) {
+  const [duration, setDuration] = useState(300);
+  const [timeLeft, setTimeLeft] = useState(duration);
+  const [isActive, setIsActive] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+
+  const durations = [
+    { label: '3 min', value: 180 },
+    { label: '5 min', value: 300 },
+    { label: '10 min', value: 600 },
+    { label: '15 min', value: 900 },
+  ];
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isActive && !isPaused && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft(prev => prev - 1);
+      }, 1000);
+    } else if (timeLeft === 0 && isActive) {
+      setIsActive(false);
+      toast.success('time is up! great reflection session.');
+    }
+    return () => clearInterval(interval);
+  }, [isActive, isPaused, timeLeft]);
+
+  const handleDurationChange = (value: number) => {
+    setDuration(value);
+    setTimeLeft(value);
+  };
+
+  const progress = ((duration - timeLeft) / duration) * 100;
+  const circumference = 2 * Math.PI * 90;
+  const strokeDashoffset = circumference - (progress / 100) * circumference;
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 w-80 text-center" onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute top-3 right-3 text-white/40 hover:text-white"><X size={18} /></button>
+        <p className="text-xs text-white/40 lowercase mb-2">reflection timer</p>
+        
+        {!isActive ? (
+          <div className="mb-4">
+            <p className="text-xs text-white/30 lowercase mb-2">select duration</p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {durations.map(d => (
+                <button
+                  key={d.label}
+                  onClick={() => handleDurationChange(d.value)}
+                  className={cn("px-3 py-1 rounded-full text-xs lowercase", duration === d.value ? "bg-blue-600" : "bg-white/10")}
+                >
+                  {d.label}
+                </button>
+              ))}
+            </div>
+          </div>
+        ) : null}
+        
+        <div className="flex justify-center items-center mb-4">
+          <svg width="200" height="200" className="transform -rotate-90">
+            <circle cx="100" cy="100" r="90" stroke="rgba(255,255,255,0.1)" strokeWidth="8" fill="none" />
+            <circle 
+              cx="100" cy="100" r="90" 
+              stroke={Y} 
+              strokeWidth="8" 
+              fill="none"
+              strokeDasharray={circumference}
+              strokeDashoffset={strokeDashoffset}
+              className="transition-all duration-1000"
+            />
+          </svg>
+          <div className="absolute">
+            <span className="text-3xl font-bold text-white">{formatTime(timeLeft)}</span>
+          </div>
+        </div>
+        
+        <p className="text-xs text-white/50 lowercase mb-4 italic">"{prompt}"</p>
+        
+        <div className="flex justify-center gap-3">
+          {!isActive ? (
+            <button 
+              onClick={() => { setIsActive(true); setIsPaused(false); }}
+              className="px-6 py-2 rounded-full bg-blue-600 text-white lowercase"
+            >
+              start
+            </button>
+          ) : (
+            <>
+              <button 
+                onClick={() => setIsPaused(!isPaused)}
+                className="px-4 py-2 rounded-full bg-white/10 text-white lowercase"
+              >
+                {isPaused ? 'resume' : 'pause'}
+              </button>
+              <button 
+                onClick={() => { setIsActive(false); setTimeLeft(duration); }}
+                className="px-4 py-2 rounded-full bg-red-600 text-white lowercase"
+              >
+                stop
+              </button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+//  achievement celebration component
+// ─────────────────────────────────────────────
+
+function AchievementCelebration({ achievement, onClose }: { achievement: typeof ACHIEVEMENTS[0]; onClose: () => void }) {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 4000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-pulse" />
+      <div className="relative bg-[#0a0a0a] border-2 border-yellow-500/50 rounded-2xl p-8 text-center animate-bounce shadow-2xl shadow-yellow-500/20">
+        <p className="text-xs text-yellow-400 lowercase mb-2 tracking-wider">achievement unlocked!</p>
+        <span className="text-6xl mb-4 block animate-pulse">{achievement.icon}</span>
+        <p className="text-xl font-bold text-white lowercase mb-1">{achievement.name}</p>
+        <p className="text-sm text-white/60 lowercase">{achievement.description}</p>
+        <div className="mt-4 flex justify-center gap-1">
+          {[...Array(5)].map((_, i) => (
+            <span key={i} className="text-yellow-400 animate-pulse" style={{ animationDelay: `${i * 100}ms` }}>✦</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+//  weekly review component
+// ─────────────────────────────────────────────
+
+function WeeklyReviewModal({ isOpen, onClose, entries }: { isOpen: boolean; onClose: () => void; entries: JournalRecord[] }) {
+  const weekStart = getWeekStart();
+  const weekEntries = useMemo(() => {
+    const start = new Date(weekStart);
+    return entries.filter(e => new Date(e.date) >= start);
+  }, [entries, weekStart]);
+
+  const stats = useMemo(() => {
+    const moods = weekEntries.filter(e => e.mood).map(e => getMoodValue(e.mood!));
+    const avgMood = moods.length > 0 ? (moods.reduce((a, b) => a + b, 0) / moods.length).toFixed(1) : '0';
+    const bestDay = weekEntries.filter(e => e.mood === '6' || e.mood === '5').length;
+    const activities = weekEntries.reduce((acc, e) => acc + parseActivities(e.activities).length, 0);
+    return { avgMood, entryCount: weekEntries.length, bestDay, activities };
+  }, [weekEntries]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 w-96 max-h-[80vh] overflow-auto" onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute top-3 right-3 text-white/40 hover:text-white"><X size={18} /></button>
+        <p className="text-xs text-white/40 lowercase mb-1">weekly review</p>
+        <p className="text-lg font-bold text-white lowercase mb-4">this week in review</p>
+        
+        <div className="grid grid-cols-2 gap-3 mb-6">
+          <div className="p-3 rounded-lg bg-white/[0.03] text-center">
+            <span className="text-2xl font-bold text-blue-400">{stats.entryCount}</span>
+            <p className="text-xs text-white/40 lowercase">entries</p>
+          </div>
+          <div className="p-3 rounded-lg bg-white/[0.03] text-center">
+            <span className="text-2xl font-bold text-green-400">{stats.avgMood}</span>
+            <p className="text-xs text-white/40 lowercase">avg mood</p>
+          </div>
+          <div className="p-3 rounded-lg bg-white/[0.03] text-center">
+            <span className="text-2xl font-bold text-yellow-400">{stats.bestDay}</span>
+            <p className="text-xs text-white/40 lowercase">great days</p>
+          </div>
+          <div className="p-3 rounded-lg bg-white/[0.03] text-center">
+            <span className="text-2xl font-bold text-purple-400">{stats.activities}</span>
+            <p className="text-xs text-white/40 lowercase">activities</p>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <p className="text-xs text-white/40 lowercase">reflection prompts</p>
+          {[
+            "what was your biggest win this week?",
+            "what challenged you the most?",
+            "what are you looking forward to next week?",
+            "how can you improve next week?",
+          ].map((prompt, i) => (
+            <div key={i} className="p-3 rounded-lg bg-white/[0.02] border border-white/5">
+              <p className="text-sm text-white/70 lowercase">{prompt}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+//  template selector component
+// ─────────────────────────────────────────────
+
+function TemplateSelector({ isOpen, onClose, onSelect }: { isOpen: boolean; onClose: () => void; onSelect: (template: typeof JOURNAL_TEMPLATES[0]) => void }) {
+  const [templatesUsed, setTemplatesUsed] = useState<string[]>(() => 
+    getStoredData(STORAGE_KEYS.TEMPLATES_USED, [])
+  );
+
+  const handleSelect = (template: typeof JOURNAL_TEMPLATES[0]) => {
+    if (!templatesUsed.includes(template.id)) {
+      const updated = [...templatesUsed, template.id];
+      setTemplatesUsed(updated);
+      setStoredData(STORAGE_KEYS.TEMPLATES_USED, updated);
+    }
+    onSelect(template);
+    onClose();
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 w-96 max-h-[80vh] overflow-auto" onClick={e => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute top-3 right-3 text-white/40 hover:text-white"><X size={18} /></button>
+        <p className="text-xs text-white/40 lowercase mb-1">journal templates</p>
+        <p className="text-lg font-bold text-white lowercase mb-4">choose a template</p>
+        
+        <div className="space-y-3">
+          {JOURNAL_TEMPLATES.map(template => (
+            <button
+              key={template.id}
+              onClick={() => handleSelect(template)}
+              className="w-full p-4 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/20 hover:bg-white/[0.04] transition-all text-left"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">{template.emoji}</span>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-white lowercase">{template.name}</p>
+                  <p className="text-xs text-white/40 lowercase">{template.description}</p>
+                </div>
+                {templatesUsed.includes(template.id) && <span className="text-green-400 text-xs">✓</span>}
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
