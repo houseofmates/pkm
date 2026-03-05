@@ -1758,7 +1758,6 @@ export function JournalPage() {
   // ── state: notes ──
   const [body, setBody] = useState('');
   const [showPreview, setShowPreview] = useState(false);
-  const [showPreview, setShowPreview] = useState(false);
   const [saving, setSaving] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
