@@ -5,9 +5,6 @@ vi.mock('leaflet', () => ({ map: () => ({ remove: () => null }), tileLayer: () =
 import { SmartField } from '../smart-field';
 import { AuthContext } from '@/contexts/auth-context';
 
-// leaflet uses window which isn't available in node; provide a minimal mock
-vi.mock('leaflet', () => ({ map: () => ({ remove: () => null }), tileLayer: () => ({ addTo: () => null }), polyline: () => ({ addTo: () => null }), icon: () => ({}) }));
-
 import { vi } from 'vitest';
 
 // stub the formula editor globally so formula tests can open it
