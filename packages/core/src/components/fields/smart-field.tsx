@@ -722,11 +722,6 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     setLocalOptions(enrich(field?.uiSchema?.enum || []));
   }, [field?.uiSchema?.enum, field?.optionColors]);
 
-  // colour picker / palette support for select options
-  const [currentColor, setCurrentColor] = useState('#ffffff');
-  const [palette, setPalette] = useAppSetting<string[]>('color_palette', []);
-  const colorInputRef = useRef<HTMLInputElement>(null);
-  const [colorTarget, setColorTarget] = useState<string | null>(null);
 
   const changeOptionColor = async (optValue: string, color: string) => {
     setLocalOptions(prev => prev.map(o => o.value === optValue ? { ...o, color } : o));
