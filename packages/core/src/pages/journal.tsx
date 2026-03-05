@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import api from '@/api/nocobase-client';
+import { OllamaClient } from '@/api/ollama-client';
 import { JournalRecord, parseActivities } from '@/schema/journal-collection';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, AreaChart, Area } from 'recharts';
 import { Sparkles, Mic, Image, Calendar, TrendingUp, Heart, Zap, Target, Award, BookOpen, Wind, Clock, Download, Bell, Plus, X, ChevronLeft, ChevronRight, Search, Filter, Edit2, Trash2, Lock } from 'lucide-react';
@@ -2135,6 +2136,32 @@ export function JournalPage() {
     }
   };
 
+
+  const handleNLSearch = async () => {
+    const q = pastEntriesFilter.search.trim();
+    if (!q) return;
+    setIsNlSearching(true);
+    try {
+      const ollama = new OllamaClient();
+      const entriesText = entries.map(e => `${e.id}: ${e.body || ''}`).join("
+");
+      const prompt = `given the following journal entries in the format id: text, return a json array of ids that best match this query: "${q}". entries:
+${entriesText}`;
+      const resp = await ollama.ask(prompt);
+      try {
+        const ids = JSON.parse(resp);
+        setNlIds(Array.isArray(ids) ? ids.map(String) : []);
+      } catch (err) {
+        console.error('nl parse error', resp, err);
+        setNlIds(null);
+      }
+    } catch (err) {
+      console.error('nl search failed', err);
+    } finally {
+      setIsNlSearching(false);
+    }
+  };
+
   const checkAchievements = (newXp: number, newStreak: number, newCount: number, wordCount: number, emotionCount: number) => {
     const newUnlocks: string[] = [];
     
@@ -2839,6 +2866,17 @@ export function JournalPage() {
           
           <div className="flex gap-2 mt-3">
             <button 
+              onClick={() => toggleBookmark(viewingEntry.id!)}
+              className={cn(
+                "flex-1 px-3 py-2 rounded-lg text-sm lowercase flex items-center justify-center gap-1",
+                bookmarkedEntries.includes(viewingEntry.id!)
+                  ? "bg-yellow-500/20 text-yellow-400"
+                  : "bg-white/5 hover:bg-white/10"
+              )}
+            >
+              <span>★</span> {bookmarkedEntries.includes(viewingEntry.id!) ? 'bookmarked' : 'bookmark'}
+            </button>
+            <button 
               onClick={() => populateForm(viewingEntry)}
               className="flex-1 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-sm lowercase flex items-center justify-center gap-1"
             >
@@ -3114,3 +3152,7 @@ export function JournalPage() {
       <div className="h-8" />
     </div>
   );
+
+}
+
+export default JournalPage;
