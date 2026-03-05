@@ -2086,6 +2086,7 @@ export function JournalPage() {
     } catch {
       setTags(new Set());
     }
+    setTranscript((entry as any).transcript || '');
   };
 
   const handleDeleteEntry = async (entry: JournalRecord) => {
