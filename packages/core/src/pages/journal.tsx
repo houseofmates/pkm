@@ -2852,17 +2852,15 @@ summary:`;
 
 const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
     const active = (isQuick ? quickMood : mood) === m.id;
-    const size = isQuick ? 'w-10 h-10' : 'w-14 h-14';
+    const size = isQuick ? 'w-12 h-12' : 'w-16 h-16';
     return (
       <button
         key={m.id}
         onClick={() => isQuick ? handleQuickMood(m.id) : setMood(active ? null : m.id)}
-        className={`${size} rounded-full transition-all duration-150 flex items-center justify-center hover:scale-105`}
+        className={`${size} rounded-full transition-all duration-150 flex items-center justify-center hover:scale-110 active:scale-105`}
         style={{
           background: active ? `${m.color}33` : '#000000',
-          border: `2px solid ${active ? m.color : 'rgba(255,255,255,0.08)'}`,
-          boxShadow: active ? `0 0 15px ${m.color}66` : 'none',
-        }}
+          border: `2px solid rgba(255,255,255,0.08)`,
       >
         {moodImageFor(m.id)}
       </button>
