@@ -22,6 +22,8 @@ export interface Field {
   interface?: string;
   hidden?: boolean;
   uiSchema?: Record<string, string | number | boolean | null | undefined>;
+  // some field types (select / multi-select) may supply parallel array of colors
+  optionColors?: string[];
 }
 
 interface CollectionResponse {

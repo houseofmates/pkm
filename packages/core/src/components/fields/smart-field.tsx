@@ -704,10 +704,16 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
 
   // searchable dropdown state for select fields
   const [searchText, setSearchText] = useState('');
-  const [localOptions, setLocalOptions] = useState<any[]>(field?.uiSchema?.enum || []);
+  // include colors if provided
+  const enrich = (opts: any[] = []) => {
+    const colors = field?.optionColors || [];
+    return opts.map((o, i) => ({ ...o, color: colors[i] || o.color }));
+  };
+
+  const [localOptions, setLocalOptions] = useState<any[]>(enrich(field?.uiSchema?.enum || []));
   useEffect(() => {
-    setLocalOptions(field?.uiSchema?.enum || []);
-  }, [field?.uiSchema?.enum]);
+    setLocalOptions(enrich(field?.uiSchema?.enum || []));
+  }, [field?.uiSchema?.enum, field?.optionColors]);
   const isCode = detectedType === 'code' || name === 'code' || name === 'formula' || field?.type === 'formula';
   const isMarkdown = detectedType === 'markdown' || detectedType === 'richText' || name.includes('desc') || name.includes('note');
   const isNumber = detectedType === 'number' || detectedType === 'integer' || detectedType === 'percent';
@@ -1422,12 +1428,13 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
 
       const addOption = async (label: string) => {
         const value = label.toLowerCase().replace(/\s+/g, '_');
-        const newOpt = { label, value };
+        const newOpt = { label, value, color: undefined };
         setLocalOptions(prev => [...prev, newOpt]);
-        // persist back to field configuration
+        // persist back to field configuration along with default color
         try {
           await client.updateField(collectionName, field.name, {
-            uiSchema: { ...field.uiSchema, enum: [...options, newOpt] }
+            uiSchema: { ...field.uiSchema, enum: [...options, newOpt] },
+            optionColors: [...(field?.optionColors || []), '#ffffff']
           });
         } catch (err) {
           secureLogger.error('failed to persist new option', err);
@@ -1484,7 +1491,17 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
                       }}
                     />
                   )}
-                  <span className="text-xs">{opt.label}</span>
+                  <span
+                    className="text-xs"
+                    style={{
+                      background: opt.color ? opt.color : undefined,
+                      color: opt.color ? getContrastColor(opt.color) : undefined,
+                      padding: opt.color ? '0 0.25rem' : undefined,
+                      borderRadius: opt.color ? '0.25rem' : undefined,
+                    }}
+                  >
+                    {opt.label}
+                  </span>
                 </div>
               );
             })}
@@ -1646,7 +1663,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
 
     // show label text instead of raw value for select/multi-select, and open on click
     if (isSelect) {
-      const options = field?.uiSchema?.enum || [];
+      const options = enrich(field?.uiSchema?.enum || []);
       let display = '';
       if (isMultiSelect) {
         if (Array.isArray(value)) display = value.map(v => options.find(o => o.value === v)?.label || v).join(', ');
