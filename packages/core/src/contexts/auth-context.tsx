@@ -27,16 +27,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // condition can be investigated if it ever happens in production.
   const internals = (React as any).__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
   if (internals?.ReactCurrentDispatcher?.current == null) {
-    // dispatcher missing – render a minimal provider so that downstream
-    // callers of `useAuth` still receive a context object instead of
-    // triggering the "outside of AuthProvider" warning.  The values are
-    // essentially a no‑op stub similar to what `useAuth` would return in
-    // that warning path.
+    // dispatcher missing – this usually happens during hot‑reload or when
+    // React is introspecting our component.  We must return a provider
+    // so that hooks like `useAuth` still receive an object (otherwise they
+    // warn and return another stub), but we can't call any hooks here.
+    //
+    // The stub below keeps the minimal shape but still implements login/
+    // logout by writing to storage and forcing a full reload.  That way if
+    // the user happens to try signing in while the stub is active it will
+    // actually take effect once the real provider mounts again.
     const stub: AuthContextType = {
       token: null,
       isAuthenticated: false,
-      login: () => {},
-      logout: () => {},
+      login: (tok: string) => {
+        const normalized = normalizeAuthToken(tok);
+        if (normalized) {
+          storageManager.setItem('nocobase_token', normalized);
+          // reload so the proper AuthProvider picks up the value
+          window.location.reload();
+        }
+      },
+      logout: () => {
+        storageManager.removeItem('nocobase_token');
+        window.location.reload();
+      },
       client: new NocoBaseClient(),
     };
 
