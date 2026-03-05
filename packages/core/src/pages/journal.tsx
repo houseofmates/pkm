@@ -1840,6 +1840,10 @@ export function JournalPage() {
   const [editingEntry, setEditingEntry] = useState<JournalRecord | null>(null);
   const [selectedEntry, setSelectedEntry] = useState<JournalRecord | null>(null);
   const [viewingEntry, setViewingEntry] = useState<JournalRecord | null>(null);
+  const [bookmarkedEntries, setBookmarkedEntries] = useState<number[]>(() => 
+    getStoredData('pkm:journal:bookmarks', [])
+  );
+  const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
 
   // ── derived state ──
   const entriesByDate = useMemo(() => {
@@ -2479,7 +2483,13 @@ export function JournalPage() {
           {reminderEnabled && <input type="time" value={reminderTime} onChange={e => setReminderTime(e.target.value)} className="h-7 text-xs bg-transparent border border-white/20 rounded px-1" />}
           <input type="date" value={exportFrom} onChange={e => setExportFrom(e.target.value)} className="h-7 text-xs bg-transparent border border-white/20 rounded px-1" />
           <input type="date" value={exportTo} onChange={e => setExportTo(e.target.value)} className="h-7 text-xs bg-transparent border border-white/20 rounded px-1" />
-          <button onClick={handleExport} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="export"><Download size={18} /></button>
+          <div className="relative group">
+            <button className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="export"><Download size={18} /></button>
+            <div className="absolute right-0 top-full mt-1 hidden group-hover:block bg-[#0a0a0a] border border-white/10 rounded-lg p-1 min-w-[120px] z-50">
+              <button onClick={handleExport} className="w-full px-3 py-2 text-left text-xs lowercase hover:bg-white/5 rounded">export csv</button>
+              <button onClick={handleExportJSON} className="w-full px-3 py-2 text-left text-xs lowercase hover:bg-white/5 rounded">export json</button>
+            </div>
+          </div>
         </div>
       </div>
 
