@@ -13,12 +13,13 @@ import api from '@/api/nocobase-client';
 // button (replace the placeholder files with your own images later).
 // note: order determines layout left→right; "amazing" moved last to
 // appear on the rightmost side and get a larger hit area.
+// left-to-right order for layout; amazing should be on the rightmost side
 const MOODS = [
-  { id: '5', label: 'great',    emoji: '😃', img: '/images/moods/great.png' },
-  { id: '4', label: 'good',     emoji: '😊', img: '/images/moods/good.png' },
-  { id: '2', label: 'fine',     emoji: '😐', img: '/images/moods/fine.png' },
-  { id: '1', label: 'bad',      emoji: '😞', img: '/images/moods/bad.png' },
   { id: '0', label: 'terrible', emoji: '😡', img: '/images/moods/terrible.png' },
+  { id: '1', label: 'bad',      emoji: '😞', img: '/images/moods/bad.png' },
+  { id: '2', label: 'fine',     emoji: '😐', img: '/images/moods/fine.png' },
+  { id: '4', label: 'good',     emoji: '😊', img: '/images/moods/good.png' },
+  { id: '5', label: 'great',    emoji: '😃', img: '/images/moods/great.png' },
   { id: '6', label: 'amazing!', emoji: '😁', img: '/images/moods/amazing.png' },
 ];
 
