@@ -99,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // sync changes to localstorage is handled in login/logout to avoid race conditions with api clients
   const login = (newToken: string) => {
     const normalized = normalizeAuthToken(newToken);
+    secureLogger.info('AuthProvider.login called');
     storageManager.setItem('nocobase_token', normalized);
     setToken(normalized);
 
