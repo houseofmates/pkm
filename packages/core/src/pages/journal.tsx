@@ -181,6 +181,7 @@ const ACHIEVEMENTS = [
   { id: 'breathing_master', name: 'breathing master', description: 'completed 10 breathing sessions', icon: '🧘', category: 'wellness' },
   { id: 'photo_journalist', name: 'photo journalist', description: 'added 10 photos to entries', icon: '📸', category: 'creativity' },
   { id: 'voice_memoir', name: 'voice memoir', description: 'recorded 10 voice memos', icon: '🎙️', category: 'creativity' },
+  { id: 'weekly_summary', name: 'weekly philosopher', description: 'generated an ai summary of the week', icon: '📜', category: 'insights' },
   { id: 'social_butterfly', name: 'social butterfly', description: 'logged 20 social activities', icon: '🦋', category: 'social' },
   { id: 'health_hero', name: 'health hero', description: 'logged 50 health activities', icon: '❤️', category: 'wellness' },
   { id: 'creative_spark', name: 'creative spark', description: 'logged 30 creative activities', icon: '✨', category: 'creativity' },
@@ -819,6 +820,8 @@ function AchievementCelebration({ achievement, onClose }: { achievement: typeof 
 
 function WeeklyReviewModal({ isOpen, onClose, entries }: { isOpen: boolean; onClose: () => void; entries: JournalRecord[] }) {
   const weekStart = getWeekStart();
+  const [summary, setSummary] = useState('');
+  const [isSummarizing, setIsSummarizing] = useState(false);
   const weekEntries = useMemo(() => {
     const start = new Date(weekStart);
     return entries.filter(e => new Date(e.date) >= start);
@@ -831,6 +834,45 @@ function WeeklyReviewModal({ isOpen, onClose, entries }: { isOpen: boolean; onCl
     const activities = weekEntries.reduce((acc, e) => acc + parseActivities(e.activities).length, 0);
     return { avgMood, entryCount: weekEntries.length, bestDay, activities };
   }, [weekEntries]);
+
+
+  const generateWeeklySummary = async () => {
+    if (weekEntries.length === 0) return;
+    const key = `weekly_summary_${weekStart}`;
+    setIsSummarizing(true);
+    try {
+      const ollama = new OllamaClient();
+      const text = weekEntries.map(e => e.body || '').join('
+---
+');
+      const prompt = `summarize these journal entries in a few sentences, highlighting mood trends and key events:
+${text}`;
+      const result = await ollama.ask(prompt);
+      setSummary(result);
+      localStorage.setItem(key, result);
+      // unlock achievement
+      if (!unlockedAchievements.includes('weekly_summary')) {
+        setUnlockedAchievements(prev => [...prev, 'weekly_summary']);
+        setStoredData(STORAGE_KEYS.ACHIEVEMENTS, [...unlockedAchievements, 'weekly_summary']);
+      }
+    } catch (err) {
+      console.error('weekly summary failed', err);
+    } finally {
+      setIsSummarizing(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const key = `weekly_summary_${weekStart}`;
+    const cached = localStorage.getItem(key);
+    if (cached) {
+      setSummary(cached);
+    } else {
+      generateWeeklySummary();
+    }
+  }, [isOpen, weekEntries, weekStart]);
+
 
   if (!isOpen) return null;
 
@@ -872,6 +914,15 @@ function WeeklyReviewModal({ isOpen, onClose, entries }: { isOpen: boolean; onCl
             <div key={i} className="p-3 rounded-lg bg-white/[0.02] border border-white/5">
               <p className="text-sm text-white/70 lowercase">{prompt}</p>
             </div>
+
+        <div className="mt-6">
+          <p className="text-xs text-white/40 lowercase mb-1">weekly ai summary</p>
+          {isSummarizing ? (
+            <p className="text-sm text-white/50 italic">generating...</p>
+          ) : (
+            <p className="text-sm text-white/70 lowercase">{summary || 'no summary available'}</p>
+          )}
+        </div>
           ))}
         </div>
       </div>
@@ -3148,11 +3199,11 @@ ${entriesText}`;
         </>
       )}
 
+
       {/* footer spacer */}
       <div className="h-8" />
     </div>
   );
-
 }
 
 export default JournalPage;
