@@ -259,3 +259,5 @@ describe('SmartField', () => {
     expect(onChange).toHaveBeenCalledWith({ foo: 'baz' });
   });
 });
+
+}
