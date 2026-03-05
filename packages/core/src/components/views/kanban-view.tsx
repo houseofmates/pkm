@@ -4,6 +4,7 @@ import type { ViewProps } from './registry';
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Plus } from 'lucide-react';
+import { getContrastColor } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from 'sonner';
 import {
