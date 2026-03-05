@@ -2861,6 +2861,8 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
         style={{
           background: active ? `${m.color}33` : '#000000',
           border: `2px solid rgba(255,255,255,0.08)`,
+          boxShadow: active ? `0 0 15px ${m.color}66` : 'none',
+        }}
       >
         {moodImageFor(m.id)}
       </button>
