@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import api from '@/api/nocobase-client';
+import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 // ─────────────────────────────────────────────
 //  constants
@@ -11,12 +12,12 @@ const Y = '#f5af12';
 const B = '#3c9fdd';
 
 const MOODS = [
-  { id: '0', label: 'terrible', emoji: '😡', img: '/images/moods/terrible.png' },
-  { id: '1', label: 'bad',      emoji: '😞', img: '/images/moods/bad.png' },
-  { id: '2', label: 'fine',     emoji: '😐', img: '/images/moods/fine.png' },
-  { id: '4', label: 'good',     emoji: '😊', img: '/images/moods/good.png' },
-  { id: '5', label: 'great',    emoji: '😃', img: '/images/moods/great.png' },
-  { id: '6', label: 'amazing!', emoji: '😁', img: '/images/moods/amazing.png' },
+  { id: '0', label: 'terrible', emoji: '😡', img: '/images/moods/terrible.png', color: '#ef4444' },
+  { id: '1', label: 'bad',      emoji: '😞', img: '/images/moods/bad.png', color: '#f97316' },
+  { id: '2', label: 'fine',     emoji: '😐', img: '/images/moods/fine.png', color: '#eab308' },
+  { id: '4', label: 'good',     emoji: '😊', img: '/images/moods/good.png', color: '#22c55e' },
+  { id: '5', label: 'great',    emoji: '😃', img: '/images/moods/great.png', color: '#06b6d4' },
+  { id: '6', label: 'amazing!', emoji: '😁', img: '/images/moods/amazing.png', color: '#8b5cf6' },
 ];
 
 const INITIAL_EMOTIONS = [
@@ -121,6 +122,11 @@ const ACHIEVEMENTS = [
   { id: 'emotion_explorer', name: 'emotion explorer', description: 'used 10 different emotions', icon: '🎨' },
   { id: 'activity_pro', name: 'activity pro', description: 'completed 20 activities in one day', icon: '⚡' },
   { id: 'word_warrior', name: 'word warrior', description: 'wrote 500 words in one entry', icon: '✍️' },
+  { id: 'level_5', name: 'rising star', description: 'reached level 5', icon: '🌟' },
+  { id: 'level_10', name: 'dedicated journaler', description: 'reached level 10', icon: '💫' },
+  { id: 'perfect_week', name: 'perfect week', description: 'journaled every day for a week', icon: '💎' },
+  { id: 'goal_crusher', name: 'goal crusher', description: 'completed 10 daily goals', icon: '🎯' },
+  { id: 'tag_master', name: 'tag master', description: 'used 20 different tags', icon: '🏷️' },
 ];
 
 const COLOR_PALETTE = [
@@ -147,6 +153,11 @@ const STORAGE_KEYS = {
   ACHIEVEMENTS: 'pkm:journal:achievements',
   CUSTOM_EMOTIONS: 'pkm:journal:custom_emotions',
   COLOR_DOTS: 'pkm:journal:color_dots',
+  XP_DATA: 'pkm:journal:xp_data',
+  DAILY_GOALS: 'pkm:journal:daily_goals',
+  TAGS: 'pkm:journal:tags',
+  PAST_ENTRIES: 'pkm:journal:past_entries',
+  BREATHING_HISTORY: 'pkm:journal:breathing_history',
 };
 
 // ─────────────────────────────────────────────
@@ -180,16 +191,55 @@ function getYesterday(): string {
   return d.toLocaleDateString('en-CA');
 }
 
-function hslToHex(h: number, s: number, l: number): string {
-  s /= 100;
-  l /= 100;
-  const a = s * Math.min(l, 1 - l);
-  const f = (n: number) => {
-    const k = (n + h / 30) % 12;
-    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-    return Math.round(255 * color).toString(16).padStart(2, '0');
-  };
-  return `#${f(0)}${f(8)}${f(4)}`;
+function formatDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
+function getDaysAgo(days: number): string {
+  const d = new Date();
+  d.setDate(d.getDate() - days);
+  return d.toLocaleDateString('en-CA');
+}
+
+function getMonthData(year: number, month: number): { date: string, day: number, isCurrentMonth: boolean }[] {
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const startPadding = firstDay.getDay();
+  const days: { date: string, day: number, isCurrentMonth: boolean }[] = [];
+  
+  // previous month padding
+  for (let i = startPadding - 1; i >= 0; i--) {
+    const d = new Date(year, month, -i);
+    days.push({
+      date: d.toLocaleDateString('en-CA'),
+      day: d.getDate(),
+      isCurrentMonth: false
+    });
+  }
+  
+  // current month
+  for (let i = 1; i <= lastDay.getDate(); i++) {
+    const d = new Date(year, month, i);
+    days.push({
+      date: d.toLocaleDateString('en-CA'),
+      day: i,
+      isCurrentMonth: true
+    });
+  }
+  
+  // next month padding
+  const remaining = 42 - days.length;
+  for (let i = 1; i <= remaining; i++) {
+    const d = new Date(year, month + 1, i);
+    days.push({
+      date: d.toLocaleDateString('en-CA'),
+      day: i,
+      isCurrentMonth: false
+    });
+  }
+  
+  return days;
 }
 
 // ─────────────────────────────────────────────
@@ -221,7 +271,6 @@ function ColorPicker({
   const [lightness, setLightness] = useState(50);
 
   useEffect(() => {
-    // convert current color to hsl for the picker
     const hex = currentColor.replace('#', '');
     const r = parseInt(hex.substring(0, 2), 16) / 255;
     const g = parseInt(hex.substring(2, 4), 16) / 255;
@@ -248,7 +297,6 @@ function ColorPicker({
     setSelectedColor(currentColor);
   }, [currentColor, isOpen]);
 
-  // update color from hsl
   useEffect(() => {
     const hslColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
     setSelectedColor(hslColorToHex(hue, saturation, lightness));
@@ -271,17 +319,14 @@ function ColorPicker({
       >
         <p className="text-xs lowercase text-white/50 mb-3 text-center">tap a dot to save color, tap again to apply</p>
         
-        {/* saved color dots */}
         <div className="flex justify-center gap-2 mb-4">
           {savedDots.map((color, i) => (
             <button
               key={i}
               onClick={() => {
                 if (dotIndex === i) {
-                  // first click - save current color to this dot
                   onSaveDot(i, selectedColor);
                 } else {
-                  // subsequent clicks - apply the saved color
                   onSelectColor(color);
                   onClose();
                 }
@@ -295,7 +340,6 @@ function ColorPicker({
           ))}
         </div>
 
-        {/* color spectrum - hue slider */}
         <div className="mb-3">
           <label className="text-[10px] lowercase text-white/40 block mb-1">hue</label>
           <input
@@ -318,7 +362,6 @@ function ColorPicker({
           />
         </div>
 
-        {/* saturation slider */}
         <div className="mb-3">
           <label className="text-[10px] lowercase text-white/40 block mb-1">saturation</label>
           <input
@@ -334,7 +377,6 @@ function ColorPicker({
           />
         </div>
 
-        {/* lightness slider */}
         <div className="mb-4">
           <label className="text-[10px] lowercase text-white/40 block mb-1">lightness</label>
           <input
@@ -350,7 +392,6 @@ function ColorPicker({
           />
         </div>
 
-        {/* preview and actions */}
         <div className="flex items-center justify-between">
           <div 
             className="w-12 h-12 rounded-full border-2 border-white/20"
@@ -393,588 +434,70 @@ function hslColorToHex(h: number, s: number, l: number): string {
 }
 
 // ─────────────────────────────────────────────
-//  main component
+//  breathing exercise component
 // ─────────────────────────────────────────────
 
-export function JournalPage() {
-  // ── state: mood & emotions ──
-  const [mood, setMood] = useState<string | null>(null);
-  const [emotions, setEmotions] = useState<Set<string>>(new Set());
-  const [emotionQuery, setEmotionQuery] = useState('');
-  const [availableEmotions, setAvailableEmotions] = useState<string[]>(INITIAL_EMOTIONS.slice());
-  
-  // ── state: activities ──
-  const [activities, setActivities] = useState<Set<string>>(new Set());
-  const [activityQuery, setActivityQuery] = useState('');
-  const [availableActivities] = useState(DEFAULT_ACTIVITIES);
-  
-  // ── state: notes ──
-  const [body, setBody] = useState('');
-  const [saving, setSaving] = useState(false);
-  
-  // ── state: gamification ──
-  const [streak, setStreak] = useState(0);
-  const [entryCount, setEntryCount] = useState(0);
-  const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
-  const [showAchievements, setShowAchievements] = useState(false);
-  const [showStats, setShowStats] = useState(false);
-  const [todayPrompt] = useState(() => DAILY_PROMPTS[Math.floor(Math.random() * DAILY_PROMPTS.length)]);
-  const [todayQuote] = useState(() => QUOTES[Math.floor(Math.random() * QUOTES.length)]);
-  const [quickMood, setQuickMood] = useState<string | null>(null);
-  
-  // ── state: color customization ──
-  const [emotionColors, setEmotionColors] = useState<Record<string, string>>(() => 
-    getStoredData(STORAGE_KEYS.EMOTION_COLORS, DEFAULT_EMOTION_COLORS)
-  );
-  const [activityColors, setActivityColors] = useState<Record<string, string>>(() => 
-    getStoredData(STORAGE_KEYS.ACTIVITY_COLORS, DEFAULT_ACTIVITY_COLORS)
-  );
-  const [colorPickerOpen, setColorPickerOpen] = useState(false);
-  const [colorPickerTarget, setColorPickerTarget] = useState<{type: 'emotion' | 'activity', id: string} | null>(null);
-  const [currentPickerColor, setCurrentPickerColor] = useState('#ffffff');
-  const [colorDots, setColorDots] = useState<string[]>(() => 
-    getStoredData(STORAGE_KEYS.COLOR_DOTS, COLOR_PALETTE.slice(0, 10))
-  );
-  const [activeDotIndex, setActiveDotIndex] = useState<number | null>(null);
-  
-  // ── state: view toggles ──
-  const [showQuickCheckin, setShowQuickCheckin] = useState(false);
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [currentMonth, setCurrentMonth] = useState(new Date());
-  
-  // ── refs ──
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const colorPickerRef = useRef<HTMLDivElement>(null);
+function BreathingExercise({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
+  const [phase, setPhase] = useState<'inhale' | 'hold' | 'exhale'>('inhale');
+  const [count, setCount] = useState(4);
+  const [isActive, setIsActive] = useState(false);
+  const [sessions, setSessions] = useState(0);
 
-  // ── load saved data on mount ──
   useEffect(() => {
-    // load streak data
-    const streakData = getStoredData(STORAGE_KEYS.STREAK_DATA, { current: 0, lastDate: '' });
-    const today = getToday();
-    const yesterday = getYesterday();
-    
-    // check if streak is still valid
-    if (streakData.lastDate === today) {
-      setStreak(streakData.current);
-    } else if (streakData.lastDate === yesterday) {
-      setStreak(streakData.current);
-    } else {
-      // streak broken
-      setStreak(0);
-      setStoredData(STORAGE_KEYS.STREAK_DATA, { current: 0, lastDate: today });
-    }
-    
-    // load entry count
-    setEntryCount(getStoredData(STORAGE_KEYS.ENTRY_COUNT, 0));
-    
-    // load achievements
-    setUnlockedAchievements(getStoredData(STORAGE_KEYS.ACHIEVEMENTS, []));
-    
-    // load custom emotions
-    const customEmojis = getStoredData(STORAGE_KEYS.CUSTOM_EMOTIONS, [] as string[]);
-    if (customEmojis.length > 0) {
-      setAvailableEmotions(prev => [...new Set([...prev, ...customEmojis])]);
-    }
-  }, []);
-
-  // ── save functions ──
-  const saveEmotionColors = useCallback((colors: Record<string, string>) => {
-    setEmotionColors(colors);
-    setStoredData(STORAGE_KEYS.EMOTION_COLORS, colors);
-  }, []);
-
-  const saveActivityColors = useCallback((colors: Record<string, string>) => {
-    setActivityColors(colors);
-    setStoredData(STORAGE_KEYS.ACTIVITY_COLORS, colors);
-  }, []);
-
-  // ── handlers: toggle emotions/activities ──
-  const toggleEmotion = (id: string) => {
-    setEmotions(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  };
-
-  const toggleActivity = (id: string) => {
-    setActivities(prev => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  };
-
-  // ── handlers: color picker ──
-  const openColorPicker = (type: 'emotion' | 'activity', id: string) => {
-    setColorPickerTarget({ type, id });
-    const colors = type === 'emotion' ? emotionColors : activityColors;
-    setCurrentPickerColor(colors[id] || '#3b82f6');
-    setColorPickerOpen(true);
-    setActiveDotIndex(null);
-  };
-
-  const handleColorSelect = (color: string) => {
-    if (!colorPickerTarget) return;
-    
-    if (colorPickerTarget.type === 'emotion') {
-      const newColors = { ...emotionColors, [colorPickerTarget.id]: color };
-      saveEmotionColors(newColors);
-    } else {
-      const newColors = { ...activityColors, [colorPickerTarget.id]: color };
-      saveActivityColors(newColors);
-    }
-  };
-
-  const handleSaveDot = (index: number, color: string) => {
-    setActiveDotIndex(index);
-    const newDots = [...colorDots];
-    newDots[index] = currentPickerColor;
-    setColorDots(newDots);
-    setStoredData(STORAGE_KEYS.COLOR_DOTS, newDots);
-  };
-
-  // ── handlers: context menu (right click) ──
-  const handleContextMenu = (e: React.MouseEvent, type: 'emotion' | 'activity', id: string) => {
-    e.preventDefault();
-    openColorPicker(type, id);
-  };
-
-  // ── handlers: long press for mobile ──
-  const handleLongPress = useCallback((type: 'emotion' | 'activity', id: string) => {
-    openColorPicker(type, id);
-  }, []);
-
-  // ── handlers: save journal entry ──
-  const handleSave = async () => {
-    if (!mood && activities.size === 0 && !body.trim()) {
-      toast.error('nothing to save yet');
-      return;
-    }
-
-    setSaving(true);
-    const payload = {
-      mood: mood ?? undefined,
-      emotions: JSON.stringify(Array.from(emotions)),
-      activities: JSON.stringify(Array.from(activities)),
-      body: body.trim(),
-      timestamp: new Date().toISOString(),
-      date: new Date().toLocaleDateString('en-CA'),
-    };
-
-    try {
-      await api.createRecord('journal', payload);
-      toast.success('entry saved ✓');
-      
-      // update streak
-      const today = getToday();
-      const streakData = getStoredData(STORAGE_KEYS.STREAK_DATA, { current: 0, lastDate: '' });
-      let newStreak = streakData.current;
-      
-      if (streakData.lastDate !== today) {
-        newStreak = streakData.lastDate === getYesterday() ? streakData.current + 1 : 1;
-        setStoredData(STORAGE_KEYS.STREAK_DATA, { current: newStreak, lastDate: today });
-        setStreak(newStreak);
-      }
-      
-      // update entry count
-      const newCount = entryCount + 1;
-      setEntryCount(newCount);
-      setStoredData(STORAGE_KEYS.ENTRY_COUNT, newCount);
-      
-      // check achievements
-      const newUnlocked = [...unlockedAchievements];
-      const newAchievements: string[] = [];
-      
-      // first entry
-      if (newCount === 1 && !newUnlocked.includes('first_entry')) {
-        newUnlocked.push('first_entry');
-        newAchievements.push('first_entry');
-      }
-      
-      // entry count achievements
-      if (newCount >= 10 && !newUnlocked.includes('ten_entries')) {
-        newUnlocked.push('ten_entries');
-        newAchievements.push('ten_entries');
-      }
-      if (newCount >= 50 && !newUnlocked.includes('fifty_entries')) {
-        newUnlocked.push('fifty_entries');
-        newAchievements.push('fifty_entries');
-      }
-      if (newCount >= 100 && !newUnlocked.includes('hundred_entries')) {
-        newUnlocked.push('hundred_entries');
-        newAchievements.push('hundred_entries');
-      }
-      
-      // streak achievements
-      if (newStreak >= 7 && !newUnlocked.includes('week_streak')) {
-        newUnlocked.push('week_streak');
-        newAchievements.push('week_streak');
-      }
-      if (newStreak >= 30 && !newUnlocked.includes('month_streak')) {
-        newUnlocked.push('month_streak');
-        newAchievements.push('month_streak');
-      }
-      
-      // mood tracker achievement
-      if (mood && !newUnlocked.includes('mood_tracker')) {
-        newUnlocked.push('mood_tracker');
-        newAchievements.push('mood_tracker');
-      }
-      
-      // emotion explorer achievement
-      if (emotions.size >= 10 && !newUnlocked.includes('emotion_explorer')) {
-        newUnlocked.push('emotion_explorer');
-        newAchievements.push('emotion_explorer');
-      }
-      
-      // activity pro achievement
-      if (activities.size >= 20 && !newUnlocked.includes('activity_pro')) {
-        newUnlocked.push('activity_pro');
-        newAchievements.push('activity_pro');
-      }
-      
-      // word warrior achievement
-      if (body.trim().split(/\s+/).length >= 500 && !newUnlocked.includes('word_warrior')) {
-        newUnlocked.push('word_warrior');
-        newAchievements.push('word_warrior');
-      }
-      
-      if (newAchievements.length > 0) {
-        setUnlockedAchievements(newUnlocked);
-        setStoredData(STORAGE_KEYS.ACHIEVEMENTS, newUnlocked);
-        
-        // show achievement toasts
-        newAchievements.forEach(achId => {
-          const ach = ACHIEVEMENTS.find(a => a.id === achId);
-          if (ach) {
-            toast.success(`${ach.icon} achievement unlocked: ${ach.name}!`);
+    let interval: NodeJS.Timeout;
+    if (isActive) {
+      interval = setInterval(() => {
+        setCount(prev => {
+          if (prev <= 1) {
+            if (phase === 'inhale') {
+              setPhase('hold');
+              return 7;
+            } else if (phase === 'hold') {
+              setPhase('exhale');
+              return 8;
+            } else {
+              setPhase('inhale');
+              return 4;
+            }
           }
+          return prev - 1;
         });
-      }
-      
-      // reset form
-      setMood(null);
-      setEmotions(new Set());
-      setActivities(new Set());
-      setBody('');
-      setQuickMood(null);
-      
-    } catch (err: any) {
-      toast.error('failed to save: ' + (err?.message ?? 'unknown error'));
-    } finally {
-      setSaving(false);
+      }, 1000);
     }
-  };
+    return () => clearInterval(interval);
+  }, [isActive, phase]);
 
-  // ── handlers: quick check-in ──
-  const handleQuickMood = (moodId: string) => {
-    if (quickMood === moodId) {
-      setQuickMood(null);
+  const handleComplete = () => {
+    setIsActive(false);
+    setSessions(s => s + 1);
+    const history = getStoredData(STORAGE_KEYS.BREATHING_HISTORY, [] as { date: string; sessions: number }[]);
+    const today = getToday();
+    const existing = history.find(h => h.date === today);
+    if (existing) {
+      existing.sessions += 1;
     } else {
-      setQuickMood(moodId);
-      setMood(moodId);
+      history.push({ date: today, sessions: 1 });
     }
+    setStoredData(STORAGE_KEYS.BREATHING_HISTORY, history);
+    toast.success('breathing session complete!');
   };
 
-  // ── handlers: add custom emotion ──
-  const handleAddEmotion = () => {
-    if (emotionQuery.trim()) {
-      const val = emotionQuery.trim().toLowerCase();
-      if (!availableEmotions.includes(val)) {
-        setAvailableEmotions(prev => [...prev, val]);
-        // save custom emotions
-        const customEmojis = getStoredData(STORAGE_KEYS.CUSTOM_EMOTIONS, [] as string[]);
-        if (!customEmojis.includes(val)) {
-          setStoredData(STORAGE_KEYS.CUSTOM_EMOTIONS, [...customEmojis, val]);
-        }
-        // assign random color
-        const newColors = { ...emotionColors, [val]: COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)] };
-        saveEmotionColors(newColors);
-      }
-      toggleEmotion(val);
-      setEmotionQuery('');
-    }
-  };
+  const circleSize = phase === 'inhale' ? 160 : phase === 'hold' ? 160 : 100;
+  const opacity = phase === 'inhale' ? 1 : phase === 'hold' ? 1 : 0.6;
 
-  // ── render: mood button ──
-  const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
-    const active = (isQuick ? quickMood : mood) === m.id;
-    const size = isQuick ? 'w-10 h-10' : 'w-14 h-14';
-    return (
-      <button
-        key={m.id}
-        onClick={() => isQuick ? handleQuickMood(m.id) : setMood(active ? null : m.id)}
-        className={`${size} rounded-full transition-all duration-150 flex items-center justify-center text-2xl`}
-        style={{
-          background: active ? `${emotionColors[m.label] || B}33` : '#000000',
-          border: `2px solid ${active ? (emotionColors[m.label] || B) : 'rgba(255,255,255,0.08)'}`,
-          boxShadow: active ? `0 0 12px ${emotionColors[m.label] || B}66` : 'none',
-        }}
-      >
-        {m.emoji}
-      </button>
-    );
-  };
+  if (!isOpen) return null;
 
-
-  // ── main render ──
   return (
-    <div className="min-h-screen bg-black text-white font-varela p-4 pb-24 flex flex-col gap-6 max-w-2xl mx-auto">
-      {/* header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-xs text-white/40 lowercase">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
-          <h1 className="text-2xl font-bold lowercase tracking-tight">journal</h1>
-        </div>
-        <div className="flex items-center gap-3">
-          {streak > 0 && (
-            <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20">
-              <span className="text-sm">🔥</span>
-              <span className="text-xs text-yellow-400">{streak}</span>
-            </div>
-          )}
-          <button
-            onClick={() => setShowAchievements(v => !v)}
-            className="text-lg hover:scale-110 transition-transform"
-            title="achievements"
-          >🏆</button>
-          <button
-            onClick={() => setShowCalendar(v => !v)}
-            className="text-lg hover:scale-110 transition-transform"
-            title="calendar"
-          >📅</button>
-          <button
-            onClick={() => setShowStats(v => !v)}
-            className="text-lg hover:scale-110 transition-transform"
-            title="stats"
-          >📊</button>
-          <button
-            onClick={() => setShowQuickCheckin(v => !v)}
-            className="text-sm px-3 py-1 rounded-full border border-white/10 text-white/60 hover:border-white/30 lowercase"
-          >quick check-in</button>
-        </div>
-      </div>
-
-      {/* quote */}
-      <div className="text-center py-2 border-y border-white/5">
-        <p className="text-sm italic text-white/40 lowercase">"{todayQuote.text}"</p>
-        {todayQuote.author !== 'unknown' && (
-          <p className="text-xs text-white/20 mt-0.5 lowercase">— {todayQuote.author}</p>
-        )}
-      </div>
-
-      {/* quick check-in */}
-      {showQuickCheckin && (
-        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-          <p className="text-xs text-white/40 lowercase mb-3">quick mood check-in</p>
-          <div className="flex gap-3 justify-center">
-            {MOODS.map(m => renderMoodButton(m, true))}
-          </div>
-          {quickMood && (
-            <p className="text-center text-xs text-white/40 mt-2 lowercase">
-              feeling {MOODS.find(m => m.id === quickMood)?.label}
-            </p>
-          )}
-        </div>
-      )}
-
-      {/* daily prompt */}
-      <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02] text-center">
-        <p className="text-xs text-white/30 lowercase mb-1">today's prompt</p>
-        <p className="text-sm text-white/70 lowercase italic">{todayPrompt}</p>
-      </div>
-
-      {/* mood section */}
-      <section className="flex flex-col gap-3">
-        <p className="text-xs text-white/40 uppercase tracking-widest">mood</p>
-        <div className="flex gap-4 flex-wrap justify-center">
-          {MOODS.map(m => renderMoodButton(m))}
-        </div>
-        {mood && (
-          <p className="text-center text-xs text-white/40 lowercase">
-            feeling {MOODS.find(m => m.id === mood)?.label}
-          </p>
-        )}
-      </section>
-
-      {/* emotions section */}
-      <section className="flex flex-col gap-3">
-        <p className="text-xs text-white/40 uppercase tracking-widest">emotions</p>
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={emotionQuery}
-            onChange={e => setEmotionQuery(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter') handleAddEmotion();
-            }}
-            placeholder="search or add emotion…"
-            className="flex-1 bg-transparent border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white/70 placeholder:text-white/20 focus:outline-none focus:border-white/30 lowercase"
-          />
-          {emotionQuery && (
-            <button
-              onClick={handleAddEmotion}
-              className="text-xs px-2 py-1 rounded-lg border border-white/20 text-white/60 hover:border-white/40 lowercase"
-            >add</button>
-          )}
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {availableEmotions
-            .filter(e => !emotionQuery || e.includes(emotionQuery.toLowerCase()))
-            .map(e => {
-              const active = emotions.has(e);
-              const color = emotionColors[e] || B;
-              return (
-                <button
-                  key={e}
-                  onClick={() => toggleEmotion(e)}
-                  onContextMenu={ev => handleContextMenu(ev, 'emotion', e)}
-                  className={cn(
-                    'px-3 py-2 rounded-full text-base font-medium lowercase transition-all duration-150 text-white',
-                    active ? 'opacity-100' : 'opacity-50 hover:opacity-80'
-                  )}
-                  style={{
-                    background: active ? `${color}33` : '#000',
-                    border: `2px solid ${active ? color : 'rgba(255,255,255,0.08)'}`,
-                    boxShadow: active ? `0 0 10px ${color}55` : 'none',
-                  }}
-                >
-                  {e}
-                </button>
-              );
-            })}
-        </div>
-        {emotions.size > 0 && (
-          <p className="text-xs text-white/30 lowercase">{emotions.size} selected</p>
-        )}
-      </section>
-
-      {/* activities section */}
-      <section className="flex flex-col gap-3">
-        <p className="text-xs text-white/40 uppercase tracking-widest">activities</p>
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            value={activityQuery}
-            onChange={e => setActivityQuery(e.target.value)}
-            placeholder="search activities…"
-            className="flex-1 bg-transparent border border-white/10 rounded-lg px-3 py-1.5 text-sm text-white/70 placeholder:text-white/20 focus:outline-none focus:border-white/30 lowercase"
-          />
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {availableActivities
-            .filter(a => !activityQuery || a.label.includes(activityQuery.toLowerCase()) || a.id.includes(activityQuery.toLowerCase()))
-            .map(a => {
-              const active = activities.has(a.id);
-              const color = activityColors[a.id] || B;
-              return (
-                <button
-                  key={a.id}
-                  onClick={() => toggleActivity(a.id)}
-                  onContextMenu={ev => handleContextMenu(ev, 'activity', a.id)}
-                  className={cn(
-                    'px-3 py-2 rounded-full text-sm font-medium lowercase transition-all duration-150 text-white flex items-center gap-1.5',
-                    active ? 'opacity-100' : 'opacity-50 hover:opacity-80'
-                  )}
-                  style={{
-                    background: active ? `${color}33` : '#000',
-                    border: `2px solid ${active ? color : 'rgba(255,255,255,0.08)'}`,
-                    boxShadow: active ? `0 0 10px ${color}55` : 'none',
-                  }}
-                >
-                  <span>{a.emoji}</span>
-                  <span>{a.label}</span>
-                </button>
-              );
-            })}
-        </div>
-        {activities.size > 0 && (
-          <p className="text-xs text-white/30 lowercase">{activities.size} selected</p>
-        )}
-      </section>
-
-      {/* notes */}
-      <section className="flex flex-col gap-3">
-        <p className="text-xs text-white/40 uppercase tracking-widest">notes</p>
-        <textarea
-          ref={textareaRef}
-          value={body}
-          onChange={e => setBody(e.target.value)}
-          placeholder={todayPrompt}
-          rows={5}
-          className="w-full bg-transparent border border-white/10 rounded-xl px-4 py-3 text-sm text-white/80 placeholder:text-white/20 resize-none focus:outline-none focus:border-white/30 lowercase font-varela"
-        />
-      </section>
-
-      {/* save button */}
-      <button
-        onClick={handleSave}
-        disabled={saving}
-        className="w-full py-3 rounded-xl font-medium lowercase text-base transition-all duration-200"
-        style={{
-          background: saving ? '#222' : `linear-gradient(135deg, ${Y}22, ${B}22)`,
-          border: `1px solid ${saving ? 'rgba(255,255,255,0.1)' : B}`,
-          color: saving ? 'rgba(255,255,255,0.4)' : 'white',
-        }}
-      >
-        {saving ? 'saving…' : 'save entry'}
-      </button>
-
-      {/* stats panel */}
-      {showStats && (
-        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-          <p className="text-xs text-white/40 lowercase mb-3">stats</p>
-          <div className="grid grid-cols-2 gap-3">
-            <div className="flex flex-col items-center p-3 rounded-lg bg-white/[0.03]">
-              <span className="text-2xl font-bold text-yellow-400">{streak}</span>
-              <span className="text-xs text-white/40 lowercase">day streak</span>
-            </div>
-            <div className="flex flex-col items-center p-3 rounded-lg bg-white/[0.03]">
-              <span className="text-2xl font-bold text-blue-400">{entryCount}</span>
-              <span className="text-xs text-white/40 lowercase">total entries</span>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* achievements panel */}
-      {showAchievements && (
-        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-          <p className="text-xs text-white/40 lowercase mb-3">achievements ({unlockedAchievements.length})</p>
-          <div className="grid grid-cols-1 gap-2">
-            {ACHIEVEMENTS.map(ach => {
-              const unlocked = unlockedAchievements.includes(ach.id);
-              return (
-                <div
-                  key={ach.id}
-                  className={cn(
-                    'flex items-center gap-3 p-2 rounded-lg transition-colors',
-                    unlocked ? 'bg-yellow-500/10 border border-yellow-500/20' : 'opacity-30'
-                  )}
-                >
-                  <span className="text-xl">{ach.icon}</span>
-                  <div>
-                    <p className="text-xs font-medium lowercase">{ach.name}</p>
-                    <p className="text-xs text-white/40 lowercase">{ach.description}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* color picker overlay */}
-      <ColorPicker
-        isOpen={colorPickerOpen}
-        onClose={() => setColorPickerOpen(false)}
-        onSelectColor={handleColorSelect}
-        currentColor={currentPickerColor}
-        savedDots={colorDots}
-        onSaveDot={handleSaveDot}
-        dotIndex={activeDotIndex}
-      />
-    </div>
-  );
-}
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 w-80 text-center" onClick={e => e.stopPropagation()}>
+        <p className="text-xs text-white/40 lowercase mb-2">breathing exercise</p>
+        <p className="text-lg text-white/80 lowercase mb-6">4-7-8 technique</p>
+        
+        <div className="flex justify-center items-center mb-6">
+          <div 
+            className="rounded-full flex items-center justify-center transition-all duration-1000"
+            style={{
+              width: circleSize,
+              height: circleSize,
+              backgroundColor: `rgba
