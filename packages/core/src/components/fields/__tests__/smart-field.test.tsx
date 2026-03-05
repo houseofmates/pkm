@@ -5,6 +5,7 @@ vi.mock('leaflet', () => ({ map: () => ({ remove: () => null }), tileLayer: () =
 vi.mock('../location-field', () => ({ LocationField: () => <div data-testid="location-field" /> }));
 import React from 'react';
 import { render, fireEvent, screen, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { SmartField } from '../smart-field';
 import { AuthContext } from '@/contexts/auth-context';
 
@@ -39,6 +40,7 @@ function withAuth(ui: React.ReactElement) {
         <AuthContext.Provider value={authValue as any}>{ui}</AuthContext.Provider>
       </MemoryRouter>
     );
+}
 
 describe('SmartField', () => {
   it('renders string value and allows editing', () => {
