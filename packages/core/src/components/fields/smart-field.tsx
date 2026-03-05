@@ -714,6 +714,36 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
   useEffect(() => {
     setLocalOptions(enrich(field?.uiSchema?.enum || []));
   }, [field?.uiSchema?.enum, field?.optionColors]);
+
+  // colour picker / palette support for select options
+  const [currentColor, setCurrentColor] = useState('#ffffff');
+  const [palette, setPalette] = useAppSetting<string[]>('color_palette', []);
+  const colorInputRef = useRef<HTMLInputElement>(null);
+  const [colorTarget, setColorTarget] = useState<string | null>(null);
+
+  const changeOptionColor = async (optValue: string, color: string) => {
+    setLocalOptions(prev => prev.map(o => o.value === optValue ? { ...o, color } : o));
+    const idx = localOptions.findIndex(o => o.value === optValue);
+    const colors = [...(field?.optionColors || [])];
+    colors[idx] = color;
+    try {
+      await client.updateField(collectionName, field.name, { optionColors: colors });
+    } catch (err) {
+      secureLogger.error('failed to persist option color', err);
+    }
+    setPalette(prev => {
+      if (prev.includes(color)) return prev;
+      const next = [...prev, color];
+      if (next.length > 10) next.shift();
+      return next;
+    });
+  };
+
+  const openColorPicker = (opt: any) => {
+    setColorTarget(opt.value);
+    setCurrentColor(opt.color || currentColor);
+    colorInputRef.current?.click();
+  };
   const isCode = detectedType === 'code' || name === 'code' || name === 'formula' || field?.type === 'formula';
   const isMarkdown = detectedType === 'markdown' || detectedType === 'richText' || name.includes('desc') || name.includes('note');
   const isNumber = detectedType === 'number' || detectedType === 'integer' || detectedType === 'percent';
@@ -1453,12 +1483,40 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       return (
         <div className="flex flex-col bg-[#111] border border-[#333] p-1 rounded min-w-[150px]">
           <input
+            ref={colorInputRef}
+            type="color"
+            value={currentColor}
+            onChange={(e) => {
+              const col = e.target.value;
+              setCurrentColor(col);
+              if (colorTarget) changeOptionColor(colorTarget, col);
+            }}
+            style={{ display: 'none' }}
+          />
+          <input
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             placeholder="search..."
             className="bg-transparent text-white border-b border-[#333] h-7 text-xs px-1"
             autoFocus
           />
+          {palette.length > 0 && (
+            <div className="flex gap-1 my-1">
+              {palette.map((c, i) => (
+                <button
+                  key={i}
+                  className="w-4 h-4 rounded"
+                  style={{ background: c }}
+                  onClick={() => setCurrentColor(c)}
+                />
+              ))}
+              <button
+                className="w-4 h-4 rounded border"
+                onClick={() => setCurrentColor('#ffffff')}
+                title="reset"
+              />
+            </div>
+          )}
           <div className="max-h-40 overflow-auto mt-1">
             {filtered.map(opt => {
               const checked = isMultiSelect
