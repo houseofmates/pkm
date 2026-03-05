@@ -1845,7 +1845,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
 
     if (isFile) {
       const _imgsRaw: string | string[] | null = Array.isArray(value) ? (value as any[]).map((v: any) => v?.url || v).filter(Boolean) : (value?.url || (typeof value === 'string' && value.startsWith('http') ? value : null));
-      const imgArr: string[] = Array.isArray(_imgsRaw) ? _imgsRaw : (_imgsRaw ? [_imgsRaw as string] : []);
+      const imgArr: string[] = Array.isArray(_imgsRaw) ? (_imgsRaw as string[]) : (_imgsRaw ? [_imgsRaw as string] : []);
       if (imgArr.length > 0) {
         return (
           <ContextMenu>
