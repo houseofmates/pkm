@@ -7,12 +7,9 @@ import api from '@/api/nocobase-client';
 //  constants
 // ─────────────────────────────────────────────
 
-// warm yellow
 const Y = '#f5af12';
-// powder blue
 const B = '#3c9fdd';
 
-// mood options - order determines layout left→right
 const MOODS = [
   { id: '0', label: 'terrible', emoji: '😡', img: '/images/moods/terrible.png' },
   { id: '1', label: 'bad',      emoji: '😞', img: '/images/moods/bad.png' },
@@ -22,7 +19,6 @@ const MOODS = [
   { id: '6', label: 'amazing!', emoji: '😁', img: '/images/moods/amazing.png' },
 ];
 
-// default emotion options - synced with nocobase multi-select field
 const INITIAL_EMOTIONS = [
   'elated','ecstatic','exhilarated','euphoric','horny','inspired','empowered',
   'determined','focused','motivated','playful','ambitious','adventurous',
@@ -32,7 +28,6 @@ const INITIAL_EMOTIONS = [
   'embarrassed','jealous','guilty','frustrated','angry','anxious','overwhelmed'
 ];
 
-// user's nocobase activities - each with emoji
 const DEFAULT_ACTIVITIES = [
   { id: 'take_pills',      label: 'take pills',      emoji: '💊' },
   { id: 'put_patches_on',  label: 'put patches on',  emoji: '🩹' },
@@ -64,7 +59,6 @@ const DEFAULT_ACTIVITIES = [
   { id: 'sleep',           label: 'sleep',            emoji: '🛏️' },
 ];
 
-// daily prompts to inspire reflection
 const DAILY_PROMPTS = [
   "what's one thing that made you smile today?",
   "what are you grateful for right now?",
@@ -98,7 +92,6 @@ const DAILY_PROMPTS = [
   "what's a goal you're working towards?",
 ];
 
-// motivational quotes
 const QUOTES = [
   { text: "every day is a fresh start.", author: "unknown" },
   { text: "progress, not perfection.", author: "unknown" },
@@ -117,54 +110,34 @@ const QUOTES = [
   { text: "you deserve peace.", author: "unknown" },
 ];
 
-// achievements definition
 const ACHIEVEMENTS = [
-  { id: 'first_entry', name: 'first step', description: 'wrote your first journal entry', icon: '🌱', requirement: 1 },
-  { id: 'week_streak', name: 'week warrior', description: '7 day journaling streak', icon: '🔥', requirement: 7 },
-  { id: 'month_streak', name: 'month master', description: '30 day journaling streak', icon: '👑', requirement: 30 },
-  { id: 'ten_entries', name: 'dedicated', description: 'wrote 10 journal entries', icon: '📖', requirement: 10 },
-  { id: 'fifty_entries', name: 'committed', description: 'wrote 50 journal entries', icon: '⭐', requirement: 50 },
-  { id: 'hundred_entries', name: 'veteran', description: 'wrote 100 journal entries', icon: '🏆', requirement: 100 },
-  { id: 'mood_tracker', name: 'mood master', description: 'logged mood for 7 days straight', icon: '🎭', requirement: 7 },
-  { id: 'emotion_explorer', name: 'emotion explorer', description: 'used 10 different emotions', icon: '🎨', requirement: 10 },
-  { id: 'activity_pro', name: 'activity pro', description: 'completed 20 activities in one day', icon: '⚡', requirement: 20 },
-  { id: 'word_warrior', name: 'word warrior', description: 'wrote 500 words in one entry', icon: '✍️', requirement: 500 },
+  { id: 'first_entry', name: 'first step', description: 'wrote your first journal entry', icon: '🌱' },
+  { id: 'week_streak', name: 'week warrior', description: '7 day journaling streak', icon: '🔥' },
+  { id: 'month_streak', name: 'month master', description: '30 day journaling streak', icon: '👑' },
+  { id: 'ten_entries', name: 'dedicated', description: 'wrote 10 journal entries', icon: '📖' },
+  { id: 'fifty_entries', name: 'committed', description: 'wrote 50 journal entries', icon: '⭐' },
+  { id: 'hundred_entries', name: 'veteran', description: 'wrote 100 journal entries', icon: '🏆' },
+  { id: 'mood_tracker', name: 'mood master', description: 'logged mood for 7 days straight', icon: '🎭' },
+  { id: 'emotion_explorer', name: 'emotion explorer', description: 'used 10 different emotions', icon: '🎨' },
+  { id: 'activity_pro', name: 'activity pro', description: 'completed 20 activities in one day', icon: '⚡' },
+  { id: 'word_warrior', name: 'word warrior', description: 'wrote 500 words in one entry', icon: '✍️' },
 ];
 
-// color palette for customization
 const COLOR_PALETTE = [
-  '#ef4444', // red
-  '#f97316', // orange
-  '#f59e0b', // amber
-  '#eab308', // yellow
-  '#84cc16', // lime
-  '#22c55e', // green
-  '#14b8a6', // teal
-  '#06b6d4', // cyan
-  '#3b82f6', // blue
-  '#6366f1', // indigo
-  '#8b5cf6', // violet
-  '#a855f7', // purple
-  '#d946ef', // fuchsia
-  '#ec4899', // pink
-  '#f43f5e', // rose
+  '#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16',
+  '#22c55e', '#14b8a6', '#06b6d4', '#3b82f6', '#6366f1',
+  '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#f43f5e',
 ];
 
-// default colors for emotions and activities
 const DEFAULT_EMOTION_COLORS: Record<string, string> = {};
 const DEFAULT_ACTIVITY_COLORS: Record<string, string> = {};
 
-// initialize default colors
 INITIAL_EMOTIONS.forEach((e, i) => {
   DEFAULT_EMOTION_COLORS[e] = COLOR_PALETTE[i % COLOR_PALETTE.length];
 });
 DEFAULT_ACTIVITIES.forEach((a, i) => {
   DEFAULT_ACTIVITY_COLORS[a.id] = COLOR_PALETTE[i % COLOR_PALETTE.length];
 });
-
-// ─────────────────────────────────────────────
-//  local storage keys
-// ─────────────────────────────────────────────
 
 const STORAGE_KEYS = {
   EMOTION_COLORS: 'pkm:journal:emotion_colors',
@@ -177,7 +150,7 @@ const STORAGE_KEYS = {
 };
 
 // ─────────────────────────────────────────────
-//  helper functions
+//  helpers
 // ─────────────────────────────────────────────
 
 function getStoredData<T>(key: string, defaultValue: T): T {
@@ -185,6 +158,33 @@ function getStoredData<T>(key: string, defaultValue: T): T {
     const stored = localStorage.getItem(key);
     return stored ? JSON.parse(stored) : defaultValue;
   } catch {
+    return defaultValue;
+  }
+}
+
+function setStoredData<T>(key: string, value: T): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (e) {
+    console.warn('failed to save to localStorage:', e);
+  }
+}
+
+function getToday(): string {
+  return new Date().toLocaleDateString('en-CA');
+}
+
+function getYesterday(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toLocaleDateString('en-CA');
+}
+
+function hslToHex(h: number, s: number, l: number): string {
+  s /= 100;
+  l /= 100;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) => {
     return defaultValue;
   }
 }
@@ -732,27 +732,4 @@ export function JournalPage() {
     );
   };
 
-  // ── render: emotion chip ──
-  const renderEmotionChip = (e: string) => {
-    const active = emotions.has(e);
-    const color = emotionColors[e] || B;
-    return (
-      <button
-        key={e}
-        onClick={() => toggleEmotion(e)}
-        onContextMenu={(ev) => handleContextMenu(ev, 'emotion', e)}
-        onTouchEnd={(e) => {
-          // simple long press detection
-          if ((e as any).touches?.length === 0) {
-            if ((e as any).timeStamp - (e as any)._startTime > 500) {
-              handleLongPress('emotion', e);
-            }
-          }
-        }}
-        onTouchEnd={(e) => {
-          if ((e as any).touches?.length === 0) {
-            if ((e as any).timeStamp - (e as any)._startTime > 500) {
-              handleLongPress('activity', a.id);
-            }
-          }
-        }}
+// ── render: emotion chip ─
