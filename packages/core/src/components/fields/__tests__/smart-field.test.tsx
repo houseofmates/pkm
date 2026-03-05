@@ -34,8 +34,11 @@ const authValue = {
 };
 
 function withAuth(ui: React.ReactElement) {
-  return render(<AuthContext.Provider value={authValue as any}>{ui}</AuthContext.Provider>);
-}
+    return render(
+      <MemoryRouter>
+        <AuthContext.Provider value={authValue as any}>{ui}</AuthContext.Provider>
+      </MemoryRouter>
+    );
 
 describe('SmartField', () => {
   it('renders string value and allows editing', () => {
