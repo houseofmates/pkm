@@ -1611,6 +1611,64 @@ function MoodHeatmap({ entries }: { entries: JournalRecord[] }) {
 }
 
 // ─────────────────────────────────────────────
+//  habit calendar component
+// ─────────────────────────────────────────────
+
+function HabitCalendar({
+  entries,
+  onDateClick,
+}: {
+  entries: JournalRecord[];
+  onDateClick: (date: string) => void;
+}) {
+  const datesWithEntry = useMemo(
+    () => new Set(entries.map(e => e.date)),
+    [entries]
+  );
+
+  const days = useMemo(() => {
+    const arr: string[] = [];
+    const today = new Date();
+    const start = new Date(today);
+    start.setFullYear(start.getFullYear() - 1);
+    // roll back to previous sunday so weeks align
+    start.setDate(start.getDate() - start.getDay());
+
+    const d = new Date(start);
+    while (d <= today) {
+      const iso = d.toISOString().slice(0, 10);
+      arr.push(iso);
+      d.setDate(d.getDate() + 1);
+    }
+    return arr;
+  }, [entries]);
+
+  return (
+    <div className="overflow-x-auto py-2">
+      <div className="flex items-center gap-[2px]">
+        {days.map((dateStr, i) => {
+          const has = datesWithEntry.has(dateStr);
+          const next = days[i + 1];
+          const borderRight = next && next.slice(5, 7) !== dateStr.slice(5, 7);
+          return (
+            <div
+              key={dateStr}
+              className="w-3 h-3 rounded-sm cursor-pointer"
+              style={{
+                backgroundColor: has ? '#4ade80' : 'rgba(255,255,255,0.03)',
+                marginRight: borderRight ? '2px' : undefined,
+              }}
+              onClick={() => onDateClick(dateStr)}
+              title={dateStr}
+            />
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
 //  word cloud component
 // ─────────────────────────────────────────────
 
