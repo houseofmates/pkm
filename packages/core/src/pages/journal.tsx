@@ -8,15 +8,16 @@ import api from '@/api/nocobase-client';
 // ─────────────────────────────────────────────
 
 // options mirror the select choices defined in the journal collection on nocobase
-// value strings are the raw option values; labels/emoji match the names & custom
-// icons the user uploaded in the screenshot earlier.
+// value strings are the raw option values; labels match the multi-select option
+// labels exactly.  `img` is the path to a custom asset we will display for the
+// button (replace the placeholder files with your own images later).
 const MOODS = [
-  { id: '6', label: 'amazing!', emoji: '😁' },    // green / happiest face
-  { id: '5', label: 'great',    emoji: '😃' },    // light green
-  { id: '4', label: 'good',     emoji: '😊' },    // gold/yellow
-  { id: '2', label: 'fine',     emoji: '😐' },    // orange/neutral
-  { id: '1', label: 'bad',      emoji: '😞' },    // volcano / unhappy
-  { id: '0', label: 'terrible', emoji: '😡' },    // red / angry
+  { id: '6', label: 'amazing!', img: '/images/moods/6.png' },
+  { id: '5', label: 'great',    img: '/images/moods/5.png' },
+  { id: '4', label: 'good',     img: '/images/moods/4.png' },
+  { id: '2', label: 'fine',     img: '/images/moods/2.png' },
+  { id: '1', label: 'bad',      img: '/images/moods/1.png' },
+  { id: '0', label: 'terrible', img: '/images/moods/0.png' },
 ];
 
 const ACTIVITIES = [
@@ -49,13 +50,7 @@ const Y = '#f5af12';
 // powder blue
 const B = '#3c9fdd';
 
-// ─────────────────────────────────────────────
-//  component
-// ─────────────────────────────────────────────
-
-export function JournalPage() {
-  const [mood, setMood] = useState<string | null>(null);
-  const [activities, setActivities] = useState<Set<string>>(new Set());
+  // hover/active scale applied via class on mood buttons
   const [body, setBody] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -131,20 +126,21 @@ export function JournalPage() {
                 <button
                   key={m.id}
                   onClick={() => setMood(active ? null : m.id)}
-                  className="flex-1 flex flex-col items-center gap-1.5 py-3 rounded-2xl border transition-all duration-150 select-none"
+                  className="p-1 rounded-full transition-transform duration-150 select-none focus:outline-none"
                   style={{
-                    background: active ? `${Y}22` : '#000000',
-                    borderColor: active ? Y : 'rgba(255,255,255,0.08)',
-                    boxShadow: active ? `0 0 0 1.5px ${Y}` : 'none',
+                    transform: 'translateZ(0)',
+                    // active outline
+                    boxShadow: active ? `0 0 0 2px ${Y}` : 'none',
                   }}
                 >
-                  <span className="text-2xl leading-none">{m.emoji}</span>
-                  <span
-                    className="text-[11px] lowercase font-medium"
-                    style={{ color: active ? Y : 'rgba(255,255,255,0.5)' }}
-                  >
-                    {m.label}
-                  </span>
+                  <img
+                    src={m.img}
+                    alt={m.label}
+                    className="w-10 h-10 object-contain"
+                    style={{
+                      opacity: active ? 1 : 0.7,
+                    }}
+                  />
                 </button>
               );
             })}
