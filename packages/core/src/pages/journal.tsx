@@ -2233,22 +2233,6 @@ export function JournalPage() {
       setTimeout(() => win.print(), 500);
     }
   };
-            to: recs[0]?.date,
-          }
-        }
-      };
-      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `journal-backup-${new Date().toISOString().slice(0,10)}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      toast.success('json backup exported');
-    } catch (e) {
-      toast.error('export failed');
-    }
-  };
 
 
   const handleNLSearch = async () => {
