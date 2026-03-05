@@ -2865,11 +2865,8 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
         style={{
           background: active ? `${m.color}33` : '#000000',
           border: `2px solid ${m.color}`,
-          boxShadow: active ? `0 0 15px ${m.color}66` : 'none',
-          outline: `2px solid ${m.color}`,
-          outlineOffset: '2px',
-          // ensure custom focus colors override browser/accent
-          outlineColor: m.color,
+          boxShadow: active ? `0 0 0 2px ${m.color}` : 'none',
+          outline: 'none',
         }}
       >
         {moodImageFor(m.id)}
@@ -3293,9 +3290,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
                   style={{
                     // always show border with emotion color
                     border: `1px solid ${emotionColors[emotion]}`,
-                    outline: `1px solid ${emotionColors[emotion]}`,
-                    outlineOffset: '1px',
-                    outlineColor: emotionColors[emotion],
+                    boxShadow: emotions.has(emotion) ? `0 0 0 1px ${emotionColors[emotion]}` : 'none',
                     color: emotions.has(emotion) ? '#ffffff' : emotionColors[emotion],
                     backgroundColor: emotions.has(emotion) ? `${emotionColors[emotion]}33` : 'transparent',
                   }}
