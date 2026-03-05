@@ -75,15 +75,19 @@ describe('AuthProvider', () => {
     const stub = rendered.props.value as any;
 
     // spy on reload + clear storage
-    const reloadSpy = vi.spyOn(window.location, 'reload').mockImplementation(() => {});
+    // jsdom/node may not expose `window`, so operate on globalThis.
+    const origLoc = (globalThis as any).location;
+    const fakeReload = vi.fn();
+    (globalThis as any).location = { reload: fakeReload } as any;
     localStorage.removeItem('nocobase_token');
 
     stub.login(' test-token ');
 
     expect(localStorage.getItem('nocobase_token')).toBe('test-token');
-    expect(reloadSpy).toHaveBeenCalled();
+    expect(fakeReload).toHaveBeenCalled();
 
-    reloadSpy.mockRestore();
+    // restore location to avoid side effects
+    (globalThis as any).location = origLoc;
     if (internals && internals.ReactCurrentDispatcher) {
       internals.ReactCurrentDispatcher.current = prevDispatcher;
     }
