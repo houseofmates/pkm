@@ -31,8 +31,8 @@ describe('JournalPage', () => {
     expect(img.style.opacity).toBe('0.7');
 
     // emotions section: typing 'sad' should show that emotion button only
-    const search = getByPlaceholderText(/search emotions/i);
-    fireEvent.change(search, { target: { value: 'sad' } });
+    const searchInput = getByPlaceholderText(/search emotions/i);
+    fireEvent.change(searchInput, { target: { value: 'sad' } });
     expect(queryByText('sad')).toBeTruthy();
     expect(queryByText('happy')).toBeNull();
 
@@ -43,9 +43,8 @@ describe('JournalPage', () => {
     fireEvent.click(sadBtn);
 
     // now try typing a new emotion and hitting enter
-    const search = getByPlaceholderText(/search emotions/i);
-    fireEvent.change(search, { target: { value: 'curious' } });
-    fireEvent.keyDown(search, { key: 'Enter', code: 'Enter' });
+    fireEvent.change(searchInput, { target: { value: 'curious' } });
+    fireEvent.keyDown(searchInput, { key: 'Enter', code: 'Enter' });
     const curiousBtn = queryByText('curious');
     expect(curiousBtn).toBeTruthy();
     if (curiousBtn) fireEvent.click(curiousBtn);
