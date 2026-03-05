@@ -93,7 +93,7 @@ export function useAiGeneration(
         sources: [],
         error: errorMsg,
         metadata: {
-          model: options.model || 'qwen2.5:7b',
+          model: options.model || 'qwen2.5vl:latest',
           promptTokens: 0,
           completionTokens: 0,
           duration: 0,
@@ -140,7 +140,7 @@ export function useAiGeneration(
         sources: [],
         error: errorMsg,
         metadata: {
-          model: options.model || 'qwen2.5:7b',
+          model: options.model || 'qwen2.5vl:latest',
           promptTokens: 0,
           completionTokens: 0,
           duration: 0,

@@ -6,7 +6,7 @@ export interface AIResponse {
   done: boolean;
 }
 
-export async function generateResponse(context: string, prompt: string, model: string = 'qwen2.5:7b'): Promise<string> {
+export async function generateResponse(context: string, prompt: string, model: string = 'qwen2.5vl:latest'): Promise<string> {
     const systemPrompt = `you are wilson, a thoughtful assistant for a personal knowledge workspace. respond entirely in lowercase, be concise and friendly. treat the following text as background context for the user's question:\n\n${context}`;
 
   try {

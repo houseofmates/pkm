@@ -31,7 +31,7 @@ describe('useLLMStore.askWilson', () => {
       isThinking: false,
       streamingContent: '',
       currentContext: null,
-      activeModel: 'qwen2.5:7b',
+      activeModel: 'qwen2.5vl:latest',
       apiUrl: 'http://localhost:11434/api/generate',
       useRag: true,
     })

@@ -31,7 +31,7 @@ export interface AiGenerationResult {
 
 // default generation options
 const DEFAULT_OPTIONS: Partial<AiGenerationOptions> = {
-  model: 'qwen2.5:7b',
+  model: 'qwen2.5vl:latest',
   temperature: 0.7,
   includeRelated: true,
   topK: 5,

@@ -43,7 +43,7 @@ interface LLMState {
 
 export const useLLMStore = create<LLMState>((set, get) => ({
   isConnected: true,
-  activeModel: 'qwen2.5:7b',
+  activeModel: 'qwen2.5vl:latest',
   apiUrl: (storageManager.getItem('wilson_api_url') ? normalizeGenerateEndpoint(storageManager.getItem('wilson_api_url')!) : getOllamaGenerateUrl()),
   useRag: true, // default to enabled
 

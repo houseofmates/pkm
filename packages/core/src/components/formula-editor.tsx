@@ -25,7 +25,7 @@ const fetchAIResponse = async (prompt: string, context: any) => {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({
- model: 'qwen2.5:7b',
+ model: 'qwen2.5vl:latest',
  prompt: `context: ${JSON.stringify(context)}\n\nuser: ${prompt}\n\nplease reply in lowercase and provide a concise javascript snippet when appropriate. treat the provided context as background.`,
  stream: false
   })

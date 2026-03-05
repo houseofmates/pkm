@@ -64,7 +64,7 @@ pkm is a **personal knowledge management system** designed for self-hosted, offl
 ✅ **monitor**: real-time minecraft server integration (chat + status)  
 ✅ **identity**: headmate tracking with fronting history and custom profiles  
 ✅ **media**: custom players for video, audio, pdf with drawing/crop tools  
-✅ **automation**: n8n workflows + local llm (qwen2.5:7b via ollama)  
+✅ **automation**: n8n workflows + local llm (qwen2.5vl:latest via ollama)  
 
 ### 1.4 system requirements
 
@@ -131,7 +131,7 @@ pkm is a **personal knowledge management system** designed for self-hosted, offl
 ├─────────────────────────────────────────────────────────────┤
 │  Ollama (port 11434)                                        │
 │  └─ Local LLM Server                                        │
-│     └─ qwen2.5:7b model                                     │
+│     └─ qwen2.5vl:latest model                                     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -563,7 +563,7 @@ all custom-built to match "glass & void" aesthetic
 **`POST /api/oracle`**:
 - accepts json: `{ query: string, collections: string[], context?: string }`
 - ai-powered semantic search intent parser
-- uses qwen2.5:7b via ollama to extract:
+- uses qwen2.5vl:latest via ollama to extract:
   - `keywords`: synonyms and related terms
   - `collections`: targeted database collections
   - `filters`: parsed date ranges, tags, field filters
@@ -663,7 +663,7 @@ Authorization: Bearer <token>
 2. payload: `{ url, content, isLink }`
 3. if `isLink`:
    - call exa.ai to fetch full content
-   - call ollama (qwen2.5:7b) to summarize
+   - call ollama (qwen2.5vl:latest) to summarize
 4. save to nocobase `captures` collection
 5. broadcast via pkm backend socket.io
 
@@ -679,7 +679,7 @@ Authorization: Bearer <token>
   method: 'POST',
   url: 'http://localhost:11434/api/generate',
   body: {
-    model: 'qwen2.5:7b',
+    model: 'qwen2.5vl:latest',
     prompt: 'summarize this in lowercase: ...',
     stream: false
   }
@@ -688,7 +688,7 @@ Authorization: Bearer <token>
 
 ### 4.4 ollama (local llm)
 
-**model**: `qwen2.5:7b` (7 billion parameter)
+**model**: `qwen2.5vl:latest` (7 billion parameter)
 
 **port**: 11434
 
@@ -915,7 +915,7 @@ interface ImageEditorProps {
 **`GlobalCommandPalette`** (`src/components/global-command-palette.tsx`):
 - ctrl+k or ` (backtick) quick search
 - ai-powered semantic search via `/api/oracle` endpoint
-- intent parsing with qwen2.5:7b
+- intent parsing with qwen2.5vl:latest
 - features:
   - **oracle mode**: llm parses search intent, extracts keywords, suggests collections
   - **direct answers**: if query is a question, shows ai-generated answer in gold card
@@ -964,7 +964,7 @@ interface ImageEditorProps {
 **headmate**: member of a plural system  
 **moodboard**: pinterest-style image grid  
 **nocobase**: headless cms (like strapi/directus)  
-**oracle**: ai-powered semantic search system using qwen2.5:7b  
+**oracle**: ai-powered semantic search system using qwen2.5vl:latest  
 **prism**: subdomain-based routing system  
 **widget**: dashboard card (database, note, contact, etc.)  
 **wilson**: ai assistant personality for chat and oracle responses  
@@ -1004,7 +1004,7 @@ the system runs as a collection of docker services orchestrated via systemd on l
 - **backend**: node.js / express server (port 4100). handles file uploads, websocket broadcasts, and server-side logic.
 - **database**: nocobase (running on port 1337 or 80 within docker network). serves as the headless cms and relational data engine.
 - **automation**: n8n (port 5678). handles background workflows, webhooks, and ai pipelines.
-- **ai**: local llms (ollama running qwen2.5:7b) via api.
+- **ai**: local llms (ollama running qwen2.5vl:latest) via api.
 - **deployment**: docker compose manages the containers (`nocobase`, `postgres`, `n8n`, `redis`). local systemd services manage the host-level frontend/backend processes.
 
 ## frontend application
@@ -1065,7 +1065,7 @@ tools to save content from the web to pkm.
 
 ## local llm and qwen integration
 local intelligence powered by ollama.
-- **model**: `qwen2.5:7b` (optimized for speed/quality balance).
+- **model**: `qwen2.5vl:latest` (optimized for speed/quality balance).
 - **usage**:
   - **summarization**: automatic "tldr" of web captures.
   - **search**: semantic search (planned/in-progress).

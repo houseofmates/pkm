@@ -144,7 +144,7 @@ export function GlobalSearchDialog({ open, onOpenChange }: GlobalSearchDialogPro
 
         <div className="p-2 border-t bg-muted/10 flex justify-between items-center text-[10px] text-muted-foreground px-4 lowercase">
           <span><strong>enter</strong> to search</span>
-          <span>powered by <strong>qwen2.5:7b</strong> @ {getOllamaBase()}</span>
+          <span>powered by <strong>qwen2.5vl:latest</strong> @ {getOllamaBase()}</span>
         </div>
       </DialogContent>
     </Dialog>

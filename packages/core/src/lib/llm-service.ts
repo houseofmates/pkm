@@ -12,7 +12,7 @@ export interface LLMResponse {
   done: boolean
 }
 
-export async function generateText(prompt: string, model: string = 'qwen2.5:7b', endpoint: string): Promise<string | null> {
+export async function generateText(prompt: string, model: string = 'qwen2.5vl:latest', endpoint: string): Promise<string | null> {
   try {
   const response = await fetch(endpoint, {
   method: 'POST',

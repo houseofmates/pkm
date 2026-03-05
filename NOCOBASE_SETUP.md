@@ -16,7 +16,7 @@ The custom implementation:
 
 **You need:**
 1. NocoBase v2 running (Docker or native)
-2. Ollama running with `qwen2.5:7b` (you already have this)
+2. Ollama running with `qwen2.5vl:latest` (you already have this)
 3. Collections with data (notes, tasks, projects, etc.)
 
 **Check Ollama is accessible from your PKM frontend:**
