@@ -1769,6 +1769,11 @@ export function JournalPage() {
   const [showWeeklyReview, setShowWeeklyReview] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
   const [showGratitude, setShowGratitude] = useState(false);
+  const [showCorrelations, setShowCorrelations] = useState(false);
+  const [showHeatmap, setShowHeatmap] = useState(false);
+  const [showWordCloud, setShowWordCloud] = useState(false);
+  const [showTimeInsights, setShowTimeInsights] = useState(false);
+  const [isLocked, setIsLocked] = useState(() => getStoredData('pkm:journal:locked', false));
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
   // ── state: export options ──
