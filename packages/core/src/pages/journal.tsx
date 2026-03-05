@@ -11,13 +11,15 @@ import api from '@/api/nocobase-client';
 // value strings are the raw option values; labels match the multi-select option
 // labels exactly.  `img` is the path to a custom asset we will display for the
 // button (replace the placeholder files with your own images later).
+// note: order determines layout left→right; "amazing" moved last to
+// appear on the rightmost side and get a larger hit area.
 const MOODS = [
-  { id: '6', label: 'amazing!', img: '/images/moods/6.png' },
   { id: '5', label: 'great',    img: '/images/moods/5.png' },
   { id: '4', label: 'good',     img: '/images/moods/4.png' },
   { id: '2', label: 'fine',     img: '/images/moods/2.png' },
   { id: '1', label: 'bad',      img: '/images/moods/1.png' },
   { id: '0', label: 'terrible', img: '/images/moods/0.png' },
+  { id: '6', label: 'amazing!', img: '/images/moods/amazing.png' },
 ];
 
 const ACTIVITIES = [
