@@ -250,6 +250,7 @@ const STORAGE_KEYS = {
   XP_DATA: 'pkm:journal:xp_data',
   DAILY_GOALS: 'pkm:journal:daily_goals',
   TAGS: 'pkm:journal:tags',
+  TAG_COLORS: 'pkm:journal:tag_colors',
   PAST_ENTRIES: 'pkm:journal:past_entries',
   BREATHING_HISTORY: 'pkm:journal:breathing_history',
   GRATITUDE_COUNT: 'pkm:journal:gratitude_count',
@@ -1786,6 +1787,9 @@ export function JournalPage() {
   const [availableTags, setAvailableTags] = useState<string[]>(() => 
     getStoredData(STORAGE_KEYS.TAGS, SUGGESTED_TAGS)
   );
+  const [tagColors, setTagColors] = useState<Record<string,string>>(() =>
+    getStoredData(STORAGE_KEYS.TAG_COLORS, {})
+  );
   
   // ── state: color customization ──
   const [emotionColors, setEmotionColors] = useState<Record<string, string>>(() =>
@@ -2398,6 +2402,13 @@ ${entriesText}`;
         setAvailableTags(prev => [...prev, val]);
         setStoredData(STORAGE_KEYS.TAGS, [...availableTags, val]);
       }
+      if (!tagColors[val]) {
+        // assign a random palette color
+        const color = COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)];
+        const updated = { ...tagColors, [val]: color };
+        setTagColors(updated);
+        setStoredData(STORAGE_KEYS.TAG_COLORS, updated);
+      }
       toggleTag(val);
       setTagQuery('');
     }
@@ -3003,7 +3014,15 @@ summary:`;
             {parseActivities(viewingEntry.activities).map(a => {
               const act = DEFAULT_ACTIVITIES.find(x => x.id === a);
               return act ? (
-                <span key={a} className="px-2 py-1 rounded-full text-xs bg-white/5 text-white/60 lowercase flex items-center gap-1">
+                <span
+                  key={a}
+                  className="px-2 py-1 rounded-full text-xs lowercase flex items-center gap-1"
+                  style={{
+                    color: act.color,
+                    backgroundColor: `${act.color}33`,
+                    border: `1px solid ${act.color}`
+                  }}
+                >
                   <span>{act.emoji}</span>
                   {act.label}
                 </span>
@@ -3157,23 +3176,31 @@ summary:`;
           <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
             <p className="text-xs text-white/40 lowercase mb-3">add tags</p>
             <div className="flex flex-wrap gap-2 mb-3">
-              {availableTags.filter(t => t.toLowerCase().includes(tagQuery.toLowerCase())).slice(0, 10).map(tag => (
-                <button
-                  key={tag}
-                  onClick={() => toggleTag(tag)}
-                  className={cn(
-                    "px-3 py-1.5 rounded-full text-xs lowercase transition-all",
-                    tags.has(tag) 
-                      ? "bg-purple-500/30 text-purple-300 border border-purple-500/50" 
-                      : "bg-white/5 text-white/50 hover:bg-white/10"
-                  )}
-                >
-                  #{tag}
-                </button>
-              ))}
+              {availableTags.filter(t => t.toLowerCase().includes(tagQuery.toLowerCase())).slice(0, 10).map(tag => {
+                const color = tagColors[tag] || '#ffffff';
+                return (
+                  <button
+                    key={tag}
+                    onClick={() => toggleTag(tag)}
+                    className={cn(
+                      "px-3 py-1.5 rounded-full text-xs lowercase transition-all",
+                      tags.has(tag) 
+                        ? "" 
+                        : "bg-white/5 hover:bg-white/10"
+                    )}
+                    style={{
+                      color,
+                      ...(tags.has(tag) ? { backgroundColor: `${color}33`, border: `1px solid ${color}` } : {})
+                    }}
+                  >
+                    #{tag}
+                  </button>
+                );
+              })}
             </div>
             <div className="flex gap-2">
               <input
+                list="tag-options"
                 type="text"
                 value={tagQuery}
                 onChange={e => setTagQuery(e.target.value)}
@@ -3181,6 +3208,9 @@ summary:`;
                 placeholder="add custom tag..."
                 className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase placeholder:text-white/30 focus:outline-none focus:border-white/30"
               />
+              <datalist id="tag-options">
+                {availableTags.map(t => <option key={t} value={t} />)}
+              </datalist>
               <button
                 onClick={handleAddTag}
                 disabled={!tagQuery.trim()}
