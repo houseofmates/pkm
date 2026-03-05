@@ -1264,3 +1264,956 @@ function GratitudeTracker() {
     </div>
   );
 }
+
+
+// ─────────────────────────────────────────────
+//  main journal page component
+// ─────────────────────────────────────────────
+
+export function JournalPage() {
+  // ── state: mood & emotions ──
+  const [mood, setMood] = useState<string | null>(null);
+  const [emotions, setEmotions] = useState<Set<string>>(new Set());
+  const [emotionQuery, setEmotionQuery] = useState('');
+  const [availableEmotions, setAvailableEmotions] = useState<string[]>(INITIAL_EMOTIONS.slice());
+
+  // ── state: activities ──
+  const [activities, setActivities] = useState<Set<string>>(new Set());
+  const [activityQuery, setActivityQuery] = useState('');
+  const [availableActivities] = useState(DEFAULT_ACTIVITIES);
+  const [activityFilter, setActivityFilter] = useState<string | null>(null);
+  
+  // ── state: notes ──
+  const [body, setBody] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [wordCount, setWordCount] = useState(0);
+  const [charCount, setCharCount] = useState(0);
+  
+  // ── state: gamification ──
+  const [streak, setStreak] = useState(0);
+  const [entryCount, setEntryCount] = useState(0);
+  const [xp, setXp] = useState(0);
+  const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
+  const [celebratingAchievement, setCelebratingAchievement] = useState<typeof ACHIEVEMENTS[0] | null>(null);
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [showStats, setShowStats] = useState(false);
+  const [todayPrompt, setTodayPrompt] = useState(() => DAILY_PROMPTS[Math.floor(Math.random() * DAILY_PROMPTS.length)]);
+  const [todayQuote] = useState(() => QUOTES[Math.floor(Math.random() * QUOTES.length)]);
+  const [quickMood, setQuickMood] = useState<string | null>(null);
+  const [longestStreak, setLongestStreak] = useState(0);
+  
+  // ── state: daily goals ──
+  const [dailyGoals, setDailyGoals] = useState<{id: string; label: string; completed: boolean; icon: string}[]>([
+    { id: 'log_mood', label: 'log your mood', completed: false, icon: '😊' },
+    { id: 'add_emotions', label: 'add 3+ emotions', completed: false, icon: '💭' },
+    { id: 'write_note', label: 'write 50+ characters', completed: false, icon: '✍️' },
+    { id: 'complete_activities', label: 'complete 3+ activities', completed: false, icon: '✓' },
+  ]);
+  const [showGoals, setShowGoals] = useState(false);
+  
+  // ── state: tags ──
+  const [tags, setTags] = useState<Set<string>>(new Set());
+  const [tagQuery, setTagQuery] = useState('');
+  const [availableTags, setAvailableTags] = useState<string[]>(() => 
+    getStoredData(STORAGE_KEYS.TAGS, SUGGESTED_TAGS)
+  );
+  
+  // ── state: color customization ──
+  const [emotionColors, setEmotionColors] = useState<Record<string, string>>(() =>
+    getStoredData(STORAGE_KEYS.EMOTION_COLORS, DEFAULT_EMOTION_COLORS)
+  );
+  const [activityColors, setActivityColors] = useState<Record<string, string>>(() =>
+    getStoredData(STORAGE_KEYS.ACTIVITY_COLORS, DEFAULT_ACTIVITY_COLORS)
+  );
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
+  const [colorPickerTarget, setColorPickerTarget] = useState<{type: 'emotion' | 'activity'; id: string} | null>(null);
+  const [currentPickerColor, setCurrentPickerColor] = useState('#ffffff');
+  const [colorDots, setColorDots] = useState<string[]>(() =>
+    getStoredData(STORAGE_KEYS.COLOR_DOTS, COLOR_PALETTE.slice(0, 10))
+  );
+  const [activeDotIndex, setActiveDotIndex] = useState<number | null>(null);
+  
+  // ── state: view toggles ──
+  const [showQuickCheckin, setShowQuickCheckin] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [showPastEntries, setShowPastEntries] = useState(false);
+  const [showBreathing, setShowBreathing] = useState(false);
+  const [showTimer, setShowTimer] = useState(false);
+  const [showWeeklyReview, setShowWeeklyReview] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [showGratitude, setShowGratitude] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  
+  // ── state: past entries filter ──
+  const [pastEntriesFilter, setPastEntriesFilter] = useState({ search: '', mood: '', tag: '' });
+  
+  // ── state: entry metadata ──
+  const [selectedTemplate, setSelectedTemplate] = useState<typeof JOURNAL_TEMPLATES[0] | null>(null);
+  const [entryTime, setEntryTime] = useState<Date | null>(null);
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [voiceMemos, setVoiceMemos] = useState<string[]>([]);
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingTime, setRecordingTime] = useState(0);
+  
+  // ── refs ──
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // ── entries & editing ──
+  const [entries, setEntries] = useState<JournalRecord[]>([]);
+  const [editingEntry, setEditingEntry] = useState<JournalRecord | null>(null);
+  const [selectedEntry, setSelectedEntry] = useState<JournalRecord | null>(null);
+  const [viewingEntry, setViewingEntry] = useState<JournalRecord | null>(null);
+
+  // ── derived state ──
+  const entriesByDate = useMemo(() => {
+    const map: Record<string, JournalRecord> = {};
+    entries.forEach(e => { map[e.date] = e; });
+    return map;
+  }, [entries]);
+
+  const calendarDays = useMemo(() => {
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    const startWeekday = firstDay.getDay();
+    const numDays = new Date(year, month + 1, 0).getDate();
+    const days: Array<{ date: string; day: number; isCurrentMonth: boolean }> = [];
+    for (let i = 0; i < startWeekday; i++) days.push({ date: '', day: 0, isCurrentMonth: false });
+    for (let d = 1; d <= numDays; d++) {
+      const dd = new Date(year, month, d);
+      days.push({ date: dd.toISOString().slice(0, 10), day: d, isCurrentMonth: true });
+    }
+    const remaining = 42 - days.length;
+    for (let i = 1; i <= remaining; i++) {
+      const d = new Date(year, month + 1, i);
+      days.push({ date: d.toISOString().slice(0, 10), day: i, isCurrentMonth: false });
+    }
+    return days;
+  }, [currentMonth]);
+
+  // ── load data ──
+  const loadEntries = useCallback(async () => {
+    try {
+      const res: any = await api.listRecords('journal', { sort: '-date', pageSize: 1000 });
+      setEntries(res?.data || []);
+    } catch (e) {
+      console.error('failed to load journal entries', e);
+    }
+  }, []);
+
+  useEffect(() => {
+    const savedStreak = getStoredData(STORAGE_KEYS.STREAK_DATA, { current: 0, lastDate: '' });
+    setStreak(savedStreak.current);
+    setLongestStreak(getStoredData(STORAGE_KEYS.LONGEST_STREAK, savedStreak.current));
+    const savedCount = getStoredData(STORAGE_KEYS.ENTRY_COUNT, 0);
+    setEntryCount(savedCount);
+    const savedXp = getStoredData(STORAGE_KEYS.XP_DATA, 0);
+    setXp(savedXp);
+    const savedAchievements = getStoredData(STORAGE_KEYS.ACHIEVEMENTS, [] as string[]);
+    setUnlockedAchievements(savedAchievements);
+    const savedGoals = getStoredData(STORAGE_KEYS.DAILY_GOALS, { date: '', goals: dailyGoals });
+    if (savedGoals.date !== getToday()) {
+      setDailyGoals(dailyGoals.map(g => ({ ...g, completed: false })));
+    } else {
+      setDailyGoals(savedGoals.goals);
+    }
+  }, []);
+
+  useEffect(() => { loadEntries(); }, [loadEntries]);
+
+  // ── update word count ──
+  useEffect(() => {
+    const words = body.trim().split(/\s+/).filter(w => w.length > 0).length;
+    setWordCount(words);
+    setCharCount(body.length);
+  }, [body]);
+
+  // ── helpers ──
+  const saveEmotionColors = useCallback((colors: Record<string, string>) => {
+    setEmotionColors(colors);
+    setStoredData(STORAGE_KEYS.EMOTION_COLORS, colors);
+  }, []);
+  
+  const saveActivityColors = useCallback((colors: Record<string, string>) => {
+    setActivityColors(colors);
+    setStoredData(STORAGE_KEYS.ACTIVITY_COLORS, colors);
+  }, []);
+
+  const toggleEmotion = (id: string) => {
+    setEmotions(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+  
+  const toggleActivity = (id: string) => {
+    setActivities(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+  
+  const toggleTag = (id: string) => {
+    setTags(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const openColorPicker = (type: 'emotion' | 'activity', id: string) => {
+    setColorPickerTarget({ type, id });
+    const colors = type === 'emotion' ? emotionColors : activityColors;
+    setCurrentPickerColor(colors[id] || '#3b82f6');
+    setColorPickerOpen(true);
+    setActiveDotIndex(null);
+  };
+  
+  const handleColorSelect = (color: string) => {
+    if (!colorPickerTarget) return;
+    if (colorPickerTarget.type === 'emotion') {
+      const newColors = { ...emotionColors, [colorPickerTarget.id]: color };
+      saveEmotionColors(newColors);
+    } else {
+      const newColors = { ...activityColors, [colorPickerTarget.id]: color };
+      saveActivityColors(newColors);
+    }
+  };
+  
+  const handleSaveDot = (index: number, color: string) => {
+    setActiveDotIndex(index);
+    const newDots = [...colorDots];
+    newDots[index] = currentPickerColor;
+    setColorDots(newDots);
+    setStoredData(STORAGE_KEYS.COLOR_DOTS, newDots);
+  };
+  
+  const handleContextMenu = (e: React.MouseEvent, type: 'emotion' | 'activity', id: string) => {
+    e.preventDefault();
+    openColorPicker(type, id);
+  };
+
+  const populateForm = (entry: JournalRecord) => {
+    setMood(entry.mood);
+    setEmotions(new Set(JSON.parse((entry as any).emotions || '[]')));
+    setActivities(new Set(parseActivities(entry.activities)));
+    setBody(entry.body || '');
+    setQuickMood(entry.mood || null);
+    setEditingEntry(entry);
+    setViewingEntry(null);
+    try {
+      setTags(new Set(JSON.parse((entry as any).tags || '[]')));
+    } catch {
+      setTags(new Set());
+    }
+  };
+
+  const handleDeleteEntry = async (entry: JournalRecord) => {
+    if (!entry.id) return;
+    try {
+      await api.request('journal', 'destroy', { filterByTk: entry.id });
+      toast.success('entry deleted');
+      setSelectedEntry(null);
+      setViewingEntry(null);
+      loadEntries();
+    } catch (err: any) {
+      toast.error('delete failed');
+    }
+  };
+
+  const handleExport = async () => {
+    try {
+      const res: any = await api.listRecords('journal', { sort: '-date', pageSize: 1000 });
+      const recs: JournalRecord[] = res?.data || [];
+      const lines = ['date,mood,emotions,activities,body,timestamp,tags'];
+      recs.forEach(r => {
+        const emos = JSON.parse((r as any).emotions || '[]') as string[];
+        const acts = parseActivities(r.activities);
+        const tags = JSON.parse((r as any).tags || '[]') as string[];
+        const row = [
+          r.date, 
+          r.mood || '', 
+          emos.join(';'), 
+          acts.join(';'), 
+          (r.body || '').replace(/"/g,'""'), 
+          r.timestamp,
+          tags.join(';')
+        ].map(v => `"${v}"`).join(',');
+        lines.push(row);
+      });
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `journal-export-${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success('exported successfully');
+    } catch (e) {
+      toast.error('export failed');
+    }
+  };
+
+  const checkAchievements = (newXp: number, newStreak: number, newCount: number, wordCount: number, emotionCount: number) => {
+    const newUnlocks: string[] = [];
+    
+    if (newCount >= 1 && !unlockedAchievements.includes('first_entry')) newUnlocks.push('first_entry');
+    if (newStreak >= 7 && !unlockedAchievements.includes('week_streak')) newUnlocks.push('week_streak');
+    if (newStreak >= 14 && !unlockedAchievements.includes('streak_14')) newUnlocks.push('streak_14');
+    if (newStreak >= 30 && !unlockedAchievements.includes('month_streak')) newUnlocks.push('month_streak');
+    if (newStreak >= 60 && !unlockedAchievements.includes('streak_60')) newUnlocks.push('streak_60');
+    if (newStreak >= 100 && !unlockedAchievements.includes('streak_100')) newUnlocks.push('streak_100');
+    if (newCount >= 10 && !unlockedAchievements.includes('ten_entries')) newUnlocks.push('ten_entries');
+    if (newCount >= 50 && !unlockedAchievements.includes('fifty_entries')) newUnlocks.push('fifty_entries');
+    if (newCount >= 100 && !unlockedAchievements.includes('hundred_entries')) newUnlocks.push('hundred_entries');
+    if (newXp >= 500 && !unlockedAchievements.includes('level_5')) newUnlocks.push('level_5');
+    if (newXp >= 1000 && !unlockedAchievements.includes('level_10')) newUnlocks.push('level_10');
+    if (newXp >= 1000 && !unlockedAchievements.includes('xp_1000')) newUnlocks.push('xp_1000');
+    if (newXp >= 5000 && !unlockedAchievements.includes('xp_5000')) newUnlocks.push('xp_5000');
+    if (wordCount >= 500 && !unlockedAchievements.includes('word_warrior')) newUnlocks.push('word_warrior');
+    if (emotionCount >= 10 && !unlockedAchievements.includes('emotion_explorer')) newUnlocks.push('emotion_explorer');
+    
+    // check templates
+    const templatesUsed = getStoredData(STORAGE_KEYS.TEMPLATES_USED, []);
+    if (templatesUsed.length >= JOURNAL_TEMPLATES.length && !unlockedAchievements.includes('template_master')) {
+      newUnlocks.push('template_master');
+    }
+    
+    // check breathing
+    const breathingHistory = getStoredData(STORAGE_KEYS.BREATHING_HISTORY, []);
+    const totalBreathingSessions = breathingHistory.reduce((acc: number, h: any) => acc + h.sessions, 0);
+    if (totalBreathingSessions >= 10 && !unlockedAchievements.includes('breathing_master')) {
+      newUnlocks.push('breathing_master');
+    }
+    
+    if (newUnlocks.length > 0) {
+      const updated = [...unlockedAchievements, ...newUnlocks];
+      setUnlockedAchievements(updated);
+      setStoredData(STORAGE_KEYS.ACHIEVEMENTS, updated);
+      const achievement = ACHIEVEMENTS.find(a => a.id === newUnlocks[0]);
+      if (achievement) setCelebratingAchievement(achievement);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!mood && activities.size === 0 && !body.trim()) {
+      toast.error('nothing to save yet');
+      return;
+    }
+    setSaving(true);
+    
+    const payload: any = {
+      mood: mood ?? undefined,
+      emotions: JSON.stringify(Array.from(emotions)),
+      activities: JSON.stringify(Array.from(activities)),
+      body: body.trim(),
+      timestamp: new Date().toISOString(),
+      date: editingEntry?.date || new Date().toLocaleDateString('en-CA'),
+      tags: JSON.stringify(Array.from(tags)),
+    };
+    
+    try {
+      if (editingEntry?.id) {
+        await api.request('journal', 'update', { filterByTk: editingEntry.id, ...payload });
+        toast.success('entry updated ✓');
+      } else {
+        await api.createRecord('journal', payload);
+        toast.success('entry saved ✓');
+      }
+      
+      // update streak
+      const today = getToday();
+      const streakData = getStoredData(STORAGE_KEYS.STREAK_DATA, { current: 0, lastDate: '' });
+      let newStreak = streakData.current;
+      if (streakData.lastDate !== today) {
+        newStreak = streakData.lastDate === getYesterday() ? streakData.current + 1 : 1;
+        setStoredData(STORAGE_KEYS.STREAK_DATA, { current: newStreak, lastDate: today });
+        setStreak(newStreak);
+        
+        // update longest streak
+        if (newStreak > longestStreak) {
+          setLongestStreak(newStreak);
+          setStoredData(STORAGE_KEYS.LONGEST_STREAK, newStreak);
+        }
+      }
+      
+      // update entry count
+      const newCount = entryCount + (editingEntry ? 0 : 1);
+      if (!editingEntry) {
+        setEntryCount(newCount);
+        setStoredData(STORAGE_KEYS.ENTRY_COUNT, newCount);
+      }
+      
+      // award xp
+      const earnedXp = 10 + (streakData.lastDate === getYesterday() ? 5 : 0) + (wordCount >= 100 ? 5 : 0);
+      const newXp = xp + earnedXp;
+      setXp(newXp);
+      setStoredData(STORAGE_KEYS.XP_DATA, newXp);
+      
+      // update daily goals
+      const updatedGoals = dailyGoals.map(g => {
+        if (g.id === 'log_mood') return { ...g, completed: !!mood };
+        if (g.id === 'add_emotions') return { ...g, completed: emotions.size >= 3 };
+        if (g.id === 'write_note') return { ...g, completed: body.trim().length >= 50 };
+        if (g.id === 'complete_activities') return { ...g, completed: activities.size >= 3 };
+        return g;
+      });
+      setDailyGoals(updatedGoals);
+      setStoredData(STORAGE_KEYS.DAILY_GOALS, { date: today, goals: updatedGoals });
+      
+      // check achievements
+      checkAchievements(newXp, newStreak, newCount, wordCount, availableEmotions.length);
+      
+      // reset form
+      setMood(null);
+      setEmotions(new Set());
+      setActivities(new Set());
+      setBody('');
+      setQuickMood(null);
+      setTags(new Set());
+      setEditingEntry(null);
+      setSelectedTemplate(null);
+      setPhotos([]);
+      setVoiceMemos([]);
+      
+      loadEntries();
+    } catch (err: any) {
+      toast.error('failed to save: ' + (err?.message ?? 'unknown error'));
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleQuickMood = (moodId: string) => {
+    if (quickMood === moodId) {
+      setQuickMood(null);
+      setMood(null);
+    } else {
+      setQuickMood(moodId);
+      setMood(moodId);
+    }
+  };
+
+  const handleAddEmotion = () => {
+    if (emotionQuery.trim()) {
+      const val = emotionQuery.trim().toLowerCase();
+      if (!availableEmotions.includes(val)) {
+        setAvailableEmotions(prev => [...prev, val]);
+        const customEmojis = getStoredData(STORAGE_KEYS.CUSTOM_EMOTIONS, [] as string[]);
+        if (!customEmojis.includes(val)) {
+          setStoredData(STORAGE_KEYS.CUSTOM_EMOTIONS, [...customEmojis, val]);
+        }
+        const newColors = { ...emotionColors, [val]: COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)] };
+        saveEmotionColors(newColors);
+      }
+      toggleEmotion(val);
+      setEmotionQuery('');
+    }
+  };
+
+  const handleAddTag = () => {
+    if (tagQuery.trim()) {
+      const val = tagQuery.trim().toLowerCase();
+      if (!availableTags.includes(val)) {
+        setAvailableTags(prev => [...prev, val]);
+        setStoredData(STORAGE_KEYS.TAGS, [...availableTags, val]);
+      }
+      toggleTag(val);
+      setTagQuery('');
+    }
+  };
+
+  const handleSelectTemplate = (template: typeof JOURNAL_TEMPLATES[0]) => {
+    setSelectedTemplate(template);
+    setTodayPrompt(template.prompts[Math.floor(Math.random() * template.prompts.length)]);
+    toast.success(`template: ${template.name}`);
+  };
+
+  const handleShufflePrompt = () => {
+    if (selectedTemplate) {
+      setTodayPrompt(selectedTemplate.prompts[Math.floor(Math.random() * selectedTemplate.prompts.length)]);
+    } else {
+      setTodayPrompt(DAILY_PROMPTS[Math.floor(Math.random() * DAILY_PROMPTS.length)]);
+    }
+  };
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+    
+    Array.from(files).forEach(file => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setPhotos(prev => [...prev, event.target!.result as string]);
+          const currentCount = getStoredData(STORAGE_KEYS.PHOTOS_COUNT, 0);
+          setStoredData(STORAGE_KEYS.PHOTOS_COUNT, currentCount + 1);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+    toast.success(`${files.length} photo${files.length > 1 ? 's' : ''} added`);
+  };
+
+  const handleVoiceRecord = () => {
+    if (isRecording) {
+      // stop recording
+      setIsRecording(false);
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+      }
+      setVoiceMemos(prev => [...prev, `voice-memo-${Date.now()}`]);
+      const currentCount = getStoredData(STORAGE_KEYS.VOICE_MEMOS_COUNT, 0);
+      setStoredData(STORAGE_KEYS.VOICE_MEMOS_COUNT, currentCount + 1);
+      setRecordingTime(0);
+      toast.success('voice memo saved');
+    } else {
+      // start recording
+      setIsRecording(true);
+      setRecordingTime(0);
+      recordingIntervalRef.current = setInterval(() => {
+        setRecordingTime(prev => prev + 1);
+      }, 1000);
+    }
+  };
+
+  // ── derived state for UI ──
+  const levelInfo = useMemo(() => getLevelFromXp(xp), [xp]);
+  
+  const completedGoals = dailyGoals.filter(g => g.completed).length;
+  const goalsProgress = (completedGoals / dailyGoals.length) * 100;
+
+  const filteredPastEntries = useMemo(() => {
+    let filtered = [...entries];
+    if (pastEntriesFilter.search) {
+      const q = pastEntriesFilter.search.toLowerCase();
+      filtered = filtered.filter(e => 
+        e.body?.toLowerCase().includes(q) || 
+        (e as any).emotions?.toLowerCase().includes(q) ||
+        parseActivities(e.activities).some(a => a.toLowerCase().includes(q))
+      );
+    }
+    if (pastEntriesFilter.mood) {
+      filtered = filtered.filter(e => e.mood === pastEntriesFilter.mood);
+    }
+    if (pastEntriesFilter.tag) {
+      filtered = filtered.filter(e => {
+        try {
+          const entryTags = JSON.parse((e as any).tags || '[]');
+          return entryTags.includes(pastEntriesFilter.tag);
+        } catch { return false; }
+      });
+    }
+    return filtered;
+  }, [entries, pastEntriesFilter]);
+
+  const entriesGroupedByMonth = useMemo(() => {
+    const groups: Record<string, typeof filteredPastEntries> = {};
+    filteredPastEntries.forEach(e => {
+      const month = new Date(e.date).toLocaleString('default', { month: 'long', year: 'numeric' });
+      if (!groups[month]) groups[month] = [];
+      groups[month].push(e);
+    });
+    return groups;
+  }, [filteredPastEntries]);
+
+  const filteredActivities = activityFilter 
+    ? availableActivities.filter(a => a.category === activityFilter)
+    : availableActivities;
+
+  const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
+    const active = (isQuick ? quickMood : mood) === m.id;
+    const size = isQuick ? 'w-10 h-10 text-xl' : 'w-14 h-14 text-2xl';
+    return (
+      <button
+        key={m.id}
+        onClick={() => isQuick ? handleQuickMood(m.id) : setMood(active ? null : m.id)}
+        className={`${size} rounded-full transition-all duration-150 flex items-center justify-center hover:scale-105`}
+        style={{
+          background: active ? `${m.color}33` : '#000000',
+          border: `2px solid ${active ? m.color : 'rgba(255,255,255,0.08)'}`,
+          boxShadow: active ? `0 0 15px ${m.color}66` : 'none',
+        }}
+      >
+        {m.emoji}
+      </button>
+    );
+  };
+
+  // ── cleanup ──
+  useEffect(() => {
+    return () => {
+      if (recordingIntervalRef.current) {
+        clearInterval(recordingIntervalRef.current);
+      }
+    };
+  }, []);
+
+  return (
+    <div className="min-h-screen bg-black text-white font-varela p-4 pb-24 flex flex-col gap-6 max-w-2xl mx-auto">
+      {/* achievement celebration */}
+      {celebratingAchievement && (
+        <AchievementCelebration achievement={celebratingAchievement} onClose={() => setCelebratingAchievement(null)} />
+      )}
+      
+      {/* modals */}
+      <BreathingExerciseModal isOpen={showBreathing} onClose={() => setShowBreathing(false)} />
+      <ReflectionTimer isOpen={showTimer} onClose={() => setShowTimer(false)} prompt={todayPrompt} />
+      <WeeklyReviewModal isOpen={showWeeklyReview} onClose={() => setShowWeeklyReview(false)} entries={entries} />
+      <TemplateSelector isOpen={showTemplates} onClose={() => setShowTemplates(false)} onSelect={handleSelectTemplate} />
+      <ColorPicker 
+        isOpen={colorPickerOpen} 
+        onClose={() => setColorPickerOpen(false)} 
+        onSelectColor={handleColorSelect}
+        currentColor={currentPickerColor}
+        savedDots={colorDots}
+        onSaveDot={handleSaveDot}
+        dotIndex={activeDotIndex}
+      />
+
+      {/* hidden file input */}
+      <input 
+        ref={fileInputRef}
+        type="file" 
+        accept="image/*" 
+        multiple 
+        className="hidden" 
+        onChange={handlePhotoUpload}
+      />
+
+      {/* header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-xs text-white/40 lowercase">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+          <h1 className="text-2xl font-bold lowercase tracking-tight">journal</h1>
+        </div>
+        <div className="flex items-center gap-1 flex-wrap justify-end">
+          {streak > 0 && (
+            <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20">
+              <span className="text-sm">🔥</span>
+              <span className="text-xs text-yellow-400">{streak}</span>
+            </div>
+          )}
+          <button onClick={() => setShowGoals(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="daily goals"><Target size={18} /></button>
+          <button onClick={() => setShowAchievements(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="achievements"><Award size={18} /></button>
+          <button onClick={() => setShowCalendar(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="calendar"><Calendar size={18} /></button>
+          <button onClick={() => setShowPastEntries(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="past entries"><BookOpen size={18} /></button>
+          <button onClick={() => setShowStats(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="stats"><TrendingUp size={18} /></button>
+          <button onClick={() => setShowGratitude(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="gratitude"><Heart size={18} /></button>
+          <button onClick={() => setShowWeeklyReview(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="weekly review"><Sparkles size={18} /></button>
+          <button onClick={() => setShowBreathing(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="breathing"><Wind size={18} /></button>
+          <button onClick={() => setShowTimer(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="timer"><Clock size={18} /></button>
+          <button onClick={handleExport} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="export"><Download size={18} /></button>
+        </div>
+      </div>
+
+      {/* xp & level bar */}
+      <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className="text-xl">{levelInfo.emoji}</span>
+            <span className="text-sm font-medium lowercase">level {levelInfo.level}</span>
+            <span className="text-xs text-white/40 lowercase">{levelInfo.name}</span>
+          </div>
+          <span className="text-xs text-white/40 lowercase">{xp} xp</span>
+        </div>
+        <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+          <div 
+            className="h-full transition-all duration-500"
+            style={{ width: `${levelInfo.progress}%`, background: `linear-gradient(90deg, ${Y}, ${B})` }}
+          />
+        </div>
+        <p className="text-[10px] text-white/30 mt-1 lowercase">
+          {levelInfo.nextLevelXp - xp} xp to next level
+        </p>
+      </div>
+
+      {/* quote */}
+      <div className="text-center py-2 border-y border-white/5">
+        <p className="text-sm italic text-white/40 lowercase">"{todayQuote.text}"</p>
+        {todayQuote.author !== 'unknown' && (
+          <p className="text-xs text-white/20 mt-0.5 lowercase">— {todayQuote.author}</p>
+        )}
+      </div>
+
+      {/* daily goals */}
+      {showGoals && (
+        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+          <div className="flex justify-between items-center mb-3">
+            <div className="flex items-center gap-2">
+              <Target size={16} className="text-blue-400" />
+              <p className="text-xs text-white/40 lowercase">daily goals</p>
+            </div>
+            <span className="text-xs text-white/60 lowercase">{completedGoals}/{dailyGoals.length}</span>
+          </div>
+          <div className="h-2 bg-white/10 rounded-full mb-3 overflow-hidden">
+            <div 
+              className="h-full transition-all duration-300"
+              style={{ width: `${goalsProgress}%`, backgroundColor: goalsProgress === 100 ? G : Y }}
+            />
+          </div>
+          <div className="space-y-2">
+            {dailyGoals.map(g => (
+              <div key={g.id} className="flex items-center gap-2">
+                <span className="text-sm">{g.icon}</span>
+                <span className={cn("text-lg", g.completed ? 'text-green-400' : 'text-white/20')}>
+                  {g.completed ? '✓' : '○'}
+                </span>
+                <span className={cn("text-sm lowercase", g.completed ? 'text-white' : 'text-white/40')}>{g.label}</span>
+              </div>
+            ))}
+          </div>
+          {goalsProgress === 100 && (
+            <p className="text-center text-xs text-green-400 mt-3 lowercase">🎉 all goals completed!</p>
+          )}
+        </div>
+      )}
+
+      {/* gratitude tracker */}
+      {showGratitude && <GratitudeTracker />}
+
+      {/* quick check-in */}
+      {showQuickCheckin && (
+        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+          <p className="text-xs text-white/40 lowercase mb-3">quick mood check-in</p>
+          <div className="flex gap-3 justify-center">
+            {MOODS.map(m => renderMoodButton(m, true))}
+          </div>
+          {quickMood && (
+            <p className="text-center text-xs text-white/40 mt-2 lowercase">
+              feeling {MOODS.find(m => m.id === quickMood)?.label}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* daily prompt */}
+      <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs text-white/30 lowercase">today's prompt</p>
+          <div className="flex gap-1">
+            <button onClick={handleShufflePrompt} className="p-1 rounded hover:bg-white/10" title="new prompt"><Sparkles size={12} /></button>
+            <button onClick={() => setShowTemplates(true)} className="p-1 rounded hover:bg-white/10" title="templates"><BookOpen size={12} /></button>
+          </div>
+        </div>
+        {selectedTemplate && (
+          <div className="flex items-center gap-1 mb-2 text-xs text-purple-400">
+            <span>{selectedTemplate.emoji}</span>
+            <span className="lowercase">{selectedTemplate.name}</span>
+          </div>
+        )}
+        <p className="text-sm text-white/70 lowercase italic">{todayPrompt}</p>
+      </div>
+
+      {/* calendar view */}
+      {showCalendar && (
+        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+          <div className="flex justify-between items-center mb-2">
+            <button onClick={() => setCurrentMonth(m => new Date(m.getFullYear(), m.getMonth() - 1, 1))} className="p-1 rounded hover:bg-white/10 text-white/60 hover:text-white"><ChevronLeft size={18} /></button>
+            <span className="text-sm font-medium lowercase">{currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}</span>
+            <button onClick={() => setCurrentMonth(m => new Date(m.getFullYear(), m.getMonth() + 1, 1))} className="p-1 rounded hover:bg-white/10 text-white/60 hover:text-white"><ChevronRight size={18} /></button>
+          </div>
+          <div className="grid grid-cols-7 gap-1 text-[10px] text-white/40 lowercase">
+            {['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].map(d => <div key={d} className="text-center py-1">{d}</div>)}
+            {calendarDays.map((day, i) => (
+              <div 
+                key={i} 
+                className={cn(
+                  "h-9 flex items-center justify-center cursor-pointer rounded text-sm",
+                  day.isCurrentMonth ? "hover:bg-white/10" : "text-white/20",
+                  viewingEntry?.date === day.date && "bg-white/10"
+                )} 
+                onClick={() => { if (day.date) setViewingEntry(entriesByDate[day.date] || null); }}
+              >
+                {day.day > 0 && (
+                  entriesByDate[day.date]
+                    ? <span className="text-lg">{MOODS.find(m => m.id === entriesByDate[day.date].mood)?.emoji}</span>
+                    : day.day
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* stats panel */}
+      {showStats && (
+        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+          <p className="text-xs text-white/40 lowercase mb-3">statistics</p>
+          <StatsCharts entries={entries} />
+        </div>
+      )}
+
+      {/* achievements panel */}
+      {showAchievements && (
+        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+          <p className="text-xs text-white/40 lowercase mb-3">achievements ({unlockedAchievements.length}/{ACHIEVEMENTS.length})</p>
+          <div className="grid grid-cols-2 gap-2">
+            {ACHIEVEMENTS.map(a => {
+              const unlocked = unlockedAchievements.includes(a.id);
+              return (
+                <div 
+                  key={a.id} 
+                  className={cn(
+                    "p-3 rounded-lg border transition-all",
+                    unlocked 
+                      ? "bg-yellow-500/10 border-yellow-500/30" 
+                      : "bg-white/[0.02] border-white/5 opacity-50"
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{a.icon}</span>
+                    <div>
+                      <p className={cn("text-xs lowercase", unlocked ? "text-white" : "text-white/40")}>{a.name}</p>
+                      <p className="text-[10px] text-white/30 lowercase">{a.description}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* past entries panel */}
+      {showPastEntries && (
+        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+          <p className="text-xs text-white/40 lowercase mb-3">past entries ({filteredPastEntries.length})</p>
+          
+          {/* filters */}
+          <div className="flex gap-2 mb-3 flex-wrap">
+            <div className="flex-1 min-w-[120px] relative">
+              <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-white/30" />
+              <input
+                type="text"
+                value={pastEntriesFilter.search}
+                onChange={e => setPastEntriesFilter(f => ({ ...f, search: e.target.value }))}
+                placeholder="search entries..."
+                className="w-full pl-8 pr-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase placeholder:text-white/30 focus:outline-none focus:border-white/30"
+              />
+            </div>
+            <select
+              value={pastEntriesFilter.mood}
+              onChange={e => setPastEntriesFilter(f => ({ ...f, mood: e.target.value }))}
+              className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase text-white/70 focus:outline-none"
+            >
+              <option value="">all moods</option>
+              {MOODS.map(m => <option key={m.id} value={m.id}>{m.label}</option>)}
+            </select>
+            <select
+              value={pastEntriesFilter.tag}
+              onChange={e => setPastEntriesFilter(f => ({ ...f, tag: e.target.value }))}
+              className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase text-white/70 focus:outline-none"
+            >
+              <option value="">all tags</option>
+              {availableTags.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+
+          {/* entries list */}
+          <div className="space-y-4 max-h-96 overflow-auto">
+            {Object.entries(entriesGroupedByMonth).map(([month, monthEntries]) => (
+              <div key={month}>
+                <p className="text-xs text-white/30 lowercase mb-2 sticky top-0 bg-black/50 backdrop-blur py-1">{month}</p>
+                <div className="space-y-2">
+                  {monthEntries.map(entry => (
+                    <div 
+                      key={entry.id} 
+                      className="p-3 rounded-lg bg-white/[0.02] border border-white/5 hover:border-white/10 cursor-pointer transition-all"
+                      onClick={() => setViewingEntry(entry)}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{MOODS.find(m => m.id === entry.mood)?.emoji || '📝'}</span>
+                          <span className="text-xs text-white/50">{formatDate(entry.date)}</span>
+                        </div>
+                        <div className="flex gap-1">
+                          <button 
+                            onClick={e => { e.stopPropagation(); populateForm(entry); }}
+                            className="p-1 rounded hover:bg-white/10 text-white/40 hover:text-white"
+                          >
+                            <Edit2 size={12} />
+                          </button>
+                          <button 
+                            onClick={e => { e.stopPropagation(); handleDeleteEntry(entry); }}
+                            className="p-1 rounded hover:bg-white/10 text-white/40 hover:text-red-400"
+                          >
+                            <Trash2 size={12} />
+                          </button>
+                        </div>
+                      </div>
+                      <p className="text-sm text-white/70 lowercase line-clamp-2 mt-1">{entry.body || 'no notes'}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+            {filteredPastEntries.length === 0 && (
+              <p className="text-center text-white/30 lowercase text-sm py-8">no entries found</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* entry detail view */}
+      {viewingEntry && (
+        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-2">
+              <span className="text-2xl">{MOODS.find(m => m.id === viewingEntry.mood)?.emoji || '📝'}</span>
+              <div>
+                <p className="text-sm font-medium lowercase">{formatDate(viewingEntry.date)}</p>
+                <p className="text-xs text-white/40 lowercase">
+                  {new Date(viewingEntry.timestamp).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}
+                </p>
+              </div>
+            </div>
+            <button onClick={() => setViewingEntry(null)} className="p-1 rounded hover:bg-white/10"><X size={16} /></button>
+          </div>
+          
+          {viewingEntry.body && (
+            <div className="p-3 rounded-lg bg-white/[0.02] mb-3">
+              <p className="text-sm text-white/80 lowercase whitespace-pre-wrap">{viewingEntry.body}</p>
+            </div>
+          )}
+          
+          <div className="flex flex-wrap gap-2">
+            {(() => {
+              try {
+                const emos = JSON.parse((viewingEntry as any).emotions || '[]');
+                return emos.map((e: string) => (
+                  <span key={e} className="px-2 py-1 rounded-full text-xs bg-white/5 text-white/60 lowercase">{e}</span>
+                ));
+              } catch { return null; }
+            })()}
+            {parseActivities(viewingEntry.activities).map(a => {
+              const act = DEFAULT_ACTIVITIES.find(x => x.id === a);
+              return act ? (
+                <span key={a} className="px-2 py-1 rounded-full text-xs bg-white/5 text-white/60 lowercase flex items-center gap-1">
+                  <span>{act.emoji}</span>
+                  {act.label}
+                </span>
+              ) : null;
+            })}
+          </div>
+          
+          <div className="flex gap-2 mt-3">
+            <button 
+              onClick={() => populateForm(viewingEntry)}
+              className="flex-1 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-sm lowercase flex items-center justify-center gap-1"
+            >
+              <Edit2 size={14} /> edit
+            </button>
+            <button 
+              onClick={() => handleDeleteEntry(viewingEntry)}
+              className="flex-1 px-3 py-2 rounded-lg bg-white/5 hover:bg-red-500/20 text-sm lowercase text-red-400 flex items-center justify-center gap-1"
+            >
+              <Trash2 size={14} /> delete
+            </button>
+          </div>
+        </div>
+      )}
