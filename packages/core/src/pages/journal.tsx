@@ -2817,7 +2817,7 @@ ${entriesText}`;
           </div>
             {filteredPastEntries.length === 0 && (
               <p className="text-center text-white/30 lowercase text-sm py-8">no entries found</p>
-) : null}
+            )}
           </div>
         </div>
       )}
