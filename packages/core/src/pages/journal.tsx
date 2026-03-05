@@ -6,6 +6,8 @@ import { OllamaClient } from '@/api/ollama-client';
 import { JournalRecord, parseActivities } from '@/schema/journal-collection';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, AreaChart, Area } from 'recharts';
 import { Sparkles, Mic, Image, Calendar, TrendingUp, Heart, Zap, Target, Award, BookOpen, Wind, Clock, Download, Bell, Plus, X, ChevronLeft, ChevronRight, Search, Filter, Edit2, Trash2, Lock, FileText } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 
 // ─────────────────────────────────────────────
 //  constants
@@ -1754,6 +1756,8 @@ export function JournalPage() {
   
   // ── state: notes ──
   const [body, setBody] = useState('');
+  const [showPreview, setShowPreview] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [saving, setSaving] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
