@@ -706,7 +706,12 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
 
   // searchable dropdown state for select fields
   const [searchText, setSearchText] = useState('');
-  // include colors if provided
+  // color palette saved in app settings (persisted)
+  const [palette, setPalette] = useAppSetting<string[]>('color_palette', []);
+  const [currentColor, setCurrentColor] = useState('#ffffff');
+  const colorInputRef = useRef<HTMLInputElement>(null);
+  const [colorTarget, setColorTarget] = useState<string | null>(null);
+
   const enrich = (opts: any[] = []) => {
     const colors = field?.optionColors || [];
     return opts.map((o, i) => ({ ...o, color: colors[i] || o.color }));
