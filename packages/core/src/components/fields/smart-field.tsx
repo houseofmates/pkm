@@ -1487,6 +1487,35 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
         setSearchText('');
       };
 
+      const changeOptionColor = async (optValue: string, color: string) => {
+        // update palette
+        setPalette(prev => {
+          if (prev.includes(color)) return prev;
+          const next = [...prev];
+          next.unshift(color);
+          if (next.length > 10) next.pop();
+          return next;
+        });
+
+        const idx = localOptions.findIndex(o => o.value === optValue);
+        if (idx === -1) return;
+        setLocalOptions(prev => {
+          const nxt = [...prev];
+          nxt[idx] = { ...nxt[idx], color };
+          return nxt;
+        });
+        // persist colors array
+        const colorsArr = [...(field?.optionColors || [])];
+        colorsArr[idx] = color;
+        try {
+          await client.updateField(collectionName, field.name, {
+            optionColors: colorsArr
+          });
+        } catch (err) {
+          secureLogger.error('failed to persist option color', err);
+        }
+      };
+
       return (
         <div className="flex flex-col bg-[#111] border border-[#333] p-1 rounded min-w-[150px]">
           <input
