@@ -637,8 +637,6 @@ export interface SmartFieldProps {
 }
 
 export function SmartField({ value, field, record, collectionName, mode: _mode = 'view', onChange, className, inputClassName, size = 'lg' }: SmartFieldProps) {
-  console.log('SmartField render', { value, field, record, collectionName, mode: _mode });
-  try {
   const [isEditing, setIsEditing] = useState(false);
   const [localValue, setLocalValue] = useState(value);
   const [fullscreenIndex, setFullscreenIndex] = useState<number | null>(null);
