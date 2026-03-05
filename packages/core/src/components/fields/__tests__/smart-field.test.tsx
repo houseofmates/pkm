@@ -7,7 +7,7 @@ import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import { SmartField } from '../smart-field';
 import { AuthContext } from '@/contexts/auth-context';
 
-import { vi } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 
 // stub the formula editor globally so formula tests can open it
 vi.mock('@/components/formula-editor', () => ({
