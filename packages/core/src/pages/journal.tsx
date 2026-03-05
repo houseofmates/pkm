@@ -2080,12 +2080,46 @@ export function JournalPage() {
       a.download = `journal-export-${new Date().toISOString().slice(0,10)}.csv`;
       a.click();
       URL.revokeObjectURL(url);
-      toast.success('exported successfully');
+      toast.success('csv exported successfully');
     } catch (e) {
       toast.error('export failed');
     }
   };
 
+  const handleExportJSON = async () => {
+    try {
+      const res: any = await api.listRecords('journal', { sort: '-date', pageSize: 1000 });
+      let recs: JournalRecord[] = res?.data || [];
+      if (exportFrom) {
+        recs = recs.filter(r => r.date >= exportFrom);
+      }
+      if (exportTo) {
+        recs = recs.filter(r => r.date <= exportTo);
+      }
+      const exportData = {
+        exportedAt: new Date().toISOString(),
+        entries: recs,
+        stats: {
+          totalEntries: recs.length,
+          averageMood: calculateAverageMood(recs),
+          dateRange: {
+            from: recs[recs.length - 1]?.date,
+            to: recs[0]?.date,
+          }
+        }
+      };
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `journal-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success('json backup exported');
+    } catch (e) {
+      toast.error('export failed');
+    }
+  };
 
   const checkAchievements = (newXp: number, newStreak: number, newCount: number, wordCount: number, emotionCount: number) => {
     const newUnlocks: string[] = [];
