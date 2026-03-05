@@ -1,5 +1,6 @@
 import React from 'react';
 import { describe, it, expect } from 'vitest';
+import { FronterProvider } from '@/contexts/fronter-context';
 
 // verify guard logic in auth-context so that the component never throws
 // when the React dispatcher is missing (e.g. during hot-refresh invocations).
