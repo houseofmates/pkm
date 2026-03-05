@@ -2386,11 +2386,16 @@ export function JournalPage() {
           <button onClick={() => setShowCalendar(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="calendar"><Calendar size={18} /></button>
           <button onClick={() => setShowPastEntries(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="past entries"><BookOpen size={18} /></button>
           <button onClick={() => setShowStats(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="stats"><TrendingUp size={18} /></button>
+          <button onClick={() => setShowCorrelations(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="mood correlations"><Zap size={18} /></button>
+          <button onClick={() => setShowHeatmap(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="mood heatmap"><div className="grid grid-cols-2 gap-[2px] w-4 h-4"><div className="bg-white/60 rounded-sm"/><div className="bg-white/30 rounded-sm"/><div className="bg-white/40 rounded-sm"/><div className="bg-white/20 rounded-sm"/></div></button>
+          <button onClick={() => setShowWordCloud(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="word cloud"><span className="text-lg font-bold">☁</span></button>
+          <button onClick={() => setShowTimeInsights(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="time insights"><Clock size={18} /></button>
           <button onClick={() => setShowGratitude(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="gratitude"><Heart size={18} /></button>
           <button onClick={() => setShowWeeklyReview(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="weekly review"><Sparkles size={18} /></button>
           <button onClick={() => setShowBreathing(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="breathing"><Wind size={18} /></button>
           <button onClick={() => setShowTimer(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="timer"><Clock size={18} /></button>
-          <button onClick={() => setReminderEnabled(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="reminder"><Bell size={18} /></button>
+          <PrivacyLock isLocked={isLocked} onUnlock={() => setIsLocked(false)} onLock={() => setIsLocked(true)} />
+          <button onClick={() => setReminderEnabled(v => !v)} className={cn("p-2 rounded-lg hover:bg-white/5 transition-colors", reminderEnabled && "text-yellow-400")} title="reminder"><Bell size={18} /></button>
           {reminderEnabled && <input type="time" value={reminderTime} onChange={e => setReminderTime(e.target.value)} className="h-7 text-xs bg-transparent border border-white/20 rounded px-1" />}
           <input type="date" value={exportFrom} onChange={e => setExportFrom(e.target.value)} className="h-7 text-xs bg-transparent border border-white/20 rounded px-1" />
           <input type="date" value={exportTo} onChange={e => setExportTo(e.target.value)} className="h-7 text-xs bg-transparent border border-white/20 rounded px-1" />
