@@ -1,6 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
+import { create, act } from 'react-test-renderer';
 
 import { JournalPage } from '@/pages/journal';
 
@@ -8,25 +8,27 @@ import { JournalPage } from '@/pages/journal';
 
 describe('JournalPage', () => {
   it('renders mood emoji images and can toggle selection', () => {
-    render(<JournalPage />);
+    const tree = create(<JournalPage />);
+    const root = tree.root;
 
-    // moods are rendered with alt text equal to the label
-    const amazing = screen.getByAltText(/amazing/i);
-    expect(amazing).toBeInTheDocument();
+    // find the mood button for the first mood (amazing!) by alt text
+    const moodImages = root.findAll((n) => n.type === 'img' && n.props.alt?.toLowerCase().includes('amazing'));
+    expect(moodImages.length).toBe(1);
+    const btn = moodImages[0].parent; // image is direct child of button
 
-    const btn = amazing.closest('button');
-    expect(btn).toBeTruthy();
+    // initially not active (no boxShadow prop)
+    expect(btn.props.style.boxShadow).toBeUndefined();
 
-    // initially not active (no box-shadow)
-    expect(btn).not.toHaveStyle('box-shadow: 0 0 0 2px');
+    act(() => {
+      btn.props.onClick();
+    });
 
-    fireEvent.click(btn!);
+    expect(btn.props.style.boxShadow).toContain('0 0 0 2px');
 
-    // after click it should get the active outline
-    expect(btn).toHaveStyle('box-shadow: 0 0 0 2px');
+    act(() => {
+      btn.props.onClick();
+    });
 
-    // clicking again clears it
-    fireEvent.click(btn!);
-    expect(btn).not.toHaveStyle('box-shadow: 0 0 0 2px');
+    expect(btn.props.style.boxShadow).toBe('none');
   });
 });
