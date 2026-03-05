@@ -913,14 +913,6 @@ ${text}`;
               <p className="text-sm text-white/70 lowercase">{prompt}</p>
             </div>
 
-        <div className="mt-6">
-          <p className="text-xs text-white/40 lowercase mb-1">weekly ai summary</p>
-          {isSummarizing ? (
-            <p className="text-sm text-white/50 italic">generating...</p>
-          ) : (
-            <p className="text-sm text-white/70 lowercase">{summary || 'no summary available'}</p>
-          )}
-        </div>
           ))}
         </div>
       </div>
@@ -2811,6 +2803,14 @@ ${entriesText}`;
             <select
               value={pastEntriesFilter.mood}
               onChange={e => setPastEntriesFilter(f => ({ ...f, mood: e.target.value }))}
+        <div className="mt-6">
+          <p className="text-xs text-white/40 lowercase mb-1">weekly ai summary</p>
+          {isSummarizing ? (
+            <p className="text-sm text-white/50 italic">generating...</p>
+          ) : (
+            <p className="text-sm text-white/70 lowercase">{summary || 'no summary available'}</p>
+          )}
+        </div>
               className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase text-white/70 focus:outline-none"
             >
               <option value="">all moods</option>
