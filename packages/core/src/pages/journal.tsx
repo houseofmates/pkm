@@ -2205,6 +2205,47 @@ export function JournalPage() {
     }
   };
 
+  const handlePrint = async () => {
+    // gather past 14 days
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - 14);
+    const recent = entries.filter(e => new Date(e.date) >= cutoff);
+    let summary = '';
+    try {
+      const ollama = new OllamaClient();
+      const text = recent.map(e => `${e.date}: ${e.body || ''}`).join('\n');
+      summary = await ollama.ask(`provide a long detailed lowercase summary of these journal entries for the past two weeks:\n${text}`);
+    } catch {}
+    const htmlEntries = recent.map(e => {
+      const mood = MOODS.find(m => m.id === e.mood)?.label || '';
+      return `<div style="margin-bottom:1em;"><strong>${e.date} (${mood})</strong><p>${e.body?.replace(/\n/g,'<br>') || ''}</p></div>`;
+    }).join('');
+    const printHtml = `<!doctype html><html><head><meta charset="utf-8"><title>journal report</title><style>body{font-family:sans-serif;padding:1em;color:#000}h1{text-transform:lowercase}p,div{page-break-inside:avoid}a{color:#000}</style></head><body><h1>journal report (last 14 days)</h1><div>${summary}</div>${htmlEntries}</body></html>`;
+    const win = window.open('','_blank');
+    if (win) {
+      win.document.write(printHtml);
+      win.document.close();
+      win.focus();
+      setTimeout(() => win.print(), 500);
+    }
+  };
+            to: recs[0]?.date,
+          }
+        }
+      };
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `journal-backup-${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast.success('json backup exported');
+    } catch (e) {
+      toast.error('export failed');
+    }
+  };
+
 
   const handleNLSearch = async () => {
     const q = pastEntriesFilter.search.trim();
@@ -3411,6 +3452,28 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
 
       {/* footer spacer */}
       <div className="h-8" />
+      <PushToTalkWidget />
+    </div>
+  );
+}
+
+
+
+function PushToTalkWidget() {
+  const [active, setActive] = useState(false);
+  const toggle = () => {
+    // use existing transcription logic if available
+    handleVoiceTranscription();
+    setActive(!active);
+  };
+  return (
+    <div
+      onClick={toggle}
+      className="fixed bottom-4 right-4 w-12 h-12 rounded-full flex items-center justify-center cursor-pointer shadow-lg"
+      style={{ background: active ? '#f5af12' : '#888' }}
+      title="push to talk"
+    >
+      <Mic size={24} className={active ? 'text-black' : 'text-white/50'} />
     </div>
   );
 }
