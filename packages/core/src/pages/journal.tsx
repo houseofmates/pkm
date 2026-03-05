@@ -3457,7 +3457,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
 
       {/* footer spacer */}
       <div className="h-8" />
-      <PushToTalkWidget />
+      <PushToTalkWidget handleVoiceTranscription={handleVoiceTranscription} />
     </div>
   );
 }
