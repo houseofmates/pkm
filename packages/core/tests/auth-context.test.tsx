@@ -79,11 +79,17 @@ describe('AuthProvider', () => {
     const origLoc = (globalThis as any).location;
     const fakeReload = vi.fn();
     (globalThis as any).location = { reload: fakeReload } as any;
-    localStorage.removeItem('nocobase_token');
+    const storage = (globalThis as any).localStorage ?? {
+      _data: {} as Record<string,string>,
+      getItem(key: string) { return this._data[key] ?? null; },
+      setItem(key: string, val: string) { this._data[key] = String(val); },
+      removeItem(key: string) { delete this._data[key]; },
+    };
+    storage.removeItem('nocobase_token');
 
     stub.login(' test-token ');
 
-    expect(localStorage.getItem('nocobase_token')).toBe('test-token');
+    expect(storage.getItem('nocobase_token')).toBe('test-token');
     expect(fakeReload).toHaveBeenCalled();
 
     // restore location to avoid side effects
