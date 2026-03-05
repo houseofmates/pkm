@@ -1267,6 +1267,433 @@ function GratitudeTracker() {
 
 
 // ─────────────────────────────────────────────
+//  mood-activity correlation component
+// ─────────────────────────────────────────────
+
+interface MoodActivityCorrelationProps {
+  entries: JournalRecord[];
+}
+
+function MoodActivityCorrelation({ entries }: MoodActivityCorrelationProps) {
+  const correlations = useMemo(() => {
+    const activityMoods: Record<string, number[]> = {};
+    
+    entries.forEach(entry => {
+      if (!entry.mood) return;
+      const moodValue = getMoodValue(entry.mood);
+      const acts = parseActivities(entry.activities);
+      
+      acts.forEach(act => {
+        if (!activityMoods[act]) activityMoods[act] = [];
+        activityMoods[act].push(moodValue);
+      });
+    });
+    
+    return Object.entries(activityMoods)
+      .map(([activity, moods]) => ({
+        activity,
+        avgMood: Number((moods.reduce((a, b) => a + b, 0) / moods.length).toFixed(1)),
+        count: moods.length,
+        activityLabel: DEFAULT_ACTIVITIES.find(a => a.id === activity)?.label || activity,
+        emoji: DEFAULT_ACTIVITIES.find(a => a.id === activity)?.emoji || '✓',
+      }))
+      .filter(c => c.count >= 3) // only show activities with 3+ occurrences
+      .sort((a, b) => b.avgMood - a.avgMood);
+  }, [entries]);
+
+  if (correlations.length === 0) {
+    return (
+      <div className="text-center py-6">
+        <p className="text-xs text-white/30 lowercase">log more entries to see correlations</p>
+      </div>
+    );
+  }
+
+  const topPositive = correlations.slice(0, 3);
+  const topNegative = correlations.slice(-3).reverse();
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <p className="text-xs text-green-400 lowercase mb-2">activities that boost your mood ✨</p>
+        <div className="space-y-2">
+          {topPositive.map(c => (
+            <div key={c.activity} className="flex items-center justify-between p-2 rounded-lg bg-white/[0.02]">
+              <div className="flex items-center gap-2">
+                <span>{c.emoji}</span>
+                <span className="text-sm text-white/70 lowercase">{c.activityLabel}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-white/40">{c.count}×</span>
+                <span className="text-sm font-medium text-green-400">{c.avgMood.toFixed(1)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <p className="text-xs text-orange-400 lowercase mb-2">activities to be mindful of</p>
+        <div className="space-y-2">
+          {topNegative.map(c => (
+            <div key={c.activity} className="flex items-center justify-between p-2 rounded-lg bg-white/[0.02]">
+              <div className="flex items-center gap-2">
+                <span>{c.emoji}</span>
+                <span className="text-sm text-white/70 lowercase">{c.activityLabel}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-white/40">{c.count}×</span>
+                <span className="text-sm font-medium text-orange-400">{c.avgMood.toFixed(1)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <p className="text-[10px] text-white/20 lowercase text-center">
+        based on average mood when activity is logged
+      </p>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+//  privacy lock component
+// ─────────────────────────────────────────────
+
+function PrivacyLock({ isLocked, onUnlock, onLock }: { isLocked: boolean; onUnlock: () => void; onLock: () => void }) {
+  const [pin, setPin] = useState('');
+  const [storedPin, setStoredPin] = useState(() => getStoredData('pkm:journal:pin', ''));
+  const [showSetPin, setShowSetPin] = useState(false);
+  const [newPin, setNewPin] = useState('');
+  const [confirmPin, setConfirmPin] = useState('');
+
+  if (!isLocked) {
+    return (
+      <button
+        onClick={() => {
+          if (!storedPin) {
+            setShowSetPin(true);
+          } else {
+            onLock();
+          }
+        }}
+        className="p-2 rounded-lg hover:bg-white/5 text-white/40 hover:text-white transition-colors"
+        title={storedPin ? "lock journal" : "set pin"}
+      >
+        <Lock size={18} />
+      </button>
+    );
+  }
+
+  if (showSetPin) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
+        <div className="p-6 rounded-2xl border border-white/10 bg-[#0a0a0a] w-72 text-center">
+          <Lock size={32} className="mx-auto mb-4 text-yellow-400" />
+          <p className="text-sm text-white/70 lowercase mb-4">set a 4-digit pin</p>
+          <input
+            type="password"
+            value={newPin}
+            onChange={e => setNewPin(e.target.value.slice(0, 4))}
+            placeholder="••••"
+            className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-center text-2xl tracking-widest mb-3 focus:outline-none focus:border-yellow-500/50"
+          />
+          <input
+            type="password"
+            value={confirmPin}
+            onChange={e => setConfirmPin(e.target.value.slice(0, 4))}
+            placeholder="confirm"
+            className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-center text-2xl tracking-widest mb-4 focus:outline-none focus:border-yellow-500/50"
+          />
+          <button
+            onClick={() => {
+              if (newPin.length === 4 && newPin === confirmPin) {
+                setStoredPin(newPin);
+                setStoredData('pkm:journal:pin', newPin);
+                setShowSetPin(false);
+                onLock();
+                toast.success('pin set successfully');
+              } else {
+                toast.error('pins do not match');
+              }
+            }}
+            disabled={newPin.length !== 4 || newPin !== confirmPin}
+            className="w-full py-3 rounded-xl bg-yellow-500 text-black font-medium lowercase disabled:opacity-30"
+          >
+            set pin
+          </button>
+          <button
+            onClick={() => setShowSetPin(false)}
+            className="w-full py-2 mt-2 text-xs text-white/40 lowercase"
+          >
+            cancel
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm">
+      <div className="p-6 rounded-2xl border border-white/10 bg-[#0a0a0a] w-72 text-center">
+        <Lock size={40} className="mx-auto mb-4 text-yellow-400" />
+        <p className="text-lg font-medium text-white lowercase mb-1">journal locked</p>
+        <p className="text-xs text-white/40 lowercase mb-6">enter your pin to unlock</p>
+        <input
+          type="password"
+          value={pin}
+          onChange={e => {
+            const val = e.target.value.slice(0, 4);
+            setPin(val);
+            if (val === storedPin) {
+              setPin('');
+              onUnlock();
+              toast.success('unlocked');
+            }
+          }}
+          placeholder="••••"
+          autoFocus
+          className="w-full px-4 py-4 rounded-xl bg-white/5 border border-white/10 text-center text-3xl tracking-[0.5em] mb-4 focus:outline-none focus:border-yellow-500/50"
+        />
+        <button
+          onClick={() => {
+            setStoredPin('');
+            setStoredData('pkm:journal:pin', '');
+            onUnlock();
+            toast.success('pin removed');
+          }}
+          className="text-xs text-white/30 lowercase hover:text-white/50"
+        >
+          forgot pin? reset
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+//  mood heatmap component
+// ─────────────────────────────────────────────
+
+function MoodHeatmap({ entries }: { entries: JournalRecord[] }) {
+  const [year, setYear] = useState(new Date().getFullYear());
+
+  const heatmapData = useMemo(() => {
+    const data: Record<string, { mood: string; value: number }> = {};
+    entries.forEach(e => {
+      if (e.mood) {
+        data[e.date] = { mood: e.mood, value: getMoodValue(e.mood) };
+      }
+    });
+    return data;
+  }, [entries]);
+
+  const months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+  const days = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
+
+  const getColor = (value: number) => {
+    if (value === 0) return 'rgba(255,255,255,0.03)';
+    if (value <= 2) return `rgba(239, 68, 68, ${0.2 + value * 0.15})`; // red
+    if (value === 3) return `rgba(234, 179, 8, ${0.3 + value * 0.1})`; // yellow
+    return `rgba(34, 197, 94, ${0.2 + value * 0.12})`; // green
+  };
+
+  return (
+    <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-xs text-white/40 lowercase">mood heatmap</p>
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => setYear(y => y - 1)}
+            className="p-1 rounded hover:bg-white/10 text-white/40"
+          >
+            <ChevronLeft size={14} />
+          </button>
+          <span className="text-xs text-white/60">{year}</span>
+          <button 
+            onClick={() => setYear(y => y + 1)}
+            className="p-1 rounded hover:bg-white/10 text-white/40"
+          >
+            <ChevronRight size={14} />
+          </button>
+        </div>
+      </div>
+
+      <div className="flex gap-1 overflow-x-auto pb-2">
+        {months.map((month, monthIdx) => {
+          const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
+          const firstDay = new Date(year, monthIdx, 1).getDay();
+          
+          return (
+            <div key={month} className="flex flex-col items-center gap-1">
+              <span className="text-[10px] text-white/30 lowercase mb-1">{month}</span>
+              <div className="grid grid-cols-7 gap-[2px]">
+                {[...Array(firstDay)].map((_, i) => (
+                  <div key={`empty-${i}`} className="w-3 h-3" />
+                ))}
+                {[...Array(daysInMonth)].map((_, day) => {
+                  const dateStr = `${year}-${String(monthIdx + 1).padStart(2, '0')}-${String(day + 1).padStart(2, '0')}`;
+                  const dayData = heatmapData[dateStr];
+                  return (
+                    <div
+                      key={day}
+                      className="w-3 h-3 rounded-sm cursor-pointer hover:ring-1 hover:ring-white/30 transition-all"
+                      style={{ backgroundColor: getColor(dayData?.value || 0) }}
+                      title={dayData ? `${dateStr}: ${MOODS.find(m => m.id === dayData.mood)?.label}` : dateStr}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="flex items-center justify-center gap-3 mt-3 text-[10px] text-white/30 lowercase">
+        <span>less</span>
+        <div className="flex gap-1">
+          {[1, 2, 3, 4, 5, 6].map(v => (
+            <div key={v} className="w-3 h-3 rounded-sm" style={{ backgroundColor: getColor(v) }} />
+          ))}
+        </div>
+        <span>more</span>
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+//  word cloud component
+// ─────────────────────────────────────────────
+
+function WordCloud({ entries }: { entries: JournalRecord[] }) {
+  const words = useMemo(() => {
+    const wordFreq: Record<string, number> = {};
+    const stopWords = new Set(['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'did']);
+    
+    entries.forEach(e => {
+      if (!e.body) return;
+      const text = e.body.toLowerCase().replace(/[^a-z\s]/g, '');
+      text.split(/\s+/).forEach(word => {
+        if (word.length > 3 && !stopWords.has(word)) {
+          wordFreq[word] = (wordFreq[word] || 0) + 1;
+        }
+      });
+    });
+    
+    return Object.entries(wordFreq)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 30)
+      .map(([word, count]) => ({ word, count, size: Math.min(24, 10 + count * 2) }));
+  }, [entries]);
+
+  if (words.length === 0) {
+    return (
+      <div className="text-center py-6">
+        <p className="text-xs text-white/30 lowercase">write more to generate word cloud</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+      <p className="text-xs text-white/40 lowercase mb-3">most used words</p>
+      <div className="flex flex-wrap gap-2 justify-center items-center min-h-[120px]">
+        {words.map((w, i) => (
+          <span
+            key={w.word}
+            className="lowercase cursor-default hover:text-white transition-colors"
+            style={{
+              fontSize: `${w.size}px`,
+              color: `rgba(255,255,255,${0.3 + (words.length - i) / words.length * 0.7})`,
+            }}
+            title={`${w.count} occurrences`}
+          >
+            {w.word}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
+//  time insights component
+// ─────────────────────────────────────────────
+
+function TimeInsights({ entries }: { entries: JournalRecord[] }) {
+  const insights = useMemo(() => {
+    const hourMoods: Record<number, number[]> = {};
+    const dayMoods: Record<string, number[]> = {};
+    
+    entries.forEach(e => {
+      if (!e.mood) return;
+      const moodValue = getMoodValue(e.mood);
+      const date = new Date(e.timestamp);
+      const hour = date.getHours();
+      const day = date.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+      
+      if (!hourMoods[hour]) hourMoods[hour] = [];
+      hourMoods[hour].push(moodValue);
+      
+      if (!dayMoods[day]) dayMoods[day] = [];
+      dayMoods[day].push(moodValue);
+    });
+    
+    const bestHour = Object.entries(hourMoods)
+      .map(([h, m]) => ({ hour: parseInt(h), avg: m.reduce((a, b) => a + b, 0) / m.length }))
+      .sort((a, b) => b.avg - a.avg)[0];
+      
+    const bestDay = Object.entries(dayMoods)
+      .map(([d, m]) => ({ day: d, avg: m.reduce((a, b) => a + b, 0) / m.length }))
+      .sort((a, b) => b.avg - a.avg)[0];
+    
+    return { bestHour, bestDay };
+  }, [entries]);
+
+  if (!insights.bestHour && !insights.bestDay) {
+    return (
+      <div className="text-center py-6">
+        <p className="text-xs text-white/30 lowercase">log more entries for insights</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {insights.bestHour && (
+        <div className="p-3 rounded-lg bg-white/[0.02] flex items-center justify-between">
+          <div>
+            <p className="text-[10px] text-white/40 lowercase">best time to journal</p>
+            <p className="text-sm text-white lowercase">
+              {insights.bestHour.hour === 0 ? '12am' : insights.bestHour.hour > 12 ? `${insights.bestHour.hour - 12}pm` : `${insights.bestHour.hour}am`}
+            </p>
+          </div>
+          <div className="text-right">
+            <span className="text-lg">🌅</span>
+            <p className="text-[10px] text-green-400">avg mood {insights.bestHour.avg.toFixed(1)}</p>
+          </div>
+        </div>
+      )}
+      
+      {insights.bestDay && (
+        <div className="p-3 rounded-lg bg-white/[0.02] flex items-center justify-between">
+          <div>
+            <p className="text-[10px] text-white/40 lowercase">best day of week</p>
+            <p className="text-sm text-white lowercase">{insights.bestDay.day}</p>
+          </div>
+          <div className="text-right">
+            <span className="text-lg">📅</span>
+            <p className="text-[10px] text-green-400">avg mood {insights.bestDay.avg.toFixed(1)}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────
 //  main journal page component
 // ─────────────────────────────────────────────
 
