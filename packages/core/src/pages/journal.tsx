@@ -2779,6 +2779,7 @@ ${entriesText}`;
           <p className="text-xs text-white/40 lowercase mb-3">past entries ({filteredPastEntries.length})</p>
           
           {/* filters */}
+          {/* filters */}
           <div className="flex gap-2 mb-3 flex-wrap">
             <div className="flex-1 min-w-[120px] relative">
               <Search size={14} className="absolute left-2 top-1/2 -translate-y-1/2 text-white/30" />
@@ -2801,21 +2802,6 @@ ${entriesText}`;
             <select
               value={pastEntriesFilter.mood}
               onChange={e => setPastEntriesFilter(f => ({ ...f, mood: e.target.value }))}
-
-        <div className="mt-6">
-          <p className="text-xs text-white/40 lowercase mb-1">weekly ai summary</p>
-          {isSummarizing ? (
-            <p className="text-sm text-white/50 italic">generating...</p>
-          ) : (
-            <p className="text-sm text-white/70 lowercase">{summary || 'no summary available'}</p>
-          )}
-        </div>
-        <div className="mt-6">
-            <p className="text-sm text-white/50 italic">generating...</p>
-          ) : (
-            <p className="text-sm text-white/70 lowercase">{summary || 'no summary available'}</p>
-          )}
-        </div>
               className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase text-white/70 focus:outline-none"
             >
               <option value="">all moods</option>
@@ -2829,57 +2815,7 @@ ${entriesText}`;
               <option value="">all tags</option>
               {availableTags.map(t => <option key={t} value={t}>{t}</option>)}
             </select>
-            <button
-              onClick={() => setShowBookmarksOnly(v => !v)}
-              className={cn(
-                "px-3 py-2 rounded-lg border text-sm lowercase transition-colors",
-                showBookmarksOnly 
-                  ? "bg-yellow-500/20 border-yellow-500/50 text-yellow-400" 
-                  : "bg-white/5 border-white/10 text-white/70"
-              )}
-            >
-              ★ bookmarks
-            </button>
           </div>
-
-          {/* entries list */}
-          <div className="space-y-4 max-h-96 overflow-auto">
-            {Object.entries(entriesGroupedByMonth).map(([month, monthEntries]) => (
-              <div key={month}>
-                <p className="text-xs text-white/30 lowercase mb-2 sticky top-0 bg-black/50 backdrop-blur py-1">{month}</p>
-                <div className="space-y-2">
-                  {monthEntries.map(entry => (
-                    <div 
-                      key={entry.id} 
-                      className="p-3 rounded-lg bg-white/[0.02] border border-white/5 hover:border-white/10 cursor-pointer transition-all"
-                      onClick={() => setViewingEntry(entry)}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="text-lg">{MOODS.find(m => m.id === entry.mood)?.emoji || '📝'}</span>
-                          <span className="text-xs text-white/50">{formatDate(entry.date)}</span>
-                        </div>
-                        <div className="flex gap-1">
-                          <button 
-                            onClick={e => { e.stopPropagation(); populateForm(entry); }}
-                            className="p-1 rounded hover:bg-white/10 text-white/40 hover:text-white"
-                          >
-                            <Edit2 size={12} />
-                          </button>
-                          <button 
-                            onClick={e => { e.stopPropagation(); handleDeleteEntry(entry); }}
-                            className="p-1 rounded hover:bg-white/10 text-white/40 hover:text-red-400"
-                          >
-                            <Trash2 size={12} />
-                          </button>
-                        </div>
-                      </div>
-                      <p className="text-sm text-white/70 lowercase line-clamp-2 mt-1">{entry.body || 'no notes'}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
             {filteredPastEntries.length === 0 && (
               <p className="text-center text-white/30 lowercase text-sm py-8">no entries found</p>
             )}
