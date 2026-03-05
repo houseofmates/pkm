@@ -1526,6 +1526,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
                 <div
                   key={opt.value}
                   className="flex items-center gap-2 p-1 hover:bg-[#222] cursor-pointer"
+                  onContextMenu={(e) => { e.preventDefault(); openColorPicker(opt); }}
                   onClick={() => {
                     if (isMultiSelect) {
                       let newArr = Array.isArray(localValue) ? [...localValue] : [];
