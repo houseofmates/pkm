@@ -124,7 +124,7 @@ export function JournalPage() {
           <p className="text-[11px] uppercase tracking-widest mb-3 lowercase" style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em' }}>
             how are you feeling?
           </p>
-          <div className="flex gap-4 justify-center">
+          <div className="flex gap-10 justify-center">
             {MOODS.map(m => {
               const active = mood === m.id;
               return (
@@ -142,12 +142,12 @@ export function JournalPage() {
                     src={m.img}
                     alt={m.emoji}
                     onError={(e) => { e.currentTarget.style.display = 'none'; }}
-                    className={m.id === '6' ? "w-20 h-20 object-contain" : "w-16 h-16 object-contain"}
+                    className={m.id === '6' ? "w-24 h-24 object-contain" : "w-20 h-20 object-contain"}
                     style={{
                       opacity: active ? 1 : 0.7,
                     }}
                   />
-                  <span className="absolute inset-0 flex items-center justify-center text-2xl pointer-events-none">
+                  <span className="absolute inset-0 flex items-center justify-center text-3xl pointer-events-none">
                     {m.emoji}
                   </span>
                 </button>
@@ -218,7 +218,7 @@ export function JournalPage() {
 
       {/* ── sticky save button ── */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-40 px-4 pb-6 pt-3"
+        className="fixed bottom-0 left-0 right-0 lg:left-64 z-40 px-4 pb-6 pt-3"
         style={{ background: 'linear-gradient(to top, #050505 60%, transparent)' }}
       >
         <button
