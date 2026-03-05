@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import api from '@/api/nocobase-client';
@@ -7,13 +7,12 @@ import api from '@/api/nocobase-client';
 //  constants
 // ─────────────────────────────────────────────
 
-// options mirror the select choices defined in the journal collection on nocobase
-// value strings are the raw option values; labels match the multi-select option
-// labels exactly.  `img` is the path to a custom asset we will display for the
-// button (replace the placeholder files with your own images later).
-// note: order determines layout left→right; "amazing" moved last to
-// appear on the rightmost side and get a larger hit area.
-// left-to-right order for layout; amazing should be on the rightmost side
+// warm yellow
+const Y = '#f5af12';
+// powder blue
+const B = '#3c9fdd';
+
+// mood options - order determines layout left→right
 const MOODS = [
   { id: '0', label: 'terrible', emoji: '😡', img: '/images/moods/terrible.png' },
   { id: '1', label: 'bad',      emoji: '😞', img: '/images/moods/bad.png' },
@@ -23,11 +22,7 @@ const MOODS = [
   { id: '6', label: 'amazing!', emoji: '😁', img: '/images/moods/amazing.png' },
 ];
 
-// emotion options correspond exactly to the multi-select values in the
-// journal collection's "emotions" field on NocoBase.  they should be kept in
-// sync with the backend dataset so that the string we send matches an option.
-// we also allow arbitrary values to be added on the fly by typing and hitting
-// enter; the backend collection must permit custom options for this to work.
+// default emotion options - synced with nocobase multi-select field
 const INITIAL_EMOTIONS = [
   'elated','ecstatic','exhilarated','euphoric','horny','inspired','empowered',
   'determined','focused','motivated','playful','ambitious','adventurous',
@@ -37,50 +32,478 @@ const INITIAL_EMOTIONS = [
   'embarrassed','jealous','guilty','frustrated','angry','anxious','overwhelmed'
 ];
 
-const ACTIVITIES = [
-  { id: 'sleep',      label: 'slept well',   emoji: '😴' },
-  { id: 'exercise',   label: 'exercised',    emoji: '🏃' },
-  { id: 'outside',    label: 'went outside', emoji: '☀️' },
-  { id: 'ate_well',   label: 'ate well',     emoji: '🥗' },
-  { id: 'social',     label: 'socialised',   emoji: '💬' },
-  { id: 'creative',   label: 'created',      emoji: '🎨' },
-  { id: 'reading',    label: 'reading',      emoji: '📚' },
-  { id: 'gaming',     label: 'gaming',       emoji: '🎮' },
-  { id: 'music',      label: 'music',        emoji: '🎵' },
-  { id: 'anxious',    label: 'anxious',      emoji: '😰' },
-  { id: 'dissociate', label: 'dissociating', emoji: '🌫️' },
-  { id: 'switching',  label: 'switching',    emoji: '🔄' },
-  { id: 'meds',       label: 'took meds',    emoji: '💊' },
-  { id: 'therapy',    label: 'therapy',      emoji: '🛋️' },
-  { id: 'productive', label: 'productive',   emoji: '⚡' },
-  { id: 'tired',      label: 'tired',        emoji: '🫠' },
-  { id: 'hydrated',   label: 'hydrated',     emoji: '💧' },
-  { id: 'pain',       label: 'in pain',      emoji: '🩹' },
+// user's nocobase activities - each with emoji
+const DEFAULT_ACTIVITIES = [
+  { id: 'take_pills',      label: 'take pills',      emoji: '💊' },
+  { id: 'put_patches_on',  label: 'put patches on',  emoji: '🩹' },
+  { id: 'water_floss',     label: 'water floss',     emoji: '🚿' },
+  { id: 'brush_teeth',     label: 'brush teeth',      emoji: '🦷' },
+  { id: 'wash_face',       label: 'wash face',       emoji: '🧴' },
+  { id: 'nail_care',       label: 'nail care',       emoji: '💅' },
+  { id: 'body_wipe',       label: 'body wipe',        emoji: '🧻' },
+  { id: 'shower',          label: 'shower',          emoji: '🚿' },
+  { id: 'journal_plan_write', label: 'journal/plan/write', emoji: '📝' },
+  { id: 'tidy',            label: 'tidy',            emoji: '🧹' },
+  { id: 'worship',         label: 'worship',         emoji: '🙏' },
+  { id: 'laundry',         label: 'laundry',         emoji: '👕' },
+  { id: 'go_outside',      label: 'go outside',      emoji: '🚪' },
+  { id: 'leave_house',     label: 'leave house',     emoji: '🏠' },
+  { id: 'online_social_int', label: 'online social int', emoji: '💬' },
+  { id: 'eat_meal',        label: 'eat meal',         emoji: '🍽️' },
+  { id: 'draw',            label: 'draw',            emoji: '✏️' },
+  { id: 'vibecode',        label: 'vibecode',         emoji: '💻' },
+  { id: 'paint',           label: 'paint',            emoji: '🎨' },
+  { id: 'play_a_game',     label: 'play a game',      emoji: '🎮' },
+  { id: 'llm_rp',          label: 'llm rp',          emoji: '🤖' },
+  { id: 'llm_int',         label: 'llm int',          emoji: '💬' },
+  { id: 'watch_content',   label: 'watch content',    emoji: '📺' },
+  { id: 'masturbate',      label: 'masturbate',       emoji: '🍆' },
+  { id: 'nap',             label: 'nap',              emoji: '😴' },
+  { id: 'int_w_family',    label: 'int w family',     emoji: '👨‍👩‍👧‍👦' },
+  { id: 'remove_patches',  label: 'remove patches',   emoji: '🩹' },
+  { id: 'sleep',           label: 'sleep',            emoji: '🛏️' },
 ];
 
+// daily prompts to inspire reflection
+const DAILY_PROMPTS = [
+  "what's one thing that made you smile today?",
+  "what are you grateful for right now?",
+  "what's something you learned today?",
+  "how would you describe your mood in one word?",
+  "what's something you're looking forward to?",
+  "what was the hardest part of your day?",
+  "what's a small win you had today?",
+  "who did you connect with today?",
+  "what's something you want to do differently tomorrow?",
+  "how did you take care of yourself today?",
+  "what's on your mind right now?",
+  "what's a challenge you're currently facing?",
+  "describe your day in three words.",
+  "what's something you're proud of?",
+  "what would make tomorrow great?",
+  "how are you feeling emotionally right now?",
+  "what's a boundary you need to set?",
+  "what brought you joy this week?",
+  "what's something you need to forgive yourself for?",
+  "how did you grow today?",
+  "what's a fear you'd like to overcome?",
+  "what does your ideal day look like?",
+  "what's a habit you want to build?",
+  "how can you be kinder to yourself?",
+  "what's something you've been putting off?",
+  "what does self-care mean to you today?",
+  "what's a memory that makes you happy?",
+  "how do you want to feel by the end of this week?",
+  "what's something beautiful you noticed today?",
+  "what's a goal you're working towards?",
+];
+
+// motivational quotes
+const QUOTES = [
+  { text: "every day is a fresh start.", author: "unknown" },
+  { text: "progress, not perfection.", author: "unknown" },
+  { text: "you are enough.", author: "unknown" },
+  { text: "small steps lead to big changes.", author: "unknown" },
+  { text: "your feelings are valid.", author: "unknown" },
+  { text: "this too shall pass.", author: "unknown" },
+  { text: "you are worthy of good things.", author: "unknown" },
+  { text: "be gentle with yourself.", author: "unknown" },
+  { text: "you've got this.", author: "unknown" },
+  { text: "today is a new opportunity.", author: "unknown" },
+  { text: "your journey is unique.", author: "unknown" },
+  { text: "rest is productive.", author: "unknown" },
+  { text: "you are growing every day.", author: "unknown" },
+  { text: "celebrate small wins.", author: "unknown" },
+  { text: "you deserve peace.", author: "unknown" },
+];
+
+// achievements definition
+const ACHIEVEMENTS = [
+  { id: 'first_entry', name: 'first step', description: 'wrote your first journal entry', icon: '🌱', requirement: 1 },
+  { id: 'week_streak', name: 'week warrior', description: '7 day journaling streak', icon: '🔥', requirement: 7 },
+  { id: 'month_streak', name: 'month master', description: '30 day journaling streak', icon: '👑', requirement: 30 },
+  { id: 'ten_entries', name: 'dedicated', description: 'wrote 10 journal entries', icon: '📖', requirement: 10 },
+  { id: 'fifty_entries', name: 'committed', description: 'wrote 50 journal entries', icon: '⭐', requirement: 50 },
+  { id: 'hundred_entries', name: 'veteran', description: 'wrote 100 journal entries', icon: '🏆', requirement: 100 },
+  { id: 'mood_tracker', name: 'mood master', description: 'logged mood for 7 days straight', icon: '🎭', requirement: 7 },
+  { id: 'emotion_explorer', name: 'emotion explorer', description: 'used 10 different emotions', icon: '🎨', requirement: 10 },
+  { id: 'activity_pro', name: 'activity pro', description: 'completed 20 activities in one day', icon: '⚡', requirement: 20 },
+  { id: 'word_warrior', name: 'word warrior', description: 'wrote 500 words in one entry', icon: '✍️', requirement: 500 },
+];
+
+// color palette for customization
+const COLOR_PALETTE = [
+  '#ef4444', // red
+  '#f97316', // orange
+  '#f59e0b', // amber
+  '#eab308', // yellow
+  '#84cc16', // lime
+  '#22c55e', // green
+  '#14b8a6', // teal
+  '#06b6d4', // cyan
+  '#3b82f6', // blue
+  '#6366f1', // indigo
+  '#8b5cf6', // violet
+  '#a855f7', // purple
+  '#d946ef', // fuchsia
+  '#ec4899', // pink
+  '#f43f5e', // rose
+];
+
+// default colors for emotions and activities
+const DEFAULT_EMOTION_COLORS: Record<string, string> = {};
+const DEFAULT_ACTIVITY_COLORS: Record<string, string> = {};
+
+// initialize default colors
+INITIAL_EMOTIONS.forEach((e, i) => {
+  DEFAULT_EMOTION_COLORS[e] = COLOR_PALETTE[i % COLOR_PALETTE.length];
+});
+DEFAULT_ACTIVITIES.forEach((a, i) => {
+  DEFAULT_ACTIVITY_COLORS[a.id] = COLOR_PALETTE[i % COLOR_PALETTE.length];
+});
+
 // ─────────────────────────────────────────────
-//  styles
+//  local storage keys
 // ─────────────────────────────────────────────
 
-// warm yellow
-const Y = '#f5af12';
-// powder blue
-const B = '#3c9fdd';
+const STORAGE_KEYS = {
+  EMOTION_COLORS: 'pkm:journal:emotion_colors',
+  ACTIVITY_COLORS: 'pkm:journal:activity_colors',
+  STREAK_DATA: 'pkm:journal:streak_data',
+  ENTRY_COUNT: 'pkm:journal:entry_count',
+  ACHIEVEMENTS: 'pkm:journal:achievements',
+  CUSTOM_EMOTIONS: 'pkm:journal:custom_emotions',
+  COLOR_DOTS: 'pkm:journal:color_dots',
+};
+
+// ─────────────────────────────────────────────
+//  helper functions
+// ─────────────────────────────────────────────
+
+function getStoredData<T>(key: string, defaultValue: T): T {
+  try {
+    const stored = localStorage.getItem(key);
+    return stored ? JSON.parse(stored) : defaultValue;
+  } catch {
+    return defaultValue;
+  }
+}
+
+function setStoredData<T>(key: string, value: T): void {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+  } catch (e) {
+    console.warn('failed to save to localStorage:', e);
+  }
+}
+
+function getToday(): string {
+  return new Date().toLocaleDateString('en-CA');
+}
+
+function getYesterday(): string {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toLocaleDateString('en-CA');
+}
+
+// ─────────────────────────────────────────────
+//  color picker component
+// ─────────────────────────────────────────────
+
+interface ColorPickerProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSelectColor: (color: string) => void;
+  currentColor: string;
+  savedDots: string[];
+  onSaveDot: (index: number, color: string) => void;
+  dotIndex: number | null;
+}
+
+function ColorPicker({ 
+  isOpen, 
+  onClose, 
+  onSelectColor, 
+  currentColor,
+  savedDots,
+  onSaveDot,
+  dotIndex
+}: ColorPickerProps) {
+  const [selectedColor, setSelectedColor] = useState(currentColor);
+  const [hue, setHue] = useState(0);
+  const [saturation, setSaturation] = useState(100);
+  const [lightness, setLightness] = useState(50);
+
+  useEffect(() => {
+    // convert current color to hsl for the picker
+    const hex = currentColor.replace('#', '');
+    const r = parseInt(hex.substring(0, 2), 16) / 255;
+    const g = parseInt(hex.substring(2, 4), 16) / 255;
+    const b = parseInt(hex.substring(4, 6), 16) / 255;
+    
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    let h = 0, s = 0;
+    const l = (max + min) / 2;
+
+    if (max !== min) {
+      const d = max - min;
+      s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      switch (max) {
+        case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+        case g: h = ((b - r) / d + 2) / 6; break;
+        case b: h = ((r - g) / d + 4) / 6; break;
+      }
+    }
+    
+    setHue(Math.round(h * 360));
+    setSaturation(Math.round(s * 100));
+    setLightness(Math.round(l * 100));
+    setSelectedColor(currentColor);
+  }, [currentColor, isOpen]);
+
+  // update color from hsl
+  useEffect(() => {
+    const hslColor = `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    setSelectedColor(hslColorToHex(hue, saturation, lightness));
+  }, [hue, saturation, lightness]);
+
+  if (!isOpen) return null;
+
+  return (
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      onClick={onClose}
+    >
+      <div 
+        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        onClick={onClose}
+      />
+      <div 
+        className="relative bg-[#0a0a0a] border border-white/10 rounded-2xl p-4 w-72"
+        onClick={e => e.stopPropagation()}
+      >
+        <p className="text-xs lowercase text-white/50 mb-3 text-center">tap a dot to save color, tap again to apply</p>
+        
+        {/* saved color dots */}
+        <div className="flex justify-center gap-2 mb-4">
+          {savedDots.map((color, i) => (
+            <button
+              key={i}
+              onClick={() => {
+                if (dotIndex === i) {
+                  // first click - save current color to this dot
+                  onSaveDot(i, selectedColor);
+                } else {
+                  // subsequent clicks - apply the saved color
+                  onSelectColor(color);
+                  onClose();
+                }
+              }}
+              className={cn(
+                "w-8 h-8 rounded-full transition-all",
+                dotIndex === i ? "ring-2 ring-white scale-110" : "hover:scale-110"
+              )}
+              style={{ backgroundColor: color }}
+            />
+          ))}
+        </div>
+
+        {/* color spectrum - hue slider */}
+        <div className="mb-3">
+          <label className="text-[10px] lowercase text-white/40 block mb-1">hue</label>
+          <input
+            type="range"
+            min="0"
+            max="360"
+            value={hue}
+            onChange={e => setHue(parseInt(e.target.value))}
+            className="w-full h-3 rounded-full appearance-none cursor-pointer"
+            style={{
+              background: `linear-gradient(to right, 
+                hsl(0, 100%, 50%), 
+                hsl(60, 100%, 50%), 
+                hsl(120, 100%, 50%), 
+                hsl(180, 100%, 50%), 
+                hsl(240, 100%, 50%), 
+                hsl(300, 100%, 50%), 
+                hsl(360, 100%, 50%))`
+            }}
+          />
+        </div>
+
+        {/* saturation slider */}
+        <div className="mb-3">
+          <label className="text-[10px] lowercase text-white/40 block mb-1">saturation</label>
+          <input
+            type="range"
+            min="0"
+            max="100"
+            value={saturation}
+            onChange={e => setSaturation(parseInt(e.target.value))}
+            className="w-full h-2 rounded-full appearance-none cursor-pointer"
+            style={{
+              background: `linear-gradient(to right, hsl(${hue}, 0%, ${lightness}%), hsl(${hue}, 100%, ${lightness}%))`
+            }}
+          />
+        </div>
+
+        {/* lightness slider */}
+        <div className="mb-4">
+          <label className="text-[10px] lowercase text-white/40 block mb-1">lightness</label>
+          <input
+            type="range"
+            min="10"
+            max="90"
+            value={lightness}
+            onChange={e => setLightness(parseInt(e.target.value))}
+            className="w-full h-2 rounded-full appearance-none cursor-pointer"
+            style={{
+              background: `linear-gradient(to right, hsl(${hue}, ${saturation}%, 10%), hsl(${hue}, ${saturation}%, 90%))`
+            }}
+          />
+        </div>
+
+        {/* preview and actions */}
+        <div className="flex items-center justify-between">
+          <div 
+            className="w-12 h-12 rounded-full border-2 border-white/20"
+            style={{ backgroundColor: selectedColor }}
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 rounded-full text-sm lowercase bg-white/10 text-white/60"
+            >
+              cancel
+            </button>
+            <button
+              onClick={() => {
+                onSelectColor(selectedColor);
+                onClose();
+              }}
+              className="px-4 py-2 rounded-full text-sm lowercase"
+              style={{ backgroundColor: Y, color: '#000' }}
+            >
+              apply
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function hslColorToHex(h: number, s: number, l: number): string {
+  s /= 100;
+  l /= 100;
+  const a = s * Math.min(l, 1 - l);
+  const f = (n: number) => {
+    const k = (n + h / 30) % 12;
+    const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return Math.round(255 * color).toString(16).padStart(2, '0');
+  };
+  return `#${f(0)}${f(8)}${f(4)}`;
+}
+
+// ─────────────────────────────────────────────
+//  main component
+// ─────────────────────────────────────────────
+
 export function JournalPage() {
+  // ── state: mood & emotions ──
   const [mood, setMood] = useState<string | null>(null);
   const [emotions, setEmotions] = useState<Set<string>>(new Set());
   const [emotionQuery, setEmotionQuery] = useState('');
-  // dynamic list of available options (includes initial values plus any
-  // user‑added ones).
   const [availableEmotions, setAvailableEmotions] = useState<string[]>(INITIAL_EMOTIONS.slice());
+  
+  // ── state: activities ──
   const [activities, setActivities] = useState<Set<string>>(new Set());
-
-  // hover/active scale applied via class on mood buttons
+  const [activityQuery, setActivityQuery] = useState('');
+  const [availableActivities] = useState(DEFAULT_ACTIVITIES);
+  
+  // ── state: notes ──
   const [body, setBody] = useState('');
   const [saving, setSaving] = useState(false);
-
+  
+  // ── state: gamification ──
+  const [streak, setStreak] = useState(0);
+  const [entryCount, setEntryCount] = useState(0);
+  const [unlockedAchievements, setUnlockedAchievements] = useState<string[]>([]);
+  const [showAchievements, setShowAchievements] = useState(false);
+  const [showStats, setShowStats] = useState(false);
+  const [todayPrompt] = useState(() => DAILY_PROMPTS[Math.floor(Math.random() * DAILY_PROMPTS.length)]);
+  const [todayQuote] = useState(() => QUOTES[Math.floor(Math.random() * QUOTES.length)]);
+  const [quickMood, setQuickMood] = useState<string | null>(null);
+  
+  // ── state: color customization ──
+  const [emotionColors, setEmotionColors] = useState<Record<string, string>>(() => 
+    getStoredData(STORAGE_KEYS.EMOTION_COLORS, DEFAULT_EMOTION_COLORS)
+  );
+  const [activityColors, setActivityColors] = useState<Record<string, string>>(() => 
+    getStoredData(STORAGE_KEYS.ACTIVITY_COLORS, DEFAULT_ACTIVITY_COLORS)
+  );
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
+  const [colorPickerTarget, setColorPickerTarget] = useState<{type: 'emotion' | 'activity', id: string} | null>(null);
+  const [currentPickerColor, setCurrentPickerColor] = useState('#ffffff');
+  const [colorDots, setColorDots] = useState<string[]>(() => 
+    getStoredData(STORAGE_KEYS.COLOR_DOTS, COLOR_PALETTE.slice(0, 10))
+  );
+  const [activeDotIndex, setActiveDotIndex] = useState<number | null>(null);
+  
+  // ── state: view toggles ──
+  const [showQuickCheckin, setShowQuickCheckin] = useState(false);
+  const [showCalendar, setShowCalendar] = useState(false);
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  
+  // ── refs ──
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const colorPickerRef = useRef<HTMLDivElement>(null);
 
+  // ── load saved data on mount ──
+  useEffect(() => {
+    // load streak data
+    const streakData = getStoredData(STORAGE_KEYS.STREAK_DATA, { current: 0, lastDate: '' });
+    const today = getToday();
+    const yesterday = getYesterday();
+    
+    // check if streak is still valid
+    if (streakData.lastDate === today) {
+      setStreak(streakData.current);
+    } else if (streakData.lastDate === yesterday) {
+      setStreak(streakData.current);
+    } else {
+      // streak broken
+      setStreak(0);
+      setStoredData(STORAGE_KEYS.STREAK_DATA, { current: 0, lastDate: today });
+    }
+    
+    // load entry count
+    setEntryCount(getStoredData(STORAGE_KEYS.ENTRY_COUNT, 0));
+    
+    // load achievements
+    setUnlockedAchievements(getStoredData(STORAGE_KEYS.ACHIEVEMENTS, []));
+    
+    // load custom emotions
+    const customEmojis = getStoredData(STORAGE_KEYS.CUSTOM_EMOTIONS, [] as string[]);
+    if (customEmojis.length > 0) {
+      setAvailableEmotions(prev => [...new Set([...prev, ...customEmojis])]);
+    }
+  }, []);
+
+  // ── save functions ──
+  const saveEmotionColors = useCallback((colors: Record<string, string>) => {
+    setEmotionColors(colors);
+    setStoredData(STORAGE_KEYS.EMOTION_COLORS, colors);
+  }, []);
+
+  const saveActivityColors = useCallback((colors: Record<string, string>) => {
+    setActivityColors(colors);
+    setStoredData(STORAGE_KEYS.ACTIVITY_COLORS, colors);
+  }, []);
+
+  // ── handlers: toggle emotions/activities ──
   const toggleEmotion = (id: string) => {
     setEmotions(prev => {
       const next = new Set(prev);
@@ -97,6 +520,47 @@ export function JournalPage() {
     });
   };
 
+  // ── handlers: color picker ──
+  const openColorPicker = (type: 'emotion' | 'activity', id: string) => {
+    setColorPickerTarget({ type, id });
+    const colors = type === 'emotion' ? emotionColors : activityColors;
+    setCurrentPickerColor(colors[id] || '#3b82f6');
+    setColorPickerOpen(true);
+    setActiveDotIndex(null);
+  };
+
+  const handleColorSelect = (color: string) => {
+    if (!colorPickerTarget) return;
+    
+    if (colorPickerTarget.type === 'emotion') {
+      const newColors = { ...emotionColors, [colorPickerTarget.id]: color };
+      saveEmotionColors(newColors);
+    } else {
+      const newColors = { ...activityColors, [colorPickerTarget.id]: color };
+      saveActivityColors(newColors);
+    }
+  };
+
+  const handleSaveDot = (index: number, color: string) => {
+    setActiveDotIndex(index);
+    const newDots = [...colorDots];
+    newDots[index] = currentPickerColor;
+    setColorDots(newDots);
+    setStoredData(STORAGE_KEYS.COLOR_DOTS, newDots);
+  };
+
+  // ── handlers: context menu (right click) ──
+  const handleContextMenu = (e: React.MouseEvent, type: 'emotion' | 'activity', id: string) => {
+    e.preventDefault();
+    openColorPicker(type, id);
+  };
+
+  // ── handlers: long press for mobile ──
+  const handleLongPress = useCallback((type: 'emotion' | 'activity', id: string) => {
+    openColorPicker(type, id);
+  }, []);
+
+  // ── handlers: save journal entry ──
   const handleSave = async () => {
     if (!mood && activities.size === 0 && !body.trim()) {
       toast.error('nothing to save yet');
@@ -110,17 +574,107 @@ export function JournalPage() {
       activities: JSON.stringify(Array.from(activities)),
       body: body.trim(),
       timestamp: new Date().toISOString(),
-      date: new Date().toLocaleDateString('en-CA'), // YYYY-MM-DD
+      date: new Date().toLocaleDateString('en-CA'),
     };
 
     try {
       await api.createRecord('journal', payload);
       toast.success('entry saved ✓');
-      // reset
+      
+      // update streak
+      const today = getToday();
+      const streakData = getStoredData(STORAGE_KEYS.STREAK_DATA, { current: 0, lastDate: '' });
+      let newStreak = streakData.current;
+      
+      if (streakData.lastDate !== today) {
+        newStreak = streakData.lastDate === getYesterday() ? streakData.current + 1 : 1;
+        setStoredData(STORAGE_KEYS.STREAK_DATA, { current: newStreak, lastDate: today });
+        setStreak(newStreak);
+      }
+      
+      // update entry count
+      const newCount = entryCount + 1;
+      setEntryCount(newCount);
+      setStoredData(STORAGE_KEYS.ENTRY_COUNT, newCount);
+      
+      // check achievements
+      const newUnlocked = [...unlockedAchievements];
+      const newAchievements: string[] = [];
+      
+      // first entry
+      if (newCount === 1 && !newUnlocked.includes('first_entry')) {
+        newUnlocked.push('first_entry');
+        newAchievements.push('first_entry');
+      }
+      
+      // entry count achievements
+      if (newCount >= 10 && !newUnlocked.includes('ten_entries')) {
+        newUnlocked.push('ten_entries');
+        newAchievements.push('ten_entries');
+      }
+      if (newCount >= 50 && !newUnlocked.includes('fifty_entries')) {
+        newUnlocked.push('fifty_entries');
+        newAchievements.push('fifty_entries');
+      }
+      if (newCount >= 100 && !newUnlocked.includes('hundred_entries')) {
+        newUnlocked.push('hundred_entries');
+        newAchievements.push('hundred_entries');
+      }
+      
+      // streak achievements
+      if (newStreak >= 7 && !newUnlocked.includes('week_streak')) {
+        newUnlocked.push('week_streak');
+        newAchievements.push('week_streak');
+      }
+      if (newStreak >= 30 && !newUnlocked.includes('month_streak')) {
+        newUnlocked.push('month_streak');
+        newAchievements.push('month_streak');
+      }
+      
+      // mood tracker achievement
+      if (mood && !newUnlocked.includes('mood_tracker')) {
+        newUnlocked.push('mood_tracker');
+        newAchievements.push('mood_tracker');
+      }
+      
+      // emotion explorer achievement
+      if (emotions.size >= 10 && !newUnlocked.includes('emotion_explorer')) {
+        newUnlocked.push('emotion_explorer');
+        newAchievements.push('emotion_explorer');
+      }
+      
+      // activity pro achievement
+      if (activities.size >= 20 && !newUnlocked.includes('activity_pro')) {
+        newUnlocked.push('activity_pro');
+        newAchievements.push('activity_pro');
+      }
+      
+      // word warrior achievement
+      if (body.trim().split(/\s+/).length >= 500 && !newUnlocked.includes('word_warrior')) {
+        newUnlocked.push('word_warrior');
+        newAchievements.push('word_warrior');
+      }
+      
+      if (newAchievements.length > 0) {
+        setUnlockedAchievements(newUnlocked);
+        setStoredData(STORAGE_KEYS.ACHIEVEMENTS, newUnlocked);
+        
+        // show achievement toasts
+        newAchievements.forEach(achId => {
+          const ach = ACHIEVEMENTS.find(a => a.id === achId);
+          if (ach) {
+            toast.success(`${ach.icon} achievement unlocked: ${ach.name}!`);
+          }
+        });
+      }
+      
+      // reset form
       setMood(null);
       setEmotions(new Set());
       setActivities(new Set());
       setBody('');
+      setQuickMood(null);
+      
     } catch (err: any) {
       toast.error('failed to save: ' + (err?.message ?? 'unknown error'));
     } finally {
@@ -128,69 +682,279 @@ export function JournalPage() {
     }
   };
 
+  // ── handlers: quick check-in ──
+  const handleQuickMood = (moodId: string) => {
+    if (quickMood === moodId) {
+      setQuickMood(null);
+    } else {
+      setQuickMood(moodId);
+      setMood(moodId);
+    }
+  };
+
+  // ── handlers: add custom emotion ──
+  const handleAddEmotion = () => {
+    if (emotionQuery.trim()) {
+      const val = emotionQuery.trim().toLowerCase();
+      if (!availableEmotions.includes(val)) {
+        setAvailableEmotions(prev => [...prev, val]);
+        // save custom emotions
+        const customEmojis = getStoredData(STORAGE_KEYS.CUSTOM_EMOTIONS, [] as string[]);
+        if (!customEmojis.includes(val)) {
+          setStoredData(STORAGE_KEYS.CUSTOM_EMOTIONS, [...customEmojis, val]);
+        }
+        // assign random color
+        const newColors = { ...emotionColors, [val]: COLOR_PALETTE[Math.floor(Math.random() * COLOR_PALETTE.length)] };
+        saveEmotionColors(newColors);
+      }
+      toggleEmotion(val);
+      setEmotionQuery('');
+    }
+  };
+
+  // ── render: mood button ──
+  const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
+    const active = (isQuick ? quickMood : mood) === m.id;
+    const size = isQuick ? 'w-10 h-10' : 'w-14 h-14';
+    return (
+      <button
+        key={m.id}
+        onClick={() => isQuick ? handleQuickMood(m.id) : setMood(active ? null : m.id)}
+        className={`${size} rounded-full transition-all duration-150 flex items-center justify-center text-2xl`}
+        style={{
+          background: active ? `${emotionColors[m.label] || B}33` : '#000000',
+          border: `2px solid ${active ? (emotionColors[m.label] || B) : 'rgba(255,255,255,0.08)'}`,
+          boxShadow: active ? `0 0 12px ${emotionColors[m.label] || B}66` : 'none',
+        }}
+      >
+        {m.emoji}
+      </button>
+    );
+  };
+
+  // ── render: emotion chip ──
+  const renderEmotionChip = (e: string) => {
+    const active = emotions.has(e);
+    const color = emotionColors[e] || B;
+    return (
+      <button
+        key={e}
+        onClick={() => toggleEmotion(e)}
+        onContextMenu={(ev) => handleContextMenu(ev, 'emotion', e)}
+        onTouchEnd={(e) => {
+          // simple long press detection
+          if ((e as any).touches?.length === 0) {
+            const touch = (e as any).changedTouches?.[0];
+            if (touch && ((e as any).timeStamp - (e as any)._startTime > 500)) {
+              handleLongPress('emotion', e);
+            }
+          }
+        }}
+        onTouchStart={(e) => {
+          (e as any)._startTime = (e as any).timeStamp;
+        }}
+        className="px-3 py-2 rounded-full text-base font-medium lowercase transition-all duration-150 select-none"
+        style={{
+          background: active ? `${color}22` : '#000000',
+          borderColor: active ? color : 'rgba(255,255,255,0.08)',
+          color: active ? color : 'rgba(255,255,255,0.55)',
+          boxShadow: active ? `0 0 0 1.5px ${color}` : 'none',
+        }}
+      >
+        {e}
+      </button>
+    );
+  };
+
+  // ── render: activity chip ──
+  const renderActivityChip = (a: typeof DEFAULT_ACTIVITIES[0]) => {
+    const active = activities.has(a.id);
+    const color = activityColors[a.id] || B;
+    return (
+      <button
+        key={a.id}
+        onClick={() => toggleActivity(a.id)}
+        onContextMenu={(ev) => handleContextMenu(ev, 'activity', a.id)}
+        onTouchEnd={(e) => {
+          if ((e as any).touches?.length === 0) {
+            const touch = (e as any).changedTouches?.[0];
+            if (touch && ((e as any).timeStamp - (e as any)._startTime > 500)) {
+              handleLongPress('activity', a.id);
+            }
+          }
+        }}
+        onTouchStart={(e) => {
+          (e as any)._startTime = (e as any).timeStamp;
+        }}
+        className="flex items-center gap-1.5 px-3 py-2 rounded-full border text-sm lowercase transition-all duration-150 select-none"
+        style={{
+          background: active ? `${color}22` : '#000000',
+          borderColor: active ? color : 'rgba(255,255,255,0.08)',
+          color: active ? color : 'rgba(255,255,255,0.55)',
+          boxShadow: active ? `0 0 0 1.5px ${color}` : 'none',
+        }}
+      >
+        <span className="text-base leading-none">{a.emoji}</span>
+        {a.label}
+      </button>
+    );
+  };
+
+  // ─────────────────────────────────────────────
+  //  render
+  // ─────────────────────────────────────────────
+
   return (
     <div
       className="min-h-screen w-full flex flex-col"
       style={{ background: '#050505', fontFamily: "'Varela Round', sans-serif" }}
     >
       {/* ── header ── */}
-      <header className="flex items-center justify-between px-5 pt-6 pb-2 shrink-0">
-        <h1
-          className="text-xl font-bold lowercase tracking-tight"
-          style={{ color: Y }}
-        >
-          journal
-        </h1>
-        <span className="text-xs lowercase" style={{ color: 'rgba(255,255,255,0.35)' }}>
-          {new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }).toLowerCase()}
-        </span>
+      <header className="flex items-center justify-between px-5 pt-4 pb-2 shrink-0">
+        <div className="flex items-center gap-3">
+          <h1
+            className="text-xl font-bold lowercase tracking-tight"
+            style={{ color: Y }}
+          >
+            journal
+          </h1>
+          {/* streak badge */}
+          {streak > 0 && (
+            <button
+              onClick={() => setShowStats(!showStats)}
+              className="flex items-center gap-1 px-2 py-1 rounded-full bg-orange-500/20 border border-orange-500/30"
+            >
+              <span className="text-sm">🔥</span>
+              <span className="text-xs font-bold text-orange-400">{streak}</span>
+            </button>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowQuickCheckin(!showQuickCheckin)}
+            className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+            title="quick check-in"
+          >
+            <span className="text-lg">⚡</span>
+          </button>
+          <button
+            onClick={() => setShowAchievements(!showAchievements)}
+            className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors relative"
+            title="achievements"
+          >
+            <span className="text-lg">🏆</span>
+            {unlockedAchievements.length > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-yellow-500 rounded-full text-[8px] flex items-center justify-center text-black font-bold">
+                {unlockedAchievements.length}
+              </span>
+            )}
+          </button>
+          <span className="text-xs lowercase" style={{ color: 'rgba(255,255,255,0.35)' }}>
+            {new Date().toLocaleDateString('en-GB', { weekday: 'short', day: 'numeric', month: 'short' }).toLowerCase()}
+          </span>
+        </div>
       </header>
 
+      {/* ── quick stats banner ── */}
+      {showStats && (
+        <div className="px-4 pb-2 animate-in slide-in-from-top-2">
+          <div className="flex items-center gap-4 p-3 rounded-xl bg-white/5 border border-white/10">
+            <div className="flex-1 text-center">
+              <p className="text-2xl font-bold text-orange-400">🔥 {streak}</p>
+              <p className="text-[10px] text-white/40 lowercase">day streak</p>
+            </div>
+            <div className="w-px h-10 bg-white/10" />
+            <div className="flex-1 text-center">
+              <p className="text-2xl font-bold" style={{ color: Y }}>{entryCount}</p>
+              <p className="text-[10px] text-white/40 lowercase">total entries</p>
+            </div>
+            <div className="w-px h-10 bg-white/10" />
+            <div className="flex-1 text-center">
+              <p className="text-2xl font-bold" style={{ color: B }}>{emotions.size}</p>
+              <p className="text-[10px] text-white/40 lowercase">emotions today</p>
+            </div>
+            <div className="w-px h-10 bg-white/10" />
+            <div className="flex-1 text-center">
+              <p className="text-2xl font-bold text-purple-400">{activities.size}</p>
+              <p className="text-[10px] text-white/40 lowercase">activities done</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── achievements panel ── */}
+      {showAchievements && (
+        <div className="px-4 pb-2 animate-in slide-in-from-top-2">
+          <div className="p-3 rounded-xl bg-white/5 border border-white/10 max-h-48 overflow-y-auto">
+            <p className="text-xs text-white/40 lowercase mb-2">achievements ({unlockedAchievements.length}/{ACHIEVEMENTS.length})</p>
+            <div className="grid grid-cols-2 gap-2">
+              {ACHIEVEMENTS.map(ach => {
+                const unlocked = unlockedAchievements.includes(ach.id);
+                return (
+                  <div
+                    key={ach.id}
+                    className={cn(
+                      "flex items-center gap-2 p-2 rounded-lg border",
+                      unlocked ? "bg-yellow-500/10 border-yellow-500/30" : "bg-white/5 border-white/5 opacity-40"
+                    )}
+                  >
+                    <span className="text-xl">{ach.icon}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-medium lowercase truncate">{ach.name}</p>
+                      <p className="text-[10px] text-white/40 lowercase truncate">{ach.description}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ── scrollable body ── */}
-      <div className="flex-1 overflow-y-auto px-4 pb-32 space-y-6 pt-2">
+      <div className="flex-1 overflow-y-auto px-4 pb-32 space-y-5 pt-1">
+
+        {/* ── daily prompt ── */}
+        <section className="p-3 rounded-xl bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20">
+          <p className="text-[10px] uppercase tracking-widest mb-1 lowercase" style={{ color: 'rgba(255,255,255,0.35)' }}>
+            💭 today's prompt
+          </p>
+          <p className="text-sm text-white/80 lowercase italic">"{todayPrompt}"</p>
+        </section>
+
+        {/* ── motivational quote ── */}
+        <section className="p-3 rounded-xl bg-white/5 border border-white/10">
+          <p className="text-xs text-white/40 lowercase mb-1">"{todayQuote.text}"</p>
+          <p className="text-[10px] text-white/30 lowercase text-right">— {todayQuote.author}</p>
+        </section>
+
+        {/* ── quick check-in ── */}
+        {showQuickCheckin && (
+          <section className="animate-in slide-in-from-top-2">
+            <p className="text-[11px] uppercase tracking-widest mb-3 lowercase" style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em' }}>
+              ⚡ quick mood
+            </p>
+            <div className="flex justify-center gap-3">
+              {MOODS.map(m => renderMoodButton(m, true))}
+            </div>
+          </section>
+        )}
 
         {/* ── mood row ── */}
         <section>
           <p className="text-[11px] uppercase tracking-widest mb-3 lowercase" style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em' }}>
             how are you feeling?
           </p>
-          <div className="flex gap-16 justify-center">
-            {MOODS.map(m => {
-              const active = mood === m.id;
-              return (
-                <button
-                  key={m.id}
-                  onClick={() => setMood(active ? null : m.id)}
-                  className="relative p-1 rounded-full transition-transform duration-150 select-none focus:outline-none hover:scale-110 active:scale-90"
-                  style={{
-                    transform: 'translateZ(0)',
-                    // active outline
-                    boxShadow: active ? `0 0 0 2px ${Y}` : 'none',
-                  }}
-                >
-                  <img
-                    src={m.img}
-                    alt={m.label}
-                    className="w-36 h-36 object-contain"
-                    style={{
-                      opacity: active ? 1 : 0.7,
-                    }}
-                    onError={(e) => {
-                      // in case the PNG fails, reveal the emoji via alt text and
-                      // remove the broken img from layout so the text is visible
-                      e.currentTarget.remove();
-                    }}
-                  />
-                </button>
-              );
-            })}
+          <div className="flex gap-8 justify-center">
+            {MOODS.map(m => renderMoodButton(m, false))}
           </div>
         </section>
 
         {/* ── emotions picker ── */}
         <section>
-          <p className="text-[11px] uppercase tracking-widest mb-3 lowercase" style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em' }}>
-            emotions
+          <p className="text-[11px] uppercase tracking-widest mb-2 lowercase flex items-center justify-between" style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em' }}>
+            <span>emotions</span>
+            <span className="text-[10px] text-white/30 lowercase normal-case">right-click to customize color</span>
           </p>
           <input
             type="text"
@@ -198,66 +962,36 @@ export function JournalPage() {
             value={emotionQuery}
             onChange={e => setEmotionQuery(e.target.value)}
             onKeyDown={e => {
-              if (e.key === 'Enter' && emotionQuery.trim()) {
-                const val = emotionQuery.trim();
-                if (!availableEmotions.includes(val)) {
-                  setAvailableEmotions(prev => [...prev, val]);
-                }
-                toggleEmotion(val);
-                setEmotionQuery('');
+              if (e.key === 'Enter') {
+                handleAddEmotion();
               }
             }}
-            className="mb-2 w-full px-2 py-1 rounded bg-[#000] text-white placeholder-gray-500"
+            className="mb-2 w-full px-3 py-2 rounded-lg bg-[#0a0a0a] text-white placeholder-gray-500 border border-white/10 text-sm"
           />
-          <div className="grid grid-cols-3 gap-2 max-h-40 overflow-y-auto">
+          <div className="grid grid-cols-3 gap-2 max-h-48 overflow-y-auto pr-1">
             {availableEmotions
               .filter(e => e.includes(emotionQuery.toLowerCase()))
-              .map(e => {
-              const active = emotions.has(e);
-              return (
-                <button
-                  key={e}
-                  onClick={() => toggleEmotion(e)}
-                  className="px-3 py-2 rounded-full text-base font-medium lowercase transition-all duration-150 select-none text-white"
-                  style={{
-                    background: active ? `${B}22` : '#000000',
-                    borderColor: active ? B : 'rgba(255,255,255,0.08)',
-                    color: active ? B : 'rgba(255,255,255,0.55)',
-                    boxShadow: active ? `0 0 0 1.5px ${B}` : 'none',
-                  }}
-                >
-                  {e}
-                </button>
-              );
-            })}
+              .map(renderEmotionChip)}
           </div>
         </section>
 
         {/* ── activities grid ── */}
         <section>
-          <p className="text-[11px] uppercase tracking-widest mb-3 lowercase" style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em' }}>
-            today i...
+          <p className="text-[11px] uppercase tracking-widest mb-2 lowercase flex items-center justify-between" style={{ color: 'rgba(255,255,255,0.35)', letterSpacing: '0.12em' }}>
+            <span>today i...</span>
+            <span className="text-[10px] text-white/30 lowercase normal-case">right-click to customize color</span>
           </p>
-          <div className="flex flex-wrap gap-2">
-            {ACTIVITIES.map(a => {
-              const active = activities.has(a.id);
-              return (
-                <button
-                  key={a.id}
-                  onClick={() => toggleActivity(a.id)}
-                  className="flex items-center gap-1.5 px-3 py-2 rounded-full border text-sm lowercase transition-all duration-150 select-none"
-                  style={{
-                    background: active ? `${B}22` : '#000000',
-                    borderColor: active ? B : 'rgba(255,255,255,0.08)',
-                    color: active ? B : 'rgba(255,255,255,0.55)',
-                    boxShadow: active ? `0 0 0 1.5px ${B}` : 'none',
-                  }}
-                >
-                  <span className="text-base leading-none">{a.emoji}</span>
-                  {a.label}
-                </button>
-              );
-            })}
+          <input
+            type="text"
+            placeholder="search activities…"
+            value={activityQuery}
+            onChange={e => setActivityQuery(e.target.value)}
+            className="mb-2 w-full px-3 py-2 rounded-lg bg-[#0a0a0a] text-white placeholder-gray-500 border border-white/10 text-sm"
+          />
+          <div className="flex flex-wrap gap-2 max-h-56 overflow-y-auto pr-1 pb-2">
+            {availableActivities
+              .filter(a => a.label.toLowerCase().includes(activityQuery.toLowerCase()) || a.id.toLowerCase().includes(activityQuery.toLowerCase()))
+              .map(renderActivityChip)}
           </div>
         </section>
 
@@ -275,7 +1009,7 @@ export function JournalPage() {
               value={body}
               onChange={e => setBody(e.target.value)}
               placeholder="write anything... no pressure."
-              rows={10}
+              rows={12}
               className="w-full resize-none bg-transparent px-4 py-4 text-sm leading-relaxed lowercase outline-none focus:outline-none"
               style={{
                 color: 'rgba(255,255,255,0.85)',
@@ -284,10 +1018,11 @@ export function JournalPage() {
               }}
             />
             <div
-              className="px-4 pb-2 text-right text-[10px]"
+              className="px-4 pb-3 flex items-center justify-between text-[10px]"
               style={{ color: 'rgba(255,255,255,0.2)' }}
             >
-              {body.length} chars
+              <span>{body.length} chars</span>
+              <span>{body.trim().split(/\s+/).filter(Boolean).length} words</span>
             </div>
           </div>
         </section>
@@ -296,7 +1031,7 @@ export function JournalPage() {
       {/* ── sticky save button ── */}
       <div
         className="fixed bottom-0 left-0 right-0 lg:left-64 z-40 px-4 pb-6 pt-3"
-        style={{ background: 'linear-gradient(to top, #050505 60%, transparent)' }}
+        style={{ background: 'linear-gradient(to top, #050505 70%, transparent)' }}
       >
         <button
           onClick={handleSave}
@@ -312,6 +1047,21 @@ export function JournalPage() {
           {saving ? 'saving...' : 'log entry'}
         </button>
       </div>
+
+      {/* ── color picker modal ── */}
+      <ColorPicker
+        isOpen={colorPickerOpen}
+        onClose={() => {
+          setColorPickerOpen(false);
+          setColorPickerTarget(null);
+          setActiveDotIndex(null);
+        }}
+        onSelectColor={handleColorSelect}
+        currentColor={currentPickerColor}
+        savedDots={colorDots}
+        onSaveDot={handleSaveDot}
+        dotIndex={activeDotIndex}
+      />
     </div>
   );
 }
@@ -324,6 +1074,6 @@ export interface JournalEntry {
   mood: string | null;
   activities: string[];
   body: string;
-  timestamp: string; // ISO 8601
-  date: string;       // YYYY-MM-DD
+  timestamp: string;
+  date: string;
 }
