@@ -637,8 +637,7 @@ export interface SmartFieldProps {
 }
 
 export function SmartField({ value, field, record, collectionName, mode: _mode = 'view', onChange, className, inputClassName, size = 'lg' }: SmartFieldProps) {
-  try {
-    console.log('SmartField render', { value, field, record, collectionName, mode: _mode });
+  console.log('SmartField render', { value, field, record, collectionName, mode: _mode });
   const [isEditing, setIsEditing] = useState(false);
   const [localValue, setLocalValue] = useState(value);
   const [fullscreenIndex, setFullscreenIndex] = useState<number | null>(null);
@@ -1890,10 +1889,6 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     </div>
   );
   console.log('SmartField exiting');
-  } catch(e) {
-    console.error('SmartField caught error', e);
-    throw e;
-  }
 }
 
 }
