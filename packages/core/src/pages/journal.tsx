@@ -2879,7 +2879,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-black text-white font-varela p-4 pb-24 flex flex-col gap-6 max-w-full lg:max-w-4xl mx-auto">
+    <div className="min-h-screen bg-black text-white font-varela py-4 px-0 pb-24 flex flex-col gap-6 w-full mx-auto">
       {/* achievement celebration */}
       {celebratingAchievement && (
         <AchievementCelebration achievement={celebratingAchievement} onClose={() => setCelebratingAchievement(null)} />
