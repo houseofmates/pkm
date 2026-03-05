@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import api from '@/api/nocobase-client';
+import { JournalRecord, parseActivities } from '@/schema/journal-collection';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 // ─────────────────────────────────────────────
