@@ -1926,6 +1926,8 @@ export function JournalPage() {
           <button onClick={() => setShowWeeklyReview(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="weekly review"><Sparkles size={18} /></button>
           <button onClick={() => setShowBreathing(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="breathing"><Wind size={18} /></button>
           <button onClick={() => setShowTimer(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="timer"><Clock size={18} /></button>
+          <input type="date" value={exportFrom} onChange={e => setExportFrom(e.target.value)} className="h-7 text-xs bg-transparent border border-white/20 rounded px-1" />
+          <input type="date" value={exportTo} onChange={e => setExportTo(e.target.value)} className="h-7 text-xs bg-transparent border border-white/20 rounded px-1" />
           <button onClick={handleExport} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="export"><Download size={18} /></button>
         </div>
       </div>
