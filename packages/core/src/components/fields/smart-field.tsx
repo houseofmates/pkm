@@ -1664,23 +1664,46 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     // show label text instead of raw value for select/multi-select, and open on click
     if (isSelect) {
       const options = enrich(field?.uiSchema?.enum || []);
-      let display = '';
-      if (isMultiSelect) {
-        if (Array.isArray(value)) display = value.map(v => options.find(o => o.value === v)?.label || v).join(', ');
-      } else {
-        display = options.find(o => o.value === value)?.label || value;
-      }
-      return (
-        <div
-          onClick={() => setIsEditing(true)}
-          className={cn("cursor-pointer text-right min-h-[20px] font-varela text-white/90", size === 'lg' ? "text-lg" : "text-sm")}
-        >
-          {display || <span className="opacity-20">-</span>}
-        </div>
-      );
-    }
-
-    if (isPhone) return <div className={cn("text-primary hover:underline flex items-center gap-1 cursor-pointer", size === 'lg' ? "text-lg" : "text-xs")} onClick={(e) => handlePhoneClick(e, strValue)}><Phone className="h-3 w-3" /> {formatPhoneNumber(strValue)}</div>;
+        if (isMultiSelect) {
+          return (
+            <div className="flex flex-wrap gap-1 cursor-pointer" onClick={() => setIsEditing(true)}>
+              {Array.isArray(value) ? value.map(v => {
+                const opt = options.find(o => o.value === v);
+                const label = opt?.label || v;
+                const color = opt?.color;
+                return (
+                  <span
+                    key={v}
+                    className="px-1.5 py-0.5 rounded"
+                    style={{
+                      background: color || undefined,
+                      color: color ? getContrastColor(color) : undefined,
+                      border: color ? '1px solid #444' : undefined
+                    }}
+                  >
+                    {label}
+                  </span>
+                );
+              }) : null}
+              {(!value || (Array.isArray(value) && value.length === 0)) && (
+                <span className="opacity-50 italic">empty</span>
+              )}
+            </div>
+          );
+        } else {
+          const opt = options.find(o => o.value === value);
+          const label = opt?.label || value;
+          const color = opt?.color;
+          return (
+            <div
+              onClick={() => setIsEditing(true)}
+              className={cn("cursor-pointer text-right min-h-[20px] font-varela text-white/90", size === 'lg' ? "text-lg" : "text-sm")}
+              style={color ? { background: color, color: getContrastColor(color), padding: '0 0.25rem', borderRadius: '0.25rem' } : undefined}
+            >
+              {label || <span className="opacity-50 italic">empty</span>}
+            </div>
+          );
+        }
     if (isEmail) return <a href={`mailto:${strValue}`} className={cn("text-primary hover:underline flex items-center gap-1 w-full", size === 'lg' ? "text-lg" : "text-sm")} onClick={e => e.stopPropagation()}><Mail className="h-3 w-3" /> {strValue}</a>;
     if (isUrl) {
       return (
