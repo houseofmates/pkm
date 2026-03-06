@@ -28,7 +28,7 @@ the apk loads app code from remote server on each launch:
 ```json
 {
   "server": {
-    "url": "http://pkm.houseofmates.space:3010",
+    "url": "https://pkm.houseofmates.space",
     "allowNavigation": ["pkm.houseofmates.space", "*.houseofmates.space"],
     "cleartext": true,
     "androidscheme": "http"
@@ -38,7 +38,7 @@ the apk loads app code from remote server on each launch:
 
 **how it works:**
 - apk acts as a "shell" that loads your web app from the server
-- when you update code on `pkm.houseofmates.space:3010`, the apk gets the new version automatically
+- when you update code on `pkm.houseofmates.space`, the apk gets the new version automatically
 - no need to rebuild/reinstall the apk for code changes
 - only need new apk for native plugin changes or config updates
 
@@ -63,7 +63,7 @@ adb install releases/pkm-v1.0-release.apk
 
 ## requirements for auto-update to work
 
-1. **your dev server must be running** at `http://pkm.houseofmates.space:3010`
+1. **your dev server must be running** at `https://pkm.houseofmates.space`
 2. **device must have network access** to that server (same wifi or accessible network)
 3. **server must allow cors** and serve the app properly
 
@@ -72,7 +72,7 @@ adb install releases/pkm-v1.0-release.apk
 ## troubleshooting
 
 ### if app shows blank screen
-- check server is running: `curl http://pkm.houseofmates.space:3010`
+- check server is running: `curl https://pkm.houseofmates.space`
 - verify device can reach server (same network)
 - check `apps/mobile/android/app/src/main/assets/capacitor.config.json` has correct url
 
@@ -99,6 +99,6 @@ adb install releases/pkm-v1.0-release.apk
 ## next steps
 
 1. install the apk on your android device
-2. ensure your dev server is running at `pkm.houseofmates.space:3010`
+2. ensure your dev server is running at `pkm.houseofmates.space`
 3. launch the app - it will load latest code from the server
 4. make code changes → refresh app → see updates immediately

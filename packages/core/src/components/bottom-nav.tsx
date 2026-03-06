@@ -44,33 +44,34 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
 
   return (
     <>
-      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex justify-center w-full">
+      <div className="fixed bottom-0 left-0 right-0 z-50 pointer-events-none flex justify-center w-full pb-safe">
         <div className={cn(
-          "w-max flex items-center bg-black/90 backdrop-blur-xl border border-white/10 rounded-[2rem] shadow-[0_8px_32px_rgba(0,0,0,0.5)] p-2 pointer-events-auto",
+          "w-full max-w-md flex items-center justify-around bg-black/95 backdrop-blur-xl border-t border-white/10 shadow-[0_-4px_32px_rgba(0,0,0,0.5)] px-2 py-1 pointer-events-auto",
           className
         )}>
           <Button
             variant="ghost"
-            className={cn("flex flex-col items-center justify-center h-[60px] flex-1 max-w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'home' && "bg-primary/20 text-primary hover:bg-primary/30")}
+            className={cn("flex flex-col items-center justify-center h-[56px] w-[56px] rounded-2xl gap-0.5 hover:bg-white/10", activeTab === 'home' && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => onTabChange('home')}
           >
             <Home className="h-5 w-5" />
-            <span className="text-[11px] font-medium lowercase">home</span>
+            <span className="text-[10px] font-medium lowercase">home</span>
           </Button>
 
           <Button
             variant="ghost"
-            className={cn("flex flex-col items-center justify-center h-[60px] flex-1 max-w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'databases' && "bg-primary/20 text-primary hover:bg-primary/30")}
+            className={cn("flex flex-col items-center justify-center h-[56px] w-[56px] rounded-2xl gap-0.5 hover:bg-white/10", activeTab === 'databases' && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => onTabChange('databases')}
           >
             <Database className="h-5 w-5" />
-            <span className="text-[11px] font-medium lowercase">data</span>
+            <span className="text-[10px] font-medium lowercase">data</span>
           </Button>
 
+          {/* Search button - centered and prominent */}
           <Button
             variant="ghost"
             size="icon"
-            className="h-[60px] flex-1 max-w-[60px] rounded-full hover:bg-white/10 scale-110 shrink-0 mx-flex-1"
+            className="h-[56px] w-[56px] rounded-full bg-primary/20 hover:bg-primary/30 text-primary border border-primary/30"
             onClick={handleOpenSearch}
           >
             <Search className="h-6 w-6" />
@@ -78,39 +79,39 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
 
           <Button
             variant="ghost"
-            className={cn("flex flex-col items-center justify-center h-[60px] flex-1 max-w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'captures' && "bg-primary/20 text-primary hover:bg-primary/30")}
+            className={cn("flex flex-col items-center justify-center h-[56px] w-[56px] rounded-2xl gap-0.5 hover:bg-white/10", activeTab === 'captures' && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => onTabChange('captures')}
           >
             <Inbox className="h-5 w-5" />
-            <span className="text-[11px] font-medium lowercase">inbox</span>
+            <span className="text-[10px] font-medium lowercase">inbox</span>
           </Button>
 
           <Button
             variant="ghost"
-            className={cn("flex flex-col items-center justify-center h-[60px] flex-1 max-w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'journal' && "bg-primary/20 text-primary hover:bg-primary/30")}
+            className={cn("flex flex-col items-center justify-center h-[56px] w-[56px] rounded-2xl gap-0.5 hover:bg-white/10", activeTab === 'journal' && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => onTabChange('journal')}
           >
             <BookOpen className="h-5 w-5" />
-            <span className="text-[11px] font-medium lowercase">journal</span>
+            <span className="text-[10px] font-medium lowercase">journal</span>
           </Button>
 
           <Button
             variant="ghost"
-            className={cn("flex flex-col items-center justify-center h-[60px] flex-1 max-w-[60px] rounded-2xl gap-1 hover:bg-white/10", activeTab === 'headmates' && "bg-primary/20 text-primary hover:bg-primary/30")}
+            className={cn("flex flex-col items-center justify-center h-[56px] w-[56px] rounded-2xl gap-0.5 hover:bg-white/10", activeTab === 'headmates' && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={() => onTabChange('headmates')}
           >
             <Users className="h-5 w-5" />
-            <span className="text-[11px] font-medium lowercase">mates</span>
+            <span className="text-[10px] font-medium lowercase">mates</span>
           </Button>
 
           {/* wilson chat button at the very end */}
           <Button
             variant="ghost"
-            className={cn("flex flex-col items-center justify-center h-[60px] flex-1 max-w-[60px] rounded-2xl gap-1 hover:bg-white/10", isChatOpen && "bg-primary/20 text-primary hover:bg-primary/30")}
+            className={cn("flex flex-col items-center justify-center h-[56px] w-[56px] rounded-2xl gap-0.5 hover:bg-white/10", isChatOpen && "bg-primary/20 text-primary hover:bg-primary/30")}
             onClick={handleWilsonClick}
           >
             <BrainCircuit className="h-5 w-5" />
-            <span className="text-[11px] font-medium lowercase">chat</span>
+            <span className="text-[10px] font-medium lowercase">chat</span>
           </Button>
         </div>
       </div>

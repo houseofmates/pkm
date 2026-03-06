@@ -36,7 +36,7 @@ output: `android/app/build/outputs/apk/release/app-release.apk`
 - generated at all required densities (mdpi through xxxhdpi)
 
 ### 2. Live Update
-the APK loads code from `http://pkm.houseofmates.space:3010` on every launch. this means:
+the APK loads code from `https://pkm.houseofmates.space` on every launch. this means:
 - deploy code changes to the server
 - close and reopen the APK
 - APK automatically gets the latest code
@@ -98,7 +98,7 @@ export KEY_PASSWORD=your_password
 ```
 
 ### APK not connecting to server
-- ensure the device can reach `http://pkm.houseofmates.space:3010`
+- ensure the device can reach `https://pkm.houseofmates.space`
 - check that the server is running
 - verify capacitor.config.json has the correct URL
 

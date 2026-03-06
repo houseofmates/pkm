@@ -131,6 +131,9 @@ app.use(cors({
 }));
 
 app.use(express.json());
+// Serve static files for the breathing page
+app.use('/breathe', express.static(path.join(process.cwd(), 'public/breathe')));
+
 // Serve static files from public directory
 app.use('/public', express.static(path.join(process.cwd(), 'public')));
 

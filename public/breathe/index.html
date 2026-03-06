@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <title>12‑Second Breathing Spiral – 4‑Second Countdown</title>
+
+  <!-- Inter & Varela Round fonts -->
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Varela+Round&display=swap"
+        rel="stylesheet">
+
+  <!-- Tailwind CSS (browser build) -->
+
+  <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+
+</head>
+
+<body class="flex flex-col items-center justify-center min-h-screen font-[Inter]" style="background:#050505;">
+  <!-- Spiral SVG (stroke only) -->
+
+  <svg id="spiral"
+       class="w-48 h-48"
+       viewBox="0 0 100 100"
+       style="transform-origin:center;">
+    <path d="M50,50 m0,-20 a20,20 0 0,1 20,20 a20,20 0 0,1 -20,20 a20,20 0 0,1 -20,-20 a20,20 0 0,1 20,-20 a30,30 0 0,1 30,30 a30,30 0 0,1 -30,30 a30,30 0 0,1 -30,-30 a30,30 0 0,1 30,-30"
+          fill="none"
+          stroke="#f6b012"
+          stroke-width="8"
+          stroke-linecap="round"/>
+  </svg>
+
+
+  <!-- Textual cue (lowercase, large) -->
+
+  <div id="phase"
+       class="mt-6 text-5xl font-[VarelaRound] text-[#f6b012] lowercase">
+    inhale
+  </div>
+
+
+  <!-- Countdown timer – starts at 4 seconds -->
+
+  <div id="countdown"
+       class="mt-2 text-2xl font-[VarelaRound] text-[#f6b012]">
+    4s
+  </div>
+
+
+  <script>
+    // ---------- Configuration ----------
+    const ROTATION_PERIOD = 12;   // seconds for a full 360° spin (slow)
+    const BREATH_PERIOD   = 12;   // total seconds for inhale‑hold‑exhale (4 s each)
+
+
+    const spiral   = document.getElementById('spiral');
+    const phaseEl  = document.getElementById('phase');
+    const countEl  = document.getElementById('countdown');
+    let start = null;
+
+
+    function animate(timestamp) {
+      if (!start) start = timestamp;
+      const elapsed = (timestamp - start) / 1000; // seconds
+
+
+      // ---- Rotation (one turn every 12 s) ----
+      const rotProg = (elapsed % ROTATION_PERIOD) / ROTATION_PERIOD;
+      const angle = rotProg * 360; // degrees
+
+
+      // ---- Breathing (scale) and cue ----
+      const breathPhase = elapsed % BREATH_PERIOD;
+      let scale, cue;
+      if (breathPhase < 4) {                     // inhale (0‑4 s)
+        scale = 1 + 0.5 * (breathPhase / 4);      // 1 → 1.5
+        cue = 'inhale';
+      } else if (breathPhase < 8) {              // hold (4‑8 s)
+        scale = 1.5;
+        cue = 'hold';
+      } else {                                   // exhale (8‑12 s)
+        scale = 1.5 - 0.5 * ((breathPhase - 8) / 4); // 1.5 → 1
+        cue = 'exhale';
+      }
+
+
+      // ---- Countdown (seconds left in current 4‑second phase) ----
+      const phaseProgress = breathPhase % 4;               // 0‑4
+      const remaining = Math.ceil(4 - phaseProgress);     // 4‑0
+
+
+      // Apply transforms
+      spiral.style.transform = `rotate(${angle}deg) scale(${scale})`;
+
+
+      // Update cue text only when it changes
+      if (phaseEl.textContent !== cue) {
+        phaseEl.textContent = cue;
+      }
+
+
+      // Update countdown display
+      countEl.textContent = `${remaining}s`;
+
+
+      requestAnimationFrame(animate);
+    }
+
+
+    requestAnimationFrame(animate);
+  </script>
+
+</body>
+
+</html>

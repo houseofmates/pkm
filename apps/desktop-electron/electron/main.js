@@ -26,7 +26,7 @@ let updateCheckInterval = null;
 async function checkForUpdates() {
     if (!mainWindow || isDev) return;
 
-    const remoteUrl = process.env.PKM_REMOTE_URL || 'http://pkm.houseofmates.space:3010';
+    const remoteUrl = process.env.PKM_REMOTE_URL || 'https://pkm.houseofmates.space';
 
     try {
         const response = await fetch(`${remoteUrl}/api/version`, {
@@ -108,7 +108,7 @@ function createWindow() {
         return { action: 'allow' };
     });
 
-    const remoteUrl = process.env.PKM_REMOTE_URL || 'http://pkm.houseofmates.space:3010';
+    const remoteUrl = process.env.PKM_REMOTE_URL || 'https://pkm.houseofmates.space';
 
     if (isDev) {
         mainWindow.loadURL('http://localhost:3010');

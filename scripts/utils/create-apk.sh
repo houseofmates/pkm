@@ -45,7 +45,7 @@ if [ -f "$APK_PATH" ]; then
     echo ""
     echo "📋 Configuration Summary:"
     echo "   • Icon: Database icon on black background"
-    echo "   • Auto-update: Enabled from http://pkm.houseofmates.space:3010"
+    echo "   • Auto-update: Enabled from https://pkm.houseofmates.space"
     echo "   • The app will fetch latest code on each launch"
     echo ""
     echo "🔧 To install on device:"

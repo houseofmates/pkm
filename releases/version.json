@@ -1,14 +1,5 @@
 {
-  "version": "0.0.0-20260305-faeb7f5c",
-  "buildDate": "2026-03-06T06:53:13Z",
-  "commit": "faeb7f5c",
-  "shortCommit": "faeb7f5c",
-  "branch": "main",
-  "files": {
-    "appimage": "pkm-0.0.0-20260305-faeb7f5c-linux.AppImage",
-    "deb": "pkm-0.0.0-20260305-faeb7f5c.deb",
-    "exe": null,
-    "apk": "pkm-0.0.0-20260305-faeb7f5c.apk"
-  },
-  "notes": "Windows .exe requires Windows build environment"
+  "version": "1772782746",
+  "apkUrl": "https://pkm.houseofmates.space/apk/pkm-release-1772782746.apk",
+  "releaseDate": "2026-03-06T07:39:06Z"
 }

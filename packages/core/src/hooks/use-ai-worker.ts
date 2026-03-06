@@ -14,7 +14,7 @@ import * as Comlink from 'comlink';
 import type { AIWorkerAPI } from '@/workers/ai-worker-types';
 import { storageManager } from '@/lib/storage-manager';
 import { normalizeAuthToken } from '@/lib/auth-token';
-import { isCapacitorNative, resolveOllamaEndpoint, MOBILE_SERVER_ORIGIN } from '@/lib/platform';
+import { isCapacitorNative, isMobileContext, resolveOllamaEndpoint, MOBILE_SERVER_ORIGIN } from '@/lib/platform';
 import { getOllamaBase } from '@/lib/llm-config';
 import type { WorkerAPIWithInit } from '@/workers/ai-worker-core';
 
@@ -61,11 +61,9 @@ function buildVectorConfig(): Record<string, unknown> | undefined {
     };
 }
 
+// use the shared mobile detection from platform.ts
 function isMobileWebView(): boolean {
-    if (isCapacitorNative()) return true;
-    if (typeof navigator === 'undefined') return false;
-    const ua = navigator.userAgent || navigator.vendor || '';
-    return /android|iphone|ipad|ipod|iemobile|mobile/i.test(ua);
+    return isMobileContext();
 }
 
 function resolveWorkerOllamaBase(): string {

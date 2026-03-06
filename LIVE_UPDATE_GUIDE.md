@@ -20,7 +20,7 @@ this document explains how the live update system works for both the linux elect
 
 ## How It Works
 
-both apps are configured to load the pkm web app from a remote server (`http://pkm.houseofmates.space:3010`) instead of bundling the web assets locally. this means:
+both apps are configured to load the pkm web app from a remote server (`https://pkm.houseofmates.space`) instead of bundling the web assets locally. this means:
 
 1. you deploy code changes to your server
 2. the apps automatically fetch the latest version on launch/reload
@@ -34,7 +34,7 @@ both apps are configured to load the pkm web app from a remote server (`http://p
 the APK is configured in `capacitor.config.ts`:
 ```typescript
 server: {
-  url: 'http://pkm.houseofmates.space:3010',
+  url: 'https://pkm.houseofmates.space',
   allowNavigation: ['*'],
   cleartext: true
 }
@@ -45,7 +45,7 @@ server: {
 **The APK loads code from the server on EVERY cold start.**
 
 To see your changes:
-1. **Deploy** your code changes to `http://pkm.houseofmates.space:3010`
+1. **Deploy** your code changes to `https://pkm.houseofmates.space`
 2. **Fully close** the APK (swipe it away from recent apps - NOT just minimize)
 3. **Reopen** the APK - it will fetch the latest code from the server
 
@@ -92,7 +92,7 @@ the electron app has two modes:
 
 **Live Update Mode** (default when `PKM_REMOTE_URL` is set):
 ```bash
-export PKM_REMOTE_URL=http://pkm.houseofmates.space:3010
+export PKM_REMOTE_URL=https://pkm.houseofmates.space
 npm run electron:build
 ```
 
@@ -135,7 +135,7 @@ when you make code changes:
 1. **build and deploy the web app:**
    ```bash
    npm run build
-   # deploy dist/ to your server at pkm.houseofmates.space:3010
+   # deploy dist/ to your server at pkm.houseofmates.space
    ```
 
 2. **restart the backend** (if you changed backend code):
@@ -166,7 +166,7 @@ On Android, swiping up to go home doesn't close the app - it just minimizes it. 
 
 **Other things to check:**
 - ensure the APK has internet access
-- check that `http://pkm.houseofmates.space:3010` is reachable from the device
+- check that `https://pkm.houseofmates.space` is reachable from the device
 - try clearing the app's cache (android settings > apps > pkm > storage > clear cache)
 - verify your changes are actually deployed to the server by checking in a web browser
 

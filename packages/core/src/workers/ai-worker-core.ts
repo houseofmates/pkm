@@ -45,7 +45,17 @@ export function init(
 ): void {
     _apiBaseUrl = apiBaseUrl.replace(/\/+$/, '');
     _authToken = authToken;
+    
+    // log the incoming ollamaBaseUrl for debugging
+    if (typeof console !== 'undefined' && console.info) {
+        console.info('[ai-worker] init called with ollamaBaseUrl:', ollamaBaseUrl);
+    }
+    
     _ollamaBaseUrl = (ollamaBaseUrl || _ollamaBaseUrl || 'http://localhost:11434').replace(/\/+$/, '');
+    
+    if (typeof console !== 'undefined' && console.info) {
+        console.info('[ai-worker] resolved _ollamaBaseUrl:', _ollamaBaseUrl);
+    }
 
     const defaultEmbeddingEndpoint = `${_ollamaBaseUrl}/api/embeddings`;
     if (vectorConfig) Object.assign(VECTOR_CONFIG, vectorConfig);
@@ -308,7 +318,13 @@ async function chatStream(
     endpoint: string,
     onToken: (cumulativeContent: string) => void,
 ): Promise<string> {
-    const response = await _fetch(resolveOllamaEndpointForWorker(endpoint, '/api/generate'), {
+    const resolvedEndpoint = resolveOllamaEndpointForWorker(endpoint, '/api/generate');
+    
+    if (typeof console !== 'undefined' && console.info) {
+        console.info('[ai-worker] chatStream using endpoint:', resolvedEndpoint, '(input was:', endpoint + ')');
+    }
+    
+    const response = await _fetch(resolvedEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ model, prompt, stream: true }),
@@ -412,9 +428,16 @@ function resolveOllamaEndpointForWorker(endpoint: string, fallbackPath: string =
     if (!endpoint) return `${normalizedBase}${fallbackPath}`;
 
     const stripped = endpoint.replace(/\/+$/, '');
-    const localhostPattern = /^https?:\/\/localhost:11434/;
-    if (localhostPattern.test(stripped)) {
-        return stripped.replace(localhostPattern, normalizedBase);
+    
+    // if endpoint is already a full URL (starts with http:// or https://), use it as-is
+    if (/^https?:\/\//.test(stripped)) {
+        // only rewrite if it's localhost:11434 pointing to the default
+        const localhostPattern = /^https?:\/\/localhost:11434/;
+        if (localhostPattern.test(stripped)) {
+            return stripped.replace(localhostPattern, normalizedBase);
+        }
+        // otherwise, it's already a resolved URL (like the server proxy), return as-is
+        return stripped;
     }
 
     if (stripped.startsWith('/')) {

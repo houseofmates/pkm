@@ -505,3 +505,15 @@ img .lucide,
   scrollbar-width: thin;
   scrollbar-color: var(--primary) hsl(var(--headmate-white) / 0.05);
 }
+
+/* --- mobile safe area support for bottom navigation --- */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* fallback for browsers without safe-area support */
+.pb-safe {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
+}

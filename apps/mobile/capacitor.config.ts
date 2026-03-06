@@ -13,7 +13,7 @@ const config: CapacitorConfig = {
     // local development.
     allowNavigation: ['pkm.houseofmates.space', '*.houseofmates.space'],
     cleartext: true,
-    androidScheme: 'http',
+    androidScheme: 'https',
   },
 
   plugins: {

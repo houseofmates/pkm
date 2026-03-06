@@ -3,7 +3,7 @@ import { secureLogger } from '@/lib/secure-logger'
 import { storageManager } from '@/lib/storage-manager'
 import { getOllamaGenerateUrl, normalizeGenerateEndpoint } from '@/lib/llm-config'
 import { getAIWorkerProxy } from '@/hooks/use-ai-worker'
-import { isCapacitorNative, resolveOllamaEndpoint, MOBILE_SERVER_ORIGIN } from '@/lib/platform'
+import { isCapacitorNative, isLocalhostUnreachable, resolveOllamaEndpoint, MOBILE_SERVER_ORIGIN } from '@/lib/platform'
 import * as Comlink from 'comlink'
 
 export interface ChatMessage {
@@ -124,8 +124,17 @@ export const useLLMStore = create<LLMState>((set, get) => ({
       } catch (e) { /* ignore parse errors */ }
 
       const { activeModel, apiUrl } = get()
-      const resolvedUrl = isCapacitorNative() ? resolveOllamaEndpoint(apiUrl, MOBILE_SERVER_ORIGIN) : apiUrl
+      
+      // detect if localhost is unreachable (mobile app or mobile browser on remote origin)
+      const needsProxy = isLocalhostUnreachable() || isCapacitorNative()
+      const resolvedUrl = needsProxy ? resolveOllamaEndpoint(apiUrl, MOBILE_SERVER_ORIGIN) : apiUrl
+      
+      secureLogger.info('[wilson] using endpoint:', resolvedUrl, 'needsProxy:', needsProxy)
+      
       const worker = await getAIWorkerProxy()
+      if (!worker) {
+        throw new Error('AI worker failed to initialize')
+      }
 
       // stream tokens from the worker — each callback updates streamingContent
       // which only the StreamingBubble component subscribes to
@@ -165,13 +174,18 @@ export const useLLMStore = create<LLMState>((set, get) => ({
       }))
 
       return result.response
-    } catch (e) {
+    } catch (e: any) {
       secureLogger.error("wilson rag error", e)
+      const errorMsg = e?.message || 'unknown error'
+      const isEndpointError = errorMsg.includes('fetch') || errorMsg.includes('network') || errorMsg.includes('connection')
+      const displayMsg = isEndpointError 
+        ? "[wilson can't reach the ai server. please check your connection.]"
+        : "[wilson encountered an error. try again?]"
       set((state) => ({
         interactionHistory: [...state.interactionHistory, {
           id: Date.now() + 1,
           role: 'assistant',
-          content: "[wilson encountered an error. try again?]"
+          content: displayMsg
         }],
         isThinking: false,
         streamingContent: '',
@@ -214,7 +228,8 @@ important rules:
     const fullPrompt = `${systemPrompt}\n\n${fronterName}: ${text}\nwilson:`
 
     try {
-      const resolvedUrl = isCapacitorNative() ? resolveOllamaEndpoint(apiUrl, MOBILE_SERVER_ORIGIN) : apiUrl
+      const needsProxy = isLocalhostUnreachable() || isCapacitorNative()
+      const resolvedUrl = needsProxy ? resolveOllamaEndpoint(apiUrl, MOBILE_SERVER_ORIGIN) : apiUrl
       const worker = await getAIWorkerProxy()
 
       // stream even in legacy mode for consistent ux
