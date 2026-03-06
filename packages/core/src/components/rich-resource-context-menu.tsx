@@ -319,7 +319,8 @@ const DEFAULT_EMOJIS = [
 
 export function RichResourceContextMenuContent({ currentName, currentColor, onUpdate, children, itemId }: RichResourceContextMenuProps) {
   const [search, setSearch] = useState('');
-  const [allIcons, setAllIcons] = useState<string[]>([]);
+  const FALLBACK_ICONS = ['Folder','File','Database','Layout','Settings','User','Users','Home','Search','Plus','Minus'];
+  const [allIcons, setAllIcons] = useState<string[]>(FALLBACK_ICONS);
   const [activeTab, setActiveTab] = useState<'icons' | 'emojis' | 'color'>('icons');
   const [localColor, setLocalColor] = useState(currentColor || '#f5af12');
   const emojiSearchRef = useRef<HTMLInputElement | null>(null);
@@ -372,11 +373,15 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
     let cancelled = false;
     import('lucide-react').then((mod) => {
       if (cancelled) return;
-      setAllIcons(computeIconNames(mod));
+      const names = computeIconNames(mod);
+      if (names.length === 0) {
+        // in the rare case the module object is empty, use fallback list
+        setAllIcons(FALLBACK_ICONS);
+      } else {
+        setAllIcons(names);
+      }
     }).catch(() => {
-      // if the import fails for any reason we fall back to an empty list; the
-      // UI will show "no icons found" which is preferable to a crash.
-      if (!cancelled) setAllIcons([]);
+      if (!cancelled) setAllIcons(FALLBACK_ICONS);
     });
     return () => { cancelled = true; };
   }, []);

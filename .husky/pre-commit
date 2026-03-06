@@ -2,3 +2,8 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 npx lint-staged
+
+# build all releases (appimage, deb, exe, apk)
+# to skip: git commit --no-verify -m "your message"
+echo "building all releases..."
+npm run build:all
