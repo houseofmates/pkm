@@ -41,6 +41,11 @@
     "sync:install-service": "sudo scripts/install-auto-git-sync.sh",
     "build:android": "npm run build --workspace=pkm-web && npx cap sync android",
     "build:all": "node scripts/build-all.cjs",
+    "build:releases": "node scripts/build-all.cjs",
+    "build:releases:clean": "node scripts/build-all.cjs --clean",
+    "build:linux": "node scripts/build-all.cjs --linux",
+    "build:apk": "node scripts/build-all.cjs --apk",
+    "releases:clean": "node scripts/clean-releases.cjs",
     "notion:import": "node scripts/notion-import.js",
     "test:notion": "vitest src/features/notion-import/__tests__"
   },
