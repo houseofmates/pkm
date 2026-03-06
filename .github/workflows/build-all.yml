@@ -1,0 +1,101 @@
+name: build all releases
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: linux
+          - os: ubuntu-latest
+            target: deb
+          - os: windows-latest
+            target: exe
+          - os: ubuntu-latest
+            target: apk
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: checkout repository
+        uses: actions/checkout@v4
+
+      - name: setup node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: build web assets
+        run: npm run build
+        env:
+          VITE_API_URL: https://pkm.houseofmates.space/api
+
+      # electron-builder for appimage, deb, exe
+      - name: build electron apps (linux)
+        if: matrix.target == 'linux' || matrix.target == 'deb'
+        run: npm run electron:build
+        working-directory: apps/desktop-electron
+
+      - name: build electron apps (windows)
+        if: matrix.target == 'exe'
+        run: npm run electron:build
+        working-directory: apps/desktop-electron
+
+      # capacitor for apk
+      - name: build android apk
+        if: matrix.target == 'apk'
+        run: |
+          cd apps/mobile
+          npm run build
+          npx cap sync android
+          cd android
+          ./gradlew assembleRelease
+
+      - name: setup java for android
+        if: matrix.target == 'apk'
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: upload release artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.target }}-release
+          path: |
+            apps/desktop-electron/release/**/*
+            apps/mobile/android/app/build/outputs/apk/release/*.apk
+          retention-days: 30
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+
+    steps:
+      - name: download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: releases
+
+      - name: list downloaded files
+        run: ls -la releases/
+
+      - name: create release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: releases/**/*
+          draft: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
