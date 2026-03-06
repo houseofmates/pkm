@@ -1,11 +1,9 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { HexColorPicker } from 'react-colorful';
 import { Upload, Search, Loader2, Wand2, Undo2, Save, RotateCcw, Sparkles, Check, Image as ImageIcon, type LucideIcon } from 'lucide-react';
-import * as Icons from 'lucide-react';
-// Dynamic icon loader for Lucide icons
-function getLucideIcon(name: string): LucideIcon | undefined {
-  return (Icons as unknown as Record<string, unknown>)[name] as LucideIcon | undefined;
-}
+// Note: static import of lucide-react gets tree-shaken by bundlers.
+// We dynamically import the full module in useEffect and store it in state
+// to ensure all icons are available for the picker.
 import { ContextMenuContent } from "@/components/ui/context-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
