@@ -5,5 +5,11 @@ npx lint-staged
 
 # build all releases (appimage, deb, exe, apk)
 # to skip: git commit --no-verify -m "your message"
+# The script can be heavy and may fail on machines lacking electron-builder
+# or android SDK; we don't want to block commits, so just warn on error.
 echo "building all releases..."
-npm run build:all
+npm run build:all || echo "release build failed, continuing commit"
+
+# automatically stage anything that ended up in releases/
+# git may not have tracked those yet (especially after history rewrite)
+git add releases/* || true
