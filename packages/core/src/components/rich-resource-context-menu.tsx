@@ -354,6 +354,9 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   const [emojis, setEmojis] = useState<any[]>(DEFAULT_EMOJIS);
   const [loadingEmojis, setLoadingEmojis] = useState(false);
 
+  // store dynamically imported lucide-react module to avoid tree-shaking
+  const [lucideModule, setLucideModule] = useState<Record<string, unknown> | null>(null);
+
   // when the current resource changes we treat that as a fresh open and
   // reset the search query so icons are immediately visible; if we keep the
   // previous value the user can accidentally end up with a filter that
@@ -371,6 +374,8 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
     let cancelled = false;
     import('lucide-react').then((mod) => {
       if (cancelled) return;
+      // store the module for icon rendering
+      setLucideModule(mod);
       const names = computeIconNames(mod);
       if (names.length === 0) {
         // in the rare case the module object is empty, use fallback list
@@ -383,6 +388,12 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
     });
     return () => { cancelled = true; };
   }, []);
+
+  // get icon component from dynamically loaded module
+  const getLucideIcon = useCallback((name: string): LucideIcon | undefined => {
+    if (!lucideModule) return undefined;
+    return lucideModule[name] as LucideIcon | undefined;
+  }, [lucideModule]);
 
   // load emojis (twemoji based source or standard list)
   useEffect(() => {
