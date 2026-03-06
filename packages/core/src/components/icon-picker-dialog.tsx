@@ -8,6 +8,20 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { type LucideIcon } from 'lucide-react';
 import * as Icons from 'lucide-react';
 
+// pull a handful of frequently-used icons out of the namespace so that the
+// bundler doesn't tree-shake them away when they are only ever referenced via
+// string names later on.  this mirrors what we do in the rich-resource menu.
+const {
+  Folder, File, Database, Layout, Settings, User, Users,
+  Home, Search, Menu, MoreVertical, MoreHorizontal, Plus, Minus,
+  X, Check, ChevronRight, ChevronDown, ArrowRight, ArrowLeft,
+  Calendar, Clock, Bell, Mail, MessageSquare, Phone, Video,
+  Image, Music, Map, Globe, Sun, Moon, Cloud,
+  Zap, Activity, BarChart, PieChart, TrendingUp, DollarSign,
+  CreditCard, ShoppingBag, Gift, Heart, Star, Flag,
+  Bookmark, Tag, Link, Lock, Unlock, Eye, EyeOff
+} = Icons;
+
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { generateVertexIcon } from '@/lib/vertex-image';
 
