@@ -11,6 +11,9 @@ import * as Icons from 'lucide-react';
 // pull a handful of frequently-used icons out of the namespace so that the
 // bundler doesn't tree-shake them away when they are only ever referenced via
 // string names later on.  this mirrors what we do in the rich-resource menu.
+// we also include the helper icons used in the picker UI itself ( upload,
+// sparkles, loader, etc ) – this allows us to drop the second destructure
+// block further down which was accidentally redeclaring `Check`.
 const {
   Folder, File, Database, Layout, Settings, User, Users,
   Home, Search, Menu, MoreVertical, MoreHorizontal, Plus, Minus,
@@ -19,7 +22,8 @@ const {
   Image, Music, Map, Globe, Sun, Moon, Cloud,
   Zap, Activity, BarChart, PieChart, TrendingUp, DollarSign,
   CreditCard, ShoppingBag, Gift, Heart, Star, Flag,
-  Bookmark, Tag, Link, Lock, Unlock, Eye, EyeOff
+  Bookmark, Tag, Link, Lock, Unlock, Eye, EyeOff,
+  Upload, Sparkles, Loader2, RotateCcw, Wand2, Save, Undo2
 } = Icons;
 
 import { useAppSetting } from '@/hooks/use-app-setting';
@@ -36,7 +40,6 @@ const common_icons = [
   "Bookmark", "Tag", "Link", "Lock", "Unlock", "Eye", "EyeOff"
 ];
 
-const { Upload, Sparkles, Loader2, RotateCcw, Wand2, Save, Check, Undo2 } = Icons;
 
 
 // helper to safely get lucide icon by name
