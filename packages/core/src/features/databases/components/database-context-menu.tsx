@@ -22,6 +22,7 @@ import {
 import { toast } from 'sonner';
 import { Trash2, Edit } from 'lucide-react';
 import { useAppSetting } from '@/hooks/use-app-setting';
+import { useSidebarColors } from '@/hooks/use-sidebar-colors';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -41,10 +42,15 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
   const [colorOpen, setColorOpen] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
 
-  // metadata for cosmetics (syncs every 3 seconds across devices)
+  // metadata for cosmetics (legacy localStorage fallback)
   const [metadata, setMetadata] = useAppSetting<Record<string, { image?: string; color?: string }>>('collection_metadata', {}, { pollIntervalMs: 3000 });
+  
+  // synced colors from nocobase (cross-device persistence)
+  const { updateMetadata: syncColorToServer, getMetadata: getSyncedMetadata } = useSidebarColors();
+  const syncedMeta = getSyncedMetadata(collection.name);
 
-  const updateMeta = (key: 'image' | 'color', value: string | undefined) => {
+  const updateMeta = async (key: 'image' | 'color', value: string | undefined) => {
+    // update local state immediately
     setMetadata({
       ...metadata,
       [collection.name]: {
@@ -52,6 +58,16 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
         [key]: value
       }
     });
+    
+    // sync to nocobase for cross-device persistence
+    if (key === 'color') {
+      await syncColorToServer(collection.name, {
+        color: value,
+        icon: syncedMeta?.icon,
+        iconType: syncedMeta?.iconType
+      });
+    }
+    
     onUpdate();
   };
 
@@ -73,7 +89,8 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
         <ContextMenuTrigger>{children}</ContextMenuTrigger>
         <RichResourceContextMenuContent
           currentName={collection.title || collection.name}
-          currentColor={metadata[collection.name]?.color}
+          currentColor={syncedMeta?.color || metadata[collection.name]?.color}
+          itemId={collection.name}
           onUpdate={async (updates: any) => {
             const newMeta: any = {};
             if (updates.color) newMeta.color = updates.color;
@@ -87,7 +104,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
                 toast.success(`renamed to ${updates.name}`);
               }
 
-              // update metadata
+              // update local metadata (legacy)
               if (Object.keys(newMeta).length > 0) {
                 setMetadata({
                   ...metadata,
@@ -95,6 +112,15 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
                     ...metadata[collection.name],
                     ...newMeta
                   }
+                });
+              }
+
+              // sync to nocobase for cross-device persistence
+              if (newMeta.color || newMeta.icon || newMeta.iconType) {
+                await syncColorToServer(collection.name, {
+                  color: newMeta.color || syncedMeta?.color,
+                  icon: newMeta.icon || syncedMeta?.icon,
+                  iconType: newMeta.iconType || syncedMeta?.iconType
                 });
               }
 
@@ -132,7 +158,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
             {['#ef4444', '#f97316', '#eab308', '#22c55e', '#06b6d4', '#3b82f6', '#a855f7', '#ec4899', '#6b7280', ''].map(c => (
               <div
                 key={c || 'none'}
-                className={cn("h-8 w-8 rounded-full cursor-pointer hover:scale-110 transition-transform border-2", c === (metadata[collection.name]?.color || '') ? "border-foreground" : "border-transparent")}
+                className={cn("h-8 w-8 rounded-full cursor-pointer hover:scale-110 transition-transform border-2", c === (syncedMeta?.color || metadata[collection.name]?.color || '') ? "border-foreground" : "border-transparent")}
                 style={{ backgroundColor: c || 'transparent' }}
                 onClick={() => {
                   updateMeta('color', c || undefined);
