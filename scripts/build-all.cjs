@@ -220,11 +220,28 @@ function createVersionJson(version) {
 
 async function buildWebAssets() {
   step(1, 'building web assets...');
-  run('npm run build', {
-    env: {
-      VITE_API_URL: process.env.VITE_API_URL || 'https://pkm.houseofmates.space/api'
-    }
-  });
+
+  // instead of relying on npm workspace scripts (which may not include
+  // the root node_modules/.bin in PATH), invoke vite directly from the
+  // monorepo root. this guarantees the binary is found.
+  const viteBin = path.join(MONOREPO_ROOT, 'node_modules', '.bin', 'vite');
+  if (!fs.existsSync(viteBin)) {
+    warn(`vite binary not found at ${viteBin}, attempting npm workspace build`);
+    // fallback to workspace command
+    run('npm run build --workspace=pkm-web', {
+      env: {
+        VITE_API_URL: process.env.VITE_API_URL || 'https://pkm.houseofmates.space/api'
+      }
+    });
+  } else {
+    run(`${viteBin} build`, {
+      cwd: path.join(MONOREPO_ROOT, 'packages/core'),
+      env: {
+        VITE_API_URL: process.env.VITE_API_URL || 'https://pkm.houseofmates.space/api'
+      }
+    });
+  }
+
   success('web assets built');
 }
 
