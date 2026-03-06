@@ -30,19 +30,32 @@ interface CustomIconEntry {
   createdAt?: string;
 }
 
-// full icon list derived from lucide
-// we filter out:
-// 1. 'icons', 'createlucideicon', 'default' (internal exports)
-// 2. keys starting with 'lucide' (duplicates of base names)
-// 3. keys ending with 'icon' (duplicates of base names, e.g. 'appleicon' vs 'apple')
-const ALL_ICONS = Object.keys(Icons).filter(key =>
-  key !== 'icons' &&
-  key !== 'createlucideicon' &&
-  key !== 'default' &&
-  !key.startsWith('lucide') &&
-  !key.endsWith('icon') &&
-  /^[A-Z]/.test(key)
-);
+// instead of computing the complete icon list at module load time we
+// populate it dynamically when the menu is rendered.  bundlers like Vite
+// aggressively tree‑shake unused exports from `lucide-react` which means the
+// namespace object may only contain the handful of icons that were imported
+// statically elsewhere in the bundle.  as a result, a static ALL_ICONS array
+// could end up empty or missing most of the icons, which is exactly what
+// manifested when right‑clicking a sidebar item – the "icons" tab would be
+// completely blank.
+//
+// loading the module with a dynamic `import()` ensures we receive the full
+// export list at runtime (the library cannot be pruned) and allows us to
+// rebuild the list when the context menu opens.  we also keep the filtering
+// logic the same so we still exclude internal helpers and duplicates.
+
+// helper used in `useEffect` below; not exported because it's only relevant in
+// this file.
+function computeIconNames(obj: Record<string, unknown>): string[] {
+  return Object.keys(obj).filter(key =>
+    key !== 'icons' &&
+    key !== 'createlucideicon' &&
+    key !== 'default' &&
+    !key.startsWith('lucide') &&
+    !key.endsWith('icon') &&
+    /^[A-Z]/.test(key)
+  );
+}
 
 // semantic keywords for "smart search"
 const iconKeywords: Record<string, string[]> = {
@@ -306,6 +319,7 @@ const DEFAULT_EMOJIS = [
 
 export function RichResourceContextMenuContent({ currentName, currentColor, onUpdate, children, itemId }: RichResourceContextMenuProps) {
   const [search, setSearch] = useState('');
+  const [allIcons, setAllIcons] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'icons' | 'emojis' | 'color'>('icons');
   const [localColor, setLocalColor] = useState(currentColor || '#f5af12');
   const emojiSearchRef = useRef<HTMLInputElement | null>(null);
@@ -341,6 +355,32 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   const [emojis, setEmojis] = useState<any[]>(DEFAULT_EMOJIS);
   const [loadingEmojis, setLoadingEmojis] = useState(false);
 
+  // when the current resource changes we treat that as a fresh open and
+  // reset the search query so icons are immediately visible; if we keep the
+  // previous value the user can accidentally end up with a filter that
+  // matches nothing (e.g. they previously searched "journal" then opened the
+  // menu on the "journal" sidebar item and wondered why the grid was empty).
+  useEffect(() => {
+    setSearch('');
+    setActiveTab('icons');
+  }, [currentName]);
+
+  // dynamically import the lucide-react namespace when the menu mounts. this
+  // avoids tree‑shaking issues where only the icons that are statically
+  // imported elsewhere remain in the bundle.
+  useEffect(() => {
+    let cancelled = false;
+    import('lucide-react').then((mod) => {
+      if (cancelled) return;
+      setAllIcons(computeIconNames(mod));
+    }).catch(() => {
+      // if the import fails for any reason we fall back to an empty list; the
+      // UI will show "no icons found" which is preferable to a crash.
+      if (!cancelled) setAllIcons([]);
+    });
+    return () => { cancelled = true; };
+  }, []);
+
   // load emojis (twemoji based source or standard list)
   useEffect(() => {
     if (activeTab === 'emojis' && emojis.length === DEFAULT_EMOJIS.length) {
@@ -368,12 +408,15 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   }, [emojis, search]);
 
   const filteredIcons = useMemo(() => {
-    if (!search) return ALL_ICONS.slice(0, 200);
+    // use the dynamic list we populated above; this will be empty while the
+    // import is in-flight, which is why the component needs to handle the
+    // "no icons found" message gracefully.
+    if (!search) return allIcons.slice(0, 200);
 
     const lowerSearch = search.toLowerCase();
 
     // 1. direct search
-    const directMatches = ALL_ICONS.filter(name => name.toLowerCase().includes(lowerSearch));
+    const directMatches = allIcons.filter(name => name.toLowerCase().includes(lowerSearch));
 
     // 2. keyword search
     const keywordMatches = Object.entries(iconKeywords)
@@ -383,7 +426,7 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
     // combine and dedup
     const unique = Array.from(new Set([...directMatches, ...keywordMatches]));
     return unique.slice(0, 100);
-  }, [search]);
+  }, [search, allIcons]);
 
   // twemoji url helper
   const getTwemojiUrl = (unified: string) => {
