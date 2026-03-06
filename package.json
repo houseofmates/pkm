@@ -40,6 +40,7 @@
     "schema:completions": "ts-node scripts/schema-completions.ts",
     "sync:install-service": "sudo scripts/install-auto-git-sync.sh",
     "build:android": "npm run build --workspace=pkm-web && npx cap sync android",
+    "build:all": "node scripts/build-all.cjs",
     "notion:import": "node scripts/notion-import.js",
     "test:notion": "vitest src/features/notion-import/__tests__"
   },
