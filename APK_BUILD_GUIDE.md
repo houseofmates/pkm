@@ -2,9 +2,17 @@
 
 this guide explains how to build the signed APK with live update and the database icon.
 
+> **note:** automated builds are now available! every push to `main` automatically builds the APK and places it in `/releases` folder. see [RELEASE_BUILD_GUIDE.md](./RELEASE_BUILD_GUIDE.md) for details.
+
 ---
 
-## Quick Build
+## Quick Build (Automated)
+
+APKs are automatically built on every push to `main`. find them in:
+- `/releases/pkm-*.apk` in the repo
+- github releases page
+
+## Manual Build
 
 ```bash
 cd apps/mobile
