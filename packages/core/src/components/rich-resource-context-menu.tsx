@@ -20,6 +20,7 @@ interface RichResourceContextMenuProps {
   currentColor?: string;
   onUpdate: (data: { name?: string; color?: string; icon?: string; iconType?: 'emoji' | 'lucide' | 'image' }) => void;
   children?: React.ReactNode;
+  itemId?: string; // for syncing with nocobase
 }
 
 interface CustomIconEntry {
@@ -303,7 +304,7 @@ const DEFAULT_EMOJIS = [
   { unified: '1f937', short_name: 'person shrugging' },
 ];
 
-export function RichResourceContextMenuContent({ currentName, currentColor, onUpdate, children }: RichResourceContextMenuProps) {
+export function RichResourceContextMenuContent({ currentName, currentColor, onUpdate, children, itemId }: RichResourceContextMenuProps) {
   const [search, setSearch] = useState('');
   const [activeTab, setActiveTab] = useState<'icons' | 'emojis' | 'color'>('icons');
   const [localColor, setLocalColor] = useState(currentColor || '#f5af12');

@@ -47,7 +47,7 @@ export interface NavItem {
   collapsed?: boolean;
   icon?: string;
   iconType?: 'lucide' | 'emoji' | 'image';
-  color?: string; // local color override
+  color?: string; // local color override (deprecated: use sidebar color sync instead)
 }
 
 interface NavigationProps {
@@ -93,17 +93,18 @@ function NavIconButton({ tab, isActive, onClick }: { tab: any, isActive: boolean
 
 import { DatabaseContextMenu } from '@/features/databases/components/database-context-menu';
 import { useAppSetting } from '@/hooks/use-app-setting';
+import { useSidebarColors } from '@/hooks/use-sidebar-colors';
 
-export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle, onUpdate, collection }: any) {
+export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle, onUpdate, collection, syncedColors }: any) {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: id, data: { type: item.type, item } });
   const [pickerOpen, setPickerOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
 
 
-  // global metadata for collections
+  // global metadata for collections (legacy localStorage fallback)
   const [metadata] = useAppSetting<Record<string, { color?: string }>>('collection_metadata', {});
-  // prefer local item color if set (for folders/docs), then metadata color (for collections)
-  const metaColor = item.color || (item.type === 'collection' ? metadata[id]?.color : undefined);
+  // prefer synced colors from nocobase (cross-device sync), then local item color, then legacy metadata
+  const metaColor = syncedColors?.[id]?.color || item.color || (item.type === 'collection' ? metadata[id]?.color : undefined);
 
   // determine highlight color based on item type
   function getHighlightColor(opacity = 0.22) {
@@ -253,6 +254,11 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
   // provide a no-op setter if the caller didn't supply one (mobile drawer sometimes omits it)
   const safeSetItems = setItems ?? (() => {});
 
+  // synced colors from nocobase (cross-device persistence)
+  const { colors: syncedColors, updateMetadata, isUpdating: isSyncingColors } = useSidebarColors({
+    pollIntervalMs: 30000 // sync every 30 seconds
+  });
+
   // track recently deleted items to prevent useEffect from re-adding them
   const deletedItemsRef = useRef<Set<string>>(new Set());
 
@@ -342,6 +348,20 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       return;
     }
 
+    // sync color/icon changes to nocobase for cross-device persistence
+    if (updates.color || updates.icon || updates.iconType) {
+      const itemType = updates.itemType || (id.startsWith('folder_') ? 'folder' : id.startsWith('doc_') ? 'document' : id.startsWith('drawing_') ? 'drawing' : 'collection');
+      
+      // save to nocobase (async, fire and forget with error handling)
+      updateMetadata(id, {
+        color: updates.color,
+        icon: updates.icon,
+        iconType: updates.iconType
+      }).catch((e) => {
+        secureLogger.warn('[navigation] failed to sync color to server:', e);
+      });
+    }
+
     // persist local documents only; drawings are db-only now
     if (id.startsWith('doc_')) {
       const key = `canvas-config-${id.replace('doc_', '')}`;
@@ -351,6 +371,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         if (updates.name) toSave.title = updates.name;
         if (updates.icon) toSave.icon = updates.icon;
         if (updates.iconType) toSave.iconType = updates.iconType;
+        // color is now synced via nocobase, but keep local copy for offline
         if (updates.color) toSave.color = updates.color;
 
         if (updates.delete) {
@@ -721,6 +742,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   onToggle={toggleFolder}
                   onUpdate={handleUpdateItem}
                   collection={item.type === 'collection' ? collections.find((c: any) => c.name === item.id) : undefined}
+                  syncedColors={syncedColors}
                 />
               ))}
             </div>
