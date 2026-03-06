@@ -1,0 +1,335 @@
+name: build releases
+
+on:
+  push:
+    branches: [main, master]
+    paths-ignore:
+      - 'releases/**'
+      - '**.md'
+      - '.github/workflows/**'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'version tag (optional)'
+        required: false
+        default: ''
+
+env:
+  NODE_VERSION: '20'
+  JAVA_VERSION: '17'
+
+jobs:
+  # build linux appimage and deb
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: build web assets
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://pkm.houseofmates.space/api' }}
+
+      - name: build electron (linux)
+        run: |
+          cd apps/desktop-electron
+          npm run build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: list release files
+        run: |
+          echo "=== electron release files ==="
+          ls -la apps/desktop-electron/release/ || echo "no release folder"
+
+      - name: upload linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-builds
+          path: |
+            apps/desktop-electron/release/*.AppImage
+            apps/desktop-electron/release/*.deb
+          retention-days: 30
+
+  # build windows exe
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: build web assets
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://pkm.houseofmates.space/api' }}
+
+      - name: build electron (windows)
+        shell: pwsh
+        run: |
+          cd apps/desktop-electron
+          npm run build
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: list release files
+        shell: pwsh
+        run: |
+          echo "=== electron release files ==="
+          Get-ChildItem -Path apps/desktop-electron/release/ -Recurse
+
+      - name: upload windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-builds
+          path: |
+            apps/desktop-electron/release/*.exe
+          retention-days: 30
+
+  # build android apk
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+
+      - name: setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: setup java
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+
+      - name: install dependencies
+        run: npm ci
+
+      - name: setup android sdk
+        uses: android-actions/setup-android@v3
+
+      - name: accept android licenses
+        run: yes | sdkmanager --licenses || true
+
+      - name: build web assets
+        run: npm run build
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL || 'https://pkm.houseofmates.space/api' }}
+
+      - name: build capacitor android
+        run: |
+          cd apps/mobile
+          npm run build
+          npx cap sync android
+
+      - name: fix java version in gradle
+        run: |
+          cd apps/mobile/android
+          find . -name "*.gradle" -exec sed -i 's/JavaVersion.VERSION_21/JavaVersion.VERSION_17/g' {} \;
+
+      - name: build apk
+        run: |
+          cd apps/mobile/android
+          chmod +x gradlew
+          ./gradlew assembleRelease
+
+      - name: find and rename apk
+        run: |
+          cd apps/mobile/android
+          ls -la app/build/outputs/apk/release/
+          cp app/build/outputs/apk/release/app-release.apk ../../pkm-release.apk
+
+      - name: upload apk artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-builds
+          path: apps/mobile/pkm-release.apk
+          retention-days: 30
+
+  # combine all builds and commit to releases folder
+  combine-and-release:
+    needs: [build-linux, build-windows, build-android]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    
+    steps:
+      - name: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: get version
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          BUILD_DATE=$(date +%Y%m%d)
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          FULL_VERSION="${VERSION}-${BUILD_DATE}-${SHORT_SHA}"
+          echo "version=$FULL_VERSION" >> $GITHUB_OUTPUT
+          echo "Version: $FULL_VERSION"
+
+      - name: download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: list artifacts
+        run: |
+          echo "=== downloaded artifacts ==="
+          find artifacts -type f -name "*" | head -20
+
+      - name: prepare releases folder
+        run: |
+          mkdir -p releases
+          rm -f releases/*.AppImage releases/*.deb releases/*.exe releases/*.apk 2>/dev/null || true
+
+      - name: copy and rename linux builds
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          
+          # copy appimage
+          if ls artifacts/linux-builds/*.AppImage 1> /dev/null 2>&1; then
+            cp artifacts/linux-builds/*.AppImage "releases/pkm-${VERSION}-linux.AppImage"
+            echo "✓ copied appimage"
+          fi
+          
+          # copy deb
+          if ls artifacts/linux-builds/*.deb 1> /dev/null 2>&1; then
+            cp artifacts/linux-builds/*.deb "releases/pkm-${VERSION}.deb"
+            echo "✓ copied deb"
+          fi
+
+      - name: copy and rename windows build
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          
+          if ls artifacts/windows-builds/*.exe 1> /dev/null 2>&1; then
+            cp artifacts/windows-builds/*.exe "releases/pkm-${VERSION}.exe"
+            echo "✓ copied exe"
+          fi
+
+      - name: copy and rename android build
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          
+          if ls artifacts/android-builds/*.apk 1> /dev/null 2>&1; then
+            cp artifacts/android-builds/*.apk "releases/pkm-${VERSION}.apk"
+            echo "✓ copied apk"
+          fi
+
+      - name: create version.json
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          cat > releases/version.json << EOF
+          {
+            "version": "${VERSION}",
+            "buildDate": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "commit": "$(git rev-parse HEAD)",
+            "shortCommit": "$(git rev-parse --short HEAD)",
+            "branch": "${GITHUB_REF_NAME}",
+            "files": {
+              "appimage": "pkm-${VERSION}-linux.AppImage",
+              "deb": "pkm-${VERSION}.deb",
+              "exe": "pkm-${VERSION}.exe",
+              "apk": "pkm-${VERSION}.apk"
+            }
+          }
+          EOF
+
+      - name: list releases folder
+        run: |
+          echo "=== releases folder contents ==="
+          ls -la releases/
+          echo ""
+          echo "=== version.json ==="
+          cat releases/version.json
+
+      - name: commit releases to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          
+          git add releases/
+          
+          if git diff --cached --quiet; then
+            echo "no changes to commit"
+          else
+            git commit -m "chore(release): build ${{ steps.version.outputs.version }}
+
+          - appimage: pkm-${{ steps.version.outputs.version }}-linux.AppImage
+          - deb:     pkm-${{ steps.version.outputs.version }}.deb
+          - exe:     pkm-${{ steps.version.outputs.version }}.exe
+          - apk:     pkm-${{ steps.version.outputs.version }}.apk
+
+          commit: $(git rev-parse --short HEAD)"
+            
+            git push origin ${GITHUB_REF_NAME}
+            echo "✓ committed releases to repo"
+          fi
+
+      - name: create github release
+        uses: softprops/action-gh-release@v1
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+        with:
+          tag_name: v${{ steps.version.outputs.version }}
+          name: release v${{ steps.version.outputs.version }}
+          body: |
+            automated build for ${{ steps.version.outputs.version }}
+            
+            ## downloads
+            - **linux appimage**: `pkm-${{ steps.version.outputs.version }}-linux.AppImage`
+            - **linux deb**: `pkm-${{ steps.version.outputs.version }}.deb`
+            - **windows exe**: `pkm-${{ steps.version.outputs.version }}.exe`
+            - **android apk**: `pkm-${{ steps.version.outputs.version }}.apk`
+            
+            ## install
+            - **appimage**: download, `chmod +x`, run
+            - **deb**: `sudo dpkg -i pkm-*.deb`
+            - **exe**: run installer
+            - **apk**: install on android device
+          files: |
+            releases/*.AppImage
+            releases/*.deb
+            releases/*.exe
+            releases/*.apk
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # cleanup old artifacts
+  cleanup:
+    needs: combine-and-release
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: delete workflow artifacts
+        uses: geekyeggo/delete-artifact@v4
+        with:
+          name: |
+            linux-builds
+            windows-builds
+            android-builds
+          failOnError: false
