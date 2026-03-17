@@ -426,21 +426,28 @@ export class NocoBaseClient {
     const formData = new FormData();
     formData.append('file', file);
 
-    // try pkm backend upload first (for background images)
-    try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4100';
-      const res = await fetch(`${backendUrl}/Api/upload-background`, {
-        method: 'POST',
-        body: formData,
-      });
+    // try PKM backend upload first when running locally (dev builds only)
+    const backendUrl = import.meta.env.VITE_BACKEND_URL;
+    const isLocalBackend = (backendUrl && backendUrl.includes('localhost')) ||
+      (typeof window !== 'undefined' && window.location.hostname === 'localhost');
 
-      if (res.ok) {
-        const data = await res.json();
-        secureLogger.info('[Upload] Using PKM backend upload:', data);
-        return data;
+    if (isLocalBackend) {
+      try {
+        const resolvedBackend = backendUrl || 'http://localhost:4100';
+        const res = await fetch(`${resolvedBackend}/api/upload-background`, {
+          method: 'POST',
+          body: formData,
+          credentials: 'include',
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          secureLogger.info('[Upload] Using PKM backend upload:', data);
+          return data;
+        }
+      } catch (err) {
+        secureLogger.warn('[Upload] PKM backend upload failed, falling back to NocoBase:', err);
       }
-    } catch (err) {
-      secureLogger.warn('[Upload] PKM backend upload failed, falling back to NocoBase:', err);
     }
 
     // fallback to nocobase attachments endpoint
