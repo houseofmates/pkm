@@ -209,7 +209,13 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   </ContextMenu>
 
   {/* hidden file input for direct click if needed, but using dialog now mostly */}
-  <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onchange={handlefilechange} />
+  <input
+    type="file"
+    ref={fileInputRef}
+    className="hidden"
+    accept="image/*"
+    onChange={handlefilechange}
+  />
 
   {/* visual name dialog */}
   <Dialog open={nameOpen} onOpenChange={setNameOpen}>
