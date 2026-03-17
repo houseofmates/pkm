@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { api } from '@/api/nocobase-client';
 import { Database, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface Props {
   isAdmin?: boolean;
@@ -131,7 +132,7 @@ export function DatabaseViewElement({ collectionName, viewType, width = 400, hei
 
   {/* content */}
   <div className="flex-1 overflow-auto p-2">
- {renderview()}
+ {renderView()}
   </div>
   </div>
   );
@@ -190,7 +191,7 @@ function TableView({ data, fields, visibleFields }: { data: any[], fields: any[]
                 {displayFields.map((f) => (
                   <td
                     key={f.name}
-                    className="px-3 py-3 text-white/80 truncate max-w-[200px] font-medium"
+                    className="px-3 py-3 text-white/80 max-w-[200px] font-medium text-center"
                   >
                     {formatValue(row[f.name])}
                   </td>
@@ -209,7 +210,7 @@ function GalleryView({ data, fields, visibleFields }: { data: any[], fields: any
   const imageField = fields.find(f => f.type === 'attachment' || f.name.includes('image') || f.name.includes('cover'));
 
   const displayFields = visibleFields
-  ? fields.filter(f => visiblefields.includes(f.name) && f.name !== titlefield?.name && f.name !== imagefield?.name)
+  ? fields.filter(f => visibleFields.includes(f.name) && f.name !== titleField?.name && f.name !== imageField?.name)
   : fields.slice(1, 3);
 
   if (data.length === 0) return <EmptyState />;
@@ -218,7 +219,7 @@ function GalleryView({ data, fields, visibleFields }: { data: any[], fields: any
   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-1">
   {data.map((row, i) => (
  <div key={row.id || i} className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden hover:border-white/10 transition-all group">
- {imagefield && row[imagefield.name] && (
+ {imageField && row[imageField.name] && (
  <div className="aspect-video w-full overflow-hidden border-b border-white/5">
    <img
    src={Array.isArray(row[imageField.name]) ? row[imageField.name][0]?.url : row[imageField.name]}
@@ -251,13 +252,13 @@ function KanbanView({ data, fields, collectionName: _collectionName, groupByFiel
   groupByField = fields.find(f => f.type === 'select' || f.type === 'radio')?.name;
   }
 
-  if (!groupbyfield) {
+  if (!groupByField) {
   return <p className="text-white/40 text-sm text-center py-8 lowercase">no group-by field found for kanban</p>;
   }
 
-  const groups: record<string, any[]> = {};
+  const groups: Record<string, any[]> = {};
   data.forEach(row => {
-  const val = row[groupbyfield] || 'uncategorized';
+  const val = row[groupByField] || 'uncategorized';
   if (!groups[val]) groups[val] = [];
   groups[val].push(row);
   });
@@ -276,7 +277,7 @@ function KanbanView({ data, fields, collectionName: _collectionName, groupByFiel
    <p className="text-sm font-bold text-white/90 mb-2 leading-tight">
    {item.title || item.name || item.id}
    </p>
-   {item.tags && array.isarray(item.tags) && (
+   {item.tags && Array.isArray(item.tags) && (
    <div className="flex flex-wrap gap-1">
   {item.tags.map((t: any, idx: number) => (
   <span key={idx} className="px-1.5 py-0.5 bg-white/5 rounded text-[9px] text-white/40 font-black">
@@ -294,7 +295,7 @@ function KanbanView({ data, fields, collectionName: _collectionName, groupByFiel
   );
 }
 
-function placeholderview({ name, collection }: { name: string, collection: string }) {
+function PlaceholderView({ name, collection }: { name: string, collection: string }) {
   return (
   <div className="flex flex-col items-center justify-center h-64 text-white/20 gap-3 border-2 border-dashed border-white/5 rounded-2xl">
   <span className="text-sm font-black tracking-[0.3em]">{name} view</span>
@@ -303,7 +304,7 @@ function placeholderview({ name, collection }: { name: string, collection: strin
   );
 }
 
-function emptystate() {
+function EmptyState() {
   return (
   <div className="flex flex-col items-center justify-center py-12 text-white/20">
   <Database className="w-8 h-8 mb-2 opacity-20" />
@@ -312,10 +313,42 @@ function emptystate() {
   );
 }
 
-function formatValue(value: any): string {
+function formatValue(value: any): ReactNode {
   if (value === null || value === undefined) return '-';
-  if (Array.isArray(value)) return value.map(v => typeof v === 'object' ? (v.title || v.name || JSON.stringify(v)) : v).join(', ');
-  if (typeof value === 'object') return value.title || value.name || JSON.stringify(value).slice(0, 50);
+
+  if (Array.isArray(value)) {
+    return value
+      .map((v) => (typeof v === 'object' ? (v.title || v.name || JSON.stringify(v)) : v))
+      .join(', ');
+  }
+
+  if (typeof value === 'object') {
+    const label = value.title || value.name || JSON.stringify(value).slice(0, 50);
+    return <span className="break-words">{label}</span>;
+  }
+
   if (typeof value === 'boolean') return value ? '✓' : '✗';
-  return String(value);
+
+  const textValue = String(value);
+  // render urls as full clickable links
+  try {
+    const url = new URL(textValue);
+    if (url.protocol === 'http:' || url.protocol === 'https:') {
+      return (
+        <a
+          href={textValue}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="underline text-primary break-words"
+          title={textValue}
+        >
+          {textValue}
+        </a>
+      );
+    }
+  } catch {
+    // not a valid url
+  }
+
+  return <span className="break-words">{textValue}</span>;
 }

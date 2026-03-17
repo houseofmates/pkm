@@ -3,22 +3,55 @@ import type { ColumnDef } from '@tanstack/react-table';
 import React, { useMemo } from 'react';
 import { List } from 'react-window';
 import { AutoSizer } from 'react-virtualized-auto-sizer';
-import { cn } from '@/lib/utils';
 
 interface TableViewProps {
   records: any[];
   isLoading: boolean;
-  theme: any;
   onSelect?: (record: any) => void;
   fields?: any[]; // optional schema fields from collection
 }
 
-export function TableView({ records, isLoading, theme, onSelect, fields }: TableViewProps) {
+export function TableView({ records, isLoading, onSelect, fields }: TableViewProps) {
   // Generate columns dynamically from the first record or schema.  We
   // also keep a ref to the last known column set so that headers remain
   // visible when the record list becomes empty; this mirrors the behaviour
   // in the main record table.
   const prevColsRef = React.useRef<ColumnDef<any>[]>([]);
+
+  const renderCellValue = (value: unknown) => {
+    if (value === null || value === undefined) return <span className="text-center w-full block">empty</span>;
+
+    if (typeof value === 'object') {
+      // keep it brief and avoid rendering huge JSON blobs
+      return <span className="break-words">{JSON.stringify(value)}</span>;
+    }
+
+    const text = String(value);
+
+    // render http(s) urls as clickable links (show as much of the url as fits)
+    let url: URL | null = null;
+    try {
+      url = new URL(text);
+    } catch {
+      url = null;
+    }
+
+    if (url && (url.protocol === 'http:' || url.protocol === 'https:')) {
+      return (
+        <a
+          href={text}
+          target="_blank"
+          rel="noreferrer noopener"
+          className="underline text-primary break-words"
+          title={text}
+        >
+          {text}
+        </a>
+      );
+    }
+
+    return <span className="break-words">{text}</span>;
+  };
 
   const headerRef = React.useRef<HTMLDivElement | null>(null);
   const bodyRef = React.useRef<HTMLDivElement | null>(null);
@@ -38,16 +71,37 @@ export function TableView({ records, isLoading, theme, onSelect, fields }: Table
         {
           accessorKey: titleKey,
           header: titleKey,
-          cell: info => <span className="font-bold text-foreground">{String(info.getValue() || '')}</span>,
+          cell: (info: any) => {
+            const value = info.getValue();
+            // center IDs, times, datetimes
+            if (
+              typeof value === 'string' && (
+                value.match(/^\d+$/) || // id
+                value.match(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?)?$/) // iso datetime
+              )
+            ) {
+              return <span className="text-center w-full block">{value}</span>;
+            }
+            return <span className="font-bold text-foreground">{renderCellValue(value)}</span>;
+          },
           size: 200,
         },
         ...otherKeys.slice(0, 5).map(k => ({
           accessorKey: k,
           header: k,
-          cell: info => {
-              const val = info.getValue();
-              if (typeof val === 'object') return JSON.stringify(val).slice(0, 20);
-              return String(val || '');
+          cell: (info: any) => {
+            const value = info.getValue();
+            // center IDs, times, datetimes, and empty
+            if (
+              value === null || value === undefined ||
+              (typeof value === 'string' && (
+                value.match(/^\d+$/) || // id
+                value.match(/^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}:\d{2}(\.\d+)?(Z|[+-]\d{2}:\d{2})?)?$/) // iso datetime
+              ))
+            ) {
+              return <span className="text-center w-full block">{value === null || value === undefined ? 'empty' : value}</span>;
+            }
+            return renderCellValue(value);
           },
           size: 150,
         }))
@@ -142,12 +196,14 @@ export function TableView({ records, isLoading, theme, onSelect, fields }: Table
 
       {/* Body (Virtualized) */}
       <div className="flex-1 relative">
+        {/* @ts-expect-error types mismatch */}
         <AutoSizer>
-          {({ height, width }) => (
+          {({ height, width }: { height: number; width: number }) => (
             <List
               key={columnVersion}
               outerRef={bodyRef}
-              onScroll={({ scrollOffset }) => {
+              // @ts-expect-error types mismatch
+              onScroll={({ scrollOffset }: { scrollOffset: number }) => {
                 if (headerRef.current) {
                   headerRef.current.scrollLeft = scrollOffset;
                 }
@@ -159,6 +215,7 @@ export function TableView({ records, isLoading, theme, onSelect, fields }: Table
               itemData={{ rows, onSelect }}
               style={{ height, width }}
             >
+              {/* @ts-expect-error types mismatch */}
               {({ index, style, data }: any) => {
                 if (data.rows.length === 0) {
                   return (
@@ -181,7 +238,7 @@ export function TableView({ records, isLoading, theme, onSelect, fields }: Table
                     {row.getVisibleCells().map((cell: any) => (
                       <div
                         key={cell.id}
-                        className="p-2 px-3 truncate text-xs flex items-center text-muted-foreground"
+                          className="p-2 px-3 text-xs flex items-center justify-center text-muted-foreground text-center"
                         style={{ width: cell.column.getSize(), flex: `0 0 ${cell.column.getSize()}px` }}
                       >
                         {flexRender(cell.column.columnDef.cell, cell.getContext())}
