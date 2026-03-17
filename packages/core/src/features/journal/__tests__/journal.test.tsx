@@ -30,7 +30,7 @@ describe('JournalPage', () => {
     expect(moodBtn).toHaveStyle('background: #000000');
 
     // emotions section: default list includes 'sad' and new ones like 'infuriated'
-    const searchInput = getByPlaceholderText(/search emotions/i);
+    const searchInput = getByPlaceholderText(/add custom emotion/i);
     fireEvent.change(searchInput, { target: { value: 'sad' } });
     expect(queryByText('sad')).toBeTruthy();
     expect(queryByText('happy')).toBeNull();
@@ -59,9 +59,24 @@ describe('JournalPage', () => {
     vi.spyOn(api, 'listRecords').mockResolvedValue({ data: [record1, record2] });
     let blobText = '';
     vi.spyOn(URL, 'createObjectURL').mockImplementation((blob: any) => {
-      blob.text().then((t: string) => { blobText = t; });
+      if (typeof blob.text === 'function') {
+        blob.text().then((t: string) => { blobText = t; });
+      }
       return 'blob://fake';
     });
+
+    const OriginalBlob = globalThis.Blob;
+    class MockBlob {
+      private _content: string;
+      constructor(parts: any[]) {
+        this._content = parts.map(p => (typeof p === 'string' ? p : String(p))).join('');
+      }
+      text() {
+        return Promise.resolve(this._content);
+      }
+    }
+    // @ts-expect-error test shim
+    globalThis.Blob = MockBlob;
 
     const { getByTitle, getByLabelText } = render(
       <MemoryRouter>
@@ -79,6 +94,8 @@ describe('JournalPage', () => {
     await new Promise(res => setTimeout(res, 0));
     expect(blobText).toContain('2026-03-05');
     expect(blobText).not.toContain('2026-03-01');
+
+    globalThis.Blob = OriginalBlob;
   });
 
   it('lets user set a daily reminder time', () => {
