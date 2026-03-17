@@ -2874,6 +2874,8 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
         key={m.id}
         onClick={() => isQuick ? handleQuickMood(m.id) : setMood(active ? null : m.id)}
         className={`${size} journal-mood-btn rounded-full transition-all duration-150 flex items-center justify-center hover:scale-110 hover:-translate-y-1 active:scale-105 active:translate-y-0 focus:outline-none ring-0 focus:ring-0 focus:ring-offset-0`}
+        title={m.label}
+        aria-label={m.label}
         style={{
           color: m.color,
           background: active ? `${m.color}33` : '#000000',
@@ -2965,10 +2967,37 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
           <button onClick={() => setShowBreathing(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="breathing"><Wind size={18} /></button>
           <button onClick={() => setShowTimer(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="timer"><Clock size={18} /></button>
           <PrivacyLock isLocked={isLocked} onUnlock={() => setIsLocked(false)} onLock={() => setIsLocked(true)} />
-          <button onClick={() => setReminderEnabled(v => !v)} className={cn("p-2 rounded-lg hover:bg-white/5 transition-colors", reminderEnabled && "text-yellow-400")} title="reminder"><Bell size={18} /></button>
-          {reminderEnabled && <input type="time" value={reminderTime} onChange={e => setReminderTime(e.target.value)} className="h-7 text-xs bg-transparent border border-white/20 rounded px-1" />}
-          <input type="date" value={exportFrom} onChange={e => setExportFrom(e.target.value)} className="h-7 text-xs bg-transparent border border-white/20 rounded px-1" />
-          <input type="date" value={exportTo} onChange={e => setExportTo(e.target.value)} className="h-7 text-xs bg-transparent border border-white/20 rounded px-1" />
+          <button
+            onClick={() => setReminderEnabled(v => !v)}
+            className={cn("p-2 rounded-lg hover:bg-white/5 transition-colors", reminderEnabled && "text-yellow-400")}
+            title="reminder"
+            aria-label="toggle reminder"
+          >
+            <Bell size={18} />
+          </button>
+          {reminderEnabled && (
+            <input
+              type="time"
+              value={reminderTime}
+              onChange={e => setReminderTime(e.target.value)}
+              className="h-7 text-xs bg-transparent border border-white/20 rounded px-1"
+              aria-label="reminder time"
+            />
+          )}
+          <input
+            type="date"
+            value={exportFrom}
+            onChange={e => setExportFrom(e.target.value)}
+            className="h-7 text-xs bg-transparent border border-white/20 rounded px-1"
+            aria-label="export from date"
+          />
+          <input
+            type="date"
+            value={exportTo}
+            onChange={e => setExportTo(e.target.value)}
+            className="h-7 text-xs bg-transparent border border-white/20 rounded px-1"
+            aria-label="export to date"
+          />
           <div className="relative group">
             <button className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="export"><Download size={18} /></button>
             <div className="absolute right-0 top-full mt-1 hidden group-hover:block bg-[#0a0a0a] border border-white/10 rounded-lg p-1 min-w-[120px] z-50">
