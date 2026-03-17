@@ -3,21 +3,33 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import { IconPicker } from '../icon-picker-dialog';
 
-// mock a subset of lucide-react exports that our component uses
-vi.mock('lucide-react', () => ({
-  Folder: () => <svg data-testid="icon-folder" />,
-  File: () => <svg data-testid="icon-file" />,
-  Database: () => <svg data-testid="icon-database" />,
-  Upload: () => <svg data-testid="icon-upload" />,
-  Sparkles: () => <svg data-testid="icon-sparkles" />,
-  Loader2: () => <svg data-testid="icon-loader2" />,
-  RotateCcw: () => <svg data-testid="icon-rotate" />,
-  Wand2: () => <svg data-testid="icon-wand2" />,
-  Save: () => <svg data-testid="icon-save" />,
-  Check: () => <svg data-testid="icon-check" />,
-  Undo2: () => <svg data-testid="icon-undo" />,
-  // plus the other helpers the module exports automatically (should be fine)
-}));
+// mock lucide-react icons our component references while preserving other exports
+vi.mock('lucide-react', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('lucide-react')>();
+  const mockIcon = (name: string) => () => <svg data-testid={`icon-${name}`} />;
+
+  const iconsToMock = [
+    'Folder', 'File', 'Database', 'User', 'Users', 'Home', 'Search', 'Menu',
+    'MoreVertical', 'MoreHorizontal', 'Plus', 'Minus', 'X', 'Check',
+    'ChevronRight', 'ChevronDown', 'ArrowRight', 'ArrowLeft', 'Calendar',
+    'Clock', 'Bell', 'Mail', 'MessageSquare', 'Phone', 'Video', 'Image',
+    'Music', 'Map', 'Globe', 'Sun', 'Moon', 'Cloud', 'Zap', 'Activity',
+    'BarChart', 'PieChart', 'TrendingUp', 'DollarSign', 'CreditCard',
+    'ShoppingBag', 'Gift', 'Heart', 'Star', 'Flag', 'Bookmark', 'Tag', 'Link',
+    'Lock', 'Unlock', 'Eye', 'EyeOff', 'Upload', 'Sparkles', 'Loader2',
+    'RotateCcw', 'Wand2', 'Save', 'Undo2'
+  ];
+
+  const overrides: Record<string, React.ComponentType> = {};
+  iconsToMock.forEach((icon) => {
+    overrides[icon] = mockIcon(icon.toLowerCase());
+  });
+
+  return {
+    ...actual,
+    ...overrides,
+  };
+});
 
 const noop = vi.fn();
 
