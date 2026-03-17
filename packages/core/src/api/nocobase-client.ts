@@ -43,6 +43,9 @@ interface RequestParams {
   [key: string]: unknown;
 }
 
+type QueryParamPrimitive = string | number | boolean | undefined | null;
+export type QueryParamValue = QueryParamPrimitive | QueryParamPrimitive[];
+
 
 export class NocoBaseClient {
   private _axios: AxiosInstance;
@@ -372,8 +375,6 @@ export class NocoBaseClient {
     const res = await this._axios.post(`/collections/${collection}/fields:destroy?filterByTk=${name}`);
     return ActionResponseSchema.parse(res.data);
   }
-  type QueryParamValue = string | number | boolean | undefined | null | Array<string | number | boolean | undefined | null>;
-
   async listRecords(collection: string, params: Record<string, QueryParamValue> = {}): Promise<Record<string, unknown>> {
     // remove /obj/ prefix, use <collection>:list
     const res = await this._axios.get(`/${collection}:list`, { params });
