@@ -1,5 +1,6 @@
 import React from 'react';
 import { render as rtlRender, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom/vitest';
 import { describe, it, expect } from 'vitest';
 import { Toolbar } from '../Toolbar';
 import { useEdgelessStore } from '../../store';
@@ -25,8 +26,8 @@ describe('Toolbar', () => {
     // ensure default tool is pen/brush
     useEdgelessStore.setState({ activeTool: 'pen' });
     render(<Toolbar />);
-    // find brush button by title or aria-label? use tool prop 'pen'
-    const brushBtn = screen.getByTitle(/pen|brush/i);
+    // target the exact pen tool button (title attr is just "pen")
+    const brushBtn = screen.getByTitle(/^pen$/i);
     fireEvent.click(brushBtn);
     // now menu should appear; look for opacity label
     expect(screen.getByText(/opacity/i)).toBeInTheDocument();
@@ -36,7 +37,7 @@ describe('Toolbar', () => {
   it('shows eraser opacity slider in eraser menu', () => {
     useEdgelessStore.setState({ activeTool: 'eraser' });
     render(<Toolbar />);
-    const eraserBtn = screen.getByTitle(/eraser/i);
+    const eraserBtn = screen.getByTitle(/^eraser$/i);
     fireEvent.click(eraserBtn);
     expect(screen.getByText(/opacity/i)).toBeInTheDocument();
     expect(screen.getByText(/width/i)).toBeInTheDocument();
