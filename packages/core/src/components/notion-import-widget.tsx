@@ -2,6 +2,55 @@ import { useState } from 'react';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { maskString } from '@/lib/sanitize-utils';
 import { storageManager } from '@/lib/storage-manager';
+import { secureLogger } from '@/lib/secure-logger';
+
+type LocationOverride = { host?: string; hostname?: string; origin?: string; protocol?: string };
+
+declare global {
+     
+    var __HOM_TEST_LOCATION__: LocationOverride | undefined;
+     
+    var __HOM_TEST_BACKEND_URL__: string | undefined;
+}
+
+const getRuntimeLocation = () => {
+    if (globalThis.__HOM_TEST_LOCATION__) {
+        const override = globalThis.__HOM_TEST_LOCATION__;
+        return {
+            host: override.host || '',
+            hostname: override.hostname || '',
+            origin: override.origin || '',
+            protocol: override.protocol || '',
+        };
+    }
+    if (typeof window !== 'undefined' && window.location) {
+        const { host = '', hostname = '', origin = '', protocol = '' } = window.location;
+        return { host, hostname, origin, protocol };
+    }
+    return { host: '', hostname: '', origin: '', protocol: '' };
+};
+
+const resolveBackendBaseUrl = () => {
+    const overrideBackend = globalThis.__HOM_TEST_BACKEND_URL__;
+    const rawEnv = overrideBackend ?? (import.meta.env.VITE_BACKEND_URL as string | undefined);
+    let envBase = rawEnv;
+    if (envBase && envBase.endsWith('/')) envBase = envBase.slice(0, -1);
+
+    if (envBase && envBase.startsWith('http')) {
+        const runtimeLoc = getRuntimeLocation();
+        const hostLower = (runtimeLoc.host || runtimeLoc.hostname || '').toLowerCase();
+        const envHost = new URL(envBase).host.toLowerCase();
+        const officialHosts = ['api.houseofmates.space', 'api.houseofmates.app'];
+        const isOfficial = officialHosts.includes(envHost);
+        const isPkmSubdomain = hostLower.endsWith('.houseofmates.space') && !hostLower.startsWith('api.');
+        if (isOfficial && isPkmSubdomain) {
+            return { baseUrl: '/api', rawEnv, envBase };
+        }
+        return { baseUrl: envBase, rawEnv, envBase };
+    }
+
+    return { baseUrl: '/api', rawEnv, envBase };
+};
 
 export function NotionImportWidget() {
     const [files, setFiles] = useState<File[]>([]);
@@ -71,17 +120,7 @@ export function NotionImportWidget() {
         // determine the backend URL for handling imports. this is **not** the
         // nocobase API (VITE_API_URL) but the PKM backend service. the latter
         // is exposed via VITE_BACKEND_URL or proxied under `/api` in dev.
-        let rawEnv = import.meta.env.VITE_BACKEND_URL as string | undefined;
-        let envBase = rawEnv;
-        if (envBase && envBase.endsWith('/')) envBase = envBase.slice(0, -1);
-
-        let baseUrl: string;
-        if (envBase && envBase.startsWith('http')) {
-            baseUrl = envBase;
-        } else {
-            // fallback to relative `/api` which the dev server proxies to backend
-            baseUrl = '/api';
-        }
+        const { baseUrl, rawEnv, envBase } = resolveBackendBaseUrl();
         const url = `${baseUrl}/nb-import-csv`;
         if (import.meta.env.DEV) {
             secureLogger.debug('[NotionImportWidget] raw VITE_BACKEND_URL=', rawEnv, 'env BACKEND_URL=', envBase, 'using url', url, '(legacy notion-import also accepted)');
@@ -94,7 +133,7 @@ export function NotionImportWidget() {
             });
             if (!res.ok) {
                 let text = '';
-                try { text = await res.text(); } catch { }
+                try { text = await res.text(); } catch { /* ignore text read error */ }
                 appendLog(`upload failed: ${res.status} ${text || res.statusText}`);
                 setRunning(false);
                 return;
@@ -177,10 +216,7 @@ export function NotionImportWidget() {
             storageManager.getItem('hom_api_key') ||
             storageManager.getItem('nocobase_token') ||
             storageManager.getItem('nocobase_api_key');
-        let rawEnv = import.meta.env.VITE_BACKEND_URL as string | undefined;
-        let envBase = rawEnv;
-        if (envBase && envBase.endsWith('/')) envBase = envBase.slice(0, -1);
-        const baseUrl = envBase && envBase.startsWith('http') ? envBase : '/api';
+        const { baseUrl } = resolveBackendBaseUrl();
         const pollUrl = `${baseUrl}/nb-import/logs?id=${encodeURIComponent(lastTaskId)}`;
         try {
             const pres = await fetch(pollUrl, { headers: { Authorization: `Bearer ${apiKey}` } });
