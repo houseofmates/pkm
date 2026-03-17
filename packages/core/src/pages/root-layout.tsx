@@ -21,6 +21,7 @@ import {
   sortableKeyboardCoordinates,
 } from '@dnd-kit/sortable';
 import { Folder, Database, Github, CheckCircle, RefreshCcw, AlertTriangle } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { useThemeReactor, hexToHsl } from '@/hooks/use-theme-reactor';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
@@ -292,7 +293,7 @@ export function RootLayout(props) {
                       if (activeDragItem.iconType === 'emoji') return <span className="mr-2 text-base leading-none">{activeDragItem.icon}</span>;
                       if (activeDragItem.iconType === 'image') return <img src={activeDragItem.icon} alt="icon" className="h-4 w-4 mr-2 object-contain" />;
                       if (activeDragItem.iconType === 'lucide') {
-                        const Icon = require('lucide-react')[activeDragItem.icon] || Folder;
+                        const Icon = (LucideIcons as Record<string, React.ComponentType<any>>)[activeDragItem.icon] || Folder;
                         return <Icon className="h-4 w-4 mr-2" style={{ color: activeDragItem.color || 'var(--primary)' }} />;
                       }
                     }
