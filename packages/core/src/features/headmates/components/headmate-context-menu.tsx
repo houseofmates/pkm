@@ -1,5 +1,5 @@
 
-import { useState, useRef } from 'react';
+import { useState, useRef, type ChangeEvent } from 'react';
 import { useFronter } from '@/contexts/fronter-context';
 import {
   ContextMenu,
@@ -18,6 +18,7 @@ import { Image, FileText, Trash2, Edit, Upload, Palette } from 'lucide-react';
 import { toast } from 'sonner';
 import { MemberService } from '@/api/member-service';
 
+import { secureLogger } from '@/lib/secure-logger';
 import { formatHeadmateName, getCapitalizationClass } from '@/utils/text-formatting';
 
 // local formatting removed in favor of global usage
@@ -53,86 +54,85 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   const isHidden = currentOverride.hidden;
 
   const toggleHide = () => {
-  updateoverride(memberid, { hidden: !isHidden });
-  toast.info(isHidden ? "headmate restored" : "headmate hidden");
+    updateOverride(memberId, { hidden: !isHidden });
+    toast.info(isHidden ? "headmate restored" : "headmate hidden");
   };
 
   // --- image handling ---
-  // --- image handling ---
-  const handlefilechange = async (e: react.changeevent<HTMLInputElement>) => {
-  const file = e.target.files?.[0];
-  if (!file) return;
+  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
 
-  // use the new memberservice to handle upload & sync
-  // we pass the updateoverride function as the callback
-  await MemberService.updateMemberAvatar(memberId, file, async (id, data) => {
-  updateOverride(id, data);
+    // use the new memberservice to handle upload & sync
+    // we pass the updateoverride function as the callback
+    await MemberService.updateMemberAvatar(memberId, file, async (id, data) => {
+      updateOverride(id, data);
 
-  // flush to persist the local override immediately
-  try {
- await flushOverrides();
-  } catch (flushError) {
- secureLogger.warn('Failed to flush overrides:', flushError);
-  }
-  });
+      // flush to persist the local override immediately
+      try {
+        await flushOverrides();
+      } catch (flushError) {
+        secureLogger.warn('Failed to flush overrides:', flushError);
+      }
+    });
 
-  // reset file input and close dialog
-  if (fileInputRef.current) {
-  fileInputRef.current.value = '';
-  }
-  setImageOpen(false);
+    // reset file input and close dialog
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+    setImageOpen(false);
   };
 
   const saveImageUrl = async () => {
-  if (!imageUrl.trim()) return;
-  updateOverride(memberId, { avatarUrl: imageUrl.trim() });
+    if (!imageUrl.trim()) return;
+    updateOverride(memberId, { avatarUrl: imageUrl.trim() });
 
   // flush immediately to ensure persistence
-  try {
-  await flushOverrides();
-  } catch (flushError) {
-  secureLogger.warn('Failed to flush overrides:', flushError);
-  }
+    try {
+      await flushOverrides();
+    } catch (flushError) {
+      secureLogger.warn('Failed to flush overrides:', flushError);
+    }
 
-  toast.success("image link saved");
-  setImageUrl(''); // Clear input after saving
-  setImageOpen(false);
+    toast.success("image link saved");
+    setImageUrl(''); // Clear input after saving
+    setImageOpen(false);
   };
 
   // --- name/desc ---
   const openEdit = () => {
-  setDesc(currentOverride.description || '');
-  setEditOpen(true);
+    setDesc(currentOverride.description || '');
+    setEditOpen(true);
   };
 
   const openNameEdit = () => {
-  setVisualName((currentOverride as any).name || memberName);
-  setNameOpen(true);
+    setVisualName((currentOverride as any).name || memberName);
+    setNameOpen(true);
   };
 
   const saveDetails = () => {
-  updateOverride(memberId, { description: desc });
-  setEditOpen(false);
-  toast.success("description saved");
+    updateOverride(memberId, { description: desc });
+    setEditOpen(false);
+    toast.success("description saved");
   };
 
   const saveVisualName = () => {
-  updateOverride(memberId, ({ name: visualName } as any));
-  setNameOpen(false);
-  toast.success("visual name saved");
+    updateOverride(memberId, ({ name: visualName } as any));
+    setNameOpen(false);
+    toast.success("visual name saved");
   };
 
   // --- colors ---
   const openColor = () => {
-  setColor(currentOverride.color || '#cccccc');
-  setTextColor(currentOverride.textColor || '#ffffff');
-  setColorOpen(true);
+    setColor(currentOverride.color || '#cccccc');
+    setTextColor(currentOverride.textColor || '#ffffff');
+    setColorOpen(true);
   };
 
   const saveColors = () => {
-  updateOverride(memberId, { color, textColor });
-  setColorOpen(false);
-  toast.success("colors saved");
+    updateOverride(memberId, { color, textColor });
+    setColorOpen(false);
+    toast.success("colors saved");
   };
 
   // --- front with status ---
@@ -140,23 +140,23 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   const [customFrontStatus, setCustomFrontStatus] = useState('');
 
   const openFrontStatus = () => {
-  setCustomFrontStatus('');
-  setFrontStatusOpen(true);
+    setCustomFrontStatus('');
+    setFrontStatusOpen(true);
   };
 
   const handleFrontWithStatus = async () => {
-  // add to active fronters if not already there
-  const newFronters = [...activeFronters];
-  if (!newFronters.includes(memberId)) {
-  newFronters.push(memberId);
-  }
+    // add to active fronters if not already there
+    const newFronters = [...activeFronters];
+    if (!newFronters.includes(memberId)) {
+      newFronters.push(memberId);
+    }
 
-  // update local state and sync
-  updateFronters(newFronters);
-  await registerFrontChange(newFronters, customFrontStatus);
+    // update local state and sync
+    updateFronters(newFronters);
+    await registerFrontChange(newFronters, customFrontStatus);
 
-  setFrontStatusOpen(false);
-  toast.success(`Front set: ${customFrontStatus}`);
+    setFrontStatusOpen(false);
+    toast.success(`Front set: ${customFrontStatus}`);
   };
 
   return (
@@ -214,7 +214,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
     ref={fileInputRef}
     className="hidden"
     accept="image/*"
-    onChange={handlefilechange}
+    onChange={handleFileChange}
   />
 
   {/* visual name dialog */}
