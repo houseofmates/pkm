@@ -12,7 +12,7 @@ import { AuthProvider } from '@/contexts/auth-context';
 
 describe('JournalPage', () => {
   it('renders mood emoji buttons and can toggle selection; emotions are searchable', () => {
-    const { getByText, getByPlaceholderText, queryByText } = render(
+    const { getByLabelText, getByPlaceholderText, queryByText } = render(
       <MemoryRouter>
         <AuthProvider>
           <JournalPage />
@@ -20,15 +20,14 @@ describe('JournalPage', () => {
       </MemoryRouter>
     );
 
-    // moods unchanged - there should be a button showing the "amazing" emoji
-    const moodBtn = getByText('😁');
+    const moodBtn = getByLabelText(/amazing/i);
     expect(moodBtn).toBeTruthy();
-    // clicking toggles the border/background style
-    expect(moodBtn).toHaveStyle('border: 2px solid rgba(255,255,255,0.08)');
+    // clicking toggles the background style between inactive/active colors
+    expect(moodBtn).toHaveStyle('background: #000000');
     fireEvent.click(moodBtn);
-    expect(moodBtn).toHaveStyle('border: 2px solid #8b5cf6');
+    expect(moodBtn).toHaveStyle('background: #8b5cf633');
     fireEvent.click(moodBtn);
-    expect(moodBtn).toHaveStyle('border: 2px solid rgba(255,255,255,0.08)');
+    expect(moodBtn).toHaveStyle('background: #000000');
 
     // emotions section: default list includes 'sad' and new ones like 'infuriated'
     const searchInput = getByPlaceholderText(/search emotions/i);
@@ -64,7 +63,7 @@ describe('JournalPage', () => {
       return 'blob://fake';
     });
 
-    const { getByTitle, getAllByDisplayValue } = render(
+    const { getByTitle, getByLabelText } = render(
       <MemoryRouter>
         <AuthProvider>
           <JournalPage />
@@ -72,9 +71,8 @@ describe('JournalPage', () => {
       </MemoryRouter>
     );
 
-    const dateInputs = getAllByDisplayValue('', { selector: 'input[type=date]' });
-    const fromInput = dateInputs[0];
-    const toInput = dateInputs[1];
+    const fromInput = getByLabelText('export from date');
+    const toInput = getByLabelText('export to date');
     fireEvent.change(fromInput, { target: { value: '2026-03-03' } });
     fireEvent.change(toInput, { target: { value: '2026-03-10' } });
     fireEvent.click(getByTitle('export'));
@@ -85,16 +83,16 @@ describe('JournalPage', () => {
 
   it('lets user set a daily reminder time', () => {
     localStorage.clear();
-    const { getByTitle, container } = render(
+    const { getByLabelText, container } = render(
       <MemoryRouter>
         <AuthProvider>
           <JournalPage />
         </AuthProvider>
       </MemoryRouter>
     );
-    const remBtn = container.querySelectorAll('button[title="reminder"]')[1] as HTMLButtonElement;
+    const remBtn = getByLabelText('toggle reminder');
     fireEvent.click(remBtn);
-    const timeInput = container.querySelector('input[type=time]');
+    const timeInput = getByLabelText('reminder time');
     expect(timeInput).toBeTruthy();
     if (timeInput) {
       fireEvent.change(timeInput, { target: { value: '08:30' } });
