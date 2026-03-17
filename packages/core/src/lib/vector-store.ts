@@ -3,6 +3,7 @@
 
 import { api } from '@/api/nocobase-client';
 import { secureLogger } from '@/lib/secure-logger';
+import { normalizeListResponse, extractRecords } from '@/lib/nocobase-utils';
 
 export interface VectorChunk {
   id: string;
@@ -18,6 +19,18 @@ export interface VectorChunk {
 export interface SearchResult {
   chunk: VectorChunk;
   score: number;
+}
+
+export interface NocoBaseCollectionSummary {
+  name?: string;
+  hidden?: boolean;
+}
+
+export interface NocoBaseRecord extends Record<string, unknown> {
+  id?: string | number;
+  title?: string;
+  name?: string;
+  updatedAt?: string | number;
 }
 
 // configuration for vector store
@@ -49,14 +62,39 @@ export async function generateEmbedding(text: string): Promise<number[]> {
     }
 
     const data = await response.json();
-    return data.embedding;
+    const embedding = Array.isArray(data?.embedding) ? data.embedding : undefined;
+    if (!embedding || !embedding.every((v: unknown) => typeof v === 'number')) {
+      throw new Error('invalid embedding response from embedding endpoint');
+    }
+    return embedding as number[];
   } catch (error) {
     secureLogger.error('failed to generate embedding:', error);
-    throw error;
+    throw error instanceof Error ? error : new Error(String(error));
   }
 }
 
 // search nocobase ai knowledge base
+export interface KnowledgeBaseSearchItem {
+  id: string;
+  collection: string;
+  recordId: string | number;
+  field: string;
+  content: string;
+  metadata?: Record<string, string | number | boolean | null | undefined>;
+  score?: number;
+}
+
+function isKnowledgeBaseSearchItem(value: unknown): value is KnowledgeBaseSearchItem {
+  if (typeof value !== 'object' || value === null) return false;
+  const v = value as Record<string, unknown>;
+  return (
+    typeof v.id === 'string' &&
+    typeof v.collection === 'string' &&
+    typeof v.field === 'string' &&
+    typeof v.content === 'string'
+  );
+}
+
 export async function searchKnowledgeBase(
   query: string,
   topK: number = VECTOR_CONFIG.topK
@@ -69,16 +107,12 @@ export async function searchKnowledgeBase(
       topK,
     });
 
-    if (response.data?.data) {
-      return response.data.data.map((item: {
-        id: string;
-        collection: string;
-        recordId: string | number;
-        field: string;
-        content: string;
-        metadata?: Record<string, string | number | boolean | null | undefined>;
-        score?: number;
-      }) => ({
+    const resultData = response?.data?.data;
+    if (!Array.isArray(resultData)) return [];
+
+    return resultData
+      .filter(isKnowledgeBaseSearchItem)
+      .map((item) => ({
         chunk: {
           id: item.id,
           collection: item.collection,
@@ -87,11 +121,8 @@ export async function searchKnowledgeBase(
           content: item.content,
           metadata: item.metadata,
         },
-        score: item.score || 0,
+        score: item.score ?? 0,
       }));
-    }
-
-    return [];
   } catch (error) {
     secureLogger.warn('nocobase kb search failed, falling back to local:', error);
     return fallbackLocalSearch(query, topK);
@@ -101,11 +132,11 @@ export async function searchKnowledgeBase(
 // fallback: search using local collection data with simple similarity
 async function fallbackLocalSearch(query: string, topK: number): Promise<SearchResult[]> {
   try {
-    // fetch all collections
+    // fetch all collections from nocobase and normalize the response
     const collectionsRes = await api.listCollections();
-    const collections = Array.isArray(collectionsRes.data)
-      ? collectionsRes.data
-      : (collectionsRes.data as { data?: unknown })?.data || [];
+    const normalizedCollections = normalizeListResponse(collectionsRes);
+    const collections: NocoBaseCollectionSummary[] = (normalizedCollections.data ?? [])
+      .filter((c): c is NocoBaseCollectionSummary => typeof c === 'object' && c !== null);
 
     const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections'];
     const userCollections = collections.filter((c: { name?: string; hidden?: boolean }) => {
@@ -117,15 +148,17 @@ async function fallbackLocalSearch(query: string, topK: number): Promise<SearchR
 
     // fetch records from each collection
     for (const col of userCollections.slice(0, 5)) {
-      try {
-        const recordsRes = await api.listRecords(col.name, {
-          pageSize: 20,
+      const colName = String(col.name || '').trim();
+      if (!colName) continue;
+
+try {
+        const recordsRes = await api.listRecords(colName, {
+          pageSize: 50,
           sort: ['-updatedAt'],
         });
 
-        const records = Array.isArray((recordsRes as { data?: unknown }).data)
-          ? (recordsRes as { data: unknown[] }).data
-          : ((recordsRes as { data?: { data?: unknown[] } }).data as { data?: unknown[] })?.data || [];
+        const normalizedRecords = normalizeListResponse(recordsRes);
+        const records: NocoBaseRecord[] = extractRecords(normalizedRecords) as NocoBaseRecord[];
 
         for (const record of records) {
           // extract text fields as chunks
@@ -143,8 +176,8 @@ async function fallbackLocalSearch(query: string, topK: number): Promise<SearchR
             for (let i = 0; i < chunks.length; i++) {
               allChunks.push({
                 id: `${col.name}:${record.id}:${field}:${i}`,
-                collection: col.name,
-                recordId: record.id,
+                collection: col.name || 'unknown',
+                recordId: record.id ?? `${i}`,
                 field,
                 content: chunks[i],
                 metadata: {
@@ -162,17 +195,18 @@ async function fallbackLocalSearch(query: string, topK: number): Promise<SearchR
 
     // simple keyword-based scoring (fallback when no embeddings)
     const queryWords = query.toLowerCase().split(/\s+/);
+    const queryLower = query.toLowerCase();
     const scored = allChunks.map(chunk => {
       const contentLower = chunk.content.toLowerCase();
       let score = 0;
       for (const word of queryWords) {
         if (contentLower.includes(word)) score += 1;
         // bonus for exact phrase match
-        if (contentLower.includes(query.toLowerCase())) score += 5;
+        if (contentLower.includes(queryLower)) score += 5;
       }
       // recency boost
       const daysSinceUpdate = chunk.metadata?.updatedAt
-        ? (Date.now() - new Date(chunk.metadata.updatedAt).getTime()) / (1000 * 60 * 60 * 24)
+        ? (Date.now() - new Date(String(chunk.metadata.updatedAt)).getTime()) / (1000 * 60 * 60 * 24)
         : 365;
       score *= Math.max(0.5, 1 - (daysSinceUpdate / 30)); // decay over 30 days
 
@@ -301,13 +335,9 @@ export async function reindexCollection(collection: string): Promise<{ indexed: 
   const result = { indexed: 0, failed: 0 };
 
   try {
-    const recordsRes = await api.listRecords(collection, { paginate: false });
-    const records = Array.isArray((recordsRes as { data?: unknown }).data)
-      ? (recordsRes as { data: unknown[] }).data
-      : ((recordsRes as { data?: { data?: unknown[] } }).data as { data?: unknown[] })?.data || [];
+    const records = await cursorPaginate(collection);
 
     for (const record of records) {
-      // extract all text fields
       const textFields: Record<string, string> = {};
       for (const [key, value] of Object.entries(record)) {
         if (typeof value === 'string' && value.length > 50) {
@@ -315,33 +345,51 @@ export async function reindexCollection(collection: string): Promise<{ indexed: 
         }
       }
 
-      if (Object.keys(textFields).length > 0) {
-        const success = await indexRecord(collection, record.id, textFields);
-        if (success) {
-          result.indexed++;
-        } else {
-          result.failed++;
-        }
-      }
+      if (Object.keys(textFields).length === 0) continue;
+
+      const success = await indexRecord(collection, record.id ?? `${Date.now()}`, textFields);
+      if (success) result.indexed += 1;
+      else result.failed += 1;
     }
   } catch (error) {
     secureLogger.error(`failed to reindex ${collection}:`, error);
-    result.failed++;
+    result.failed += 1;
   }
 
   return result;
 }
 
+async function cursorPaginate(collection: string, pageSize = 200): Promise<NocoBaseRecord[]> {
+  const records: NocoBaseRecord[] = [];
+  let page = 1;
+
+  while (true) {
+    const response = await api.listRecords(collection, { page, pageSize });
+    const normalized = normalizeListResponse(response);
+    const batch = extractRecords(normalized) as NocoBaseRecord[];
+
+    if (!batch.length) break;
+    records.push(...batch);
+
+    if (batch.length < pageSize || page > 5000) {
+      break;
+    }
+
+    page += 1;
+  }
+
+  return records;
+}
+
 // index every user collection in the database
 export async function indexAllCollections(): Promise<Record<string, { indexed: number; failed: number }>> {
-
   const results: Record<string, { indexed: number; failed: number }> = {};
 
   try {
     const colRes = await api.listCollections();
     const allCols: { name?: string; hidden?: boolean }[] = Array.isArray((colRes as { data?: unknown }).data)
-      ? (colRes as { data: unknown[] }).data as { name?: string; hidden?: boolean }[]
-      : ((colRes as { data?: { data?: unknown[] } }).data as { data?: unknown[] })?.data as { name?: string; hidden?: boolean }[] || [];
+      ? ((colRes as { data: unknown[] }).data as { name?: string; hidden?: boolean }[])
+      : ((((colRes as { data?: { data?: unknown[] } }).data as { data?: unknown[] })?.data as { name?: string; hidden?: boolean }[]) || []);
 
     const systemCollections = ['users', 'roles', 'attachments', 'collection_fields', 'collections'];
     const userCols = allCols
