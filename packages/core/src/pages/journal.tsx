@@ -3346,6 +3346,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
                 onChange={e => setEmotionQuery(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleAddEmotion()}
                 placeholder="add custom emotion..."
+                aria-label="emotion search"
                 className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase placeholder:text-white/30 focus:outline-none focus:border-white/30"
               />
               <button
