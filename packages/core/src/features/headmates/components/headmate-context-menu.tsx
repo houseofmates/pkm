@@ -9,7 +9,7 @@ import {
   ContextMenuTrigger,
   ContextMenuLabel,
 } from "@/components/ui/context-menu";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -220,7 +220,10 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   {/* visual name dialog */}
   <Dialog open={nameOpen} onOpenChange={setNameOpen}>
  <DialogContent>
- <DialogHeader><DialogTitle>edit visual name</DialogTitle></DialogHeader>
+ <DialogHeader>
+   <DialogTitle>edit visual name</DialogTitle>
+   <DialogDescription>Set a display-only name that won&apos;t sync back to integrations.</DialogDescription>
+ </DialogHeader>
  <div className="py-4">
  <Label>name (overrides integration)</Label>
  <Input value={visualName} onChange={e => setVisualName(e.target.value)} className="mt-2" />
@@ -232,7 +235,10 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   {/* image source dialog */}
   <Dialog open={imageOpen} onOpenChange={setImageOpen}>
  <DialogContent>
- <DialogHeader><DialogTitle>change image</DialogTitle></DialogHeader>
+ <DialogHeader>
+   <DialogTitle>change image</DialogTitle>
+   <DialogDescription>Upload a new avatar from your device or paste a direct image link.</DialogDescription>
+ </DialogHeader>
  <div className="space-y-4 py-4">
  <div className="grid grid-cols-2 gap-4">
    <Button variant="outline" className="h-24 flex flex-col gap-2" onClick={() => fileInputRef.current?.click()}>
@@ -256,7 +262,10 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   {/* edit description dialog (existing) */}
   <Dialog open={editOpen} onOpenChange={setEditOpen}>
  <DialogContent>
- <DialogHeader><DialogTitle>edit details</DialogTitle></DialogHeader>
+ <DialogHeader>
+   <DialogTitle>edit details</DialogTitle>
+   <DialogDescription>Add or update a custom description for this headmate.</DialogDescription>
+ </DialogHeader>
  <div className="space-y-4 py-4">
  <div className="space-y-2">
    <Label>custom description</Label>
@@ -275,7 +284,10 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   {/* edit color dialog (existing) */}
   <Dialog open={colorOpen} onOpenChange={setColorOpen}>
  <DialogContent>
- <DialogHeader><DialogTitle>customize colors</DialogTitle></DialogHeader>
+ <DialogHeader>
+   <DialogTitle>customize colors</DialogTitle>
+   <DialogDescription>Pick card and text colors to personalize their appearance.</DialogDescription>
+ </DialogHeader>
  <div className="space-y-4 py-4">
  <div className="space-y-2">
    <Label>main color</Label>
@@ -299,7 +311,10 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   {/* front with status dialog */}
   <Dialog open={frontStatusOpen} onOpenChange={setFrontStatusOpen}>
  <DialogContent>
- <DialogHeader><DialogTitle>front with status</DialogTitle></DialogHeader>
+ <DialogHeader>
+   <DialogTitle>front with status</DialogTitle>
+   <DialogDescription>Announce this headmate in front and optionally include a short status.</DialogDescription>
+ </DialogHeader>
  <div className="space-y-4 py-4">
  <div className="space-y-2">
    <Label>status message</Label>
