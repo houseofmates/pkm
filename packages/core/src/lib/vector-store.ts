@@ -348,8 +348,11 @@ export async function reindexCollection(collection: string): Promise<{ indexed: 
       if (Object.keys(textFields).length === 0) continue;
 
       const success = await indexRecord(collection, record.id ?? `${Date.now()}`, textFields);
-      if (success) result.indexed += 1;
-      else result.failed += 1;
+      if (success) {
+        result.indexed += 1;
+      } else {
+        result.failed += 1;
+      }
     }
   } catch (error) {
     secureLogger.error(`failed to reindex ${collection}:`, error);
