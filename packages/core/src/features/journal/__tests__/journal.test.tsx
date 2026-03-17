@@ -12,7 +12,7 @@ import { AuthProvider } from '@/contexts/auth-context';
 
 describe('JournalPage', () => {
   it('renders mood emoji buttons and can toggle selection; emotions are searchable', () => {
-    const { getByLabelText, getByPlaceholderText, queryByText } = render(
+    const { getByLabelText, queryByText } = render(
       <MemoryRouter>
         <AuthProvider>
           <JournalPage />
@@ -30,7 +30,7 @@ describe('JournalPage', () => {
     expect(moodBtn).toHaveStyle('background: #000000');
 
     // emotions section: default list includes 'sad' and new ones like 'infuriated'
-    const searchInput = getByPlaceholderText(/add custom emotion/i);
+    const searchInput = getByLabelText('emotion search');
     fireEvent.change(searchInput, { target: { value: 'sad' } });
     expect(queryByText('sad')).toBeTruthy();
     expect(queryByText('happy')).toBeNull();
@@ -58,18 +58,14 @@ describe('JournalPage', () => {
     const record2: any = { date: '2026-03-05', mood: '4', activities: '[]', body: '', timestamp: '2026-03-05T00:00:00Z', tags: '[]' };
     vi.spyOn(api, 'listRecords').mockResolvedValue({ data: [record1, record2] });
     let blobText = '';
-    vi.spyOn(URL, 'createObjectURL').mockImplementation((blob: any) => {
-      if (typeof blob.text === 'function') {
-        blob.text().then((t: string) => { blobText = t; });
-      }
-      return 'blob://fake';
-    });
+    vi.spyOn(URL, 'createObjectURL').mockImplementation(() => 'blob://fake');
 
     const OriginalBlob = globalThis.Blob;
     class MockBlob {
       private _content: string;
       constructor(parts: any[]) {
         this._content = parts.map(p => (typeof p === 'string' ? p : String(p))).join('');
+        blobText = this._content;
       }
       text() {
         return Promise.resolve(this._content);
