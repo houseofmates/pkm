@@ -64,12 +64,14 @@ const ProviderWrapper = ({ children }: { children: ReactNode }) => {
     clientRef.current = createTestQueryClient();
   }
 
-  return (
-    <QueryClientProvider client={clientRef.current}>
-      <AuthProvider>
-        <FronterProvider>{children}</FronterProvider>
-      </AuthProvider>
-    </QueryClientProvider>
+  return React.createElement(
+    QueryClientProvider,
+    { client: clientRef.current },
+    React.createElement(
+      AuthProvider,
+      null,
+      React.createElement(FronterProvider, null, children)
+    )
   );
 };
 
@@ -80,7 +82,7 @@ vi.mock('@testing-library/react', async () => {
     render: (ui: React.ReactElement, options?: RenderOptions) => {
       const { wrapper: userWrapper, ...rest } = options ?? {};
       const CombinedWrapper = ({ children }: { children: ReactNode }) => {
-        const tree = <ProviderWrapper>{children}</ProviderWrapper>;
+        const tree = React.createElement(ProviderWrapper, null, children);
         return userWrapper ? React.createElement(userWrapper, null, tree) : tree;
       };
       return actual.render(ui, { ...rest, wrapper: CombinedWrapper });
