@@ -5,8 +5,8 @@ import React, { type ReactNode, useRef } from 'react';
 import { vi, beforeEach, afterEach } from 'vitest';
 import type { RenderOptions } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { AuthProvider } from '@/contexts/auth-context';
-import { FronterProvider } from '@/contexts/fronter-context';
+import { AuthProvider } from '../packages/core/src/contexts/auth-context';
+import { FronterProvider } from '../packages/core/src/contexts/fronter-context';
 
 declare global {
   var __HOM_TEST_LOCATION__: Partial<Location> | undefined;
@@ -42,15 +42,9 @@ const testingLibraryPromise = vi.importActual<typeof import('@testing-library/re
 
 const createTestQueryClient = () =>
   new QueryClient({
-    logger: {
-      log: console.log,
-      warn: console.warn,
-      error: () => {},
-    },
     defaultOptions: {
       queries: {
         retry: false,
-        gcTime: 0,
       },
       mutations: {
         retry: false,
@@ -59,18 +53,18 @@ const createTestQueryClient = () =>
   });
 
 const ProviderWrapper = ({ children }: { children: ReactNode }) => {
-  const clientRef = useRef<QueryClient>();
+  const clientRef = useRef<QueryClient | null>(null);
   if (!clientRef.current) {
     clientRef.current = createTestQueryClient();
   }
 
   return React.createElement(
-    QueryClientProvider,
+    QueryClientProvider as React.ComponentType<any>,
     { client: clientRef.current },
     React.createElement(
-      AuthProvider,
+      AuthProvider as React.ComponentType<any>,
       null,
-      React.createElement(FronterProvider, null, children)
+      React.createElement(FronterProvider as React.ComponentType<any>, null, children)
     )
   );
 };
@@ -82,7 +76,7 @@ vi.mock('@testing-library/react', async () => {
     render: (ui: React.ReactElement, options?: RenderOptions) => {
       const { wrapper: userWrapper, ...rest } = options ?? {};
       const CombinedWrapper = ({ children }: { children: ReactNode }) => {
-        const tree = React.createElement(ProviderWrapper, null, children);
+        const tree = React.createElement(ProviderWrapper as React.ComponentType<any>, null, children);
         return userWrapper ? React.createElement(userWrapper, null, tree) : tree;
       };
       return actual.render(ui, { ...rest, wrapper: CombinedWrapper });
