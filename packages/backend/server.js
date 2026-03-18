@@ -396,11 +396,18 @@ function handleNotionImport(req, res) {
             const ext = path.extname(req.file.originalname || '').toLowerCase();
             if (isMockImport) {
                 emitter.emit('progress', `mock ${ext || 'archive'} import started`);
+                const mockLogs = [
+                    'parsing CSV import (mock)',
+                    'creating collection mock_csv',
+                    'import complete: 1 records'
+                ];
+                const current = importTasks.get(taskId);
+                if (current) current.logs.push(...mockLogs);
                 setTimeout(() => {
                     emitter.emit('progress', 'mock import finished');
                     emitter.emit('done');
-                    const current = importTasks.get(taskId);
-                    if (current) current.status = 'done';
+                    const entry = importTasks.get(taskId);
+                    if (entry) entry.status = 'done';
                 }, 5);
                 return;
             }
