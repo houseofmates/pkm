@@ -17,9 +17,9 @@ function render(ui: React.ReactElement) {
 describe('Toolbar', () => {
   it('renders with bottom safe-area class', () => {
     render(<Toolbar />);
-    const wrapper = document.querySelector('div.absolute');
+    const wrapper = document.querySelector('div.fixed');
     expect(wrapper).toBeTruthy();
-    expect(wrapper?.className).toContain('bottom-[calc(1rem+env(safe-area-inset-bottom))]');
+    expect(wrapper).toHaveStyle({ bottom: 'max(20px, calc(env(safe-area-inset-bottom, 0px) + 16px))' });
   });
 
   it('shows brush opacity and smoothness sliders in brush menu', () => {
