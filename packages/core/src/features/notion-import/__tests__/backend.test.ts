@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import type { Express } from 'express';
 import request from 'supertest';
 
 // helper to create a tiny zip file for testing
@@ -26,12 +27,17 @@ process.env.ADMIN_SECRET = 'test-secret';
 process.env.BROADCAST_AUTH_KEY = 'test-secret';
 
 // server instance loaded lazily after env vars are configured
-let server: import('express').Express;
+let server: Express;
 
-// ensure the public upload directory exists
-beforeAll(() => {
+// ensure the public upload directory exists and start backend once
+beforeAll(async () => {
   const dir = path.join(__dirname, '../../../../public');
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+
+  if (!server) {
+    const backend = await import('@pkm/backend/server.js');
+    server = backend.app;
+  }
 });
 
 describe('backend /api/nb-import', () => {
