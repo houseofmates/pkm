@@ -20,7 +20,7 @@ export function Dashboard() {
   };
 
   const handleBack = () => {
-  setselectedcollection(null);
+  setSelectedCollection(null);
   };
 
   return (
@@ -47,7 +47,7 @@ export function Dashboard() {
  </div>
 
  <div className="flex items-center gap-2">
- {!selectedcollection && (
+ {!selectedCollection && (
    <Button variant="ghost" size="sm" onClick={() => refresh()} disabled={loading}>
    {loading ? 'refreshing...' : 'refresh'}
    </Button>
@@ -57,7 +57,7 @@ export function Dashboard() {
  </header>
 
  <main className="flex-1 p-4 md:p-6 overflow-auto">
- {selectedcollection ? (
+ {selectedCollection ? (
  <PageTransition key={selectedCollection.name} className="h-full">
    <CollectionView collection={selectedCollection} onBack={handleBack} />
  </PageTransition>
@@ -76,7 +76,7 @@ export function Dashboard() {
    <div className="space-y-1">
   {collections.map((c: Collection) => (
   <Button key={c.name} variant="ghost" className="w-full justify-start" onClick={() => handleCollectionSelect(c)}>
-  {c.title || c.displayname || c.name}
+  {c.title || c.displayName || c.name}
   </Button>
   ))}
    </div>

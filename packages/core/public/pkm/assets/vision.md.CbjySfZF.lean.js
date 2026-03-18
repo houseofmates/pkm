@@ -1,0 +1,1 @@
+import{_ as a,o as s,c as e,ag as o}from"./chunks/framework.DsMOZfd2.js";const h=JSON.parse('{"title":"pkm vision","description":"","frontmatter":{},"headers":[],"relativePath":"vision.md","filePath":"vision.md"}'),n={name:"vision.md"};function l(t,i,r,p,m,c){return s(),e("div",null,[...i[0]||(i[0]=[o("",5)])])}const d=a(n,[["render",l]]);export{h as __pageData,d as default};

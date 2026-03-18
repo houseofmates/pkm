@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "npm run dev --workspace=pkm-web",
-    "build": "npm run build --workspace=pkm-web && npx cap sync android"
+    "dev": "npm run dev --workspace=@pkm/core",
+    "build": "npm run build --workspace=@pkm/core && npx cap sync android"
   },
   "dependencies": {
     "@pkm/core": "*",

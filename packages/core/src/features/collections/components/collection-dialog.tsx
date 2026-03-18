@@ -25,7 +25,10 @@ import { Image as ImageIcon, Plus, Smartphone, Monitor, Database, FileText, Arro
 import { useAppSetting } from '@/hooks/use-app-setting';
 import type { Collection } from '@/types/nocobase';
 import { detectFieldType } from '@/utils/csv-detector';
+import { type ViewType } from '@/components/views/registry';
 import { useNavigate } from 'react-router-dom';
+import { storageManager } from '@/lib/storage-manager';
+import { secureLogger } from '@/lib/secure-logger';
 import { Card, CardContent } from "@/components/ui/card"
 import { TRACKING_TEMPLATES } from '@/features/databases/data/tracking-templates';
 
@@ -50,9 +53,10 @@ interface CollectionDialogProps {
   }>;
 }
 
-interface CollectionMetadata {
+export interface CollectionMetadata {
   color?: string;
   image?: string;
+  default_view?: ViewType;
 }
 
 const field_types = [
@@ -419,20 +423,20 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const toastid = toast.loading("uploading image...");
+    const toastId = toast.loading("uploading image...");
     try {
       const res: any = await client.upload(file);
-      const uploadedfile = res.data;
+      const uploadedFile = res.data;
 
-      if (!uploadedfile || !uploadedfile.url) {
+      if (!uploadedFile || !uploadedFile.url) {
         throw new Error("upload failed");
       }
 
-      setImageUrl(uploadedfile.url);
-      toast.success("image uploaded", { id: toastid });
+      setImageUrl(uploadedFile.url);
+      toast.success("image uploaded", { id: toastId });
     } catch (error) {
-      secureLogger.error(error);
-      toast.error("failed to upload image", { id: toastid });
+      secureLogger.error(String(error));
+      toast.error("failed to upload image", { id: toastId });
     }
   };
 

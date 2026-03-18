@@ -27,9 +27,9 @@ interface PlayerDataMap {
 
 export function LiveServerWidget() {
   const [stats, setStats] = useState<ServerStats | null>(null);
-  const [loading, setloading] = useState(true);
-  const [chatmessages, setchatmessages] = useState<any[]>([]);
-  const [playerdata, setplayerdata] = useState<PlayerDataMap>({});
+  const [loading, setLoading] = useState(true);
+  const [chatMessages, setChatMessages] = useState<any[]>([]);
+  const [playerData, setPlayerData] = useState<PlayerDataMap>({});
 
   useEffect(() => {
   // initial stats fetch from local backend (fast)
@@ -195,7 +195,7 @@ export function LiveServerWidget() {
   </div>
 
   {/* warning message */}
-  {islowtps && (
+  {isLowTps && (
  <div className="flex items-center gap-2 text-red-500 bg-red-500/10 p-2 rounded text-xs">
  <AlertTriangle size={14} />
  <span>server performance degraded</span>
@@ -208,18 +208,18 @@ export function LiveServerWidget() {
  <Users size={10} /> live chat
  </div>
  <div className="h-[120px] overflow-y-auto space-y-2 pr-1 font-mono text-[10px] custom-scrollbar flex flex-col-reverse">
- {chatmessages.length === 0 ? (
+ {chatMessages.length === 0 ? (
  <div className="text-muted-foreground italic opacity-50">no recent messages</div>
  ) : (
  [...chatMessages].reverse().map((msg, i) => {
-   const issystemmessage = msg.player === 'server' || msg.player === 'system';
-   const playerdisplay = issystemmessage
+   const isSystemMessage = msg.player === 'server' || msg.player === 'system';
+   const playerDisplay = isSystemMessage
    ? { name: msg.player, color: '#a855f7', style: { color: '#a855f7' } }
-   : getplayerdisplay(msg.player);
+   : getPlayerDisplay(msg.player);
 
    // format timestamp in user's local timezone (date + time)
    const timestamp = msg.timestamp
-   ? new date(msg.timestamp).tolocalestring()
+   ? new Date(msg.timestamp).toLocaleString()
    : '';
 
    return (
@@ -233,7 +233,7 @@ export function LiveServerWidget() {
   className="font-bold mr-1"
   style={playerDisplay.style}
    >
-  {playerdisplay.name}:
+  {playerDisplay.name}:
    </span>
    <span className="text-gray-300">{msg.message}</span>
    </div>
@@ -244,7 +244,7 @@ export function LiveServerWidget() {
   </div>
 
   <div className="text-[9px] text-right text-muted-foreground opacity-50">
- last heartbeat: {stats?.lastupdated ? new date(stats.lastupdated).tolocalestring() : '--:--:--'}
+ last heartbeat: {stats?.lastUpdated ? new Date(stats.lastUpdated).toLocaleString() : '--:--:--'}
   </div>
   </div>
   );

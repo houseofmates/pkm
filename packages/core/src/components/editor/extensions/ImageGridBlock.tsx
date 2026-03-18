@@ -2,7 +2,15 @@ import { Node } from '@tiptap/core';
 import { ReactNodeViewRenderer, NodeViewWrapper } from '@tiptap/react';
 import { ImageGrid } from '@/components/ImageGrid';
 
-function ImageGridBlockComponent(props: any) {
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    imageGridBlock: {
+      setImageGridBlock: (options: any) => ReturnType;
+    };
+  }
+}
+
+function ImageGridBlockComponent(_props: any) {
   return (
   <NodeViewWrapper className="my-8">
   <ImageGrid />
@@ -41,7 +49,7 @@ export const ImageGridBlock = Node.create({
 
   addCommands() {
   return {
-  setImageGridBlock: (options) => ({ commands }) => {
+  setImageGridBlock: (options: any) => ({ commands }: { commands: any }) => {
  return commands.insertContent({
  type: this.name,
  attrs: options,

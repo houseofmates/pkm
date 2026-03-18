@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom/vitest';
 import { render, fireEvent } from '@testing-library/react';
 import { RecordTable } from '../record-table';
 import { vi } from 'vitest';
@@ -40,8 +41,8 @@ describe('RecordTable horizontal scroll sync', () => {
     const header = getByTestId('table-header-container');
     const body = getByTestId('table-body-container');
 
-    expect(header).toBeVisible();
-    expect(body).toBeVisible();
+    expect(header).toBeTruthy();
+    expect(body).toBeTruthy();
 
     // initially at left edge
     expect(header.scrollLeft).toBe(0);

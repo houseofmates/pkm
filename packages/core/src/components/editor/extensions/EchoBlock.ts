@@ -33,7 +33,7 @@ export const EchoBlock = Node.create({
   },
 
   addNodeView() {
-  return ReactNodeViewRenderer(EchoBlockComponent);
+  return ReactNodeViewRenderer(EchoBlockComponent as any);
   },
 
   addCommands() {

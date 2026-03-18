@@ -8,6 +8,7 @@ import {
 import { api } from '@/api/nocobase-client';
 import { toast } from 'sonner';
 import { CollectionPickerModal } from './CollectionPickerModal';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface Props {
   x: number;
@@ -75,10 +76,11 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   toast.info('uploading background...');
   try {
  const uploaded = await api.upload(file);
+   const uploadedAny = uploaded as any;
  secureLogger.info('[globalcontextmenu] upload response:', uploaded);
 
  // try multiple possible response structures
- const url = uploaded?.url || uploaded?.data?.url || uploaded?.data?.data?.url;
+   const url = uploadedAny?.url || uploadedAny?.data?.url || uploadedAny?.data?.data?.url;
  secureLogger.info('[globalcontextmenu] extracted url:', url);
 
  if (url) {
@@ -86,37 +88,37 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
  secureLogger.info('[globalcontextmenu] setting background to:', bgstyle);
  secureLogger.info('[globalcontextmenu] current page:', page);
 
- updatepage({ background: bgstyle });
+ updatePage({ background: bgstyle });
  toast.success('background uploaded successfully');
  } else {
  secureLogger.error('[globalcontextmenu] no url found in upload response:', uploaded);
- throw new error('no url in response - upload may have failed');
+ throw new Error('no url in response - upload may have failed');
  }
   } catch (err: any) {
  secureLogger.error('[globalcontextmenu] upload error:', err);
  secureLogger.error('[globalcontextmenu] error details:', err?.response || err?.message);
  toast.error('failed to upload background: ' + (err?.message || 'unknown error'));
   }
-  onclose();
+  onClose();
   };
   input.click();
   };
 
-  const handlecreatepage = async () => {
-  if (!newpagetitle.trim()) return;
+  const handleCreatePage = async () => {
+  if (!newPageTitle.trim()) return;
 
-  const slug = generateslug(newpagetitle);
-  setcreating(true);
+  const slug = generateSlug(newPageTitle);
+  setCreating(true);
 
   try {
-  await api.createrecord(collectionnames.website, {
- title: newpagetitle.trim(),
+  await api.createRecord(collectionNames.website, {
+ title: newPageTitle.trim(),
  slug,
  site: site_identifier,
  is_home: false,
  theme_color: 'var(--primary)',
  background: page?.background || '#050505',
- elements: json.stringify([])
+ elements: JSON.stringify([])
   });
   toast.success(`page "${slug}" created!`);
   // navigate to new page
@@ -124,40 +126,40 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   } catch (e: any) {
   toast.error(`failed to create page: ${e.message}`);
   } finally {
-  setcreating(false);
-  setshowpagemodal(false);
-  onclose();
+  setCreating(false);
+  setShowPageModal(false);
+  onClose();
   }
   };
 
-  const handleexpandpage = () => {
-  const currentheight = page?.height || window.innerheight;
-  const newheight = currentheight + 500;
-  updatepage({ height: newheight });
-  toast.success(`page extended to ${newheight}px`);
-  onclose();
+  const handleExpandPage = () => {
+  const currentHeight = page?.height || window.innerHeight;
+  const newHeight = currentHeight + 500;
+  updatePage({ height: newHeight });
+  toast.success(`page extended to ${newHeight}px`);
+  onClose();
   };
 
-  const addelementatcursor = (type: string) => {
+  const addElementAtCursor = (type: string) => {
   const element = {
   type: type as any,
   x: x - 100,
   y: y - 50,
   width: type === 'text' ? 250 : type === 'button' ? 150 : 200,
   height: type === 'text' ? 60 : type === 'button' ? 50 : 200,
-  content: getdefaultcontent(type),
+  content: getDefaultContent(type),
   styles: {
- backgroundcolor: type === 'text' ? 'transparent' : '#0b0015',
+ backgroundColor: type === 'text' ? 'transparent' : '#0b0015',
  opacity: type === 'text' ? 1 : 0.5
   },
-  zindex: 10,
+  zIndex: 10,
   };
-  addelement(element);
-  onclose();
+  addElement(element);
+  onClose();
   toast.success(`${type} added`);
   };
 
-  const getdefaultcontent = (type: string) => {
+  const getDefaultContent = (type: string) => {
   switch (type) {
   case 'text': return { html: '<p>new text block</p>' };
   case 'button': return { text: 'click me', bgcolor: 'var(--primary)', textcolor: '#000' };
@@ -178,38 +180,38 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   height: 350,
   content: { collectionName, viewType },
   styles: {},
-  zindex: 10,
+  zIndex: 10,
   };
-  addelement(element);
+  addElement(element);
   setShowCollectionPicker(false);
-  onclose();
+  onClose();
   };
 
   // color picker modal
-  if (showcolorpicker) {
+  if (showColorPicker) {
   return (
-  <div classname="fixed inset-0 z-[30000] flex items-center justify-center bg-black/80" onclick={onclose}>
- <div classname="bg-[#050505] border border-white/10 rounded-2xl p-6 w-80" onclick={e => e.stoppropagation()}>
- <div classname="flex justify-between items-center mb-4">
- <h3 classname="text-lg font-bold text-[var(--primary)] lowercase">background color</h3>
- <button onclick={onclose} classname="text-white/40 hover:text-white"><x classname="w-5 h-5" /></button>
+  <div className="fixed inset-0 z-[30000] flex items-center justify-center bg-black/80" onClick={onClose}>
+ <div className="bg-[#050505] border border-white/10 rounded-2xl p-6 w-80" onClick={e => e.stopPropagation()}>
+ <div className="flex justify-between items-center mb-4">
+ <h3 className="text-lg font-bold text-[var(--primary)] lowercase">background color</h3>
+ <button onClick={onClose} className="text-white/40 hover:text-white"><X className="w-5 h-5" /></button>
  </div>
  <input
  type="color"
- value={bgcolor.startsWith('#') ? bgcolor : '#050505'}
- onchange={(e) => setbgcolor(e.target.value)}
- classname="w-full h-16 rounded-xl cursor-pointer mb-4"
+ value={bgColor.startsWith('#') ? bgColor : '#050505'}
+ onChange={(e) => setBgColor(e.target.value)}
+ className="w-full h-16 rounded-xl cursor-pointer mb-4"
  />
  <input
  type="text"
- value={bgcolor}
- onchange={(e) => setbgcolor(e.target.value)}
+ value={bgColor}
+ onChange={(e) => setBgColor(e.target.value)}
  placeholder="#050505 or linear-gradient(...)"
- classname="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white mb-4"
+ className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white mb-4"
  />
  <button
- onclick={handlebackgroundcolorsave}
- classname="w-full py-3 rounded-xl selected-icon-btn font-bold hover:scale-[1.02] transition-transform"
+ onClick={handleBackgroundColorSave}
+ className="w-full py-3 rounded-xl selected-icon-btn font-bold hover:scale-[1.02] transition-transform"
  >
  apply
  </button>
@@ -219,36 +221,36 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   }
 
   // page creation modal
-  if (showpagemodal) {
-  const previewslug = generateslug(newpagetitle);
+  if (showPageModal) {
+  const previewSlug = generateSlug(newPageTitle);
   return (
-  <div classname="fixed inset-0 z-[30000] flex items-center justify-center bg-black/80" onclick={onclose}>
- <div classname="bg-[#050505] border border-white/10 rounded-2xl p-6 w-96" onclick={e => e.stoppropagation()}>
- <div classname="flex justify-between items-center mb-4">
- <h3 classname="text-lg font-bold text-[var(--primary)] lowercase">create new page</h3>
- <button onclick={onclose} classname="text-white/40 hover:text-white"><x classname="w-5 h-5" /></button>
+  <div className="fixed inset-0 z-[30000] flex items-center justify-center bg-black/80" onClick={onClose}>
+ <div className="bg-[#050505] border border-white/10 rounded-2xl p-6 w-96" onClick={e => e.stopPropagation()}>
+ <div className="flex justify-between items-center mb-4">
+ <h3 className="text-lg font-bold text-[var(--primary)] lowercase">create new page</h3>
+ <button onClick={onClose} className="text-white/40 hover:text-white"><X className="w-5 h-5" /></button>
  </div>
- <label classname="block text-white/60 text-sm mb-2 lowercase">page title</label>
+ <label className="block text-white/60 text-sm mb-2 lowercase">page title</label>
  <input
  type="text"
- value={newpagetitle}
- onchange={(e) => setnewpagetitle(e.target.value)}
+ value={newPageTitle}
+ onChange={(e) => setNewPageTitle(e.target.value)}
  placeholder="e.g. about us"
- classname="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white mb-4"
- autofocus
+ className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white mb-4"
+ autoFocus
  />
- {newpagetitle && (
- <div classname="mb-4 p-3 rounded-xl bg-white/5 border border-white/10">
-   <p classname="text-xs text-white/40 lowercase mb-1">url preview</p>
-   <p classname="text-sm text-[var(--primary)] font-mono">
-   {import.meta.env.vite_domain || 'localhost'}/<span classname="text-white">{previewslug || 'page-slug'}</span>
+ {newPageTitle && (
+ <div className="mb-4 p-3 rounded-xl bg-white/5 border border-white/10">
+   <p className="text-xs text-white/40 lowercase mb-1">url preview</p>
+   <p className="text-sm text-[var(--primary)] font-mono">
+   {import.meta.env.vite_domain || 'localhost'}/<span className="text-white">{previewSlug || 'page-slug'}</span>
    </p>
  </div>
  )}
  <button
- onclick={handlecreatepage}
- disabled={!newpagetitle.trim() || creating}
- classname="w-full py-3 rounded-xl bg-[var(--primary)] text-black font-bold hover:scale-[1.02] transition-transform disabled:opacity-50"
+ onClick={handleCreatePage}
+ disabled={!newPageTitle.trim() || creating}
+ className="w-full py-3 rounded-xl bg-[var(--primary)] text-black font-bold hover:scale-[1.02] transition-transform disabled:opacity-50"
  >
  {creating ? 'creating...' : 'create page'}
  </button>
@@ -299,7 +301,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
  <ChevronRight className={`w-4 h-4 transition-transform ${showBackgroundMenu ? 'rotate-90' : ''}`} />
  </button>
 
- {showbackgroundmenu && (
+ {showBackgroundMenu && (
  <div className="pl-6 border-l border-white/10 ml-3 space-y-1 mt-1">
    <button
    onClick={() => setShowColorPicker(true)}
@@ -353,27 +355,28 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   toast.info('uploading open sound...');
   try {
   const uploaded = await api.upload(file);
-  const url = uploaded?.url || uploaded?.data?.url;
+  const uploadedAny = uploaded as any;
+  const url = uploadedAny?.url || uploadedAny?.data?.url;
   if (url) {
-  updatepage({ custom_pop_sound: url });
+  updatePage({ custom_pop_sound: url });
   toast.success('page open sound updated');
   }
   } catch (err) {
-  secureLogger.error(err);
+  secureLogger.error(String(err));
   toast.error('upload failed');
   }
-  onclose();
+  onClose();
    };
    input.click();
    }}
-   classname="w-full px-3 py-1.5 flex items-center gap-3 text-white/50 hover:bg-white/10 hover:text-white lowercase text-[10px] rounded-lg"
+   className="w-full px-3 py-1.5 flex items-center gap-3 text-white/50 hover:bg-white/10 hover:text-white lowercase text-[10px] rounded-lg"
    >
-   <upload classname="w-3 h-3" />
+   <Upload className="w-3 h-3" />
    {page?.custom_pop_sound ? 'change open mp3' : 'upload open mp3'}
    </button>
    <button
-   onclick={() => {
-   const input = document.createelement('input');
+   onClick={() => {
+   const input = document.createElement('input');
    input.type = 'file';
    input.accept = 'audio/*';
    input.onchange = async (e: any) => {
@@ -382,29 +385,30 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   toast.info('uploading close sound...');
   try {
   const uploaded = await api.upload(file);
-  const url = uploaded?.url || uploaded?.data?.url;
+  const uploadedAny = uploaded as any;
+  const url = uploadedAny?.url || uploadedAny?.data?.url;
   if (url) {
-  updatepage({ custom_exit_sound: url });
+  updatePage({ custom_exit_sound: url });
   toast.success('page close sound updated');
   }
   } catch (err) {
-  secureLogger.error(err);
+  secureLogger.error(String(err));
   toast.error('upload failed');
   }
-  onclose();
+  onClose();
    };
    input.click();
    }}
-   classname="w-full px-3 py-1.5 flex items-center gap-3 text-white/50 hover:bg-white/10 hover:text-white lowercase text-[10px] rounded-lg"
+   className="w-full px-3 py-1.5 flex items-center gap-3 text-white/50 hover:bg-white/10 hover:text-white lowercase text-[10px] rounded-lg"
    >
-   <upload classname="w-3 h-3" />
+   <Upload className="w-3 h-3" />
    {page?.custom_exit_sound ? 'change close mp3' : 'upload close mp3'}
    </button>
  </div>
  )}
  </div>
 
- <div classname="h-px bg-white/10 my-1" />
+ <div className="h-px bg-white/10 my-1" />
 
  {/* pages section */}
  <div className="px-3 py-1 text-[10px]  text-white/40">pages</div>
@@ -441,7 +445,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
  </span>
  </button>
 
- {showaddmenu && (
+ {showAddMenu && (
  <div className="pl-6 border-l border-white/10 ml-3">
    <button onClick={() => addElementAtCursor('text')} className="w-full px-3 py-2 flex items-center gap-3 text-white/60 hover:bg-white/10 hover:text-white lowercase">
    <Type className="w-4 h-4" /> text
@@ -474,7 +478,7 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   </div>
 
   {/* collection picker modal */}
-  {showcollectionpicker && (
+  {showCollectionPicker && (
  <CollectionPickerModal
  onSelect={handleDatabaseViewSelect}
  onClose={() => setShowCollectionPicker(false)}

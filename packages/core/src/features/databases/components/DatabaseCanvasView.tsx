@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useCollections } from '@/hooks/use-collections';
+import { useCollections, type Collection } from '@/hooks/use-collections';
 import { Separator } from '@/components/ui/separator';
 import { Button } from '@/components/ui/button';
 import { List, LayoutGrid, Kanban } from 'lucide-react';
@@ -20,13 +20,14 @@ import type { ViewType } from '@/components/views/registry';
 import { useEdgelessStore } from '@/features/edgeless/store';
 import { apiClient } from '@/lib/api-client';
 import { storageManager } from '@/lib/storage-manager';
+import { secureLogger } from '@/lib/secure-logger';
 
 export function DatabaseCanvasView() {
   const { collections } = useCollections();
   const [selectedCollection, setSelectedCollection] = useState<string | null>(() => {
     try { return storageManager.getItem('last_db_canvas_collection'); } catch (e) { return null; }
   });
-  const [viewtype, setviewtype] = useState<ViewType>('table');
+  const [viewType, setViewType] = useState<ViewType>('table');
   const store = useEdgelessStore();
 
   useEffect(() => {
@@ -41,14 +42,14 @@ export function DatabaseCanvasView() {
         // we might want to clear the canvas first or load specific "canvas view" data
         // for now, preserving the user's request to "add back the tools" implies
         // they want the drawing canvas back.
-      } catch (e) { secureLogger.error(e); }
+      } catch (e) { secureLogger.error(String(e)); }
     };
     load();
-  }, [selectedcollection]);
+  }, [selectedCollection]);
 
   // header control for alignment
   // placed absolute over the canvas capabilities
-  const headercontrol = (
+  const headerControl = (
     <div className="absolute top-0 left-0 w-full z-50 pointer-events-none flex flex-col">
       <div className="h-16 flex items-center px-4 justify-between bg-background/80 backdrop-blur pointer-events-auto">
         <div className="flex items-center gap-2">
@@ -57,13 +58,13 @@ export function DatabaseCanvasView() {
               <SelectValue placeholder="select collection" />
             </SelectTrigger>
             <SelectContent>
-              {collections.map(col => (
+              {collections.map((col: Collection) => (
                 <SelectItem key={col.name} value={col.name}>{col.title || col.name}</SelectItem>
               ))}
             </SelectContent>
           </Select>
 
-          {selectedcollection && (
+          {selectedCollection && (
             <div className="flex bg-transparent rounded-lg p-1 gap-1">
               <Button
                 variant="ghost"
@@ -106,11 +107,11 @@ export function DatabaseCanvasView() {
   );
 
   // resolve collection object
-  const activeCollection = collections.find(c => c.name === selectedcollection);
+  const activeCollection = collections.find((c: Collection) => c.name === selectedCollection);
 
   return (
     <div className="w-full h-full relative bg-[#050505] text-foreground overflow-hidden flex flex-col">
-      {headercontrol}
+      {headerControl}
 
       {/* main canvas area - pushes down by header height or sits behind?
             if header is absolute, canvas is behind.

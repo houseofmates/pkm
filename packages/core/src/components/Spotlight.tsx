@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { User, Rocket, Database, Search, Sparkles, BrainCircuit, FileText, Command as CommandIcon, Loader2 } from "lucide-react";
+import { User, Rocket, Database, Sparkles, MessageCircle, FileText, Command as CommandIcon, Loader2 } from "lucide-react";
 import {
     Command,
     CommandEmpty,
@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/command";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { useNavigate } from 'react-router-dom';
-import { useCollections } from "@/hooks/use-collections";
+import { useCollections, type Collection } from "@/hooks/use-collections";
 import { useEdgelessStore } from '@/features/edgeless/store';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -33,7 +33,6 @@ export function Spotlight() {
     const [open, setOpen] = useState(false);
     const [query, setQuery] = useState("");
     const [dbResults, setDbResults] = useState<SearchResult[]>([]);
-    const [externalContext, setExternalContext] = useState<string | null>(null);
     const [isSearching, setIsSearching] = useState(false);
     const [mode, setMode] = useState<'command' | 'semantic'>('command');
 
@@ -47,7 +46,6 @@ export function Spotlight() {
     useEffect(() => {
         const down = (e: KeyboardEvent) => {
             const target = e.target as HTMLElement;
-            const isInput = target.matches('input, textarea, [contenteditable]');
             if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
                 e.preventDefault();
                 setOpen((open) => !open);
@@ -57,7 +55,6 @@ export function Spotlight() {
         const handleOpenSearch = (e: CustomEvent) => {
             setOpen(true);
             if (e.detail?.context) {
-                setExternalContext(e.detail.context);
                 setQuery(e.detail.context.slice(0, 100));
                 setMode('semantic');
             } else {
@@ -84,7 +81,7 @@ export function Spotlight() {
         try {
             // simple collection title match for now
             const results: SearchResult[] = [];
-            collections.forEach(c => {
+            collections.forEach((c: Collection) => {
                 if (c.title?.toLowerCase().includes(val.toLowerCase()) || c.name.toLowerCase().includes(val.toLowerCase())) {
                     results.push({ id: c.name, collectionName: c.name, collectionTitle: c.title, record: { title: c.title } });
                 }
@@ -117,7 +114,7 @@ export function Spotlight() {
                         <div className="flex justify-between items-center p-3 border-b border-primary/10 bg-primary/5">
                             <span className="text-xs font-bold pl-2 text-primary flex items-center gap-2">
                                 <Sparkles className="w-3 h-3" />
-                                SEMANTIC SEARCH
+                                semantic search
                             </span>
                             <Button
                                 variant="ghost"
@@ -125,7 +122,7 @@ export function Spotlight() {
                                 onClick={() => setMode('command')}
                                 className="h-6 text-xs"
                             >
-                                Switch to Commands
+                                switch to commands
                             </Button>
                         </div>
                         <SemanticSearch
@@ -140,7 +137,6 @@ export function Spotlight() {
                 ) : (
                     <Command className="bg-transparent" shouldFilter={false}>
                         <div className="flex items-center px-4 py-4 border-b border-primary/10 relative">
-                            <Search className="mr-3 h-5 w-5 text-primary/60" />
                             <CommandInput
                                 placeholder="search your second brain..."
                                 value={query}
@@ -152,11 +148,11 @@ export function Spotlight() {
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="absolute right-2 top-1/2 -translate-y-1/2 h-7 text-xs text-muted-foreground hover:text-primary"
+                                className="absolute right-10 top-1/2 -translate-y-1/2 h-7 text-xs text-muted-foreground hover:text-primary"
                                 onClick={() => { setMode('semantic'); setQuery(''); }}
                             >
-                                <BrainCircuit className="w-3 h-3 mr-1" />
-                                Ask AI
+                                <MessageCircle className="w-3 h-3 mr-1" />
+                                ask ai
                             </Button>
                         </div>
 
@@ -194,7 +190,7 @@ export function Spotlight() {
 
                                 <CommandGroup heading="navigation & actions" className="px-2">
                                     <CommandItem onSelect={() => runAction(() => setChatOpen(true))} className="px-4 py-3 rounded-lg cursor-pointer">
-                                        <BrainCircuit className="mr-3 h-4 w-4 text-primary/60" />
+                                        <MessageCircle className="mr-3 h-4 w-4 text-primary/60" />
                                         <span className="lowercase">open wilson chat</span>
                                     </CommandItem>
                                     <CommandItem onSelect={() => runAction(() => navigate('/'))} className="px-4 py-3 rounded-lg cursor-pointer">
@@ -209,7 +205,7 @@ export function Spotlight() {
 
                                 {collections.length > 0 && query.length === 0 && (
                                     <CommandGroup heading="active databases" className="px-2">
-                                        {collections.slice(0, 5).map((col: any) => (
+                                        {collections.slice(0, 5).map((col: Collection) => (
                                             <CommandItem
                                                 key={col.name}
                                                 onSelect={() => runAction(() => navigate(`/databases/${col.name}`))}

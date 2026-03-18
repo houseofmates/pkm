@@ -10,6 +10,7 @@ import { ContextMenu, ContextMenuContent, ContextMenuItem, ContextMenuTrigger, C
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
 import { storageManager } from '@/lib/storage-manager';
+import { secureLogger } from '@/lib/secure-logger';
 
 type ElementType = 'text' | 'image' | 'shape' | 'view';
 
@@ -28,7 +29,7 @@ interface BoardElement {
 
 export function MoodboardPage() {
   const [elements, setElements] = useState<BoardElement[]>(() => {
-    try { const saved = storageManager.getItem('moodboard_data'); return saved ? JSON.parse(saved) : []; } catch (e) { secureLogger.error(e); return []; }
+    try { const saved = storageManager.getItem('moodboard_data'); return saved ? JSON.parse(saved) : []; } catch (e) { secureLogger.error(String(e)); return []; }
   });
   const [scale, setScale] = useState(1);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
@@ -88,8 +89,8 @@ export function MoodboardPage() {
   };
 
   // --- interaction logic ---
-  const [dragState, setdragState] = useState<{ id: string, mode: 'move' | 'resize', startX: number, startY: number, initial: any } | null>(null);
-  const [editingId, seteditingId] = useState<string | null>(null);
+  const [dragState, setDragState] = useState<{ id: string, mode: 'move' | 'resize', startX: number, startY: number, initial: any } | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
   // canvas mode state machine: 'viewing' allows drag, 'editing' prevents drag for text input
   const [canvasMode, setCanvasMode] = useState<'viewing' | 'editing'>('viewing');
 
@@ -126,7 +127,7 @@ export function MoodboardPage() {
   };
 
   const handleMouseUp = () => {
-    setdragState(null);
+    setDragState(null);
     setIsDraggingCanvas(false);
   };
 
@@ -173,7 +174,7 @@ export function MoodboardPage() {
                   if (canvasMode === 'editing' && editingId === el.id) return;
                   e.stopPropagation();
                   if (e.button === 0 && canvasMode === 'viewing') {
-                    setdragState({
+                    setDragState({
                       id: el.id,
                       mode: 'move',
                       startX: e.clientX,
@@ -185,7 +186,7 @@ export function MoodboardPage() {
                 onDoubleClick={(e) => {
                   if (el.type === 'text') {
                     e.stopPropagation();
-                    seteditingId(el.id);
+                    setEditingId(el.id);
                     setCanvasMode('editing');
                   }
                 }}
@@ -220,7 +221,7 @@ export function MoodboardPage() {
                     }}
                     readOnly={editingId !== el.id}
                     onBlur={() => {
-                      seteditingId(null);
+                      setEditingId(null);
                       setCanvasMode('viewing');
                     }}
                     ref={(r) => { if (r && editingId === el.id) r.focus(); }}
@@ -276,7 +277,7 @@ export function MoodboardPage() {
                   className="absolute bottom-0 right-0 w-4 h-4 bg-primary/50 cursor-se-resize rounded-tl opacity-0 group-hover:opacity-100"
                   onMouseDown={(e) => {
                     e.stopPropagation();
-                    setdragState({
+                    setDragState({
                       id: el.id,
                       mode: 'resize',
                       startX: e.clientX,

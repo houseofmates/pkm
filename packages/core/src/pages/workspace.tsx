@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { DataEmbed } from '@/components/DataEmbed';
 
 export function WorkspacePage() {
-  const { id } = useParams<{ id: string }>();
+  useParams<{ id: string }>();
 
   return (
     <div className="p-6 space-y-8 bg-background min-h-screen animate-in fade-in duration-500">

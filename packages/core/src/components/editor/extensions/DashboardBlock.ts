@@ -36,7 +36,7 @@ export const DashboardBlock = Node.create({
   },
 
   addNodeView() {
-  return ReactNodeViewRenderer(DashboardBlockComponent);
+  return ReactNodeViewRenderer(DashboardBlockComponent as any);
   },
 
   addCommands() {

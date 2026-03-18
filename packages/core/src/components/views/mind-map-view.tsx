@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { RecordContextMenu } from '@/features/records/components/record-context-menu';
 import { storageManager } from '@/lib/storage-manager';
+import { secureLogger } from '@/lib/secure-logger';
 import { SmartField } from '@/components/fields/smart-field';
 
 interface NodePosition {
@@ -24,9 +25,9 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
   const [isDraggingCanvas, setIsDraggingCanvas] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   // node drag logic
-  const [nodedrag, setnodedrag] = useState<{ id: string, startX: number, startY: number, initialX: number, initialY: number } | null>(null);
+  const [nodeDrag, setNodeDrag] = useState<{ id: string, startX: number, startY: number, initialX: number, initialY: number } | null>(null);
 
-  // load saved positions
+  // load saved positions on mount only
   useEffect(() => {
     if (!collection) return;
     // in a real app, this would be saved in 'config' prop passed from parent
@@ -35,8 +36,8 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
     if (saved) {
       try {
         setPositions(typeof saved === 'string' ? JSON.parse(saved) : saved);
-      } catch (e) {
-        secureLogger.error("Failed to load positions", e);
+      } catch {
+        secureLogger.error("Failed to load positions");
       }
     } else {
       // initial auto-layout (grid)
@@ -51,7 +52,7 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
       });
       setPositions(initial);
     }
-  }, [data, collection?.name, config]);
+  }, [collection?.name]);
 
   // calculate edges based on relations
   const edges = useMemo(() => {
@@ -67,8 +68,8 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
         targets.forEach((t: any) => {
           const tId = typeof t === 'object' ? t.id : t;
           // only draw if both exist in current view
-          if (data.find(d => d.id === tid)) {
-            links.push({ source: src.id, target: tid, label: field.uischema?.title });
+          if (data.find(d => d.id === tId)) {
+            links.push({ source: src.id, target: tId, label: field.uiSchema?.title });
           }
         });
       });
@@ -119,8 +120,8 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
   };
 
   const handleMouseUp = () => {
-  setnodedrag(null);
-  setisdraggingcanvas(false);
+  setNodeDrag(null);
+  setIsDraggingCanvas(false);
   };
 
   return (
@@ -186,7 +187,7 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
  : collection.fields?.find((f: any) => f.primary || f.name === 'title' || f.name === 'name') || { name: 'id' };
 
  const visibleFieldNames = config.visibleFields || [];
- const visibleFields = collection?.fields?.filter((f: any) => visiblefieldnames.includes(f.name)) || [];
+ const visibleFields = collection?.fields?.filter((f: any) => visibleFieldNames.includes(f.name)) || [];
 
  return (
  <RecordContextMenu

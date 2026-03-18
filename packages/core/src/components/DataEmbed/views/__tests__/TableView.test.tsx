@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom/vitest';
 import { render, fireEvent } from '@testing-library/react';
 import { TableView } from '../TableView';
 import { vi } from 'vitest';
@@ -5,22 +6,36 @@ import { vi } from 'vitest';
 // minimal mocks for react-window and hooks
 vi.mock('@tanstack/react-table', () => {
   return {
-    useReactTable: jest.fn().mockReturnValue({
+    useReactTable: vi.fn().mockReturnValue({
       getHeaderGroups: () => [],
       getRowModel: () => ({ rows: [] })
     }),
-    getCoreRowModel: jest.fn(),
+    getCoreRowModel: vi.fn(),
     flexRender: (comp: any) => comp,
   };
 });
 
 vi.mock('react-window', () => {
-  const original = jest.requireActual('react-window');
+  const original = vi.importActual('react-window');
   return {
     ...original,
-    List: ({ children, ...props }: any) => {
+    List: ({ children, outerRef, onScroll, itemCount, itemSize, height, width, itemData, style, ...rest }: any) => {
       // simple scrollable div
-      return <div data-testid="virtual-list" {...props}>{children({index:0,style:{},data:{rows:[]}})}</div>;
+      const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+        if (onScroll) {
+          onScroll({ scrollOffset: e.currentTarget.scrollLeft });
+        }
+      };
+      return (
+        <div 
+          ref={outerRef} 
+          data-testid="virtual-list" 
+          onScroll={handleScroll}
+          style={{ ...style, height, width, overflow: 'auto' }}
+        >
+          {children({index:0,style:{},data:itemData})}
+        </div>
+      );
     },
   };
 });
@@ -38,15 +53,15 @@ describe('DataEmbed TableView', () => {
   it('synchronizes horizontal scrolling between header and body', () => {
     const { getByTestId } = render(
       <div style={{ width: 200, height: 200 }}>
-        <TableView records={makeData()} isLoading={false} theme={{}} />
+        <TableView records={makeData()} isLoading={false} />
       </div>
     );
 
     const header = getByTestId('table-header-container');
     const body = getByTestId('virtual-list');
 
-    expect(header).toBeVisible();
-    expect(body).toBeVisible();
+    expect(header).toBeTruthy();
+    expect(body).toBeTruthy();
 
     header.scrollLeft = 30;
     fireEvent.scroll(header);

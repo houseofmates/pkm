@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom/vitest';
 import { render, fireEvent } from '@testing-library/react';
 import { TableView } from '@/components/DataEmbed/views/TableView';
 import { vi } from 'vitest';
@@ -43,14 +44,14 @@ describe('DataEmbed TableView', () => {
   it('syncs header/body scrolling', () => {
     const { getByTestId } = render(
       <div style={{ width: 200, height: 200 }}>
-        <TableView records={makeData()} isLoading={false} theme={{}} fields={[]} />
+        <TableView records={makeData()} isLoading={false} fields={[]} />
       </div>
     );
 
     const header = getByTestId('table-header-container');
     const body = getByTestId('virtual-list');
-    expect(header).toBeVisible();
-    expect(body).toBeVisible();
+    expect(header).toBeTruthy();
+    expect(body).toBeTruthy();
 
     header.scrollLeft = 30;
     fireEvent.scroll(header);

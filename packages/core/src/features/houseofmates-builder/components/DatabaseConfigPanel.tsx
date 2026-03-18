@@ -3,6 +3,7 @@ import { useBuilder } from '../HouseofmatesBuilder';
 import { api } from '@/api/nocobase-client';
 import { Database, Filter, ArrowUpDown, X, ChevronDown, Check } from 'lucide-react';
 import { toast } from 'sonner';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface Props {
   elementId: string;
@@ -11,16 +12,16 @@ interface Props {
 
 export function DatabaseConfigPanel({ elementId, onClose }: Props) {
   const { page, updateElement } = useBuilder();
-  const element = page?.elements.find(el => el.id === elementid);
+  const element = page?.elements.find(el => el.id === elementId);
 
-  const [fields, setfields] = useState<any[]>([]);
+  const [fields, setFields] = useState<any[]>([]);
 
   // visible fields
-  const [visiblefields, setvisiblefields] = useState<string[]>(element?.content?.visiblefields || []);
+  const [visibleFields, setVisibleFields] = useState<string[]>(element?.content?.visibleFields || []);
 
   // sort state
-  const [sortfield, setsortfield] = useState(element?.content?.sort?.[0]?.replace('-', '') || '');
-  const [sortorder, setsortorder] = useState<'asc' | 'desc'>(
+  const [sortField, setSortField] = useState(element?.content?.sort?.[0]?.replace('-', '') || '');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>(
   element?.content?.sort?.[0]?.startsWith('-') ? 'desc' : 'asc'
   );
 
@@ -153,7 +154,7 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
    </div>
 
-   {sortfield && (
+   {sortField && (
    <div className="flex gap-2">
    <button
   onClick={() => setSortOrder('asc')}
@@ -197,7 +198,7 @@ export function DatabaseConfigPanel({ elementId, onClose }: Props) {
    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
    </div>
 
-   {filterfield && (
+   {filterField && (
    <>
    <div className="relative">
   <select

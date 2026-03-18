@@ -11,7 +11,7 @@ export type DocRecord = {
 
 export class LanceIndexer {
   private dbPath: string;
-  private table: unknown | null = null;
+  private table: { upsert: (records: DocRecord[]) => Promise<void>; search: (query: { vector: number[]; topK: number }) => Promise<Array<{ id: string; score: number }>> } | null = null;
 
   constructor(dbPath = './lancedb') {
     this.dbPath = path.resolve(dbPath);
@@ -21,10 +21,8 @@ export class LanceIndexer {
     try {
       if (!fs.existsSync(this.dbPath)) fs.mkdirSync(this.dbPath, { recursive: true });
       // lazy require so runtime can install lancedb separately
-      // @ts-expect-error - dynamic require for optional dependency
       // eslint-disable-next-line @typescript-eslint/no-require-imports
-      const Lance = require('lancedb');
-      // @ts-expect-error - dynamic require for optional dependency
+      const Lance = require('lancedb') as any;
       const client = new Lance.LanceClient({ path: this.dbPath });
       // open or create table
       this.table = await client.openTable('pkm_records', {
@@ -40,7 +38,7 @@ export class LanceIndexer {
   async upsert(records: DocRecord[]): Promise<void> {
     if (!this.table) throw new Error('lancedb: not initialized');
     try {
-      const toUpsert = records.map((r) => ({ id: r.id, embedding: r.embedding, ...r }));
+      const toUpsert = records.map((r) => ({ ...r, id: r.id, embedding: r.embedding }));
       await this.table.upsert(toUpsert);
     } catch (err) {
       console.error('lancedb: upsert error', err);

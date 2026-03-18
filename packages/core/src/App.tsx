@@ -17,7 +17,7 @@ import { isCapacitorNative } from "@/lib/platform"
 
 // lazy load heavy components
 const Spotlight = lazy(() => import("@/components/Spotlight").then(m => ({ default: m.Spotlight })));
-const WilsonChat = lazy(() => import("@/features/chat/wilson-chat").then(m => ({ default: m.WilsonChat })));
+
 const SetupRequired = lazy(() => import("@/components/setup-required").then(m => ({ default: m.SetupRequired })));
 const HomePage = lazy(() => import("@/pages/home").then(m => ({ default: m.HomePage })));
 const DatabasesPage = lazy(() => import("@/pages/databases").then(m => ({ default: m.DatabasesPage })));
@@ -38,6 +38,108 @@ const SettingsPage = lazy(() => import("@/pages/settings").then(m => ({ default:
 const PublicDocViewer = lazy(() => import("@/components/journal/public-doc-viewer").then(m => ({ default: m.PublicDocViewer })));
 const RagTestPage = lazy(() => import("@/pages/rag-test").then(m => ({ default: m.default })));
 const JournalPage = lazy(() => import("@/pages/journal").then(m => ({ default: m.JournalPage })));
+const CalendarPage = lazy(() => import("@/pages/calendar").then(m => ({ default: m.CalendarPage })));
+
+// Simple breathe page component that renders the breathing exercise
+function BreathePage() {
+  useEffect(() => {
+    const ROTATION_PERIOD = 12;
+    const BREATH_PERIOD = 12;
+    
+    const spiral = document.getElementById('breathe-spiral');
+    const phaseEl = document.getElementById('breathe-phase');
+    const countEl = document.getElementById('breathe-countdown');
+    
+    if (!spiral || !phaseEl || !countEl) return;
+    
+    let start: number | null = null;
+    
+    function animate(timestamp: number) {
+      if (!start) start = timestamp;
+      const elapsed = (timestamp - start) / 1000;
+      
+      const rotProg = (elapsed % ROTATION_PERIOD) / ROTATION_PERIOD;
+      const angle = rotProg * 360;
+      
+      const breathPhase = elapsed % BREATH_PERIOD;
+      let scale: number;
+      let cue: string;
+      
+      if (breathPhase < 4) {
+        scale = 1 + 0.5 * (breathPhase / 4);
+        cue = 'inhale';
+      } else if (breathPhase < 8) {
+        scale = 1.5;
+        cue = 'hold';
+      } else {
+        scale = 1.5 - 0.5 * ((breathPhase - 8) / 4);
+        cue = 'exhale';
+      }
+      
+      const phaseProgress = breathPhase % 4;
+      const remaining = Math.ceil(4 - phaseProgress);
+      
+      if (spiral) {
+        spiral.style.transform = `rotate(${angle}deg) scale(${scale})`;
+      }
+      
+      if (phaseEl && phaseEl.textContent !== cue) {
+        phaseEl.textContent = cue;
+      }
+      if (countEl) {
+        countEl.textContent = `${remaining}s`;
+      }
+      
+      requestAnimationFrame(animate);
+    }
+    
+    const animationId = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animationId);
+  }, []);
+  
+  return (
+    <div 
+      className="flex flex-col items-center justify-center min-h-screen"
+      style={{ 
+        background: '#050505'
+      }}
+    >
+
+      <svg 
+        id="breathe-spiral"
+        className="w-80 h-80 sm:w-80 sm:h-80 md:w-80 md:h-80 lg:w-96 lg:h-96"
+        viewBox="0 0 100 100"
+        style={{ transformOrigin: 'center' }}
+      >
+        <path 
+          d="M50,50 m0,-20 a20,20 0 0,1 20,20 a20,20 0 0,1 -20,20 a20,20 0 0,1 -20,-20 a20,20 0 0,1 20,-20 a30,30 0 0,1 30,30 a30,30 0 0,1 -30,30 a30,30 0 0,1 -30,-30 a30,30 0 0,1 30,-30"
+          fill="none"
+          stroke="#f6b012"
+          strokeWidth="8"
+          strokeLinecap="round"
+        />
+      </svg>
+      <div 
+        id="breathe-phase"
+        className="mt-6 text-6xl sm:text-7xl md:text-8xl lowercase"
+        style={{ 
+          color: '#f6b012'
+        }}
+      >
+        inhale
+      </div>
+      <div 
+        id="breathe-countdown"
+        className="mt-2 text-3xl sm:text-4xl md:text-5xl"
+        style={{ 
+          color: '#f6b012'
+        }}
+      >
+        4s
+      </div>
+    </div>
+  );
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -57,6 +159,10 @@ const LoadingFallback = (
 function AppContent() {
   const { token } = useAuth()
   const [updateChecked, setUpdateChecked] = useState(false)
+  // state to track if login was triggered via Ctrl+E on public domains
+  const [loginModeForced, setLoginModeForced] = useState(() => {
+    return sessionStorage.getItem('pkm_force_login') === 'true'
+  })
   // check for APK update ONLY on /apk
   useEffect(() => {
     if (window.location.pathname === "/apk" && !updateChecked && token) {
@@ -74,6 +180,29 @@ function AppContent() {
     }
   }, [updateChecked, token])
   const [setupNeeded, setSetupNeeded] = useState<boolean | null>(null)
+
+  // handle Ctrl+E to toggle login mode on public domains
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 'e') {
+        e.preventDefault()
+        setLoginModeForced(prev => {
+          const newValue = !prev
+          sessionStorage.setItem('pkm_force_login', newValue ? 'true' : 'false')
+          secureLogger.info(`[App] Login mode ${newValue ? 'enabled' : 'disabled'} via Ctrl+E`)
+          return newValue
+        })
+      }
+      // escape key to exit login mode on public domains
+      if (e.key === 'Escape' && isPublicDomain() && loginModeForced) {
+        setLoginModeForced(false)
+        sessionStorage.removeItem('pkm_force_login')
+        secureLogger.info('[App] Login mode disabled via Escape')
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [loginModeForced])
 
   // run link registry migration on mount (non-blocking)
   useEffect(() => {
@@ -129,17 +258,29 @@ function AppContent() {
     )
   }
 
-  // public domain rendering
+  // public domain rendering - always show public content unless explicitly in login mode
   if (isPublicDomain()) {
+    // when login mode is forced via Ctrl+E, show login overlay if not authenticated
+    // otherwise show public content
+    if (!loginModeForced || token) {
+      return (
+        <>
+          <Suspense fallback={LoadingFallback}>
+            <Routes>
+              <Route path="/" element={<HouseofmatesBuilder />} />
+              <Route path="/breathe" element={<BreathePage />} />
+              <Route path="/doc/:slug" element={<PublicDocViewer slug={window.location.pathname.split('/doc/')[1]} />} />
+              <Route path="/:slug" element={<HouseofmatesBuilder />} />
+            </Routes>
+          </Suspense>
+          <Toaster />
+        </>
+      );
+    }
+    // loginModeForced is true and no token - show login page
     return (
       <>
-        <Suspense fallback={LoadingFallback}>
-          <Routes>
-            <Route path="/" element={<HouseofmatesBuilder />} />
-            <Route path="/doc/:slug" element={<PublicDocViewer slug={window.location.pathname.split('/doc/')[1]} />} />
-            <Route path="/:slug" element={<HouseofmatesBuilder />} />
-          </Routes>
-        </Suspense>
+        <LoginPage />
         <Toaster />
       </>
     );
@@ -172,11 +313,11 @@ function AppContent() {
                 <Route path="/notion-import" element={<NotionImportPage />} />
                 <Route path="/rag-test" element={<RagTestPage />} />
                 <Route path="/journal" element={<JournalPage />} />
+                <Route path="/calendar" element={<CalendarPage />} />
                 <Route path="*" element={<HomePage />} />
               </Route>
             </Routes>
             <Spotlight />
-            <WilsonChat />
           </Suspense>
         ) : <LoginPage />}
       <Toaster />

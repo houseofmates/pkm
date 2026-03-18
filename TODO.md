@@ -1,19 +1,26 @@
-# Edgeless Canvas Performance Optimization
+# pkm performance optimization: large db (10k+) + canvas (1k+ elements)
 
-## implementation plan
+## current progress
 
-### task 1: spatial index viewport culling
-- [ ] add `queryvisible` method to spatial-index.ts for viewport culling
-- [ ] implement aggressive culling with margin for smooth scrolling
+- [x] 1. optimize vector-store.ts pagination (cursor-based, no paginate:false)</new_str
+- [x] 2. canvas-db.ts: idb cursors for getunsyncedops/getrecentops (partial - recentops ts fix pending)
+- [ ] 3. nocobase-client.ts: add keyset pagination helpers
+- [ ] 4. postgres indexes: pkm_canvases(title,updatedat); notes(entity_type,updatedat)
+- [ ] 5. redis caching for listrecords (if backend/packages/node middleware exists)
+- [ ] 6. canvas render: layered canvases, raf, viewport cull (find edgeless render files first)
+- [ ] 7. test: insert 10k notes, measure listrecords time pre/post
 
-### task 2: memoization fixes in edgelesscanvas.tsx
-- [ ] add usememo for viewport bounds calculation
-- [ ] add viewport culling to overlayelements
-- [ ] add usecallback for event handlers
-- [ ] use stable store selectors
+## notes
+- all comments/ui lowercase
+- thread-safe node middleware
+- sub-second responses target
 
-### task 3: react.memo for element components
-- [ ] wrap recordnodeelement with react.memo
-- [ ] wrap embedelement with react.memo
-- [ ] wrap other heavy elements (linkelement, shoppingcard, etc.)
+## completed
+# Canvas Context Menu Task
 
+## Steps:
+
+- [x] Edit `packages/core/src/components/ui/context-menu-custom.tsx` to change the bottom button text from "delete" to "cancel"
+
+## Status
+Completed

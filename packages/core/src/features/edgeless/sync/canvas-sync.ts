@@ -12,10 +12,13 @@ import {
   saveCheckpoint,
 } from '../storage/canvas-db'
 import type { OpLogEntry } from '../storage/oplog'
+import { decryptObject, encryptObject } from '@/lib/encryption'
 
 const SYNC_INTERVAL_MS = 5000
 const SYNC_BATCH_SIZE = 50
 const MAX_RETRIES = 3
+
+const ENCRYPTION_ENABLED = import.meta.env.VITE_PKM_ENCRYPTION === 'true'
 
 interface SyncBatch {
   drawingId: string
@@ -78,15 +81,14 @@ class CanvasSyncService {
 
     if (state.isSyncing) return false
 
-    const unsynced = await getUnsyncedOps(drawingId)
+    const unsynced = await getUnsyncedOps(drawingId, SYNC_BATCH_SIZE + 1)
     if (unsynced.length === 0) return true
 
-    // batch limit
     const batch = unsynced.slice(0, SYNC_BATCH_SIZE)
-    const remaining = unsynced.slice(SYNC_BATCH_SIZE)
+    const remainingCount = Math.max(0, unsynced.length - SYNC_BATCH_SIZE)
 
     state.isSyncing = true
-    state.pendingCount = remaining.length
+    state.pendingCount = remainingCount
     this.syncState.set(drawingId, state)
 
     try {
@@ -158,12 +160,22 @@ class CanvasSyncService {
     | { success: false; conflict?: true; serverOps?: unknown[]; error?: string }
   > {
     try {
+      const title = (payload as any).title || 'untitled'
+      const drawingId = (payload as any).drawingId
+
+      const payloadToStore = ENCRYPTION_ENABLED
+        ? {
+            meta: { drawingId, clientId: this.getClientId(), timestamp: Date.now(), title },
+            encryptedPayload: await encryptObject(payload),
+          }
+        : payload
+
       // attempt to use pkm_canvases collection
       const res = await api.request('pkm_canvases', 'create', {
         method: 'POST',
         data: {
-          title: (payload as any).title,
-          content: JSON.stringify(payload),
+          title,
+          content: JSON.stringify(payloadToStore),
           clientId: this.getClientId(),
         } as Record<string, unknown>,
       } as any)
@@ -199,6 +211,14 @@ class CanvasSyncService {
       const record = (res?.data as any)?.[0]
       if (record?.content) {
         const content = JSON.parse(record.content)
+        if (content?.encryptedPayload) {
+          try {
+            const decrypted = await decryptObject<any>(content.encryptedPayload)
+            return decrypted.ops || []
+          } catch {
+            return []
+          }
+        }
         return content.ops || []
       }
       return []

@@ -3,7 +3,6 @@ import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { secureLogger } from '@/lib/secure-logger';
 import {
     Dialog,
     DialogContent,
@@ -12,17 +11,16 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import {
-    Popover,
-    PopoverContent,
-    PopoverTrigger,
-} from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { HexColorPicker } from 'react-colorful';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Trash2, Palette } from 'lucide-react';
 import { IconPicker } from '@/components/icon-picker-dialog';
+import { secureLogger } from '@/lib/secure-logger';
+
+const ICON_COLORS = ['#f97316', '#facc15', '#22c55e', '#06b6d4', '#3b82f6', '#a855f7', '#f472b6', '#f4f4f5', '#d4d4d8', '#64748b', '#94a3b8', '#0ea5e9', '#10b981', '#84cc16', '#ef4444'];
 
 interface FieldSettingsDialogProps {
     collectionName: string;
@@ -31,12 +29,6 @@ interface FieldSettingsDialogProps {
     onOpenChange: (open: boolean) => void;
     onFieldUpdated: () => void;
 }
-
-const COLORS = [
-    'var(--primary)', '#EF4444', '#F97316', '#F59E0B', '#84CC16', '#10B981',
-    '#06B6D4', '#3B82F6', '#6366F1', '#8B5CF6', '#D946EF', '#F43F5E',
-    '#71717a', '#ffffff'
-];
 
 const FIELD_TYPES = [
     { value: 'input', label: 'Single Line Text' },
@@ -191,7 +183,7 @@ export function FieldSettingsDialog({ collectionName, field, open, onOpenChange,
                     <div className="space-y-2">
                         <Label className="lowercase">property type</Label>
                         <Select value={interfaceType} onValueChange={setInterfaceType}>
-                            <SelectTrigger className="lowercase" aria-label="property type">
+                            <SelectTrigger className="lowercase">
                                 <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -230,7 +222,7 @@ export function FieldSettingsDialog({ collectionName, field, open, onOpenChange,
                                 </PopoverTrigger>
                                 <PopoverContent className="w-64 p-2">
                                     <div className="grid grid-cols-7 gap-1">
-                                        {COLORS.map(c => (
+                                        {ICON_COLORS.map((c) => (
                                             <Button
                                                 key={c}
                                                 variant="ghost"

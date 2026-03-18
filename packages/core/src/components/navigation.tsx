@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Database, Home, Users, Search, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings, UploadCloud, BookOpen, type LucideIcon } from 'lucide-react';
+import { Database, Home, Users, Search, MessageCircle, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings, UploadCloud, BookOpen, type LucideIcon } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 
 // Dynamic icon loader for Lucide icons
@@ -14,6 +14,35 @@ import { useCollections } from '@/hooks/use-collections';
 import { useNavigate } from 'react-router-dom';
 import { formatHeadmateName, getCapitalizationClass } from '@/utils/text-formatting';
 import { getSidebarColors } from '@/utils/getSidebarColors';
+
+function getStoredDeleted(): Set<string> {
+  try {
+    const raw = localStorage.getItem('sidebar_deleted_collections');
+    if (raw) return new Set(JSON.parse(raw));
+  } catch (e) {
+    console.warn('Failed to load deleted collections from storage:', e);
+  }
+  return new Set();
+}
+
+function storeDeleted(ids: Set<string>) {
+  try {
+    localStorage.setItem('sidebar_deleted_collections', JSON.stringify(Array.from(ids)));
+  } catch (e) {
+    console.warn('Failed to save deleted collections:', e);
+  }
+}
+
+function addStoredDeleted(id: string) {
+  const s = getStoredDeleted();
+  s.add(id.toLowerCase());
+  storeDeleted(s);
+}
+
+function removeStoredDeleted(id: string) {
+  const s = getStoredDeleted();
+  if (s.delete(id.toLowerCase())) storeDeleted(s);
+}
 
 import {
   SortableContext,
@@ -51,8 +80,8 @@ export interface NavItem {
 }
 
 interface NavigationProps {
-  activeTab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal';
-  onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal') => void;
+  activeTab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal' | 'calendar';
+  onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal' | 'calendar') => void;
   className?: string;
   onSelectCollection: (name: string | null) => void;
   selectedCollection: string | null;
@@ -109,7 +138,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   // determine highlight color based on item type
   function getHighlightColor(opacity = 0.22) {
     // sidebar items: use their own color if available, else accent
-    let base = metaColor || '#f5af12';
+    const base = metaColor || '#f5af12';
     if (base.startsWith('#')) {
       // Convert hex to rgba
       const hex = base.replace('#', '');
@@ -260,28 +289,8 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
   });
 
   // track recently deleted items to prevent useEffect from re-adding them
+  // useRef is stable, so it does not force effect dependency churn
   const deletedItemsRef = useRef<Set<string>>(new Set());
-
-  // persistent deletions (survive reloads until server omits them)
-  function getStoredDeleted(): Set<string> {
-    try {
-      const raw = localStorage.getItem('sidebar_deleted_collections');
-      if (raw) return new Set(JSON.parse(raw));
-    } catch {};
-    return new Set();
-  }
-  function storeDeleted(ids: Set<string>) {
-    try { localStorage.setItem('sidebar_deleted_collections', JSON.stringify(Array.from(ids))); } catch {}
-  }
-  function addStoredDeleted(id: string) {
-    const s = getStoredDeleted();
-    s.add(id.toLowerCase());
-    storeDeleted(s);
-  }
-  function removeStoredDeleted(id: string) {
-    const s = getStoredDeleted();
-    if (s.delete(id.toLowerCase())) storeDeleted(s);
-  }
 
   const { collections, refresh } = useCollections();
   const navigate = useNavigate();
@@ -515,8 +524,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     };
 
     syncAll();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [collections]);
+  }, [collections, items, safeSetItems]);
 
   // create folder logic
   const createFolder = () => {
@@ -544,9 +552,10 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
 
   const tabs = [
     { id: 'databases', icon: Database, label: 'databases' },
-    { id: 'home', icon: Home, label: 'home' },
     { id: 'captures', icon: Inbox, label: 'captures' },
+    { id: 'home', icon: Home, label: 'home' },
     { id: 'journal', icon: BookOpen, label: 'journal' },
+    { id: 'calendar', icon: LucideIcons.Calendar, label: 'calendar' },
     { id: 'headmates', icon: Users, label: 'headmates' },
   ] as const;
 
@@ -755,7 +764,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             className="w-full justify-start gap-2 text-muted-foreground border-solid hover:bg-white/5 transition-colors"
             onClick={() => window.dispatchEvent(new CustomEvent('pkm:open-search'))}
           >
-            <Search className="h-4 w-4" />
+            <MessageCircle className="h-4 w-4" />
             <span className="text-xs">search / ask ai...</span>
           </Button>
 

@@ -34,7 +34,7 @@ export function SearchBar({ onSearched }: { onSearched?: (q: string) => void }) 
   }, [data, setSearchResults]);
 
   useEffect(() => {
-    if (error) securelogger.error('search error', error);
+    if (error) secureLogger.error('search error', error);
   }, [error]);
 
   return (

@@ -194,7 +194,7 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
                       <div className="absolute inset-0 flex pointer-events-none">
                         {timelineDays.map((d, i) => <div key={i} className={cn("border-r shrink-0 h-full", d.getDay() === 0 || d.getDay() === 6 ? "bg-muted/10" : "")} style={{ width: `${colWidth}px` }} />)}
                       </div>
-                      {visible && !isMilestone && <TaskBar record={record} left={left} width={width} sDate={sDate} eDate={eDate} onDoubleClick={() => handleBarClick(record)} progress={progress} />}
+                      {visible && !isMilestone && <TaskBar record={record} left={left} width={width} sDate={sDate} eDate={eDate} onDoubleClick={() => handleBarClick(record)} progress={progress} colWidth={colWidth} />}
                       {visible && isMilestone && <Milestone record={record} left={left} sDate={sDate} />}
                     </div>
                   </div>
@@ -208,7 +208,7 @@ export function GanttView({ data, config, collection, onUpdateRecord, onDelete, 
   );
 }
 
-function TaskBar({ record, left, width, sDate, eDate, onDoubleClick, progress }: any) {
+function TaskBar({ record, left, width, sDate, eDate, onDoubleClick, progress, colWidth }: any) {
   const { attributes: move_attr, listeners: move_listeners, setNodeRef: move_ref } = useDraggable({ id: `move-${record.id}`, data: { id: record.id, type: 'move' } });
   const { attributes: resize_attr, listeners: resize_listeners, setNodeRef: resize_ref } = useDraggable({ id: `resize-${record.id}`, data: { id: record.id, type: 'resize-end' } });
 

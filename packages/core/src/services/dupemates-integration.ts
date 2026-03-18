@@ -92,7 +92,7 @@ export async function indexAllDupemateInteractions(): Promise<{
           traits: dupemate.traits || '',
           preferences: dupemate.preferences || '',
           boundaries: dupemate.boundaries || '',
-          relationshipHealth: dupemate.relationshipHealth || 50,
+          relationshipHealth: String(dupemate.relationshipHealth || 50),
         });
 
         if (success) {
@@ -168,7 +168,7 @@ export async function getDupemateContext(dupemateId: string): Promise<DupemateCo
       relationshipHealth: health,
       recentInteractions: interactions,
       commonTopics,
-      lastContact: interactions[0]?.timestamp || dupemate.updatedAt,
+      lastContact: interactions[0]?.timestamp || dupemate.updatedAt || new Date().toISOString(),
       insights,
     };
   } catch (error) {

@@ -3,36 +3,37 @@ import { EdgelessCanvas } from '@/features/edgeless/components/EdgelessCanvas'
 import { useEdgelessStore } from '@/features/edgeless/store'
 import { useEffect, useRef } from 'react'
 import { Toolbar } from '@/features/edgeless/components/Toolbar'
-import { WilsonChat } from '@/features/chat/wilson-chat'
+
 import { DatabaseSettingsForm } from '@/features/databases/components/database-settings-form'
 import { Button } from '@/components/ui/button'
-import PreviewCanvas from '@/components/preview-canvas'
+import PreviewCanvas, { Widget } from '@/components/preview-canvas'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Settings, ArrowLeft } from 'lucide-react'
 import { useAppSetting } from '@/hooks/use-app-setting'
 import { Separator } from '@/components/ui/separator'
+import { secureLogger } from '@/lib/secure-logger'
 
 export function CanvasPage() {
     const { id } = useParams();
     const navigate = useNavigate();
-    const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
+    const [metadata, setMetadata] = useAppSetting<Record<string, { title?: string; pdf_url?: string }>>('collection_metadata', {}, { pollIntervalMs: 3000 });
     const pageMeta = metadata[id || ''] || {};
-    const title = pageMeta.title || 'Untitled';
-    const pdfUrl = pageMeta['pdf_url'];
+    const title = pageMeta.title || 'untitled';
+    const pdfUrl = pageMeta.pdf_url;
 
     const updatePdf = (url: string) => {
-        const next = { ...metadata, [id || '']: { ...pagemeta, pdf_url: url } };
-        setmetadata(next);
+        const next = { ...metadata, [id || '']: { ...pageMeta, pdf_url: url } };
+        setMetadata(next);
     }
 
     // pdf handling
-    const handlepdfupload = (e: react.changeevent<HTMLInputElement>) => {
+    const handlePdfUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const file = e.target.files?.[0];
         if (file) {
             const reader = new FileReader();
             reader.onloadend = () => {
                 const res = reader.result as string;
-                updatepdf(res);
+                updatePdf(res);
             };
             reader.readAsDataURL(file);
         }
@@ -43,9 +44,9 @@ export function CanvasPage() {
 
     // --- header structure aligned with sidebar / page ---
     return (
-        <div className="w-full h-screen relative overflow-hidden bg-background flex flex-col">
+        <div className="w-full h-[100dvh] relative overflow-hidden bg-background flex flex-col">
             {/* pdf layer (background / full screen) */}
-            {pdfurl && (
+            {pdfUrl && (
                 <div className="absolute inset-0 z-0 pointer-events-none">
                     {/* if it's a data url, iframe might treat it as download. embed is better. */}
                     <object data={pdfUrl} type="application/pdf" className="w-full h-full pointer-events-auto">
@@ -120,14 +121,13 @@ export function CanvasPage() {
                     {/* small demo: multi-column layout overlay for documents */}
                     <div className="px-5 pb-4">
                         <PreviewCanvas
-                            columns={[[{ view_type: 'text', title: 'Column A' }, { view_type: 'embed', title: 'PDF Layer' }], [{ view_type: 'notes', title: 'Column B' }]]}
+                            columns={[[{ view_type: 'text', title: 'Column A' }, { view_type: 'embed', title: 'PDF Layer' }], [{ view_type: 'notes', title: 'Column B' }]] as Widget[][]}
                             columnWidths={[60, 40]}
-                            renderWidget={(w: any) => <div className="p-2 text-sm">{w.title}</div>}
+                            renderWidget={(w: Widget) => <div className="p-2 text-sm">{w.title}</div>}
                         />
                     </div>
                     {/* toolbar might need z-index adjustment if it overlaps header */}
                     <Toolbar />
-                    <WilsonChat />
                     <EdgelessCanvas />
                 </div>
             </div>

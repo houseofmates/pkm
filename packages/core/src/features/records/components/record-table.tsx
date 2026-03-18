@@ -435,7 +435,7 @@ const DraggableRecordRow = (props: any) => {
               }}
             >
               <div
-                className="flex items-center justify-start h-full w-full px-0.5 whitespace-normal leading-[1.2] text-sm"
+                className="flex items-center justify-center h-full w-full px-0.5 whitespace-normal leading-[1.2] text-sm"
                 style={{ wordBreak: 'break-word', minWidth: 0 }}
                 data-cell-content
               >
@@ -477,7 +477,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     const onMouseMove = (moveEvent: MouseEvent) => {
       if (!leftColResizeRef.current) return;
       const delta = moveEvent.clientX - startX;
-      let newWidth = Math.max(24, startWidth + delta);
+      const newWidth = Math.max(24, startWidth + delta);
       setLeftColWidth(newWidth);
     };
     const onMouseUp = () => {

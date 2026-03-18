@@ -33,9 +33,9 @@ export function TextContextMenu({ x, y, onClose, onFormat }: TextContextMenuProp
   }, [onClose]);
 
   const handleFormat = (format: string, value?: string) => {
-  onformat(format, value);
+  onFormat(format, value);
   if (format !== 'color') {
-  onclose();
+  onClose();
   }
   };
 
@@ -112,7 +112,7 @@ export function TextContextMenu({ x, y, onClose, onFormat }: TextContextMenuProp
  recolor
  </Button>
 
- {showcolorpicker && (
+ {showColorPicker && (
  <div className="p-2 bg-muted/20 rounded">
  <div className="grid grid-cols-6 gap-1">
    {colors.map((color) => (

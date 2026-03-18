@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Terminal, Send, Play, Sparkles, X, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
-import { getOllamaGenerateUrl } from '@/lib/llm-config';
+import { getOllamaGenerateUrl, DEFAULT_GEMINI_MODEL } from '@/lib/llm-config';
+import { generateText } from '@/lib/llm-service';
 import { secureLogger } from '@/lib/secure-logger';
 
 interface FormulaEditorProps {
@@ -20,29 +21,24 @@ interface FormulaEditorProps {
 // mock ai service until websocket is fully confirmed
 const fetchAIResponse = async (prompt: string, context: any) => {
   try {
-  const url = getOllamaGenerateUrl();
-  const res = await fetch(url, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
- model: 'qwen2.5vl:latest',
- prompt: `context: ${JSON.stringify(context)}\n\nuser: ${prompt}\n\nplease reply in lowercase and provide a concise javascript snippet when appropriate. treat the provided context as background.`,
- stream: false
-  })
-  });
-  const data = await res.json();
-  return data.response?.toLowerCase() || data.response;
+    const url = getOllamaGenerateUrl();
+    const response = await generateText(
+      `context: ${JSON.stringify(context)}\n\nuser: ${prompt}\n\nplease reply in lowercase and provide a concise javascript snippet when appropriate. treat the provided context as background.`,
+      DEFAULT_GEMINI_MODEL,
+      url,
+    );
+    return response?.toLowerCase() || response || 'error connecting to the ai assistant.';
   } catch (e) {
-  secureLogger.error("ai error", e);
-  return "error connecting to the ai assistant.";
+    secureLogger.error('ai error', e);
+    return 'error connecting to the ai assistant.';
   }
 };
 
 export function FormulaEditor({ value, record, onSave, onCancel, client }: FormulaEditorProps) {
   const [code, setCode] = useState(value || '// Access "record" or "api" objects here\nreturn record.title;');
   const [output, setOutput] = useState<string>('');
-  const [chatinput, setchatinput] = useState('');
-  const [messages, setmessages] = useState<{ role: 'user' | 'assistant', content: string }[]>([
+  const [chatInput, setChatInput] = useState('');
+  const [messages, setMessages] = useState<{ role: 'user' | 'assistant', content: string }[]>([
   { role: 'assistant', content: "hello! i'm your formula assistant. i can help you write scripts to manipulate this record. try asking: 'calculate field x plus field y'" }
   ]);
   const [isAiLoading, setIsAiLoading] = useState(false);
@@ -95,8 +91,8 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
   };
 
   const aiResponse = await fetchAIResponse(userMsg, context);
-  setMessages(prev => [...prev, { role: 'assistant', content: airesponse }]);
-  setisailoading(false);
+  setMessages(prev => [...prev, { role: 'assistant', content: aiResponse }]);
+  setIsAiLoading(false);
   };
 
   return (
@@ -168,7 +164,7 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
   </div>
    </div>
    ))}
-   {isailoading && <div className="text-xs text-muted-foreground animate-pulse">thinking...</div>}
+   {isAiLoading && <div className="text-xs text-muted-foreground animate-pulse">thinking...</div>}
    </div>
  </ScrollArea>
  <div className="p-2 border-t flex gap-2">

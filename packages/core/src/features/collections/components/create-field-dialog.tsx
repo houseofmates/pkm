@@ -15,6 +15,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import FormulaEditor from '@/components/formula-editor';
 import { Terminal } from 'lucide-react';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface CreateFieldDialogProps {
   collectionName: string;

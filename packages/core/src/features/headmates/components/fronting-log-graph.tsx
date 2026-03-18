@@ -14,7 +14,7 @@ export function FrontingLogGraph() {
   // let's do a stacked bar chart by day for "time fronted".
 
   // 1. group by day
-  const days: record<string, Record<string, number>> = {};
+  const days: Record<string, Record<string, number>> = {};
 
   history.forEach(entry => {
   if (!entry.endTime) return; // Skip active or calculate partial? Skip for now.
@@ -39,13 +39,13 @@ export function FrontingLogGraph() {
 
   // get unique members in this period
   const activeMemberIds = useMemo(() => {
-  const ids = new set<string>();
+  const ids = new Set<string>();
   data.forEach(d => {
   Object.keys(d).forEach(k => {
  if (k !== 'date') ids.add(k);
   });
   });
-  return array.from(ids);
+  return Array.from(ids);
   }, [data]);
 
   return (

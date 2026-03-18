@@ -52,8 +52,8 @@ describe('RAG service', () => {
     expect(prompt).toContain('alice');
   });
 
-  it('system prompt contains expected personality traits', () => {
-    const { WILSON_RAG_SYSTEM_PROMPT, CROSS_REFERENCE_PROMPT } = require('@/lib/rag-prompts');
+  it('system prompt contains expected personality traits', async () => {
+    const { WILSON_RAG_SYSTEM_PROMPT, CROSS_REFERENCE_PROMPT } = await import('@/lib/rag-prompts');
     expect(WILSON_RAG_SYSTEM_PROMPT).toMatch(/warm, thoughtful/);
     expect(WILSON_RAG_SYSTEM_PROMPT).toMatch(/retrieved context format/);
     // cross-reference prompt should reference collection:id pattern

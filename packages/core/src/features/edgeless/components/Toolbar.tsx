@@ -11,18 +11,22 @@ import {
   Settings,
   Pencil,
   Eraser,
-  MessageCircle,
+
   BrainCircuit,
   Link as LinkIcon,
   Plus,
   Eye,
   EyeOff,
   Inbox,
-  Lasso
+  Lasso,
+  Move,
+  Expand,
+  BoxSelect
 } from 'lucide-react'
 import { useEdgelessStore } from '../store'
 import { useCanvasEvents } from '../hooks/use-canvas-events'
 import { useState, useRef, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useThemeReactor } from '@/hooks/use-theme-reactor'
 import { UniversalWidgetPicker } from '@/features/widgets/UniversalWidgetPicker'
 import { CaptureDialog } from '@/features/captures/components/CaptureDialog'
@@ -32,6 +36,18 @@ const ToolBtn = ({ tool, icon: Icon, store, activeMenu, openMenu, closeMenu, onC
   const isActive = store.activeTool === tool
   const showMenu = activeMenu === tool
   const btnRef = useRef<HTMLButtonElement>(null)
+  const [menuPos, setMenuPos] = useState({ x: 0, y: 0 })
+
+  // Position menu above the button using a portal
+  useEffect(() => {
+    if (showMenu && btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect()
+      setMenuPos({
+        x: rect.left + rect.width / 2,
+        y: rect.top - 12, // 12px gap above button
+      })
+    }
+  }, [showMenu])
 
   return (
     <div className="relative group">
@@ -55,26 +71,92 @@ const ToolBtn = ({ tool, icon: Icon, store, activeMenu, openMenu, closeMenu, onC
           if (showMenu) closeMenu()
           else openMenu(tool)
         }}
-        className={`h-[48px] w-[48px] flex items-center justify-center rounded-full transition-all duration-200 ${isActive ? 'bg-primary text-black scale-110 shadow-[0_0_15px_var(--primary)]' : 'text-primary hover:bg-primary/20 hover:scale-105'}`}
+        className={`h-[40px] w-[40px] flex items-center justify-center rounded-full transition-all duration-200 ${isActive ? 'bg-primary text-black shadow-[0_0_10px_var(--primary)]' : 'text-primary hover:bg-primary/20 hover:scale-105'}`}
         title={tool}
       >
         {specialModeIcon || <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />}
       </button>
 
-      {/* popup menu */}
-      {showMenu && menuContent && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 bg-[#0a0a0a]/90 backdrop-blur-xl border border-primary/30 rounded-2xl p-4 shadow-2xl min-w-[180px] z-[100] animate-in fade-in slide-in-from-bottom-2">
+      {/* popup menu — rendered via portal to escape toolbar overflow */}
+      {showMenu && menuContent && createPortal(
+        <div
+          className="fixed bg-[#0a0a0a]/90 backdrop-blur-xl border border-primary/30 rounded-2xl p-4 shadow-2xl min-w-[180px] z-[200] animate-in fade-in slide-in-from-bottom-2"
+          style={{
+            left: menuPos.x,
+            top: menuPos.y,
+            transform: 'translate(-50%, -100%)',
+          }}
+        >
           {/* arrow */}
           <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-primary/30"></div>
           {menuContent}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   )
 }
 
 export function Toolbar() {
-  const store = useEdgelessStore()
+  const undo = useEdgelessStore(s => s.undo)
+  const redo = useEdgelessStore(s => s.redo)
+  const addElement = useEdgelessStore(s => s.addElement)
+  const viewPort = useEdgelessStore(s => s.viewPort)
+  const penWidth = useEdgelessStore(s => s.penWidth)
+  const setPenWidth = useEdgelessStore(s => s.setPenWidth)
+  const penOpacity = useEdgelessStore(s => s.penOpacity)
+  const setPenOpacity = useEdgelessStore(s => s.setPenOpacity)
+  const stabilizerLevel = useEdgelessStore(s => s.stabilizerLevel)
+  const setStabilizerLevel = useEdgelessStore(s => s.setStabilizerLevel)
+  const penColor = useEdgelessStore(s => s.penColor)
+  const setPenColor = useEdgelessStore(s => s.setPenColor)
+  const eraserWidth = useEdgelessStore(s => s.eraserWidth)
+  const setEraserWidth = useEdgelessStore(s => s.setEraserWidth)
+  const eraserOpacity = useEdgelessStore(s => s.eraserOpacity)
+  const setEraserOpacity = useEdgelessStore(s => s.setEraserOpacity)
+  const selectionMode = useEdgelessStore(s => s.selectionMode)
+  const setSelectionMode = useEdgelessStore(s => s.setSelectionMode)
+  const activeTool = useEdgelessStore(s => s.activeTool)
+  const setTool = useEdgelessStore(s => s.setTool)
+  const setMode = useEdgelessStore(s => s.setMode)
+  const layers = useEdgelessStore(s => s.layers)
+  const activeLayerId = useEdgelessStore(s => s.activeLayerId)
+  const addLayer = useEdgelessStore(s => s.addLayer)
+  const toggleLayerVisibility = useEdgelessStore(s => s.toggleLayerVisibility)
+  const setActiveLayer = useEdgelessStore(s => s.setActiveLayer)
+  const removeLayer = useEdgelessStore(s => s.removeLayer)
+
+  // Reconstruct a minimal store-like object for ToolBtn to maintain compatibility with minimal changes
+  const store = {
+    activeTool,
+    setTool,
+    setMode,
+    selectionMode,
+    setSelectionMode,
+    penWidth,
+    setPenWidth,
+    penOpacity,
+    setPenOpacity,
+    stabilizerLevel,
+    setStabilizerLevel,
+    penColor,
+    setPenColor,
+    eraserWidth,
+    setEraserWidth,
+    eraserOpacity,
+    setEraserOpacity,
+    viewPort,
+    addElement,
+    undo,
+    redo,
+    layers,
+    activeLayerId,
+    addLayer,
+    toggleLayerVisibility,
+    setActiveLayer,
+    removeLayer
+  }
+
   useThemeReactor() // ensure theme is synced
 
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
@@ -87,7 +169,10 @@ export function Toolbar() {
   // close menu on click outside
   useEffect(() => {
     const handleClick = (e: MouseEvent) => {
-      if (activeMenu && !(e.target as Element).closest('.relative.group')) {
+      if (activeMenu) {
+        const target = e.target as Element
+        // Don't close if clicking inside the portal menu or the toolbar button
+        if (target.closest('.relative.group') || target.closest('[class*="backdrop-blur-xl"]')) return
         closeMenu()
       }
     }
@@ -116,11 +201,12 @@ export function Toolbar() {
 
   return (
     <div
+      data-testid="edgeless-toolbar"
       className="fixed inset-x-0 z-50 pointer-events-none px-3 sm:px-4"
-      style={{ bottom: 'max(20px, calc(env(safe-area-inset-bottom, 0px) + 16px))' }}
+      style={{ bottom: 'max(62px, calc(env(safe-area-inset-bottom, 0px) + 54px))' }}
     >
       <div className="flex justify-center w-full">
-        <div className="flex items-center gap-0 bg-[#050505] backdrop-blur-md border border-white/10 rounded-full shadow-lg border-t-primary/20 transition-all duration-300 pointer-events-auto max-w-full overflow-x-auto overflow-y-hidden overscroll-x-contain px-1 min-w-fit no-scrollbar" style={{ borderRadius: '999px', padding: 0, height: '48px' }}>
+        <div className="flex items-center gap-0 bg-[#050505] backdrop-blur-md border border-white/10 rounded-full shadow-lg border-t-primary/20 transition-all duration-300 pointer-events-auto max-w-full overflow-x-auto overscroll-x-contain px-1 min-w-fit" style={{ borderRadius: '999px', padding: '4px 8px', height: 'auto', minHeight: '48px' }}>
 
         {/* primary tools - centered */}
         <div className="flex items-center gap-1 px-2">
@@ -168,6 +254,77 @@ export function Toolbar() {
             activeMenu={activeMenu}
             openMenu={openMenu}
             closeMenu={closeMenu}
+            menuContent={
+              <div className="flex flex-col gap-2 min-w-[200px]">
+                <span className="text-xs text-primary font-bold lowercase">lasso selection</span>
+                <p className="text-xs text-zinc-400">
+                  draw a freeform loop to select multiple objects
+                </p>
+                <ul className="text-xs text-zinc-500 list-disc list-inside">
+                  <li>drag to draw selection path</li>
+                  <li>close the loop to select</li>
+                  <li>double-click to confirm</li>
+                  <li>auto-captures pixels for transform</li>
+                </ul>
+              </div>
+            }
+          />
+
+          {/* selection tool (marquee select → move/scale/stretch) */}
+          <ToolBtn
+            tool="selection"
+            icon={BoxSelect}
+            store={store}
+            activeMenu={activeMenu}
+            openMenu={openMenu}
+            closeMenu={closeMenu}
+            onClickOverride={() => {
+              store.setTool('selection');
+              store.setMode('draw');
+            }}
+            menuContent={
+              <div className="flex flex-col gap-2 min-w-[200px]">
+                <span className="text-xs text-primary font-bold lowercase">selection</span>
+                <p className="text-xs text-zinc-400">
+                  draw a rectangle to cut & move pixels
+                </p>
+                <ul className="text-xs text-zinc-500 list-disc list-inside">
+                  <li>drag to create marquee</li>
+                  <li>drag handles to scale/squish</li>
+                  <li>drag center to move</li>
+                  <li>top handle to rotate</li>
+                  <li>enter or double-click to confirm</li>
+                  <li>escape to cancel</li>
+                </ul>
+              </div>
+            }
+          />
+
+          {/* transform tool (scale/rotate selected objects) */}
+          <ToolBtn
+            tool="transform"
+            icon={Expand}
+            store={store}
+            activeMenu={activeMenu}
+            openMenu={openMenu}
+            closeMenu={closeMenu}
+            onClickOverride={() => {
+              store.setTool('transform');
+              store.setMode('interact');
+            }}
+            menuContent={
+              <div className="flex flex-col gap-2 min-w-[200px]">
+                <span className="text-xs text-primary font-bold lowercase">transform</span>
+                <p className="text-xs text-zinc-400">
+                  scale, rotate and move selected objects
+                </p>
+                <ul className="text-xs text-zinc-500 list-disc list-inside">
+                  <li>drag handles to resize</li>
+                  <li>drag top handle to rotate</li>
+                  <li>drag center to move</li>
+                </ul>
+              </div>
+            }
           />
 
           {/* pen */}
@@ -282,6 +439,10 @@ export function Toolbar() {
             activeMenu={activeMenu}
             openMenu={openMenu}
             closeMenu={closeMenu}
+            onClickOverride={() => {
+              if (activeMenu === 'layers') closeMenu()
+              else openMenu('layers')
+            }}
             menuContent={
               <div className="flex flex-col gap-2 min-w-[200px]">
                 <div className="flex items-center justify-between mb-2">
@@ -313,19 +474,6 @@ export function Toolbar() {
               </div>
             }
           />
-        </div>
-
-        <div className="w-px h-6 bg-white/10" />
-
-        {/* wilson chat button at the very end */}
-        <div className="flex items-center px-2">
-          <button
-            onClick={() => store.setChatOpen(true)}
-            className="h-[48px] w-[48px] flex items-center justify-center rounded-full text-primary hover:bg-primary/20 hover:scale-105 transition-all"
-            title="open wilson chat"
-          >
-            <MessageCircle size={24} />
-          </button>
         </div>
 
         <UniversalWidgetPicker

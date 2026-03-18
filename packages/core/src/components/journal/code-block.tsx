@@ -14,7 +14,7 @@ export function CodeBlock({ title, language = 'text', children, collapsible = tr
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const handleCopy = () => {
-  navigator.clipboard.writetext(children);
+  navigator.clipboard.writeText(children);
   toast.success('code copied to clipboard');
   };
 
@@ -28,7 +28,7 @@ export function CodeBlock({ title, language = 'text', children, collapsible = tr
    onClick={() => setIsCollapsed(!isCollapsed)}
    className="hover:bg-muted/50 p-1 rounded transition-colors"
  >
-   {iscollapsed ? (
+   {isCollapsed ? (
    <ChevronRight className="w-3 h-3" />
    ) : (
    <ChevronDown className="w-3 h-3" />
@@ -51,7 +51,7 @@ export function CodeBlock({ title, language = 'text', children, collapsible = tr
   </div>
 
   {/* code content */}
-  {!iscollapsed && (
+  {!isCollapsed && (
  <div className="p-4 overflow-x-auto">
  <pre className="text-xs leading-relaxed">
  <code>{children}</code>

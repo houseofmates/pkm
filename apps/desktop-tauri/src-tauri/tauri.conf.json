@@ -1,18 +1,18 @@
 {
   "$schema": "../../../node_modules/@tauri-apps/cli/config.schema.json",
-  "productName": "PKM",
+  "productName": "pkm",
   "version": "0.1.0",
   "identifier": "com.tauri.dev",
   "build": {
     "frontendDist": "../../web/dist",
     "devUrl": "http://localhost:3010",
-    "beforeDevCommand": "npm run dev --workspace=pkm-web",
-    "beforeBuildCommand": "npm run build --workspace=pkm-web"
+    "beforeDevCommand": "npm run dev --workspace=@pkm/core",
+    "beforeBuildCommand": "npm run build --workspace=@pkm/core"
   },
   "app": {
     "windows": [
       {
-        "title": "PKM - Personal Knowledge Management",
+        "title": "pkm",
         "width": 800,
         "height": 600,
         "resizable": true,

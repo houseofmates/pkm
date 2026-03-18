@@ -1,16 +1,18 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useJournalData } from '@/hooks/use-journal-data';
+import { ActivitiesPanel, type Activity } from '@/components/ActivitiesPanel';
+import { MedicationTracker } from '@/components/MedicationTracker';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import api from '@/api/nocobase-client';
 import { OllamaClient } from '@/api/ollama-client';
-import { JournalRecord, parseActivities } from '@/schema/journal-collection';
+import { type JournalRecord, parseActivities } from '@/schema/journal-collection';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, AreaChart, Area } from 'recharts';
-import { Sparkles, Mic, Image, Calendar, TrendingUp, Heart, Zap, Target, Award, BookOpen, Wind, Clock, Download, Bell, Plus, X, ChevronLeft, ChevronRight, Search, Filter, Edit2, Trash2, Lock, FileText, LayoutGrid } from 'lucide-react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import ReactQuill from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
+import { Sparkles, Mic, Image, BarChart2, Heart, Zap, Target, Award, BookOpen, History, Wind, Clock, Download, Bell, Plus, X, ChevronLeft, ChevronRight, Search, Filter, Edit2, Trash2, FileText, ShowerHead, CalendarDays, CheckSquare, TrendingUp } from 'lucide-react';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import { PushToTalkWidget } from '@/components/push-to-talk-widget';
+import { ShowerLoggerModal } from '@/components/shower-logger-modal';
 
 // override focus/accent for journal buttons so color comes from the element itself
 const journalStyles = `
@@ -18,27 +20,158 @@ const journalStyles = `
     outline: none !important;
     box-shadow: 0 0 0 2px currentColor !important;
   }
+
+  .journal-editor .ql-editor {
+    padding-bottom: 0 !important;
+  }
+
+  .journal-editor .ql-picker-options {
+    background-color: #050505 !important;
+    border-color: rgba(255,255,255,0.1) !important;
+  }
+
+  .journal-editor .ql-picker-label,
+  .journal-editor .ql-picker-item {
+    color: white !important;
+  }
+
+  .journal-editor .ql-picker-item::before,
+  .journal-editor .ql-picker-label::before {
+    text-transform: lowercase !important;
+  }
+
+  .journal-editor .ql-snow .ql-picker.ql-header .ql-picker-label::before,
+  .journal-editor .ql-snow .ql-picker.ql-header .ql-picker-item::before,
+  .journal-editor .ql-picker.ql-header .ql-picker-label::before,
+  .journal-editor .ql-picker.ql-header .ql-picker-item::before {
+    text-transform: lowercase !important;
+  }
+
+  .journal-editor .ql-picker.ql-expanded .ql-picker-label {
+    color: white !important;
+  }
 `;
+
+const JOURNAL_QUILL_MODULES = {
+  toolbar: [
+    [{ header: [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline'],
+    ['link'],
+    [{ list: 'ordered' }, { list: 'bullet' }],
+    ['clean'],
+  ],
+};
+
+const JOURNAL_QUILL_FORMATS = [
+  'header', 'bold', 'italic', 'underline', 'link', 'list', 'clean',
+];
 
 const styleEl = document.createElement('style');
 styleEl.textContent = journalStyles;
 document.head.appendChild(styleEl);
 
+function normalizeJournalBody(value: string): string {
+  const trimmed = value.trim();
+  if (!trimmed || trimmed === '<p><br></p>' || trimmed === '<p></p>') {
+    return '';
+  }
+
+  if (typeof document !== 'undefined') {
+    const container = document.createElement('div');
+    container.innerHTML = trimmed;
+
+    container.querySelectorAll('.ql-ui').forEach(node => node.remove());
+    container.querySelectorAll('li').forEach(item => {
+      const text = (item.textContent || '').replace(/\u00a0/g, ' ').trim();
+      const hasRichContent = item.querySelector('img, video, iframe, embed, object, table, pre, blockquote');
+      if (!text && !hasRichContent) {
+        item.remove();
+      }
+    });
+    container.querySelectorAll('ol, ul').forEach(list => {
+      if (!list.querySelector('li')) {
+        list.remove();
+      }
+    });
+
+    const plainText = (container.textContent || '')
+      .replace(/\u00a0/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+    const hasRichContent = Boolean(container.querySelector('img, video, iframe, embed, object, table, pre, blockquote'));
+
+    if (!plainText && !hasRichContent) {
+      return '';
+    }
+
+    return container.innerHTML.trim();
+  }
+
+  const normalized = trimmed
+    .replace(/<span class="ql-ui"[^>]*><\/span>/gi, '')
+    .replace(/<(ol|ul)>\s*<li[^>]*>\s*(<br\s*\/?>|&nbsp;|\s)*<\/li>\s*<\/\1>/gi, '')
+    .trim();
+
+  return normalized === '<p><br></p>' || normalized === '<p></p>' ? '' : normalized;
+}
+
+function getJournalPlainText(value: string): string {
+  const normalized = normalizeJournalBody(value);
+  if (!normalized) return '';
+
+  if (typeof document !== 'undefined') {
+    const container = document.createElement('div');
+    container.innerHTML = normalized;
+    return (container.textContent || '')
+      .replace(/\u00a0/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  return normalized
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 // ─────────────────────────────────────────────
 //  constants
 // ─────────────────────────────────────────────
 
+// colors
 const Y = '#f5af12';
 const B = '#3c9fdd';
 const G = '#22c55e';
 
+// xp system
+const XP_PER_ENTRY = 10;
+const XP_STREAK_BONUS = 5;
+const XP_WORD_GOAL = 5;
+const AUTO_SAVE_INTERVAL = 30000;
+const DRAFT_RESTORE_HOURS = 24;
+
+// intervals
+const BREATHING_INTERVAL_MS = 1000;
+const TIMER_INTERVAL_MS = 1000;
+
+// thresholds
+const MIN_WORDS_FOR_PREDICTION = 20;
+const MIN_DRAFT_HOURS = 24;
+const VOICE_MEMO_THRESHOLD = 10;
+const MIN_EMOTIONS_FOR_GOAL = 3;
+const MIN_ACTIVITIES_FOR_GOAL = 3;
+const MIN_CHARS_FOR_GOAL = 50;
+const WORD_GOAL = 100;
+const WORD_WARRIOR_THRESHOLD = 500;
+
 const MOODS = [
-  { id: '0', label: 'terrible', emoji: '😡', color: '#ef4444', value: 1 },
-  { id: '1', label: 'bad',      emoji: '😞', color: '#f97316', value: 2 },
-  { id: '2', label: 'fine',     emoji: '😐', color: '#eab308', value: 3 },
-  { id: '4', label: 'good',     emoji: '😊', color: '#22c55e', value: 4 },
-  { id: '5', label: 'great',    emoji: '😃', color: '#06b6d4', value: 5 },
-  { id: '6', label: 'amazing!', emoji: '😁', color: '#8b5cf6', value: 6 },
+  { id: '0', label: 'terrible', emoji: '/images/moods/terrible.png', color: '#ef4444', value: 1 },
+  { id: '1', label: 'bad',      emoji: '/images/moods/bad.png', color: '#f97316', value: 2 },
+  { id: '2', label: 'fine',     emoji: '/images/moods/fine.png', color: '#eab308', value: 3 },
+  { id: '4', label: 'good',     emoji: '/images/moods/good.png', color: '#22c55e', value: 4 },
+  { id: '5', label: 'great',    emoji: '/images/moods/great.png', color: '#06b6d4', value: 5 },
+  { id: '6', label: 'amazing!', emoji: '/images/moods/amazing.png', color: '#8b5cf6', value: 6 },
 ];
 
 const INITIAL_EMOTIONS = [
@@ -52,31 +185,31 @@ const INITIAL_EMOTIONS = [
 ];
 
 const DEFAULT_ACTIVITIES = [
-  { id: 'take_pills',      label: 'take pills',      emoji: '💊', category: 'health', color: '#ffd700' },
-  { id: 'put_patches_on',  label: 'put patches on',  emoji: '🩹', category: 'health', color: '#ffa500' },
-  { id: 'water_floss',     label: 'water floss',     emoji: '🚿', category: 'health', color: '#0000ff' },
-  { id: 'brush_teeth',     label: 'brush teeth',      emoji: '🦷', category: 'health', color: '#00ffff' },
-  { id: 'wash_face',       label: 'wash face',       emoji: '🧴', category: 'health', color: '#5b6dfb' },
+  { id: 'take_pills',      label: 'take pills',      emoji: '💊', category: 'health', color: '#f5af12' },
+  { id: 'put_patches_on',  label: 'put patches on',  emoji: '🩹', category: 'health', color: '#f5af12' },
+  { id: 'water_floss',     label: 'water floss',     emoji: '🚿', category: 'health', color: '#3c9fdd' },
+  { id: 'brush_teeth',     label: 'brush teeth',      emoji: '🦷', category: 'health', color: '#3c9fdd' },
+  { id: 'wash_face',       label: 'wash face',       emoji: '🧴', category: 'health', color: '#3c9fdd' },
   { id: 'nail_care',       label: 'nail care',       emoji: '💅', category: 'health', color: '#ff00ff' },
   { id: 'body_wipe',       label: 'body wipe',        emoji: '🧻', category: 'health', color: '#ffffff' },
-  { id: 'shower',          label: 'shower',          emoji: '🚿', category: 'health', color: '#0000ff' },
+  { id: 'shower',          label: 'shower',          emoji: '🚿', category: 'health', color: '#3c9fdd' },
   { id: 'journal_plan_write', label: 'journal/plan/write', emoji: '📝', category: 'productivity', color: '#32cd32' },
   { id: 'tidy',            label: 'tidy',            emoji: '🧹', category: 'productivity', color: '#ffffff' },
-  { id: 'worship',         label: 'worship',         emoji: '🙏', category: 'wellness', color: '#ffd700' },
+  { id: 'worship',         label: 'worship',         emoji: '🙏', category: 'wellness', color: '#f5af12' },
   { id: 'laundry',         label: 'laundry',         emoji: '👕', category: 'productivity', color: '#ffffff' },
   { id: 'go_outside',      label: 'go outside',      emoji: '🚪', category: 'wellness', color: '#008000' },
   { id: 'leave_house',     label: 'leave house',     emoji: '🏠', category: 'wellness', color: '#32cd32' },
-  { id: 'online_social_int', label: 'online social int', emoji: '💬', category: 'social', color: '#ffa500' },
+  { id: 'online_social_int', label: 'online social int', emoji: '💬', category: 'social', color: '#f5af12' },
   { id: 'eat_meal',        label: 'eat meal',         emoji: '🍽️', category: 'health', color: '#ff4500' },
-  { id: 'draw',            label: 'draw',            emoji: '✏️', category: 'creative', color: '#ffd700' },
+  { id: 'draw',            label: 'draw',            emoji: '✏️', category: 'creative', color: '#f5af12' },
   { id: 'vibecode',        label: 'vibecode',         emoji: '💻', category: 'creative', color: '#800080' },
   { id: 'paint',           label: 'paint',            emoji: '🎨', category: 'creative', color: '#ff00ff' },
   { id: 'play_a_game',     label: 'play a game',      emoji: '🎮', category: 'leisure', color: '#008000' },
   { id: 'llm_rp',          label: 'llm rp',          emoji: '🤖', category: 'creative', color: '#ffffff' },
   { id: 'llm_int',         label: 'llm int',          emoji: '💬', category: 'creative', color: '#ffffff' },
-  { id: 'watch_content',   label: 'watch content',    emoji: '📺', category: 'leisure', color: '#0000ff' },
+  { id: 'watch_content',   label: 'watch content',    emoji: '📺', category: 'leisure', color: '#3c9fdd' },
   { id: 'masturbate',      label: 'masturbate',       emoji: '🍆', category: 'health', color: '#ff00ff' },
-  { id: 'nap',             label: 'nap',              emoji: '😴', category: 'health', color: '#ffa500' },
+  { id: 'nap',             label: 'nap',              emoji: '😴', category: 'health', color: '#f5af12' },
   { id: 'int_w_family',    label: 'int w family',     emoji: '👨‍👩‍👧‍👦', category: 'social', color: '#32cd32' },
   { id: 'remove_patches',  label: 'remove patches',   emoji: '🩹', category: 'health', color: '#ff0000' },
   { id: 'sleep',           label: 'sleep',            emoji: '🛏️', category: 'health', color: '#800080' },
@@ -267,6 +400,7 @@ const STORAGE_KEYS = {
   COLOR_DOTS: 'pkm:journal:color_dots',
   XP_DATA: 'pkm:journal:xp_data',
   DAILY_GOALS: 'pkm:journal:daily_goals',
+  DAILY_GOAL_LOG: 'pkm:journal:daily_goal_log',
   TAGS: 'pkm:journal:tags',
   TAG_COLORS: 'pkm:journal:tag_colors',
   PAST_ENTRIES: 'pkm:journal:past_entries',
@@ -302,11 +436,18 @@ function setStoredData<T>(key: string, value: T): void {
 }
 
 function getToday(): string {
-  return new Date().toLocaleDateString('en-CA');
+  const d = new Date();
+  if (d.getHours() >= 0 && d.getHours() < 5) {
+    d.setDate(d.getDate() - 1);
+  }
+  return d.toLocaleDateString('en-CA');
 }
 
 function getYesterday(): string {
   const d = new Date();
+  if (d.getHours() >= 0 && d.getHours() < 5) {
+    d.setDate(d.getDate() - 1);
+  }
   d.setDate(d.getDate() - 1);
   return d.toLocaleDateString('en-CA');
 }
@@ -702,10 +843,14 @@ function ReflectionTimer({ isOpen, onClose, prompt }: { isOpen: boolean; onClose
   const [isPaused, setIsPaused] = useState(false);
 
   const durations = [
-    { label: '3 min', value: 180 },
     { label: '5 min', value: 300 },
     { label: '10 min', value: 600 },
     { label: '15 min', value: 900 },
+    { label: '30 min', value: 1800 },
+    { label: '1 hr', value: 3600 },
+    { label: '2 hrs', value: 7200 },
+    { label: '6 hrs', value: 21600 },
+    { label: '12 hrs', value: 43200 },
   ];
 
   useEffect(() => {
@@ -715,7 +860,8 @@ function ReflectionTimer({ isOpen, onClose, prompt }: { isOpen: boolean; onClose
         setTimeLeft(prev => prev - 1);
       }, 1000);
     } else if (timeLeft === 0 && isActive) {
-      setIsActive(false);
+      // defer state update to avoid calling setState synchronously in effect
+      setTimeout(() => setIsActive(false), 0);
       toast.success('time is up! great reflection session.');
     }
     return () => clearInterval(interval);
@@ -997,11 +1143,12 @@ function TemplateSelector({ isOpen, onClose, onSelect }: { isOpen: boolean; onCl
 
 interface StatsChartsProps {
   entries: JournalRecord[];
+  activityCatalog?: Activity[];
 }
 
-function StatsCharts({ entries }: StatsChartsProps) {
+function StatsCharts({ entries, activityCatalog = DEFAULT_ACTIVITIES }: StatsChartsProps) {
   const [timeRange, setTimeRange] = useState<'week' | 'month' | 'year' | 'all'>('month');
-  const [chartType, setChartType] = useState<'trend' | 'mood' | 'activities' | 'emotions'>('trend');
+  const [chartType, setChartType] = useState<'trend' | 'mood' | 'activities' | 'emotions' | 'correlations' | 'timing'>('trend');
 
   const filteredEntries = useMemo(() => {
     if (timeRange === 'all') return entries;
@@ -1028,22 +1175,23 @@ function StatsCharts({ entries }: StatsChartsProps) {
       try {
         const emos = JSON.parse((e as any).emotions || '[]');
         emos.forEach((em: string) => { freq[em] = (freq[em] || 0) + 1; });
-      } catch {}
+      } catch (e) { console.warn('Failed to parse emotions JSON:', e); }
     });
     return Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([name, count]) => ({ name, count }));
   }, [filteredEntries]);
 
   const activityBreakdown = useMemo(() => {
+    const activityLookup = new Map(activityCatalog.map(a => [a.id, a]));
     const freq: Record<string, number> = {};
     filteredEntries.forEach(e => {
       const acts = parseActivities(e.activities);
       acts.forEach((a: string) => { freq[a] = (freq[a] || 0) + 1; });
     });
     return Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([name, value]) => {
-      const act = DEFAULT_ACTIVITIES.find(a => a.id === name);
+      const act = activityLookup.get(name) ?? DEFAULT_ACTIVITIES.find(a => a.id === name);
       return { name: act?.label || name, value };
     });
-  }, [filteredEntries]);
+  }, [filteredEntries, activityCatalog]);
 
   const moodDistribution = useMemo(() => {
     const dist: Record<string, number> = {};
@@ -1116,6 +1264,8 @@ function StatsCharts({ entries }: StatsChartsProps) {
           { id: 'mood', label: 'moods', icon: Heart },
           { id: 'activities', label: 'activities', icon: Zap },
           { id: 'emotions', label: 'emotions', icon: Sparkles },
+          { id: 'correlations', label: 'correlations', icon: Zap },
+          { id: 'timing', label: 'timing', icon: Clock },
         ].map(({ id, label, icon: Icon }) => (
           <button
             key={id}
@@ -1210,7 +1360,7 @@ function StatsCharts({ entries }: StatsChartsProps) {
                   outerRadius={60}
                   dataKey="value"
                   nameKey="name"
-                  label={({ name }) => name.length > 8 ? name.slice(0, 8) + '...' : name}
+                  label={({ name }) => (name ?? '').length > 8 ? (name ?? '').slice(0, 8) + '...' : name ?? ''}
                   labelLine={false}
                 >
                   {activityBreakdown.map((_, i) => (
@@ -1240,7 +1390,7 @@ function StatsCharts({ entries }: StatsChartsProps) {
                   outerRadius={60}
                   dataKey="value"
                   nameKey="name"
-                  label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                  label={({ percent }) => `${((percent ?? 0) * 100).toFixed(0)}%`}
                 >
                   {moodDistribution.map((entry, i) => {
                     const moodColor = MOODS.find(m => m.label === entry.name)?.color || MOOD_COLORS[i % MOOD_COLORS.length];
@@ -1259,6 +1409,16 @@ function StatsCharts({ entries }: StatsChartsProps) {
 
       {filteredEntries.length === 0 && (
         <p className="text-center text-white/30 lowercase text-sm py-8">no data for this period</p>
+      )}
+
+      {/* mood-activity correlations */}
+      {chartType === 'correlations' && (
+        <MoodActivityCorrelation entries={filteredEntries} activityCatalog={activityCatalog} />
+      )}
+
+      {/* time insights */}
+      {chartType === 'timing' && (
+        <TimeInsights entries={filteredEntries} />
       )}
     </div>
   );
@@ -1332,9 +1492,12 @@ function GratitudeTracker() {
 
 interface MoodActivityCorrelationProps {
   entries: JournalRecord[];
+  activityCatalog?: Activity[];
 }
 
-function MoodActivityCorrelation({ entries }: MoodActivityCorrelationProps) {
+function MoodActivityCorrelation({ entries, activityCatalog = DEFAULT_ACTIVITIES }: MoodActivityCorrelationProps) {
+  const activityLookup = useMemo(() => new Map(activityCatalog.map(a => [a.id, a])), [activityCatalog]);
+
   const correlations = useMemo(() => {
     const activityMoods: Record<string, number[]> = {};
     
@@ -1354,12 +1517,12 @@ function MoodActivityCorrelation({ entries }: MoodActivityCorrelationProps) {
         activity,
         avgMood: Number((moods.reduce((a, b) => a + b, 0) / moods.length).toFixed(1)),
         count: moods.length,
-        activityLabel: DEFAULT_ACTIVITIES.find(a => a.id === activity)?.label || activity,
-        emoji: DEFAULT_ACTIVITIES.find(a => a.id === activity)?.emoji || '✓',
+        activityLabel: activityLookup.get(activity)?.label || activity,
+        emoji: activityLookup.get(activity)?.emoji || '✓',
       }))
       .filter(c => c.count >= 3) // only show activities with 3+ occurrences
       .sort((a, b) => b.avgMood - a.avgMood);
-  }, [entries]);
+  }, [entries, activityLookup]);
 
   if (correlations.length === 0) {
     return (
@@ -1418,125 +1581,10 @@ function MoodActivityCorrelation({ entries }: MoodActivityCorrelationProps) {
 }
 
 // ─────────────────────────────────────────────
-//  privacy lock component
-// ─────────────────────────────────────────────
-
-function PrivacyLock({ isLocked, onUnlock, onLock }: { isLocked: boolean; onUnlock: () => void; onLock: () => void }) {
-  const [pin, setPin] = useState('');
-  const [storedPin, setStoredPin] = useState(() => getStoredData('pkm:journal:pin', ''));
-  const [showSetPin, setShowSetPin] = useState(false);
-  const [newPin, setNewPin] = useState('');
-  const [confirmPin, setConfirmPin] = useState('');
-
-  if (!isLocked) {
-    return (
-      <button
-        onClick={() => {
-          if (!storedPin) {
-            setShowSetPin(true);
-          } else {
-            onLock();
-          }
-        }}
-        className="p-2 rounded-lg hover:bg-white/5 text-white/40 hover:text-white transition-colors"
-        title={storedPin ? "lock journal" : "set pin"}
-      >
-        <Lock size={18} />
-      </button>
-    );
-  }
-
-  if (showSetPin) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90">
-        <div className="p-6 rounded-2xl border border-white/10 bg-[#0a0a0a] w-72 text-center">
-          <Lock size={32} className="mx-auto mb-4 text-yellow-400" />
-          <p className="text-sm text-white/70 lowercase mb-4">set a 4-digit pin</p>
-          <input
-            type="password"
-            value={newPin}
-            onChange={e => setNewPin(e.target.value.slice(0, 4))}
-            placeholder="••••"
-            className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-center text-2xl tracking-widest mb-3 focus:outline-none focus:border-yellow-500/50"
-          />
-          <input
-            type="password"
-            value={confirmPin}
-            onChange={e => setConfirmPin(e.target.value.slice(0, 4))}
-            placeholder="confirm"
-            className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 text-center text-2xl tracking-widest mb-4 focus:outline-none focus:border-yellow-500/50"
-          />
-          <button
-            onClick={() => {
-              if (newPin.length === 4 && newPin === confirmPin) {
-                setStoredPin(newPin);
-                setStoredData('pkm:journal:pin', newPin);
-                setShowSetPin(false);
-                onLock();
-                toast.success('pin set successfully');
-              } else {
-                toast.error('pins do not match');
-              }
-            }}
-            disabled={newPin.length !== 4 || newPin !== confirmPin}
-            className="w-full py-3 rounded-xl bg-yellow-500 text-black font-medium lowercase disabled:opacity-30"
-          >
-            set pin
-          </button>
-          <button
-            onClick={() => setShowSetPin(false)}
-            className="w-full py-2 mt-2 text-xs text-white/40 lowercase"
-          >
-            cancel
-          </button>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/95 backdrop-blur-sm">
-      <div className="p-6 rounded-2xl border border-white/10 bg-[#0a0a0a] w-72 text-center">
-        <Lock size={40} className="mx-auto mb-4 text-yellow-400" />
-        <p className="text-lg font-medium text-white lowercase mb-1">journal locked</p>
-        <p className="text-xs text-white/40 lowercase mb-6">enter your pin to unlock</p>
-        <input
-          type="password"
-          value={pin}
-          onChange={e => {
-            const val = e.target.value.slice(0, 4);
-            setPin(val);
-            if (val === storedPin) {
-              setPin('');
-              onUnlock();
-              toast.success('unlocked');
-            }
-          }}
-          placeholder="••••"
-          autoFocus
-          className="w-full px-4 py-4 rounded-xl bg-white/5 border border-white/10 text-center text-3xl tracking-[0.5em] mb-4 focus:outline-none focus:border-yellow-500/50"
-        />
-        <button
-          onClick={() => {
-            setStoredPin('');
-            setStoredData('pkm:journal:pin', '');
-            onUnlock();
-            toast.success('pin removed');
-          }}
-          className="text-xs text-white/30 lowercase hover:text-white/50"
-        >
-          forgot pin? reset
-        </button>
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────
 //  mood heatmap component
 // ─────────────────────────────────────────────
 
-function MoodHeatmap({ entries }: { entries: JournalRecord[] }) {
+function MoodHeatmap({ entries, onDayClick }: { entries: JournalRecord[]; onDayClick?: (date: string) => void }) {
   const [year, setYear] = useState(new Date().getFullYear());
 
   const heatmapData = useMemo(() => {
@@ -1580,17 +1628,17 @@ function MoodHeatmap({ entries }: { entries: JournalRecord[] }) {
         </div>
       </div>
 
-      <div className="flex gap-1 overflow-x-auto pb-2">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-3 pb-2 w-full">
         {months.map((month, monthIdx) => {
           const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
           const firstDay = new Date(year, monthIdx, 1).getDay();
           
           return (
-            <div key={month} className="flex flex-col items-center gap-1">
+            <div key={month} className="flex flex-col items-center gap-1 w-full">
               <span className="text-[10px] text-white/30 lowercase mb-1">{month}</span>
-              <div className="grid grid-cols-7 gap-[2px]">
+              <div className="grid grid-cols-7 gap-[2px] w-full">
                 {[...Array(firstDay)].map((_, i) => (
-                  <div key={`empty-${i}`} className="w-3 h-3" />
+                  <div key={`empty-${i}`} className="aspect-square" />
                 ))}
                 {[...Array(daysInMonth)].map((_, day) => {
                   const dateStr = `${year}-${String(monthIdx + 1).padStart(2, '0')}-${String(day + 1).padStart(2, '0')}`;
@@ -1598,7 +1646,8 @@ function MoodHeatmap({ entries }: { entries: JournalRecord[] }) {
                   return (
                     <div
                       key={day}
-                      className="w-3 h-3 rounded-sm cursor-pointer hover:ring-1 hover:ring-white/30 transition-all"
+                      onClick={() => onDayClick?.(dateStr)}
+                      className="aspect-square rounded-sm cursor-pointer hover:ring-1 hover:ring-white/30 transition-all"
                       style={{ backgroundColor: getColor(dayData?.value || 0) }}
                       title={dayData ? `${dateStr}: ${MOODS.find(m => m.id === dayData.mood)?.label}` : dateStr}
                     />
@@ -1618,119 +1667,6 @@ function MoodHeatmap({ entries }: { entries: JournalRecord[] }) {
           ))}
         </div>
         <span>more</span>
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────
-//  habit calendar component
-// ─────────────────────────────────────────────
-
-function HabitCalendar({
-  entries,
-  onDateClick,
-}: {
-  entries: JournalRecord[];
-  onDateClick: (date: string) => void;
-}) {
-  const datesWithEntry = useMemo(
-    () => new Set(entries.map(e => e.date)),
-    [entries]
-  );
-
-  const days = useMemo(() => {
-    const arr: string[] = [];
-    const today = new Date();
-    const start = new Date(today);
-    start.setFullYear(start.getFullYear() - 1);
-    // roll back to previous sunday so weeks align
-    start.setDate(start.getDate() - start.getDay());
-
-    const d = new Date(start);
-    while (d <= today) {
-      const iso = d.toISOString().slice(0, 10);
-      arr.push(iso);
-      d.setDate(d.getDate() + 1);
-    }
-    return arr;
-  }, [entries]);
-
-  return (
-    <div className="overflow-x-auto py-2">
-      <div className="flex items-center gap-[2px]">
-        {days.map((dateStr, i) => {
-          const has = datesWithEntry.has(dateStr);
-          const next = days[i + 1];
-          const borderRight = next && next.slice(5, 7) !== dateStr.slice(5, 7);
-          return (
-            <div
-              key={dateStr}
-              className="w-3 h-3 rounded-sm cursor-pointer"
-              style={{
-                backgroundColor: has ? '#4ade80' : 'rgba(255,255,255,0.03)',
-                marginRight: borderRight ? '2px' : undefined,
-              }}
-              onClick={() => onDateClick(dateStr)}
-              title={dateStr}
-            />
-          );
-        })}
-      </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────
-//  word cloud component
-// ─────────────────────────────────────────────
-
-function WordCloud({ entries }: { entries: JournalRecord[] }) {
-  const words = useMemo(() => {
-    const wordFreq: Record<string, number> = {};
-    const stopWords = new Set(['the', 'and', 'for', 'are', 'but', 'not', 'you', 'all', 'can', 'had', 'her', 'was', 'one', 'our', 'out', 'day', 'get', 'has', 'him', 'his', 'how', 'its', 'may', 'new', 'now', 'old', 'see', 'two', 'way', 'who', 'did']);
-    
-    entries.forEach(e => {
-      if (!e.body) return;
-      const text = e.body.toLowerCase().replace(/[^a-z\s]/g, '');
-      text.split(/\s+/).forEach(word => {
-        if (word.length > 3 && !stopWords.has(word)) {
-          wordFreq[word] = (wordFreq[word] || 0) + 1;
-        }
-      });
-    });
-    
-    return Object.entries(wordFreq)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 30)
-      .map(([word, count]) => ({ word, count, size: Math.min(24, 10 + count * 2) }));
-  }, [entries]);
-
-  if (words.length === 0) {
-    return (
-      <div className="text-center py-6">
-        <p className="text-xs text-white/30 lowercase">write more to generate word cloud</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-      <p className="text-xs text-white/40 lowercase mb-3">most used words</p>
-      <div className="flex flex-wrap gap-2 justify-center items-center min-h-[120px]">
-        {words.map((w, i) => (
-          <span
-            key={w.word}
-            className="lowercase cursor-default hover:text-white transition-colors"
-            style={{
-              fontSize: `${w.size}px`,
-              color: `rgba(255,255,255,${0.3 + (words.length - i) / words.length * 0.7})`,
-            }}
-            title={`${w.count} occurrences`}
-          >
-            {w.word}
-          </span>
-        ))}
       </div>
     </div>
   );
@@ -1825,16 +1761,62 @@ export function JournalPage() {
     return Array.from(new Set([...INITIAL_EMOTIONS, ...stored]));
   });
 
-  // ── state: activities ──
+  // ── state: activities used by the entry form ──
   const [activities, setActivities] = useState<Set<string>>(new Set());
   const [activityQuery, setActivityQuery] = useState('');
   const [availableActivities] = useState(DEFAULT_ACTIVITIES);
   const [activityFilter, setActivityFilter] = useState<string | null>(null);
+
+  // toggle for the habits/activity panel (global tracking)
+  const [showActivitiesPanel, setShowActivitiesPanel] = useState(false);
+
+  // journal data hooks - must be called before any derived state that uses habitActivities
+  const {
+    entries,
+    setEntries,
+    editingEntry,
+    setEditingEntry,
+    selectedEntry,
+    setSelectedEntry,
+    viewingEntry,
+    setViewingEntry,
+    addEntry,
+    updateEntry,
+    deleteEntry,
+    bookmarks,
+    pastFilter,
+    metadata: entryMeta,
+    transcription,
+    activities: habitActivities,
+    derived,
+  } = useJournalData();
+
+  // custom user-created activities (persisted in localStorage)
+  const [customActivities, setCustomActivities] = useState<typeof DEFAULT_ACTIVITIES>(() =>
+    getStoredData('pkm:journal:custom_activities', [])
+  );
+  const allHabitActivities = useMemo(
+    () => [...habitActivities.list, ...customActivities],
+    [habitActivities.list, customActivities]
+  );
+  const activityCatalog = useMemo(() => {
+    const map = new Map<string, (typeof DEFAULT_ACTIVITIES)[number]>();
+    [...DEFAULT_ACTIVITIES, ...allHabitActivities].forEach(a => {
+      map.set(a.id, a);
+    });
+    return Array.from(map.values());
+  }, [allHabitActivities]);
+  const handleCreateActivity = useCallback((activity: { id: string; label: string; emoji: string; category: string; color: string }) => {
+    setCustomActivities(prev => {
+      const next = [...prev, activity];
+      setStoredData('pkm:journal:custom_activities', next);
+      return next;
+    });
+    toast.success(`activity "${activity.label}" created`);
+  }, []);
   
   // ── state: notes ──
   const [body, setBody] = useState('');
-  const [showPreview, setShowPreview] = useState(false);
-  const [useWysiwyg, setUseWysiwyg] = useState(false);
   const [saving, setSaving] = useState(false);
   const [wordCount, setWordCount] = useState(0);
   const [charCount, setCharCount] = useState(0);
@@ -1843,8 +1825,6 @@ export function JournalPage() {
   const [predictedMood, setPredictedMood] = useState<string | null>(null);
   const [predictedSentiment, setPredictedSentiment] = useState<string | null>(null);
   const [predictedActivities, setPredictedActivities] = useState<string[]>([]);
-  
-  // ── state: gamification ──
   const [streak, setStreak] = useState(0);
   const [entryCount, setEntryCount] = useState(0);
   const [xp, setXp] = useState(0);
@@ -1865,7 +1845,13 @@ export function JournalPage() {
     { id: 'complete_activities', label: 'complete 3+ activities', completed: false, icon: '✓' },
     { id: 'voice_summary_goal', label: 'summarize a voice note', completed: false, icon: '📝' },
   ]);
-  const [showGoals, setShowGoals] = useState(false);
+  const [dailyGoalLog, setDailyGoalLog] = useState<Array<{ goalId: string; label: string; completedAt: string }>>(() => {
+    const saved = getStoredData(
+      STORAGE_KEYS.DAILY_GOAL_LOG,
+      { date: getToday(), items: [] as Array<{ goalId: string; label: string; completedAt: string }> }
+    );
+    return saved.date === getToday() ? saved.items : [];
+  });
   
   // ── state: tags ──
   const [tags, setTags] = useState<Set<string>>(new Set());
@@ -1894,69 +1880,68 @@ export function JournalPage() {
   
   // ── state: view toggles ──
   const [showQuickCheckin, setShowQuickCheckin] = useState(false);
-  const [showCalendar, setShowCalendar] = useState(false);
-  const [showHabitCalendar, setShowHabitCalendar] = useState(false);
+  const [showShowerLogger, setShowShowerLogger] = useState(false);
   const [showPastEntries, setShowPastEntries] = useState(false);
-
-  const handleHabitDateClick = (date: string) => {
-    const existing = entriesByDate[date];
-    if (existing) {
-      populateForm(existing);
-    } else {
-      // create provisional entry to edit
-      const temp: JournalRecord = { date, timestamp: new Date().toISOString(), mood: null, activities: '[]', body: '' };
-      populateForm(temp);
-    }
-    setShowCalendar(false);
-    setShowHabitCalendar(false);
-  };
   const [showBreathing, setShowBreathing] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
   const [showWeeklyReview, setShowWeeklyReview] = useState(false);
   const [showTemplates, setShowTemplates] = useState(false);
-  const [showGratitude, setShowGratitude] = useState(false);
-  const [showCorrelations, setShowCorrelations] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
-  const [showWordCloud, setShowWordCloud] = useState(false);
-  const [showTimeInsights, setShowTimeInsights] = useState(false);
-  const [isLocked, setIsLocked] = useState(() => getStoredData('pkm:journal:locked', false));
-  const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  // ── state: export options ──
-  const [exportFrom, setExportFrom] = useState<string>('');
-  const [exportTo, setExportTo] = useState<string>('');
+
+  // ── state: journal date ──
+  const [entryDate, setEntryDate] = useState<string>(getToday());
 
   // ── state: daily reminder ──
   const [reminderTime, setReminderTime] = useState<string>(() =>
     localStorage.getItem('journal_reminder') || ''
   );
   const [reminderEnabled, setReminderEnabled] = useState<boolean>(!!reminderTime);
+  const reminderTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (!reminderEnabled || !reminderTime) return;
+    if (!reminderEnabled || !reminderTime) {
+      if (reminderTimeoutRef.current) {
+        clearTimeout(reminderTimeoutRef.current);
+        reminderTimeoutRef.current = null;
+      }
+      return;
+    }
+    
     localStorage.setItem("journal_reminder", reminderTime);
-    const schedule = () => {
+    
+    const scheduleReminder = () => {
       const now = new Date();
-      const [h,m] = reminderTime.split(":").map(Number);
+      const [h, m] = reminderTime.split(":").map(Number);
       const next = new Date();
       next.setHours(h, m, 0, 0);
       if (next <= now) next.setDate(next.getDate() + 1);
       const timeout = next.getTime() - now.getTime();
-      setTimeout(() => {
+      
+      reminderTimeoutRef.current = setTimeout(() => {
         if (Notification.permission === "granted") {
-          new Notification("Journal Reminder", { body: "Time to write your journal!" });
+          new Notification("journal reminder", { body: "time to write your journal!" });
         } else {
           Notification.requestPermission().then(p => {
             if (p === "granted") {
-              new Notification("Journal Reminder", { body: "Time to write your journal!" });
+              new Notification("journal reminder", { body: "time to write your journal!" });
             }
           });
         }
-        schedule();
+        scheduleReminder();
       }, timeout);
     };
-    schedule();
+    
+    scheduleReminder();
+    
+    return () => {
+      if (reminderTimeoutRef.current) {
+        clearTimeout(reminderTimeoutRef.current);
+        reminderTimeoutRef.current = null;
+      }
+    };
   }, [reminderEnabled, reminderTime]);
+  
   useEffect(() => {
     if (!reminderEnabled) {
       localStorage.removeItem("journal_reminder");
@@ -1964,41 +1949,57 @@ export function JournalPage() {
   }, [reminderEnabled]);
 
 
-  
-  // ── state: past entries filter ──
-  const [pastEntriesFilter, setPastEntriesFilter] = useState({ search: '', mood: '', tag: '' });
-  const [nlIds, setNlIds] = useState<string[] | null>(null);            // natural language search results
-  const [isNlSearching, setIsNlSearching] = useState(false);            
-  
-  // ── state: entry metadata ──
-  const [selectedTemplate, setSelectedTemplate] = useState<typeof JOURNAL_TEMPLATES[0] | null>(null);
-  const [entryTime, setEntryTime] = useState<Date | null>(null);
-  const [photos, setPhotos] = useState<string[]>([]);
-  const [voiceMemos, setVoiceMemos] = useState<string[]>([]);
-  const [isRecording, setIsRecording] = useState(false);
-  const [recordingTime, setRecordingTime] = useState(0);
-  
-  // ── refs ──
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  // pull some helpers from bookmarks object
+  const { bookmarkedEntries, showBookmarksOnly, setShowBookmarksOnly } = bookmarks;
+
+  const { pastEntriesFilter, setPastEntriesFilter, nlIds, setNlIds, isNlSearching, setIsNlSearching } = pastFilter;
+
+  // metadata helpers pulled from hook
+  const {
+    selectedTemplate,
+    setSelectedTemplate,
+    entryTime,
+    setEntryTime,
+    photos,
+    setPhotos,
+    voiceMemos,
+    setVoiceMemos,
+    isRecording,
+    setIsRecording,
+    recordingTime,
+    setRecordingTime,
+  } = entryMeta;
+
+  // transcription state from hook
+  const {
+    isTranscribing,
+    setIsTranscribing,
+    transcript,
+    setTranscript,
+    isSummarizingVoice,
+    setIsSummarizingVoice,
+    transcriptionSummary,
+    setTranscriptionSummary,
+    recognitionRef,
+  } = transcription;
+
+  // local refs still owned by component
+  const quillRef = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  // ── entries & editing ──
-  const [entries, setEntries] = useState<JournalRecord[]>([]);
-  const [editingEntry, setEditingEntry] = useState<JournalRecord | null>(null);
-  const [selectedEntry, setSelectedEntry] = useState<JournalRecord | null>(null);
-  const [viewingEntry, setViewingEntry] = useState<JournalRecord | null>(null);
-  const [bookmarkedEntries, setBookmarkedEntries] = useState<number[]>(() => 
-    getStoredData('pkm:journal:bookmarks', [])
-  );
-  const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
-
-  // ── voice transcription states ──
-  const [isTranscribing, setIsTranscribing] = useState(false);
-  const [transcript, setTranscript] = useState('');
-  const [isSummarizingVoice, setIsSummarizingVoice] = useState(false);
-  const [transcriptionSummary, setTranscriptionSummary] = useState('');
-  const recognitionRef = useRef<any>(null);
+  // cleanup speech recognition on unmount (if still used elsewhere)
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {
+          // ignore errors during cleanup
+        }
+      }
+    };
+  }, []);
 
   // ── derived state ──
   const entriesByDate = useMemo(() => {
@@ -2006,26 +2007,6 @@ export function JournalPage() {
     entries.forEach(e => { map[e.date] = e; });
     return map;
   }, [entries]);
-
-  const calendarDays = useMemo(() => {
-    const year = currentMonth.getFullYear();
-    const month = currentMonth.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const startWeekday = firstDay.getDay();
-    const numDays = new Date(year, month + 1, 0).getDate();
-    const days: Array<{ date: string; day: number; isCurrentMonth: boolean }> = [];
-    for (let i = 0; i < startWeekday; i++) days.push({ date: '', day: 0, isCurrentMonth: false });
-    for (let d = 1; d <= numDays; d++) {
-      const dd = new Date(year, month, d);
-      days.push({ date: dd.toISOString().slice(0, 10), day: d, isCurrentMonth: true });
-    }
-    const remaining = 42 - days.length;
-    for (let i = 1; i <= remaining; i++) {
-      const d = new Date(year, month + 1, i);
-      days.push({ date: d.toISOString().slice(0, 10), day: i, isCurrentMonth: false });
-    }
-    return days;
-  }, [currentMonth]);
 
   // ── load data ──
   const loadEntries = useCallback(async () => {
@@ -2050,8 +2031,15 @@ export function JournalPage() {
     const savedGoals = getStoredData(STORAGE_KEYS.DAILY_GOALS, { date: '', goals: dailyGoals });
     if (savedGoals.date !== getToday()) {
       setDailyGoals(dailyGoals.map(g => ({ ...g, completed: false })));
+      setDailyGoalLog([]);
+      setStoredData(STORAGE_KEYS.DAILY_GOAL_LOG, { date: getToday(), items: [] as Array<{ goalId: string; label: string; completedAt: string }> });
     } else {
       setDailyGoals(savedGoals.goals);
+      const savedGoalLog = getStoredData(
+        STORAGE_KEYS.DAILY_GOAL_LOG,
+        { date: getToday(), items: [] as Array<{ goalId: string; label: string; completedAt: string }> }
+      );
+      setDailyGoalLog(savedGoalLog.date === getToday() ? savedGoalLog.items : []);
     }
   }, []);
 
@@ -2059,10 +2047,37 @@ export function JournalPage() {
 
   // ── update word count ──
   useEffect(() => {
-    const words = body.trim().split(/\s+/).filter(w => w.length > 0).length;
+    const plainText = getJournalPlainText(body);
+    const words = plainText.split(/\s+/).filter(w => w.length > 0).length;
     setWordCount(words);
-    setCharCount(body.length);
+    setCharCount(plainText.length);
   }, [body]);
+
+  // normalize loaded/pasted content so empty quill list artifacts never render
+  useEffect(() => {
+    const normalized = normalizeJournalBody(body);
+    if (normalized !== body) {
+      setBody(normalized);
+    }
+  }, [body]);
+
+
+  // clear stale draft body on mount
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('pkm:journal:draft');
+      if (raw) {
+        const draft = JSON.parse(raw);
+        if (draft.body) {
+          const cleaned = normalizeJournalBody(draft.body);
+          if (cleaned !== draft.body) {
+            draft.body = cleaned;
+            localStorage.setItem('pkm:journal:draft', JSON.stringify(draft));
+          }
+        }
+      }
+    } catch (e) { /* ignore */ }
+  }, []);
 
   // ── predictions based on body ──
   useEffect(() => {
@@ -2099,7 +2114,7 @@ export function JournalPage() {
         mood,
         emotions: Array.from(emotions),
         activities: Array.from(activities),
-        body,
+        body: normalizeJournalBody(body),
         tags: Array.from(tags),
         timestamp: Date.now(),
       };
@@ -2121,13 +2136,13 @@ export function JournalPage() {
           if (draft.mood) setMood(draft.mood);
           if (draft.emotions?.length) setEmotions(new Set(draft.emotions));
           if (draft.activities?.length) setActivities(new Set(draft.activities));
-          if (draft.body) setBody(draft.body);
+          if (draft.body) setBody(normalizeJournalBody(draft.body));
           if (draft.tags?.length) setTags(new Set(draft.tags));
           if (draft.body || draft.mood) {
             toast.success('restored draft from earlier');
           }
         }
-      } catch {}
+      } catch (e) { console.warn('Failed to restore draft:', e); }
     }
   }, []);
 
@@ -2148,22 +2163,6 @@ export function JournalPage() {
     setActivityColors(colors);
     setStoredData(STORAGE_KEYS.ACTIVITY_COLORS, colors);
   }, []);
-
-  const insertMarkdown = (before: string, after: string = before) => {
-    const ta = textareaRef.current;
-    if (!ta) return;
-    const start = ta.selectionStart;
-    const end = ta.selectionEnd;
-    const val = ta.value;
-    const selected = val.slice(start, end);
-    const newText = val.slice(0, start) + before + selected + after + val.slice(end);
-    setBody(newText);
-    setTimeout(() => {
-      ta.selectionStart = start + before.length;
-      ta.selectionEnd = start + before.length + selected.length;
-      ta.focus();
-    }, 0);
-  };
 
   const toggleEmotion = (id: string) => {
     setEmotions(prev => {
@@ -2225,7 +2224,7 @@ export function JournalPage() {
     setMood(entry.mood);
     setEmotions(new Set(JSON.parse((entry as any).emotions || '[]')));
     setActivities(new Set(parseActivities(entry.activities)));
-    setBody(entry.body || '');
+    setBody(normalizeJournalBody(entry.body || ''));
     setQuickMood(entry.mood || null);
     setEditingEntry(entry);
     setViewingEntry(null);
@@ -2250,25 +2249,17 @@ export function JournalPage() {
     }
   };
 
-  const toggleBookmark = (entryId: number) => {
-    const newBookmarks = bookmarkedEntries.includes(entryId)
-      ? bookmarkedEntries.filter(id => id !== entryId)
-      : [...bookmarkedEntries, entryId];
-    setBookmarkedEntries(newBookmarks);
-    setStoredData('pkm:journal:bookmarks', newBookmarks);
-    toast.success(bookmarkedEntries.includes(entryId) ? 'bookmark removed' : 'entry bookmarked');
+  const toggleBookmark = (entryId: string | number) => {
+    bookmarks.toggleBookmark(entryId);
+    toast.success(
+      bookmarks.bookmarkedEntries.includes(entryId) ? 'bookmark removed' : 'entry bookmarked'
+    );
   };
 
   const handleExport = async () => {
     try {
       const res: any = await api.listRecords('journal', { sort: '-date', pageSize: 1000 });
       let recs: JournalRecord[] = res?.data || [];
-      if (exportFrom) {
-        recs = recs.filter(r => r.date >= exportFrom);
-      }
-      if (exportTo) {
-        recs = recs.filter(r => r.date <= exportTo);
-      }
       const lines = ['date,mood,emotions,activities,body,timestamp,tags'];
       recs.forEach(r => {
         const emos = JSON.parse((r as any).emotions || '[]') as string[];
@@ -2279,10 +2270,10 @@ export function JournalPage() {
           r.mood || '',
           emos.join(';'),
           acts.join(';'),
-          (r.body || '').replace(/\"/g,'\"\"'),
+          (r.body || '').replace(/"/g, '""'),
           r.timestamp,
           tags.join(';')
-        ].map(v => `\"${v}\"`).join(',');
+        ].map(v => `"${v}"`).join(',');
         lines.push(row);
       });
       const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
@@ -2302,12 +2293,6 @@ export function JournalPage() {
     try {
       const res: any = await api.listRecords('journal', { sort: '-date', pageSize: 1000 });
       let recs: JournalRecord[] = res?.data || [];
-      if (exportFrom) {
-        recs = recs.filter(r => r.date >= exportFrom);
-      }
-      if (exportTo) {
-        recs = recs.filter(r => r.date <= exportTo);
-      }
       const exportData = {
         exportedAt: new Date().toISOString(),
         entries: recs,
@@ -2343,7 +2328,7 @@ export function JournalPage() {
       const ollama = new OllamaClient();
       const text = recent.map(e => `${e.date}: ${e.body || ''}`).join('\n');
       summary = await ollama.ask(`provide a long detailed lowercase summary of these journal entries for the past two weeks:\n${text}`);
-    } catch {}
+    } catch (e) { console.warn('Failed to generate AI summary:', e); }
     const htmlEntries = recent.map(e => {
       const mood = MOODS.find(m => m.id === e.mood)?.label || '';
       return `<div style="margin-bottom:1em;"><strong>${e.date} (${mood})</strong><p>${e.body?.replace(/\n/g,'<br>') || ''}</p></div>`;
@@ -2443,6 +2428,44 @@ ${entriesText}`;
     }
   };
 
+  const persistDailyGoals = (
+    nextGoals: Array<{id: string; label: string; completed: boolean; icon: string}>,
+    nextLog: Array<{ goalId: string; label: string; completedAt: string }>
+  ) => {
+    const today = getToday();
+    setDailyGoals(nextGoals);
+    setDailyGoalLog(nextLog);
+    setStoredData(STORAGE_KEYS.DAILY_GOALS, { date: today, goals: nextGoals });
+    setStoredData(STORAGE_KEYS.DAILY_GOAL_LOG, { date: today, items: nextLog });
+  };
+
+  const markGoalCompleted = (goalId: string) => {
+    const goal = dailyGoals.find(g => g.id === goalId);
+    if (!goal || goal.completed) return;
+
+    const completedAt = new Date().toISOString();
+    const nextGoals = dailyGoals.map(g => g.id === goalId ? { ...g, completed: true } : g);
+    const nextLog = dailyGoalLog.some(l => l.goalId === goalId)
+      ? dailyGoalLog.map(l => l.goalId === goalId ? { ...l, completedAt } : l)
+      : [...dailyGoalLog, { goalId, label: goal.label, completedAt }];
+
+    persistDailyGoals(nextGoals, nextLog);
+  };
+
+  const toggleDailyGoal = (goalId: string) => {
+    const goal = dailyGoals.find(g => g.id === goalId);
+    if (!goal) return;
+
+    if (!goal.completed) {
+      markGoalCompleted(goalId);
+      return;
+    }
+
+    const nextGoals = dailyGoals.map(g => g.id === goalId ? { ...g, completed: false } : g);
+    const nextLog = dailyGoalLog.filter(l => l.goalId !== goalId);
+    persistDailyGoals(nextGoals, nextLog);
+  };
+
   const handleSave = async () => {
     if (!mood && activities.size === 0 && !body.trim()) {
       toast.error('nothing to save yet');
@@ -2456,7 +2479,7 @@ ${entriesText}`;
       activities: JSON.stringify(Array.from(activities)),
       body: body.trim(),
       timestamp: new Date().toISOString(),
-      date: editingEntry?.date || new Date().toLocaleDateString('en-CA'),
+      date: editingEntry?.date || entryDate,
       tags: JSON.stringify(Array.from(tags)),
       ...(transcript && { transcript }),
     };
@@ -2475,9 +2498,9 @@ ${entriesText}`;
             payload.weather = `${wjson.current_weather.temperature}°C`;
             payload.body += `\n\nweather: ${payload.weather}`;
           }
-        } catch {}
+        } catch (e) { console.warn('Failed to fetch weather:', e); }
       }
-    } catch {}
+    } catch (e) { console.warn('Failed to save journal entry:', e); }
 
     try {
       if (editingEntry?.id) {
@@ -2517,17 +2540,12 @@ ${entriesText}`;
       setXp(newXp);
       setStoredData(STORAGE_KEYS.XP_DATA, newXp);
       
-      // update daily goals
-      const updatedGoals = dailyGoals.map(g => {
-        if (g.id === 'log_mood') return { ...g, completed: !!mood };
-        if (g.id === 'add_emotions') return { ...g, completed: emotions.size >= 3 };
-        if (g.id === 'write_note') return { ...g, completed: body.trim().length >= 50 };
-        if (g.id === 'complete_activities') return { ...g, completed: activities.size >= 3 };
-        if (g.id === 'voice_summary_goal') return { ...g, completed: !!transcriptionSummary };
-        return g;
-      });
-      setDailyGoals(updatedGoals);
-      setStoredData(STORAGE_KEYS.DAILY_GOALS, { date: today, goals: updatedGoals });
+      // auto-complete goal conditions while preserving manual checks
+      if (mood) markGoalCompleted('log_mood');
+      if (emotions.size >= 3) markGoalCompleted('add_emotions');
+      if (body.trim().length >= 50) markGoalCompleted('write_note');
+      if (activities.size >= 3) markGoalCompleted('complete_activities');
+      if (transcriptionSummary) markGoalCompleted('voice_summary_goal');
       
       // check achievements
       checkAchievements(newXp, newStreak, newCount, wordCount, availableEmotions.length);
@@ -2665,7 +2683,7 @@ summary:`;
       const resp = await ollama.ask(prompt, undefined, (chunk) => {
         setTranscriptionSummary(chunk);
       });
-      setBody(resp);
+      setBody(normalizeJournalBody(resp));
       // unlock achievement
       if (!unlockedAchievements.includes('audio_transcriber')) {
         const updated = [...unlockedAchievements, 'audio_transcriber'];
@@ -2674,7 +2692,7 @@ summary:`;
         setCelebratingAchievement(ACHIEVEMENTS.find(a => a.id === 'audio_transcriber') || null);
       }
       // mark daily goal
-      setDailyGoals(prev => prev.map(g => g.id === 'voice_summary_goal' ? { ...g, completed: true } : g));
+      markGoalCompleted('voice_summary_goal');
       toast.success('voice summary generated');
     } catch (e) {
       console.error('summary failed', e);
@@ -2740,7 +2758,7 @@ summary:`;
     }
 
     if (showBookmarksOnly) {
-      filtered = filtered.filter(e => bookmarkedEntries.includes(e.id!));
+      filtered = filtered.filter(e => bookmarks.bookmarkedEntries.includes(e.id!));
     }
     if (pastEntriesFilter.search) {
       const q = pastEntriesFilter.search.toLowerCase();
@@ -2762,7 +2780,7 @@ summary:`;
       });
     }
     return filtered;
-  }, [entries, pastEntriesFilter, showBookmarksOnly, bookmarkedEntries, nlIds]);
+  }, [entries, pastEntriesFilter, showBookmarksOnly, bookmarks.bookmarkedEntries, nlIds]);
 
   const entriesGroupedByMonth = useMemo(() => {
     const groups: Record<string, typeof filteredPastEntries> = {};
@@ -2821,7 +2839,7 @@ summary:`;
           className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase text-white/70 focus:outline-none"
         >
           <option value="">all tags</option>
-          {availableTags.map(t => <option key={t.id} value={t}>{t}</option>)}
+          {availableTags.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
       </div>
       {filteredPastEntries.length === 0 && (
@@ -2862,8 +2880,7 @@ summary:`;
   function moodImageFor(id?: string) {
     const m = MOODS.find(x => x.id === id);
     if (!m) return null;
-    const name = m.label.replace(/[^a-z]/g, '');
-    return <img src={`/images/moods/${name}.png`} alt={m.label} className="w-full h-full object-contain" />;
+    return <img src={m.emoji} alt={m.label} className="w-8 h-8 object-contain" />;
   }
 
 const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
@@ -2874,8 +2891,6 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
         key={m.id}
         onClick={() => isQuick ? handleQuickMood(m.id) : setMood(active ? null : m.id)}
         className={`${size} journal-mood-btn rounded-full transition-all duration-150 flex items-center justify-center hover:scale-110 hover:-translate-y-1 active:scale-105 active:translate-y-0 focus:outline-none ring-0 focus:ring-0 focus:ring-offset-0`}
-        title={m.label}
-        aria-label={m.label}
         style={{
           color: m.color,
           background: active ? `${m.color}33` : '#000000',
@@ -2919,6 +2934,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
         }}
       />
       <TemplateSelector isOpen={showTemplates} onClose={() => setShowTemplates(false)} onSelect={handleSelectTemplate} />
+      <ShowerLoggerModal isOpen={showShowerLogger} onClose={() => setShowShowerLogger(false)} />
       <ColorPicker 
         isOpen={colorPickerOpen} 
         onClose={() => setColorPickerOpen(false)} 
@@ -2952,62 +2968,92 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
               <span className="text-xs text-yellow-400">{streak}</span>
             </div>
           )}
-          <button onClick={() => setShowGoals(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="daily goals"><Target size={18} /></button>
           <button onClick={() => setShowAchievements(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="achievements"><Award size={18} /></button>
-          <button onClick={() => setShowCalendar(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="calendar"><Calendar size={18} /></button>
-          <button onClick={() => setShowHabitCalendar(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="habit calendar"><LayoutGrid size={18} /></button>
-          <button onClick={() => setShowPastEntries(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="past entries"><BookOpen size={18} /></button>
-          <button onClick={() => setShowStats(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="stats"><TrendingUp size={18} /></button>
-          <button onClick={() => setShowCorrelations(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="mood correlations"><Zap size={18} /></button>
+          <button onClick={() => setShowShowerLogger(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="shower log"><ShowerHead size={18} /></button>
+          <button onClick={() => setShowPastEntries(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="past entries"><History size={18} /></button>
+          <button onClick={() => setShowStats(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="stats"><BarChart2 size={18} /></button>
           <button onClick={() => setShowHeatmap(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="mood heatmap"><div className="grid grid-cols-2 gap-[2px] w-4 h-4"><div className="bg-white/60 rounded-sm"/><div className="bg-white/30 rounded-sm"/><div className="bg-white/40 rounded-sm"/><div className="bg-white/20 rounded-sm"/></div></button>
-          <button onClick={() => setShowWordCloud(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="word cloud"><span className="text-lg font-bold">☁</span></button>
-          <button onClick={() => setShowTimeInsights(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="time insights"><Clock size={18} /></button>
-          <button onClick={() => setShowGratitude(v => !v)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="gratitude"><Heart size={18} /></button>
-          <button onClick={() => setShowWeeklyReview(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="weekly review"><Sparkles size={18} /></button>
+          <button onClick={() => setShowWeeklyReview(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="weekly review"><CalendarDays size={18} /></button>
           <button onClick={() => setShowBreathing(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="breathing"><Wind size={18} /></button>
           <button onClick={() => setShowTimer(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="timer"><Clock size={18} /></button>
-          <PrivacyLock isLocked={isLocked} onUnlock={() => setIsLocked(false)} onLock={() => setIsLocked(true)} />
-          <button
-            onClick={() => setReminderEnabled(v => !v)}
-            className={cn("p-2 rounded-lg hover:bg-white/5 transition-colors", reminderEnabled && "text-yellow-400")}
-            title="reminder"
-            aria-label="toggle reminder"
-          >
-            <Bell size={18} />
-          </button>
-          {reminderEnabled && (
-            <input
-              type="time"
-              value={reminderTime}
-              onChange={e => setReminderTime(e.target.value)}
-              className="h-7 text-xs bg-transparent border border-white/20 rounded px-1"
-              aria-label="reminder time"
-            />
-          )}
-          <input
-            type="date"
-            value={exportFrom}
-            onChange={e => setExportFrom(e.target.value)}
-            className="h-7 text-xs bg-transparent border border-white/20 rounded px-1"
-            aria-label="export from date"
-          />
-          <input
-            type="date"
-            value={exportTo}
-            onChange={e => setExportTo(e.target.value)}
-            className="h-7 text-xs bg-transparent border border-white/20 rounded px-1"
-            aria-label="export to date"
-          />
+          <button onClick={() => setShowActivitiesPanel(true)} className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="habits"><CheckSquare size={18} /></button>
+          <button onClick={() => setReminderEnabled(v => !v)} className={cn("p-2 rounded-lg hover:bg-white/5 transition-colors", reminderEnabled && "text-yellow-400")} title="reminder"><Bell size={18} /></button>
+          {reminderEnabled && <input type="time" value={reminderTime} onChange={e => setReminderTime(e.target.value)} className="h-7 text-xs bg-transparent border border-white/20 rounded px-1" />}
+          <input type="date" value={entryDate} onChange={e => setEntryDate(e.target.value)} className="h-7 text-xs bg-transparent border border-white/20 rounded px-1" />
           <div className="relative group">
             <button className="p-2 rounded-lg hover:bg-white/5 transition-colors" title="export"><Download size={18} /></button>
-            <div className="absolute right-0 top-full mt-1 hidden group-hover:block bg-[#0a0a0a] border border-white/10 rounded-lg p-1 min-w-[120px] z-50">
-              <button onClick={handleExport} className="w-full px-3 py-2 text-left text-xs lowercase hover:bg-white/5 rounded">export csv</button>
-              <button onClick={handleExportJSON} className="w-full px-3 py-2 text-left text-xs lowercase hover:bg-white/5 rounded">export json</button>
-              <button onClick={handlePrint} className="w-full px-3 py-2 text-left text-xs lowercase hover:bg-white/5 rounded">print report</button>
+            <div className="absolute right-0 top-full hidden group-hover:block pt-1 z-50">
+              <div className="bg-[#0a0a0a] border border-white/10 rounded-lg p-1 min-w-[120px]">
+                <button onClick={handleExport} className="w-full px-3 py-2 text-left text-xs lowercase hover:bg-white/5 rounded">export csv</button>
+                <button onClick={handleExportJSON} className="w-full px-3 py-2 text-left text-xs lowercase hover:bg-white/5 rounded">export json</button>
+                <button onClick={handlePrint} className="w-full px-3 py-2 text-left text-xs lowercase hover:bg-white/5 rounded">print report</button>
+              </div>
             </div>
           </div>
         </div>
       </div>
+
+      {/* popup panels — rendered above scrollable content so user doesn't have to scroll */}
+      {showStats && (
+        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs text-white/40 lowercase">statistics</p>
+            <button onClick={() => setShowStats(false)} className="p-1 rounded hover:bg-white/10 text-white/40"><X size={14} /></button>
+          </div>
+          <StatsCharts entries={entries} activityCatalog={activityCatalog} />
+        </div>
+      )}
+
+      {showAchievements && (
+        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs text-white/40 lowercase">achievements ({unlockedAchievements.length}/{ACHIEVEMENTS.length})</p>
+            <button onClick={() => setShowAchievements(false)} className="p-1 rounded hover:bg-white/10 text-white/40"><X size={14} /></button>
+          </div>
+          <div className="grid grid-cols-2 gap-2">
+            {ACHIEVEMENTS.map(a => {
+              const unlocked = unlockedAchievements.includes(a.id);
+              return (
+                <div 
+                  key={a.id} 
+                  className={cn(
+                    "p-3 rounded-lg border transition-all",
+                    unlocked 
+                      ? "bg-yellow-500/10 border-yellow-500/30" 
+                      : "bg-white/[0.02] border-white/5 opacity-50"
+                  )}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">{a.icon}</span>
+                    <div>
+                      <p className={cn("text-xs lowercase", unlocked ? "text-white" : "text-white/40")}>{a.name}</p>
+                      <p className="text-[10px] text-white/30 lowercase">{a.description}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {showHeatmap && <MoodHeatmap entries={entries} onDayClick={(date) => {
+        const entry = entriesByDate[date];
+        if (entry) {
+          setViewingEntry(entry);
+          setShowPastEntries(false);
+        } else {
+          setEntryDate(date);
+          setEditingEntry(null);
+          setViewingEntry(null);
+          setShowPastEntries(false);
+          toast('no entry for that day yet – start writing!');
+        }
+      }} />}
+
+      {pastEntriesPanel}
+
+      <MedicationTracker />
 
       {/* xp & level bar */}
       <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
@@ -3039,40 +3085,58 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
       </div>
 
       {/* daily goals */}
-      {showGoals && (
-        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-          <div className="flex justify-between items-center mb-3">
-            <div className="flex items-center gap-2">
-              <Target size={16} className="text-blue-400" />
-              <p className="text-xs text-white/40 lowercase">daily goals</p>
-            </div>
-            <span className="text-xs text-white/60 lowercase">{completedGoals}/{dailyGoals.length}</span>
+      <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+        <div className="flex justify-between items-center mb-3">
+          <div className="flex items-center gap-2">
+            <Target size={16} className="text-blue-400" />
+            <p className="text-xs text-white/40 lowercase">daily goals</p>
           </div>
-          <div className="h-2 bg-white/10 rounded-full mb-3 overflow-hidden">
-            <div 
-              className="h-full transition-all duration-300"
-              style={{ width: `${goalsProgress}%`, backgroundColor: goalsProgress === 100 ? G : Y }}
-            />
-          </div>
-          <div className="space-y-2">
-            {dailyGoals.map(g => (
-              <div key={g.id} className="flex items-center gap-2">
-                <span className="text-sm">{g.icon}</span>
-                <span className={cn("text-lg", g.completed ? 'text-green-400' : 'text-white/20')}>
-                  {g.completed ? '✓' : '○'}
-                </span>
-                <span className={cn("text-sm lowercase", g.completed ? 'text-white' : 'text-white/40')}>{g.label}</span>
-              </div>
-            ))}
-          </div>
-          {goalsProgress === 100 && (
-            <p className="text-center text-xs text-green-400 mt-3 lowercase">🎉 all goals completed!</p>
-          )}
+          <span className="text-xs text-white/60 lowercase">{completedGoals}/{dailyGoals.length}</span>
         </div>
-      )}
+        <div className="h-2 bg-white/10 rounded-full mb-3 overflow-hidden">
+          <div 
+            className="h-full transition-all duration-300"
+            style={{ width: `${goalsProgress}%`, backgroundColor: goalsProgress === 100 ? G : Y }}
+          />
+        </div>
+        <div className="space-y-2">
+          {dailyGoals.map(g => (
+            <label key={g.id} className="flex items-center gap-2 text-sm lowercase cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={g.completed}
+                onChange={() => toggleDailyGoal(g.id)}
+                className="h-4 w-4 rounded border-white/30 bg-transparent accent-green-500"
+              />
+              <span className="text-sm">{g.icon}</span>
+              <span className={cn(g.completed ? 'text-white' : 'text-white/50')}>{g.label}</span>
+            </label>
+          ))}
+        </div>
+        {dailyGoalLog.length > 0 && (
+          <div className="mt-3 pt-3 border-t border-white/10">
+            <p className="text-[10px] text-white/40 lowercase">completed today</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {[...dailyGoalLog]
+                .sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime())
+                .map(log => (
+                  <span
+                    key={log.goalId}
+                    className="px-2 py-1 rounded-full text-[10px] lowercase bg-white/5 border border-white/10 text-white/70"
+                  >
+                    {log.label} • {new Date(log.completedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase()}
+                  </span>
+                ))}
+            </div>
+          </div>
+        )}
+        {goalsProgress === 100 && (
+          <p className="text-center text-xs text-green-400 mt-3 lowercase">🎉 all goals completed!</p>
+        )}
+      </div>
 
-      {/* gratitude tracker */}
-      {showGratitude && <GratitudeTracker />}
+      {/* gratitude tracker — always visible */}
+      <GratitudeTracker />
 
       {/* quick check-in */}
       {showQuickCheckin && (
@@ -3107,110 +3171,13 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
         <p className="text-sm text-white/70 lowercase italic">{todayPrompt}</p>
       </div>
 
-      {/* calendar view */}
-      {showCalendar && (
-        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-          <div className="flex justify-between items-center mb-2">
-            <button onClick={() => setCurrentMonth(m => new Date(m.getFullYear(), m.getMonth() - 1, 1))} className="p-1 rounded hover:bg-white/10 text-white/60 hover:text-white"><ChevronLeft size={18} /></button>
-            <span className="text-sm font-medium lowercase">{currentMonth.toLocaleString('default', { month: 'long', year: 'numeric' })}</span>
-            <button onClick={() => setCurrentMonth(m => new Date(m.getFullYear(), m.getMonth() + 1, 1))} className="p-1 rounded hover:bg-white/10 text-white/60 hover:text-white"><ChevronRight size={18} /></button>
-          </div>
-          <div className="grid grid-cols-7 gap-1 text-[10px] text-white/40 lowercase">
-            {['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].map(d => <div key={d} className="text-center py-1">{d}</div>)}
-            {calendarDays.map((day, i) => (
-              <div 
-                key={i} 
-                className={cn(
-                  "h-9 flex items-center justify-center cursor-pointer rounded text-sm",
-                  day.isCurrentMonth ? "hover:bg-white/10" : "text-white/20",
-                  viewingEntry?.date === day.date && "bg-white/10"
-                )} 
-                onClick={() => { if (day.date) setViewingEntry(entriesByDate[day.date] || null); }}
-              >
-                {day.day > 0 && (
-                  entriesByDate[day.date]
-                    ? <span className="text-lg">{MOODS.find(m => m.id === entriesByDate[day.date].mood)?.emoji}</span>
-                    : day.day
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {showHabitCalendar && <HabitCalendar entries={entries} onDateClick={handleHabitDateClick} />}
-
-      {/* stats panel */}
-      {showStats && (
-        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-          <p className="text-xs text-white/40 lowercase mb-3">statistics</p>
-          <StatsCharts entries={entries} />
-        </div>
-      )}
-
-      {/* achievements panel */}
-      {showAchievements && (
-        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-          <p className="text-xs text-white/40 lowercase mb-3">achievements ({unlockedAchievements.length}/{ACHIEVEMENTS.length})</p>
-          <div className="grid grid-cols-2 gap-2">
-            {ACHIEVEMENTS.map(a => {
-              const unlocked = unlockedAchievements.includes(a.id);
-              return (
-                <div 
-                  key={a.id} 
-                  className={cn(
-                    "p-3 rounded-lg border transition-all",
-                    unlocked 
-                      ? "bg-yellow-500/10 border-yellow-500/30" 
-                      : "bg-white/[0.02] border-white/5 opacity-50"
-                  )}
-                >
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">{a.icon}</span>
-                    <div>
-                      <p className={cn("text-xs lowercase", unlocked ? "text-white" : "text-white/40")}>{a.name}</p>
-                      <p className="text-[10px] text-white/30 lowercase">{a.description}</p>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* mood-activity correlations panel */}
-      {showCorrelations && (
-        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-          <p className="text-xs text-white/40 lowercase mb-3">mood insights</p>
-          <MoodActivityCorrelation entries={entries} />
-        </div>
-      )}
-
-      {/* mood heatmap panel */}
-      {showHeatmap && <MoodHeatmap entries={entries} />}
-
-      {/* word cloud panel */}
-      {showWordCloud && <WordCloud entries={entries} />}
-
-      {/* time insights panel */}
-      {showTimeInsights && (
-        <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-          <p className="text-xs text-white/40 lowercase mb-3">time insights</p>
-          <TimeInsights entries={entries} />
-        </div>
-      )}
-
-      {/* past entries panel */}
-      {pastEntriesPanel}
-
       {/* entry detail view */}
       {viewingEntry && (
         <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <span className="text-2xl w-8 h-8 inline-block">
-            {moodImageFor(viewingEntry.mood) || '📝'}
+            {moodImageFor(viewingEntry.mood ?? undefined) || '📝'}
           </span>
               <div>
                 <p className="text-sm font-medium lowercase">{formatDate(viewingEntry.date)}</p>
@@ -3238,7 +3205,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
               } catch { return null; }
             })()}
             {parseActivities(viewingEntry.activities).map(a => {
-              const act = DEFAULT_ACTIVITIES.find(x => x.id === a);
+              const act = activityCatalog.find(x => x.id === a);
               return act ? (
                 <span
                   key={a}
@@ -3277,12 +3244,12 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
               onClick={() => toggleBookmark(viewingEntry.id!)}
               className={cn(
                 "flex-1 px-3 py-2 rounded-lg text-sm lowercase flex items-center justify-center gap-1",
-                bookmarkedEntries.includes(viewingEntry.id!)
+                bookmarks.bookmarkedEntries.includes(viewingEntry.id!)
                   ? "bg-yellow-500/20 text-yellow-400"
                   : "bg-white/5 hover:bg-white/10"
               )}
             >
-              <span>★</span> {bookmarkedEntries.includes(viewingEntry.id!) ? 'bookmarked' : 'bookmark'}
+              <span>★</span> {bookmarks.bookmarkedEntries.includes(viewingEntry.id!) ? 'bookmarked' : 'bookmark'}
             </button>
             <button 
               onClick={() => populateForm(viewingEntry)}
@@ -3346,7 +3313,6 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
                 onChange={e => setEmotionQuery(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && handleAddEmotion()}
                 placeholder="add custom emotion..."
-                aria-label="emotion search"
                 className="flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase placeholder:text-white/30 focus:outline-none focus:border-white/30"
               />
               <button
@@ -3549,50 +3515,22 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
               <p className="text-xs text-white/40 lowercase mb-2 line-clamp-3">transcript: {transcript}</p>
             )}
 
-            {/* editor toolbar */}
-            <div className="flex gap-2 mb-1 text-xs">
-              {!useWysiwyg && <>
-                <button onClick={() => insertMarkdown('**')} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">B</button>
-                <button onClick={() => insertMarkdown('*')} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">i</button>
-                <button onClick={() => insertMarkdown('# ' , '')} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">H1</button>
-                <button onClick={() => insertMarkdown('## ', '')} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">H2</button>
-                <button onClick={() => insertMarkdown('- ' , '')} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">•</button>
-                <button onClick={() => insertMarkdown('> ', '')} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">"</button>
-                <button onClick={() => insertMarkdown('[', '](url)')} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">link</button>
-                <button onClick={() => setShowPreview(v => !v)} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">{showPreview ? 'edit' : 'preview'}</button>
-              </>}
-              <button onClick={() => setUseWysiwyg(v => !v)} className="px-2 py-1 rounded bg-white/10 hover:bg-white/20">
-                {useWysiwyg ? 'markdown' : 'wysiwyg'}
-              </button>
-            </div>
+            {/* editor */}
+            <div className="flex gap-2 mb-1 text-xs" />
             <div className="flex flex-col lg:flex-row gap-2">
-              {useWysiwyg ? (
-                <ReactQuill
-                  theme="snow"
-                  value={body}
-                  onChange={setBody}
-                  className="w-full lg:flex-1 h-32"
-                />
-              ) : (
-                <>
-                  <textarea
-                    ref={textareaRef}
-                    value={body}
-                    onChange={e => setBody(e.target.value)}
-                    placeholder="write your thoughts here..."
-                    className="w-full h-32 lg:flex-1 px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase placeholder:text-white/30 focus:outline-none focus:border-white/30 resize-none"
-                  />
-                  {showPreview && (
-                    <div className="p-2 bg-white/10 rounded-lg mt-2 lg:mt-0 lg:flex-1 prose prose-invert text-sm max-w-none">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{body}</ReactMarkdown>
-                    </div>
-                  )}
-                </>
-              )}
+              <ReactQuill
+                ref={quillRef}
+                theme="snow"
+                modules={JOURNAL_QUILL_MODULES}
+                formats={JOURNAL_QUILL_FORMATS}
+                value={body}
+                onChange={(value: string) => setBody(normalizeJournalBody(value))}
+                className="journal-editor w-full lg:flex-1 h-32"
+              />
             </div>
 
             {/* prediction suggestions */}
-            {(predictedMood || predictedSentiment || predictedActivities.length) && (
+            {(predictedMood || predictedSentiment || predictedActivities.length > 0) && (
               <div className="p-2 bg-white/5 rounded-lg mb-2 text-xs lowercase">
                 {predictedMood && (
                   <p>predicted mood: <span className="font-medium">{MOODS.find(m=>m.id===predictedMood)?.label}</span> <button onClick={() => setMood(predictedMood)} className="ml-1 underline">apply</button></p>
@@ -3600,7 +3538,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
                 {predictedSentiment && <p>sentiment: {predictedSentiment}</p>}
                 {predictedActivities.length>0 && (
                   <p>suggested activities: <span className="flex gap-1 flex-wrap">{predictedActivities.map(a=>{
-                    const act = DEFAULT_ACTIVITIES.find(x=>x.id===a);
+                    const act = activityCatalog.find(x => x.id === a);
                     return act ? (
                       <button
                         key={a}
@@ -3613,7 +3551,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
                 )}
               </div>
             )}
-            <div className="flex justify-between items-center mt-2">
+            <div className="flex items-center justify-between mt-4 min-h-6 px-3 py-2">
               <p className="text-xs text-white/30 lowercase">{wordCount} words • {charCount} chars</p>
               {wordCount >= 500 && <p className="text-xs text-yellow-400 lowercase">✦ word warrior!</p>}
             </div>
@@ -3655,11 +3593,26 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
 
 
       {/* footer spacer */}
+
+      {/* global activities / habits modal */}
+      {showActivitiesPanel && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowActivitiesPanel(false)}>
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => setShowActivitiesPanel(false)} />
+          <div className="relative bg-[#0a0a0a] border border-white/10 rounded-2xl p-6 w-80 text-center" onClick={e => e.stopPropagation()}>
+            <button onClick={() => setShowActivitiesPanel(false)} className="absolute top-3 right-3 text-white/40 hover:text-white"><X size={18} /></button>
+            <ActivitiesPanel
+              activities={allHabitActivities}
+              history={habitActivities.history}
+              markActivity={habitActivities.mark}
+              onCreateActivity={handleCreateActivity}
+            />
+          </div>
+        </div>
+      )}
+
       <div className="h-8" />
-      <PushToTalkWidget handleVoiceTranscription={handleVoiceTranscription} />
     </div>
   );
 }
-
 
 export default JournalPage;

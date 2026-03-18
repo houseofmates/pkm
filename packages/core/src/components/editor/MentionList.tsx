@@ -32,16 +32,16 @@ export const MentionList = forwardRef((props: MentionListProps, ref) => {
 
   useImperativeHandle(ref, () => ({
   onKeyDown: ({ event }: { event: KeyboardEvent }) => {
-  if (event.key === 'arrowup') {
- setselectedindex((selectedindex + props.items.length - 1) % props.items.length);
+  if (event.key === 'ArrowUp') {
+ setSelectedIndex((selectedIndex + props.items.length - 1) % props.items.length);
  return true;
   }
-  if (event.key === 'arrowdown') {
- setselectedindex((selectedindex + 1) % props.items.length);
+  if (event.key === 'ArrowDown') {
+ setSelectedIndex((selectedIndex + 1) % props.items.length);
  return true;
   }
-  if (event.key === 'enter') {
- selectitem(selectedindex);
+  if (event.key === 'Enter') {
+ selectItem(selectedIndex);
  return true;
   }
   return false;

@@ -15,6 +15,8 @@ interface HeadmateCardProps {
   selected?: boolean;
 }
 
+export type { HeadmateCardProps };
+
 export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardProps & React.HTMLAttributes<HTMLDivElement>>(({ member, collection, onClick, className, ...props }, ref) => {
   const { selected = false } = props;
   const [isProfileOpen, setIsProfileOpen] = useState(false);

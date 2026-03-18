@@ -258,7 +258,7 @@ function broadcastColorChange(itemId: string, color: string) {
       setTimeout(() => {
         localStorage.removeItem('pkm_sidebar_color_broadcast');
       }, 100);
-    } catch (e) {
+    } catch {
       // ignore storage errors
     }
   }
@@ -281,7 +281,7 @@ export function subscribeToColorChanges(
         if (data.itemId && data.color) {
           callback(data.itemId, data.color);
         }
-      } catch (e) {
+      } catch {
         // ignore parse errors
       }
     }

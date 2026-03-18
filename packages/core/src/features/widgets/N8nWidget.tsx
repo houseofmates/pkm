@@ -40,7 +40,7 @@ export function N8nWidget({ data }: N8nWidgetProps) {
         throw new Error('Workflow failed');
       }
     } catch (e) {
-      secureLogger.error(e);
+      secureLogger.error(String(e));
       setStatus('error');
       toast.error('Failed to trigger workflow');
     } finally {

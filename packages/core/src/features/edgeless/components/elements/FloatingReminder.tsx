@@ -4,8 +4,8 @@ import { useEdgelessStore } from '../../store';
 export const FloatingReminder = React.memo(function FloatingReminder({ element }: { element: any }) {
   const { title, deadline } = element.data;
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [velocity, setVelocity] = useState({ dx: 0.5, dy: 0.5 });
   const requestRef = useRef<number | undefined>(undefined);
+  const velocityRef = useRef({ dx: 0.5, dy: 0.5 });
   const updateElement = useEdgelessStore(state => state.updateElement);
 
   // calculate urgency
@@ -16,31 +16,28 @@ export const FloatingReminder = React.memo(function FloatingReminder({ element }
   // speed increases as deadline approaches
   const speed = Math.max(0.2, 5 - Math.max(0, hoursLeft / 24)); // Max speed 5, min 0.2
 
+  // initialize velocity with random start direction (only once on mount)
   useEffect(() => {
-    // random start direction
-    setVelocity({
+    velocityRef.current = {
       dx: (Math.random() - 0.5) * speed,
       dy: (Math.random() - 0.5) * speed
-    });
+    };
   }, [speed]);
 
   useEffect(() => {
     const animate = () => {
       setPosition(prev => {
-        const nextX = prev.x + velocity.dx;
-        const nextY = prev.y + velocity.dy;
+        const nextX = prev.x + velocityRef.current.dx;
+        const nextY = prev.y + velocityRef.current.dy;
 
         // bounce locally within its "box" (which is the element size on canvas)
-        // actually, drifting elements often want to drift across screen.
-        // but we are rendered inside a absolute div positioned by the canvas.
-        // to drift *across* limits, we'd need to update the canvas element position (x, y) in the store.
-        // doing that every frame is expensive (zustand updates).
-        // "float" usually implies local animation or overlay independent of canvas pan.
-        // let's make it float relative to its anchor point in a radius.
-
         const bound = 50;
-        if (Math.abs(nextX) > bound) setVelocity(v => ({ ...v, dx: -v.dx }));
-        if (Math.abs(nextY) > bound) setVelocity(v => ({ ...v, dy: -v.dy }));
+        if (Math.abs(nextX) > bound) {
+          velocityRef.current = { ...velocityRef.current, dx: -velocityRef.current.dx };
+        }
+        if (Math.abs(nextY) > bound) {
+          velocityRef.current = { ...velocityRef.current, dy: -velocityRef.current.dy };
+        }
 
         return { x: nextX, y: nextY };
       });
@@ -48,7 +45,7 @@ export const FloatingReminder = React.memo(function FloatingReminder({ element }
     };
     requestRef.current = requestAnimationFrame(animate);
     return () => cancelAnimationFrame(requestRef.current!);
-  }, [velocity]);
+  }, []);
 
   const handleDismiss = () => {
     // pop animation then delete

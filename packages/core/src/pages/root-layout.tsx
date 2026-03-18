@@ -29,6 +29,7 @@ import { useFronter } from '@/contexts/fronter-context';
 import { ProtocolShift } from '@/components/layout/ProtocolShift';
 import { walPendingCount } from '@/lib/write-ahead-log';
 import { getSidebarColors } from '@/utils/getSidebarColors';
+import { ContextMenu } from '@/components/ui/context-menu-custom';
 
 // declare global window properties to fix TS errors
 declare global {
@@ -40,8 +41,8 @@ declare global {
 interface MobileSidebarDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  activeTab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal';
-  onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal') => void;
+  activeTab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal' | 'calendar';
+  onTabChange: (tab: 'databases' | 'home' | 'headmates' | 'captures' | 'journal' | 'calendar') => void;
   onSelectCollection: (name: string | null) => void;
   selectedCollection: string | null;
   items: any[];
@@ -61,7 +62,7 @@ function MobileSidebarDrawer({ isOpen, onClose, ...props }: MobileSidebarDrawerP
   );
 }
 
-export function RootLayout(props) {
+export function RootLayout() {
   useThemeReactor(); // activate dynamic theming
   const { activeFronters, overrides, members } = useFronter();
   const navigate = useNavigate();
@@ -73,10 +74,11 @@ export function RootLayout(props) {
     if (path.startsWith('/headmates')) return 'headmates';
     if (path.startsWith('/captures')) return 'captures';
     if (path.startsWith('/journal')) return 'journal';
+    if (path.startsWith('/calendar')) return 'calendar';
     return 'home';
   };
 
-  const [activeTab, setActiveTab] = useState<'databases' | 'home' | 'headmates' | 'captures' | 'journal'>(getInitialTab());
+  const [activeTab, setActiveTab] = useState<'databases' | 'home' | 'headmates' | 'captures' | 'journal' | 'calendar'>(getInitialTab());
   const [selectedCollection, setSelectedCollection] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -97,7 +99,7 @@ export function RootLayout(props) {
   const subdomain = window.location.hostname.split('.')[0];
   const isAphrodite = subdomain === 'aphrodite';
 
-  const [sidebarColors, setSidebarColors] = useState({});
+  const [sidebarColors, setSidebarColors] = useState<{ sidebar?: { active?: string } }>({});
 
   useEffect(() => {
     getSidebarColors().then(setSidebarColors);
@@ -156,6 +158,9 @@ export function RootLayout(props) {
       else if (host === 'blog.houseofmates.space') document.title = 'blog';
       else if (host === 'houseofmates.space') document.title = 'houseofmates';
       else document.title = 'pkm';
+
+      // make absolutely sure that we never end up with an uppercase title
+      document.title = document.title.toLowerCase();
     }
   }, []);
 
@@ -216,6 +221,7 @@ export function RootLayout(props) {
     else if (tab === 'captures') navigate('/captures');
     else if (tab === 'headmates') navigate('/headmates');
     else if (tab === 'journal') navigate('/journal');
+    else if (tab === 'calendar') navigate('/calendar');
     else if (tab === 'databases') navigate('/databases', { state: { fromSidebar: true } });
     setActiveTab(tab);
     if (tab !== 'databases') setSelectedCollection(null);
@@ -234,11 +240,12 @@ export function RootLayout(props) {
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <ProtocolShift />
-      <div className="flex flex-col lg:flex-row h-screen w-full bg-background overflow-hidden transition-colors duration-700">
-        <Navigation className="hidden lg:flex" activeTab={activeTab} onTabChange={handleTabChange} onSelectCollection={handleSelectCollection} selectedCollection={selectedCollection} items={sidebarItems} setItems={setSidebarItems} accentBg={accentBg} />
+      <div className="flex flex-col lg:flex-row h-[100dvh] w-full bg-background overflow-hidden transition-colors duration-700">
+        <Navigation className="hidden lg:flex" activeTab={activeTab} onTabChange={handleTabChange} onSelectCollection={handleSelectCollection} selectedCollection={selectedCollection} items={sidebarItems} setItems={setSidebarItems} />
         <MobileSidebarDrawer
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
+          activeTab={activeTab}
           onTabChange={handleTabChange}
           onSelectCollection={handleSelectCollection}
           selectedCollection={selectedCollection}
@@ -293,7 +300,7 @@ export function RootLayout(props) {
                       if (activeDragItem.iconType === 'emoji') return <span className="mr-2 text-base leading-none">{activeDragItem.icon}</span>;
                       if (activeDragItem.iconType === 'image') return <img src={activeDragItem.icon} alt="icon" className="h-4 w-4 mr-2 object-contain" />;
                       if (activeDragItem.iconType === 'lucide') {
-                        const Icon = (LucideIcons as Record<string, React.ComponentType<any>>)[activeDragItem.icon] || Folder;
+                        const Icon = (LucideIcons as any)[activeDragItem.icon] || Folder;
                         return <Icon className="h-4 w-4 mr-2" style={{ color: activeDragItem.color || 'var(--primary)' }} />;
                       }
                     }
@@ -308,6 +315,7 @@ export function RootLayout(props) {
         </DragOverlay>
       </div>
       <QuickEditSheet />
+      <ContextMenu />
     </DndContext>
   );
 }

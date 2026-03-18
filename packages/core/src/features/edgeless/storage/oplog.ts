@@ -1,7 +1,10 @@
 // operation log types for delta-based canvas storage
 // each stroke, erase, or transform is recorded as an immutable operation
 
-export type OpType = 'path' | 'erase' | 'transform' | 'delete' | 'layer-create' | 'layer-delete'
+import type { Canvas as FabricCanvas, Object as FabricObject, Image as FabricImage } from 'fabric'
+import { secureLogger } from '@/lib/secure-logger'
+
+export type OpType = 'path' | 'erase' | 'transform' | 'delete' | 'layer-create' | 'layer-delete' | 'bitmap-replace'
 
 export interface PathOp {
   type: 'path'
@@ -11,6 +14,7 @@ export interface PathOp {
   strokeWidth: number
   left: number
   top: number
+  targetId: string
 }
 
 export interface EraseOp {
@@ -54,7 +58,22 @@ export interface LayerDeleteOp {
   layerId: string
 }
 
-export type DrawOp = PathOp | EraseOp | TransformOp | DeleteOp | LayerCreateOp | LayerDeleteOp
+export interface BitmapReplaceOp {
+  type: 'bitmap-replace'
+  targetId: string
+  layerId: string
+  dataUrl: string
+  width: number
+  height: number
+  left: number
+  top: number
+  scaleX: number
+  scaleY: number
+  angle: number
+  opacity?: number
+}
+
+export type DrawOp = PathOp | EraseOp | TransformOp | DeleteOp | LayerCreateOp | LayerDeleteOp | BitmapReplaceOp
 
 export interface OpLogEntry {
   id: string // client-generated uuid: drawingId-timestamp-random
@@ -69,16 +88,23 @@ export interface CanvasCheckpoint {
   id: string
   drawingId: string
   timestamp: number
-  state: unknown // full fabricjs canvas state
+  state: string | Record<string, any> // full fabricjs canvas state
 }
 
-// apply an operation to a fabric canvas instance
-export function applyOp(canvas: any, op: DrawOp): void {
+/**
+ * Apply a single oplog operation to a fabric canvas instance.
+ *
+ * This is intentionally low-level and avoids replaying the entire canvas
+ * snapshot for each step; instead we mutate the canvas in-place.
+ */
+export async function applyOp(canvas: FabricCanvas | null, op: DrawOp): Promise<void> {
   if (!canvas) return
+
+  const fabricRef = (window as unknown as { fabric?: typeof import('fabric') }).fabric
 
   switch (op.type) {
     case 'path': {
-      const path = new (window as any).fabric.Path(op.pathData, {
+      const path = new (fabricRef as any).Path(op.pathData, {
         stroke: op.stroke,
         strokeWidth: op.strokeWidth,
         fill: undefined,
@@ -87,14 +113,16 @@ export function applyOp(canvas: any, op: DrawOp): void {
         strokeLineCap: 'round',
         strokeLineJoin: 'round',
       })
-      path.set('data', { layerId: op.layerId })
+      path.set('data', { id: op.targetId, layerId: op.layerId })
       canvas.add(path)
       break
     }
 
     case 'erase': {
       // find target and replace or remove
-      const target = canvas.getObjects().find((o: any) => o.data?.id === op.targetId)
+      const target = canvas.getObjects().find(
+        (o) => (o as any).data?.id === op.targetId
+      ) as (FabricObject & { data?: { id?: string } }) | undefined
       if (!target) return
 
       if (op.segmentsKept.length === 0) {
@@ -103,9 +131,9 @@ export function applyOp(canvas: any, op: DrawOp): void {
         // remove old, add new segments
         canvas.remove(target)
         for (const seg of op.segmentsKept) {
-          const newPath = new (window as any).fabric.Path(seg, {
-            stroke: target.stroke,
-            strokeWidth: target.strokeWidth,
+          const newPath = new (fabricRef as any).Path(seg, {
+            stroke: (target as any).stroke,
+            strokeWidth: (target as any).strokeWidth,
             fill: undefined,
           })
           newPath.set('data', { layerId: op.layerId, originalId: op.targetId })
@@ -116,7 +144,9 @@ export function applyOp(canvas: any, op: DrawOp): void {
     }
 
     case 'transform': {
-      const target = canvas.getObjects().find((o: any) => o.data?.id === op.targetId)
+      const target = canvas.getObjects().find(
+        (o) => (o as any).data?.id === op.targetId
+      ) as (FabricObject & { data?: { id?: string } }) | undefined
       if (!target) return
       target.set({
         left: op.position.x,
@@ -130,18 +160,62 @@ export function applyOp(canvas: any, op: DrawOp): void {
     }
 
     case 'delete': {
-      const target = canvas.getObjects().find((o: any) => o.data?.id === op.targetId)
+      const target = canvas.getObjects().find(
+        (o) => (o as any).data?.id === op.targetId
+      ) as (FabricObject & { data?: { id?: string } }) | undefined
       if (target) canvas.remove(target)
+      break
+    }
+
+    case 'bitmap-replace': {
+      if (!fabricRef?.Image) break
+
+      const removeExisting = () => {
+        const existing = canvas.getObjects().find(
+          (o) => (o as any).data?.id === op.targetId
+        ) as (FabricObject & { data?: { id?: string } }) | undefined
+        if (existing) canvas.remove(existing)
+      }
+
+      const addImage = (img: FabricImage) => {
+        removeExisting()
+        img.set({
+          left: op.left,
+          top: op.top,
+          originX: 'left',
+          originY: 'top',
+          scaleX: op.scaleX,
+          scaleY: op.scaleY,
+          angle: op.angle,
+          opacity: op.opacity ?? 1,
+          selectable: true,
+          evented: true,
+          hasControls: true,
+          hasBorders: true,
+          perPixelTargetFind: true,
+        })
+        img.set('data', { id: op.targetId, layerId: op.layerId })
+        canvas.add(img)
+      }
+
+      try {
+        const img = await fabricRef.Image.fromURL(op.dataUrl)
+        if (img) addImage(img)
+      } catch (err) {
+        secureLogger.error('Failed to load bitmap replacement:', err)
+      }
       break
     }
   }
 
-  canvas.requestRenderAll()
+  if (canvas.requestRenderAll) {
+    canvas.requestRenderAll()
+  }
 }
 
 // replay oplog from checkpoint to reconstruct state
 export async function replayOplog(
-  canvas: any,
+  canvas: FabricCanvas,
   checkpoint: CanvasCheckpoint | undefined,
   ops: OpLogEntry[]
 ): Promise<void> {
@@ -165,7 +239,7 @@ export async function replayOplog(
 
   // apply ops in order
   for (const entry of compactedOps) {
-    applyOp(canvas, entry.op)
+    await applyOp(canvas, entry.op)
   }
 }
 
@@ -194,39 +268,39 @@ export function resolveConflicts(ops: OpLogEntry[]): OpLogEntry[] {
 export function compactOplog(ops: OpLogEntry[]): OpLogEntry[] {
   const result: OpLogEntry[] = [];
   const processedTransforms = new Set<string>();
-  const deletedTargets = new Set<string>();
+  const terminalTargets = new Set<string>(); // Targets that are deleted or fully replaced
 
   // Process from newest to oldest to preserve the latest state
   for (let i = ops.length - 1; i >= 0; i--) {
     const entry = ops[i];
     const op = entry.op;
 
-    if (op.type === 'delete') {
-      deletedTargets.add(op.targetId);
-      result.unshift(entry); // Keep the delete op
-      continue;
-    }
-
-    // Skip operations on deleted targets if they are erase or transform
-    // Note: 'path' ops could technically be deleted, but they are creation ops.
-    // If a path is deleted later, we STILL need the 'path' op to exist so that it can be applied and then deleted,
-    // OR we could remove the 'path' op entirely if it was created and deleted in the same sync cycle.
-    // To be safe and ensure correct ID mapping, we keep 'path' ops unless it's strictly a self-contained creation and deletion without syncing intermediate.
-    // Let's optimize: if a target is deleted, any previous erase/transform for it is redundant.
-    if ((op.type === 'transform' || op.type === 'erase') && deletedTargets.has(op.targetId)) {
-      continue;
-    }
-
-    if (op.type === 'transform') {
-      // Keep only the latest transform for a given target
-      if (!processedTransforms.has(op.targetId)) {
-        processedTransforms.add(op.targetId);
+    if (op.type === 'delete' || op.type === 'bitmap-replace') {
+      const targetId = (op as any).targetId
+      // If we see a delete or replacement, any previous operations for this target are redundant
+      if (!terminalTargets.has(targetId)) {
+        terminalTargets.add(targetId);
         result.unshift(entry);
       }
       continue;
     }
 
-    // Keep all other operations
+    // Skip operations on deleted or replaced targets
+    if ('targetId' in op && terminalTargets.has((op as any).targetId)) {
+      continue;
+    }
+
+    if (op.type === 'transform') {
+      const targetId = op.targetId
+      // Keep only the latest transform for a given target
+      if (!processedTransforms.has(targetId)) {
+        processedTransforms.add(targetId);
+        result.unshift(entry);
+      }
+      continue;
+    }
+
+    // Keep all other operations (path, layer-create, etc.)
     result.unshift(entry);
   }
 

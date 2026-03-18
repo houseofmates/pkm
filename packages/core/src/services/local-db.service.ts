@@ -29,7 +29,7 @@ class LocalDbService {
 
   constructor() {
     this.dbPromise = openDB<PkmDbSchema>(DB_NAME, DB_VERSION, {
-      upgrade(db, oldVersion) {
+      upgrade(db, _oldVersion) {
         // This function runs if the database doesn't exist or the version has changed.
         // We create our object stores here.
         if (!db.objectStoreNames.contains('collections')) {
@@ -38,8 +38,8 @@ class LocalDbService {
         if (!db.objectStoreNames.contains('oplog')) {
           const oplogStore = db.createObjectStore('oplog', { keyPath: 'id' });
           oplogStore.createIndex('by-drawing', 'drawingId');
-          // For 'by-synced', index on a synthetic property if needed, but since we can't easily add synthetic, 
-          // let's index on 'synced' assuming modern IDB supports boolean, 
+          // For 'by-synced', index on a synthetic property if needed, but since we can't easily add synthetic,
+          // let's index on 'synced' assuming modern IDB supports boolean,
           // or we can handle it via a boolean index since most modern browsers do support it.
           oplogStore.createIndex('by-synced', 'synced');
         }

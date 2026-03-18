@@ -58,4 +58,7 @@ packages/backend/public/*.pdf
 # Personal files
 !releases/
 *.private.*
+.aider*
 releases/
+*.zip
+packages/core/test-notion-*/

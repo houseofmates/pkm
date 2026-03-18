@@ -1,7 +1,6 @@
-/// <reference path="../../../../types/supertest.d.ts" />
 import fs from 'fs';
 import path from 'path';
-import type { Express } from 'express';
+// @ts-ignore -- supertest types may differ across environments
 import request from 'supertest';
 
 // helper to create a tiny zip file for testing
@@ -26,21 +25,17 @@ async function waitForDone(taskId: string) {
 process.env.ADMIN_SECRET = 'test-secret';
 // also override broadcast key in case it's set in environment
 process.env.BROADCAST_AUTH_KEY = 'test-secret';
-// force backend to short-circuit notion import work for faster tests
 process.env.MOCK_NOTION_IMPORT = 'true';
 
-// server instance loaded lazily after env vars are configured
-let server!: Express;
+// import the server AFTER configuring env vars to ensure they are picked up
+// server.js exports { app, importTasks }
+// @ts-ignore -- app is used locally in the backend but the test accesses it directly
+import { app as server } from '@pkm/backend/server.js';
 
-// ensure the public upload directory exists and start backend once
-beforeAll(async () => {
+// ensure the public upload directory exists
+beforeAll(() => {
   const dir = path.join(__dirname, '../../../../public');
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-
-  if (!server) {
-    const backend = await import('@pkm/backend/server.js') as { app: Express };
-    server = backend.app;
-  }
 });
 
 describe('backend /api/nb-import', () => {
@@ -85,7 +80,7 @@ describe('backend /api/nb-import', () => {
       .set('Authorization', 'Bearer test-secret');
     expect(r1.status).toBe(200);
     // poll POST
-    let r2 = await request(server)
+    const r2 = await request(server)
       .post('/api/nb-import/logs')
       .set('Authorization', 'Bearer test-secret')
       .send({ id: taskId });

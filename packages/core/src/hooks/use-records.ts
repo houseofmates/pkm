@@ -70,25 +70,28 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
     ) {
       const current = queryParams.page as number;
       const newPage = current === 0 ? 1 : 0;
-      setQueryParams((prev) => ({ ...prev, page: newPage }));
+      // postpone state update to avoid synchronous setState in effect
+      setTimeout(() => {
+        setQueryParams((prev) => ({ ...prev, page: newPage }));
+      }, 0);
       setPageFallbackTried(true);
     }
   }, [isFetching, records.length, pageFallbackTried, queryParams.page]);
 
-  const refresh = (newParams?: Partial<QueryParams>) => {
+  const refresh = async (newParams?: Partial<QueryParams>) => {
     if (newParams) {
       setQueryParams((prev) => ({ ...prev, ...newParams }));
-    } else {
-      refetch();
     }
+    // refetch returns a promise that resolves once the request completes
+    return refetch();
   };
 
   // create
   const createMutation = useMutation({
     mutationFn: async (data: Record<string, unknown>) => {
-      const payload: Record<string, any> = { ...data };
+      const payload: Record<string, unknown> = { ...data };
       if (activeFronterId) {
-        payload.fronter = activeFronterId;
+        (payload as any).fronter = activeFronterId;
       }
       const walId = await walWrite(collectionName, 'new', 'create', payload);
       try {
@@ -108,9 +111,9 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
   // update (optimistic)
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string | number; data: Record<string, unknown> }) => {
-      const payload: Record<string, any> = { ...data };
+      const payload: Record<string, unknown> = { ...data };
       if (activeFronterId) {
-        payload.lastEditedByFronter = activeFronterId;
+        (payload as any).lastEditedByFronter = activeFronterId;
       }
       const walId = await walWrite(collectionName, String(id), 'update', payload);
       try {
@@ -134,7 +137,7 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
         return {
           ...old,
           data: old.data.map((record) =>
-            record.id === id ? { ...record, ...data } : record
+            String(record.id) === String(id) ? { ...record, ...data } : record
           ),
         };
       });
@@ -200,9 +203,9 @@ export function useRecord(collectionName: string, recordId: string | number) {
 
   const updateMutation = useMutation({
     mutationFn: async (data: Record<string, unknown>) => {
-      const payload: Record<string, any> = { ...data };
+      const payload: Record<string, unknown> = { ...data };
       if (activeFronterId) {
-        payload.lastEditedByFronter = activeFronterId;
+        (payload as any).lastEditedByFronter = activeFronterId;
       }
       return client.updateRecord(collectionName, recordId, payload as any);
     },

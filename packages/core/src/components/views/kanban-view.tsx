@@ -7,6 +7,8 @@ import { Plus } from 'lucide-react';
 import { getContrastColor } from '@/lib/utils';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from 'sonner';
+import { secureLogger } from '@/lib/secure-logger';
+import { Button } from '@/components/ui/button';
 import {
   DndContext,
   DragOverlay,
@@ -44,7 +46,7 @@ function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleF
   } = useSortable({ id: id });
 
   const style = {
-    transform: CSS.transform.toString(transform),
+    transform: CSS.Transform.toString(transform),
     transition,
     opacity: isDragging ? 0.5 : 1,
   };
@@ -310,7 +312,7 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
 
       try {
         await client.updateRecord(collection.name, recordId, {
-          [groupByField]: newValue
+          [groupByField]: newValue ?? undefined
         });
         toast.success("record updated");
       } catch (e) {

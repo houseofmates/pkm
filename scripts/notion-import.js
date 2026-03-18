@@ -7,15 +7,38 @@ import Papa from 'papaparse';
 const csvParse = Papa.parse;
 import yaml from 'js-yaml';
 
-async function walk(dir, predicate) {
-    const entries = await fs.promises.readdir(dir, { withFileTypes: true });
+async function walkFiles(root, predicate) {
+    const pending = [root];
     const results = [];
-    for (const ent of entries) {
-        const full = path.join(dir, ent.name);
-        if (ent.isDirectory()) {
-            results.push(...await walk(full, predicate));
-        } else if (ent.isFile() && predicate(full)) {
-            results.push(full);
+    while (pending.length) {
+        const current = pending.pop();
+        let entries;
+        try {
+            entries = await fs.promises.readdir(current, { withFileTypes: true });
+        } catch (err) {
+            console.warn(`walk: unable to read ${current}:`, err);
+            continue;
+        }
+        for (const entry of entries) {
+            const full = path.join(current, entry.name);
+            const isSkippableDir = entry.isDirectory() && entry.name.startsWith('__MACOSX');
+            if (isSkippableDir) continue;
+            if (entry.isDirectory()) {
+                pending.push(full);
+                continue;
+            }
+            let isFile = entry.isFile();
+            if (!isFile) {
+                try {
+                    const stat = await fs.promises.stat(full);
+                    isFile = stat.isFile();
+                } catch {
+                    continue;
+                }
+            }
+            if (isFile && predicate(full)) {
+                results.push(full);
+            }
         }
     }
     return results;
@@ -46,7 +69,7 @@ async function parseNotionExport(root) {
     const databases = [];
     const assets = [];
 
-    const mdFiles = await walk(root, f => f.toLowerCase().endsWith('.md'));
+    const mdFiles = await walkFiles(root, f => f.toLowerCase().endsWith('.md'));
     for (const md of mdFiles) {
         try {
             pages.push(await parseMarkdownFile(md));
@@ -55,7 +78,7 @@ async function parseNotionExport(root) {
         }
     }
 
-    const csvFiles = await walk(root, f => f.toLowerCase().endsWith('.csv'));
+    const csvFiles = await walkFiles(root, f => f.toLowerCase().endsWith('.csv'));
     for (const csv of csvFiles) {
         const name = path.basename(csv, '.csv');
         const rows = [];
@@ -78,7 +101,7 @@ async function parseNotionExport(root) {
 
     const assetsDir = path.join(root, 'assets');
     if (fs.existsSync(assetsDir)) {
-        const assetFiles = await walk(assetsDir, _ => true);
+        const assetFiles = await walkFiles(assetsDir, () => true);
         assets.push(...assetFiles.map(f => path.relative(root, f)));
     }
 
@@ -153,16 +176,30 @@ async function unzipToTemp(zipPath) {
     // process (see node:events ERR_UNHANDLED_ERROR logged previously). we
     // wrap in a promise with explicit handlers.
     await new Promise((resolve, reject) => {
-        const stream = fs.createReadStream(zipPath)
-            .pipe(unzipper.Extract({ path: tempDir }));
+        const stream = fs.createReadStream(zipPath).pipe(unzipper.Parse());
+        stream.on('entry', (entry) => {
+            const rawPath = entry.path.replace(/\\/g, '/');
+            const normalized = rawPath.startsWith('__MACOSX/') ? rawPath.slice('__MACOSX/'.length) : rawPath;
+            if (!normalized || normalized.endsWith('.DS_Store')) {
+                entry.autodrain();
+                return;
+            }
+            const fullPath = path.join(tempDir, normalized);
+            if (entry.type === 'Directory') {
+                fs.promises.mkdir(fullPath, { recursive: true }).catch(() => {});
+                entry.autodrain();
+            } else {
+                fs.promises.mkdir(path.dirname(fullPath), { recursive: true }).then(() => {
+                    entry.pipe(fs.createWriteStream(fullPath));
+                });
+            }
+        });
         stream.on('close', resolve);
-        stream.on('finish', resolve); // just in case
+        stream.on('finish', resolve);
         stream.on('error', (err) => {
             console.error('[NotionImport] unzip error', err);
             reject(err);
         });
-        // also listen on reader
-        stream.on('entry', e => {});
     });
     return tempDir;
 }

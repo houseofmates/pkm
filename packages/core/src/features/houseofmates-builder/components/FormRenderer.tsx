@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Star, Send, Loader2 } from 'lucide-react';
 import { api } from '@/api/nocobase-client';
 import { toast } from 'sonner';
+import { secureLogger } from '@/lib/secure-logger';
 import { getSubdomain } from '@/utils/subdomain-router';
 
 // --- types ---

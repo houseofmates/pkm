@@ -109,6 +109,10 @@
       else if (host === 'blog.houseofmates.space') title = 'blog';
       else if (host === 'houseofmates.space') title = 'houseofmates';
       else if (host === 'pkm.houseofmates.space') title = 'pkm';
+      
+      // lowercase all titles
+      title = title.toLowerCase();
+      
       // also set favicon before React loads
       const favIcon = document.getElementById('favicon');
       if (favIcon) {

@@ -99,7 +99,7 @@ export function PageCanvas() {
 
   useEffect(() => {
     setDocumentState((prev) => ({ ...prev, layout: ensureLayoutForBlocks(prev.blocks, prev.layout) }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, []);
 
   useDebounce(() => {

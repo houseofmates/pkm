@@ -1,9 +1,10 @@
+import '@testing-library/jest-dom/vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { LoginPage } from '../../../pages/login';
 import { AuthContext } from '@/contexts/auth-context';
 import { NocoBaseClient } from '@/api/nocobase-client';
-import { vi } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 // stub the client to avoid real network calls
 const mockGet = vi.fn();

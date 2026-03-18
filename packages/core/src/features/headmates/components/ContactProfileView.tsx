@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { X, Calendar, Droplet, Save, Upload } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFronter } from '@/contexts/fronter-context';
@@ -8,10 +8,11 @@ import { api } from '@/api/nocobase-client';
 import { toast } from 'sonner';
 import ReactMarkdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
-import type { Headmate } from './headmate-card';
+import { secureLogger } from '@/lib/secure-logger';
+import type { HeadmateCardProps } from './headmate-card';
 
 interface ContactProfileViewProps {
-  member: Headmate;
+  member: any;
   onClose: () => void;
   isOpen: boolean;
 }
@@ -23,10 +24,9 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
   const [isEditing, setIsEditing] = useState(false);
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
-  // fields
-  // use extended fields if available on member, or defaults
-  const [name, setName] = useState(member.name);
+  // state for editable fields
   const [bannerUrl, setBannerUrl] = useState((member as any).banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070&auto=format&fit=crop');
+  const [name, setName] = useState(member.name);
   const [birthday, setBirthday] = useState((member as any).birthday || '');
   const [favColor, setFavColor] = useState(member.color || '#ffffff');
   const [description, setDescription] = useState(member.description || '');
@@ -34,36 +34,30 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
   const [role, setRole] = useState((member as any).role || '');
   const [status, setStatus] = useState((member as any).status || 'Active');
 
-  // reset state when member changes
-  useEffect(() => {
-    if (member) {
-      setName(member.name);
-      setBannerUrl((member as any).banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070&auto=format&fit=crop');
-      setBirthday((member as any).birthday || '');
-      setFavColor(member.color || '#ffffff');
-      setDescription(member.description || '');
-      setPronouns(member.pronouns || '');
-      setRole((member as any).role || '');
-      setStatus((member as any).status || 'Active');
-    }
-  }, [member]);
+  // fields - compute defaults directly from member
+  // const name = member.name;
+  // const bannerUrl = (member as any).banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070&auto=format&fit=crop';
+  // const birthday = (member as any).birthday || '';
+  // const favColor = member.color || '#ffffff';
+  // const description = member.description || '';
+  // const pronouns = member.pronouns || '';
+  // const role = (member as any).role || '';
+  // const status = (member as any).status || 'Active';
 
   const formattedName = formatHeadmateName(name);
 
-  const [age, setAge] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (birthday) {
-      const birthdate = new Date(birthday);
-      const today = new Date();
-      const calculatedAge = today.getFullYear() - birthdate.getFullYear();
-      const m = today.getMonth() - birthdate.getMonth();
-      let ageValue = calculatedAge;
-      if (m < 0 || (m === 0 && today.getDate() < birthdate.getDate())) {
-        ageValue--;
-      }
-      setAge(ageValue);
+  // compute age from birthday
+  const age = useMemo(() => {
+    if (!birthday) return null;
+    const birthdate = new Date(birthday);
+    const today = new Date();
+    const calculatedAge = today.getFullYear() - birthdate.getFullYear();
+    const m = today.getMonth() - birthdate.getMonth();
+    let ageValue = calculatedAge;
+    if (m < 0 || (m === 0 && today.getDate() < birthdate.getDate())) {
+      ageValue--;
     }
+    return ageValue;
   }, [birthday]);
 
   // handle banner upload
@@ -86,7 +80,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
         toast.success('banner uploaded');
       }
     } catch (e) {
-      secureLogger.error(e);
+      secureLogger.error(String(e));
       toast.error('failed to upload banner');
     }
   };
@@ -108,7 +102,7 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
       toast.success("profile updated");
       setIsEditing(false);
     } catch (e) {
-      secureLogger.error(e);
+      secureLogger.error(String(e));
       toast.error("failed to update profile");
     }
   };

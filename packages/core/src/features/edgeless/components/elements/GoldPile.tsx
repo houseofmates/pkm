@@ -4,7 +4,7 @@ export const GoldPile = React.memo(function GoldPile({ element }: { element: any
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { current_amount = 0, target_amount = 1000 } = element.data;
   const [coins, setCoins] = useState<any[]>([]);
-  const [multiplier, setMultiplier] = useState(1);
+  const multiplierRef = useRef(1);
 
   useEffect(() => {
     // optimization: cap at 50 coins
@@ -16,7 +16,7 @@ export const GoldPile = React.memo(function GoldPile({ element }: { element: any
       numCoins = 50;
     }
 
-    setMultiplier(mult);
+    multiplierRef.current = mult;
 
     const newCoins = [];
     for (let i = 0; i < numCoins; i++) {
@@ -88,9 +88,9 @@ export const GoldPile = React.memo(function GoldPile({ element }: { element: any
       <div className="absolute bottom-[-30px] w-full text-center text-primary font-mono text-sm">
         ${current_amount} / ${target_amount}
       </div>
-      {multiplier > 1 && (
+      {multiplierRef.current > 1 && (
         <div className="absolute top-10 right-10 bg-black/80 text-primary border border-primary/50 rounded-full px-2 py-1 text-xs font-bold animate-pulse">
-          x{multiplier}
+          x{multiplierRef.current}
         </div>
       )}
     </div>

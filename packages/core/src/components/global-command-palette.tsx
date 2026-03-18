@@ -14,7 +14,9 @@ import { useCollections } from "@/hooks/use-collections";
 import { api } from "@/api/nocobase-client";
 import { useEdgelessStore } from '@/features/edgeless/store';
 import { useFronter } from '@/contexts/fronter-context';
-import { getOllamaGenerateUrl } from '@/lib/llm-config';
+import { getOllamaGenerateUrl, DEFAULT_GEMINI_MODEL } from '@/lib/llm-config';
+import { generateText } from '@/lib/llm-service';
+import { secureLogger } from '@/lib/secure-logger';
 
 // interface for search result
 interface SearchResult {
@@ -49,18 +51,18 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   const location = useLocation();
   const { collections } = useCollections();
   const setChatOpen = useEdgelessStore(state => state.setChatOpen);
-  const { activefronters, members } = useFronter();
+  const { activeFronters, members } = useFronter();
 
   // search state
-  const [query, setquery] = useState("");
-  const [dbresults, setdbresults] = useState<SearchResult[]>([]);
-  const [aiinsight, setaiinsight] = useState<string | null>(null);
-  const [issearching, setissearching] = useState(false);
-  const [isreasoning, setisreasoning] = useState(false);
+  const [query, setQuery] = useState("");
+  const [dbResults, setDbResults] = useState<SearchResult[]>([]);
+  const [aiInsight, setAiInsight] = useState<string | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isReasoning, setIsReasoning] = useState(false);
 
   // quick capture
-  const [_createdialogopen, _setcreatedialogopen] = useState(false);
-  const [_selectedcollection, _setselectedcollection] = useState<string | null>(null);
+  const [_createDialogOpen, _setCreateDialogOpen] = useState(false);
+  const [_selectedCollection, _setSelectedCollection] = useState<string | null>(null);
 
   // keyboard shortcut (` or ~)
   useEffect(() => {
@@ -94,7 +96,7 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
 
   // --- search logic ---
   const handleSearch = useCallback(async (value: string) => {
-  setquery(value);
+  setQuery(value);
   if (!value || value.length < 2) {
   setDbResults([]);
   setAiInsight(null);
@@ -155,7 +157,7 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   }
 
   } catch (e) {
-  secureLogger.error(e);
+  secureLogger.error(String(e));
   } finally {
   setIsSearching(false);
   }
@@ -183,31 +185,13 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
  .join('\n');
   const frontingInfo = frontingHeadmates ? `currently fronting headmates (in order):\n${frontingHeadmates}\n` : '';
 
-  const prompt = `you are wilson, a helpful ai assistant for a personal knowledge management system. you must respond entirely in lowercase with no capital letters at all. be concise, friendly, and helpful.
-
-context:
-${currentPageInfo}${collectionsInfo}${frontingInfo}${pageContext}
-database search results:
-${dbContext}
-
-user question: ${userQuery}
-
-your response (all lowercase):`;
+  const prompt = `you are wilson, a helpful ai assistant for a personal knowledge management system. you must respond entirely in lowercase with no capital letters at all. be concise, friendly, and helpful.\n\ncontext:\n${currentPageInfo}${collectionsInfo}${frontingInfo}${pageContext}\ndatabase search results:\n${dbContext}\n\nuser question: ${userQuery}\n\nyour response (all lowercase):`;
 
   const url = getOllamaGenerateUrl();
-  const res = await fetch(url, {
- method: 'POST',
- headers: { 'Content-Type': 'application/json' },
- body: JSON.stringify({
- model: 'qwen2.5vl:latest',
- prompt: prompt,
- stream: false
- })
-  });
-  const data = await res.json();
+  const response = await generateText(prompt, DEFAULT_GEMINI_MODEL, url);
+
   // ensure response is lowercase
-  const response = data.response?.toLowerCase() || data.response;
-  setAiInsight(response);
+  setAiInsight(response?.toLowerCase() || '');
   } catch (e) {
   secureLogger.error("LLM Failed:", e);
   setAiInsight("could not generate insight.");
@@ -217,9 +201,9 @@ your response (all lowercase):`;
   };
 
   const runCommand = useCallback((command: () => unknown) => {
-  setopen(false);
+  setOpen(false);
   command();
-  }, [setopen]);
+  }, [setOpen]);
 
   if (!open) return null;
 
@@ -265,7 +249,7 @@ your response (all lowercase):`;
    <Sparkles className="h-3 w-3" />
    <span>ai insight</span>
    </div>
-   {isreasoning ? (
+   {isReasoning ? (
    <div className="flex items-center gap-2 text-muted-foreground text-sm">
   <div className="h-2 w-2 bg-primary rounded-full animate-bounce" />
   <span>designing response...</span>

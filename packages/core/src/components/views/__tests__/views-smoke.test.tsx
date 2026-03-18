@@ -1,5 +1,6 @@
+import '@testing-library/jest-dom/vitest';
 // same virtualization stubs used by list view tests
-import { vi } from 'vitest';
+import { vi, describe, it, expect } from 'vitest';
 vi.mock('react-window', () => ({
   List: ({ itemCount, itemData, style, children }: any) => (
     <div style={style}>

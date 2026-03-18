@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { api } from '@/api/nocobase-client';
+import { secureLogger } from '@/lib/secure-logger';
+import { storageManager } from '@/lib/storage-manager';
 
 import { FormBuilder } from './FormRenderer';
 
@@ -349,13 +351,14 @@ export function BuilderToolbox() {
   toast.info('uploading image...');
   try {
  const uploaded = await api.upload(file);
- const url = uploaded?.url || uploaded?.data?.url;
+   const uploadedAny = uploaded as any;
+   const url = uploadedAny?.url || uploadedAny?.data?.url;
  if (url) {
     addElement(createDefaultElement('image', { url, alt: file.name }));
     toast.success('image uploaded');
  }
   } catch (err) {
- secureLogger.error(err);
+ secureLogger.error(String(err));
  toast.error('upload failed');
   }
   setIsOpen(false);
@@ -374,7 +377,8 @@ export function BuilderToolbox() {
   toast.info('uploading video...');
   try {
  const uploaded = await api.upload(file);
- const url = uploaded?.url || uploaded?.data?.url;
+   const uploadedAny = uploaded as any;
+   const url = uploadedAny?.url || uploadedAny?.data?.url;
  if (url) {
     addElement(createDefaultElement('video', {
  url,
@@ -386,7 +390,7 @@ export function BuilderToolbox() {
  toast.success('video uploaded');
  }
   } catch (err) {
- secureLogger.error(err);
+ secureLogger.error(String(err));
  toast.error('upload failed');
   }
   setIsOpen(false);
@@ -398,17 +402,17 @@ export function BuilderToolbox() {
   const url = prompt('enter embed url (youtube, spotify, etc.):');
   if (!url) return;
 
-  let embedurl = url;
+  let embedUrl = url;
   if (url.includes('youtube.com/watch')) {
-    const videoid = new URL(url).searchParams.get('v');
-  embedurl = `https://www.youtube.com/embed/${videoid}`;
+    const videoId = new URL(url).searchParams.get('v');
+  embedUrl = `https://www.youtube.com/embed/${videoId}`;
   } else if (url.includes('youtu.be/')) {
-  const videoid = url.split('youtu.be/')[1]?.split('?')[0];
-  embedurl = `https://www.youtube.com/embed/${videoid}`;
+  const videoId = url.split('youtu.be/')[1]?.split('?')[0];
+  embedUrl = `https://www.youtube.com/embed/${videoId}`;
   }
 
   addElement({
-    ...createDefaultElement('embed', { url: embedurl }),
+    ...createDefaultElement('embed', { url: embedUrl }),
   width: 560,
   height: 315,
   });
@@ -694,7 +698,7 @@ export function BuilderToolbox() {
    <div className="grid grid-cols-3 gap-2">
   {searchResults.map((item: any) => {
   const url = item.urls?.small || item.images?.fixed_width?.url || item.images?.original?.url;
-  const isgif = !!item.images;
+  const isGif = !!item.images;
   return (
   <button
     key={item.id}

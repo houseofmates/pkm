@@ -5,8 +5,7 @@ export const SimplyPluralClient = {
  * in prod/electron, it returns the direct api url 'https://api.apparyllis.com/v1'.
  */
   get baseUrl(): string {
-  // @ts-expect-error - import.meta.env is a vite feature
-  return import.meta.env.DEV
+    return import.meta.env.DEV
   ? '/api/simplyplural'
   : 'https://api.apparyllis.com/v1';
   },

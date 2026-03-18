@@ -3,7 +3,7 @@
 
 import { generateAiFieldContent } from './rag-service';
 import { generateText } from '@/lib/llm-service';
-import { getOllamaGenerateUrl } from '@/lib/llm-config';
+import { getOllamaGenerateUrl, DEFAULT_GEMINI_MODEL } from '@/lib/llm-config';
 import { api } from '@/api/nocobase-client';
 import { secureLogger } from '@/lib/secure-logger';
 
@@ -31,7 +31,7 @@ export interface AiGenerationResult {
 
 // default generation options
 const DEFAULT_OPTIONS: Partial<AiGenerationOptions> = {
-  model: 'qwen2.5vl:latest',
+  model: DEFAULT_GEMINI_MODEL,
   temperature: 0.7,
   includeRelated: true,
   topK: 5,
@@ -320,7 +320,7 @@ export async function ensureAiField(collection: string, fieldName: string = 'ai'
         'x-component-props': {
           placeholder: 'ai-generated content will appear here...',
         },
-      },
+      } as any,
     });
 
     secureLogger.info(`created '${fieldName}' field on ${collection}`);

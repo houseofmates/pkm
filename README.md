@@ -62,8 +62,22 @@ if you want to allow an exception, talk to the team — the CI rule is strict by
 ## architecture overview
 
 - **frontend**: Vite-based (port 3010)
-- **backend**: Node.js WebSocket/API (port 4100)
+- **backend**: Node.js WebSocket/API (port 4100)  
+  start it in the background with `npm run start` or install the
+  provided systemd service (`scripts/pkm-backend.service`).
 - **Services**: Managed via `systemctl --user pkm.service`, initiated by `/etc/systemd/system/pkm-boot.service`.
+
+### edgeless canvas + sync architecture
+
+This project contains a low-latency, local-first canvas system built around an **append-only oplog + indexeddb cache**.
+
+- **canvas state** is reconstructed by replaying a compacted oplog (operations = strokes, erases, transforms, deletes).
+- **optimistic UI**: user actions are pushed into memory immediately, then flushed to IndexedDB on a debounce timer.
+- **worker-backed persistence**: IndexedDB writes (and read-heavy scans) run in a Web Worker (`canvas-db.worker.ts`) to keep the main thread at 60fps.
+- **sync to server**: a background loop batches unsynced operations and pushes them to the backend (NocoBase) in fixed-size chunks, with retries + conflict detection.
+- **offline-first**: the UI is always responsive even without network; completed actions are queued locally and synced when online.
+
+For full low-level details, see `packages/core/src/features/edgeless`.
 
 ### SQL Parser & Editor Support
 A lightweight SQL parser lives in `src/lib/sql-parser.ts` with tests under `src/lib/__tests__`. It currently handles:

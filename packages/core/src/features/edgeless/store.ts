@@ -1,13 +1,65 @@
 import { create } from 'zustand'
 import { v4 as uuidv4 } from 'uuid'
-import { appendOp, saveCheckpoint, getLatestCheckpoint, getRecentOps } from './storage/canvas-db'
-import type { DrawOp } from './storage/oplog'
+import { appendOp, appendOps, saveCheckpoint, getLatestCheckpoint, getRecentOps } from './storage/canvas-db'
+import type { DrawOp, OpLogEntry } from './storage/oplog'
 import { canvasSync } from './sync/canvas-sync'
 import { SpatialIndex } from './spatial/spatial-index'
+import { secureLogger } from '@/lib/secure-logger'
 import type * as fabric from 'fabric'
 import { useShallow } from 'zustand/react/shallow'
 
+const OPLOG_FLUSH_DELAY_MS = 120
+const OPLOG_FLUSH_BATCH_SIZE = 50
 
+const pendingOpsByDrawing = new Map<string, OpLogEntry[]>()
+const flushTimers = new Map<string, ReturnType<typeof setTimeout>>()
+
+async function flushPendingOps(drawingId: string) {
+  const ops = pendingOpsByDrawing.get(drawingId)
+  if (!ops || ops.length === 0) return
+
+  // flush in bounded batches to avoid blocking the main thread
+  const batch = ops.splice(0, OPLOG_FLUSH_BATCH_SIZE)
+
+  try {
+    await appendOps(drawingId, batch)
+  } catch (e) {
+    secureLogger.error('[oplog] flush failed', e)
+    // keep ops in memory, so we can retry
+    ops.unshift(...batch)
+  } finally {
+    if (ops.length > 0) {
+      scheduleFlush(drawingId)
+    } else {
+      pendingOpsByDrawing.delete(drawingId)
+    }
+  }
+}
+
+function scheduleFlush(drawingId: string) {
+  if (flushTimers.has(drawingId)) return
+  const timer = setTimeout(() => {
+    flushTimers.delete(drawingId)
+    void flushPendingOps(drawingId)
+  }, OPLOG_FLUSH_DELAY_MS)
+  flushTimers.set(drawingId, timer)
+}
+
+/**
+ * Force immediate persistence of any queued operations for a drawing.
+ *
+ * This is used for critical moments such as page unload to avoid losing
+ * recent user input before the debounce timer fires.
+ */
+export async function flushDrawingOps(drawingId: string): Promise<void> {
+  if (!drawingId) return
+  const timer = flushTimers.get(drawingId)
+  if (timer) {
+    clearTimeout(timer)
+    flushTimers.delete(drawingId)
+  }
+  await flushPendingOps(drawingId)
+}
 
 export type ElementType =
   | 'pdf-page'
@@ -47,7 +99,7 @@ export interface EdgelessElement {
   y: number
   width: number
   height: number
-  data: any
+  data: unknown
   locked?: boolean
   layerId?: string
   connectorData?: {
@@ -58,10 +110,10 @@ export interface EdgelessElement {
   }
 }
 
-export type ToolType = 'select' | 'hand' | 'pen' | 'eraser' | 'text' | 'smart-text' | 'lasso'
+export type ToolType = 'select' | 'hand' | 'pen' | 'eraser' | 'text' | 'smart-text' | 'lasso' | 'transform' | 'selection'
 
 // oplog-based history state (replaces json snapshot stack)
-interface OplogHistory {
+export interface OplogHistory {
   ops: string[] // oplog entry ids
   undone: string[] // ids of undone ops for redo
 }
@@ -83,8 +135,8 @@ interface EdgelessState {
   setActiveElementId: (id: string | null) => void
 
   // pdf document
-  pdfDoc: any | null
-  setPdfDoc: (doc: any | null) => void
+  pdfDoc: unknown | null
+  setPdfDoc: (doc: unknown | null) => void
 
   // layers
   layers: EdgelessLayer[]
@@ -154,7 +206,7 @@ interface EdgelessState {
 
   // spatial index actions
   setSpatialIndex: (index: SpatialIndex | null) => void
-  rebuildSpatialIndex: (canvas: any) => void
+  rebuildSpatialIndex: (canvas: fabric.Canvas | null) => void
 
   // ui actions
   setSelectionMode: (mode: 'cursor' | 'free' | 'rect' | 'magic' | 'grab') => void
@@ -220,8 +272,8 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   textSize: 40,
   isChatOpen: false,
   isLinking: false,
-  penWidth: 10,
-  penColor: 'var(--primary)', penOpacity: 100,
+  penWidth: 4,
+  penColor: '#ffffff', penOpacity: 100,
   eraserOpacity: 100, stabilizerLevel: 0,
   pressureEnabled: true,
 
@@ -324,15 +376,21 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
     const { drawingId, history, activeLayerId } = get()
     if (!drawingId) return
 
-    // ensure op has layer context
-    if ('layerId' in op && !op.layerId) {
-      ; (op as any).layerId = activeLayerId
+    // apply strong typing/copy to avoid mutation from outside
+    const opWithLayer = {
+      ...(op as any),
+      layerId: (op as any).layerId || activeLayerId,
     }
 
-    // append to persistent oplog
-    const entry = await appendOp(drawingId, op)
+    const entry: OpLogEntry = {
+      id: `${drawingId}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      drawingId,
+      timestamp: Date.now(),
+      op: opWithLayer,
+      synced: false,
+    }
 
-    // update history stack
+    // optimistic UI: update history immediately
     set((state) => ({
       history: {
         ops: [...state.history.ops, entry.id],
@@ -340,8 +398,16 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
       },
     }))
 
-    // trigger sync
-    await updateDrawingMeta(drawingId, { syncState: 'pending' })
+    // buffer for batched persistence
+    const buffer = pendingOpsByDrawing.get(drawingId) ?? []
+    if (!pendingOpsByDrawing.has(drawingId)) pendingOpsByDrawing.set(drawingId, buffer)
+    buffer.push(entry)
+    scheduleFlush(drawingId)
+
+    // mark as pending in metadata (async, non-blocking)
+    void updateDrawingMeta(drawingId, { syncState: 'pending' }).catch((e) => {
+      secureLogger.error('[oplog] updateDrawingMeta failed', e)
+    })
   },
 
   undo: async () => {
@@ -410,7 +476,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   // spatial index
   setSpatialIndex: (index) => set({ spatialIndex: index }),
 
-  rebuildSpatialIndex: (canvas) => {
+  rebuildSpatialIndex: (canvas: fabric.Canvas | null) => {
     if (!canvas) return
 
     const index = new SpatialIndex(100)

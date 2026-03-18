@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom/vitest';
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { NotionImportWidget } from '../notion-import-widget';
@@ -20,7 +21,7 @@ class MockEventSource implements EventSource {
   onopen: ((this: EventSource, ev: Event) => any) | null = null;
   onmessage: ((this: EventSource, ev: MessageEvent) => any) | null = null;
 
-  listeners: Record<string, Function> = {};
+  private listeners = new Map<string, EventListenerOrEventListenerObject>();
 
   constructor(url: string | URL, eventSourceInitDict?: EventSourceInit) {
     this.url = typeof url === 'string' ? url : url.toString();
@@ -29,39 +30,60 @@ class MockEventSource implements EventSource {
     }
   }
 
-  addEventListener(ev: string, fn: EventListenerOrEventListenerObject) {
-    this.listeners[ev] = fn;
-  }
-  removeEventListener(ev: string, fn: EventListenerOrEventListenerObject) {
-    delete this.listeners[ev];
-  }
+  addEventListener: EventSource['addEventListener'] = (type: any, listener: any) => {
+    this.listeners.set(type, listener);
+  };
+  removeEventListener: EventSource['removeEventListener'] = (type: any) => {
+    this.listeners.delete(type);
+  };
   dispatchEvent(event: Event): boolean {
-    const fn = this.listeners[event.type];
-    if (fn) {
-      if (typeof fn === 'function') fn(event);
-      else if (typeof fn.handleEvent === 'function') fn.handleEvent(event);
+    const listener = this.listeners.get(event.type);
+    if (!listener) return false;
+    if (typeof listener === 'function') {
+      listener.call(this, event);
+      return true;
+    }
+    if (typeof (listener as EventListenerObject).handleEvent === 'function') {
+      (listener as EventListenerObject).handleEvent(event);
       return true;
     }
     return false;
   }
   close() {}
 
-  // @ts-ignore: This is required for interface compatibility
-  prototype: EventSource;
 }
 
 global.EventSource = MockEventSource as any;
+
+const setTestLocation = (overrides: Partial<Location>) => {
+  (globalThis as any).__HOM_TEST_LOCATION__ = {
+    host: overrides.host,
+    hostname: overrides.hostname,
+    origin: overrides.origin,
+    protocol: overrides.protocol,
+  };
+};
+
+const setTestBackend = (url?: string) => {
+  (globalThis as any).__HOM_TEST_BACKEND_URL__ = url;
+};
 
 describe('NotionImportWidget', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
     localStorage.clear();
+    setTestLocation({ host: 'localhost', hostname: 'localhost', origin: 'http://localhost', protocol: 'http:' });
+    setTestBackend(undefined);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+    (globalThis as any).__HOM_TEST_LOCATION__ = undefined;
+    setTestBackend(undefined);
   });
 
   it('logs error when no API key is set', async () => {
     render(<NotionImportWidget />);
-    const fileInput = screen.getByRole('textbox', { hidden: true }) || screen.getByLabelText(/upload/i);
-    // manually find file input
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
     const file = new File(['x'], 'a.zip', { type: 'application/zip' });
     fireEvent.change(input, { target: { files: [file] } });
@@ -110,7 +132,8 @@ describe('NotionImportWidget', () => {
 
   it('builds a relative /api URL by default', async () => {
     // ensure no env override
-    Object.defineProperty(import.meta, 'env', { value: { VITE_API_URL: undefined }, writable: true });
+    Object.defineProperty(import.meta, 'env', { value: { VITE_BACKEND_URL: undefined }, writable: true });
+    setTestBackend(undefined);
     localStorage.setItem('hom_api_key', 'key');
     const fakeResponse = { ok: false, status: 400, statusText: 'err', text: async () => '' };
     (fetch as any).mockResolvedValue(fakeResponse);
@@ -123,11 +146,12 @@ describe('NotionImportWidget', () => {
       expect(fetch).toHaveBeenCalled();
     });
     const calledUrl = (fetch as any).mock.calls[0][0];
-    expect(calledUrl).toMatch(/^\/api\/(nb-import)/);
+    expect(calledUrl).toMatch(/^\/api\/nb-import-csv/);
   });
 
-  it('respects VITE_API_URL when provided', async () => {
-    Object.defineProperty(import.meta, 'env', { value: { VITE_API_URL: 'https://custom.example' }, writable: true });
+  it('respects VITE_BACKEND_URL when provided', async () => {
+    Object.defineProperty(import.meta, 'env', { value: { VITE_BACKEND_URL: undefined }, writable: true });
+    setTestBackend('https://custom.example');
     localStorage.setItem('hom_api_key', 'key');
     const fakeResponse = { ok: false, status: 400, statusText: 'err', text: async () => '' };
     (fetch as any).mockResolvedValue(fakeResponse);
@@ -140,14 +164,18 @@ describe('NotionImportWidget', () => {
       expect(fetch).toHaveBeenCalled();
     });
     const calledUrl = (fetch as any).mock.calls[0][0];
-    expect(calledUrl).toMatch(/^https:\/\/custom\.example\/nb-import/);
+    expect(calledUrl).toMatch(/^https:\/\/custom\.example\/nb-import-csv/);
   });
 
   it('rewrites the official api domain to relative when running on pkmsubdomain', async () => {
-    Object.defineProperty(import.meta, 'env', { value: { VITE_API_URL: 'https://api.houseofmates.space' }, writable: true });
-    // fake frontend hostname
-    delete (window as any).location;
-    window.location = new URL('https://pkm.houseofmates.space/');
+    Object.defineProperty(import.meta, 'env', { value: { VITE_BACKEND_URL: undefined }, writable: true });
+    setTestBackend('https://api.houseofmates.space');
+    setTestLocation({
+      host: 'pkm.houseofmates.space',
+      hostname: 'pkm.houseofmates.space',
+      protocol: 'https:',
+      origin: 'https://pkm.houseofmates.space',
+    });
 
     localStorage.setItem('hom_api_key', 'key');
     const fakeResponse = { ok: false, status: 400, statusText: 'err', text: async () => '' };
@@ -161,6 +189,6 @@ describe('NotionImportWidget', () => {
       expect(fetch).toHaveBeenCalled();
     });
     const calledUrl = (fetch as any).mock.calls[0][0];
-    expect(calledUrl).toMatch(/^\/api\/nb-import/);
+    expect(calledUrl).toMatch(/^\/api\/nb-import-csv/);
   });
 });

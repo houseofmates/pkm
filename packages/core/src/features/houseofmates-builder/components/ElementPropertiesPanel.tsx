@@ -3,6 +3,7 @@ import { useBuilder } from '../HouseofmatesBuilder';
 import { api } from '@/api/nocobase-client';
 import { Link, ExternalLink, FileText, X, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface Props {
   elementId: string;
@@ -16,18 +17,18 @@ interface PageOption {
 
 export function ElementPropertiesPanel({ elementId, onClose }: Props) {
   const { page, updateElement, site_identifier, collectionNames } = useBuilder();
-  const element = page?.elements.find(el => el.id === elementid);
+  const element = page?.elements.find(el => el.id === elementId);
 
-  const [linktype, setlinktype] = useState<'none' | 'external' | 'internal'>(
+  const [linkType, setLinkType] = useState<'none' | 'external' | 'internal'>(
   element?.link ? (element.link.startsWith('/') ? 'internal' : 'external') : 'none'
   );
-  const [externalurl, setexternalurl] = useState(
+  const [externalUrl, setExternalUrl] = useState(
   element?.link && !element.link.startsWith('/') ? element.link : ''
   );
-  const [internalpage, setinternalpage] = useState(
+  const [internalPage, setInternalPage] = useState(
   element?.link?.startsWith('/') ? element.link.slice(1) : ''
   );
-  const [pages, setpages] = useState<PageOption[]>([]);
+  const [pages, setPages] = useState<PageOption[]>([]);
   const [loadingPages, setLoadingPages] = useState(false);
 
   // fetch available pages for the internal link dropdown
@@ -74,10 +75,10 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
   };
 
   const handleRemoveLink = () => {
-  updateelement(elementid, { link: undefined });
-  setlinktype('none');
-  setexternalurl('');
-  setinternalpage('');
+  updateElement(elementId, { link: undefined });
+  setLinkType('none');
+  setExternalUrl('');
+  setInternalPage('');
   toast.success('link removed');
   };
 
@@ -132,7 +133,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
  </div>
 
  {/* external url input */}
- {linktype === 'external' && (
+ {linkType === 'external' && (
  <div className="mb-6">
  <label className="block text-white/60 text-sm lowercase mb-2 flex items-center gap-2">
    <ExternalLink className="w-4 h-4" />
@@ -149,13 +150,13 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
  )}
 
  {/* internal page dropdown */}
- {linktype === 'internal' && (
+ {linkType === 'internal' && (
  <div className="mb-6">
  <label className="block text-white/60 text-sm lowercase mb-2 flex items-center gap-2">
    <FileText className="w-4 h-4" />
    select page
  </label>
- {loadingpages ? (
+ {loadingPages ? (
    <div className="text-white/40 text-sm py-3">loading pages...</div>
  ) : pages.length === 0 ? (
    <div className="text-white/40 text-sm py-3">no pages found</div>
@@ -180,7 +181,7 @@ export function ElementPropertiesPanel({ elementId, onClose }: Props) {
  )}
 
  {/* preview */}
- {(linktype === 'external' && externalurl) || (linktype === 'internal' && internalpage) ? (
+ {(linkType === 'external' && externalUrl) || (linkType === 'internal' && internalPage) ? (
  <div className="mb-6 p-3 rounded-xl bg-white/5 border border-white/10">
  <p className="text-xs text-white/40 lowercase mb-1">link preview</p>
  <p className="text-sm text-[var(--primary)] font-mono break-all">

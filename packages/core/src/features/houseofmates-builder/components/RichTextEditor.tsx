@@ -1,7 +1,6 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useEditor, EditorContent } from '@tiptap/react';
-import { BubbleMenu } from '@tiptap/react/menus';
 import StarterKit from '@tiptap/starter-kit';
 import { TextStyle } from '@tiptap/extension-text-style';
 import Color from '@tiptap/extension-color';
@@ -36,30 +35,80 @@ export function RichTextEditor({ content, onChange, editable, className = '' }: 
   });
 
   useEffect(() => {
-    if (editor && editor.isEditable !== editable) {
-      editor.setEditable(editable);
-      if (editable) {
-        editor.commands.focus('end');
-      }
+    if (!editor) return;
+    // ensure the editor reflects the latest editable state
+    editor.setEditable(editable);
+    if (editable) {
+      editor.chain().focus().run();
     }
   }, [editor, editable]);
+
+  const [showBubble, setShowBubble] = useState(false);
+  const bubbleRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const editorEl = editor?.options.element as unknown;
+    const editorElement = typeof editorEl === 'function' ? (editorEl as (() => HTMLElement))() : editorEl as HTMLElement | undefined;
+    if (!editorElement) return;
+
+    const handleSelectionChange = () => {
+      const selection = window.getSelection();
+      const isEditorSelection = selection && selection.rangeCount > 0 && selection.anchorNode &&
+        editorElement?.contains(selection.anchorNode as Node);
+      
+      if (isEditorSelection && !selection.isCollapsed && editable) {
+        setShowBubble(true);
+      } else {
+        setShowBubble(false);
+      }
+    };
+
+    document.addEventListener('selectionchange', handleSelectionChange);
+    return () => document.removeEventListener('selectionchange', handleSelectionChange);
+  }, [editor, editable]);
+
+  // position bubble menu
+  const getBubblePosition = () => {
+    try {
+      const selection = window.getSelection();
+      if (!selection || selection.rangeCount === 0) return { top: 0, left: 0 };
+      
+      const range = selection.getRangeAt(0);
+      if (!range) return { top: 0, left: 0 };
+      
+      const rect = range.getBoundingClientRect();
+      if (!rect) return { top: 0, left: 0 };
+      
+      return {
+        top: rect.top - 50,
+        left: rect.left + (rect.width / 2) - 150,
+      };
+    } catch {
+      return { top: 0, left: 0 };
+    }
+  };
 
   if (!editor) {
     return null;
   }
 
   return (
-    <div className="rich-text-wrapper relative cursor-text inline-block min-w-[1px]">
-      {editable && createPortal(
-        <BubbleMenu
-          editor={editor}
-          {...({
-            appendTo: () => document.body,
-            tippyOptions: {
-              zIndex: 9999,
-              duration: 150,
-            }
-          } as any)}
+    <div
+      className="rich-text-wrapper relative cursor-text inline-block min-w-[1px]"
+      onClick={() => {
+        if (editable) {
+          editor.chain().focus().run();
+        }
+      }}
+    >
+      {editable && showBubble && createPortal(
+        <div
+          ref={bubbleRef}
+          className="fixed z-50"
+          style={{
+            ...getBubblePosition(),
+            transition: 'opacity 150ms ease-in-out',
+          }}
         >
           <div className="flex items-center gap-1 p-1 rounded-full bg-[#1a1a1a] border border-white/20 shadow-xl overflow-hidden pointer-events-auto">
             <button
@@ -129,7 +178,7 @@ export function RichTextEditor({ content, onChange, editable, className = '' }: 
               <Type className="w-4 h-4 text-[var(--primary)]" />
             </button>
           </div>
-        </BubbleMenu>,
+        </div>,
         document.body
       )}
 

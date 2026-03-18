@@ -122,9 +122,13 @@ export function useGestureManager(
       }
     };
 
-    const handleContextMenu = (event: PointerEvent) => {
+    const handleContextMenu: EventListener = (ev) => {
+      // event may be MouseEvent or PointerEvent; cast safely before use
+      const event = ev as PointerEvent;
       if (handlers.onContextMenu) {
-        if (preventDefault) event.preventDefault();
+        if (preventDefault && typeof event.preventDefault === 'function') {
+          event.preventDefault();
+        }
         handlers.onContextMenu(event);
       }
     };
@@ -133,7 +137,7 @@ export function useGestureManager(
     target.addEventListener('pointermove', handlePointerMove, { passive: !preventDefault });
     target.addEventListener('pointerup', handlePointerUp, { passive: !preventDefault });
     target.addEventListener('pointercancel', handlePointerUp, { passive: !preventDefault });
-    target.addEventListener('contextmenu', handleContextMenu as any);
+    target.addEventListener('contextmenu', handleContextMenu);
 
     return () => {
       clearLongPress();
@@ -141,7 +145,7 @@ export function useGestureManager(
       target.removeEventListener('pointermove', handlePointerMove);
       target.removeEventListener('pointerup', handlePointerUp);
       target.removeEventListener('pointercancel', handlePointerUp);
-      target.removeEventListener('contextmenu', handleContextMenu as any);
+      target.removeEventListener('contextmenu', handleContextMenu);
     };
   }, [doubleTapMs, handlers, longPressMs, movementTolerance, preventDefault, targetRef]);
 }

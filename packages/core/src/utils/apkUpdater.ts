@@ -18,7 +18,7 @@ export async function checkForApkUpdate(currentVersion: string, apiKey: string):
       return manifest;
     }
     return null;
-  } catch (err) {
+  } catch {
     // handle error (network, auth, etc)
     return null;
   }

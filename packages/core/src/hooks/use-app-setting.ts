@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { secureLogger } from '@/lib/secure-logger';
 import { storageManager } from '@/lib/storage-manager';
@@ -10,22 +10,6 @@ export interface AppSetting {
 }
 
 export function useAppSetting<T>(key: string, defaultValue: T, options?: { debounceMs?: number; pollIntervalMs?: number }) {
-  // During hot-reload or other React introspection the component may be invoked
-  // outside of a proper render pass. In that case React's hook dispatcher will
-  // be null and calling hooks will throw (e.g. "resolveDispatcher() is null").
-  // Return a safe fallback to avoid crashing the whole app in those cases.
-  const internals = (React as any).__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
-  if (internals?.ReactCurrentDispatcher?.current == null) {
-    if (process.env.NODE_ENV !== 'production') {
-      secureLogger.warn('useAppSetting called outside of React dispatcher; returning fallback values.');
-    }
-
-    const noOp: (value: T | ((val: T) => T)) => void = () => { };
-    const noopAsync: (value?: T) => Promise<void> = async () => { };
-
-    return [defaultValue, noOp, false, noopAsync] as const;
-  }
-
   const debounceMs = options?.debounceMs ?? 1000;
   const pollIntervalMs = options?.pollIntervalMs;
 
@@ -60,7 +44,8 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
     setLoading(true);
     try {
       // use :list instead of :get for filtering by key
-      const response = await client.request('pkm_settings', 'list', {
+      type ListResponse<T> = { data: T[] } | T[];
+      const response: unknown = await client.request('pkm_settings', 'list', {
         params: {
           filter: { key: { $eq: key } },
           pageSize: '1'
@@ -69,14 +54,15 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
       });
 
       // nocobase :list returns { data: [...] }
-      const data = Array.isArray((response as any)?.data)
-        ? (response as any).data
-        : Array.isArray(response)
-          ? response
+      const listResponse = response as ListResponse<AppSetting>;
+      const data = Array.isArray(listResponse)
+        ? listResponse
+        : Array.isArray((listResponse as { data?: AppSetting[] }).data)
+          ? (listResponse as { data: AppSetting[] }).data
           : [];
       if (data.length > 0) {
         const setting = data[0];
-        settingIdRef.current = setting.id;
+        settingIdRef.current = setting.id ?? null;
 
         if (setting.value !== undefined) {
           // deep compare to avoid redundant re-renders
@@ -84,21 +70,21 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
           const localValueString = storageManager.getItem(`pkm_setting:${key}`);
 
           if (newValueString !== localValueString) {
-            setValue(setting.value);
+            setValue(setting.value as T);
             try {
               storageManager.setItem(`pkm_setting:${key}`, newValueString);
               // broadcast change to other hooks in the same window
               setTimeout(() => {
                 window.dispatchEvent(new CustomEvent(`pkm_setting_update:${key}`, { detail: setting.value }));
               }, 0);
-            } catch (e) {
-              secureLogger.warn(`Failed to update local cache for ${key}`, e);
+            } catch (_e) {
+              secureLogger.warn(`Failed to update local cache for ${key}`, _e);
             }
           }
         }
       }
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : '';
+    } catch (_err: unknown) {
+      const msg = _err instanceof Error ? _err.message : '';
       if (!msg.includes('404') && !msg.includes('400')) {
         // ignore silent errors for existence checks
       }

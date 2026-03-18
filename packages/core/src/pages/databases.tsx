@@ -55,7 +55,7 @@ function SortableDatabaseItem({ collection, onSelect, onRefresh }: SortableDatab
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    touchAction: 'none',
+    touchAction: 'pan-y',
   };
 
   return (

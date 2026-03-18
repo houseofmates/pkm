@@ -1,36 +1,26 @@
-import { getOllamaGenerateUrl } from '@/lib/llm-config';
+import { getOllamaGenerateUrl, DEFAULT_GEMINI_MODEL } from '@/lib/llm-config';
 import { secureLogger } from './secure-logger';
+import { generateText } from './llm-service';
 
 export interface AIResponse {
   response: string;
   done: boolean;
 }
 
-export async function generateResponse(context: string, prompt: string, model: string = 'qwen2.5vl:latest'): Promise<string> {
+export async function generateResponse(context: string, prompt: string, model: string = DEFAULT_GEMINI_MODEL): Promise<string> {
     const systemPrompt = `you are wilson, a thoughtful assistant for a personal knowledge workspace. respond entirely in lowercase, be concise and friendly. treat the following text as background context for the user's question:\n\n${context}`;
 
   try {
-  const url = getOllamaGenerateUrl();
-  const res = await fetch(url, {
-  method: 'POST',
-  headers: {
- 'Content-Type': 'application/json',
-  },
-  body: JSON.stringify({
- model: model,
- prompt: `${systemPrompt}\n\nuser question: ${prompt}`,
- stream: false
-  })
-  });
+    const url = getOllamaGenerateUrl();
+    const response = await generateText(
+      `${systemPrompt}\n\nuser question: ${prompt}`,
+      model,
+      url,
+    );
 
-  if (!res.ok) {
-  throw new Error(`Ollama Error: ${res.statusText}`);
-  }
-
-  const data = await res.json();
-  return data.response;
+    return response || '';
   } catch (err) {
-  secureLogger.error('AI Service Error:', err);
-  return "sorry, i couldn't reach the ai right now. is ollama running?";
+    secureLogger.error('AI Service Error:', err);
+    return "sorry, i couldn't reach the ai right now. is the gemini api key set?";
   }
 }

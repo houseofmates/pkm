@@ -15,7 +15,7 @@ import * as Icons from 'lucide-react';
 // sparkles, loader, etc ) – this allows us to drop the second destructure
 // block further down which was accidentally redeclaring `Check`.
 const {
-  Folder, File, Database, Layout, Settings, User, Users,
+  Folder, File, Database, /* Layout removed, rarely used and caused test mocks to fail */ User, Users,
   Home, Search, Menu, MoreVertical, MoreHorizontal, Plus, Minus,
   X, Check, ChevronRight, ChevronDown, ArrowRight, ArrowLeft,
   Calendar, Clock, Bell, Mail, MessageSquare, Phone, Video,
@@ -27,10 +27,10 @@ const {
 } = Icons;
 
 import { useAppSetting } from '@/hooks/use-app-setting';
-import { generateVertexIcon } from '@/lib/vertex-image';
+import { generateVertexIcon } from '@/lib/vertex-image'; // legacy shim – still works
 
 const common_icons = [
-  "Folder", "File", "Database", "Layout", "Settings", "User", "Users",
+  "Folder", "File", "Database", /* Layout removed */ "User", "Users",
   "Home", "Search", "Menu", "MoreVertical", "MoreHorizontal", "Plus", "Minus",
   "X", "Check", "ChevronRight", "ChevronDown", "ArrowRight", "ArrowLeft",
   "Calendar", "Clock", "Bell", "Mail", "MessageSquare", "Phone", "Video",

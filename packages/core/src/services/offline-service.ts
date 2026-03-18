@@ -1,6 +1,8 @@
 // offline service for APK - caches recent records and queues changes for sync
 // designed for ~200 records max to stay lightweight on mobile
 
+import { secureLogger } from '@/lib/secure-logger'
+
 const CACHE_KEY = 'pkm_offline_cache';
 const QUEUE_KEY = 'pkm_offline_queue';
 const MAX_CACHED_RECORDS = 200;
@@ -46,7 +48,7 @@ class OfflineService {
       if (cacheRaw) this.cache = JSON.parse(cacheRaw);
       if (queueRaw) this.queue = JSON.parse(queueRaw);
     } catch (e) {
-      console.error('[Offline] failed to load from storage', e);
+      secureLogger.error('[Offline] failed to load from storage', e);
     }
   }
 
@@ -55,20 +57,20 @@ class OfflineService {
       localStorage.setItem(CACHE_KEY, JSON.stringify(this.cache));
       localStorage.setItem(QUEUE_KEY, JSON.stringify(this.queue));
     } catch (e) {
-      console.error('[Offline] failed to save to storage', e);
+      secureLogger.error('[Offline] failed to save to storage', e);
     }
   }
 
   private setupEventListeners() {
     window.addEventListener('online', () => {
       this.isOnline = true;
-      console.log('[Offline] back online, starting sync');
+      secureLogger.info('[Offline] back online, starting sync');
       this.processQueue();
     });
 
     window.addEventListener('offline', () => {
       this.isOnline = false;
-      console.log('[Offline] went offline');
+      secureLogger.info('[Offline] went offline');
     });
   }
 
@@ -142,7 +144,7 @@ class OfflineService {
 
     this.queue.push(change);
     this.saveToStorage();
-    console.log(`[Offline] queued ${action} for ${collection}`);
+    secureLogger.debug(`[Offline] queued ${action} for ${collection}`);
 
     // try to sync immediately if online
     if (this.isOnline && !this.syncInProgress) {
@@ -175,7 +177,7 @@ class OfflineService {
     }
 
     this.syncInProgress = true;
-    console.log(`[Offline] processing ${this.queue.length} queued changes`);
+    secureLogger.debug(`[Offline] processing ${this.queue.length} queued changes`);
 
     // process in order, stop on first failure
     for (const change of [...this.queue]) {
@@ -183,12 +185,12 @@ class OfflineService {
         await this.syncChange(change);
         this.removeFromQueue(change.id);
       } catch (err) {
-        console.error(`[Offline] failed to sync change ${change.id}`, err);
+        secureLogger.error(`[Offline] failed to sync change ${change.id}`, err);
         change.retryCount++;
         
         // give up after 5 retries
         if (change.retryCount >= 5) {
-          console.log(`[Offline] giving up on change ${change.id} after 5 retries`);
+          secureLogger.warn(`[Offline] giving up on change ${change.id} after 5 retries`);
           this.removeFromQueue(change.id);
         }
         break; // stop processing, will retry later
@@ -227,7 +229,7 @@ class OfflineService {
     // sort by accessedAt ascending, remove oldest
     this.cache.records.sort((a, b) => a.accessedAt - b.accessedAt);
     const removed = this.cache.records.shift();
-    console.log(`[Offline] evicted LRU record ${removed?.collection}/${removed?.id}`);
+    secureLogger.debug(`[Offline] evicted LRU record ${removed?.collection}/${removed?.id}`);
   }
 
   // clear all cached data

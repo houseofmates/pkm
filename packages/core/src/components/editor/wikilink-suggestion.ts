@@ -25,7 +25,7 @@ export const getWikilinkItems = async ({ query }: { query: string }) => {
 
   // 1. search notes
   const notes = await api.listRecords('notes', {
-  filter: { title: { $includes: query } },
+  filter: { title: { $includes: query } } as any,
   pageSize: 5
   });
   const notesData = Array.isArray(notes?.data) ? notes?.data : (notes?.data as { data: unknown[] } | undefined)?.data;
@@ -40,7 +40,7 @@ export const getWikilinkItems = async ({ query }: { query: string }) => {
 
   // 2. search tasks
   const tasks = await api.listRecords('tasks', {
-  filter: { title: { $includes: query } },
+  filter: { title: { $includes: query } } as any,
   pageSize: 3
   });
   const tasksData = Array.isArray(tasks?.data) ? tasks?.data : (tasks?.data as { data: unknown[] } | undefined)?.data;

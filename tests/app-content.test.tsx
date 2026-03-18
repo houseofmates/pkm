@@ -1,4 +1,3 @@
-import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import App from '@/App';
 import { vi } from 'vitest';
@@ -9,13 +8,10 @@ vi.mock('@/pages/login', () => ({ LoginPage: () => <div>login page</div> }));
 vi.mock('@/pages/home', () => ({ HomePage: () => <div>home</div> }));
 
 // ensure auth context returns no token by default
-vi.mock('@/contexts/auth-context', () => {
-  const React = require('react');
-  return {
-    AuthProvider: ({ children }: any) => <>{children}</>,
-    useAuth: vi.fn(() => ({ token: null, isLoading: false })),
-  };
-});
+vi.mock('@/contexts/auth-context', () => ({
+  AuthProvider: ({ children }: any) => <>{children}</>,
+  useAuth: vi.fn(() => ({ token: null, isLoading: false })),
+}));
 
 // stub isPublicDomain so tests are deterministic
 vi.mock('@/utils/subdomain-router', () => ({ isPublicDomain: () => false }));

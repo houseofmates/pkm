@@ -239,7 +239,7 @@ const SECURITY_PROMPTS = {
 
   unsafeInline: `Remove 'unsafe-inline' from CSP. Use nonces or hashes for necessary inline scripts, or refactor to external files.`,
 
-  unsafeEval: `Remove 'unsafe-eval' from CSP. Use safe alternatives to eval(), new Function(), and setTimeout/setInterval with strings.`,
+  unsafeEvalCsp: `Remove 'unsafe-eval' from CSP. Use safe alternatives to eval(), new Function(), and setTimeout/setInterval with strings.`,
 
   wasmUnsafeEval: `Control WebAssembly with 'wasm-unsafe-eval' CSP directive if using WebAssembly, understanding the security implications.`,
 

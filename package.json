@@ -11,10 +11,10 @@
   "scripts": {
     "predev": "node scripts/utils/setup-env.cjs",
     "prebuild": "node scripts/utils/setup-env.cjs",
-    "dev": "concurrently -k \"npm run dev --workspace=pkm-web\" \"npm run backend\"",
-    "dev:dupe": "concurrently -k \"npm run dev --workspace=pkm-web -- --port 3010\" \"npm run backend\"",
-    "build": "npm run build --workspace=pkm-web",
-    "test": "npm run test --workspace=pkm-web",
+    "dev": "concurrently -k \"npm run dev --workspace=@pkm/core\" \"npm run backend\"",
+    "dev:dupe": "concurrently -k \"npm run dev --workspace=@pkm/core -- --port 3010\" \"npm run backend\"",
+    "build": "npm run build --workspace=@pkm/core",
+    "test": "npm run test --workspace=@pkm/core",
     "test:e2e": "node scripts/e2e/canvas-ai.cjs",
     "lint": "eslint .",
     "lowercase:check": "node scripts/lowercase-comments.cjs",
@@ -29,6 +29,8 @@
     "preview": "vite preview",
     "serve:prod": "concurrently -k \"npm run backend\" \"npm run preview\"",
     "backend": "PORT=4100 node packages/backend/server.js",
+    "start": "nohup npm run backend >/dev/null 2>&1 & echo $! > .pkm.pid",
+    "start:prod": "npm run serve:prod",
     "electron:dev": "npm run electron:dev --workspace=pkm-desktop-electron",
     "electron:build": "npm run build --workspace=pkm-desktop-electron",
     "tauri": "npm run tauri --workspace=pkm-desktop-tauri",
@@ -102,6 +104,7 @@
     "fabric": "^7.0.0-rc1",
     "framer-motion": "^12.25.0",
     "idb": "^7.1.1",
+    "ioredis": "^5.10.0",
     "jspdf": "^4.2.0",
     "leaflet": "^1.9.4",
     "lodash": "^4.17.21",
@@ -151,11 +154,13 @@
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/react": "^16.1.0",
     "@types/jest": "^30.0.0",
+    "@types/js-yaml": "^4.0.9",
     "@types/leaflet": "^1.9.21",
     "@types/node": "^24.10.1",
     "@types/papaparse": "^5.5.2",
     "@types/react": "^19.2.5",
     "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-legacy": "^7.2.1",
     "@vitejs/plugin-react": "^4.3.1",
     "autoprefixer": "^10.4.27",
     "concurrently": "^9.2.1",
@@ -173,6 +178,7 @@
     "lint-staged": "^16.2.7",
     "nock": "^14.0.11",
     "postcss": "^8.5.6",
+    "remark-gfm": "^4.0.1",
     "supertest": "^7.2.2",
     "tailwindcss": "^3.4.17",
     "terser": "^5.46.0",
@@ -186,9 +192,8 @@
   },
   "prepare": "husky install",
   "lint-staged": {
-    "*.{js,jsx,ts,tsx,cjs,mjs}": [
-      "eslint --fix",
-      "git add"
-    ]
+  "*.{js,jsx,ts,tsx,cjs,mjs}": [
+    "eslint --fix"
+  ]
   }
 }

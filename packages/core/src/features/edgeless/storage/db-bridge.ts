@@ -85,8 +85,8 @@ export function appendOps(drawingid: string, ops: DrawOp[]): Promise<OpLogEntry[
   return callWorkerOrDirect<OpLogEntry[]>('Appendops', drawingid, ops)
 }
 
-export function getUnsyncedOps(drawingid: string): Promise<OpLogEntry[]> {
-  return callWorkerOrDirect<OpLogEntry[]>('Getunsyncedops', drawingid)
+export function getUnsyncedOps(drawingid: string, limit = Infinity): Promise<OpLogEntry[]> {
+  return callWorkerOrDirect<OpLogEntry[]>('Getunsyncedops', drawingid, limit)
 }
 
 export function getRecentOps(drawingid: string, limit = 100): Promise<OpLogEntry[]> {
@@ -101,7 +101,7 @@ export function pruneOldOps(drawingid: string, keepcount = 500): Promise<number>
   return callWorkerOrDirect<number>('Pruneoldops', drawingid, keepcount)
 }
 
-export function saveCheckpoint(drawingid: string, state: unknown): Promise<void> {
+export function saveCheckpoint(drawingid: string, state: string | Record<string, any>): Promise<void> {
   return callWorkerOrDirect<void>('Savecheckpoint', drawingid, state)
 }
 

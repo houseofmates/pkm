@@ -15,7 +15,7 @@ const AutoSizer = _AutoSizer as any;
 
 // Row component for react-window List
 const RowComponent = ({ index, style, data }: { index: number; style: React.CSSProperties; data: any }): React.ReactElement | null => {
-  const { rows, collection, config, onConfigChange, onEdit, onDelete, onUpdateRecord } = data;
+  const { rows, collection, config, onConfigChange, onEdit, onDelete, onUpdateRecord, metadata } = data;
   const record = rows[index];
 
   const titleField = config.titleField
@@ -160,7 +160,7 @@ export function ListView({ data, collection, config = {}, onConfigChange, onEdit
               itemSize={100}
               height={height}
               width={width}
-              itemData={{ rows: data, collection, config, onConfigChange, onEdit, onDelete, onUpdateRecord }}
+              itemData={{ rows: data, collection, config, onConfigChange, onEdit, onDelete, onUpdateRecord, metadata }}
             >
               {RowComponent as any}
             </List>

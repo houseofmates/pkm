@@ -103,32 +103,83 @@ export async function appendOp(drawingId: string, op: DrawOp): Promise<OpLogEntr
  * appendops - batch-insert multiple oplog entries in a single transaction.
  * used to reduce round-trips / pressure on idb during high-op bursts.
  */
-export async function appendOps(drawingId: string, ops: DrawOp[]): Promise<OpLogEntry[]> {
+type AppendOpsInput = DrawOp | OpLogEntry
+
+function isOpLogEntry(value: unknown): value is OpLogEntry {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    typeof (value as any).id === 'string' &&
+    typeof (value as any).timestamp === 'number' &&
+    'op' in (value as any)
+  )
+}
+
+/**
+ * Batch append ops to the oplog in a single IndexedDB transaction.
+ *
+ * This is used for high-frequency stroke writes: the runtime can buffer
+ * multiple operations in memory and flush in batches to avoid excessive
+ * IndexedDB round-trips.
+ *
+ * @param drawingId id of the drawing canvas
+ * @param ops array of DrawOp or pre-built OpLogEntry objects
+ * @returns the stored entries (same ordering as input)
+ */
+export async function appendOps(drawingId: string, ops: AppendOpsInput[]): Promise<OpLogEntry[]> {
   if (!ops || ops.length === 0) return []
   const db = await getCanvasDB()
   const tx = db.transaction('oplog', 'readwrite')
   const result: OpLogEntry[] = []
   const baseTs = Date.now()
+
   for (let i = 0; i < ops.length; i++) {
-    const op = ops[i]
-    const entry: OpLogEntry = {
-      id: `${drawingId}-${baseTs + i}-${Math.random().toString(36).slice(2, 7)}`,
-      drawingId,
-      timestamp: baseTs + i,
-      op,
-      synced: false,
-    }
+    const raw = ops[i]
+    const entry: OpLogEntry = isOpLogEntry(raw)
+      ? ({
+          ...raw,
+          drawingId,
+          synced: raw.synced ?? false,
+        } as OpLogEntry)
+      : {
+          id: `${drawingId}-${baseTs + i}-${Math.random().toString(36).slice(2, 7)}`,
+          drawingId,
+          timestamp: baseTs + i,
+          op: raw,
+          synced: false,
+        }
+
     await tx.store.put(entry)
     result.push(entry)
   }
+
   await tx.done
   return result
 }
 
-export async function getUnsyncedOps(drawingId: string): Promise<OpLogEntry[]> {
+/**
+ * Retrieve up to `limit` unsynced oplog entries for a drawing.
+ *
+ * Uses an indexed cursor scan to avoid allocating the full index result.
+ */
+export async function getUnsyncedOps(drawingId: string, limit = Infinity): Promise<OpLogEntry[]> {
   const db = await getCanvasDB()
-  const all = await db.getAllFromIndex('oplog', 'by-drawing', drawingId)
-  return all.filter((e) => !e.synced).sort((a, b) => a.timestamp - b.timestamp)
+  const tx = db.transaction('oplog', 'readonly')
+  const index = tx.store.index('by-drawing')
+  const range = IDBKeyRange.only(drawingId)
+
+  const unsynced: OpLogEntry[] = []
+  let cursor = await index.openCursor(range)
+
+  while (cursor && unsynced.length < limit) {
+    if (!cursor.value.synced) {
+      unsynced.push(cursor.value)
+    }
+    cursor = await cursor.advance(1)
+  }
+
+  await tx.done
+  return unsynced
 }
 
 export async function markOpsSynced(ids: string[]): Promise<void> {
@@ -146,30 +197,44 @@ export async function markOpsSynced(ids: string[]): Promise<void> {
 
 export async function getRecentOps(drawingId: string, limit = 100): Promise<OpLogEntry[]> {
   const db = await getCanvasDB()
-  const all = await db.getAllFromIndex('oplog', 'by-drawing', drawingId)
-  return all.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit)
+  const tx = db.transaction('oplog', 'readonly')
+  const index = tx.store.index('by-drawing')
+  const range = IDBKeyRange.only(drawingId)
+
+  // iterate from most recent to oldest, then reverse to keep chronological order
+  const recent: OpLogEntry[] = []
+  let cursor = await index.openCursor(range, 'prev')
+  while (cursor && recent.length < limit) {
+    recent.push(cursor.value)
+    cursor = await cursor.advance(1)
+  }
+
+  await tx.done
+  return recent.reverse()
 }
 
 export async function pruneOldOps(drawingId: string, keepCount = 500): Promise<number> {
   try {
     const db = await getCanvasDB()
-    const all = await db.getAllFromIndex('oplog', 'by-drawing', drawingId)
-    if (all.length <= keepCount) return 0
+    const index = db.transaction('oplog', 'readwrite').store.index('by-drawing')
+    const range = IDBKeyRange.only(drawingId)
 
-    // keep the most recent, delete the rest
-    const toDelete = all
-      .sort((a, b) => a.timestamp - b.timestamp)
-      .slice(0, all.length - keepCount)
-      .filter((e) => e.synced) // only delete synced ops
+    const total = await index.count(range)
+    if (total <= keepCount) return 0
 
-    if (toDelete.length === 0) return 0
+    const toDelete = total - keepCount
+    let deleted = 0
 
-    const tx = db.transaction('oplog', 'readwrite')
-    for (const entry of toDelete) {
-      await tx.store.delete(entry.id)
+    let cursor = await index.openCursor(range)
+    while (cursor && deleted < toDelete) {
+      if (cursor.value.synced) {
+        await cursor.delete()
+        deleted++
+      }
+      cursor = await cursor.advance(1)
     }
-    await tx.done
-    return toDelete.length
+
+    return deleted
   } catch (e) {
     secureLogger.error('[DB] pruneOldOps failed', e)
     throw e
@@ -177,7 +242,7 @@ export async function pruneOldOps(drawingId: string, keepCount = 500): Promise<n
 }
 
 // checkpoint operations
-export async function saveCheckpoint(drawingId: string, state: unknown): Promise<void> {
+export async function saveCheckpoint(drawingId: string, state: string | Record<string, any>): Promise<void> {
   const db = await getCanvasDB()
   const checkpoint: CanvasCheckpoint = {
     id: `${drawingId}-${Date.now()}`,

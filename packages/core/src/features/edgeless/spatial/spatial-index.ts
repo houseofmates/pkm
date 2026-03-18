@@ -2,6 +2,8 @@
 // transforms o(n) hit detection into o(1) average case
 // critical for eraser performance on complex drawings
 
+import type { Canvas as FabricCanvas, Object as FabricObject } from 'fabric'
+
 export interface Bounds {
   minX: number
   minY: number
@@ -307,7 +309,7 @@ export class SpatialIndex {
 }
 
 // factory for creating bounds from fabric objects
-export function boundsFromFabricObject(obj: any): Bounds {
+export function boundsFromFabricObject(obj: FabricObject): Bounds {
   const rect = obj.getBoundingRect()
   return {
     minX: rect.left,
@@ -318,18 +320,18 @@ export function boundsFromFabricObject(obj: any): Bounds {
 }
 
 // rebuild spatial index from fabric canvas
-export function buildSpatialIndex(canvas: any): SpatialIndex {
+export function buildSpatialIndex(canvas: FabricCanvas): SpatialIndex {
   const index = new SpatialIndex(100) // 100px cells
 
   const objects = canvas.getObjects()
   for (const obj of objects) {
-    const id = obj.data?.id || `obj-${Math.random().toString(36).slice(2, 9)}`
-    obj.set('data', { ...(obj.data || {}), id })
+    const id = (obj as any).data?.id || `obj-${Math.random().toString(36).slice(2, 9)}`
+    ;(obj as any).set('data', { ...((obj as any).data || {}), id })
 
     index.insert({
       id,
       bounds: boundsFromFabricObject(obj),
-      layerId: obj.data?.layerId || 'default',
+      layerId: (obj as any).data?.layerId || 'default',
       visible: obj.visible !== false,
       ref: obj,
     })

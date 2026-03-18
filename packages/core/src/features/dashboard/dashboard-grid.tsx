@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import {
     Plus, Database, Lock, Unlock, User, FileText, X
@@ -18,6 +18,9 @@ import { EdgelessCanvas } from '@/features/edgeless/components/EdgelessCanvas';
 import { Toolbar } from '@/features/edgeless/components/Toolbar';
 // import { separator } from '@/components/ui/separator';
 import type { ViewType } from '@/components/views/registry';
+import { useDrawing } from '@/hooks/use-drawing';
+import { updateDrawingMeta } from '@/features/edgeless/storage';
+import { secureLogger } from '@/lib/secure-logger';
 
 type WidgetType = 'view' | 'document' | 'contact';
 interface WidgetDefinition {
@@ -50,6 +53,13 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
     const [localDocs, setLocalDocs] = useState<{ id: string, title: string }[]>([]);
     const [wizardTab, setWizardTab] = useState<'databases' | 'documents' | 'contacts'>('databases');
     const { members } = useFronter();
+    const [homeDrawingId, setHomeDrawingId, drawingIdLoading] = useAppSetting<string | null>('dashboard_home_drawing_id', null);
+    const {
+        loading: canvasLoading,
+        saving: canvasSaving,
+        syncStatus: canvasSyncStatus,
+        handleForceSync,
+    } = useDrawing(homeDrawingId || undefined);
 
     // load local docs
     useEffect(() => {
@@ -67,6 +77,29 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
         }
         setLocalDocs(docs);
     }, [addMenuOpen]);
+
+    // ensure a persistent drawing id for the dashboard background canvas
+    useEffect(() => {
+        if (drawingIdLoading) return;
+        if (homeDrawingId) return;
+
+        let cancelled = false;
+        const ensureDrawingId = async () => {
+            try {
+                const newId = typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function'
+                    ? crypto.randomUUID()
+                    : `dashboard-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+                await updateDrawingMeta(newId, { title: 'home canvas', syncState: 'pending' });
+                if (!cancelled) setHomeDrawingId(newId);
+            } catch (error) {
+                secureLogger.error('failed to initialize dashboard drawing', error);
+                toast.error('failed to initialize dashboard canvas');
+            }
+        };
+
+        ensureDrawingId();
+        return () => { cancelled = true; };
+    }, [drawingIdLoading, homeDrawingId, setHomeDrawingId]);
 
     // widget handlers
     const handleAddWidget = (collectionName: string, viewType: ViewType) => {
@@ -130,6 +163,47 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
         });
     };
 
+    const handleWidgetPointerDown = useCallback((event: React.PointerEvent<HTMLElement>, widget: WidgetDefinition) => {
+        if (event.button !== 0) return;
+        bringToFront(widget.id);
+
+        const target = event.target as HTMLElement | null;
+        if (target?.closest('[data-widget-action="true"]')) return;
+        if (!isEditMode) return;
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        const pointerId = event.pointerId;
+        const startX = event.clientX;
+        const startY = event.clientY;
+        const initialX = widget.x;
+        const initialY = widget.y;
+        const body = document.body;
+        const previousUserSelect = body.style.userSelect;
+        body.style.userSelect = 'none';
+
+        const handlePointerMove = (moveEvent: PointerEvent) => {
+            if (moveEvent.pointerId !== pointerId) return;
+            moveEvent.preventDefault();
+            const deltaX = moveEvent.clientX - startX;
+            const deltaY = moveEvent.clientY - startY;
+            setWidgets((prev: WidgetDefinition[]) =>
+                prev.map((w) => w.id === widget.id ? { ...w, x: initialX + deltaX, y: initialY + deltaY } : w)
+            );
+        };
+
+        const handlePointerUp = (upEvent: PointerEvent) => {
+            if (upEvent.pointerId !== pointerId) return;
+            window.removeEventListener('pointermove', handlePointerMove);
+            window.removeEventListener('pointerup', handlePointerUp);
+            body.style.userSelect = previousUserSelect;
+        };
+
+        window.addEventListener('pointermove', handlePointerMove);
+        window.addEventListener('pointerup', handlePointerUp);
+    }, [bringToFront, isEditMode, setWidgets]);
+
     // --- droppable for sidebar drag ---
     const { setNodeRef } = useDroppable({
         id: 'dashboard-canvas',
@@ -158,7 +232,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
 
     // --- header alignment content ---
     // placed absolute to overlay canvas
-    const headercontrol = (
+    const headerControl = (
         <div className="absolute top-0 left-0 w-full z-50 pointer-events-none flex flex-col">
             <div className="h-16 flex items-center px-4 justify-between bg-background/0 pointer-events-none">
                 <div className="pointer-events-auto">
@@ -171,6 +245,18 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                     <Button variant="ghost" size="icon" onClick={() => setIsEditMode(!isEditMode)}>
                         {isEditMode ? <Lock className="h-4 w-4" /> : <Unlock className="h-4 w-4" />}
                     </Button>
+                    <div className="text-[10px] lowercase text-zinc-400 flex items-center gap-2">
+                        <span>{canvasSyncStatus}</span>
+                        {canvasSaving && <span className="text-zinc-500">· saving…</span>}
+                        {homeDrawingId && canvasSyncStatus !== 'synced' && (
+                            <button
+                                onClick={handleForceSync}
+                                className="text-[#f6b012] hover:underline"
+                            >
+                                sync now
+                            </button>
+                        )}
+                    </div>
                 </div>
             </div>
             {/* separator removed from header logic if we want transparent blend, 
@@ -185,11 +271,14 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
 
     return (
         <div className="w-full h-full relative bg-[#050505] text-foreground overflow-hidden flex flex-col">
-            {headercontrol}
+            {headerControl}
 
             {/* edgeless canvas as background & interaction layer */}
             <div className="flex-1 w-full h-full relative overflow-hidden">
-                <EdgelessCanvas className="bg-[#050505]">
+                <EdgelessCanvas
+                    key={homeDrawingId || 'home-canvas-placeholder'}
+                    className="bg-[#050505]"
+                >
                     {/* render widgets inside canvas (synced transform) */}
                     <div ref={setNodeRef} className="relative w-[5000px] h-[5000px]">
                         {widgets.map(widget => (
@@ -204,30 +293,15 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                                     zIndex: widget.zIndex,
                                     position: 'absolute'
                                 }}
-                                onMouseDown={(e) => {
+                                onPointerDown={(e) => {
                                     e.stopPropagation(); // Prevent canvas drag start
-                                    bringToFront(widget.id);
+                                    handleWidgetPointerDown(e, widget);
                                 }}
                             >
                                 <Card className="w-full h-full flex flex-col overflow-hidden border-border/50 bg-background/80 backdrop-blur">
-                                    <CardHeader className="p-3 py-2 flex flex-row items-center justify-between space-y-0 border-b cursor-move ui-drag-handle"
-                                        onMouseDown={(e) => {
-                                            // allow dragging via dnd-kit or custom? 
-                                            // current implementation uses custom resize but drag?
-                                            // infinitecanvaswrapper didn't handle widget drag, did it?
-                                            // widgets are absolute. they need a drag handler.
-                                            // the previous code didn't show a drag handler logic for widgets, 
-                                            // except `onmousedown` to bring to front.
-                                            // ah, `infinitecanvaswrapper` does not handle element dragging.
-                                            // dnd kit `usedraggable`? usage?
-                                            // i only see `usedroppable`.
-                                            // maybe `ui-drag-handle` class signals something?
-                                            // or maybe i missed the drag logic in the previous view.
-                                            // let's assume standard drag logic is needed or existing draggable lib handles `.ui-drag-handle`.
-                                            // but i should persist the `onmousedown` for bringtofront.
-                                            e.stopPropagation();
-                                            bringToFront(widget.id);
-                                        }}
+                                    <CardHeader
+                                        className="p-3 py-2 flex flex-row items-center justify-between space-y-0 border-b cursor-move ui-drag-handle select-none"
+                                        onPointerDown={(e) => handleWidgetPointerDown(e, widget)}
                                     >
                                         <div className="flex items-center gap-2 overflow-hidden">
                                             {widget.type === 'view' && <Database className="h-4 w-4 text-primary" />}
@@ -237,7 +311,13 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                                         </div>
                                         <div className="flex items-center gap-1">
                                             {isEditMode && (
-                                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRemoveWidget(widget.id)}>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="h-6 w-6"
+                                                    data-widget-action="true"
+                                                    onClick={() => handleRemoveWidget(widget.id)}
+                                                >
                                                     <X className="h-3 w-3" />
                                                 </Button>
                                             )}
@@ -267,7 +347,7 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                                             (() => {
                                                 const member = members.find(m => m.id === widget.collectionName);
                                                 if (!member) return <div className="p-4 text-xs text-muted-foreground">contact not found</div>;
-                                                return <HeadmateCard member={member} className="w-full h-full" />;
+                                                return <HeadmateCard member={member} collection={undefined} className="w-full h-full" />;
                                             })()
                                         )}
 
@@ -308,6 +388,12 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                         ))}
                     </div>
                 </EdgelessCanvas>
+
+                {(!homeDrawingId || canvasLoading || drawingIdLoading) && (
+                    <div className="absolute inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center text-xs text-white lowercase">
+                        initializing canvas…
+                    </div>
+                )}
 
                 {/* tools overlay */}
                 <div className="pointer-events-auto">

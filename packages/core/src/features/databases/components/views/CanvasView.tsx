@@ -4,6 +4,7 @@ import { useCanvasLayout } from '@/hooks/use-canvas-layout';
 import { CanvasCard } from '../canvas/CanvasCard';
 import type { ViewProps } from '@/components/views/registry';
 import { apiClient } from '@/lib/api-client';
+import { secureLogger } from '@/lib/secure-logger';
 
 // use simple resize observer hook if not available
 function useDimensions(ref: React.RefObject<HTMLDivElement | null>) {
@@ -177,17 +178,17 @@ export function CanvasView({ data: rows, collection, loading, config: _config }:
           exists.setCoords();
         }
         // update data ref
-        exists.data = { id: row.id, ...row };
+        (exists as any).data = { id: row.id, ...row };
       }
     });
     fabricCanvas.requestRenderAll();
 
   }, [fabricCanvas, rows, layout, loading]);
 
-  const handleCardUpdate = async (id: string, patch: any) => {
+  const handleCardUpdate = async (id: string | number, patch: any) => {
     if (!collection?.name) return;
     try {
-      await apiClient.put(`/${collection.name}:update?filterByTk=${id}`, patch);
+      await apiClient.put(`/${collection.name}:update?filterByTk=${String(id)}`, patch);
       // parent view should refresh automatically if using userecords or similar,
       // but manual refresh or optimistic ui might be needed depending on parent.
     } catch (e) {

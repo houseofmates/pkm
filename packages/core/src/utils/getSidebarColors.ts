@@ -8,7 +8,7 @@ export async function getSidebarColors(): Promise<any> {
     if (res.ok) {
       return await res.json();
     }
-  } catch (e) {
+  } catch {
     // API failed, fallback to local JSON
   }
   // Fallback: local file
@@ -17,7 +17,7 @@ export async function getSidebarColors(): Promise<any> {
     if (res.ok) {
       return await res.json();
     }
-  } catch (e) {
+  } catch {
     // Both sources failed
   }
   // Final fallback: hardcoded default

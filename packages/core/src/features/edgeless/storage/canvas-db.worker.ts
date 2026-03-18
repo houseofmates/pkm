@@ -137,15 +137,25 @@ const handlers: Record<string, (...args: any[]) => Promise<unknown>> = {
         const tx = d.transaction('oplog', 'readwrite')
         const entries: any[] = []
         const baseTs = Date.now()
+
+        const isOpLogEntry = (value: any): value is { id: string; timestamp: number; op: unknown; synced?: boolean } =>
+            value && typeof value === 'object' && typeof value.id === 'string' && typeof value.timestamp === 'number' && 'op' in value
+
         for (let i = 0; i < ops.length; i++) {
-            const op = ops[i]
-            const entry = {
-                id: `${drawingid}-${baseTs + i}-${Math.random().toString(36).slice(2, 7)}`,
-                drawingId: drawingid,
-                timestamp: baseTs + i,
-                op,
-                synced: false,
-            }
+            const raw = ops[i]
+            const entry = isOpLogEntry(raw)
+                ? ({
+                      ...raw,
+                      drawingId: drawingid,
+                      synced: raw.synced ?? false,
+                  } as any)
+                : {
+                      id: `${drawingid}-${baseTs + i}-${Math.random().toString(36).slice(2, 7)}`,
+                      drawingId: drawingid,
+                      timestamp: baseTs + i,
+                      op: raw,
+                      synced: false,
+                  }
             await tx.store.put(entry)
             entries.push(entry)
         }
@@ -153,16 +163,40 @@ const handlers: Record<string, (...args: any[]) => Promise<unknown>> = {
         return entries
     },
 
-    async getunsyncedops(drawingid: string) {
+    async getunsyncedops(drawingid: string, limit = Infinity) {
         const d = await getdb()
-        const all = await d.getAllFromIndex('oplog', 'by-drawing', drawingid)
-        return all.filter((e) => !e.synced).sort((a, b) => a.timestamp - b.timestamp)
+        const tx = d.transaction('oplog', 'readonly')
+        const index = tx.store.index('by-drawing')
+        const range = IDBKeyRange.only(drawingid)
+
+        const unsynced: any[] = []
+        let cursor = await index.openCursor(range)
+        while (cursor && unsynced.length < limit) {
+            if (!cursor.value.synced) {
+                unsynced.push(cursor.value)
+            }
+            cursor = await cursor.advance(1)
+        }
+
+        await tx.done
+        return unsynced
     },
 
     async getrecentops(drawingid: string, limit = 100) {
         const d = await getdb()
-        const all = await d.getAllFromIndex('oplog', 'by-drawing', drawingid)
-        return all.sort((a, b) => b.timestamp - a.timestamp).slice(0, limit)
+        const tx = d.transaction('oplog', 'readonly')
+        const index = tx.store.index('by-drawing')
+        const range = IDBKeyRange.only(drawingid)
+
+        const recent: any[] = []
+        let cursor = await index.openCursor(range, 'prev')
+        while (cursor && recent.length < limit) {
+            recent.push(cursor.value)
+            cursor = await cursor.advance(1)
+        }
+
+        await tx.done
+        return recent.reverse()
     },
 
     async markopssynced(ids: string[]) {

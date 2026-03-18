@@ -23,7 +23,6 @@ function syncBroadcast(t: text, p: text, m: text, c: number):
     # send "[LiveStats] Syncing %{_t}% event" to console
 
 on chat:
-    broadcast "DEBUG: Chat event fired for %player%"
     set {_c} to size of all players
     syncBroadcast("chat", name of player, message, {_c})
 

@@ -12,6 +12,7 @@
     "types": [
       "vite/client",
       "jest",
+      "@testing-library/jest-dom",
       "node"
     ],
     "skipLibCheck": true,
@@ -49,6 +50,7 @@
   },
   "include": [
     "src",
-    "tests"
+    "tests",
+    "../backend"
   ]
 }

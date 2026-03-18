@@ -3,6 +3,7 @@ import type { ViewProps } from './registry';
 import { Button } from '@/components/ui/button';
 import RichEditor, { markdownToHtml } from '@/components/ui/rich-editor';
 import { sanitizeHTML } from '@/lib/utils';
+import { secureLogger } from '@/lib/secure-logger';
 import { format } from 'date-fns';
 import { Send, Sparkles, Clock } from 'lucide-react';
 import { toast } from 'sonner';
@@ -24,21 +25,20 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
   // hooks must be called before any early return
   const [entry, setEntry] = useState('');
   const [prompt, setPrompt] = useState(PROMPTS[0]);
-  
-  if (!collection) {
-    return (
-      <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
-        <div className="flex flex-col items-center gap-2">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <p className="text-sm">loading journal metadata...</p>
-        </div>
-      </div>
-    );
-  }
 
-  // fields
-  const contentField = collection.fields?.find((f: { interface?: string; name: string }) => f.interface === 'markdown' || f.interface === 'textarea' || f.name === 'content') || { name: 'content' };
-  const dateField = collection.fields?.find((f: { interface?: string; name: string }) => f.interface === 'date' || f.interface === 'datetime' || f.name === 'created_at');
+  // moved early return check after hooks to avoid conditional hooks
+  const hasCollection = Boolean(collection);
+
+  // fields - use useMemo to avoid conditional hooks
+  const contentField = useMemo(() => {
+    if (!collection) return { name: 'content' };
+    return collection.fields?.find((f: { interface?: string; name: string }) => f.interface === 'markdown' || f.interface === 'textarea' || f.name === 'content') || { name: 'content' };
+  }, [collection]);
+
+  const dateField = useMemo(() => {
+    if (!collection) return undefined;
+    return collection.fields?.find((f: { interface?: string; name: string }) => f.interface === 'date' || f.interface === 'datetime' || f.name === 'created_at');
+  }, [collection]);
 
   const handleShufflePrompt = () => {
     setPrompt(PROMPTS[Math.floor(Math.random() * PROMPTS.length)]);
@@ -64,6 +64,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
 
   // group by date
   const grouped = useMemo(() => {
+    if (!hasCollection) return {};
     const groups: Record<string, any[]> = {};
     const sorted = [...data].sort((a, b) => {
       const da = a[dateField?.name] || a.created_at || 0;
@@ -78,7 +79,18 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
       groups[key].push(rec);
     });
     return groups;
-  }, [data, dateField]);
+  }, [data, dateField, hasCollection]);
+
+  if (!hasCollection) {
+    return (
+      <div className="h-full flex items-center justify-center text-muted-foreground p-8 text-center bg-card rounded-lg border border-transparent animate-pulse">
+        <div className="flex flex-col items-center gap-2">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="text-sm">loading journal metadata...</p>
+        </div>
+      </div>
+    );
+  }
 
   // helper to extract preview
   const parseContent = (htmlOrMd: string) => {

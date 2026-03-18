@@ -1,0 +1,7 @@
+import{_ as s,o as a,c as n,ag as t}from"./chunks/framework.DsMOZfd2.js";const h=JSON.parse('{"title":"system overview","description":"","frontmatter":{},"headers":[],"relativePath":"architecture/system-overview.md","filePath":"architecture/system-overview.md"}'),r={name:"architecture/system-overview.md"};function i(p,e,o,c,l,d){return a(),n("div",null,[...e[0]||(e[0]=[t(`<h1 id="system-overview" tabindex="-1">system overview <a class="header-anchor" href="#system-overview" aria-label="Permalink to &quot;system overview&quot;">​</a></h1><div class="language- vp-adaptive-theme"><button title="Copy Code" class="copy"></button><span class="lang"></span><pre class="shiki shiki-themes github-light github-dark vp-code" tabindex="0"><code><span class="line"><span>browser → vite/react (3010)</span></span>
+<span class="line"><span>     ↕ socket.io</span></span>
+<span class="line"><span>node backend (4100)</span></span>
+<span class="line"><span>     ↕ api</span></span>
+<span class="line"><span>nocobase (1337)</span></span>
+<span class="line"><span>     ↕ workflow</span></span>
+<span class="line"><span>n8n (5678)</span></span></code></pre></div><p><a href="/pkm/architecture/monorepo-structure.html" class="wiki-link">monorepo-structure</a> | <a href="/pkm/architecture/frontend.html" class="wiki-link">frontend</a> | <a href="/pkm/architecture/backend.html" class="wiki-link">backend</a></p>`,3)])])}const v=s(r,[["render",i]]);export{h as __pageData,v as default};

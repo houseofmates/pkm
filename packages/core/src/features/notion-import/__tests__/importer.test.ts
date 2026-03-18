@@ -26,7 +26,8 @@ async function makeZippedSample(): Promise<string> {
 }
 
 beforeAll(async () => {
-    const mod = await import(path.resolve(__dirname, '../../../../scripts/notion-import.js'));
+    // the script lives at the repository root, not inside packages/core
+    const mod = await import(path.resolve(__dirname, '../../../../../../scripts/notion-import.js'));
     run = mod.run;
 });
 

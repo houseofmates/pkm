@@ -9,6 +9,7 @@
 import { openDB, type IDBPDatabase } from 'idb';
 import type { DBSchema } from 'idb';
 import type { TableDefinition, Record, QueryOptions, QueryResult, FilterCondition, FilterGroup } from './types';
+import { secureLogger } from '@/lib/secure-logger';
 
 // database configuration
 const DB_NAME = 'pkm_schema_db';
@@ -63,9 +64,9 @@ class PersistenceService {
 
   private async doInitialize(): Promise<void> {
     this.db = await openDB<SchemaDB>(DB_NAME, DB_VERSION, {
-      upgrade(db, oldVersion, newVersion, transaction) {
+      upgrade(db, _oldVersion, _newVersion, _transaction) {
         // create object stores and indexes
-        
+
         // tables store - holds table definitions
         if (!db.objectStoreNames.contains('tables')) {
           const tableStore = db.createObjectStore('tables', { keyPath: 'id' });

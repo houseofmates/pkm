@@ -46,7 +46,7 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
   // 2. fetch existing nocobase headmates
   const existing = await api.listRecords('headmates', { pageSize: 500 });
   const existingMap = new Map();
-  const existingArray = Array.isArray(existing) ? existing : (existing?.data || []);
+  const existingArray = Array.isArray(existing) ? existing : (existing?.data as any[] || []);
   existingArray.forEach((h: any) => {
   if (h.simply_plural_id) {
  existingMap.set(h.simply_plural_id, h);
@@ -61,7 +61,7 @@ export async function syncHeadmatesToNocoBase(apiKey: string): Promise<void> {
 
   for (const member of members) {
   // format color
-  let color = member.content?.color || member.color;
+  let color = member.content?.color;
   if (color && !color.startsWith('#')) {
  color = `#${color}`;
   }

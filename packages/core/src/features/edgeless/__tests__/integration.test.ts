@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest'
-import { getCanvasDB, appendOp, getUnsyncedOps, markOpsSynced, saveCheckpoint, getLatestCheckpoint } from '../storage/canvas-db'
+import { getCanvasDB, appendOp, appendOps, getUnsyncedOps, markOpsSynced, saveCheckpoint, getLatestCheckpoint } from '../storage/canvas-db'
 import { SpatialIndex } from '../spatial/spatial-index'
 import { canvasSync } from '../sync/canvas-sync'
 
@@ -39,6 +39,31 @@ describe('edgeless canvas integration', () => {
       expect(unsynced[0].id).toBe(entry.id)
     })
 
+    it('should allow appending pre-built oplog entries (buffered persistence)', async () => {
+      const op = {
+        type: 'path' as const,
+        layerId: 'default',
+        pathData: [['M', 0, 0], ['L', 50, 50]],
+        stroke: '#00ff00',
+        strokeWidth: 2,
+        left: 0,
+        top: 0,
+      }
+      const fakeEntry = {
+        id: `${drawingId}-prebuilt-1`,
+        drawingId,
+        timestamp: Date.now(),
+        op,
+        synced: false,
+      }
+
+      const entries = await appendOps(drawingId, [fakeEntry])
+      expect(entries[0].id).toBe(fakeEntry.id)
+
+      const unsynced = await getUnsyncedOps(drawingId)
+      expect(unsynced.map((e) => e.id)).toContain(fakeEntry.id)
+    })
+
     it('should append multiple operations in a single transaction', async () => {
       const op1 = {
         type: 'path' as const,
@@ -59,8 +84,6 @@ describe('edgeless canvas integration', () => {
         top: 0,
       }
 
-      // use the new batch helper (direct import from canvas-db)
-      const { appendOps } = await import('../storage/canvas-db')
       const entries = await appendOps(drawingId, [op1, op2])
       expect(entries).toHaveLength(2)
       const unsynced = await getUnsyncedOps(drawingId)

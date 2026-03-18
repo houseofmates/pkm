@@ -11,7 +11,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import * as Comlink from 'comlink';
-import type { AIWorkerAPI } from '@/workers/ai-worker-types';
+import type { AIWorkerAPI, ChatMessage, Attachment } from '@/workers/ai-worker-types';
 import { storageManager } from '@/lib/storage-manager';
 import { normalizeAuthToken } from '@/lib/auth-token';
 import { isCapacitorNative, isMobileContext, resolveOllamaEndpoint, MOBILE_SERVER_ORIGIN } from '@/lib/platform';
@@ -244,6 +244,33 @@ export function useAIWorker() {
         [],
     );
 
+    const chatStreamMultimodal = useCallback(
+        async (
+            messages: ChatMessage[],
+            model: string,
+            endpoint: string,
+            onToken: (content: string) => void,
+        ) => {
+            if (!apiRef.current) throw new Error('ai worker not ready');
+
+            const resolvedEndpoint = isCapacitorNative()
+                ? resolveOllamaEndpoint(endpoint, MOBILE_SERVER_ORIGIN)
+                : endpoint;
+
+            if (_isMainThread) {
+                return apiRef.current.chatStreamMultimodal(messages, model, resolvedEndpoint, onToken);
+            }
+
+            const proxiedOnToken = Comlink.proxy(onToken);
+            try {
+                return await apiRef.current.chatStreamMultimodal(messages, model, resolvedEndpoint, proxiedOnToken);
+            } finally {
+                (proxiedOnToken as any)[Comlink.releaseProxy]?.();
+            }
+        },
+        [],
+    );
+
     const askWithRag = useCallback(
         async (
             query: string,
@@ -270,6 +297,58 @@ export function useAIWorker() {
                     model,
                     resolvedEndpoint,
                     proxiedOnToken,
+                );
+            } finally {
+                (proxiedOnToken as any)[Comlink.releaseProxy]?.();
+            }
+        },
+        [],
+    );
+
+    const askWithRagAndAttachments = useCallback(
+        async (
+            query: string,
+            fronterName: string,
+            model: string,
+            endpoint: string,
+            onToken: (content: string) => void,
+            attachments?: Attachment[],
+        ) => {
+            if (!apiRef.current) throw new Error('ai worker not ready');
+
+            const resolvedEndpoint = isCapacitorNative()
+                ? resolveOllamaEndpoint(endpoint, MOBILE_SERVER_ORIGIN)
+                : endpoint;
+
+            if (_isMainThread) {
+                return apiRef.current.askWithRagAndAttachments(
+                    query, 
+                    fronterName, 
+                    model, 
+                    resolvedEndpoint, 
+                    onToken, 
+                    attachments
+                );
+            }
+
+            const proxiedOnToken = Comlink.proxy(onToken);
+            // We need to transfer the attachments without the File object (not clonable)
+            // The attachments should already have dataUrl set
+            const serializableAttachments = attachments?.map(att => ({
+                id: att.id,
+                type: att.type,
+                dataUrl: att.dataUrl,
+                name: att.name,
+            })) as Attachment[] | undefined;
+
+            try {
+                return await apiRef.current.askWithRagAndAttachments(
+                    query,
+                    fronterName,
+                    model,
+                    resolvedEndpoint,
+                    proxiedOnToken,
+                    serializableAttachments,
                 );
             } finally {
                 (proxiedOnToken as any)[Comlink.releaseProxy]?.();
@@ -305,7 +384,9 @@ export function useAIWorker() {
         search,
         embed,
         chatStream,
+        chatStreamMultimodal,
         askWithRag,
+        askWithRagAndAttachments,
         generateText,
         buildRagPrompt,
     };

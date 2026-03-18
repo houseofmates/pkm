@@ -1,17 +1,47 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { HexColorPicker } from 'react-colorful';
 import { Upload, Search, Loader2, Wand2, Undo2, Save, RotateCcw, Sparkles, Check, Image as ImageIcon, type LucideIcon } from 'lucide-react';
-// Note: static import of lucide-react gets tree-shaken by bundlers.
-// We dynamically import the full module in useEffect and store it in state
-// to ensure all icons are available for the picker.
+// Note: static import of lucide-react gets tree-shaken by bundlers. a number of
+// other modules rely on some of the helper icons above, so we keep those
+// exports around, but the full namespace may still be pruned.
+//
+// to avoid a completely empty picker when the module is tree‑shaken (which was
+// the original user complaint), we dynamically load the library at runtime and
+// cache the result.  additionally we trigger a background import as soon as
+// this file loads so that the first time the context menu is opened the icons
+// are already available.
 import { ContextMenuContent } from "@/components/ui/context-menu";
+
+// --- lazy loader helpers ----------------------------------------------------
+
+let lucideModuleCache: Record<string, unknown> | null = null;
+let lucideModulePromise: Promise<Record<string, unknown>> | null = null;
+
+function loadLucideModule(): Promise<Record<string, unknown>> {
+  if (lucideModuleCache) {
+    return Promise.resolve(lucideModuleCache);
+  }
+  if (lucideModulePromise) {
+    return lucideModulePromise;
+  }
+  lucideModulePromise = import('lucide-react').then((mod) => {
+    lucideModuleCache = mod;
+    return mod;
+  });
+  return lucideModulePromise;
+}
+
+// immediately kick off the import so that the network/chunk load happens
+// long before the user actually opens a context menu.
+loadLucideModule();
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { useAppSetting } from '@/hooks/use-app-setting';
-import { generateVertexIcon } from '@/lib/vertex-image';
+import { generateGeminiIcon, enhancePromptWithGemini, removeBackground, getGeminiApiKey, saveGeminiApiKey } from '@/lib/vertex-image';
 
 interface RichResourceContextMenuProps {
   currentName?: string;
@@ -44,15 +74,56 @@ interface CustomIconEntry {
 
 // helper used in `useEffect` below; not exported because it's only relevant in
 // this file.
+//
+// Lucide's module shape has changed a few times – during development the
+// namespace might expose every icon as a top‑level export, and in production
+// builds a single `icons` object may be provided instead.  the previous
+// implementation blindly filtered out the `icons` property which meant that
+// when *only* that container was present we ended up with an empty list and the
+// picker appeared blank.  that exactly matched the bug described by users:
+// "i right click a sidebar item, i cant see any lucide icons to scroll through
+// or search for".  to be robust we now merge both locations and dedupe the
+// results.
 function computeIconNames(obj: Record<string, unknown>): string[] {
-  return Object.keys(obj).filter(key =>
-    key !== 'icons' &&
-    key !== 'createlucideicon' &&
-    key !== 'default' &&
-    !key.startsWith('lucide') &&
-    !key.endsWith('icon') &&
-    /^[A-Z]/.test(key)
-  );
+  // some module mocks (vitest) or bundler outputs may put the real exports under
+  // a `default` property.  make sure we examine both locations.
+  const source: Record<string, unknown> = { ...(obj as any) };
+  if (obj.default && typeof obj.default === 'object') {
+    Object.assign(source, obj.default as Record<string, unknown>);
+  }
+
+  const names = new Set<string>();
+
+  function addKey(key: string) {
+    // ignore helpers and lowercase exports
+    if (
+      key === 'icons' ||
+      key === 'createlucideicon' ||
+      key === 'default' ||
+      key.startsWith('lucide') ||
+      // the original code filtered out lowercase "icon" suffix; keep the
+      // upper‑case variant since many library exports include both
+      key.endsWith('icon') ||
+      !/^[A-Z]/.test(key)
+    ) {
+      return;
+    }
+    names.add(key);
+  }
+
+  Object.keys(obj).forEach(addKey);
+
+  // also inspect nested `icons` object if present (bundlers sometimes put all
+  // of the icons there to avoid polluting the top-level namespace).
+  if (obj.icons && typeof obj.icons === 'object') {
+    Object.keys(obj.icons as Record<string, unknown>).forEach((k) => {
+      if (/^[A-Z]/.test(k)) {
+        names.add(k);
+      }
+    });
+  }
+
+  return Array.from(names);
 }
 
 // semantic keywords for "smart search"
@@ -316,6 +387,14 @@ const DEFAULT_EMOJIS = [
 ];
 
 export function RichResourceContextMenuContent({ currentName, currentColor, onUpdate, children, itemId }: RichResourceContextMenuProps) {
+  return (
+    <ErrorBoundary fallback={<div className="text-red-500">menu failed</div>}>
+      {renderMenu({ currentName, currentColor, onUpdate, children, itemId })}
+    </ErrorBoundary>
+  );
+}
+
+function renderMenu({ currentName, currentColor, onUpdate, children, itemId }: RichResourceContextMenuProps) {
   const [search, setSearch] = useState('');
   const FALLBACK_ICONS = ['Folder','File','Database','Layout','Settings','User','Users','Home','Search','Plus','Minus'];
   const [allIcons, setAllIcons] = useState<string[]>(FALLBACK_ICONS);
@@ -331,9 +410,14 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
   const [prompt, setPrompt] = useState('');
   const [lastPrompt, setLastPrompt] = useState('');
   const [generating, setGenerating] = useState(false);
+  const [enhancing, setEnhancing] = useState(false);
+  const [removingBg, setRemovingBg] = useState(false);
   const [generatedImage, setGeneratedImage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showPromptInput, setShowPromptInput] = useState(false);
+  const [showApiKeyInput, setShowApiKeyInput] = useState(false);
+  const [apiKey, setApiKeyState] = useState<string | null>(() => getGeminiApiKey());
+  const [pendingApiKey, setPendingApiKey] = useState('');
   const renameDebounce = useRef<NodeJS.Timeout | null>(null);
 
   // sync local name if prop changes
@@ -369,16 +453,18 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
 
   // dynamically import the lucide-react namespace when the menu mounts. this
   // avoids tree‑shaking issues where only the icons that are statically
-  // imported elsewhere remain in the bundle.
+  // imported elsewhere remain in the bundle.  we also cache the promise so
+  // subsequent openings are instantaneous, and kick off a background prefetch
+  // at module load time so the first right‑click doesn't feel empty.
   useEffect(() => {
     let cancelled = false;
-    import('lucide-react').then((mod) => {
+    loadLucideModule().then((mod) => {
       if (cancelled) return;
-      // store the module for icon rendering
       setLucideModule(mod);
       const names = computeIconNames(mod);
       if (names.length === 0) {
-        // in the rare case the module object is empty, use fallback list
+        // if the imported module looked empty for whatever reason, fall back to
+        // the small static set so the user at least has something to click on.
         setAllIcons(FALLBACK_ICONS);
       } else {
         setAllIcons(names);
@@ -466,25 +552,58 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
     setGeneratedImage(null);
     setError(null);
     setShowPromptInput(false);
+    setShowApiKeyInput(false);
+    setPendingApiKey('');
+    setEnhancing(false);
+    setRemovingBg(false);
   };
 
   const runGeneration = async (p?: string) => {
     const effectivePrompt = (p ?? prompt).trim();
-    if (!effectivePrompt) {
-      setError('prompt required');
-      return;
-    }
+    if (!effectivePrompt) { setError('prompt required'); return; }
+    const key = apiKey;
+    if (!key) { setShowApiKeyInput(true); return; }
     setError(null);
     setGenerating(true);
     try {
-      const img = await generateVertexIcon(effectivePrompt);
+      const img = await generateGeminiIcon(effectivePrompt, key);
       setGeneratedImage(img);
       setLastPrompt(effectivePrompt);
       setAiMode(true);
+      setShowPromptInput(true);
     } catch (err: any) {
       setError(err?.message || 'failed to generate');
     } finally {
       setGenerating(false);
+    }
+  };
+
+  const handleEnhancePrompt = async () => {
+    const key = apiKey;
+    if (!key || !prompt.trim()) return;
+    setEnhancing(true);
+    setError(null);
+    try {
+      const enhanced = await enhancePromptWithGemini(prompt, key);
+      setPrompt(enhanced);
+    } catch (err: any) {
+      setError(err?.message || 'failed to enhance prompt');
+    } finally {
+      setEnhancing(false);
+    }
+  };
+
+  const handleRemoveBg = async () => {
+    if (!generatedImage) return;
+    setRemovingBg(true);
+    setError(null);
+    try {
+      const noBg = await removeBackground(generatedImage);
+      setGeneratedImage(noBg);
+    } catch (err: any) {
+      setError(err?.message || 'failed to remove background');
+    } finally {
+      setRemovingBg(false);
     }
   };
 
@@ -567,7 +686,9 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
       {/* color dot toggle removed - moved to tabs */}
 
       {/* main content area */}
-      <div className="flex-1 min-h-[200px] max-h-[300px] w-full flex flex-col relative">
+      {/* explicit h-[300px] required: ContextMenuContent has no intrinsic height so
+           flex-1 resolves to 0, causing h-full on Tabs to also be 0 and hiding icons */}
+      <div className="h-[300px] w-full flex flex-col relative">
         <Tabs defaultValue="icons" className="w-full h-full flex flex-col" onValueChange={(v) => setActiveTab(v as 'icons' | 'emojis' | 'color')}>
           <div className="px-0 border-b bg-muted/30 shrink-0 flex items-center">
             <TabsList className="bg-transparent p-0 h-12 w-full flex justify-between gap-0">
@@ -646,69 +767,130 @@ export function RichResourceContextMenuContent({ currentName, currentColor, onUp
 
             <TabsContent value="icons" className="absolute inset-0 m-0">
               <ScrollArea className="h-full p-2 space-y-3">
-                {(showPromptInput || generatedImage || generating || aiMode) && (
+                {(showApiKeyInput || showPromptInput || generatedImage || generating || aiMode) && (
                   <div className="space-y-2 p-3 rounded-xl border border-border/60 bg-muted/20">
-                    {!generatedImage && (
+
+                    {/* ── api key input ── */}
+                    {showApiKeyInput && (
                       <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Sparkles className="h-4 w-4" /> describe the icon to generate
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Sparkles className="h-3.5 w-3.5" /> gemini api key
                         </div>
                         <Input
-                          ref={promptInputRef}
+                          type="password"
+                          autoFocus
+                          placeholder="AIza..."
+                          value={pendingApiKey}
+                          onChange={(e) => setPendingApiKey(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' && pendingApiKey.trim()) {
+                              saveGeminiApiKey(pendingApiKey.trim());
+                              setApiKeyState(pendingApiKey.trim());
+                              setShowApiKeyInput(false);
+                              setShowPromptInput(true);
+                            }
+                          }}
+                          className="bg-background border-primary/40"
+                        />
+                        <div className="flex gap-2">
+                          <Button size="sm" className="flex-1" onClick={() => {
+                            if (pendingApiKey.trim()) {
+                              saveGeminiApiKey(pendingApiKey.trim());
+                              setApiKeyState(pendingApiKey.trim());
+                              setShowApiKeyInput(false);
+                              setShowPromptInput(true);
+                            }
+                          }}>save key</Button>
+                          <Button variant="ghost" size="sm" onClick={() => { setShowApiKeyInput(false); setPendingApiKey(''); }}>cancel</Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ── prompt input ── */}
+                    {!showApiKeyInput && (showPromptInput || generating || aiMode) && (
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <Sparkles className="h-3.5 w-3.5" />
+                          <span>icon prompt</span>
+                          <button
+                            className="ml-auto text-[10px] text-muted-foreground/40 hover:text-muted-foreground underline"
+                            onClick={() => { setPendingApiKey(apiKey ?? ''); setShowApiKeyInput(true); }}
+                          >change key</button>
+                        </div>
+                        <textarea
+                          ref={promptInputRef as any}
                           value={prompt}
                           onChange={(e) => setPrompt(e.target.value)}
                           onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
+                            if (e.key === 'Enter' && !e.shiftKey) {
                               e.preventDefault();
                               runGeneration();
                             }
                           }}
                           placeholder="e.g. neon fox head silhouette"
-                          className="bg-background border-primary/40"
+                          rows={2}
+                          className="w-full resize-none rounded-md border border-primary/40 bg-background px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
                         />
-                        <div className="flex items-center justify-between gap-2">
-                          <Button size="sm" onClick={() => runGeneration()} disabled={generating} className="gap-2">
-                            {generating && <Loader2 className="h-4 w-4 animate-spin" />} generate
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <Button size="sm" onClick={() => runGeneration()} disabled={generating || enhancing} className="gap-1.5">
+                            {generating
+                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              : <Sparkles className="h-3.5 w-3.5" />}
+                            generate
                           </Button>
-                          <Button variant="ghost" size="sm" onClick={resetAiState} className="text-xs">
-                            cancel
+                          {lastPrompt && (
+                            <Button size="sm" variant="secondary" title="redo with last prompt" onClick={() => runGeneration(lastPrompt)} disabled={generating || enhancing} className="gap-1.5">
+                              <RotateCcw className="h-3.5 w-3.5" /> redo
+                            </Button>
+                          )}
+                          <Button size="sm" variant="outline" onClick={handleEnhancePrompt} disabled={enhancing || generating || !prompt.trim()} className="gap-1.5">
+                            {enhancing
+                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              : <Wand2 className="h-3.5 w-3.5" />}
+                            enhance
                           </Button>
+                          <Button variant="ghost" size="sm" onClick={resetAiState} className="ml-auto text-xs">cancel</Button>
                         </div>
-                        {error && <div className="text-xs text-red-400">{error}</div>}
+                        {error && !generatedImage && <div className="text-xs text-red-400">{error}</div>}
                       </div>
                     )}
 
+                    {/* ── generated image ── */}
                     {generatedImage && (
-                      <div className="space-y-3">
-                        <div className="aspect-square w-full rounded-lg border border-border/60 bg-[#050505] flex items-center justify-center overflow-hidden">
+                      <div className="space-y-2">
+                        <div className="w-32 h-32 mx-auto rounded-lg border border-border/60 bg-[#050505] flex items-center justify-center overflow-hidden">
                           <img src={generatedImage} alt="generated icon" className="h-full w-full object-contain" />
                         </div>
                         {error && <div className="text-xs text-red-400">{error}</div>}
-                        <div className="grid grid-cols-2 gap-2">
-                          <Button variant="outline" size="sm" onClick={resetAiState} className="gap-2">
-                            <Undo2 className="h-4 w-4" /> cancel
+                        <div className="grid grid-cols-2 gap-1.5">
+                          <Button variant="secondary" size="sm" onClick={() => runGeneration(lastPrompt)} disabled={generating || removingBg} className="gap-1.5">
+                            <RotateCcw className="h-3.5 w-3.5" /> redo
                           </Button>
-                          <Button variant="secondary" size="sm" onClick={() => runGeneration(lastPrompt)} disabled={generating} className="gap-2">
-                            <RotateCcw className="h-4 w-4" /> regenerate
+                          <Button variant="outline" size="sm" onClick={handleRemoveBg} disabled={removingBg || generating} className="gap-1.5">
+                            {removingBg
+                              ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              : <ImageIcon className="h-3.5 w-3.5" />}
+                            remove bg
                           </Button>
-                          <Button variant="ghost" size="sm" onClick={() => { setGeneratedImage(null); setShowPromptInput(true); setPrompt(lastPrompt); setAiMode(false); }} className="gap-2">
-                            <Wand2 className="h-4 w-4" /> edit prompt
+                          <Button variant="ghost" size="sm" onClick={useOnce} className="gap-1.5">
+                            <Check className="h-3.5 w-3.5" /> use once
                           </Button>
-                          <Button variant="default" size="sm" onClick={saveCustomIcon} className="gap-2">
-                            <Save className="h-4 w-4" /> save
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={useOnce} className="col-span-2 gap-2">
-                            <Check className="h-4 w-4" /> use once
+                          <Button variant="default" size="sm" onClick={saveCustomIcon} className="gap-1.5">
+                            <Save className="h-3.5 w-3.5" /> save
                           </Button>
                         </div>
                       </div>
                     )}
+
                   </div>
                 )}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-xs text-muted-foreground px-1">
                     <span>custom icons</span>
-                    <Button variant="ghost" size="xs" className="h-7 text-[11px] gap-1" onClick={() => setShowPromptInput(true)}>
+                    <Button variant="ghost" size="xs" className="h-7 text-[11px] gap-1" onClick={() => {
+                      if (!apiKey) { setShowApiKeyInput(true); }
+                      else { setShowPromptInput(true); }
+                    }}>
                       <Sparkles className="h-3 w-3" /> ai icon
                     </Button>
                   </div>

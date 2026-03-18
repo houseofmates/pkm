@@ -1,14 +1,14 @@
 {
   "name": "pkm-desktop-electron",
   "version": "0.0.0",
-  "description": "PKM Desktop App",
+  "description": "pkm desktop app",
   "author": "houseofmates <house@houseofmates.space>",
   "homepage": "https://houseofmates.space",
   "private": true,
   "main": "electron/main.js",
   "scripts": {
-    "dev": "concurrently -k \"npm run dev --workspace=pkm-web\" \"wait-on http://localhost:3010 && electron .\"",
-    "build": "npm run build --workspace=pkm-web && electron-builder"
+    "dev": "concurrently -k \"npm run dev --workspace=@pkm/core\" \"wait-on http://localhost:3010 && electron .\"",
+    "build": "npm run build --workspace=@pkm/core && electron-builder"
   },
   "dependencies": {
     "@pkm/core": "*",

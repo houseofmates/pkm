@@ -95,7 +95,7 @@ export const FieldDefinitionSchema = z.object({
   defaultValue: z.any().optional(),
   
   // field-specific configuration (validated against field type's configSchema)
-  config: z.record(z.any()).optional(),
+  config: z.record(z.string(), z.any()).optional(),
   
   // validation rules for this field
   validationRules: z.array(ValidationRuleSchema).optional(),
@@ -130,7 +130,7 @@ export const TableMetadataSchema = z.object({
   archived: z.boolean().default(false),
   
   // custom properties for extensibility
-  custom: z.record(z.any()).optional(),
+  custom: z.record(z.string(), z.any()).optional(),
 });
 
 export type TableMetadata = z.infer<typeof TableMetadataSchema>;
@@ -302,7 +302,7 @@ export type QueryOptions = z.infer<typeof QueryOptionsSchema>;
  */
 export const QueryResultSchema = z.object({
   // matching records
-  records: z.array(z.record(z.any())),
+  records: z.array(z.record(z.string(), z.any())),
   
   // total count (for pagination)
   total: z.number().int().nonnegative().optional(),
@@ -354,10 +354,10 @@ export const RecordChangeSchema = z.object({
   recordId: z.string(),
   
   // changed fields (for update)
-  changes: z.record(z.any()).optional(),
+  changes: z.record(z.string(), z.any()).optional(),
   
   // full record data (for create)
-  record: z.record(z.any()).optional(),
+  record: z.record(z.string(), z.any()).optional(),
   
   // timestamp
   timestamp: z.string().datetime(),

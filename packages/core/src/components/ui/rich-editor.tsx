@@ -1,5 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
+import { secureLogger } from '@/lib/secure-logger';
 import { WIDGET_REGISTRY } from '@/features/widgets/registry';
 import { UniversalWidgetPicker } from '@/features/widgets/UniversalWidgetPicker';
 
@@ -81,6 +82,13 @@ export function RichEditor({ value = '', placeholder, className, onChange, uploa
       }
     }
   }, [value]);
+
+  useEffect(() => {
+    // ensure editor is focusable when opened from a click in another component
+    if (ref.current) {
+      ref.current.focus();
+    }
+  }, []);
 
   const exec = (cmd: string, arg?: string) => {
     document.execCommand(cmd, false, arg);

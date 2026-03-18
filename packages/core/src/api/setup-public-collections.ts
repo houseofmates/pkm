@@ -80,7 +80,7 @@ async function setupPublicCollections() {
  secureLogger.info(`[Setup] Metadata destroyed for ${colReq.name}.`);
  // wait a moment for nocobase to process
  await new Promise(r => setTimeout(r, 1000));
-  } catch (_destroyErr) {
+  } catch {
  // validation error usually means it didn't exist, which is good
   }
 
@@ -112,7 +112,7 @@ async function setupPublicCollections() {
  data: field
  });
  // success = created
- } catch (_e: unknown) {
+ } catch {
  // 400 = already exists, usually
  }
   }

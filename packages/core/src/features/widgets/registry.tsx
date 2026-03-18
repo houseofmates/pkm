@@ -1,4 +1,4 @@
-import { Clock, Webhook, Database, Type, Activity, Scroll, BarChart3, Inbox, PlusCircle } from 'lucide-react';
+import { Clock, Webhook, Database, Type, Activity, Scroll, BarChart3, Inbox, PlusCircle, Droplets } from 'lucide-react';
 
 export interface WidgetDefinition {
   id: string;
@@ -91,5 +91,14 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
     defaultData: {},
     defaultWidth: 280,
     defaultHeight: 200
+  },
+  hygiene: {
+    id: 'hygiene',
+    label: 'Hygiene Tracker',
+    icon: Droplets,
+    description: 'Log showers and self-care rituals',
+    defaultData: { lastShower: null, streak: 0 },
+    defaultWidth: 320,
+    defaultHeight: 360
   }
 };

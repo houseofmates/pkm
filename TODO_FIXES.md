@@ -33,15 +33,15 @@
 - [x] Fixed template.tsx - Fixed multiple TypeScript errors (case sensitivity, type annotations, API calls, empty catch blocks, unused imports)
 
 ### In Progress
-- [ ] Clean up console.log statements in production code
+- [x] Clean up console.log statements in production code (switched to secureLogger in offline-service)
 
 
 ### Pending
-- [ ] Add proper TypeScript types to replace `any` usage (critical files)
+- [ ] Add proper TypeScript types to replace `any` usage (critical files) — in progress (oplog, store, spatial index)
 - [ ] Remove unused code and comments
-- [ ] Fix ESLint disable comments where possible
-- [ ] Update README with detailed architecture explanations
-- [ ] Add JSDoc comments to key functions
+- [x] Fix ESLint disable comments where possible (navigation + canvas layout + encryption)
+- [x] Update README with detailed architecture explanations
+- [x] Add JSDoc comments to key functions (oplog/canvas-db/store)
 - [ ] Optimize spatial index usage in edgeless canvas
 
 ## Summary of Changes Made

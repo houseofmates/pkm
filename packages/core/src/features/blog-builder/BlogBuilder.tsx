@@ -4,6 +4,8 @@ import { api } from '@/api/nocobase-client';
 import { BlogGallery } from './components/BlogGallery';
 import { BlogPostViewer } from './components/BlogPostViewer';
 import { toast } from 'sonner';
+import { storageManager } from '@/lib/storage-manager';
+import { secureLogger } from '@/lib/secure-logger';
 import { AdminLoginModal } from '@/features/houseofmates-builder/components/AdminLoginModal';
 
 const BlogEditor = lazy(() => import('./components/BlogEditor').then(m => ({ default: m.BlogEditor })));
@@ -66,7 +68,7 @@ export function BlogBuilder() {
     toast.success('admin mode enabled');
   };
 
-  if (isadmin) {
+  if (isAdmin) {
     return (
       <Suspense fallback={<div className="h-screen w-full flex items-center justify-center bg-[#050505] text-white">loading editor...</div>}>
         <BlogEditor />
@@ -102,8 +104,8 @@ export function BlogBuilder() {
             },
           });
 
-          if (response.data?.data && response.data.data.length > 0) {
-            setCurrentPost(response.data.data[0]);
+          if ((response.data as any)?.data && (response.data as any).data.length > 0) {
+            setCurrentPost((response.data as any).data[0]);
           } else {
             toast.error('post not found');
             setCurrentPost(null);
@@ -118,8 +120,8 @@ export function BlogBuilder() {
             },
           });
 
-          if (response.data?.data) {
-            setPosts(response.data.data);
+          if ((response.data as any)?.data) {
+            setPosts((response.data as any).data);
           }
         }
       } catch (error) {
@@ -136,13 +138,13 @@ export function BlogBuilder() {
   // increment view count
   const handleViewCountUpdate = async (postId: string) => {
     try {
-      const post = currentPost || posts.find(p => p.id === postid);
+      const post = currentPost || posts.find(p => p.id === postId);
       if (!post) return;
 
       await api.request('blog_posts', 'update', {
-        method: 'post',
+        method: 'POST',
         params: {
-          filterbytk: postid,
+          filterByTk: postId,
         },
         data: {
           view_count: (post.view_count || 0) + 1,
@@ -160,7 +162,7 @@ export function BlogBuilder() {
         loading blog...
       </div>
     );
-  } else if (slug && currentpost) {
+  } else if (slug && currentPost) {
     content = (
       <BlogPostViewer
         post={currentPost}

@@ -10,7 +10,7 @@ export function StatWidget({ title, value, trend, trendUp }: { title: string, va
  <span className="text-3xl font-bold">{value}</span>
  {trend && (
  <span className={`text-xs flex items-center mb-1 ${trendUp ? 'text-green-500' : 'text-red-500'}`}>
- {trendup ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowDownRight className="h-3 w-3 mr-1" />}
+ {trendUp ? <ArrowUpRight className="h-3 w-3 mr-1" /> : <ArrowDownRight className="h-3 w-3 mr-1" />}
  {trend}
  </span>
  )}
@@ -19,7 +19,7 @@ export function StatWidget({ title, value, trend, trendUp }: { title: string, va
   );
 }
 
-export function recentactivitywidget() {
+export function RecentActivityWidget() {
   // mock data
   const activities = [
   { id: 1, text: "updated 'project alpha'", time: "2m ago", icon: <CheckCircle2 className="h-4 w-4 text-green-500" /> },

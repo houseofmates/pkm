@@ -10,6 +10,7 @@
 import { z } from 'zod';
 import { fieldRegistry, registerBuiltinFieldTypes } from './field-registry';
 import { persistenceService } from './persistence-service';
+import { secureLogger } from '@/lib/secure-logger';
 import type {
   TableDefinition,
   FieldDefinition,
@@ -444,7 +445,7 @@ class SchemaService {
   /**
    * get the field registry (for registering custom field types)
    */
-  public getFieldRegistry() {
+  public getFieldRegistry(): unknown {
     return fieldRegistry;
   }
 }

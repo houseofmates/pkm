@@ -37,24 +37,25 @@ export function UniversalWidgetPicker({ open, onOpenChange, onSelect, filter }: 
             autoFocus
           />
         </div>
-
-        <div className="grid grid-cols-2 gap-3 max-h-[400px] overflow-y-auto">
-          {widgets.map(widget => (
-            <button
-              key={widget.id}
-              onClick={() => {
-                onSelect(widget.id, widget.defaultData);
-                onOpenChange(false);
-              }}
-              className="flex flex-col items-start p-3 rounded-xl border border-white/5 bg-white/5 hover:bg-primary/10 hover:border-primary/30 transition-all group text-left"
-            >
-              <div className="p-2 rounded-lg bg-black/40 text-primary mb-2 group-hover:scale-110 transition-transform">
-                <widget.icon size={20} />
-              </div>
-              <div className="font-bold text-sm lowercase">{widget.label}</div>
-              <div className="text-xs text-muted-foreground line-clamp-1">{widget.description}</div>
-            </button>
-          ))}
+        <div className="max-h-[360px] overflow-y-auto pr-1">
+          <div className="grid grid-cols-2 gap-3">
+            {widgets.map(widget => (
+              <button
+                key={widget.id}
+                onClick={() => {
+                  onSelect(widget.id, widget.defaultData);
+                  onOpenChange(false);
+                }}
+                className="flex flex-col items-start p-3 rounded-xl border border-white/5 bg-white/5 hover:bg-primary/10 hover:border-primary/30 transition-all group text-left"
+              >
+                <div className="p-2 rounded-lg bg-black/40 text-primary mb-2 group-hover:scale-110 transition-transform">
+                  <widget.icon size={20} />
+                </div>
+                <div className="font-bold text-sm lowercase">{widget.label.toLowerCase()}</div>
+                <div className="text-xs text-muted-foreground line-clamp-1 lowercase">{widget.description.toLowerCase()}</div>
+              </button>
+            ))}
+          </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -81,7 +81,7 @@ export function parseSQL(sql: string): SQLParsed {
     parsed.from = { subquery: subParsed, alias };
   } else {
     const tokens = splitWhitespace(after);
-    let name = tokens[0];
+    const name = tokens[0];
     let alias: string | undefined;
     if (tokens.length > 1 && !['JOIN', 'WHERE', 'GROUP', 'ORDER', 'LIMIT'].includes(tokens[1].toUpperCase())) {
       alias = tokens[1];
@@ -112,7 +112,7 @@ export function parseSQL(sql: string): SQLParsed {
       tableRef = { subquery: subParsed, alias };
     } else {
       const tokens = splitWhitespace(after);
-      let name = tokens[0];
+      const name = tokens[0];
       let alias: string | undefined;
       if (tokens.length > 1 && !tokens[1].toUpperCase().startsWith('ON')) {
         alias = tokens[1];

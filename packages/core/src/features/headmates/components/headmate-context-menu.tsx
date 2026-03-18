@@ -1,5 +1,5 @@
 
-import { useState, useRef, type ChangeEvent } from 'react';
+import { useState, useRef } from 'react';
 import { useFronter } from '@/contexts/fronter-context';
 import {
   ContextMenu,
@@ -9,7 +9,7 @@ import {
   ContextMenuTrigger,
   ContextMenuLabel,
 } from "@/components/ui/context-menu";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -54,85 +54,86 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   const isHidden = currentOverride.hidden;
 
   const toggleHide = () => {
-    updateOverride(memberId, { hidden: !isHidden });
-    toast.info(isHidden ? "headmate restored" : "headmate hidden");
+  updateOverride(memberId, { hidden: !isHidden });
+  toast.info(isHidden ? "headmate restored" : "headmate hidden");
   };
 
   // --- image handling ---
-  const handleFileChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  // --- image handling ---
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-    // use the new memberservice to handle upload & sync
-    // we pass the updateoverride function as the callback
-    await MemberService.updateMemberAvatar(memberId, file, async (id, data) => {
-      updateOverride(id, data);
+  // use the new memberservice to handle upload & sync
+  // we pass the updateoverride function as the callback
+  await MemberService.updateMemberAvatar(memberId, file, async (id, data) => {
+  updateOverride(id, data);
 
-      // flush to persist the local override immediately
-      try {
-        await flushOverrides();
-      } catch (flushError) {
-        secureLogger.warn('Failed to flush overrides:', flushError);
-      }
-    });
+  // flush to persist the local override immediately
+  try {
+ await flushOverrides();
+  } catch (flushError) {
+ secureLogger.warn('Failed to flush overrides:', flushError);
+  }
+  });
 
-    // reset file input and close dialog
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
-    setImageOpen(false);
+  // reset file input and close dialog
+  if (fileInputRef.current) {
+  fileInputRef.current.value = '';
+  }
+  setImageOpen(false);
   };
 
   const saveImageUrl = async () => {
-    if (!imageUrl.trim()) return;
-    updateOverride(memberId, { avatarUrl: imageUrl.trim() });
+  if (!imageUrl.trim()) return;
+  updateOverride(memberId, { avatarUrl: imageUrl.trim() });
 
   // flush immediately to ensure persistence
-    try {
-      await flushOverrides();
-    } catch (flushError) {
-      secureLogger.warn('Failed to flush overrides:', flushError);
-    }
+  try {
+  await flushOverrides();
+  } catch (flushError) {
+  secureLogger.warn('Failed to flush overrides:', flushError);
+  }
 
-    toast.success("image link saved");
-    setImageUrl(''); // Clear input after saving
-    setImageOpen(false);
+  toast.success("image link saved");
+  setImageUrl(''); // Clear input after saving
+  setImageOpen(false);
   };
 
   // --- name/desc ---
   const openEdit = () => {
-    setDesc(currentOverride.description || '');
-    setEditOpen(true);
+  setDesc(currentOverride.description || '');
+  setEditOpen(true);
   };
 
   const openNameEdit = () => {
-    setVisualName((currentOverride as any).name || memberName);
-    setNameOpen(true);
+  setVisualName((currentOverride as any).name || memberName);
+  setNameOpen(true);
   };
 
   const saveDetails = () => {
-    updateOverride(memberId, { description: desc });
-    setEditOpen(false);
-    toast.success("description saved");
+  updateOverride(memberId, { description: desc });
+  setEditOpen(false);
+  toast.success("description saved");
   };
 
   const saveVisualName = () => {
-    updateOverride(memberId, ({ name: visualName } as any));
-    setNameOpen(false);
-    toast.success("visual name saved");
+  updateOverride(memberId, ({ name: visualName } as any));
+  setNameOpen(false);
+  toast.success("visual name saved");
   };
 
   // --- colors ---
   const openColor = () => {
-    setColor(currentOverride.color || '#cccccc');
-    setTextColor(currentOverride.textColor || '#ffffff');
-    setColorOpen(true);
+  setColor(currentOverride.color || '#cccccc');
+  setTextColor(currentOverride.textColor || '#ffffff');
+  setColorOpen(true);
   };
 
   const saveColors = () => {
-    updateOverride(memberId, { color, textColor });
-    setColorOpen(false);
-    toast.success("colors saved");
+  updateOverride(memberId, { color, textColor });
+  setColorOpen(false);
+  toast.success("colors saved");
   };
 
   // --- front with status ---
@@ -140,23 +141,23 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   const [customFrontStatus, setCustomFrontStatus] = useState('');
 
   const openFrontStatus = () => {
-    setCustomFrontStatus('');
-    setFrontStatusOpen(true);
+  setCustomFrontStatus('');
+  setFrontStatusOpen(true);
   };
 
   const handleFrontWithStatus = async () => {
-    // add to active fronters if not already there
-    const newFronters = [...activeFronters];
-    if (!newFronters.includes(memberId)) {
-      newFronters.push(memberId);
-    }
+  // add to active fronters if not already there
+  const newFronters = [...activeFronters];
+  if (!newFronters.includes(memberId)) {
+  newFronters.push(memberId);
+  }
 
-    // update local state and sync
-    updateFronters(newFronters);
-    await registerFrontChange(newFronters, customFrontStatus);
+  // update local state and sync
+  updateFronters(newFronters);
+  await registerFrontChange(newFronters, customFrontStatus);
 
-    setFrontStatusOpen(false);
-    toast.success(`Front set: ${customFrontStatus}`);
+  setFrontStatusOpen(false);
+  toast.success(`Front set: ${customFrontStatus}`);
   };
 
   return (
@@ -209,21 +210,12 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   </ContextMenu>
 
   {/* hidden file input for direct click if needed, but using dialog now mostly */}
-  <input
-    type="file"
-    ref={fileInputRef}
-    className="hidden"
-    accept="image/*"
-    onChange={handleFileChange}
-  />
+  <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
 
   {/* visual name dialog */}
   <Dialog open={nameOpen} onOpenChange={setNameOpen}>
  <DialogContent>
- <DialogHeader>
-   <DialogTitle>edit visual name</DialogTitle>
-   <DialogDescription>Set a display-only name that won&apos;t sync back to integrations.</DialogDescription>
- </DialogHeader>
+ <DialogHeader><DialogTitle>edit visual name</DialogTitle></DialogHeader>
  <div className="py-4">
  <Label>name (overrides integration)</Label>
  <Input value={visualName} onChange={e => setVisualName(e.target.value)} className="mt-2" />
@@ -235,10 +227,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   {/* image source dialog */}
   <Dialog open={imageOpen} onOpenChange={setImageOpen}>
  <DialogContent>
- <DialogHeader>
-   <DialogTitle>change image</DialogTitle>
-   <DialogDescription>Upload a new avatar from your device or paste a direct image link.</DialogDescription>
- </DialogHeader>
+ <DialogHeader><DialogTitle>change image</DialogTitle></DialogHeader>
  <div className="space-y-4 py-4">
  <div className="grid grid-cols-2 gap-4">
    <Button variant="outline" className="h-24 flex flex-col gap-2" onClick={() => fileInputRef.current?.click()}>
@@ -262,10 +251,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   {/* edit description dialog (existing) */}
   <Dialog open={editOpen} onOpenChange={setEditOpen}>
  <DialogContent>
- <DialogHeader>
-   <DialogTitle>edit details</DialogTitle>
-   <DialogDescription>Add or update a custom description for this headmate.</DialogDescription>
- </DialogHeader>
+ <DialogHeader><DialogTitle>edit details</DialogTitle></DialogHeader>
  <div className="space-y-4 py-4">
  <div className="space-y-2">
    <Label>custom description</Label>
@@ -284,10 +270,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   {/* edit color dialog (existing) */}
   <Dialog open={colorOpen} onOpenChange={setColorOpen}>
  <DialogContent>
- <DialogHeader>
-   <DialogTitle>customize colors</DialogTitle>
-   <DialogDescription>Pick card and text colors to personalize their appearance.</DialogDescription>
- </DialogHeader>
+ <DialogHeader><DialogTitle>customize colors</DialogTitle></DialogHeader>
  <div className="space-y-4 py-4">
  <div className="space-y-2">
    <Label>main color</Label>
@@ -311,10 +294,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   {/* front with status dialog */}
   <Dialog open={frontStatusOpen} onOpenChange={setFrontStatusOpen}>
  <DialogContent>
- <DialogHeader>
-   <DialogTitle>front with status</DialogTitle>
-   <DialogDescription>Announce this headmate in front and optionally include a short status.</DialogDescription>
- </DialogHeader>
+ <DialogHeader><DialogTitle>front with status</DialogTitle></DialogHeader>
  <div className="space-y-4 py-4">
  <div className="space-y-2">
    <Label>status message</Label>

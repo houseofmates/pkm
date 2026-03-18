@@ -67,6 +67,7 @@ export {
 
 // re-export components
 export { EdgelessCanvas } from './components/EdgelessCanvas'
+export { DrawingCanvas } from './components/DrawingCanvas'
 export { Toolbar } from './components/Toolbar'
 export { CanvasControls } from './components/CanvasControls'
 export { CanvasErrorBoundary } from './components/canvas-error-boundary'

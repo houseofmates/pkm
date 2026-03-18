@@ -66,11 +66,6 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
-      '/api/ollama': {
-        target: 'http://localhost:11434/api',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/ollama/, ''),
-      },
       '/storage': {
         target: 'http://192.168.4.233:8091',
         changeOrigin: true,
@@ -125,11 +120,6 @@ export default defineConfig({
         target: 'http://192.168.4.233:8091/api',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/nocobase/, ''),
-      },
-      '/api/ollama': {
-        target: 'http://localhost:11434/api',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/ollama/, ''),
       },
       '/storage': {
         target: 'http://192.168.4.233:8091',

@@ -248,11 +248,28 @@ async function buildWebAssets() {
 async function buildElectron() {
   step(2, 'building electron apps (appimage, deb, exe)...');
   const electronDir = path.join(MONOREPO_ROOT, 'apps', 'desktop-electron');
-  
+
+  // determine current platform for cross-build logic
+  const { platform } = detectPlatform();
+
   // install electron-builder if needed
   info('ensuring electron-builder is available...');
-  
+
+  // primary build (will produce linux packages on linux, exe on windows)
   run('npm run build', { cwd: electronDir });
+
+  // if we're on a non-Windows host, try to produce a Windows installer via
+  // wine. electron-builder will do nothing if wine is missing or broken.
+  if (platform !== 'win32') {
+    try {
+      execSync('which wine', { stdio: 'ignore' });
+      info('wine detected – running cross‑build for Windows (.exe)');
+      run('npx electron-builder --win', { cwd: electronDir, ignoreError: true });
+    } catch (e) {
+      warn('wine not found or Windows build failed, skipping .exe');
+    }
+  }
+
   success('electron apps built');
 }
 
@@ -277,7 +294,7 @@ async function buildApk() {
   
   for (const file of gradleFiles) {
     const filePath = path.join(androidDir, file);
-    if (fs.existsSync(filePath)) {
+    if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
       let content = fs.readFileSync(filePath, 'utf8');
       if (content.includes('JavaVersion.VERSION_21')) {
         content = content.replace(/JavaVersion\.VERSION_21/g, 'JavaVersion.VERSION_17');
@@ -320,10 +337,10 @@ async function main() {
     cleanReleasesDir();
   }
 
-  // note: windows exe can only be built on windows
-  if (platform === 'win32' && buildLinux) {
-    warn('windows detected - can only build .exe, use wsl for linux builds');
-  }
+  // we can *cross‑build* a Windows installer on non‑Windows hosts if
+  // `wine` is installed. the CI already does this on windows-latest; here
+  // we'll attempt it if wine is available so local developers get an .exe too.
+
 
   try {
     if (!skipBuild) {
@@ -333,19 +350,27 @@ async function main() {
     }
 
     if (buildLinux) {
-      await buildElectron();
-      copyElectronBuilds(version);
+      try {
+        await buildElectron();
+        copyElectronBuilds(version);
+      } catch (e) {
+        warn(`electron build failed: ${e.message}`);
+      }
     }
 
     if (buildApkFlag) {
       // check for android sdk
       try {
-        execSync('which sdkmanager', { stdio: 'pipe' });
-        await buildApk();
-        copyApk(version);
+        // we already checked for sdkmanager in the PATH earlier by setting PATH
+        // but let's be safe and just try to build if ANDROID_HOME is set
+        if (process.env.ANDROID_HOME || fs.existsSync(path.join(process.env.HOME, 'Android/Sdk'))) {
+          await buildApk();
+          copyApk(version);
+        } else {
+          warn('android sdk not found, skipping apk build');
+        }
       } catch (e) {
-        warn('android sdk not found, skipping apk build');
-        warn('install android studio or android command line tools to build apk');
+        warn(`apk build failed: ${e.message}`);
       }
     }
 

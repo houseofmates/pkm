@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "outDir": "dist-weave",
+    "rootDir": ".",
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true
+  },
+  "include": [
+    "shared/**/*.ts",
+    "semantic-weave/**/*.ts",
+    "autonomous-gardener/**/*.ts",
+    "weave-server.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "dist-weave",
+    "data"
+  ]
+}

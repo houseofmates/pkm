@@ -1,8 +1,9 @@
+import '@testing-library/jest-dom/vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import SettingsPage from '../settings';
 import { storageManager } from '@/lib/storage-manager';
 import { AuthContext } from '@/contexts/auth-context';
-import { vi } from 'vitest';
+import { vi, describe, it, expect, beforeEach } from 'vitest';
 
 // stub import widget so we don't need network
 vi.mock('@/components/notion-import-widget', () => ({

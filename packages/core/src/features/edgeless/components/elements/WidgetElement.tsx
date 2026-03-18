@@ -8,6 +8,8 @@ const NarrativeLog = lazy(() => import('@/features/widgets/NarrativeLog').then(m
 const OptimizationDashboard = lazy(() => import('@/features/widgets/OptimizationDashboard').then(m => ({ default: m.OptimizationDashboard })));
 const CaptureWidget = lazy(() => import('@/features/widgets/CaptureWidget'));
 const CreateCaptureWidget = lazy(() => import('@/features/widgets/CreateCaptureWidget'));
+const HygieneTracker = lazy(() => import('@/features/widgets/HygieneTracker').then(m => ({ default: m.HygieneTracker })));
+const DatabaseViewWidget = lazy(() => import('@/features/widgets/DatabaseViewWidget').then(m => ({ default: m.DatabaseViewWidget })));
 
 interface WidgetElementProps {
     element: any;
@@ -32,6 +34,10 @@ export const WidgetElement = React.memo(function WidgetElement({ element }: Widg
                 return <CaptureWidget data={data} />;
             case 'create_capture':
                 return <CreateCaptureWidget data={data} />;
+            case 'hygiene':
+                return <HygieneTracker data={data} />;
+            case 'embed-nocobase':
+                return <DatabaseViewWidget data={{ ...data, _elementId: element.id }} />;
             default:
                 return (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-black/40 border border-dashed border-white/20 rounded-xl text-[10px] text-muted-foreground lowercase">

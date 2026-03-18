@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '@/api/nocobase-client';
 import { toast } from 'sonner';
+import { secureLogger } from '@/lib/secure-logger';
 import { BlogCanvas } from './BlogCanvas';
 import { BlogContext, type BlogBuilderContextType, type BlogPostData, type ElementData } from './BlogContext';
 import {
@@ -23,8 +24,8 @@ export function BlogEditor() {
 }
 
 // --- dashboard ---
-function blogdashboard() {
-  const [posts, setposts] = useState<BlogPostData[]>([]);
+function BlogDashboard() {
+  const [posts, setPosts] = useState<BlogPostData[]>([]);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -41,9 +42,9 @@ function blogdashboard() {
  pageSize: 50
  }
   });
-  setPosts(res.data || []);
+  setPosts((res.data as any) || []);
   } catch (e) {
-  secureLogger.error(e);
+  secureLogger.error(String(e));
   toast.error('failed to load posts');
   } finally {
   setLoading(false);
@@ -61,19 +62,19 @@ function blogdashboard() {
  content: [],
  published: false
   });
-  navigate(`/editor/${res.data.slug}`);
+  navigate(`/editor/${(res.data as any).slug}`);
   } catch (e) {
   toast.error('failed to create draft');
   }
   };
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
-  e.stoppropagation();
+  e.stopPropagation();
   if (!confirm('delete this post?')) return;
   try {
-  await api.deleterecord('blog_posts', id);
+  await api.deleteRecord('blog_posts', id);
   toast.success('post deleted');
-  loadposts();
+  loadPosts();
   } catch (e) {
   toast.error('failed to delete');
   }
@@ -149,11 +150,11 @@ function blogdashboard() {
 }
 
 // --- editor wrapper ---
-function blogeditorparamswrapper({ slug }: { slug: string }) {
-  const [post, setpost] = useState<BlogPostData | null>(null);
-  const [loading, setloading] = useState(true);
-  const [selectedelementids, setselectedelementids] = useState<string[]>([]);
-  const [previewmode, setpreviewmode] = useState<'desktop' | 'mobile' | 'tablet'>('desktop');
+function BlogEditorParamsWrapper({ slug }: { slug: string }) {
+  const [post, setPost] = useState<BlogPostData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedElementIds, setSelectedElementIds] = useState<string[]>([]);
+  const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile' | 'tablet'>('desktop');
   const [viewWidth, setViewWidth] = useState(window.innerWidth);
   const [selectionBox, setSelectionBox] = useState(null);
   const [showSidebar, setShowSidebar] = useState(true);
@@ -180,7 +181,7 @@ function blogeditorparamswrapper({ slug }: { slug: string }) {
    pageSize: 1
  }
  });
- const found = res.data?.[0];
+ const found = (res.data as any)?.[0];
  if (found) {
  // ensure 'content' is parsed if string, or exists
  let elements = found.content;
@@ -193,7 +194,7 @@ function blogeditorparamswrapper({ slug }: { slug: string }) {
  }
  }
   } catch (e) {
- secureLogger.error(e);
+ secureLogger.error(String(e));
  toast.error('failed to load post');
   } finally {
  setLoading(false);
@@ -206,38 +207,38 @@ function blogeditorparamswrapper({ slug }: { slug: string }) {
   useEffect(() => {
   const handleResize = () => setViewWidth(window.innerWidth);
   window.addEventListener('resize', handleResize);
-  return () => window.removeeventlistener('resize', handleresize);
+  return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   // sync 'elements' and 'content'
-  const updatepost = (updates: partial<BlogPostData>) => {
+  const updatePost = (updates: Partial<BlogPostData>) => {
   if (!post) return;
-  setpost({ ...post, ...updates });
+  setPost({ ...post, ...updates });
   };
 
   // --- context methods ---
-  const updateelements = (batchupdates: { id: string; updates: partial<ElementData> }[]) => {
+  const updateElements = (batchUpdates: { id: string; updates: Partial<ElementData> }[]) => {
   if (!post) return;
   const newElements = post.elements?.map(el => {
   const update = batchUpdates.find(u => u.id === el.id);
   if (!update) return el;
   return { ...el, ...update.updates };
   }) || [];
-  updatepost({ elements: newelements, content: newelements });
+  updatePost({ elements: newElements, content: newElements });
   };
 
-  const updateelement = (id: string, updates: partial<ElementData>) => {
+  const updateElement = (id: string, updates: Partial<ElementData>) => {
   updateElements([{ id, updates }]);
   };
 
   const deleteElements = (ids: string[]) => {
   if (!post) return;
   const newElements = post.elements?.filter(el => !ids.includes(el.id)) || [];
-  updatepost({ elements: newelements, content: newelements });
-  setselectedelementids([]);
+  updatePost({ elements: newElements, content: newElements });
+  setSelectedElementIds([]);
   };
 
-  const addelement = (element: omit<ElementData, 'id' | 'zIndex'> & { zIndex?: number }) => {
+  const addElement = (element: Omit<ElementData, 'id' | 'zIndex'> & { zIndex?: number }) => {
   if (!post) return;
   const newElement = {
   ...element,
@@ -260,39 +261,39 @@ function blogeditorparamswrapper({ slug }: { slug: string }) {
 
   if (post.id === 'temp-new') {
  const res = await api.createRecord('blog_posts', payload);
- setPost({ ...res.data, elements: payload.content ? JSON.parse(payload.content) : [] });
+ setPost({ ...(res.data as any), elements: payload.content ? JSON.parse(payload.content) : [] });
  toast.success('post created');
   } else {
- await api.updateRecord('blog_posts', post.id, payload);
+ await api.updateRecord('blog_posts', post.id, payload as any);
  toast.success('saved');
   }
   } catch (e) {
-  secureLogger.error(e);
+  secureLogger.error(String(e));
   toast.error('failed to save');
   }
   };
 
   // dummy handlers
   const handleElementContextMenu = (e: React.MouseEvent, _id: string) => { e.preventDefault(); };
-  const handleGlobalContextMenu = (e: React.MouseEvent) => { e.preventdefault(); };
+  const handleGlobalContextMenu = (e: React.MouseEvent) => { e.preventDefault(); };
 
-  const contextvalue: blogbuildercontexttype = {
-  isadmin: true,
+  const contextValue: BlogBuilderContextType = {
+  isAdmin: true,
   page: post,
-  selectedelementids,
-  setselectedelementids,
-  updateelement,
-  updateelements,
-  deleteelements,
-  addelement,
-  handleelementcontextmenu,
-  handleglobalcontextmenu,
-  previewmode,
-  setpreviewmode,
-  viewwidth,
-  selectionbox,
-  setselectionbox,
-  savepost
+  selectedElementIds,
+  setSelectedElementIds,
+  updateElement,
+  updateElements,
+  deleteElements,
+  addElement,
+  handleElementContextMenu,
+  handleGlobalContextMenu,
+  previewMode,
+  setPreviewMode,
+  viewWidth,
+  selectionBox,
+  setSelectionBox,
+  savePost
   };
 
   if (loading) return <div className="h-screen flex items-center justify-center bg-[#050505] text-white">loading editor...</div>;
@@ -353,7 +354,7 @@ function blogeditorparamswrapper({ slug }: { slug: string }) {
 
  {/* simple add menu (bottom center) */}
  <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-[#050505] border border-white/10 p-2 rounded-2xl shadow-2xl z-[1000]">
-   <ToolBtn icon={<Type size={18} />} label="text" onClick={() => addelement({ type: 'text', content: { html: '<p>new text</p>' }, width: 300, height: 100, x: 100, y: 100, styles: {} })} />
+   <ToolBtn icon={<Type size={18} />} label="text" onClick={() => addElement({ type: 'text', content: { html: '<p>new text</p>' }, width: 300, height: 100, x: 100, y: 100, styles: {} })} />
    <ToolBtn icon={<ImageIcon size={18} />} label="image" onClick={() => {
    const url = prompt('Image URL');
    if (url) addElement({ type: 'image', content: { url }, width: 300, height: 200, x: 100, y: 100, styles: {} });
@@ -365,7 +366,7 @@ function blogeditorparamswrapper({ slug }: { slug: string }) {
  </div>
 
  {/* sidebar properties */}
- {showsidebar && (
+ {showSidebar && (
  <div className="w-80 bg-[#050505] border-l border-white/10 p-4 overflow-y-auto">
    <h3 className="text-white/50 text-xs font-bold  mb-4">post settings</h3>
 
@@ -462,7 +463,7 @@ function blogeditorparamswrapper({ slug }: { slug: string }) {
   );
 }
 
-function formitem({ label, children }: { label: string, children: react.reactnode }) {
+function FormItem({ label, children }: { label: string, children: React.ReactNode }) {
   return (
   <div className="flex flex-col gap-1.5">
   <label className="text-xs text-white/40 font-bold ">{label}</label>

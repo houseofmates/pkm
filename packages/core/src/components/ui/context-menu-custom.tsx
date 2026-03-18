@@ -7,7 +7,7 @@ import { Button } from './button';
 import { Input } from './input';
 import { toast } from 'sonner';
 import { HexColorPicker } from 'react-colorful';
-import { Edit2, ExternalLink, Palette, Trash2, BoxSelect, BrainCircuit } from 'lucide-react';
+import { Edit2, ExternalLink, Palette, Trash2, Bold, Italic, Type } from 'lucide-react';
 
 export function ContextMenu() {
   const { isOpen, x, y, targetId, targetType, data, closeMenu } = useContextMenuStore();
@@ -18,6 +18,7 @@ export function ContextMenu() {
   const [isRenaming, setIsRenaming] = useState(false);
   const [renameValue, setRenameValue] = useState('');
   const [showColorPicker, setShowColorPicker] = useState(false);
+  const [brushDarkness, setBrushDarkness] = useState(0);
 
   // sync rename value when menu opens
   useEffect(() => {
@@ -28,15 +29,32 @@ export function ContextMenu() {
   setShowColorPicker(false);
   }, [isOpen, data]);
 
-  // close on click outside
   useEffect(() => {
-  const handleClick = (e: MouseEvent) => {
-  if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
- closeMenu();
-  }
-  };
-  if (isOpen) window.addEventListener('mousedown', handleClick);
-  return () => window.removeEventListener('mousedown', handleClick);
+    if (!isOpen || targetType !== 'tool' || data?.tool !== 'pen') {
+      setBrushDarkness(0);
+    }
+  }, [isOpen, targetType, data?.tool]);
+
+  // close on click/tap outside
+  useEffect(() => {
+    const handlePointerDown = (e: MouseEvent | PointerEvent | TouchEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        closeMenu();
+      }
+    };
+
+    if (isOpen) {
+      // Use capture phase to ensure canvas drawing/gesture handlers cannot block closing.
+      window.addEventListener('pointerdown', handlePointerDown, { capture: true });
+      window.addEventListener('mousedown', handlePointerDown, { capture: true });
+      window.addEventListener('touchstart', handlePointerDown, { capture: true });
+    }
+
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown, { capture: true });
+      window.removeEventListener('mousedown', handlePointerDown, { capture: true });
+      window.removeEventListener('touchstart', handlePointerDown, { capture: true });
+    };
   }, [isOpen, closeMenu]);
 
   if (!isOpen) return null;
@@ -143,8 +161,11 @@ export function ContextMenu() {
   return createPortal(
   <div
   ref={menuRef}
-  className="fixed z-50 min-w-[200px] bg-popover/95 backdrop-blur-md border border-border text-popover-foreground rounded-lg shadow-xl animate-in fade-in zoom-in-95 duration-100 flex flex-col p-1 overflow-hidden"
-  style={{ top: Math.min(y, window.innerHeight - 300), left: Math.min(x, window.innerWidth - 220) }}
+  className="fixed z-50 min-w-[220px] max-h-[calc(100vh-40px)] bg-popover/95 backdrop-blur-md border border-border text-popover-foreground rounded-lg shadow-xl animate-in fade-in zoom-in-95 duration-100 flex flex-col p-1 overflow-y-auto"
+  style={{ 
+    top: y + 350 > window.innerHeight ? Math.max(10, window.innerHeight - 360) : y, 
+    left: x + 220 > window.innerWidth ? Math.max(10, window.innerWidth - 230) : x 
+  }}
   >
   {/* header / rename */}
   <div className="px-2 py-1.5 border-b border-border/50 mb-1">
@@ -196,6 +217,82 @@ export function ContextMenu() {
  </div>
   )}
 
+  {/* text formatting options (for fabric Textbox/IText objects) */}
+  {targetType === 'canvas-object' && (data?.type === 'textbox' || data?.type === 'i-text' || data?.type === 'Textbox' || data?.type === 'IText') && (() => {
+    const fabricCanvas = useEdgelessStore.getState().fabricCanvas;
+    const activeObj = fabricCanvas?.getActiveObject() as any;
+    if (!activeObj) return null;
+    
+    const toggleBold = () => {
+      const current = activeObj.fontWeight;
+      activeObj.set('fontWeight', current === 'bold' ? 'normal' : 'bold');
+      fabricCanvas?.requestRenderAll();
+    };
+    const toggleItalic = () => {
+      const current = activeObj.fontStyle;
+      activeObj.set('fontStyle', current === 'italic' ? 'normal' : 'italic');
+      fabricCanvas?.requestRenderAll();
+    };
+    const toggleOutline = () => {
+      if (activeObj.stroke && activeObj.strokeWidth > 0) {
+        activeObj.set({ stroke: '', strokeWidth: 0 });
+      } else {
+        activeObj.set({ stroke: '#000000', strokeWidth: 1.5 });
+      }
+      fabricCanvas?.requestRenderAll();
+    };
+    const setTextColor = (color: string) => {
+      activeObj.set('fill', color);
+      fabricCanvas?.requestRenderAll();
+    };
+    
+    return (
+      <>
+        <div className="h-px bg-border/50 my-1" />
+        <div className="px-2 py-1">
+          <span className="text-[10px] text-muted-foreground lowercase">text formatting</span>
+        </div>
+        <div className="flex gap-1 px-2 mb-1">
+          <Button
+            variant={activeObj.fontWeight === 'bold' ? 'default' : 'ghost'}
+            size="icon"
+            className="h-7 w-7"
+            onClick={toggleBold}
+          >
+            <Bold className="h-3.5 w-3.5" />
+          </Button>
+          <Button
+            variant={activeObj.fontStyle === 'italic' ? 'default' : 'ghost'}
+            size="icon"
+            className="h-7 w-7"
+            onClick={toggleItalic}
+          >
+            <Italic className="h-3.5 w-3.5" />
+          </Button>
+          <Button
+            variant={(activeObj.stroke && activeObj.strokeWidth > 0) ? 'default' : 'ghost'}
+            size="icon"
+            className="h-7 w-7"
+            onClick={toggleOutline}
+            title="black outline"
+          >
+            <Type className="h-3.5 w-3.5" />
+          </Button>
+        </div>
+        <div className="flex gap-1 px-2 mb-1">
+          {['var(--primary)', '#ffffff', '#ef4444', '#22c55e', '#3b82f6', '#000000'].map((color) => (
+            <button
+              key={color}
+              onClick={() => setTextColor(color)}
+              className={`w-5 h-5 rounded-full border border-white/20 ${activeObj.fill === color ? 'ring-2 ring-primary ring-offset-1 ring-offset-black' : ''}`}
+              style={{ backgroundColor: color }}
+            />
+          ))}
+        </div>
+      </>
+    );
+  })()}
+
   {/* metadata / full edit */}
   {targetType === 'dashboard-card' && (
  <Button
@@ -211,15 +308,14 @@ export function ContextMenu() {
 
   {/* ask ai (canvas/object) */}
   {targetType === 'tool' && (() => {
-    const store = useEdgelessStore();
+    // moved hook call outside of callback - use getState() for store access
+    const store = useEdgelessStore.getState();
     const isBrush = data?.tool === 'pen';
     const widthVal = isBrush ? store.penWidth : store.eraserWidth;
     const opacityVal = isBrush ? store.penOpacity : store.eraserOpacity;
     const setWidth = isBrush ? store.setPenWidth : store.setEraserWidth;
-    const setOpacity = isBrush ? store.setPenOpacity : store.setEraserOpacity;
+const setOpacity = isBrush ? store.setPenOpacity : store.setEraserOpacity;
 
-    // darkness state for brush (0-100)
-    const [darkness, setDarkness] = useState(0);
     const applyDark = (hex: string, d: number) => {
       // convert hex to hsl, reduce lightness by d%
       let h = 0, s = 0, l = 0;
@@ -264,15 +360,6 @@ export function ContextMenu() {
 
     return (
       <>
-        {/* size slider */}
-        <div className="flex flex-col gap-1 mb-2">
-          <label className="text-xs text-primary lowercase flex justify-between">
-            <span>size</span><span>{widthVal}px</span>
-          </label>
-          <input aria-label="size" type="range" min="1" max="100" value={widthVal}
-            onChange={(e) => setWidth(Number(e.target.value))}
-            className="accent-primary" />
-        </div>
         {/* opacity slider */}
         <div className="flex flex-col gap-1 mb-2">
           <label className="text-xs text-primary lowercase flex justify-between">
@@ -280,6 +367,15 @@ export function ContextMenu() {
           </label>
           <input aria-label="opacity" type="range" min="0" max="100" value={opacityVal}
             onChange={(e) => setOpacity(Number(e.target.value))}
+            className="accent-primary" />
+        </div>
+        {/* size slider */}
+        <div className="flex flex-col gap-1 mb-2">
+          <label className="text-xs text-primary lowercase flex justify-between">
+            <span>size</span><span>{widthVal}px</span>
+          </label>
+          <input aria-label="size" type="range" min="1" max="100" value={widthVal}
+            onChange={(e) => setWidth(Number(e.target.value))}
             className="accent-primary" />
         </div>
         {isBrush && (
@@ -297,12 +393,12 @@ export function ContextMenu() {
             {/* darkness slider */}
             <div className="flex flex-col gap-1 mb-2">
               <label className="text-xs text-primary lowercase flex justify-between">
-                <span>darkness</span><span>{darkness}%</span>
+                <span>darkness</span><span>{brushDarkness}%</span>
               </label>
-              <input aria-label="darkness" type="range" min="0" max="100" value={darkness}
+              <input aria-label="darkness" type="range" min="0" max="100" value={brushDarkness}
                 onChange={(e) => {
                   const d = Number(e.target.value);
-                  setDarkness(d);
+                  setBrushDarkness(d);
                   store.setPenColor(applyDark(store.penColor, d));
                 }}
                 className="accent-primary" />
@@ -323,10 +419,11 @@ export function ContextMenu() {
  onClick={handleDelete}
   >
  <Trash2 className="h-3.5 w-3.5 mr-2 opacity-70" />
- delete
+ cancel
   </Button>
 
   </div>,
   document.body
   );
 }
+

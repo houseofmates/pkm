@@ -9,6 +9,7 @@
 
 import { z } from 'zod';
 import type { FieldTypeDefinition, FieldDefinition } from './types';
+import { secureLogger } from '@/lib/secure-logger';
 
 /**
  * field registry class - manages all registered field types

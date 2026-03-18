@@ -1,20 +1,38 @@
+import '@testing-library/jest-dom/vitest';
 // virtualization components are tricky in tests; stub them out to render all rows
-import { vi } from 'vitest';
+import { vi, describe, it, expect } from 'vitest';
 vi.mock('react-window', () => ({
   List: ({ itemCount, itemSize, itemData, style, children }: any) => (
     <div style={style}>
-      {Array.from({ length: itemCount }).map((_, i) =>
-        children({ index: i, style: {}, data: itemData })
-      )}
+      {Array.from({ length: itemCount }).map((_, i) => (
+        <div key={i}>{children({ index: i, style: {}, data: itemData })}</div>
+      ))}
     </div>
   ),
 }));
 vi.mock('react-virtualized-auto-sizer', () => ({
   AutoSizer: ({ children }: any) => <div>{children({ width: 100, height: 100 })}</div>,
 }));
+vi.mock('@/components/fields/smart-field', () => ({
+  SmartField: ({ value, onChange, className }: any) => {
+    const [val, setVal] = require('react').useState(value);
+    return (
+      <input
+        data-testid="smartfield-input"
+        className={className}
+        value={val}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+          setVal(e.target.value);
+          onChange?.(e.target.value);
+        }}
+      />
+    );
+  },
+}));
 
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { ListView } from '../list-view';
 
 // we don't need to mock SmartField because ListView uses it directly and
@@ -39,7 +57,13 @@ const fakeClient = {};
 const authValue = { token: 'x', isAuthenticated: true, login: vi.fn(), logout: vi.fn(), client: fakeClient };
 
 function withAuth(ui: React.ReactElement) {
-  return render(<AuthContext.Provider value={authValue as any}>{ui}</AuthContext.Provider>);
+  // many components inside ListView rely on react-router hooks; wrap with a
+  // lightweight memory router to satisfy them.
+  return render(
+    <MemoryRouter>
+      <AuthContext.Provider value={authValue as any}>{ui}</AuthContext.Provider>
+    </MemoryRouter>
+  );
 }
 
 describe('ListView', () => {
@@ -54,11 +78,11 @@ describe('ListView', () => {
       />
     );
 
-    // value should be visible
-    expect(screen.getByText('hello')).toBeInTheDocument();
-    // click to edit
-    fireEvent.click(screen.getByText('hello'));
-    const input = screen.getByRole('textbox');
+    // value should be visible through mocked SmartField input
+    const input = screen.getByTestId('smartfield-input');
+    expect(input).toHaveValue('hello');
+    // click to edit (focus the input)
+    fireEvent.click(input);
     fireEvent.change(input, { target: { value: 'world' } });
     fireEvent.keyDown(input, { key: 'Enter' });
     expect(onUpdate).toHaveBeenCalledWith('1', { title: 'world' });

@@ -5,11 +5,12 @@ import { RichEditor } from '@/components/ui/rich-editor';
 import { format } from 'date-fns';
 import { TextContextMenu } from './text-context-menu';
 import { MarkdownCheatSheet } from './markdown-cheat-sheet';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface JournalDocumentProps {
   document: any;
   onUpdate: (updates: any) => void;
-  readonly?: boolean;
+  readOnly?: boolean;
 }
 
 export function JournalDocument({ document, onUpdate, readOnly = false }: JournalDocumentProps) {
@@ -96,7 +97,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
  formattedText = `### ${selectedText}`;
  break;
   case 'color':
- formattedText = `<span style="color: ${value}">${selectedtext}</span>`;
+ formattedText = `<span style="color: ${value}">${selectedText}</span>`;
  break;
   case 'link':
  formattedText = `[${selectedText}](${value})`;
@@ -129,13 +130,13 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
   };
 
   const handleBannerClick = (e: React.MouseEvent) => {
-  if (readonly) return;
-  e.preventdefault();
-  setshowbannerupload(true);
+  if (readOnly) return;
+  e.preventDefault();
+  setShowBannerUpload(true);
   };
 
-  const documentcolor = document.color || '#8b5cf6'; // default purple
-  const createddate = document.created_at ? new date(document.created_at) : new date();
+  const documentColor = document.color || '#8b5cf6'; // default purple
+  const createdDate = document.created_at ? new Date(document.created_at) : new Date();
 
   return (
   <div className="min-h-screen bg-background font-varela">
@@ -161,31 +162,29 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
  <div className="flex flex-col items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
    <ImageIcon className="w-8 h-8" />
    <span className="text-sm lowercase">
-   {readonly ? 'no banner image' : 'click to add banner image'}
+   {readOnly ? 'no banner image' : 'click to add banner image'}
    </span>
  </div>
  </div>
  )}
 
- {showbannerupload && !readonly && (
+ {showBannerUpload && !readOnly && (
  <div className="absolute inset-0 bg-black/80 flex items-center justify-center z-10">
  <div className="bg-background p-6 rounded-lg shadow-xl max-w-md w-full">
    <h3 className="text-lg font-semibold mb-4 lowercase">upload banner image</h3>
    <input
    type="file"
    accept="image/*"
-   onchange={(e) => {
+   onChange={(e) => {
    const file = e.target.files?.[0];
-   if (file) handlebannerupload(file);
+   if (file) handleBannerUpload(file);
    }}
-   classname="w-full"
+   className="w-full"
    />
-   <div classname="flex gap-2 mt-4">
+   <div className="flex gap-2 mt-4">
    <button
-   variant="outline"
-   size="sm"
-   onclick={() => setshowbannerupload(false)}
-   classname="flex-1 lowercase"
+   onClick={() => setShowBannerUpload(false)}
+   className="flex-1 lowercase"
    >
    cancel
    </button>
@@ -214,7 +213,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
 
  {/* date */}
  <div className="text-center text-muted-foreground text-lg mb-8 font-varela">
- {format(createddate, 'mmmm d, yyyy')}
+ {format(createdDate, 'mmmm d, yyyy')}
  </div>
 
  {/* divider */}
@@ -236,7 +235,7 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
   </div>
 
   {/* context menu */}
-  {contextmenu && (
+  {contextMenu && (
  <TextContextMenu
  x={contextMenu.x}
  y={contextMenu.y}

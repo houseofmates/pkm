@@ -4,7 +4,7 @@ import { secureLogger } from '@/lib/secure-logger';
 import { useParams } from 'react-router-dom';
 import { api } from '@/api/nocobase-client';
 import { toast } from 'sonner';
-import { getSubdomain } from '@/utils/subdomain-router';
+import { getSubdomain, isPublicDomain } from '@/utils/subdomain-router';
 import { AdminLoginModal } from './components/AdminLoginModal';
 import { BuilderToolbox } from './components/BuilderToolbox';
 import { PageRenderer } from './components/PageRenderer';
@@ -255,7 +255,8 @@ export function HouseofmatesBuilder() {
       secureLogger.info('[HouseofmatesBuilder] pageRes.data type:', typeof pageRes?.data);
       secureLogger.info('[HouseofmatesBuilder] pageRes.data is array?', Array.isArray(pageRes?.data));
 
-      let foundPage = pageRes?.data?.[0] || pageRes?.data?.data?.[0];
+      const pageResAny = pageRes as any;
+      let foundPage = pageResAny?.data?.[0] || pageResAny?.data?.data?.[0];
       secureLogger.info('[HouseofmatesBuilder] foundPage:', foundPage);
 
       // if no page found and we're looking for home, try is_home and site_identifier
@@ -271,7 +272,8 @@ export function HouseofmatesBuilder() {
           }
         });
         secureLogger.info('[HouseofmatesBuilder] home page RAW response:', JSON.stringify(pageRes, null, 2));
-        foundPage = pageRes?.data?.[0] || pageRes?.data?.data?.[0];
+        const homeResAny = pageRes as any;
+        foundPage = homeResAny?.data?.[0] || homeResAny?.data?.data?.[0];
         secureLogger.info('[HouseofmatesBuilder] foundPage after home filter:', foundPage);
       }
 
@@ -303,9 +305,13 @@ export function HouseofmatesBuilder() {
 
         // handle 401 specifically
         if (error.response.status === 401) {
-          secureLogger.warn('[HouseofmatesBuilder] 401 Unauthorized - prompting for login');
-          toast.error('you need to log in as admin to create/edit pages');
-          setShowLoginModal(true);
+          secureLogger.warn('[HouseofmatesBuilder] 401 Unauthorized');
+          // only show login modal on private domains
+          // on public domains, show read-only view without login prompt
+          if (!isPublicDomain()) {
+            toast.error('you need to log in as admin to create/edit pages');
+            setShowLoginModal(true);
+          }
         }
       }
       setPage(null);
@@ -329,13 +335,19 @@ export function HouseofmatesBuilder() {
 
     const init = async () => {
       const key = storageManager.getItem('hom_api_key');
-      setIsAdmin(true);
-      // run collection ensures
-      try {
-        await ensureWebsiteCollection();
-        await ensureFormsCollection();
-      } catch (err) {
-        secureLogger.error('collection setup failed:', err);
+      // only set admin mode if we have an API key
+      // on public domains without a key, stay in read-only public mode
+      const shouldBeAdmin = !!key;
+      setIsAdmin(shouldBeAdmin);
+      
+      // run collection ensures only if we might be admin
+      if (shouldBeAdmin) {
+        try {
+          await ensureWebsiteCollection();
+          await ensureFormsCollection();
+        } catch (err) {
+          secureLogger.error('collection setup failed:', err);
+        }
       }
       await fetchPage();
     };
@@ -414,7 +426,7 @@ export function HouseofmatesBuilder() {
           if (!parent) {
             secureLogger.warn(`[ensureWebsiteCollection] Broken inheritance detected for ${colName}! Resetting inherits.`);
             try {
-              await api.updateCollection(colName, { inherits: [] });
+              await api.request('collections', 'update', { params: { filterByTk: colName }, data: { inherits: [] } });
             } catch (e) {
               secureLogger.error(`Failed to reset broken inheritance for ${colName}:`, e);
             }
@@ -444,7 +456,8 @@ export function HouseofmatesBuilder() {
           secureLogger.warn(`Failed to get fields for ${colName} via getCollection, trying listFields fallback`);
           try {
             const fieldListRes = await api.request('fields', 'list', { params: { 'filter[collectionName]': colName } });
-            existingFields = fieldListRes.data || [];
+            const fieldListResAny = fieldListRes as any;
+            existingFields = fieldListResAny?.data || [];
           } catch (fe) {
             secureLogger.error(`Giving up on field check for ${colName}:`, fe);
           }
@@ -462,8 +475,7 @@ export function HouseofmatesBuilder() {
           } else if (existing.interface !== field.interface) {
             try {
               secureLogger.info(`Updating field ${field.name} interface in ${colName} collection`);
-              // @ts-expect-error -- api typings do not include updatefield overload used here
-              await api.updateField(colName, field.name, { interface: field.interface });
+              await (api as any).updateField(colName, field.name, { interface: field.interface });
             } catch (err) {
               secureLogger.warn(`Failed to update field ${field.name}:`, err);
             }
@@ -509,7 +521,7 @@ export function HouseofmatesBuilder() {
           const parentData = Array.isArray(parentRes) ? parentRes : (parentRes as { data?: any[] }).data;
           if (!parentData?.find((p: any) => col.inherits.includes(p.name))) {
             secureLogger.warn(`[ensureFormsCollection] Broken inheritance detected for ${colName}! Resetting inherits.`);
-            await api.updateCollection(colName, { inherits: [] }).catch(secureLogger.error);
+            await api.request('collections', 'update', { params: { filterByTk: colName }, data: { inherits: [] } }).catch(secureLogger.error);
           }
         }
 
@@ -529,7 +541,8 @@ export function HouseofmatesBuilder() {
           existingFields = colDetail.data?.fields || [];
         } catch (e) {
           const flr = await api.request('fields', 'list', { params: { 'filter[collectionName]': colName } }).catch(() => ({ data: [] }));
-          existingFields = flr.data || [];
+          const flrAny = flr as any;
+          existingFields = flrAny?.data || [];
         }
 
         for (const field of fields) {
@@ -779,15 +792,16 @@ export function HouseofmatesBuilder() {
         return;
       }
 
-      // ctrl+e: admin login
+      // ctrl+e: admin login toggle
       if (e.ctrlKey && e.key.toLowerCase() === 'e') {
-        e.preventDefault();
-        if (!isAdmin) {
-          setShowLoginModal(true);
-        } else {
+        // only handle if we're already in admin mode (showing modal to update key)
+        // public users use the App-level ctrl+e handler, not this one
+        if (isAdmin) {
+          e.preventDefault();
           toast.info('update api key');
           setShowLoginModal(true);
         }
+        // if not admin, let the App.tsx ctrl+e handler deal with it
         return;
       }
 
@@ -855,7 +869,8 @@ export function HouseofmatesBuilder() {
       try {
         // upload file
         const uploaded = await api.upload(file);
-        const fileUrl = uploaded?.url || uploaded?.data?.url;
+        const uploadedAny = uploaded as any;
+        const fileUrl = uploadedAny?.url || uploadedAny?.data?.url;
 
         if (!fileUrl) {
           throw new Error('No URL returned from upload');
@@ -1023,21 +1038,15 @@ export function HouseofmatesBuilder() {
           </div>
         ) : !page ? (
           <div className="h-screen flex flex-col items-center justify-center text-white lowercase p-6 text-center">
-            <div className="bg-red-500/10 border border-red-500/20 rounded-2xl p-8 max-w-lg">
-              <h1 className="text-2xl font-bold mb-2 text-red-500">
-                failed to load page
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-8 max-w-lg">
+              <h1 className="text-2xl font-bold mb-2 text-white/80">
+                page not found
               </h1>
-              <p className="text-white/70 mb-6">
-                {isAdmin ? `could not find a page for "${site_identifier}"` : 'the server blocked access to this page.'}
+              <p className="text-white/50 mb-6">
+                this page doesn't exist yet
               </p>
 
-              {!isAdmin && (
-                <div className="text-left bg-black/30 p-4 rounded-lg mb-6 font-mono text-xs text-white/50">
-                  <p>diagnosis: public role missing permissions</p>
-                  <p>fix: nocobase admin {'>'} roles {'>'} public {'>'} {collectionNames.website} {'>'} view</p>
-                </div>
-              )}
-
+              {/* only show admin controls on private domains or when admin mode is active */}
               {isAdmin ? (
                 <div className="space-y-3 w-full">
                   <button
@@ -1064,12 +1073,10 @@ export function HouseofmatesBuilder() {
                   </button>
                 </div>
               ) : (
-                <button
-                  onClick={() => setShowLoginModal(true)}
-                  className="w-full py-3 px-6 rounded-xl bg-white/10 text-white font-bold hover:bg-white/20 active:scale-[0.98] transition-all"
-                >
-                  login to admin
-                </button>
+                /* on public domains, show a friendly message instead of login prompt */
+                <p className="text-white/30 text-sm">
+                  press ctrl+e to enter admin mode
+                </p>
               )}
             </div>
           </div>

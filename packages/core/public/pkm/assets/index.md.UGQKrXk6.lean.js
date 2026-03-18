@@ -1,0 +1,1 @@
+import{_ as i,o as e,c as s,ag as n}from"./chunks/framework.DsMOZfd2.js";const m=JSON.parse('{"title":"pkm wiki","description":"","frontmatter":{},"headers":[],"relativePath":"index.md","filePath":"index.md"}'),l={name:"index.md"};function t(o,a,r,h,c,k){return e(),s("div",null,[...a[0]||(a[0]=[n("",15)])])}const d=i(l,[["render",t]]);export{m as __pageData,d as default};

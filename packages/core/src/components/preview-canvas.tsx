@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   DndContext,
   PointerSensor,
@@ -7,6 +7,7 @@ import {
   useSensors,
   DragOverlay,
   useDroppable,
+  DragStartEvent,
 } from '@dnd-kit/core';
 import { snapCenterToCursor } from '@dnd-kit/modifiers';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
@@ -37,7 +38,12 @@ class SmartPointerSensor extends PointerSensor {
   ];
 }
 
-type Widget = any;
+export type Widget = {
+  id?: string;
+  title?: string;
+  view_type?: string;
+  [key: string]: any; // allow extra props
+};
 
 function DroppableColumn({ ci, children }: { ci: number; children: React.ReactNode }) {
   const { setNodeRef, isOver } = useDroppable({ id: `col-${ci}`, data: { columnIndex: ci } });
@@ -48,13 +54,13 @@ function DroppableColumn({ ci, children }: { ci: number; children: React.ReactNo
   );
 }
 
-function SortableItem({ id, render }: { id: string; render: () => react.reactnode }) {
-  const { attributes, listeners, setnoderef, transform, transition, isdragging } = usesortable({ id, transition: { duration: 150, easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)' } });
+function SortableItem({ id, render }: { id: string; render: () => React.ReactNode }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id, transition: { duration: 150, easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)' } });
 
-  const style: react.cssproperties = {
-    transform: transform ? css.transform.tostring(transform) : undefined,
+  const style: React.CSSProperties = {
+    transform: transform ? CSS.Transform.toString(transform) : undefined,
     transition,
-    opacity: isdragging ? 0.3 : 1,
+    opacity: isDragging ? 0.3 : 1,
   };
 
   return (
@@ -76,12 +82,12 @@ export default function PreviewCanvas({
   columnWidths?: number[];
   onColumnWidthsChange?: (w: number[]) => void;
   onColumnsChange?: (cols: Widget[][]) => void;
-  renderWidget: (w: Widget, idx: number) => react.reactnode;
-  classname?: string;
+  renderWidget: (w: Widget, idx: number) => React.ReactNode;
+  className?: string;
 }) {
-  const colcount = math.max(1, math.min(columns.length || 1, 4));
+  const colCount = Math.max(1, Math.min(columns.length || 1, 4));
 
-  const [localcols, setlocalcols] = useState<Widget[][]>(() => columns.map((c) => (Array.isArray(c) ? [...c] : [])));
+  const [localCols, setLocalCols] = useState<Widget[][]>(() => columns.map((c) => (Array.isArray(c) ? [...c] : [])));
 
   useEffect(() => {
     const next = columns.map((c) => (Array.isArray(c) ? [...c] : []));
@@ -111,11 +117,11 @@ export default function PreviewCanvas({
     return loc?.item ?? null;
   }, [activeId, localCols, findLocation]);
 
-  const handleDragStart = (event: any) => {
+  const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as string);
   };
 
-  const handleDragEnd = (event: any) => {
+  const handleDragEnd = (event: { active: any; over: any }) => {
     const { active, over } = event;
     if (!over) {
       setActiveId(null);
@@ -153,12 +159,12 @@ export default function PreviewCanvas({
 
     const newCols = localCols.map((c) => [...c]);
     const [movedItem] = newCols[from.ci].splice(from.wi, 1);
-    if (from.ci === targetCol && targetIndex > from.wi) targetindex--;
-    newcols[targetcol].splice(targetindex, 0, moveditem);
+    if (from.ci === targetCol && targetIndex > from.wi) targetIndex--;
+    newCols[targetCol].splice(targetIndex, 0, movedItem);
 
-    setlocalcols(newcols);
-    oncolumnschange?.(newcols);
-    setactiveid(null);
+    setLocalCols(newCols);
+    onColumnsChange?.(newCols);
+    setActiveId(null);
   };
 
   return (

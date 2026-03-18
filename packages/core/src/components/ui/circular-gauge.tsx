@@ -94,7 +94,7 @@ export function CircularGauge({ title, totalSeconds, color = 'var(--primary)', c
  onClick={toggleTimer}
  className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
  >
- {isactive ? <Pause size={16} /> : <Play size={16} />}
+ {isActive ? <Pause size={16} /> : <Play size={16} />}
  </button>
  <button
  onClick={resetTimer}

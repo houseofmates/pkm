@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 interface PortalElementProps {
@@ -8,14 +8,13 @@ interface PortalElementProps {
 
 export const PortalElement = React.memo(function PortalElement({ element }: PortalElementProps) {
   const navigate = useNavigate();
-  const [targetName, setTargetName] = useState('Loading Portal...');
-
-  // mock fetching target name - in real app, fetch from collection/nocobase
-  useEffect(() => {
+  
+  // compute target name directly without state
+  const targetName = useMemo(() => {
     const id = element.data?.targetId;
-    if (id === 'aphrodite-altar') setTargetName('The Altar');
-    else if (id) setTargetName(`Canvas: ${id}`);
-    else setTargetName('Unbound Portal');
+    if (id === 'aphrodite-altar') return 'The Altar';
+    else if (id) return `Canvas: ${id}`;
+    else return 'Unbound Portal';
   }, [element.data?.targetId]);
 
   const handleDoubleClick = (e: React.MouseEvent) => {

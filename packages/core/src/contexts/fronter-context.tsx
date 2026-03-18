@@ -126,13 +126,19 @@ export function FronterProvider({ children }: { children: ReactNode }) {
         // i'll leave empty if missing.
       }
 
-      // fetch history
-      let historyData: any[] = [];
+      // fetch history (keep existing if fetch fails)
+      let historyData: any[] | null = null;
       try {
         const res = await api.listRecords('front_history', { sort: '-startTime', pageSize: 50 });
         historyData = Array.isArray(res) ? res : ((res as { data?: any[] })?.data || []);
-      } catch (e) {
-        secureLogger.warn("Front history missing?", e);
+      } catch (e: any) {
+        // Axios aborts (e.g. HMR / navigation) often show as ECONNABORTED.
+        // This is not fatal; keep existing history instead of wiping it.
+        const isAbort = e?.code === 'ECONNABORTED' || e?.message?.toLowerCase()?.includes('aborted');
+        secureLogger.warn('Front history fetch failed (will keep cached history):', e);
+        if (isAbort) {
+          historyData = null;
+        }
       }
 
       // parse members
@@ -146,49 +152,52 @@ export function FronterProvider({ children }: { children: ReactNode }) {
       }));
       setMembers(parsedMembers);
 
-      // parse history
-      const parsedHistory: FrontEntry[] = historyData.map((h: any) => ({
-        id: h.id?.toString(),
-        startTime: h.startTime || h.createdAt,
-        endTime: h.endTime,
-        members: typeof h.members === 'string' ? JSON.parse(h.members) : (h.members || []),
-        comment: h.comment
-      }));
-      setHistory(parsedHistory);
+      // parse history only if we actually fetched it
+      if (historyData) {
+        const parsedHistory: FrontEntry[] = historyData.map((h: any) => ({
+          id: h.id?.toString(),
+          startTime: h.startTime || h.createdAt,
+          endTime: h.endTime,
+          members: typeof h.members === 'string' ? JSON.parse(h.members) : (h.members || []),
+          comment: h.comment
+        }));
+        setHistory(parsedHistory);
 
-      // derive active fronters
-      // find most recent entry with no endtime
-      const latest = parsedHistory[0];
-      secureLogger.info('Latest front history entry:', latest);
-      secureLogger.info('All history entries:', parsedHistory);
-      if (latest && !latest.endTime) {
-        const fronterIds = latest.members.map(m => m.id);
-        secureLogger.info('Setting active fronters from history:', fronterIds);
-        setActiveFronters(fronterIds);
+        // derive active fronters
+        const latest = parsedHistory[0];
+        secureLogger.info('Latest front history entry:', latest);
+        secureLogger.info('All history entries:', parsedHistory);
+        if (latest && !latest.endTime) {
+          const fronterIds = latest.members.map(m => m.id);
+          secureLogger.info('Setting active fronters from history:', fronterIds);
+          setActiveFronters(fronterIds);
 
-        // also cache to storage manager as backup
-        try {
-          storageManager.setItem('pkm_active_fronters', JSON.stringify(fronterIds));
-        } catch (e) {
-          secureLogger.warn('Failed to cache fronters to storage manager:', e);
-        }
-      } else {
-        secureLogger.info('No active front found in history, checking localStorage backup');
-        // try to restore from localStorage if database has no active front
-        try {
-          const cached = storageManager.getItem('pkm_active_fronters');
-          if (cached) {
-            const cachedIds = JSON.parse(cached);
-            secureLogger.info('Restoring fronters from storage manager:', cachedIds);
-            setActiveFronters(cachedIds);
-          } else {
+          // also cache to storage manager as backup
+          try {
+            storageManager.setItem('pkm_active_fronters', JSON.stringify(fronterIds));
+          } catch (e) {
+            secureLogger.warn('Failed to cache fronters to storage manager:', e);
+          }
+        } else {
+          secureLogger.info('No active front found in history, checking localStorage backup');
+          // try to restore from localStorage if database has no active front
+          try {
+            const cached = storageManager.getItem('pkm_active_fronters');
+            if (cached) {
+              const cachedIds = JSON.parse(cached);
+              secureLogger.info('Restoring fronters from storage manager:', cachedIds);
+              setActiveFronters(cachedIds);
+            } else {
+              setActiveFronters([]);
+            }
+          } catch (e) {
+            secureLogger.warn('Failed to restore from storage manager:', e);
             setActiveFronters([]);
           }
-        } catch (e) {
-          secureLogger.warn('Failed to restore from storage manager:', e);
-          setActiveFronters([]);
         }
       }
+
+
 
     } catch (e) {
       secureLogger.error("Failed to refresh fronter data", e);
@@ -198,10 +207,43 @@ export function FronterProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // simplyplural sync: pull front status
+  const syncFrontFromSimplyPlural = async () => {
+    try {
+      const apiKey = storageManager.getItem('pk_api_key');
+      if (!apiKey) return;
+      // get system id
+      const meRes = await fetch(require('@/lib/simply-plural-client').SimplyPluralClient.url('/me'), {
+        headers: { 'Authorization': apiKey }
+      });
+      if (!meRes.ok) return;
+      const meData = await meRes.json();
+      const systemId = meData.id;
+      // get front status
+      const frontRes = await fetch(require('@/lib/simply-plural-client').SimplyPluralClient.url(`/front/${systemId}`), {
+        headers: { 'Authorization': apiKey }
+      });
+      if (!frontRes.ok) return;
+      const frontData = await frontRes.json();
+      if (frontData && Array.isArray(frontData.fronters)) {
+        const spFronters = frontData.fronters.map((f: any) => f.id);
+        setActiveFronters(spFronters);
+        storageManager.setItem('pkm_active_fronters', JSON.stringify(spFronters));
+        secureLogger.info('Synced fronters from SimplyPlural:', spFronters);
+      }
+    } catch (err) {
+      secureLogger.error('SimplyPlural front pull error:', err);
+    }
+  };
+
   // initial load & poll
   useEffect(() => {
     refresh();
-    const interval = setInterval(refresh, 60000); // Poll every minute
+    syncFrontFromSimplyPlural();
+    const interval = setInterval(() => {
+      refresh();
+      syncFrontFromSimplyPlural();
+    }, 60000); // Poll every minute
     return () => clearInterval(interval);
   }, []);
 
@@ -223,18 +265,58 @@ export function FronterProvider({ children }: { children: ReactNode }) {
 
       // 2. create new front
       if (memberIds.length > 0) {
-        const newEntry = {
+        const newEntry: Record<string, string | number | boolean | undefined> = {
           startTime: timestamp,
-          members: memberIds.map((id, index) => ({
+          members: JSON.stringify(memberIds.map((id, index) => ({
             id,
             role: index === 0 ? 'primary' : 'secondary',
             order: index
-          })),
+          }))),
           comment
         };
         secureLogger.info('Creating new front entry:', newEntry);
         const createResult = await api.createRecord('front_history', newEntry);
         secureLogger.info('New front entry created, result:', createResult);
+
+        // --- SimplyPlural sync ---
+        try {
+          const apiKey = storageManager.getItem('pk_api_key');
+          if (apiKey) {
+            // get system id
+            const meRes = await fetch(
+              require('@/lib/simply-plural-client').SimplyPluralClient.url('/me'),
+              { headers: { 'Authorization': apiKey } }
+            );
+            if (!meRes.ok) throw new Error('Failed to fetch system info from SimplyPlural');
+            const meData = await meRes.json();
+            const systemId = meData.id;
+            // push fronters
+            const frontPayload = {
+              fronters: memberIds.map((id, idx) => ({ id, role: idx === 0 ? 'primary' : 'secondary' }))
+            };
+            const frontRes = await fetch(
+              require('@/lib/simply-plural-client').SimplyPluralClient.url(`/front/${systemId}`),
+              {
+                method: 'PATCH',
+                headers: {
+                  'Authorization': apiKey,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(frontPayload)
+              }
+            );
+            if (!frontRes.ok) {
+              const errText = await frontRes.text();
+              secureLogger.warn(`SimplyPlural front sync failed (${frontRes.status}):`, errText);
+              toast.warning(`front updated locally, but SimplyPlural sync failed: ${frontRes.status} - ${errText}`);
+            } else {
+              toast.success('front updated and synced to SimplyPlural');
+            }
+          }
+        } catch (spErr) {
+          secureLogger.error('SimplyPlural sync error:', spErr);
+        }
+        // --- end SimplyPlural sync ---
       } else {
         secureLogger.info('No members specified, just closing previous front');
       }

@@ -1,6 +1,7 @@
 import { api } from '@/api/nocobase-client';
 import { localDbService } from './local-db.service';
 import { useCollectionsStore } from '@/store/useCollectionsStore';
+import { secureLogger } from '@/lib/secure-logger';
 import './field-types'; // For side-effect: registers default field types.
 import type { FieldInstance } from './schema.service';
 
@@ -62,7 +63,7 @@ class DataService {
       await localDbService.saveCollections(freshCollections);
 
       // 4. Update the UI (Zustand store) with fresh data
-      useCollectionsStore.getState().setCollections(freshCollections);
+      useCollectionsStore.getState().setCollections(freshCollections as any);
     } catch (error) {
       secureLogger.error('Failed to sync collections from NocoBase. App may be offline.', error);
       // If the network fails, the app will continue to run with the cached data.

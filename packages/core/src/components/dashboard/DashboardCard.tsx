@@ -14,9 +14,17 @@ export const DashboardCard: React.FC<DashboardCardProps> = React.memo(({ collect
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // moved early return check to useEffect to avoid conditional hooks
+  const isValidCollection = Boolean(collectionName);
+
+  const handleClick = useCallback((item: Record<string, unknown>) => {
+    // ideally open a drawer or navigate
+    secureLogger.info('Clicked item', item);
+  }, []);
+
   useEffect(() => {
   const fetchData = async () => {
-  if (!collectionName) return;
+  if (!isValidCollection) return;
   setLoading(true);
   try {
  // parse filter if it's a string (coming from tiptap attributes)
@@ -24,7 +32,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = React.memo(({ collect
  if (typeof filter === 'string') {
  try {
  queryFilter = JSON.parse(filter);
- } catch (_e) {
+ } catch {
  secureLogger.warn('Invalid filter JSON:', filter);
  }
  }
@@ -50,14 +58,9 @@ export const DashboardCard: React.FC<DashboardCardProps> = React.memo(({ collect
   // refresh every minute
   const interval = setInterval(fetchData, 60000);
   return () => clearInterval(interval);
-  }, [collectionName, filter]);
+  }, [collectionName, filter, isValidCollection]);
 
-  if (!collectionName) return null;  
-
-  const handleClick = useCallback((item: Record<string, unknown>) => {
-    // ideally open a drawer or navigate
-    secureLogger.info('Clicked item', item);
-  }, []);
+  if (!isValidCollection) return null;
 
   return (
   <div className="dashboard-card my-4 p-4 border rounded-xl bg-card text-card-foreground shadow-sm overflow-hidden isolate relative">
@@ -73,7 +76,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = React.memo(({ collect
   )}
 
   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
- {data.map((item: record<string, unknown>) => (
+ {data.map((item: Record<string, unknown>) => (
  <div
  key={String(item.id ?? '')}
  className="p-3 border rounded-md bg-background hover:bg-accent/50 transition-colors cursor-pointer"
@@ -81,15 +84,15 @@ export const DashboardCard: React.FC<DashboardCardProps> = React.memo(({ collect
  onClick={() => handleClick(item)}
  >
  <div className="font-semibold truncate">
-   {string(item.title ?? item.name ?? item.id ?? '')}
+   {String(item.title ?? item.name ?? item.id ?? '')}
  </div>
- {item.status && (
+ {Boolean(item.status) && (
    <div className="text-xs text-muted-foreground mt-1">
-   {string(item.status)}
+   {String(item.status)}
    </div>
  )}
  <div className="text-xs text-muted-foreground mt-2 truncate opacity-70">
-   {new date(string(item.createdat ?? item.created_at ?? date.now())).tolocaledatestring()}
+   {new Date(String(item.createdAt ?? item.created_at ?? Date.now())).toLocaleDateString()}
  </div>
  </div>
  ))}

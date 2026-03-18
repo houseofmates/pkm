@@ -13,4 +13,4 @@ interface ImportMeta {
   readonly env: ImportMetaEnv
 }
 
-declare module 'react-quill';
+declare module 'react-quill-new';

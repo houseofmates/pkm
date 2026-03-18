@@ -5,11 +5,12 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Target } from 'lucide-react';
 import { storageManager } from '@/lib/storage-manager';
+import { secureLogger } from '@/lib/secure-logger';
 
 export function IdentityGroundingWidget({ className }: { className?: string }) {
   const { activeFronters, memberColors } = useFronter();
   const [fronterName, setFronterName] = useState<string>('system');
-  const [primarycolor, setprimarycolor] = useState<string>('');
+  const [primaryColor, setPrimaryColor] = useState<string>('');
 
   useEffect(() => {
   const loadFronterInfo = async () => {
@@ -64,7 +65,7 @@ export function IdentityGroundingWidget({ className }: { className?: string }) {
  style={{ backgroundColor: primaryColor ? `#${primaryColor}` : 'gray' }}
  />
  <span className="text-sm font-bold tracking-wide opacity-80">
- front: {frontername}
+ front: {fronterName}
  </span>
   </div>
 

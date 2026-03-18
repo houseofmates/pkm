@@ -10,6 +10,7 @@ vi.mock('comlink', () => ({
   proxy: vi.fn((fn: any) => fn),
   wrap: vi.fn(),
   expose: vi.fn(),
+  releaseProxy: vi.fn(),
 }))
 
 // mock the ai worker proxy
@@ -17,7 +18,9 @@ vi.mock('@/hooks/use-ai-worker', () => ({
   getAIWorkerProxy: vi.fn(() => ({
     init: vi.fn(),
     askWithRag: vi.fn(),
+    askWithRagAndAttachments: vi.fn(),
     chatStream: vi.fn(),
+    chatStreamMultimodal: vi.fn(),
     searchKnowledgeBase: vi.fn(),
     generateEmbedding: vi.fn(),
     buildRagPrompt: vi.fn(),
@@ -36,6 +39,7 @@ describe('WilsonChat /ai flow', () => {
       isThinking: false,
       streamingContent: '',
       currentContext: null,
+      pendingAttachments: [],
     })
   })
 
@@ -93,5 +97,59 @@ describe('WilsonChat /ai flow', () => {
 
     // the streaming content should be visible
     expect(screen.getByText('partial response from wilson...')).toBeTruthy()
+  })
+
+  it('shows attachment button', () => {
+    useEdgelessStore.setState({ isChatOpen: true })
+    render(<WilsonChat />)
+
+    // There should be a paperclip/attachment button
+    const attachmentButton = screen.getByTitle('Attach files (images, gifs, videos)')
+    expect(attachmentButton).toBeTruthy()
+  })
+
+  it('displays pending attachments in the header', () => {
+    useEdgelessStore.setState({ isChatOpen: true })
+    useLLMStore.setState({
+      pendingAttachments: [
+        { id: '1', name: 'test.png', type: 'image', file: new File([''], 'test.png') },
+        { id: '2', name: 'test.gif', type: 'gif', file: new File([''], 'test.gif') },
+      ],
+    })
+
+    render(<WilsonChat />)
+
+    // Should show attachment count in header
+    expect(screen.getByText('2 attachments')).toBeTruthy()
+  })
+
+  it('disables send button when no input and no attachments', () => {
+    useEdgelessStore.setState({ isChatOpen: true })
+    useLLMStore.setState({
+      pendingAttachments: [],
+    })
+
+    render(<WilsonChat />)
+
+    const sendButton = screen.getByRole('button', { name: '' }) // Send button has no text, just icon
+    expect(sendButton).toBeDisabled()
+  })
+
+  it('enables send button when there are attachments even without text input', () => {
+    useEdgelessStore.setState({ isChatOpen: true })
+    useLLMStore.setState({
+      pendingAttachments: [
+        { id: '1', name: 'test.png', type: 'image', file: new File([''], 'test.png') },
+      ],
+    })
+
+    render(<WilsonChat />)
+
+    // The send button should be enabled because there's an attachment
+    // Note: The button might not have a specific accessible name, so we check by finding the button
+    // inside the input container
+    const buttons = screen.getAllByRole('button')
+    const sendButton = buttons.find(btn => btn.querySelector('svg')) // Find button with Send icon
+    expect(sendButton).not.toBeDisabled()
   })
 })

@@ -7,6 +7,7 @@ import { useContextMenuStore } from '@/components/ui/context-menu-store';
 import { RecordContextMenu } from '@/features/records/components/record-context-menu';
 import api from '@/api/nocobase-client';
 import { SmartField } from '@/components/fields/smart-field';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface CanvasCardProps {
   data: any; // NocoBASE row data
@@ -79,8 +80,8 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
   };
 
   const handleSave = (key: string, value: any) => {
-    const newdata = { ...localData, [key]: value };
-    setLocalData(newdata);
+    const newData = { ...localData, [key]: value };
+    setLocalData(newData);
     if (onUpdate) onUpdate(data.id, { [key]: value });
   };
 

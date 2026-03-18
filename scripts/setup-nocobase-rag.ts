@@ -11,7 +11,7 @@ const CONFIG = {
     name: 'ollama-local',
     type: 'ollama',
     baseUrl: 'http://localhost:11434',
-    defaultModel: 'qwen2.5vl:latest',
+    defaultModel: 'qwen2.5vl:7b-q4_K_M',
   },
   aiEmployee: {
     name: 'wilson-rag',

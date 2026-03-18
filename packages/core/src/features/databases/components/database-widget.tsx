@@ -29,13 +29,13 @@ export function DatabaseWidget({ collection, onRemove, className, initialView, v
   const currentView = viewConfig.viewType || initialView;
 
   const { records, loading, refresh, createRecord, updateRecord } = useRecords(collection.name, {
-    sort: viewConfig.sort,
-    filter: viewConfig.filter
+    sort: viewConfig.sort as any,
+    filter: viewConfig.filter as any
   });
 
   // sync config changes to userecords
   useEffect(() => {
-    refresh({ sort: viewConfig.sort, filter: viewConfig.filter });
+    refresh({ sort: viewConfig.sort as any, filter: viewConfig.filter as any });
   }, [viewConfig.sort, JSON.stringify(viewConfig.filter)]);
 
   const CurrentViewComponent = VIEW_REGISTRY[currentView] || VIEW_REGISTRY['table'];

@@ -18,7 +18,7 @@ export function ShareDialog({ documentId, isPublic, onTogglePublic }: ShareDialo
   const publicUrl = `${import.meta.env.VITE_PUBLIC_URL || 'http://localhost:3011'}/doc/${documentId}`;
 
   const handleCopyLink = () => {
-  navigator.clipboard.writetext(publicurl);
+  navigator.clipboard.writeText(publicUrl);
   toast.success('link copied to clipboard');
   };
 
@@ -44,17 +44,17 @@ export function ShareDialog({ documentId, isPublic, onTogglePublic }: ShareDialo
  {/* privacy toggle */}
  <div className="flex items-center justify-between p-4 bg-muted/20 rounded-lg">
    <div className="flex items-center gap-3">
-   {ispublic ? (
+   {isPublic ? (
    <Unlock className="w-5 h-5 text-green-500" />
    ) : (
    <Lock className="w-5 h-5 text-muted-foreground" />
    )}
    <div>
    <Label className="lowercase font-semibold">
-  {ispublic ? 'public' : 'private'}
+  {isPublic ? 'public' : 'private'}
    </Label>
    <p className="text-xs text-muted-foreground lowercase">
-  {ispublic
+  {isPublic
   ? 'anyone with the link can view'
   : 'only you can access this document'}
    </p>
@@ -67,7 +67,7 @@ export function ShareDialog({ documentId, isPublic, onTogglePublic }: ShareDialo
  </div>
 
  {/* public link */}
- {ispublic && (
+ {isPublic && (
    <div className="space-y-2">
    <Label className="lowercase">public link</Label>
    <div className="flex gap-2">

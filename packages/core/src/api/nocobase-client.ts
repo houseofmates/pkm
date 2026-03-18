@@ -43,9 +43,6 @@ interface RequestParams {
   [key: string]: unknown;
 }
 
-type QueryParamPrimitive = string | number | boolean | undefined | null;
-export type QueryParamValue = QueryParamPrimitive | QueryParamPrimitive[];
-
 
 export class NocoBaseClient {
   private _axios: AxiosInstance;
@@ -190,8 +187,9 @@ export class NocoBaseClient {
     try {
       const res = await this._axios.delete(`/collections/${name}`);
       return ActionResponseSchema.parse(res.data);
-    } catch (error) {
-      secureLogger.warn(`DELETE /collections/${name} failed, falling back to POST /collections:destroy`);
+    } catch (error: unknown) {
+      const err = error as ApiError;
+      secureLogger.warn(`DELETE /collections/${name} failed:`, err.message, 'falling back to POST /collections:destroy');
       const res = await this._axios.post(`/collections:destroy?filterByTk=${name}`, { drop: true, force: true });
       return ActionResponseSchema.parse(res.data);
     }
@@ -202,7 +200,7 @@ export class NocoBaseClient {
       try {
         await this.getCollection('pkm_settings');
         return true;
-      } catch (e) {
+      } catch {
         // likely 404, proceed to create
       }
 
@@ -219,7 +217,7 @@ export class NocoBaseClient {
     } catch (error: unknown) {
       const err = error as ApiError;
       if (err?.response?.status === 400) return true; // Already exists race condition
-      secureLogger.warn('Backend collection check failed', error);
+      secureLogger.warn('Backend collection check failed', err);
       return false;
     }
   }
@@ -254,7 +252,7 @@ export class NocoBaseClient {
       await this._axios.post(`/collections:destroy?filterByTk=${COL_NAME}`);
       secureLogger.info(`[NocoBase] Deleted old ${COL_NAME} collection`);
       await new Promise(r => setTimeout(r, 1000));
-    } catch (e) {
+    } catch {
       // ignore delete errors - collection might not exist
     }
 
@@ -294,7 +292,7 @@ export class NocoBaseClient {
       try {
         await this.getCollection(COL_NAME);
         return true;
-      } catch (e) {
+      } catch {
         // not found
       }
 
@@ -359,10 +357,10 @@ export class NocoBaseClient {
       secureLogger.info(`[NocoBase] Sending fields:create payload:`, JSON.stringify(data, null, 2));
       const res = await this._axios.post(`/collections/${collection}/fields:create`, data);
       return GetRecordResponseSchema.parse(res.data);
-    } catch (error: any) {
-      if (error.response?.data) {
-        secureLogger.error(`[NocoBase] fields:create API Error Payload:`, JSON.stringify(error.response.data, null, 2));
-        alert(`NocoBase Field Create Error:\n` + JSON.stringify(error.response.data, null, 2));
+    } catch (error: unknown) {
+      const err = error as ApiError;
+      if (err.response?.data) {
+        secureLogger.error(`[NocoBase] fields:create API Error Payload:`, JSON.stringify(err.response.data, null, 2));
       }
       throw error;
     }
@@ -375,7 +373,7 @@ export class NocoBaseClient {
     const res = await this._axios.post(`/collections/${collection}/fields:destroy?filterByTk=${name}`);
     return ActionResponseSchema.parse(res.data);
   }
-  async listRecords(collection: string, params: Record<string, QueryParamValue> = {}): Promise<Record<string, unknown>> {
+  async listRecords(collection: string, params: Record<string, any> = {}): Promise<Record<string, unknown>> {
     // remove /obj/ prefix, use <collection>:list
     const res = await this._axios.get(`/${collection}:list`, { params });
 
@@ -399,7 +397,7 @@ export class NocoBaseClient {
     const res = await this._axios.get(`/${collection}:get?filterByTk=${id}`);
     return GetRecordResponseSchema.parse(res.data);
   }
-  async createRecord(collection: string, data: Record<string, string | number | boolean | undefined>): Promise<Record<string, unknown>> {
+  async createRecord(collection: string, data: Record<string, any>): Promise<Record<string, unknown>> {
     // normalize: ensure notes created via ui/backend include entity_type: 'note'
     // this enforces metadata consistency for note templates and downstream plugins
     if (collection === 'notes' && data && typeof data === 'object' && !('entity_type' in data)) {
@@ -409,6 +407,10 @@ export class NocoBaseClient {
     // remove /obj/ prefix, use <collection>:create
     const res = await this._axios.post(`/${collection}:create`, data);
     return GetRecordResponseSchema.parse(res.data);
+  }
+  async createRecords(collection: string, data: Record<string, any>[]): Promise<Record<string, unknown>> {
+    const res = await this._axios.post(`/${collection}:create`, data);
+    return ListRecordsResponseSchema.parse(res.data);
   }
   async updateRecord(collection: string, id: string | number, data: Record<string, string | number | boolean | undefined>): Promise<Record<string, unknown>> {
     // use filterbytk query param for reliable update, matching deleterecord
@@ -420,34 +422,33 @@ export class NocoBaseClient {
     const res = await this._axios.post(`/${collection}:destroy?filterByTk=${id}`);
     return ActionResponseSchema.parse(res.data);
   }
+  async deleteRecordByFilter(collection: string, filter: Record<string, unknown>): Promise<Record<string, unknown>> {
+    // delete record by filter (useful when id is missing but other fields like timestamp exist)
+    const filterStr = JSON.stringify(filter);
+    const res = await this._axios.post(`/${collection}:destroy?filter=${encodeURIComponent(filterStr)}`);
+    return ActionResponseSchema.parse(res.data);
+  }
 
   // --- file/storage methods ---
   async upload(file: File): Promise<Record<string, unknown>> {
     const formData = new FormData();
     formData.append('file', file);
 
-    // try PKM backend upload first when running locally (dev builds only)
-    const backendUrl = import.meta.env.VITE_BACKEND_URL;
-    const isLocalBackend = (backendUrl && backendUrl.includes('localhost')) ||
-      (typeof window !== 'undefined' && window.location.hostname === 'localhost');
+    // try pkm backend upload first (for background images)
+    try {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4100';
+      const res = await fetch(`${backendUrl}/Api/upload-background`, {
+        method: 'POST',
+        body: formData,
+      });
 
-    if (isLocalBackend) {
-      try {
-        const resolvedBackend = backendUrl || 'http://localhost:4100';
-        const res = await fetch(`${resolvedBackend}/api/upload-background`, {
-          method: 'POST',
-          body: formData,
-          credentials: 'include',
-        });
-
-        if (res.ok) {
-          const data = await res.json();
-          secureLogger.info('[Upload] Using PKM backend upload:', data);
-          return data;
-        }
-      } catch (err) {
-        secureLogger.warn('[Upload] PKM backend upload failed, falling back to NocoBase:', err);
+      if (res.ok) {
+        const data = await res.json();
+        secureLogger.info('[Upload] Using PKM backend upload:', data);
+        return data;
       }
+    } catch (err) {
+      secureLogger.warn('[Upload] PKM backend upload failed, falling back to NocoBase:', err);
     }
 
     // fallback to nocobase attachments endpoint

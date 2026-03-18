@@ -16,7 +16,7 @@ class MockEventSource {
   url: string;
   readyState = MockEventSource.CONNECTING;
   withCredentials = false;
-  listeners: Record<string, Function> = {};
+  listeners: Record<string, (event: Event) => void> = {};
   onerror: ((ev: any) => void) | null = null;
   onopen: ((ev: any) => void) | null = null;
   onmessage: ((ev: any) => void) | null = null;
@@ -24,10 +24,10 @@ class MockEventSource {
   constructor(url: string) {
     this.url = url;
   }
-  addEventListener(ev: string, fn: Function) {
+  addEventListener(ev: string, fn: (event: Event) => void) {
     this.listeners[ev] = fn;
   }
-  removeEventListener(ev: string, fn: Function) {
+  removeEventListener(ev: string, fn: (event: Event) => void) {
     if (this.listeners[ev] === fn) {
       delete this.listeners[ev];
     }

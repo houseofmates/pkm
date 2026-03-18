@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  pkm-wiki:
+    image: nginx:alpine
+    container_name: pkm-wiki
+    ports:
+      - "8080:80"
+    volumes:
+      - ./docs/dist:/usr/share/nginx/html/pkm:ro
+    restart: unless-stopped
+    networks:
+      - pkm-net
+
+networks:
+  pkm-net:
+    driver: bridge
+

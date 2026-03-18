@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "tauri dev",
-    "build": "npm run build --workspace=pkm-web && tauri build"
+    "build": "npm run build --workspace=@pkm/core && tauri build"
   },
   "dependencies": {
     "@pkm/core": "*",

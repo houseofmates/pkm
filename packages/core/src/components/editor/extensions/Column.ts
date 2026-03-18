@@ -34,7 +34,7 @@ export const ColumnList = Node.create({
   },
   addCommands() {
     return {
-      setColumns: (count: number) => ({ commands }) => {
+      setColumns: (count: number) => ({ commands }: { commands: any }) => {
         const columns = Array(count).fill({ type: 'column', content: [{ type: 'paragraph' }] });
         return commands.insertContent({
           type: 'columnList',

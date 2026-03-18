@@ -1,18 +1,96 @@
 import path from "path"
+import fs from "fs"
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
-import legacy from '@vitejs/plugin-legacy'
+
+// serve /pkm/* from public/pkm/ as static files (VitePress docs)
+// instead of letting the SPA fallback catch them
+function pkmWikiPlugin() {
+  const mimeTypes: Record<string, string> = {
+    '.html': 'text/html',
+    '.css': 'text/css',
+    '.js': 'application/javascript',
+    '.json': 'application/json',
+    '.woff2': 'font/woff2',
+    '.woff': 'font/woff',
+    '.ttf': 'font/ttf',
+    '.svg': 'image/svg+xml',
+    '.png': 'image/png',
+    '.jpg': 'image/jpeg',
+    '.ico': 'image/x-icon',
+  }
+
+  return {
+    name: 'pkm-wiki-static',
+    configureServer(server: any) {
+      // must return a function to run AFTER vite's internal middleware
+      // but we actually want to run BEFORE, so we use server.middlewares.use directly
+      server.middlewares.use((req: any, res: any, next: any) => {
+        const url = (req.url || '').split('?')[0].split('#')[0]
+        if (!url.startsWith('/pkm')) return next()
+
+        let filePath: string
+        if (url === '/pkm' || url === '/pkm/') {
+          filePath = path.join(__dirname, 'public', 'pkm', 'index.html')
+        } else {
+          filePath = path.join(__dirname, 'public', url)
+        }
+
+        // if exact file exists, serve it
+        if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+          const ext = path.extname(filePath)
+          const mime = mimeTypes[ext] || 'application/octet-stream'
+          res.setHeader('Content-Type', mime)
+          res.setHeader('Cache-Control', 'no-cache')
+          fs.createReadStream(filePath).pipe(res)
+          return
+        }
+
+        // try .html extension for clean URLs
+        if (!path.extname(filePath)) {
+          const htmlPath = filePath + '.html'
+          const indexPath = path.join(filePath, 'index.html')
+          if (fs.existsSync(htmlPath)) {
+            res.setHeader('Content-Type', 'text/html')
+            res.setHeader('Cache-Control', 'no-cache')
+            fs.createReadStream(htmlPath).pipe(res)
+            return
+          }
+          if (fs.existsSync(indexPath)) {
+            res.setHeader('Content-Type', 'text/html')
+            res.setHeader('Cache-Control', 'no-cache')
+            fs.createReadStream(indexPath).pipe(res)
+            return
+          }
+        }
+
+        // fallback: serve VitePress 404.html so the SPA doesn't catch /pkm/* routes
+        const fallback404 = path.join(__dirname, 'public', 'pkm', '404.html')
+        if (fs.existsSync(fallback404)) {
+          res.statusCode = 404
+          res.setHeader('Content-Type', 'text/html')
+          res.setHeader('Cache-Control', 'no-cache')
+          fs.createReadStream(fallback404).pipe(res)
+          return
+        }
+
+        next()
+      })
+    }
+  }
+}
 
 // https://vite.dev/config/
 export default defineConfig({
   base: '/',
   plugins: [
+    pkmWikiPlugin(),
     react(),
-    // ensure older android webviews can execute the bundle (avoids createContext undefined)
-    legacy({
-      targets: ['Android >= 10', 'Chrome >= 80'],
-      modernPolyfills: true,
-    }),
+    // legacy plugin disabled - re-enable for production APK builds with older Android support
+    // legacy({
+    //   targets: ['Android >= 10', 'Chrome >= 80'],
+    //   modernPolyfills: true,
+    // }),
   ],
   server: {
     host: '0.0.0.0',
@@ -26,6 +104,10 @@ export default defineConfig({
     },
     proxy: {
       '/api/broadcast': {
+        target: 'http://127.0.0.1:4100',
+        changeOrigin: true,
+      },
+      '/api/ics-proxy': {
         target: 'http://127.0.0.1:4100',
         changeOrigin: true,
       },
@@ -73,11 +155,6 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
       },
-      '/api/ollama': {
-        target: 'http://localhost:11434/api',
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api\/ollama/, ''),
-      },
       '/storage': {
         target: 'http://192.168.4.233:8091',
         changeOrigin: true,
@@ -91,6 +168,10 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       '/api/broadcast': {
+        target: 'http://127.0.0.1:4100',
+        changeOrigin: true,
+      },
+      '/api/ics-proxy': {
         target: 'http://127.0.0.1:4100',
         changeOrigin: true,
       },

@@ -1,5 +1,5 @@
 
-import { getOllamaChatUrl } from '@/lib/llm-config';
+import { getOllamaChatUrl, DEFAULT_GEMINI_MODEL, ensureGeminiApiKey } from '@/lib/llm-config';
 import { secureLogger } from '@/lib/secure-logger';
 
 export interface ChatMessage {
@@ -15,12 +15,16 @@ export interface ChatResponse {
   total_duration?: number;
 }
 
-export const oLLAMA_MODEL = 'qwen2.5vl:latest';
+export const DEFAULT_CHAT_MODEL = DEFAULT_GEMINI_MODEL;
 
 export class OllamaClient {
-
   async chat(messages: ChatMessage[], onStream?: (content: string) => void): Promise<ChatResponse> {
     try {
+      const apiKey = await ensureGeminiApiKey();
+      if (!apiKey) {
+        throw new Error('missing google gemini api key');
+      }
+
       const url = getOllamaChatUrl();
       const response = await fetch(url, {
         method: 'POST',
@@ -28,53 +32,36 @@ export class OllamaClient {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: oLLAMA_MODEL,
-          messages,
-          stream: !!onStream
-        })
+          prompt: {
+            messages: messages.map(m => ({
+              author: m.role === 'system' ? 'system' : 'user',
+              content: [{ type: 'text', text: m.content }],
+            })),
+          },
+          temperature: 0.7,
+        }),
       });
 
       if (!response.ok) {
-        throw new Error(`Ollama API Error: ${response.statusText}`);
+        throw new Error(`Gemini API Error: ${response.statusText}`);
       }
+
+      const data = await response.json();
+      const candidate = data?.candidates?.[0]?.content || '';
+      const content = typeof candidate === 'string' ? candidate : '';
 
       if (onStream) {
-        const reader = response.body?.getReader();
-        const decoder = new TextDecoder();
-        let fullContent = '';
-
-        if (!reader) throw new Error("Could not get stream reader");
-
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split('\n');
-
-          for (const line of lines) {
-            if (!line.trim()) continue;
-            try {
-              const json = JSON.parse(line);
-              if (json.message?.content) {
-                fullContent += json.message.content;
-                onStream(fullContent);
-              }
-              if (json.done) {
-                return json;
-              }
-            } catch (e) {
-              // ignore partial json
-            }
-          }
-        }
-        return { model: oLLAMA_MODEL, created_at: new Date().toISOString(), message: { role: 'assistant', content: fullContent }, done: true };
-      } else {
-        const data = await response.json();
-        return data;
+        onStream(content.toLowerCase());
       }
+
+      return {
+        model: DEFAULT_CHAT_MODEL,
+        created_at: new Date().toISOString(),
+        message: { role: 'assistant', content: content.toLowerCase() },
+        done: true,
+      };
     } catch (error) {
-      secureLogger.error("Ollama Chat Error:", error);
+      secureLogger.error('Gemini Chat Error:', error);
       throw error;
     }
   }
@@ -84,12 +71,15 @@ export class OllamaClient {
       ? `you are wilson, a helpful ai assistant for a personal knowledge management system. you must respond entirely in lowercase with no capital letters at all. be concise, friendly, and helpful. answer the user's question based on the following context:\n\n${context}`
       : `you are wilson, a helpful ai assistant for a personal knowledge management system. you must respond entirely in lowercase with no capital letters at all. be concise, friendly, and accurate.`;
 
-    const response = await this.chat([
-      { role: 'system', content: systemPrompt },
-      { role: 'user', content: query }
-    ], (content) => {
-      if (onStream) onStream(content.toLowerCase());
-    });
+    const response = await this.chat(
+      [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: query },
+      ],
+      (content) => {
+        if (onStream) onStream(content.toLowerCase());
+      }
+    );
 
     return response.message.content.toLowerCase();
   }

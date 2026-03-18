@@ -54,8 +54,8 @@ async function checkForUpdates() {
 
             const result = dialog.showMessageBoxSync(mainWindow, {
                 type: 'info',
-                title: 'Update Available',
-                message: 'A new version of PKM is available.',
+                title: 'pkm update',
+                message: 'a new version of pkm is available.',
                 detail: 'The app will now reload to get the latest updates.',
                 buttons: ['Reload Now', 'Later'],
                 defaultId: 0,
@@ -116,8 +116,8 @@ function createWindow() {
     } else if (process.env.PKM_REMOTE_URL || !app.isPackaged) {
         // Live update mode: load from remote and check for updates
         mainWindow.loadURL(remoteUrl);
-        console.log(`[PKM] Live-update mode: Loading from ${remoteUrl}`);
-        console.log(`[PKM] The app will auto-reload when code changes are deployed.`);
+        console.log(`[pkm] Live-update mode: Loading from ${remoteUrl}`);
+        console.log(`[pkm] The app will auto-reload when code changes are deployed.`);
 
         // Start checking for updates after initial load
         mainWindow.webContents.on('did-finish-load', () => {
@@ -128,7 +128,7 @@ function createWindow() {
     } else {
         // Offline mode: load bundled files from custom protocol to fix localStorage and IndexedDB origin
         mainWindow.loadURL('pkm://app/index.html');
-        console.log('[PKM] Offline mode: Loading bundled files via pkm://');
+        console.log('[pkm] Offline mode: Loading bundled files via pkm://');
     }
 
     // Add reload menu

@@ -20,21 +20,31 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
   // the rest of the tree functional while we investigate why the
   // provider chain was broken.
   const authContext = useContext(AuthContext);
-  if (!authContext) {
-    // this log should surface in prod logs if it ever happens
-    // (it shouldn't under normal operation).
-    secureLogger.warn('LLMContextProvider rendered without surrounding AuthProvider');
-    return <>{children}</>;
-  }
-  const { client, isAuthenticated } = authContext;
+  const isAuthenticated = authContext?.isAuthenticated ?? false;
+  const client = authContext?.client;
 
-  // const { collections } = usecollections(); // not used currently
-
-  // local state for aggregated context
-  const [context, setContext] = useState<LLMContextPayload | null>(null);
+  // early return check moved to render to avoid conditional hooks
+  const hasAuthProvider = Boolean(authContext);
 
   // ref to track last pushed context to avoid spamming the main process
   const lastPushedRef = useRef<string | null>(null);
+
+  // --- 0. collection availability check ---
+  const [availableCollections, setAvailableCollections] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (!hasAuthProvider || !isAuthenticated || !client) return;
+    client.listCollections({ pageSize: 100 }).then((res: any) => {
+      const list = Array.isArray(res?.data) ? res.data : res?.data;
+
+      if (Array.isArray(list)) {
+        setAvailableCollections(list.map((c: any) => c.name));
+      }
+    }).catch((e) => { console.warn('Failed to fetch available collections:', e); });
+  }, [client, isAuthenticated, hasAuthProvider]);
+
+  // local state for aggregated context
+  const [context, setContext] = useState<LLMContextPayload | null>(null);
 
   // --- 1. identity context ---
   const getIdentityContext = (): IdentityContext => {
@@ -45,52 +55,30 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
     const primaryId = activeFronters[0];
     const override = overrides[primaryId] || {};
 
-    // we'd ideally want the name. if we only have id, we might need to look it up in a "members" list if we have it active.
-    // for now, let's assume we can get it or fallback to id.
-    // if the frontercontext exposed the full list, that would be better.
-    // we do have access to simplyplural data in headmatespage, but maybe not globally.
-    // let's try to get it from a local cache if possible, or just expose id for now.
-    // actually, headmatecard uses proper names.
-    // we will expose what we have.
-
-  return {
-  activeFronter: {
- id: primaryId,
- name: formatHeadmateName((override as any).name || primaryId), // fallback
- avatarUrl: (override as any).avatarUrl
-  },
-
+    return {
+      activeFronter: {
+        id: primaryId,
+        name: formatHeadmateName((override as any).name || primaryId), // fallback
+        avatarUrl: (override as any).avatarUrl
+      },
       systemName: "system" // placeholder
     };
   };
-
-  // --- 0. collection availability check ---
-  const [availableCollections, setAvailableCollections] = useState<string[]>([]);
-
-  useEffect(() => {
-    if (!isAuthenticated) return;
-  client.listCollections({ pageSize: 100 }).then((res: any) => {
-  const list = Array.isArray(res?.data) ? res.data : res?.data;
-
-      if (Array.isArray(list)) {
-        setAvailableCollections(list.map((c: any) => c.name));
-      }
-    }).catch(() => { });
-  }, [client, isAuthenticated]);
 
   // --- 2. affective context ---
   const [moodState, setMoodState] = useState<AffectiveContext['currentMood']>(null);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!hasAuthProvider || !isAuthenticated || !client) return;
     if (!availableCollections.includes('moods')) return;
 
     // strategy: look for a 'moods' or 'journal' collection
     const checkMood = async () => {
       // try 'moods' collection first
       try {
- const res = await client.listRecords('moods', { pageSize: 1, sort: ['-createdAt'] });
- const data = Array.isArray(res?.data) ? res.data : res?.data;
+ const res = await client.listRecords('moods', { pageSize: 1, sort: '-createdAt' });
+ const rawData = res?.data;
+ const data = Array.isArray(rawData) ? rawData : [];
 
         if (data && data.length > 0) {
           const last = data[0];
@@ -124,8 +112,10 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
       // check 'journal' or just generic audit logs?
       // let's look for 'journal'
       try {
- const res = await client.listRecords('journal', { pageSize: 3, sort: ['-createdAt'] });
- const data = Array.isArray(res?.data) ? res.data : res?.data;
+ if (!client) return;
+ const res = await client.listRecords('journal', { pageSize: 3, sort: '-createdAt' });
+ const rawData = res?.data;
+ const data = Array.isArray(rawData) ? rawData : [];
 
         if (data && data.length > 0) {
           setRecentActivity(data.map((item: any) => ({

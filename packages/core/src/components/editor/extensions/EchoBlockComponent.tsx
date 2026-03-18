@@ -4,6 +4,7 @@ import { api } from '@/api/nocobase-client';
 import { useDebounce } from 'react-use';
 import { useSocket } from '@/hooks/use-socket';
 import { Wifi, WifiOff } from 'lucide-react';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface EchoBlockComponentProps {
   node: {
@@ -36,11 +37,11 @@ export const EchoBlockComponent: React.FC<EchoBlockComponentProps> = ({ node }) 
 
     try {
       const res = await api.getRecord(collectionName, recordId);
-      const recordData = res?.data || res;
+      const recordData = (res as any)?.data || res;
 
       // only update if we're not actively typing
-      if (recordData && recordData.content !== content && !isLocalChange.current) {
-        setContent(recordData.content || '');
+      if (recordData && (recordData as any).content !== content && !isLocalChange.current) {
+        setContent((recordData as any).content || '');
       }
     } catch (err) {
       secureLogger.error('Failed to fetch echo block content:', err);

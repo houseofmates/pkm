@@ -102,4 +102,33 @@ describe('RootLayout', () => {
     // by the first test and the conditional itself is simple. This avoids
     // flaky failures caused by testing UI structure.
   });
+
+  it('always lowercases the document title', async () => {
+    // start with an uppercase hostname to simulate a weird environment
+    Object.defineProperty(window, 'location', {
+      value: { hostname: 'HOME.HOUSEOFMATES.SPACE' },
+      writable: true,
+      configurable: true,
+    });
+    const { RootLayout, AuthProvider, FronterProvider, LLMContextProvider } = await loadLayoutAndProviders();
+    const linkEl = document.createElement('link');
+    linkEl.id = 'favicon';
+    linkEl.rel = 'icon';
+    document.head.appendChild(linkEl);
+    render(
+      <AuthProvider>
+        <QueryClientProvider client={new QueryClient()}>
+          <FronterProvider>
+            <LLMContextProvider>
+              <BrowserRouter>
+                <RootLayout />
+              </BrowserRouter>
+            </LLMContextProvider>
+          </FronterProvider>
+        </QueryClientProvider>
+      </AuthProvider>
+    );
+    // even though the original host was uppercase, the title must still be lowercase
+    expect(document.title).toBe('home');
+  });
 });

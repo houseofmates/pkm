@@ -1,3 +1,4 @@
+import '@testing-library/jest-dom/vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import * as React from 'react';
 import { MemoryRouter } from 'react-router-dom';
@@ -27,10 +28,10 @@ describe('RecordContextMenu', () => {
     fireEvent.contextMenu(target);
 
     const editButton = screen.getByRole('button', { name: /edit/i });
-    expect(editButton).toBeInTheDocument();
+    expect(editButton).toBeTruthy();
 
     // click the edit button and ensure dialog opens
     fireEvent.click(editButton);
-    expect(screen.getByText(/edit item/i)).toBeInTheDocument();
+    expect(screen.getByText(/edit item/i)).toBeTruthy();
   });
 });

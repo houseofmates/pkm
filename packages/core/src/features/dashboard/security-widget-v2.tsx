@@ -138,13 +138,13 @@ export function SecurityWidgetV2() {
   const { isAuthenticated } = useAuth();
   const [privacyMode, setPrivacyMode] = useState(true);
   const [logs, setLogs] = useState<LogEntry[]>([]);
-  const [risklevel, setrisklevel] = useState<'low' | 'medium' | 'high'>('high');
-  const [mounted, setmounted] = useState(false);
-  const [vulnerabilities, setvulnerabilities] = useState<Vulnerability[]>([]);
-  const [selectedvuln, setselectedvuln] = useState<Vulnerability | null>(null);
-  const [scanning, setscanning] = useState(false);
-  const [expandedvulns, setexpandedvulns] = useState<Set<string>>(new set());
-  const [copiedprompt, setcopiedprompt] = useState<string | null>(null);
+  const [riskLevel, setRiskLevel] = useState<'low' | 'medium' | 'high'>('high');
+  const [mounted, setMounted] = useState(false);
+  const [vulnerabilities, setVulnerabilities] = useState<Vulnerability[]>([]);
+  const [selectedVuln, setSelectedVuln] = useState<Vulnerability | null>(null);
+  const [scanning, setScanning] = useState(false);
+  const [expandedVulns, setExpandedVulns] = useState<Set<string>>(new Set());
+  const [copiedPrompt, setCopiedPrompt] = useState<string | null>(null);
 
   function updateSecurityStatus() {
     const status = secureLogger.getSecurityStatus();
@@ -170,12 +170,12 @@ export function SecurityWidgetV2() {
     }, 1500);
   }
 
+  // initialize on mount
   useEffect(() => {
-    setMounted(true);
     updateSecurityStatus();
     // run initial security scan
     handleScan();
-    
+
     const interval = setInterval(updateSecurityStatus, 5000);
     return () => clearInterval(interval);
   }, [isAuthenticated]);
@@ -273,7 +273,7 @@ export function SecurityWidgetV2() {
               className={cn("text-[10px] lowercase", currentRisk.color)}
             >
               <RiskIcon className="h-3 w-3 mr-1" />
-              {currentrisk.label}
+              {currentRisk.label}
             </Badge>
           </div>
         </div>
@@ -347,20 +347,20 @@ export function SecurityWidgetV2() {
                       className="w-full flex items-center gap-2 p-2 hover:bg-white/5 transition-colors text-left"
                     >
                       <Badge className={cn("text-[9px] h-5 px-1.5", getSeverityColor(vuln.severity))}>
-                        {getseverityicon(vuln.severity)}
+                        {getSeverityIcon(vuln.severity)}
                         <span className="ml-1">{vuln.severity}</span>
                       </Badge>
                       <span className="flex-1 text-[11px] text-white/80 truncate lowercase">
                         {vuln.title}
                       </span>
-                      {expandedvulns.has(vuln.id) ? (
+                      {expandedVulns.has(vuln.id) ? (
                         <ChevronUp className="h-3 w-3 text-white/40" />
                       ) : (
                         <ChevronDown className="h-3 w-3 text-white/40" />
                       )}
                     </button>
                     
-                    {expandedvulns.has(vuln.id) && (
+                    {expandedVulns.has(vuln.id) && (
                       <div className="p-2 pt-0 border-t border-white/5 bg-white/[0.02]">
                         <p className="text-[10px] text-white/60 lowercase mb-2 leading-relaxed">
                           {vuln.description}
@@ -374,7 +374,7 @@ export function SecurityWidgetV2() {
                         {/* quick fix */}
                         <div className="flex items-center gap-2 mb-2">
                           <Zap className="h-3 w-3 text-yellow-400" />
-                          <span className="text-[9px] text-yellow-400/80 lowercase">quick fix: {vuln.quickfix}</span>
+                          <span className="text-[9px] text-yellow-400/80 lowercase">quick fix: {vuln.quickFix}</span>
                         </div>
                         
                         {/* llm prompt */}
@@ -387,17 +387,17 @@ export function SecurityWidgetV2() {
                               onClick={() => copyPrompt(vuln.llmPrompt, vuln.id)}
                               className="h-5 text-[9px] text-white/40 hover:text-white"
                             >
-                              {copiedprompt === vuln.id ? (
+                              {copiedPrompt === vuln.id ? (
                                 <CheckCircle2 className="h-3 w-3 mr-1 text-green-400" />
                               ) : (
                                 <Copy className="h-3 w-3 mr-1" />
                               )}
-                              {copiedprompt === vuln.id ? 'copied!' : 'copy'}
+                              {copiedPrompt === vuln.id ? 'copied!' : 'copy'}
                             </Button>
                           </div>
                           <div className="p-2 rounded bg-black/40 border border-white/5">
                             <p className="text-[9px] text-white/50 font-mono leading-relaxed line-clamp-3">
-                              {vuln.llmprompt}
+                              {vuln.llmPrompt}
                             </p>
                           </div>
                         </div>
@@ -413,13 +413,13 @@ export function SecurityWidgetV2() {
         {/* authentication status */}
         <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10">
           <div className="flex items-center gap-2">
-            {isauthenticated ? (
+            {isAuthenticated ? (
               <Lock className="h-4 w-4 text-green-400" />
             ) : (
               <Unlock className="h-4 w-4 text-red-400" />
             )}
             <span className="text-xs lowercase">
-              {isauthenticated ? 'authenticated' : 'not authenticated'}
+              {isAuthenticated ? 'authenticated' : 'not authenticated'}
             </span>
           </div>
           <Badge 
@@ -431,14 +431,14 @@ export function SecurityWidgetV2() {
                 : "bg-red-500/10 text-red-400 border-red-500/20"
             )}
           >
-            {isauthenticated ? 'protected' : 'exposed'}
+            {isAuthenticated ? 'protected' : 'exposed'}
           </Badge>
         </div>
 
         {/* privacy mode toggle */}
         <div className="flex items-center justify-between p-3 rounded-lg bg-white/5 border border-white/10">
           <div className="flex items-center gap-2">
-            {privacymode ? (
+            {privacyMode ? (
               <EyeOff className="h-4 w-4 text-[#87CEEB]" />
             ) : (
               <Eye className="h-4 w-4 text-yellow-400" />
@@ -456,12 +456,12 @@ export function SecurityWidgetV2() {
                 : "bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/20"
             )}
           >
-            {privacymode ? 'enabled' : 'disabled'}
+            {privacyMode ? 'enabled' : 'disabled'}
           </Button>
         </div>
 
         {/* risk warning */}
-        {risklevel === 'high' && (
+        {riskLevel === 'high' && (
           <div className="flex items-start gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
             <AlertTriangle className="h-4 w-4 text-red-400 shrink-0 mt-0.5" />
             <div className="space-y-1">
@@ -514,7 +514,7 @@ export function SecurityWidgetV2() {
                     )}
                   >
                     <span className="text-white/20 shrink-0">
-                      {new date(log.timestamp).tolocaletimestring()}
+                      {new Date(log.timestamp).toLocaleTimeString()}
                     </span>
                     <span className="truncate">
                       {log.sanitized && <span className="text-green-400 mr-1">[sanitized]</span>}
@@ -538,20 +538,20 @@ export function SecurityWidgetV2() {
         <DialogContent className="bg-[#050505] border-white/10 text-white max-w-lg">
           <DialogHeader>
             <DialogTitle className="text-sm lowercase flex items-center gap-2">
-              {selectedvuln && getseverityicon(selectedvuln.severity)}
-              {selectedvuln?.title}
+              {selectedVuln && getSeverityIcon(selectedVuln.severity)}
+              {selectedVuln?.title}
             </DialogTitle>
             <DialogDescription className="text-[10px] text-white/50 lowercase">
-              {selectedvuln?.description}
+              {selectedVuln?.description}
             </DialogDescription>
           </DialogHeader>
           
-          {selectedvuln && (
+          {selectedVuln && (
             <div className="space-y-4">
               <div className="p-3 rounded bg-white/5 border border-white/10">
                 <p className="text-[10px] text-white/70 lowercase mb-2">llm fix prompt:</p>
                 <p className="text-[10px] text-white/50 font-mono leading-relaxed">
-                  {selectedvuln.llmprompt}
+                  {selectedVuln.llmPrompt}
                 </p>
                 <Button
                   variant="outline"

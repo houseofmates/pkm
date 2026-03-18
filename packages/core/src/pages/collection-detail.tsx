@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { useCollections } from '@/hooks/use-collections';
 import { useAuth } from '@/contexts/auth-context';
+import { useCollectionData } from '@/hooks/use-collection-data';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Settings2 } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
@@ -12,7 +12,9 @@ import { useFronter } from '@/contexts/fronter-context';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { generateAndSaveAiField } from '@/services/ai-field-generator';
+
+// bring in shared schema types so we can stop using `any`
+import type { Record as SchemaRecord, TableDefinition, FieldDefinition } from '@/schema/types';
 
 interface CollectionDetailPageProps {
   collectionName?: string;
@@ -21,6 +23,7 @@ interface CollectionDetailPageProps {
 
 
 import { type ViewType, VIEW_REGISTRY, VIEW_OPTIONS } from '@/components/views/registry';
+import { type CollectionMetadata } from '@/features/collections/components/collection-dialog';
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { Star } from 'lucide-react';
@@ -34,7 +37,6 @@ import {
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatabaseSettingsForm } from '@/features/databases/components/database-settings-form';
-import { extractRecords } from '@/lib/nocobase-utils';
 
 export function CollectionDetailPage({ collectionName: propCollectionName, onBack: propOnBack }: CollectionDetailPageProps) {
     const { client, isAuthenticated, login } = useAuth();
@@ -43,29 +45,57 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     const location = useLocation();
     const collectionName = propCollectionName ?? (params.name as string);
     const onBack = propOnBack ?? (() => navigate(-1));
-    const [collection, setCollection] = useState<any>(null);
-    const [records, setRecords] = useState<any[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [fetchError, setFetchError] = useState<string | null>(null);
     const [apiKey, setApiKey] = useState('');
     const [fieldDialogOpen, setFieldDialogOpen] = useState(false);
     const { activeFronters } = useFronter();
 
     // metadata for cosmetics and defaults
-    const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
+    const [metadata, setMetadata] = useAppSetting<Record<string, CollectionMetadata>>('collection_metadata', {}, { pollIntervalMs: 3000 });
+
+    // data-layer hook replaces the old manual state and handlers
+    const {
+      collection,
+      records,
+      loading,
+      fetchError,
+      handleDirectCreate,
+      handleUpdateRecord,
+      handleDeleteRecord,
+      handleUndoDelete,
+      restoreRecord,
+      fetchData,
+      setCollection,
+      setRecords
+    } = useCollectionData(client, collectionName, activeFronters);
     // get collection color for header using metadata (source of truth)
     const collectionColor = metadata[collectionName]?.color;
-    const defaultView = metadata[collectionName]?.default_view as ViewType | undefined;
+    const defaultView = metadata[collectionName]?.default_view;
     const [defaultPickerOpen, setDefaultPickerOpen] = useState(false);
 
     const [currentView, setCurrentView] = useState<ViewType>('table');
-    const [viewConfig, setViewConfig] = useState<Record<string, any>>({});
+    const [viewConfig, setViewConfig] = useState<Record<string, unknown>>({});
+
+    // available collections for debug display
+    const [availableCollections, setAvailableCollections] = useState<TableDefinition[]>([]);
+
+    // fetch available collections for debug info
+    useEffect(() => {
+        if (!client || !isAuthenticated) return;
+        client.listCollections({ pageSize: 100 }).then((res: any) => {
+            const list = Array.isArray(res?.data) ? res.data : res?.data;
+            if (Array.isArray(list)) {
+                setAvailableCollections(list as TableDefinition[]);
+            }
+        }).catch((e: any) => {
+            console.warn('Failed to fetch available collections:', e);
+        });
+    }, [client, isAuthenticated]);
 
     // sync currentview with url, state, or defaultview
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
         const viewFromUrl = queryParams.get('view');
-        const viewFromState = (location.state as any)?.view;
+        const viewFromState = (location.state as unknown as { view?: string })?.view;
 
         // priority: url param > location state > user default > 'table'
         const targetView = viewFromUrl || viewFromState || defaultView || 'table';
@@ -123,237 +153,11 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         setDefaultPickerOpen(false);
     };
 
-    // get collections list early - this is already loaded from databases page
-    const { collections: availableCollections, loading: collectionsLoading } = useCollections();
-
-    // ref to avoid fetchData depending on availableCollections (which gets a new reference every render)
-    const availableCollectionsRef = useRef(availableCollections);
-    availableCollectionsRef.current = availableCollections;
-
     const handleLogin = () => {
         if (!apiKey) return;
         login(apiKey);
         toast.success("nocobase api key saved");
-        // refresh triggered by auth context change or we manually re-fetch?
-        // fetchData depends on client/collectionName. 
-        // client will be updated if it depends on token? 
-        // authprovider re-renders, causing this to re-render.
     };
-
-    const handleDirectCreate = async (initialData: any = {}) => {
-        try {
-            const dataToSubmit: any = { ...initialData };
-            // auto-inject fronter
-            if (activeFronters && activeFronters.length > 0) {
-                // check if collection has fronter field (from collection schema)
-                const hasFronter = collection?.fields?.some((f: any) => f.name === 'fronter');
-                if (hasFronter) {
-                    dataToSubmit['fronter'] = activeFronters[0];
-                }
-            }
-
-            // optional: set default title if needed, or let backend handle it.
-            // datatosubmit['title'] = 'untitled'; 
-
-            await client.createRecord(collectionName, dataToSubmit);
-            toast.success("record created");
-            fetchData();
-        } catch (error) {
-            secureLogger.error(error instanceof Error ? error.message : String(error));
-            toast.error("failed to create record");
-        }
-    };
-
-
-    const fetchData = useCallback(async () => {
-        setLoading(true);
-        setFetchError(null);
-        try {
-            // 1. try to find collection in already-loaded list first (from usecollections)
-            // this fixes mobile issue where getcollection api call fails but listcollections works
-            let colData: any = null;
-            const currentCollections = availableCollectionsRef.current;
-            const preloaded = currentCollections.find(
-                (c: any) => (c.name || '').toLowerCase() === (collectionName || '').toLowerCase()
-            );
-
-            if (preloaded) {
-                secureLogger.info("Found preloaded collection:", preloaded.name);
-                colData = preloaded;
-            }
-
-            // 2. if no preloaded or preloaded lacks fields, try to fetch full schema
-            if (!colData?.fields) {
-                try {
-                    secureLogger.info("Attempting to fetch full collection schema with fields...");
-                    const colRes = await client.getCollection(collectionName);
-                    secureLogger.info("getCollection response:", colRes);
-                    // check if we got valid data
-                    if (colRes?.data && typeof colRes.data === 'object') {
-                        colData = colRes.data;
-                    } else {
-                        secureLogger.warn("getCollection returned invalid data, using preloaded");
-                        if (preloaded) {
-                            colData = preloaded;
-                        }
-                    }
-                } catch (e: any) {
-                    secureLogger.warn("getCollection failed, using preloaded if available:", e.message);
-                    // if api fails but we have preloaded data, use it even without fields
-                    if (preloaded) {
-                        secureLogger.info("Using preloaded collection without fields");
-                        colData = preloaded;
-                    } else {
-                        throw e; // No fallback available
-                    }
-                }
-            }
-            
-            // ensure we have at least the collection object
-            if (!colData) {
-                throw new Error(`Collection ${collectionName} not found`);
-            }
-
-            // 3. if collection still lacks fields, fetch them separately BEFORE setting collection
-            secureLogger.info("Checking fields:", colData.fields, "Length:", colData.fields?.length);
-            if (!colData.fields || colData.fields.length === 0) {
-                try {
-                    secureLogger.info("Collection lacks fields, fetching them separately...");
-                    const fields = await client.listFields(collectionName);
-                    secureLogger.info("Fetched fields:", fields);
-                    if (fields && fields.length > 0) {
-                        colData.fields = fields;
-                    } else {
-                        secureLogger.warn("listFields returned no fields");
-                    }
-                } catch (e) {
-                    secureLogger.warn("Failed to fetch fields separately:", e);
-                }
-            }
-
-            setCollection(colData);
-
-            // auto-create 'fronter' field if missing
-            // fields may be empty if the collection was preloaded without them or if listFields failed,
-            // so we only attempt creation if we are reasonably sure the field isn't there and we ignore
-            // duplicate errors in case the check was inaccurate.  After we successfully create the
-            // field we also push a dummy entry into the local `colData.fields` array so subsequent
-            // runs don't try again.
-            if (colData) {
-                let hasFronter = Array.isArray(colData.fields) && colData.fields.some((f: any) => f.name === 'fronter');
-                if (!hasFronter && (!colData.fields || colData.fields.length === 0)) {
-                    // fields array was blank; try fetching separately just in case
-                    try {
-                        const fields = await client.listFields(collectionName);
-                        if (fields && fields.length > 0) {
-                            colData.fields = fields;
-                            hasFronter = fields.some((f: any) => f.name === 'fronter');
-                        }
-                    } catch (e) {
-                        secureLogger.warn("Failed to fetch fields separately when checking for fronter:", e);
-                        // leave hasFronter as-is; we'll catch duplicate errors below
-                    }
-                }
-
-                if (!hasFronter) {
-                    try {
-                        secureLogger.info("Auto-creating 'fronter' field for", collectionName);
-                        await client.createField(collectionName, {
-                            name: 'fronter',
-                            type: 'string',
-                            interface: 'input',
-                            uiSchema: { title: 'Fronter' }
-                        });
-                        // pretend the field exists so we don't try again later
-                        if (!colData.fields) colData.fields = [];
-                        colData.fields.push({ name: 'fronter', interface: 'input', type: 'string', uiSchema: { title: 'Fronter' } });
-                    } catch (e: any) {
-                        // ignore already-exists error, log others
-                        const msg = e?.response?.data?.errors?.[0]?.message || String(e);
-                        if (msg.includes('already exists')) {
-                            secureLogger.info("'fronter' field already exists, skipping creation");
-                        } else {
-                            secureLogger.warn("Failed to auto-create fronter field", e);
-                        }
-                    }
-                }
-            }
-
-            // 3. fetch records (normalize in case api shape varies)
-            const recRes = await client.listRecords(collectionName);
-            const recData = extractRecords(recRes);
-            setRecords(recData);
-
-        } catch (error: any) {
-            secureLogger.error(error);
-            setFetchError(error.message || "Unknown Error");
-            toast.error("failed to load collection data");
-        } finally {
-            setLoading(false);
-        }
-    }, [client, collectionName]);
-
-    // --- event listeners ---
-    useEffect(() => {
-        const handleCreate = async (evt: Event) => {
-            const e = evt as CustomEvent<any>;
-            if (e.detail?.collection === collectionName) {
-                secureLogger.info("Creating record via event:", e.detail.data);
-                try {
-                    const createRes: any = await client.createRecord(collectionName, e.detail.data);
-                    const newId = createRes?.id || (createRes?.data && createRes.data.id);
-
-                    toast.success("record created!");
-                    // refresh
-                    const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
-                    setRecords(extractRecords(res));
-
-                    // auto-suggest content if ai field exists
-                    if (newId && collection?.fields?.some((f: any) => f.name === 'ai')) {
-                      generateAndSaveAiField(collectionName, newId, 'ai', {
-                        instruction: 'provide a brief summary and initial ideas for this new entry',
-                        topK: 5
-                      }).then(r => {
-                        if (!r.success) {
-                          secureLogger.warn('auto-suggest generation failed', r.error);
-                        }
-                      });
-                    }
-                } catch (err) {
-                    secureLogger.error(String(err));
-                    toast.error("failed to create record");
-                }
-            }
-        };
-
-        window.addEventListener('pkm:create-record', handleCreate);
-        return () => window.removeEventListener('pkm:create-record', handleCreate);
-    }, [collectionName, client]);
-
-    // only fetch data when collections are loaded (or if they fail to load, proceed anyway)
-    // this ensures availablecollections is populated before we try to use it
-    useEffect(() => {
-        if (!collectionsLoading) {
-            fetchData();
-        }
-    }, [fetchData, collectionsLoading]);
-
-    // retry if collection still not found after initial load and collections become available
-    useEffect(() => {
-        if (!collection && !loading && availableCollections.length > 0) {
-            const found = availableCollections.find(
-                (c: any) => (c.name || '').toLowerCase() === (collectionName || '').toLowerCase()
-            );
-            if (found) {
-                secureLogger.info("Late-rescue: Found collection in availableCollections:", found.name);
-                setCollection(found);
-                // fetch records for this collection
-                client.listRecords(collectionName).then(res => {
-                    setRecords(extractRecords(res));
-                }).catch(e => secureLogger.error("Late-rescue record fetch failed", e));
-            }
-        }
-    }, [collection, loading, availableCollections, collectionName, client]);
 
     // load view config on view change or collection load
     useEffect(() => {
@@ -367,6 +171,15 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         }
     }, [collectionName, currentView]);
 
+
+    const handleConfigChange = (key: string, value: unknown) => {
+        const newConfig = { ...viewConfig, [key]: value };
+        setViewConfig(newConfig);
+        storageManager.setItem(`view_config_${collectionName}_${currentView}`, JSON.stringify(newConfig));
+    };
+
+
+    // if the user isn't authenticated we short-circuit before rendering the main collection UI
     if (!isAuthenticated) {
         return (
             <div className="p-4 md:p-8 h-full flex items-center justify-center">
@@ -397,134 +210,6 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         );
     }
 
-    const handleConfigChange = (key: string, value: any) => {
-        const newConfig = { ...viewConfig, [key]: value };
-        setViewConfig(newConfig);
-        storageManager.setItem(`view_config_${collectionName}_${currentView}`, JSON.stringify(newConfig));
-    };
-
-
-    const handleUpdateRecord = useCallback(async (id: string | number, data: any) => {
-        try {
-            // optimistic update locally? 
-            // for now, simple await and refetch
-            setRecords(prev => prev.map(r => r.id === id ? { ...r, ...data } : r)); // optimistic ui
-            await client.updateRecord(collectionName, id, data);
-            // fetchData(); // optional: if we trust the return or optimistic update
-        } catch (error) {
-            secureLogger.error("failed to update record", error);
-            toast.error("failed to update record");
-            fetchData(); // revert on error
-        }
-    }, [client, collectionName, fetchData]);
-
-    // undo stack
-    const [deletedStack, setDeletedStack] = useState<any[]>([]);
-
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
-                if (deletedStack.length > 0) {
-                    e.preventDefault();
-                    handleUndoDelete();
-                }
-            }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [deletedStack]);
-
-    const handleUndoDelete = async () => {
-        const lastDeleted = deletedStack[deletedStack.length - 1];
-        if (!lastDeleted) return;
-
-        try {
-            // remove 'id' maybe? or keep it if trying to force restore?
-            // nocodb might ignore id on create, but let's try pushing the data back.
-            // ideally we omit 'id', 'created_at', 'updated_at'
-            const { id, created_at, updated_at, ...rest } = lastDeleted;
-            await client.createRecord(collectionName, rest);
-
-            setDeletedStack(prev => prev.slice(0, -1));
-            toast.success("deletion undone");
-
-            // refresh
-            const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
-            setRecords(extractRecords(res));
-        } catch (e) {
-            secureLogger.error("failed to undo delete", e);
-            toast.error("failed to undo delete");
-        }
-    };
-
-    const handleDeleteRecord = useCallback(async (record: any) => {
-        // removed confirmation as requested
-        if (!record || record.id === undefined || record.id === null) {
-            secureLogger.warn("attempted to delete record with missing id", record);
-            toast.error("cannot delete record: missing id");
-            return;
-        }
-
-        try {
-            await client.deleteRecord(collectionName, record.id);
-
-            // add to stack
-            setDeletedStack(prev => [...prev, record]);
-
-            toast.success("record deleted", {
-                action: {
-                    label: "undo",
-                    onClick: () => handleUndoDelete()
-                }
-            });
-            setRecords(prev => prev.filter(r => r.id !== record.id));
-        } catch (error) {
-            secureLogger.error("failed to delete record", error);
-            toast.error("failed to delete record");
-        }
-    }, [client, collectionName, deletedStack]);
- // Added deletedStack dependency to update closure? No, that causes re-renders of list.
-    // better: helper function for restore that takes the record as arg, valid for toast.
-    // for ctrl+z, we need state. 
-
-    // refactor to ensure toast works:
-    const restoreRecord = async (recordToRestore: any) => {
-        try {
-            const { id, created_at, updated_at, ...rest } = recordToRestore;
-            await client.createRecord(collectionName, rest);
-            toast.success("deletion undone");
-            const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
-            setRecords(extractRecords(res));
-            setDeletedStack(prev => prev.filter(r => r.id !== recordToRestore.id));
-        } catch (e) {
-            secureLogger.error("failed to undo delete", e);
-            toast.error("failed to undo delete");
-        }
-    }
-
-
-
-    // re-bind undo for keyboard
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
-                // get latest stack
-                setDeletedStack(currentStack => {
-                    if (currentStack.length > 0) {
-                        const last = currentStack[currentStack.length - 1];
-                        restoreRecord(last);
-                        return currentStack.slice(0, -1); // Optimistic remove from stack? restoreRecord also updates it.
-                    }
-                    return currentStack;
-                });
-            }
-        };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, [collectionName]); // minimalist deps
-
-    // rescue logic is now integrated into fetchdata, no separate effect needed
-
     if (!collection) {
         if (loading) return <div className="p-10 text-center animate-pulse">loading {collectionName}...</div>;
         return (
@@ -542,7 +227,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                         auth: {isAuthenticated ? 'yes' : 'no'}<br />
                         available: {availableCollections.length}
                         <div className="mt-1 opacity-50 max-h-20 overflow-y-auto">
-                            [{availableCollections.map((c: any) => c.name).join(', ')}]
+                            [{availableCollections.map((c: TableDefinition) => c.name).join(', ')}]
                         </div>
                     </div>
                 )}
@@ -576,7 +261,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                             className="text-xl font-bold lowercase tracking-tight"
                             style={{ color: collectionColor }}
                         >
-                            {collection.title || collection.displayname || collection.name}
+                            {collection.label || collection.name}
                         </h2>
                     </div>
                     <div className="flex items-center gap-2">
@@ -589,7 +274,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                             <PopoverContent className="w-80">
                                 <DatabaseSettingsForm
                                     collectionName={collectionName}
-                                    title={collection.title || collection.displayName || collectionName}
+                                    title={collection.label || collectionName}
                                     viewConfig={viewConfig}
                                     fields={collection.fields}
                                     currentView={currentView}
@@ -612,7 +297,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                         <SelectValue placeholder="select view" />
                     </SelectTrigger>
                     <SelectContent align="start">
-                        {VIEW_OPTIONS.map((view: any) => (
+                        {VIEW_OPTIONS.map((view) => (
                             <SelectItem key={view.id} value={view.id}>
                                 <div className="flex items-center gap-2 w-full">
                                     {view.icon && <view.icon className="h-4 w-4 opacity-50 text-primary" />}
@@ -632,7 +317,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                         <DialogTitle className="text-sm font-medium lowercase opacity-50">set default view</DialogTitle>
                     </DialogHeader>
                     <div className="flex flex-col p-1">
-                        {VIEW_OPTIONS.map((view: any) => (
+                        {VIEW_OPTIONS.map((view) => (
                             <Button
                                 key={view.id}
                                 variant="ghost"
@@ -659,7 +344,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                     onUpdateRecord={handleUpdateRecord}
                     onDelete={handleDeleteRecord}
                     onCreateRecord={() => handleDirectCreate()}
-                    onCreate={(data: any) => handleDirectCreate(data)}
+                    onCreate={(data: Partial<SchemaRecord>) => handleDirectCreate(data)}
                     onCreateField={() => setFieldDialogOpen(true)}
                     onFieldUpdated={fetchData}
                 />

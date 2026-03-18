@@ -8,7 +8,7 @@
 // a custom `fetchImpl` can be injected at init time so mobile builds
 // can route requests through capacitor's native http bridge.
 
-import type { AIWorkerAPI, SearchResultDTO, RagPromptResult, AskWithRagResult } from './ai-worker-types';
+import type { AIWorkerAPI, SearchResultDTO, RagPromptResult, AskWithRagResult, ChatMessage, Attachment } from './ai-worker-types';
 
 // ---------------------------------------------------------------------------
 // configuration
@@ -197,12 +197,13 @@ async function fallbackLocalSearch(query: string, topK: number): Promise<SearchR
 
         // keyword scoring
         const queryWords = query.toLowerCase().split(/\s+/);
+        const queryLower = query.toLowerCase();
         const scored = allChunks.map(chunk => {
             const contentLower = chunk.content.toLowerCase();
             let score = 0;
             for (const word of queryWords) {
                 if (contentLower.includes(word)) score += 1;
-                if (contentLower.includes(query.toLowerCase())) score += 5;
+                if (contentLower.includes(queryLower)) score += 5;
             }
             const daysSinceUpdate = chunk.metadata?.updatedAt
                 ? (Date.now() - new Date(chunk.metadata.updatedAt).getTime()) / (1000 * 60 * 60 * 24)
@@ -297,6 +298,7 @@ when responding:
 - ask clarifying questions if the context is ambiguous
 - be concise but thorough (2-4 sentences unless they ask for detail)
 - if you don't find relevant context, say so honestly
+- if the user shares images or videos, describe what you see and relate it to their context when relevant
 
 retrieved context format:
 each chunk starts with [source: collection:id] so you can reference where information came from. use these citations naturally in your response.`;
@@ -323,7 +325,27 @@ async function chatStream(
     if (typeof console !== 'undefined' && console.info) {
         console.info('[ai-worker] chatStream using endpoint:', resolvedEndpoint, '(input was:', endpoint + ')');
     }
-    
+
+    const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
+
+    if (isGemini) {
+        const response = await _fetch(resolvedEndpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                prompt: { text: prompt },
+            }),
+        });
+
+        if (!response.ok) throw new Error(`llm api error: ${response.statusText}`);
+
+        const data = await response.json();
+        const candidate = data?.candidates?.[0]?.content;
+        const text = typeof candidate === 'string' ? candidate : '';
+        onToken(text);
+        return text;
+    }
+
     const response = await _fetch(resolvedEndpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -371,6 +393,83 @@ async function chatStream(
 }
 
 // ---------------------------------------------------------------------------
+// multimodal chat streaming (for vision models like qwen2.5vl:3b)
+// ---------------------------------------------------------------------------
+
+async function chatStreamMultimodal(
+    messages: ChatMessage[],
+    model: string,
+    endpoint: string,
+    onToken: (cumulativeContent: string) => void,
+): Promise<string> {
+    const resolvedEndpoint = resolveOllamaEndpointForWorker(endpoint, '/api/chat');
+    
+    if (typeof console !== 'undefined' && console.info) {
+        console.info('[ai-worker] chatStreamMultimodal using endpoint:', resolvedEndpoint, 'model:', model);
+    }
+
+    const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
+    if (isGemini) {
+        // flatten the messages into a single prompt for Gemini
+        const prompt = messages
+            .map(m => `${m.role}: ${typeof m.content === 'string' ? m.content : JSON.stringify(m.content)}`)
+            .join('\n');
+        return chatStream(prompt, model, endpoint, onToken);
+    }
+
+    const response = await _fetch(resolvedEndpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+            model, 
+            messages,
+            stream: true 
+        }),
+    });
+
+    if (!response.ok) {
+        const errorText = await response.text().catch(() => 'unknown error');
+        throw new Error(`llm api error: ${response.status} ${response.statusText} - ${errorText}`);
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) throw new Error('could not get stream reader');
+
+    const decoder = new TextDecoder();
+    let fullContent = '';
+
+    try {
+        while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+
+            const chunk = decoder.decode(value, { stream: true });
+            const lines = chunk.split('\n');
+
+            for (const line of lines) {
+                if (!line.trim()) continue;
+                try {
+                    const json = JSON.parse(line);
+                    if (json.message?.content) {
+                        fullContent += json.message.content;
+                        onToken(fullContent);
+                    }
+                    if (json.done) {
+                        return fullContent;
+                    }
+                } catch {
+                    // partial json, skip
+                }
+            }
+        }
+    } finally {
+        reader.releaseLock();
+    }
+
+    return fullContent;
+}
+
+// ---------------------------------------------------------------------------
 // non-streaming generate (legacy fallback)
 // ---------------------------------------------------------------------------
 
@@ -380,13 +479,26 @@ async function generateTextLegacy(
     endpoint: string,
 ): Promise<string | null> {
     try {
-        const res = await _fetch(resolveOllamaEndpointForWorker(endpoint, '/api/generate'), {
+        const resolvedEndpoint = resolveOllamaEndpointForWorker(endpoint, '/api/generate');
+        const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
+
+        const body = isGemini
+            ? { prompt: { text: prompt } }
+            : { model, prompt, stream: false };
+
+        const res = await _fetch(resolvedEndpoint, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ model, prompt, stream: false }),
+            body: JSON.stringify(body),
         });
+
         if (!res.ok) throw new Error(`llm api error: ${res.statusText}`);
         const data = await res.json();
+
+        if (isGemini) {
+            return data?.candidates?.[0]?.content ?? null;
+        }
+
         return data.response ?? null;
     } catch {
         return null;
@@ -407,6 +519,69 @@ async function askWithRag(
     const { prompt, sources } = await buildRagPrompt(query, fronterName);
     const response = await chatStream(prompt, model, endpoint, onToken);
     return { response: response.toLowerCase(), sources };
+}
+
+// ---------------------------------------------------------------------------
+// composite: ask-with-rag + attachments (multimodal)
+// ---------------------------------------------------------------------------
+
+async function askWithRagAndAttachments(
+    query: string,
+    fronterName: string,
+    model: string,
+    endpoint: string,
+    onToken: (cumulativeContent: string) => void,
+    attachments?: Attachment[],
+): Promise<AskWithRagResult> {
+    // Build RAG context for the text query
+    const ragCtx = await buildRagContext(query, 8);
+    
+    // Build system message with RAG context
+    const systemContent = `${WILSON_RAG_SYSTEM_PROMPT}\n\ncurrent user: ${fronterName}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}`;
+    
+    // Build user message content parts
+    const userContent: { type: 'text'; text: string; } | Array<{ type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } }> = [{ type: 'text', text: query }];
+    
+    // Add image attachments if provided
+    if (attachments && attachments.length > 0) {
+        for (const attachment of attachments) {
+            if (attachment.dataUrl && (attachment.type === 'image' || attachment.type === 'gif')) {
+                userContent.push({
+                    type: 'image_url',
+                    image_url: { url: attachment.dataUrl }
+                });
+            }
+        }
+    }
+    
+    // Build messages array for chat API
+    const messages: ChatMessage[] = [
+        { role: 'system', content: systemContent },
+        { role: 'user', content: userContent }
+    ];
+    
+    if (typeof console !== 'undefined' && console.info) {
+        console.info('[ai-worker] askWithRagAndAttachments:', { 
+            model, 
+            query, 
+            attachmentCount: attachments?.length || 0,
+            sources: ragCtx.sources.length
+        });
+    }
+    
+    // Use multimodal streaming for vision models
+    const isVisionModel = model.includes('vl') || model.includes('vision') || model.includes('llava');
+    
+    let response: string;
+    if (isVisionModel && attachments && attachments.length > 0) {
+        response = await chatStreamMultimodal(messages, model, endpoint, onToken);
+    } else {
+        // Fall back to regular streaming for non-vision models or no attachments
+        const { prompt } = await buildRagPrompt(query, fronterName);
+        response = await chatStream(prompt, model, endpoint, onToken);
+    }
+    
+    return { response: response.toLowerCase(), sources: ragCtx.sources };
 }
 
 // ---------------------------------------------------------------------------
@@ -463,7 +638,9 @@ export function createWorkerAPI(
         generateEmbedding,
         buildRagPrompt,
         chatStream,
+        chatStreamMultimodal,
         askWithRag,
+        askWithRagAndAttachments,
         generateText: generateTextLegacy,
     };
 }

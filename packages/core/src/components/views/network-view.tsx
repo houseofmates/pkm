@@ -85,11 +85,11 @@ export function NetworkView(props: ViewProps) {
 
  // check if target node exists in our dataset
  // if not, maybe create a "ghost" node? for now, only internal links.
- if (nodes.find(n => n.id === tid)) {
+ if (nodes.find(n => n.id === tId)) {
  links.push({
    source: src.id,
-   target: tid,
-   label: field.uischema?.title || field.name
+   target: tId,
+   label: field.uiSchema?.title || field.name
  });
  }
  });
@@ -99,7 +99,7 @@ export function NetworkView(props: ViewProps) {
   return { nodes, links };
   }, [data, collection]);
 
-  const isdark = document.documentElement.classList.contains('dark');
+  const isDark = document.documentElement.classList.contains('dark');
 
   return (
   <div ref={containerRef} className="h-full w-full relative bg-card rounded-lg border overflow-hidden">
@@ -151,7 +151,7 @@ export function NetworkView(props: ViewProps) {
  />
   )}
 
-  {virtualmenu && (
+  {virtualMenu && (
  <div
  className="fixed inset-0 z-50 bg-black/5"
  onClick={() => setVirtualMenu(null)}

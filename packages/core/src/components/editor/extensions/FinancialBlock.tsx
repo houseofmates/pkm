@@ -3,6 +3,14 @@ import { ReactNodeViewRenderer } from '@tiptap/react';
 import { FinancialChart } from '@/components/charts/FinancialChart';
 import { NodeViewWrapper } from '@tiptap/react';
 
+declare module '@tiptap/core' {
+  interface Commands<ReturnType> {
+    financialBlock: {
+      setFinancialBlock: (options: any) => ReturnType;
+    };
+  }
+}
+
 function FinancialBlockComponent(props: any) {
   return (
   <NodeViewWrapper className= "my-4" >
@@ -42,7 +50,7 @@ export const FinancialBlock = Node.create({
 
   addCommands() {
   return {
-  setFinancialBlock: (options) => ({ commands }) => {
+  setFinancialBlock: (options: any) => ({ commands }: { commands: any }) => {
  return commands.insertContent({
  type: this.name,
  attrs: options,

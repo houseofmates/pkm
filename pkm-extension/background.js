@@ -3,7 +3,7 @@
 // configuration
 const CONFIG = {
     ollamaEndpoint: 'http://localhost:11434/api/generate',
-    model: 'qwen2.5vl:latest',
+    model: 'qwen2.5vl:7b-q4_K_M',
     nocobaseApi: 'https://db.houseofmates.space/api/ai-convos',
     collectionName: 'ai-convos'
 };

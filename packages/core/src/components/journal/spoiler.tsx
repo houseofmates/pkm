@@ -19,7 +19,7 @@ export function Spoiler({ children }: SpoilerProps) {
   onClick={() => setIsRevealed(!isRevealed)}
   title={isRevealed ? 'Click to hide' : 'Click to reveal'}
   >
-  {isrevealed ? children : '█'.repeat(children.length)}
+  {isRevealed ? children : '█'.repeat(children.length)}
   </span>
   );
 }

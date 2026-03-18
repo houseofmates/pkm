@@ -10,6 +10,6 @@ npx lint-staged
 echo "building all releases..."
 npm run build:all || echo "release build failed, continuing commit"
 
-# automatically stage anything that ended up in releases/
-# git may not have tracked those yet (especially after history rewrite)
-git add releases/* || true
+# stage only version.json locally; the CI workflow will commit the binaries
+# this prevents large AppImage/deb files being accidentally included in commits
+git add releases/version.json || true

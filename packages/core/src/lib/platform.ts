@@ -5,10 +5,20 @@
 // that point to localhost (unreachable from a phone).
 
 /** true when running inside a capacitor native webview (android/ios) */
+interface CapacitorInfo {
+    isNative?: boolean;
+    isNativePlatform?: () => boolean;
+    [key: string]: any;
+}
+
+interface CapacitorWindow extends Window {
+    Capacitor?: CapacitorInfo;
+}
+
 export function isCapacitorNative(): boolean {
     try {
         // capacitor injects this on the window object
-        const cap = (window as any)?.Capacitor;
+        const cap = (window as CapacitorWindow).Capacitor;
         if (!cap) return false;
         // isNative is set to true by capacitor on native platforms
         if (cap.isNative === true) return true;
@@ -94,21 +104,10 @@ export function isWorkerSupported(): boolean {
  */
 export function resolveOllamaEndpoint(
     localEndpoint: string,
-    serverOrigin?: string,
+    _serverOrigin?: string,
 ): string {
-    // if localhost is unreachable (mobile app or mobile browser on remote origin),
-    // route through server proxy
-    if (isLocalhostUnreachable() && serverOrigin) {
-        const base = serverOrigin.replace(/\/+$/, '');
-        return `${base}/api/ollama`;
-    }
-    
-    // also check legacy mobile context for backwards compatibility
-    if ((isCapacitorNative() || isMobileContext()) && serverOrigin) {
-        const base = serverOrigin.replace(/\/+$/, '');
-        return `${base}/api/ollama`;
-    }
-    
+    // The wilson/llm client now targets the Google Gemini public API directly.
+    // We no longer proxy LLM traffic through the server mobile endpoint.
     return localEndpoint;
 }
 

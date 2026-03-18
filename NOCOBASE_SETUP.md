@@ -16,18 +16,12 @@ The custom implementation:
 
 **You need:**
 1. NocoBase v2 running (Docker or native)
-2. Ollama running with `qwen2.5vl:latest` (you already have this)
+2. A Google Gemini API key (will be stored locally in your browser)
 3. Collections with data (notes, tasks, projects, etc.)
 
-**Check Ollama is accessible from your PKM frontend:**
-```javascript
-// In browser console
-fetch('http://localhost:11434/api/tags')
-  .then(r => r.json())
-  .then(d => console.log('Ollama models:', d))
-```
+**Check Google Gemini is accessible from your PKM frontend:**
 
-If this fails, your Docker network may need configuration to access Ollama.
+The app will prompt you for a Google Gemini API key when you first use the AI features. Enter a valid key to confirm it works.
 
 ---
 

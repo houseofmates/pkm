@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { apiClient } from '@/lib/api-client';
 import { useAuth } from '@/contexts/auth-context';
 import { debounce } from 'lodash';
@@ -95,8 +95,22 @@ export function useCanvasLayout(tableName: string) {
   }
   }, [tableName]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedSave = useCallback(debounce(saveLayout, 2000), [saveLayout]);
+  // debounce on mount and keep stable across updates
+  const debouncedSaveRef = useRef<ReturnType<typeof debounce> | null>(null);
+
+  useEffect(() => {
+    debouncedSaveRef.current = debounce((layout: CanvasLayoutData) => {
+      saveLayout(layout);
+    }, 2000);
+
+    return () => {
+      debouncedSaveRef.current?.cancel();
+    };
+  }, [saveLayout]);
+
+  const debouncedSave = (layout: CanvasLayoutData) => {
+    debouncedSaveRef.current?.(layout);
+  };
 
   const updateLayoutItem = (id: string, updates: Partial<CanvasLayoutItem>) => {
   setLayout(prev => {

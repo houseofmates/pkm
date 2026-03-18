@@ -25,6 +25,7 @@ import fs from 'fs';
 import { promisify } from 'util';
 import { exec } from 'child_process';
 import axios from 'axios';
+import ical from 'node-ical';
 
 // Load environment variables if .env exists
 if (fs.existsSync('.env')) {
@@ -266,6 +267,13 @@ let lastServerStats = {
 };
 
 let chatHistory = [];
+
+// placeholder persistence functions – the original snippet referenced
+// `saveData()` but didn’t include an implementation.  define a no‑op so the
+// call below can be uncommented later without throwing.
+function saveData() {
+  // TODO: actually persist chatHistory/server state if desired
+}
 const execPromise = promisify(exec);
 
 // API Routes
@@ -388,34 +396,25 @@ function handleNotionImport(req, res) {
         return 'string';
     }
 
-    const isMockImport = process.env.MOCK_NOTION_IMPORT === 'true';
-
     // run in background
     (async () => {
         try {
             const ext = path.extname(req.file.originalname || '').toLowerCase();
-            if (isMockImport) {
-                emitter.emit('progress', `mock ${ext || 'archive'} import started`);
-                const mockLogs = [
-                    'parsing CSV import (mock)',
-                    'creating collection mock_csv',
-                    'import complete: 1 records'
-                ];
-                const current = importTasks.get(taskId);
-                if (current) current.logs.push(...mockLogs);
-                setTimeout(() => {
-                    emitter.emit('progress', 'mock import finished');
-                    emitter.emit('done');
-                    const entry = importTasks.get(taskId);
-                    if (entry) entry.status = 'done';
-                }, 5);
-                return;
-            }
             if (ext === '.csv') {
                 function log(msg) {
                     emitter.emit('progress', msg);
                     const current = importTasks.get(taskId);
                     if (current) current.logs.push(msg);
+                }
+
+                if (process.env.MOCK_NOTION_IMPORT === 'true') {
+                    log('mock csv import started');
+                    log('creating collection mock_csv');
+                    log('import complete: 0 records');
+                    log('done');
+                    const current = importTasks.get(taskId);
+                    if (current) current.status = 'done';
+                    return;
                 }
 
                 log('parsing CSV import');
@@ -933,6 +932,98 @@ app.post('/api/broadcast', requireAuth, async (req, res) => {
     res.json({ status: 'broadcasted' });
 });
 
+// proxy endpoint for fetching ics calendar (avoids CORS issues)
+const ICS_URL = 'https://calendar.proton.me/api/calendar/v1/url/ghmB4Z3S-E9pZDc3LXh6PaVbjcD0enobcGIScC3WbbcVBYVTE66sdfCm2FfigmhZle5kbyZwmBXL41CSEwOWjA==/calendar.ics?CacheKey=emvkxJKt5glAHKfQiz1tAg%3D%3D&PassphraseKey=4T9lQSjcn4rdPmji3HcUZUI_87peOKLgto2FUfAT7bM%3D';
+app.get('/api/ics-proxy', async (req, res) => {
+    try {
+        const resp = await axios.get(ICS_URL, {
+            responseType: 'text',
+            timeout: 20000,
+            maxRedirects: 5,
+            validateStatus: () => true,
+            headers: {
+                // mimic a browser request so Proton's endpoint accepts it
+                'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+                'Accept': 'text/calendar,application/calendar,application/octet-stream,text/plain,*/*;q=0.1',
+                'Referer': 'https://calendar.proton.me/',
+            }
+        });
+
+        if (resp.status !== 200) {
+            console.error('[ICS PROXY] non-200 status', resp.status, resp.statusText, resp.data?.slice?.(0, 500));
+            return res.status(502).json({ error: 'failed to fetch ics calendar', status: resp.status });
+        }
+
+        const events = ical.sync.parseICS(resp.data);
+        const expandedEvents = [];
+
+        // expand events within a 3-year sliding window (-1 year to +2 years)
+        const now = new Date();
+        const startWindow = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+        const endWindow = new Date(now.getFullYear() + 2, now.getMonth(), now.getDate());
+
+        for (const k in events) {
+            if (events.hasOwnProperty(k)) {
+                const ev = events[k];
+                if (ev.type === 'VEVENT') {
+                    if (ev.rrule) {
+                        try {
+                            const dates = ev.rrule.between(startWindow, endWindow, true);
+                            const exdates = ev.exdate || {};
+                            
+                            for (const date of dates) {
+                                // node-ical returns Date objects for between()
+                                const dateStr = date.toISOString().substring(0, 10);
+                                
+                                // check if this instance was excluded
+                                let isExcluded = false;
+                                for (const ex in exdates) {
+                                    if (ex.startsWith(dateStr)) {
+                                        isExcluded = true;
+                                        break;
+                                    }
+                                }
+                                
+                                if (!isExcluded) {
+                                    const duration = ev.end.getTime() - ev.start.getTime();
+                                    const newEnd = new Date(date.getTime() + duration);
+                                    
+                                    expandedEvents.push({
+                                        UID: `${ev.uid}_${dateStr}`,
+                                        SUMMARY: ev.summary,
+                                        DESCRIPTION: ev.description || '',
+                                        LOCATION: ev.location || '',
+                                        URL: ev.url || '',
+                                        DTSTART: date.toISOString(),
+                                        DTEND: newEnd.toISOString()
+                                    });
+                                }
+                            }
+                        } catch (e) {
+                            console.error('failed to parse rrule for event', ev.summary, e);
+                        }
+                    } else if (ev.start) {
+                        expandedEvents.push({
+                            UID: ev.uid,
+                            SUMMARY: ev.summary,
+                            DESCRIPTION: ev.description || '',
+                            LOCATION: ev.location || '',
+                            URL: ev.url || '',
+                            DTSTART: ev.start.toISOString(),
+                            DTEND: ev.end ? ev.end.toISOString() : null
+                        });
+                    }
+                }
+            }
+        }
+
+        res.json(expandedEvents);
+    } catch (err) {
+        console.error('[ICS PROXY] fetch/parse failed', err?.message || err);
+        res.status(502).json({ error: 'failed to fetch/parse ics calendar', details: err?.message || String(err) });
+    }
+});
+
 // Socket.io
 io.on('connection', (socket) => {
     console.log('[Socket] Client connected:', socket.id);
@@ -954,7 +1045,250 @@ if (process.env.NODE_ENV !== 'test') {
     server.listen(PORT, '0.0.0.0', () => {
         console.log(`[Backend] Server running on port ${PORT}`);
         console.log(`[Backend] Protected endpoints enabled. Secret: ${ADMIN_SECRET ? '***' : 'Not Set'}`);
+        console.log(`[Backend] MOCK_NOTION_IMPORT: ${process.env.MOCK_NOTION_IMPORT}`);
+
+        // Resolve preferred Ollama models for qwen and vision (non-blocking)
+        resolveOllamaModelSelection().catch((err) => {
+            console.warn('[AI] failed to resolve ollama models', err?.message || err);
+        });
     });
 }
 
 export { app, importTasks };
+
+// ── ai / ollama proxy route ───────────────────────────────────
+// routes all llm and vision requests to the desktop gpu node
+// no inference happens on this machine
+
+// allow configuration via environment variables, with sensible defaults
+const OLLAMA_DEFAULT_URL = process.env.OLLAMA_URL || process.env.OLLAMA_HOST || 'http://localhost:11434';
+
+const PREFERRED_QWEN_MODELS = [
+  process.env.OLLAMA_QWEN_MODEL,
+  process.env.PKM_LLM_MODEL,
+  process.env.QWEN_MODEL,
+  'qwen2.5-coder:7b-instruct-q4_K_S',
+  'qwen2.5vl:latest',
+  'qwen2.5vl:7b-q4_K_M',
+].filter(Boolean);
+
+const PREFERRED_VISION_MODELS = [
+  process.env.OLLAMA_VISION_MODEL,
+  process.env.PKM_VISION_MODEL,
+  process.env.VISION_MODEL,
+  'moonshot:v2',
+  'moondream:v2',
+].filter(Boolean);
+
+let resolvedQwenModel = null;
+let resolvedVisionModel = null;
+
+const AI_PERSONA_PROMPT = `you are house's personal ai assistant, integrated into his pkm. direct, lowercase, no filler, no metaphors. knows about nocobase collections, journal entries, habits, and mood data.`;
+
+async function resolveOllamaModelSelection() {
+  const ollamaUrl = getOllamaUrl();
+  try {
+    const response = await axios.get(`${ollamaUrl}/api/tags`, { timeout: 15000 });
+    const available = (response.data?.models || []).map((m) => (m.model || m.name || '').toString());
+
+    const selectModel = (candidates) => {
+      for (const candidate of candidates) {
+        if (available.includes(candidate)) return candidate;
+      }
+      return candidates[0] || null;
+    };
+
+    resolvedQwenModel = selectModel(PREFERRED_QWEN_MODELS);
+    resolvedVisionModel = selectModel(PREFERRED_VISION_MODELS);
+
+    console.info('[AI] selected qwen model:', resolvedQwenModel);
+    console.info('[AI] selected vision model:', resolvedVisionModel);
+  } catch (err) {
+    console.warn('[AI] could not fetch ollama model list, using defaults', err?.message || err);
+    resolvedQwenModel = PREFERRED_QWEN_MODELS[0] || 'qwen2.5-coder:7b-instruct-q4_K_S';
+    resolvedVisionModel = PREFERRED_VISION_MODELS[0] || 'moondream:v2';
+  }
+}
+
+function getOllamaUrl() {
+  return process.env.OLLAMA_URL || process.env.OLLAMA_HOST || OLLAMA_DEFAULT_URL;
+}
+
+function getQwenModel() {
+  return resolvedQwenModel || PREFERRED_QWEN_MODELS[0] || 'qwen2.5-coder:7b-instruct-q4_K_S';
+}
+
+function getVisionModel() {
+  return resolvedVisionModel || PREFERRED_VISION_MODELS[0] || 'moondream:v2';
+}
+
+app.post('/api/ai/chat', async (req, res) => {
+const ollamaUrl = getOllamaUrl();
+  const { prompt, images, stream = false } = req.body;
+
+  try {
+    let finalPrompt = prompt;
+    
+    // vision routing
+    if (images && images.length > 0) {
+      const visionPayload = {
+        model: getVisionModel(),
+        prompt: "describe this image factually and concisely.",
+        images: images,
+        stream: false,
+        options: { temperature: 0.2 }
+      };
+      const visionRes = await axios.post(`${ollamaUrl}/api/generate`, visionPayload, { timeout: 60000 });
+      const imageContext = visionRes.data.response.toLowerCase();
+      finalPrompt = `image context: ${imageContext}\n\nuser prompt: ${prompt}`;
+    }
+
+    const payload = { 
+      model: getQwenModel(), 
+      prompt: finalPrompt,
+      system: AI_PERSONA_PROMPT,
+      stream, 
+      options: { temperature: 0.4 } 
+    };
+
+    const response = await axios.post(`${ollamaUrl}/api/generate`, payload, {
+      responseType: stream ? 'stream' : 'json',
+      timeout: 120000,
+    });
+
+    if (stream) {
+      res.setHeader('Content-Type', 'text/event-stream');
+      response.data.on('data', chunk => {
+        try {
+          const lines = chunk.toString().split('\n').filter(Boolean);
+          for (const line of lines) {
+            const parsed = JSON.parse(line);
+            if (parsed.response) {
+              parsed.response = parsed.response.toLowerCase();
+            }
+            res.write(JSON.stringify(parsed) + '\n');
+          }
+        } catch (e) {
+          res.write(chunk.toString().toLowerCase());
+        }
+      });
+      response.data.on('end', () => res.end());
+      response.data.on('error', (err) => {
+        console.error('[AI] stream error:', err.message);
+        res.end();
+      });
+    } else {
+      res.json({ response: response.data.response.toLowerCase(), model: QWEN_MODEL, done: true });
+    }
+  } catch (err) {
+    console.error('[AI] ollama request failed:', err.message);
+    res.status(502).json({ error: 'ollama unreachable', details: err.message });
+  }
+});
+
+app.post('/api/ai/describe', requireAuth, async (req, res) => {
+const ollamaUrl = getOllamaUrl();
+  const { text, imageBase64, fieldName, collectionName } = req.body;
+
+  try {
+    let context = text || '';
+    if (imageBase64) {
+      const visionPayload = {
+        model: getVisionModel(),
+        prompt: `describe this image concisely for a '${fieldName}' field in the '${collectionName}' collection.`,
+        images: [imageBase64],
+        stream: false,
+        options: { temperature: 0.2 }
+      };
+      const visionRes = await axios.post(`${ollamaUrl}/api/generate`, visionPayload, { timeout: 60000 });
+      context = visionRes.data.response;
+    }
+
+    const descPrompt = `generate a concise summary or description for a '${fieldName}' field in a '${collectionName}' collection based on the following context:\n\ncontext: ${context}\n\nreturn only the generated text, nothing else.`;
+
+    const payload = { 
+      model: getQwenModel(), 
+      prompt: descPrompt,
+      system: AI_PERSONA_PROMPT,
+      stream: false, 
+      options: { temperature: 0.3 } 
+    };
+
+    const response = await axios.post(`${ollamaUrl}/api/generate`, payload, { timeout: 120000 });
+    res.json({ response: response.data.response.toLowerCase().trim(), done: true });
+  } catch (err) {
+    console.error('[AI] describe request failed:', err.message);
+    res.status(502).json({ error: 'ai description failed', details: err.message });
+  }
+});
+
+app.post('/api/ai/habits', requireAuth, async (req, res) => {
+  const ollamaUrl = getOllamaUrl();
+  const { records } = req.body;
+
+  if (!records || !Array.isArray(records)) {
+    return res.status(400).json({ error: 'records array required' });
+  }
+
+  try {
+    const habitPrompt = `analyze the following habit records for patterns, consistency, and progress. return a structured json response with these exactly named keys: "summary", "patterns", and "suggestions". do not use markdown blocks.\n\nrecords: ${JSON.stringify(records)}`;
+
+    const payload = { 
+      model: getQwenModel(), 
+      prompt: habitPrompt,
+      system: AI_PERSONA_PROMPT,
+      format: 'json',
+      stream: false, 
+      options: { temperature: 0.2 } 
+    };
+
+    const response = await axios.post(`${ollamaUrl}/api/generate`, payload, { timeout: 120000 });
+    
+    let structured = { summary: '', patterns: '', suggestions: '' };
+    try {
+      const rawText = response.data.response;
+      // aggressively strip markdown blocks if they still appear
+      const cleanText = rawText.replace(/```(?:json)?\s*([\s\S]*?)```/g, '$1').trim();
+      const parsed = JSON.parse(cleanText);
+      
+      const lowercaseStrings = (obj) => {
+        if (typeof obj === 'string') return obj.toLowerCase();
+        if (Array.isArray(obj)) return obj.map(lowercaseStrings);
+        if (obj !== null && typeof obj === 'object') {
+          const res = {};
+          for (const [k, v] of Object.entries(obj)) res[k] = lowercaseStrings(v);
+          return res;
+        }
+        return obj;
+      };
+
+      structured.summary = lowercaseStrings(parsed.summary || '');
+      structured.patterns = lowercaseStrings(parsed.patterns || {});
+      structured.suggestions = lowercaseStrings(parsed.suggestions || []);
+    } catch(e) {
+      structured.summary = response.data.response.toLowerCase();
+    }
+    
+    res.json({ response: structured, done: true });
+  } catch (err) {
+    console.error('[AI] habit analysis failed:', err.message);
+    res.status(502).json({ error: 'habit analysis failed', details: err.message });
+  }
+});
+
+app.get('/api/ai/models', async (req, res) => {
+  const ollamaUrl = getOllamaUrl();
+  try {
+    const response = await axios.get(`${ollamaUrl}/api/tags`);
+    res.json({
+      selected: {
+        qwen: getQwenModel(),
+        vision: getVisionModel(),
+        ollamaUrl,
+      },
+      available: response.data,
+    });
+  } catch (err) {
+    res.status(502).json({ error: 'could not reach ollama', details: err.message });
+  }
+});

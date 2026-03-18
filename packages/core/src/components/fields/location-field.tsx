@@ -4,6 +4,7 @@ import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import { Button } from '@/components/ui/button';
 import L from 'leaflet';
+import { secureLogger } from '@/lib/secure-logger';
 
 // fix for default marker icon in react leaflet
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -30,7 +31,7 @@ function LocationMarker({ position, onChange, readOnly }: { position: L.LatLng |
 
   useEffect(() => {
   if (position) {
-  map.flyto(position, map.getzoom());
+  map.flyTo(position, map.getZoom());
   }
   }, [position, map]);
 
@@ -42,13 +43,13 @@ export function LocationField({ value, onChange, readOnly }: LocationFieldProps)
   const parsePos = (str: string): L.LatLng | null => {
   if (!str) return null;
   try {
-  const [lat, lng] = str.split(',').map(number);
-  if (!isnan(lat) && !isnan(lng)) return new l.latlng(lat, lng);
-  } catch (e) { secureLogger.error(e); }
+  const [lat, lng] = str.split(',').map(Number);
+  if (!isNaN(lat) && !isNaN(lng)) return new L.LatLng(lat, lng);
+  } catch (e) { secureLogger.error(String(e)); }
   return null; // default null
   };
 
-  const [position, setposition] = useState<L.LatLng | null>(parsePos(value));
+  const [position, setPosition] = useState<L.LatLng | null>(parsePos(value));
 
   const handleUpdate = (pos: L.LatLng) => {
   setPosition(pos);

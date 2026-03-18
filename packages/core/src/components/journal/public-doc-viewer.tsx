@@ -8,8 +8,8 @@ interface PublicDocViewerProps {
 
 export function PublicDocViewer({ slug }: PublicDocViewerProps) {
   const [document, setDocument] = useState<any>(null);
-  const [loading, setloading] = useState(true);
-  const [error, seterror] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   // fetch public document
   useEffect(() => {
@@ -23,9 +23,9 @@ export function PublicDocViewer({ slug }: PublicDocViewerProps) {
  setLoading(false);
   })
   .catch(err => {
- seterror(err.message);
- setloading(false);
-  }, [slug]);
+ setError(err.message);
+ setLoading(false);
+  });
   });
 
   if (loading) {
@@ -47,8 +47,8 @@ export function PublicDocViewer({ slug }: PublicDocViewerProps) {
   );
   }
 
-  const documentcolor = document.color || '#8b5cf6';
-  const createddate = document.created_at ? new date(document.created_at) : new date();
+  const documentColor = document.color || '#8b5cf6';
+  const createdDate = document.created_at ? new Date(document.created_at) : new Date();
 
   return (
   <div className="min-h-screen bg-background font-varela">
@@ -73,7 +73,7 @@ export function PublicDocViewer({ slug }: PublicDocViewerProps) {
  </h1>
 
  <div className="text-center text-muted-foreground text-lg mb-8 font-varela">
- {format(createddate, 'mmmm d, yyyy')}
+ {format(createdDate, 'mmmm d, yyyy')}
  </div>
 
  <div className="w-24 h-0.5 bg-border mx-auto mb-12" />
