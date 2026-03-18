@@ -1,5 +1,7 @@
 import * as React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import '@testing-library/jest-dom/vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { FieldSettingsDialog } from '../field-settings-dialog';
 
 // stub auth client
@@ -25,7 +27,7 @@ describe('FieldSettingsDialog', () => {
     );
 
     // open select
-    const trigger = screen.getByRole('button');
+    const trigger = screen.getByRole('combobox', { name: /property type/i });
     expect(trigger).toBeVisible();
 
     // choose a new type from the list:
