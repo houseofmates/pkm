@@ -58,3 +58,4 @@ packages/backend/public/*.pdf
 # Personal files
 !releases/
 *.private.*
+releases/
