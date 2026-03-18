@@ -1717,7 +1717,15 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
 
   const renderView = () => {
     console.log('enter renderView');
-    if (isId) return <span className={cn("font-mono opacity-50 select-text text-white/70", size === 'lg' ? "text-lg" : "text-[10px]")}>{value?.toString()}</span>;
+    if (isId) return (
+      <span
+        className={cn("font-mono opacity-50 select-text text-white/70", size === 'lg' ? "text-lg" : "text-[10px]")}
+        role="textbox"
+        aria-label="record identifier"
+      >
+        {value?.toString()}
+      </span>
+    );
 
     if (isLinkDatabase && value) {
       return (
@@ -1788,6 +1796,10 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
         <div
           onDoubleClick={() => setIsEditing(true)}
           className={cn("cursor-pointer text-right min-h-[20px] font-varela text-white/90", size === 'lg' ? "text-lg" : "text-sm")}
+          role="button"
+          aria-label="edit date"
+          tabIndex={0}
+          onKeyDown={handleKeyboardOpen}
         >
           {value !== null && value !== undefined ? formatNumber(value) : <span className="opacity-20">-</span>}
         </div>
@@ -1795,6 +1807,20 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     }
 
     // show label text instead of raw value for select/multi-select, and open on click
+    if (isCode && !value) {
+      return (
+        <div
+          className={cn("italic text-muted-foreground text-xs", size === 'lg' && "text-sm")}
+          role="button"
+          tabIndex={0}
+          onClick={() => setIsEditing(true)}
+          onKeyDown={handleKeyboardOpen}
+        >
+          computed formula (double-click to edit)
+        </div>
+      );
+    }
+
     if (isSelect) {
       const options = enrich(field?.uiSchema?.enum || []);
         if (isMultiSelect) {
@@ -1812,17 +1838,21 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
                 const label = opt?.label || v;
                 const color = opt?.color;
                 return (
-                  <span
+                  <button
                     key={v}
+                    type="button"
                     className="px-1.5 py-0.5 rounded"
                     style={{
                       background: color || undefined,
                       color: color ? getContrastColor(color) : undefined,
                       border: color ? '1px solid #444' : undefined
                     }}
+                    aria-label={`selected option ${label}`}
+                    onKeyDown={handleKeyboardOpen}
+                    onClick={() => setIsEditing(true)}
                   >
                     {label}
-                  </span>
+                  </button>
                 );
               }) : null}
               {(!value || (Array.isArray(value) && value.length === 0)) && (
@@ -1838,6 +1868,10 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
             <div
               onClick={() => setIsEditing(true)}
               className={cn("cursor-pointer text-right min-h-[20px] font-varela text-white/90", size === 'lg' ? "text-lg" : "text-sm")}
+              role="button"
+              aria-label="edit selection"
+              tabIndex={0}
+              onKeyDown={handleKeyboardOpen}
               style={color ? { background: color, color: getContrastColor(color), padding: '0 0.25rem', borderRadius: '0.25rem' } : undefined}
             >
               {label || <span className="opacity-50 italic">empty</span>}
