@@ -201,9 +201,7 @@ describe('SmartField', () => {
   it('opens formula editor for formula type and saves code', () => {
     const onChange = vi.fn();
     withAuth(<SmartField value="init" field={{ interface: 'input', type: 'formula', name: 'f' }} onChange={onChange} />);
-    // formula fields render a placeholder instead of the raw value
-    const placeholder = screen.getByText(/<script/);
-    expect(placeholder).toBeInTheDocument();
+    const placeholder = screen.getByLabelText(/open formula editor/i);
     fireEvent.click(placeholder);
     expect(screen.getByTestId('formula')).toBeInTheDocument();
     fireEvent.click(screen.getByText('save'));
@@ -213,36 +211,25 @@ describe('SmartField', () => {
   it('edits color field and updates value', () => {
     const onChange = vi.fn();
     withAuth(<SmartField value="#000000" field={{ interface: 'input', name: 'color' }} onChange={onChange} />);
-    fireEvent.click(screen.getByText('#000000'));
-    // color input should appear (use querySelector because role is not reliable)
+    fireEvent.click(screen.getByLabelText(/edit color/i));
     const colorInput = document.querySelector('input[type="color"]') as HTMLInputElement;
     expect(colorInput).toBeInTheDocument();
-    fireEvent.change(colorInput!, { target: { value: '#ff0000' } });
-    // the save button has green icon, so pick the button with that class
-    const saveBtn = Array.from(document.querySelectorAll('button')).find(b => b.className.includes('text-green-500')) as HTMLButtonElement;
-    expect(saveBtn).toBeDefined();
-    fireEvent.click(saveBtn);
+    fireEvent.change(colorInput, { target: { value: '#ff0000' } });
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
     expect(onChange).toHaveBeenCalledWith('#ff0000');
   });
 
   it('uploads file and returns url', async () => {
     const onChange = vi.fn();
     withAuth(<SmartField value={null} field={{ interface: 'attachment', name: 'file' }} onChange={onChange} />);
-    // click the default empty placeholder to begin editing
-    fireEvent.click(screen.getByText(/empty/i));
+    fireEvent.click(screen.getByLabelText(/add or upload attachment/i));
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
     const blob = new Blob(['hello'], { type: 'text/plain' });
     const file = new File([blob], 'test.txt');
-    // trigger file input change
     fireEvent.change(fileInput, { target: { files: [file] } });
-    // wait until the text input (url display) updates
     const textInput = await waitFor(() => document.querySelector('input[placeholder="paste url or upload..."]') as HTMLInputElement);
     await waitFor(() => expect(textInput.value).toBe('http://example.com/fake'));
-    // after upload the save button should appear, click it to commit
-    const saveBtn = Array.from(document.querySelectorAll('button')).find(b => b.className.includes('text-green-500')) as HTMLButtonElement;
-    expect(saveBtn).toBeDefined();
-    fireEvent.click(saveBtn);
-    // our fakeClient.upload resolves with a url so onChange should be called
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
     await waitFor(() => {
       expect(onChange).toHaveBeenCalledWith('http://example.com/fake');
     });
@@ -252,11 +239,11 @@ describe('SmartField', () => {
     const onChange = vi.fn();
     const options = [{ label: 'A', value: 'a' }, { label: 'B', value: 'b' }];
     withAuth(<SmartField value={["a"]} field={{ interface: 'multipleSelect', name: 'multi', uiSchema: { enum: options } }} onChange={onChange} />);
-    fireEvent.click(screen.getByText('a'));
+    const existingChip =screen.getByText('A');
+    fireEvent.click(existingChip.closest('div')!);
     const input = await screen.findByPlaceholderText('search...');
-    expect(input).toBeInTheDocument();
     fireEvent.change(input, { target: { value: 'B' } });
-    const item = await screen.findByText('B');
+    const item = await screen.findByRole('checkbox', { name: 'B' });
     fireEvent.click(item);
     fireEvent.click(screen.getByText('done'));
     expect(onChange).toHaveBeenCalledWith(["a", "b"]);
@@ -265,13 +252,11 @@ describe('SmartField', () => {
   it('allows json editing and parses correctly', () => {
     const onChange = vi.fn();
     withAuth(<SmartField value={{ foo: 'bar' }} field={{ interface: 'json', name: 'js' }} onChange={onChange} />);
-    const jsonPreview = screen.getByRole('button', { name: /json preview/i });
-    fireEvent.click(jsonPreview);
+    const jsonPreview = screen.getByText(/\{/);
+    fireEvent.click(jsonPreview.closest('button')!);
     const textarea = screen.getByRole('textbox');
     fireEvent.change(textarea, { target: { value: '{"foo":"baz"}' } });
-    // click the first button (save)
-    const btn = document.querySelector('button');
-    btn && fireEvent.click(btn);
+    fireEvent.click(screen.getByRole('button', { name: /save/i }));
     expect(onChange).toHaveBeenCalledWith({ foo: 'baz' });
   });
 });
