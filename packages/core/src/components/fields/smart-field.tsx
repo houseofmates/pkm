@@ -1655,30 +1655,46 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
         <div className="flex items-center gap-2 p-1 bg-[#111] border border-[#333] rounded">
           <input type="color" value={localValue || '#000000'} onChange={(e) => setLocalValue(e.target.value)} className="h-7 w-7 bg-transparent border-0 cursor-pointer" />
           <Input value={localValue || ''} onChange={(e) => setLocalValue(e.target.value)} className="h-7 w-20 bg-transparent text-white border-0 text-xs font-mono" />
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-6 w-6 text-green-500"
-            onClick={() => handleSave()}
-            aria-label="save json"
-          >
+          <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => handleSave()} aria-label="save color">
             <Check className="h-3 w-3" />
           </Button>
         </div>
       );
     }
 
-    if (isJson && value != null) {
-      const preview = typeof value === 'string' ? value : JSON.stringify(value);
+    if (isJson) {
+      const jsonString = typeof localValue === 'string' ? localValue : JSON.stringify(localValue ?? value ?? {}, null, 2);
       return (
-        <button
-          type="button"
-          onClick={() => setIsEditing(true)}
-          className={cn('font-mono text-xs px-2 py-1 rounded bg-black/60 border border-white/10 text-green-300 text-left w-full truncate', size === 'lg' && 'text-sm')}
-          aria-label="json preview"
-        >
-          {preview}
-        </button>
+        <div className="flex flex-col gap-1 min-w-[200px] bg-[#111] border border-[#333] p-2 rounded shadow-2xl z-50">
+          <textarea
+            autoFocus
+            value={jsonString}
+            onChange={(e) => setLocalValue(e.target.value)}
+            className="w-full h-32 text-xs font-mono bg-black text-green-400 p-2 border border-[#333] focus:outline-none"
+          />
+          <div className="flex justify-end gap-1 mt-1">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-6 w-6 text-green-500"
+              aria-label="save json"
+              onClick={() => {
+                try {
+                  const parsed = typeof localValue === 'string' ? JSON.parse(localValue) : localValue;
+                  handleSave(parsed);
+                } catch (e) {
+                  toast.error("invalid json");
+                }
+              }}
+            >
+              <Check className="h-3 w-3" />
+              <span className="sr-only">save json</span>
+            </Button>
+            <Button variant="ghost" size="icon" className="h-6 w-6 text-white/50" onClick={handleCancel} aria-label="cancel json edit">
+              <X className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
       );
     }
 
@@ -1692,18 +1708,6 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
 
     if (isLinkItem) {
       return <LinkItemPicker value={localValue} onChange={handleSave} onCancel={handleCancel} />;
-    }
-
-    if (isJson) {
-      return (
-        <div className="flex flex-col gap-1 min-w-[200px] bg-[#111] border border-[#333] p-2 rounded shadow-2xl z-50">
-          <textarea autoFocus value={typeof localValue === 'string' ? localValue : JSON.stringify(localValue, null, 2)} onChange={(e) => setLocalValue(e.target.value)} className="w-full h-32 text-xs font-mono bg-black text-green-400 p-2 border border-[#333] focus:outline-none" />
-          <div className="flex justify-end gap-1 mt-1">
-            <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => { try { handleSave(JSON.parse(localValue)); } catch (e) { toast.error("invalid json"); } }}><Check className="h-3 w-3" /></Button>
-            <Button variant="ghost" size="icon" className="h-6 w-6 text-white/50" onClick={handleCancel}><X className="h-3 w-3" /></Button>
-          </div>
-        </div>
-      );
     }
 
     return (
