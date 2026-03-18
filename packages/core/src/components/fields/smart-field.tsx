@@ -1430,7 +1430,15 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
             <Input type="file" className="absolute inset-0 opacity-0 cursor-pointer w-6" onChange={handleFileChange} />
             <Paperclip className="h-4 w-4 text-muted-foreground" />
           </div>
-          <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => handleSave()}><Check className="h-3 w-3" /></Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 text-green-500"
+            onClick={() => handleSave()}
+            aria-label="save"
+          >
+            <Check className="h-3 w-3" />
+          </Button>
         </div>
       );
     }
@@ -1837,6 +1845,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
               className="flex flex-wrap gap-1 cursor-pointer text-left"
               onClick={() => setIsEditing(true)}
               aria-label="edit selection"
+              onKeyDown={handleKeyboardOpen}
             >
               {Array.isArray(value) ? value.map(v => {
                 const opt = options.find(o => o.value === v);
@@ -1871,6 +1880,7 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
               onClick={() => setIsEditing(true)}
               className={cn("cursor-pointer text-right min-h-[20px] font-varela text-white/90", size === 'lg' ? "text-lg" : "text-sm")}
               aria-label="edit selection"
+              onKeyDown={handleKeyboardOpen}
               style={color ? { background: color, color: getContrastColor(color), padding: '0 0.25rem', borderRadius: '0.25rem' } : undefined}
             >
               {label || <span className="opacity-50 italic">empty</span>}
