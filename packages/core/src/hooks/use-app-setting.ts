@@ -20,8 +20,8 @@ export function useAppSetting<T>(key: string, defaultValue: T, options?: { debou
       secureLogger.warn('useAppSetting called outside of React dispatcher; returning fallback values.');
     }
 
-    const noOp = () => {};
-    const noopAsync = async () => {};
+    const noOp: (value: T | ((val: T) => T)) => void = () => { };
+    const noopAsync: (value?: T) => Promise<void> = async () => { };
 
     return [defaultValue, noOp, false, noopAsync] as const;
   }
