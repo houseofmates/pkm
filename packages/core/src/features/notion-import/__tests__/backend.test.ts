@@ -1,3 +1,4 @@
+/// <reference path="../../../../types/supertest.d.ts" />
 import fs from 'fs';
 import path from 'path';
 import type { Express } from 'express';
@@ -27,7 +28,7 @@ process.env.ADMIN_SECRET = 'test-secret';
 process.env.BROADCAST_AUTH_KEY = 'test-secret';
 
 // server instance loaded lazily after env vars are configured
-let server: Express;
+let server!: Express;
 
 // ensure the public upload directory exists and start backend once
 beforeAll(async () => {
@@ -35,7 +36,7 @@ beforeAll(async () => {
   if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
 
   if (!server) {
-    const backend = await import('@pkm/backend/server.js');
+    const backend = await import('@pkm/backend/server.js') as { app: Express };
     server = backend.app;
   }
 });
