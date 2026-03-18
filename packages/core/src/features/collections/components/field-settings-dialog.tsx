@@ -196,7 +196,9 @@ export function FieldSettingsDialog({ collectionName, field, open, onOpenChange,
                             </SelectTrigger>
                             <SelectContent>
                                 {FIELD_TYPES.map(t => (
-                                    <SelectItem key={t.value} value={t.value} className="lowercase">{t.label}</SelectItem>
+                                    <SelectItem key={t.value} value={t.value} className="lowercase">
+                                        {t.label.toLowerCase()}
+                                    </SelectItem>
                                 ))}
                             </SelectContent>
                         </Select>
