@@ -3,6 +3,7 @@ import { useAuth } from '@/contexts/auth-context';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { secureLogger } from '@/lib/secure-logger';
 import {
     Dialog,
     DialogContent,
@@ -20,6 +21,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { toast } from 'sonner';
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { HexColorPicker } from 'react-colorful';
+import { Trash2, Palette } from 'lucide-react';
+import { IconPicker } from '@/components/icon-picker-dialog';
 
 interface FieldSettingsDialogProps {
     collectionName: string;
@@ -28,6 +31,12 @@ interface FieldSettingsDialogProps {
     onOpenChange: (open: boolean) => void;
     onFieldUpdated: () => void;
 }
+
+const COLORS = [
+    'var(--primary)', '#EF4444', '#F97316', '#F59E0B', '#84CC16', '#10B981',
+    '#06B6D4', '#3B82F6', '#6366F1', '#8B5CF6', '#D946EF', '#F43F5E',
+    '#71717a', '#ffffff'
+];
 
 const FIELD_TYPES = [
     { value: 'input', label: 'Single Line Text' },
