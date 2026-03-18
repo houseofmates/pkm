@@ -1876,6 +1876,22 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
             </button>
           );
         }
+    }
+
+    if (isJson && !isSelect && !isMultiSelect && !isRelation && !isLinkDatabase && !isLinkItem) {
+      const preview = value != null ? (typeof value === 'string' ? value : JSON.stringify(value)) : '';
+      return (
+        <button
+          type="button"
+          onClick={() => setIsEditing(true)}
+          className={cn('font-mono text-xs px-2 py-1 rounded bg-black/60 border border-white/10 text-green-300 text-left w-full truncate', size === 'lg' && 'text-sm')}
+          aria-label="json preview"
+        >
+          {preview || <span className="opacity-50 italic">empty json</span>}
+        </button>
+      );
+    }
+
     if (isEmail) return <a href={`mailto:${strValue}`} className={cn("text-primary hover:underline flex items-center gap-1 w-full", size === 'lg' ? "text-lg" : "text-sm")} onClick={e => e.stopPropagation()}><Mail className="h-3 w-3" /> {strValue}</a>;
     if (isUrl) {
       return (
