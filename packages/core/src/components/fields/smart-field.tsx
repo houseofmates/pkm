@@ -53,16 +53,22 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
     });
   };
 
+  const triggerChild = React.isValidElement(children)
+    ? React.cloneElement(children as React.ReactElement<any>, {
+      onContextMenu: (event: React.MouseEvent) => {
+        event.stopPropagation();
+        children.props?.onContextMenu?.(event);
+      }
+    })
+    : (
+      <div onContextMenu={(e) => e.stopPropagation()}>{children}</div>
+    );
+
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
         {/* ensure we stop propagation so we don't trigger the row menu */}
-        <div onContextMenu={(e) => {
-          e.stopPropagation();
-          // oncontextmenu handles nesting
-        }}>
-          {children}
-        </div>
+        {triggerChild}
       </ContextMenuTrigger>
       <ContextMenuContent className="w-48">
         <ContextMenuItem onSelect={onEdit}>
