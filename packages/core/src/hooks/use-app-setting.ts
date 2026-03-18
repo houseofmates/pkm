@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { secureLogger } from '@/lib/secure-logger';
 import { storageManager } from '@/lib/storage-manager';
@@ -10,6 +10,22 @@ export interface AppSetting {
 }
 
 export function useAppSetting<T>(key: string, defaultValue: T, options?: { debounceMs?: number; pollIntervalMs?: number }) {
+  // During hot-reload or other React introspection the component may be invoked
+  // outside of a proper render pass. In that case React's hook dispatcher will
+  // be null and calling hooks will throw (e.g. "resolveDispatcher() is null").
+  // Return a safe fallback to avoid crashing the whole app in those cases.
+  const internals = (React as any).__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
+  if (internals?.ReactCurrentDispatcher?.current == null) {
+    if (process.env.NODE_ENV !== 'production') {
+      secureLogger.warn('useAppSetting called outside of React dispatcher; returning fallback values.');
+    }
+
+    const noOp = () => {};
+    const noopAsync = async () => {};
+
+    return [defaultValue, noOp, false, noopAsync] as const;
+  }
+
   const debounceMs = options?.debounceMs ?? 1000;
   const pollIntervalMs = options?.pollIntervalMs;
 
