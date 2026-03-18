@@ -26,6 +26,8 @@ async function waitForDone(taskId: string) {
 process.env.ADMIN_SECRET = 'test-secret';
 // also override broadcast key in case it's set in environment
 process.env.BROADCAST_AUTH_KEY = 'test-secret';
+// force backend to short-circuit notion import work for faster tests
+process.env.MOCK_NOTION_IMPORT = 'true';
 
 // server instance loaded lazily after env vars are configured
 let server!: Express;
