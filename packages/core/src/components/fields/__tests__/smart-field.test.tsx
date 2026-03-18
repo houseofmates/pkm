@@ -201,7 +201,7 @@ describe('SmartField', () => {
   it('opens formula editor for formula type and saves code', () => {
     const onChange = vi.fn();
     withAuth(<SmartField value="init" field={{ interface: 'input', type: 'formula', name: 'f' }} onChange={onChange} />);
-    const placeholder = screen.getByLabelText(/open formula editor/i);
+    const placeholder = screen.getByText(/computed formula/i);
     fireEvent.click(placeholder);
     expect(screen.getByTestId('formula')).toBeInTheDocument();
     fireEvent.click(screen.getByText('save'));
@@ -211,18 +211,18 @@ describe('SmartField', () => {
   it('edits color field and updates value', () => {
     const onChange = vi.fn();
     withAuth(<SmartField value="#000000" field={{ interface: 'input', name: 'color' }} onChange={onChange} />);
-    fireEvent.click(screen.getByLabelText(/edit color/i));
+    fireEvent.click(screen.getByRole('button', { name: /color value/i }));
     const colorInput = document.querySelector('input[type="color"]') as HTMLInputElement;
     expect(colorInput).toBeInTheDocument();
     fireEvent.change(colorInput, { target: { value: '#ff0000' } });
-    fireEvent.click(screen.getByRole('button', { name: /save/i }));
+    fireEvent.click(screen.getByRole('button', { name: /confirm/i }));
     expect(onChange).toHaveBeenCalledWith('#ff0000');
   });
 
   it('uploads file and returns url', async () => {
     const onChange = vi.fn();
     withAuth(<SmartField value={null} field={{ interface: 'attachment', name: 'file' }} onChange={onChange} />);
-    fireEvent.click(screen.getByLabelText(/add or upload attachment/i));
+    fireEvent.click(screen.getByRole('button', { name: /add\/upload/i }));
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
     const blob = new Blob(['hello'], { type: 'text/plain' });
     const file = new File([blob], 'test.txt');
@@ -239,8 +239,7 @@ describe('SmartField', () => {
     const onChange = vi.fn();
     const options = [{ label: 'A', value: 'a' }, { label: 'B', value: 'b' }];
     withAuth(<SmartField value={["a"]} field={{ interface: 'multipleSelect', name: 'multi', uiSchema: { enum: options } }} onChange={onChange} />);
-    const existingChip =screen.getByText('A');
-    fireEvent.click(existingChip.closest('div')!);
+    fireEvent.click(screen.getByRole('button', { name: /edit options/i }));
     const input = await screen.findByPlaceholderText('search...');
     fireEvent.change(input, { target: { value: 'B' } });
     const item = await screen.findByRole('checkbox', { name: 'B' });
@@ -252,8 +251,8 @@ describe('SmartField', () => {
   it('allows json editing and parses correctly', () => {
     const onChange = vi.fn();
     withAuth(<SmartField value={{ foo: 'bar' }} field={{ interface: 'json', name: 'js' }} onChange={onChange} />);
-    const jsonPreview = screen.getByText(/\{/);
-    fireEvent.click(jsonPreview.closest('button')!);
+    const jsonPreview = screen.getByRole('button', { name: /json preview/i });
+    fireEvent.click(jsonPreview);
     const textarea = screen.getByRole('textbox');
     fireEvent.change(textarea, { target: { value: '{"foo":"baz"}' } });
     fireEvent.click(screen.getByRole('button', { name: /save/i }));
