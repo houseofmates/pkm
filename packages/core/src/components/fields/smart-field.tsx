@@ -53,23 +53,15 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
     });
   };
 
-  const triggerChild = React.isValidElement(children)
-    ? React.cloneElement(children as React.ReactElement<any>, {
-      ...children.props,
-      onContextMenu: (event: React.MouseEvent) => {
-        event.stopPropagation();
-        children.props?.onContextMenu?.(event);
-      }
-    })
-    : (
-      <div onContextMenu={(e) => e.stopPropagation()}>{children}</div>
-    );
+  const contentChild = React.isValidElement(children) ? children : <span>{children}</span>;
 
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
         {/* ensure we stop propagation so we don't trigger the row menu */}
-        {triggerChild}
+        <div className="contents" role="presentation" onContextMenu={(e) => e.stopPropagation()}>
+          {contentChild}
+        </div>
       </ContextMenuTrigger>
       <ContextMenuContent className="w-48">
         <ContextMenuItem onSelect={onEdit}>
@@ -1663,7 +1655,15 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
         <div className="flex items-center gap-2 p-1 bg-[#111] border border-[#333] rounded">
           <input type="color" value={localValue || '#000000'} onChange={(e) => setLocalValue(e.target.value)} className="h-7 w-7 bg-transparent border-0 cursor-pointer" />
           <Input value={localValue || ''} onChange={(e) => setLocalValue(e.target.value)} className="h-7 w-20 bg-transparent text-white border-0 text-xs font-mono" />
-          <Button variant="ghost" size="icon" className="h-6 w-6 text-green-500" onClick={() => handleSave()}><Check className="h-3 w-3" /></Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 text-green-500"
+            onClick={() => handleSave()}
+            aria-label="save json"
+          >
+            <Check className="h-3 w-3" />
+          </Button>
         </div>
       );
     }
