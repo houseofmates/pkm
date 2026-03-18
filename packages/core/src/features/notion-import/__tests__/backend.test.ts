@@ -25,9 +25,8 @@ process.env.ADMIN_SECRET = 'test-secret';
 // also override broadcast key in case it's set in environment
 process.env.BROADCAST_AUTH_KEY = 'test-secret';
 
-// import the server AFTER configuring env vars to ensure they are picked up
-// server.js exports { app, importTasks }
-import { app as server } from '@pkm/backend/server.js';
+// server instance loaded lazily after env vars are configured
+let server: import('express').Express;
 
 // ensure the public upload directory exists
 beforeAll(() => {
