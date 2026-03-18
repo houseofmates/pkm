@@ -388,10 +388,22 @@ function handleNotionImport(req, res) {
         return 'string';
     }
 
+    const isMockImport = process.env.MOCK_NOTION_IMPORT === 'true';
+
     // run in background
     (async () => {
         try {
             const ext = path.extname(req.file.originalname || '').toLowerCase();
+            if (isMockImport) {
+                emitter.emit('progress', `mock ${ext || 'archive'} import started`);
+                setTimeout(() => {
+                    emitter.emit('progress', 'mock import finished');
+                    emitter.emit('done');
+                    const current = importTasks.get(taskId);
+                    if (current) current.status = 'done';
+                }, 5);
+                return;
+            }
             if (ext === '.csv') {
                 function log(msg) {
                     emitter.emit('progress', msg);
