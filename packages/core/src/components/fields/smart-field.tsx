@@ -680,6 +680,13 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
     setIsEditing(false);
   };
 
+  const handleKeyboardOpen = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setIsEditing(true);
+    }
+  };
+
   const baseType = field?.interface || field?.type || 'string';
   const name = field?.name?.toLowerCase() || '';
   const strValue = String(value || '');
@@ -1792,7 +1799,14 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       const options = enrich(field?.uiSchema?.enum || []);
         if (isMultiSelect) {
           return (
-            <div className="flex flex-wrap gap-1 cursor-pointer" onClick={() => setIsEditing(true)}>
+            <div
+              className="flex flex-wrap gap-1 cursor-pointer"
+              onClick={() => setIsEditing(true)}
+              role="button"
+              aria-label="edit selection"
+              tabIndex={0}
+              onKeyDown={handleKeyboardOpen}
+            >
               {Array.isArray(value) ? value.map(v => {
                 const opt = options.find(o => o.value === v);
                 const label = opt?.label || v;
@@ -1854,7 +1868,21 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       );
     }
     if (isPassword) return <div onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="cursor-pointer flex items-center gap-1 text-white/30 hover:text-white/60"><Lock className="h-3 w-3" /> <span className="font-mono">••••••••</span></div>;
-    if (isColor) return <div onClick={() => setIsEditing(true)} className="flex items-center gap-2 cursor-pointer group"><div className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: value || 'transparent' }} /><span className={cn("font-mono text-white/70 text-xs", size === 'lg' && "text-base")}>{value}</span></div>;
+    if (isColor) {
+      return (
+        <div
+          onClick={() => setIsEditing(true)}
+          className="flex items-center gap-2 cursor-pointer group"
+          role="button"
+          aria-label="edit color value"
+          tabIndex={0}
+          onKeyDown={handleKeyboardOpen}
+        >
+          <div className="w-3 h-3 rounded-full border border-white/20" style={{ backgroundColor: value || 'transparent' }} />
+          <span className={cn("font-mono text-white/70 text-xs", size === 'lg' && "text-base")}>{value}</span>
+        </div>
+      );
+    }
     if (isCheckbox) return <div className="flex items-center justify-center h-full w-full cursor-pointer" onClick={() => onChange(!value)}><Checkbox checked={!!value} className="data-[state=checked]:bg-yellow-400 data-[state=checked]:text-black border-white/20" onCheckedChange={(checked: boolean) => onChange(checked)} /></div>;
 
     if (isFile) {
@@ -1890,6 +1918,10 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
               onClick={() => setIsEditing(true)}
               onContextMenu={(e) => { e.stopPropagation(); }}
               className="h-full w-full flex items-center justify-center cursor-pointer opacity-20 hover:opacity-100"
+              role="button"
+              aria-label="add or upload attachment"
+              tabIndex={0}
+              onKeyDown={handleKeyboardOpen}
             >
               <Paperclip className="h-3 w-3 text-white" />
             </div>
