@@ -1646,6 +1646,20 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       );
     }
 
+    if (isJson && value != null) {
+      const preview = typeof value === 'string' ? value : JSON.stringify(value);
+      return (
+        <button
+          type="button"
+          onClick={() => setIsEditing(true)}
+          className={cn('font-mono text-xs px-2 py-1 rounded bg-black/60 border border-white/10 text-green-300 text-left w-full truncate', size === 'lg' && 'text-sm')}
+          aria-label="json preview"
+        >
+          {preview}
+        </button>
+      );
+    }
+
     if (isRelation) {
       return <RelationPicker field={field} value={localValue} onChange={handleSave} onCancel={handleCancel} />;
     }

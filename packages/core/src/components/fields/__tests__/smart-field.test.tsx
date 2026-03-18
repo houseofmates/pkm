@@ -265,7 +265,8 @@ describe('SmartField', () => {
   it('allows json editing and parses correctly', () => {
     const onChange = vi.fn();
     withAuth(<SmartField value={{ foo: 'bar' }} field={{ interface: 'json', name: 'js' }} onChange={onChange} />);
-    fireEvent.click(screen.getByText(/\{"foo":"bar"\}/));
+    const jsonPreview = screen.getByRole('button', { name: /json preview/i });
+    fireEvent.click(jsonPreview);
     const textarea = screen.getByRole('textbox');
     fireEvent.change(textarea, { target: { value: '{"foo":"baz"}' } });
     // click the first button (save)
