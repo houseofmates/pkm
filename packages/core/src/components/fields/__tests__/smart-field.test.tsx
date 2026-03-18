@@ -240,6 +240,7 @@ describe('SmartField', () => {
     const onChange = vi.fn();
     const options = [{ label: 'A', value: 'a' }, { label: 'B', value: 'b' }];
     withAuth(<SmartField value={["a"]} field={{ interface: 'multipleSelect', name: 'multi', uiSchema: { enum: options } }} onChange={onChange} />);
+    screen.debug(undefined, 2000);
     fireEvent.click(screen.getByRole('button', { name: /edit selection/i }));
     const input = await screen.findByPlaceholderText('search...');
     fireEvent.change(input, { target: { value: 'B' } });
