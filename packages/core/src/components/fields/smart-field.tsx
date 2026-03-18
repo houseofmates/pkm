@@ -1825,57 +1825,49 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
       const options = enrich(field?.uiSchema?.enum || []);
         if (isMultiSelect) {
           return (
-            <div
-              className="flex flex-wrap gap-1 cursor-pointer"
+            <button
+              type="button"
+              className="flex flex-wrap gap-1 cursor-pointer text-left"
               onClick={() => setIsEditing(true)}
-              role="button"
               aria-label="edit selection"
-              tabIndex={0}
-              onKeyDown={handleKeyboardOpen}
             >
               {Array.isArray(value) ? value.map(v => {
                 const opt = options.find(o => o.value === v);
                 const label = opt?.label || v;
                 const color = opt?.color;
                 return (
-                  <button
+                  <span
                     key={v}
-                    type="button"
                     className="px-1.5 py-0.5 rounded"
                     style={{
                       background: color || undefined,
                       color: color ? getContrastColor(color) : undefined,
                       border: color ? '1px solid #444' : undefined
                     }}
-                    aria-label={`selected option ${label}`}
-                    onKeyDown={handleKeyboardOpen}
-                    onClick={() => setIsEditing(true)}
                   >
                     {label}
-                  </button>
+                  </span>
                 );
               }) : null}
               {(!value || (Array.isArray(value) && value.length === 0)) && (
                 <span className="opacity-50 italic">empty</span>
               )}
-            </div>
+            </button>
           );
         } else {
           const opt = options.find(o => o.value === value);
           const label = opt?.label || value;
           const color = opt?.color;
           return (
-            <div
+            <button
+              type="button"
               onClick={() => setIsEditing(true)}
               className={cn("cursor-pointer text-right min-h-[20px] font-varela text-white/90", size === 'lg' ? "text-lg" : "text-sm")}
-              role="button"
               aria-label="edit selection"
-              tabIndex={0}
-              onKeyDown={handleKeyboardOpen}
               style={color ? { background: color, color: getContrastColor(color), padding: '0 0.25rem', borderRadius: '0.25rem' } : undefined}
             >
               {label || <span className="opacity-50 italic">empty</span>}
-            </div>
+            </button>
           );
         }
     if (isEmail) return <a href={`mailto:${strValue}`} className={cn("text-primary hover:underline flex items-center gap-1 w-full", size === 'lg' ? "text-lg" : "text-sm")} onClick={e => e.stopPropagation()}><Mail className="h-3 w-3" /> {strValue}</a>;
