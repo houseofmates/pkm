@@ -55,6 +55,7 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
 
   const triggerChild = React.isValidElement(children)
     ? React.cloneElement(children as React.ReactElement<any>, {
+      ...children.props,
       onContextMenu: (event: React.MouseEvent) => {
         event.stopPropagation();
         children.props?.onContextMenu?.(event);
@@ -2029,10 +2030,39 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
         <div className="fixed inset-0 z-[100] bg-black/90 flex flex-col items-center justify-center p-8 animate-in fade-in" onClick={() => setFullscreenIndex(null)}>
           <img src={galleryImgs[fullscreenIndex]} className="max-h-full max-w-full object-contain shadow-2xl" alt="fs" />
         </div>
-      )}
-      {editorOpen && editorImage && renderImageEditor(editorImage)}
     </div>
   );
 }
 
-}
+return (
+  <div
+    onDoubleClick={() => setIsEditing(true)}
+    className={cn(
+      "cursor-pointer hover:bg-white/5 px-0.5 py-0.5 rounded transition-colors min-h-[20px] break-words text-white/90 whitespace-normal",
+      size === 'lg' ? "text-lg" : "text-sm",
+      "[&]:first:mt-0 [&]:mb-0 [&]:leading-[1.1]",
+      className
+    )}
+    style={{ wordBreak: 'break-word', minWidth: 0 }}
+    title="double-click to edit"
+  >
+    {value || <span className="opacity-20 italic">empty</span>}
+  </div>
+);
+
+const viewContent = renderView();
+console.log('has viewContent', !!viewContent);
+console.log('about to return outer markup');
+return (
+  <div className={cn("font-varela", size === 'lg' ? "text-lg" : "text-sm", "w-full h-full")}>
+    <FieldContextMenu {...props} onEdit={() => setIsEditing(true)} onClear={() => onChange(null)} value={value} record={record} collectionName={collectionName}>
+      {renderView()}
+    </FieldContextMenu>
+    {fullscreenIndex !== null && (
+      <div className="fixed inset-0 z-[100] bg-black/90 flex flex-col items-center justify-center p-8 animate-in fade-in" onClick={() => setFullscreenIndex(null)}>
+        <img src={galleryImgs[fullscreenIndex]} className="max-h-full max-w-full object-contain shadow-2xl" alt="fs" />
+      </div>
+    )}
+    {editorOpen && editorImage && renderImageEditor(editorImage)}
+  </div>
+);
