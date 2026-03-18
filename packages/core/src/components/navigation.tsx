@@ -289,11 +289,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
   });
 
   // track recently deleted items to prevent useEffect from re-adding them
-  const deletedItemsRef = useRef<Set<string>>(new Set());
-
-  // persistent deletions (survive reloads until server omits them)
-  // kept at module scope to avoid forcing useEffect dependency churn
-  
+  // stored in a ref so it does not cause re-renders or effect dependency churn
   const deletedItemsRef = useRef<Set<string>>(new Set());
 
   const { collections, refresh } = useCollections();
