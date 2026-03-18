@@ -289,14 +289,15 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
   });
 
   // track recently deleted items to prevent useEffect from re-adding them
-  // useRef is stable, so it does not force effect dependency churn
+  const deletedItemsRef = useRef<Set<string>>(new Set());
+
+  // persistent deletions (survive reloads until server omits them)
+  // kept at module scope to avoid forcing useEffect dependency churn
+  
   const deletedItemsRef = useRef<Set<string>>(new Set());
 
   const { collections, refresh } = useCollections();
   const navigate = useNavigate();
-
-  // don't show the dashboard's internal home canvas (it is used for rendering the dashboard background)
-  const [homeCanvasDrawingId] = useAppSetting<string | null>('dashboard_home_drawing_id', null);
 
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
@@ -460,20 +461,13 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       let drawingItems: NavItem[] = [];
       try {
         const drawings = await listPendingDrawings();
-        drawingItems = drawings
-          .filter((d: any) => {
-            // hide the dashboard's internal drawing so it doesn't show up as a "home canvas" in the sidebar
-            if (homeCanvasDrawingId && d.id === homeCanvasDrawingId) return false;
-            // legacy fallback: if a dashboard canvas title was used historically
-            return String(d.title || '').toLowerCase() !== 'home canvas';
-          })
-          .map((d: any) => ({
-            id: `drawing_${d.id}`,
-            type: 'collection' as const,
-            name: (d.title as string) || 'untitled drawing',
-            icon: 'PenTool',
-            iconType: 'lucide' as const,
-          }));
+        drawingItems = drawings.map((d: any) => ({
+          id: `drawing_${d.id}`,
+          type: 'collection' as const,
+          name: (d.title as string) || 'untitled drawing',
+          icon: 'PenTool',
+          iconType: 'lucide' as const,
+        }));
       } catch (e) {
         secureLogger.error('failed to load drawings from database', e);
       }
