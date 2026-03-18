@@ -211,7 +211,7 @@ describe('SmartField', () => {
   it('edits color field and updates value', () => {
     const onChange = vi.fn();
     withAuth(<SmartField value="#000000" field={{ interface: 'input', name: 'color' }} onChange={onChange} />);
-    fireEvent.click(screen.getByLabelText(/json preview/i).parentElement!.querySelector('button')!);
+    fireEvent.click(screen.getByLabelText(/edit color value/i));
     const colorInput = document.querySelector('input[type="color"]') as HTMLInputElement;
     expect(colorInput).toBeInTheDocument();
     fireEvent.change(colorInput, { target: { value: '#ff0000' } });
@@ -223,7 +223,7 @@ describe('SmartField', () => {
   it('uploads file and returns url', async () => {
     const onChange = vi.fn();
     withAuth(<SmartField value={null} field={{ interface: 'attachment', name: 'file' }} onChange={onChange} />);
-    fireEvent.click(screen.getByRole('button', { name: /add\/upload/i }));
+    fireEvent.click(screen.getByLabelText(/add or upload attachment/i));
     const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
     const blob = new Blob(['hello'], { type: 'text/plain' });
     const file = new File([blob], 'test.txt');
@@ -240,7 +240,6 @@ describe('SmartField', () => {
     const onChange = vi.fn();
     const options = [{ label: 'A', value: 'a' }, { label: 'B', value: 'b' }];
     withAuth(<SmartField value={["a"]} field={{ interface: 'multipleSelect', name: 'multi', uiSchema: { enum: options } }} onChange={onChange} />);
-    screen.debug(undefined, 2000);
     fireEvent.click(screen.getByRole('button', { name: /edit selection/i }));
     const input = await screen.findByPlaceholderText('search...');
     fireEvent.change(input, { target: { value: 'B' } });
