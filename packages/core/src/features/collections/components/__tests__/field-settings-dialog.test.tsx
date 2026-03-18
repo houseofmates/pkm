@@ -27,7 +27,7 @@ describe('FieldSettingsDialog', () => {
     );
 
     // open select
-    const trigger = screen.getByRole('combobox', { name: /property type/i });
+    const trigger = screen.getByLabelText(/property type/i);
     expect(trigger).toBeVisible();
 
     // choose a new type from the list:
