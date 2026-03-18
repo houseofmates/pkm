@@ -58,7 +58,7 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
   return (
     <ContextMenu>
       <ContextMenuTrigger asChild>
-        {/* ensure we stop propagation so we don't trigger the row menu */}
+        {/* stop only contextmenu events so regular clicks continue to work */}
         <div className="contents" role="presentation" onContextMenu={(e) => e.stopPropagation()}>
           {contentChild}
         </div>
