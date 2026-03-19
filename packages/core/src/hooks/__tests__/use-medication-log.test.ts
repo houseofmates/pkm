@@ -30,4 +30,21 @@ describe('useMedicationLog', () => {
     const { result: result2 } = renderHook(() => useMedicationLog());
     expect(result2.current.isDoneToday(groupId)).toBe(true);
   });
+
+  it('allows reminder toggling and persists setting', () => {
+    const { result } = renderHook(() => useMedicationLog());
+    expect(result.current.remindersEnabled).toBe(true);
+
+    act(() => {
+      result.current.toggleRemindersEnabled(false);
+    });
+
+    expect(result.current.remindersEnabled).toBe(false);
+    expect(localStorage.getItem('pkm:medication_reminders_enabled')).toBe('false');
+
+    act(() => {
+      result.current.toggleRemindersEnabled(true);
+    });
+    expect(result.current.remindersEnabled).toBe(true);
+  });
 });
