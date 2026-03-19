@@ -3,19 +3,33 @@ import { Button } from '@/components/ui/button';
 import { Droplets, Check, Clock, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { useRecords } from '@/hooks/use-records';
 
 interface HygieneLog {
   id: string;
   type: 'shower' | 'brush' | 'skincare' | 'other';
-  timestamp: Date;
+  timestamp: string;
   notes?: string;
+  mood?: string;
+  rating?: number;
+  [key: string]: unknown;
+}
+
+interface DynamicField {
+  name: string;
+  label: string;
+  type: 'text' | 'number' | 'select' | 'checkbox';
+  options?: string[];
 }
 
 interface HygieneTrackerProps {
   data?: {
     lastShower?: string;
     streak?: number;
+    fields?: DynamicField[];
+    collectionName?: string;
   };
+  onUpdate?: (patch: Record<string, unknown>) => void;
 }
 
 const hygieneTypes = [
@@ -24,12 +38,35 @@ const hygieneTypes = [
   { id: 'skincare', label: 'care', icon: Droplets, color: '#22c55e' },
 ] as const;
 
-export function HygieneTracker({ data }: HygieneTrackerProps) {
+export function HygieneTracker({ data, onUpdate }: HygieneTrackerProps) {
+  const collectionName = data?.collectionName ?? 'hygiene_logs';
+  const { createRecord } = useRecords(collectionName);
+
   const [logs, setLogs] = useState<HygieneLog[]>([]);
   const [isLogging, setIsLogging] = useState(false);
   const [lastLog, setLastLog] = useState<Date | null>(
     data?.lastShower ? new Date(data.lastShower) : null
   );
+  const [streak, setStreak] = useState(data?.streak ?? 0);
+  const [notes, setNotes] = useState('');
+  const [mood, setMood] = useState('neutral');
+  const [rating, setRating] = useState(3);
+  const [customFieldValues, setCustomFieldValues] = useState<Record<string, any>>({});
+
+  const fieldConfig: DynamicField[] = data?.fields ?? [
+    { name: 'mood', label: 'mood', type: 'select', options: ['low', 'okay', 'good', 'great'] },
+    { name: 'rating', label: 'session rating', type: 'number' },
+    { name: 'notes', label: 'notes', type: 'text' },
+  ];
+
+  useEffect(() => {
+    if (data?.lastShower) {
+      setLastLog(new Date(data.lastShower));
+    }
+    if (typeof data?.streak === 'number') {
+      setStreak(data.streak);
+    }
+  }, [data?.lastShower, data?.streak]);
 
 
   // calculate time since last shower
