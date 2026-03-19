@@ -98,11 +98,12 @@ const [entries, setEntries] = useState<JournalEntry[]>([])
 
       {/* tabs */}
       <Tabs value={tab} onValueChange={setTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
-          <TabsTrigger value="today">today</TabsTrigger>
-          <TabsTrigger value="quests">tasks</TabsTrigger>
-          <TabsTrigger value="exercise">exercise</TabsTrigger>
-          <TabsTrigger value="finances">bank</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="today">today hub</TabsTrigger>
+          <TabsTrigger value="quests">master quests</TabsTrigger>
+          <TabsTrigger value="dashboards">dashboards</TabsTrigger>
+          <TabsTrigger value="sensory">sensory</TabsTrigger>
+          <TabsTrigger value="fixations">fixations</TabsTrigger>
           <TabsTrigger value="stats">stats</TabsTrigger>
         </TabsList>
 
@@ -209,31 +210,15 @@ const [entries, setEntries] = useState<JournalEntry[]>([])
 
         {/* stats tab: charts */}
         <TabsContent value="stats">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle>mood trend</CardTitle>
+                <CardTitle>quest progress</CardTitle>
               </CardHeader>
               <CardContent>
-                <ResponsiveContainer width="100%" height={200}>
-                  <LineChart data={moodData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="date" />
-                    <YAxis />
-                    <Tooltip />
-                    <Line type="monotone" dataKey="mood" stroke="#10b981" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </CardContent>
-            </Card>
-            <Card>
-              <CardHeader>
-                <CardTitle>quest completion</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <ResponsiveContainer width="100%" height={200}>
+                <ResponsiveContainer width="100%" height={250}>
                   <PieChart>
-                    <Pie data={emotionData} cx="50%" cy="50%" outerRadius={60} dataKey="value">
+                    <Pie data={emotionData} cx="50%" cy="50%" outerRadius={80} dataKey="value">
                       {emotionData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
@@ -242,19 +227,30 @@ const [entries, setEntries] = useState<JournalEntry[]>([])
                 </ResponsiveContainer>
               </CardContent>
             </Card>
-            {/* achievement wall */}
-            <Card className="md:col-span-2">
+            <Card>
+              <CardHeader>
+                <CardTitle>row bonuses active</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {rowBonuses.map((bonus, i) => (
+                  <div key={i} className={`p-3 rounded-lg text-center text-sm ${bonus ? 'bg-emerald-500/20 border border-emerald-500 text-emerald-400 font-bold animate-pulse' : 'bg-slate-800/50 text-slate-500'}`}>
+                    row {i+1} {bonus ? 'complete! +50xp bonus' : 'in progress'}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+            <Card className="lg:col-span-2">
               <CardHeader>
                 <CardTitle>achievements</CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              <CardContent className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
                 {achievements.map(a => (
-                  <Badge key={a.id} variant={a.unlocked ? 'default' : 'secondary'} className="p-3 h-auto">
-                    <div className="text-xs space-y-1">
+                  <Badge key={a.id} variant={a.unlocked ? 'default' : 'secondary'} className="p-3 h-auto min-w-0">
+                    <div className="text-xs space-y-1 text-center">
                       <div className="text-lg">{a.icon}</div>
-                      <div>{a.name}</div>
-                      <div className="w-full bg-slate-800 rounded-full h-1">
-                        <div className="bg-emerald-500 h-1 rounded-full" style={{width: `${a.progress * 100}%`}} />
+                      <div className="font-bold line-clamp-1">{a.name}</div>
+                      <div className="w-full bg-slate-800 rounded-full h-1.5">
+                        <div className="bg-emerald-500 h-1.5 rounded-full transition-all" style={{width: `${a.progress * 100}%`}} />
                       </div>
                     </div>
                   </Badge>
@@ -262,6 +258,20 @@ const [entries, setEntries] = useState<JournalEntry[]>([])
               </CardContent>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="dashboards" className="space-y-4">
+          <FinancialHub />
+        </TabsContent>
+
+        <TabsContent value="sensory">
+          import SensoryHub from './sensory-hub'
+          <SensoryHub />
+        </TabsContent>
+
+        <TabsContent value="fixations">
+          import FixationTrap from './fixation-trap'
+          <FixationTrap />
         </TabsContent>
 
         {/* exercise, finances, etc placeholders for phase 2 */}
