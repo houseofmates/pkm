@@ -96,8 +96,17 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
     id: 'hygiene',
     label: 'Hygiene Tracker',
     icon: Droplets,
-    description: 'Log showers and self-care rituals',
-    defaultData: { lastShower: null, streak: 0 },
+    description: 'Log showers and self-care rituals to hygiene_logs collection',
+    defaultData: {
+      lastShower: null,
+      streak: 0,
+      collectionName: 'hygiene_logs',
+      fields: [
+        { name: 'mood', label: 'mood', type: 'select', options: ['low', 'okay', 'good', 'great'] },
+        { name: 'rating', label: 'session rating', type: 'number' },
+        { name: 'notes', label: 'notes', type: 'text' },
+      ]
+    },
     defaultWidth: 320,
     defaultHeight: 360
   }
