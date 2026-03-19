@@ -466,7 +466,9 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             if (homeCanvasDrawingId && d.id === homeCanvasDrawingId) return false;
             // legacy fallback: if a dashboard canvas title was used historically
             const title = String(d.title || '').trim().toLowerCase();
-            return title !== 'home canvas';
+            // match common variations (extra spaces, capitalization)
+            if (/\bhome\s*canvas\b/.test(title)) return false;
+            return true;
           })
           .map((d: any) => ({
             id: `drawing_${d.id}`,
@@ -486,7 +488,8 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         const cleaned = prevItems.filter(item => {
           const idLower = String(item.id).toLowerCase();
           // hide any stale "home canvas" items (should never be visible to users)
-          if (String(item.name).trim().toLowerCase() === 'home canvas') return false;
+          const itemName = String(item.name || '').trim().toLowerCase();
+          if (item.id.startsWith('drawing_') && /\bhome\s*canvas\b/.test(itemName)) return false;
           if (forbiddenCollections.includes(idLower)) return false;
           // remove the internal dashboard drawing if it landed in sidebar
           if (item.id.startsWith('drawing_')) return false; // will re-add below
