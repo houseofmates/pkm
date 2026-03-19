@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Slider } from '@/components/ui/slider';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -6,16 +6,32 @@ import { Activity, Battery, Brain, Zap } from 'lucide-react';
 
 interface BiometricTrackerProps {
   data: {
-    initialEnergy?: number;
-    initialFriction?: number;
-    initialFocus?: number;
+    energy?: number;
+    friction?: number;
+    focus?: number;
   };
+  onUpdate?: (patch: Partial<{ energy: number; friction: number; focus: number }>) => void;
 }
 
-export function BiometricTracker({ data }: BiometricTrackerProps) {
-  const [energy, setEnergy] = useState(data.initialEnergy || 50);
-  const [friction, setFriction] = useState(data.initialFriction || 50);
-  const [focus, setFocus] = useState(data.initialFocus || 50);
+export function BiometricTracker({ data, onUpdate }: BiometricTrackerProps) {
+  const [energy, setEnergy] = useState(data.energy ?? data.initialEnergy ?? 50);
+  const [friction, setFriction] = useState(data.friction ?? data.initialFriction ?? 50);
+  const [focus, setFocus] = useState(data.focus ?? data.initialFocus ?? 50);
+
+  useEffect(() => {
+    // keep state in sync if widget data is updated externally
+    if (typeof data.energy === 'number') setEnergy(data.energy);
+    if (typeof data.friction === 'number') setFriction(data.friction);
+    if (typeof data.focus === 'number') setFocus(data.focus);
+  }, [data.energy, data.friction, data.focus]);
+
+  const update = (patch: Partial<{ energy: number; friction: number; focus: number }>) => {
+    onUpdate?.(patch);
+  };
+
+  const sliderBackground = (value: number, color: string) => ({
+    background: `linear-gradient(90deg, ${color} ${value}%, rgba(255,255,255,0.12) ${value}%)`
+  });
 
   return (
     <div className="p-4 bg-black/40 border border-primary/20 rounded-xl space-y-4 backdrop-blur-md w-full max-w-sm">
@@ -27,31 +43,41 @@ export function BiometricTracker({ data }: BiometricTrackerProps) {
       <div className="space-y-3">
         {/* Energy */}
         <div className="space-y-1">
-          <div className="flex justify-between text-[10px] uppercase text-muted-foreground">
-            <span className="flex items-center gap-1"><Battery className="w-3 h-3" /> Energy</span>
+          <div className="flex justify-between text-[10px] lowercase text-muted-foreground">
+            <span className="flex items-center gap-1"><Battery className="w-3 h-3" /> energy</span>
             <span>{energy}%</span>
           </div>
           <Slider
             value={[energy]}
             max={100}
             step={1}
-            onValueChange={(v) => setEnergy(v[0])}
-            className={cn("[&_.bg-primary]:bg-green-500", energy < 30 && "[&_.bg-primary]:bg-red-500")}
+            onValueChange={(v) => {
+              const next = v[0];
+              setEnergy(next);
+              update({ energy: next });
+            }}
+            onPointerDown={(e) => e.stopPropagation()}
+            style={sliderBackground(energy, '#22c55e')}
           />
         </div>
 
         {/* Sensory Friction */}
         <div className="space-y-1">
-          <div className="flex justify-between text-[10px] uppercase text-muted-foreground">
-            <span className="flex items-center gap-1"><Zap className="w-3 h-3" /> Sensory Friction</span>
+          <div className="flex justify-between text-[10px] lowercase text-muted-foreground">
+            <span className="flex items-center gap-1"><Zap className="w-3 h-3" /> friction</span>
             <span>{friction}%</span>
           </div>
           <Slider
             value={[friction]}
             max={100}
             step={1}
-            onValueChange={(v) => setFriction(v[0])}
-            className={cn("[&_.bg-primary]:bg-yellow-500", friction > 70 && "[&_.bg-primary]:bg-red-500")}
+            onValueChange={(v) => {
+              const next = v[0];
+              setFriction(next);
+              update({ friction: next });
+            }}
+            onPointerDown={(e) => e.stopPropagation()}
+            style={sliderBackground(friction, friction > 70 ? '#ef4444' : '#fbbf24')}
           />
         </div>
 

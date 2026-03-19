@@ -1,5 +1,6 @@
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
+import { useEdgelessStore } from '../store';
 
 const ClockWidget = lazy(() => import('@/features/widgets/ClockWidget').then(m => ({ default: m.ClockWidget })));
 const N8nWidget = lazy(() => import('@/features/widgets/N8nWidget').then(m => ({ default: m.N8nWidget })));
@@ -17,25 +18,55 @@ interface WidgetElementProps {
 
 export const WidgetElement = React.memo(function WidgetElement({ element }: WidgetElementProps) {
     const { widgetId, ...data } = element.data;
+    const updateElement = useEdgelessStore((s) => s.updateElement);
+
+    const handleDataUpdate = useCallback((patch: Record<string, any>) => {
+        updateElement(element.id, { data: { ...element.data, ...patch } });
+    }, [element.id, element.data, updateElement]);
+
+    const handleResizePointerDown = (e: React.PointerEvent) => {
+        if (e.button !== 0) return;
+        if (element.locked) return;
+        e.stopPropagation();
+        e.preventDefault();
+        const startX = e.clientX;
+        const startY = e.clientY;
+        const startW = element.width;
+        const startH = element.height;
+
+        const handleMove = (move: PointerEvent) => {
+            const newW = Math.max(160, startW + (move.clientX - startX));
+            const newH = Math.max(120, startH + (move.clientY - startY));
+            updateElement(element.id, { width: newW, height: newH });
+        };
+
+        const handleUp = () => {
+            window.removeEventListener('pointermove', handleMove);
+            window.removeEventListener('pointerup', handleUp);
+        };
+
+        window.addEventListener('pointermove', handleMove);
+        window.addEventListener('pointerup', handleUp);
+    };
 
     const renderWidget = () => {
         switch (widgetId) {
             case 'clock':
-                return <ClockWidget data={data} />;
+                return <ClockWidget data={data} onUpdate={handleDataUpdate} />;
             case 'n8n':
-                return <N8nWidget data={data} />;
+                return <N8nWidget data={data} onUpdate={handleDataUpdate} />;
             case 'biometric':
-                return <BiometricTracker data={data} />;
+                return <BiometricTracker data={data} onUpdate={handleDataUpdate} />;
             case 'narrative':
-                return <NarrativeLog data={data} />;
+                return <NarrativeLog data={data} onUpdate={handleDataUpdate} />;
             case 'optimization':
-                return <OptimizationDashboard data={data} />;
+                return <OptimizationDashboard data={data} onUpdate={handleDataUpdate} />;
             case 'capture':
-                return <CaptureWidget data={data} />;
+                return <CaptureWidget data={data} onUpdate={handleDataUpdate} />;
             case 'create_capture':
-                return <CreateCaptureWidget data={data} />;
+                return <CreateCaptureWidget data={data} onUpdate={handleDataUpdate} />;
             case 'hygiene':
-                return <HygieneTracker data={data} />;
+                return <HygieneTracker data={data} onUpdate={handleDataUpdate} />;
             case 'embed-nocobase':
                 return <DatabaseViewWidget data={{ ...data, _elementId: element.id }} />;
             default:
@@ -49,7 +80,7 @@ export const WidgetElement = React.memo(function WidgetElement({ element }: Widg
     };
 
     return (
-        <div className="w-full h-full relative group">
+        <div className="w-full h-full relative group pointer-events-auto">
             <Suspense fallback={
                 <div className="w-full h-full flex items-center justify-center bg-black/20 rounded-xl border border-white/5">
                     <Loader2 className="h-4 w-4 animate-spin text-primary/40" />
@@ -58,7 +89,11 @@ export const WidgetElement = React.memo(function WidgetElement({ element }: Widg
                 {renderWidget()}
             </Suspense>
 
-            {/* Interaction block - prevent clicks when not in interact mode (handled by EdgelessCanvas wrapper) */}
+            {/* resize handle */}
+            <div
+                className="absolute bottom-1 right-1 w-4 h-4 rounded bg-white/10 hover:bg-white/20 cursor-se-resize"
+                onPointerDown={handleResizePointerDown}
+            />
         </div>
     );
-}, (prev, next) => prev.element === next.element)
+}, (prev, next) => prev.element === next.element);
