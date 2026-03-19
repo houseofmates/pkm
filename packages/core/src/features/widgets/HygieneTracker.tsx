@@ -273,10 +273,136 @@ export function HygieneTracker({ data, onUpdate }: HygieneTrackerProps) {
         <div className="rounded-lg border border-white/10 bg-white/5 p-3 space-y-2">
           <div className="flex items-center justify-between text-[10px] lowercase text-muted-foreground">
             <span>daily habits</span>
-            <span>streak {streak}</span>
+            <div className="flex items-center gap-2">
+              <span>streak {streak}</span>
+              <Button
+                size="xs"
+                className="h-6 px-2 rounded-md lowercase"
+                onClick={() => setIsConfigOpen((open) => !open)}
+              >
+                {isConfigOpen ? 'done' : 'configure'}
+              </Button>
+            </div>
           </div>
 
-          {fieldConfig.map((field) => {
+          {isConfigOpen ? (
+            <div className="space-y-2">
+              <div className="text-[10px] lowercase text-muted-foreground">field setup</div>
+              {fieldConfig.map((field, index) => (
+                <div key={field.name || index} className="grid grid-cols-[1fr_auto] gap-2 items-center">
+                  <div className="grid grid-cols-3 gap-2">
+                    <input
+                      value={field.name}
+                      onChange={(e) => {
+                        const next = [...fieldConfig];
+                        next[index] = { ...next[index], name: e.target.value };
+                        setFieldConfig(next);
+                      }}
+                      placeholder="name"
+                      className="h-7 px-2 text-xs bg-black/40 border border-white/10 rounded"
+                    />
+                    <input
+                      value={field.label}
+                      onChange={(e) => {
+                        const next = [...fieldConfig];
+                        next[index] = { ...next[index], label: e.target.value };
+                        setFieldConfig(next);
+                      }}
+                      placeholder="label"
+                      className="h-7 px-2 text-xs bg-black/40 border border-white/10 rounded"
+                    />
+                    <select
+                      value={field.type}
+                      onChange={(e) => {
+                        const next = [...fieldConfig];
+                        next[index] = { ...next[index], type: e.target.value as DynamicField['type'] };
+                        setFieldConfig(next);
+                      }}
+                      className="h-7 px-2 text-xs bg-black/40 border border-white/10 rounded"
+                    >
+                      <option value="text">text</option>
+                      <option value="number">number</option>
+                      <option value="select">select</option>
+                    </select>
+                  </div>
+                  <Button
+                    size="xs"
+                    variant="ghost"
+                    className="h-7 px-2 lowercase"
+                    onClick={() => {
+                      setFieldConfig((prev) => prev.filter((_, i) => i !== index));
+                    }}
+                  >
+                    remove
+                  </Button>
+                </div>
+              ))}
+
+              <div className="space-y-2">
+                <div className="text-[10px] lowercase text-muted-foreground">add field</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    value={newField.name}
+                    onChange={(e) => setNewField((prev) => ({ ...prev, name: e.target.value }))}
+                    placeholder="name"
+                    className="h-7 px-2 text-xs bg-black/40 border border-white/10 rounded"
+                  />
+                  <input
+                    value={newField.label}
+                    onChange={(e) => setNewField((prev) => ({ ...prev, label: e.target.value }))}
+                    placeholder="label"
+                    className="h-7 px-2 text-xs bg-black/40 border border-white/10 rounded"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <select
+                    value={newField.type}
+                    onChange={(e) => setNewField((prev) => ({ ...prev, type: e.target.value as DynamicField['type'] }))}
+                    className="h-7 px-2 text-xs bg-black/40 border border-white/10 rounded"
+                  >
+                    <option value="text">text</option>
+                    <option value="number">number</option>
+                    <option value="select">select</option>
+                    <option value="checkbox">checkbox</option>
+                  </select>
+                  {newField.type === 'select' ? (
+                    <input
+                      value={newField.options?.join(',') ?? ''}
+                      onChange={(e) => setNewField((prev) => ({ ...prev, options: e.target.value.split(',').map((v) => v.trim()).filter(Boolean) }))}
+                      placeholder="options (comma separated)"
+                      className="h-7 px-2 text-xs bg-black/40 border border-white/10 rounded"
+                    />
+                  ) : (
+                    <div />
+                  )}
+                </div>
+                <Button
+                  size="xs"
+                  className="h-7 px-2 lowercase"
+                  onClick={() => {
+                    if (!newField.name || !newField.label) return;
+                    const next = [...fieldConfig, newField];
+                    setFieldConfig(next);
+                    setNewField({ name: '', label: '', type: 'text' });
+                  }}
+                >
+                  add field
+                </Button>
+                <Button
+                  size="xs"
+                  className="h-7 px-2 lowercase"
+                  onClick={() => {
+                    onUpdate?.({ fields: fieldConfig });
+                    toast.success('hygiene fields updated');
+                    setIsConfigOpen(false);
+                  }}
+                >
+                  save fields
+                </Button>
+              </div>
+            </div>
+          ) : (
+            fieldConfig.map((field) => {
             if (field.type === 'select') {
               return (
                 <div key={field.name} className="space-y-1">
