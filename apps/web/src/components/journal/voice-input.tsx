@@ -1,6 +1,21 @@
 import React, { useState, useCallback } from 'react'
-import { Button } from '../../ui/button'
 import { Mic, Download, Play } from 'lucide-react'
+
+// fallback button component (replace with correct import if available)
+const Button: React.FC<React.ButtonHTMLAttributes<HTMLButtonElement> & { size?: string; variant?: string; className?: string }> = ({
+  children,
+  size,
+  variant,
+  className,
+  ...props
+}) => (
+  <button
+    className={`rounded ${className || ''}`}
+    {...props}
+  >
+    {children}
+  </button>
+)
 import { useGamificationStore } from '../../stores/gamification-store'
 
 // ollama client stub (per context src/api/ollama-client.ts pattern)
