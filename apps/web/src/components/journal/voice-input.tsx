@@ -1,5 +1,5 @@
 import React, { useState, useCallback } from 'react'
-import { Button } from '@/components/ui/button'
+import { Button } from '../../ui/button'
 import { Mic, Download, Play } from 'lucide-react'
 import { useGamificationStore } from '../../stores/gamification-store'
 
