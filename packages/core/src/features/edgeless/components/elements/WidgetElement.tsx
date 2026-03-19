@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useCallback } from 'react';
 import { Loader2 } from 'lucide-react';
-import { useEdgelessStore } from '../store';
+import { useEdgelessStore } from '../../store';
 
 const ClockWidget = lazy(() => import('@/features/widgets/ClockWidget').then(m => ({ default: m.ClockWidget })));
 const N8nWidget = lazy(() => import('@/features/widgets/N8nWidget').then(m => ({ default: m.N8nWidget })));
@@ -18,7 +18,7 @@ interface WidgetElementProps {
 
 export const WidgetElement = React.memo(function WidgetElement({ element }: WidgetElementProps) {
     const { widgetId, ...data } = element.data;
-    const updateElement = useEdgelessStore((s) => s.updateElement);
+    const updateElement = useEdgelessStore((s: any) => s.updateElement);
 
     const handleDataUpdate = useCallback((patch: Record<string, any>) => {
         updateElement(element.id, { data: { ...element.data, ...patch } });

@@ -12,9 +12,10 @@ import { useCollection } from '@/hooks/use-collections';
 
 interface CreateCaptureWidgetProps {
     data?: any;
+    onUpdate?: (data: any) => void;
 }
 
-export default function CreateCaptureWidget({ data }: CreateCaptureWidgetProps) {
+export default function CreateCaptureWidget({ data, onUpdate }: CreateCaptureWidgetProps) {
     const [open, setOpen] = useState(false);
     const [values, setValues] = useState<any>({});
     const [saving, setSaving] = useState(false);
