@@ -1,5 +1,5 @@
 # journal gamification enhancements todo
-status: 0/100% complete
+status: 60/100% complete
 
 ## phase 1: journal super-hub (journal.tsx)
 - [ ] update tabs: today=mini-grids hub, quests=unified 4x4 master grid, dashboards=financial views, stats=cross-feature charts
@@ -11,9 +11,9 @@ status: 0/100% complete
 - [ ] row bonus visuals/explosions +50xp
 - [ ] streak protector (80% → carry 1 cell)
 
-## phase 3: gridify trackers
-- [ ] exercise-tracker.tsx: 5x5 muscle grid (tap clean/fill)
-- [ ] financial-hub.tsx: 5 category bars to target + tree/defense views
+## phase 3: gridify trackers ✓
+- [x] exercise-tracker.tsx: 5x5 muscle grid (tap clean/fill)
+- [x] financial-hub.tsx: 5 category bars to target + tree/defense views
 
 ## phase 4: new production components ✓
 - [x] sensory-hub.tsx: breathing/white noise/fidgets
