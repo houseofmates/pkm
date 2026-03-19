@@ -161,6 +161,98 @@ export function useMedicationLog() {
 
   const groups = useMemo(() => DEFAULT_GROUPS, []);
 
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_REMINDERS_ENABLED, JSON.stringify(remindersEnabled));
+  }, [remindersEnabled]);
+
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY_REMINDERS_SCHEDULE, JSON.stringify(reminderSchedule));
+  }, [reminderSchedule]);
+
+  useEffect(() => {
+    const clearTimers = () => {
+      Object.values(reminderTimeoutRefs.current).forEach((timerId) => {
+        if (timerId != null) {
+          clearTimeout(timerId);
+        }
+      });
+      reminderTimeoutRefs.current = {};
+    };
+
+    if (!remindersEnabled) {
+      clearTimers();
+      return;
+    }
+
+    const scheduleOne = (reminder: MedicationReminderSchedule) => {
+      const next = nextTriggerTime(reminder.hour, reminder.minute);
+      const timeout = next.getTime() - Date.now();
+
+      if (reminderTimeoutRefs.current[reminder.id] != null) {
+        clearTimeout(reminderTimeoutRefs.current[reminder.id]!);
+      }
+
+      reminderTimeoutRefs.current[reminder.id] = window.setTimeout(async () => {
+        await showNotification(`med reminder: ${reminder.label}`, reminder.body);
+        scheduleOne(reminder);
+      }, timeout);
+    };
+
+    const scheduleAll = async () => {
+      for (const reminder of reminderSchedule) {
+        if (isCapacitorNative()) {
+          try {
+            const { LocalNotifications } = await import('@capacitor/local-notifications');
+            await LocalNotifications.requestPermissions();
+            await LocalNotifications.schedule({
+              notifications: reminderSchedule.map((item) => ({
+                id: item.id,
+                title: `med reminder: ${item.label}`,
+                body: item.body,
+                schedule: {
+                  hour: item.hour,
+                  minute: item.minute,
+                  repeats: true,
+                },
+                sound: '',
+                extra: { medicationReminder: true },
+                android: {
+                  channelId: 'medication-reminders',
+                  smallIcon: 'ic_stat_icon',
+                  priority: 'high',
+                  sticky: true,
+                  sound: '',
+                },
+                ios: {
+                  sound: '',
+                },
+              })),
+            });
+            // allow plugin to handle notifications and avoid duplicate local timers
+            return;
+          } catch (err) {
+            console.warn('failed to schedule capacitor local reminder', err);
+          }
+        }
+
+        // web path: schedule in runtime
+        scheduleOne(reminder);
+      }
+    };
+
+    scheduleAll();
+
+    return () => clearTimers();
+  }, [remindersEnabled, reminderSchedule]);
+
+  const toggleRemindersEnabled = useCallback((enabled: boolean) => {
+    setRemindersEnabled(enabled);
+  }, []);
+
+  const setReminderScheduleState = useCallback((schedule: MedicationReminderSchedule[]) => {
+    setReminderSchedule(schedule);
+  }, []);
+
   const markGroupDone = useCallback((groupId: string) => {
     const group = groups.find(g => g.id === groupId);
     if (!group) return;
