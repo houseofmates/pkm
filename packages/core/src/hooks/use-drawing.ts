@@ -166,6 +166,26 @@ export function useDrawing(id?: string, migrating?: boolean): UseDrawingResult {
     return () => window.removeEventListener('beforeunload', handleUnload);
   }, [id]);
 
+  // persist element state (widgets, notes, etc.) when it changes
+  useEffect(() => {
+    if (!id) return;
+    let timeout: ReturnType<typeof setTimeout> | null = null;
+    const unsubscribe = useEdgelessStore.subscribe(
+      (s) => s.elements,
+      () => {
+        if (!initialLoadCompleteRef.current) return;
+        if (timeout) clearTimeout(timeout);
+        timeout = window.setTimeout(() => {
+          saveCurrentCheckpointRef.current();
+        }, 1000);
+      }
+    );
+    return () => {
+      unsubscribe();
+      if (timeout) clearTimeout(timeout);
+    };
+  }, [id]);
+
   // manual save listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {

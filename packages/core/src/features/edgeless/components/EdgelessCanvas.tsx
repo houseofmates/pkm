@@ -560,7 +560,11 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
     // Ensure fabric is globally available for oplog utils
     (window as any).fabric = fabric;
 
-    (window as any).pkmGetCanvasJSON = () => (fabricCanvas as any).toJSON(['data', 'id', 'name', 'locked', 'selectable', 'evented']);
+    (window as any).pkmGetCanvasJSON = () => {
+      const canvasJson = (fabricCanvas as any).toJSON(['data', 'id', 'name', 'locked', 'selectable', 'evented']);
+      const elements = useEdgelessStore.getState().elements;
+      return { canvas: canvasJson, elements };
+    };
     (window as any).pkmGetCanvasThumbnail = () => {
       try {
         return fabricCanvas.toDataURL({ multiplier: 1, format: 'webp', quality: 0.1 });
@@ -576,11 +580,18 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
       isLoadingStateRef.current = true;
       try {
         if (checkpoint?.state) {
-          await fabricCanvas.loadFromJSON(checkpoint.state);
+        const state = checkpoint.state as any;
+        if (state && state.canvas) {
+          await fabricCanvas.loadFromJSON(state.canvas);
+          // restore overlay elements (widgets, notes, cards, etc.)
+          useEdgelessStore.getState().setElements(state.elements || []);
         } else {
-          fabricCanvas.clear();
-          fabricCanvas.backgroundColor = '#050505';
+          await fabricCanvas.loadFromJSON(state);
         }
+      } else {
+        fabricCanvas.clear();
+        fabricCanvas.backgroundColor = '#050505';
+      }
 
         if (Array.isArray(ops) && ops.length > 0) {
           const compacted = compactOplog(resolveConflicts(ops));
