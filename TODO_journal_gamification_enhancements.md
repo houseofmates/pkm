@@ -15,9 +15,9 @@ status: 0/100% complete
 - [ ] exercise-tracker.tsx: 5x5 muscle grid (tap clean/fill)
 - [ ] financial-hub.tsx: 5 category bars to target + tree/defense views
 
-## phase 4: new production components
-- [ ] sensory-hub.tsx: breathing/white noise/fidgets
-- [ ] fixation-trap.tsx: user obsessions→quests
+## phase 4: new production components ✓
+- [x] sensory-hub.tsx: breathing/white noise/fidgets
+- [x] fixation-trap.tsx: user obsessions→quests
 - [ ] voice-input.tsx: full speech→auto-tag
 
 ## phase 5: polish/test
