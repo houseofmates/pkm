@@ -66,7 +66,7 @@ export const WidgetElement = React.memo(function WidgetElement({ element }: Widg
             case 'create_capture':
                 return <CreateCaptureWidget data={data} onUpdate={handleDataUpdate} />;
             case 'hygiene':
-                return <HygieneTracker data={data} />;
+                return <HygieneTracker data={data} onUpdate={handleDataUpdate} />;
             case 'embed-nocobase':
                 return <DatabaseViewWidget data={{ ...data, _elementId: element.id }} />;
             default:
