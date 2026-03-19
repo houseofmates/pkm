@@ -90,6 +90,59 @@ function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+function nextTriggerTime(hour: number, minute: number): Date {
+  const now = new Date();
+  const next = new Date();
+  next.setHours(hour, minute, 0, 0);
+  if (next <= now) {
+    next.setDate(next.getDate() + 1);
+  }
+  return next;
+}
+
+async function showNotification(title: string, body: string): Promise<void> {
+  if (isCapacitorNative()) {
+    try {
+      const { LocalNotifications } = await import('@capacitor/local-notifications');
+      const hasPermission = await LocalNotifications.checkPermissions();
+      if (hasPermission.display === 'denied') {
+        await LocalNotifications.requestPermissions();
+      }
+
+      await LocalNotifications.schedule({
+        notifications: [
+          {
+            id: Math.floor(Math.random() * 100000),
+            title,
+            body,
+            schedule: { at: new Date(Date.now() + 1000) },
+            sound: '',
+            extra: { medicationReminder: true },
+            ios: { subtitle: '', threadIdentifier: 'medication' },
+            android: { channelId: 'medication-reminders', sound: '', smallIcon: 'ic_stat_icon', sticky: true, priority: 'high' },
+          },
+        ],
+      });
+      return;
+    } catch (e) {
+      // fallback to web notification when plugin is unavailable
+      console.warn('local notification fallback:', e);
+    }
+  }
+
+  if (typeof Notification !== 'undefined') {
+    if (Notification.permission === 'granted') {
+      new Notification(title, { body, silent: true, requireInteraction: true });
+    } else {
+      Notification.requestPermission().then((permission) => {
+        if (permission === 'granted') {
+          new Notification(title, { body, silent: true, requireInteraction: true });
+        }
+      });
+    }
+  }
+}
+
 export function useMedicationLog() {
   const [log, setLog] = useState<MedicationLogEntry[]>(() =>
     parseJson(localStorage.getItem(STORAGE_KEY_LOG), [])
@@ -97,6 +150,14 @@ export function useMedicationLog() {
   const [lastDone, setLastDone] = useState<Record<string, string>>(() =>
     parseJson(localStorage.getItem(STORAGE_KEY_LAST_DONE), {})
   );
+  const [remindersEnabled, setRemindersEnabled] = useState<boolean>(() =>
+    parseJson(localStorage.getItem(STORAGE_KEY_REMINDERS_ENABLED), true)
+  );
+  const [reminderSchedule, setReminderSchedule] = useState<MedicationReminderSchedule[]>(() =>
+    parseJson(localStorage.getItem(STORAGE_KEY_REMINDERS_SCHEDULE), DEFAULT_REMINDER_SCHEDULE)
+  );
+
+  const reminderTimeoutRefs = useRef<Record<number, number | null>>({});
 
   const groups = useMemo(() => DEFAULT_GROUPS, []);
 
