@@ -52,9 +52,9 @@ export const WidgetElement = React.memo(function WidgetElement({ element }: Widg
     const renderWidget = () => {
         switch (widgetId) {
             case 'clock':
-                return <ClockWidget data={data} onUpdate={handleDataUpdate} />;
+                return <ClockWidget data={data} />;
             case 'n8n':
-                return <N8nWidget data={data} onUpdate={handleDataUpdate} />;
+                return <N8nWidget data={data} />;
             case 'biometric':
                 return <BiometricTracker data={data} onUpdate={handleDataUpdate} />;
             case 'narrative':
@@ -66,7 +66,7 @@ export const WidgetElement = React.memo(function WidgetElement({ element }: Widg
             case 'create_capture':
                 return <CreateCaptureWidget data={data} onUpdate={handleDataUpdate} />;
             case 'hygiene':
-                return <HygieneTracker data={data} onUpdate={handleDataUpdate} />;
+                return <HygieneTracker data={data} />;
             case 'embed-nocobase':
                 return <DatabaseViewWidget data={{ ...data, _elementId: element.id }} />;
             default:
