@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { useAppSetting } from '../hooks/use-app-setting' // assume exists per context
+// import { useAppSetting } from '../hooks/use-app-setting' // exists per context, not used here
+
 
 // types
 interface Achievement {

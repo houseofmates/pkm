@@ -7,7 +7,8 @@ import { Badge } from '@/components/ui/badge'
 import { Mic, Flame, Star, Map, DollarSign, Dumbbell } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts'
 import { useGamificationStore } from '../../stores/gamification-store'
-import { useAppSetting } from '../../hooks/use-app-setting' // mood, emotions, etc data
+// import { useAppSetting } from '../../hooks/use-app-setting' // will create hook later
+const [entries, setEntries] = useState<JournalEntry[]>([])
 import { toast } from 'sonner' // assume exists
 
 // types from store + existing
@@ -40,7 +41,7 @@ const Journal: React.FC = () => {
   const { currentXp, level, xpToNextLevel, quests, questProgress, rowBonuses, achievements, currentStreak, earnXp, completeQuest, resetDaily } = useGamificationStore()
 
   // persist entries
-  const [entries, setEntries] = useAppSetting<JournalEntry[]>('journal-entries', [])
+const [entries, setEntries] = useState<JournalEntry[]>([])
 
   // charts data
   const moodData = [ /* generate from entries */ ]
