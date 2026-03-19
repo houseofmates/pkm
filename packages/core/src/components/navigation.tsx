@@ -295,6 +295,9 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
   const { collections, refresh } = useCollections();
   const navigate = useNavigate();
 
+  // hide the internal dashboard background drawing from the sidebar
+  const [homeCanvasDrawingId] = useAppSetting<string | null>('dashboard_home_drawing_id', null);
+
   const [folderDialogOpen, setFolderDialogOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState('');
 
