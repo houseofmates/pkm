@@ -1001,21 +1001,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               </div>
             ) : (
               <div style={{ width: table.getTotalSize() + (onCreateField ? 40 : 0), minWidth: table.getTotalSize() + (onCreateField ? 40 : 0), height: '100%', position: 'relative' }}>
-                  {onCreateRecord && (
-                    <div className="flex items-start pl-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8 opacity-50 hover:opacity-100"
-                        onClick={onCreateRecord}
-                        title="create new record"
-                      >
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              ) : (
                 <AutoSizer
                   renderProp={({ height, width }: { height: number | undefined; width: number | undefined }) => (
                     <List
