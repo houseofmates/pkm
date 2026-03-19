@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { ResponsiveContainer, LineChart, Line, XAxis, Tooltip, CartesianGrid } from 'recharts';
 import { Activity, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,6 +22,13 @@ export function OptimizationDashboard({ data, onUpdate }: { data?: any; onUpdate
   const collectionName = data?.collectionName || collections?.[0]?.name || 'captures';
   const { data: collection, loading: collectionLoading } = useCollection(collectionName);
   const { records, loading: recordsLoading } = useRecords(collectionName, { sort: '-createdAt', pageSize: 30 });
+
+  // ensure we persist the chosen collection name in the widget config when available
+  useEffect(() => {
+    if (!data?.collectionName && collections?.[0]?.name) {
+      onUpdate?.({ collectionName: collections[0].name });
+    }
+  }, [data?.collectionName, collections, onUpdate]);
 
   const numericFields = useMemo(() => {
     const fields = collection?.fields || [];
