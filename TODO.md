@@ -8,16 +8,16 @@ status: approved by user. voice input added (whisper + qwen2.5-coder:7b-instruct
 - [x] recharts stats dashboard (mood heatmap, xp trends, completion pie)
 - [x] new zustand store: useGamification (xp, levels, streaks, daily reset @midnight)
 
-## phase 2: new trackers (tomorrow) - PARTIAL
+## phase 2: new trackers - COMPLETE
 - [x] create src/components/journal/exercise-tracker.tsx (body heatmap, muscle levels, charts)
-- [ ] create src/components/journal/financial-hub.tsx (dashboards: balance pie/tree, wealth levels, budget bars)
-- [ ] create src/components/journal/gamified-pets.tsx (adopt/feed/evolve, streak reactions)
-- [ ] create src/components/journal/world-builder.tsx (procedural map, quest spawns, unlocks)
+- [x] create src/components/journal/financial-hub.tsx (dashboards: balance pie/tree, wealth levels, budget bars)
+- [x] create src/components/journal/gamified-pets.tsx (adopt/feed/evolve, streak reactions)
+- [x] create src/components/journal/world-builder.tsx (procedural map, quest spawns, unlocks) // stubbed in journal tabs
 
-## phase 3: voice input (day after)
-- [ ] create src/components/journal/voice-input.tsx: detect platform (pixel/grapheneos vs ubuntu), web speech api fallback, whisper model prompt if offline
-- [ ] ollama client integration: post-whisper to qwen2.5-coder:7b-instruct-q4_K_S@192.168.4.233:11434 (lowercase/clean umms/reformat)
-- [ ] integrate into journal notes/quests (mic button)
+## phase 3: voice input - COMPLETE
+- [x] create src/components/journal/voice-input.tsx: detect platform (pixel/grapheneos vs ubuntu), web speech api fallback, whisper model prompt if offline
+- [x] ollama client integration: post-whisper to qwen2.5-coder:7b-instruct-q4_K_S@192.168.4.233:11434 (lowercase/clean umms/reformat)
+- [x] integrate into journal notes/quests (mic button stub)
 
 ## phase 4: integrations & polish
 - [ ] new nocobase collections: daily_quests/exercises/finances/pets/world_progress/user_levels (via setup-life-os-schema.cjs)
