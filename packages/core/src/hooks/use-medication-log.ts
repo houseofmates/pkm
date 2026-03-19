@@ -301,5 +301,9 @@ export function useMedicationLog() {
     clearLog,
     clearLastDone,
     isDoneToday,
+    remindersEnabled,
+    reminderSchedule,
+    toggleRemindersEnabled,
+    setReminderSchedule: setReminderScheduleState,
   };
 }

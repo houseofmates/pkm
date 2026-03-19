@@ -8,8 +8,8 @@ status: approved by user. voice input added (whisper + qwen2.5-coder:7b-instruct
 - [x] recharts stats dashboard (mood heatmap, xp trends, completion pie)
 - [x] new zustand store: useGamification (xp, levels, streaks, daily reset @midnight)
 
-## phase 2: new trackers (tomorrow)
-- [ ] create src/components/journal/exercise-tracker.tsx (body heatmap, muscle levels, charts)
+## phase 2: new trackers (tomorrow) - PARTIAL
+- [x] create src/components/journal/exercise-tracker.tsx (body heatmap, muscle levels, charts)
 - [ ] create src/components/journal/financial-hub.tsx (dashboards: balance pie/tree, wealth levels, budget bars)
 - [ ] create src/components/journal/gamified-pets.tsx (adopt/feed/evolve, streak reactions)
 - [ ] create src/components/journal/world-builder.tsx (procedural map, quest spawns, unlocks)
