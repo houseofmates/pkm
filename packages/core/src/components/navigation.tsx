@@ -489,10 +489,10 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
           const idLower = String(item.id).toLowerCase();
           // hide any stale "home canvas" items (should never be visible to users)
           const itemName = String(item.name || '').trim().toLowerCase();
-          if (item.id.startsWith('drawing_') && /\bhome\s*canvas\b/.test(itemName)) return false;
+          if (/\bhome\s*canvas\b/.test(itemName)) return false;
           if (forbiddenCollections.includes(idLower)) return false;
-          // remove the internal dashboard drawing if it landed in sidebar
-          if (item.id.startsWith('drawing_')) return false; // will re-add below
+          // remove any existing drawing items; they will be re-added from indexeddb
+          if (item.id.startsWith('drawing_')) return false;
 
           // if the item is persistently deleted, drop it unless server still returns it (we'll clear below)
           if (storedDeleted.has(idLower)) {
