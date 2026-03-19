@@ -486,6 +486,8 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         const cleaned = prevItems.filter(item => {
           const idLower = String(item.id).toLowerCase();
           if (forbiddenCollections.includes(idLower)) return false;
+          // remove the internal dashboard drawing if it landed in sidebar
+          if (item.id.startsWith('drawing_') && String(item.name).trim().toLowerCase() === 'home canvas') return false;
           if (item.id.startsWith('drawing_')) return false; // will re-add below
 
           // if the item is persistently deleted, drop it unless server still returns it (we'll clear below)
