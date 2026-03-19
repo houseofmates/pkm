@@ -4,6 +4,8 @@
 ### step 1: create todo (done)
 
 ### step 2: priority 1 - integrate trackers into journal.tsx
-- [ ] read apps/web/src/components/journal/journal.tsx (confirm current)
+- [x] read apps/web/src/components/journal/journal.tsx (confirm current)
 - [ ] edit journal.tsx: embed ExerciseTracker, FinancialHub, GamifiedPets (buddies), VoiceInput
-- [ 
+
+### step 3: verify integration
+- [ ] test localhost:3000/journal

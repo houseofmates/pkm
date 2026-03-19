@@ -261,8 +261,18 @@ const [entries, setEntries] = useState<JournalEntry[]>([])
         </TabsContent>
 
         {/* exercise, finances, etc placeholders for phase 2 */}
-        <TabsContent value="exercise"><div>exercise tracker coming soon (body heatmap, streaks)</div></TabsContent>
-        <TabsContent value="finances"><div>financial hub coming soon (dashboards, wealth levels)</div></TabsContent>
+        <TabsContent value="exercise">
+          <ExerciseTracker />
+        </TabsContent>
+        <TabsContent value="finances">
+          <FinancialHub />
+        </TabsContent>
+        <TabsContent value="buddies">
+          <GamifiedPets />
+        </TabsContent>
+        <TabsContent value="voice">
+          <VoiceInput onTranscribe={(text) => setEntry(prev => ({ ...prev, note: text }))} />
+        </TabsContent>
       </Tabs>
 
       {/* past entries list */}
