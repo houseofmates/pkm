@@ -91,36 +91,63 @@ export function HygieneTracker({ data, onUpdate }: HygieneTrackerProps) {
 
   const handleLog = async (type: HygieneLog['type']) => {
     setIsLogging(true);
-    
-    const newLog: HygieneLog = {
-      id: Date.now().toString(),
+
+    const timestamp = new Date();
+
+    const payload: Record<string, unknown> = {
       type,
-      timestamp: new Date(),
+      timestamp: timestamp.toISOString(),
+      mood,
+      rating,
+      notes,
+      ...customFieldValues,
     };
 
-    // simulate save delay for tactile feel
-    await new Promise(resolve => setTimeout(resolve, 300));
+    try {
+      await createRecord(payload);
+      const newLog: HygieneLog = {
+        id: Date.now().toString(),
+        type,
+        timestamp: timestamp.toISOString(),
+        mood,
+        rating,
+        notes,
+        ...customFieldValues,
+      };
 
-    setLogs(prev => [newLog, ...prev]);
-    setLastLog(new Date());
-    setIsLogging(false);
+      setLogs((prev) => [newLog, ...prev]);
+      setLastLog(timestamp);
 
-    // show rewarding toast
-    const messages = [
-      'self-care complete ✦',
-      'refreshing ✦',
-      'momentum building ✦',
-      'ritual complete ✦',
-    ];
-    const message = messages[Math.floor(Math.random() * messages.length)];
-    toast(message, { 
-      icon: <Check className="w-4 h-4 text-[#22c55e]" />,
-      style: {
-        background: '#050505',
-        border: '1px solid #f5af12',
-        color: '#ffffff',
-      }
-    });
+      const daysSinceLast = lastLog
+        ? Math.floor((timestamp.getTime() - lastLog.getTime()) / (1000 * 60 * 60 * 24))
+        : 999;
+      const nextStreak = daysSinceLast === 1 ? streak + 1 : 1;
+      setStreak(nextStreak);
+      onUpdate?.({ lastShower: timestamp.toISOString(), streak: nextStreak });
+
+      const messages = [
+        'self-care complete ✦',
+        'refreshing ✦',
+        'momentum building ✦',
+        'ritual complete ✦',
+        'minor legend gains ✦',
+      ];
+      const message = messages[Math.floor(Math.random() * messages.length)];
+
+      toast.success(message, {
+        icon: <Check className="w-4 h-4 text-[#22c55e]" />,
+      });
+
+      setNotes('');
+      setMood('neutral');
+      setRating(3);
+      setCustomFieldValues({});
+    } catch (e) {
+      console.error('Hygiene log failed to save:', e);
+      toast.error('Failed to save hygiene log');
+    } finally {
+      setIsLogging(false);
+    }
   };
 
   const timeSince = getTimeSince();
