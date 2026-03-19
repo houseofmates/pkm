@@ -6,6 +6,11 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Mic, Flame, Star, Map, DollarSign, Dumbbell } from 'lucide-react'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts'
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts'
+import ExerciseTracker from './exercise-tracker'
+import FinancialHub from './financial-hub'
+import GamifiedPets from './gamified-pets'
+import VoiceInput from './voice-input'
 import { useGamificationStore } from '../../stores/gamification-store'
 // import { useAppSetting } from '../../hooks/use-app-setting' // will create hook later
 const [entries, setEntries] = useState<JournalEntry[]>([])
@@ -96,9 +101,9 @@ const [entries, setEntries] = useState<JournalEntry[]>([])
       <Tabs value={tab} onValueChange={setTab} className="w-full">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="today">today</TabsTrigger>
-          <TabsTrigger value="quests">quests</TabsTrigger>
+          <TabsTrigger value="quests">tasks</TabsTrigger>
           <TabsTrigger value="exercise">exercise</TabsTrigger>
-          <TabsTrigger value="finances">finances</TabsTrigger>
+          <TabsTrigger value="finances">bank</TabsTrigger>
           <TabsTrigger value="stats">stats</TabsTrigger>
         </TabsList>
 
@@ -296,22 +301,22 @@ const [entries, setEntries] = useState<JournalEntry[]>([])
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
 
-const toggleEmotion = React.useCallback((emotion: string) => {
+  const toggleEmotion = React.useCallback((emotion: string) => {
   setEntry(prev => ({
     ...prev,
     emotions: prev.emotions.includes(emotion) 
       ? prev.emotions.filter(e => e !== emotion)
       : [...prev.emotions, emotion]
   }))
-}
-const toggleActivity = React.useCallback((activity: string) => {
+}, [])
+  const toggleActivity = React.useCallback((activity: string) => {
   setEntry(prev => ({
     ...prev,
     activities: prev.activities.includes(activity)
       ? prev.activities.filter(a => a !== activity)
       : [...prev.activities, activity]
   }))
-}
+}, [])
 
 export default Journal
 
