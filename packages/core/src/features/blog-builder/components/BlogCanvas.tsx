@@ -900,16 +900,16 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
    </div>
  </div>
 
- {/* resize handles */}
- <div data-handle="n" className="resize-handle absolute -top-1 left-1/2 -translate-x-1/2 w-4 h-2 bg-[var(--primary)] rounded cursor-ns-resize z-50" />
- <div data-handle="s" className="resize-handle absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-2 bg-[var(--primary)] rounded cursor-ns-resize z-50" />
- <div data-handle="e" className="resize-handle absolute top-1/2 -right-1 -translate-y-1/2 w-2 h-4 bg-[var(--primary)] rounded cursor-ew-resize z-50" />
- <div data-handle="w" className="resize-handle absolute top-1/2 -left-1 -translate-y-1/2 w-2 h-4 bg-[var(--primary)] rounded cursor-ew-resize z-50" />
+ {/* resize handles (invisible UI indicators, still interactive) */}
+ <div data-handle="n" className="resize-handle absolute -top-1 left-1/2 -translate-x-1/2 w-4 h-2 opacity-0 cursor-ns-resize z-50" />
+ <div data-handle="s" className="resize-handle absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-2 opacity-0 cursor-ns-resize z-50" />
+ <div data-handle="e" className="resize-handle absolute top-1/2 -right-1 -translate-y-1/2 w-2 h-4 opacity-0 cursor-ew-resize z-50" />
+ <div data-handle="w" className="resize-handle absolute top-1/2 -left-1 -translate-y-1/2 w-2 h-4 opacity-0 cursor-ew-resize z-50" />
 
- <div data-handle="nw" className="resize-handle absolute -top-1 -left-1 w-3 h-3 bg-white border-2 border-[var(--primary)] rounded-full cursor-nwse-resize z-50" />
- <div data-handle="ne" className="resize-handle absolute -top-1 -right-1 w-3 h-3 bg-white border-2 border-[var(--primary)] rounded-full cursor-nesw-resize z-50" />
- <div data-handle="sw" className="resize-handle absolute -bottom-1 -left-1 w-3 h-3 bg-white border-2 border-[var(--primary)] rounded-full cursor-nesw-resize z-50" />
- <div data-handle="se" className="resize-handle absolute -bottom-1 -right-1 w-3 h-3 bg-white border-2 border-[var(--primary)] rounded-full cursor-nwse-resize z-50" />
+ <div data-handle="nw" className="resize-handle absolute -top-1 -left-1 w-3 h-3 opacity-0 cursor-nwse-resize z-50" />
+ <div data-handle="ne" className="resize-handle absolute -top-1 -right-1 w-3 h-3 opacity-0 cursor-nesw-resize z-50" />
+ <div data-handle="sw" className="resize-handle absolute -bottom-1 -left-1 w-3 h-3 opacity-0 cursor-nesw-resize z-50" />
+ <div data-handle="se" className="resize-handle absolute -bottom-1 -right-1 w-3 h-3 opacity-0 cursor-nwse-resize z-50" />
  </>
  )}
 
