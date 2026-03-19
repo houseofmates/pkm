@@ -37,7 +37,7 @@ export function BiometricTracker({ data, onUpdate }: BiometricTrackerProps) {
     <div className="p-4 bg-black/40 border border-primary/20 rounded-xl space-y-4 backdrop-blur-md w-full max-w-sm">
       <div className="flex items-center gap-2 mb-2">
         <Activity className="text-primary w-4 h-4" />
-        <span className="text-xs font-bold text-primary tracking-widest uppercase">Biometric Status</span>
+        <span className="text-xs font-bold text-primary tracking-widest lowercase">biometric status</span>
       </div>
 
       <div className="space-y-3">
@@ -83,16 +83,21 @@ export function BiometricTracker({ data, onUpdate }: BiometricTrackerProps) {
 
         {/* Focus */}
         <div className="space-y-1">
-          <div className="flex justify-between text-[10px] uppercase text-muted-foreground">
-            <span className="flex items-center gap-1"><Brain className="w-3 h-3" /> Focus</span>
+          <div className="flex justify-between text-[10px] lowercase text-muted-foreground">
+            <span className="flex items-center gap-1"><Brain className="w-3 h-3" /> focus</span>
             <span>{focus}%</span>
           </div>
           <Slider
             value={[focus]}
             max={100}
             step={1}
-            onValueChange={(v) => setFocus(v[0])}
-            className="[&_.bg-primary]:bg-blue-500"
+            onValueChange={(v) => {
+              const next = v[0];
+              setFocus(next);
+              update({ focus: next });
+            }}
+            onPointerDown={(e) => e.stopPropagation()}
+            style={sliderBackground(focus, '#3b82f6')}
           />
         </div>
       </div>
