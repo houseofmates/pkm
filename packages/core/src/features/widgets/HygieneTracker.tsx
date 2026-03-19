@@ -258,6 +258,76 @@ export function HygieneTracker({ data, onUpdate }: HygieneTrackerProps) {
           )}
         </Button>
 
+        <div className="rounded-lg border border-white/10 bg-white/5 p-3 space-y-2">
+          <div className="flex items-center justify-between text-[10px] lowercase text-muted-foreground">
+            <span>daily habits</span>
+            <span>streak {streak}</span>
+          </div>
+
+          {fieldConfig.map((field) => {
+            if (field.type === 'select') {
+              return (
+                <div key={field.name} className="space-y-1">
+                  <label className="text-[10px] lowercase text-muted-foreground">{field.label}</label>
+                  <select
+                    value={customFieldValues[field.name] ?? mood}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (field.name === 'mood') setMood(value);
+                      setCustomFieldValues((prev) => ({ ...prev, [field.name]: value }));
+                    }}
+                    className="w-full h-8 bg-black/50 border border-white/10 rounded text-xs"
+                  >
+                    {field.options?.map((option) => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
+                  </select>
+                </div>
+              );
+            }
+
+            if (field.type === 'number') {
+              return (
+                <div key={field.name} className="space-y-1">
+                  <label className="text-[10px] lowercase text-muted-foreground">{field.label}</label>
+                  <input
+                    type="number"
+                    value={field.name === 'rating' ? rating : customFieldValues[field.name] ?? ''}
+                    min={1}
+                    max={10}
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
+                      if (field.name === 'rating') setRating(value);
+                      setCustomFieldValues((prev) => ({ ...prev, [field.name]: value }));
+                    }}
+                    className="w-full h-8 bg-black/50 border border-white/10 rounded text-xs px-2"
+                  />
+                </div>
+              );
+            }
+
+            if (field.type === 'textarea' || field.type === 'text') {
+              return (
+                <div key={field.name} className="space-y-1">
+                  <label className="text-[10px] lowercase text-muted-foreground">{field.label}</label>
+                  <input
+                    type="text"
+                    value={field.name === 'notes' ? notes : customFieldValues[field.name] ?? ''}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (field.name === 'notes') setNotes(value);
+                      setCustomFieldValues((prev) => ({ ...prev, [field.name]: value }));
+                    }}
+                    className="w-full h-8 bg-black/50 border border-white/10 rounded text-xs px-2"
+                  />
+                </div>
+              );
+            }
+
+            return null;
+          })}
+        </div>
+
         {/* status indicator */}
         {lastLog && (
           <div 
@@ -302,7 +372,7 @@ export function HygieneTracker({ data, onUpdate }: HygieneTrackerProps) {
                     {log.type}
                   </span>
                   <span className="text-[10px]" style={{ color: 'rgba(255, 255, 255, 0.4)' }}>
-                    {log.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
               ))}
