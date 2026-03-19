@@ -52,21 +52,33 @@ export function HygieneTracker({ data, onUpdate }: HygieneTrackerProps) {
   const [mood, setMood] = useState('neutral');
   const [rating, setRating] = useState(3);
   const [customFieldValues, setCustomFieldValues] = useState<Record<string, any>>({});
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
+  const [fieldConfig, setFieldConfig] = useState<DynamicField[]>(
+    data?.fields ?? [
+      { name: 'mood', label: 'mood', type: 'select', options: ['low', 'okay', 'good', 'great'] },
+      { name: 'rating', label: 'session rating', type: 'number' },
+      { name: 'notes', label: 'notes', type: 'text' },
+    ]
+  );
 
-  const fieldConfig: DynamicField[] = data?.fields ?? [
-    { name: 'mood', label: 'mood', type: 'select', options: ['low', 'okay', 'good', 'great'] },
-    { name: 'rating', label: 'session rating', type: 'number' },
-    { name: 'notes', label: 'notes', type: 'text' },
-  ];
+  const [newField, setNewField] = useState<DynamicField>({
+    name: '',
+    label: '',
+    type: 'text',
+  });
 
   useEffect(() => {
+    if (Array.isArray(data?.fields) && data.fields.length > 0) {
+      setFieldConfig(data.fields as DynamicField[]);
+    }
     if (data?.lastShower) {
       setLastLog(new Date(data.lastShower));
     }
     if (typeof data?.streak === 'number') {
       setStreak(data.streak);
     }
-  }, [data?.lastShower, data?.streak]);
+  }, [data?.fields, data?.lastShower, data?.streak]);
+
 
 
   // calculate time since last shower
