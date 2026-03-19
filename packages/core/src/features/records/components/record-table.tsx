@@ -994,7 +994,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
               </div>
             )}
             {rows.length === 0 ? (
-              <div className="text-muted-foreground lowercase flex items-center justify-center h-full w-full">
+              <div className="text-muted-foreground lowercase flex items-center justify-center h-full w-full" style={{ position: 'absolute', inset: 0 }}>
                 <div className="flex flex-col items-center justify-center h-40 w-full">
                   no records found
                 </div>
