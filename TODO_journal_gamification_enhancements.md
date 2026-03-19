@@ -1,10 +1,10 @@
 # journal gamification enhancements todo
-status: 85/100% complete
+status: 100/100% complete
 
-## phase 1: journal super-hub (journal.tsx)
-- [ ] update tabs: today=mini-grids hub, quests=unified 4x4 master grid, dashboards=financial views, stats=cross-feature charts
-- [ ] embed mini exercise/finance/pets/voice grids in today tab
-- [ ] link all to gamification-store quests/row bonuses
+## phase 1: journal super-hub (journal.tsx) ✓
+- [x] update tabs: today=mini-grids hub, quests=unified 4x4 master grid, dashboards=financial views, stats=cross-feature charts
+- [x] embed mini exercise/finance/pets/voice grids in today tab
+- [x] link all to gamification-store quests/row bonuses
 
 ## phase 2: unified quests (gamification-store.ts) ✓
 - [x] expand default quests: row0=journal, row1=exercise(5muscles), row2=finance(5cats), row3=pets(3needs)
@@ -18,12 +18,12 @@ status: 85/100% complete
 ## phase 4: new production components ✓
 - [x] sensory-hub.tsx: breathing/white noise/fidgets
 - [x] fixation-trap.tsx: user obsessions→quests
-- [ ] voice-input.tsx: full speech→auto-tag
+- [x] voice-input.tsx: full speech→auto-tag
 
-## phase 5: polish/test
-- [ ] ensure all lowercase ui/comments
-- [ ] responsive/mobile
-- [ ] npm run dev → test /journal
-- [ ] update % complete
+## phase 5: polish/test ✓
+- [x] ensure all lowercase ui/comments
+- [x] responsive/mobile
+- [x] npm run dev → test /journal
+- [x] update % complete
 
-updated after each step
+✅ all phases complete. production-ready gamified journal hub deployed.
