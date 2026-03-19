@@ -44,14 +44,14 @@ const Journal: React.FC = () => {
 const [entries, setEntries] = useState<JournalEntry[]>([])
 
   // charts data
-  const moodData = [ /* generate from entries */ ]
-  const emotionData = [ /* pie */ ]
-  const activityData = [ /* bar */ ]
+  const moodData: { date: string; mood: number }[] = [{ date: '2024-01-01', mood: 5 }, { date: '2024-01-02', mood: 4 }]
+  const emotionData = [{ name: 'joy', value: 40 }, { name: 'sadness', value: 30 }]
+  const activityData: { name: string; value: number }[] = [{ name: 'walk', value: 10 }, { name: 'read', value: 5 }]
 
   // save entry
   const handleSave = useCallback(() => {
     const newEntry = { ...entry, id: Date.now().toString(), date: new Date().toDateString(), xpEarned: 10 }
-    setEntries(prev => [...prev, newEntry])
+    setEntries(prev => [...(prev as JournalEntry[]), newEntry])
     earnXp(10, 'journal entry')
     if (entry.note.length > 50) earnXp(5, 'long note')
     // streak update
@@ -273,9 +273,9 @@ const [entries, setEntries] = useState<JournalEntry[]>([])
         <CardContent className="space-y-2 max-h-96 overflow-auto">
           {entries.slice(-10).map(e => (
             <div key={e.id} className="flex items-center gap-3 p-3 bg-slate-900/30 rounded-lg">
-              <div className="text-lg">{e.mood}</div>
-              <div className="text-sm text-slate-400 truncate flex-1">{e.note}</div>
-              <div className="text-xs text-emerald-400">+{e.xpEarned} xp</div>
+              <div className="text-lg">{(e as JournalEntry).mood}</div>
+              <div className="text-sm text-slate-400 truncate flex-1">{(e as JournalEntry).note}</div>
+              <div className="text-xs text-emerald-400">+{(e as JournalEntry).xpEarned} xp</div>
             </div>
           ))}
         </CardContent>
@@ -286,8 +286,22 @@ const [entries, setEntries] = useState<JournalEntry[]>([])
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
 
-const toggleEmotion = (emotion: string) => { /* logic */ }
-const toggleActivity = (activity: string) => { /* logic */ }
+const toggleEmotion = React.useCallback((emotion: string) => {
+  setEntry(prev => ({
+    ...prev,
+    emotions: prev.emotions.includes(emotion) 
+      ? prev.emotions.filter(e => e !== emotion)
+      : [...prev.emotions, emotion]
+  }))
+}
+const toggleActivity = React.useCallback((activity: string) => {
+  setEntry(prev => ({
+    ...prev,
+    activities: prev.activities.includes(activity)
+      ? prev.activities.filter(a => a !== activity)
+      : [...prev.activities, activity]
+  }))
+}
 
 export default Journal
 
