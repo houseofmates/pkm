@@ -2,11 +2,11 @@
 
 status: approved by user. voice input added (whisper + qwen2.5-coder:7b-instruct-q4_K_S local post-processing).
 
-## phase 1: gamify core journal (today)
-- [ ] edit src/components/journal/journal.tsx: add sidebar (daily quests, exercise, finances, pets, world), xp bar/badge, achievement wall
-- [ ] implement daily quests grid (4x4 oral-b style: drag-complete, row bonuses)
-- [ ] recharts stats dashboard (mood heatmap, xp trends, completion pie)
-- [ ] new zustand store: useGamification (xp, levels, streaks, daily reset @midnight)
+## phase 1: gamify core journal (today) - COMPLETE
+- [x] edit src/components/journal/journal.tsx: add sidebar (daily quests, exercise, finances, pets, world), xp bar/badge, achievement wall
+- [x] implement daily quests grid (4x4 oral-b style: drag-complete, row bonuses)
+- [x] recharts stats dashboard (mood heatmap, xp trends, completion pie)
+- [x] new zustand store: useGamification (xp, levels, streaks, daily reset @midnight)
 
 ## phase 2: new trackers (tomorrow)
 - [ ] create src/components/journal/exercise-tracker.tsx (body heatmap, muscle levels, charts)

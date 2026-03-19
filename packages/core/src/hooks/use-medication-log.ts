@@ -1,4 +1,5 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { isCapacitorNative } from '@/lib/platform';
 
 export type MedicationLogEntry = {
   id: string;
@@ -27,6 +28,23 @@ export type MedicationGroup = {
 
 const STORAGE_KEY_LOG = 'pkm:medication_log';
 const STORAGE_KEY_LAST_DONE = 'pkm:medication_last_done';
+const STORAGE_KEY_REMINDERS_ENABLED = 'pkm:medication_reminders_enabled';
+const STORAGE_KEY_REMINDERS_SCHEDULE = 'pkm:medication_reminders_schedule';
+
+export type MedicationReminderSchedule = {
+  id: number;
+  groupId: 'morning' | 'afternoon' | 'night';
+  label: string;
+  hour: number;
+  minute: number;
+  body: string;
+};
+
+const DEFAULT_REMINDER_SCHEDULE: MedicationReminderSchedule[] = [
+  { id: 1001, groupId: 'morning', label: 'morning pills', hour: 10, minute: 0, body: 'time to take your morning meds' },
+  { id: 1002, groupId: 'afternoon', label: 'afternoon pills', hour: 13, minute: 0, body: 'time to take your afternoon meds' },
+  { id: 1003, groupId: 'night', label: 'night pills', hour: 23, minute: 0, body: 'time to take your nighttime meds' },
+];
 
 const DEFAULT_GROUPS: MedicationGroup[] = [
   {
