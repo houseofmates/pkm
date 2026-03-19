@@ -4,12 +4,12 @@ import { useMedicationLog } from '../use-medication-log';
 describe('useMedicationLog', () => {
   beforeEach(() => {
     localStorage.clear();
-    jest.useFakeTimers();
+    vi.useFakeTimers();
   });
 
   afterEach(() => {
-    jest.runOnlyPendingTimers();
-    jest.useRealTimers();
+    vi.runOnlyPendingTimers();
+    vi.useRealTimers();
   });
 
   it('initializes with default groups and empty log', () => {
