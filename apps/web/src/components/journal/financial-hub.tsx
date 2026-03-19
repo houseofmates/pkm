@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
+import { Button } from '../../ui/button'
+import { Badge } from '../../ui/badge'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select'
 import { useGamificationStore } from '../../stores/gamification-store'
-import { PieChart, Pie, Cell, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip } from 'recharts'
+import { PieChart, Pie, ResponsiveContainer, LineChart, Line, PieCell } from 'recharts'
 
 const FINANCIAL_LEVELS = [
   'penny-pincher', 'saver', 'investor', 'mogul'
@@ -78,7 +78,7 @@ const FinancialHub: React.FC = () => {
               <PieChart>
                 <Pie data={data} cx="50%" cy="50%" outerRadius={80} dataKey="value">
                   {data.map((entry, index) => (
-                    <Cell key={entry.name} fill={['#ec4899', '#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'][index % 5]} />
+                    <PieCell key={entry.name} fill={['#ec4899', '#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'][index % 5]} />
                   ))}
                 </Pie>
               </PieChart>
