@@ -463,7 +463,7 @@ export function HygieneTracker({ data, onUpdate }: HygieneTrackerProps) {
             }
 
             return null;
-          })}
+          }))}
         </div>
 
         {/* status indicator */}
