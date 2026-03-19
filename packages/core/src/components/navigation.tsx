@@ -524,7 +524,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     };
 
     syncAll();
-  }, [collections, items, safeSetItems]);
+  }, [collections, items, safeSetItems, homeCanvasDrawingId]);
 
   // create folder logic
   const createFolder = () => {
