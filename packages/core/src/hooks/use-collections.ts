@@ -20,7 +20,8 @@ export function useCollections() {
     if (!isAuthenticated) return [];
 
     try {
-      const response = await client.listCollections();
+      // request collections with their fields so widgets and forms can render correctly
+      const response = await client.listCollections({ appends: ['fields'] });
       const rawCollections = Array.isArray(response.data) ? response.data : (response?.data as any)?.data || [];
 
       // side effects (hiding check)
