@@ -993,12 +993,14 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                 </Button>
               </div>
             )}
-            <div style={{ width: table.getTotalSize() + (onCreateField ? 40 : 0), minWidth: table.getTotalSize() + (onCreateField ? 40 : 0), height: '100%', position: 'relative' }}>
-              {rows.length === 0 ? (
-                <div className="text-muted-foreground lowercase">
-                  <div className="flex items-center justify-center h-16 w-full">
-                    no records found
-                  </div>
+            {rows.length === 0 ? (
+              <div className="text-muted-foreground lowercase flex items-center justify-center h-full w-full">
+                <div className="flex flex-col items-center justify-center h-40 w-full">
+                  no records found
+                </div>
+              </div>
+            ) : (
+              <div style={{ width: table.getTotalSize() + (onCreateField ? 40 : 0), minWidth: table.getTotalSize() + (onCreateField ? 40 : 0), height: '100%', position: 'relative' }}>
                   {onCreateRecord && (
                     <div className="flex items-start pl-2">
                       <Button
