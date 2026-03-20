@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Card } from '../ui/card'
+import { Card, CardHeader, CardContent, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { Heart, Star, Zap, Crown } from 'lucide-react'

@@ -4,7 +4,7 @@ import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { useGamificationStore } from '../../stores/gamification-store'
-import { PieChart, Pie, ResponsiveContainer, LineChart, Line, PieCell } from 'recharts'
+import { PieChart, Pie, ResponsiveContainer, LineChart, Line } from 'recharts'
 
 const FINANCIAL_LEVELS = [
   'penny-pincher', 'saver', 'investor', 'mogul'
