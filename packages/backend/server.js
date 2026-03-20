@@ -1339,6 +1339,102 @@ app.get('/api/ai/models', async (req, res) => {
   }
 });
 
+// ── bot memory routes ──────────────────────────────────────────
+// endpoints for bot to read/write memories (like openclaw)
+
+app.get('/api/ai/memory', async (req, res) => {
+  try {
+    const { type } = req.query;
+    const fileName = type ? `${type}.md` : null;
+    
+    if (fileName) {
+      const content = readMemory(fileName);
+      res.json({ type, content });
+    } else {
+      const allMemory = getAllMemoryContext();
+      res.json({ memory: allMemory });
+    }
+  } catch (err) {
+    console.error('[AI] memory read error:', err.message);
+    res.status(500).json({ error: 'failed to read memory' });
+  }
+});
+
+app.post('/api/ai/memory', async (req, res) => {
+  try {
+    const { type, content, action } = req.body;
+    
+    if (!type || !content) {
+      return res.status(400).json({ error: 'type and content required' });
+    }
+    
+    const fileName = `${type}.md`;
+    let success = false;
+    
+    if (action === 'append') {
+      success = appendMemory(fileName, content);
+    } else {
+      success = writeMemory(fileName, content);
+    }
+    
+    if (success) {
+      res.json({ success: true, type });
+    } else {
+      res.status(500).json({ error: 'failed to write memory' });
+    }
+  } catch (err) {
+    console.error('[AI] memory write error:', err.message);
+    res.status(500).json({ error: 'failed to write memory' });
+  }
+});
+
+app.delete('/api/ai/memory', async (req, res) => {
+  try {
+    const { type } = req.query;
+    
+    if (!type) {
+      return res.status(400).json({ error: 'type required' });
+    }
+    
+    const fileName = `${type}.md`;
+    const success = clearMemory(fileName);
+    
+    if (success) {
+      res.json({ success: true, type });
+    } else {
+      res.status(500).json({ error: 'failed to clear memory' });
+    }
+  } catch (err) {
+    console.error('[AI] memory clear error:', err.message);
+    res.status(500).json({ error: 'failed to clear memory' });
+  }
+});
+
+// ── pieces os mcp status ────────────────────────────────────────
+
+app.get('/api/ai/pieces/status', async (req, res) => {
+  try {
+    const connected = await isPiecesConnected();
+    res.json({ 
+      connected, 
+      mcpUrl: process.env.PIECES_MCP_URL || 'http://192.168.4.250:39301/model_context_protocol/2025-03-26/mcp'
+    });
+  } catch (err) {
+    res.json({ connected: false, error: err.message });
+  }
+});
+
+app.get('/api/ai/pieces/recent', async (req, res) => {
+  try {
+    const hours = parseInt(req.query.hours || '2', 10);
+    const context = await getPiecesRecentActivity(hours);
+    res.json(context || { error: 'no data available' });
+  } catch (err) {
+    console.error('[AI] pieces recent error:', err.message);
+    res.status(500).json({ error: 'failed to get pieces context' });
+  }
+});
+
 // ── activity logger routes ────────────────────────────────────
 
 // log activity endpoint
