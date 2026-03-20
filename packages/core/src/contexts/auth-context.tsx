@@ -63,10 +63,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return stored ? normalizeAuthToken(stored) : null;
   });
 
-// proactively clear and warn when jwt expires. later 401 would
-  // accomplish the same thing, but that typically happens after the user
-  // has already been kicked out and confused; better to do it ourselves so
-  // the app can immediately flip to login and we can show a toast.
+// proactively clear expired jwt tokens to avoid confusing 401s.
+// checks payload.exp on every render - efficient since jwt decode cheap.
 useEffect(() => {
     if (!token) return;
     try {

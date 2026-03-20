@@ -42,11 +42,8 @@ export function LoginPage() {
         params: { pageSize: 1 },
       });
 
-      // if validation succeeded, store it and let the rest of the app handle
-      // any additional initialization (e.g. ensureBackendCollection).
+      // token validated, store & initialize synchronously
       login(normalizedToken);
-      // small delay to let state propagate
-      await new Promise((resolve) => setTimeout(resolve, 100));
     } catch (err: any) {
       secureLogger.error('token validation failed:', err);
       setError(
