@@ -1,13 +1,16 @@
 import React from 'react'
-import { Card, CardContent, CardHeader } from '../../ui/card'
-import { Badge } from '../../ui/badge'
+import { Card, CardContent, CardHeader } from '../ui/card'
+import { Badge } from '../ui/badge'
 import { Heart, Zap } from 'lucide-react'
 import { useGamificationStore } from '../../stores/gamification-store'
 // import Link from 'next/link'
-const Link: React.FC<{ className?: string; children: React.ReactNode }> = ({ className = '', children }) => (
-  <div className={className} onClick={() => window.location.href = '/journal'} style={{ cursor: 'pointer' }}>
-    {children}
+const Link: React.FC<{ className?: string; children: React.ReactNode }> = ({ className = '', children }) => {
+  return (
+    <div className={className} onClick={() => window.location.href = '/journal'} style={{ cursor: 'pointer' }}>
+      {children}
+    </div>
   )
+}
 
 const PetStatusWidget: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { level } = useGamificationStore()
