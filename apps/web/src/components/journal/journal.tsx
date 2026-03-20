@@ -276,6 +276,9 @@ const Journal: React.FC = () => {
 
         <TabsContent value="dashboards" className="space-y-4">
           <FinancialHub />
+          <div className="mt-4">
+            <LogBlock onSave={(log) => console.log('log saved', log)} />
+          </div>
         </TabsContent>
 
         <TabsContent value="sensory">
