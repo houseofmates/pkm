@@ -3,7 +3,12 @@ import { Card, CardContent, CardHeader } from '../../ui/card'
 import { Badge } from '../../ui/badge'
 import { Heart, Zap } from 'lucide-react'
 import { useGamificationStore } from '../../stores/gamification-store'
-import Link from 'next/link'
+// import Link from 'next/link'
+const Link = React.forwardRef(({ className, children, href, ...props }, ref) => (
+  <div className={className} ref={ref} {...props} onClick={() => window.location.href = '/journal'}>
+    {children}
+  </div>
+))
 
 const PetStatusWidget: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { level } = useGamificationStore()

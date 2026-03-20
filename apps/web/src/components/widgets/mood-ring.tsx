@@ -3,8 +3,21 @@ import { Card, CardContent } from '../../ui/card'
 import { Button } from '../../ui/button'
 import { Badge } from '../../ui/badge'
 import { ChevronRight } from 'lucide-react'
-import Link from 'next/link'
-import { MOODS } from '../journal/journal' // reuse
+// import Link from 'next/link'
+const Link = React.forwardRef(({ className, children, href, ...props }, ref) => (
+  <div className={className} ref={ref} {...props} onClick={() => window.location.href = href}>
+    {children}
+  </div>
+))
+
+const MOODS = [
+  { id: 'happy', emoji: '😊', color: '#10b981' },
+  { id: 'sad', emoji: '😢', color: '#ef4444' },
+  { id: 'angry', emoji: '😠', color: '#f59e0b' },
+  { id: 'calm', emoji: '😌', color: '#3b82f6' },
+  { id: 'anxious', emoji: '😰', color: '#8b5cf6' },
+  { id: 'excited', emoji: '🤩', color: '#ec4899' }
+]
 
 const MoodRingWidget: React.FC<{ className?: string }> = ({ className = '' }) => {
   return (
