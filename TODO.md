@@ -1,17 +1,18 @@
-# wilson agent implementation todo
+# wilson agent architecture implementation steps
 
-## approved plan summary
-- replace ai_persona_prompt in packages/backend/server.js with wilson production system prompt
-- no other changes needed (endpoints/memory/pieces already perfect)
+## approved plan breakdown
+1. [x] create TODO.md with steps ✓
+2. [ ] enhance /api/ai/chat to parse & execute JSON actions from qwen responses
+3. [ ] implement action executor for write_memory (append/write), pieces_recent
+4. [ ] add recursive execution loop (actions can generate more actions)
+5. [ ] (optional) add /api/ai/promote endpoint for memory promotion logic
+6. [ ] test full loop: chat → json action → memory update → chat sees memory
+7. [ ] attempt_completion with explanation + demo curl command
 
-## steps
-- [x] 1. create TODO.md ✅
-- [ ] 2. read server.js to confirm exact AI_PERSONA_PROMPT location/match
-- [x] 3. edit server.js - replace AI_PERSONA_PROMPT with wilson prompt ✅
-- [x] 4. attempt_completion with full prompt text + end-to-end explanation ✅
-
-## complete ✅
-wilson agent implemented. restart backend server to use.
-
-current working directory: /home/house/pkm
+## current status
+- system prompt: ready (AI_PERSONA_PROMPT)
+- memory: ready (5 md files, r/w/append/clear)
+- pieces mcp: ready (recent/query/status)
+- injection: ready (chat injects all)
+- missing: json action backend execution
 
