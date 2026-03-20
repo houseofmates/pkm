@@ -23,6 +23,9 @@ describe('activity-sync', () => {
   })
 
   it('syncs logs to server', async () => {
+    // debug: log type of setItem
+    // eslint-disable-next-line no-console
+    console.log('test: localStorage.setItem type ->', typeof (global as any).localStorage.setItem)
     ;(global as any).localStorage.setItem('pkm_activities', JSON.stringify([{ id: '1', name: 'walk' }]))
     ;(global as any).localStorage.setItem('pkm_activity_logs', JSON.stringify([{ id: 'l1', activityId: '1', note: 'ok', rating: 4, createdAt: new Date().toISOString() }]))
 
