@@ -1062,6 +1062,75 @@ export { app, importTasks };
 
 // ── ai / ollama proxy route ───────────────────────────────────
 // routes all llm and vision requests to the desktop gpu node
+// no inference happens on this machine
+
+// wilson json action executor
+async function executeAction(action, chatContext = {}) {
+  console.log('[Wilson] executing action:', JSON.stringify(action));
+  
+  try {
+    switch (action.tool) {
+      case 'write_memory':
+        const { type, content, action: op = 'append' } = action;
+        if (!type || !content) throw new Error('type and content required');
+        
+        const fileName = `${type}.md`;
+        let success;
+        if (op === 'append') {
+          success = appendMemory(fileName, content);
+        } else {
+          success = writeMemory(fileName, content);
+        }
+        
+        if (success) {
+          console.log('[Wilson] wrote to memory:', type);
+          return { success: true, type, operation: op };
+        } else {
+          throw new Error('memory write failed');
+        }
+        
+      case 'pieces_recent':
+        const hours = action.hours || 2;
+        const piecesData = await getPiecesRecentActivity(hours);
+        chatContext.piecesRecent = piecesData;
+        console.log('[Wilson] fetched pieces recent:', hours, 'hours');
+        return { success: true, tool: 'pieces_recent', hours, data: piecesData };
+        
+      case 'read_memory':
+        const memType = action.type || 'all';
+        let memData;
+        if (memType === 'all') {
+          memData = getAllMemoryContext();
+        } else {
+          memData = readMemory(`${memType}.md`);
+        }
+        chatContext.memoryRead = memData;
+        return { success: true, type: memType, content: memData };
+        
+      default:
+        console.warn('[Wilson] unknown tool:', action.tool);
+        return { success: false, error: 'unknown tool', tool: action.tool };
+    }
+  } catch (err) {
+    console.error('[Wilson] action failed:', err.message);
+    return { success: false, error: err.message };
+  }
+}
+
+// parse json actions from qwen response (trailing array)
+function parseActionsFromResponse(responseText) {
+  const jsonRegex = /\[\s*{[\s\S]*?"tool"[\s\S]*?}\s*\](?=\s*$)/i;
+  const match = responseText.match(jsonRegex);
+  if (!match) return [];
+  
+  try {
+    return JSON.parse(match[0]);
+  } catch {
+    console.warn('[Wilson] could not parse actions JSON');
+    return [];
+  }
+}
+
 
 // allow configuration via environment variables, with sensible defaults
 const OLLAMA_DEFAULT_URL = process.env.OLLAMA_URL || process.env.OLLAMA_HOST || 'http://localhost:11434';
@@ -1255,6 +1324,7 @@ const ollamaUrl = getOllamaUrl();
       prompt: finalPrompt,
       system: systemPrompt,
       stream, 
+      format: stream ? undefined : 'json',  // encourage json mode for actions
       options: { temperature: 0.4 } 
     };
 
@@ -1262,6 +1332,28 @@ const ollamaUrl = getOllamaUrl();
       responseType: stream ? 'stream' : 'json',
       timeout: 120000,
     });
+
+    // wilson agent loop: parse & execute json actions (non-stream only)
+    if (!stream) {
+      let fullResponse = response.data.response.toLowerCase();
+      
+      // record interaction first
+      recordInteraction(prompt, fullResponse);
+      
+      // parse actions
+      const actions = parseActionsFromResponse(fullResponse);
+      const executionResults = [];
+      
+      for (const action of actions) {
+        const result = await executeAction(action, { prompt, fullResponse });
+        executionResults.push(result);
+      }
+      
+      // augment response with execution results
+      fullResponse += `\n\nactions executed: ${JSON.stringify(executionResults, null, 2)}`;
+      
+      response.data.response = fullResponse;
+    }
 
     // record interaction in memory (non-blocking)
     if (includeMemory && !stream) {
