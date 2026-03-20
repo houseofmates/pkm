@@ -22,9 +22,21 @@ function extractId(resp: any) {
 export async function findOrCreateActivity(name: string) {
   // try list filter
   try {
+    // cached mapping to avoid recreating activities repeatedly
+    const mapRaw = localStorage.getItem('pkm_activity_server_map')
+    const map = mapRaw ? JSON.parse(mapRaw) : {}
+    if (map[name]) return map[name]
+
     const q = encodeURIComponent(name)
     const list = await apiFetch(`/activities:list?filter[name]=${q}`)
-    if (list && list.data && list.data.length > 0) return extractId(list.data[0]) || list.data[0].name || null
+    if (list && list.data && list.data.length > 0) {
+      const sid = extractId(list.data[0]) || list.data[0].name || null
+      if (sid) {
+        map[name] = sid
+        localStorage.setItem('pkm_activity_server_map', JSON.stringify(map))
+      }
+      return sid
+    }
   } catch (e) {
     // ignore
   }
@@ -32,7 +44,14 @@ export async function findOrCreateActivity(name: string) {
   // create
   try {
     const created = await apiFetch(`/activities:create`, { method: 'POST', body: JSON.stringify({ name }) })
-    return extractId(created) || created?.data?.id || null
+    const sid = extractId(created) || created?.data?.id || null
+    if (sid) {
+      const mapRaw2 = localStorage.getItem('pkm_activity_server_map')
+      const map2 = mapRaw2 ? JSON.parse(mapRaw2) : {}
+      map2[name] = sid
+      localStorage.setItem('pkm_activity_server_map', JSON.stringify(map2))
+    }
+    return sid
   } catch (e) {
     console.error('failed creating activity', e)
     return null
