@@ -1,18 +1,24 @@
-# wilson agent architecture implementation steps
+# PKM JWT Login Fix - Implementation Plan
 
-## approved plan breakdown
-1. [x] create TODO.md with steps ✓
-2. [ ] enhance /api/ai/chat to parse & execute JSON actions from qwen responses
-3. [ ] implement action executor for write_memory (append/write), pieces_recent
-4. [ ] add recursive execution loop (actions can generate more actions)
-5. [ ] (optional) add /api/ai/promote endpoint for memory promotion logic
-6. [ ] test full loop: chat → json action → memory update → chat sees memory
-7. [ ] attempt_completion with explanation + demo curl command
+## Completed: [x] Code Analysis & Diagnosis
+- Identified race condition: storageManager.setItem() → 1s delay → API call misses token → 401 → clear → loop
+- Confirmed files: auth-context.tsx, nocobase-client.ts, auth-token.ts
 
-## current status
-- system prompt: ready (AI_PERSONA_PROMPT)
-- memory: ready (5 md files, r/w/append/clear)
-- pieces mcp: ready (recent/query/status)
-- injection: ready (chat injects all)
-- missing: json action backend execution
+## Step 1: [ ] Create & Edit auth-context.tsx
+- Reorder login(): setToken() BEFORE storageManager.setItem() 
+- Remove setTimeout(1000ms) delay around ensureBackendCollection()
+- Add logging: confirm token before/after API call
+- Lowercase all comments/UI text
+
+## Step 2: [ ] Test Login Flow  
+- Clear localStorage `nocobase_token`
+- Enter valid JWT → verify persists + API calls succeed (no 401)
+- Check console: no "no token found" or "401 unauthorized - clearing"
+
+## Step 3: [ ] Verify Dependencies
+- Check api-client.ts interceptor reads storageManager fresh
+- Test ensureBackendCollection() creates pkm_settings successfully
+
+## Step 4: [ ] Completion
+- attempt_completion with result summary + test command
 
