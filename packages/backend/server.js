@@ -1062,7 +1062,6 @@ export { app, importTasks };
 
 // ── ai / ollama proxy route ───────────────────────────────────
 // routes all llm and vision requests to the desktop gpu node
-// no inference happens on this machine
 
 // allow configuration via environment variables, with sensible defaults
 const OLLAMA_DEFAULT_URL = process.env.OLLAMA_URL || process.env.OLLAMA_HOST || 'http://localhost:11434';
