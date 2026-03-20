@@ -53,9 +53,7 @@ if (typeof (global as any).localStorage === 'undefined' || typeof (global as any
   (global as any).localStorage = ls;
   // expose the underlying store for tests to manipulate directly
   ;(global as any).__localStorageStore = storage;
-  // debug: report type
-  // eslint-disable-next-line no-console
-  console.log('setup-test: localStorage.setItem type ->', typeof (global as any).localStorage.setItem);
+  // debug: no-op
 }
 
 // ensure __localStorageStore exists and proxies to window.localStorage when needed

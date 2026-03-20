@@ -23,13 +23,7 @@ describe('activity-sync', () => {
   })
 
   it('syncs logs to server', async () => {
-    // debug: inspect __localStorageStore
-    // eslint-disable-next-line no-console
-    console.log('test: __localStorageStore type ->', typeof (global as any).__localStorageStore, Object.keys((global as any).__localStorageStore || {}))
-    // eslint-disable-next-line no-console
-    console.log('test: set type ->', typeof (global as any).__localStorageStore.set)
-    // eslint-disable-next-line no-console
-    console.log('test: get type ->', typeof (global as any).__localStorageStore.get)
+    // ensure test payloads are returned by localStorage.getItem
     // stub localStorage.getItem to return our test payloads
     ;(global as any).localStorage.getItem = (k: string) => {
       if (k === 'pkm_activities') return JSON.stringify([{ id: '1', name: 'walk' }])
