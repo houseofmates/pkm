@@ -165,18 +165,7 @@ const Journal: React.FC = () => {
                 ))}
               </CardContent>
             </Card>
-            {/* voice input placeholder */}
-            <Card>
-              <CardHeader className="p-3">
-                <CardTitle className="text-sm">voice note</CardTitle>
-              </CardHeader>
-              <CardContent className="p-4">
-                <Button variant="outline" size="sm" className="w-full">
-                  <Mic className="w-4 h-4 mr-2" />
-                  speak note
-                </Button>
-              </CardContent>
-            </Card>
+            {/* reflection timer */}\n            <Card>\n              <CardHeader className="p-3">\n                <CardTitle className="text-sm">reflection</CardTitle>\n              </CardHeader>\n              <CardContent className="p-4">\n                <ReflectionTimer onComplete={(duration, prompt) => {\n                  setEntry(prev => ({ ...prev, note: `${prompt}\\n(reflection ${duration/60}min)` }))\n                  earnXp(15, 'timer reflection')\n                }} />\n              </CardContent>\n            </Card>
           </div>
           {/* note textarea */}
           <Card>
