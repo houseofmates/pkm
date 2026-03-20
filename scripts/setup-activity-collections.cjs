@@ -1,6 +1,7 @@
 const { execSync } = require('child_process')
 
-const NOCO_BASE = process.env.NOCOBASE_URL || process.env.NEWB_OK || process.env.NOCOMBASE || process.env.NOC OBASE || process.env.NOC OBASE || process.env.NOCOBASE || process.env.NOCOBASE_URL || 'http://localhost:4100/api'
+
+const NOCO_BASE = process.env.NOCOBASE_URL || process.env.NOCOBASE || 'http://localhost:4100/api'
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || process.env.NOCOBASE_API_KEY || process.env.AUTH || ''
 
 const base = (NOCO_BASE || 'http://localhost:4100/api').replace(/\/$/, '')
