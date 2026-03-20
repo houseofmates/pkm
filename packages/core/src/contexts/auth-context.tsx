@@ -78,12 +78,17 @@ useEffect(() => {
             // skip immediate clear on login - let API validate
             return;
           }
+          const delay = expireMs - now;
+          // setTimeout uses a 32-bit signed int; values > ~24.8 days overflow and fire immediately.
+          // For long-lived tokens (API keys), skip the proactive clear — the API will 401 when they expire.
+          const MAX_TIMEOUT_MS = 2_147_483_647;
+          if (delay > MAX_TIMEOUT_MS) return;
           const timeout = setTimeout(() => {
             secureLogger.info('jwt token expired, clearing');
             storageManager.removeItem('nocobase_token');
             setToken(null);
             window.dispatchEvent(new Event('auth-error'));
-          }, expireMs - now);
+          }, delay);
           return () => clearTimeout(timeout);
         }
       }
