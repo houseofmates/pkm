@@ -1,2 +1,2 @@
-// placeholder for progress component
-export {}
+import React from 'react'
+export const Progress = (props: any) => <div {...props} />
