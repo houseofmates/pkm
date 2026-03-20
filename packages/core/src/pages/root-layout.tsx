@@ -69,7 +69,7 @@ export function RootLayout() {
 
   // map initial path to tab to ensure sidebar highlights correctly on reload
   const getInitialTab = () => {
-    const path = window.location.pathname;
+    const path = (typeof window !== 'undefined' && window.location && typeof window.location.pathname === 'string') ? window.location.pathname : '';
     if (path.startsWith('/databases')) return 'databases';
     if (path.startsWith('/headmates')) return 'headmates';
     if (path.startsWith('/captures')) return 'captures';
