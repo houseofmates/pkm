@@ -1,7 +1,7 @@
 import React from 'react'
 import { Card, CardContent, CardHeader } from '../ui/card'
 import { Badge } from '../ui/badge'
-import { Heart, Zap } from 'lucide-react'
+// import { Heart, Zap } from 'lucide-react'
 import { useGamificationStore } from '../../stores/gamification-store'
 // import Link from 'next/link'
 const Link: React.FC<{ className?: string; children: React.ReactNode }> = ({ className = '', children }) => {
@@ -22,7 +22,7 @@ const PetStatusWidget: React.FC<{ className?: string }> = ({ className = '' }) =
 
   return (
     <Card className={`w-full max-w-sm h-32 cursor-pointer hover:scale-105 hover:shadow-2xl border-emerald-800/50 glass-effect backdrop-blur-md ${className}`}>
-      <Link href="/journal" className="h-full p-4">
+      <Link className="h-full p-4">
         <CardHeader className="p-0 pb-3">
           <div className="flex items-center gap-2 mb-1">
             <div className="text-lg font-bold">pet garden</div>
