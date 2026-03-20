@@ -23,11 +23,9 @@ describe('activity-sync', () => {
   })
 
   it('syncs logs to server', async () => {
-    // debug: log type of setItem
-    // eslint-disable-next-line no-console
-    console.log('test: localStorage.setItem type ->', typeof (global as any).localStorage.setItem)
-    ;(global as any).localStorage.setItem('pkm_activities', JSON.stringify([{ id: '1', name: 'walk' }]))
-    ;(global as any).localStorage.setItem('pkm_activity_logs', JSON.stringify([{ id: 'l1', activityId: '1', note: 'ok', rating: 4, createdAt: new Date().toISOString() }]))
+    // set localStorage contents directly via the underlying store (safer in test env)
+    ;(global as any).__localStorageStore.set('pkm_activities', JSON.stringify([{ id: '1', name: 'walk' }]))
+    ;(global as any).__localStorageStore.set('pkm_activity_logs', JSON.stringify([{ id: 'l1', activityId: '1', note: 'ok', rating: 4, createdAt: new Date().toISOString() }]))
 
     // findOrCreateActivity -> returns server id
     (global.fetch as any)
