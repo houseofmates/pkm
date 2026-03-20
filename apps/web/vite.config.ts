@@ -8,6 +8,12 @@ export default defineConfig({
   plugins: [
     react(),
   ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, '../packages/core/src'),
+      '@core-ui': path.resolve(__dirname, '../packages/core/src/components/ui'),
+    },
+  },
   server: {
     host: true,
     port: 3010,
