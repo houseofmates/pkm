@@ -320,8 +320,6 @@ const Journal: React.FC = () => {
 }
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
-
-export default Journal
     setEntry((prev: JournalEntry) => ({
       ...prev,
       emotions: prev.emotions.includes(emotion)
