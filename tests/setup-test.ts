@@ -13,12 +13,15 @@ try {
   if (!(globalThis as any).__TEST_QUERY_CLIENT__) {
     (globalThis as any).__TEST_QUERY_CLIENT__ = new rq.QueryClient();
   }
-  vi.mock('@tanstack/react-query', async () => {
-    const actual = await vi.importActual<any>('@tanstack/react-query');
+  // provide a broad stub for react-query to avoid needing a real provider in tests
+  vi.mock('@tanstack/react-query', () => {
+    const QueryClient = class {};
     return {
-      ...actual,
-      useQueryClient: () => (globalThis as any).__TEST_QUERY_CLIENT__,
+      QueryClient,
       QueryClientProvider: ({ children }: any) => children,
+      useQueryClient: () => (globalThis as any).__TEST_QUERY_CLIENT__,
+      useQuery: (_opts: any) => ({ data: undefined, isLoading: false, error: null, refetch: async () => {} }),
+      useMutation: (_opts: any) => ({ mutate: () => {}, isLoading: false }),
     };
   });
 } catch (e) {
