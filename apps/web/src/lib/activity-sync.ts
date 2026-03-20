@@ -113,12 +113,12 @@ export async function syncAllLocalLogs() {
     activities.forEach((a: any) => nameById[a.id] = a.name)
 
     let pushed = 0
-    for (const l of logs) {
-      const localName = nameById[l.activityId] || l.activityId || 'other'
-      const serverActivityId = await findOrCreateActivity(localName)
-      if (!serverActivityId) continue
-      const created = await createActivityLog({ activityId: serverActivityId, note: l.note, rating: l.rating, createdAt: l.createdAt })
-      if (created) pushed++
+      for (const l of logs) {
+        const localName = nameById[l.activityId] || l.activityId || 'other'
+        const serverActivityId = await findOrCreateActivity(localName)
+        if (!serverActivityId) continue
+        const created = await createActivityLog({ activityId: serverActivityId, note: l.note, rating: l.rating, createdAt: l.createdAt })
+        if (created) pushed++
     }
     return { pushed }
   } catch (e) {
