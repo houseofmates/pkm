@@ -59,9 +59,13 @@ const LogBlock: React.FC<LogBlockProps> = ({ onSave }) => {
             try { const arr = JSON.parse(raw); const found = arr.find((a: any) => a.id === activity); return found?.name || activity }
             catch { return activity }
           })()
-          const serverActivityId = await findOrCreateActivity(activityName || 'other')
+          const serverActivityId = await findOrCreateActivity(activityName || 'other', activity || undefined)
           if (!serverActivityId) return
-          await createActivityLog({ activityId: serverActivityId, note: note, rating, createdAt: payload.createdAt })
+          const created = await createActivityLog({ activityId: serverActivityId, note: note, rating, createdAt: payload.createdAt, localLogId: payload.id })
+          if (created) {
+            // small success toast
+            try { const { toast } = await import('sonner'); toast?.success('log synced') } catch {}
+          }
         } catch (e) {
           // ignore failures; logs remain in localStorage
           console.warn('immediate server sync failed', e)

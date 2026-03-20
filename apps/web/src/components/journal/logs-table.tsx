@@ -26,6 +26,8 @@ function loadLogs(): LogItem[] {
 const LogsTable: React.FC = () => {
   const [logs, setLogs] = useState<LogItem[]>([])
   const [syncing, setSyncing] = useState(false)
+  const [activityServerMap, setActivityServerMap] = useState<Record<string,string>>({})
+  const [logServerMap, setLogServerMap] = useState<Record<string,string>>({})
 
   const refresh = useCallback(() => {
     setLogs(loadLogs())
@@ -33,6 +35,13 @@ const LogsTable: React.FC = () => {
 
   useEffect(() => {
     refresh()
+    // load server maps
+    try {
+      const m = JSON.parse(localStorage.getItem('pkm_activity_server_map') || '{}')
+      setActivityServerMap(m.byName || m)
+      const lm = JSON.parse(localStorage.getItem('pkm_activity_log_server_map') || '{}')
+      setLogServerMap(lm)
+    } catch {}
     const onSaved = () => refresh()
     window.addEventListener('pkm:activity-log-saved', onSaved as EventListener)
     const onStorage = (e: StorageEvent) => {
@@ -49,6 +58,26 @@ const LogsTable: React.FC = () => {
     const next = logs.filter(l => l.id !== id)
     localStorage.setItem('pkm_activity_logs', JSON.stringify(next))
     setLogs(next)
+  }
+
+  const handleSyncOne = async (l: LogItem) => {
+    try {
+      const activitiesRaw = localStorage.getItem('pkm_activities')
+      const activities = activitiesRaw ? JSON.parse(activitiesRaw) : []
+      const localName = activities.find((a: any) => a.id === l.activityId)?.name || l.activityId || 'other'
+      const sid = await (await import('../../lib/activity-sync')).findOrCreateActivity(localName, l.activityId)
+      if (!sid) { toast.error('failed to find/create activity'); return }
+      const created = await (await import('../../lib/activity-sync')).createActivityLog({ activityId: sid, note: l.note, rating: l.rating, createdAt: l.createdAt, localLogId: l.id })
+      if (created) {
+        toast.success('log synced')
+        const lm = JSON.parse(localStorage.getItem('pkm_activity_log_server_map') || '{}')
+        setLogServerMap(lm)
+        const m = JSON.parse(localStorage.getItem('pkm_activity_server_map') || '{}')
+        setActivityServerMap(m.byName || m)
+      } else {
+        toast.error('sync failed')
+      }
+    } catch (e) { console.error(e); toast.error('sync failed') }
   }
 
   const handleSync = async () => {
@@ -100,12 +129,18 @@ const LogsTable: React.FC = () => {
           {logs.map(l => (
             <div key={l.id} className="flex items-center justify-between p-3">
               <div>
-                <div className="text-sm text-slate-200">{l.activityId}</div>
+                <div className="text-sm text-slate-200">
+                  {l.activityId}{activityServerMap[l.activityId] ? ` • server:${activityServerMap[l.activityId]}` : ''}
+                </div>
                 <div className="text-xs text-slate-400 truncate">{l.note}</div>
               </div>
               <div className="flex items-center gap-2">
                 <div className="text-xs text-emerald-400">{l.rating ? `⭐ ${l.rating}` : ''}</div>
                 <div className="text-xs text-slate-500">{new Date(l.createdAt).toLocaleString()}</div>
+                {logServerMap[l.id]
+                  ? <div className="text-xs text-slate-400">synced</div>
+                  : <Button variant="ghost" size="sm" onClick={() => handleSyncOne(l)}>sync</Button>
+                }
                 <Button variant="ghost" size="sm" onClick={() => handleDelete(l.id)}>delete</Button>
               </div>
             </div>
