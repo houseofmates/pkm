@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { Card, CardHeader, CardContent, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
@@ -13,93 +13,107 @@ import {
   ResponsiveContainer
 } from 'recharts'
 
-// muscle groups with svg positions
-const MUSCLES = [
-  { id: 'chest', name: 'chest', emoji: '💪', level: 1, workedToday: false, color: '#ec4899' },
-  { id: 'back', name: 'back', emoji: '🦍', level: 1, workedToday: false, color: '#10b981' },
-  { id: 'arms', name: 'arms', emoji: '🤌', level: 1, workedToday: false, color: '#3b82f6' },
-  { id: 'legs', name: 'legs', emoji: '🏃', level: 1, workedToday: false, color: '#f59e0b' },
-  { id: 'core', name: 'core', emoji: '🌀', level: 1, workedToday: false, color: '#8b5cf6' }
+// muscle rows for oral-b style grid (5 rows x 5 exercises)
+const MUSCLE_ROWS = [
+  { row: 0, muscles: ['chest-upper', 'chest-mid', 'chest-lower', 'shoulders', 'traps'], name: 'upper body', bonus: false },
+  { row: 1, muscles: ['back-wide', 'back-mid', 'back-lower', 'lats', 'rear-delts'], name: 'back day', bonus: false },
+  { row: 2, muscles: ['biceps', 'triceps', 'forearms', 'grip', 'wrists'], name: 'arms', bonus: false },
+  { row: 3, muscles: ['quads', 'hamstrings', 'calves', 'glutes', 'hips'], name: 'legs', bonus: false },
+  { row: 4, muscles: ['abs-upper', 'abs-mid', 'abs-lower', 'obliques', 'core-stability'], name: 'core', bonus: false }
 ]
 
-const EXERCISES = [
-  'bench press', 'deadlift', 'squat', 'pullup', 'plank', 'lunges'
-  // etc
-]
+const ExerciseTracker: React.FC = () => {
+  const [workedMuscles, setWorkedMuscles] = useState<Record<string, boolean>>({})
+  const [weeklyData] = useState([{ day: 'mon', minutes: 45 }, { day: 'tue', minutes: 60 }, { day: 'wed', minutes: 30 }])
+  const { earnXp, completeQuest } = useGamificationStore()
 
-interface ExerciseTrackerProps {}
+  const toggleMuscle = useCallback((muscleId: string) => {
+    setWorkedMuscles(prev => {
+      const isWorked = !prev[muscleId]
+      const newWorked = { ...prev, [muscleId]: isWorked }
+      if (isWorked) {
+        earnXp(15, `worked ${muscleId}`)
+        // check row bonus
+        MUSCLE_ROWS.forEach(row => {
+          const rowComplete = row.muscles.every(m => newWorked[m])
+          if (rowComplete) {
+            completeQuest(`muscle-row-${row.row}`)
+            earnXp(50, `row ${row.row} bonus`)
+          }
+        })
+      }
+      return newWorked
+    })
+  }, [earnXp, completeQuest])
 
-const ExerciseTracker: React.FC<ExerciseTrackerProps> = () => {
-  const [workedMuscles, setWorkedMuscles] = useState<Set<string>>(new Set())
-  const { earnXp } = useGamificationStore()
-  const [weeklyData] = useState([])
-
-  const toggleMuscle = (muscleId: string) => {
-    const newSet = new Set(workedMuscles)
-    if (newSet.has(muscleId)) {
-      newSet.delete(muscleId)
-    } else {
-      newSet.add(muscleId)
-      earnXp(15, `worked ${muscleId}`)
-    }
-    setWorkedMuscles(newSet)
-  }
-
-  const logExercise = (exercise: string) => {
-    // logic to map to muscles
-    earnXp(10, `exercise ${exercise}`)
-  }
+  const rowProgress = MUSCLE_ROWS.map(row => ({
+    row: row.name,
+    complete: row.muscles.every(m => workedMuscles[m]),
+    count: row.muscles.filter(m => workedMuscles[m]).length,
+    total: row.muscles.length
+  }))
 
   return (
     <div className="space-y-6">
-      {/* body heatmap svg */}
-      <Card>
-        <CardHeader>
-          <CardTitle>body heatmap</CardTitle>
-        </CardHeader>
-        <CardContent className="p-8 relative">
-          <svg viewBox="0 0 200 400" className="w-full h-96 mx-auto" fill="none">
-            {/* simplified body */}
-            <path d="m100 20 q20 50 30 80" stroke="#374151" strokeWidth="20" fill="none" onClick={() => toggleMuscle('chest')} className={workedMuscles.has('chest') ? 'fill-red-500 cursor-pointer opacity-75' : 'fill-transparent cursor-pointer hover:fill-orange-500/50'} />
-            <path d="m100 120 q-20 60 -30 90" stroke="#374151" strokeWidth="18" fill="none" onClick={() => toggleMuscle('back')} className={workedMuscles.has('back') ? 'fill-emerald-500 cursor-pointer opacity-75' : 'fill-transparent cursor-pointer hover:fill-emerald-500/50'} />
-            <path d="m70 220 l0 100 m60 0 l0 -100" stroke="#374151" strokeWidth="25" fill="none" onClick={() => toggleMuscle('legs')} className={workedMuscles.has('legs') ? 'fill-amber-500 cursor-pointer opacity-75' : 'fill-transparent cursor-pointer hover:fill-amber-500/50'} />
-            {/* arms, core etc */}
-          </svg>
-        </CardContent>
-      </Card>
+      {/* oral-b style muscle grids */}
+      <div className="space-y-4">
+        {MUSCLE_ROWS.map(row => (
+          <Card key={row.row}>
+            <CardHeader className="flex items-center justify-between">
+              <CardTitle>{row.name}</CardTitle>
+              <Badge variant={row.bonus ? 'default' : 'secondary'}>
+                {rowProgress[row.row]?.count}/{row.total} {row.bonus ? '+50xp bonus!' : ''}
+              </Badge>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-5 gap-2">
+                {row.muscles.map(muscle => (
+                  <Button
+                    key={muscle}
+                    variant={workedMuscles[muscle] ? 'default' : 'outline'}
+                    onClick={() => toggleMuscle(muscle)}
+                    className={`h-20 p-2 transition-all ${workedMuscles[muscle] ? 'animate-pulse shadow-lg shadow-emerald-500/25' : 'hover:shadow-md hover:shadow-orange-500/25'}`}
+                  >
+                    <div className="text-xs font-bold line-clamp-2">{muscle.replace('-', ' ').toLowerCase()}</div>
+                  </Button>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
 
-      {/* muscle levels */}
+      {/* muscle mastery levels */}
       <Card>
         <CardHeader>
-          <CardTitle>muscle mastery</CardTitle>
+          <CardTitle>muscle mastery levels</CardTitle>
         </CardHeader>
-        <CardContent className="grid grid-cols-5 gap-4">
-          {MUSCLES.map(m => (
-            <div key={m.id} className="text-center">
-              <div className="text-2xl mb-1">{m.emoji}</div>
-              <div className="font-bold">{m.name}</div>
-              <Badge variant="secondary">level {m.level}</Badge>
-              <div className="text-xs text-slate-400">worked {workedMuscles.has(m.id) ? 'today' : 'yesterday'}</div>
+        <CardContent className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {['chest', 'back', 'arms', 'legs', 'core'].map(group => (
+            <div key={group} className="text-center">
+              <div className="text-2xl mb-2">{group.toUpperCase()}</div>
+              <Badge className="mb-2">level 3</Badge>
+              <Progress value={75} className="h-2" />
             </div>
           ))}
         </CardContent>
       </Card>
 
-      {/* exercise log */}
+      {/* quick exercises */}
       <Card>
         <CardHeader>
-          <CardTitle>log exercise</CardTitle>
+          <CardTitle>quick exercises</CardTitle>
         </CardHeader>
         <CardContent className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {EXERCISES.slice(0,6).map(ex => (
-            <Button key={ex} variant="outline" onClick={() => logExercise(ex)} className="h-12">
+          {['bench', 'squat', 'deadlift', 'pullup', 'plank', 'lunges'].map(ex => (
+            <Button key={ex} variant="outline" onClick={() => earnXp(10, `${ex} session`)} className="h-12 capitalize">
               {ex}
             </Button>
           ))}
         </CardContent>
       </Card>
 
-      {/* weekly chart */}
+      {/* weekly progress */}
       <Card>
         <CardHeader>
           <CardTitle>weekly volume</CardTitle>
@@ -107,11 +121,11 @@ const ExerciseTracker: React.FC<ExerciseTrackerProps> = () => {
         <CardContent>
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={weeklyData}>
-              <CartesianGrid strokeDasharray="3 3" />
+              <CartesianGrid strokeDasharray="3 3" stroke="#374151" />
               <XAxis dataKey="day" />
               <YAxis />
               <Tooltip />
-              <Bar dataKey="minutes" fill="#8884d8" />
+              <Bar dataKey="minutes" fill="#10b981" />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>
