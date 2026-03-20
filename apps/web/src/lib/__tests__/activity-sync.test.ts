@@ -19,7 +19,7 @@ describe('activity-sync', () => {
     const id = await findOrCreateActivity('walk')
     expect(id).toBe('srv-1')
     const map = JSON.parse(localStorage.getItem('pkm_activity_server_map') || '{}')
-    expect(map['walk']).toBe('srv-1')
+    expect(map.byName?.walk || map['walk']).toBe('srv-1')
   })
 
   it('syncs logs to server', async () => {

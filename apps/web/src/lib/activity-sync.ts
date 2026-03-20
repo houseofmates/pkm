@@ -115,9 +115,9 @@ export async function syncAllLocalLogs() {
     let pushed = 0
       for (const l of logs) {
         const localName = nameById[l.activityId] || l.activityId || 'other'
-        const serverActivityId = await findOrCreateActivity(localName)
+        const serverActivityId = await findOrCreateActivity(localName, l.activityId)
         if (!serverActivityId) continue
-        const created = await createActivityLog({ activityId: serverActivityId, note: l.note, rating: l.rating, createdAt: l.createdAt })
+        const created = await createActivityLog({ activityId: serverActivityId, note: l.note, rating: l.rating, createdAt: l.createdAt, localLogId: l.id })
         if (created) pushed++
     }
     return { pushed }
