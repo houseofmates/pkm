@@ -48,10 +48,7 @@ const Journal: React.FC = () => {
 
   // persist entries
 
-  // charts data
-  const moodData: { date: string; mood: number }[] = [{ date: '2024-01-01', mood: 5 }, { date: '2024-01-02', mood: 4 }]
   const emotionData = [{ name: 'joy', value: 40 }, { name: 'sadness', value: 30 }]
-  const activityData: { name: string; value: number }[] = [{ name: 'walk', value: 10 }, { name: 'read', value: 5 }]
 
   // save entry
   const handleSave = useCallback(() => {
@@ -68,8 +65,6 @@ const Journal: React.FC = () => {
     resetDaily()
   }, [])
 
-  // level badge
-  const badgeIndex = Math.min(level - 1, 24)
   const levelBadge = '🌱'
 
   return (
