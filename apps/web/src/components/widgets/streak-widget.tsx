@@ -1,8 +1,8 @@
 import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
-import { Badge } from '../../ui/badge'
-import { Progress } from '../../ui/progress'
-import { Flame, ChevronRight, Zap } from 'lucide-react'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
+import { Flame } from 'lucide-react'
 import { useGamificationStore } from '../../stores/gamification-store'
 // import Link from 'next/link'
 const Link: React.FC<{ href: string; className?: string; children: React.ReactNode }> = ({ href, className = '', children }) => {
@@ -52,7 +52,7 @@ const StreakWidget: React.FC<{ className?: string }> = ({ className = '' }) => {
               ))}
             </div>
           )}
-        </div>
+        </CardContent>
       </Link>
     </Card>
   )
