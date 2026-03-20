@@ -20,7 +20,6 @@ import { useGamificationStore } from '../../stores/gamification-store'
 
 // ollama client stub (per context src/api/ollama-client.ts pattern)
 const OLLAMA_URL = 'http://192.168.4.233:11434/api/generate'
-const WHISPER_MODEL = 'whisper-small' // local download
 
 const VoiceInput: React.FC<{ onTranscribe: (text: string) => void }> = ({ onTranscribe }) => {
   const [isListening, setIsListening] = useState(false)

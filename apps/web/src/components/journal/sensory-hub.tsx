@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
-import { Volume2, RotateCcw, Play, Pause, Circle } from 'lucide-react'
+import { Volume2, Play, Pause, Circle } from 'lucide-react'
 import { useGamificationStore } from '../../stores/gamification-store'
 
 // breathing animation data
@@ -27,7 +27,7 @@ const SensoryHub: React.FC = () => {
   const [activeNoise, setActiveNoise] = useState('')
   const [fidgetSpins, setFidgetSpins] = useState(0)
   const [calmStreak, setCalmStreak] = useState(0)
-  const { earnXp, currentStreak } = useGamificationStore()
+  const { earnXp } = useGamificationStore()
 
   // breathing cycle
   useEffect(() => {
