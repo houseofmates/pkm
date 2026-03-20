@@ -15,13 +15,16 @@ try {
   }
   // provide a broad stub for react-query to avoid needing a real provider in tests
   vi.mock('@tanstack/react-query', () => {
-    const QueryClient = class {};
+    const RealQueryClient = (globalThis as any).__TEST_QUERY_CLIENT__;
     return {
-      QueryClient,
+      QueryClient: RealQueryClient?.constructor || class {},
       QueryClientProvider: ({ children }: any) => children,
-      useQueryClient: () => (globalThis as any).__TEST_QUERY_CLIENT__,
+      useQueryClient: () => RealQueryClient,
       useQuery: (_opts: any) => ({ data: undefined, isLoading: false, error: null, refetch: async () => {} }),
       useMutation: (_opts: any) => ({ mutate: () => {}, isLoading: false }),
+      // helpers sometimes imported from react-query
+      useIsFetching: () => 0,
+      useIsMutating: () => 0,
     };
   });
 } catch (e) {
@@ -33,11 +36,29 @@ if (typeof (global as any).importMeta === 'undefined') {
   (global as any).importMeta = { env: {} };
 }
 if (!(import.meta as any).env) (import.meta as any).env = {};
+// provide common env defaults used in app code
+Object.assign((import.meta as any).env, {
+  VITE_ENABLE_HEALTH_BAR: (import.meta as any).env.VITE_ENABLE_HEALTH_BAR ?? 'false',
+  VITE_APP_VERSION: (import.meta as any).env.VITE_APP_VERSION ?? '0.0.0',
+  VITE_NOCOBASE_URL: (import.meta as any).env.VITE_NOCOBASE_URL ?? 'http://localhost:1337',
+});
 if (typeof (global as any).process === 'undefined') (global as any).process = { env: {} };
 
 // ensure window.fetch exists in test environment if needed by some modules
 if (typeof (globalThis as any).fetch === 'undefined') {
   (globalThis as any).fetch = () => Promise.resolve({ ok: true, text: async () => '{}' });
+}
+
+// ensure window.location.pathname exists to avoid startsWith errors
+try {
+  if (typeof window !== 'undefined' && window && typeof window.location !== 'undefined') {
+    // set a safe default pathname if missing
+    if (!window.location.pathname) {
+      history.pushState('', '', '/');
+    }
+  }
+} catch (e) {
+  // ignore in restricted environments
 }
 
 // mock resizeobserver
