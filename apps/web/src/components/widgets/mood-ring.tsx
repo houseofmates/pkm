@@ -7,7 +7,8 @@ import { ChevronRight } from 'lucide-react'
 const Link: React.FC<{ href: string; className?: string; children: React.ReactNode }> = ({ href, className = '', children }) => (
   <div className={className} onClick={() => window.location.href = href} style={{ cursor: 'pointer' }}>
     {children}
-  )
+  </div>
+)
 
 interface Mood {
   id: string
