@@ -1,11 +1,19 @@
 const { execSync } = require('child_process')
 
-console.log('creating activity collections on nocobase port 8091...')
+const NOCO_BASE = process.env.NOCOBASE_URL || process.env.NEWB_OK || process.env.NOCOMBASE || process.env.NOC OBASE || process.env.NOC OBASE || process.env.NOCOBASE || process.env.NOCOBASE_URL || 'http://localhost:4100/api'
+const ADMIN_API_KEY = process.env.ADMIN_API_KEY || process.env.NOCOBASE_API_KEY || process.env.AUTH || ''
+
+const base = (NOCO_BASE || 'http://localhost:4100/api').replace(/\/$/, '')
+
+console.log('creating activity collections via', base)
+
+const headers = ADMIN_API_KEY ? `-H "Authorization: ${ADMIN_API_KEY.startsWith('Bearer') ? ADMIN_API_KEY : 'Bearer ' + ADMIN_API_KEY}"` : ''
 
 // activities collection
 execSync(`
-curl -sS -X POST http://localhost:8091/api/v1/meta/collections \
+curl -sS -X POST ${base}/meta/collections \
   -H "Content-Type: application/json" \
+  ${headers} \
   -d '{
     "collectionName": "activities",
     "fields": [
@@ -22,8 +30,9 @@ curl -sS -X POST http://localhost:8091/api/v1/meta/collections \
 
 // activity_logs collection
 execSync(`
-curl -sS -X POST http://localhost:8091/api/v1/meta/collections \
+curl -sS -X POST ${base}/meta/collections \
   -H "Content-Type: application/json" \
+  ${headers} \
   -d '{
     "collectionName": "activity_logs",
     "fields": [
