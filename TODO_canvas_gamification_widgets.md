@@ -1,5 +1,5 @@
 # canvas gamification widgets todo
-status: 0/100%
+status: 25/100%
 
 ## phase 1: journal ts fixes (immediate) ✓
 - [x] apps/web/src/components/journal/journal.tsx: cell import, sensory/fixation imports, toggleemotion/activity defs
