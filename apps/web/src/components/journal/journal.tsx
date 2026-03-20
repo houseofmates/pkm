@@ -10,6 +10,8 @@ import ExerciseTracker from './exercise-tracker'
 import FinancialHub from './financial-hub'
 import GamifiedPets from './gamified-pets'
 import VoiceInput from './voice-input'
+import SensoryHub from './sensory-hub'
+import FixationTrap from './fixation-trap'
 import { useGamificationStore } from '../../stores/gamification-store'
 // import { useAppSetting } from '../../hooks/use-app-setting' // will create hook later
 const [entries, setEntries] = useState<JournalEntry[]>([])
@@ -265,12 +267,10 @@ const [entries, setEntries] = useState<JournalEntry[]>([])
         </TabsContent>
 
         <TabsContent value="sensory">
-          import SensoryHub from './sensory-hub'
           <SensoryHub />
         </TabsContent>
 
         <TabsContent value="fixations">
-          import FixationTrap from './fixation-trap'
           <FixationTrap />
         </TabsContent>
 
@@ -310,22 +310,23 @@ const [entries, setEntries] = useState<JournalEntry[]>([])
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
 
-  const toggleEmotion = React.useCallback((emotion: string) => {
-  setEntry(prev => ({
-    ...prev,
-    emotions: prev.emotions.includes(emotion) 
-      ? prev.emotions.filter(e => e !== emotion)
-      : [...prev.emotions, emotion]
-  }))
-}, [])
-  const toggleActivity = React.useCallback((activity: string) => {
-  setEntry(prev => ({
-    ...prev,
-    activities: prev.activities.includes(activity)
-      ? prev.activities.filter(a => a !== activity)
-      : [...prev.activities, activity]
-  }))
-}, [])
+  const toggleEmotion = useCallback((emotion: string) => {
+    setEntry(prev => ({
+      ...prev,
+      emotions: prev.emotions.includes(emotion) 
+        ? prev.emotions.filter((e: string) => e !== emotion)
+        : [...prev.emotions, emotion]
+    }))
+  }, [setEntry])
+
+  const toggleActivity = useCallback((activity: string) => {
+    setEntry(prev => ({
+      ...prev,
+      activities: prev.activities.includes(activity)
+        ? prev.activities.filter((a: string) => a !== activity)
+        : [...prev.activities, activity]
+    }))
+  }, [setEntry])
 
 export default Journal
 

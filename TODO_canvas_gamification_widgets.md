@@ -1,10 +1,10 @@
 # canvas gamification widgets todo
 status: 0/100%
 
-## phase 1: journal ts fixes (immediate)
-- [ ] apps/web/src/components/journal/journal.tsx: cell import, sensory/fixation imports, toggleemotion/activity defs
-- [ ] apps/web/src/components/journal/fixation-trap.tsx, sensory-hub.tsx: fix '@/components/ui/*' imports
-- [ ] npm run lint --fix && test no ts errors
+## phase 1: journal ts fixes (immediate) ✓
+- [x] apps/web/src/components/journal/journal.tsx: cell import, sensory/fixation imports, toggleemotion/activity defs
+- [x] apps/web/src/components/journal/fixation-trap.tsx, sensory-hub.tsx: fix '@/components/ui/*' imports
+- [x] npm run lint --fix && test no ts errors
 
 ## phase 2: widgets dir (5 gamification widgets)
 - [ ] streak-widget.tsx (flame badge + streak/xp/row%)
