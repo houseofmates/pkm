@@ -63,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return stored ? normalizeAuthToken(stored) : null;
   });
 
-  // proactively clear and warn when the JWT expires. a later 401 would
+// proactively clear and warn when jwt expires. later 401 would
   // accomplish the same thing, but that typically happens after the user
   // has already been kicked out and confused; better to do it ourselves so
   // the app can immediately flip to login and we can show a toast.
@@ -112,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const handleAuthError = () => {
       // token already cleared by api-client; just update react state
       setToken(null);
-      // reliance on react state reset is smoother than reload
+// reliance on react state reset smoother than reload
     };
     window.addEventListener('auth-error', handleAuthError);
 
@@ -129,8 +129,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = (newToken: string) => {
     const normalized = normalizeAuthToken(newToken);
     secureLogger.info('AuthProvider.login called');
-    storageManager.setItem('nocobase_token', normalized);
+    
+    // set react state first to trigger immediate client re-init
     setToken(normalized);
+    storageManager.setItem('nocobase_token', normalized);
 
     // sync to electron
     const electron = (window as any).electron;
@@ -138,14 +140,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       electron.syncState({ token: normalized });
     }
 
-    // ensure backend collection exists after login
-    setTimeout(async () => {
-      try {
-        await client.ensureBackendCollection();
-      } catch (error) {
-        secureLogger.warn('Failed to ensure backend collection:', error);
-      }
-    }, 1000); // Delay to allow login to complete
+    // ensure backend collection exists immediately (storage sync)
+    client.ensureBackendCollection().catch(error => {
+      secureLogger.warn('failed to ensure backend collection:', error);
+    });
   };
 
   const logout = () => {
