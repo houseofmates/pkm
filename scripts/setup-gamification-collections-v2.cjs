@@ -1,43 +1,60 @@
 const { execSync } = require('child_process')
 
-console.log('setting up gamification nocobase collections on port 8091...')
+console.log('setting up enhanced gamification nocobase collections v2 on port 8091...')
 
-// gamification_daily
+// daily_goals
 execSync(`
 curl -X POST http://localhost:8091/api/v1/meta/collections \\
   -H "Content-Type: application/json" \\
   -d '{
-    "collectionName": "gamification_daily",
+    "collectionName": "daily_goals",
     "fields": [
       {"type": "uid", "name": "id"},
       {"type": "string", "name": "date"},
-      {"type": "bigInt", "name": "streak"},
+      {"type": "json", "name": "goals"},
+      {"type": "boolean", "name": "completed"},
       {"type": "bigInt", "name": "xp_earned"},
-      {"type": "json", "name": "mood"},
-      {"type": "json", "name": "row_progress"},
-      {"type": "json", "name": "pet_hunger"},
       {"type": "pointer", "name": "user", "target": "users"}
     ],
     "titleField": "date"
   }'
 `, { stdio: 'inherit' })
 
-// widget_config
+// reflection_sessions
 execSync(`
 curl -X POST http://localhost:8091/api/v1/meta/collections \\
   -H "Content-Type: application/json" \\
   -d '{
-    "collectionName": "widget_config",
+    "collectionName": "reflection_sessions",
     "fields": [
       {"type": "uid", "name": "id"},
-      {"type": "string", "name": "widget_type"},
-      {"type": "json", "name": "position"},
-      {"type": "string", "name": "size"},
-      {"type": "json", "name": "config"},
-      {"type": "pointer", "name": "user", "target": "users"},
-      {"type": "pointer", "name": "canvas", "target": "drawings"}
+      {"type": "string", "name": "date"},
+      {"type": "number", "name": "duration_min"},
+      {"type": "string", "name": "prompt"},
+      {"type": "string", "name": "note"},
+      {"type": "bigInt", "name": "xp_earned"},
+      {"type": "pointer", "name": "user", "target": "users"}
+    ],
+    "titleField": "date"
+  }'
+`, { stdio: 'inherit' })
+
+// custom_fixations (user obsessions → quests)
+execSync(`
+curl -X POST http://localhost:8091/api/v1/meta/collections \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "collectionName": "custom_fixations",
+    "fields": [
+      {"type": "uid", "name": "id"},
+      {"type": "string", "name": "name"},
+      {"type": "string", "name": "description"},
+      {"type": "string", "name": "quest_type"},
+      {"type": "number", "name": "xp_reward"},
+      {"type": "boolean", "name": "active"},
+      {"type": "pointer", "name": "user", "target": "users"}
     ]
   }'
 `, { stdio: 'inherit' })
 
-console.log('gamification collections created on 8091')
+console.log('enhanced gamification collections v2 created: daily_goals, reflection_sessions, custom_fixations')
