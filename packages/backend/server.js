@@ -1292,3 +1292,130 @@ app.get('/api/ai/models', async (req, res) => {
     res.status(502).json({ error: 'could not reach ollama', details: err.message });
   }
 });
+
+// ── activity logger routes ────────────────────────────────────
+
+// log activity endpoint
+app.post('/api/activities/log', requireAuth, async (req, res) => {
+  const { activity_id, activity_name, values, notes } = req.body;
+  
+  if (!activity_id || !activity_name) {
+    return res.status(400).json({ error: 'activity_id and activity_name required' });
+  }
+
+  const now = new Date();
+  const timestamp = now.toISOString();
+  const date = now.toISOString().split('T')[0];
+
+  try {
+    const base = process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api';
+    const client = axios.create({
+      baseURL: base.replace(/\/$/, ''),
+      headers: {
+        'Authorization': req.headers.authorization,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    const logPayload = {
+      activity_id,
+      activity_name,
+      timestamp,
+      date,
+      values: values || {},
+      notes: notes || ''
+    };
+
+    await client.post('/activity_logs:create', logPayload);
+
+    const streakRes = await client.get(`/streaks:list?filter[activity_id]=${activity_id}`);
+    let streak = streakRes.data?.data?.[0];
+    const yesterday = new Date(now);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    if (!streak) {
+      await client.post('/streaks:create', {
+        activity_id,
+        activity_name,
+        current_streak: 1,
+        longest_streak: 1,
+        last_log_date: date
+      });
+      
+      res.json({ logged: true, streak: 1, new_record: true });
+    } else {
+      let newStreak = streak.current_streak;
+      
+      if (streak.last_log_date === date) {
+        res.json({ logged: true, streak: newStreak, already_logged_today: true });
+        return;
+      } else if (streak.last_log_date === yesterdayStr) {
+        newStreak += 1;
+      } else {
+        newStreak = 1;
+      }
+
+      const longestStreak = Math.max(newStreak, streak.longest_streak);
+
+      await client.post(`/streaks:update?filterByTk=${streak.id}`, {
+        current_streak: newStreak,
+        longest_streak: longestStreak,
+        last_log_date: date
+      });
+
+      res.json({ 
+        logged: true, 
+        streak: newStreak, 
+        longest: longestStreak,
+        streak_increased: newStreak > streak.current_streak
+      });
+    }
+  } catch (err) {
+    console.error('[ActivityLog] error:', err.response?.data || err.message);
+    res.status(500).json({ error: 'failed to log activity' });
+  }
+});
+
+// get streaks for all activities
+app.get('/api/activities/streaks', requireAuth, async (req, res) => {
+  try {
+    const base = process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api';
+    const client = axios.create({
+      baseURL: base.replace(/\/$/, ''),
+      headers: { 'Authorization': req.headers.authorization }
+    });
+    const streakRes = await client.get('/streaks:list?pageSize=100');
+    res.json(streakRes.data?.data || []);
+  } catch (err) {
+    console.error('[ActivityStreaks] error:', err.response?.data || err.message);
+    res.status(500).json({ error: 'failed to fetch streaks' });
+  }
+});
+
+// get activity history
+app.get('/api/activities/history', requireAuth, async (req, res) => {
+  const { activity_id, days = 30 } = req.query;
+  
+  try {
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - parseInt(days));
+    const cutoffStr = cutoff.toISOString().split('T')[0];
+
+    let filter = `filter[date][$gte]=${cutoffStr}`;
+    if (activity_id) {
+      filter += `&filter[activity_id]=${activity_id}`;
+    }
+
+    const base = process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api';
+    const client = axios.create({
+      baseURL: base.replace(/\/$/, ''),
+      headers: { 'Authorization': req.headers.authorization }
+    });
+    const logsRes = await client.get(`/activity_logs:list?${filter}&sort=-timestamp&pageSize=500`);
+    res.json(logsRes.data?.data || []);
+  } catch (err) {
+    console.error('[ActivityHistory] error:', err.response?.data || err.message);
+    res.status(500).json({ error: 'failed to fetch history' });
+  }
+});
