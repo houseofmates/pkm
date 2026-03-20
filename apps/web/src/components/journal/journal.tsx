@@ -320,22 +320,5 @@ const Journal: React.FC = () => {
 }
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
-    setEntry((prev: JournalEntry) => ({
-      ...prev,
-      emotions: prev.emotions.includes(emotion)
-        ? prev.emotions.filter((e: string) => e !== emotion)
-        : [...prev.emotions, emotion]
-    }))
-  }, [])
-
-  const toggleActivity = useCallback((activity: string) => {
-    setEntry((prev: JournalEntry) => ({
-      ...prev,
-      activities: prev.activities.includes(activity)
-        ? prev.activities.filter((a: string) => a !== activity)
-        : [...prev.activities, activity]
-    }))
-  }, [])
-
 export default Journal
 
