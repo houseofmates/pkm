@@ -38,6 +38,9 @@
       ],
       "@pkm/core/*": [
         "../packages/core/src/*"
+      ],
+      "@core-ui/*": [
+        "../packages/core/src/components/ui/*"
       ]
     }
   },
