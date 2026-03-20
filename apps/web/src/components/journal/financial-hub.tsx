@@ -79,7 +79,7 @@ const FinancialHub: React.FC = () => {
               <PieChart>
                 <Pie data={data} cx="50%" cy="50%" outerRadius={80} dataKey="value">
                   {data.map((entry, index) => (
-                    <PieCell key={entry.name} fill={['#ec4899', '#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'][index % 5]} />
+                    <Cell key={entry.name} fill={['#ec4899', '#10b981', '#3b82f6', '#f59e0b', '#8b5cf6'][index % 5]} />
                   ))}
                 </Pie>
               </PieChart>

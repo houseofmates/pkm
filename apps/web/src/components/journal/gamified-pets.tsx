@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Card, CardHeader, CardContent, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
-import { Heart, Star, Zap, Crown } from 'lucide-react'
+import { Heart, Zap, Crown } from 'lucide-react'
 import { useGamificationStore } from '../../stores/gamification-store'
 
 interface Pet {
@@ -16,11 +16,7 @@ interface Pet {
   animation: string // idle/feed/evolve
 }
 
-const PET_TYPES = [
-  { type: 'exercise', name: 'gym rat', emoji: '🐭→🐹→🐻', color: '#ec4899' },
-  { type: 'finance', name: 'coin hamster', emoji: '🐹→🐰→🦊', color: '#10b981' },
-  { type: 'journal', name: 'ink bunny', emoji: '🐰→🐺→🦄', color: '#3b82f6' }
-]
+// PET_TYPES removed (unused)
 
 const GamifiedPets: React.FC = () => {
   const [pets, setPets] = useState<Pet[]>([])
