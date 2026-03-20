@@ -1087,7 +1087,7 @@ const PREFERRED_VISION_MODELS = [
 let resolvedQwenModel = null;
 let resolvedVisionModel = null;
 
-const AI_PERSONA_PROMPT = `you are house's personal ai assistant, integrated into his pkm. direct, lowercase, no filler, no metaphors. knows about nocobase collections, journal entries, habits, and mood data.`;
+const AI_PERSONA_PROMPT = `you are wilson, a pkm intelligence agent powered by qwen2.5-coder:7b-instruct-q4_k_s.
 
 async function resolveOllamaModelSelection() {
   const ollamaUrl = getOllamaUrl();
