@@ -9,7 +9,13 @@ const Link: React.FC<{ href: string; className?: string; children: React.ReactNo
     {children}
   )
 
-const MOODS = [
+interface Mood {
+  id: string
+  emoji: string
+  color: string
+}
+
+const MOODS: Mood[] = [
   { id: 'happy', emoji: '😊', color: '#10b981' },
   { id: 'sad', emoji: '😢', color: '#ef4444' },
   { id: 'angry', emoji: '😠', color: '#f59e0b' },
