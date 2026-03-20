@@ -13,9 +13,9 @@ status: 25/100%
 - [ ] quest-rows.tsx (4 row progress glow)
 - [ ] quick-voice.tsx (mic → journal)
 
-## phase 3: nocobase collections
-- [ ] gamification_daily: date/streak/xp/mood/rows/pets
-- [ ] widget_config: type/pos/size/config
+## phase 3: nocobase collections ✓
+- [x] gamification_daily: date/streak/xp/mood/rows/pets
+- [x] widget_config: type/pos/size/config
 
 ## phase 4: canvas integration
 - [ ] edgeless widget-layer: drag from sidebar → oplog
