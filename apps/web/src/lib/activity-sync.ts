@@ -76,13 +76,26 @@ export async function findOrCreateActivity(name: string, localId?: string) {
   }
 }
 
-export async function createActivityLog({ activityId, note, rating, createdAt }: { activityId: string, note?: string, rating?: number, createdAt?: string }) {
+export async function createActivityLog({ activityId, note, rating, createdAt, localLogId }: { activityId: string, note?: string, rating?: number, createdAt?: string, localLogId?: string }) {
   try {
+    // avoid duplicate pushes by checking local->server log map
+    if (localLogId) {
+      const lmRaw = localStorage.getItem('pkm_activity_log_server_map')
+      const lm = lmRaw ? JSON.parse(lmRaw) : {}
+      if (lm[localLogId]) return lm[localLogId]
+    }
+
     const payload: any = { note: note || '', rating: rating || 0, createdAt: createdAt || new Date().toISOString() }
-    // pointer field to activity
     if (activityId) payload.activity = activityId
     const res = await apiFetch(`/activity_logs:create`, { method: 'POST', body: JSON.stringify(payload) })
-    return extractId(res)
+    const sid = extractId(res)
+    if (sid && localLogId) {
+      const lmRaw2 = localStorage.getItem('pkm_activity_log_server_map')
+      const lm2 = lmRaw2 ? JSON.parse(lmRaw2) : {}
+      lm2[localLogId] = sid
+      localStorage.setItem('pkm_activity_log_server_map', JSON.stringify(lm2))
+    }
+    return sid
   } catch (e) {
     console.error('failed to create activity_log', e)
     return null
