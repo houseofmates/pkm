@@ -5,11 +5,12 @@ const NOCO_BASE = process.env.NOCOBASE_URL || process.env.NOCOBASE || 'http://lo
 const ADMIN_API_KEY = process.env.ADMIN_API_KEY || process.env.NOCOBASE_API_KEY || process.env.AUTH || ''
 
 const candidateBases = [
-  process.env.NOCOBASE_URL || 'http://localhost:8091/api/v1',
+  process.env.NOCOBASE_URL,
+  'http://localhost:8091',
   'http://localhost:8091/api/v1',
   'http://localhost:4100/api',
   'http://localhost:1337/api'
-].map(s => String(s).replace(/\/$/, ''))
+].filter(Boolean).map(s => String(s).replace(/\/$/, ''))
 
 function findWorkingBase() {
   for (const b of candidateBases) {
