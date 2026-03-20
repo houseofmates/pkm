@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import { Card, CardHeader, CardContent, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
+import { Input } from '../ui/input'
 
 interface LogItem {
   id: string
@@ -49,8 +50,33 @@ const LogsTable: React.FC = () => {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex items-center justify-between">
         <CardTitle>recent logs ({logs.length})</CardTitle>
+        <div className="flex items-center gap-2">
+          <input type="file" accept="application/json" onChange={(e) => {
+            const f = e.target.files && e.target.files[0]
+            if (!f) return
+            const reader = new FileReader()
+            reader.onload = () => {
+              try {
+                const data = JSON.parse(String(reader.result))
+                localStorage.setItem('pkm_activity_logs', JSON.stringify(data))
+                setLogs(Array.isArray(data) ? data : [])
+              } catch (err) { console.error(err) }
+            }
+            reader.readAsText(f)
+          }} className="hidden" id="logs-import" />
+          <label htmlFor="logs-import" className="cursor-pointer px-2 py-1 rounded bg-slate-800 text-sm text-slate-300">import</label>
+          <Button variant="ghost" size="sm" onClick={() => {
+            const blob = new Blob([JSON.stringify(logs, null, 2)], { type: 'application/json' })
+            const url = URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `pkm-activity-logs-${Date.now()}.json`
+            a.click()
+            URL.revokeObjectURL(url)
+          }}>export</Button>
+        </div>
       </CardHeader>
       <CardContent className="p-0">
         <div className="divide-y divide-slate-800">
