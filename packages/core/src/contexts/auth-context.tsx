@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // accomplish the same thing, but that typically happens after the user
   // has already been kicked out and confused; better to do it ourselves so
   // the app can immediately flip to login and we can show a toast.
-  useEffect(() => {
+useEffect(() => {
     if (!token) return;
     try {
       const parts = token.split('.');
@@ -77,13 +77,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const expireMs = payload.exp * 1000;
           const now = Date.now();
           if (expireMs <= now) {
-            storageManager.removeItem('nocobase_token');
-            setToken(null);
-            window.dispatchEvent(new Event('auth-error'));
+            // skip immediate clear on login - let API validate
             return;
           }
           const timeout = setTimeout(() => {
-            secureLogger.info('token has expired, clearing');
+            secureLogger.info('jwt token expired, clearing');
             storageManager.removeItem('nocobase_token');
             setToken(null);
             window.dispatchEvent(new Event('auth-error'));
@@ -92,7 +90,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
     } catch (e) {
-      // ignore malformed token
+      secureLogger.debug('token expiry parse ignored:', e);
     }
   }, [token]);
 
@@ -128,11 +126,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // sync changes to localstorage is handled in login/logout to avoid race conditions with api clients
   const login = (newToken: string) => {
     const normalized = normalizeAuthToken(newToken);
-    secureLogger.info('AuthProvider.login called');
+    secureLogger.info('[auth] login() called, token length:', normalized?.length || 0);
     
-    // set react state first to trigger immediate client re-init
-    setToken(normalized);
+    // storage FIRST - apiClient interceptor reads storageManager.getItem sync  
     storageManager.setItem('nocobase_token', normalized);
+    secureLogger.info('[auth] storageManager.setItem complete');
+    
+    // react state triggers re-render
+    setToken(normalized);
+    secureLogger.info('[auth] setToken() complete');
 
     // sync to electron
     const electron = (window as any).electron;
