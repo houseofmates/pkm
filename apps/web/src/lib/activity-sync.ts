@@ -19,36 +19,54 @@ function extractId(resp: any) {
   return d?.id || d?.key || d?._id || null
 }
 
-export async function findOrCreateActivity(name: string) {
-  // try list filter
+export async function findOrCreateActivity(name: string, localId?: string) {
+  // map structure: { byName: { [name]: serverId }, byLocal: { [localId]: serverId } }
   try {
-    // cached mapping to avoid recreating activities repeatedly
     const mapRaw = localStorage.getItem('pkm_activity_server_map')
-    const map = mapRaw ? JSON.parse(mapRaw) : {}
-    if (map[name]) return map[name]
+    const map = mapRaw ? JSON.parse(mapRaw) : { byName: {}, byLocal: {} }
+
+    // prefer localId mapping if provided
+    if (localId && map.byLocal && map.byLocal[localId]) return map.byLocal[localId]
+
+    // then by name
+    if (map.byName && map.byName[name]) {
+      // if we have a localId, cache it too
+      if (localId) {
+        map.byLocal = map.byLocal || {}
+        map.byLocal[localId] = map.byName[name]
+        localStorage.setItem('pkm_activity_server_map', JSON.stringify(map))
+      }
+      return map.byName[name]
+    }
 
     const q = encodeURIComponent(name)
     const list = await apiFetch(`/activities:list?filter[name]=${q}`)
     if (list && list.data && list.data.length > 0) {
       const sid = extractId(list.data[0]) || list.data[0].name || null
       if (sid) {
-        map[name] = sid
+        map.byName = map.byName || {}
+        map.byLocal = map.byLocal || {}
+        map.byName[name] = sid
+        if (localId) map.byLocal[localId] = sid
         localStorage.setItem('pkm_activity_server_map', JSON.stringify(map))
       }
       return sid
     }
   } catch (e) {
-    // ignore
+    // ignore list errors
   }
 
-  // create
+  // create new activity on server
   try {
     const created = await apiFetch(`/activities:create`, { method: 'POST', body: JSON.stringify({ name }) })
     const sid = extractId(created) || created?.data?.id || null
     if (sid) {
       const mapRaw2 = localStorage.getItem('pkm_activity_server_map')
-      const map2 = mapRaw2 ? JSON.parse(mapRaw2) : {}
-      map2[name] = sid
+      const map2 = mapRaw2 ? JSON.parse(mapRaw2) : { byName: {}, byLocal: {} }
+      map2.byName = map2.byName || {}
+      map2.byLocal = map2.byLocal || {}
+      map2.byName[name] = sid
+      if (localId) map2.byLocal[localId] = sid
       localStorage.setItem('pkm_activity_server_map', JSON.stringify(map2))
     }
     return sid
