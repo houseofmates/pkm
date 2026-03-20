@@ -215,7 +215,7 @@ const Journal: React.FC = () => {
                 <ResponsiveContainer width="100%" height={250}>
                   <PieChart>
                     <Pie data={emotionData} cx="50%" cy="50%" outerRadius={80} dataKey="value">
-                      {emotionData.map((entry, index) => (
+                      {emotionData.map((_, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
