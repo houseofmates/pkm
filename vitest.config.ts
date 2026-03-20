@@ -10,7 +10,8 @@ export default defineConfig({
     include: [
       'tests/**/*.{test,spec}.{ts,tsx}',
       'src/features/**/__tests__/*.{test,spec}.{ts,tsx}',
-      'src/schema/__tests__/*.{test,spec}.{ts,tsx}'
+      'src/schema/__tests__/*.{test,spec}.{ts,tsx}',
+      'apps/web/src/lib/**/__tests__/*.{test,spec}.{ts,tsx}'
     ]
   },
   resolve: {
