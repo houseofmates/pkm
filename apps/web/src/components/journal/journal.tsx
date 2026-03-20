@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Progress } from '../ui/progress'
 import { Badge } from '../ui/badge'
 import { Mic, Flame } from 'lucide-react'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar } from 'recharts'
+import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
 import ExerciseTracker from './exercise-tracker'
 import FinancialHub from './financial-hub'
 import GamifiedPets from './gamified-pets'
@@ -47,7 +47,6 @@ const Journal: React.FC = () => {
   const { currentXp, level, xpToNextLevel, quests, questProgress, rowBonuses, achievements, currentStreak, earnXp, completeQuest, resetDaily } = useGamificationStore()
 
   // persist entries
-const [entries, setEntries] = useState<JournalEntry[]>([])
 
   // charts data
   const moodData: { date: string; mood: number }[] = [{ date: '2024-01-01', mood: 5 }, { date: '2024-01-02', mood: 4 }]
@@ -71,7 +70,7 @@ const [entries, setEntries] = useState<JournalEntry[]>([])
 
   // level badge
   const badgeIndex = Math.min(level - 1, 24)
-  const levelBadge = '🌱' // LEVEL_BADGES[badgeIndex]
+  const levelBadge = '🌱'
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 to-black p-4 md:p-8 space-y-6">
@@ -311,22 +310,22 @@ const [entries, setEntries] = useState<JournalEntry[]>([])
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042']
 
   const toggleEmotion = useCallback((emotion: string) => {
-    setEntry(prev => ({
+    setEntry((prev: JournalEntry) => ({
       ...prev,
-      emotions: prev.emotions.includes(emotion) 
+      emotions: prev.emotions.includes(emotion)
         ? prev.emotions.filter((e: string) => e !== emotion)
         : [...prev.emotions, emotion]
     }))
-  }, [setEntry])
+  }, [])
 
   const toggleActivity = useCallback((activity: string) => {
-    setEntry(prev => ({
+    setEntry((prev: JournalEntry) => ({
       ...prev,
       activities: prev.activities.includes(activity)
         ? prev.activities.filter((a: string) => a !== activity)
         : [...prev.activities, activity]
     }))
-  }, [setEntry])
+  }, [])
 
 export default Journal
 
