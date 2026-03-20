@@ -24,15 +24,15 @@ const LogBlock: React.FC<LogBlockProps> = ({ onSave }) => {
   const [note, setNote] = useState('')
   const [rating, setRating] = useState<number>(3)
 
-  const handleSave = () => {
-    const payload = {
-      activityId: activity,
-      note,
-      rating,
-      createdAt: new Date().toISOString()
+    const handleSave = () => {
+      const payload = {
+        activityId: activity,
+        note,
+        rating,
+        createdAt: new Date().toISOString()
+      }
+      if (onSave) onSave(payload)
     }
-    if (onSave) onSave(payload)
-  }
 
   return (
     <Card>
@@ -42,16 +42,7 @@ const LogBlock: React.FC<LogBlockProps> = ({ onSave }) => {
       <CardContent>
         <div className="grid grid-cols-1 gap-2">
           <label className="text-sm text-slate-400">activity</label>
-          <Select value={activity ?? ''} onValueChange={(v) => setActivity(v)}>
-            <SelectTrigger>
-              <SelectValue placeholder="select activity" />
-            </SelectTrigger>
-            <SelectContent>
-              {sampleActivities.map(a => (
-                <SelectItem key={a.id} value={a.id}>{a.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <ActivityPicker value={activity} onChange={(id) => setActivity(id)} />
 
           <label className="text-sm text-slate-400">note</label>
           <Input value={note} onChange={(e) => setNote((e.target as HTMLInputElement).value)} />
