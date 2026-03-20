@@ -7,7 +7,7 @@ import { cn } from '../../../../packages/core/src/lib/utils'
 export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   asChild?: boolean
-  variant?: 'default' | 'outline' | 'destructive' | 'secondary';
+  variant?: 'default' | 'outline' | 'destructive' | 'secondary' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
 }
 
@@ -19,6 +19,7 @@ const Button = React.memo(React.forwardRef<HTMLButtonElement, ButtonProps>(
       variant === 'outline' ? 'border border-muted bg-transparent text-muted-foreground' :
       variant === 'destructive' ? 'bg-red-600 text-white' :
       variant === 'secondary' ? 'bg-muted text-muted-foreground' :
+      variant === 'ghost' ? 'bg-transparent text-slate-400 hover:bg-slate-800' :
       'bg-emerald-500 text-white';
     const sizeClass =
       size === 'sm' ? 'px-2 py-1 text-xs' :
