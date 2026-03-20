@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import ActivityPicker from './activity-picker'
 import { Card, CardHeader, CardContent, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
@@ -26,10 +27,21 @@ const LogBlock: React.FC<LogBlockProps> = ({ onSave }) => {
 
     const handleSave = () => {
       const payload = {
+        id: Date.now().toString(),
         activityId: activity,
         note,
         rating,
         createdAt: new Date().toISOString()
+      }
+      try {
+        const raw = localStorage.getItem('pkm_activity_logs')
+        const arr = raw ? JSON.parse(raw) : []
+        arr.push(payload)
+        localStorage.setItem('pkm_activity_logs', JSON.stringify(arr))
+        // notify other components
+        window.dispatchEvent(new CustomEvent('pkm:activity-log-saved', { detail: payload }))
+      } catch (e) {
+        console.error('failed saving log', e)
       }
       if (onSave) onSave(payload)
     }

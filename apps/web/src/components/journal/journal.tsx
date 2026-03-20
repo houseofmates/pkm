@@ -13,6 +13,7 @@ import VoiceInput from './voice-input'
 import SensoryHub from './sensory-hub'
 import FixationTrap from './fixation-trap'
 import LogBlock from './log-block'
+import LogsTable from './logs-table'
 import { useGamificationStore } from '../../stores/gamification-store'
 // import { useAppSetting } from '../../hooks/use-app-setting' // will create hook later
 const [entries, setEntries] = useState<JournalEntry[]>([])
@@ -276,8 +277,13 @@ const Journal: React.FC = () => {
 
         <TabsContent value="dashboards" className="space-y-4">
           <FinancialHub />
-          <div className="mt-4">
-            <LogBlock onSave={(log) => console.log('log saved', log)} />
+          <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <LogBlock onSave={(log) => console.log('log saved', log)} />
+            </div>
+            <div>
+              <LogsTable />
+            </div>
           </div>
         </TabsContent>
 
