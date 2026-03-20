@@ -4,9 +4,8 @@ import { findOrCreateActivity, createActivityLog, syncAllLocalLogs } from '../ac
 // mock fetch
 global.fetch = vi.fn()
 
-// jsdom provides localStorage but vitest environment may mock it differently; ensure functions exist
-if (typeof localStorage === 'undefined' || !localStorage.setItem) {
-  // very small shim
+// force a small localStorage shim for tests
+{
   const store: Record<string,string> = {}
   // @ts-ignore
   global.localStorage = {
