@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '../../../packages/core/src/components/ui/card'
+import { Card } from '../../../packages/core/src/components/ui/card'
 import { Button } from '../../../packages/core/src/components/ui/button'
 import { Badge } from '../../../packages/core/src/components/ui/badge'
 import { useGamificationStore } from '../../stores/gamification-store'
@@ -32,7 +32,7 @@ interface ExerciseTrackerProps {}
 const ExerciseTracker: React.FC<ExerciseTrackerProps> = () => {
   const [workedMuscles, setWorkedMuscles] = useState<Set<string>>(new Set())
   const { earnXp } = useGamificationStore()
-  const [weeklyData, setWeeklyData] = useState([])
+  const [weeklyData] = useState([])
 
   const toggleMuscle = (muscleId: string) => {
     const newSet = new Set(workedMuscles)
