@@ -46,13 +46,7 @@ interface GamificationState {
 }
 
 // level config
-const LEVEL_BADGES = [
-  '🌱', '🌿', '🌳', '🌸', '🍎', // 1-5 beginner
-  '⭐', '🌟', '💫', '✨', '🔆', // 6-10 intermediate
-  '🔥', '💥', '🌈', '🦋', '🦅', // 11-20 advanced
-  '👑', '🏆', '💎', '🎖️', '🎯', // 21-50 master
-  '🚀', '🌌', '✨', '👁️‍🗨️', '💫' // 50+ legend
-]
+// LEVEL_BADGES removed (unused)
 
 const XP_PER_LEVEL = 100
 
@@ -101,7 +95,7 @@ export const useGamificationStore = create<GamificationState>()(
       longestStreak: 0,
       lastResetDate: new Date().toDateString(),
 
-      earnXp: (amount, reason) => set((state) => {
+      earnXp: (amount) => set((state) => {
         const newXp = state.currentXp + amount
         const newLevel = Math.floor(newXp / XP_PER_LEVEL) + 1
         const newToNext = XP_PER_LEVEL - (newXp % XP_PER_LEVEL)
@@ -140,7 +134,7 @@ export const useGamificationStore = create<GamificationState>()(
         achievements: state.achievements.map(a => a.id === id ? { ...a, unlocked: true } : a)
       })),
 
-      updateStreak: (date) => { /* compare dates */ }
+      updateStreak: () => { /* compare dates */ }
     }),
     {
       name: 'gamification-storage'
