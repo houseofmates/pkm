@@ -1,1 +1,138 @@
-import React, { useState, useEffect } from 'react'\nimport { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'\nimport { Button } from '../../ui/button'\nimport { Badge } from '../../ui/badge'\nimport { Play, Pause, StopSquare, Clock } from 'lucide-react'\nimport { Progress } from '../../ui/progress'\nimport { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../../ui/dialog'\nimport { useGamificationStore } from '../../../stores/gamification-store'\nimport { toast } from 'sonner'\n\ntype PresetTime = 3 | 5 | 10 | 15 | number\n\ninterface ReflectionTimerProps {\n  onComplete?: (duration: number, prompt: string) => void\n}\n\nconst ReflectionTimer: React.FC<ReflectionTimerProps> = ({ onComplete }) => {\n  const [isRunning, setIsRunning] = useState(false)\n  const [timeLeft, setTimeLeft] = useState(300) // 5min default\n  const [preset, setPreset] = useState<PresetTime>(5)\n  const [prompt, setPrompt] = useState('what stood out today?')\n  const { earnXp } = useGamificationStore()\n\n  // prompts rotation\n  const PROMPTS = [\n    'what felt good today?',\n    'what was challenging?',\n    'one win, one lesson',\n    'gratitude for 3 things',\n    'body scan: tense or calm?',\n    'what needs tomorrow?'\n  ]\n\n  useEffect(() => {\n    let interval: NodeJS.Timeout\n    if (isRunning &amp;&amp; timeLeft > 0) {\n      interval = setInterval(() => {\n        setTimeLeft((prev) => {\n          if (prev <= 1) {\n            setIsRunning(false)\n            toast('timer complete! +20xp')\n            earnXp(20, 'reflection timer')\n            onComplete?.(preset * 60, prompt)\n            return 0\n          }\n          return prev - 1\n        })\n      }, 1000)\n    }\n    return () => clearInterval(interval)\n  }, [isRunning, timeLeft, preset, prompt, onComplete, earnXp])\n\n  const startTimer = () => {\n    setTimeLeft(preset * 60)\n    setIsRunning(true)\n    setPrompt(PROMPTS[Math.floor(Math.random() * PROMPTS.length)])\n  }\n\n  const pauseTimer = () => setIsRunning(false)\n\n  const resetTimer = () => {\n    setIsRunning(false)\n    setTimeLeft(preset * 60)\n  }\n\n  const formatTime = (seconds: number) => {\n    const mins = Math.floor(seconds / 60)\n    const secs = seconds % 60\n    return `${mins}:${secs.toString().padStart(2, '0')}`\n  }\n\n  const progress = ((preset * 60 - timeLeft) / (preset * 60)) * 100\n\n  return (\n    <>\n      <Dialog>\n        <DialogTrigger asChild>\n          <Button variant=\"outline\" className=\"w-full\">\n            <Clock className=\"w-4 h-4 mr-2\" />\n            reflection timer\n          </Button>\n        </DialogTrigger>\n        <DialogContent className=\"max-w-md\">\n          <DialogHeader>\n            <DialogTitle>{preset}min reflection</DialogTitle>\n          </DialogHeader>\n          <Card>\n            <CardHeader className=\"text-center\">\n              <CardTitle className=\"text-4xl font-mono mb-4\">{formatTime(timeLeft)}</CardTitle>\n              <div className=\"w-full bg-slate-800 rounded-full h-3 mb-6\">\n                <Progress value={progress} className=\"h-3 [>div]:!bg-gradient-to-r [>div]:from-emerald-500 [>div]:to-teal-500\" />\n              </div>\n              <div className=\"text-slate-400 mb-6 p-4 bg-slate-900/50 rounded-lg backdrop-blur-sm\">\n                {prompt}\n              </div>\n            </CardHeader>\n            <CardContent className=\"space-y-3 pt-0\">\n              <div className=\"flex gap-2 justify-center flex-wrap\">\n                {[3, 5, 10, 15].map((t) => (\n                  <Button\n                    key={t}\n                    variant={preset === t ? 'default' : 'outline'}\n                    size=\"sm\"\n                    onClick={() => setPreset(t)}\n                  >\n                    {t}min\n                  </Button>\n                ))}\n              </div>\n              <div className=\"flex gap-2 pt-4 border-t border-slate-800\">\n                {isRunning ? (\n                  <>\n                    <Button variant=\"outline\" onClick={pauseTimer} className=\"flex-1\">\n                      <Pause className=\"w-4 h-4 mr-2\" />\n                      pause\n                    </Button>\n                    <Button variant=\"destructive\" onClick={resetTimer} className=\"flex-1\">\n                      <StopSquare className=\"w-4 h-4 mr-2\" />\n                      stop\n                    </Button>\n                  <>\n                ) : (\n                  <Button onClick={startTimer} className=\"flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500\">\n                    <Play className=\"w-4 h-4 mr-2\" />\n                    start\n                  </Button>\n                )}\n              </div>\n            </CardContent>\n          </Card>\n        </DialogContent>\n      </Dialog>\n    </>\n  )\n}\n\nexport default ReflectionTimer\n
+import React, { useState, useEffect } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card'
+import { Button } from '../../ui/button'
+import { Badge } from '../../ui/badge'
+import { Play, Pause, StopSquare, Clock } from 'lucide-react'
+import { Progress } from '../../ui/progress'
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../../ui/dialog'
+import { useGamificationStore } from '../../../stores/gamification-store'
+import { toast } from 'sonner'
+
+type PresetTime = 3 | 5 | 10 | 15 | number
+
+interface ReflectionTimerProps {
+  onComplete?: (duration: number, prompt: string) => void
+}
+
+const ReflectionTimer: React.FC<ReflectionTimerProps> = ({ onComplete }) => {
+  const [isRunning, setIsRunning] = useState(false)
+  const [timeLeft, setTimeLeft] = useState(300) // 5min default
+  const [preset, setPreset] = useState<PresetTime>(5)
+  const [prompt, setPrompt] = useState('what stood out today?')
+  const { earnXp } = useGamificationStore()
+
+  // prompts rotation
+  const PROMPTS = [
+    'what felt good today?',
+    'what was challenging?',
+    'one win, one lesson',
+    'gratitude for 3 things',
+    'body scan: tense or calm?',
+    'what needs tomorrow?'
+  ]
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+    if (isRunning && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            setIsRunning(false)
+            toast('timer complete! +20xp')
+            earnXp(20, 'reflection timer')
+            onComplete?.(preset * 60, prompt)
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+    }
+    return () => clearInterval(interval)
+  }, [isRunning, timeLeft, preset, prompt, onComplete, earnXp])
+
+  const startTimer = () => {
+    setTimeLeft(preset * 60)
+    setIsRunning(true)
+    setPrompt(PROMPTS[Math.floor(Math.random() * PROMPTS.length)])
+  }
+
+  const pauseTimer = () => setIsRunning(false)
+
+  const resetTimer = () => {
+    setIsRunning(false)
+    setTimeLeft(preset * 60)
+  }
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+
+  const progress = ((preset * 60 - timeLeft) / (preset * 60)) * 100
+
+  return (
+    <>
+      <Dialog>
+        <DialogTrigger asChild>
+          <Button variant="outline" className="w-full">
+            <Clock className="w-4 h-4 mr-2" />
+            reflection timer
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>{preset}min reflection</DialogTitle>
+          </DialogHeader>
+          <Card>
+            <CardHeader className="text-center">
+              <CardTitle className="text-4xl font-mono mb-4">{formatTime(timeLeft)}</CardTitle>
+              <div className="w-full bg-slate-800 rounded-full h-3 mb-6">
+                <Progress value={progress} className="h-3 [>div]:!bg-gradient-to-r [>div]:from-emerald-500 [>div]:to-teal-500" />
+              </div>
+              <div className="text-slate-400 mb-6 p-4 bg-slate-900/50 rounded-lg backdrop-blur-sm">
+                {prompt}
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3 pt-0">
+              <div className="flex gap-2 justify-center flex-wrap">
+                {[3, 5, 10, 15].map((t) => (
+                  <Button
+                    key={t}
+                    variant={preset === t ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setPreset(t)}
+                  >
+                    {t}min
+                  </Button>
+                ))}
+              </div>
+              <div className="flex gap-2 pt-4 border-t border-slate-800">
+                {isRunning ? (
+                  <>
+                    <Button variant="outline" onClick={pauseTimer} className="flex-1">
+                      <Pause className="w-4 h-4 mr-2" />
+                      pause
+                    </Button>
+                    <Button variant="destructive" onClick={resetTimer} className="flex-1">
+                      <StopSquare className="w-4 h-4 mr-2" />
+                      stop
+                    </Button>
+                  </>
+                ) : (
+                  <Button onClick={startTimer} className="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500">
+                    <Play className="w-4 h-4 mr-2" />
+                    start
+                  </Button>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </DialogContent>
+      </Dialog>
+    </>
+  )
+}
+
+export default ReflectionTimer
+
