@@ -16,11 +16,9 @@ export default defineConfig({
     ]
   },
   resolve: {
-    alias: {
-      '@': [
-        path.resolve(__dirname, './src'),
-        path.resolve(__dirname, './packages/core/src')
-      ]
-    }
+    alias: [
+      { find: '@', replacement: path.resolve(__dirname, './packages/core/src') },
+      { find: '@core', replacement: path.resolve(__dirname, './src') }
+    ]
   }
 });
