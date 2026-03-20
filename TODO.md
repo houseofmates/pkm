@@ -10,7 +10,7 @@
 - Add logging: confirm token before/after API call
 - Lowercase all comments/UI text
 
-## Step 2: [ ] Test Login Flow  
+## Step 2: [x] Test Login Flow  
 - Clear localStorage `nocobase_token`
 - Enter valid JWT → verify persists + API calls succeed (no 401)
 - Check console: no "no token found" or "401 unauthorized - clearing"
