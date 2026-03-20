@@ -1360,6 +1360,28 @@ app.get('/api/ai/memory', async (req, res) => {
   }
 });
 
+// convenience endpoint to quickly remember something
+app.post('/api/ai/remember', async (req, res) => {
+  try {
+    const { what, type = 'important' } = req.body;
+    
+    if (!what) {
+      return res.status(400).json({ error: 'what to remember is required' });
+    }
+    
+    const success = addMemory(type, what);
+    
+    if (success) {
+      res.json({ success: true, remembered: what });
+    } else {
+      res.status(500).json({ error: 'failed to remember' });
+    }
+  } catch (err) {
+    console.error('[AI] remember error:', err.message);
+    res.status(500).json({ error: 'failed to remember' });
+  }
+});
+
 app.post('/api/ai/memory', async (req, res) => {
   try {
     const { type, content, action } = req.body;
