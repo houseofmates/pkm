@@ -1355,6 +1355,42 @@ const ollamaUrl = getOllamaUrl();
       response.data.response = fullResponse;
     }
 
+    // wilson agent loop: parse & execute json actions (non-stream only) - moved before duplicate recordInteraction
+    if (!stream) {
+      let fullResponse = response.data.response.toLowerCase();
+      
+      // record interaction first
+      recordInteraction(prompt, fullResponse);
+      
+      // parse actions
+      const actions = parseActionsFromResponse(fullResponse);
+      const executionResults = [];
+      
+      for (const action of actions) {
+        const result = await executeAction(action);
+        executionResults.push(result);
+      }
+      
+      // augment response with execution results
+      fullResponse += `\n\nactions executed:\n${JSON.stringify(executionResults, null, 2)}`;
+      response.data.response = fullResponse;
+      
+      // inject execution results back to qwen for next reasoning if needed (simple recursion trigger)
+      if (executionResults.length > 0) {
+        const rePrompt = `actions completed: ${JSON.stringify(executionResults)}. continue reasoning.`;
+        const rePayload = {
+          model: getQwenModel(),
+          prompt: rePrompt,
+          system: systemPrompt,
+          stream: false,
+          options: { temperature: 0.3 }
+        };
+        const reResponse = await axios.post(`${ollamaUrl}/api/generate`, rePayload, { timeout: 30000 });
+        fullResponse += `\n\nfollow-up: ${reResponse.data.response.toLowerCase()}`;
+        response.data.response = fullResponse;
+      }
+    }
+
     // record interaction in memory (non-blocking)
     if (includeMemory && !stream) {
       try {
