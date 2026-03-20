@@ -35,8 +35,10 @@ console.log('creating activity collections via', working)
 const headers = ADMIN_API_KEY ? `-H "Authorization: ${ADMIN_API_KEY.startsWith('Bearer') ? ADMIN_API_KEY : 'Bearer ' + ADMIN_API_KEY}"` : ''
 
 // activities collection
+const metaEndpoint = working.includes('/api') ? `${working}/meta/collections` : `${working}/api/v1/meta/collections`
+
 execSync(`
-curl -sS -X POST ${working}/meta/collections \
+curl -sS -X POST ${metaEndpoint} \
   -H "Content-Type: application/json" \
   ${headers} \
   -d '{
@@ -55,7 +57,7 @@ curl -sS -X POST ${working}/meta/collections \
 
 // activity_logs collection
 execSync(`
-curl -sS -X POST ${working}/meta/collections \
+curl -sS -X POST ${metaEndpoint} \
   -H "Content-Type: application/json" \
   ${headers} \
   -d '{
