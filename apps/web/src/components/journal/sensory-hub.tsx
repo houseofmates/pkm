@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '../../ui/button'
-import { Badge } from '../../ui/badge'
+import { Card, CardContent, CardHeader, CardTitle } from '../../../packages/core/src/components/ui/card'
+import { Button } from '../../../packages/core/src/components/ui/button'
+import { Badge } from '../../../packages/core/src/components/ui/badge'
 import { Volume2, RotateCcw, Play, Pause, Circle } from 'lucide-react'
 import { useGamificationStore } from '../../stores/gamification-store'
 
