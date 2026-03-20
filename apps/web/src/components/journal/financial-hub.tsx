@@ -14,7 +14,8 @@ const CATEGORIES = ['income', 'food', 'rent', 'fun', 'savings']
 
 const FinancialHub: React.FC = () => {
   const [balance, setBalance] = useState(1250.50)
-  const [transactions, setTransactions] = useState([]) // { amount, category, date }
+  type Transaction = { category: string; amount: number; date: string }
+  const [transactions, setTransactions] = useState<Transaction[]>([])
   const [view, setView] = useState('balance')
   const { earnXp } = useGamificationStore()
   const [wealthLevel, setWealthLevel] = useState(1)
