@@ -5,6 +5,28 @@ import { vi } from 'vitest';
 if (typeof (globalThis as any).importMetaEnv === 'undefined') {
   (globalThis as any).importMetaEnv = {};
 }
+
+// mock react-query context helpers to ensure tests using hooks don't crash
+try {
+  const { QueryClient } = await import('@tanstack/react-query');
+  const __testQueryClient = new QueryClient();
+  vi.mock('@tanstack/react-query', async () => {
+    const actual = await vi.importActual<any>('@tanstack/react-query');
+    return {
+      ...actual,
+      useQueryClient: () => __testQueryClient,
+      QueryClientProvider: ({ children }: any) => children,
+    };
+  });
+} catch (e) {
+  // ignore if import/mock fails in some environments
+}
+
+// ensure import.meta.env exists in jsdom tests as expected by code
+if (typeof (global as any).importMeta === 'undefined') {
+  (global as any).importMeta = { env: {} };
+}
+if (!(import.meta as any).env) (import.meta as any).env = {};
 if (typeof (global as any).process === 'undefined') (global as any).process = { env: {} };
 
 // ensure window.fetch exists in test environment if needed by some modules
