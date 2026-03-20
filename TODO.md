@@ -4,11 +4,12 @@
 - Identified race condition: storageManager.setItem() → 1s delay → API call misses token → 401 → clear → loop
 - Confirmed files: auth-context.tsx, nocobase-client.ts, auth-token.ts
 
-## Step 1: [x] Create & Edit auth-context.tsx
-- Reorder login(): setToken() BEFORE storageManager.setItem() 
-- Remove setTimeout(1000ms) delay around ensureBackendCollection()
-- Add logging: confirm token before/after API call
-- Lowercase all comments/UI text
+## Step 1: [x] auth-context.tsx login race FIXED
+- storageManager.setItem() → setToken() order enforced
+- 1s delay removed  
+- sync expiry clear on login disabled
+- detailed logging added
+- lowercase comments fixed
 
 ## Step 2: [x] Test Login Flow  
 - Clear localStorage `nocobase_token`
