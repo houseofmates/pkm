@@ -81,3 +81,23 @@ export async function getPiecesContextForQuery(query) {
     query,
     results: result.results.map(r => ({
       content: r.content || r.text || '',
+      relevance: r.score || r.relevance || 0,
+    }))
+  };
+}
+
+// check if pieces mcp is available
+export async function isPiecesConnected() {
+  try {
+    const result = await mcpRequest('ping', {});
+    return result !== null;
+  } catch {
+    return false;
+  }
+}
+
+export default {
+  getPiecesRecentActivity,
+  getPiecesContextForQuery,
+  isPiecesConnected,
+};
