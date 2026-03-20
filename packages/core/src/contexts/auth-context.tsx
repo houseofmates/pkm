@@ -124,17 +124,19 @@ useEffect(() => {
   }, []);
 
   // sync changes to localstorage is handled in login/logout to avoid race conditions with api clients
-  const login = (newToken: string) => {
+  const login = async (newToken: string) => {
     const normalized = normalizeAuthToken(newToken);
-    secureLogger.info('[auth] login() called, token length:', normalized?.length || 0);
+    if (!normalized) return;
     
-    // storage FIRST - apiClient interceptor reads storageManager.getItem sync  
+    secureLogger.info('[auth] login called, token length:', normalized.length);
+
+    // 1. storage FIRST (apiClient interceptor reads storageManager.getItem() synchronously)
     storageManager.setItem('nocobase_token', normalized);
-    secureLogger.info('[auth] storageManager.setItem complete');
-    
-    // react state triggers re-render
+    secureLogger.info('[auth] token stored in localStorage');
+
+    // 2. react state SECOND (triggers re-renders)
     setToken(normalized);
-    secureLogger.info('[auth] setToken() complete');
+    secureLogger.info('[auth] react token state updated');
 
     // sync to electron
     const electron = (window as any).electron;
@@ -142,10 +144,14 @@ useEffect(() => {
       electron.syncState({ token: normalized });
     }
 
-    // ensure backend collection exists immediately (storage sync)
-    client.ensureBackendCollection().catch(error => {
-      secureLogger.warn('failed to ensure backend collection:', error);
-    });
+    // 3. backend setup IMMEDIATELY after storage (no delay needed - storage sync)
+    secureLogger.info('[auth] calling ensureBackendCollection()');
+    try {
+      await client.ensureBackendCollection();
+      secureLogger.info('[auth] pkm_settings table ready');
+    } catch (error) {
+      secureLogger.warn('pkm_settings table setup failed (non-fatal):', error);
+    }
   };
 
   const logout = () => {

@@ -117,8 +117,7 @@ function sanitizeMessage(message: string): string {
   return sanitized;
 }
 
-// check if message contains sensitive data
-// (removed: unused function)
+// check if message contains sensitive data (unused - removed)
 
 // store log entry in history
 function storeLogEntry(entry: LogEntry): void {
