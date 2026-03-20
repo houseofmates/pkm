@@ -1,5 +1,11 @@
 import '@testing-library/jest-dom';
 import 'fake-indexeddb/auto';
+import { vi } from 'vitest';
+// provide sensible import.meta.env defaults for tests
+if (typeof (globalThis as any).importMetaEnv === 'undefined') {
+  (globalThis as any).importMetaEnv = {};
+}
+if (typeof (global as any).process === 'undefined') (global as any).process = { env: {} };
 
 // ensure window.fetch exists in test environment if needed by some modules
 if (typeof (globalThis as any).fetch === 'undefined') {
