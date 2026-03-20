@@ -2,6 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react'
 import { Card, CardHeader, CardContent, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
+import { syncAllLocalLogs } from '../../lib/activity-sync'
+import { toast } from 'sonner'
 
 interface LogItem {
   id: string
@@ -23,6 +25,7 @@ function loadLogs(): LogItem[] {
 
 const LogsTable: React.FC = () => {
   const [logs, setLogs] = useState<LogItem[]>([])
+  const [syncing, setSyncing] = useState(false)
 
   const refresh = useCallback(() => {
     setLogs(loadLogs())
@@ -46,6 +49,19 @@ const LogsTable: React.FC = () => {
     const next = logs.filter(l => l.id !== id)
     localStorage.setItem('pkm_activity_logs', JSON.stringify(next))
     setLogs(next)
+  }
+
+  const handleSync = async () => {
+    setSyncing(true)
+    try {
+      const res = await syncAllLocalLogs()
+      toast.success(`synced ${res.pushed} logs to nocobase`)
+      refresh()
+    } catch (e) {
+      toast.error('sync failed')
+    } finally {
+      setSyncing(false)
+    }
   }
 
   return (
@@ -96,6 +112,10 @@ const LogsTable: React.FC = () => {
           ))}
         </div>
       </CardContent>
+      <div className="p-3 border-t border-slate-800 bg-slate-900/20 flex items-center justify-end gap-2">
+        <Button variant="ghost" size="sm" onClick={refresh}>refresh</Button>
+        <Button size="sm" onClick={handleSync} disabled={syncing}>{syncing ? 'syncing…' : 'sync to nocobase'}</Button>
+      </div>
     </Card>
   )
 }
