@@ -20,7 +20,7 @@ interface Pet {
 
 const GamifiedPets: React.FC = () => {
   const [pets, setPets] = useState<Pet[]>([])
-  const { currentStreak, achievements } = useGamificationStore()
+  const { currentStreak } = useGamificationStore()
 
   useEffect(() => {
     // adopt starter pets

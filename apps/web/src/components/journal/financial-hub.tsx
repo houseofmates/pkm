@@ -4,7 +4,7 @@ import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { useGamificationStore } from '../../stores/gamification-store'
-import { PieChart, Pie, ResponsiveContainer, LineChart, Line } from 'recharts'
+import { PieChart, Pie, ResponsiveContainer, LineChart, Line, Cell } from 'recharts'
 
 const FINANCIAL_LEVELS = [
   'penny-pincher', 'saver', 'investor', 'mogul'
@@ -18,7 +18,7 @@ const FinancialHub: React.FC = () => {
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [view, setView] = useState('balance')
   const { earnXp } = useGamificationStore()
-  const [wealthLevel, setWealthLevel] = useState(1)
+  const [wealthLevel] = useState(1)
 
   const logTransaction = (category: string, amount: number) => {
     setTransactions(prev => [...prev, { category, amount, date: new Date().toDateString() }])
