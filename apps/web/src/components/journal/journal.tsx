@@ -49,8 +49,7 @@ const Journal: React.FC = () => {
   const [tab, setTab] = useState('today')
   const { currentXp, level, xpToNextLevel, quests, questProgress, rowBonuses, achievements, currentStreak, earnXp, completeQuest, resetDaily } = useGamificationStore()
 
-  // persist entries
-  const toggleEmotion = useCallback((emotion: string) => {
+// daily goals\n  const [goals, setGoals] = useState([\n    { id: 'mood', name: 'log mood', completed: false },\n    { id: '3-emotions', name: '3+ emotions', completed: false },\n    { id: '50-note', name: '50+ chars note', completed: false },\n    { id: '3-activities', name: '3+ activities', completed: false },\n    { id: 'timer', name: '5min reflection', completed: false }\n  ])\n\n  const toggleGoal = useCallback((goalId: string) => {\n    setGoals(prev => prev.map(g => g.id === goalId ? { ...g, completed: !g.completed } : g))\n  }, [])\n\n  const goalsProgress = goals.filter(g => g.completed).length / goals.length * 100\n\n// past entries state\n  const [pastEntries, setPastEntries] = useState([] as JournalEntry[])\n  const [filterMood, setFilterMood] = useState('')\n  const [searchTerm, setSearchTerm] = useState('')\n\n  // persist entries\n  const toggleEmotion = useCallback((emotion: string) => {
     setEntry((prev: JournalEntry) => ({
       ...prev,
       emotions: prev.emotions.includes(emotion)
