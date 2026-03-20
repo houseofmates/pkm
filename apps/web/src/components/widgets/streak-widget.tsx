@@ -4,12 +4,14 @@ import { Badge } from '../../ui/badge'
 import { Progress } from '../../ui/progress'
 import { Flame, ChevronRight, Zap } from 'lucide-react'
 import { useGamificationStore } from '../../stores/gamification-store'
-import { Progress } from '@/components/ui/progress'
 // import Link from 'next/link'
-const Link: React.FC<{ href: string; className?: string; children: React.ReactNode }> = ({ href, className = '', children }) => (
-  <div className={className} onClick={() => window.location.href = href} style={{ cursor: 'pointer' }}>
-    {children}
+const Link: React.FC<{ href: string; className?: string; children: React.ReactNode }> = ({ href, className = '', children }) => {
+  return (
+    <div className={className} onClick={() => window.location.href = href} style={{ cursor: 'pointer' }}>
+      {children}
+    </div>
   )
+}
 
 const StreakWidget: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { currentStreak, level, currentXp, xpToNextLevel, rowBonuses, questProgress } = useGamificationStore()
