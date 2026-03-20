@@ -8,7 +8,10 @@
 - [x] 1. create TODO.md ✅
 - [ ] 2. read server.js to confirm exact AI_PERSONA_PROMPT location/match
 - [x] 3. edit server.js - replace AI_PERSONA_PROMPT with wilson prompt ✅
-- [ ] 4. attempt_completion with full prompt text + end-to-end explanation
+- [x] 4. attempt_completion with full prompt text + end-to-end explanation ✅
+
+## complete ✅
+wilson agent implemented. restart backend server to use.
 
 current working directory: /home/house/pkm
 
