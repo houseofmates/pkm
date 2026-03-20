@@ -4,11 +4,10 @@ import { Button } from '../../ui/button'
 import { Badge } from '../../ui/badge'
 import { ChevronRight } from 'lucide-react'
 // import Link from 'next/link'
-const Link = React.forwardRef(({ className, children, href, ...props }, ref) => (
-  <div className={className} ref={ref} {...props} onClick={() => window.location.href = href}>
+const Link: React.FC<{ href: string; className?: string; children: React.ReactNode }> = ({ href, className = '', children }) => (
+  <div className={className} onClick={() => window.location.href = href} style={{ cursor: 'pointer' }}>
     {children}
-  </div>
-))
+  )
 
 const MOODS = [
   { id: 'happy', emoji: '😊', color: '#10b981' },

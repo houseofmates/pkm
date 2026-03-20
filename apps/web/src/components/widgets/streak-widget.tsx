@@ -6,11 +6,10 @@ import { Flame, ChevronRight, Zap } from 'lucide-react'
 import { useGamificationStore } from '../../stores/gamification-store'
 import { Progress } from '@/components/ui/progress'
 // import Link from 'next/link'
-const Link = React.forwardRef(({ className, children, href, ...props }, ref) => (
-  <div className={className} ref={ref} {...props} onClick={() => window.location.href = href}>
+const Link: React.FC<{ href: string; className?: string; children: React.ReactNode }> = ({ href, className = '', children }) => (
+  <div className={className} onClick={() => window.location.href = href} style={{ cursor: 'pointer' }}>
     {children}
-  </div>
-))
+  )
 
 const StreakWidget: React.FC<{ className?: string }> = ({ className = '' }) => {
   const { currentStreak, level, currentXp, xpToNextLevel, rowBonuses, questProgress } = useGamificationStore()
