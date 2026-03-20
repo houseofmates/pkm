@@ -27,6 +27,10 @@ import { exec } from 'child_process';
 import axios from 'axios';
 import ical from 'node-ical';
 
+// pieces mcp and bot memory integration
+import { getPiecesRecentActivity, getPiecesContextForQuery, isPiecesConnected } from './pieces-mcp.js';
+import { getAllMemoryContext, addMemory, recordInteraction, readMemory, writeMemory } from './bot-memory.js';
+
 // Load environment variables if .env exists
 if (fs.existsSync('.env')) {
     // Basic dotenv loader since we are in ES module and might not have dotenv package installed
