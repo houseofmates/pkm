@@ -1128,10 +1128,42 @@ function getVisionModel() {
 
 app.post('/api/ai/chat', async (req, res) => {
 const ollamaUrl = getOllamaUrl();
-  const { prompt, images, stream = false } = req.body;
+  const { prompt, images, stream = false, includePieces = true, includeMemory = true } = req.body;
 
   try {
     let finalPrompt = prompt;
+    let systemPrompt = AI_PERSONA_PROMPT;
+    
+    // fetch pieces context (recent activity from last 2 hours)
+    if (includePieces) {
+      try {
+        const piecesContext = await getPiecesRecentActivity(2);
+        if (piecesContext && piecesContext.data && piecesContext.data.length > 0) {
+          const recentActivities = piecesContext.data
+            .slice(-20)
+            .map(a => a.content || '')
+            .filter(Boolean)
+            .join('\n');
+          if (recentActivities) {
+            systemPrompt += `\n\n## recent activity from pieces os (last 2 hours)\n${recentActivities}\n\nuse this context if relevant to the user's question.`;
+          }
+        }
+      } catch (pcErr) {
+        console.log('[AI] pieces context unavailable:', pcErr.message);
+      }
+    }
+    
+    // fetch bot memory
+    if (includeMemory) {
+      try {
+        const memoryContext = getAllMemoryContext();
+        if (memoryContext) {
+          systemPrompt += `\n\n## bot memory\n${memoryContext}\n\nremember relevant info from previous interactions.`;
+        }
+      } catch (memErr) {
+        console.log('[AI] memory context unavailable:', memErr.message);
+      }
+    }
     
     // vision routing
     if (images && images.length > 0) {
@@ -1150,7 +1182,7 @@ const ollamaUrl = getOllamaUrl();
     const payload = { 
       model: getQwenModel(), 
       prompt: finalPrompt,
-      system: AI_PERSONA_PROMPT,
+      system: systemPrompt,
       stream, 
       options: { temperature: 0.4 } 
     };
@@ -1159,6 +1191,16 @@ const ollamaUrl = getOllamaUrl();
       responseType: stream ? 'stream' : 'json',
       timeout: 120000,
     });
+
+    // record interaction in memory (non-blocking)
+    if (includeMemory && !stream) {
+      try {
+        const botResponse = response.data.response || '';
+        recordInteraction(prompt, botResponse);
+      } catch (recErr) {
+        console.log('[AI] could not record interaction:', recErr.message);
+      }
+    }
 
     if (stream) {
       res.setHeader('Content-Type', 'text/event-stream');
@@ -1182,7 +1224,7 @@ const ollamaUrl = getOllamaUrl();
         res.end();
       });
     } else {
-      res.json({ response: response.data.response.toLowerCase(), model: QWEN_MODEL, done: true });
+      res.json({ response: response.data.response.toLowerCase(), model: getQwenModel(), done: true });
     }
   } catch (err) {
     console.error('[AI] ollama request failed:', err.message);
