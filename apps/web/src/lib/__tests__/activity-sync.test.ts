@@ -23,6 +23,9 @@ describe('activity-sync', () => {
   })
 
   it('syncs logs to server', async () => {
+    // debug: inspect __localStorageStore
+    // eslint-disable-next-line no-console
+    console.log('test: __localStorageStore type ->', typeof (global as any).__localStorageStore, Object.keys((global as any).__localStorageStore || {}))
     // set localStorage contents directly via the underlying store (safer in test env)
     ;(global as any).__localStorageStore.set('pkm_activities', JSON.stringify([{ id: '1', name: 'walk' }]))
     ;(global as any).__localStorageStore.set('pkm_activity_logs', JSON.stringify([{ id: 'l1', activityId: '1', note: 'ok', rating: 4, createdAt: new Date().toISOString() }]))
