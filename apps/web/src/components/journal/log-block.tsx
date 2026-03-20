@@ -4,6 +4,7 @@ import { Card, CardHeader, CardContent, CardTitle } from '../ui/card'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
+import { findOrCreateActivity, createActivityLog } from '../../lib/activity-sync'
 
 interface Activity {
   id: string
@@ -44,6 +45,28 @@ const LogBlock: React.FC<LogBlockProps> = ({ onSave }) => {
         console.error('failed saving log', e)
       }
       if (onSave) onSave(payload)
+
+      // attempt immediate sync to server if configured (non-blocking)
+      (async () => {
+        try {
+          const base = import.meta.env.VITE_NOCOBASE_URL || ''
+          const token = import.meta.env.VITE_NOCOBASE_API_TOKEN || import.meta.env.NOCOBASE_API_KEY || ''
+          if (!base || !token) return
+          // find or create activity on server
+          const activityName = (() => {
+            const raw = localStorage.getItem('pkm_activities')
+            if (!raw) return activity || ''
+            try { const arr = JSON.parse(raw); const found = arr.find((a: any) => a.id === activity); return found?.name || activity }
+            catch { return activity }
+          })()
+          const serverActivityId = await findOrCreateActivity(activityName || 'other')
+          if (!serverActivityId) return
+          await createActivityLog({ activityId: serverActivityId, note: note, rating, createdAt: payload.createdAt })
+        } catch (e) {
+          // ignore failures; logs remain in localStorage
+          console.warn('immediate server sync failed', e)
+        }
+      })()
     }
 
   return (
