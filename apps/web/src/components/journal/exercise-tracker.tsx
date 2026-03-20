@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import { Card, CardHeader, CardContent, CardTitle } from '../../../../packages/core/src/components/ui/card'
-import { Button } from '../../../../packages/core/src/components/ui/button'
-import { Badge } from '../../../../packages/core/src/components/ui/badge'
+import { Card, CardHeader, CardContent, CardTitle } from '../ui/card'
+import { Button } from '../ui/button'
+import { Badge } from '../ui/badge'
 import { useGamificationStore } from '../../stores/gamification-store'
 import {
   BarChart,
