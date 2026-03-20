@@ -1,1 +1,14 @@
-# pkm gamification enhancements complete ✅ 100/100%\n\n## implemented\n**journal super-hub**: today quests/daily goals/past browser/reflection timer (tabs)\n**oral-b grids**: 5x5 muscle rows (exercise), 5-row budget defense (financial)\n**gamification**: xp/levels/streaks/achievements/row bonuses/store persistence\n**sensory**: breathing/timer/fixation traps/pets\n**nocobase**: collections v2 (goals/timers/fixations) ready for sync\n\n## test\nlocalhost:3000/journal → full hub, tap grids→xp/animations, timer prompts, goals check, past search/filter\n\n**production-ready. run deploy.sh for live.**\n\nrun: `npm run dev` or `deploy.sh`
+# wilson agent implementation todo
+
+## approved plan summary
+- replace ai_persona_prompt in packages/backend/server.js with wilson production system prompt
+- no other changes needed (endpoints/memory/pieces already perfect)
+
+## steps
+- [x] 1. create TODO.md ✅
+- [ ] 2. read server.js to confirm exact AI_PERSONA_PROMPT location/match
+- [ ] 3. edit server.js - replace AI_PERSONA_PROMPT with wilson prompt
+- [ ] 4. attempt_completion with full prompt text + end-to-end explanation
+
+current working directory: /home/house/pkm
+
