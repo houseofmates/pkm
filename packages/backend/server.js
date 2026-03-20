@@ -29,7 +29,7 @@ import ical from 'node-ical';
 
 // pieces mcp and bot memory integration
 import { getPiecesRecentActivity, getPiecesContextForQuery, isPiecesConnected } from './pieces-mcp.js';
-import { getAllMemoryContext, addMemory, recordInteraction, readMemory, writeMemory, appendMemory, clearMemory, getAllMemoryContext as getAllMemory } from './bot-memory.js';
+import { getAllMemoryContext, addMemory, recordInteraction, readMemory, writeMemory, appendMemory, clearMemory } from './bot-memory.js';
 
 // Load environment variables if .env exists
 if (fs.existsSync('.env')) {
