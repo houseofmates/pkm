@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cn } from '../../../packages/core/src/lib/utils'
+import { cn } from '../../../../packages/core/src/lib/utils'
 
 const Card = React.memo(React.forwardRef<
   HTMLDivElement,
