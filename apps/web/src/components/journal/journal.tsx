@@ -14,6 +14,7 @@ import SensoryHub from './sensory-hub'
 import FixationTrap from './fixation-trap'
 import LogBlock from './log-block'
 import LogsTable from './logs-table'
+import LogsCalendar from './logs-calendar'
 import { useGamificationStore } from '../../stores/gamification-store'
 // import { useAppSetting } from '../../hooks/use-app-setting' // will create hook later
 const [entries, setEntries] = useState<JournalEntry[]>([])
@@ -283,6 +284,9 @@ const Journal: React.FC = () => {
             </div>
             <div>
               <LogsTable />
+              <div className="mt-4">
+                <LogsCalendar />
+              </div>
             </div>
           </div>
         </TabsContent>
