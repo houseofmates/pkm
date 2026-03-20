@@ -57,3 +57,13 @@ if (typeof (global as any).localStorage === 'undefined' || typeof (global as any
   // eslint-disable-next-line no-console
   console.log('setup-test: localStorage.setItem type ->', typeof (global as any).localStorage.setItem);
 }
+
+// ensure __localStorageStore exists and proxies to window.localStorage when needed
+if (typeof (global as any).__localStorageStore === 'undefined') {
+  (global as any).__localStorageStore = {
+    set: (k: string, v: string) => (global as any).localStorage.setItem(k, v),
+    get: (k: string) => (global as any).localStorage.getItem(k),
+    delete: (k: string) => (global as any).localStorage.removeItem(k),
+    clear: () => (global as any).localStorage.clear()
+  };
+}
