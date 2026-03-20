@@ -8,13 +8,16 @@ if (typeof (globalThis as any).importMetaEnv === 'undefined') {
 
 // mock react-query context helpers to ensure tests using hooks don't crash
 try {
-  const { QueryClient } = await import('@tanstack/react-query');
-  const __testQueryClient = new QueryClient();
+  // create a global test QueryClient so the mock can access it from any scope
+  const rq = await vi.importActual<any>('@tanstack/react-query');
+  if (!(globalThis as any).__TEST_QUERY_CLIENT__) {
+    (globalThis as any).__TEST_QUERY_CLIENT__ = new rq.QueryClient();
+  }
   vi.mock('@tanstack/react-query', async () => {
     const actual = await vi.importActual<any>('@tanstack/react-query');
     return {
       ...actual,
-      useQueryClient: () => __testQueryClient,
+      useQueryClient: () => (globalThis as any).__TEST_QUERY_CLIENT__,
       QueryClientProvider: ({ children }: any) => children,
     };
   });
