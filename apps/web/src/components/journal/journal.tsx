@@ -12,6 +12,7 @@ import GamifiedPets from './gamified-pets'
 import VoiceInput from './voice-input'
 import SensoryHub from './sensory-hub'
 import FixationTrap from './fixation-trap'
+import LogBlock from './log-block'
 import { useGamificationStore } from '../../stores/gamification-store'
 // import { useAppSetting } from '../../hooks/use-app-setting' // will create hook later
 const [entries, setEntries] = useState<JournalEntry[]>([])
