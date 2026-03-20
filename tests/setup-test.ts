@@ -25,3 +25,30 @@ global.ResizeObserver = class ResizeObserver {
   unobserve() { }
   disconnect() { }
 };
+
+// provide a reliable localStorage shim for test environment
+if (typeof (global as any).localStorage === 'undefined' || typeof (global as any).localStorage.setItem !== 'function') {
+  const storage = new Map<string, string>();
+  const ls = {
+    getItem(key: string) {
+      return storage.has(key) ? storage.get(key) as string : null;
+    },
+    setItem(key: string, value: string) {
+      storage.set(key, String(value));
+    },
+    removeItem(key: string) {
+      storage.delete(key);
+    },
+    clear() {
+      storage.clear();
+    },
+    key(index: number) {
+      const keys = Array.from(storage.keys());
+      return keys[index] ?? null;
+    },
+    get length() {
+      return storage.size;
+    }
+  };
+  (global as any).localStorage = ls;
+}
