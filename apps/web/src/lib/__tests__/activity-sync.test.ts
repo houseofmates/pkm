@@ -17,7 +17,7 @@ global.fetch = vi.fn()
 }
 
 beforeEach(() => {
-  localStorage.clear()
+  ;(global as any).localStorage.clear()
   vi.resetAllMocks()
 })
 
@@ -35,8 +35,8 @@ describe('activity-sync', () => {
   })
 
   it('syncs logs to server', async () => {
-    localStorage.setItem('pkm_activities', JSON.stringify([{ id: '1', name: 'walk' }]))
-    localStorage.setItem('pkm_activity_logs', JSON.stringify([{ id: 'l1', activityId: '1', note: 'ok', rating: 4, createdAt: new Date().toISOString() }]))
+    ;(global as any).localStorage.setItem('pkm_activities', JSON.stringify([{ id: '1', name: 'walk' }]))
+    ;(global as any).localStorage.setItem('pkm_activity_logs', JSON.stringify([{ id: 'l1', activityId: '1', note: 'ok', rating: 4, createdAt: new Date().toISOString() }]))
 
     // findOrCreateActivity -> returns server id
     (global.fetch as any)
