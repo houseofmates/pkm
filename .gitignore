@@ -55,6 +55,9 @@ packages/backend/public/*.gif
 packages/backend/public/*.webp
 packages/backend/public/*.pdf
 
+# AppImage squashfs extraction artifacts
+squashfs-root/
+
 # Personal files
 !releases/
 *.private.*
