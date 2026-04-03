@@ -12,6 +12,7 @@ export default defineConfig({
     alias: {
       '@': path.resolve(__dirname, '../packages/core/src'),
       '@core-ui': path.resolve(__dirname, '../packages/core/src/components/ui'),
+      '@pkm/core': path.resolve(__dirname, '../packages/core/src'),
     },
   },
   server: {
@@ -20,8 +21,8 @@ export default defineConfig({
     strictPort: true,
     allowedHosts: ["app.houseofmates.space", "houseofmates.space", ".houseofmates.space", "pkm.houseofmates.space", "dupe.houseofmates.space"],
     hmr: {
-      protocol: 'wss',
-      clientPort: 443,
+      protocol: process.env.NODE_ENV === 'production' ? 'wss' : 'ws',
+      clientPort: process.env.NODE_ENV === 'production' ? 443 : 3010,
     },
     proxy: {
       '/api/broadcast': {
@@ -178,12 +179,6 @@ export default defineConfig({
       //     charset: false
       //   }
     }
-  },
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "../packages/core/src"),
-      "@pkm/core": path.resolve(__dirname, "../packages/core/src")
-    },
   },
   optimizeDeps: {
     include: ['react', 'react-dom', '@radix-ui/react-dialog', '@radix-ui/react-slot', '@radix-ui/react-popover', 'clsx', 'date-fns', 'leaflet', '@dnd-kit/core', '@dnd-kit/utilities', 'rehype-raw'],

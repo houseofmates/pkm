@@ -1,12 +1,28 @@
 // background.js - service worker for pkm capture extension
 
-// configuration
-const CONFIG = {
+// Configuration - will be loaded from storage
+let CONFIG = {
     ollamaEndpoint: 'http://localhost:11434/api/generate',
     model: 'qwen2.5vl:7b-q4_K_M',
-    nocobaseApi: 'https://db.houseofmates.space/api/ai-convos',
+    nocobaseApi: 'https://db.houseofmates.space/api',
     collectionName: 'ai-convos'
 };
+
+// Load config from storage on startup
+async function loadConfig() {
+    try {
+        const data = await browser.storage.sync.get(['apiBaseUrl', 'ollamaUrl']);
+        if (data.apiBaseUrl) {
+            CONFIG.nocobaseApi = data.apiBaseUrl;
+        }
+        if (data.ollamaUrl) {
+            CONFIG.ollamaEndpoint = `${data.ollamaUrl}/api/generate`;
+        }
+        console.log('[pkm] config loaded:', CONFIG);
+    } catch (e) {
+        console.log('[pkm] using default config');
+    }
+}
 
 // supported ai platforms for context menu
 const AI_PLATFORMS = [
@@ -68,17 +84,19 @@ function createContextMenus() {
 // create menus on install
 browser.runtime.onInstalled.addListener(() => {
     console.log('[pkm] extension installed/updated');
+    loadConfig();
     createContextMenus();
 });
 
 // also create menus on startup (browser restart)
 browser.runtime.onStartup.addListener(() => {
     console.log('[pkm] browser started');
+    loadConfig();
     createContextMenus();
 });
 
 // immediate creation for when background script loads
-createContextMenus();
+loadConfig().then(() => createContextMenus());
 
 // handle context menu clicks
 browser.contextMenus.onClicked.addListener(async (info, tab) => {
@@ -89,9 +107,12 @@ browser.contextMenus.onClicked.addListener(async (info, tab) => {
     }
 });
 
-// handle save to pkm
+// handle save to pkm - saves to captures collection
 async function handleSaveToPKM(info, tab) {
     try {
+        // ensure config is loaded
+        await loadConfig();
+        
         // get selection from content script
         const results = await browser.tabs.sendMessage(tab.id, { action: 'get_selection' });
         
@@ -100,12 +121,14 @@ async function handleSaveToPKM(info, tab) {
             return;
         }
         
-        // get api token
-        const { apiToken } = await browser.storage.sync.get('apiToken');
+        // get api token and base url
+        const { apiToken, apiBaseUrl } = await browser.storage.sync.get(['apiToken', 'apiBaseUrl']);
         if (!apiToken) {
             showToast(tab.id, 'no api token configured', true);
             return;
         }
+        
+        const apiBase = apiBaseUrl || CONFIG.nocobaseApi;
         
         // prepare payload
         const payload = {
@@ -113,11 +136,12 @@ async function handleSaveToPKM(info, tab) {
             content: results.selection,
             url: results.url,
             captured_at: new Date().toISOString(),
-            source: 'extension-capture'
+            source: 'extension-context-menu',
+            domain: new URL(results.url).hostname
         };
         
-        // send to nocobase
-        const response = await fetch(`${CONFIG.nocobaseApi}/notes`, {
+        // send to nocobase captures collection
+        const response = await fetch(`${apiBase}/captures`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -130,7 +154,7 @@ async function handleSaveToPKM(info, tab) {
             throw new Error(`nocobase error: ${response.status}`);
         }
         
-        showToast(tab.id, 'saved to pkm');
+        showToast(tab.id, 'saved to captures!');
         
     } catch (error) {
         console.error('[pkm] save error:', error);

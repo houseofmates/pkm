@@ -6,7 +6,7 @@ import { HexColorPicker } from 'react-colorful';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { cn, getContrastColor } from '@/lib/utils';
-import { Check, X, Mail, Lock, Terminal, Paperclip, Link as LinkIcon, Copy, Trash2, Edit2, Database, FileText, Layout, Plus } from 'lucide-react';
+import { Check, X, Mail, Lock, Terminal, Paperclip, Link as LinkIcon, Copy, Trash2, Edit2, Database, FileText, Layout, Plus, Calendar, Clock } from 'lucide-react';
 
 import { LocationField } from './location-field';
 import ReactMarkdown from 'react-markdown';
@@ -15,10 +15,11 @@ import RichEditor from '@/components/ui/rich-editor';
 import { sanitizeHTML } from '@/lib/utils';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
+import { Calendar as CalendarComponent } from '@/components/ui/calendar';
 import { useAuth } from '@/contexts/auth-context';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { useAppSetting } from '@/hooks/use-app-setting';
 
 // navigation hook that degrades gracefully when no router is present (tests)
 function useSafeNavigate() {
@@ -48,11 +49,12 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 // helper wrapper for the granular context menu
-import { useAppSetting } from '@/hooks/use-app-setting';
 
-const FieldContextMenu = ({ children, onEdit, onClear, value, record, collectionName }: any) => {
+const FieldContextMenu = ({ children, onEdit, onClear, value, record, collectionName, field }: any) => {
   // row color logic
   const [recordMeta, setRecordMeta] = useAppSetting<Record<string, any>>(`record_meta_${collectionName || 'unknown'}`, {});
+  // date/time display preferences per field
+  const [dateTimePrefs, setDateTimePrefs] = useAppSetting<Record<string, { showDate?: boolean; showTime?: boolean }>>(`datetime_prefs_${collectionName || 'unknown'}`, {});
 
   const handleRowColor = (color: string) => {
     if (!record || !collectionName) return;
@@ -62,6 +64,30 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
         ...(recordMeta[record.id] || {}),
         color
       }
+    });
+  };
+
+  // Check if this is a date/time field
+  const fieldName = field?.name?.toLowerCase() || '';
+  const fieldBaseType = field?.interface || field?.type || 'string';
+  const isDateTimeField = field && (field.interface === 'datetime' || field.type === 'datetime' || fieldBaseType === 'datetime' || fieldName.includes('datetime') ||
+    field.interface === 'date' || field.type === 'date' || fieldName.includes('date'));
+  const isTimeOnlyField = field && (field.interface === 'time' || field.type === 'time' || fieldBaseType === 'time' ||
+    (fieldName.includes('time') && !fieldName.includes('date') && !isDateTimeField));
+  const fieldPrefKey = field?.name || 'unknown';
+  const currentPref = { showDate: true, showTime: true, ...dateTimePrefs[fieldPrefKey] };
+
+  const toggleDateDisplay = () => {
+    setDateTimePrefs({
+      ...dateTimePrefs,
+      [fieldPrefKey]: { ...currentPref, showDate: !currentPref.showDate }
+    });
+  };
+
+  const toggleTimeDisplay = () => {
+    setDateTimePrefs({
+      ...dateTimePrefs,
+      [fieldPrefKey]: { ...currentPref, showTime: !currentPref.showTime }
     });
   };
 
@@ -133,6 +159,21 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
 
               </ContextMenuSubContent>
             </ContextMenuSub>
+          </>
+        )}
+
+        {/* date/time display options */}
+        {isDateTimeField && (
+          <>
+            <ContextMenuSeparator />
+            <ContextMenuItem onSelect={toggleDateDisplay}>
+              <Calendar className={`mr-2 h-3 w-3 ${currentPref.showDate ? 'text-primary' : 'opacity-30'}`} />
+              {currentPref.showDate ? 'hide date' : 'show date'}
+            </ContextMenuItem>
+            <ContextMenuItem onSelect={toggleTimeDisplay}>
+              <Clock className={`mr-2 h-3 w-3 ${currentPref.showTime ? 'text-primary' : 'opacity-30'}`} />
+              {currentPref.showTime ? 'hide time' : 'show time'}
+            </ContextMenuItem>
           </>
         )}
 
@@ -768,8 +809,10 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
   const isPercentField = field?.type === 'percent' || name.includes('percent');
   const isUrl = detectedType === 'url' || detectedType === 'link' || name.includes('link') || name.includes('url');
   const isFile = detectedType === 'attachment' || name.includes('file') || name.includes('image') || name.includes('avatar');
-  const isDateTime = detectedType === 'datetime' || field?.interface === 'datetime' || name.includes('datetime');
-  const isTime = detectedType === 'time' || name.includes('time');
+  const isDateTime = detectedType === 'datetime' || baseType === 'datetime' || field?.interface === 'datetime' || field?.type === 'datetime' || name.includes('datetime');
+  // Only treat as pure time field if explicitly time type/interface, or if name suggests time-only (not datetime)
+  const isTime = detectedType === 'time' || field?.interface === 'time' || field?.type === 'time' || 
+    (name.includes('time') && !name.includes('date') && !isDateTime);
   const isId = looksLikeId(value);
   const isDate = looksLikeDate(value) && !isDateTime && !isTime;
   const isShortValue = !value || String(value || '').length < 20 || isId || isDate || isDateTime || isTime;
@@ -785,6 +828,12 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
   const [currentColor, setCurrentColor] = useState('#ffffff');
   const colorInputRef = useRef<HTMLInputElement>(null);
   const [colorTarget, setColorTarget] = useState<string | null>(null);
+
+  // Date/time display preferences per field (persisted) - use same key as FieldContextMenu
+  const [dateTimePrefs, setDateTimePrefs] = useAppSetting<Record<string, { showDate?: boolean; showTime?: boolean }>>(`datetime_prefs_${collectionName || 'unknown'}`, {});
+  const fieldKey = field?.name || 'unknown';
+  const currentPref = { showDate: true, showTime: true, ...dateTimePrefs[fieldKey] };
+  const isDateTimeField = isDateTime || isDate || isTime;
 
   const enrich = (opts: any[] = []) => {
     const colors = field?.optionColors || [];
@@ -811,10 +860,10 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
     if (!dateStr) return '';
     try {
       const date = new Date(dateStr);
-      const month = date.toLocaleString('en-US', { month: 'short' }).toLowerCase() + '.';
-      const day = date.getDate();
-      const year = "'" + date.getFullYear().toString().slice(-2);
-      return `${month} ${day}, ${year}`;
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      const year = String(date.getFullYear()).slice(-2);
+      return `${month}/${day}/${year}`;
     } catch (e) { return dateStr; }
   };
 
@@ -823,7 +872,13 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
     try {
       const t = new Date(dateStr);
       if (isNaN(t.getTime())) return dateStr;
-      return t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+      let hours = t.getHours();
+      const ampm = hours >= 12 ? 'pm' : 'am';
+      hours = hours % 12;
+      hours = hours ? hours : 12; // 0 should be 12
+      const minutes = t.getMinutes();
+      // Only show minutes if not zero
+      return minutes === 0 ? `${hours}${ampm}` : `${hours}:${String(minutes).padStart(2, '0')}${ampm}`;
     } catch (e) { return dateStr; }
   };
 
@@ -1445,7 +1500,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
             </div>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0 bg-[#111] border-[#333]" align="start">
-            <Calendar mode="single" selected={localValue ? new Date(localValue) : undefined} onSelect={(d) => d && handleSave(d.toISOString())} initialFocus />
+            <CalendarComponent mode="single" selected={localValue ? new Date(localValue) : undefined} onSelect={(d) => d && handleSave(d.toISOString())} initialFocus />
           </PopoverContent>
         </Popover>
       );
@@ -1696,8 +1751,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
   }
 
   const renderView = () => {
-    console.log('enter renderView');
-    if (isId) return <span className={cn("font-mono opacity-50 select-text text-white/70", size === 'lg' ? "text-lg" : "text-[10px]")}>{value?.toString()}</span>;
+    if (isId) return <span className={cn("font-mono opacity-50 select-text text-white/70 leading-[1.1]", size === 'lg' ? "text-lg" : "text-[10px]")}>{value?.toString()}</span>;
 
     if (isLinkDatabase && value) {
       return (
@@ -1756,7 +1810,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
       }
       return (
         <div className="flex items-center gap-1 cursor-pointer" onClick={() => setIsEditing(true)}>
-          <div className={cn("px-1.5 py-0.5 bg-blue-900/30 text-blue-300 rounded border border-blue-800 w-full", size === 'lg' ? "text-lg" : "text-xs")}>
+          <div className={cn("px-1.5 py-0.5 bg-blue-900/30 text-blue-300 rounded border border-blue-800 w-full leading-[1.1]", size === 'lg' ? "text-lg" : "text-xs")}>
             {display || <span className="opacity-50 italic">empty</span>}
           </div>
         </div>
@@ -1764,12 +1818,30 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
     }
 
     if (isDateTime || isDate || isTime) {
+      const showDate = currentPref.showDate !== false;
+      const showTime = currentPref.showTime !== false;
+      
+      let displayValue = '';
+      if (value !== null && value !== undefined) {
+        if (isDate) {
+          displayValue = showDate ? formatDate(value) : '';
+        } else if (isTime) {
+          displayValue = showTime ? formatTime(value) : '';
+        } else {
+          // datetime - combine based on preferences with ' - ' separator
+          const datePart = showDate ? formatDate(value) : '';
+          const timePart = showTime ? formatTime(value) : '';
+          const separator = datePart && timePart ? ' - ' : ' ';
+          displayValue = `${datePart}${separator}${timePart}`.trim();
+        }
+      }
+      
       return (
         <div
           onDoubleClick={() => setIsEditing(true)}
-          className={cn("cursor-pointer min-h-[20px] font-varela text-white/90", size === 'lg' ? "text-lg" : "text-sm")}
+          className={cn("cursor-pointer min-h-[20px] font-varela text-white/90", size === 'lg' ? "text-lg" : "text-sm", "leading-[1.1]")}
         >
-          {value !== null && value !== undefined ? (isDate ? formatDate(value) : (isTime ? formatTime(value) : `${formatDate(value)} ${formatTime(value)}`)) : <span className="opacity-20">-</span>}
+          {displayValue || <span className="opacity-20">-</span>}
         </div>
       );
     }
@@ -1810,7 +1882,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
           return (
             <div
               onClick={() => setIsEditing(true)}
-              className={cn("cursor-pointer text-center min-h-[20px] font-varela text-white/90", size === 'lg' ? "text-lg" : "text-sm")}
+              className={cn("cursor-pointer text-center min-h-[20px] font-varela text-white/90 leading-[1.1]", size === 'lg' ? "text-lg" : "text-sm")}
               style={color ? { background: color, color: getContrastColor(color), padding: '0 0.25rem', borderRadius: '0.25rem' } : undefined}
             >
 {label || <span className="opacity-50 italic text-center block">empty</span>}
@@ -1819,7 +1891,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
         }
       }
 
-    if (isEmail) return <a href={`mailto:${strValue}`} className={cn("text-primary hover:underline flex items-center gap-1 w-full", size === 'lg' ? "text-lg" : "text-sm")} onClick={e => e.stopPropagation()}><Mail className="h-3 w-3" /> {strValue}</a>;
+    if (isEmail) return <a href={`mailto:${strValue}`} className={cn("text-primary hover:underline flex items-center gap-1 w-full leading-[1.1]", size === 'lg' ? "text-lg" : "text-sm")} onClick={e => e.stopPropagation()}><Mail className="h-3 w-3" /> {strValue}</a>;
     if (isUrl) {
       const urlText = String(value || '');
       return (
@@ -1830,7 +1902,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
               target="_blank"
               rel="noreferrer noopener"
               onContextMenu={(e) => { e.stopPropagation(); }}
-              className={cn("text-blue-400 hover:underline flex items-center gap-1 w-full cursor-pointer truncate", size === 'lg' ? "text-lg" : "text-sm")}
+              className={cn("text-blue-400 hover:underline flex items-center gap-1 w-full cursor-pointer truncate leading-[1.1]", size === 'lg' ? "text-lg" : "text-sm")}
               onClick={(e) => e.stopPropagation()}
               title={urlText}
             >
@@ -1932,11 +2004,9 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
   };
 
   const viewContent = renderView();
-  console.log('has viewContent', !!viewContent);
-  console.log('about to return outer markup');
   return (
     <div className={cn("font-varela", size === 'lg' ? "text-lg" : "text-sm", "w-full h-full")}>
-      <FieldContextMenu onEdit={() => setIsEditing(true)} onClear={() => onChange(null)} value={value} record={record} collectionName={collectionName}>
+      <FieldContextMenu onEdit={() => setIsEditing(true)} onClear={() => onChange(null)} value={value} record={record} collectionName={collectionName} field={field}>
         {viewContent}
       </FieldContextMenu>
 

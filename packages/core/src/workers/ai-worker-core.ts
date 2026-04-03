@@ -120,30 +120,10 @@ async function generateEmbedding(text: string): Promise<number[]> {
 // ---------------------------------------------------------------------------
 
 async function searchKnowledgeBase(query: string, topK: number = VECTOR_CONFIG.topK): Promise<SearchResultDTO[]> {
-    try {
-        const response = await apiFetch('/ai-knowledge-base:search', {
-            knowledgeBaseId: VECTOR_CONFIG.knowledgeBaseId,
-            query,
-            topK,
-        });
-
-        if (response?.data) {
-            return response.data.map((item: any) => ({
-                chunk: {
-                    id: item.id,
-                    collection: item.collection,
-                    recordId: item.recordId,
-                    field: item.field,
-                    content: item.content,
-                    metadata: item.metadata,
-                },
-                score: item.score || 0,
-            }));
-        }
-        return [];
-    } catch {
-        return fallbackLocalSearch(query, topK);
-    }
+    // Skip the AI knowledge base search - it requires a collection that doesn't exist
+    // Just use the fallback local search which searches through collections directly
+    console.log('[ai-worker] Using fallback local search (knowledge base not available)');
+    return fallbackLocalSearch(query, topK);
 }
 
 async function fallbackLocalSearch(query: string, topK: number): Promise<SearchResultDTO[]> {
@@ -516,6 +496,32 @@ async function askWithRag(
     endpoint: string,
     onToken: (cumulativeContent: string) => void,
 ): Promise<AskWithRagResult> {
+    console.log('[ai-worker] askWithRag called:', { query: query.slice(0, 50), fronterName, model, endpoint: endpoint.slice(0, 100) });
+    
+    // Vision models need the chat endpoint with messages format
+    // qwen2.5-coder:7b-instruct-q4_K_S is actually the VL model renamed for Pieces OS compatibility
+    const isVisionModel = model.includes('vl') || model.includes('vision') || model.includes('llava') || model.includes('qwen2.5-coder');
+    
+    if (isVisionModel) {
+        console.log('[ai-worker] Detected vision model, using chat endpoint');
+        try {
+            const ragCtx = await buildRagContext(query, 8);
+            const systemContent = `${WILSON_RAG_SYSTEM_PROMPT}\n\ncurrent user: ${fronterName}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}`;
+            const messages: ChatMessage[] = [
+                { role: 'system', content: systemContent },
+                { role: 'user', content: query }
+            ];
+            const response = await chatStreamMultimodal(messages, model, endpoint, onToken);
+            console.log('[ai-worker] Vision model response received');
+            return { response: response.toLowerCase(), sources: ragCtx.sources };
+        } catch (e) {
+            console.error('[ai-worker] Vision model error:', e);
+            throw e;
+        }
+    }
+    
+    // Non-vision models use the generate endpoint
+    console.log('[ai-worker] Using generate endpoint');
     const { prompt, sources } = await buildRagPrompt(query, fronterName);
     const response = await chatStream(prompt, model, endpoint, onToken);
     return { response: response.toLowerCase(), sources };
@@ -604,8 +610,21 @@ function resolveOllamaEndpointForWorker(endpoint: string, fallbackPath: string =
 
     const stripped = endpoint.replace(/\/+$/, '');
     
-    // if endpoint is already a full URL (starts with http:// or https://), use it as-is
+    // if endpoint is already a full URL (starts with http:// or https://)
     if (/^https?:\/\//.test(stripped)) {
+        // Check if it ends with /api/generate but we need /api/chat (or vice versa)
+        const generatePattern = /\/api\/generate$/;
+        const chatPattern = /\/api\/chat$/;
+        
+        if (fallbackPath === '/api/chat' && generatePattern.test(stripped)) {
+            // Replace /api/generate with /api/chat
+            return stripped.replace(generatePattern, '/api/chat');
+        }
+        if (fallbackPath === '/api/generate' && chatPattern.test(stripped)) {
+            // Replace /api/chat with /api/generate
+            return stripped.replace(chatPattern, '/api/generate');
+        }
+        
         // only rewrite if it's localhost:11434 pointing to the default
         const localhostPattern = /^https?:\/\/localhost:11434/;
         if (localhostPattern.test(stripped)) {

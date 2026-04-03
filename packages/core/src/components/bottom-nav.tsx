@@ -1,4 +1,4 @@
-import { Home, Database, Users, Search, Inbox, BookOpen, Calendar } from 'lucide-react';
+import { Home, Database, Users, Search, Inbox, BookOpen, Calendar, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
@@ -9,6 +9,10 @@ interface BottomNavProps {
 }
 
 export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps) {
+
+  const handleOpenChat = () => {
+    window.dispatchEvent(new CustomEvent('pkm:open-chat'));
+  };
 
   const handleOpenSearch = () => {
     window.dispatchEvent(new CustomEvent('pkm:open-search'));
@@ -21,6 +25,16 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
           "w-full max-w-md flex items-center justify-between bg-black/95 backdrop-blur-xl border-t border-white/10 shadow-[0_-4px_32px_rgba(0,0,0,0.5)] px-1 py-1 pointer-events-auto",
           className
         )}>
+          {/* Chat button - leftmost */}
+          <Button
+            variant="ghost"
+            className="flex flex-col items-center justify-center h-[48px] w-[48px] min-w-[48px] rounded-2xl gap-0.5 hover:bg-white/10"
+            onClick={handleOpenChat}
+          >
+            <MessageSquare className="h-6 w-6" />
+            <span className="text-[10px] font-medium lowercase">chat</span>
+          </Button>
+
           <Button
             variant="ghost"
             className={cn("flex flex-col items-center justify-center h-[48px] w-[48px] min-w-[48px] rounded-2xl gap-0.5 hover:bg-white/10", activeTab === 'home' && "bg-primary/20 text-primary hover:bg-primary/30")}

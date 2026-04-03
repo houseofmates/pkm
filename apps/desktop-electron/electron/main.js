@@ -91,12 +91,20 @@ function createWindow() {
     mainWindow = new BrowserWindow({
         width: 1280,
         height: 800,
+        title: 'pkm',
+        frame: true,
+        autoHideMenuBar: true,
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
             preload: path.join(__dirname, 'preload.js'),
             webSecurity: false
         },
+    });
+
+    // prevent page from changing window title
+    mainWindow.webContents.on('page-title-updated', (e, title) => {
+        e.preventDefault();
     });
 
     // open links in external browser
@@ -126,45 +134,18 @@ function createWindow() {
             startUpdateChecker();
         });
     } else {
-        // Offline mode: load bundled files from custom protocol to fix localStorage and IndexedDB origin
-        mainWindow.loadURL('pkm://app/index.html');
-        console.log('[pkm] Offline mode: Loading bundled files via pkm://');
+        // Always use live-update mode: load from remote to share localStorage with web app
+        // This fixes JWT token sync between web and AppImage
+        mainWindow.loadURL(remoteUrl);
+        console.log(`[pkm] Live-update mode: Loading from ${remoteUrl}`);
+        console.log(`[pkm] Shares localStorage with web app for JWT token compatibility`);
+
+        // Start checking for updates after initial load
+        mainWindow.webContents.on('did-finish-load', () => {
+            setTimeout(checkForUpdates, 5000);
+            startUpdateChecker();
+        });
     }
-
-    // Add reload menu
-    const template = [
-        {
-            label: 'View',
-            submenu: [
-                { role: 'reload' },
-                { role: 'forceReload' },
-                { role: 'toggleDevTools' },
-                { type: 'separator' },
-                {
-                    label: 'Check for Updates',
-                    accelerator: 'CmdOrCtrl+U',
-                    click: () => {
-                        dialog.showMessageBox(mainWindow, {
-                            type: 'info',
-                            title: 'Update Check',
-                            message: 'Checking for updates...',
-                            buttons: ['OK']
-                        });
-                        checkForUpdates();
-                    }
-                },
-                { type: 'separator' },
-                { role: 'resetZoom' },
-                { role: 'zoomIn' },
-                { role: 'zoomOut' },
-                { type: 'separator' },
-                { role: 'togglefullscreen' }
-            ]
-        }
-    ];
-
-    const menu = Menu.buildFromTemplate(template);
-    Menu.setApplicationMenu(menu);
 
     mainWindow.on('closed', () => {
         mainWindow = null;
@@ -173,6 +154,9 @@ function createWindow() {
 }
 
 app.whenReady().then(() => {
+    // Remove menu bar BEFORE creating window (important for Linux)
+    Menu.setApplicationMenu(null);
+    
     protocol.handle('pkm', (request) => {
         let urlPath = request.url.slice('pkm://app/'.length);
         urlPath = urlPath.split('?')[0].split('#')[0];

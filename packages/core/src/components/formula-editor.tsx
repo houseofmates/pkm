@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Terminal, Send, Play, Sparkles, X, Save } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
-import { getOllamaGenerateUrl, DEFAULT_GEMINI_MODEL } from '@/lib/llm-config';
+import { getOllamaGenerateUrl, DEFAULT_OLLAMA_MODEL } from '@/lib/llm-config';
 import { generateText } from '@/lib/llm-service';
 import { secureLogger } from '@/lib/secure-logger';
 
@@ -24,7 +24,7 @@ const fetchAIResponse = async (prompt: string, context: any) => {
     const url = getOllamaGenerateUrl();
     const response = await generateText(
       `context: ${JSON.stringify(context)}\n\nuser: ${prompt}\n\nplease reply in lowercase and provide a concise javascript snippet when appropriate. treat the provided context as background.`,
-      DEFAULT_GEMINI_MODEL,
+      DEFAULT_OLLAMA_MODEL,
       url,
     );
     return response?.toLowerCase() || response || 'error connecting to the ai assistant.';

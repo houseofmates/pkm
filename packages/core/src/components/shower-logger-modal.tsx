@@ -16,6 +16,7 @@ import { format } from 'date-fns';
 import { generateVerticalThumbnail, getGeminiApiKey } from '@/lib/vertex-image';
 import api from '@/api/nocobase-client';
 import { toast } from 'sonner';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface ShowerLoggerModalProps {
   isOpen: boolean;
@@ -119,7 +120,7 @@ export function ShowerLoggerModal({ isOpen, onClose }: ShowerLoggerModalProps) {
         }));
       setProducts(mapped);
     } catch (error: any) {
-      console.error('failed to load products:', error);
+      secureLogger.error('failed to load products:', error);
       toast.error('failed to load products database');
     } finally {
       setProductsLoading(false);
@@ -173,7 +174,7 @@ export function ShowerLoggerModal({ isOpen, onClose }: ShowerLoggerModalProps) {
       setNewProductName('');
       toast.success('product added');
     } catch (error: any) {
-      console.error('failed to add product:', error);
+      secureLogger.error('failed to add product:', error);
       toast.error('failed to add product');
     } finally {
       setAddingProduct(false);
@@ -198,7 +199,7 @@ export function ShowerLoggerModal({ isOpen, onClose }: ShowerLoggerModalProps) {
       setThumbnailUrl(url);
       toast.success('Motivating thumbnail generated!');
     } catch (error: any) {
-      console.error('Failed to generate thumbnail:', error);
+      secureLogger.error('Failed to generate thumbnail:', error);
       toast.error('Failed to generate image: ' + error.message);
     } finally {
       setGenerating(false);
@@ -268,7 +269,7 @@ export function ShowerLoggerModal({ isOpen, onClose }: ShowerLoggerModalProps) {
       setProductQuery('');
       setThumbnailUrl(null);
     } catch (error: any) {
-      console.error('Failed to save shower log:', error);
+      secureLogger.error('Failed to save shower log:', error);
       toast.error('Failed to save log: ' + error.message);
     } finally {
       setLoading(false);

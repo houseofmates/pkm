@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Database, Home, Users, Search, MessageCircle, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings, UploadCloud, BookOpen, type LucideIcon } from 'lucide-react';
+import { Database, Home, Users, Search, MessageCircle, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings, UploadCloud, BookOpen, type LucideIcon, MessageSquare } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 
 // Dynamic icon loader for Lucide icons
@@ -137,8 +137,8 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
 
   // determine highlight color based on item type
   function getHighlightColor(opacity = 0.22) {
-    // sidebar items: use their own color if available, else accent
-    const base = metaColor || '#f5af12';
+    // sidebar items: use their own color if available, else white
+    const base = metaColor || '#ffffff';
     if (base.startsWith('#')) {
       // Convert hex to rgba
       const hex = base.replace('#', '');
@@ -154,8 +154,8 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
       }
       return base.replace(/rgb\(([^)]+)\)/, `rgba($1,${opacity})`);
     }
-    // fallback
-    return `rgba(245, 175, 18, ${opacity})`;
+    // fallback to white
+    return `rgba(255, 255, 255, ${opacity})`;
   }
 
   const highlightColor = getHighlightColor(0.22);
@@ -452,8 +452,19 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
   useEffect(() => {
     if (collections.length === 0) return;
 
-    const forbiddenCollections = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website'];
+    // only hide system/internal collections - all user collections should be visible
+    const forbiddenCollections = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website', 'users', 'roles'];
     const visibleCollections = collections.filter((c: any) => !forbiddenCollections.includes(String(c.name).toLowerCase()));
+
+    // Clear any stored deleted state for collections that exist on server
+    // This ensures newly created collections always appear
+    const storedDeleted = getStoredDeleted();
+    visibleCollections.forEach((c: any) => {
+      const nameLC = String(c.name).toLowerCase();
+      if (storedDeleted.has(nameLC)) {
+        removeStoredDeleted(nameLC);
+      }
+    });
 
     // load drawings from indexeddb, then merge everything in one atomic update
     const syncAll = async () => {
@@ -576,12 +587,21 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     { id: 'headmates', icon: Users, label: 'headmates' },
   ] as const;
 
+  const handleOpenChat = () => {
+    window.dispatchEvent(new CustomEvent('pkm:open-chat'));
+  };
+
   return (
     <>
       {/* desktop sidebar */}
       <div className={cn("hidden lg:flex flex-col w-64 h-full min-h-0 py-4 sidebar-container", className)} style={{ backgroundColor: '#050505' }}>
         {/* top icons */}
         <div className="flex items-center justify-around px-2 mb-2">
+          <NavIconButton
+            tab={{ id: 'chat', icon: MessageSquare, label: 'wilson chat' }}
+            isActive={false}
+            onClick={handleOpenChat}
+          />
           {tabs.map(tab => (
             <NavIconButton
               key={tab.id}

@@ -12,6 +12,13 @@ const CreateCaptureWidget = lazy(() => import('@/features/widgets/CreateCaptureW
 const HygieneTracker = lazy(() => import('@/features/widgets/HygieneTracker').then(m => ({ default: m.HygieneTracker })));
 const DatabaseViewWidget = lazy(() => import('@/features/widgets/DatabaseViewWidget').then(m => ({ default: m.DatabaseViewWidget })));
 
+// gamification widgets
+const GamificationStreakWidget = lazy(() => import('./widgets/GamificationStreakWidget').then(m => ({ default: m.GamificationStreakWidget })));
+const GamificationPetWidget = lazy(() => import('./widgets/GamificationPetWidget').then(m => ({ default: m.GamificationPetWidget })));
+const GamificationQuestWidget = lazy(() => import('./widgets/GamificationQuestWidget').then(m => ({ default: m.GamificationQuestWidget })));
+const GamificationQuickVoiceWidget = lazy(() => import('./widgets/GamificationQuickVoiceWidget').then(m => ({ default: m.GamificationQuickVoiceWidget })));
+const GamificationMoodWidget = lazy(() => import('./widgets/GamificationMoodWidget').then(m => ({ default: m.GamificationMoodWidget })));
+
 interface WidgetElementProps {
     element: any;
 }
@@ -69,6 +76,17 @@ export const WidgetElement = React.memo(function WidgetElement({ element }: Widg
                 return <HygieneTracker data={data} onUpdate={handleDataUpdate} />;
             case 'embed-nocobase':
                 return <DatabaseViewWidget data={{ ...data, _elementId: element.id }} />;
+            // gamification widgets
+            case 'gamification-streak':
+                return <GamificationStreakWidget />;
+            case 'gamification-pets':
+                return <GamificationPetWidget />;
+            case 'gamification-quests':
+                return <GamificationQuestWidget />;
+            case 'gamification-quick-voice':
+                return <GamificationQuickVoiceWidget />;
+            case 'gamification-mood':
+                return <GamificationMoodWidget />;
             default:
                 return (
                     <div className="w-full h-full flex flex-col items-center justify-center bg-black/40 border border-dashed border-white/20 rounded-xl text-[10px] text-muted-foreground lowercase">

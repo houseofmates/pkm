@@ -1,6 +1,7 @@
-// popup.js
+// popup.js - handles the capture popup UI
 
-const CONFIG = {
+// Configuration is now loaded from storage
+let CONFIG = {
     apiBase: 'https://db.houseofmates.space/api',
     collectionName: 'captures'
 };
@@ -62,6 +63,11 @@ async function getApiToken() {
     return sync?.apiToken ? String(sync.apiToken) : '';
 }
 
+async function getApiBaseUrl() {
+    const sync = await storageGet('sync', 'apiBaseUrl').catch(() => ({}));
+    return sync?.apiBaseUrl || 'https://db.houseofmates.space/api';
+}
+
 async function setApiToken(token) {
     await storageSet('local', { apiToken: token }).catch(() => undefined);
     await storageSet('sync', { apiToken: token }).catch(() => undefined);
@@ -80,8 +86,11 @@ const inputs = {
     tags: document.getElementById('tags')
 };
 
-// Init
+// Load config and init
 document.addEventListener('DOMContentLoaded', async () => {
+    const apiBase = await getApiBaseUrl();
+    CONFIG.apiBase = apiBase;
+    
     const token = await getApiToken();
     if (!token) {
         showSettings();

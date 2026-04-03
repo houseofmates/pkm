@@ -19,6 +19,7 @@ import { isCapacitorNative } from "@/lib/platform"
 const Spotlight = lazy(() => import("@/components/Spotlight").then(m => ({ default: m.Spotlight })));
 
 const SetupRequired = lazy(() => import("@/components/setup-required").then(m => ({ default: m.SetupRequired })));
+const TodayPage = lazy(() => import("@/pages/today").then(m => ({ default: m.TodayPage })));
 const HomePage = lazy(() => import("@/pages/home").then(m => ({ default: m.HomePage })));
 const DatabasesPage = lazy(() => import("@/pages/databases").then(m => ({ default: m.DatabasesPage })));
 const CollectionDetailPage = lazy(() => import("@/pages/collection-detail").then(m => ({ default: m.CollectionDetailPage })));
@@ -39,6 +40,7 @@ const PublicDocViewer = lazy(() => import("@/components/journal/public-doc-viewe
 const RagTestPage = lazy(() => import("@/pages/rag-test").then(m => ({ default: m.default })));
 const JournalPage = lazy(() => import("@/pages/journal").then(m => ({ default: m.JournalPage })));
 const CalendarPage = lazy(() => import("@/pages/calendar").then(m => ({ default: m.CalendarPage })));
+const AchievementsPage = lazy(() => import("@/pages/achievements").then(m => ({ default: m.AchievementsPage })));
 
 // Simple breathe page component that renders the breathing exercise
 function BreathePage() {
@@ -293,6 +295,7 @@ function AppContent() {
             <Routes>
               <Route element={<RootLayout />}>
                 <Route path="/" element={<HomePage />} />
+                <Route path="/today" element={<TodayPage />} />
                 <Route path="/databases" element={<DatabasesPage />} />
                 <Route path="/databases/:name" element={<CollectionDetailPage />} />
                 <Route path="/headmates" element={<HeadmatesPage />} />
@@ -314,10 +317,11 @@ function AppContent() {
                 <Route path="/rag-test" element={<RagTestPage />} />
                 <Route path="/journal" element={<JournalPage />} />
                 <Route path="/calendar" element={<CalendarPage />} />
+                <Route path="/achievements" element={<AchievementsPage />} />
+                <Route path="/awards" element={<AchievementsPage />} />
                 <Route path="*" element={<HomePage />} />
               </Route>
             </Routes>
-            <Spotlight />
           </Suspense>
         ) : <LoginPage />}
       <Toaster />

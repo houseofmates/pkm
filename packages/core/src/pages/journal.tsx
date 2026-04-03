@@ -8,7 +8,7 @@ import api from '@/api/nocobase-client';
 import { OllamaClient } from '@/api/ollama-client';
 import { type JournalRecord, parseActivities } from '@/schema/journal-collection';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, AreaChart, Area } from 'recharts';
-import { Sparkles, Mic, Image, BarChart2, Heart, Zap, Target, Award, BookOpen, History, Wind, Clock, Download, Bell, Plus, X, ChevronLeft, ChevronRight, Search, Filter, Edit2, Trash2, FileText, ShowerHead, CalendarDays, CheckSquare, TrendingUp } from 'lucide-react';
+import { Sparkles, Mic, Image, BarChart2, Heart, Zap, Target, Award, BookOpen, History, Wind, Clock, Download, Bell, Plus, X, ChevronLeft, ChevronRight, Search, Filter, Edit2, Trash2, FileText, ShowerHead, CalendarDays, CheckSquare, TrendingUp, Snowflake, Loader2, Medal, LayoutDashboard, GitGraph, Database } from 'lucide-react';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { PushToTalkWidget } from '@/components/push-to-talk-widget';
@@ -287,21 +287,69 @@ const JOURNAL_TEMPLATES = [
 ];
 
 const QUOTES = [
-  { text: "every day is a fresh start.", author: "unknown" },
+  // comfort & self-compassion
+  { text: "you are enough, exactly as you are.", author: "unknown" },
+  { text: "be gentle with yourself. you're doing the best you can.", author: "unknown" },
+  { text: "it's okay to not be okay. this feeling is temporary.", author: "unknown" },
+  { text: "you don't have to be perfect to be worthy of love.", author: "unknown" },
+  { text: "rest is not a reward. it's a necessary part of being human.", author: "unknown" },
+  { text: "your best is enough. even on hard days.", author: "unknown" },
+  { text: "healing takes time. be patient with your journey.", author: "unknown" },
+  { text: "you are allowed to take up space. you are allowed to exist.", author: "unknown" },
+  { text: "softness is not weakness. it's strength in its most honest form.", author: "unknown" },
+  { text: "you matter. your feelings matter. your story matters.", author: "unknown" },
+  // motivation & growth
   { text: "progress, not perfection.", author: "unknown" },
-  { text: "you are enough.", author: "unknown" },
   { text: "small steps lead to big changes.", author: "unknown" },
-  { text: "your feelings are valid.", author: "unknown" },
-  { text: "this too shall pass.", author: "unknown" },
-  { text: "you are worthy of good things.", author: "unknown" },
-  { text: "be gentle with yourself.", author: "unknown" },
-  { text: "you've got this.", author: "unknown" },
-  { text: "today is a new opportunity.", author: "unknown" },
-  { text: "your journey is unique.", author: "unknown" },
-  { text: "rest is productive.", author: "unknown" },
-  { text: "you are growing every day.", author: "unknown" },
-  { text: "celebrate small wins.", author: "unknown" },
-  { text: "you deserve peace.", author: "unknown" },
+  { text: "every day is a fresh start.", author: "unknown" },
+  { text: "you are growing, even when it doesn't feel like it.", author: "unknown" },
+  { text: "courage doesn't mean not being afraid. it means showing up anyway.", author: "brene brown" },
+  { text: "the only way out is through. you've survived 100% of your bad days.", author: "unknown" },
+  { text: "your future self is thanking you for not giving up today.", author: "unknown" },
+  { text: "discipline is choosing between what you want now and what you want most.", author: "abraham lincoln" },
+  { text: "fall seven times, stand up eight.", author: "japanese proverb" },
+  { text: "you don't have to see the whole staircase, just take the first step.", author: "martin luther king jr" },
+  // inspiration & purpose
+  { text: "your presence is a gift to this world.", author: "unknown" },
+  { text: "the world needs your unique light. don't hide it.", author: "unknown" },
+  { text: "you are capable of amazing things.", author: "unknown" },
+  { text: "what lies behind us and what lies before us are tiny matters compared to what lies within us.", author: "ralph waldo emerson" },
+  { text: "believe you can and you're halfway there.", author: "theodore roosevelt" },
+  { text: "the only person you are destined to become is the person you decide to be.", author: "ralph waldo emerson" },
+  { text: "act as if what you do makes a difference. it does.", author: "william james" },
+  { text: "success is not final, failure is not fatal: it is the courage to continue that counts.", author: "winston churchill" },
+  { text: "happiness is not something ready-made. it comes from your own actions.", author: "dalai lama" },
+  { text: "the best time to plant a tree was 20 years ago. the second best time is now.", author: "chinese proverb" },
+  // mindfulness & presence
+  { text: "this moment is enough. you are enough. right here, right now.", author: "unknown" },
+  { text: "breathe. it's just a bad day, not a bad life.", author: "unknown" },
+  { text: "you cannot pour from an empty cup. take care of yourself first.", author: "unknown" },
+  { text: "worrying does not take away tomorrow's troubles. it takes away today's peace.", author: "unknown" },
+  { text: "the present moment is the only moment available to us.", author: "thich nhat hanh" },
+  { text: "peace comes from within. do not seek it without.", author: "buddha" },
+  { text: "almost everything will work again if you unplug it for a few minutes, including you.", author: "anne lamott" },
+  { text: "taking care of yourself is productive.", author: "unknown" },
+  // resilience & strength
+  { text: "you are stronger than you know. you've survived every hard day so far.", author: "unknown" },
+  { text: "scars are just tattoos with better stories.", author: "unknown" },
+  { text: "the oak fought the wind and was broken, the willow bent when it must and survived.", author: "robert jordan" },
+  { text: "rock bottom became the solid foundation on which i rebuilt my life.", author: "j.k. rowling" },
+  { text: "life is 10% what happens to you and 90% how you react to it.", author: "charles swindoll" },
+  { text: "tough times never last, but tough people do.", author: "robert schuller" },
+  // hope & optimism
+  { text: "after every storm, the sun will smile.", author: "unknown" },
+  { text: "hope is being able to see that there is light despite all of the darkness.", author: "desmond tutu" },
+  { text: "no matter how long the winter, spring is sure to follow.", author: "proverb" },
+  { text: "the darkest hour has only sixty minutes.", author: "morris mandel" },
+  { text: "keep your face always toward the sunshine—and shadows will fall behind you.", author: "walt whitman" },
+  { text: "every moment is a fresh beginning.", author: "t.s. eliot" },
+  // self-worth & validation
+  { text: "your value doesn't decrease based on someone's inability to see your worth.", author: "unknown" },
+  { text: "you are not a drop in the ocean. you are the entire ocean in a drop.", author: "rumi" },
+  { text: "comparison is the thief of joy. your journey is uniquely yours.", author: "theodore roosevelt" },
+  { text: "don't let yesterday take up too much of today.", author: "will rogers" },
+  { text: "you yourself, as much as anybody in the entire universe, deserve your love and affection.", author: "buddha" },
+  { text: "to love oneself is the beginning of a lifelong romance.", author: "oscar wilde" },
 ];
 
 const ACHIEVEMENTS = [
@@ -1888,6 +1936,11 @@ export function JournalPage() {
   const [showTemplates, setShowTemplates] = useState(false);
   const [showHeatmap, setShowHeatmap] = useState(false);
 
+  // ── state: collapsible section groups ──
+  const [showActivityDb, setShowActivityDb] = useState(true);
+  const [showProgressSection, setShowProgressSection] = useState(true);
+  const [showInsightsSection, setShowInsightsSection] = useState(false);
+
 
   // ── state: journal date ──
   const [entryDate, setEntryDate] = useState<string>(getToday());
@@ -2961,7 +3014,9 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
           <p className="text-xs text-white/40 lowercase">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
           <h1 className="text-2xl font-bold lowercase tracking-tight">journal</h1>
         </div>
-        <div className="flex items-center gap-1 flex-wrap justify-end">
+        <div className="flex items-center gap-2">
+          <p className="hidden md:block text-xs italic text-white/30 lowercase truncate max-w-[200px] lg:max-w-[300px]">"{todayQuote.text}"</p>
+          <div className="flex items-center gap-1 flex-wrap justify-end">
           {streak > 0 && (
             <div className="flex items-center gap-1 px-2 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20">
               <span className="text-sm">🔥</span>
@@ -3053,34 +3108,95 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
 
       {pastEntriesPanel}
 
-      <MedicationTracker />
-
-      {/* xp & level bar */}
-      <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
-        <div className="flex items-center justify-between mb-2">
+      {/* Progress & Gamification Section */}
+      <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02] space-y-4">
+        <button 
+          onClick={() => setShowProgressSection(!showProgressSection)}
+          className="w-full flex items-center justify-between"
+        >
           <div className="flex items-center gap-2">
-            <span className="text-xl">{levelInfo.emoji}</span>
-            <span className="text-sm font-medium lowercase">level {levelInfo.level}</span>
-            <span className="text-xs text-white/40 lowercase">{levelInfo.name}</span>
+            <TrendingUp size={16} className="text-[#ffb20d]" />
+            <p className="text-xs text-white/40 lowercase">progress & gamification</p>
           </div>
-          <span className="text-xs text-white/40 lowercase">{xp} xp</span>
-        </div>
-        <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-          <div 
-            className="h-full transition-all duration-500"
-            style={{ width: `${levelInfo.progress}%`, background: `linear-gradient(90deg, ${Y}, ${B})` }}
-          />
-        </div>
-        <p className="text-[10px] text-white/30 mt-1 lowercase">
-          {levelInfo.nextLevelXp - xp} xp to next level
-        </p>
-      </div>
+          <span className="text-xs text-white/60 lowercase">level {levelInfo.level} • {streak} day streak</span>
+        </button>
 
-      {/* quote */}
-      <div className="text-center py-2 border-y border-white/5">
-        <p className="text-sm italic text-white/40 lowercase">"{todayQuote.text}"</p>
-        {todayQuote.author !== 'unknown' && (
-          <p className="text-xs text-white/20 mt-0.5 lowercase">— {todayQuote.author}</p>
+        {showProgressSection && (
+          <div className="space-y-4 pt-2">
+            <MedicationTracker />
+
+            {/* xp & level bar */}
+            <div className="p-3 rounded-xl border border-white/10 bg-white/[0.02]">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">{levelInfo.emoji}</span>
+                  <span className="text-sm font-medium lowercase">level {levelInfo.level}</span>
+                  <span className="text-xs text-white/40 lowercase">{levelInfo.name}</span>
+                </div>
+                <span className="text-xs text-white/40 lowercase">{xp} xp</span>
+              </div>
+              <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                <div 
+                  className="h-full transition-all duration-500"
+                  style={{ width: `${levelInfo.progress}%`, background: `linear-gradient(90deg, ${Y}, ${B})` }}
+                />
+              </div>
+              <p className="text-[10px] text-white/30 mt-1 lowercase">
+                {levelInfo.nextLevelXp - xp} xp to next level
+              </p>
+            </div>
+
+            {/* daily goals */}
+            <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+              <div className="flex justify-between items-center mb-3">
+                <div className="flex items-center gap-2">
+                  <Target size={16} className="text-blue-400" />
+                  <p className="text-xs text-white/40 lowercase">daily goals</p>
+                </div>
+                <span className="text-xs text-white/60 lowercase">{completedGoals}/{dailyGoals.length}</span>
+              </div>
+              <div className="h-2 bg-white/10 rounded-full mb-3 overflow-hidden">
+                <div 
+                  className="h-full transition-all duration-300"
+                  style={{ width: `${goalsProgress}%`, backgroundColor: goalsProgress === 100 ? G : Y }}
+                />
+              </div>
+              <div className="space-y-2">
+                {dailyGoals.map(g => (
+                  <label key={g.id} className="flex items-center gap-2 text-sm lowercase cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={g.completed}
+                      onChange={() => toggleDailyGoal(g.id)}
+                      className="h-4 w-4 rounded border-white/30 bg-transparent accent-green-500"
+                    />
+                    <span className="text-sm">{g.icon}</span>
+                    <span className={cn(g.completed ? 'text-white' : 'text-white/50')}>{g.label}</span>
+                  </label>
+                ))}
+              </div>
+              {dailyGoalLog.length > 0 && (
+                <div className="mt-3 pt-3 border-t border-white/10">
+                  <p className="text-[10px] text-white/40 lowercase">completed today</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    {[...dailyGoalLog]
+                      .sort((a, b) => new Date(b.completedAt).getTime() - new Date(a.completedAt).getTime())
+                      .map(log => (
+                        <span
+                          key={log.goalId}
+                          className="px-2 py-1 rounded-full text-[10px] lowercase bg-white/5 border border-white/10 text-white/70"
+                        >
+                          {log.label} • {new Date(log.completedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).toLowerCase()}
+                        </span>
+                      ))}
+                  </div>
+                </div>
+              )}
+              {goalsProgress === 100 && (
+                <p className="text-center text-xs text-green-400 mt-3 lowercase">🎉 all goals completed!</p>
+              )}
+            </div>
+          </div>
         )}
       </div>
 

@@ -59,6 +59,7 @@ export interface JournalRecord {
   mood: string | null;
   activities: string;  // JSON string – parse before use
   body: string;
+  tags?: string;       // JSON string – parse before use
   // optional metadata added by frontend
   weather?: string;
   location?: string;

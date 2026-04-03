@@ -1,5 +1,5 @@
 import { secureLogger } from './secure-logger'
-import { DEFAULT_GEMINI_MODEL } from './llm-config'
+import { DEFAULT_OLLAMA_MODEL } from './llm-config'
 
 export interface LLMRequest {
   model: string
@@ -13,7 +13,7 @@ export interface LLMResponse {
   done: boolean
 }
 
-export async function generateText(prompt: string, model: string = DEFAULT_GEMINI_MODEL, endpoint: string): Promise<string | null> {
+export async function generateText(prompt: string, model: string = DEFAULT_OLLAMA_MODEL, endpoint: string): Promise<string | null> {
   try {
     // If this looks like the Gemini API, send the request in the Gemini format.
     const isGemini = /generativeai\.googleapis\.com\//i.test(endpoint);

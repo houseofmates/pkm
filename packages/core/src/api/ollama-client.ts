@@ -1,5 +1,5 @@
 
-import { getOllamaChatUrl, DEFAULT_GEMINI_MODEL, ensureGeminiApiKey } from '@/lib/llm-config';
+import { getOllamaChatUrl, DEFAULT_OLLAMA_MODEL } from '@/lib/llm-config';
 import { secureLogger } from '@/lib/secure-logger';
 
 export interface ChatMessage {
@@ -15,16 +15,11 @@ export interface ChatResponse {
   total_duration?: number;
 }
 
-export const DEFAULT_CHAT_MODEL = DEFAULT_GEMINI_MODEL;
+export const DEFAULT_CHAT_MODEL = DEFAULT_OLLAMA_MODEL;
 
 export class OllamaClient {
   async chat(messages: ChatMessage[], onStream?: (content: string) => void): Promise<ChatResponse> {
     try {
-      const apiKey = await ensureGeminiApiKey();
-      if (!apiKey) {
-        throw new Error('missing google gemini api key');
-      }
-
       const url = getOllamaChatUrl();
       const response = await fetch(url, {
         method: 'POST',
@@ -32,36 +27,34 @@ export class OllamaClient {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          prompt: {
-            messages: messages.map(m => ({
-              author: m.role === 'system' ? 'system' : 'user',
-              content: [{ type: 'text', text: m.content }],
-            })),
+          model: DEFAULT_CHAT_MODEL,
+          messages: messages,
+          stream: false,
+          options: {
+            temperature: 0.7,
           },
-          temperature: 0.7,
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`Gemini API Error: ${response.statusText}`);
+        throw new Error(`Ollama API Error: ${response.statusText}`);
       }
 
       const data = await response.json();
-      const candidate = data?.candidates?.[0]?.content || '';
-      const content = typeof candidate === 'string' ? candidate : '';
+      const content = data?.message?.content || '';
 
       if (onStream) {
         onStream(content.toLowerCase());
       }
 
       return {
-        model: DEFAULT_CHAT_MODEL,
+        model: data?.model || DEFAULT_CHAT_MODEL,
         created_at: new Date().toISOString(),
         message: { role: 'assistant', content: content.toLowerCase() },
         done: true,
       };
     } catch (error) {
-      secureLogger.error('Gemini Chat Error:', error);
+      secureLogger.error('Ollama Chat Error:', error);
       throw error;
     }
   }

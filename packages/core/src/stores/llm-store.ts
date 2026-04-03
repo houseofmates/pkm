@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { secureLogger } from '@/lib/secure-logger'
 import { storageManager } from '@/lib/storage-manager'
-import { getOllamaGenerateUrl, normalizeGenerateEndpoint, DEFAULT_GEMINI_MODEL, getStoredGeminiApiKey, ensureGeminiApiKey, appendGeminiApiKeyToUrl } from '@/lib/llm-config'
+import { getOllamaBase, getOllamaModel, getOllamaGenerateUrl, DEFAULT_OLLAMA_MODEL, DEFAULT_OLLAMA_URL, storeApiConfig, getStoredApiConfig } from '@/lib/llm-config'
 import { getAIWorkerProxy } from '@/hooks/use-ai-worker'
 import { isCapacitorNative, isLocalhostUnreachable, resolveOllamaEndpoint, MOBILE_SERVER_ORIGIN } from '@/lib/platform'
 import * as Comlink from 'comlink'
@@ -15,6 +15,14 @@ export interface ChatMessage {
   attachments?: Attachment[] // attachments for this message
 }
 
+export interface ChatSession {
+  id: string
+  title: string
+  createdAt: number
+  updatedAt: number
+  messages: ChatMessage[]
+}
+
 interface LLMState {
   // core state
   isConnected: boolean
@@ -22,11 +30,13 @@ interface LLMState {
   apiUrl: string
   useRag: boolean // enable/disable rag retrieval
 
-  // chat history
+  // chat sessions
+  sessions: ChatSession[]
+  currentSessionId: string | null
+
+  // current chat state
   interactionHistory: ChatMessage[]
   isThinking: boolean
-
-  // streaming state — only the active bubble subscribes to this via a selector
   streamingContent: string
 
   // context state
@@ -39,8 +49,16 @@ interface LLMState {
   removeAttachment: (id: string) => void
   clearAttachments: () => void
 
+  // session management
+  createNewChat: (title?: string) => string
+  loadSession: (sessionId: string) => void
+  renameSession: (sessionId: string, newTitle: string) => void
+  deleteSession: (sessionId: string) => void
+  setCurrentSessionTitle: (title: string) => void
+
   // actions
   setApiUrl: (url: string) => void
+  setModel: (model: string) => void
   toggleConnection: () => void
   toggleRag: () => void
   askWilson: (text: string, isBackground?: boolean) => Promise<string | null>
@@ -53,14 +71,21 @@ interface LLMState {
   clearHistory: () => void
 }
 
-export const useLLMStore = create<LLMState>((set, get) => ({
+export const useLLMStore = create<LLMState>()((set, get) => ({
   isConnected: true,
-  activeModel: DEFAULT_GEMINI_MODEL,
-  apiUrl: (() => {
-    const stored = storageManager.getItem('gemini_api_url') ?? storageManager.getItem('wilson_api_url');
-    return stored ? normalizeGenerateEndpoint(stored) : getOllamaGenerateUrl();
-  })(),
+  activeModel: getOllamaModel(),
+  apiUrl: getOllamaGenerateUrl(),
   useRag: true, // default to enabled
+
+  // sessions
+  sessions: (() => {
+    try {
+      const saved = storageManager.getItem('wilson_chat_sessions');
+      if (saved) return JSON.parse(saved);
+    } catch { }
+    return [];
+  })(),
+  currentSessionId: null,
 
   interactionHistory: [],
   isThinking: false,
@@ -112,17 +137,83 @@ export const useLLMStore = create<LLMState>((set, get) => ({
     set({ pendingAttachments: [] });
   },
 
-  // gemini api key handling (shared helpers)
-  getGeminiApiKey: () => getStoredGeminiApiKey(),
-  ensureGeminiApiKey: async () => ensureGeminiApiKey(),
-  appendGeminiKeyToUrl: (url: string, key: string): string => appendGeminiApiKeyToUrl(url, key),
+  // session management
+  createNewChat: (title?: string) => {
+    const newSession: ChatSession = {
+      id: `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      title: title || `chat ${new Date().toLocaleString()}`,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      messages: []
+    };
+    set((state) => {
+      const updated = [...state.sessions, newSession];
+      storageManager.setItem('wilson_chat_sessions', JSON.stringify(updated));
+      return {
+        sessions: updated,
+        currentSessionId: newSession.id,
+        interactionHistory: [],
+        streamingContent: ''
+      };
+    });
+    return newSession.id;
+  },
+
+  loadSession: (sessionId: string) => {
+    const session = get().sessions.find(s => s.id === sessionId);
+    if (session) {
+      set({
+        currentSessionId: sessionId,
+        interactionHistory: [...session.messages],
+        streamingContent: ''
+      });
+    }
+  },
+
+  renameSession: (sessionId: string, newTitle: string) => {
+    set((state) => {
+      const updated = state.sessions.map(s =>
+        s.id === sessionId ? { ...s, title: newTitle } : s
+      );
+      storageManager.setItem('wilson_chat_sessions', JSON.stringify(updated));
+      return { sessions: updated };
+    });
+  },
+
+  deleteSession: (sessionId: string) => {
+    set((state) => {
+      const updated = state.sessions.filter(s => s.id !== sessionId);
+      storageManager.setItem('wilson_chat_sessions', JSON.stringify(updated));
+      const newState: Partial<LLMState> = { sessions: updated };
+      if (state.currentSessionId === sessionId) {
+        newState.currentSessionId = null;
+        newState.interactionHistory = [];
+      }
+      return newState;
+    });
+  },
+
+  setCurrentSessionTitle: (title: string) => {
+    const { currentSessionId } = get();
+    if (currentSessionId) {
+      get().renameSession(currentSessionId, title);
+    }
+  },
+
+  // gemini api key handling (deprecated - using ollama now)
+  getGeminiApiKey: () => null,
+  ensureGeminiApiKey: async () => null,
+  appendGeminiKeyToUrl: (url: string) => url,
 
   setApiUrl: (url) => {
-    const normalized = normalizeGenerateEndpoint(url);
-    // persist under the new gemini key, and keep the old wilson key for backwards compatibility
-    storageManager.setItem('gemini_api_url', normalized);
-    storageManager.setItem('wilson_api_url', normalized);
-    set({ apiUrl: normalized });
+    const base = url.replace(/\/+$/, '');
+    storeApiConfig(base, get().activeModel);
+    set({ apiUrl: `${base}/api/generate` });
+  },
+
+  setModel: (model: string) => {
+    storeApiConfig(getOllamaBase(), model);
+    set({ activeModel: model });
   },
 
   toggleConnection: () => set((state) => ({ isConnected: !state.isConnected })),
@@ -152,17 +243,23 @@ export const useLLMStore = create<LLMState>((set, get) => ({
 
     set({ isThinking: true, streamingContent: '' })
 
-    const apiKey = await get().ensureGeminiApiKey();
-    if (!apiKey) {
-      set((state) => ({
-        interactionHistory: [...state.interactionHistory, {
-          id: Date.now() + 1,
-          role: 'assistant',
-          content: "[wilson needs a google gemini api key to work. please enter it when prompted.]"
-        }],
-        isThinking: false,
-      }));
-      return null;
+    // Check if we're using local Ollama (no API key needed)
+    const ollamaBase = getOllamaBase();
+    const isOllama = !ollamaBase.includes('googleapis.com') && !ollamaBase.includes('gemini');
+    
+    if (!isOllama) {
+      const apiKey = await get().ensureGeminiApiKey();
+      if (!apiKey) {
+        set((state) => ({
+          interactionHistory: [...state.interactionHistory, {
+            id: Date.now() + 1,
+            role: 'assistant',
+            content: "[wilson needs an api key to work. please configure your ai settings.]"
+          }],
+          isThinking: false,
+        }));
+        return null;
+      }
     }
 
     const { useRag } = get()
@@ -213,28 +310,12 @@ export const useLLMStore = create<LLMState>((set, get) => ({
         }
       } catch { /* ignore parse errors */ }
 
-      const apiKey = await get().ensureGeminiApiKey();
-      if (!apiKey) {
-        set((state) => ({
-          interactionHistory: [...state.interactionHistory, {
-            id: Date.now() + 1,
-            role: 'assistant',
-            content: "[wilson needs a google gemini api key to work. please enter it when prompted.]"
-          }],
-          isThinking: false,
-          streamingContent: '',
-        }))
-        return null
-      }
-
       const { activeModel, apiUrl } = get()
       
-      // detect if localhost is unreachable (mobile app or mobile browser on remote origin)
-      const needsProxy = isLocalhostUnreachable() || isCapacitorNative()
-      const baseUrl = needsProxy ? resolveOllamaEndpoint(apiUrl, MOBILE_SERVER_ORIGIN) : apiUrl
-      const resolvedUrl = get().appendGeminiKeyToUrl(baseUrl, apiKey)
+      // Use local Ollama directly - no API key needed
+      const resolvedUrl = apiUrl;
       
-      secureLogger.info('[wilson] using endpoint:', resolvedUrl, 'needsProxy:', needsProxy)
+      secureLogger.info('[wilson] using endpoint:', resolvedUrl)
       
       const worker = await getAIWorkerProxy()
       if (!worker) {
@@ -252,6 +333,7 @@ export const useLLMStore = create<LLMState>((set, get) => ({
         // Use askWithRagAndAttachments if there are attachments, otherwise use askWithRag
         if (hasAttachments) {
           secureLogger.info('[wilson] sending with attachments:', attachments.length)
+          secureLogger.debug('[wilson] Calling askWithRagAndAttachments with:', { text, fronterName, activeModel, resolvedUrl, attachmentsCount: attachments?.length });
           result = await worker.askWithRagAndAttachments(
             text,
             fronterName,
@@ -261,6 +343,7 @@ export const useLLMStore = create<LLMState>((set, get) => ({
             attachments
           )
         } else {
+          secureLogger.debug('[wilson] Calling askWithRag with:', { text, fronterName, activeModel, resolvedUrl });
           result = await worker.askWithRag(
             text,
             fronterName,
@@ -269,6 +352,7 @@ export const useLLMStore = create<LLMState>((set, get) => ({
             onToken,
           )
         }
+        secureLogger.debug('[wilson] Worker call completed, result:', result);
       } finally {
         (onToken as any)[Comlink.releaseProxy]?.()
       }
@@ -280,19 +364,40 @@ export const useLLMStore = create<LLMState>((set, get) => ({
       }
 
       // finalize: push the completed message into history, clear streaming
-      set((state) => ({
-        interactionHistory: [...state.interactionHistory, {
+      set((state) => {
+        const assistantMsg: ChatMessage = {
           id: Date.now() + 1,
-          role: 'assistant',
+          role: 'assistant' as const,
           content: result.response,
           sources: result.sources,
-        }],
-        isThinking: false,
-        streamingContent: '',
-      }))
+        };
+        const newHistory = [...state.interactionHistory, assistantMsg];
+        // save to session if we have one
+        const { currentSessionId, sessions } = state;
+        let updatedSessions = sessions;
+        if (currentSessionId) {
+          updatedSessions = sessions.map(s =>
+            s.id === currentSessionId
+              ? { ...s, messages: newHistory, updatedAt: Date.now() }
+              : s
+          );
+          storageManager.setItem('wilson_chat_sessions', JSON.stringify(updatedSessions));
+        }
+        return {
+          interactionHistory: newHistory,
+          sessions: updatedSessions,
+          isThinking: false,
+          streamingContent: '',
+        };
+      })
 
       return result.response
     } catch (e: unknown) {
+      secureLogger.error('[wilson] Full error details:', e);
+      secureLogger.error('[wilson] Error type:', typeof e);
+      secureLogger.error('[wilson] Error constructor:', e?.constructor?.name);
+      secureLogger.error('[wilson] Error message:', e instanceof Error ? e.message : String(e));
+      secureLogger.error('[wilson] Error stack:', e instanceof Error ? e.stack : 'no stack');
       secureLogger.error("wilson rag error", e)
       const errMsg = e instanceof Error ? e.message : String(e);
       const isEndpointError = errMsg.includes('fetch') || errMsg.includes('network') || errMsg.includes('connection');
@@ -347,23 +452,8 @@ important rules:
     const fullPrompt = `${systemPrompt}\n\n${fronterName}: ${text}\nwilson:`
 
     try {
-      const apiKey = await get().ensureGeminiApiKey();
-      if (!apiKey) {
-        set((state) => ({
-          interactionHistory: [...state.interactionHistory, {
-            id: Date.now() + 1,
-            role: 'assistant',
-            content: "[wilson needs a google gemini api key to work. please enter it when prompted.]"
-          }],
-          isThinking: false,
-          streamingContent: '',
-        }))
-        return null
-      }
-
-      const needsProxy = isLocalhostUnreachable() || isCapacitorNative()
-      const baseUrl = needsProxy ? resolveOllamaEndpoint(apiUrl, MOBILE_SERVER_ORIGIN) : apiUrl
-      const resolvedUrl = get().appendGeminiKeyToUrl(baseUrl, apiKey)
+      // Use local Ollama directly
+      const resolvedUrl = apiUrl;
       const worker = await getAIWorkerProxy()
 
       // stream even in legacy mode for consistent ux
@@ -387,15 +477,31 @@ important rules:
       const finalContent = response.toLowerCase()
 
       // add wilson message
-      set((state) => ({
-        interactionHistory: [...state.interactionHistory, {
+      set((state) => {
+        const assistantMsg: ChatMessage = {
           id: Date.now() + 1,
-          role: 'assistant',
+          role: 'assistant' as const,
           content: finalContent
-        }],
-        isThinking: false,
-        streamingContent: '',
-      }))
+        };
+        const newHistory = [...state.interactionHistory, assistantMsg];
+        // save to session if we have one
+        const { currentSessionId, sessions } = state;
+        let updatedSessions = sessions;
+        if (currentSessionId) {
+          updatedSessions = sessions.map(s =>
+            s.id === currentSessionId
+              ? { ...s, messages: newHistory, updatedAt: Date.now() }
+              : s
+          );
+          storageManager.setItem('wilson_chat_sessions', JSON.stringify(updatedSessions));
+        }
+        return {
+          interactionHistory: newHistory,
+          sessions: updatedSessions,
+          isThinking: false,
+          streamingContent: '',
+        };
+      })
 
       return finalContent
     } catch (e) {

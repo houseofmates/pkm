@@ -4,6 +4,7 @@ import { Navigation, type NavItem } from '@/components/navigation';
 import { BottomNav } from '@/components/bottom-nav';
 import { QuickEditSheet } from '@/components/quick-edit-sheet';
 import { Spotlight } from '@/components/Spotlight';
+import { WilsonChat } from '@/features/chat/wilson-chat';
 import {
   DndContext,
   closestCenter,
@@ -29,6 +30,7 @@ import { useFronter } from '@/contexts/fronter-context';
 import { ProtocolShift } from '@/components/layout/ProtocolShift';
 import { walPendingCount } from '@/lib/write-ahead-log';
 import { getSidebarColors } from '@/utils/getSidebarColors';
+import { useEdgelessStore } from '@/features/edgeless/store';
 import { ContextMenu } from '@/components/ui/context-menu-custom';
 
 // declare global window properties to fix TS errors
@@ -100,10 +102,20 @@ export function RootLayout() {
   const isAphrodite = subdomain === 'aphrodite';
 
   const [sidebarColors, setSidebarColors] = useState<{ sidebar?: { active?: string } }>({});
+  const setChatOpen = useEdgelessStore((state) => state.setChatOpen);
 
   useEffect(() => {
     getSidebarColors().then(setSidebarColors);
   }, []);
+
+  // Listen for chat open event from navigation buttons
+  useEffect(() => {
+    const handleOpenChat = () => {
+      setChatOpen(true);
+    };
+    window.addEventListener('pkm:open-chat' as any, handleOpenChat);
+    return () => window.removeEventListener('pkm:open-chat' as any, handleOpenChat);
+  }, [setChatOpen]);
 
   let accentColor = sidebarColors.sidebar?.active || '#f6b012';
   if (activeFronters.length > 0) {
@@ -166,6 +178,12 @@ export function RootLayout() {
 
   const [sidebarItems, setSidebarItems] = useAppSetting<NavItem[]>('sidebar_items', [], { pollIntervalMs: 5000 });
   const [activeDragItem, setActiveDragItem] = useState<NavItem | null>(null);
+
+  // Force sidebar refresh when collections change - clear cache for new collections
+  useEffect(() => {
+    // Clear deleted collections cache to ensure new collections appear
+    localStorage.removeItem('sidebar_deleted_collections');
+  }, []);
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -288,6 +306,7 @@ export function RootLayout() {
 
         <BottomNav className="lg:hidden" activeTab={activeTab} onTabChange={handleTabChange} />
         <Spotlight />
+        <WilsonChat />
         <DragOverlay>
           {activeDragItem ? (
             <div style={{ opacity: 0.5, pointerEvents: 'none', width: '16rem', minWidth: 0 }}>

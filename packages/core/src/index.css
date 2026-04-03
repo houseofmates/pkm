@@ -517,3 +517,30 @@ img .lucide,
 .pb-safe {
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
 }
+
+/* --- Canvas cursor system --- */
+/* Pen/eraser use a native SVG CSS cursor applied directly to the fabric canvas elements.
+   No cursor-none class or overlay div needed — the browser positions native cursors
+   correctly in all environments including Electron AppImage. */
+
+/* --- Global interactive cursor hints (always active) --- */
+/* Pointer hand for clickable elements */
+button,
+[role="button"],
+.btn,
+a[href],
+.cursor-pointer,
+label[for],
+label.cursor-pointer,
+[onclick],
+[tabindex]:not([tabindex="-1"]) {
+  cursor: pointer;
+}
+
+/* Grab (palm) cursor for sliders */
+input[type="range"] {
+  cursor: grab;
+}
+input[type="range"]:active {
+  cursor: grabbing;
+}

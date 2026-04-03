@@ -44,7 +44,7 @@ const VoiceInput: React.FC<{ onTranscribe: (text: string) => void }> = ({ onTran
   const startListening = useCallback(() => {
     const recognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (!recognition) {
-      alert('speech recognition not supported. download whisper model?')
+      // Firefox and other unsupported browsers - silently return without error
       return
     }
 

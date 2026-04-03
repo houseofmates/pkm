@@ -1,4 +1,4 @@
-import { getOllamaGenerateUrl, DEFAULT_GEMINI_MODEL } from '@/lib/llm-config';
+import { getOllamaGenerateUrl, DEFAULT_OLLAMA_MODEL } from '@/lib/llm-config';
 import { secureLogger } from './secure-logger';
 import { generateText } from './llm-service';
 
@@ -7,7 +7,7 @@ export interface AIResponse {
   done: boolean;
 }
 
-export async function generateResponse(context: string, prompt: string, model: string = DEFAULT_GEMINI_MODEL): Promise<string> {
+export async function generateResponse(context: string, prompt: string, model: string = DEFAULT_OLLAMA_MODEL): Promise<string> {
     const systemPrompt = `you are wilson, a thoughtful assistant for a personal knowledge workspace. respond entirely in lowercase, be concise and friendly. treat the following text as background context for the user's question:\n\n${context}`;
 
   try {

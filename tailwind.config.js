@@ -79,6 +79,11 @@ export default {
                 sans: ['Inter', 'system-ui', 'sans-serif'],
                 varela: ['Varela Round', 'sans-serif'],
             },
+            boxShadow: {
+                'sharp': '0 10px 30px rgba(0, 0, 0, 0.5), 0 4px 6px -1px rgba(0, 0, 0, 0.3)',
+                'sharp-lg': '0 20px 40px rgba(0, 0, 0, 0.6), 0 8px 12px -4px rgba(0, 0, 0, 0.4)',
+                'glass': '0 8px 25px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05)',
+            },
         },
     },
     plugins: [tailwindcssAnimate],

@@ -37,6 +37,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
   const penOpacity = useEdgelessStore((s) => s.penOpacity);
   const eraserWidth = useEdgelessStore((s) => s.eraserWidth);
   const eraserOpacity = useEdgelessStore((s) => s.eraserOpacity);
+  const pressureEnabled = useEdgelessStore((s) => s.pressureEnabled);
   const viewPort = useEdgelessStore((s) => s.viewPort);
   const setViewport = useEdgelessStore((s) => s.setViewport);
   const mode = useEdgelessStore((s) => s.mode);
@@ -104,13 +105,18 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
     const x = (e.clientX - rect.left - viewPort.x) / viewPort.zoom;
     const y = (e.clientY - rect.top - viewPort.y) / viewPort.zoom;
     
+    // If pressure is disabled, always return full pressure
+    if (!pressureEnabled) {
+      return { x, y, pressure: 1 };
+    }
+    
     let pressure = (e as any).pressure ?? 1;
     if (e.pointerType === 'mouse') {
       pressure = e.buttons > 0 ? 1 : 0;
     }
     
     return { x, y, pressure };
-  }, [viewPort]);
+  }, [viewPort, pressureEnabled]);
   
   // Animation loop for overlays (lasso, transform box)
   const animate = useCallback(() => {
@@ -227,7 +233,7 @@ export const DrawingCanvas: React.FC<DrawingCanvasProps> = ({
         }
         break;
     }
-  }, [activeTool, getPointerPos, viewPort, penWidth, penColor, penOpacity, eraserWidth, eraserOpacity]);
+  }, [activeTool, getPointerPos, viewPort, penWidth, penColor, penOpacity, eraserWidth, eraserOpacity, pressureEnabled]);
   
   // Handle pointer move
   const handlePointerMove = useCallback((e: React.PointerEvent) => {

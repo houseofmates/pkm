@@ -284,6 +284,43 @@ export class NocoBaseClient {
     }
   }
 
+  async ensureDailyAnchorsCollection() {
+    const COL_NAME = 'daily_anchors';
+    
+    // check if collection exists
+    try {
+      await this._axios.get(`/${COL_NAME}:list`, { params: { pageSize: 1 } });
+      return true; // Collection exists
+    } catch (e: unknown) {
+      const err = e as ApiError;
+      if (err?.response?.status !== 404) {
+        return true; // Collection exists but some other error
+      }
+      // fall through to create
+    }
+
+    // create collection with schema
+    secureLogger.info(`[NocoBase] Creating ${COL_NAME} collection...`);
+    try {
+      await this.createCollection({
+        name: COL_NAME,
+        title: 'Daily Anchors',
+        fields: [
+          { name: 'content', type: 'text', title: 'Content' },
+          { name: 'date', type: 'string', title: 'Date' },
+          { name: 'timestamp', type: 'date', title: 'Timestamp' }
+        ]
+      });
+      await new Promise(r => setTimeout(r, 1000));
+      secureLogger.info(`[NocoBase] ${COL_NAME} collection created successfully`);
+      return true;
+    } catch (createError: unknown) {
+      const errMsg = createError instanceof Error ? createError.message : String(createError);
+      secureLogger.error(`[NocoBase] Failed to create ${COL_NAME}:`, errMsg);
+      return false;
+    }
+  }
+
   async createDrawingRecord(title = 'untitled drawing') {
     const COL_NAME = 'pkm_canvases';
 

@@ -99,8 +99,9 @@ export default defineConfig({
     allowedHosts: true,
     cors: true,
     hmr: {
-      clientPort: 443,
+      protocol: 'ws',
       path: '/vite-hmr',
+      overlay: false,
     },
     proxy: {
       '/api/broadcast': {
@@ -232,6 +233,7 @@ export default defineConfig({
     reportCompressedSize: false,
     chunkSizeWarningLimit: 1500,
     rollupOptions: {
+      external: ['@capacitor/push-notifications'],
       output: {
       }
     }

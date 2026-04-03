@@ -24,16 +24,19 @@
     "appId": "com.houseofmates.pkm",
     "productName": "pkm",
     "electronVersion": "39.2.7",
+    "publish": null,
     "directories": {
       "output": "release"
     },
     "files": [
-      "../../apps/web/dist/**/*",
-      "electron/**/*"
+      "../../packages/core/dist/**/*",
+      "electron/main.js",
+      "electron/preload.js",
+      "electron/context-server.cjs",
+      "electron/server.js",
+      "electron/sidebar-colors.js"
     ],
-    "extraMetadata": {
-      "main": "electron/main.js"
-    },
+    "asar": true,
     "mac": {
       "target": "dmg"
     },

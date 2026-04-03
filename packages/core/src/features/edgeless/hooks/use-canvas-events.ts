@@ -47,6 +47,53 @@ export function useCanvasEvents() {
     // don't intercept internal drags (like nodes moving) if managed by fabric
     // but do intercept drop from outside or records
     // check if datatransfer has files or specific types
+    
+    // Handle gamification widget drops from sidebar
+    if (e.dataTransfer.types.includes('application/json')) {
+      e.preventDefault();
+      e.stopPropagation();
+      
+      const data = e.dataTransfer.getData('application/json');
+      if (data) {
+        try {
+          const widget = JSON.parse(data);
+          // Check if this is a widget template
+          if (widget.id && ['streak', 'mood', 'pet', 'quest', 'voice'].includes(widget.id)) {
+            const x = e.clientX;
+            const y = e.clientY;
+            
+            const { x: vx, y: vy, zoom } = useEdgelessStore.getState().viewPort;
+            const canvasX = (x - vx) / zoom;
+            const canvasY = (y - vy) / zoom;
+            
+            // Map widget types to gamification widget IDs
+            const widgetIdMap: Record<string, string> = {
+              'streak': 'gamification-streak',
+              'mood': 'gamification-mood',
+              'pet': 'gamification-pets',
+              'quest': 'gamification-quests',
+              'voice': 'gamification-quick-voice',
+            };
+            
+            addElement({
+              type: 'widget',
+              x: canvasX,
+              y: canvasY,
+              width: widget.defaultWidth || 200,
+              height: widget.defaultHeight || 150,
+              data: { 
+                widgetId: widgetIdMap[widget.id] || widget.id,
+                ...widget 
+              },
+            });
+            return;
+          }
+        } catch {
+          // Not valid JSON or not a widget, continue with other drop handling
+        }
+      }
+    }
+    
     if (e.dataTransfer.types.includes('Files') || e.dataTransfer.types.includes('text/plain') || e.dataTransfer.types.includes('text/uri-list')) {
       e.preventDefault();
       e.stopPropagation();
@@ -75,7 +122,7 @@ export function useCanvasEvents() {
         await processTextContent(text, x, y);
       }
     }
-  }, []); // ← stable: no viewPort dependency
+  }, [addElement]); // ← stable: no viewPort dependency
 
   // --- helpers ---
   // All helpers read viewport at call-time from the store, making them closure-stable.

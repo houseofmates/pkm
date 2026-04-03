@@ -108,27 +108,49 @@ export function TableView({ records, isLoading, onSelect, fields }: TableViewPro
       ];
     };
 
-    if (records.length) {
-      const keys = Object.keys(records[0]);
-      const cols = makeColsFromKeys(keys);
-      if (cols.length) {
-        prevColsRef.current = cols;
-        return cols;
+    // if we have explicit field definitions with actual field names, use those first
+    if (fields && fields.length > 0) {
+      const fieldNames = fields.map(f => f.name).filter(Boolean);
+      if (fieldNames.length > 0) {
+        const cols = makeColsFromKeys(fieldNames as string[]);
+        // if makeColsFromKeys filtered out everything (unlikely with field schema),
+        // create columns directly from field definitions to ensure they show up
+        if (cols.length === 0) {
+          const directCols = fieldNames.map((name, idx) => ({
+            accessorKey: name,
+            header: name,
+            cell: (info: any) => {
+              const value = info.getValue();
+              if (value === null || value === undefined) {
+                return <span className="text-center w-full block">empty</span>;
+              }
+              return renderCellValue(value);
+            },
+            size: idx === 0 ? 200 : 150,
+          }));
+          if (directCols.length > 0) {
+            prevColsRef.current = directCols;
+            return directCols;
+          }
+        } else {
+          prevColsRef.current = cols;
+          return cols;
+        }
       }
     }
 
-    // if we have explicit field definitions, use those next
-    if (fields && fields.length) {
-      const keys = fields.map(f => f.name).filter(Boolean);
-      const cols = makeColsFromKeys(keys as string[]);
-      if (cols.length) {
+    // if we have records, infer columns from data
+    if (records.length > 0) {
+      const keys = Object.keys(records[0]);
+      const cols = makeColsFromKeys(keys);
+      if (cols.length > 0) {
         prevColsRef.current = cols;
         return cols;
       }
     }
 
     // if we previously computed columns keep them
-    if (prevColsRef.current.length) {
+    if (prevColsRef.current.length > 0) {
       return prevColsRef.current;
     }
 

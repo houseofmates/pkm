@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 import type { Collection } from '@/hooks/use-collections';
 import { Button } from '@/components/ui/button';
-import { Plus, Settings2, Trash2, Edit2, MoreVertical, MoveRight, X, type LucideIcon } from 'lucide-react';
+import { Plus, Settings2, Trash2, Edit2, MoreVertical, MoveRight, X, ArrowUpDown, type LucideIcon } from 'lucide-react';
 import * as React from 'react';
 import * as Icons from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
@@ -50,6 +50,7 @@ import { CSS } from '@dnd-kit/utilities';
 import {
   SortableContext,
   horizontalListSortingStrategy,
+  verticalListSortingStrategy,
   useSortable,
   arrayMove
 } from '@dnd-kit/sortable';
@@ -298,12 +299,86 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
       />
     </div>
   );
+};
+
+// Simple drag handle for row reordering using dnd-kit sortable
+function RowDragHandle({
+  rowId,
+  index,
+  onReorder,
+  leftColWidth,
+  isManualOrderActive
+}: {
+  rowId: string;
+  index: number;
+  onReorder: (fromIndex: number, toIndex: number) => void;
+  leftColWidth: number;
+  isManualOrderActive?: boolean;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({
+    id: `row-${rowId}`,
+    data: {
+      type: 'row-reorder',
+      index,
+      rowId
+    }
+  });
+
+  const style: React.CSSProperties = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+    touchAction: 'none'
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      className={cn(
+        "border-r border-[#222] p-0 h-10 transition-colors relative flex-shrink-0",
+        isManualOrderActive && "bg-primary/10"
+      )}
+      style={{
+        ...style,
+        width: leftColWidth,
+        minWidth: leftColWidth,
+        maxWidth: leftColWidth,
+      }}
+    >
+      <div
+        className={cn(
+          "absolute inset-0 cursor-grab active:cursor-grabbing flex items-center justify-center hover:bg-white/5 transition-colors",
+          isDragging && "bg-white/10 cursor-grabbing"
+        )}
+        {...attributes}
+        {...listeners}
+      >
+        <div className={cn(
+          "p-2 transition-opacity",
+          isManualOrderActive ? "opacity-100" : "opacity-0 group-hover:opacity-60"
+        )}>
+          <div className="w-1.5 h-4 bg-white/30 rounded-full flex flex-col gap-0.5 items-center justify-center">
+            <div className="w-0.5 h-0.5 bg-white/50 rounded-full" />
+            <div className="w-0.5 h-0.5 bg-white/50 rounded-full" />
+            <div className="w-0.5 h-0.5 bg-white/50 rounded-full" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 const DraggableRecordRow = (props: any) => {
   const { index, style: incomingStyle, leftColWidth } = props;
   const data = props.data || props;
-  const { rows, collection, onUpdate, onDelete, onCreateField, recordMeta, onEdit, selectedIds, onRowSelect, clearSelection, enableSelection, columnVersion } = data;
+  const { rows, collection, onUpdate, onDelete, onCreateField, recordMeta, onEdit, selectedIds, onRowSelect, clearSelection, enableSelection, columnVersion, onRowReorder, isManualOrderActive } = data;
 
   const row = rows[index];
   if (!row) return null;
@@ -396,29 +471,16 @@ const DraggableRecordRow = (props: any) => {
           onEdit?.(row.original);
         }}
       >
-        {/* drag handle area */}
-        {onCreateField && (
-          <div
-            className="border-r border-[#222] p-0 h-10 transition-colors relative flex-shrink-0"
-            style={{
-              width: leftColWidth,
-              minWidth: leftColWidth,
-              maxWidth: leftColWidth,
-            }}
-          >
-            <div
-              className="absolute inset-0 cursor-move flex items-center justify-center group-hover:bg-white/5"
-              {...attributes}
-              {...listeners}
-              style={{ touchAction: 'none' }}
-            >
-              <div className="p-2 opacity-0 group-hover:opacity-60 transition-opacity">
-                <div className="w-1 h-3 bg-white/20 rounded-full" />
-              </div>
-            </div>
-          </div>
+        {/* drag handle area for row reordering */}
+        {onCreateField && onRowReorder && (
+          <RowDragHandle
+            rowId={row.original.id}
+            index={index}
+            onReorder={onRowReorder}
+            leftColWidth={leftColWidth}
+            isManualOrderActive={isManualOrderActive}
+          />
         )}
-
 
         {row.getVisibleCells().map((cell: any) => {
           return (
@@ -493,6 +555,14 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     []
   );
 
+  // sort state
+  const [sortField, setSortField] = React.useState<string>('');
+  const [sortDirection, setSortDirection] = React.useState<'up' | 'down'>('up');
+
+  // manual row order state
+  const [manualOrder, setManualOrder] = React.useState<string[]>([]);
+  const isManualOrderActive = manualOrder.length > 0;
+
   const [settingsField, setSettingsField] = React.useState<any>(null);
   const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
 
@@ -564,14 +634,14 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         cell: info => {
           const color = getValueColor(valueColorRules, field.name, info.getValue());
           return (
-            <span style={{ color: color || undefined }} className="w-full block">
+            <span style={{ color: color || undefined }} className="w-full block text-center">
               <SmartField
                 value={info.getValue()}
                 field={field}
                 record={info.row.original}
                 collectionName={collection.name}
                 size="lg"
-                className="w-full"
+                className="w-full justify-center"
                 onChange={(val) => {
                   onUpdateRecordRef.current?.(info.row.original.id, { [field.name]: val });
                 }}
@@ -594,14 +664,14 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
             cell: info => {
               const color = getValueColor(valueColorRules, key, info.getValue());
               return (
-                <span style={{ color: color || undefined }} className="w-full block">
+                <span style={{ color: color || undefined }} className="w-full block text-center">
                   <SmartField
                     value={info.getValue()}
                     field={{ type: 'string', name: key }}
                     record={info.row.original}
                     collectionName={collection.name}
                     size="lg"
-                    className="w-full"
+                    className="w-full justify-center"
                     onChange={(val) => {
                       onUpdateRecordRef.current?.(info.row.original.id, { [key]: val });
                     }}
@@ -626,79 +696,175 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         size: 90,
         minSize: 20,
         header: () => (
-          <div
-            className="flex items-center justify-center h-full"
-            onDoubleClick={(e) => e.stopPropagation()}
-          >
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-6 w-6">
-                  <Settings2 className="h-4 w-4" />
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent align="end" className="w-56">
-                <div className="space-y-2">
-                  <h4 className="font-medium text-sm leading-none border-b pb-2 mb-2 lowercase">view settings</h4>
-                  <div className="text-xs text-muted-foreground mb-2 lowercase">check to unhide properties</div>
-                  <div className="max-h-60 overflow-y-auto space-y-1">
-                    {(() => {
-                      // figure out which fields to show in the settings menu.  if we
-                      // have collection definitions use them, otherwise fall back to
-                      // the first row of data.  when both are empty we render a
-                      // helpful message below instead of mapping over an empty list.
-                      const availableFields: any[] =
-                        collection.fields && collection.fields.length > 0
-                          ? collection.fields
-                          : dataColumnsKey
-                            ? dataColumnsKey.split('\0')
-                            : [];
-                      if (availableFields.length === 0) {
-                        return (
-                          <div className="text-xs text-muted-foreground lowercase">
-                            no properties yet – use the + button to add one
-                          </div>
-                        );
-                      }
-
-                      return availableFields.map((f: any) => {
-                        const fieldName = f.name || f;
-                        const isHidden = hiddenColumns.includes(fieldName);
-                        return (
-                          <div key={fieldName} className="flex items-center space-x-2">
-                            <Checkbox
-                              id={`col-${fieldName}`}
-                              checked={!isHidden}
-                              onCheckedChange={(checked: boolean) => {
-                                if (checked) {
-                                  setHiddenColumns(prev => prev.filter(c => c !== fieldName));
-                                } else {
-                                  setHiddenColumns(prev => [...prev, fieldName]);
-                                }
-                              }}
-                            />
-                            <Label htmlFor={`col-${fieldName}`} className="text-xs">{f.uiSchema?.title || fieldName}</Label>
-                          </div>
-                        )
-                      });
-                    })()}
+          <div className="grid place-items-center h-full w-full px-0.5" onDoubleClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-center gap-0.5">
+              {/* sort button */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon" 
+                    className={cn("h-6 w-6", (sortField || isManualOrderActive) && "text-primary")}
+                    title={isManualOrderActive ? "manual order active" : (sortField ? `sorted by ${sortField} (${sortDirection})` : "sort")}
+                  >
+                    <ArrowUpDown className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-56">
+                  <div className="space-y-3">
+                    <h4 className="font-medium text-sm leading-none border-b pb-2 mb-2 lowercase">
+                      {isManualOrderActive ? "manual order" : "sort by"}
+                    </h4>
+                    {isManualOrderActive && (
+                      <div className="text-xs text-muted-foreground lowercase">
+                        rows manually reordered. sort to reset.
+                      </div>
+                    )}
+                    <div className="space-y-2">
+                      <Label className="text-xs lowercase">field</Label>
+                      <select
+                        value={sortField}
+                        onChange={(e) => {
+                          setSortField(e.target.value);
+                          setManualOrder([]); // Clear manual order when sorting
+                        }}
+                        className="w-full h-8 px-2 text-sm bg-[#111] border border-[#333] rounded text-white"
+                      >
+                        <option value="">select field...</option>
+                        {(() => {
+                          const availableFields: any[] =
+                            collection.fields && collection.fields.length > 0
+                              ? collection.fields.filter((f: any) => !f.hidden && !hiddenColumns.includes(f.name))
+                              : dataColumnsKey
+                                ? dataColumnsKey.split('\0').filter(key => !hiddenColumns.includes(key))
+                                : [];
+                          return availableFields.map((f: any) => {
+                            const fieldName = f.name || f;
+                            const displayName = f.uiSchema?.title || fieldName;
+                            return (
+                              <option key={fieldName} value={fieldName}>{displayName}</option>
+                            );
+                          });
+                        })()}
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-xs lowercase">direction</Label>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant={sortDirection === 'up' ? 'default' : 'ghost'}
+                          size="sm"
+                          className="h-7 flex-1 text-xs lowercase"
+                          onClick={() => setSortDirection('up')}
+                          disabled={!sortField}
+                        >
+                          up
+                        </Button>
+                        <Button
+                          variant={sortDirection === 'down' ? 'default' : 'ghost'}
+                          size="sm"
+                          className="h-7 flex-1 text-xs lowercase"
+                          onClick={() => setSortDirection('down')}
+                          disabled={!sortField}
+                        >
+                          down
+                        </Button>
+                      </div>
+                    </div>
+                    {sortField && (
+                      <div className="text-xs text-muted-foreground lowercase pt-1">
+                        {sortDirection === 'up' ? 'ascending (a → z, old → new)' : 'descending (z → a, new → old)'}
+                      </div>
+                    )}
+                    {(sortField || isManualOrderActive) && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full text-xs lowercase text-muted-foreground"
+                        onClick={() => {
+                          setSortField('');
+                          setManualOrder([]);
+                        }}
+                      >
+                        clear sort / reset order
+                      </Button>
+                    )}
                   </div>
-                </div>
-              </PopoverContent>
-            </Popover>
+                </PopoverContent>
+              </Popover>
+              {/* settings button */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-6 w-6">
+                    <Settings2 className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-56">
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm leading-none border-b pb-2 mb-2 lowercase">view settings</h4>
+                    <div className="text-xs text-muted-foreground mb-2 lowercase">check to unhide properties</div>
+                    <div className="max-h-60 overflow-y-auto space-y-1">
+                      {(() => {
+                        // figure out which fields to show in the settings menu.  if we
+                        // have collection definitions use them, otherwise fall back to
+                        // the first row of data.  when both are empty we render a
+                        // helpful message below instead of mapping over an empty list.
+                        const availableFields: any[] =
+                          collection.fields && collection.fields.length > 0
+                            ? collection.fields
+                            : dataColumnsKey
+                              ? dataColumnsKey.split('\0')
+                              : [];
+                        if (availableFields.length === 0) {
+                          return (
+                            <div className="text-xs text-muted-foreground lowercase">
+                              no properties yet – use the + button to add one
+                            </div>
+                          );
+                        }
+
+                        return availableFields.map((f: any) => {
+                          const fieldName = f.name || f;
+                          const isHidden = hiddenColumns.includes(fieldName);
+                          return (
+                            <div key={fieldName} className="flex items-center space-x-2">
+                              <Checkbox
+                                id={`col-${fieldName}`}
+                                checked={!isHidden}
+                                onCheckedChange={(checked: boolean) => {
+                                  if (checked) {
+                                    setHiddenColumns(prev => prev.filter(c => c !== fieldName));
+                                  } else {
+                                    setHiddenColumns(prev => [...prev, fieldName]);
+                                  }
+                                }}
+                              />
+                              <Label htmlFor={`col-${fieldName}`} className="text-xs">{f.uiSchema?.title || fieldName}</Label>
+                            </div>
+                          )
+                        });
+                      })()}
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
         ),
         cell: (props) => (
-          <div className="flex items-center justify-center gap-1 h-7 overflow-hidden">
-            {onEditRef.current && (
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onEditRef.current!(props.row.original); }}>
-                <Edit2 className="h-3.5 w-3.5" />
-              </Button>
-            )}
-            {onDeleteRef.current && (
-              <Button variant="ghost" size="icon" className="h-8 w-8 text-red-500 hover:text-red-600" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onDeleteRef.current!(props.row.original); }}>
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            )}
+          <div className="grid place-items-center h-full w-full">
+            <div className="flex items-center justify-center">
+              {onEditRef.current && (
+                <Button variant="ghost" size="icon" className="h-7 w-7 shrink-0" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onEditRef.current!(props.row.original); }}>
+                  <Edit2 className="h-3.5 w-3.5" />
+                </Button>
+              )}
+              {onDeleteRef.current && (
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-red-500 hover:text-red-600 shrink-0" onClick={(e: React.MouseEvent) => { e.stopPropagation(); onDeleteRef.current!(props.row.original); }}>
+                  <Trash2 className="h-3.5 w-3.5" />
+                </Button>
+              )}
+            </div>
           </div>
         )
       }));
@@ -723,20 +889,100 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (active.id !== over?.id) {
-      const headerGroups = table.getHeaderGroups();
-      const headers = headerGroups[0].headers;
-      const oldIndex = headers.findIndex((h) => h.id === active.id);
-      const newIndex = headers.findIndex((h) => h.id === over?.id);
+    if (!over || active.id === over.id) return;
 
-      const newOrder = arrayMove(headers.map(h => h.id), oldIndex, newIndex);
-      table.setColumnOrder(newOrder);
-      setColumnOrder(newOrder);
+    const activeId = String(active.id);
+    const overId = String(over.id);
+
+    // Handle row reordering
+    if (activeId.startsWith('row-')) {
+      const fromIndex = rows.findIndex((r: any) => `row-${r.original.id}` === activeId);
+      const toIndex = rows.findIndex((r: any) => `row-${r.original.id}` === overId);
+      
+      if (fromIndex !== -1 && toIndex !== -1 && fromIndex !== toIndex) {
+        handleRowReorder(fromIndex, toIndex);
+      }
+      return;
     }
+
+    // Handle column reordering (existing logic)
+    const headerGroups = table.getHeaderGroups();
+    const headers = headerGroups[0].headers;
+    const oldIndex = headers.findIndex((h) => h.id === active.id);
+    const newIndex = headers.findIndex((h) => h.id === over?.id);
+
+    const newOrder = arrayMove(headers.map(h => h.id), oldIndex, newIndex);
+    table.setColumnOrder(newOrder);
+    setColumnOrder(newOrder);
   };
 
+  // sort data based on sortField and sortDirection, or use manualOrder
+  const sortedData = React.useMemo(() => {
+    // If manual order is active and no sort is applied, use manual order
+    if (manualOrder.length > 0 && !sortField) {
+      const orderMap = new Map(manualOrder.map((id, index) => [id, index]));
+      return [...data].sort((a, b) => {
+        const aIndex = orderMap.get(a.id) ?? Infinity;
+        const bIndex = orderMap.get(b.id) ?? Infinity;
+        return aIndex - bIndex;
+      });
+    }
+
+    if (!sortField) return data;
+
+    return [...data].sort((a, b) => {
+      const aVal = a[sortField];
+      const bVal = b[sortField];
+
+      // Handle null/undefined values
+      if (aVal == null && bVal == null) return 0;
+      if (aVal == null) return sortDirection === 'up' ? -1 : 1;
+      if (bVal == null) return sortDirection === 'up' ? 1 : -1;
+
+      // Try to parse as date
+      const aDate = new Date(aVal);
+      const bDate = new Date(bVal);
+      const isADate = !isNaN(aDate.getTime());
+      const isBDate = !isNaN(bDate.getTime());
+
+      if (isADate && isBDate) {
+        return sortDirection === 'up'
+          ? aDate.getTime() - bDate.getTime()
+          : bDate.getTime() - aDate.getTime();
+      }
+
+      // Try to parse as number
+      const aNum = parseFloat(aVal);
+      const bNum = parseFloat(bVal);
+      const isANum = !isNaN(aNum) && !isNaN(parseFloat(aVal));
+      const isBNum = !isNaN(bNum) && !isNaN(parseFloat(bVal));
+
+      if (isANum && isBNum) {
+        return sortDirection === 'up' ? aNum - bNum : bNum - aNum;
+      }
+
+      // Default string comparison
+      const aStr = String(aVal).toLowerCase();
+      const bStr = String(bVal).toLowerCase();
+      if (aStr < bStr) return sortDirection === 'up' ? -1 : 1;
+      if (aStr > bStr) return sortDirection === 'up' ? 1 : -1;
+      return 0;
+    });
+  }, [data, sortField, sortDirection, manualOrder]);
+
+  // Handle manual row reordering - clears sort when user drags rows
+  const handleRowReorder = React.useCallback((fromIndex: number, toIndex: number) => {
+    const currentOrder = manualOrder.length > 0 ? manualOrder : sortedData.map(r => r.id);
+    const clampedToIndex = Math.max(0, Math.min(toIndex, currentOrder.length - 1));
+    if (fromIndex !== clampedToIndex) {
+      const newOrder = arrayMove(currentOrder, fromIndex, clampedToIndex);
+      setManualOrder(newOrder);
+      setSortField('');
+    }
+  }, [manualOrder, sortedData, setManualOrder, setSortField]);
+
   const table = useReactTable({
-    data,
+    data: sortedData,
     columns,
     getCoreRowModel: getCoreRowModel(),
     enableColumnResizing: true,
@@ -1000,41 +1246,48 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                 </div>
               </div>
             ) : (
-              <div style={{ width: table.getTotalSize() + (onCreateField ? 40 : 0), minWidth: table.getTotalSize() + (onCreateField ? 40 : 0), height: '100%', position: 'relative' }}>
-                <AutoSizer
-                  renderProp={({ height, width }: { height: number | undefined; width: number | undefined }) => (
-                    <List
-                      key={columnVersion}
-                      rowCount={rows.length}
-                      rowHeight={40}
-                      rowProps={{
-                        rows: rows,
-                        collection,
-                        onUpdate: onUpdateRecord,
-                        onDelete,
-                        onCreateField,
-                        onCreateRecord,
-                        recordMeta,
-                        onEdit: onEditRef.current,
-                        selectedIds,
-                        onRowSelect: handleRowSelect,
-                        clearSelection,
-                        enableSelection: true,
-                        tableSize: table.getTotalSize(),
-                        columnVersion,
-                        leftColWidth,
-                      }}
-                      style={{
-                        height,
-                        width,
-                        overflow: 'auto'
-                      }}
-                      className="no-scrollbar"
-                      rowComponent={DraggableRecordRow}
-                    />
-                  )}
-                />
-              </div>
+              <SortableContext
+                items={rows.map((r: any) => `row-${r.original.id}`)}
+                strategy={verticalListSortingStrategy}
+              >
+                <div style={{ width: table.getTotalSize() + (onCreateField ? 40 : 0), minWidth: table.getTotalSize() + (onCreateField ? 40 : 0), height: '100%', position: 'relative' }}>
+                  <AutoSizer
+                    renderProp={({ height, width }: { height: number | undefined; width: number | undefined }) => (
+                      <List
+                        key={columnVersion}
+                        rowCount={rows.length}
+                        rowHeight={40}
+                        rowProps={{
+                          rows: rows,
+                          collection,
+                          onUpdate: onUpdateRecord,
+                          onDelete,
+                          onCreateField,
+                          onCreateRecord,
+                          recordMeta,
+                          onEdit: onEditRef.current,
+                          selectedIds,
+                          onRowSelect: handleRowSelect,
+                          clearSelection,
+                          enableSelection: true,
+                          tableSize: table.getTotalSize(),
+                          columnVersion,
+                          leftColWidth,
+                          onRowReorder: handleRowReorder,
+                          isManualOrderActive,
+                        }}
+                        style={{
+                          height,
+                          width,
+                          overflow: 'auto'
+                        }}
+                        className="no-scrollbar"
+                        rowComponent={DraggableRecordRow}
+                      />
+                    )}
+                  />
+                </div>
+              </SortableContext>
             )}
           </div>
 

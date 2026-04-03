@@ -13,6 +13,54 @@ const SYSTEM_COLLECTIONS = [
   'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website', 'dupemates-pages'
 ];
 
+// Collections that exist in NocoBase but may not appear in list API due to cache issues
+// These will be merged with API results to ensure all user collections appear
+const HARDCODED_COLLECTIONS = [
+  { name: 'exercise', title: 'exercise' },
+  { name: 'sleep', title: 'sleep' },
+  { name: 'finances', title: 'finances' },
+  { name: 'journal', title: 'journal' },
+  { name: 'events', title: 'events' },
+];
+
+// Discover additional collections from localStorage cache
+function discoverCollectionsFromCache(): Array<{name: string, title: string}> {
+  const discovered: Array<{name: string, title: string}> = [];
+  try {
+    // Check sidebar items for collection references
+    const sidebarItems = localStorage.getItem('sidebar_items');
+    if (sidebarItems) {
+      const items = JSON.parse(sidebarItems);
+      items.forEach((item: any) => {
+        if (item.type === 'collection' && item.id && 
+            !item.id.startsWith('doc_') && 
+            !item.id.startsWith('drawing_') &&
+            !item.id.startsWith('folder_') &&
+            !HARDCODED_COLLECTIONS.some(hc => hc.name === item.id) &&
+            !SYSTEM_COLLECTIONS.includes(item.id.toLowerCase())) {
+          discovered.push({ name: item.id, title: item.name || item.id });
+        }
+      });
+    }
+    
+    // Check database order setting
+    const dbOrder = localStorage.getItem('database_order');
+    if (dbOrder) {
+      const order = JSON.parse(dbOrder);
+      order.forEach((name: string) => {
+        if (!discovered.some(d => d.name === name) &&
+            !HARDCODED_COLLECTIONS.some(hc => hc.name === name) &&
+            !SYSTEM_COLLECTIONS.includes(name.toLowerCase())) {
+          discovered.push({ name, title: name });
+        }
+      });
+    }
+  } catch (e) {
+    // ignore cache errors
+  }
+  return discovered;
+}
+
 export function useCollections() {
   const { client, isAuthenticated, logout } = useAuth();
 
@@ -56,7 +104,7 @@ export function useCollections() {
     queryFn: fetchCollections,
     enabled: isAuthenticated,
     select: (data) => {
-      return data.filter((col: Collection) => {
+      const filtered = data.filter((col: Collection) => {
         const name = (col.name || '').toLowerCase().trim();
         const title = (col.title || '').toLowerCase().trim();
 
@@ -66,6 +114,17 @@ export function useCollections() {
         if (col.hidden) return false;
         return true;
       });
+
+      // Merge with hardcoded collections that may be missing from API response
+      const existingNames = new Set(filtered.map((c: Collection) => c.name.toLowerCase()));
+      const cachedCollections = discoverCollectionsFromCache();
+      const allExtraCollections = [...HARDCODED_COLLECTIONS, ...cachedCollections];
+      
+      const missingCollections = allExtraCollections
+        .filter(hc => !existingNames.has(hc.name.toLowerCase()))
+        .map(hc => ({ ...hc, fields: [] } as Collection));
+
+      return [...filtered, ...missingCollections];
     }
   });
 
@@ -78,7 +137,31 @@ export function useCollections() {
 }
 
 export function useCollection(name: string) {
-  const { collections, loading, error } = useCollections();
-  const collection = collections.find((c: Collection) => c.name === name);
-  return { data: collection, loading, error };
+  const { client, isAuthenticated } = useAuth();
+  const { collections, loading: collectionsLoading, error: collectionsError } = useCollections();
+  const collectionFromList = collections.find((c: Collection) => c.name === name);
+
+  // If collection has no fields, fetch full details
+  const shouldFetchDetails = !!collectionFromList && (!collectionFromList.fields || collectionFromList.fields.length === 0);
+
+  const { data: fullCollection, isLoading: detailsLoading } = useQuery({
+    queryKey: ['collection', name],
+    queryFn: async () => {
+      if (!isAuthenticated || !client) return null;
+      try {
+        const response = await client.getCollection(name);
+        return response?.data || null;
+      } catch (e) {
+        secureLogger.warn('Failed to fetch collection details:', e);
+        return null;
+      }
+    },
+    enabled: isAuthenticated && shouldFetchDetails,
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+
+  const collection = fullCollection || collectionFromList;
+  const loading = collectionsLoading || (shouldFetchDetails && detailsLoading);
+
+  return { data: collection, loading, error: collectionsError };
 }

@@ -3,7 +3,7 @@
 
 import { generateAiFieldContent } from './rag-service';
 import { generateText } from '@/lib/llm-service';
-import { getOllamaGenerateUrl, DEFAULT_GEMINI_MODEL } from '@/lib/llm-config';
+import { getOllamaGenerateUrl, DEFAULT_OLLAMA_MODEL } from '@/lib/llm-config';
 import { api } from '@/api/nocobase-client';
 import { secureLogger } from '@/lib/secure-logger';
 
@@ -31,7 +31,7 @@ export interface AiGenerationResult {
 
 // default generation options
 const DEFAULT_OPTIONS: Partial<AiGenerationOptions> = {
-  model: DEFAULT_GEMINI_MODEL,
+  model: DEFAULT_OLLAMA_MODEL,
   temperature: 0.7,
   includeRelated: true,
   topK: 5,

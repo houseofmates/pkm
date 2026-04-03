@@ -29,10 +29,35 @@ export function ContextMenu() {
   setShowColorPicker(false);
   }, [isOpen, data]);
 
+  // Calculate initial darkness from pen color when tool menu opens
   useEffect(() => {
     if (!isOpen || targetType !== 'tool' || data?.tool !== 'pen') {
       setBrushDarkness(0);
+      return;
     }
+
+    const store = useEdgelessStore.getState();
+    const currentColor = store.penColor;
+    
+    // Reverse-calculate darkness from the current pen color
+    // We estimate by comparing luminance - darker colors have lower luminance
+    const getLuminance = (hex: string) => {
+      const m = hex.replace(/^#/, '');
+      if (m.length === 6) {
+        const r = parseInt(m.slice(0, 2), 16) / 255;
+        const g = parseInt(m.slice(2, 4), 16) / 255;
+        const b = parseInt(m.slice(4, 6), 16) / 255;
+        // Perceptual luminance formula
+        return 0.299 * r + 0.587 * g + 0.114 * b;
+      }
+      return 1;
+    };
+
+    const luminance = getLuminance(currentColor);
+    // Estimate darkness: pure white (luminance 1) = 0% darkness, black (luminance 0) = 100% darkness
+    // We use a nonlinear curve to match the applyDark function's behavior
+    const estimatedDarkness = Math.round((1 - Math.pow(luminance, 0.5)) * 100);
+    setBrushDarkness(Math.max(0, Math.min(100, estimatedDarkness)));
   }, [isOpen, targetType, data?.tool]);
 
   // close on click/tap outside

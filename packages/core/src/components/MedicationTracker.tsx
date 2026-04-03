@@ -1,6 +1,16 @@
 import React from 'react';
 import { toast } from 'sonner';
-import { useMedicationLog } from '@/hooks/use-medication-log';
+import { useMedicationLog, type MedicationLogEntry } from '@/hooks/use-medication-log';
+
+function formatTimeAmPmFromIso(isoString: string): string {
+  const date = new Date(isoString);
+  const hour = date.getHours();
+  const minute = date.getMinutes();
+  const ampm = hour >= 12 ? 'pm' : 'am';
+  const h = hour % 12 || 12;
+  const m = minute.toString().padStart(2, '0');
+  return `${h}:${m}${ampm}`;
+}
 
 export function MedicationTracker() {
   const {
@@ -8,9 +18,18 @@ export function MedicationTracker() {
     markGroupDone,
     isDoneToday,
     remindersEnabled,
-    reminderSchedule,
     toggleRemindersEnabled,
+    log,
   } = useMedicationLog();
+
+  const getLastLoggedTime = (groupId: string): string | null => {
+    const groupEntries = log.filter((entry: MedicationLogEntry) => entry.group === groupId);
+    if (groupEntries.length === 0) return null;
+    const mostRecent = groupEntries.sort((a: MedicationLogEntry, b: MedicationLogEntry) => 
+      new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    )[0];
+    return formatTimeAmPmFromIso(mostRecent.timestamp);
+  };
 
   return (
     <div className="p-4 rounded-xl border border-white/10 bg-white/[0.04]">
@@ -24,21 +43,10 @@ export function MedicationTracker() {
         </button>
       </div>
 
-      {remindersEnabled && (
-        <div className="mb-3 rounded-lg border border-blue-400/30 bg-blue-500/10 p-2 text-xs lowercase">
-          {reminderSchedule.map((reminder) => (
-            <div key={reminder.id} className="flex justify-between items-center gap-2">
-              <span>{reminder.label} @ {String(reminder.hour).padStart(2, '0')}:{String(reminder.minute).padStart(2, '0')}</span>
-              <span className="text-white/70">{reminder.body}</span>
-            </div>
-          ))}
-          <p className="mt-1 text-2xs text-white/40 lowercase">notifications are scheduled at these times and will persist until dismissed.</p>
-        </div>
-      )}
-
       <div className="space-y-2">
         {groups.map(group => {
           const done = isDoneToday(group.id);
+          const lastTime = getLastLoggedTime(group.id);
           return (
             <button
               key={group.id}
@@ -56,7 +64,12 @@ export function MedicationTracker() {
                   {group.items.map(i => `${i.name} (${i.dose}${i.count > 1 ? ` x${i.count}` : ''})`).join(', ')}
                 </div>
               </div>
-              <span className="text-xs font-bold">{done ? 'done' : 'log'}</span>
+              <div className="flex items-center gap-2">
+                {lastTime && (
+                  <span className="text-sm font-medium text-white">{lastTime}</span>
+                )}
+                <span className="text-xs font-bold">{done ? 'done' : 'log'}</span>
+              </div>
             </button>
           );
         })}

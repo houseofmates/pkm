@@ -11,7 +11,6 @@ import {
   Settings,
   Pencil,
   Eraser,
-
   BrainCircuit,
   Link as LinkIcon,
   Plus,
@@ -21,7 +20,8 @@ import {
   Lasso,
   Move,
   Expand,
-  BoxSelect
+  BoxSelect,
+  Pin
 } from 'lucide-react'
 import { useEdgelessStore } from '../store'
 import { useCanvasEvents } from '../hooks/use-canvas-events'
@@ -30,6 +30,8 @@ import { createPortal } from 'react-dom'
 import { useThemeReactor } from '@/hooks/use-theme-reactor'
 import { UniversalWidgetPicker } from '@/features/widgets/UniversalWidgetPicker'
 import { CaptureDialog } from '@/features/captures/components/CaptureDialog'
+import { useParams } from 'react-router-dom'
+import { toast } from 'sonner'
 
 // tool button helper
 const ToolBtn = ({ tool, icon: Icon, store, activeMenu, openMenu, closeMenu, onClickOverride, specialModeIcon, menuContent }: any) => {
@@ -110,6 +112,8 @@ export function Toolbar() {
   const setStabilizerLevel = useEdgelessStore(s => s.setStabilizerLevel)
   const penColor = useEdgelessStore(s => s.penColor)
   const setPenColor = useEdgelessStore(s => s.setPenColor)
+  const pressureEnabled = useEdgelessStore(s => s.pressureEnabled)
+  const setPressureEnabled = useEdgelessStore(s => s.setPressureEnabled)
   const eraserWidth = useEdgelessStore(s => s.eraserWidth)
   const setEraserWidth = useEdgelessStore(s => s.setEraserWidth)
   const eraserOpacity = useEdgelessStore(s => s.eraserOpacity)
@@ -141,6 +145,8 @@ export function Toolbar() {
     setStabilizerLevel,
     penColor,
     setPenColor,
+    pressureEnabled,
+    setPressureEnabled,
     eraserWidth,
     setEraserWidth,
     eraserOpacity,
@@ -158,6 +164,26 @@ export function Toolbar() {
   }
 
   useThemeReactor() // ensure theme is synced
+
+  const { id: drawingId } = useParams<{ id: string }>()
+
+  const handlePinToDashboard = () => {
+    if (!drawingId) {
+      toast.error('no drawing id found')
+      return
+    }
+    // Dispatch event to add drawing to dashboard
+    window.dispatchEvent(new CustomEvent('pkm:add-widget', {
+      detail: { 
+        id: `drawing_${drawingId}`, 
+        type: 'collection', 
+        name: 'drawing',
+        icon: 'PenTool',
+        iconType: 'lucide'
+      }
+    }))
+    toast.success('pinned to dashboard')
+  }
 
   const [activeMenu, setActiveMenu] = useState<string | null>(null)
   const [widgetPickerOpen, setWidgetPickerOpen] = useState(false)
@@ -376,6 +402,19 @@ export function Toolbar() {
                     className="accent-primary"
                   />
                 </div>
+                {/* pressure toggle */}
+                <div className="flex items-center gap-2 mb-2">
+                  <input
+                    type="checkbox"
+                    id="pressure-toggle"
+                    checked={store.pressureEnabled}
+                    onChange={(e) => store.setPressureEnabled(e.target.checked)}
+                    className="accent-primary"
+                  />
+                  <label htmlFor="pressure-toggle" className="text-xs text-primary lowercase">
+                    pen pressure
+                  </label>
+                </div>
                 <div className="grid grid-cols-5 gap-2">
                   {['var(--primary)', '#ffffff', '#ef4444', '#22c55e', '#3b82f6', '#000000'].map((color) => (
                     <button
@@ -417,21 +456,20 @@ export function Toolbar() {
 
           {/* text */}
           <ToolBtn tool="text" icon={Type} store={store} activeMenu={activeMenu} openMenu={openMenu} closeMenu={closeMenu} />
-
-          {/* widget picker trigger */}
-          <button
-            onClick={() => setWidgetPickerOpen(true)}
-            className="h-[48px] w-[48px] flex items-center justify-center rounded-full text-primary hover:bg-primary/20 hover:scale-105 transition-all"
-            title="add widget"
-          >
-            <Plus size={24} />
-          </button>
         </div>
 
         <div className="w-px h-6 bg-white/10" />
 
         {/* secondary / layers */}
         <div className="flex items-center gap-1 px-2">
+          <button
+            onClick={handlePinToDashboard}
+            className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors"
+            title="pin to dashboard"
+          >
+            <Pin size={20} />
+          </button>
+
           <ToolBtn
             tool="layers"
             icon={Layers}
@@ -488,6 +526,15 @@ export function Toolbar() {
         />
         </div>
       </div>
+
+      {/* Floating + button at bottom right */}
+      <button
+        onClick={() => setWidgetPickerOpen(true)}
+        className="fixed bottom-4 right-4 z-50 h-[48px] w-[48px] flex items-center justify-center rounded-full bg-[#050505] border border-primary/50 text-primary hover:bg-primary/20 hover:scale-105 transition-all shadow-lg pointer-events-auto"
+        title="add widget"
+      >
+        <Plus size={24} />
+      </button>
     </div>
   )
 }

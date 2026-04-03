@@ -7,7 +7,7 @@ import { useRecords } from '@/hooks/use-records';
 
 interface HygieneLog {
   id: string;
-  type: 'shower' | 'brush' | 'skincare' | 'other';
+  type: 'shower' | 'brush' | 'skincare' | 'facepm' | 'other';
   timestamp: string;
   notes?: string;
   mood?: string;
@@ -36,6 +36,7 @@ const hygieneTypes = [
   { id: 'shower', label: 'shower', icon: Droplets, color: '#3c9fdd' },
   { id: 'brush', label: 'brush', icon: Sparkles, color: '#f5af12' },
   { id: 'skincare', label: 'care', icon: Droplets, color: '#22c55e' },
+  { id: 'facepm', label: 'face pm', icon: Sparkles, color: '#a855f7' },
 ] as const;
 
 export function HygieneTracker({ data, onUpdate }: HygieneTrackerProps) {
@@ -202,7 +203,7 @@ export function HygieneTracker({ data, onUpdate }: HygieneTrackerProps) {
 
       {/* main action buttons */}
       <div className="p-4 space-y-3">
-        <div className="grid grid-cols-3 gap-2">
+        <div className="grid grid-cols-4 gap-2">
           {hygieneTypes.map((item) => {
             const Icon = item.icon;
             const isShower = item.id === 'shower';

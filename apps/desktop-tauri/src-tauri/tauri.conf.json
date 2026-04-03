@@ -2,9 +2,9 @@
   "$schema": "../../../node_modules/@tauri-apps/cli/config.schema.json",
   "productName": "pkm",
   "version": "0.1.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "com.pkm.app",
   "build": {
-    "frontendDist": "../../web/dist",
+    "frontendDist": "../../../packages/core/dist",
     "devUrl": "http://localhost:3010",
     "beforeDevCommand": "npm run dev --workspace=@pkm/core",
     "beforeBuildCommand": "npm run build --workspace=@pkm/core"

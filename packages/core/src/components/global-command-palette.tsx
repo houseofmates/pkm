@@ -14,7 +14,7 @@ import { useCollections } from "@/hooks/use-collections";
 import { api } from "@/api/nocobase-client";
 import { useEdgelessStore } from '@/features/edgeless/store';
 import { useFronter } from '@/contexts/fronter-context';
-import { getOllamaGenerateUrl, DEFAULT_GEMINI_MODEL } from '@/lib/llm-config';
+import { getOllamaGenerateUrl, DEFAULT_OLLAMA_MODEL } from '@/lib/llm-config';
 import { generateText } from '@/lib/llm-service';
 import { secureLogger } from '@/lib/secure-logger';
 
@@ -188,7 +188,7 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   const prompt = `you are wilson, a helpful ai assistant for a personal knowledge management system. you must respond entirely in lowercase with no capital letters at all. be concise, friendly, and helpful.\n\ncontext:\n${currentPageInfo}${collectionsInfo}${frontingInfo}${pageContext}\ndatabase search results:\n${dbContext}\n\nuser question: ${userQuery}\n\nyour response (all lowercase):`;
 
   const url = getOllamaGenerateUrl();
-  const response = await generateText(prompt, DEFAULT_GEMINI_MODEL, url);
+  const response = await generateText(prompt, DEFAULT_OLLAMA_MODEL, url);
 
   // ensure response is lowercase
   setAiInsight(response?.toLowerCase() || '');
@@ -201,8 +201,9 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   };
 
   const runCommand = useCallback((command: () => unknown) => {
-  setOpen(false);
-  command();
+    setOpen(false);
+    // delay command to allow dialog close animation to complete
+    setTimeout(command, 100);
   }, [setOpen]);
 
   if (!open) return null;

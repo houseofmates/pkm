@@ -7,7 +7,8 @@ import { storageManager } from './storage-manager';
 /**
  * the default gemini model wilson should use
  */
-export const DEFAULT_GEMINI_MODEL = 'gemini-3.1-flash-lite-preview';
+export const DEFAULT_OLLAMA_MODEL = 'qwen2.5-coder:7b-instruct-q4_K_S';
+export const DEFAULT_OLLAMA_URL = 'http://192.168.4.250:11434';
 
 export function getStoredGeminiApiKey(): string | null {
   const stored = storageManager.getEncryptedItem?.('gemini_api_key') ?? storageManager.getItem('gemini_api_key');
@@ -56,54 +57,42 @@ export function normalizeBaseUrl(urlOrEndpoint?: string): string {
   return u;
 }
 
-export function getOllamaBase(): string {
-  try {
-    // prefer user-configured gemini base url (new name), but fall back to legacy wilson key
-    const stored = storageManager.getItem('gemini_api_url') ?? storageManager.getItem('wilson_api_url');
-    if (stored && stored.trim()) {
-      const base = normalizeBaseUrl(stored);
-      if (base) return base;
-    }
-  } catch (e) {
-    // ignore (eg. ssr or restricted env)
-  }
-
-  const env = import.meta.env.VITE_GEMINI_URL || import.meta.env.VITE_OLLAMA_URL;
-  if (env && String(env).trim()) return String(env).replace(/\/$/, '');
-
-  // default to google gemini public api endpoint for the configured model
-  return `https://generativeai.googleapis.com/v1beta2/models/${DEFAULT_GEMINI_MODEL}`;
+export function getStoredApiConfig(): { url: string | null; model: string | null } {
+  const url = storageManager.getItem('ollama_url') ?? storageManager.getItem('wilson_api_url') ?? storageManager.getItem('gemini_api_url');
+  const model = storageManager.getItem('ollama_model') ?? storageManager.getItem('wilson_model') ?? storageManager.getItem('gemini_api_key');
+  return { url: url ? String(url).trim() : null, model: model ? String(model).trim() : null };
 }
 
-export function getOllamaGenerateUrl(): string {
-  // for Gemini the endpoint is the model path plus ':generate'
-  const base = `${getOllamaBase().replace(/\/$/, '')}:generate`;
-  const apiKey = getStoredGeminiApiKey();
-  if (apiKey) {
-    return appendGeminiApiKeyToUrl(base, apiKey);
-  }
-  return base;
+export function storeApiConfig(url?: string, model?: string): void {
+  if (url) storageManager.setItem('ollama_url', url);
+  if (model) storageManager.setItem('ollama_model', model);
+}
+
+export function getOllamaBase(): string {
+  const { url } = getStoredApiConfig();
+  if (url) return url.replace(/\/+$/, '');
+
+  const env = import.meta.env.VITE_OLLAMA_URL || import.meta.env.VITE_GEMINI_URL;
+  if (env) return String(env).replace(/\/$/, '');
+
+  // default to local Ollama at the user's IP
+  return DEFAULT_OLLAMA_URL;
+}
+
+export function getOllamaModel(): string {
+  const { model } = getStoredApiConfig();
+  if (model) return model;
+
+  const env = import.meta.env.VITE_OLLAMA_MODEL;
+  if (env) return String(env);
+
+  return DEFAULT_OLLAMA_MODEL;
 }
 
 export function getOllamaChatUrl(): string {
-  // Gemini does not have a separate chat endpoint in this setup
-  return getOllamaGenerateUrl();
+  return `${getOllamaBase()}/api/chat`;
 }
 
-export function normalizeGenerateEndpoint(urlOrBase?: string): string {
-  if (!urlOrBase) return getOllamaGenerateUrl();
-  const t = String(urlOrBase).trim().replace(/\/$/, '');
-  // if already a full Gemini generate endpoint, return as-is
-  if (/generativeai\.googleapis\.com\/v1beta2\/models\/.+:(generate|streaminggenerate)$/i.test(t)) {
-    return t;
-  }
-
-  // if the user provided the gemini model base, append the generate suffix
-  if (/generativeai\.googleapis\.com\/v1beta2\/models\/.+$/i.test(t)) {
-    return `${t}:generate`;
-  }
-
-  if (/\/api\/generate$/.test(t)) return t;
-  const stripped = t.replace(/(\/api\/chat|\/api)$/i, '').replace(/\/$/, '');
-  return `${stripped}/api/generate`;
+export function getOllamaGenerateUrl(): string {
+  return `${getOllamaBase()}/api/generate`;
 }
