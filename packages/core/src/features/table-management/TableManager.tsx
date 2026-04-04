@@ -48,10 +48,16 @@ export const TableManager: React.FC = () => {
     'form-submissions', 'public_blocks', 'public_pages', 'site-pages',
     'website', 'front_history', 'sidebar_item_colors',
     'dupemates-stats', 'dupemates-pages', 'dupe-forms', 'llms',
+    'roles', 'users',
   ]);
 
   const visibleCollections = collections
     .filter((c) => !SYSTEM_COLLECTIONS.has(c.name))
+    .filter((c) => {
+      const title = c.title || c.name || '';
+      if (title.startsWith('{{t(') || title.startsWith('{{ t(')) return false;
+      return true;
+    })
     .filter((c, i, arr) => arr.findIndex((x) => x.name === c.name) === i)
     .sort((a, b) => (a.title || a.name).localeCompare(b.title || b.name));
 
