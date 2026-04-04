@@ -772,6 +772,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
             }
           })
         );
+      cols = sortColumns(cols);
     }
 
     // if there are no defined columns (collection has no fields and there
