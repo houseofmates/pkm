@@ -230,7 +230,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                             <ArrowLeft className="h-5 w-5" />
                         </Button>
                         <h2
-                            className="text-xl font-bold lowercase tracking-tight"
+                            className="text-xl font-bold tracking-tight"
                             style={{ color: collectionColor }}
                         >
                             {collection.label || humanizeFieldName(collection.name)}
