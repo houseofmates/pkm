@@ -108,11 +108,10 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
 
   useEffect(() => {
     const allowed = (location.state as any)?.fromSidebar || storageManager.getItem('pkm:allow_databases_direct');
-    if (!allowed) {
+    if (!allowed && !isAuthenticated) {
       navigate('/');
     }
-
-  }, [location, navigate]);
+  }, [location, navigate, isAuthenticated]);
 
   // 1. filter out internal collections from grid
   const FORBIDDEN_COLLECTIONS = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website', 'dupemates-pages'];
