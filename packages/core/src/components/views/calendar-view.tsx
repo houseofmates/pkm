@@ -396,8 +396,9 @@ function MonthView({ currentDate, recordsByDate, collection, onUpdateRecord, onD
     const days = [];
     for (let i = 0; i < startDayOfWeek; i++) days.push(null);
     for (let i = 1; i <= daysInMonth; i++) {
-      const d = safeZonedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), i), timeZone);
-      if (d) days.push(d);
+      const rawDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
+      const d = safeZonedDate(rawDate, timeZone) ?? rawDate;
+      days.push(d);
     }
     return days;
   }, [currentDate, startDayOfWeek, daysInMonth, timeZone]);
