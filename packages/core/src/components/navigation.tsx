@@ -65,7 +65,6 @@ import { RichResourceContextMenuContent } from '@/components/rich-resource-conte
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { CollectionDialog } from '@/features/collections/components/collection-dialog';
 import { updateDrawingMeta, deleteDrawing, listPendingDrawings } from '@/features/edgeless/storage';
-import { secureLogger } from '@/lib/secure-logger';
 import { storageManager } from '@/lib/storage-manager';
 import { toast } from 'sonner';
 
