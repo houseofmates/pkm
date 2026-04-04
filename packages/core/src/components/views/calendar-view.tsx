@@ -410,9 +410,11 @@ function MonthView({ currentDate, recordsByDate, collection, onUpdateRecord, onD
       <div className="flex-1 grid grid-cols-7 grid-rows-5 md:grid-rows-6 auto-rows-fr overflow-y-auto">
         {calendarDays.map((date, idx) => {
           if (!date) return <div key={`empty-${idx}`} className="bg-muted/10 border-b border-r p-2 opacity-50" />;
-          const dateKey = format(date, 'yyyy-MM-dd');
+          const dateKey = safeDateFormat(date, 'yyyy-MM-dd');
+          if (!dateKey) return <div key={`invalid-${idx}`} className="bg-muted/10 border-b border-r p-2 opacity-50" />;
           const dayRecords = recordsByDate[dateKey] || [];
-          const isToday = format(toZonedTime(new Date(), timeZone), 'yyyy-MM-dd') === dateKey;
+          const todayKey = safeDateFormat(new Date(), 'yyyy-MM-dd', timeZone);
+          const isToday = todayKey === dateKey;
           return (
             <DroppableDateCell
               key={dateKey}
