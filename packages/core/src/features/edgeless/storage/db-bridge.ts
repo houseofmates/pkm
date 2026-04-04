@@ -4,6 +4,7 @@
 // falls back to direct `canvas-db` calls in test / non-worker environments
 
 import * as directDb from './canvas-db'
+import { secureLogger } from '@/lib/secure-logger'
 import type { DrawOp, OpLogEntry, CanvasCheckpoint } from './oplog'
 
 let worker: Worker | null = null
@@ -28,12 +29,12 @@ function initWorkerIfNeeded() {
       else p.resolve(result)
     }
     worker.onerror = (e: ErrorEvent) => {
-      console.error('canvas-db worker error:', e.message)
+      secureLogger.error('canvas-db worker error:', e.message)
     }
   } catch (err) {
     // fallback to direct db implementation
     worker = null
-    console.warn('canvas-db worker unavailable, falling back to direct idb implementation')
+    secureLogger.warn('canvas-db worker unavailable, falling back to direct idb implementation')
   }
 }
 

@@ -1,5 +1,6 @@
 import { parse as csvParse } from 'papaparse';
 import yaml from 'js-yaml';
+import { secureLogger } from '@/lib/secure-logger';
 
 /**
  * Interface for a file-like object that can be read as a stream or text.
@@ -89,7 +90,7 @@ export async function parseNotionExport(sources: NotionSource[]): Promise<Notion
             try {
                 pages.push(await parseMarkdownSource(source));
             } catch (err) {
-                console.error(`failed to parse markdown ${source.name}:`, err);
+                secureLogger.error(`failed to parse markdown ${source.name}:`, err);
             }
         } else if (lowerName.endsWith('.csv')) {
             const name = source.name.split(/[\\/]/).pop()?.replace(/\.csv$/, '') || 'database';
@@ -122,7 +123,7 @@ export async function parseNotionExport(sources: NotionSource[]): Promise<Notion
                     const parsed = JSON.parse(raw);
                     if (parsed && parsed.properties) props = parsed.properties;
                 } catch (e) {
-                    if (IMPORT_DEBUG) console.warn(`failed to parse metadata for ${name}:`, e);
+                    if (IMPORT_DEBUG) secureLogger.warn(`failed to parse metadata for ${name}:`, e);
                 }
             }
 

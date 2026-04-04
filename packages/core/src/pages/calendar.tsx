@@ -7,6 +7,7 @@ import { useAppSetting } from '@/hooks/use-app-setting';
 import { toast } from 'sonner';
 import { extractRecords } from '@/lib/nocobase-utils';
 import { api as client } from '@/api/nocobase-client';
+import { secureLogger } from '@/lib/secure-logger';
 
 export function CalendarPage() {
   const { data: collection, loading: colLoading } = useCollection('events');
@@ -29,7 +30,7 @@ export function CalendarPage() {
 
   const syncIcs = async (silent = false) => {
     if (!collection) {
-      if (!silent) console.warn('[ICS SYNC] skipped: collection not loaded');
+      if (!silent) secureLogger.warn('[ICS SYNC] skipped: collection not loaded');
       return;
     }
 
@@ -165,7 +166,7 @@ export function CalendarPage() {
           await client.createRecord('events', payload);
           created += 1;
         } catch (err: any) {
-          console.error('[ICS SYNC] record creation failed', err, payload);
+          secureLogger.error('[ICS SYNC] record creation failed', err, payload);
           toast.error(`ics sync record failed: ${err?.message || 'unknown error'}`);
         }
       }
@@ -178,7 +179,7 @@ export function CalendarPage() {
         toast.success(`synced ${created} new + ${updated} updated`);
       }
     } catch (err) {
-      console.error('ics sync failed', err);
+      secureLogger.error('ics sync failed', err);
       if (!silent) toast.error('ics sync failed');
     } finally {
       setIsSyncing(false);

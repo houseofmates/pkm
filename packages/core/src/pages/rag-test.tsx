@@ -9,6 +9,7 @@ import { AiFieldButton } from '@/components/ai-field-button';
 import { useAiGeneration } from '@/hooks/use-ai-generation';
 import { useLLMStore } from '@/stores/llm-store';
 import { api } from '@/api/nocobase-client';
+import { secureLogger } from '@/lib/secure-logger';
 
 export default function RagTestPage() {
   const [testResults, setTestResults] = useState<string[]>([]);
@@ -74,7 +75,7 @@ export default function RagTestPage() {
       addResult('\n✅ all tests completed!');
     } catch (error) {
       addResult(`\n❌ test failed: ${error}`);
-      console.error(error);
+      secureLogger.error('rag test run failed', error);
     } finally {
       setIsRunning(false);
     }

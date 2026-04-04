@@ -16,6 +16,7 @@ import { storageManager } from '@/lib/storage-manager';
 import { normalizeAuthToken } from '@/lib/auth-token';
 import { isCapacitorNative, isMobileContext, resolveOllamaEndpoint, MOBILE_SERVER_ORIGIN } from '@/lib/platform';
 import { getOllamaBase } from '@/lib/llm-config';
+import { secureLogger } from '@/lib/secure-logger';
 import type { WorkerAPIWithInit } from '@/workers/ai-worker-core';
 
 // ---------------------------------------------------------------------------
@@ -85,7 +86,7 @@ function tryCreateWorker(ollamaBaseUrl: string): { worker: Worker; proxy: Comlin
         const proxy = Comlink.wrap<WorkerAPIWithInit>(worker);
         return { worker, proxy };
     } catch (err) {
-        console.warn('[ai-worker] web worker creation failed, will use main-thread fallback:', err);
+        secureLogger.warn('[ai-worker] web worker creation failed, will use main-thread fallback:', err);
         return null;
     }
 }
@@ -99,7 +100,7 @@ async function getMainThreadAPI(ollamaBaseUrl: string): Promise<WorkerAPIWithIni
     // dynamic import so the bundle only loads this when the worker path fails
     const { createWorkerAPI } = await import('../workers/ai-worker-core');
     _mainThreadAPI = createWorkerAPI(globalThis.fetch.bind(globalThis), { ollamaBaseUrl });
-    console.info('[ai-worker] falling back to main thread execution');
+    secureLogger.info('[ai-worker] falling back to main thread execution');
     return _mainThreadAPI;
 }
 
@@ -183,7 +184,7 @@ export function useAIWorker() {
             await initAPI(resolvedAPI, ollamaBaseUrl);
             if (!cancelled) setIsReady(true);
         })().catch(err => {
-            console.error('[ai-worker] initialization failed:', err);
+            secureLogger.error('[ai-worker] initialization failed:', err);
         });
 
         return () => {

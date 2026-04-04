@@ -3,6 +3,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import { productionGuard, perfMonitor } from '../lib/production-guards'
+import { secureLogger } from '@/lib/secure-logger'
 
 interface UseCanvasSafeOptions {
   onError?: (error: Error) => void
@@ -30,7 +31,7 @@ export function useCanvasSafe(options: UseCanvasSafeOptions = {}): UseCanvasSafe
       // check storage health first
       const { healthy, issues } = await import('../lib/production-guards').then(m => m.checkStorageHealth())
       if (!healthy) {
-        console.warn('[UseCanvasSafe] storage issues:', issues)
+        secureLogger.warn('[UseCanvasSafe] storage issues:', issues)
       }
 
       // start production monitoring
@@ -47,7 +48,7 @@ export function useCanvasSafe(options: UseCanvasSafeOptions = {}): UseCanvasSafe
       options.onReady?.()
     } catch (e) {
       const err = e instanceof Error ? e : new Error(String(e))
-      console.error('[UseCanvasSafe] initialization failed:', err)
+      secureLogger.error('[UseCanvasSafe] initialization failed:', err)
 
       setIsError(true)
       setError(err)

@@ -1,4 +1,5 @@
 import { openDB } from 'idb';
+import { secureLogger } from '@/lib/secure-logger';
 import type { DBSchema, IDBPDatabase } from 'idb';
 import type { OpLogEntry } from '../features/edgeless/storage/oplog';
 
@@ -67,7 +68,7 @@ class LocalDbService {
       }
     }
 
-    console.log(`Saved ${savedCount} collections to local DB in batches of ${CHUNK_SIZE}.`);
+    secureLogger.info(`Saved ${savedCount} collections to local DB in batches of ${CHUNK_SIZE}.`);
   }
 
   /**
@@ -99,7 +100,7 @@ class LocalDbService {
       }
     }
 
-    console.log(`Saved ${savedCount} oplog entries to local DB in batches of ${CHUNK_SIZE}.`);
+    secureLogger.info(`Saved ${savedCount} oplog entries to local DB in batches of ${CHUNK_SIZE}.`);
   }
 
   public async getUnsyncedOplog(drawingId?: string): Promise<OpLogEntry[]> {

@@ -13,6 +13,7 @@ import {
 } from '../storage/canvas-db'
 import type { OpLogEntry } from '../storage/oplog'
 import { decryptObject, encryptObject } from '@/lib/encryption'
+import { secureLogger } from '@/lib/secure-logger'
 
 const SYNC_INTERVAL_MS = 5000
 const SYNC_BATCH_SIZE = 50
@@ -145,7 +146,7 @@ class CanvasSyncService {
         throw new Error(result.error || 'sync failed')
       }
     } catch (err) {
-      console.error('sync failed for drawing', drawingId, err)
+      secureLogger.error('sync failed for drawing', drawingId, err)
       state.isSyncing = false
       this.syncState.set(drawingId, state)
 

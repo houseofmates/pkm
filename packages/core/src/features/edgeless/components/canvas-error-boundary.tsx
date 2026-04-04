@@ -2,6 +2,7 @@ import { Component, type ReactNode } from 'react'
 import { Button } from '@/components/ui/button'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
 import { storageManager } from '@/lib/storage-manager';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface Props {
   children: ReactNode
@@ -25,7 +26,7 @@ export class CanvasErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: any) {
-    console.error('[canvas error boundary]', error, errorInfo)
+    secureLogger.error('[canvas error boundary]', error, errorInfo)
     this.setState({
       error,
       errorInfo: errorInfo?.componentStack || '',
@@ -38,11 +39,11 @@ export class CanvasErrorBoundary extends Component<Props, State> {
         const canvasData = (window as any).pkmGetCanvasJSON?.()
         if (canvasData) {
           storageManager.setItem(`pkm-emergency-backup-${drawingId}`, JSON.stringify(canvasData))
-          console.info('[canvas error boundary] emergency backup saved')
+          secureLogger.info('[canvas error boundary] emergency backup saved')
         }
       }
     } catch (e) {
-      console.error('[canvas error boundary] backup failed:', e)
+      secureLogger.error('[canvas error boundary] backup failed:', e)
     }
   }
 
