@@ -447,7 +447,9 @@ export function WilsonChat() {
             </button>
             <span>wilson</span>
             {currentSession && (
-              <span className="text-xs font-normal text-primary/50 truncate max-w-[120px]">- {currentSession.title}</span>
+              <span className="text-xs font-normal text-primary/50 truncate max-w-[120px]" title={currentSession.title}>
+                - {compactTimestamp(currentSession.createdAt)}
+              </span>
             )}
             {pendingAttachments.length > 0 && (
               <span className="text-xs bg-primary/20 px-2 py-0.5 rounded-full">{pendingAttachments.length} attachment{pendingAttachments.length > 1 ? 's' : ''}</span>
