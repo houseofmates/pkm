@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
 import { useJournalData } from '@/hooks/use-journal-data';
 import { ActivitiesPanel, type Activity } from '@/components/ActivitiesPanel';
 import { MedicationTracker } from '@/components/MedicationTracker';
@@ -7,12 +7,13 @@ import { toast } from 'sonner';
 import api from '@/api/nocobase-client';
 import { OllamaClient } from '@/api/ollama-client';
 import { type JournalRecord, parseActivities } from '@/schema/journal-collection';
-import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, AreaChart, Area } from 'recharts';
 import { Sparkles, Mic, Image, BarChart2, Heart, Zap, Target, Award, BookOpen, History, Wind, Clock, Download, Bell, Plus, X, ChevronLeft, ChevronRight, Search, Filter, Edit2, Trash2, FileText, ShowerHead, CalendarDays, CheckSquare, TrendingUp, Snowflake, Loader2, Medal, LayoutDashboard, GitGraph, Database } from 'lucide-react';
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
 import { PushToTalkWidget } from '@/components/push-to-talk-widget';
 import { ShowerLoggerModal } from '@/components/shower-logger-modal';
+
+// Lazy-load heavy dependencies to reduce initial bundle size
+const ReactQuill = lazy(() => import('react-quill-new').then(m => ({ default: m.default })));
+const RechartsModule = lazy(() => import('@/components/journal/recharts-wrapper'));
 
 // override focus/accent for journal buttons so color comes from the element itself
 const journalStyles = `
