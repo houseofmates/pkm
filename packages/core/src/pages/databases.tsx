@@ -166,7 +166,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     })) as unknown as Collection[];
 
   // 3. merge lists
-  const allItems = [...filteredCollections, ...sidebarDocs];
+  const allItems = [...collectionsWithCounts, ...sidebarDocs];
 
   const sortedCollections = [...allItems].sort((a, b) => {
     const indexA = dbOrder.indexOf(a.name);
