@@ -51,14 +51,6 @@ export const TableManager: React.FC = () => {
     return str.replace(/\b\w/g, (c) => c.toUpperCase());
   };
 
-  const parseI18nTemplate = (str: string): string => {
-    const match = str.match(/^\{\{\s*t\(['"](.+)['"]\)\s*\}\}$/);
-    if (match) {
-      return match[1].replace(/\b\w/g, (c) => c.toUpperCase());
-    }
-    return str.replace(/\b\w/g, (c) => c.toUpperCase());
-  };
-
   return (
     <div className="space-y-4">
       <Card>
