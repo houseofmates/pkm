@@ -39,7 +39,7 @@ const NotionImportPage = lazy(() => import("@/pages/notion-import").then(m => ({
 const SettingsPage = lazy(() => import("@/pages/settings").then(m => ({ default: m.default })));
 const PublicDocViewer = lazy(() => import("@/components/journal/public-doc-viewer").then(m => ({ default: m.PublicDocViewer })));
 const RagTestPage = lazy(() => import("@/pages/rag-test").then(m => ({ default: m.default })));
-const JournalPage = lazy(() => import("@/pages/journal").then(m => ({ default: m.JournalPage })));
+const JournalPage = lazy(() => import("@/pages/journal"));
 const CalendarPage = lazy(() => import("@/pages/calendar").then(m => ({ default: m.CalendarPage })));
 const AchievementsPage = lazy(() => import("@/pages/achievements").then(m => ({ default: m.AchievementsPage })));
 
@@ -293,38 +293,36 @@ function AppContent() {
     <CanvasInitializer>
         {token ? (
           <Suspense fallback={LoadingFallback}>
-            <ErrorBoundary>
-              <Routes>
-                <Route element={<RootLayout />}>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/today" element={<TodayPage />} />
-                  <Route path="/databases" element={<DatabasesPage />} />
-                  <Route path="/databases/:name" element={<CollectionDetailPage />} />
-                  <Route path="/headmates" element={<HeadmatesPage />} />
-                  <Route path="/board" element={<MoodboardPage />} />
-                  <Route path="/canvas/:id" element={<CanvasPage />} />
-                  <Route path="/drawings/:id" element={
-                    <CanvasErrorBoundary>
-                      <DrawingPage />
-                    </CanvasErrorBoundary>
-                  } />
-                  <Route path="/databases/:name/:id" element={<RecordView />} />
-                  <Route path="/captures" element={<CapturesPage />} />
-                  <Route path="/db-canvas" element={<DatabaseCanvasView />} />
-                  <Route path="/page/:id" element={<PageCanvas />} />
-                  <Route path="/template" element={<TemplatePage />} />
-                  <Route path="/workspace/:id" element={<WorkspacePage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="/notion-import" element={<NotionImportPage />} />
-                  <Route path="/rag-test" element={<RagTestPage />} />
-                  <Route path="/journal" element={<JournalPage />} />
-                  <Route path="/calendar" element={<CalendarPage />} />
-                  <Route path="/achievements" element={<AchievementsPage />} />
-                  <Route path="/awards" element={<AchievementsPage />} />
-                  <Route path="*" element={<HomePage />} />
-                </Route>
-              </Routes>
-            </ErrorBoundary>
+            <Routes>
+              <Route element={<RootLayout />}>
+                <Route path="/" element={<ErrorBoundary><HomePage /></ErrorBoundary>} />
+                <Route path="/today" element={<ErrorBoundary><TodayPage /></ErrorBoundary>} />
+                <Route path="/databases" element={<ErrorBoundary><DatabasesPage /></ErrorBoundary>} />
+                <Route path="/databases/:name" element={<ErrorBoundary><CollectionDetailPage /></ErrorBoundary>} />
+                <Route path="/headmates" element={<ErrorBoundary><HeadmatesPage /></ErrorBoundary>} />
+                <Route path="/board" element={<ErrorBoundary><MoodboardPage /></ErrorBoundary>} />
+                <Route path="/canvas/:id" element={<ErrorBoundary><CanvasPage /></ErrorBoundary>} />
+                <Route path="/drawings/:id" element={
+                  <CanvasErrorBoundary>
+                    <DrawingPage />
+                  </CanvasErrorBoundary>
+                } />
+                <Route path="/databases/:name/:id" element={<ErrorBoundary><RecordView /></ErrorBoundary>} />
+                <Route path="/captures" element={<ErrorBoundary><CapturesPage /></ErrorBoundary>} />
+                <Route path="/db-canvas" element={<ErrorBoundary><DatabaseCanvasView /></ErrorBoundary>} />
+                <Route path="/page/:id" element={<ErrorBoundary><PageCanvas /></ErrorBoundary>} />
+                <Route path="/template" element={<ErrorBoundary><TemplatePage /></ErrorBoundary>} />
+                <Route path="/workspace/:id" element={<ErrorBoundary><WorkspacePage /></ErrorBoundary>} />
+                <Route path="/settings" element={<ErrorBoundary><SettingsPage /></ErrorBoundary>} />
+                <Route path="/notion-import" element={<ErrorBoundary><NotionImportPage /></ErrorBoundary>} />
+                <Route path="/rag-test" element={<ErrorBoundary><RagTestPage /></ErrorBoundary>} />
+                <Route path="/journal" element={<ErrorBoundary><JournalPage /></ErrorBoundary>} />
+                <Route path="/calendar" element={<ErrorBoundary><CalendarPage /></ErrorBoundary>} />
+                <Route path="/achievements" element={<ErrorBoundary><AchievementsPage /></ErrorBoundary>} />
+                <Route path="/awards" element={<ErrorBoundary><AchievementsPage /></ErrorBoundary>} />
+                <Route path="*" element={<ErrorBoundary><HomePage /></ErrorBoundary>} />
+              </Route>
+            </Routes>
           </Suspense>
         ) : <LoginPage />}
       <Toaster />
