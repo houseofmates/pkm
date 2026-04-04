@@ -11,38 +11,38 @@ const RAW_MODEL_NAME = 'qwen2.5-coder:7b-instruct-q4_K_S';
 
 function friendlyModelName(raw: string): string {
   const map: Record<string, string> = {
-    'qwen2.5-coder:7b-instruct-q4_K_S': 'Qwen 2.5 Coder 7B',
+    'qwen2.5-coder:7b-instruct-q4_K_S': 'Wilson',
+    'qwen2.5-coder:7b': 'Wilson',
+    'qwen 2.5 coder 7b': 'Wilson',
   };
-  if (map[raw]) return map[raw];
-  return raw
-    .split(':')[0]
-    .replace(/[^a-zA-Z0-9]/g, ' ')
-    .split(' ')
-    .filter(Boolean)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
+  const normalized = raw.toLowerCase().trim().replace(/[-_:]/g, ' ').replace(/\s+/g, ' ');
+  for (const [pattern, name] of Object.entries(map)) {
+    if (normalized.includes(pattern.toLowerCase().replace(/[-_:]/g, ' '))) return name;
+  }
+  return raw;
 }
 
 function compactTimestamp(ts: number | undefined): string {
   if (!ts) return '';
-  const now = Date.now();
-  const diff = now - ts;
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const date = new Date(ts);
-  const nowDate = new Date(now);
+  const now = new Date();
+  const diffMs = now.getTime() - ts;
+  const diffMin = Math.floor(diffMs / 60000);
+  const diffHr = Math.floor(diffMs / 3600000);
 
-  if (seconds < 60) return 'just now';
-  if (minutes < 60) return `${minutes}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  if (date.toDateString() === nowDate.toDateString()) {
-    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-  }
-  if (date.getFullYear() === nowDate.getFullYear()) {
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  }
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  if (diffMin < 1) return 'just now';
+  if (diffMin < 60) return `${diffMin}m ago`;
+  if (diffHr < 24) return `${diffHr}h ago`;
+
+  const date = new Date(ts);
+  const timeStr = date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  const isToday = date.toDateString() === now.toDateString();
+  if (isToday) return `today ${timeStr}`;
+
+  const yesterday = new Date(now);
+  yesterday.setDate(yesterday.getDate() - 1);
+  if (date.toDateString() === yesterday.toDateString()) return `yesterday ${timeStr}`;
+
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + `, ${timeStr}`;
 }
 
 // Helper function to capture a screenshot of the current page
@@ -467,7 +467,7 @@ export function WilsonChat() {
             <div className="text-primary opacity-50 text-center mt-10 lowercase">
               <p>systems online.</p>
               <p>waiting for input...</p>
-              <p className="mt-4 text-xs">supports images, gifs, and videos with {friendlyModelName(RAW_MODEL_NAME)}</p>
+              <p className="mt-4 text-xs" title={RAW_MODEL_NAME}>supports images, gifs, and videos with {friendlyModelName(RAW_MODEL_NAME)}</p>
               <p className="mt-2 text-xs text-primary/30" title={RAW_MODEL_NAME}>routing to: {friendlyModelName(RAW_MODEL_NAME)}</p>
             </div>
           )}
@@ -475,7 +475,7 @@ export function WilsonChat() {
           <StreamingBubble />
           {isThinking && !streamingContent && (
             <div className="flex items-center gap-2 text-primary text-xs animate-pulse lowercase">
-              <BrainCircuit size={14} /><span>processing with {friendlyModelName(RAW_MODEL_NAME).split(' ')[0]}...</span>
+              <BrainCircuit size={14} /><span title={RAW_MODEL_NAME}>processing with {friendlyModelName(RAW_MODEL_NAME).split(' ')[0]}...</span>
             </div>
           )}
         </div>

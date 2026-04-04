@@ -7,7 +7,14 @@ import { useState, useEffect } from 'react';
 
 export default function SettingsPage() {
     const [apiKey, setApiKey] = useAppSetting('apiKey', '');
-    const [darkMode, setDarkMode] = useAppSetting('darkMode', false);
+    const [darkMode, setDarkMode] = useAppSetting('darkMode', (() => {
+        if (typeof window !== 'undefined') {
+            return document.documentElement.classList.contains('dark')
+                || localStorage.getItem('theme') === 'dark'
+                || window.matchMedia('(prefers-color-scheme: dark)').matches;
+        }
+        return false;
+    })());
     const [pageSize, setPageSize] = useAppSetting('defaultPageSize', 20);
     const [showApiKey, setShowApiKey] = useState(false);
 
