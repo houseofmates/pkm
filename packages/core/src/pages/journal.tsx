@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { cn } from '@/lib/utils';
+import { secureLogger } from '@/lib/secure-logger';
 import { toast } from 'sonner';
 import api from '@/api/nocobase-client';
 import { OllamaClient } from '@/api/ollama-client';
@@ -9,7 +10,7 @@ import { Sparkles, Mic, Image, Calendar, TrendingUp, Heart, Zap, Target, Award, 
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import ReactQuill from 'react-quill-new';
-import 'react-quill/dist/quill.snow.css';
+import 'react-quill-new/dist/quill.snow.css';
 import { PushToTalkWidget } from '@/components/push-to-talk-widget';
 
 // override focus/accent for journal buttons so color comes from the element itself
@@ -297,7 +298,7 @@ function setStoredData<T>(key: string, value: T): void {
   try {
     localStorage.setItem(key, JSON.stringify(value));
   } catch (e) {
-    console.warn('failed to save to localStorage:', e);
+    secureLogger.warn('failed to save to localStorage:', e);
   }
 }
 
@@ -872,7 +873,7 @@ ${text}`;
         onSummaryGenerated();
       }
     } catch (err) {
-      console.error('weekly summary failed', err);
+      secureLogger.error('weekly summary failed', err);
     } finally {
       setIsSummarizing(false);
     }
@@ -2033,7 +2034,7 @@ export function JournalPage() {
       const res: any = await api.listRecords('journal', { sort: '-date', pageSize: 1000 });
       setEntries(res?.data || []);
     } catch (e) {
-      console.error('failed to load journal entries', e);
+      secureLogger.error('failed to load journal entries', e);
     }
   }, []);
 
@@ -2083,10 +2084,10 @@ export function JournalPage() {
           if (parsed.sentiment) setPredictedSentiment(parsed.sentiment);
           if (Array.isArray(parsed.activities)) setPredictedActivities(parsed.activities.map(String));
         } catch (e) {
-          console.error('prediction parse error', resp, e);
+          secureLogger.error('prediction parse error', resp, e);
         }
       } catch (err) {
-        console.error('prediction failed', err);
+        secureLogger.error('prediction failed', err);
       }
     }, 1000);
     return () => clearTimeout(timer);
@@ -2388,11 +2389,11 @@ ${entriesText}`;
         const ids = JSON.parse(resp);
         setNlIds(Array.isArray(ids) ? ids.map(String) : []);
       } catch (err) {
-        console.error('nl parse error', resp, err);
+        secureLogger.error('nl parse error', resp, err);
         setNlIds(null);
       }
     } catch (err) {
-      console.error('nl search failed', err);
+      secureLogger.error('nl search failed', err);
     } finally {
       setIsNlSearching(false);
     }
@@ -2677,7 +2678,7 @@ summary:`;
       setDailyGoals(prev => prev.map(g => g.id === 'voice_summary_goal' ? { ...g, completed: true } : g));
       toast.success('voice summary generated');
     } catch (e) {
-      console.error('summary failed', e);
+      secureLogger.error('summary failed', e);
       toast.error('voice summary failed');
     } finally {
       setIsSummarizingVoice(false);
