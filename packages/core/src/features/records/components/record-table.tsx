@@ -610,6 +610,32 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
 
   // sort state
   const [sortField, setSortField] = React.useState<string>('');
+
+  // keyboard shortcut: Ctrl/Cmd+N to create new record
+  React.useEffect(() => {
+    if (!onCreateRecord) return;
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        onCreateRecord();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onCreateRecord]);
+
+  // keyboard shortcut: Ctrl/Cmd+N to create new record
+  React.useEffect(() => {
+    if (!onCreateRecord) return;
+    const handler = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'n') {
+        e.preventDefault();
+        onCreateRecord();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [onCreateRecord]);
   const [sortDirection, setSortDirection] = React.useState<'up' | 'down'>('up');
 
   // manual row order state
