@@ -443,18 +443,20 @@ function MonthView({ currentDate, recordsByDate, collection, onUpdateRecord, onD
 }
 
 function WeekView({ currentDate, recordsByDate, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange, timeZone, allDayField, recurringField }: any) {
-  const weekStart = toZonedTime(new Date(currentDate), timeZone);
+  const weekStart = safeZonedDate(new Date(currentDate), timeZone) ?? new Date(currentDate);
   weekStart.setDate(currentDate.getDate() - currentDate.getDay());
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <div className="grid grid-cols-7 border-b bg-muted/30 flex-shrink-0">
         {Array.from({ length: 7 }).map((_, i) => {
-          const d = toZonedTime(new Date(weekStart), timeZone);
+          const d = safeZonedDate(new Date(weekStart), timeZone) ?? new Date(weekStart);
           d.setDate(weekStart.getDate() + i);
-          const isToday = format(toZonedTime(new Date(), timeZone), 'yyyy-MM-dd') === format(d, 'yyyy-MM-dd');
+          const dKey = safeDateFormat(d, 'yyyy-MM-dd');
+          const todayKey = safeDateFormat(new Date(), 'yyyy-MM-dd', timeZone);
+          const isToday = dKey && dKey === todayKey;
           return (
             <div key={i} className={cn("p-2 text-center border-r last:border-r-0", isToday && "bg-primary/5")}>
-              <div className="text-xs text-muted-foreground lowercase">{format(d, 'EEE')}</div>
+              <div className="text-xs text-muted-foreground lowercase">{dKey ? format(d, 'EEE') : '--'}</div>
               <div className={cn("text-sm font-semibold w-7 h-7 mx-auto rounded-full flex items-center justify-center mt-1", isToday && "bg-primary text-primary-foreground")}>{d.getDate()}</div>
             </div>
           );
