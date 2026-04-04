@@ -16,7 +16,8 @@ export const useSocket = () => {
     socketRef.current = socket;
 
     if (!socket) {
-      socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:4100', {
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://db.houseofmates.space';
+      socket = io(`${backendUrl}/socket`, {
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         autoConnect: true,
