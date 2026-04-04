@@ -380,7 +380,7 @@ function RowDragHandle({
 const DraggableRecordRow = (props: any) => {
   const { index, style: incomingStyle, leftColWidth } = props;
   const data = props.data || props;
-  const { rows, collection, onUpdate, onDelete, onCreateField, recordMeta, onEdit, selectedIds, onRowSelect, clearSelection, enableSelection, columnVersion, onRowReorder, isManualOrderActive } = data;
+  const { rows, collection, onUpdate, onDelete, onCreateField, recordMeta, onEdit, selectedIds, onRowSelect, clearSelection, enableSelection, columnVersion, onRowReorder, isManualOrderActive, onOpenDetail } = data;
 
   const row = rows[index];
   if (!row) return null;
