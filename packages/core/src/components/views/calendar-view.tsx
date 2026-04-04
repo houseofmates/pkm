@@ -15,6 +15,36 @@ import { format, toZonedTime } from 'date-fns-tz';
 // toZonedTime may be missing or non-function in some test environments (see vitest),
 // so we will check before calling it to avoid runtime errors.
 
+// Safe date formatting helper - returns null if date is invalid
+function safeDateFormat(date: Date | string | number | null | undefined, formatStr: string, timeZone?: string): string | null {
+  if (!date) return null;
+  const d = typeof date === 'object' ? date : new Date(date);
+  if (isNaN(d.getTime())) return null;
+  
+  // Apply timezone conversion if requested and available
+  let finalDate = d;
+  if (timeZone && typeof toZonedTime === 'function') {
+    finalDate = toZonedTime(d, timeZone);
+  }
+  
+  try {
+    return format(finalDate, formatStr);
+  } catch {
+    return null;
+  }
+}
+
+// Safe zoned date creation - returns null if input is invalid
+function safeZonedDate(date: Date | string | number | null | undefined, timeZone: string): Date | null {
+  if (!date) return null;
+  const d = typeof date === 'object' ? date : new Date(date);
+  if (isNaN(d.getTime())) return null;
+  
+  if (typeof toZonedTime === 'function') {
+    return toZonedTime(d, timeZone);
+  }
+  return d;
+}
 
 type CalendarViewProps = ViewProps;
 
