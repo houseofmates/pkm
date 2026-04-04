@@ -373,6 +373,51 @@ export function TemplatePage() {
         </div>
       </header>
 
+      {/* onboarding panel */}
+      <div className="mb-4 border border-white/10 rounded-xl bg-white/5 overflow-hidden">
+        <button
+          onClick={() => setOnboardingOpen(!onboardingOpen)}
+          className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 transition-colors"
+        >
+          <span className="text-sm font-medium lowercase flex items-center gap-2">
+            <Info className="h-4 w-4 text-primary" />
+            getting started
+          </span>
+          {onboardingOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
+        </button>
+        {onboardingOpen && (
+          <div className="px-4 pb-4 text-sm text-muted-foreground space-y-3 lowercase border-t border-white/5 pt-3">
+            <p>the template engine converts json schemas into fully functional workspaces. define your data structures, layout, and sample data below.</p>
+            <div>
+              <p className="font-medium text-foreground mb-1">json schema structure</p>
+              <ul className="list-disc pl-5 space-y-0.5">
+                <li><code className="text-primary">meta</code> — name, icon, description, and llm guidance</li>
+                <li><code className="text-primary">data</code> — sample rows for preview</li>
+                <li><code className="text-primary">databases</code> — collection definitions with properties</li>
+                <li><code className="text-primary">layout</code> — column-based widget arrangement</li>
+              </ul>
+            </div>
+            <div>
+              <p className="font-medium text-foreground mb-1">buttons</p>
+              <ul className="list-disc pl-5 space-y-0.5">
+                <li><strong>load sample</strong> — inject a minimal template</li>
+                <li><strong>save</strong> — persist current json to settings</li>
+                <li><strong>preview</strong> — validate and render the pipeline</li>
+                <li><strong>build workspace</strong> — create databases, fields, and layout</li>
+              </ul>
+            </div>
+            <details className="text-xs">
+              <summary className="cursor-pointer text-foreground font-medium lowercase">minimal valid example</summary>
+              <pre className="mt-2 p-2 bg-black/40 rounded-lg text-[11px] overflow-x-auto font-mono">{`{
+  "meta": { "name": "my workspace" },
+  "databases": [{ "key": "tasks", "properties": [{ "name": "title", "type": "text" }] }],
+  "layout": { "columns": [[{ "view_type": "table", "source": "tasks", "title": "Tasks" }]], "columnWidths": [100] }
+}`}</pre>
+            </details>
+          </div>
+        )}
+      </div>
+
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-6 min-h-0">
         <Card className="flex flex-col border-white/5 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden">
           <CardHeader className="py-3 px-4 border-b border-white/5 flex flex-row items-center justify-between space-y-0">
