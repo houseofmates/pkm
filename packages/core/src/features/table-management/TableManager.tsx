@@ -43,21 +43,15 @@ export const TableManager: React.FC = () => {
     }
   };
 
-  const SYSTEM_COLLECTION_BLOCKLIST = [
-    'server-stats', 'website pages', 'front history', 'form submissions',
-    'pkm_backend', 'pkm canvases', 'public blocks', 'roles', 'users'
-  ];
-
-  const parseI18nTemplate = (str: string): string => {
-    const match = str.match(/^\{\{\s*t\(['"](.+)['"]\)\s*\}\}$/);
-    if (match) {
-      return match[1].replace(/\b\w/g, (c) => c.toUpperCase());
-    }
-    return str.replace(/\b\w/g, (c) => c.toUpperCase());
-  };
+  const SYSTEM_COLLECTIONS = new Set([
+    'server-stats', 'pkm_backend', 'pkm_canvases', 'pkm_settings',
+    'form-submissions', 'public_blocks', 'public_pages', 'site-pages',
+    'website', 'front_history', 'sidebar_item_colors',
+    'dupemates-stats', 'dupemates-pages', 'dupe-forms', 'llms',
+  ]);
 
   const visibleCollections = collections
-    .filter((c) => !SYSTEM_COLLECTION_BLOCKLIST.includes((c.title || c.name).toLowerCase()))
+    .filter((c) => !SYSTEM_COLLECTIONS.has(c.name))
     .filter((c, i, arr) => arr.findIndex((x) => x.name === c.name) === i)
     .sort((a, b) => (a.title || a.name).localeCompare(b.title || b.name));
 
