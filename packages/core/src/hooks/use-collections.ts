@@ -6,12 +6,15 @@ import { secureLogger } from '@/lib/secure-logger';
 
 export type { Collection };
 
-const SYSTEM_COLLECTIONS = [
+const SYSTEM_COLLECTIONS_SET = new Set([
+  'server-stats', 'pkm_backend', 'pkm_canvases', 'pkm_settings',
+  'form-submissions', 'public_blocks', 'public_pages', 'site-pages',
+  'website', 'front_history', 'sidebar_item_colors',
+  'dupemates-stats', 'dupemates-pages', 'dupe-forms', 'llms',
   'users', 'roles', 'attachments', 'collection_fields', 'collections',
   'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers',
-  'form-submissions', 'site-pages', 'dupemates-stats', 'dupemates-pages', 'dupe-forms', 'form_submissions', 'site_pages',
-  'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website', 'dupemates-pages'
-];
+  'form_submissions', 'site_pages',
+]);
 
 // Collections that exist in NocoBase but may not appear in list API due to cache issues
 // These will be merged with API results to ensure all user collections appear
