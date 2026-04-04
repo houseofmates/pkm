@@ -256,7 +256,8 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
           interactionHistory: [...state.interactionHistory, {
             id: Date.now() + 1,
             role: 'assistant',
-            content: "[wilson needs an api key to work. please configure your ai settings.]"
+            content: "[wilson needs an api key to work. please configure your ai settings.]",
+            createdAt: Date.now()
           }],
           isThinking: false,
         }));
