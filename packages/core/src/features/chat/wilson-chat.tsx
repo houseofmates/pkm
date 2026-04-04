@@ -485,7 +485,7 @@ export function WilsonChat() {
           <div className="text-[10px] text-primary/30 mt-2 lowercase flex items-center gap-2">
             <Image size={10} />
             <span>supports: jpg, png, gif, webp, mp4, mov</span>
-            <span className="ml-auto">model: qwen2.5-coder:7b-instruct-q4_K_S</span>
+            <span className="ml-auto" title={RAW_MODEL_NAME}>model: {friendlyModelName(RAW_MODEL_NAME)}</span>
           </div>
         </div>
       </div>
