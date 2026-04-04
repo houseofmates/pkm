@@ -3,9 +3,11 @@ import { storageManager } from '@/lib/storage-manager';
 import { toast } from 'sonner';
 import { secureLogger } from '@/lib/secure-logger';
 import { BlogCanvas } from './components/BlogCanvas';
+import { BlogLoginModal } from './components/BlogLoginModal';
 
 const BlogBuilder: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // check auth on mount
   useEffect(() => {
@@ -22,6 +24,8 @@ const BlogBuilder: React.FC = () => {
         if (key) {
           setIsAdmin(true);
           toast.info('admin mode active');
+        } else {
+          setShowLoginModal(true);
         }
       }
     };
@@ -34,6 +38,7 @@ const BlogBuilder: React.FC = () => {
     try {
       await storageManager.setEncryptedItem('hom_api_key', key);
       setIsAdmin(true);
+      setShowLoginModal(false);
       toast.success('admin mode enabled');
     } catch (e) {
       secureLogger.error('Login failed:', e);
@@ -46,15 +51,17 @@ const BlogBuilder: React.FC = () => {
       <BlogCanvas />
       {!isAdmin && (
         <button
-          onClick={() => {
-            const key = prompt('enter admin key:');
-            if (key) handleLogin(key);
-          }}
+          onClick={() => setShowLoginModal(true)}
           className="fixed bottom-4 right-4 text-white/20 hover:text-white/40 text-xs"
         >
           admin
         </button>
       )}
+      <BlogLoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onLogin={handleLogin}
+      />
     </div>
   );
 };
