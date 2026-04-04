@@ -34,7 +34,9 @@ function parseI18nTemplate(str: string | undefined): string {
   if (match) {
     return match[1]; // return the inner string like "ID" or "Created at"
   }
-  return str;
+  return '';
+}
+  return '';
 }
 
 function humanizeFieldName(name: string): string {
