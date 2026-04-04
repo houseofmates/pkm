@@ -39,13 +39,19 @@ export function CapturesPage() {
   if (records.length === 0) {
     return (
       <div className="h-full flex flex-col items-center justify-center p-8 text-center">
-        <p className="text-xl mb-4 lowercase">no captures yet</p>
+        <Camera className="w-12 h-12 text-amber-500/50 mb-4" />
+        <h3 className="text-lg font-medium text-zinc-200 mb-2">
+          No captures yet
+        </h3>
+        <p className="text-sm text-zinc-500 mb-6">
+          Capture ideas, links, and content from anywhere
+        </p>
         <button
           onClick={() => setShowForm(true)}
-          className="inline-flex items-center gap-2 px-6 py-3 border-2 border-amber-500 text-amber-500 rounded-xl hover:bg-amber-500 hover:text-black transition-all lowercase font-medium"
+          className="px-4 py-2 bg-amber-600 hover:bg-amber-500 text-black rounded-lg font-medium transition-colors inline-flex items-center gap-2"
         >
-          <Plus className="h-5 w-5" />
-          new capture
+          <Plus className="h-4 w-4" />
+          New Capture
         </button>
       </div>
     );
