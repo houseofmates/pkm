@@ -76,7 +76,3 @@ export const useSocket = () => {
 
   return { socket, isConnected };
 };
-  }, []);
-
-  return { socket, isConnected };
-};
