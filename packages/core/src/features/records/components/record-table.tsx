@@ -35,7 +35,7 @@ function parseI18nTemplate(str: string | undefined): string {
     return match[1]; // return the inner string like "ID" or "Created at"
   }
 
-function humanizeFieldName(name: string): string {
+export function humanizeFieldName(name: string): string {
   const ACRONYMS = new Set(['url', 'uid', 'id', 'api', 'csv', 'pdf']);
   return name
     .replace(/[_-]/g, ' ')

@@ -12,6 +12,8 @@ import { useFronter } from '@/contexts/fronter-context';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { humanizeFieldName } from '@/features/records/components/record-table';
+import { humanizeFieldName } from '@/features/records/components/record-table';
 
 // bring in shared schema types so we can stop using `any`
 import type { Record as SchemaRecord, TableDefinition, FieldDefinition } from '@/schema/types';
@@ -232,7 +234,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                             className="text-xl font-bold lowercase tracking-tight"
                             style={{ color: collectionColor }}
                         >
-                            {collection.label || collection.name}
+                            {collection.label || humanizeFieldName(collection.name)}
                         </h2>
                     </div>
                     <div className="flex items-center gap-2">
