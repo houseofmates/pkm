@@ -39,7 +39,7 @@ const NotionImportPage = lazy(() => import("@/pages/notion-import").then(m => ({
 const SettingsPage = lazy(() => import("@/pages/settings").then(m => ({ default: m.default })));
 const PublicDocViewer = lazy(() => import("@/components/journal/public-doc-viewer").then(m => ({ default: m.PublicDocViewer })));
 const RagTestPage = lazy(() => import("@/pages/rag-test").then(m => ({ default: m.default })));
-const JournalPage = lazy(() => import("@/pages/journal").then(m => ({ default: m.JournalPage })));
+const JournalPage = lazy(() => import("@/pages/journal"));
 const CalendarPage = lazy(() => import("@/pages/calendar").then(m => ({ default: m.CalendarPage })));
 const AchievementsPage = lazy(() => import("@/pages/achievements").then(m => ({ default: m.AchievementsPage })));
 
