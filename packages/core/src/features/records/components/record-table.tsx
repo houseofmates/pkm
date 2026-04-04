@@ -1381,6 +1381,15 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Record Detail Drawer */}
+      <RecordDetailDrawer
+        isOpen={detailDrawerOpen}
+        onClose={handleCloseDetail}
+        record={selectedRecord}
+        collection={collection}
+        onUpdate={onUpdateRecord}
+      />
     </div>
   );
 }
