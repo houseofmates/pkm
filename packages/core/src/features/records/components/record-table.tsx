@@ -26,6 +26,17 @@ function getLucideIcon(name: string): LucideIcon | undefined {
   return (Icons as unknown as Record<string, unknown>)[name] as LucideIcon | undefined;
 }
 
+// helper to parse i18n template strings like {{t('ID')}} or {{t("Created at")}}
+// returns the inner string if it matches the pattern, otherwise returns the original
+function parseI18nTemplate(str: string | undefined): string {
+  if (!str) return '';
+  const match = str.match(/^\{\{\s*t\(['"](.+)['"]\)\s*\}\}$/);
+  if (match) {
+    return match[1]; // return the inner string like "ID" or "Created at"
+  }
+  return str;
+}
+
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
