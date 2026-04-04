@@ -413,7 +413,8 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
         interactionHistory: [...state.interactionHistory, {
           id: Date.now() + 1,
           role: 'assistant',
-          content: displayMsg
+          content: displayMsg,
+          createdAt: Date.now()
         }],
         isThinking: false,
         streamingContent: '',
