@@ -92,14 +92,6 @@ try {
   // ignore mocking failures
 }
 
-// mock backend server file to avoid vite client-inject transform of server.js during tests
-try {
-  vi.mock('/home/house/pkm/packages/backend/server.js', () => ({}), { virtual: true });
-  vi.mock('../../packages/backend/server.js', () => ({}), { virtual: true });
-} catch (e) {
-  // ignore
-}
-
 // mock fronter/context to avoid needing full provider in many component tests
 try {
   vi.mock('@/contexts/fronter-context', () => {

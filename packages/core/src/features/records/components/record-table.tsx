@@ -11,7 +11,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 import type { Collection } from '@/hooks/use-collections';
 import { Button } from '@/components/ui/button';
-import { Plus, Settings2, Trash2, Edit2, MoreVertical, MoveRight, X, ArrowUpDown, type LucideIcon } from 'lucide-react';
+import { Plus, Settings2, Trash2, Edit2, MoreVertical, MoveRight, X, ArrowUpDown, Maximize2, type LucideIcon } from 'lucide-react';
 import * as React from 'react';
 import * as Icons from 'lucide-react';
 import { useAuth } from '@/contexts/auth-context';
@@ -60,7 +60,6 @@ import { FieldSettingsDialog } from '@/features/collections/components/field-set
 import { useGestureManager } from '@/hooks/use-gesture-manager';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { RecordDetailDrawer } from './record-detail-drawer';
-import { Maximize2 } from 'lucide-react';
 
 interface RecordTableProps {
   data: any[];
@@ -97,6 +96,7 @@ import type {
 } from '@dnd-kit/core';
 
 import { cn } from '@/lib/utils';
+import { secureLogger } from '@/lib/secure-logger';
 
 // Sortable Header Component
 function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSettings, fieldColors, fieldIcons, valueColorRules, setMetadata, onHide }: any) {
@@ -161,8 +161,8 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
       setIsEditing(false);
       onFieldUpdated?.();
       toast.success('field renamed');
-    } catch (err: any) {
-      console.error(err);
+    } catch (err: unknown) {
+      secureLogger.error('failed to rename field', err);
       toast.error('failed to rename field');
     }
   };
@@ -198,8 +198,8 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
           // call provided handler (from RecordTable) to toggle hidden columns
           try {
             onHide?.(field);
-          } catch (e) {
-            console.error('onHide handler failed', e);
+          } catch (e: unknown) {
+            secureLogger.error('onHide handler failed', e);
             toast.error('failed to hide property');
           }
         }}

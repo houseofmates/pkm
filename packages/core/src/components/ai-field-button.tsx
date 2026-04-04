@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Sparkles, Loader2, Wand2, BrainCircuit } from 'lucide-react';
 import { generateAndSaveAiField, previewAiFieldContent, getSuggestedInstructions } from '@/services/ai-field-generator';
 import { secureLogger } from '@/lib/secure-logger';
-import { cn } from '@/lib/utils';
+import { cn, sanitizeHTML } from '@/lib/utils';
 import { toast } from 'sonner';
 
 interface AiFieldButtonProps {
@@ -249,7 +249,7 @@ export function AiFieldContent({
     <div className={cn('space-y-3', className)}>
       <div className="prose prose-invert prose-sm max-w-none">
         {/* render markdown content */}
-        <div dangerouslySetInnerHTML={{ __html: renderMarkdown(content) }} />
+        <div dangerouslySetInnerHTML={{ __html: sanitizeHTML(renderMarkdown(content)) }} />
       </div>
 
       {sources && sources.length > 0 && (

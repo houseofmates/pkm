@@ -25,6 +25,10 @@ export function getContrastColor(hex: string): string {
   return '#ffffff'; // default to white if invalid
   }
 
+  if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) {
+    return '#ffffff';
+  }
+
   // calculate relative luminance (using rec. 601 for simplicity as requested/analyzed)
   // formula: 0.299*r + 0.587*g + 0.114*b
   const title = (r * 299 + g * 587 + b * 114) / 1000;

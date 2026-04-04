@@ -1,6 +1,5 @@
 import fs from 'fs';
 import path from 'path';
-// @ts-ignore -- supertest types may differ across environments
 import request from 'supertest';
 
 // helper to create a tiny zip file for testing
@@ -29,7 +28,6 @@ process.env.MOCK_NOTION_IMPORT = 'true';
 
 // import the server AFTER configuring env vars to ensure they are picked up
 // server.js exports { app, importTasks }
-// @ts-ignore -- app is used locally in the backend but the test accesses it directly
 import { app as server } from '@pkm/backend/server.js';
 
 // ensure the public upload directory exists
