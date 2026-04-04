@@ -427,7 +427,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
 
     // reload state from oplog minus the undone op
     // (in a full implementation, we'd compute inverse ops or reload from checkpoint)
-    console.info('undo:', lastId)
+    secureLogger.debug('undo:', lastId)
 
     // save checkpoint after significant undo
     if (remaining.length % 20 === 0) {
@@ -449,7 +449,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
       },
     })
 
-    console.info('redo:', nextId)
+    secureLogger.debug('redo:', nextId)
   },
 
   loadFromOplog: async (drawingId) => {
@@ -457,7 +457,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
     const checkpoint = await getLatestCheckpoint(drawingId)
     const ops = await getRecentOps(drawingId, 500)
 
-    console.info('loading drawing', drawingId, {
+    secureLogger.debug('loading drawing', drawingId, {
       hasCheckpoint: !!checkpoint,
       opCount: ops.length,
     })
