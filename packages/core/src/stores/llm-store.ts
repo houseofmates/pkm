@@ -142,7 +142,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
   createNewChat: (title?: string) => {
     const newSession: ChatSession = {
       id: `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      title: title || `chat ${new Date().toLocaleString()}`,
+      title: title || `chat`,
       createdAt: Date.now(),
       updatedAt: Date.now(),
       messages: []
