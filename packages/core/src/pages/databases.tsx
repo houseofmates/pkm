@@ -94,6 +94,42 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
 
   const [dbOrder, setDbOrder] = useAppSetting<string[]>('database_order', []);
   const [sidebarItems] = useAppSetting<any[]>('sidebar_items', []);
+  const [recordCounts, setRecordCounts] = useState<Record<string, number>>({});
+  const { client } = useAuth();
+
+  // fetch record counts for each collection
+  useEffect(() => {
+    if (!isAuthenticated || filteredCollections.length === 0) return;
+    let cancelled = false;
+
+    const fetchCounts = async () => {
+      const counts: Record<string, number> = {};
+      await Promise.all(
+        filteredCollections.map(async (col) => {
+          try {
+            const res = await client.request(col.name, 'list', {
+              method: 'GET',
+              params: { pageSize: 1, fields: ['id'] }
+            });
+            const total = res?.data?.meta?.total ?? res?.meta?.total ?? 0;
+            counts[col.name] = total;
+          } catch {
+            counts[col.name] = 0;
+          }
+        })
+      );
+      if (!cancelled) setRecordCounts(counts);
+    };
+
+    fetchCounts();
+    return () => { cancelled = true; };
+  }, [isAuthenticated, filteredCollections.length]);
+
+  // inject record counts into collection objects
+  const collectionsWithCounts = filteredCollections.map((c) => ({
+    ...c,
+    recordCount: recordCounts[c.name]
+  })) as Collection[];
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
