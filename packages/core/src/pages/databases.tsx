@@ -97,6 +97,10 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   const [recordCounts, setRecordCounts] = useState<Record<string, number>>({});
   const { client } = useAuth();
 
+  // 1. filter out internal collections from grid
+  const FORBIDDEN_COLLECTIONS = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website', 'dupemates-pages'];
+  const filteredCollections = collections.filter((c: Collection) => !FORBIDDEN_COLLECTIONS.includes(String(c.name).toLowerCase()));
+
   // fetch record counts for each collection
   useEffect(() => {
     if (!isAuthenticated || filteredCollections.length === 0) return;
@@ -110,7 +114,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
             const res = await client.request(col.name, 'list', {
               method: 'GET',
               params: { pageSize: 1, fields: ['id'] }
-            });
+            }) as any;
             const total = res?.data?.meta?.total ?? res?.meta?.total ?? 0;
             counts[col.name] = total;
           } catch {
@@ -123,7 +127,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
 
     fetchCounts();
     return () => { cancelled = true; };
-  }, [isAuthenticated, filteredCollections.length]);
+  }, [isAuthenticated, filteredCollections.length, client]);
 
   // inject record counts into collection objects
   const collectionsWithCounts = filteredCollections.map((c) => ({
