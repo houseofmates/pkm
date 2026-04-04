@@ -23,50 +23,6 @@ function friendlyModelName(raw: string): string {
     .join(' ');
 }
 
-function compactTimestamp(ts: number | undefined): string {
-  if (!ts) return '';
-  const now = Date.now();
-  const diff = now - ts;
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const date = new Date(ts);
-  const nowDate = new Date(now);
-
-  if (seconds < 60) return 'just now';
-  if (minutes < 60) return `${minutes}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  if (date.toDateString() === nowDate.toDateString()) {
-    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-  }
-  if (date.getFullYear() === nowDate.getFullYear()) {
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  }
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
-
-function compactTimestamp(ts: number | undefined): string {
-  if (!ts) return '';
-  const now = Date.now();
-  const diff = now - ts;
-  const seconds = Math.floor(diff / 1000);
-  const minutes = Math.floor(seconds / 60);
-  const hours = Math.floor(minutes / 60);
-  const date = new Date(ts);
-  const nowDate = new Date(now);
-
-  if (seconds < 60) return 'just now';
-  if (minutes < 60) return `${minutes}m ago`;
-  if (hours < 24) return `${hours}h ago`;
-  if (date.toDateString() === nowDate.toDateString()) {
-    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
-  }
-  if (date.getFullYear() === nowDate.getFullYear()) {
-    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-  }
-  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-}
-
 // Helper function to capture a screenshot of the current page
 async function capturePageScreenshot(): Promise<HTMLCanvasElement | null> {
   return new Promise((resolve, reject) => {
