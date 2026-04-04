@@ -2713,7 +2713,7 @@ summary:`;
       }
     };
     recog.onerror = (e: any) => {
-      console.error('speech recognition error', e);
+      secureLogger.error('speech recognition error', e);
       toast.error('speech recognition error');
       setIsTranscribing(false);
     };
