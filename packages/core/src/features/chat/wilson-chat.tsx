@@ -218,6 +218,9 @@ const ChatBubble = memo(function ChatBubble({ message }: ChatBubbleProps) {
       <div className={`p-3 rounded-lg max-w-[90%] lowercase ${message.role === 'assistant' ? 'bg-primary/10 border border-primary/20 text-primary' : 'bg-black border border-gray-700 text-gray-300'}`}>
         {message.content}
       </div>
+      {message.createdAt && (
+        <span className="text-[9px] text-primary/30">{compactTimestamp(message.createdAt)}</span>
+      )}
       {message.attachments && message.attachments.length > 0 && (
         <div className="flex gap-2 mt-2 flex-wrap">
           {message.attachments.map((att) => (
