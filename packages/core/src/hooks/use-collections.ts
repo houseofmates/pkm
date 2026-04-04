@@ -6,6 +6,14 @@ import { secureLogger } from '@/lib/secure-logger';
 
 export type { Collection };
 
+// The single source of truth for all 15 user collections.
+// These are merged with API results so collections show up even if the API doesn't list them.
+export const HARDCODED_COLLECTIONS = [
+  'activities', 'activity_logs', 'bookmarks', 'captures', 'drawings',
+  'events', 'exercise', 'finances', 'habits', 'headmates',
+  'hygiene_log', 'journal', 'media', 'products', 'sleep'
+];
+
 const SYSTEM_COLLECTIONS_SET = new Set([
   'server-stats', 'pkm_backend', 'pkm_canvases', 'pkm_settings',
   'form-submissions', 'public_blocks', 'public_pages', 'site-pages',
