@@ -465,9 +465,10 @@ function WeekView({ currentDate, recordsByDate, collection, onUpdateRecord, onDe
       <div className="flex-1 overflow-y-auto">
         <div className="grid grid-cols-7 min-h-full">
           {Array.from({ length: 7 }).map((_, i) => {
-            const d = toZonedTime(new Date(weekStart), timeZone);
+            const d = safeZonedDate(new Date(weekStart), timeZone) ?? new Date(weekStart);
             d.setDate(weekStart.getDate() + i);
-            const dateKey = format(d, 'yyyy-MM-dd');
+            const dateKey = safeDateFormat(d, 'yyyy-MM-dd');
+            if (!dateKey) return <div key={i} className="border-r last:border-r-0 min-h-[200px] p-2 space-y-2" />;
             const records = recordsByDate[dateKey] || [];
             return (
               <DroppableDateCell key={i} date={d} className="border-r last:border-r-0 min-h-[200px] p-2 space-y-2">
