@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { toast } from 'sonner';
-import { Play, Eye, Database, Layout, Info, Maximize2, FilePlus, X, Wand2 } from 'lucide-react';
+import { Play, Eye, Database, Layout, Info, Maximize2, FilePlus, X, Wand2, ChevronDown, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { api } from '@/api/nocobase-client';
 import { useAuth } from '@/contexts/auth-context';
