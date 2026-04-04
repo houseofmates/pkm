@@ -229,12 +229,26 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                         <Button variant="ghost" size="icon" className="h-10 w-10" onClick={onBack}>
                             <ArrowLeft className="h-5 w-5" />
                         </Button>
-                        <h2
-                            className="text-xl font-bold tracking-tight"
-                            style={{ color: collectionColor }}
-                        >
-                            {collection.label || humanizeFieldName(collection.name)}
-                        </h2>
+                    <Popover>
+                        <PopoverTrigger asChild>
+                            <button
+                                className="text-xl font-bold tracking-tight hover:opacity-70 transition-opacity cursor-pointer bg-transparent border-none p-0"
+                                style={{ color: collectionColor }}
+                            >
+                                {collection.label || humanizeFieldName(collection.name)}
+                            </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-80">
+                            <DatabaseSettingsForm
+                                collectionName={collectionName}
+                                title={collection.label || collectionName}
+                                viewConfig={viewConfig}
+                                fields={collection.fields}
+                                currentView={currentView}
+                                onUpdateConfig={handleConfigChange}
+                            />
+                        </PopoverContent>
+                    </Popover>
                     </div>
                     <div className="flex items-center gap-2">
                         <Popover>
