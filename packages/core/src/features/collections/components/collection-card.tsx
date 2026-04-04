@@ -16,6 +16,8 @@ interface CollectionCardProps {
 function CollectionCardImpl({ collection, className }: CollectionCardProps) {
   const fields = collection.fields || [];
   const fieldCount = fields.length;
+  const recordCount = (collection as any).recordCount;
+  const recordCount = (collection as any).recordCount;
 
   const [metadata] = useAppSetting<Record<string, { image?: string; color?: string }>>('collection_metadata', {}, { pollIntervalMs: 3000 });
   // check for injected meta (from sidebar docs) or global metadata
