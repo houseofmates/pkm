@@ -458,6 +458,8 @@ const DraggableRecordRow = (props: any) => {
           if (!enableSelection) return;
           const target = e.target as HTMLElement;
           const inCellContent = target.closest('[data-cell-content]');
+          const isExpandBtn = target.closest('[data-expand-btn]');
+          if (isExpandBtn) return; // Don't select when clicking expand
           if (!inCellContent) {
             if (isSelected && selectedIds?.length === 1 && clearSelection) {
               clearSelection();
@@ -473,6 +475,28 @@ const DraggableRecordRow = (props: any) => {
           onEdit?.(row.original);
         }}
       >
+        {/* expand/detail button */}
+        <div
+          className="border-r border-[#222] overflow-hidden flex-shrink-0 flex items-center justify-center hover:bg-white/5 transition-colors"
+          style={{
+            width: leftColWidth,
+            minWidth: leftColWidth,
+            maxWidth: leftColWidth,
+          }}
+          data-expand-btn
+        >
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-full w-full rounded-none opacity-50 hover:opacity-100 flex items-center justify-center p-0"
+            onClick={(e) => { e.stopPropagation(); onOpenDetail?.(row.original); }}
+            onDoubleClick={(e) => { e.stopPropagation(); }}
+            title="view details"
+          >
+            <Maximize2 className="h-4 w-4" />
+          </Button>
+        </div>
+
         {/* drag handle area for row reordering */}
         {onCreateField && onRowReorder && (
           <RowDragHandle
