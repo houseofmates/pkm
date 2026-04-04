@@ -1,307 +1,40 @@
-import { useMemo, useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-import { LayoutGrid, Contact } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { storageManager } from '@/lib/storage-manager';
-import { HeadmateCard } from '@/features/headmates/components/headmate-card';
-import { HeadmateContextMenu } from '@/features/headmates/components/headmate-context-menu';
-import { useFronter } from '@/contexts/fronter-context';
-import { PLACEHOLDER_IMAGE } from '@/lib/discord-utils';
 import { secureLogger } from '@/lib/secure-logger';
-import { SimplyPluralClient } from '@/lib/simply-plural-client';
-import {
-  DndContext,
-  PointerSensor,
-  TouchSensor,
-  useSensor,
-  useSensors,
-  closestCenter,
-  type DragEndEvent,
-} from '@dnd-kit/core';
-import {
-  SortableContext,
-  useSortable,
-  arrayMove,
-  rectSortingStrategy,
-  verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
+import { toast } from 'sonner';
 
-import { formatHeadmateName } from '@/utils/text-formatting';
-import { syncHeadmatesToNocoBase } from '@/utils/sync-headmates';
-
-// helper for strict name capitalization (delegated to utility)
-const formatName = formatHeadmateName;
-
-interface Member {
-  id: string;
-  content: {
-    name: string;
-    pronouns?: string;
-    avatarUrl?: string;
-    desc?: string;
-    color?: string;
-    textcolor?: string;
-  };
-}
-
-function SortableHeadmateCard({
-  id,
-  children,
-}: {
-  id: string;
-  children: React.ReactNode;
-}) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  } as React.CSSProperties;
-
-  return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-      {children}
-    </div>
-  );
-}
-
-export function HeadmatesPage() {
-  const { toggleFronter, overrides, setOverrides, cacheMemberColors, activeFronters } = useFronter();
+export const HeadmatesPage: React.FC = () => {
   const [apiKey, setApiKey] = useState('');
-  const [allMembers, setAllMembers] = useState<Member[]>([]);
-  const [loading, setLoading] = useState(false);
   const [hasKey, setHasKey] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'contacts'>('grid');
-  // const [systemid, setsystemid] = useState<string | null>(null); // unused local state, context handles it.
-
-  const members = allMembers.filter(m => !overrides[m.id]?.hidden);
-
-  // log for debugging
-  useEffect(() => {
-    secureLogger.info('Active fronters:', activeFronters);
-    secureLogger.info('All member IDs:', allMembers.map(m => ({ id: m.id, name: m.content.name })));
-  }, [activeFronters, allMembers]);
-
-
-  const baseOrderIndex = useMemo(() => {
-    const map = new Map<string, number>();
-    allMembers.forEach((m, idx) => map.set(m.id, idx));
-    return map;
-  }, [allMembers]);
-
-  const orderedMembers = useMemo(() => {
-    return [...members].sort((a, b) => {
-      const orderA = overrides[a.id]?.order ?? baseOrderIndex.get(a.id) ?? 0;
-      const orderB = overrides[b.id]?.order ?? baseOrderIndex.get(b.id) ?? 0;
-      return orderA - orderB;
-    });
-  }, [members, overrides, baseOrderIndex]);
-
-  const orderedIds = useMemo(() => orderedMembers.map(m => m.id), [orderedMembers]);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 6 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 200, tolerance: 6 } })
-  );
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-
-    const oldIndex = orderedIds.indexOf(active.id as string);
-    const newIndex = orderedIds.indexOf(over.id as string);
-    if (oldIndex === -1 || newIndex === -1) return;
-
-    const newOrder = arrayMove(orderedIds, oldIndex, newIndex);
-    const newOverrides = { ...overrides };
-    newOrder.forEach((id, index) => {
-      newOverrides[id] = { ...newOverrides[id], order: index };
-    });
-    setOverrides(newOverrides);
-  };
+  const [members, setMembers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const fetchMembers = async (key: string) => {
     setLoading(true);
-    secureLogger.info("Fetching SimplyPlural members with key length:", key?.length);
-
     try {
-      // 1. fetch "me" to get system id
-      // using direct fetch to avoid nocobase proxy issues on mobile
-      const meRes = await fetch(SimplyPluralClient.url('/me'), {
+      const meRes = await fetch('https://api.apparyllis.com/v1/me', {
         headers: { 'Authorization': key }
       });
-
-      if (!meRes.ok) {
-        const errText = await meRes.text();
-        secureLogger.error("SimplyPlural 'me' Error:", meRes.status, errText);
-        throw new Error(`SimplyPlural Login Failed (${meRes.status}): ${errText}`);
-      }
-
+      if (!meRes.ok) throw new Error('Failed to fetch system info');
       const meData = await meRes.json();
-      if (!meData || !meData.id) {
-        secureLogger.error("SimplyPlural Invalid Me Data:", meData);
-        throw new Error("Could not fetch system information. Response invalid.");
-      }
+      const systemId = meData.id;
 
-      const sid = meData.id;
-      // setsystemid(sid); // store system id
-      secureLogger.info("SimplyPlural System ID:", sid);
-
-      // 2. fetch members
-      const membersRes = await fetch(SimplyPluralClient.url(`/members/${sid}`), {
+      const membersRes = await fetch(`https://api.apparyllis.com/v1/members/${systemId}`, {
         headers: { 'Authorization': key }
       });
-
-      if (!membersRes.ok) {
-        const errText = await membersRes.text();
-        secureLogger.error("SimplyPlural 'members' Error:", membersRes.status, errText);
-        throw new Error(`Failed to fetch members (${membersRes.status}): ${errText}`);
-      }
-
+      if (!membersRes.ok) throw new Error('Failed to fetch members');
       const membersData = await membersRes.json();
-      const rawMembers = Array.isArray(membersData) ? membersData : [];
-      secureLogger.info("SimplyPlural Members Found:", rawMembers.length);
-
-      // sanitize members (aggressive pre-render check)
-      const sanitizedMembers = rawMembers.map((m: any) => {
-        let avatarUrl = m.content?.avatarUrl || "";
-
-        // aggressive check: if it's a discordapp.net link (media or images-ext-2), kill it.
-        if (avatarUrl.includes('discordapp.net')) {
-          avatarUrl = PLACEHOLDER_IMAGE;
-        }
-
-        // apply strict name formatting
-        const originalName = m.content?.name || "Unknown";
-        // we format it here to ensure the state object is clean
-        const formattedName = formatName(originalName);
-
-        // extract and format color
-        let color = m.content?.color || m.color;
-        if (color && !color.startsWith('#')) {
-          color = `#${color}`;
-        }
-
-        secureLogger.info(`[Headmate] ${formattedName}: color=${color}`);
-
-        return {
-          ...m,
-          content: {
-            ...m.content,
-            name: formattedName,
-            avatarUrl: avatarUrl,
-            color: color
-          }
-        };
-      });
-
-      setAllMembers(sanitizedMembers);
-      cacheMemberColors(sanitizedMembers); // SYNC COLORS TO CONTEXT
-
-      // --- sync check: reconcile external image changes ---
-      // if simplyplural avatar differs from our local override, assume sp is newer and clear override.
-      const newOverrides = { ...overrides };
-      let overridesChanged = false;
-
-      sanitizedMembers.forEach((m: any) => {
-        const spAvatar = m.content.avatarUrl || "";
-        const currentOverride = newOverrides[m.id];
-        const overrideAvatar = currentOverride?.avatarUrl;
-
-        if (overrideAvatar) {
-          let matches = false;
-
-          // case 1: identical strings
-          if (overrideAvatar === spAvatar) matches = true;
-
-          // case 2: override is relative (local upload path) and sp has specific url
-          // note: if sp has the nocobase url, it might be absolute.
-          // we check if spavatar *contains* the override path if relative.
-          if (overrideAvatar.startsWith('/')) {
-            // e.g. /storage/uploads/xyz.png vs https://db.../storage/uploads/xyz.png
-            const nocobaseUrl = import.meta.env.VITE_NOCOBASE_URL || '';
-            if (spAvatar.endsWith(overrideAvatar) || (nocobaseUrl && spAvatar.includes(nocobaseUrl))) matches = true;
-          }
-
-          if (!matches && spAvatar.length > 0) {
-            // sp has a valid avatar that does not match our override.
-            // we trust sp as the source of truth for updates.
-            secureLogger.info(`Sync Logic: Removing stale avatar override for ${m.content.name}. SP: ${spAvatar.slice(-20)} vs Local: ${overrideAvatar.slice(-20)}`);
-
-            // remove avatarurl from override, keep other fields
-            delete (currentOverride as any).avatarUrl;
-
-            // if override is now empty/useless, maybe delete the whole key?
-            // for now just removing the avatarurl property is safer to preserve colors/names.
-            overridesChanged = true;
-          }
-        }
-      });
-
-      if (overridesChanged) {
-        secureLogger.info("Sync Logic: Applying override updates...");
-        setOverrides(newOverrides);
-      }
-
-    } catch (error: any) {
-      // secureLogger.error("full simplyplural error:", error);
-      // keep console error minimal or remove if not needed for user debugging
-      toast.error(error.message || "Failed to load headmates");
+      setMembers(membersData);
+    } catch (err) {
+      secureLogger.error('Failed to fetch SimplyPlural members:', err);
+      toast.error('Could not load headmates. Check your API key.');
     } finally {
       setLoading(false);
     }
   };
 
-  // sync reconciliation effect
   useEffect(() => {
-    if (allMembers.length === 0) return;
-
-    let overridesChanged = false;
-    const newOverrides = { ...overrides };
-
-    allMembers.forEach(m => {
-      const spAvatar = m.content.avatarUrl || "";
-      const currentOverride = newOverrides[m.id];
-      const overrideAvatar = currentOverride?.avatarUrl;
-
-      // only check if we actually have an override to potentially clear
-      if (overrideAvatar) {
-        let matches = false;
-
-        // case 1: identical strings
-        if (overrideAvatar === spAvatar) matches = true;
-
-        // case 2: override is relative (local upload path) and sp has specific url
-        // e.g. /storage/uploads/xyz.png vs https://db.../storage/uploads/xyz.png
-        if (overrideAvatar.startsWith('/')) {
-          if (spAvatar.endsWith(overrideAvatar)) matches = true;
-        }
-
-        // if sp has a valid avatar that does not match our override
-        if (!matches && spAvatar.length > 0) {
-          secureLogger.info(`Sync Logic: Removing stale avatar override for ${m.content.name}`);
-
-          // remove avatarurl from override
-          delete (currentOverride as any).avatarUrl;
-
-          // if the override object is now effectively empty (only key remains?),
-          // we might ideally delete the key, but keeping the object is safer for now.
-          overridesChanged = true;
-        }
-      }
-    });
-
-    if (overridesChanged) {
-      setOverrides(newOverrides);
-    }
-  }, [allMembers, overrides, setOverrides]);
-
-  useEffect(() => {
-    const storedKey = storageManager.getItem('pk_api_key');
+    const storedKey = storageManager.getCachedSecret('pk_api_key');
     if (storedKey) {
       setApiKey(storedKey);
       setHasKey(true);
@@ -309,164 +42,74 @@ export function HeadmatesPage() {
     }
   }, []);
 
-  const handleSaveKey = () => {
+  const handleSaveKey = async () => {
     if (!apiKey) return;
-    storageManager.setItem('pk_api_key', apiKey);
-    setHasKey(true);
-    toast.success("api key saved locally");
-    fetchMembers(apiKey);
+    try {
+      await storageManager.setEncryptedItem('pk_api_key', apiKey);
+      setHasKey(true);
+      toast.success("api key saved locally");
+      fetchMembers(apiKey);
+    } catch (e) {
+      secureLogger.error('Failed to save SimplyPlural API key:', e);
+      toast.error('Failed to save API key.');
+    }
   };
 
-
-
   return (
-    <div className="p-4 md:p-8 space-y-4 h-full overflow-auto">
-      <div className="flex items-center justify-between gap-3">
-        <h1
-          className="text-2xl md:text-3xl font-bold lowercase leading-none text-primary"
-        >
-          headmates
-        </h1>
-        <div className="flex items-center gap-2 bg-muted/30 p-1 rounded-lg h-9">
-          <button
-            onClick={() => setViewMode('grid')}
-            className={`h-7 w-7 rounded-md transition-all flex items-center justify-center ${viewMode === 'grid' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-            title="grid view"
-          >
-            <LayoutGrid size={16} />
-          </button>
-          <button
-            onClick={() => setViewMode('contacts')}
-            className={`h-7 w-7 rounded-md transition-all flex items-center justify-center ${viewMode === 'contacts' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-            title="contacts view"
-          >
-            <Contact size={16} />
-          </button>
-        </div>
-      </div>
+    <div className="p-8 max-w-4xl mx-auto space-y-6">
+      <h1 className="text-2xl font-bold lowercase">headmates</h1>
 
       {!hasKey ? (
-        <Card className="max-w-md mx-auto mt-10">
-          <CardHeader>
-            <CardTitle>connect simplyplural</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label>api key</Label>
-              <Input
-                type="password"
-                placeholder="enter simplyplural api key"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-              />
-              <p className="text-xs text-muted-foreground">
-                your key is stored locally on your device.
-              </p>
-            </div>
-            <Button className="w-full" onClick={handleSaveKey}>connect</Button>
-          </CardContent>
-        </Card>
+        <div className="space-y-4 p-6 bg-white/5 rounded-xl border border-white/10">
+          <p className="text-sm text-white/60 lowercase">enter your simplyplural api key to sync your headmates.</p>
+          <input
+            type="password"
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+            placeholder="pk_api_key..."
+            className="w-full px-4 py-2 bg-black border border-white/10 rounded-lg text-white"
+          />
+          <button
+            onClick={handleSaveKey}
+            className="px-6 py-2 bg-yellow-500 text-black font-medium rounded-lg hover:opacity-90"
+          >
+            save & sync
+          </button>
+        </div>
       ) : (
-        <>
-          <div className="flex items-center gap-2 mb-4">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={async () => {
-                try {
-                  setLoading(true);
-                  await syncHeadmatesToNocoBase(apiKey);
-                } catch (e) {
-                  secureLogger.error('Sync failed:', e);
-                } finally {
-                  setLoading(false);
-                }
-              }}
-              disabled={loading}
-            >
-              sync to nocobase
-            </Button>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {loading ? (
-            <div className="flex items-center justify-center p-10">
-              <div className="w-64 h-2 bg-muted rounded-full overflow-hidden">
-                <div
-                  className="h-full rounded-full animate-loading-bar"
-                  style={{ backgroundColor: 'var(--primary)' }}
-                />
+            <p className="text-white/40 lowercase">loading members...</p>
+          ) : members.length > 0 ? (
+            members.map(m => (
+              <div key={m.id} className="p-4 bg-white/5 rounded-xl border border-white/10 flex items-center gap-4">
+                {m.content?.avatarUrl && (
+                  <img src={m.content.avatarUrl} alt={m.content.name} className="w-12 h-12 rounded-full object-cover" />
+                )}
+                <div>
+                  <p className="font-medium lowercase">{m.content?.name || 'unknown'}</p>
+                  <p className="text-xs text-white/40 lowercase">{m.content?.pronouns || 'no pronouns'}</p>
+                </div>
               </div>
-            </div>
+            ))
           ) : (
-            <div className="flex flex-col gap-4">
-              <DndContext
-                sensors={sensors}
-                collisionDetection={closestCenter}
-                            onDragEnd={handleDragEnd}
-              >
-                <SortableContext
-                  items={orderedIds}
-                  strategy={viewMode === 'grid' ? rectSortingStrategy : verticalListSortingStrategy}
-                >
-                  <div className={`
-  grid gap-4
-  ${viewMode === 'grid'
-                      ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
-                      : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' // Contacts view: Larger cards
-                    }
-   `}>
-                    {orderedMembers.map(member => {
-                      // transform member data to match headmatecard expected structure
-                      const flatMember = {
-                        id: member.id,
-                        name: member.content.name,
-                        avatar: member.content.avatarUrl,
-                        pronouns: member.content.pronouns,
-                        description: member.content.desc,
-                        color: overrides[member.id]?.color || member.content.color,
-                        textcolor: overrides[member.id]?.textcolor || member.content.textcolor
-                      };
-                      return (
-                        <SortableHeadmateCard key={member.id} id={member.id}>
-                          <HeadmateContextMenu
-                            memberId={member.id}
-                            memberName={member.content.name}
-                          >
-                            {viewMode === 'grid' ? (
-                              <HeadmateCard
-                                member={flatMember}
-                                collection={{ fields: [] }}
-                                onClick={() => toggleFronter(member.id)}
-                                selected={activeFronters.includes(member.id)}
-                              />
-                            ) : (
-                              // contacts view rendering (reusing headmatecard but maybe we can style it differently via classname?)
-                              // for now, let's just use headmatecard but in a list/larger grid.
-                              // ideally we'd have a specific "contactcard" layout (horizontal?).
-                              // let's stick to headmatecard for consistency but bigger.
-                              <HeadmateCard
-                                member={flatMember}
-                                collection={{ fields: [] }}
-                                onClick={() => toggleFronter(member.id)}
-                                className="aspect-[1.8/1]"
-                                selected={activeFronters.includes(member.id)}
-                              />
-                            )}
-                          </HeadmateContextMenu>
-                        </SortableHeadmateCard>
-                      );
-                    })}
-                    {orderedMembers.length === 0 && (
-                      <div className="col-span-full text-center p-10 text-muted-foreground">
-                        no members found or api key invalid.
-                      </div>
-                    )}
-                  </div>
-                </SortableContext>
-              </DndContext>
-            </div>
+            <p className="text-white/40 lowercase">no members found.</p>
           )}
-        </>
+          <button
+            onClick={() => {
+              storageManager.removeItem('pk_api_key');
+              setHasKey(false);
+              setApiKey('');
+              setMembers([]);
+            }}
+            className="col-span-full mt-4 text-xs text-white/20 hover:text-white/60 underline lowercase"
+          >
+            reset api key
+          </button>
+        </div>
       )}
     </div>
   );
-}
+};
+
+export default HeadmatesPage;

@@ -1,45 +1,15 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
-import { useParams } from 'react-router-dom';
-import { api } from '@/api/nocobase-client';
-import { BlogGallery } from './components/BlogGallery';
-import { BlogPostViewer } from './components/BlogPostViewer';
-import { toast } from 'sonner';
+import React, { useState, useEffect } from 'react';
 import { storageManager } from '@/lib/storage-manager';
+import { toast } from 'sonner';
 import { secureLogger } from '@/lib/secure-logger';
-import { AdminLoginModal } from '@/features/houseofmates-builder/components/AdminLoginModal';
+import { BlogCanvas } from './components/BlogCanvas';
 
-const BlogEditor = lazy(() => import('./components/BlogEditor').then(m => ({ default: m.BlogEditor })));
-
-interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  banner_image?: string;
-  content?: any;
-  excerpt?: string;
-  published: boolean;
-  published_date?: string;
-  tags?: string[];
-  mood?: string;
-  energy_level?: string;
-  content_warnings?: string[];
-  author_headmate?: string;
-  reading_time?: number;
-  view_count?: number;
-}
-
-export function BlogBuilder() {
-  const { slug } = useParams<{ slug?: string }>();
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [currentPost, setCurrentPost] = useState<BlogPost | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [scrollDirection, setScrollDirection] = useState<'horizontal' | 'vertical'>('horizontal');
+const BlogBuilder: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
-  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // check auth on mount
   useEffect(() => {
-    const key = storageManager.getItem('hom_api_key');
+    const key = storageManager.getCachedSecret('hom_api_key');
     if (key) setIsAdmin(true);
   }, []);
 
@@ -48,147 +18,46 @@ export function BlogBuilder() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key.toLowerCase() === 'e') {
         e.preventDefault();
-        const key = storageManager.getItem('hom_api_key');
+        const key = storageManager.getCachedSecret('hom_api_key');
         if (key) {
           setIsAdmin(true);
           toast.info('admin mode active');
-        } else {
-          setShowLoginModal(true);
         }
       }
     };
+
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, []);
 
-  const handleLogin = (key: string) => {
-    storageManager.setItem('hom_api_key', key);
-    setIsAdmin(true);
-    setShowLoginModal(false);
-    toast.success('admin mode enabled');
-  };
-
-  if (isAdmin) {
-    return (
-      <Suspense fallback={<div className="h-screen w-full flex items-center justify-center bg-[#050505] text-white">loading editor...</div>}>
-        <BlogEditor />
-      </Suspense>
-    );
-  }
-
-  // load scroll direction preference from localstorage
-  useEffect(() => {
-    const saved = storageManager.getItem('blog-scroll-direction');
-    if (saved === 'vertical' || saved === 'horizontal') {
-      setScrollDirection(saved);
-    }
-  }, []);
-
-  // save scroll direction preference
-  const handleScrollDirectionChange = (direction: 'horizontal' | 'vertical') => {
-    setScrollDirection(direction);
-    storageManager.setItem('blog-scroll-direction', direction);
-  };
-
-  // fetch posts or individual post
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        if (slug) {
-          // fetch individual post by slug
-          const response = await api.request('blog_posts', 'list', {
-            params: {
-              'filter[slug][$eq]': slug,
-              'filter[published][$eq]': true,
-            },
-          });
-
-          if ((response.data as any)?.data && (response.data as any).data.length > 0) {
-            setCurrentPost((response.data as any).data[0]);
-          } else {
-            toast.error('post not found');
-            setCurrentPost(null);
-          }
-        } else {
-          // fetch all published posts for gallery
-          const response = await api.request('blog_posts', 'list', {
-            params: {
-              'filter[published][$eq]': true,
-              sort: '-published_date',
-              pageSize: 100,
-            },
-          });
-
-          if ((response.data as any)?.data) {
-            setPosts((response.data as any).data);
-          }
-        }
-      } catch (error) {
-        secureLogger.error('[BlogBuilder] Error fetching data:', error);
-        toast.error('failed to load blog posts');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, [slug]);
-
-  // increment view count
-  const handleViewCountUpdate = async (postId: string) => {
+  const handleLogin = async (key: string) => {
     try {
-      const post = currentPost || posts.find(p => p.id === postId);
-      if (!post) return;
-
-      await api.request('blog_posts', 'update', {
-        method: 'POST',
-        params: {
-          filterByTk: postId,
-        },
-        data: {
-          view_count: (post.view_count || 0) + 1,
-        },
-      });
-    } catch (error) {
-      secureLogger.error('[blogbuilder] error updating view count:', error);
+      await storageManager.setEncryptedItem('hom_api_key', key);
+      setIsAdmin(true);
+      toast.success('admin mode enabled');
+    } catch (e) {
+      secureLogger.error('Login failed:', e);
+      toast.error('Failed to enable admin mode');
     }
   };
-
-  let content;
-  if (loading) {
-    content = (
-      <div className="h-screen flex items-center justify-center bg-[#050505] text-[var(--primary)] lowercase text-xl">
-        loading blog...
-      </div>
-    );
-  } else if (slug && currentPost) {
-    content = (
-      <BlogPostViewer
-        post={currentPost}
-        onViewCountUpdate={handleViewCountUpdate}
-      />
-    );
-  } else {
-    content = (
-      <BlogGallery
-        posts={posts}
-        scrollDirection={scrollDirection}
-        onScrollDirectionChange={handleScrollDirectionChange}
-      />
-    );
-  }
 
   return (
-    <>
-      {content}
-      <AdminLoginModal
-        isOpen={showLoginModal}
-        onClose={() => setShowLoginModal(false)}
-        onLogin={handleLogin}
-      />
-    </>
+    <div className="min-h-screen bg-[#050505] text-white">
+      <BlogCanvas />
+      {!isAdmin && (
+        <button
+          onClick={() => {
+            const key = prompt('enter admin key:');
+            if (key) handleLogin(key);
+          }}
+          className="fixed bottom-4 right-4 text-white/20 hover:text-white/40 text-xs"
+        >
+          admin
+        </button>
+      )}
+    </div>
   );
-}
+};
 
+export { BlogBuilder };
 export default BlogBuilder;

@@ -19,7 +19,6 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    // include component stack for easier debugging of hook errors or other render problems
     secureLogger.error("uncaught error:", error, errorInfo);
     if (errorInfo && errorInfo.componentStack) {
       secureLogger.error("component stack:", errorInfo.componentStack);
@@ -33,11 +32,6 @@ class ErrorBoundary extends React.Component<{ children: React.ReactNode }, { has
           <h1>something went wrong.</h1>
           <pre>{this.state.error?.toString()}</pre>
           <pre>{this.state.error?.stack}</pre>
-          {this.state.error && (
-            <pre style={{ marginTop: '1rem', fontSize: '0.75rem', color: '#ccc' }}>
-              {String((this.state.error as any).componentStack || '')}
-            </pre>
-          )}
         </div>
       );
     }
@@ -58,27 +52,42 @@ if ("serviceWorker" in navigator) {
   }
 }
 
-// pre-populate token for mobile builds
-if (typeof window !== 'undefined' && typeof (window as any).Capacitor !== 'undefined') {
-  const builtInToken = import.meta.env.VITE_NOCOBASE_API_TOKEN;
-  if (builtInToken && !storageManager.getItem('nocobase_token')) {
-    secureLogger.info('[mobile] pre-populating nocobase_token from build env');
-    storageManager.setItem('nocobase_token', builtInToken);
+// initialize app and mount to dom
+async function init() {
+  // pre-populate token for mobile builds
+  if (typeof window !== 'undefined' && typeof (window as any).Capacitor !== 'undefined') {
+    const builtInToken = import.meta.env.VITE_NOCOBASE_API_TOKEN;
+    if (builtInToken && !storageManager.getItem('nocobase_token')) {
+      secureLogger.info('[mobile] pre-populating nocobase_token from build env');
+      await storageManager.setEncryptedItem('nocobase_token', builtInToken);
+    }
+  }
+
+  // pre-load encrypted secrets into cache for synchronous use (e.g. logger)
+  await Promise.all([
+    storageManager.getEncryptedItem('nocobase_token'),
+    storageManager.getEncryptedItem('hom_api_key'),
+    storageManager.getEncryptedItem('pk_api_key'),
+    storageManager.getEncryptedItem('hom_guest_key'),
+  ]);
+
+  const container = document.getElementById('root');
+  if (container) {
+    try {
+      const root = createRoot(container);
+      (window as any).__APP_MOUNTED__ = true;
+      root.render(
+        <ErrorBoundary>
+          <App />
+        </ErrorBoundary>,
+      );
+    } catch (e) {
+      secureLogger.error("root render failed:", e);
+      document.body.innerHTML = "<h1>root render failed</h1>";
+    }
   }
 }
 
-const container = document.getElementById('root');
-if (container) {
-  try {
-    const root = createRoot(container);
-    (window as any).__APP_MOUNTED__ = true;
-    root.render(
-      <ErrorBoundary>
-        <App />
-      </ErrorBoundary>,
-    );
-  } catch (e) {
-    secureLogger.error("root render failed:", e);
-    document.body.innerHTML = "<h1>root render failed</h1>";
-  }
-}
+init().catch(err => {
+  secureLogger.error("Initialization failed:", err);
+});
