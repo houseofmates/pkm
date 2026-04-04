@@ -14,6 +14,7 @@ import { CanvasInitializer } from "@/features/edgeless/components/canvas-initial
 import { isLinkRegistryMigrated, backfillLinkRegistry } from "@/lib/link-migration"
 import { secureLogger } from "@/lib/secure-logger"
 import { isCapacitorNative } from "@/lib/platform"
+import { ErrorBoundary } from "@/components/ui/error-boundary"
 
 // lazy load heavy components
 const Spotlight = lazy(() => import("@/components/Spotlight").then(m => ({ default: m.Spotlight })));
