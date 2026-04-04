@@ -791,7 +791,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                                 : [];
                           return availableFields.map((f: any) => {
                             const fieldName = f.name || f;
-                            const displayName = f.uiSchema?.title || fieldName;
+                            const displayName = parseI18nTemplate(f.uiSchema?.title) || fieldName;
                             return (
                               <option key={fieldName} value={fieldName}>{displayName}</option>
                             );
