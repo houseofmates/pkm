@@ -153,10 +153,6 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     }
   }, [location, navigate, isAuthenticated]);
 
-  // 1. filter out internal collections from grid
-  const FORBIDDEN_COLLECTIONS = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website', 'dupemates-pages'];
-  const filteredCollections = collections.filter((c: Collection) => !FORBIDDEN_COLLECTIONS.includes(String(c.name).toLowerCase()));
-
   // 2. extract docs and drawings from sidebar items
   // we treat them as "pseudo collections" so they can live in the grid
   const sidebarDocs = sidebarItems
