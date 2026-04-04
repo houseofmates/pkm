@@ -450,7 +450,7 @@ export function WilsonChat() {
           <StreamingBubble />
           {isThinking && !streamingContent && (
             <div className="flex items-center gap-2 text-primary text-xs animate-pulse lowercase">
-              <BrainCircuit size={14} /><span>processing with qwen...</span>
+              <BrainCircuit size={14} /><span>processing with {friendlyModelName(RAW_MODEL_NAME).split(' ')[0]}...</span>
             </div>
           )}
         </div>
