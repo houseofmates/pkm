@@ -32,22 +32,21 @@ function parseI18nTemplate(str: string | undefined): string {
   if (!str) return '';
   const match = str.match(/^\{\{\s*t\(['"](.+)['"]\)\s*\}\}$/);
   if (match) {
-    return match[1]; // return the inner string like "ID" or "Created at"
+    return match[1];
   }
-  return str;
+  return '';
 }
 
-function humanizeFieldName(name: string): string {
-  const abbrevMap: Record<string, string> = {
-    id: 'ID', url: 'URL', uid: 'UID', api: 'API',
-  };
+export function humanizeFieldName(name: string): string {
+  const ACRONYMS = new Set(['url', 'uid', 'id', 'api', 'csv', 'pdf']);
   return name
     .replace(/[_-]/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
     .split(' ')
     .map((word) => {
       const lower = word.toLowerCase();
-      if (abbrevMap[lower]) return abbrevMap[lower];
-      return word.charAt(0).toUpperCase() + word.slice(1);
+      if (ACRONYMS.has(lower)) return word.toUpperCase();
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     })
     .join(' ');
 }
@@ -743,7 +742,14 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         .filter((f: any) => f.name && !hiddenColumns.includes(f.name));
 
       cols = visibleFields.map((field: any) => columnHelper.accessor(field.name, {
-        header: parseI18nTemplate(field.uiSchema?.title) || humanizeFieldName(field.name),
+        header: (() => {
+          const parsed = parseI18nTemplate(field.uiSchema?.title);
+          if (parsed) return parsed;
+          // if the API title already looks human-readable (has spaces, no underscores), use it
+          const rawTitle = field.uiSchema?.title || '';
+          if (rawTitle && !rawTitle.includes('_') && !rawTitle.startsWith('{{')) return rawTitle;
+          return humanizeFieldName(field.name);
+        })(),
         meta: { field },
         cell: info => {
           const color = getValueColor(valueColorRules, field.name, info.getValue());

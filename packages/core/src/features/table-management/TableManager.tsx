@@ -43,21 +43,21 @@ export const TableManager: React.FC = () => {
     }
   };
 
-  const SYSTEM_COLLECTION_BLOCKLIST = [
-    'server-stats', 'website pages', 'front history', 'form submissions',
-    'pkm_backend', 'pkm canvases', 'public blocks', 'roles', 'users'
-  ];
-
-  const parseI18nTemplate = (str: string): string => {
-    const match = str.match(/^\{\{\s*t\(['"](.+)['"]\)\s*\}\}$/);
-    if (match) {
-      return match[1].replace(/\b\w/g, (c) => c.toUpperCase());
-    }
-    return str.replace(/\b\w/g, (c) => c.toUpperCase());
-  };
+  const SYSTEM_COLLECTIONS = new Set([
+    'server-stats', 'pkm_backend', 'pkm_canvases', 'pkm_settings',
+    'form-submissions', 'public_blocks', 'public_pages', 'site-pages',
+    'website', 'front_history', 'sidebar_item_colors',
+    'dupemates-stats', 'dupemates-pages', 'dupe-forms', 'llms',
+    'roles', 'users',
+  ]);
 
   const visibleCollections = collections
-    .filter((c) => !SYSTEM_COLLECTION_BLOCKLIST.includes((c.title || c.name).toLowerCase()))
+    .filter((c) => !SYSTEM_COLLECTIONS.has(c.name))
+    .filter((c) => {
+      const title = c.title || c.name || '';
+      if (title.startsWith('{{t(') || title.startsWith('{{ t(')) return false;
+      return true;
+    })
     .filter((c, i, arr) => arr.findIndex((x) => x.name === c.name) === i)
     .sort((a, b) => (a.title || a.name).localeCompare(b.title || b.name));
 
@@ -89,7 +89,7 @@ export const TableManager: React.FC = () => {
           {visibleCollections.length > 0 ? (
             <ul className="list-disc pl-5 space-y-1">
               {visibleCollections.map(collection => (
-                <li key={collection.name}>{parseI18nTemplate(collection.title || collection.name)}</li>
+                <li key={collection.name}>{collection.title || collection.name}</li>
               ))}
             </ul>
           ) : (

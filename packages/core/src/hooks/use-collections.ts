@@ -6,22 +6,23 @@ import { secureLogger } from '@/lib/secure-logger';
 
 export type { Collection };
 
-const SYSTEM_COLLECTIONS = [
-  'users', 'roles', 'attachments', 'collection_fields', 'collections',
-  'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers',
-  'form-submissions', 'site-pages', 'dupemates-stats', 'dupemates-pages', 'dupe-forms', 'form_submissions', 'site_pages',
-  'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website', 'dupemates-pages'
+// The single source of truth for all 15 user collections.
+// These are merged with API results so collections show up even if the API doesn't list them.
+export const HARDCODED_COLLECTIONS = [
+  'activities', 'activity_logs', 'bookmarks', 'captures', 'drawings',
+  'events', 'exercise', 'finances', 'habits', 'headmates',
+  'hygiene-log', 'journal', 'media', 'products', 'sleep'
 ];
 
-// Collections that exist in NocoBase but may not appear in list API due to cache issues
-// These will be merged with API results to ensure all user collections appear
-const HARDCODED_COLLECTIONS = [
-  { name: 'exercise', title: 'exercise' },
-  { name: 'sleep', title: 'sleep' },
-  { name: 'finances', title: 'finances' },
-  { name: 'journal', title: 'journal' },
-  { name: 'events', title: 'events' },
-];
+const SYSTEM_COLLECTIONS_SET = new Set([
+  'server-stats', 'pkm_backend', 'pkm_canvases', 'pkm_settings',
+  'form-submissions', 'public_blocks', 'public_pages', 'site-pages',
+  'website', 'front_history', 'sidebar_item_colors',
+  'dupemates-stats', 'dupemates-pages', 'dupe-forms', 'llms',
+  'users', 'roles', 'attachments', 'collection_fields', 'collections',
+  'ui_schemas', 'application_installations', 'cas_providers', 'oidc_providers', 'saml_providers',
+  'form_submissions', 'site_pages',
+]);
 
 // Discover additional collections from localStorage cache
 function discoverCollectionsFromCache(): Array<{name: string, title: string}> {
@@ -36,8 +37,7 @@ function discoverCollectionsFromCache(): Array<{name: string, title: string}> {
             !item.id.startsWith('doc_') && 
             !item.id.startsWith('drawing_') &&
             !item.id.startsWith('folder_') &&
-            !HARDCODED_COLLECTIONS.some(hc => hc.name === item.id) &&
-            !SYSTEM_COLLECTIONS.includes(item.id.toLowerCase())) {
+            !SYSTEM_COLLECTIONS_SET.has(item.id.toLowerCase())) {
           discovered.push({ name: item.id, title: item.name || item.id });
         }
       });
@@ -49,8 +49,7 @@ function discoverCollectionsFromCache(): Array<{name: string, title: string}> {
       const order = JSON.parse(dbOrder);
       order.forEach((name: string) => {
         if (!discovered.some(d => d.name === name) &&
-            !HARDCODED_COLLECTIONS.some(hc => hc.name === name) &&
-            !SYSTEM_COLLECTIONS.includes(name.toLowerCase())) {
+            !SYSTEM_COLLECTIONS_SET.has(name.toLowerCase())) {
           discovered.push({ name, title: name });
         }
       });
@@ -106,11 +105,8 @@ export function useCollections() {
     select: (data) => {
       const filtered = data.filter((col: Collection) => {
         const name = (col.name || '').toLowerCase().trim();
-        const title = (col.title || '').toLowerCase().trim();
 
-        if (SYSTEM_COLLECTIONS.includes(name)) return false;
-        if (name === 'pkm_settings' || title === 'pkm settings' || name === 'front_history' || title === 'front history') return false;
-        if (name.includes('backend') || title.includes('backend')) return false;
+        if (SYSTEM_COLLECTIONS_SET.has(name)) return false;
         if (col.hidden) return false;
         return true;
       });
@@ -118,13 +114,18 @@ export function useCollections() {
       // Merge with hardcoded collections that may be missing from API response
       const existingNames = new Set(filtered.map((c: Collection) => c.name.toLowerCase()));
       const cachedCollections = discoverCollectionsFromCache();
-      const allExtraCollections = [...HARDCODED_COLLECTIONS, ...cachedCollections];
       
-      const missingCollections = allExtraCollections
-        .filter(hc => !existingNames.has(hc.name.toLowerCase()))
+      // First add hardcoded collections that are missing from API
+      const hardcodedMissing = HARDCODED_COLLECTIONS
+        .filter(name => !existingNames.has(name.toLowerCase()))
+        .map(name => ({ name, title: name, fields: [] } as Collection));
+
+      // Then add any additional collections discovered from cache
+      const cacheMissing = cachedCollections
+        .filter(hc => !existingNames.has(hc.name.toLowerCase()) && !HARDCODED_COLLECTIONS.includes(hc.name.toLowerCase()))
         .map(hc => ({ ...hc, fields: [] } as Collection));
 
-      return [...filtered, ...missingCollections];
+      return [...filtered, ...hardcodedMissing, ...cacheMissing];
     }
   });
 

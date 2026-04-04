@@ -52,16 +52,27 @@ function BreathePage() {
   useEffect(() => {
     const ROTATION_PERIOD = 12;
     const BREATH_PERIOD = 12;
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     
     const spiral = document.getElementById('breathe-spiral');
     const phaseEl = document.getElementById('breathe-phase');
     const countEl = document.getElementById('breathe-countdown');
     
     if (!spiral || !phaseEl || !countEl) return;
+
+    if (prefersReducedMotion) {
+      spiral.style.transform = 'rotate(0deg) scale(1)';
+      phaseEl.textContent = 'inhale';
+      countEl.textContent = '4s';
+      return;
+    }
     
     let start: number | null = null;
+    let animationId = 0;
+    let isMounted = true;
     
     function animate(timestamp: number) {
+      if (!isMounted) return;
       if (!start) start = timestamp;
       const elapsed = (timestamp - start) / 1000;
       
@@ -97,11 +108,14 @@ function BreathePage() {
         countEl.textContent = `${remaining}s`;
       }
       
-      requestAnimationFrame(animate);
+      animationId = requestAnimationFrame(animate);
     }
     
-    const animationId = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(animationId);
+    animationId = requestAnimationFrame(animate);
+    return () => {
+      isMounted = false;
+      cancelAnimationFrame(animationId);
+    };
   }, []);
   
   return (

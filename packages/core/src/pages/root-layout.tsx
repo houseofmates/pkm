@@ -260,6 +260,12 @@ export function RootLayout() {
   return (
     <DndContext sensors={sensors} collisionDetection={closestCenter} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <ProtocolShift />
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[100] focus:rounded-md focus:bg-primary focus:px-3 focus:py-2 focus:text-primary-foreground"
+      >
+        skip to main content
+      </a>
       <div className="flex flex-col lg:flex-row h-[100dvh] w-full bg-background overflow-hidden transition-colors duration-700">
         <Navigation className="hidden lg:flex" activeTab={activeTab} onTabChange={handleTabChange} onSelectCollection={handleSelectCollection} selectedCollection={selectedCollection} items={sidebarItems} setItems={setSidebarItems} />
         <MobileSidebarDrawer
@@ -274,7 +280,7 @@ export function RootLayout() {
           accentBg={accentBg}
         />
 
-        <main className="flex-1 overflow-auto h-full relative pb-20 lg:pb-0" style={{ touchAction: 'pan-y' }}>
+        <main id="main-content" tabIndex={-1} className="flex-1 overflow-auto h-full relative pb-20 lg:pb-0" style={{ touchAction: 'pan-y' }}>
           {/* sync / health header bar (premium) */}
           {showHealthBar && (
             <div className="absolute top-4 right-4 z-50 flex items-center gap-3 px-3 py-1.5 rounded-full bg-background/40 backdrop-blur-xl border border-primary/10 text-[10px] font-medium transition-all hover:bg-background/60">

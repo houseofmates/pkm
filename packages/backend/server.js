@@ -62,6 +62,8 @@ if (process.env.NODE_ENV === 'production' && !process.env.BROADCAST_AUTH_KEY && 
 const ADMIN_SECRET = process.env.BROADCAST_AUTH_KEY || process.env.ADMIN_SECRET;
 
 const app = express();
+// trust reverse proxies (cloudflare/nginx) so req.ip and secure cookies are correct
+app.set('trust proxy', 1);
 // create http server from express app for socket.io
 const server = http.createServer(app);
 
@@ -72,6 +74,21 @@ const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
     .split(',')
     .map(s => s.trim())
     .filter(Boolean);
+
+function isAllowedOrigin(origin) {
+    if (!origin) return true;
+    for (const a of allowedOrigins) {
+        if (a === origin) return true;
+        if (a.includes('*')) {
+            const parts = a.split('*').map(p => p.replace(/[-/\\^$+?.()|[\]{}]/g, '\\$&'));
+            const regex = new RegExp('^' + parts.join('.*') + '$');
+            if (regex.test(origin)) return true;
+        }
+        if (a.endsWith('*') && origin.startsWith(a.slice(0, -1))) return true;
+        if (a.startsWith('*.') && origin.endsWith(a.slice(2))) return true;
+    }
+    return false;
+}
 
 const io = new Server(server, {
     cors: {
@@ -105,39 +122,8 @@ const debounceBroadcast = (event, payload, delay = 500) => {
 // CORS middleware --------------------------------------------------
 app.use(cors({
     origin: (origin, callback) => {
-        // allow requests with no origin (same‑origin or curl)
-        if (!origin) return callback(null, true);
-        const allowed = (process.env.ALLOWED_ORIGINS || '')
-            .split(',')
-            .map(s => s.trim())
-            .filter(Boolean);
-        for (const a of allowed) {
-            if (a === origin) {
-                return callback(null, true);
-            }
-            // if pattern contains a star anywhere, treat as simple wildcard
-            if (a.includes('*')) {
-                // build regex by splitting on * and escaping each literal portion
-                const parts = a.split('*').map(p => p.replace(/[-/\\^$+?.()|[\]{}]/g, '\\$&'));
-                const regex = new RegExp('^' + parts.join('.*') + '$');
-                if (regex.test(origin)) {
-                    return callback(null, true);
-                }
-            }
-            // suffix wildcard (eg. https://pkm.*) - kept for backward compatibility
-            if (a.endsWith('*')) {
-                const prefix = a.slice(0, -1);
-                if (origin.startsWith(prefix)) {
-                    return callback(null, true);
-                }
-            }
-            // prefix wildcard (eg. *.houseofmates.space) - kept too
-            if (a.startsWith('*.')) {
-                const host = a.slice(2);
-                if (origin.endsWith(host)) {
-                    return callback(null, true);
-                }
-            }
+        if (isAllowedOrigin(origin)) {
+            return callback(null, true);
         }
         callback(null, false);
     },
@@ -146,7 +132,17 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-app.use(express.json());
+app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    res.setHeader('Cross-Origin-Resource-Policy', 'same-site');
+    next();
+});
+
+app.use(express.json({ limit: process.env.REQUEST_BODY_LIMIT || '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: process.env.REQUEST_BODY_LIMIT || '1mb' }));
 
 // Rate limiting middleware --------------------------------------------------
 const rateLimitStore = new Map();
@@ -162,7 +158,10 @@ function cleanupRateLimitStore() {
         }
     }
 }
-setInterval(cleanupRateLimitStore, RATE_LIMIT_WINDOW_MS);
+const rateLimitCleanupTimer = setInterval(cleanupRateLimitStore, RATE_LIMIT_WINDOW_MS);
+if (typeof rateLimitCleanupTimer.unref === 'function') {
+    rateLimitCleanupTimer.unref();
+}
 
 function rateLimit(maxRequests = RATE_LIMIT_MAX_REQUESTS) {
     return (req, res, next) => {
@@ -185,6 +184,7 @@ function rateLimit(maxRequests = RATE_LIMIT_MAX_REQUESTS) {
         if (record.count > maxRequests) {
             const retryAfter = Math.ceil((record.startTime + RATE_LIMIT_WINDOW_MS - now) / 1000);
             res.set('Retry-After', String(retryAfter));
+            console.warn(`[RateLimit] 429 ${req.method} ${req.path} ip=${clientIp}`);
             return res.status(429).json({ error: 'Too many requests', retryAfter });
         }
 
