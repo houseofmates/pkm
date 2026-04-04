@@ -373,6 +373,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
           role: 'assistant' as const,
           content: result.response,
           sources: result.sources,
+          createdAt: Date.now(),
         };
         const newHistory = [...state.interactionHistory, assistantMsg];
         // save to session if we have one
