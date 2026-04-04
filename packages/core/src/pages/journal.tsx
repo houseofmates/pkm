@@ -1210,7 +1210,7 @@ function StatsCharts({ entries }: StatsChartsProps) {
                   outerRadius={60}
                   dataKey="value"
                   nameKey="name"
-                  label={({ name }) => name.length > 8 ? name.slice(0, 8) + '...' : name}
+                  label={({ name }: { name?: string }) => (name ?? '').length > 8 ? (name ?? '').slice(0, 8) + '...' : name ?? ''}
                   labelLine={false}
                 >
                   {activityBreakdown.map((_, i) => (
@@ -2866,7 +2866,7 @@ summary:`;
     return <img src={`/images/moods/${name}.png`} alt={m.label} className="w-full h-full object-contain" />;
   }
 
-const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
+  const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
     const active = (isQuick ? quickMood : mood) === m.id;
     const size = isQuick ? 'w-12 h-12' : 'w-16 h-16';
     return (
