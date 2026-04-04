@@ -15,7 +15,7 @@ const SYNC_THEME_COLOR = '#f6b012';
 const HARDCODED_COLLECTIONS = [
   'activities', 'activity_logs', 'bookmarks', 'captures', 'drawings',
   'events', 'exercise', 'finances', 'habits', 'headmates',
-  'hygiene_log', 'journal', 'media', 'products', 'sleep'
+  'hygiene-log', 'journal', 'media', 'products', 'sleep'
 ];
 
 /**
