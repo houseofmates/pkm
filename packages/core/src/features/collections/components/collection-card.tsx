@@ -78,7 +78,7 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
             >
               {collection.title || collection.name}
             </h3>
-            <p className="text-xs opacity-80 lowercase">{fieldCount} fields</p>
+            <p className="text-xs opacity-80 lowercase">{fieldCount} fields{recordCount !== undefined ? ` · ${recordCount} records` : ''}</p>
           </div>
         </div>
       ) : (
