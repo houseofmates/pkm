@@ -744,7 +744,14 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         .filter((f: any) => f.name && !hiddenColumns.includes(f.name));
 
       cols = visibleFields.map((field: any) => columnHelper.accessor(field.name, {
-        header: parseI18nTemplate(field.uiSchema?.title) || humanizeFieldName(field.name),
+        header: (() => {
+          const parsed = parseI18nTemplate(field.uiSchema?.title);
+          if (parsed) return parsed;
+          // if the API title already looks human-readable (has spaces, no underscores), use it
+          const rawTitle = field.uiSchema?.title || '';
+          if (rawTitle && !rawTitle.includes('_') && !rawTitle.startsWith('{{')) return rawTitle;
+          return humanizeFieldName(field.name);
+        })(),
         meta: { field },
         cell: info => {
           const color = getValueColor(valueColorRules, field.name, info.getValue());
