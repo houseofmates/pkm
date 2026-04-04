@@ -75,22 +75,6 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     const [currentView, setCurrentView] = useState<ViewType>('table');
     const [viewConfig, setViewConfig] = useState<Record<string, unknown>>({});
 
-    // available collections for debug display
-    const [availableCollections, setAvailableCollections] = useState<TableDefinition[]>([]);
-
-    // fetch available collections for debug info
-    useEffect(() => {
-        if (!client || !isAuthenticated) return;
-        client.listCollections({ pageSize: 100 }).then((res: any) => {
-            const list = Array.isArray(res?.data) ? res.data : res?.data;
-            if (Array.isArray(list)) {
-                setAvailableCollections(list as TableDefinition[]);
-            }
-        }).catch((e: any) => {
-            console.warn('Failed to fetch available collections:', e);
-        });
-    }, [client, isAuthenticated]);
-
     // sync currentview with url, state, or defaultview
     useEffect(() => {
         const queryParams = new URLSearchParams(location.search);
