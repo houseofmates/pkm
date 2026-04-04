@@ -2073,7 +2073,6 @@ export function JournalPage() {
   } = transcription;
 
   // local refs still owned by component
-  const quillRef = useRef<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const recordingIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
