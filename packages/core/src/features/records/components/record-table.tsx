@@ -680,7 +680,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         .filter((f: any) => f.name && !hiddenColumns.includes(f.name));
 
       cols = visibleFields.map((field: any) => columnHelper.accessor(field.name, {
-        header: (field.uiSchema?.title || field.name),
+        header: parseI18nTemplate(field.uiSchema?.title) || field.name,
         meta: { field },
         cell: info => {
           const color = getValueColor(valueColorRules, field.name, info.getValue());
