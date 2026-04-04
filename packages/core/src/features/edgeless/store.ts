@@ -482,9 +482,11 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
     const index = new SpatialIndex(100)
     const objects = canvas.getObjects()
 
+    type ObjData = { id?: string; layerId?: string }
     for (const obj of objects) {
-      const id = obj.data?.id || `obj-${Math.random().toString(36).slice(2, 9)}`
-      obj.set('data', { ...(obj.data || {}), id })
+      const data = (obj as fabric.FabricObject & { data?: ObjData }).data
+      const id = data?.id || `obj-${Math.random().toString(36).slice(2, 9)}`
+      obj.set('data', { ...(data || {}), id })
 
       const rect = obj.getBoundingRect()
       index.insert({
@@ -495,7 +497,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
           maxX: rect.left + rect.width,
           maxY: rect.top + rect.height,
         },
-        layerId: obj.data?.layerId || 'default',
+        layerId: data?.layerId || 'default',
         visible: obj.visible !== false,
         ref: obj,
       })

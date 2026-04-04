@@ -1,5 +1,13 @@
 // gamification engine - xp, levels, achievements, unlocks
 
+export interface GamificationStats {
+  activities_logged: number;
+  total_streaks: number;
+  level: number;
+  perfect_weeks: number;
+  active_streaks: number;
+}
+
 const XP_PER_ACTIVITY = 10;
 const XP_STREAK_MULTIPLIER = 1.5;
 const XP_MILESTONE_BONUS = 50;
@@ -19,7 +27,12 @@ const LEVELS = [
   { level: 12, xp_required: 15000, name: 'eternal', theme: 'cosmos', color: '#ec4899' }
 ];
 
-const ACHIEVEMENTS = [
+const ACHIEVEMENTS: Array<{
+  id: string;
+  name: string;
+  xp: number;
+  condition: (stats: GamificationStats) => boolean;
+}> = [
   { id: 'first_log', name: 'first step', xp: 25, condition: (stats) => stats.activities_logged >= 1 },
   { id: 'week_streak', name: 'week warrior', xp: 100, condition: (stats) => stats.total_streaks >= 7 },
   { id: 'month_streak', name: 'month master', xp: 500, condition: (stats) => stats.total_streaks >= 30 },
@@ -30,7 +43,7 @@ const ACHIEVEMENTS = [
   { id: 'multi_streak', name: 'multi-tasker', xp: 150, condition: (stats) => stats.active_streaks >= 3 }
 ];
 
-function calculateLevel(xp) {
+function calculateLevel(xp: number) {
   let currentLevel = LEVELS[0];
   for (let i = LEVELS.length - 1; i >= 0; i--) {
     if (xp >= LEVELS[i].xp_required) {
@@ -42,7 +55,7 @@ function calculateLevel(xp) {
   const progress = nextLevel.xp_required > currentLevel.xp_required
     ? ((xp - currentLevel.xp_required) / (nextLevel.xp_required - currentLevel.xp_required)) * 100
     : 100;
-  
+
   return {
     level: currentLevel.level,
     name: currentLevel.name,
@@ -54,7 +67,7 @@ function calculateLevel(xp) {
   };
 }
 
-function calculateXpReward(baseXp, streakCount, isMilestone = false) {
+function calculateXpReward(baseXp: number, streakCount: number, isMilestone = false) {
   let xp = baseXp;
   if (streakCount >= 7) {
     xp = Math.floor(xp * XP_STREAK_MULTIPLIER);
@@ -65,8 +78,8 @@ function calculateXpReward(baseXp, streakCount, isMilestone = false) {
   return xp;
 }
 
-function checkAchievements(stats, unlockedIds) {
-  const newAchievements = [];
+function checkAchievements(stats: GamificationStats, unlockedIds: string[]) {
+  const newAchievements: typeof ACHIEVEMENTS = [];
   for (const achievement of ACHIEVEMENTS) {
     if (!unlockedIds.includes(achievement.id) && achievement.condition(stats)) {
       newAchievements.push(achievement);
@@ -75,11 +88,11 @@ function checkAchievements(stats, unlockedIds) {
   return newAchievements;
 }
 
-function getUnlockedThemes(level) {
+function getUnlockedThemes(level: number) {
   return LEVELS.filter(l => l.level <= level && l.theme).map(l => l.theme);
 }
 
-function getUnlockedColors(level) {
+function getUnlockedColors(level: number) {
   return LEVELS.filter(l => l.level <= level && l.color).map(l => l.color);
 }
 

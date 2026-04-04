@@ -169,17 +169,15 @@ export function useDrawing(id?: string, migrating?: boolean): UseDrawingResult {
   // persist element state (widgets, notes, etc.) when it changes
   useEffect(() => {
     if (!id) return;
-    let timeout: ReturnType<typeof setTimeout> | null = null;
-    const unsubscribe = useEdgelessStore.subscribe(
-      (s) => s.elements,
-      () => {
-        if (!initialLoadCompleteRef.current) return;
-        if (timeout) clearTimeout(timeout);
-        timeout = window.setTimeout(() => {
-          saveCurrentCheckpointRef.current();
-        }, 1000);
-      }
-    );
+    let timeout: ReturnType<typeof window.setTimeout> | null = null;
+    const unsubscribe = useEdgelessStore.subscribe((s, prev) => {
+      if (s.elements === prev.elements) return;
+      if (!initialLoadCompleteRef.current) return;
+      if (timeout) clearTimeout(timeout);
+      timeout = window.setTimeout(() => {
+        saveCurrentCheckpointRef.current();
+      }, 1000);
+    });
     return () => {
       unsubscribe();
       if (timeout) clearTimeout(timeout);

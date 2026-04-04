@@ -259,7 +259,7 @@ export function TrackerWidget({ data, onUpdate }: TrackerWidgetProps) {
             <button
               key={activity.id}
               onClick={() => activeTimer === activity.id ? stopTimer(activity.id) : startTimer(activity.id)}
-              disabled={isLogging || (activeTimer && activeTimer !== activity.id)}
+              disabled={isLogging || (!!activeTimer && activeTimer !== activity.id)}
               className={cn(
                 "relative flex items-center justify-center gap-2 p-2 rounded-lg transition-all duration-200",
                 "hover:scale-105 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed lowercase"

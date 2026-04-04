@@ -66,7 +66,7 @@ export function MoodLogger({ onLogged }: { onLogged?: () => void }) {
               borderColor: mood.color,
               borderWidth: '2px',
               borderStyle: 'solid',
-              ringColor: selectedMood === mood.id ? mood.color : 'transparent'
+              boxShadow: selectedMood === mood.id ? `0 0 0 2px ${mood.color}` : 'none',
             }}
           >
             {mood.emoji}

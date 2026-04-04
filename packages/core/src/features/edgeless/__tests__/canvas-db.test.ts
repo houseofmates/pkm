@@ -7,6 +7,7 @@ describe('canvas-db appendops', () => {
 
     const opA = {
       type: 'path' as const,
+      targetId: 't-a',
       layerId: 'default',
       pathData: [['M', 0, 0], ['L', 10, 10]],
       stroke: '#000',
@@ -17,6 +18,7 @@ describe('canvas-db appendops', () => {
 
     const opB = {
       type: 'path' as const,
+      targetId: 't-b',
       layerId: 'default',
       pathData: [['M', 1, 1], ['L', 11, 11]],
       stroke: '#111',

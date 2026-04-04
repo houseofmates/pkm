@@ -18,7 +18,7 @@ interface HygieneLog {
 interface DynamicField {
   name: string;
   label: string;
-  type: 'text' | 'number' | 'select' | 'checkbox';
+  type: 'text' | 'textarea' | 'number' | 'select' | 'checkbox';
   options?: string[];
 }
 
@@ -445,7 +445,25 @@ export function HygieneTracker({ data, onUpdate }: HygieneTrackerProps) {
               );
             }
 
-            if (field.type === 'textarea' || field.type === 'text') {
+            if (field.type === 'textarea') {
+              return (
+                <div key={field.name} className="space-y-1">
+                  <label className="text-[10px] lowercase text-muted-foreground">{field.label}</label>
+                  <textarea
+                    value={field.name === 'notes' ? notes : customFieldValues[field.name] ?? ''}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      if (field.name === 'notes') setNotes(value);
+                      setCustomFieldValues((prev) => ({ ...prev, [field.name]: value }));
+                    }}
+                    rows={3}
+                    className="w-full min-h-[4rem] bg-black/50 border border-white/10 rounded text-xs px-2 py-1 resize-y"
+                  />
+                </div>
+              );
+            }
+
+            if (field.type === 'text') {
               return (
                 <div key={field.name} className="space-y-1">
                   <label className="text-[10px] lowercase text-muted-foreground">{field.label}</label>

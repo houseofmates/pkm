@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { isCapacitorNative } from '@/lib/platform';
+import { secureLogger } from '@/lib/secure-logger';
 
 export type MedicationLogEntry = {
   id: string;
@@ -118,7 +119,6 @@ async function showNotification(title: string, body: string): Promise<void> {
             schedule: { at: new Date(Date.now() + 1000) },
             sound: '',
             extra: { medicationReminder: true },
-            ios: { subtitle: '', threadIdentifier: 'medication' },
             android: { channelId: 'medication-reminders', sound: '', smallIcon: 'ic_stat_icon', sticky: true, priority: 'high' },
           },
         ],
@@ -126,7 +126,7 @@ async function showNotification(title: string, body: string): Promise<void> {
       return;
     } catch (e) {
       // fallback to web notification when plugin is unavailable
-      console.warn('local notification fallback:', e);
+      secureLogger.warn('local notification fallback:', e);
     }
   }
 

@@ -68,6 +68,12 @@ const setTestBackend = (url?: string) => {
   (globalThis as any).__HOM_TEST_BACKEND_URL__ = url;
 };
 
+// widget rejects uploads smaller than 64 bytes before auth or fetch
+const MIN_IMPORT_BYTES = 64;
+function makeImportFile(name = 'a.zip', type = 'application/zip') {
+  return new File([new Uint8Array(MIN_IMPORT_BYTES).fill(97)], name, { type });
+}
+
 describe('NotionImportWidget', () => {
   beforeEach(() => {
     vi.stubGlobal('fetch', vi.fn());
@@ -85,7 +91,7 @@ describe('NotionImportWidget', () => {
   it('logs error when no API key is set', async () => {
     render(<NotionImportWidget />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-    const file = new File(['x'], 'a.zip', { type: 'application/zip' });
+    const file = makeImportFile();
     fireEvent.change(input, { target: { files: [file] } });
     fireEvent.click(screen.getByText(/start import/i));
     await waitFor(() => {
@@ -105,7 +111,7 @@ describe('NotionImportWidget', () => {
     (fetch as any).mockResolvedValue(fakeResponse);
     render(<NotionImportWidget />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-    const file = new File(['x'], 'a.zip', { type: 'application/zip' });
+    const file = makeImportFile();
     fireEvent.change(input, { target: { files: [file] } });
     fireEvent.click(screen.getByText(/start import/i));
     await waitFor(() => {
@@ -122,7 +128,7 @@ describe('NotionImportWidget', () => {
     (fetch as any).mockResolvedValue(fakeResponse);
     render(<NotionImportWidget />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-    const file = new File(['x'], 'a.zip', { type: 'application/zip' });
+    const file = makeImportFile();
     fireEvent.change(input, { target: { files: [file] } });
     fireEvent.click(screen.getByText(/start import/i));
     await waitFor(() => {
@@ -139,7 +145,7 @@ describe('NotionImportWidget', () => {
     (fetch as any).mockResolvedValue(fakeResponse);
     render(<NotionImportWidget />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-    const file = new File(['x'], 'a.zip', { type: 'application/zip' });
+    const file = makeImportFile();
     fireEvent.change(input, { target: { files: [file] } });
     fireEvent.click(screen.getByText(/start import/i));
     await waitFor(() => {
@@ -157,7 +163,7 @@ describe('NotionImportWidget', () => {
     (fetch as any).mockResolvedValue(fakeResponse);
     render(<NotionImportWidget />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-    const file = new File(['x'], 'a.zip', { type: 'application/zip' });
+    const file = makeImportFile();
     fireEvent.change(input, { target: { files: [file] } });
     fireEvent.click(screen.getByText(/start import/i));
     await waitFor(() => {
@@ -182,7 +188,7 @@ describe('NotionImportWidget', () => {
     (fetch as any).mockResolvedValue(fakeResponse);
     render(<NotionImportWidget />);
     const input = document.querySelector('input[type="file"]') as HTMLInputElement;
-    const file = new File(['x'], 'a.zip', { type: 'application/zip' });
+    const file = makeImportFile();
     fireEvent.change(input, { target: { files: [file] } });
     fireEvent.click(screen.getByText(/start import/i));
     await waitFor(() => {

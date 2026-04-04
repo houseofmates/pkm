@@ -83,8 +83,8 @@ describe('JournalPage', () => {
     expect(blobText).not.toContain('2026-03-01');
   });
 
-  it('opens activities panel modal and shows a mark button', async () => {
-    const { getByTitle, findByText } = render(
+  it('toggles an inline activity from the journal composer', async () => {
+    render(
       <MemoryRouter>
         <AuthProvider>
           <JournalPage />
@@ -92,21 +92,16 @@ describe('JournalPage', () => {
       </MemoryRouter>
     );
 
-    const habitsBtn = getByTitle('habits');
-    expect(habitsBtn).toBeTruthy();
-    fireEvent.click(habitsBtn);
-
-    // wait for modal container to appear
-    const modal = await waitFor(() => document.querySelector('.fixed.inset-0.z-50'));
-    expect(modal).toBeTruthy();
-
-    // locate the mark/done button by accessible name inside modal
-    const markBtn = await screen.findByTestId('activity-mark-meds_morning');
-    expect(markBtn).toBeTruthy();
-    fireEvent.click(markBtn);
-
-    // close the panel
-    fireEvent.click(habitsBtn);
+    const takePills = await screen.findByRole('button', { name: /take pills/i });
+    expect(takePills).toBeTruthy();
+    fireEvent.click(takePills);
+    await waitFor(() => {
+      expect(screen.getByText(/1 activity selected/i)).toBeInTheDocument();
+    });
+    fireEvent.click(takePills);
+    await waitFor(() => {
+      expect(screen.queryByText(/activity selected/i)).toBeNull();
+    });
   });
 
   it.skip('lets user set a daily reminder time', () => {

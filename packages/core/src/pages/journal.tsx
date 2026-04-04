@@ -1240,7 +1240,7 @@ function StatsCharts({ entries }: StatsChartsProps) {
                   outerRadius={60}
                   dataKey="value"
                   nameKey="name"
-                  label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${((percent ?? 0) * 100).toFixed(0)}%`}
                 >
                   {moodDistribution.map((entry, i) => {
                     const moodColor = MOODS.find(m => m.label === entry.name)?.color || MOOD_COLORS[i % MOOD_COLORS.length];
@@ -2821,7 +2821,7 @@ summary:`;
           className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase text-white/70 focus:outline-none"
         >
           <option value="">all tags</option>
-          {availableTags.map(t => <option key={t.id} value={t}>{t}</option>)}
+          {availableTags.map(t => <option key={t} value={t}>{t}</option>)}
         </select>
       </div>
       {filteredPastEntries.length === 0 && (
@@ -3181,7 +3181,7 @@ summary:`;
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <span className="text-2xl w-8 h-8 inline-block">
-            {moodImageFor(viewingEntry.mood) || '📝'}
+            {moodImageFor(viewingEntry.mood ?? undefined) || '📝'}
           </span>
               <div>
                 <p className="text-sm font-medium lowercase">{formatDate(viewingEntry.date)}</p>

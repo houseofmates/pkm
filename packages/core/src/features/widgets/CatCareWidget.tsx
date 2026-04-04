@@ -70,9 +70,11 @@ export function CatCareWidget({ data, onUpdate }: CatCareWidgetProps) {
         const lastLog = taskLogs.sort((a: any, b: any) => 
           new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
         )[0];
+        const ts = lastLog?.timestamp;
+        const lastDone = typeof ts === 'string' ? ts : null;
         return {
           ...task,
-          lastDone: lastLog?.timestamp || null
+          lastDone,
         };
       }));
     }

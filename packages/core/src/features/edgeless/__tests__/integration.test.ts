@@ -21,6 +21,7 @@ describe('edgeless canvas integration', () => {
     it('should append and retrieve operations', async () => {
       const op = {
         type: 'path' as const,
+        targetId: 'path-1',
         layerId: 'default',
         pathData: [['M', 0, 0], ['L', 100, 100]],
         stroke: '#f6b012',
@@ -42,6 +43,7 @@ describe('edgeless canvas integration', () => {
     it('should allow appending pre-built oplog entries (buffered persistence)', async () => {
       const op = {
         type: 'path' as const,
+        targetId: 'path-pre',
         layerId: 'default',
         pathData: [['M', 0, 0], ['L', 50, 50]],
         stroke: '#00ff00',
