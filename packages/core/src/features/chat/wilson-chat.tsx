@@ -458,8 +458,8 @@ export function WilsonChat() {
             <div className="text-primary opacity-50 text-center mt-10 lowercase">
               <p>systems online.</p>
               <p>waiting for input...</p>
-              <p className="mt-4 text-xs">supports images, gifs, and videos with qwen2.5-coder:7b-instruct-q4_K_S</p>
-              <p className="mt-2 text-xs text-primary/30">routing to: qwen2.5-coder:7b-instruct-q4_K_S</p>
+              <p className="mt-4 text-xs">supports images, gifs, and videos with {friendlyModelName(RAW_MODEL_NAME)}</p>
+              <p className="mt-2 text-xs text-primary/30" title={RAW_MODEL_NAME}>routing to: {friendlyModelName(RAW_MODEL_NAME)}</p>
             </div>
           )}
           {interactionHistory.map((msg) => <ChatBubble key={msg.id} message={msg} />)}
