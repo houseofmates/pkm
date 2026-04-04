@@ -51,25 +51,6 @@ function discoverCollectionsFromCache(): Array<{name: string, title: string}> {
   }
   return discovered;
 }
-      });
-    }
-    
-    // Check database order setting
-    const dbOrder = localStorage.getItem('database_order');
-    if (dbOrder) {
-      const order = JSON.parse(dbOrder);
-      order.forEach((name: string) => {
-        if (!discovered.some(d => d.name === name) &&
-            !SYSTEM_COLLECTIONS_SET.has(name.toLowerCase())) {
-          discovered.push({ name, title: name });
-        }
-      });
-    }
-  } catch (e) {
-    // ignore cache errors
-  }
-  return discovered;
-}
 
 export function useCollections() {
   const { client, isAuthenticated, logout } = useAuth();
