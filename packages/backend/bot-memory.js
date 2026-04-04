@@ -13,13 +13,23 @@ function ensureMemoryDir() {
   }
 }
 
+// validate that a resolved path stays within the memory directory
+function safePath(fileName) {
+  const normalized = path.normalize(fileName).replace(/^(\.\.(\/|\\|$))+/, '');
+  const resolved = path.resolve(MEMORY_DIR, normalized);
+  if (!resolved.startsWith(path.resolve(MEMORY_DIR))) {
+    throw new Error(`invalid memory file path: ${fileName}`);
+  }
+  return resolved;
+}
+
 // memory file paths
 const MEMORY_FILES = {
-  important: 'important.md',      // important things to remember
-  context: 'context.md',          // current context/state
-  tasks: 'tasks.md',              // pending tasks
-  lessons: 'lessons.md',          // learned lessons
-  recent: 'recent.md',           // recent interactions summary
+  important: 'important.md',
+  context: 'context.md',
+  tasks: 'tasks.md',
+  lessons: 'lessons.md',
+  recent: 'recent.md',
 };
 
 const ALLOWED_MEMORY_FILES = new Set([

@@ -54,6 +54,16 @@ releases
 data
 lancedb
 
+# Secrets and environment
+.env
+.env.*
+!.env.example
+
+# Misc
+__mocks__
+.github
+.husky
+
 # Misc
 __mocks__
 .github
