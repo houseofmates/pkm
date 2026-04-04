@@ -13,7 +13,7 @@ import { ShowerLoggerModal } from '@/components/shower-logger-modal';
 
 // Lazy-load heavy dependencies to reduce initial bundle size
 const ReactQuill = lazy(() => import('react-quill-new').then(m => ({ default: m.default })));
-const RechartsModule = lazy(() => import('@/components/journal/recharts-wrapper'));
+const RechartsModule = lazy(() => import('@/components/journal/recharts-wrapper').then(m => ({ default: m.default })));
 
 // override focus/accent for journal buttons so color comes from the element itself
 const journalStyles = `
@@ -1444,7 +1444,7 @@ function StatsChartsContent({
                   outerRadius={60}
                   dataKey="value"
                   nameKey="name"
-                  label={({ name }) => (name ?? '').length > 8 ? (name ?? '').slice(0, 8) + '...' : name ?? ''}
+                  label={({ name }: { name?: string }) => (name ?? '').length > 8 ? (name ?? '').slice(0, 8) + '...' : name ?? ''}
                   labelLine={false}
                 >
                   {activityBreakdown.map((_, i) => (
@@ -1474,7 +1474,7 @@ function StatsChartsContent({
                   outerRadius={60}
                   dataKey="value"
                   nameKey="name"
-                  label={({ percent }) => `${((percent ?? 0) * 100).toFixed(0)}%`}
+                  label={({ percent }: { percent?: number }) => `${((percent ?? 0) * 100).toFixed(0)}%`}
                 >
                   {moodDistribution.map((entry, i) => {
                     const moodColor = MOODS.find(m => m.label === entry.name)?.color || MOOD_COLORS[i % MOOD_COLORS.length];
@@ -2972,7 +2972,7 @@ summary:`;
     return <img src={m.emoji} alt={m.label} className="w-8 h-8 object-contain" />;
   }
 
-const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
+  const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
     const active = (isQuick ? quickMood : mood) === m.id;
     const size = isQuick ? 'w-12 h-12' : 'w-16 h-16';
     return (
