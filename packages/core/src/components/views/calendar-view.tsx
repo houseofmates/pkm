@@ -388,16 +388,17 @@ function MonthView({ currentDate, recordsByDate, collection, onUpdateRecord, onD
     return norm !== 'url' && norm !== 'notes';
   }) ?? visibleFields;
 
-  const monthStart =
-    typeof toZonedTime === 'function'
-      ? toZonedTime(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1), timeZone)
-      : new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  const monthStart = safeZonedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1), timeZone)
+    ?? new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
   const startDayOfWeek = monthStart.getDay();
   const calendarDays = useMemo(() => {
     const days = [];
     for (let i = 0; i < startDayOfWeek; i++) days.push(null);
-    for (let i = 1; i <= daysInMonth; i++) days.push(toZonedTime(new Date(currentDate.getFullYear(), currentDate.getMonth(), i), timeZone));
+    for (let i = 1; i <= daysInMonth; i++) {
+      const d = safeZonedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), i), timeZone);
+      if (d) days.push(d);
+    }
     return days;
   }, [currentDate, startDayOfWeek, daysInMonth, timeZone]);
 
