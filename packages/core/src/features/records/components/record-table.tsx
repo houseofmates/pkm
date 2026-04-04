@@ -37,6 +37,38 @@ function parseI18nTemplate(str: string | undefined): string {
   return str;
 }
 
+// helper to convert raw field names to human-readable Title Case headers
+function humanizeFieldName(name: string): string {
+  const abbrevMap: Record<string, string> = {
+    id: 'ID', url: 'URL', uid: 'UID', api: 'API',
+  };
+  return name
+    .replace(/[_-]/g, ' ')
+    .split(' ')
+    .map((word) => {
+      const lower = word.toLowerCase();
+      if (abbrevMap[lower]) return abbrevMap[lower];
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(' ');
+}
+
+// helper to convert raw field names to human-readable Title Case headers
+function humanizeFieldName(name: string): string {
+  const abbrevMap: Record<string, string> = {
+    id: 'ID', url: 'URL', uid: 'UID', api: 'API',
+  };
+  return name
+    .replace(/[_-]/g, ' ')
+    .split(' ')
+    .map((word) => {
+      const lower = word.toLowerCase();
+      if (abbrevMap[lower]) return abbrevMap[lower];
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(' ');
+}
+
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
