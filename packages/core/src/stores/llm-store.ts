@@ -11,8 +11,9 @@ export interface ChatMessage {
   id: number
   role: 'user' | 'assistant'
   content: string
-  sources?: string[] // track which kb sources were used
-  attachments?: Attachment[] // attachments for this message
+  sources?: string[]
+  attachments?: Attachment[]
+  createdAt?: number
 }
 
 export interface ChatSession {
