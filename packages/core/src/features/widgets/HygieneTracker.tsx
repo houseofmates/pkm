@@ -362,6 +362,7 @@ export function HygieneTracker({ data, onUpdate }: HygieneTrackerProps) {
                     className="h-7 px-2 text-xs bg-black/40 border border-white/10 rounded"
                   >
                     <option value="text">text</option>
+                    <option value="textarea">textarea</option>
                     <option value="number">number</option>
                     <option value="select">select</option>
                     <option value="checkbox">checkbox</option>
