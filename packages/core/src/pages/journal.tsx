@@ -3768,5 +3768,3 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
     </div>
   );
 }
-
-export default JournalPage;
