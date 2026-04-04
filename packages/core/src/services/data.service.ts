@@ -11,6 +11,13 @@ import { io, Socket } from 'socket.io-client';
 // theme color for sync toasts
 const SYNC_THEME_COLOR = '#f6b012';
 
+// Single source of truth for all 15 user collections
+const HARDCODED_COLLECTIONS = [
+  'activities', 'activity_logs', 'bookmarks', 'captures', 'drawings',
+  'events', 'exercise', 'finances', 'habits', 'headmates',
+  'hygiene_log', 'journal', 'media', 'products', 'sleep'
+];
+
 /**
  * A service that orchestrates data flow between the UI, local cache, and NocoBase backend.
  * It implements a read-through cache for offline-first capabilities.
@@ -200,11 +207,19 @@ class DataService {
 
       secureLogger.info(`Fetched ${freshCollections.length} collections from NocoBase.`);
 
-      // 3. Update the local cache with fresh data
-      await localDbService.saveCollections(freshCollections);
+      // Merge with hardcoded collections that may be missing from API response
+      const existingNames = new Set(freshCollections.map((c: any) => (c.name || '').toLowerCase()));
+      const missingHardcoded = HARDCODED_COLLECTIONS
+        .filter(name => !existingNames.has(name.toLowerCase()))
+        .map(name => ({ name, title: name, fields: [] }));
+      
+      const mergedCollections = [...freshCollections, ...missingHardcoded];
 
-      // 4. Update the UI (Zustand store) with fresh data
-      useCollectionsStore.getState().setCollections(freshCollections as any);
+      // 3. Update the local cache with merged data
+      await localDbService.saveCollections(mergedCollections);
+
+      // 4. Update the UI (Zustand store) with merged data
+      useCollectionsStore.getState().setCollections(mergedCollections as any);
     } catch (error) {
       secureLogger.error('Failed to sync collections from NocoBase. App may be offline.', error);
       // If the network fails, the app will continue to run with the cached data.
