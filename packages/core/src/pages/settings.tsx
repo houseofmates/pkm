@@ -3,13 +3,22 @@ import { NotionImportWidget } from '@/components/notion-import-widget';
 import { TableManager } from '@/features/table-management/TableManager';
 import { Button } from '@/components/ui/button';
 import { Eye, EyeOff } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function SettingsPage() {
     const [apiKey, setApiKey] = useAppSetting('apiKey', '');
-    const [darkMode, setDarkMode] = useAppSetting('darkMode', false);
+    const [darkMode, setDarkMode] = useAppSetting('darkMode', true);
     const [pageSize, setPageSize] = useAppSetting('defaultPageSize', 20);
     const [showApiKey, setShowApiKey] = useState(false);
+
+    // Apply dark mode class to document based on setting
+    useEffect(() => {
+        if (darkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }, [darkMode]);
 
     return (
         // container must occupy full height of parent so scrolling works
