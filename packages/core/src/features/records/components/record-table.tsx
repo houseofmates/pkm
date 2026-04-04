@@ -32,8 +32,10 @@ function parseI18nTemplate(str: string | undefined): string {
   if (!str) return '';
   const match = str.match(/^\{\{\s*t\(['"](.+)['"]\)\s*\}\}$/);
   if (match) {
-    return match[1]; // return the inner string like "ID" or "Created at"
+    return match[1];
   }
+  return '';
+}
 
 export function humanizeFieldName(name: string): string {
   const ACRONYMS = new Set(['url', 'uid', 'id', 'api', 'csv', 'pdf']);
