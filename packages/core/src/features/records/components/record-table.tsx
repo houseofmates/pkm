@@ -37,9 +37,6 @@ function parseI18nTemplate(str: string | undefined): string {
   return str;
 }
 
-// helper to convert raw field names to human-readable Title Case headers
-function humanizeFieldName(name: string): string {
-  const abbrevMap: Record<string, string> = {
     id: 'ID', url: 'URL', uid: 'UID', api: 'API',
   };
   return name
