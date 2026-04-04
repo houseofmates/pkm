@@ -5,6 +5,8 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { storageManager } from '@/lib/storage-manager';
 import { Database } from "lucide-react";
+import { humanizeFieldName } from '@/features/records/components/record-table';
+import { humanizeFieldName } from '@/features/records/components/record-table';
 
 import { useAppSetting } from "@/hooks/use-app-setting";
 
@@ -126,7 +128,7 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
                   {fields.slice(0, 3).map((f: any) => (
                     <div key={f.name} className="flex items-center text-[10px] text-muted-foreground gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary/20" style={borderColor ? { backgroundColor: borderColor } : undefined} />
-                      <span className="truncate opacity-70">{f.name}</span>
+                      <span className="truncate opacity-70">{humanizeFieldName(f.name)}</span>
                       <span className="opacity-40 ml-auto">{f.interface || f.type}</span>
                     </div>
                   ))}
