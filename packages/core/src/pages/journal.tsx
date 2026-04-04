@@ -1835,7 +1835,7 @@ function TimeInsights({ entries }: { entries: JournalRecord[] }) {
 //  main journal page component
 // ─────────────────────────────────────────────
 
-function JournalPage() {
+export function JournalPage() {
   // ── state: mood & emotions ──
   const [mood, setMood] = useState<string | null>(null);
   const [emotions, setEmotions] = useState<Set<string>>(new Set());
