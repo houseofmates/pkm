@@ -116,21 +116,17 @@ export function useCollections() {
     select: (data) => {
       const filtered = data.filter((col: Collection) => {
         const name = (col.name || '').toLowerCase().trim();
-        const title = (col.title || '').toLowerCase().trim();
 
-        if (SYSTEM_COLLECTIONS.includes(name)) return false;
-        if (name === 'pkm_settings' || title === 'pkm settings' || name === 'front_history' || title === 'front history') return false;
-        if (name.includes('backend') || title.includes('backend')) return false;
+        if (SYSTEM_COLLECTIONS_SET.has(name)) return false;
         if (col.hidden) return false;
         return true;
       });
 
-      // Merge with hardcoded collections that may be missing from API response
+      // Merge with cached collections that may be missing from API response
       const existingNames = new Set(filtered.map((c: Collection) => c.name.toLowerCase()));
       const cachedCollections = discoverCollectionsFromCache();
-      const allExtraCollections = [...HARDCODED_COLLECTIONS, ...cachedCollections];
       
-      const missingCollections = allExtraCollections
+      const missingCollections = cachedCollections
         .filter(hc => !existingNames.has(hc.name.toLowerCase()))
         .map(hc => ({ ...hc, fields: [] } as Collection));
 
