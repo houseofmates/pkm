@@ -516,7 +516,8 @@ important rules:
         interactionHistory: [...state.interactionHistory, {
           id: Date.now() + 1,
           role: 'assistant',
-          content: "[wilson is offline or unreachable]"
+          content: "[wilson is offline or unreachable]",
+          createdAt: Date.now()
         }],
         isThinking: false,
         streamingContent: '',
