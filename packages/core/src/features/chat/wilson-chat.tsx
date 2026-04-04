@@ -23,22 +23,6 @@ function friendlyModelName(raw: string): string {
     .join(' ');
 }
 
-const RAW_MODEL_NAME = 'qwen2.5-coder:7b-instruct-q4_K_S';
-
-function friendlyModelName(raw: string): string {
-  const map: Record<string, string> = {
-    'qwen2.5-coder:7b-instruct-q4_K_S': 'Qwen 2.5 Coder 7B',
-  };
-  if (map[raw]) return map[raw];
-  return raw
-    .split(':')[0]
-    .replace(/[^a-zA-Z0-9]/g, ' ')
-    .split(' ')
-    .filter(Boolean)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
-}
-
 // Helper function to capture a screenshot of the current page
 async function capturePageScreenshot(): Promise<HTMLCanvasElement | null> {
   return new Promise((resolve, reject) => {
