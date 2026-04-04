@@ -551,17 +551,19 @@ function hslColorToHex(h: number, s: number, l: number): string {
 //  breathing exercise component
 // ─────────────────────────────────────────────
 
-function BreathingExerciseModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const [technique, setTechnique] = useState<'4-7-8' | 'box'>('4-7-8');
+function BreathingExerciseModal({ isOpen, onClose, preset }: { isOpen: boolean; onClose: () => void; preset?: string }) {
+  const [technique, setTechnique] = useState<'4-7-8' | 'box' | 'quick'>('4-7-8');
   const [phase, setPhase] = useState<'inhale' | 'hold' | 'exhale' | 'hold2'>('inhale');
   const [count, setCount] = useState(4);
   const [isActive, setIsActive] = useState(false);
   const [sessions, setSessions] = useState(0);
   const [cycles, setCycles] = useState(0);
 
-  const getCounts = () => technique === '4-7-8' 
-    ? { inhale: 4, hold: 7, exhale: 8, hold2: 0 } 
-    : { inhale: 4, hold: 4, exhale: 4, hold2: 4 };
+  const getCounts = () => {
+    if (technique === '4-7-8') return { inhale: 4, hold: 7, exhale: 8, hold2: 0 };
+    if (technique === 'quick') return { inhale: 4, hold: 0, exhale: 6, hold2: 0 };
+    return { inhale: 4, hold: 4, exhale: 4, hold2: 4 };
+  };
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -3428,6 +3430,37 @@ summary:`;
                 className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 transition-colors"
               >
                 <Plus size={16} />
+              </button>
+            </div>
+          </div>
+
+          {/* breathing exercises */}
+          <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
+            <div className="flex items-center gap-2 mb-3">
+              <Wind size={16} className="text-amber-500/60" />
+              <p className="text-xs text-white/40 lowercase">breathing exercises</p>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                onClick={() => setShowBreathing(true)}
+                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 hover:border-amber-500/30 transition-all text-left"
+              >
+                <p className="text-xs font-medium text-white/70 lowercase">4-7-8 relaxation</p>
+                <p className="text-[10px] text-white/30 lowercase">calm & sleep</p>
+              </button>
+              <button
+                onClick={() => setShowBreathing(true)}
+                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 hover:border-amber-500/30 transition-all text-left"
+              >
+                <p className="text-xs font-medium text-white/70 lowercase">box breathing</p>
+                <p className="text-[10px] text-white/30 lowercase">focus & clarity</p>
+              </button>
+              <button
+                onClick={() => setShowBreathing(true)}
+                className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/5 hover:border-amber-500/30 transition-all text-left"
+              >
+                <p className="text-xs font-medium text-white/70 lowercase">quick calm</p>
+                <p className="text-[10px] text-white/30 lowercase">instant relief</p>
               </button>
             </div>
           </div>
