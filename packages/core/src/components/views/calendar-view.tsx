@@ -639,22 +639,29 @@ function YearView({ currentDate, recordsByDate, onMonthClick, timeZone }: any) {
     <ScrollArea className="h-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
         {months.map(month => {
-          const monthDate = toZonedTime(new Date(year, month, 1), timeZone);
+          const monthDate = safeZonedDate(new Date(year, month, 1), timeZone) ?? new Date(year, month, 1);
           const daysInMonth = new Date(year, month + 1, 0).getDate();
           const startDay = monthDate.getDay();
-          const hasActivity = Array.from({ length: daysInMonth }, (_, i) => format(toZonedTime(new Date(year, month, i + 1), timeZone), 'yyyy-MM-dd')).some(d => recordsByDate[d]?.length > 0);
+          const hasActivity = Array.from({ length: daysInMonth }, (_, i) => {
+            const d = safeZonedDate(new Date(year, month, i + 1), timeZone);
+            const dKey = d ? safeDateFormat(d, 'yyyy-MM-dd') : null;
+            return dKey && recordsByDate[dKey]?.length > 0;
+          }).some(Boolean);
+          const monthTitle = safeDateFormat(monthDate, 'LLLL') ?? '';
+          const todayKey = safeDateFormat(new Date(), 'yyyy-MM-dd', timeZone) ?? '';
+          
           return (
             <div key={month} onClick={() => onMonthClick(new Date(monthDate.getFullYear(), monthDate.getMonth(), monthDate.getDate()))} className={cn("border rounded-md p-2 hover:bg-accent/50 cursor-pointer transition-colors", hasActivity ? "bg-accent/10" : "bg-card")}>
-              <div className="text-sm font-bold mb-2 text-center lowercase">{format(monthDate, 'LLLL')}</div>
+              <div className="text-sm font-bold mb-2 text-center lowercase">{monthTitle}</div>
               <div className="grid grid-cols-7 gap-1 text-[8px] text-center text-muted-foreground">
                 {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => <span key={i}>{d}</span>)}
                 {Array.from({ length: startDay }).map((_, i) => <span key={`pad-${i}`}>&nbsp;</span>)}
                       {Array.from({ length: daysInMonth }).map((_, i) => {
                   const day = i + 1;
-                  const dStr = format(toZonedTime(new Date(year, month, day), timeZone), 'yyyy-MM-dd');
-                  const todayKey = format(toZonedTime(new Date(), timeZone), 'yyyy-MM-dd');
+                  const d = safeZonedDate(new Date(year, month, day), timeZone);
+                  const dStr = d ? safeDateFormat(d, 'yyyy-MM-dd') : null;
                   const isToday = dStr === todayKey;
-                  const hasRecords = (recordsByDate[dStr]?.length || 0) > 0;
+                  const hasRecords = dStr ? (recordsByDate[dStr]?.length || 0) > 0 : false;
 
                   return (
                     <div
@@ -670,7 +677,7 @@ function YearView({ currentDate, recordsByDate, onMonthClick, timeZone }: any) {
                       <span>{day}</span>
                       {hasRecords && (
                         <span className="mt-1 h-4 w-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
-                          {String(recordsByDate[dStr]?.length || 0).padStart(1, '0')}
+                          {String(dStr && recordsByDate[dStr]?.length || 0).padStart(1, '0')}
                         </span>
                       )}
                     </div>

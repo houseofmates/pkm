@@ -1209,6 +1209,41 @@ function StatsCharts({ entries, activityCatalog = DEFAULT_ACTIVITIES }: StatsCha
     return entries.filter(e => new Date(e.date) >= cutoff);
   }, [entries, timeRange]);
 
+  return (
+    <Suspense fallback={<div className="text-center text-white/30 lowercase text-sm py-8">loading charts...</div>}>
+      <StatsChartsContent
+        entries={entries}
+        activityCatalog={activityCatalog}
+        timeRange={timeRange}
+        setTimeRange={setTimeRange}
+        chartType={chartType}
+        setChartType={setChartType}
+        filteredEntries={filteredEntries}
+      />
+    </Suspense>
+  );
+}
+
+function StatsChartsContent({
+  entries,
+  activityCatalog = DEFAULT_ACTIVITIES,
+  timeRange,
+  setTimeRange,
+  chartType,
+  setChartType,
+  filteredEntries,
+}: StatsChartsProps & {
+  timeRange: 'week' | 'month' | 'year' | 'all';
+  setTimeRange: (r: 'week' | 'month' | 'year' | 'all') => void;
+  chartType: 'trend' | 'mood' | 'activities' | 'emotions' | 'correlations' | 'timing';
+  setChartType: (t: 'trend' | 'mood' | 'activities' | 'emotions' | 'correlations' | 'timing') => void;
+  filteredEntries: JournalRecord[];
+}) {
+  const {
+    BarChart, Bar, LineChart, Line, PieChart, Pie, Cell,
+    XAxis, YAxis, Tooltip, ResponsiveContainer, Legend, AreaChart, Area,
+  } = RechartsModule as any;
+
   const moodTrendData = useMemo(() => {
     const sorted = [...filteredEntries].filter(e => e.mood).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     return sorted.map(e => ({
