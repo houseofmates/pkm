@@ -292,7 +292,8 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
           id: Date.now(),
           role: 'user',
           content: text,
-          attachments: hasAttachments ? [...attachments] : undefined
+          attachments: hasAttachments ? [...attachments] : undefined,
+          createdAt: Date.now()
         }],
         pendingAttachments: [] // clear pending attachments
       }))
