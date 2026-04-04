@@ -1,6 +1,7 @@
 import React from 'react';
 import { Mic, Square, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { secureLogger } from '@/lib/secure-logger';
 import { toast } from 'sonner';
 import { useUnifiedTranscription } from '@/lib/speech-recognition';
 
@@ -27,7 +28,7 @@ export function QuickVoiceWidget({ className, onTranscript }: QuickVoiceWidgetPr
       toast.success('Voice captured!');
     },
     onError: (error) => {
-      console.error('Speech recognition error:', error.message);
+      secureLogger.error('Speech recognition error:', error.message);
     },
   });
 

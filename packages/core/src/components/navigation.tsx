@@ -9,6 +9,7 @@ function getLucideIcon(name: string): LucideIcon | undefined {
 
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { secureLogger } from '@/lib/secure-logger';
 import { detectFieldType } from '@/utils/csv-detector';
 import { useCollections } from '@/hooks/use-collections';
 import { useNavigate } from 'react-router-dom';
@@ -20,7 +21,7 @@ function getStoredDeleted(): Set<string> {
     const raw = localStorage.getItem('sidebar_deleted_collections');
     if (raw) return new Set(JSON.parse(raw));
   } catch (e) {
-    console.warn('Failed to load deleted collections from storage:', e);
+    secureLogger.warn('Failed to load deleted collections from storage:', e);
   }
   return new Set();
 }
@@ -29,7 +30,7 @@ function storeDeleted(ids: Set<string>) {
   try {
     localStorage.setItem('sidebar_deleted_collections', JSON.stringify(Array.from(ids)));
   } catch (e) {
-    console.warn('Failed to save deleted collections:', e);
+    secureLogger.warn('Failed to save deleted collections:', e);
   }
 }
 

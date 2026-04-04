@@ -4,6 +4,7 @@ import { Send, X, BrainCircuit, Paperclip, Image, Film, FileText, XCircle, Histo
 import { useEdgelessStore } from '@/features/edgeless/store'
 import type { Attachment } from '@/workers/ai-worker-types'
 import { toast } from 'sonner'
+import { secureLogger } from '@/lib/secure-logger'
 import { VoiceChat, useWilsonVoice } from '@/components/VoiceChat'
 
 // Helper function to capture a screenshot of the current page
@@ -251,7 +252,7 @@ const SessionItem = memo(function SessionItem({ session, isActive, onClick, onRe
 
 export function WilsonChat() {
   const isChatOpen = useEdgelessStore((s) => s.isChatOpen);
-  console.log('[WilsonChat] isChatOpen:', isChatOpen);
+  secureLogger.debug('[WilsonChat] isChatOpen:', isChatOpen);
   const setChatOpen = useEdgelessStore((s) => s.setChatOpen);
   const interactionHistory = useLLMStore((s) => s.interactionHistory);
   const isThinking = useLLMStore((s) => s.isThinking);
@@ -308,7 +309,7 @@ export function WilsonChat() {
     if (!files) return;
     for (const file of Array.from(files)) {
       if (file.size > 10 * 1024 * 1024) {
-        console.warn('[wilson] File too large:', file.name);
+        secureLogger.warn('[wilson] File too large:', file.name);
         continue;
       }
       await addAttachment(file);
@@ -329,7 +330,7 @@ export function WilsonChat() {
         await addAttachment(file);
       }
     } catch (err) {
-      console.error('[wilson] Failed to capture screenshot:', err);
+      secureLogger.error('[wilson] Failed to capture screenshot:', err);
       toast.error('Failed to capture screenshot');
     }
   }, [addAttachment]);

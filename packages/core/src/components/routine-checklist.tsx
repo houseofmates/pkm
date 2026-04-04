@@ -3,6 +3,7 @@ import { CheckSquare, X, Plus, Sun, Moon } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '@/api/nocobase-client';
 import { cn } from '@/lib/utils';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface RoutineTemplate {
   id: number;
@@ -55,7 +56,7 @@ export function RoutineChecklist() {
       });
       setCompletions(completionsMap);
     } catch (err) {
-      console.error('failed to load routines', err);
+      secureLogger.error('failed to load routines', err);
     } finally {
       setLoading(false);
     }
@@ -116,7 +117,7 @@ export function RoutineChecklist() {
         toast.success(`${routine.name} complete! 🎉`);
       }
     } catch (err) {
-      console.error('failed to toggle item', err);
+      secureLogger.error('failed to toggle item', err);
       toast.error('failed to update routine');
     }
   };
@@ -262,7 +263,7 @@ function AddRoutineModal({ onClose, onSuccess }: { onClose: () => void; onSucces
       toast.success('routine created');
       onSuccess();
     } catch (err) {
-      console.error('failed to create routine', err);
+      secureLogger.error('failed to create routine', err);
       toast.error('failed to create routine');
     } finally {
       setLoading(false);

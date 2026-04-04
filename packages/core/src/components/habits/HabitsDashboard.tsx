@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import api from '@/api/nocobase-client';
+import { secureLogger } from '@/lib/secure-logger';
 
 export interface HabitMetric {
   id: string;
@@ -301,7 +302,7 @@ export function HabitsDashboard({
         
         setHabits(metrics);
       } catch (err) {
-        console.error('failed to load habits', err);
+        secureLogger.error('failed to load habits', err);
       } finally {
         setLoading(false);
       }

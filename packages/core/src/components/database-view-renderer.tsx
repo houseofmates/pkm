@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Calendar, BarChart2, List, Grid } from 'lucide-react';
 import api from '@/api/nocobase-client';
 import { cn } from '@/lib/utils';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface DatabaseViewProps {
   collection: string;
@@ -37,7 +38,7 @@ export function DatabaseView({
       });
       setData(res?.data || []);
     } catch (err) {
-      console.error(`failed to load ${collection}`, err);
+      secureLogger.error(`failed to load ${collection}`, err);
     } finally {
       setLoading(false);
     }

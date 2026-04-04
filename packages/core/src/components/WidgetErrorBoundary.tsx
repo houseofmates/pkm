@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
 import { cn } from '@/lib/utils';
+import { secureLogger } from '@/lib/secure-logger';
 import { AlertTriangle, RotateCcw } from 'lucide-react';
 
 interface Props {
@@ -29,7 +30,7 @@ export class WidgetErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('Widget error:', error, errorInfo);
+    secureLogger.error('Widget error:', error, errorInfo);
     this.props.onError?.(error, errorInfo);
   }
 

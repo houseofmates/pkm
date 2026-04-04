@@ -3,6 +3,7 @@ import { Plus, X, ChevronRight, Sparkles, Timer, BarChart3 } from 'lucide-react'
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import api from '@/api/nocobase-client';
+import { secureLogger } from '@/lib/secure-logger';
 import { FactBuffer, ActivityTip, getTipsByCategory, mapActivityToCategory } from './FactBuffer';
 
 export interface Habit {
@@ -333,7 +334,7 @@ export function HabitLoggerWidget({
           setRemoteHabits(habits);
         }
       } catch (err) {
-        console.error('failed to load habits from nocobase', err);
+        secureLogger.error('failed to load habits from nocobase', err);
       }
     };
     
@@ -415,7 +416,7 @@ export function HabitLoggerWidget({
       setShowFactBuffer(false);
       setView('grid');
     } catch (err) {
-      console.error('failed to log habit', err);
+      secureLogger.error('failed to log habit', err);
       toast.error('failed to log habit');
     } finally {
       setLoading(false);
@@ -449,7 +450,7 @@ export function HabitLoggerWidget({
       setSelectedHabit(null);
       setView('grid');
     } catch (err) {
-      console.error('failed to log habit', err);
+      secureLogger.error('failed to log habit', err);
       toast.error('failed to log habit');
     } finally {
       setLoading(false);

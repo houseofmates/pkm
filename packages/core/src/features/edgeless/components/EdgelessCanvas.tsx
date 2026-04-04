@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useMemo, useState, useCallback, memo } from 'react'
 import * as fabric from 'fabric'
+import { secureLogger } from '@/lib/secure-logger'
 import { useEdgelessStore, useViewport, useElementIds, useElement, useActiveTool, useSelectionMode } from '../store'
 import type { EdgelessElement } from '../store'
 import { useCanvasSafe } from '../hooks/use-canvas-safe'
@@ -622,7 +623,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         // Save initial state to history baseline
         historyRef.current = [];
       } catch (err) {
-        console.error('[canvas] failed to load drawing from oplog:', err);
+        secureLogger.error('[canvas] failed to load drawing from oplog:', err);
       } finally {
         isLoadingStateRef.current = false;
       }
@@ -1526,7 +1527,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
               })
             }
           } catch (err) {
-            console.error('Eraser rasterize failed:', err)
+            secureLogger.error('Eraser rasterize failed:', err)
             if (offCanvas) releaseCanvas(offCanvas)
           }
         }

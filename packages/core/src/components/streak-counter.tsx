@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { TrendingUp, Award } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface StreakCounterProps {
   activityId?: number;
@@ -29,7 +30,7 @@ export function StreakCounter({ activityId, activityName, compact = false }: Str
       const found = data.find((s: any) => s.activity_id === activityId);
       setStreak(found ? { current: found.current_streak, longest: found.longest_streak } : null);
     } catch (err) {
-      console.error('failed to load streak', err);
+      secureLogger.error('failed to load streak', err);
     } finally {
       setLoading(false);
     }

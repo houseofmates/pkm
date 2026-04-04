@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
+import { secureLogger } from '@/lib/secure-logger'
 
 interface GamificationQuestWidgetProps {
   className?: string
@@ -81,7 +82,7 @@ export function GamificationQuestWidget({ className }: GamificationQuestWidgetPr
             setRows(data.questRows)
           }
         } catch (e) {
-          console.error('failed to load quest data', e)
+          secureLogger.error('failed to load quest data', e)
         }
       }
     }

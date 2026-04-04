@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
+import { secureLogger } from '@/lib/secure-logger'
 
 interface GamificationPetWidgetProps {
   className?: string
@@ -37,7 +38,7 @@ export function GamificationPetWidget({ className }: GamificationPetWidgetProps)
             setPets(data.pets)
           }
         } catch (e) {
-          console.error('failed to load pet data', e)
+          secureLogger.error('failed to load pet data', e)
         }
       }
     }

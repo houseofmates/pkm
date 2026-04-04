@@ -43,8 +43,7 @@ const resolveBackendBaseUrl = () => {
 
     // log the raw value for backwards-compatible tests that expect this message
     try {
-        // console.debug is intentionally used so tests can spy on it
-        console.debug('[NotionImportWidget] raw VITE_API_URL=', rawApiEnv, 'env VITE_API_URL=', envBase ? String(envBase).replace(/\/$/, '') : envBase);
+        secureLogger.debug('[NotionImportWidget] raw VITE_API_URL=', rawApiEnv, 'env VITE_API_URL=', envBase ? String(envBase).replace(/\/$/, '') : envBase);
     } catch (e) {
         // ignore
     }

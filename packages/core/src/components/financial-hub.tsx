@@ -3,6 +3,7 @@ import { TrendingUp, TrendingDown, DollarSign, Plus, X } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '@/api/nocobase-client';
 import { cn } from '@/lib/utils';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface Account {
   id: number;
@@ -58,7 +59,7 @@ export function FinancialHub() {
       setTransactions(transactionsRes?.data || []);
       setBudgets(budgetsRes?.data || []);
     } catch (err) {
-      console.error('failed to load financial data', err);
+      secureLogger.error('failed to load financial data', err);
       toast.error('failed to load financial data');
     } finally {
       setLoading(false);
@@ -343,7 +344,7 @@ function AddTransactionModal({
       toast.success('transaction logged');
       onSuccess();
     } catch (err) {
-      console.error('failed to log transaction', err);
+      secureLogger.error('failed to log transaction', err);
       toast.error('failed to log transaction');
     } finally {
       setLoading(false);

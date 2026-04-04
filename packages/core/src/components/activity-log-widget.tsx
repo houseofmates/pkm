@@ -3,6 +3,7 @@ import { Plus, X, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '@/api/nocobase-client';
 import { cn } from '@/lib/utils';
+import { secureLogger } from '@/lib/secure-logger';
 
 interface Activity {
   id: number;
@@ -39,7 +40,7 @@ export function ActivityLogWidget({ onClose, onLogged }: ActivityLogWidgetProps)
       });
       setActivities(res?.data || []);
     } catch (err) {
-      console.error('failed to load activities', err);
+      secureLogger.error('failed to load activities', err);
     }
   };
 
@@ -56,7 +57,7 @@ export function ActivityLogWidget({ onClose, onLogged }: ActivityLogWidgetProps)
       });
       setStreaks(map);
     } catch (err) {
-      console.error('failed to load streaks', err);
+      secureLogger.error('failed to load streaks', err);
     }
   };
 
@@ -100,7 +101,7 @@ export function ActivityLogWidget({ onClose, onLogged }: ActivityLogWidgetProps)
         toast.error('failed to log activity');
       }
     } catch (err) {
-      console.error('log failed', err);
+      secureLogger.error('log failed', err);
       toast.error('failed to log activity');
     } finally {
       setLoading(false);
