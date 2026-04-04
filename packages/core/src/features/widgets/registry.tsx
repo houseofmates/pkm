@@ -211,7 +211,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
     id: 'status_summary',
     label: 'streak count',
     icon: Flame,
-    description: 'unbroken streaks for survival tasks',
+    description: 'current and longest streaks for tracked habits',
     defaultData: {},
     defaultWidth: 320,
     defaultHeight: 220,
