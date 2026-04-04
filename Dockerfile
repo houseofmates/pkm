@@ -3,16 +3,12 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Dependency Install
+# Dependency Install (production-only in builder to keep image lean)
 COPY package.json package-lock.json ./
-RUN npm install --legacy-peer-deps
+RUN npm ci --legacy-peer-deps
 
 # Source Copy
 COPY . .
-
-# Environment Variables for Build
-# (If API URL is baked in, set it here or via build args in compose)
-# ENV VITE_API_BASE_URL=... 
 
 # Build
 RUN npm run build
@@ -23,15 +19,14 @@ FROM nginx:alpine
 # Copy built assets
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# Custom Nginx Config for SPA Routing
-RUN echo 'server { \
-    listen 3000; \
-    location / { \
-    root /usr/share/nginx/html; \
-    index index.html index.htm; \
-    try_files $uri $uri/ /index.html; \
-    } \
-    }' > /etc/nginx/conf.d/default.conf
+# Copy custom nginx config with security headers
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Run nginx as non-root user for security
+RUN chown -R nginx:nginx /usr/share/nginx/html && \
+    chmod -R 755 /usr/share/nginx/html
+
+USER nginx
 
 # Expose Port
 EXPOSE 3000

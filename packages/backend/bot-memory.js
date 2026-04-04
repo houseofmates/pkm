@@ -13,19 +13,29 @@ function ensureMemoryDir() {
   }
 }
 
+// validate that a resolved path stays within the memory directory
+function safePath(fileName) {
+  const normalized = path.normalize(fileName).replace(/^(\.\.(\/|\\|$))+/, '');
+  const resolved = path.resolve(MEMORY_DIR, normalized);
+  if (!resolved.startsWith(path.resolve(MEMORY_DIR))) {
+    throw new Error(`invalid memory file path: ${fileName}`);
+  }
+  return resolved;
+}
+
 // memory file paths
 const MEMORY_FILES = {
-  important: 'important.md',      // important things to remember
-  context: 'context.md',          // current context/state
-  tasks: 'tasks.md',              // pending tasks
-  lessons: 'lessons.md',          // learned lessons
-  recent: 'recent.md',           // recent interactions summary
+  important: 'important.md',
+  context: 'context.md',
+  tasks: 'tasks.md',
+  lessons: 'lessons.md',
+  recent: 'recent.md',
 };
 
 // read a memory file
 export function readMemory(fileName) {
   ensureMemoryDir();
-  const filePath = path.join(MEMORY_DIR, fileName);
+  const filePath = safePath(fileName);
   
   try {
     if (fs.existsSync(filePath)) {
@@ -41,7 +51,7 @@ export function readMemory(fileName) {
 // write to a memory file
 export function writeMemory(fileName, content) {
   ensureMemoryDir();
-  const filePath = path.join(MEMORY_DIR, fileName);
+  const filePath = safePath(fileName);
   
   try {
     fs.writeFileSync(filePath, content, 'utf-8');

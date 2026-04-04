@@ -11,10 +11,12 @@ process.on('uncaughtException', (err) => {
         typeof err.context === 'string' &&
         err.context.includes('invalid signature')) {
         console.error('[NotionImport] swallowed unhandled event-emitter error', err.context);
-        return; // keep process alive
+        return;
     }
     console.error('uncaughtException', err);
-    process.exit(1);
+    if (process.env.NODE_ENV === 'production') {
+        process.exit(1);
+    }
 });
 import http from 'http';
 import { Server } from 'socket.io';
@@ -52,7 +54,12 @@ if (fs.existsSync('.env')) {
 }
 
 const PORT = process.env.PORT || 4100;
-const ADMIN_SECRET = process.env.BROADCAST_AUTH_KEY || process.env.ADMIN_SECRET || 'change-me-in-prod';
+
+if (process.env.NODE_ENV === 'production' && !process.env.BROADCAST_AUTH_KEY && !process.env.ADMIN_SECRET) {
+    console.error('[Backend] FATAL: BROADCAST_AUTH_KEY or ADMIN_SECRET environment variable must be set in production');
+    process.exit(1);
+}
+const ADMIN_SECRET = process.env.BROADCAST_AUTH_KEY || process.env.ADMIN_SECRET;
 
 const app = express();
 // create http server from express app for socket.io
@@ -61,10 +68,16 @@ const server = http.createServer(app);
 // Serve static assets for mobile and web clients
 app.use('/assets', express.static(path.join(process.cwd(), 'dist/assets')));
 app.use('/assets', express.static(path.join(process.cwd(), 'public/assets')));
+const allowedSocketOrigins = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
 const io = new Server(server, {
     cors: {
-        origin: "*", // Adjust to your frontend URL in production
-        methods: ["GET", "POST"]
+        origin: allowedSocketOrigins.length > 0 ? allowedSocketOrigins : false,
+        methods: ["GET", "POST"],
+        credentials: true
     },
     // reliability settings
     pingTimeout: 60000,
@@ -167,7 +180,8 @@ app.get('/apk', (req, res) => {
         console.log('[APK] serving latest:', latestApk);
 
         res.setHeader('Content-Type', 'application/vnd.android.package-archive');
-        res.setHeader('Content-Disposition', `attachment; filename="${latest.file}"`);
+        const safeFilename = latest.file.replace(/["\\]/g, '');
+        res.setHeader('Content-Disposition', `attachment; filename="${safeFilename}"`);
         res.sendFile(latestApk);
     } catch (err) {
         console.error('[APK] error serving APK:', err);
@@ -189,8 +203,7 @@ const authenticate = (req, res, next) => {
 };
 
 const requireAuth = (req, res, next) => {
-    // tests can bypass auth easier
-    if (process.env.MOCK_NOTION_IMPORT === 'true') {
+    if (process.env.NODE_ENV !== 'production' && process.env.MOCK_NOTION_IMPORT === 'true') {
         return next();
     }
     const authHeader = req.headers['authorization'];
@@ -251,7 +264,16 @@ const upload = multer({
 // upload middleware for notion import (no filter, larger limit)
 const importUpload = multer({
     storage,
-    limits: { fileSize: 5 * 1024 * 1024 * 1024 } // 5GB-ish
+    limits: { fileSize: 100 * 1024 * 1024 },
+    fileFilter: (req, file, cb) => {
+        const allowedExts = ['.zip', '.csv', '.json', '.md', '.txt'];
+        const ext = path.extname(file.originalname).toLowerCase();
+        if (allowedExts.includes(ext)) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only .zip, .csv, .json, .md, or .txt files are allowed'));
+        }
+    }
 });
 
 // multi-csv import endpoint for up to 60 files (from server.ts)
@@ -776,7 +798,7 @@ app.post('/api/upload-background', requireAuth, upload.single('file'), (req, res
         });
     } catch (error) {
         console.error('[Upload] Error:', error);
-        res.status(500).json({ error: 'Upload failed', details: error.message });
+        res.status(500).json({ error: 'Upload failed' });
     }
 });
 
@@ -937,8 +959,11 @@ app.post('/api/broadcast', requireAuth, async (req, res) => {
 });
 
 // proxy endpoint for fetching ics calendar (avoids CORS issues)
-const ICS_URL = 'https://calendar.proton.me/api/calendar/v1/url/ghmB4Z3S-E9pZDc3LXh6PaVbjcD0enobcGIScC3WbbcVBYVTE66sdfCm2FfigmhZle5kbyZwmBXL41CSEwOWjA==/calendar.ics?CacheKey=emvkxJKt5glAHKfQiz1tAg%3D%3D&PassphraseKey=4T9lQSjcn4rdPmji3HcUZUI_87peOKLgto2FUfAT7bM%3D';
-app.get('/api/ics-proxy', async (req, res) => {
+const ICS_URL = process.env.PROTON_ICS_URL;
+app.get('/api/ics-proxy', requireAuth, async (req, res) => {
+    if (!ICS_URL) {
+        return res.status(503).json({ error: 'ics proxy not configured' });
+    }
     try {
         const resp = await axios.get(ICS_URL, {
             responseType: 'text',
@@ -1024,7 +1049,7 @@ app.get('/api/ics-proxy', async (req, res) => {
         res.json(expandedEvents);
     } catch (err) {
         console.error('[ICS PROXY] fetch/parse failed', err?.message || err);
-        res.status(502).json({ error: 'failed to fetch/parse ics calendar', details: err?.message || String(err) });
+        res.status(502).json({ error: 'failed to fetch/parse ics calendar' });
     }
 });
 
@@ -1048,7 +1073,7 @@ io.on('connection', (socket) => {
 if (process.env.NODE_ENV !== 'test') {
     server.listen(PORT, '0.0.0.0', () => {
         console.log(`[Backend] Server running on port ${PORT}`);
-        console.log(`[Backend] Protected endpoints enabled. Secret: ${ADMIN_SECRET ? '***' : 'Not Set'}`);
+        console.log(`[Backend] Protected endpoints enabled`);
         console.log(`[Backend] MOCK_NOTION_IMPORT: ${process.env.MOCK_NOTION_IMPORT}`);
 
         // Resolve preferred Ollama models for qwen and vision (non-blocking)
@@ -1194,7 +1219,7 @@ function getVisionModel() {
   return resolvedVisionModel || PREFERRED_VISION_MODELS[0] || 'moondream:v2';
 }
 
-app.post('/api/ai/chat', async (req, res) => {
+app.post('/api/ai/chat', requireAuth, async (req, res) => {
 const ollamaUrl = getOllamaUrl();
   const { prompt, images, stream = false, includePieces = true, includeMemory = true } = req.body;
 
@@ -1283,52 +1308,6 @@ const ollamaUrl = getOllamaUrl();
       response.data.response = fullResponse;
     }
 
-    // wilson agent loop: parse & execute json actions (non-stream only) - moved before duplicate recordInteraction
-    if (!stream) {
-      let fullResponse = response.data.response.toLowerCase();
-      
-      // record interaction first
-      recordInteraction(prompt, fullResponse);
-      
-      // parse actions
-      const actions = parseActionsFromResponse(fullResponse);
-      const executionResults = [];
-      
-      for (const action of actions) {
-        const result = await executeAction(action);
-        executionResults.push(result);
-      }
-      
-      // augment response with execution results
-      fullResponse += `\n\nactions executed:\n${JSON.stringify(executionResults, null, 2)}`;
-      response.data.response = fullResponse;
-      
-      // inject execution results back to qwen for next reasoning if needed (simple recursion trigger)
-      if (executionResults.length > 0) {
-        const rePrompt = `actions completed: ${JSON.stringify(executionResults)}. continue reasoning.`;
-        const rePayload = {
-          model: getQwenModel(),
-          prompt: rePrompt,
-          system: systemPrompt,
-          stream: false,
-          options: { temperature: 0.3 }
-        };
-        const reResponse = await axios.post(`${ollamaUrl}/api/generate`, rePayload, { timeout: 30000 });
-        fullResponse += `\n\nfollow-up: ${reResponse.data.response.toLowerCase()}`;
-        response.data.response = fullResponse;
-      }
-    }
-
-    // record interaction in memory (non-blocking)
-    if (includeMemory && !stream) {
-      try {
-        const botResponse = response.data.response || '';
-        recordInteraction(prompt, botResponse);
-      } catch (recErr) {
-        console.log('[AI] could not record interaction:', recErr.message);
-      }
-    }
-
     if (stream) {
       res.setHeader('Content-Type', 'text/event-stream');
       response.data.on('data', chunk => {
@@ -1355,7 +1334,7 @@ const ollamaUrl = getOllamaUrl();
     }
   } catch (err) {
     console.error('[AI] ollama request failed:', err.message);
-    res.status(502).json({ error: 'ollama unreachable', details: err.message });
+    res.status(502).json({ error: 'ollama unreachable' });
   }
 });
 
@@ -1391,7 +1370,7 @@ const ollamaUrl = getOllamaUrl();
     res.json({ response: response.data.response.toLowerCase().trim(), done: true });
   } catch (err) {
     console.error('[AI] describe request failed:', err.message);
-    res.status(502).json({ error: 'ai description failed', details: err.message });
+    res.status(502).json({ error: 'ai description failed' });
   }
 });
 
@@ -1445,11 +1424,11 @@ app.post('/api/ai/habits', requireAuth, async (req, res) => {
     res.json({ response: structured, done: true });
   } catch (err) {
     console.error('[AI] habit analysis failed:', err.message);
-    res.status(502).json({ error: 'habit analysis failed', details: err.message });
+    res.status(502).json({ error: 'habit analysis failed' });
   }
 });
 
-app.get('/api/ai/models', async (req, res) => {
+app.get('/api/ai/models', requireAuth, async (req, res) => {
   const ollamaUrl = getOllamaUrl();
   try {
     const response = await axios.get(`${ollamaUrl}/api/tags`);
@@ -1462,14 +1441,14 @@ app.get('/api/ai/models', async (req, res) => {
       available: response.data,
     });
   } catch (err) {
-    res.status(502).json({ error: 'could not reach ollama', details: err.message });
+    res.status(502).json({ error: 'could not reach ollama' });
   }
 });
 
 // ── bot memory routes ──────────────────────────────────────────
 // endpoints for bot to read/write memories (like openclaw)
 
-app.get('/api/ai/memory', async (req, res) => {
+app.get('/api/ai/memory', requireAuth, async (req, res) => {
   try {
     const { type } = req.query;
     const fileName = type ? `${type}.md` : null;
@@ -1488,7 +1467,7 @@ app.get('/api/ai/memory', async (req, res) => {
 });
 
 // convenience endpoint to quickly remember something
-app.post('/api/ai/remember', async (req, res) => {
+app.post('/api/ai/remember', requireAuth, async (req, res) => {
   try {
     const { what, type = 'important' } = req.body;
     
@@ -1509,7 +1488,7 @@ app.post('/api/ai/remember', async (req, res) => {
   }
 });
 
-app.post('/api/ai/memory', async (req, res) => {
+app.post('/api/ai/memory', requireAuth, async (req, res) => {
   try {
     const { type, content, action } = req.body;
     
@@ -1537,7 +1516,7 @@ app.post('/api/ai/memory', async (req, res) => {
   }
 });
 
-app.delete('/api/ai/memory', async (req, res) => {
+app.delete('/api/ai/memory', requireAuth, async (req, res) => {
   try {
     const { type } = req.query;
     
@@ -1561,7 +1540,7 @@ app.delete('/api/ai/memory', async (req, res) => {
 
 // ── pieces os mcp status ────────────────────────────────────────
 
-app.get('/api/ai/pieces/status', async (req, res) => {
+app.get('/api/ai/pieces/status', requireAuth, async (req, res) => {
   try {
     const connected = await isPiecesConnected();
     res.json({ 
@@ -1573,7 +1552,7 @@ app.get('/api/ai/pieces/status', async (req, res) => {
   }
 });
 
-app.get('/api/ai/pieces/recent', async (req, res) => {
+app.get('/api/ai/pieces/recent', requireAuth, async (req, res) => {
   try {
     const hours = parseInt(req.query.hours || '2', 10);
     const context = await getPiecesRecentActivity(hours);
@@ -1637,7 +1616,7 @@ app.post('/api/activities/log', requireAuth, async (req, res) => {
       source: 'server'
     });
 
-    const streakRes = await client.get(`/streaks:list?filter[activity_id]=${activity_id}`);
+    const streakRes = await client.get(`/streaks:list?filter[activity_id]=${encodeURIComponent(activity_id)}`);
     let streak = streakRes.data?.data?.[0];
     const yesterday = new Date(now);
     yesterday.setDate(yesterday.getDate() - 1);
@@ -1711,9 +1690,9 @@ app.get('/api/activities/history', requireAuth, async (req, res) => {
     cutoff.setDate(cutoff.getDate() - parseInt(days));
     const cutoffStr = cutoff.toISOString().split('T')[0];
 
-    let filter = `filter[date][$gte]=${cutoffStr}`;
+    let filter = `filter[date][$gte]=${encodeURIComponent(cutoffStr)}`;
     if (activity_id) {
-      filter += `&filter[activity_id]=${activity_id}`;
+      filter += `&filter[activity_id]=${encodeURIComponent(activity_id)}`;
     }
 
     const base = process.env.NOCOBASE_URL || 'https://db.houseofmates.space/api';

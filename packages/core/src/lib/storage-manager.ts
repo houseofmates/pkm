@@ -3,12 +3,10 @@
  * storage-manager - centralized localStorage access with optional encryption
  *
  * provides a single API layer that wraps safeStorage (sanitization warnings) and
- * adds a very lightweight reversible "encryption" so that values stored for
- * sensitive keys aren't plainly visible in the clear.  This is not intended to
- * be bulletproof crypto but it gives an additional layer for shoulder‑surfing
- * protection and can be upgraded later to use WebCrypto/OS keychain.
+ * adds aes-gcm encryption via the web crypto api so that values stored for
+ * sensitive keys aren't plainly visible in the clear.
  *
- * Usage examples:
+ * usage examples:
  *
  *   import { storageManager } from '@/lib/storage-manager';
  *
@@ -23,32 +21,69 @@
 
 import { safeStorage } from './sanitize-utils';
 
-// ``encryption`` helpers - trivial XOR+base64 scheme.  Replace with real crypto
-// if/when stronger protection is required.
-function simpleEncode(str: string): string {
+// derive a stable aes-gcm key from the browser's origin so each install gets
+// its own key without requiring a user-supplied passphrase.
+async function deriveKey(): Promise<CryptoKey> {
+  const encoder = new TextEncoder();
+  const material = encoder.encode(`pkm-storage-key-${window.location.origin}`);
+  const baseKey = await crypto.subtle.importKey(
+    'raw',
+    material,
+    { name: 'PBKDF2' },
+    false,
+    ['deriveKey']
+  );
+  // use a fixed salt for deterministic derivation (obfuscation, not auth)
+  const salt = encoder.encode('pkm-salt-v1');
+  return crypto.subtle.deriveKey(
+    { name: 'PBKDF2', salt, iterations: 100_000, hash: 'SHA-256' },
+    baseKey,
+    { name: 'AES-GCM', length: 256 },
+    false,
+    ['encrypt', 'decrypt']
+  );
+}
+
+// pack iv + ciphertext into a single base64 string for storage
+async function encrypt(str: string): Promise<string> {
   try {
-    const xored = Array.from(str).
-      map(c => String.fromCharCode(c.charCodeAt(0) ^ 0xAA)).
-      join('');
-    return btoa(xored);
+    const key = await deriveKey();
+    const encoder = new TextEncoder();
+    const iv = crypto.getRandomValues(new Uint8Array(12));
+    const encrypted = await crypto.subtle.encrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      encoder.encode(str)
+    );
+    // pack: iv (12 bytes) + ciphertext
+    const packed = new Uint8Array(iv.length + encrypted.byteLength);
+    packed.set(iv);
+    packed.set(new Uint8Array(encrypted), iv.length);
+    return btoa(String.fromCharCode(...packed));
   } catch {
     return str;
   }
 }
 
-function simpleDecode(str: string): string {
+async function decrypt(encStr: string): Promise<string> {
   try {
-    const decoded = atob(str);
-    return Array.from(decoded).
-      map(c => String.fromCharCode(c.charCodeAt(0) ^ 0xAA)).
-      join('');
+    const key = await deriveKey();
+    const packed = Uint8Array.from(atob(encStr), c => c.charCodeAt(0));
+    if (packed.length < 13) return encStr;
+    const iv = packed.slice(0, 12);
+    const data = packed.slice(12);
+    const decrypted = await crypto.subtle.decrypt(
+      { name: 'AES-GCM', iv },
+      key,
+      data
+    );
+    return new TextDecoder().decode(decrypted);
   } catch {
-    return str;
+    return encStr;
   }
 }
 
 export const storageManager = {
-  /** direct, unopinionated access to localStorage */
   getItem(key: string): string | null {
     return safeStorage.getItem(key);
   },
@@ -66,22 +101,14 @@ export const storageManager = {
     }
   },
 
-  /**
-   * store a value after applying a lightweight reversible transformation.
-   * callers should treat it as encrypted but it's only obfuscated.
-   */
-  setEncryptedItem(key: string, value: string): void {
-    const encoded = simpleEncode(value);
+  async setEncryptedItem(key: string, value: string): Promise<void> {
+    const encoded = await encrypt(value);
     safeStorage.setItem(key, encoded);
   },
 
-  /**
-   * retrieve a value previously stored via setEncryptedItem.
-   */
-  getEncryptedItem(key: string): string | null {
+  async getEncryptedItem(key: string): Promise<string | null> {
     const enc = safeStorage.getItem(key);
     if (!enc) return null;
-    return simpleDecode(enc);
+    return decrypt(enc);
   },
 };
-

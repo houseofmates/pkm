@@ -10,19 +10,25 @@ import { storageManager } from './storage-manager';
 export const DEFAULT_OLLAMA_MODEL = 'qwen2.5-coder:7b-instruct-q4_K_S';
 export const DEFAULT_OLLAMA_URL = 'http://192.168.4.250:11434';
 
-export function getStoredGeminiApiKey(): string | null {
-  const stored = storageManager.getEncryptedItem?.('gemini_api_key') ?? storageManager.getItem('gemini_api_key');
-  return stored ? String(stored).trim() : null;
+export async function getStoredGeminiApiKey(): Promise<string | null> {
+  try {
+    const stored = await storageManager.getEncryptedItem?.('gemini_api_key');
+    if (stored) return String(stored).trim();
+  } catch {
+    // fallback to plain storage
+  }
+  const plain = storageManager.getItem('gemini_api_key');
+  return plain ? String(plain).trim() : null;
 }
 
 export async function ensureGeminiApiKey(): Promise<string | null> {
-  let key = getStoredGeminiApiKey();
+  let key = await getStoredGeminiApiKey();
   if (!key && typeof window !== 'undefined') {
     const entered = window.prompt('please enter your google gemini api key (will be stored locally)');
     if (entered) {
       key = entered.trim();
       try {
-        storageManager.setEncryptedItem('gemini_api_key', key);
+        await storageManager.setEncryptedItem('gemini_api_key', key);
       } catch {
         storageManager.setItem('gemini_api_key', key);
       }
@@ -31,16 +37,8 @@ export async function ensureGeminiApiKey(): Promise<string | null> {
   return key;
 }
 
-export function appendGeminiApiKeyToUrl(url: string, apiKey: string): string {
-  try {
-    const u = new URL(url);
-    if (!u.searchParams.get('key')) {
-      u.searchParams.set('key', apiKey);
-    }
-    return u.toString();
-  } catch {
-    return url.includes('?') ? `${url}&key=${encodeURIComponent(apiKey)}` : `${url}?key=${encodeURIComponent(apiKey)}`;
-  }
+export function geminiAuthHeaders(apiKey: string): Record<string, string> {
+  return { 'Authorization': `Bearer ${apiKey}` };
 }
 
 // - fall back to vite_gemini_url / vite_ollama_url if provided at build time

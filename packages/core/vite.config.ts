@@ -230,11 +230,22 @@ export default defineConfig({
   build: {
     target: 'es2019',
     sourcemap: false,
-    reportCompressedSize: false,
-    chunkSizeWarningLimit: 1500,
+    reportCompressedSize: true,
+    chunkSizeWarningLimit: 500,
     rollupOptions: {
       external: ['@capacitor/push-notifications'],
       output: {
+        manualChunks: {
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-slot', '@radix-ui/react-popover', 'framer-motion', 'clsx'],
+          'vendor-editor': ['@tiptap/react', '@tiptap/starter-kit', 'react-quill'],
+          'vendor-canvas': ['fabric'],
+          'vendor-charts': ['recharts'],
+          'vendor-maps': ['leaflet', 'react-leaflet'],
+          'vendor-dnd': ['@dnd-kit/core', '@dnd-kit/utilities'],
+          'vendor-forms': ['react-hook-form', 'zod'],
+          'vendor-markdown': ['react-markdown', 'remark-gfm'],
+        }
       }
     }
   },
