@@ -1,7 +1,7 @@
 import { useRecords } from '@/hooks/use-records';
 import { useCollection } from '@/hooks/use-collections';
 import { RecordGallery } from '@/features/records/components/record-gallery';
-import { Loader2, Plus } from 'lucide-react';
+import { Loader2, Plus, Camera } from 'lucide-react';
 import { useState } from 'react';
 
 export function CapturesPage() {
