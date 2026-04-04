@@ -38,16 +38,15 @@ function parseI18nTemplate(str: string | undefined): string {
 }
 
 function humanizeFieldName(name: string): string {
-  const abbrevMap: Record<string, string> = {
-    id: 'ID', url: 'URL', uid: 'UID', api: 'API',
-  };
+  const ACRONYMS = new Set(['url', 'uid', 'id', 'api', 'csv', 'pdf']);
   return name
     .replace(/[_-]/g, ' ')
+    .replace(/([a-z])([A-Z])/g, '$1 $2')
     .split(' ')
     .map((word) => {
       const lower = word.toLowerCase();
-      if (abbrevMap[lower]) return abbrevMap[lower];
-      return word.charAt(0).toUpperCase() + word.slice(1);
+      if (ACRONYMS.has(lower)) return word.toUpperCase();
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
     })
     .join(' ');
 }
