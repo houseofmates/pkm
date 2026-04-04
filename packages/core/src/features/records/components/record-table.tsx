@@ -32,6 +32,8 @@ import { Label } from '@/components/ui/label';
 import { FieldSettingsDialog } from '@/features/collections/components/field-settings-dialog';
 import { useGestureManager } from '@/hooks/use-gesture-manager';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { RecordDetailDrawer } from './record-detail-drawer';
+import { Maximize2 } from 'lucide-react';
 
 interface RecordTableProps {
   data: any[];
