@@ -61,16 +61,20 @@ const server = http.createServer(app);
 // Serve static assets for mobile and web clients
 app.use('/assets', express.static(path.join(process.cwd(), 'dist/assets')));
 app.use('/assets', express.static(path.join(process.cwd(), 'public/assets')));
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
+    .split(',')
+    .map(s => s.trim())
+    .filter(Boolean);
+
 const io = new Server(server, {
     cors: {
-        origin: "*", // Adjust to your frontend URL in production
-        methods: ["GET", "POST"]
+        origin: allowedOrigins.length > 0 ? allowedOrigins : ['http://localhost:3010'],
+        methods: ["GET", "POST"],
+        credentials: true,
     },
-    // reliability settings
     pingTimeout: 60000,
     pingInterval: 25000,
     connectTimeout: 45000,
-    // allow reconnection
     allowEIO3: true,
     transports: ['websocket', 'polling']
 });
