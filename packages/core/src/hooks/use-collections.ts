@@ -16,16 +16,6 @@ const SYSTEM_COLLECTIONS_SET = new Set([
   'form_submissions', 'site_pages',
 ]);
 
-// Collections that exist in NocoBase but may not appear in list API due to cache issues
-// These will be merged with API results to ensure all user collections appear
-const HARDCODED_COLLECTIONS = [
-  { name: 'exercise', title: 'exercise' },
-  { name: 'sleep', title: 'sleep' },
-  { name: 'finances', title: 'finances' },
-  { name: 'journal', title: 'journal' },
-  { name: 'events', title: 'events' },
-];
-
 // Discover additional collections from localStorage cache
 function discoverCollectionsFromCache(): Array<{name: string, title: string}> {
   const discovered: Array<{name: string, title: string}> = [];
@@ -39,8 +29,7 @@ function discoverCollectionsFromCache(): Array<{name: string, title: string}> {
             !item.id.startsWith('doc_') && 
             !item.id.startsWith('drawing_') &&
             !item.id.startsWith('folder_') &&
-            !HARDCODED_COLLECTIONS.some(hc => hc.name === item.id) &&
-            !SYSTEM_COLLECTIONS.includes(item.id.toLowerCase())) {
+            !SYSTEM_COLLECTIONS_SET.has(item.id.toLowerCase())) {
           discovered.push({ name: item.id, title: item.name || item.id });
         }
       });
@@ -52,8 +41,26 @@ function discoverCollectionsFromCache(): Array<{name: string, title: string}> {
       const order = JSON.parse(dbOrder);
       order.forEach((name: string) => {
         if (!discovered.some(d => d.name === name) &&
-            !HARDCODED_COLLECTIONS.some(hc => hc.name === name) &&
-            !SYSTEM_COLLECTIONS.includes(name.toLowerCase())) {
+            !SYSTEM_COLLECTIONS_SET.has(name.toLowerCase())) {
+          discovered.push({ name, title: name });
+        }
+      });
+    }
+  } catch (e) {
+    // ignore cache errors
+  }
+  return discovered;
+}
+      });
+    }
+    
+    // Check database order setting
+    const dbOrder = localStorage.getItem('database_order');
+    if (dbOrder) {
+      const order = JSON.parse(dbOrder);
+      order.forEach((name: string) => {
+        if (!discovered.some(d => d.name === name) &&
+            !SYSTEM_COLLECTIONS_SET.has(name.toLowerCase())) {
           discovered.push({ name, title: name });
         }
       });
