@@ -877,6 +877,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         return availableFields.map((f: any) => {
                           const fieldName = f.name || f;
                           const isHidden = hiddenColumns.includes(fieldName);
+                          const displayTitle = parseI18nTemplate(f.uiSchema?.title) || fieldName;
                           return (
                             <div key={fieldName} className="flex items-center space-x-2">
                               <Checkbox
@@ -890,7 +891,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                                   }
                                 }}
                               />
-                              <Label htmlFor={`col-${fieldName}`} className="text-xs">{f.uiSchema?.title || fieldName}</Label>
+                              <Label htmlFor={`col-${fieldName}`} className="text-xs">{displayTitle}</Label>
                             </div>
                           )
                         });
