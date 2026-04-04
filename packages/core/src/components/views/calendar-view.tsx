@@ -376,7 +376,8 @@ function DraggableEvent({
 }
 
 function DroppableDateCell({ date, children, className, onClick, style }: { date: Date, children: React.ReactNode, className?: string, onClick?: () => void, style?: React.CSSProperties }) {
-  const { setNodeRef, isOver } = useDroppable({ id: format(date, 'yyyy-MM-dd') });
+  const dateKey = safeDateFormat(date, 'yyyy-MM-dd') ?? 'invalid-date';
+  const { setNodeRef, isOver } = useDroppable({ id: dateKey });
   return <div ref={setNodeRef} className={cn(className, isOver && "bg-accent/30 ring-2 ring-primary/20 z-10")} onClick={onClick} style={style}>{children}</div>;
 }
 
