@@ -214,23 +214,10 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         if (loading) return <div className="p-10 text-center animate-pulse">loading {collectionName}...</div>;
         return (
             <div className="p-10 flex flex-col items-center gap-4 text-center">
-                <div className="text-destructive font-bold text-lg">collection not found: &ldquo;{collectionName}&rdquo;</div>
+                <div className="text-destructive font-bold text-lg">collection not found</div>
                 <div className="text-muted-foreground text-sm max-w-md">
-                    attempting to locate collection in system... (v2 rescue)
+                    the requested collection could not be loaded. please check the name or return to the databases page.
                 </div>
-                {fetchError && (
-                    <div className="mt-4 p-4 bg-destructive/10 text-destructive rounded-md text-xs font-mono text-left max-w-sm overflow-auto">
-                        <strong>debug info:</strong><br />
-                        error: {fetchError}<br />
-                        id: {params.name}<br />
-                        decoded: {collectionName}<br />
-                        auth: {isAuthenticated ? 'yes' : 'no'}<br />
-                        available: {availableCollections.length}
-                        <div className="mt-1 opacity-50 max-h-20 overflow-y-auto">
-                            [{availableCollections.map((c: TableDefinition) => c.name).join(', ')}]
-                        </div>
-                    </div>
-                )}
                 <Button variant="outline" onClick={() => navigate('/databases')}>
                     return to databases
                 </Button>
