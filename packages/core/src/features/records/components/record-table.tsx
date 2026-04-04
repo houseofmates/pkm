@@ -909,7 +909,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         return availableFields.map((f: any) => {
                           const fieldName = f.name || f;
                           const isHidden = hiddenColumns.includes(fieldName);
-                          const displayTitle = parseI18nTemplate(f.uiSchema?.title) || fieldName;
+                          const displayTitle = parseI18nTemplate(f.uiSchema?.title) || humanizeFieldName(fieldName);
                           return (
                             <div key={fieldName} className="flex items-center space-x-2">
                               <Checkbox
