@@ -207,13 +207,33 @@ class DataService {
 
       secureLogger.info(`Fetched ${freshCollections.length} collections from NocoBase.`);
 
+      // Filter out system collections and i18n template entries
+      const SYSTEM_NAMES = new Set([
+        'server-stats', 'pkm_backend', 'pkm_canvases', 'pkm_settings',
+        'form-submissions', 'public_blocks', 'public_pages', 'site-pages',
+        'website', 'front_history', 'sidebar_item_colors',
+        'dupemates-stats', 'dupemates-pages', 'dupe-forms', 'llms',
+        'roles', 'users',
+      ]);
+      const userCollections = freshCollections.filter((c: any) => {
+        const name = (c.name || '').toLowerCase();
+        if (SYSTEM_NAMES.has(name)) return false;
+        const title = (c.title || '').toLowerCase();
+        if (title.startsWith('{{t(') || title.startsWith('{{ t(')) return false;
+        return true;
+      });
+
       // Merge with hardcoded collections that may be missing from API response
-      const existingNames = new Set(freshCollections.map((c: any) => (c.name || '').toLowerCase()));
+      const existingNames = new Set(userCollections.map((c: any) => (c.name || '').toLowerCase()));
       const missingHardcoded = HARDCODED_COLLECTIONS
         .filter(name => !existingNames.has(name.toLowerCase()))
         .map(name => ({ name, title: name, fields: [] }));
       
-      const mergedCollections = [...freshCollections, ...missingHardcoded];
+      // Deduplicate: if API returned a collection with a slightly different name (e.g. hygiene-log vs hygiene_log), skip the hardcoded one
+      const normalizedNames = new Set(userCollections.map((c: any) => (c.name || '').toLowerCase().replace(/[-_]/g, '')));
+      const dedupedHardcoded = missingHardcoded.filter(hc => !normalizedNames.has(hc.name.toLowerCase().replace(/[-_]/g, '')));
+      
+      const mergedCollections = [...userCollections, ...dedupedHardcoded];
 
       // 3. Update the local cache with merged data
       await localDbService.saveCollections(mergedCollections);
