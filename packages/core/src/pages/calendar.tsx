@@ -253,8 +253,43 @@ export function CalendarPage() {
 
   const loading = colLoading || (recLoading && !records.length); // don't show loading overlay if we already have records
 
+  // If the API doesn't return the events collection, create a fallback so the calendar still renders
+  const fallbackCollection = !collection ? {
+    name: 'events',
+    title: 'events',
+    fields: [
+      { name: 'title', type: 'string', interface: 'input' },
+      { name: 'start_time', type: 'datetime', interface: 'datetime' },
+      { name: 'end_time', type: 'datetime', interface: 'datetime' },
+      { name: 'location', type: 'string', interface: 'input' },
+      { name: 'notes', type: 'text', interface: 'textarea' },
+      { name: 'url', type: 'string', interface: 'input' },
+      { name: 'uid', type: 'string', interface: 'input' },
+    ],
+  } : null;
+
+  const effectiveCollection = collection || fallbackCollection;
+
+  if (loading && !effectiveCollection) {
+    return (
+      <div className="flex items-center justify-center h-full text-primary">
+        <Loader2 className="animate-spin mr-2" />
+        <span>loading calendar...</span>
+      </div>
+    );
+  }
+
+  if (error && !effectiveCollection) {
+    return (
+      <div className="p-8 text-red-500">
+        <h2 className="text-xl font-bold mb-2">signal loss</h2>
+        <p>{error}</p>
+      </div>
+    );
+  }
+
   // Infer view config securely so we don't end up with field mismatch
-  const collectionFields = Array.isArray(collection?.fields) ? collection.fields : [];
+  const collectionFields = Array.isArray(effectiveCollection?.fields) ? effectiveCollection.fields : [];
   const fieldNames = collectionFields.map((f: any) => f.name);
 
   // Fallback to checking keys on the first record if fieldNames is empty or missing expected fields
@@ -281,33 +316,6 @@ export function CalendarPage() {
     return { ...r, __originalId: r.id, id: uniqueId };
   });
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full text-primary">
-        <Loader2 className="animate-spin mr-2" />
-        <span>loading calendar...</span>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="p-8 text-red-500">
-        <h2 className="text-xl font-bold mb-2">signal loss</h2>
-        <p>{error}</p>
-      </div>
-    );
-  }
-
-  if (!collection) {
-    return (
-      <div className="p-8 flex flex-col items-center justify-center h-full text-center">
-        <h2 className="text-xl font-bold mb-2 lowercase text-primary">collection not found</h2>
-        <p className="text-muted-foreground lowercase">collection 'events' not found. please create it in nocobase with a 'title' string, and 'start_time' datetime.</p>
-      </div>
-    );
-  }
-
   return (
     <div className="h-full flex flex-col p-4 overflow-hidden bg-background">
       <div className="flex flex-col gap-2 mb-3">
@@ -323,7 +331,7 @@ export function CalendarPage() {
       <div className="flex-1 overflow-hidden">
         <CalendarView
           data={mappedRecords}
-          collection={collection}
+          collection={effectiveCollection}
           config={finalViewConfig}
           onUpdateRecord={(id, updates) => { updateRecord(id, updates); }}
           onDelete={(recordOrId) => {
