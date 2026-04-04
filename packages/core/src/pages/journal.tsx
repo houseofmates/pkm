@@ -3668,10 +3668,8 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
             )}
 
             {/* editor */}
-            <div className="flex gap-2 mb-1 text-xs" />
-            <div className="flex flex-col lg:flex-row gap-2">
+            <Suspense fallback={<div className="w-full lg:flex-1 h-32 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/30 text-xs lowercase">loading editor...</div>}>
               <ReactQuill
-                ref={quillRef}
                 theme="snow"
                 modules={JOURNAL_QUILL_MODULES}
                 formats={JOURNAL_QUILL_FORMATS}
@@ -3679,7 +3677,7 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
                 onChange={(value: string) => setBody(normalizeJournalBody(value))}
                 className="journal-editor w-full lg:flex-1 h-32"
               />
-            </div>
+            </Suspense>
 
             {/* prediction suggestions */}
             {(predictedMood || predictedSentiment || predictedActivities.length > 0) && (
