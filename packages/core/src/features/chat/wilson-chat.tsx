@@ -11,16 +11,17 @@ const RAW_MODEL_NAME = 'qwen2.5-coder:7b-instruct-q4_K_S';
 
 function friendlyModelName(raw: string): string {
   const map: Record<string, string> = {
-    'qwen2.5-coder:7b-instruct-q4_K_S': 'Qwen 2.5 Coder 7B',
+    'qwen2.5-coder:7b-instruct-q4_K_S': 'Wilson',
+    'qwen2.5-coder:7b': 'Wilson',
+    'qwen 2.5 coder 7b': 'Wilson',
   };
-  if (map[raw]) return map[raw];
-  return raw
-    .split(':')[0]
-    .replace(/[^a-zA-Z0-9]/g, ' ')
-    .split(' ')
-    .filter(Boolean)
-    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-    .join(' ');
+  const normalized = raw.toLowerCase().trim().replace(/[-_:]/g, ' ').replace(/\s+/g, ' ');
+  for (const [pattern, name] of Object.entries(map)) {
+    if (normalized.includes(pattern.toLowerCase().replace(/[-_:]/g, ' '))) return name;
+  }
+  return raw;
+}
+  return raw;
 }
 
 function compactTimestamp(ts: number | undefined): string {
