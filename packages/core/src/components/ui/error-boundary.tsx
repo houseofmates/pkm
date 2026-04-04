@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
+import { secureLogger } from '@/lib/secure-logger';
 import { AlertTriangle, Home, RefreshCw } from 'lucide-react';
 
 interface ErrorBoundaryProps {
@@ -30,8 +31,8 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
     // Log to console for debugging, but DON'T display to user
-    console.error('[ErrorBoundary] Caught error:', error);
-    console.error('[ErrorBoundary] Component stack:', info.componentStack);
+    secureLogger.error('[ErrorBoundary] Caught error:', error);
+    secureLogger.error('[ErrorBoundary] Component stack:', info.componentStack);
   }
 
   handleReturnHome = () => {

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react'
 import api from '@/api/nocobase-client'
+import { secureLogger } from '@/lib/secure-logger'
 
 export interface MuscleGroup {
   id: string
@@ -65,7 +66,7 @@ export function useExerciseTracker() {
           }
         }
       } catch (e) {
-        console.error('failed to load exercise data', e)
+        secureLogger.error('failed to load exercise data', e)
       }
     }
     
@@ -106,7 +107,7 @@ export function useExerciseTracker() {
       }
     } catch (e) {
       // localStorage fallback already done
-      console.warn('failed to save exercise to server', e)
+      secureLogger.warn('failed to save exercise to server', e)
     }
     
     return newGroups.filter(mg => mg.completed).length

@@ -7,6 +7,7 @@ import { HygieneLifeTracker } from '@/components/HygieneLifeTracker';
 import { DailyQuestRows } from '@/components/DailyQuestRows';
 import { PetStatusDisplay } from '@/components/PetStatusDisplay';
 import { cn } from '@/lib/utils';
+import { secureLogger } from '@/lib/secure-logger';
 import { Calendar, BookOpen, ChevronRight, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -56,7 +57,7 @@ function MonthlyCoverageMap({ className }: { className?: string }) {
         const moodMap: Record<string, string> = {};
         res?.data?.forEach((entry: any) => { if (entry.date && entry.mood) moodMap[entry.date] = entry.mood; });
         setMoodData(moodMap);
-      } catch (e) { console.error('Failed to load mood data', e); }
+      } catch (e) { secureLogger.error('Failed to load mood data', e); }
       finally { setLoading(false); }
     };
     loadData();
@@ -113,7 +114,7 @@ function JournalStatusCard({ className }: { className?: string }) {
         const today = new Date().toISOString().split('T')[0];
         const res: any = await api.listRecords('journal', { filter: { date: today }, pageSize: 1 });
         if (res?.data?.[0]) setTodayEntry(res.data[0]);
-      } catch (e) { console.error('Failed to load journal', e); }
+      } catch (e) { secureLogger.error('Failed to load journal', e); }
     };
     loadEntry();
   }, []);
@@ -216,7 +217,7 @@ export function TodayPage() {
         });
         const uniqueDays = new Set(res?.data?.map((e: any) => e.date)).size;
         setSevenDayCoverage(Math.round((uniqueDays / 7) * 100));
-      } catch (e) { console.error('Failed to calculate coverage', e); }
+      } catch (e) { secureLogger.error('Failed to calculate coverage', e); }
     };
     calculateCoverage();
   }, [setSevenDayCoverage]);

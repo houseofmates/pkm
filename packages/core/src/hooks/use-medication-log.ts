@@ -231,7 +231,7 @@ export function useMedicationLog() {
             // allow plugin to handle notifications and avoid duplicate local timers
             return;
           } catch (err) {
-            console.warn('failed to schedule capacitor local reminder', err);
+            secureLogger.warn('failed to schedule capacitor local reminder', err);
           }
         }
 

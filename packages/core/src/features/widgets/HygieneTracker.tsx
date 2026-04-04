@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Droplets, Check, Clock, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { secureLogger } from '@/lib/secure-logger';
 import { toast } from 'sonner';
 import { useRecords } from '@/hooks/use-records';
 
@@ -156,7 +157,7 @@ export function HygieneTracker({ data, onUpdate }: HygieneTrackerProps) {
       setRating(3);
       setCustomFieldValues({});
     } catch (e) {
-      console.error('Hygiene log failed to save:', e);
+      secureLogger.error('Hygiene log failed to save:', e);
       toast.error('Failed to save hygiene log');
     } finally {
       setIsLogging(false);

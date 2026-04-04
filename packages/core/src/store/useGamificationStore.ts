@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { useCallback } from 'react'
 import { toast } from 'sonner'
 import api from '@/api/nocobase-client'
+import { secureLogger } from '@/lib/secure-logger'
 
 export interface QuestRow {
   id: string
@@ -414,7 +415,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
         await api.createRecord('gamification_state', stateData)
       }
     } catch (e) {
-      console.error('failed to save gamification state', e)
+      secureLogger.error('failed to save gamification state', e)
       // save to localStorage as fallback
       localStorage.setItem('pkm:gamification:today', JSON.stringify({
         date: today,
@@ -508,7 +509,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
       
       set(updates)
     } catch (e) {
-      console.error('failed to load gamification state', e)
+      secureLogger.error('failed to load gamification state', e)
       // try localStorage fallback
       const localProfile = localStorage.getItem('pkm:gamification:profile')
       if (localProfile) {

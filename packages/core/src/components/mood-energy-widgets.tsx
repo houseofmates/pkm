@@ -3,6 +3,7 @@ import { Battery, Heart, Zap, TrendingUp } from 'lucide-react';
 import { toast } from 'sonner';
 import api from '@/api/nocobase-client';
 import { cn } from '@/lib/utils';
+import { secureLogger } from '@/lib/secure-logger';
 
 const MOODS = [
   { id: 1, emoji: '😢', label: 'terrible', color: '#ef4444' },
@@ -36,7 +37,7 @@ export function MoodLogger({ onLogged }: { onLogged?: () => void }) {
       setNotes('');
       onLogged?.();
     } catch (err) {
-      console.error('failed to log mood', err);
+      secureLogger.error('failed to log mood', err);
       toast.error('failed to log mood');
     } finally {
       setLogging(false);
@@ -118,7 +119,7 @@ export function EnergyBattery({ onLogged }: { onLogged?: () => void }) {
       setNotes('');
       onLogged?.();
     } catch (err) {
-      console.error('failed to log energy', err);
+      secureLogger.error('failed to log energy', err);
       toast.error('failed to log energy');
     } finally {
       setLogging(false);
@@ -283,7 +284,7 @@ export function EnergyCorrelations() {
 
       setCorrelations(results);
     } catch (err) {
-      console.error('failed to load correlations', err);
+      secureLogger.error('failed to load correlations', err);
     } finally {
       setLoading(false);
     }
