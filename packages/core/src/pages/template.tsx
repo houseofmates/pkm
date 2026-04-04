@@ -56,6 +56,12 @@ export function TemplatePage() {
   // fullscreen preview dialog state
   const [fullscreenOpen, setFullscreenOpen] = useState(false);
 
+  // onboarding panel state
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
+
+  // onboarding panel state
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
+
   // persist helper: write columns back into the json and push history for undo
   const persistColumns = (cols: any[][]) => {
     try {
