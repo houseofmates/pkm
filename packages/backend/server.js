@@ -140,6 +140,57 @@ app.use(cors({
 }));
 
 app.use(express.json());
+
+// Rate limiting middleware --------------------------------------------------
+const rateLimitStore = new Map();
+const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000', 10);
+const RATE_LIMIT_MAX_REQUESTS = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100', 10);
+const RATE_LIMIT_AI_MAX = parseInt(process.env.RATE_LIMIT_AI_MAX || '20', 10);
+
+function cleanupRateLimitStore() {
+    const now = Date.now();
+    for (const [key, value] of rateLimitStore.entries()) {
+        if (now - value.startTime > RATE_LIMIT_WINDOW_MS) {
+            rateLimitStore.delete(key);
+        }
+    }
+}
+setInterval(cleanupRateLimitStore, RATE_LIMIT_WINDOW_MS);
+
+function rateLimit(maxRequests = RATE_LIMIT_MAX_REQUESTS) {
+    return (req, res, next) => {
+        const clientIp = req.ip || req.connection.remoteAddress || 'unknown';
+        const key = `${clientIp}:${req.path}`;
+        const now = Date.now();
+
+        if (!rateLimitStore.has(key)) {
+            rateLimitStore.set(key, { count: 1, startTime: now });
+            return next();
+        }
+
+        const record = rateLimitStore.get(key);
+        if (now - record.startTime > RATE_LIMIT_WINDOW_MS) {
+            rateLimitStore.set(key, { count: 1, startTime: now });
+            return next();
+        }
+
+        record.count++;
+        if (record.count > maxRequests) {
+            const retryAfter = Math.ceil((record.startTime + RATE_LIMIT_WINDOW_MS - now) / 1000);
+            res.set('Retry-After', String(retryAfter));
+            return res.status(429).json({ error: 'Too many requests', retryAfter });
+        }
+
+        next();
+    };
+}
+
+const rateLimitGeneral = rateLimit(RATE_LIMIT_MAX_REQUESTS);
+const rateLimitAi = rateLimit(RATE_LIMIT_AI_MAX);
+
+app.use('/api/ai/', rateLimitAi);
+app.use(rateLimitGeneral);
+
 // Serve static files for the breathing page
 app.use('/breathe', express.static(path.join(process.cwd(), 'public/breathe')));
 

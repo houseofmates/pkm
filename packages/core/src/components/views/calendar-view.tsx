@@ -100,11 +100,11 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
     data.forEach(record => {
       const rawDate = (dateField && record[dateField]) || record['start-time'] || record['start_time'] || record['date'];
       if (!rawDate) return;
-      // if the helper isn't available, just use the raw date
-      const zonedDate = typeof toZonedTime === 'function'
-        ? toZonedTime(new Date(rawDate), timeZone)
-        : new Date(rawDate);
-      const dateStr = format(zonedDate, 'yyyy-MM-dd');
+      
+      // Validate the date before formatting
+      const dateStr = safeDateFormat(rawDate, 'yyyy-MM-dd', timeZone);
+      if (!dateStr) return; // Skip invalid dates silently
+      
       if (!map[dateStr]) map[dateStr] = [];
       map[dateStr].push(record);
     });
