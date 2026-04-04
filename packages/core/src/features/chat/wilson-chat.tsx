@@ -469,7 +469,7 @@ export function WilsonChat() {
             <div className="text-primary opacity-50 text-center mt-10 lowercase">
               <p>systems online.</p>
               <p>waiting for input...</p>
-              <p className="mt-4 text-xs">supports images, gifs, and videos with {friendlyModelName(RAW_MODEL_NAME)}</p>
+              <p className="mt-4 text-xs" title={RAW_MODEL_NAME}>supports images, gifs, and videos with {friendlyModelName(RAW_MODEL_NAME)}</p>
               <p className="mt-2 text-xs text-primary/30" title={RAW_MODEL_NAME}>routing to: {friendlyModelName(RAW_MODEL_NAME)}</p>
             </div>
           )}
