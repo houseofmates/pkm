@@ -38,7 +38,10 @@ const WorkspacePage = lazy(() => import("@/pages/workspace").then(m => ({ defaul
 const NotionImportPage = lazy(() => import("@/pages/notion-import").then(m => ({ default: m.default })));
 const SettingsPage = lazy(() => import("@/pages/settings").then(m => ({ default: m.default })));
 const PublicDocViewer = lazy(() => import("@/components/journal/public-doc-viewer").then(m => ({ default: m.PublicDocViewer })));
-const RechartsModule = lazy(() => import('@/components/journal/recharts-wrapper').then(m => ({ default: m.default })));
+// RechartsModule uses named exports - import the module directly for lazy loading
+const RechartsModule = lazy(() => import('@/components/journal/recharts-wrapper').then(m => ({ 
+  default: () => null // placeholder, actual usage destructures from m directly
+})));
 const RagTestPage = lazy(() => import("@/pages/rag-test").then(m => ({ default: m.default })));
 const JournalPage = lazy(() => import("@/pages/journal").then(m => ({ default: m.default })));
 const CalendarPage = lazy(() => import("@/pages/calendar").then(m => ({ default: m.CalendarPage })));

@@ -13,7 +13,7 @@ import { ShowerLoggerModal } from '@/components/shower-logger-modal';
 
 // Lazy-load heavy dependencies to reduce initial bundle size
 const ReactQuill = lazy(() => import('react-quill-new').then(m => ({ default: m.default })));
-const RechartsModule = lazy(() => import('@/components/journal/recharts-wrapper').then(m => ({ default: m.default })));
+const RechartsModule = lazy(() => import('@/components/journal/recharts-wrapper'));
 
 // override focus/accent for journal buttons so color comes from the element itself
 const journalStyles = `
@@ -1444,7 +1444,7 @@ function StatsChartsContent({
                   outerRadius={60}
                   dataKey="value"
                   nameKey="name"
-                  label={({ name }: { name?: string }) => (name ?? '').length > 8 ? (name ?? '').slice(0, 8) + '...' : name ?? ''}
+                  label={({ name }) => (name ?? '').length > 8 ? (name ?? '').slice(0, 8) + '...' : name ?? ''}
                   labelLine={false}
                 >
                   {activityBreakdown.map((_, i) => (
@@ -1474,7 +1474,7 @@ function StatsChartsContent({
                   outerRadius={60}
                   dataKey="value"
                   nameKey="name"
-                  label={({ percent }: { percent?: number }) => `${((percent ?? 0) * 100).toFixed(0)}%`}
+                  label={({ percent }) => `${((percent ?? 0) * 100).toFixed(0)}%`}
                 >
                   {moodDistribution.map((entry, i) => {
                     const moodColor = MOODS.find(m => m.label === entry.name)?.color || MOOD_COLORS[i % MOOD_COLORS.length];
@@ -2972,7 +2972,7 @@ summary:`;
     return <img src={m.emoji} alt={m.label} className="w-8 h-8 object-contain" />;
   }
 
-  const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
+const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
     const active = (isQuick ? quickMood : mood) === m.id;
     const size = isQuick ? 'w-12 h-12' : 'w-16 h-16';
     return (
@@ -3670,17 +3670,15 @@ summary:`;
             {/* editor */}
             <div className="flex gap-2 mb-1 text-xs" />
             <div className="flex flex-col lg:flex-row gap-2">
-              <Suspense fallback={<div className="w-full lg:flex-1 h-32 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white/30 text-xs lowercase">loading editor...</div>}>
-                <ReactQuill
-                  ref={quillRef}
-                  theme="snow"
-                  modules={JOURNAL_QUILL_MODULES}
-                  formats={JOURNAL_QUILL_FORMATS}
-                  value={body}
-                  onChange={(value: string) => setBody(normalizeJournalBody(value))}
-                  className="journal-editor w-full lg:flex-1 h-32"
-                />
-              </Suspense>
+              <ReactQuill
+                ref={quillRef}
+                theme="snow"
+                modules={JOURNAL_QUILL_MODULES}
+                formats={JOURNAL_QUILL_FORMATS}
+                value={body}
+                onChange={(value: string) => setBody(normalizeJournalBody(value))}
+                className="journal-editor w-full lg:flex-1 h-32"
+              />
             </div>
 
             {/* prediction suggestions */}
@@ -3769,4 +3767,4 @@ summary:`;
   );
 }
 
-export default JournalPage;
+export { JournalPage };
