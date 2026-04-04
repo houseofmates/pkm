@@ -11,7 +11,7 @@ export type { Collection };
 export const HARDCODED_COLLECTIONS = [
   'activities', 'activity_logs', 'bookmarks', 'captures', 'drawings',
   'events', 'exercise', 'finances', 'habits', 'headmates',
-  'hygiene_log', 'journal', 'media', 'products', 'sleep'
+  'hygiene-log', 'journal', 'media', 'products', 'sleep'
 ];
 
 const SYSTEM_COLLECTIONS_SET = new Set([
