@@ -59,6 +59,7 @@
     color: hsl(var(--foreground));
     font-feature-settings: "rlig" 1, "calt" 1;
     font-family: 'varela round', sans-serif !important;
+    color-scheme: dark;
   }
 }
 
@@ -149,6 +150,8 @@ svg,
 *:focus-visible {
   outline-color: var(--primary) !important;
   --tw-ring-color: var(--primary) !important;
+  outline-width: 2px;
+  outline-offset: 2px;
 }
 
 /* suppress any focus ring/outline inside table cells (inline editors are clipped by overflow)
@@ -233,6 +236,22 @@ table td *:focus-visible {
   transform: scale(0.98) translatey(0px);
   filter: brightness(0.9);
   transition: transform 0.05s linear !important;
+}
+
+::selection {
+  background: hsl(var(--primary) / 0.35);
+  color: hsl(var(--foreground));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* specific fix for buttons in components */
