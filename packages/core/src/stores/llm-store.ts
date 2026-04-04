@@ -486,7 +486,8 @@ important rules:
         const assistantMsg: ChatMessage = {
           id: Date.now() + 1,
           role: 'assistant' as const,
-          content: finalContent
+          content: finalContent,
+          createdAt: Date.now()
         };
         const newHistory = [...state.interactionHistory, assistantMsg];
         // save to session if we have one
