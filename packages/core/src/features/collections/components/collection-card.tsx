@@ -106,6 +106,12 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
           >
             {collection.title || collection.name}
           </CardTitle>
+          <p className="text-xs text-muted-foreground lowercase relative z-10">
+            {fieldCount} fields{recordCount !== undefined ? ` · ${recordCount} records` : ''}
+          </p>
+          <p className="text-xs text-muted-foreground lowercase relative z-10">
+            {fieldCount} fields{recordCount !== undefined ? ` · ${recordCount} records` : ''}
+          </p>
 
           {/* preview area - only render if we have something to show */}
           {showBottom && (
