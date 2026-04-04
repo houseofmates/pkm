@@ -200,7 +200,7 @@ export const WIDGET_REGISTRY: Record<string, WidgetDefinition> = {
     id: 'continuity_map',
     label: 'activity density',
     icon: GitGraph,
-    description: 'visual history of activity over 6 months',
+    description: 'heatmap of daily activity across all databases',
     defaultData: { collectionName: 'activity_logs', months: 6 },
     defaultWidth: 600,
     defaultHeight: 180,
