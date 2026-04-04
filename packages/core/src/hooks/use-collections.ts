@@ -111,15 +111,21 @@ export function useCollections() {
         return true;
       });
 
-      // Merge with cached collections that may be missing from API response
+      // Merge with hardcoded collections that may be missing from API response
       const existingNames = new Set(filtered.map((c: Collection) => c.name.toLowerCase()));
       const cachedCollections = discoverCollectionsFromCache();
       
-      const missingCollections = cachedCollections
-        .filter(hc => !existingNames.has(hc.name.toLowerCase()))
+      // First add hardcoded collections that are missing from API
+      const hardcodedMissing = HARDCODED_COLLECTIONS
+        .filter(name => !existingNames.has(name.toLowerCase()))
+        .map(name => ({ name, title: name, fields: [] } as Collection));
+
+      // Then add any additional collections discovered from cache
+      const cacheMissing = cachedCollections
+        .filter(hc => !existingNames.has(hc.name.toLowerCase()) && !HARDCODED_COLLECTIONS.includes(hc.name.toLowerCase()))
         .map(hc => ({ ...hc, fields: [] } as Collection));
 
-      return [...filtered, ...missingCollections];
+      return [...filtered, ...hardcodedMissing, ...cacheMissing];
     }
   });
 
