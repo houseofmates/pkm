@@ -302,6 +302,7 @@ function AppContent() {
                 <Route path="/" element={<ErrorBoundary><HomePage /></ErrorBoundary>} />
                 <Route path="/today" element={<ErrorBoundary><TodayPage /></ErrorBoundary>} />
                 <Route path="/databases" element={<ErrorBoundary><DatabasesPage /></ErrorBoundary>} />
+                <Route path="/databases/hygeine-log" element={<Navigate to="/databases/hygiene-log" replace />} />
                 <Route path="/databases/:name" element={<ErrorBoundary><CollectionDetailPage /></ErrorBoundary>} />
                 <Route path="/headmates" element={<ErrorBoundary><HeadmatesPage /></ErrorBoundary>} />
                 <Route path="/board" element={<ErrorBoundary><MoodboardPage /></ErrorBoundary>} />
