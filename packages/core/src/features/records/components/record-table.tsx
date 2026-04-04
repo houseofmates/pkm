@@ -1291,6 +1291,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                           leftColWidth,
                           onRowReorder: handleRowReorder,
                           isManualOrderActive,
+                          onOpenDetail: handleOpenDetail,
                         }}
                         style={{
                           height,
