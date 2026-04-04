@@ -48,11 +48,6 @@ export const TableManager: React.FC = () => {
     'pkm_backend', 'pkm canvases', 'public blocks', 'roles', 'users'
   ];
 
-  const SYSTEM_COLLECTION_BLOCKLIST = [
-    'server-stats', 'website pages', 'front history', 'form submissions',
-    'pkm_backend', 'pkm canvases', 'public blocks', 'roles', 'users'
-  ];
-
   const parseI18nTemplate = (str: string): string => {
     const match = str.match(/^\{\{\s*t\(['"](.+)['"]\)\s*\}\}$/);
     if (match) {
@@ -60,11 +55,6 @@ export const TableManager: React.FC = () => {
     }
     return str.replace(/\b\w/g, (c) => c.toUpperCase());
   };
-
-  const visibleCollections = collections
-    .filter((c) => !SYSTEM_COLLECTION_BLOCKLIST.includes((c.title || c.name).toLowerCase()))
-    .filter((c, i, arr) => arr.findIndex((x) => x.name === c.name) === i)
-    .sort((a, b) => (a.title || a.name).localeCompare(b.title || b.name));
 
   const visibleCollections = collections
     .filter((c) => !SYSTEM_COLLECTION_BLOCKLIST.includes((c.title || c.name).toLowerCase()))
