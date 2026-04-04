@@ -1425,6 +1425,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           >
             <Plus className="h-4 w-4" />
             <span className="text-xs text-muted-foreground lowercase">new record</span>
+            <span className="text-[10px] text-muted-foreground/40 ml-auto">(⌘N)</span>
           </Button>
         </div>
       )}
