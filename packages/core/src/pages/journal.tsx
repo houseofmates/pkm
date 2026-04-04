@@ -2942,7 +2942,7 @@ summary:`;
       <div className="flex items-center justify-between pl-2">
         <div>
           <p className="text-xs text-white/40 lowercase">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
-          <h1 className="text-2xl font-bold lowercase tracking-tight">journal</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Journal</h1>
         </div>
         <div className="flex items-center gap-1 flex-wrap justify-end">
           {streak > 0 && (
