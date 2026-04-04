@@ -15,7 +15,7 @@ import { ShowerLoggerModal } from '@/components/shower-logger-modal';
 const ReactQuill = lazy(async () => {
   const m = await import('react-quill-new');
   return { default: m.default };
-});
+}) as unknown as React.ComponentType<any>;
 const RechartsModule = lazy(() => import('@/components/journal/recharts-wrapper'));
 
 // override focus/accent for journal buttons so color comes from the element itself
@@ -3766,5 +3766,3 @@ const renderMoodButton = (m: typeof MOODS[0], isQuick = false) => {
     </div>
   );
 }
-
-export { JournalPage };
