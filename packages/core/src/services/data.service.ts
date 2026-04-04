@@ -30,7 +30,7 @@ class DataService {
    * Listens for data_update events from server and refreshes local stores.
    */
   private initializeSocket(): void {
-    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4100';
+    const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://db.houseofmates.space';
     
     try {
       this.socket = io(backendUrl, {
