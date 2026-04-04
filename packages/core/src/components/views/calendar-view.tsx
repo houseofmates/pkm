@@ -482,12 +482,12 @@ function WeekView({ currentDate, recordsByDate, collection, onUpdateRecord, onDe
   );
 }
 function DayView({ currentDate, recordsByDate, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange, timeZone, allDayField, recurringField, onCreate }: any) {
-  const headerDate = toZonedTime(currentDate, timeZone);
-  const dateKey = format(headerDate, 'yyyy-MM-dd');
+  const headerDate = safeZonedDate(currentDate, timeZone) ?? new Date(currentDate);
+  const dateKey = safeDateFormat(headerDate, 'yyyy-MM-dd') ?? '';
   
   const tomorrow = new Date(currentDate);
   tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowKey = format(toZonedTime(tomorrow, timeZone), 'yyyy-MM-dd');
+  const tomorrowKey = safeDateFormat(tomorrow, 'yyyy-MM-dd', timeZone) ?? '';
 
   const todayRecords = recordsByDate[dateKey] || [];
   const tomorrowRecords = recordsByDate[tomorrowKey] || [];
@@ -505,7 +505,8 @@ function DayView({ currentDate, recordsByDate, collection, onUpdateRecord, onDel
   const getPosition = (rec: any, isTomorrow: boolean) => {
     const startStr = rec[dateFieldStr] || rec['start-time'] || rec['start_time'];
     if (!startStr) return null;
-    const start = typeof toZonedTime === 'function' ? toZonedTime(new Date(startStr), timeZone) : new Date(startStr);
+    const start = safeZonedDate(startStr, timeZone) ?? new Date(startStr);
+    if (isNaN(start.getTime())) return null;
     
     let hour = start.getHours();
     if (isTomorrow) hour += 24;
@@ -517,13 +518,15 @@ function DayView({ currentDate, recordsByDate, collection, onUpdateRecord, onDel
     let end = undefined;
     let durationHours = 1;
     if (endStr) {
-        end = typeof toZonedTime === 'function' ? toZonedTime(new Date(endStr), timeZone) : new Date(endStr);
-        let endH = end.getHours();
-        if (isTomorrow) endH += 24;
-        else if (end.getDate() !== start.getDate()) endH += 24;
-        
-        durationHours = (endH + end.getMinutes() / 60) - (hour + min / 60);
-        if (durationHours <= 0) durationHours = 1;
+        end = safeZonedDate(endStr, timeZone) ?? new Date(endStr);
+        if (!isNaN(end.getTime())) {
+            let endH = end.getHours();
+            if (isTomorrow) endH += 24;
+            else if (end.getDate() !== start.getDate()) endH += 24;
+            
+            durationHours = (endH + end.getMinutes() / 60) - (hour + min / 60);
+            if (durationHours <= 0) durationHours = 1;
+        }
     }
     
     const height = durationHours * rowHeight;
@@ -549,10 +552,12 @@ function DayView({ currentDate, recordsByDate, collection, onUpdateRecord, onDel
     displayRecords[i].overlapIndex = overlapCount;
   }
 
+  const headerTitle = safeDateFormat(headerDate, 'PPPP');
+
   return (
     <ScrollArea className="h-full w-full bg-card">
       <div className="p-4 relative">
-        <h3 className="text-xl font-bold mb-4 sticky top-0 bg-card z-20 pb-2 border-b">{format(headerDate, 'PPPP').toLowerCase()}</h3>
+        <h3 className="text-xl font-bold mb-4 sticky top-0 bg-card z-20 pb-2 border-b">{headerTitle ? headerTitle.toLowerCase() : '--'}</h3>
         
         <div className="relative mt-4 ml-12" style={{ height: hours.length * rowHeight }}>
           {hours.map(h => {
@@ -562,7 +567,7 @@ function DayView({ currentDate, recordsByDate, collection, onUpdateRecord, onDel
             
             const rowDate = new Date(headerDate);
             rowDate.setHours(h, 0, 0, 0);
-            const rowId = format(rowDate, "yyyy-MM-dd'T'HH:00:00");
+            const rowId = safeDateFormat(rowDate, "yyyy-MM-dd'T'HH:00:00") ?? `row-${h}`;
 
             return (
               <DroppableDateCell 
