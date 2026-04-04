@@ -742,7 +742,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         .filter(key => !hiddenColumns.includes(key))
         .map((key) =>
           columnHelper.accessor(key, {
-            header: key,
+            header: humanizeFieldName(key),
             meta: { field: { name: key, type: 'string', uiSchema: { title: key } } },
             cell: info => {
               const color = getValueColor(valueColorRules, key, info.getValue());
