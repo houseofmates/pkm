@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom/vitest';
 import { render, fireEvent } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { RecordTable } from '../record-table';
 import { vi } from 'vitest';
 
@@ -28,14 +29,16 @@ const fields = Array.from({ length: 20 }, (_, i) => ({ name: `col${i + 1}`, inte
 describe('RecordTable horizontal scroll sync', () => {
   it('uses a single scrollbar and keeps header and body in sync', () => {
     const { getByTestId } = render(
-      <div style={{ width: 200, height: 200 }}>
-        <RecordTable
-          data={makeData()}
-          collection={{ name: 'foo', fields }}
-          onUpdateRecord={() => {}}
-          onDelete={() => {}}
-        />
-      </div>
+      <MemoryRouter>
+        <div style={{ width: 200, height: 200 }}>
+          <RecordTable
+            data={makeData()}
+            collection={{ name: 'foo', fields }}
+            onUpdateRecord={() => {}}
+            onDelete={() => {}}
+          />
+        </div>
+      </MemoryRouter>
     );
 
     const header = getByTestId('table-header-container');

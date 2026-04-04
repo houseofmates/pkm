@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react';
 
 export default function SettingsPage() {
     const [apiKey, setApiKey] = useAppSetting('apiKey', '');
-    const [darkMode, setDarkMode] = useAppSetting('darkMode', true);
+    const [darkMode, setDarkMode] = useAppSetting('darkMode', false);
     const [pageSize, setPageSize] = useAppSetting('defaultPageSize', 20);
     const [showApiKey, setShowApiKey] = useState(false);
 
