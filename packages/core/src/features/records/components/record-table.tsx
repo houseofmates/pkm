@@ -581,6 +581,20 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   const [bulkFieldName, setBulkFieldName] = React.useState<string | null>(null);
   const [bulkValue, setBulkValue] = React.useState<any>(null);
 
+  // record detail drawer state
+  const [detailDrawerOpen, setDetailDrawerOpen] = React.useState(false);
+  const [selectedRecord, setSelectedRecord] = React.useState<any>(null);
+
+  const handleOpenDetail = (record: any) => {
+    setSelectedRecord(record);
+    setDetailDrawerOpen(true);
+  };
+
+  const handleCloseDetail = () => {
+    setDetailDrawerOpen(false);
+    setSelectedRecord(null);
+  };
+
   const columnSizing = metadata[collection?.name]?.columnWidths ?? EMPTY_SIZING;
   const columnOrder = metadata[collection?.name]?.columnOrder ?? EMPTY_ORDER;
 
