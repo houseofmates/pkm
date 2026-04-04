@@ -687,6 +687,27 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   const dataColumnsKey = data.length > 0 ? Object.keys(data[0]).sort().join('\0') : '';
   const hasActions = !!(onEdit || onDelete);
 
+  // deterministic column sort: title/name first, temporal fields grouped, id last, rest alphabetical
+  const EVENT_COLUMN_ORDER = ['title', 'start_time', 'end_time', 'location', 'notes', 'fronter', 'url', 'uid', 'id'];
+
+  const sortColumns = (cols: any[]) => {
+    return [...cols].sort((a, b) => {
+      const aName = (a.accessorKey || a.id || '').toLowerCase();
+      const bName = (b.accessorKey || b.id || '').toLowerCase();
+      const aIdx = EVENT_COLUMN_ORDER.indexOf(aName);
+      const bIdx = EVENT_COLUMN_ORDER.indexOf(bName);
+
+      // both in priority list: sort by priority
+      if (aIdx !== -1 && bIdx !== -1) return aIdx - bIdx;
+      // only a in list: a first
+      if (aIdx !== -1) return -1;
+      // only b in list: b first
+      if (bIdx !== -1) return 1;
+      // neither in list: alphabetical
+      return aName.localeCompare(bName);
+    });
+  };
+
   const columns = React.useMemo(() => {
     let cols: any[] = [];
 
@@ -717,6 +738,14 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           );
         }
       }));
+
+      // apply deterministic column sorting
+      cols = sortColumns(cols);
+    }
+      }));
+
+      // apply deterministic column sorting
+      cols = sortColumns(cols);
     }
 
     // fallback: if no collection fields are defined but we have data, infer columns from the first row
