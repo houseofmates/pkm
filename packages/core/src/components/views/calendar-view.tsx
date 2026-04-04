@@ -15,6 +15,36 @@ import { format, toZonedTime } from 'date-fns-tz';
 // toZonedTime may be missing or non-function in some test environments (see vitest),
 // so we will check before calling it to avoid runtime errors.
 
+// Safe date formatting helper - returns null if date is invalid
+function safeDateFormat(date: Date | string | number | null | undefined, formatStr: string, timeZone?: string): string | null {
+  if (!date) return null;
+  const d = typeof date === 'object' ? date : new Date(date);
+  if (isNaN(d.getTime())) return null;
+  
+  // Apply timezone conversion if requested and available
+  let finalDate = d;
+  if (timeZone && typeof toZonedTime === 'function') {
+    finalDate = toZonedTime(d, timeZone);
+  }
+  
+  try {
+    return format(finalDate, formatStr);
+  } catch {
+    return null;
+  }
+}
+
+// Safe zoned date creation - returns null if input is invalid
+function safeZonedDate(date: Date | string | number | null | undefined, timeZone: string): Date | null {
+  if (!date) return null;
+  const d = typeof date === 'object' ? date : new Date(date);
+  if (isNaN(d.getTime())) return null;
+  
+  if (typeof toZonedTime === 'function') {
+    return toZonedTime(d, timeZone);
+  }
+  return d;
+}
 
 type CalendarViewProps = ViewProps;
 
@@ -70,11 +100,11 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
     data.forEach(record => {
       const rawDate = (dateField && record[dateField]) || record['start-time'] || record['start_time'] || record['date'];
       if (!rawDate) return;
-      // if the helper isn't available, just use the raw date
-      const zonedDate = typeof toZonedTime === 'function'
-        ? toZonedTime(new Date(rawDate), timeZone)
-        : new Date(rawDate);
-      const dateStr = format(zonedDate, 'yyyy-MM-dd');
+      
+      // Validate the date before formatting
+      const dateStr = safeDateFormat(rawDate, 'yyyy-MM-dd', timeZone);
+      if (!dateStr) return; // Skip invalid dates silently
+      
       if (!map[dateStr]) map[dateStr] = [];
       map[dateStr].push(record);
     });
@@ -346,7 +376,8 @@ function DraggableEvent({
 }
 
 function DroppableDateCell({ date, children, className, onClick, style }: { date: Date, children: React.ReactNode, className?: string, onClick?: () => void, style?: React.CSSProperties }) {
-  const { setNodeRef, isOver } = useDroppable({ id: format(date, 'yyyy-MM-dd') });
+  const dateKey = safeDateFormat(date, 'yyyy-MM-dd') ?? 'invalid-date';
+  const { setNodeRef, isOver } = useDroppable({ id: dateKey });
   return <div ref={setNodeRef} className={cn(className, isOver && "bg-accent/30 ring-2 ring-primary/20 z-10")} onClick={onClick} style={style}>{children}</div>;
 }
 
@@ -357,16 +388,17 @@ function MonthView({ currentDate, recordsByDate, collection, onUpdateRecord, onD
     return norm !== 'url' && norm !== 'notes';
   }) ?? visibleFields;
 
-  const monthStart =
-    typeof toZonedTime === 'function'
-      ? toZonedTime(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1), timeZone)
-      : new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+  const monthStart = safeZonedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1), timeZone)
+    ?? new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
   const startDayOfWeek = monthStart.getDay();
   const calendarDays = useMemo(() => {
     const days = [];
     for (let i = 0; i < startDayOfWeek; i++) days.push(null);
-    for (let i = 1; i <= daysInMonth; i++) days.push(toZonedTime(new Date(currentDate.getFullYear(), currentDate.getMonth(), i), timeZone));
+    for (let i = 1; i <= daysInMonth; i++) {
+      const d = safeZonedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), i), timeZone);
+      if (d) days.push(d);
+    }
     return days;
   }, [currentDate, startDayOfWeek, daysInMonth, timeZone]);
 
@@ -378,9 +410,11 @@ function MonthView({ currentDate, recordsByDate, collection, onUpdateRecord, onD
       <div className="flex-1 grid grid-cols-7 grid-rows-5 md:grid-rows-6 auto-rows-fr overflow-y-auto">
         {calendarDays.map((date, idx) => {
           if (!date) return <div key={`empty-${idx}`} className="bg-muted/10 border-b border-r p-2 opacity-50" />;
-          const dateKey = format(date, 'yyyy-MM-dd');
+          const dateKey = safeDateFormat(date, 'yyyy-MM-dd');
+          if (!dateKey) return <div key={`invalid-${idx}`} className="bg-muted/10 border-b border-r p-2 opacity-50" />;
           const dayRecords = recordsByDate[dateKey] || [];
-          const isToday = format(toZonedTime(new Date(), timeZone), 'yyyy-MM-dd') === dateKey;
+          const todayKey = safeDateFormat(new Date(), 'yyyy-MM-dd', timeZone);
+          const isToday = todayKey === dateKey;
           return (
             <DroppableDateCell
               key={dateKey}
@@ -409,18 +443,20 @@ function MonthView({ currentDate, recordsByDate, collection, onUpdateRecord, onD
 }
 
 function WeekView({ currentDate, recordsByDate, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange, timeZone, allDayField, recurringField }: any) {
-  const weekStart = toZonedTime(new Date(currentDate), timeZone);
+  const weekStart = safeZonedDate(new Date(currentDate), timeZone) ?? new Date(currentDate);
   weekStart.setDate(currentDate.getDate() - currentDate.getDay());
   return (
     <div className="h-full flex flex-col overflow-hidden">
       <div className="grid grid-cols-7 border-b bg-muted/30 flex-shrink-0">
         {Array.from({ length: 7 }).map((_, i) => {
-          const d = toZonedTime(new Date(weekStart), timeZone);
+          const d = safeZonedDate(new Date(weekStart), timeZone) ?? new Date(weekStart);
           d.setDate(weekStart.getDate() + i);
-          const isToday = format(toZonedTime(new Date(), timeZone), 'yyyy-MM-dd') === format(d, 'yyyy-MM-dd');
+          const dKey = safeDateFormat(d, 'yyyy-MM-dd');
+          const todayKey = safeDateFormat(new Date(), 'yyyy-MM-dd', timeZone);
+          const isToday = dKey && dKey === todayKey;
           return (
             <div key={i} className={cn("p-2 text-center border-r last:border-r-0", isToday && "bg-primary/5")}>
-              <div className="text-xs text-muted-foreground lowercase">{format(d, 'EEE')}</div>
+              <div className="text-xs text-muted-foreground lowercase">{dKey ? format(d, 'EEE') : '--'}</div>
               <div className={cn("text-sm font-semibold w-7 h-7 mx-auto rounded-full flex items-center justify-center mt-1", isToday && "bg-primary text-primary-foreground")}>{d.getDate()}</div>
             </div>
           );
@@ -429,9 +465,10 @@ function WeekView({ currentDate, recordsByDate, collection, onUpdateRecord, onDe
       <div className="flex-1 overflow-y-auto">
         <div className="grid grid-cols-7 min-h-full">
           {Array.from({ length: 7 }).map((_, i) => {
-            const d = toZonedTime(new Date(weekStart), timeZone);
+            const d = safeZonedDate(new Date(weekStart), timeZone) ?? new Date(weekStart);
             d.setDate(weekStart.getDate() + i);
-            const dateKey = format(d, 'yyyy-MM-dd');
+            const dateKey = safeDateFormat(d, 'yyyy-MM-dd');
+            if (!dateKey) return <div key={i} className="border-r last:border-r-0 min-h-[200px] p-2 space-y-2" />;
             const records = recordsByDate[dateKey] || [];
             return (
               <DroppableDateCell key={i} date={d} className="border-r last:border-r-0 min-h-[200px] p-2 space-y-2">
@@ -445,12 +482,12 @@ function WeekView({ currentDate, recordsByDate, collection, onUpdateRecord, onDe
   );
 }
 function DayView({ currentDate, recordsByDate, collection, onUpdateRecord, onDelete, titleField, visibleFields, config, onConfigChange, timeZone, allDayField, recurringField, onCreate }: any) {
-  const headerDate = toZonedTime(currentDate, timeZone);
-  const dateKey = format(headerDate, 'yyyy-MM-dd');
+  const headerDate = safeZonedDate(currentDate, timeZone) ?? new Date(currentDate);
+  const dateKey = safeDateFormat(headerDate, 'yyyy-MM-dd') ?? '';
   
   const tomorrow = new Date(currentDate);
   tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowKey = format(toZonedTime(tomorrow, timeZone), 'yyyy-MM-dd');
+  const tomorrowKey = safeDateFormat(tomorrow, 'yyyy-MM-dd', timeZone) ?? '';
 
   const todayRecords = recordsByDate[dateKey] || [];
   const tomorrowRecords = recordsByDate[tomorrowKey] || [];
@@ -468,7 +505,8 @@ function DayView({ currentDate, recordsByDate, collection, onUpdateRecord, onDel
   const getPosition = (rec: any, isTomorrow: boolean) => {
     const startStr = rec[dateFieldStr] || rec['start-time'] || rec['start_time'];
     if (!startStr) return null;
-    const start = typeof toZonedTime === 'function' ? toZonedTime(new Date(startStr), timeZone) : new Date(startStr);
+    const start = safeZonedDate(startStr, timeZone) ?? new Date(startStr);
+    if (isNaN(start.getTime())) return null;
     
     let hour = start.getHours();
     if (isTomorrow) hour += 24;
@@ -480,13 +518,15 @@ function DayView({ currentDate, recordsByDate, collection, onUpdateRecord, onDel
     let end = undefined;
     let durationHours = 1;
     if (endStr) {
-        end = typeof toZonedTime === 'function' ? toZonedTime(new Date(endStr), timeZone) : new Date(endStr);
-        let endH = end.getHours();
-        if (isTomorrow) endH += 24;
-        else if (end.getDate() !== start.getDate()) endH += 24;
-        
-        durationHours = (endH + end.getMinutes() / 60) - (hour + min / 60);
-        if (durationHours <= 0) durationHours = 1;
+        end = safeZonedDate(endStr, timeZone) ?? new Date(endStr);
+        if (!isNaN(end.getTime())) {
+            let endH = end.getHours();
+            if (isTomorrow) endH += 24;
+            else if (end.getDate() !== start.getDate()) endH += 24;
+            
+            durationHours = (endH + end.getMinutes() / 60) - (hour + min / 60);
+            if (durationHours <= 0) durationHours = 1;
+        }
     }
     
     const height = durationHours * rowHeight;
@@ -512,10 +552,12 @@ function DayView({ currentDate, recordsByDate, collection, onUpdateRecord, onDel
     displayRecords[i].overlapIndex = overlapCount;
   }
 
+  const headerTitle = safeDateFormat(headerDate, 'PPPP');
+
   return (
     <ScrollArea className="h-full w-full bg-card">
       <div className="p-4 relative">
-        <h3 className="text-xl font-bold mb-4 sticky top-0 bg-card z-20 pb-2 border-b">{format(headerDate, 'PPPP').toLowerCase()}</h3>
+        <h3 className="text-xl font-bold mb-4 sticky top-0 bg-card z-20 pb-2 border-b">{headerTitle ? headerTitle.toLowerCase() : '--'}</h3>
         
         <div className="relative mt-4 ml-12" style={{ height: hours.length * rowHeight }}>
           {hours.map(h => {
@@ -525,7 +567,7 @@ function DayView({ currentDate, recordsByDate, collection, onUpdateRecord, onDel
             
             const rowDate = new Date(headerDate);
             rowDate.setHours(h, 0, 0, 0);
-            const rowId = format(rowDate, "yyyy-MM-dd'T'HH:00:00");
+            const rowId = safeDateFormat(rowDate, "yyyy-MM-dd'T'HH:00:00") ?? `row-${h}`;
 
             return (
               <DroppableDateCell 
@@ -597,22 +639,29 @@ function YearView({ currentDate, recordsByDate, onMonthClick, timeZone }: any) {
     <ScrollArea className="h-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
         {months.map(month => {
-          const monthDate = toZonedTime(new Date(year, month, 1), timeZone);
+          const monthDate = safeZonedDate(new Date(year, month, 1), timeZone) ?? new Date(year, month, 1);
           const daysInMonth = new Date(year, month + 1, 0).getDate();
           const startDay = monthDate.getDay();
-          const hasActivity = Array.from({ length: daysInMonth }, (_, i) => format(toZonedTime(new Date(year, month, i + 1), timeZone), 'yyyy-MM-dd')).some(d => recordsByDate[d]?.length > 0);
+          const hasActivity = Array.from({ length: daysInMonth }, (_, i) => {
+            const d = safeZonedDate(new Date(year, month, i + 1), timeZone);
+            const dKey = d ? safeDateFormat(d, 'yyyy-MM-dd') : null;
+            return dKey && recordsByDate[dKey]?.length > 0;
+          }).some(Boolean);
+          const monthTitle = safeDateFormat(monthDate, 'LLLL') ?? '';
+          const todayKey = safeDateFormat(new Date(), 'yyyy-MM-dd', timeZone) ?? '';
+          
           return (
             <div key={month} onClick={() => onMonthClick(new Date(monthDate.getFullYear(), monthDate.getMonth(), monthDate.getDate()))} className={cn("border rounded-md p-2 hover:bg-accent/50 cursor-pointer transition-colors", hasActivity ? "bg-accent/10" : "bg-card")}>
-              <div className="text-sm font-bold mb-2 text-center lowercase">{format(monthDate, 'LLLL')}</div>
+              <div className="text-sm font-bold mb-2 text-center lowercase">{monthTitle}</div>
               <div className="grid grid-cols-7 gap-1 text-[8px] text-center text-muted-foreground">
                 {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => <span key={i}>{d}</span>)}
                 {Array.from({ length: startDay }).map((_, i) => <span key={`pad-${i}`}>&nbsp;</span>)}
                       {Array.from({ length: daysInMonth }).map((_, i) => {
                   const day = i + 1;
-                  const dStr = format(toZonedTime(new Date(year, month, day), timeZone), 'yyyy-MM-dd');
-                  const todayKey = format(toZonedTime(new Date(), timeZone), 'yyyy-MM-dd');
+                  const d = safeZonedDate(new Date(year, month, day), timeZone);
+                  const dStr = d ? safeDateFormat(d, 'yyyy-MM-dd') : null;
                   const isToday = dStr === todayKey;
-                  const hasRecords = (recordsByDate[dStr]?.length || 0) > 0;
+                  const hasRecords = dStr ? (recordsByDate[dStr]?.length || 0) > 0 : false;
 
                   return (
                     <div
@@ -628,7 +677,7 @@ function YearView({ currentDate, recordsByDate, onMonthClick, timeZone }: any) {
                       <span>{day}</span>
                       {hasRecords && (
                         <span className="mt-1 h-4 w-4 rounded-full bg-primary text-primary-foreground text-[9px] font-bold flex items-center justify-center">
-                          {String(recordsByDate[dStr]?.length || 0).padStart(1, '0')}
+                          {String(dStr && recordsByDate[dStr]?.length || 0).padStart(1, '0')}
                         </span>
                       )}
                     </div>

@@ -43,6 +43,14 @@ export const TableManager: React.FC = () => {
     }
   };
 
+  const parseI18nTemplate = (str: string): string => {
+    const match = str.match(/^\{\{\s*t\(['"](.+)['"]\)\s*\}\}$/);
+    if (match) {
+      return match[1].replace(/\b\w/g, (c) => c.toUpperCase());
+    }
+    return str.replace(/\b\w/g, (c) => c.toUpperCase());
+  };
+
   return (
     <div className="space-y-4">
       <Card>
@@ -71,7 +79,7 @@ export const TableManager: React.FC = () => {
           {collections.length > 0 ? (
             <ul className="list-disc pl-5 space-y-1">
               {collections.map(collection => (
-                <li key={collection.name}>{collection.title || collection.name}</li>
+                <li key={collection.name}>{parseI18nTemplate(collection.title || collection.name)}</li>
               ))}
             </ul>
           ) : (

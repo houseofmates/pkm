@@ -32,10 +32,31 @@ const MEMORY_FILES = {
   recent: 'recent.md',
 };
 
+const ALLOWED_MEMORY_FILES = new Set([
+  'important.md',
+  'context.md',
+  'tasks.md',
+  'lessons.md',
+  'recent.md',
+]);
+
+function sanitizeFileName(fileName) {
+  if (!fileName || typeof fileName !== 'string') {
+    throw new Error('Invalid memory file name');
+  }
+  const normalized = path.normalize(fileName).replace(/^(\.\.(\/|\\|$))+/, '');
+  const baseName = path.basename(normalized);
+  if (!ALLOWED_MEMORY_FILES.has(baseName)) {
+    throw new Error(`Invalid memory file: ${fileName}. Allowed: ${[...ALLOWED_MEMORY_FILES].join(', ')}`);
+  }
+  return baseName;
+}
+
 // read a memory file
 export function readMemory(fileName) {
   ensureMemoryDir();
-  const filePath = safePath(fileName);
+  const safeFileName = sanitizeFileName(fileName);
+  const filePath = path.join(MEMORY_DIR, safeFileName);
   
   try {
     if (fs.existsSync(filePath)) {
@@ -51,7 +72,8 @@ export function readMemory(fileName) {
 // write to a memory file
 export function writeMemory(fileName, content) {
   ensureMemoryDir();
-  const filePath = safePath(fileName);
+  const safeFileName = sanitizeFileName(fileName);
+  const filePath = path.join(MEMORY_DIR, safeFileName);
   
   try {
     fs.writeFileSync(filePath, content, 'utf-8');

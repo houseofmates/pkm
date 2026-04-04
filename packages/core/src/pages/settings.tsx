@@ -1,11 +1,24 @@
 import { useAppSetting } from '@/hooks/use-app-setting';
 import { NotionImportWidget } from '@/components/notion-import-widget';
 import { TableManager } from '@/features/table-management/TableManager';
+import { Button } from '@/components/ui/button';
+import { Eye, EyeOff } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export default function SettingsPage() {
     const [apiKey, setApiKey] = useAppSetting('apiKey', '');
-    const [darkMode, setDarkMode] = useAppSetting('darkMode', false);
+    const [darkMode, setDarkMode] = useAppSetting('darkMode', true);
     const [pageSize, setPageSize] = useAppSetting('defaultPageSize', 20);
+    const [showApiKey, setShowApiKey] = useState(false);
+
+    // Apply dark mode class to document based on setting
+    useEffect(() => {
+        if (darkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }, [darkMode]);
 
     return (
         // container must occupy full height of parent so scrolling works
@@ -17,12 +30,24 @@ export default function SettingsPage() {
                 <div className="space-y-2">
                     <label className="flex flex-col text-sm lowercase">
                         api key
-                        <input
-                            type="text"
-                            value={apiKey as string}
-                            onChange={e => setApiKey(e.target.value)}
-                            className="mt-1 px-2 py-1 bg-background border border-border rounded w-full"
-                        />
+                        <div className="relative mt-1">
+                            <input
+                                type={showApiKey ? 'text' : 'password'}
+                                value={apiKey as string}
+                                onChange={e => setApiKey(e.target.value)}
+                                className="px-2 py-1 bg-background border border-border rounded w-full pr-10"
+                                placeholder="enter your api key"
+                            />
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                className="absolute right-0 top-0 h-full w-10 opacity-50 hover:opacity-100"
+                                onClick={() => setShowApiKey(!showApiKey)}
+                                title={showApiKey ? 'hide api key' : 'show api key'}
+                            >
+                                {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                            </Button>
+                        </div>
                     </label>
                     <label className="flex items-center gap-2 text-sm lowercase">
                         <input

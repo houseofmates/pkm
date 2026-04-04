@@ -26,12 +26,57 @@ function getLucideIcon(name: string): LucideIcon | undefined {
   return (Icons as unknown as Record<string, unknown>)[name] as LucideIcon | undefined;
 }
 
+// helper to parse i18n template strings like {{t('ID')}} or {{t("Created at")}}
+// returns the inner string if it matches the pattern, otherwise returns the original
+function parseI18nTemplate(str: string | undefined): string {
+  if (!str) return '';
+  const match = str.match(/^\{\{\s*t\(['"](.+)['"]\)\s*\}\}$/);
+  if (match) {
+    return match[1]; // return the inner string like "ID" or "Created at"
+  }
+  return str;
+}
+
+// helper to convert raw field names to human-readable Title Case headers
+function humanizeFieldName(name: string): string {
+  const abbrevMap: Record<string, string> = {
+    id: 'ID', url: 'URL', uid: 'UID', api: 'API',
+  };
+  return name
+    .replace(/[_-]/g, ' ')
+    .split(' ')
+    .map((word) => {
+      const lower = word.toLowerCase();
+      if (abbrevMap[lower]) return abbrevMap[lower];
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(' ');
+}
+
+// helper to convert raw field names to human-readable Title Case headers
+function humanizeFieldName(name: string): string {
+  const abbrevMap: Record<string, string> = {
+    id: 'ID', url: 'URL', uid: 'UID', api: 'API',
+  };
+  return name
+    .replace(/[_-]/g, ' ')
+    .split(' ')
+    .map((word) => {
+      const lower = word.toLowerCase();
+      if (abbrevMap[lower]) return abbrevMap[lower];
+      return word.charAt(0).toUpperCase() + word.slice(1);
+    })
+    .join(' ');
+}
+
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { FieldSettingsDialog } from '@/features/collections/components/field-settings-dialog';
 import { useGestureManager } from '@/hooks/use-gesture-manager';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { RecordDetailDrawer } from './record-detail-drawer';
+import { Maximize2 } from 'lucide-react';
 
 interface RecordTableProps {
   data: any[];
@@ -378,7 +423,7 @@ function RowDragHandle({
 const DraggableRecordRow = (props: any) => {
   const { index, style: incomingStyle, leftColWidth } = props;
   const data = props.data || props;
-  const { rows, collection, onUpdate, onDelete, onCreateField, recordMeta, onEdit, selectedIds, onRowSelect, clearSelection, enableSelection, columnVersion, onRowReorder, isManualOrderActive } = data;
+  const { rows, collection, onUpdate, onDelete, onCreateField, recordMeta, onEdit, selectedIds, onRowSelect, clearSelection, enableSelection, columnVersion, onRowReorder, isManualOrderActive, onOpenDetail } = data;
 
   const row = rows[index];
   if (!row) return null;
@@ -456,6 +501,8 @@ const DraggableRecordRow = (props: any) => {
           if (!enableSelection) return;
           const target = e.target as HTMLElement;
           const inCellContent = target.closest('[data-cell-content]');
+          const isExpandBtn = target.closest('[data-expand-btn]');
+          if (isExpandBtn) return; // Don't select when clicking expand
           if (!inCellContent) {
             if (isSelected && selectedIds?.length === 1 && clearSelection) {
               clearSelection();
@@ -471,6 +518,28 @@ const DraggableRecordRow = (props: any) => {
           onEdit?.(row.original);
         }}
       >
+        {/* expand/detail button */}
+        <div
+          className="border-r border-[#222] overflow-hidden flex-shrink-0 flex items-center justify-center hover:bg-white/5 transition-colors"
+          style={{
+            width: leftColWidth,
+            minWidth: leftColWidth,
+            maxWidth: leftColWidth,
+          }}
+          data-expand-btn
+        >
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-full w-full rounded-none opacity-50 hover:opacity-100 flex items-center justify-center p-0"
+            onClick={(e) => { e.stopPropagation(); onOpenDetail?.(row.original); }}
+            onDoubleClick={(e) => { e.stopPropagation(); }}
+            title="view details"
+          >
+            <Maximize2 className="h-4 w-4" />
+          </Button>
+        </div>
+
         {/* drag handle area for row reordering */}
         {onCreateField && onRowReorder && (
           <RowDragHandle
@@ -579,6 +648,20 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   const [bulkFieldName, setBulkFieldName] = React.useState<string | null>(null);
   const [bulkValue, setBulkValue] = React.useState<any>(null);
 
+  // record detail drawer state
+  const [detailDrawerOpen, setDetailDrawerOpen] = React.useState(false);
+  const [selectedRecord, setSelectedRecord] = React.useState<any>(null);
+
+  const handleOpenDetail = (record: any) => {
+    setSelectedRecord(record);
+    setDetailDrawerOpen(true);
+  };
+
+  const handleCloseDetail = () => {
+    setDetailDrawerOpen(false);
+    setSelectedRecord(null);
+  };
+
   const columnSizing = metadata[collection?.name]?.columnWidths ?? EMPTY_SIZING;
   const columnOrder = metadata[collection?.name]?.columnOrder ?? EMPTY_ORDER;
 
@@ -629,7 +712,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         .filter((f: any) => f.name && !hiddenColumns.includes(f.name));
 
       cols = visibleFields.map((field: any) => columnHelper.accessor(field.name, {
-        header: (field.uiSchema?.title || field.name),
+        header: parseI18nTemplate(field.uiSchema?.title) || humanizeFieldName(field.name),
         meta: { field },
         cell: info => {
           const color = getValueColor(valueColorRules, field.name, info.getValue());
@@ -740,7 +823,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                                 : [];
                           return availableFields.map((f: any) => {
                             const fieldName = f.name || f;
-                            const displayName = f.uiSchema?.title || fieldName;
+                            const displayName = parseI18nTemplate(f.uiSchema?.title) || fieldName;
                             return (
                               <option key={fieldName} value={fieldName}>{displayName}</option>
                             );
@@ -826,6 +909,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         return availableFields.map((f: any) => {
                           const fieldName = f.name || f;
                           const isHidden = hiddenColumns.includes(fieldName);
+                          const displayTitle = parseI18nTemplate(f.uiSchema?.title) || fieldName;
                           return (
                             <div key={fieldName} className="flex items-center space-x-2">
                               <Checkbox
@@ -839,7 +923,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                                   }
                                 }}
                               />
-                              <Label htmlFor={`col-${fieldName}`} className="text-xs">{f.uiSchema?.title || fieldName}</Label>
+                              <Label htmlFor={`col-${fieldName}`} className="text-xs">{displayTitle}</Label>
                             </div>
                           )
                         });
@@ -1275,6 +1359,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                           leftColWidth,
                           onRowReorder: handleRowReorder,
                           isManualOrderActive,
+                          onOpenDetail: handleOpenDetail,
                         }}
                         style={{
                           height,
@@ -1365,6 +1450,15 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Record Detail Drawer */}
+      <RecordDetailDrawer
+        isOpen={detailDrawerOpen}
+        onClose={handleCloseDetail}
+        record={selectedRecord}
+        collection={collection}
+        onUpdate={onUpdateRecord}
+      />
     </div>
   );
 }

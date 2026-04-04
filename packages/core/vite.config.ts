@@ -236,15 +236,18 @@ export default defineConfig({
       external: ['@capacitor/push-notifications'],
       output: {
         manualChunks: {
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          'vendor-ui': ['@radix-ui/react-dialog', '@radix-ui/react-slot', '@radix-ui/react-popover', 'framer-motion', 'clsx'],
-          'vendor-editor': ['@tiptap/react', '@tiptap/starter-kit', 'react-quill'],
-          'vendor-canvas': ['fabric'],
-          'vendor-charts': ['recharts'],
-          'vendor-maps': ['leaflet', 'react-leaflet'],
-          'vendor-dnd': ['@dnd-kit/core', '@dnd-kit/utilities'],
-          'vendor-forms': ['react-hook-form', 'zod'],
-          'vendor-markdown': ['react-markdown', 'remark-gfm'],
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'ui-vendor': ['@radix-ui/react-dialog', '@radix-ui/react-slot', '@radix-ui/react-popover', '@radix-ui/react-dropdown-menu', '@radix-ui/react-tabs', '@radix-ui/react-tooltip', '@radix-ui/react-switch', '@radix-ui/react-select', '@radix-ui/react-separator', '@radix-ui/react-scroll-area', '@radix-ui/react-collapsible', '@radix-ui/react-accordion', '@radix-ui/react-alert-dialog', '@radix-ui/react-avatar', '@radix-ui/react-checkbox', '@radix-ui/react-label', '@radix-ui/react-menubar', '@radix-ui/react-navigation-menu', '@radix-ui/react-progress', '@radix-ui/react-slider', '@radix-ui/react-toggle', '@radix-ui/react-toggle-group'],
+          'icons': ['lucide-react'],
+          'date-utils': ['date-fns'],
+          'animation': ['framer-motion'],
+          'dnd': ['@dnd-kit/core', '@dnd-kit/sortable', '@dnd-kit/utilities', '@dnd-kit/modifiers'],
+          'grid-layout': ['react-grid-layout'],
+          'editor': ['react-quill-new', 'react-quill'],
+          'charts': ['recharts'],
+          'canvas': ['fabric'],
+          'maps': ['leaflet', 'react-leaflet'],
+          'markdown': ['react-markdown', 'remark-gfm', 'rehype-raw'],
         }
       }
     }

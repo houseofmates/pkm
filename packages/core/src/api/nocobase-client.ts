@@ -473,7 +473,7 @@ export class NocoBaseClient {
 
     // try pkm backend upload first (for background images)
     try {
-      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'http://localhost:4100';
+      const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://db.houseofmates.space';
       const res = await fetch(`${backendUrl}/Api/upload-background`, {
         method: 'POST',
         body: formData,

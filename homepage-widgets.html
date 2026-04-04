@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Homepage Widgets</title>
+<link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: { dark: '#050505', accent: '#f6b012' },
+      fontFamily: { varela: ['Varela Round', 'sans-serif'] },
+      borderRadius: { DEFAULT: '12px' }
+    }
+  }
+}
+</script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #050505; font-family: 'Varela Round', sans-serif; color: #f6b012; text-transform: lowercase; }
+.container { max-width: 1200px; margin: 0 auto; padding: 0 16px; }
+
+/* elevation */
+.elevated { box-shadow: 0 2px 8px #000; }
+
+/* hero slider */
+.hero-slider { position: relative; overflow: hidden; border-radius: 12px; }
+.hero-slides { display: flex; transition: transform 0.5s ease; }
+.hero-slide { min-width: 100%; padding: 60px 24px; text-align: center; }
+.hero-slide h1 { font-size: 2.5rem; margin-bottom: 12px; }
+.hero-slide p { font-size: 1.1rem; color: #f6b012cc; margin-bottom: 24px; }
+.hero-nav { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
+.hero-dot { width: 10px; height: 10px; border-radius: 12px; background: #f6b01244; border: none; cursor: pointer; }
+.hero-dot.active { background: #f6b012; }
+.hero-arrow { position: absolute; top: 50%; transform: translateY(-50%); background: #050505cc; border: 1px solid #f6b012; border-radius: 12px; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.hero-arrow:hover { background: #f6b012; }
+.hero-arrow:hover svg { stroke: #050505; }
+.hero-arrow svg { stroke: #f6b012; transition: stroke 0.2s; }
+.hero-arrow.prev { left: 12px; }
+.hero-arrow.next { right: 12px; }
+
+/* feature cards */
+.feature-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+.feature-card { background: #0a0a0a; border-radius: 12px; padding: 24px; position: relative; overflow: hidden; transition: transform 0.2s; }
+.feature-card:hover { transform: translateY(-4px); }
+.feature-card .overlay { position: absolute; inset: 0; border: 2px solid #f6b012; border-radius: 12px; opacity: 0; display: flex; align-items: flex-end; justify-content: center; padding: 16px; transition: opacity 0.3s; }
+.feature-card:hover .overlay { opacity: 1; }
+.feature-card .overlay button { background: #f6b012; color: #050505; border: none; border-radius: 12px; padding: 8px 16px; cursor: pointer; font-family: inherit; text-transform: lowercase; }
+
+/* stats */
+.stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.stat-item { text-align: center; padding: 24px; }
+.stat-number { font-size: 2.5rem; font-weight: bold; }
+.stat-label { color: #f6b012aa; margin-top: 4px; }
+
+/* testimonial carousel */
+.testimonial-carousel { position: relative; overflow: hidden; border-radius: 12px; }
+.testimonial-track { display: flex; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); will-change: transform; }
+.testimonial-card { min-width: 100%; padding: 32px; background: #0a0a0a; border-radius: 12px; }
+.testimonial-card blockquote { font-size: 1.1rem; line-height: 1.6; margin-bottom: 16px; }
+.testimonial-card cite { color: #f6b012aa; font-style: normal; }
+.carousel-nav { display: flex; justify-content: center; gap: 8px; margin-top: 16px; }
+.carousel-dot { width: 8px; height: 8px; border-radius: 12px; background: #f6b01244; border: none; cursor: pointer; }
+.carousel-dot.active { background: #f6b012; }
+
+/* services grid */
+.services-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+.service-item { background: #0a0a0a; border-radius: 12px; padding: 24px; cursor: pointer; }
+.service-item .detail { max-height: 0; overflow: hidden; transition: max-height 0.3s ease, padding 0.3s ease; }
+.service-item .detail.expanded { max-height: 120px; padding-top: 12px; }
+.service-item .detail p { color: #f6b012aa; font-size: 0.9rem; }
+
+/* cta section */
+.cta-section { text-align: center; padding: 48px 24px; background: #0a0a0a; border-radius: 12px; }
+.cta-section h2 { font-size: 1.8rem; margin-bottom: 8px; }
+.cta-section p { color: #f6b012aa; margin-bottom: 24px; }
+
+/* blog teaser */
+.blog-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+.blog-card { background: #0a0a0a; border-radius: 12px; overflow: hidden; }
+.blog-thumb { width: 100%; height: 140px; background: #111; border-radius: 12px; }
+.blog-card .content { padding: 16px; }
+.blog-card h3 { font-size: 1.1rem; margin-bottom: 4px; }
+.blog-card .meta { color: #f6b01266; font-size: 0.8rem; max-height: 0; overflow: hidden; transition: max-height 0.3s, opacity 0.3s; opacity: 0; }
+.blog-card:hover .meta { max-height: 40px; opacity: 1; }
+
+/* newsletter */
+.newsletter { background: #0a0a0a; border-radius: 12px; padding: 32px 24px; text-align: center; }
+.newsletter-form { display: flex; flex-direction: column; gap: 12px; max-width: 400px; margin: 0 auto; }
+.newsletter input { background: #111; border: 1px solid #f6b01244; border-radius: 12px; padding: 12px 16px; color: #f6b012; font-family: inherit; text-transform: lowercase; outline: none; }
+.newsletter input:focus { border-color: #f6b012; }
+.newsletter button { background: #f6b012; color: #050505; border: none; border-radius: 12px; padding: 12px 24px; cursor: pointer; font-family: inherit; text-transform: lowercase; font-weight: bold; }
+.privacy-tip { position: relative; display: inline-block; }
+.privacy-tip .tip-text { visibility: hidden; opacity: 0; position: absolute; bottom: 120%; left: 50%; transform: translateX(-50%); background: #111; color: #f6b012aa; padding: 8px 12px; border-radius: 12px; font-size: 0.75rem; white-space: nowrap; transition: opacity 0.2s, visibility 0.2s; box-shadow: 0 2px 8px #000; }
+.privacy-tip:hover .tip-text { visibility: visible; opacity: 1; }
+
+/* buttons */
+.btn-amber { background: #f6b012; color: #050505; border: none; border-radius: 12px; padding: 12px 28px; cursor: pointer; font-family: inherit; text-transform: lowercase; font-weight: bold; font-size: 1rem; display: inline-block; text-decoration: none; }
+.btn-amber:hover { opacity: 0.9; }
+
+/* icons */
+.icon { width: 24px; height: 24px; flex-shrink: 0; }
+.icon svg { width: 24px; height: 24px; stroke: #f6b012; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+/* section spacing */
+.widget-section { padding: 40px 0; }
+
+/* responsive */
+@media (min-width: 640px) {
+  .feature-grid { grid-template-columns: repeat(3, 1fr); }
+  .stats-grid { grid-template-columns: repeat(4, 1fr); }
+  .services-grid { grid-template-columns: repeat(2, 1fr); }
+  .blog-grid { grid-template-columns: repeat(3, 1fr); }
+  .newsletter-form { flex-direction: row; }
+  .hero-slide h1 { font-size: 3.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== WIDGET 1: HERO BANNER SLIDER ==================== -->
+<section class="widget-section" aria-label="hero banner slider">
+  <div class="container">
+    <div class="hero-slider elevated" role="region" aria-roledescription="carousel" aria-label="hero slides">
+      <div class="hero-slides" id="heroSlides">
+        <div class="hero-slide" role="group" aria-roledescription="slide" aria-label="slide 1 of 3">
+          <h1>build something remarkable</h1>
+          <p>craft digital experiences that resonate with your audience</p>
+          <a href="#" class="btn-amber" role="button">get started</a>
+        </div>
+        <div class="hero-slide" role="group" aria-roledescription="slide" aria-label="slide 2 of 3">
+          <h1>design with purpose</h1>
+          <p>every pixel matters, every interaction counts</p>
+          <a href="#" class="btn-amber" role="button">explore features</a>
+        </div>
+        <div class="hero-slide" role="group" aria-roledescription="slide" aria-label="slide 3 of 3">
+          <h1>launch with confidence</h1>
+          <p>from concept to deployment, we have you covered</p>
+          <a href="#" class="btn-amber" role="button">learn more</a>
+        </div>
+      </div>
+      <button class="hero-arrow prev" aria-label="previous slide" onclick="heroNav(-1)">
+        <span class="icon"><svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg></span>
+      </button>
+      <button class="hero-arrow next" aria-label="next slide" onclick="heroNav(1)">
+        <span class="icon"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg></span>
+      </button>
+      <div class="hero-nav" role="tablist" aria-label="slide indicators">
+        <button class="hero-dot active" aria-label="go to slide 1" role="tab" aria-selected="true" onclick="heroGo(0)"></button>
+        <button class="hero-dot" aria-label="go to slide 2" role="tab" aria-selected="false" onclick="heroGo(1)"></button>
+        <button class="hero-dot" aria-label="go to slide 3" role="tab" aria-selected="false" onclick="heroGo(2)"></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== WIDGET 2: FEATURE CARDS ==================== -->
+<section class="widget-section" aria-label="feature cards">
+  <div class="container">
+    <div class="feature-grid">
+      <div class="feature-card elevated" tabindex="0" aria-label="feature: intuitive interface">
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="4"></rect><line x1="9" y1="9" x2="15" y2="15"></line><line x1="15" y1="9" x2="9" y2="15"></line></svg></div>
+        <h3 style="margin: 12px 0 8px;">intuitive interface</h3>
+        <p style="color: #f6b012aa; font-size: 0.9rem;">clean controls, zero clutter, everything where you expect it</p>
+        <div class="overlay"><button>learn more</button></div>
+      </div>
+      <div class="feature-card elevated" tabindex="0" aria-label="feature: real time sync">
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg></div>
+        <h3 style="margin: 12px 0 8px;">real time sync</h3>
+        <p style="color: #f6b012aa; font-size: 0.9rem;">changes propagate instantly across all your devices</p>
+        <div class="overlay"><button>learn more</button></div>
+      </div>
+      <div class="feature-card elevated" tabindex="0" aria-label="feature: secure by default">
+        <div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="4"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg></div>
+        <h3 style="margin: 12px 0 8px;">secure by default</h3>
+        <p style="color: #f6b012aa; font-size: 0.9rem;">end-to-end encryption keeps your data protected</p>
+        <div class="overlay"><button>learn more</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== WIDGET 3: STATS COUNTER ==================== -->
+<section class="widget-section" aria-label="statistics counter">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-item elevated">
+        <div class="stat-number" data-target="1250" aria-label="1250 projects">0</div>
+        <div class="stat-label">projects delivered</div>
+      </div>
+      <div class="stat-item elevated">
+        <div class="stat-number" data-target="98" aria-label="98 percent">0</div>
+        <div class="stat-label">client satisfaction</div>
+      </div>
+      <div class="stat-item elevated">
+        <div class="stat-number" data-target="340" aria-label="340 clients">0</div>
+        <div class="stat-label">active clients</div>
+      </div>
+      <div class="stat-item elevated">
+        <div class="stat-number" data-target="15" aria-label="15 years">0</div>
+        <div class="stat-label">years of craft</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== WIDGET 4: TESTIMONIAL CAROUSEL ==================== -->
+<section class="widget-section" aria-label="testimonial carousel">
+  <div class="container">
+    <div class="testimonial-carousel elevated" role="region" aria-roledescription="carousel" aria-label="testimonials">
+      <div class="testimonial-track" id="testimonialTrack">
+        <div class="testimonial-card" role="group" aria-roledescription="slide" aria-label="testimonial 1 of 3">
+          <blockquote>"this platform transformed how we build and ship products. the attention to detail is unmatched."</blockquote>
+          <cite>— alex chen, lead developer</cite>
+        </div>
+        <div class="testimonial-card" role="group" aria-roledescription="slide" aria-label="testimonial 2 of 3">
+          <blockquote>"we cut our deployment time in half. the interface is clean, fast, and just works."</blockquote>
+          <cite>— sarah kim, product manager</cite>
+        </div>
+        <div class="testimonial-card" role="group" aria-roledescription="slide" aria-label="testimonial 3 of 3">
+          <blockquote>"finally, a tool that respects both designers and developers. minimal friction, maximum output."</blockquote>
+          <cite>— james park, creative director</cite>
+        </div>
+      </div>
+    </div>
+    <div class="carousel-nav" role="tablist" aria-label="testimonial indicators">
+      <button class="carousel-dot active" aria-label="go to testimonial 1" role="tab" aria-selected="true" onclick="testimonialGo(0)"></button>
+      <button class="carousel-dot" aria-label="go to testimonial 2" role="tab" aria-selected="false" onclick="testimonialGo(1)"></button>
+      <button class="carousel-dot" aria-label="go to testimonial 3" role="tab" aria-selected="false" onclick="testimonialGo(2)"></button>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== WIDGET 5: SERVICES GRID ==================== -->
+<section class="widget-section" aria-label="services grid">
+  <div class="container">
+    <div class="services-grid">
+      <div class="service-item elevated" tabindex="0" role="button" aria-expanded="false" aria-label="web development service, click to expand" onclick="toggleService(this)">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"></polyline><polyline points="8 6 2 12 8 18"></polyline><line x1="14" y1="4" x2="10" y2="20"></line></svg></div>
+          <h3>web development</h3>
+        </div>
+        <div class="detail"><p>full-stack solutions with modern frameworks, optimized for performance and scalability across all platforms.</p></div>
+      </div>
+      <div class="service-item elevated" tabindex="0" role="button" aria-expanded="false" aria-label="ui ux design service, click to expand" onclick="toggleService(this)">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line></svg></div>
+          <h3>ui ux design</h3>
+        </div>
+        <div class="detail"><p>human-centered design that balances aesthetics with usability, creating interfaces people love to use.</p></div>
+      </div>
+      <div class="service-item elevated" tabindex="0" role="button" aria-expanded="false" aria-label="cloud infrastructure service, click to expand" onclick="toggleService(this)">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"></path></svg></div>
+          <h3>cloud infrastructure</h3>
+        </div>
+        <div class="detail"><p>reliable, auto-scaling infrastructure that grows with your needs while keeping costs predictable.</p></div>
+      </div>
+      <div class="service-item elevated" tabindex="0" role="button" aria-expanded="false" aria-label="analytics dashboard service, click to expand" onclick="toggleService(this)">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div class="icon" aria-hidden="true"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg></div>
+          <h3>analytics dashboard</h3>
+        </div>
+        <div class="detail"><p>real-time insights and visual reports that turn raw data into actionable business intelligence.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== WIDGET 6: CTA SECTION ==================== -->
+<section class="widget-section" aria-label="call to action">
+  <div class="container">
+    <div class="cta-section elevated">
+      <h2>ready to transform your workflow</h2>
+      <p>join thousands who already made the switch</p>
+      <a href="#" class="btn-amber" role="button">start free trial</a>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== WIDGET 7: RECENT BLOG TEASER ==================== -->
+<section class="widget-section" aria-label="recent blog posts">
+  <div class="container">
+    <div class="blog-grid">
+      <article class="blog-card elevated" aria-label="blog post: mastering minimal design">
+        <div class="blog-thumb" role="img" aria-label="placeholder image for mastering minimal design"></div>
+        <div class="content">
+          <h3>mastering minimal design</h3>
+          <div class="meta"><span>apr 2026</span> · <span>5 min read</span></div>
+        </div>
+      </article>
+      <article class="blog-card elevated" aria-label="blog post: the future of web tools">
+        <div class="blog-thumb" role="img" aria-label="placeholder image for the future of web tools"></div>
+        <div class="content">
+          <h3>the future of web tools</h3>
+          <div class="meta"><span>mar 2026</span> · <span>8 min read</span></div>
+        </div>
+      </article>
+      <article class="blog-card elevated" aria-label="blog post: building for accessibility">
+        <div class="blog-thumb" role="img" aria-label="placeholder image for building for accessibility"></div>
+        <div class="content">
+          <h3>building for accessibility</h3>
+          <div class="meta"><span>feb 2026</span> · <span>6 min read</span></div>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== WIDGET 8: NEWSLETTER SIGNUP ==================== -->
+<section class="widget-section" aria-label="newsletter signup">
+  <div class="container">
+    <div class="newsletter elevated">
+      <h2 style="margin-bottom: 8px;">stay in the loop</h2>
+      <p style="color: #f6b012aa; margin-bottom: 24px; font-size: 0.9rem;">get updates on new features and releases</p>
+      <form class="newsletter-form" aria-label="newsletter subscription form" onsubmit="handleNewsletter(event)">
+        <input type="email" placeholder="your@email.com" aria-label="email address" required autocomplete="email">
+        <button type="submit">subscribe</button>
+      </form>
+      <div style="margin-top: 16px;">
+        <span class="privacy-tip" aria-label="privacy information">
+          <span style="color: #f6b01266; font-size: 0.75rem; cursor: help; border-bottom: 1px dotted #f6b01266;">your data stays private</span>
+          <span class="tip-text" role="tooltip">we never share or sell your email. unsubscribe anytime.</span>
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== INTERACTION SCRIPTS ==================== -->
+<script>
+(function() {
+  'use strict';
+
+  /* hero slider */
+  let heroIndex = 0;
+  const heroSlides = document.getElementById('heroSlides');
+  const heroDots = document.querySelectorAll('.hero-dot');
+  const heroTotal = heroDots.length;
+  let heroTimer;
+
+  window.heroNav = function(dir) {
+    heroIndex = (heroIndex + dir + heroTotal) % heroTotal;
+    heroUpdate();
+    heroResetTimer();
+  };
+
+  window.heroGo = function(idx) {
+    heroIndex = idx;
+    heroUpdate();
+    heroResetTimer();
+  };
+
+  function heroUpdate() {
+    heroSlides.style.transform = 'translateX(-' + (heroIndex * 100) + '%)';
+    heroDots.forEach(function(d, i) {
+      d.classList.toggle('active', i === heroIndex);
+      d.setAttribute('aria-selected', i === heroIndex ? 'true' : 'false');
+    });
+  }
+
+  function heroResetTimer() {
+    clearInterval(heroTimer);
+    heroTimer = setInterval(function() { window.heroNav(1); }, 5000);
+  }
+  heroResetTimer();
+
+  /* testimonial carousel */
+  let testimonialIndex = 0;
+  const testimonialTrack = document.getElementById('testimonialTrack');
+  const testimonialDots = document.querySelectorAll('.carousel-dot');
+  const testimonialTotal = testimonialDots.length;
+  let testimonialTimer;
+
+  window.testimonialGo = function(idx) {
+    testimonialIndex = idx;
+    testimonialUpdate();
+    testimonialResetTimer();
+  };
+
+  function testimonialUpdate() {
+    testimonialTrack.style.transform = 'translateX(-' + (testimonialIndex * 100) + '%)';
+    testimonialDots.forEach(function(d, i) {
+      d.classList.toggle('active', i === testimonialIndex);
+      d.setAttribute('aria-selected', i === testimonialIndex ? 'true' : 'false');
+    });
+  }
+
+  function testimonialResetTimer() {
+    clearInterval(testimonialTimer);
+    testimonialTimer = setInterval(function() {
+      testimonialIndex = (testimonialIndex + 1) % testimonialTotal;
+      testimonialUpdate();
+    }, 6000);
+  }
+  testimonialResetTimer();
+
+  /* stats counter with intersection observer */
+  const statNumbers = document.querySelectorAll('.stat-number');
+  let statsCounted = false;
+
+  function animateStats() {
+    statNumbers.forEach(function(el) {
+      var target = parseInt(el.getAttribute('data-target'), 10);
+      var duration = 1500;
+      var start = 0;
+      var startTime = null;
+
+      function step(ts) {
+        if (!startTime) startTime = ts;
+        var progress = Math.min((ts - startTime) / duration, 1);
+        el.textContent = Math.floor(progress * target);
+        if (progress < 1) requestAnimationFrame(step);
+        else el.textContent = target;
+      }
+      requestAnimationFrame(step);
+    });
+  }
+
+  var statsObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && !statsCounted) {
+        statsCounted = true;
+        animateStats();
+        statsObserver.disconnect();
+      }
+    });
+  }, { threshold: 0.3 });
+
+  var statsSection = document.querySelector('.stats-grid');
+  if (statsSection) statsObserver.observe(statsSection);
+
+  /* services toggle */
+  window.toggleService = function(el) {
+    var detail = el.querySelector('.detail');
+    var expanded = el.getAttribute('aria-expanded') === 'true';
+    detail.classList.toggle('expanded');
+    el.setAttribute('aria-expanded', !expanded);
+  };
+
+  /* newsletter form */
+  window.handleNewsletter = function(e) {
+    e.preventDefault();
+    var input = e.target.querySelector('input');
+    var btn = e.target.querySelector('button');
+    btn.textContent = 'subscribed';
+    btn.style.opacity = '0.7';
+    input.value = '';
+    setTimeout(function() {
+      btn.textContent = 'subscribe';
+      btn.style.opacity = '1';
+    }, 2000);
+  };
+
+  /* keyboard navigation for hero slider */
+  document.querySelector('.hero-slider').addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowLeft') { window.heroNav(-1); e.preventDefault(); }
+    if (e.key === 'ArrowRight') { window.heroNav(1); e.preventDefault(); }
+  });
+
+  /* keyboard navigation for testimonials */
+  document.querySelector('.testimonial-carousel').addEventListener('keydown', function(e) {
+    if (e.key === 'ArrowLeft') { window.testimonialGo((testimonialIndex - 1 + testimonialTotal) % testimonialTotal); e.preventDefault(); }
+    if (e.key === 'ArrowRight') { window.testimonialGo((testimonialIndex + 1) % testimonialTotal); e.preventDefault(); }
+  });
+
+  /* keyboard support for service items */
+  document.querySelectorAll('.service-item').forEach(function(item) {
+    item.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        window.toggleService(item);
+      }
+    });
+  });
+
+})();
+</script>
+
+</body>
+</html>

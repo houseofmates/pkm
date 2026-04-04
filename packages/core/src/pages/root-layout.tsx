@@ -251,6 +251,8 @@ export function RootLayout() {
     if (name.startsWith('doc_')) { navigate(`/page/${name.replace('doc_', '')}`); setActiveTab('databases'); setSelectedCollection(name); return; }
     if (name.startsWith('drawing_')) { navigate(`/drawings/${name.replace('drawing_', '')}`); setActiveTab('databases'); setSelectedCollection(name); return; }
     setSelectedCollection(name);
+    // Use the backend collection name (id) for navigation, which may differ from display name
+    // The name parameter here is the item.id which is the actual backend collection name
     navigate('/databases/' + encodeURIComponent(name), { state: { fromSidebar: true } });
     setActiveTab('databases');
   };

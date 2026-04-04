@@ -4,26 +4,28 @@ import { secureLogger } from '@/lib/secure-logger';
 
 // global singleton to reuse connection
 let socket: Socket | null = null;
+let socketRefCount = 0;
 
 export const useSocket = () => {
   const [isConnected, setIsConnected] = useState(false);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
+    socketRefCount++;
+    socketRef.current = socket;
+
     if (!socket) {
-      // connecting to host ip for cross-device support
-      socket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:4100', {
+      socket = io(import.meta.env.VITE_SOCKET_URL || 'wss://db.houseofmates.space', {
         reconnectionAttempts: 5,
         reconnectionDelay: 1000,
         autoConnect: true,
         timeout: 10000,
-        forceNew: true,
       });
 
       socket.on('connect', () => {
         secureLogger.info('Socket connected:', socket?.id);
         setIsConnected(true);
-        // Clear any pending reconnect timeout
         if (reconnectTimeoutRef.current) {
           clearTimeout(reconnectTimeoutRef.current);
           reconnectTimeoutRef.current = null;
@@ -37,7 +39,6 @@ export const useSocket = () => {
 
       socket.on('connect_error', (err) => {
         secureLogger.warn("Socket connect error:", err?.message || err);
-        // Don't let socket errors crash the app - just log them
         setIsConnected(false);
       });
 
@@ -59,12 +60,17 @@ export const useSocket = () => {
     }
 
     return () => {
-      // Clean up reconnect timeout on unmount
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
         reconnectTimeoutRef.current = null;
       }
-      // We keep the socket open for the app session
+      socketRefCount--;
+      if (socketRefCount <= 0 && socket) {
+        secureLogger.info('Disconnecting socket (no active consumers)');
+        socket.disconnect();
+        socket = null;
+        socketRefCount = 0;
+      }
     };
   }, []);
 
