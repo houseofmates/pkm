@@ -83,7 +83,7 @@ export const TableManager: React.FC = () => {
           {visibleCollections.length > 0 ? (
             <ul className="list-disc pl-5 space-y-1">
               {visibleCollections.map(collection => (
-                <li key={collection.name}>{parseI18nTemplate(collection.title || collection.name)}</li>
+                <li key={collection.name}>{collection.title || collection.name}</li>
               ))}
             </ul>
           ) : (
