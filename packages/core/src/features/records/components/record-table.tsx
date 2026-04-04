@@ -742,11 +742,6 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       // apply deterministic column sorting
       cols = sortColumns(cols);
     }
-      }));
-
-      // apply deterministic column sorting
-      cols = sortColumns(cols);
-    }
 
     // fallback: if no collection fields are defined but we have data, infer columns from the first row
     if (cols.length === 0 && dataColumnsKey) {
