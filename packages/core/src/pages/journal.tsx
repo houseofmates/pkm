@@ -1029,7 +1029,7 @@ function StatsCharts({ entries }: StatsChartsProps) {
       try {
         const emos = JSON.parse((e as any).emotions || '[]');
         emos.forEach((em: string) => { freq[em] = (freq[em] || 0) + 1; });
-      } catch {}
+      } catch (e) { secureLogger.debug("failed to parse journal data:", e); }
     });
     return Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 10).map(([name, count]) => ({ name, count }));
   }, [filteredEntries]);
@@ -2128,7 +2128,7 @@ export function JournalPage() {
             toast.success('restored draft from earlier');
           }
         }
-      } catch {}
+      } catch (e) { secureLogger.debug("failed to parse journal data:", e); }
     }
   }, []);
 
@@ -2344,7 +2344,7 @@ export function JournalPage() {
       const ollama = new OllamaClient();
       const text = recent.map(e => `${e.date}: ${e.body || ''}`).join('\n');
       summary = await ollama.ask(`provide a long detailed lowercase summary of these journal entries for the past two weeks:\n${text}`);
-    } catch {}
+    } catch (e) { secureLogger.debug("failed to parse journal data:", e); }
     const htmlEntries = recent.map(e => {
       const mood = MOODS.find(m => m.id === e.mood)?.label || '';
       return `<div style="margin-bottom:1em;"><strong>${e.date} (${mood})</strong><p>${e.body?.replace(/\n/g,'<br>') || ''}</p></div>`;
@@ -2476,9 +2476,9 @@ ${entriesText}`;
             payload.weather = `${wjson.current_weather.temperature}°C`;
             payload.body += `\n\nweather: ${payload.weather}`;
           }
-        } catch {}
+        } catch (e) { secureLogger.debug("failed to parse journal data:", e); }
       }
-    } catch {}
+    } catch (e) { secureLogger.debug("failed to parse journal data:", e); }
 
     try {
       if (editingEntry?.id) {

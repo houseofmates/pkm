@@ -1,43 +1,48 @@
 /**
- * Deep sanitization utility for logging objects/arrays
- */
-export function sanitizeForLogging(input: any): any {
-  if (typeof input === 'string') {
-    return sanitizeMessage(input);
-  }
-  if (Array.isArray(input)) {
-    return input.map(sanitizeForLogging);
-  }
-  if (typeof input === 'object' && input !== null) {
-    const sanitized: any = {};
-    for (const key in input) {
-      if (Object.prototype.hasOwnProperty.call(input, key)) {
-        // never log keys named token, api_key, password, secret, credential
-        if (/token|api[_-]?key|password|secret|credential/i.test(key)) {
-          sanitized[key] = '[REDACTED]';
-        } else {
-          sanitized[key] = sanitizeForLogging(input[key]);
-        }
-      }
-    }
-    return sanitized;
-  }
-  return input;
-}
-/**
  * secure logger - privacy-first logging system
- * 
+ *
  * this logger ensures no sensitive data leaks to browser console unless:
  * 1. user is authenticated with valid nocobase api key
  * 2. explicitly in development mode with vite_debug=true
  * 3. privacy mode is disabled
- * 
+ *
  * for a did system with sensitive headmate data, this is critical.
  */
 
+import { storageManager } from './storage-manager';
+
+/**
+ * Deep sanitization utility for logging objects/arrays
+ */
+export function sanitizeForLogging<T>(input: T): T {
+  if (typeof input === 'string') {
+    return sanitizeMessage(input) as unknown as T;
+  }
+  if (Array.isArray(input)) {
+    return input.map(item => sanitizeForLogging(item)) as unknown as T;
+  }
+  if (typeof input === 'object' && input !== null) {
+    const sanitized = {} as Record<string, unknown>;
+    const obj = input as Record<string, unknown>;
+
+    for (const key in obj) {
+      if (Object.prototype.hasOwnProperty.call(obj, key)) {
+        // never log keys named token, api_key, password, secret, credential
+        if (/token|api[_-]?key|password|secret|credential/i.test(key)) {
+          sanitized[key] = '[REDACTED]';
+        } else {
+          sanitized[key] = sanitizeForLogging(obj[key]);
+        }
+      }
+    }
+    return sanitized as unknown as T;
+  }
+  return input;
+}
+
 type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 
-interface LogEntry {
+export interface LogEntry {
   timestamp: string;
   level: LogLevel;
   message: string;
@@ -60,29 +65,19 @@ const SENSITIVE_PATTERNS = [
   { pattern: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/gi, replacement: '[EMAIL_REDACTED]' }, // Emails
 ];
 
-import { storageManager } from './storage-manager';
-
 // check if user is properly authenticated
 function isAuthenticated(): boolean {
   if (typeof window === 'undefined') return false;
   
   try {
-    const token = storageManager.getItem('nocobase_token');
-    const homKey = storageManager.getItem('hom_api_key');
+    const token = storageManager.getCachedSecret('nocobase_token');
+    const homKey = storageManager.getCachedSecret('hom_api_key');
     
-    // must have a real token (not null/undefined/empty)
-    const hasValidToken = token && 
-      token !== 'null' && 
-      token !== 'undefined' && 
-      token.trim().length > 20; // JWT minimum length
+    const hasValidToken = !!(token && token.trim().length > 20);
+    const hasValidHomKey = !!(homKey && homKey.trim().length > 10);
     
-    const hasValidHomKey = homKey && 
-      homKey !== 'null' && 
-      homKey !== 'undefined' && 
-      homKey.trim().length > 10;
-    
-    return !!(hasValidToken || hasValidHomKey);
-  } catch (e) {
+    return hasValidToken || hasValidHomKey;
+  } catch {
     return false;
   }
 }
@@ -97,11 +92,11 @@ function isDebugMode(): boolean {
 
 // check if privacy mode is enabled
 function isPrivacyModeEnabled(): boolean {
-  if (typeof window === 'undefined') return true; // Default to privacy on
+  if (typeof window === 'undefined') return true;
   try {
     const privacyMode = storageManager.getItem('pkm_privacy_mode');
-    return privacyMode !== 'false'; // Default true unless explicitly disabled
-  } catch (e) {
+    return privacyMode !== 'false';
+  } catch {
     return true;
   }
 }
@@ -109,15 +104,11 @@ function isPrivacyModeEnabled(): boolean {
 // sanitize message to remove sensitive data
 function sanitizeMessage(message: string): string {
   let sanitized = message;
-  
   for (const { pattern, replacement } of SENSITIVE_PATTERNS) {
     sanitized = sanitized.replace(pattern, replacement);
   }
-  
   return sanitized;
 }
-
-// check if message contains sensitive data (unused - removed)
 
 // store log entry in history
 function storeLogEntry(entry: LogEntry): void {
@@ -129,7 +120,7 @@ function storeLogEntry(entry: LogEntry): void {
 
 // main logging function
 function createLogger(level: LogLevel) {
-  return function(message: string, ...args: any[]) {
+  return function(message: string, ...args: unknown[]) {
     const authenticated = isAuthenticated();
     const privacyMode = isPrivacyModeEnabled();
     const debugMode = isDebugMode();
@@ -137,7 +128,6 @@ function createLogger(level: LogLevel) {
     // build full message
     const fullMessage = [message, ...args.map(arg => {
       if (arg instanceof Error) {
-        // Handle Error objects specially - JSON.stringify returns {} for errors
         return `${arg.name}: ${arg.message}${arg.stack ? `\n${arg.stack}` : ''}`;
       }
       if (typeof arg === 'object' && arg !== null) {
@@ -197,15 +187,12 @@ export const secureLogger = {
   warn: createLogger('warn'),
   error: createLogger('error'),
   
-  // get log history for security dashboard
   getHistory: (): LogEntry[] => [...LOG_HISTORY],
   
-  // clear log history
   clearHistory: (): void => {
     LOG_HISTORY.length = 0;
   },
   
-  // check current security status
   getSecurityStatus: () => ({
     authenticated: isAuthenticated(),
     privacyMode: isPrivacyModeEnabled(),
@@ -213,18 +200,16 @@ export const secureLogger = {
     logCount: LOG_HISTORY.length,
   }),
   
-  // toggle privacy mode
   setPrivacyMode: (enabled: boolean): void => {
     if (typeof window === 'undefined') return;
     try {
-      localStorage.setItem('pkm_privacy_mode', String(enabled));
-    } catch (e) {
+      storageManager.setItem('pkm_privacy_mode', String(enabled));
+    } catch {
       // ignore storage errors
     }
   },
 };
 
-// convenience exports
 export const log = secureLogger.info;
 export const logDebug = secureLogger.debug;
 export const logWarn = secureLogger.warn;

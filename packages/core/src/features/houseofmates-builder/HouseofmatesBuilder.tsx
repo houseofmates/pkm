@@ -334,7 +334,7 @@ export function HouseofmatesBuilder() {
     hasFetchedRef.current = true;
 
     const init = async () => {
-      const key = storageManager.getItem('hom_api_key');
+      const key = storageManager.getCachedSecret('hom_api_key');
       // only set admin mode if we have an API key
       // on public domains without a key, stay in read-only public mode
       const shouldBeAdmin = !!key;
@@ -363,7 +363,7 @@ export function HouseofmatesBuilder() {
     try {
       // save token directly - it will be validated on first actual api call
       // this avoids timeout issues during login
-      storageManager.setItem('hom_api_key', apiKey);
+      await storageManager.setEncryptedItem('hom_api_key', apiKey);
 
       setIsAdmin(true);
       setShowLoginModal(false);
