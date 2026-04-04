@@ -69,6 +69,7 @@ describe('edgeless canvas integration', () => {
     it('should append multiple operations in a single transaction', async () => {
       const op1 = {
         type: 'path' as const,
+        targetId: 'p1',
         layerId: 'default',
         pathData: [['M', 0, 0], ['L', 10, 10]],
         stroke: '#ffffff',
@@ -78,6 +79,7 @@ describe('edgeless canvas integration', () => {
       }
       const op2 = {
         type: 'path' as const,
+        targetId: 'p2',
         layerId: 'default',
         pathData: [['M', 10, 10], ['L', 20, 20]],
         stroke: '#000000',
@@ -96,6 +98,7 @@ describe('edgeless canvas integration', () => {
     it('should mark operations as synced', async () => {
       const op = {
         type: 'path' as const,
+        targetId: 'path-sync',
         layerId: 'default',
         pathData: [['M', 0, 0]],
         stroke: '#f6b012',
