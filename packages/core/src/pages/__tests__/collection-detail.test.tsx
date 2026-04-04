@@ -2,7 +2,7 @@ import '@testing-library/jest-dom/vitest';
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { vi } from 'vitest';
+import { vi, describe, it, expect } from 'vitest';
 
 // mock the hook we just wrote
 vi.mock('@/hooks/use-collection-data', () => ({

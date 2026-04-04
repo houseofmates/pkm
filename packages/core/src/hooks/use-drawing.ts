@@ -169,7 +169,7 @@ export function useDrawing(id?: string, migrating?: boolean): UseDrawingResult {
   // persist element state (widgets, notes, etc.) when it changes
   useEffect(() => {
     if (!id) return;
-    let timeout: ReturnType<typeof window.setTimeout> | null = null;
+    let timeout: number | null = null;
     const unsubscribe = useEdgelessStore.subscribe((s, prev) => {
       if (s.elements === prev.elements) return;
       if (!initialLoadCompleteRef.current) return;

@@ -110,19 +110,19 @@ async function showNotification(title: string, body: string): Promise<void> {
         await LocalNotifications.requestPermissions();
       }
 
-      await LocalNotifications.schedule({
-        notifications: [
-          {
-            id: Math.floor(Math.random() * 100000),
-            title,
-            body,
-            schedule: { at: new Date(Date.now() + 1000) },
-            sound: '',
-            extra: { medicationReminder: true },
-            android: { channelId: 'medication-reminders', sound: '', smallIcon: 'ic_stat_icon', sticky: true, priority: 'high' },
-          },
-        ],
-      });
+      // capacitor typings omit platform keys; runtime plugin accepts this shape
+      const notifications = [
+        {
+          id: Math.floor(Math.random() * 100000),
+          title,
+          body,
+          schedule: { at: new Date(Date.now() + 1000) },
+          sound: '',
+          extra: { medicationReminder: true },
+          android: { channelId: 'medication-reminders', sound: '', smallIcon: 'ic_stat_icon', sticky: true, priority: 'high' },
+        },
+      ] as never;
+      await LocalNotifications.schedule({ notifications });
       return;
     } catch (e) {
       // fallback to web notification when plugin is unavailable
