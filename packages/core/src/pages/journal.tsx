@@ -12,10 +12,14 @@ import { PushToTalkWidget } from '@/components/push-to-talk-widget';
 import { ShowerLoggerModal } from '@/components/shower-logger-modal';
 
 // Lazy-load heavy dependencies to reduce initial bundle size
-const ReactQuill = lazy(async () => {
+const LazyReactQuill = lazy(async () => {
   const m = await import('react-quill-new');
   return { default: m.default };
-}) as unknown as React.ComponentType<any>;
+});
+
+// Wrapper component with proper typing
+const ReactQuill = (props: any) => <LazyReactQuill {...props} />;
+
 const RechartsModule = lazy(() => import('@/components/journal/recharts-wrapper'));
 
 // override focus/accent for journal buttons so color comes from the element itself
