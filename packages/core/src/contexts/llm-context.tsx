@@ -40,7 +40,7 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
       if (Array.isArray(list)) {
         setAvailableCollections(list.map((c: any) => c.name));
       }
-    }).catch((e) => { console.warn('Failed to fetch available collections:', e); });
+    }).catch((e) => { secureLogger.warn('Failed to fetch available collections:', e); });
   }, [client, isAuthenticated, hasAuthProvider]);
 
   // local state for aggregated context
