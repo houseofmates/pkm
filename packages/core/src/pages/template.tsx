@@ -376,35 +376,35 @@ export function TemplatePage() {
           onClick={() => setOnboardingOpen(!onboardingOpen)}
           className="w-full flex items-center justify-between p-4 text-left hover:bg-white/5 transition-colors"
         >
-          <span className="text-sm font-medium lowercase flex items-center gap-2">
+          <span className="text-sm font-medium flex items-center gap-2">
             <Info className="h-4 w-4 text-primary" />
             Getting Started
           </span>
           {onboardingOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
         </button>
         {onboardingOpen && (
-          <div className="px-4 pb-4 text-sm text-muted-foreground space-y-3 lowercase border-t border-white/5 pt-3">
-            <p>the template engine converts json schemas into fully functional workspaces. define your data structures, layout, and sample data below.</p>
+          <div className="px-4 pb-4 text-sm text-muted-foreground space-y-3 border-t border-white/5 pt-3">
+            <p>The template engine converts JSON schemas into fully functional workspaces. Define your data structures, layout, and sample data below.</p>
             <div>
-              <p className="font-medium text-foreground mb-1">json schema structure</p>
+              <p className="font-medium text-foreground mb-1">JSON Schema Structure</p>
               <ul className="list-disc pl-5 space-y-0.5">
-                <li><code className="text-primary">meta</code> — name, icon, description, and llm guidance</li>
-                <li><code className="text-primary">data</code> — sample rows for preview</li>
-                <li><code className="text-primary">databases</code> — collection definitions with properties</li>
-                <li><code className="text-primary">layout</code> — column-based widget arrangement</li>
+                <li><code className="text-primary">meta</code> — Name, icon, description, and LLM guidance</li>
+                <li><code className="text-primary">data</code> — Sample rows for preview</li>
+                <li><code className="text-primary">databases</code> — Collection definitions with properties</li>
+                <li><code className="text-primary">layout</code> — Column-based widget arrangement</li>
               </ul>
             </div>
             <div>
-              <p className="font-medium text-foreground mb-1">buttons</p>
+              <p className="font-medium text-foreground mb-1">Buttons</p>
               <ul className="list-disc pl-5 space-y-0.5">
-                <li><strong>load sample</strong> — inject a minimal template</li>
-                <li><strong>save</strong> — persist current json to settings</li>
-                <li><strong>preview</strong> — validate and render the pipeline</li>
-                <li><strong>build workspace</strong> — create databases, fields, and layout</li>
+                <li><strong>Load Sample</strong> — Inject a minimal template</li>
+                <li><strong>Save</strong> — Persist current JSON to settings</li>
+                <li><strong>Preview</strong> — Validate and render the pipeline</li>
+                <li><strong>Build Workspace</strong> — Create databases, fields, and layout</li>
               </ul>
             </div>
             <details className="text-xs">
-              <summary className="cursor-pointer text-foreground font-medium lowercase">minimal valid example</summary>
+              <summary className="cursor-pointer text-foreground font-medium">Minimal Valid Example</summary>
               <pre className="mt-2 p-2 bg-black/40 rounded-lg text-[11px] overflow-x-auto font-mono">{`{
   "meta": { "name": "my workspace" },
   "databases": [{ "key": "tasks", "properties": [{ "name": "title", "type": "text" }] }],
@@ -421,13 +421,13 @@ export function TemplatePage() {
             <CardTitle className="text-sm font-medium flex items-center gap-2">editor.json</CardTitle>
             <div className="flex gap-2">
               <Button variant="ghost" size="sm" onClick={loadSample} className="h-8 gap-2 text-xs">
-                <Info className="h-4 w-4" /> load sample
+                <Info className="h-4 w-4" /> Load Sample
               </Button>
               <Button variant="ghost" size="sm" onClick={saveTemplate} className="h-8 gap-2 text-xs">
-                <Database className="h-4 w-4" /> save
+                <Database className="h-4 w-4" /> Save
               </Button>
               <Button variant="ghost" size="sm" onClick={validateJson} className="h-8 gap-2 text-xs text-primary">
-                <Eye className="h-4 w-4" /> preview
+                <Eye className="h-4 w-4" /> Preview
               </Button>
             </div>
           </CardHeader>
@@ -459,25 +459,25 @@ export function TemplatePage() {
           <Card className="border-white/5 bg-white/5 backdrop-blur-xl">
             <CardHeader className="py-3 px-4 flex flex-row items-center gap-2">
               <Info className="h-4 w-4 text-primary" />
-              <CardTitle className="text-sm font-medium">engine status</CardTitle>
+              <CardTitle className="text-sm font-medium">Engine Status</CardTitle>
             </CardHeader>
             <CardContent className="px-4 pb-4 space-y-4">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">validation state</span>
+                <span className="text-muted-foreground">Validation State</span>
                 <span className={cn(
                   "px-2 py-0.5 rounded-full text-[10px] font-bold ",
                   isValid === true ? "bg-green-500/20 text-green-500" :
                     isValid === false ? "bg-red-500/20 text-red-500" :
                       "bg-white/10 text-white/40"
                 )}>
-                  {isValid === true ? 'ready' : isValid === false ? 'failure' : 'pending'}
+                  {isValid === true ? 'Ready' : isValid === false ? 'Failure' : 'Pending'}
                 </span>
               </div>
               {error && <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-xs text-red-400 font-mono">{error}</div>}
               <div className="flex flex-col gap-2 pt-4">
-                <Button className="w-full gap-2 font-bold lowercase" onClick={buildWorkspace} disabled={!isValid || isBuilding}>
+                <Button className="w-full gap-2 font-bold" onClick={buildWorkspace} disabled={!isValid || isBuilding}>
                   <Play className="h-4 w-4" />
-                  {isBuilding ? 'building system...' : 'build workspace'}
+                  {isBuilding ? 'Building System...' : 'Build Workspace'}
                 </Button>
               </div>
             </CardContent>
@@ -486,14 +486,14 @@ export function TemplatePage() {
           <Card className="border-white/5 bg-white/5 backdrop-blur-xl flex-1 min-h-[400px] flex flex-col overflow-hidden">
             <CardHeader className="py-3 px-4 border-b border-white/5">
               <div className="flex items-center justify-between w-full">
-                <CardTitle className="text-sm font-medium">pipeline preview</CardTitle>
+                <CardTitle className="text-sm font-medium">Pipeline Preview</CardTitle>
                 <div className="flex gap-2">
-                  <Button size="sm" variant="ghost" onClick={undoLastChange} className="h-8 text-xs">undo</Button>
+                  <Button size="sm" variant="ghost" onClick={undoLastChange} className="h-8 text-xs">Undo</Button>
                   <Button size="sm" variant="ghost" onClick={() => setFullscreenOpen(true)} className="h-8 text-xs">
-                    <Maximize2 className="h-4 w-4 mr-1" /> fullscreen
+                    <Maximize2 className="h-4 w-4 mr-1" /> Fullscreen
                   </Button>
                   <Button size="sm" variant="ghost" onClick={createDocument} disabled={!isValid} className="h-8 text-xs bg-primary/10 text-primary">
-                    <FilePlus className="h-4 w-4 mr-1" /> create doc
+                    <FilePlus className="h-4 w-4 mr-1" /> Create Doc
                   </Button>
                 </div>
               </div>
@@ -503,7 +503,7 @@ export function TemplatePage() {
                 <div className="space-y-6">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="p-2 bg-primary/10 rounded-lg"><Layout className="h-4 w-4 text-primary" /></div>
-                    <span className="font-bold lowercase text-lg">{(() => { try { return JSON.parse(json).meta?.name; } catch { return 'untitled'; } })()}</span>
+                    <span className="font-bold text-lg">{(() => { try { return JSON.parse(json).meta?.name; } catch { return 'Untitled'; } })()}</span>
                   </div>
                   <LayoutRenderer
                     layout={{ columns: liveColumns, columnWidths: previewState.columnWidths }}
@@ -530,7 +530,7 @@ export function TemplatePage() {
               ) : (
                 <div className="h-full flex flex-col items-center justify-center text-muted-foreground py-10 opacity-30">
                   <Info className="h-10 w-10 mb-4" />
-                  <p className="text-sm lowercase">paste json to preview pipeline</p>
+                  <p className="text-sm">Paste JSON to Preview Pipeline</p>
                 </div>
               )}
             </CardContent>
@@ -542,15 +542,15 @@ export function TemplatePage() {
         <DialogContent className="max-w-[98vw] w-[98vw] h-[95vh] max-h-[95vh] p-0 bg-[#050505]/95 backdrop-blur-2xl border-white/10 flex flex-col">
           <DialogHeader className="px-8 py-6 border-b border-white/10 flex flex-row items-center justify-between flex-shrink-0 space-y-0">
             <div>
-              <DialogTitle className="text-2xl font-bold lowercase flex items-center gap-3">
+              <DialogTitle className="text-2xl font-bold flex items-center gap-3">
                 <Wand2 className="h-6 w-6 text-primary" />
-                {(() => { try { return JSON.parse(json).meta?.name; } catch { return 'preview'; } })()}
+                {(() => { try { return JSON.parse(json).meta?.name; } catch { return 'Preview'; } })()}
               </DialogTitle>
-              <DialogDescription className="lowercase">meticulous layout preview for template ingestion</DialogDescription>
+              <DialogDescription>Meticulous Layout Preview for Template Ingestion</DialogDescription>
             </div>
             <div className="flex gap-3">
-              <Button size="lg" className="gap-2 font-bold lowercase" onClick={createDocument} disabled={!isValid}>
-                <FilePlus className="h-5 w-5" /> export to document
+              <Button size="lg" className="gap-2 font-bold" onClick={createDocument} disabled={!isValid}>
+                <FilePlus className="h-5 w-5" /> Export to Document
               </Button>
               <Button size="icon" variant="ghost" onClick={() => setFullscreenOpen(false)} className="rounded-full">
                 <X className="h-6 w-6" />
