@@ -31,7 +31,60 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
 
   if (!record || !collection) return null;
 
-  const fields = collection.fields || [];
+  // Apply fallback fields for collections that don't have fields defined
+  const FALLBACK_FIELDS: Record<string, Array<{ name: string; type: string; interface?: string; uiSchema?: { title?: string } }>> = {
+    events: [
+      { name: 'title', type: 'string', interface: 'input', uiSchema: { title: 'Title' } },
+      { name: 'start_time', type: 'datetime', interface: 'datetime', uiSchema: { title: 'Start Time' } },
+      { name: 'end_time', type: 'datetime', interface: 'datetime', uiSchema: { title: 'End Time' } },
+      { name: 'location', type: 'string', interface: 'input', uiSchema: { title: 'Location' } },
+      { name: 'notes', type: 'text', interface: 'textarea', uiSchema: { title: 'Notes' } },
+      { name: 'url', type: 'string', interface: 'input', uiSchema: { title: 'URL' } },
+      { name: 'uid', type: 'string', interface: 'input', uiSchema: { title: 'UID' } },
+      { name: 'fronter', type: 'string', interface: 'input', uiSchema: { title: 'Fronter' } },
+    ],
+    exercise: [
+      { name: 'exercise_type', type: 'string', interface: 'input', uiSchema: { title: 'Exercise Type' } },
+      { name: 'duration', type: 'integer', interface: 'integer', uiSchema: { title: 'Duration' } },
+      { name: 'intensity', type: 'string', interface: 'select', uiSchema: { title: 'Intensity' } },
+      { name: 'calories', type: 'integer', interface: 'integer', uiSchema: { title: 'Calories' } },
+      { name: 'notes', type: 'text', interface: 'textarea', uiSchema: { title: 'Notes' } },
+      { name: 'created_at', type: 'datetime', interface: 'datetime', uiSchema: { title: 'Created At' } },
+      { name: 'fronter', type: 'string', interface: 'input', uiSchema: { title: 'Fronter' } },
+    ],
+    finances: [
+      { name: 'description', type: 'string', interface: 'input', uiSchema: { title: 'Description' } },
+      { name: 'amount', type: 'float', interface: 'input', uiSchema: { title: 'Amount' } },
+      { name: 'category', type: 'string', interface: 'select', uiSchema: { title: 'Category' } },
+      { name: 'type', type: 'string', interface: 'select', uiSchema: { title: 'Type' } },
+      { name: 'date', type: 'date', interface: 'datetime', uiSchema: { title: 'Date' } },
+      { name: 'notes', type: 'text', interface: 'textarea', uiSchema: { title: 'Notes' } },
+      { name: 'fronter', type: 'string', interface: 'input', uiSchema: { title: 'Fronter' } },
+    ],
+    journal: [
+      { name: 'title', type: 'string', interface: 'input', uiSchema: { title: 'Title' } },
+      { name: 'content', type: 'text', interface: 'markdown', uiSchema: { title: 'Content' } },
+      { name: 'mood', type: 'string', interface: 'select', uiSchema: { title: 'Mood' } },
+      { name: 'tags', type: 'json', interface: 'tag', uiSchema: { title: 'Tags' } },
+      { name: 'created_at', type: 'datetime', interface: 'datetime', uiSchema: { title: 'Created At' } },
+      { name: 'fronter', type: 'string', interface: 'input', uiSchema: { title: 'Fronter' } },
+    ],
+    sleep: [
+      { name: 'bedtime', type: 'datetime', interface: 'datetime', uiSchema: { title: 'Bedtime' } },
+      { name: 'wake_time', type: 'datetime', interface: 'datetime', uiSchema: { title: 'Wake Time' } },
+      { name: 'duration', type: 'float', interface: 'input', uiSchema: { title: 'Duration' } },
+      { name: 'quality', type: 'integer', interface: 'integer', uiSchema: { title: 'Quality' } },
+      { name: 'notes', type: 'text', interface: 'textarea', uiSchema: { title: 'Notes' } },
+      { name: 'created_at', type: 'datetime', interface: 'datetime', uiSchema: { title: 'Created At' } },
+      { name: 'fronter', type: 'string', interface: 'input', uiSchema: { title: 'Fronter' } },
+    ],
+  };
+
+  const collectionWithFallback = collection.fields && collection.fields.length > 0 
+    ? collection 
+    : { ...collection, fields: FALLBACK_FIELDS[collection.name] || [] };
+
+  const fields = collectionWithFallback.fields || [];
   
   // filter out internal/system fields
   const displayFields = fields.filter((f: any) => {
