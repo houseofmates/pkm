@@ -170,25 +170,25 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             <div className="p-4 md:p-8 h-full flex items-center justify-center">
                 <Card className="max-w-md w-full">
                     <CardHeader>
-                        <CardTitle>connect nocobase</CardTitle>
+                        <CardTitle>Connect NocoBase</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <Label>api token</Label>
+                            <Label>API Token</Label>
                             <Input
                                 type="password"
                                 value={apiKey}
                                 onChange={(e) => setApiKey(e.target.value)}
-                                placeholder="enter nocobase api token"
+                                placeholder="Enter NocoBase API Token"
                             />
                             <p className="text-xs text-muted-foreground">
-                                your token is stored locally.
+                                Your Token Is Stored Locally.
                             </p>
                             <p className="text-xs text-muted-foreground">
-                                <strong>note:</strong> accessing via ip address requires re-authentication as localstorage is origin-specific.
+                                <strong>Note:</strong> Accessing via IP address requires re-authentication as localstorage is origin-specific.
                             </p>
                         </div>
-                        <Button className="w-full" onClick={handleLogin}>connect</Button>
+                        <Button className="w-full" onClick={handleLogin}>Connect</Button>
                     </CardContent>
                 </Card>
             </div>
