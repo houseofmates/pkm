@@ -208,7 +208,7 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
               <Button variant="ghost" size="icon" onClick={() => navDate(-1)}><ChevronLeft className="h-4 w-4" /></Button>
               <Button variant="ghost" size="icon" onClick={() => navDate(1)}><ChevronRight className="h-4 w-4" /></Button>
             </div>
-            <h3 className="text-lg font-semibold lowercase min-w-[150px] text-center md:text-left">{headerTitle}</h3>
+            <h3 className="text-lg font-semibold min-w-[150px] text-center md:text-left">{headerTitle}</h3>
           </div>
           <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)} className="w-full md:w-auto">
             <TabsList className="grid w-full grid-cols-4 md:w-auto">
