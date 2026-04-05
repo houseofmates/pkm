@@ -8,6 +8,7 @@
 // a custom `fetchimpl` can be injected at init time so mobile builds
 // can route requests through capacitor's native http bridge.
 
+import { secureLogger } from '@/lib/secure-logger';
 import type { AIWorkerAPI, SearchResultDTO, RagPromptResult, AskWithRagResult, ChatMessage, Attachment } from './ai-worker-types';
 
 // ---------------------------------------------------------------------------
@@ -47,15 +48,11 @@ export function init(
     _authToken = authToken;
     
     // log the incoming ollamabaseurl for debugging
-    if (typeof console !== 'undefined' && console.info) {
-        console.info('[ai-worker] init called with ollamaBaseUrl:', ollamaBaseUrl);
-    }
+    secureLogger.info('[ai-worker] init called with ollamaBaseUrl:', ollamaBaseUrl);
     
     _ollamaBaseUrl = (ollamaBaseUrl || _ollamaBaseUrl || 'http://localhost:11434').replace(/\/+$/, '');
     
-    if (typeof console !== 'undefined' && console.info) {
-        console.info('[ai-worker] resolved _ollamaBaseUrl:', _ollamaBaseUrl);
-    }
+    secureLogger.info('[ai-worker] resolved _ollamaBaseUrl:', _ollamaBaseUrl);
 
     const defaultEmbeddingEndpoint = `${_ollamaBaseUrl}/api/embeddings`;
     if (vectorConfig) Object.assign(VECTOR_CONFIG, vectorConfig);
@@ -122,7 +119,7 @@ async function generateEmbedding(text: string): Promise<number[]> {
 async function searchKnowledgeBase(query: string, topK: number = VECTOR_CONFIG.topK): Promise<SearchResultDTO[]> {
     // skip the ai knowledge base search - it requires a collection that doesn't exist
     // just use the fallback local search which searches through collections directly
-    console.log('[ai-worker] Using fallback local search (knowledge base not available)');
+    secureLogger.info('[ai-worker] Using fallback local search (knowledge base not available)');
     return fallbackLocalSearch(query, topK);
 }
 
@@ -302,9 +299,7 @@ async function chatStream(
 ): Promise<string> {
     const resolvedEndpoint = resolveOllamaEndpointForWorker(endpoint, '/api/generate');
     
-    if (typeof console !== 'undefined' && console.info) {
-        console.info('[ai-worker] chatStream using endpoint:', resolvedEndpoint, '(input was:', endpoint + ')');
-    }
+    secureLogger.info('[ai-worker] chatStream using endpoint:', resolvedEndpoint, '(input was:', endpoint + ')');
 
     const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedendpoint);
 
@@ -384,9 +379,7 @@ async function chatStreamMultimodal(
 ): Promise<string> {
     const resolvedEndpoint = resolveOllamaEndpointForWorker(endpoint, '/api/chat');
     
-    if (typeof console !== 'undefined' && console.info) {
-        console.info('[ai-worker] chatStreamMultimodal using endpoint:', resolvedEndpoint, 'model:', model);
-    }
+    secureLogger.info('[ai-worker] chatStreamMultimodal using endpoint:', resolvedEndpoint, 'model:', model);
 
     const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedendpoint);
     if (isGemini) {
@@ -496,14 +489,14 @@ async function askWithRag(
     endpoint: string,
     onToken: (cumulativeContent: string) => void,
 ): Promise<AskWithRagResult> {
-    console.log('[ai-worker] askWithRag called:', { query: query.slice(0, 50), fronterName, model, endpoint: endpoint.slice(0, 100) });
+    secureLogger.info('[ai-worker] askWithRag called:', { query: query.slice(0, 50), fronterName, model, endpoint: endpoint.slice(0, 100) });
     
     // vision models need the chat endpoint with messages format
     // qwen2.5-coder:7b-instruct-q4_k_s is actually the vl model renamed for pieces os compatibility
     const isVisionModel = model.includes('vl') || model.includes('vision') || model.includes('llava') || model.includes('qwen2.5-coder');
     
     if (isVisionModel) {
-        console.log('[ai-worker] Detected vision model, using chat endpoint');
+        secureLogger.info('[ai-worker] Detected vision model, using chat endpoint');
         try {
             const ragCtx = await buildRagContext(query, 8);
             const systemContent = `${WILSON_RAG_SYSTEM_PROMPT}\n\ncurrent user: ${fronterName}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}`;
@@ -512,16 +505,16 @@ async function askWithRag(
                 { role: 'user', content: query }
             ];
             const response = await chatStreamMultimodal(messages, model, endpoint, onToken);
-            console.log('[ai-worker] Vision model response received');
+            secureLogger.info('[ai-worker] Vision model response received');
             return { response: response.toLowerCase(), sources: ragCtx.sources };
         } catch (e) {
-            console.error('[ai-worker] Vision model error:', e);
+            secureLogger.error('[ai-worker] Vision model error:', e);
             throw e;
         }
     }
     
     // non-vision models use the generate endpoint
-    console.log('[ai-worker] Using generate endpoint');
+    secureLogger.info('[ai-worker] Using generate endpoint');
     const { prompt, sources } = await buildRagPrompt(query, fronterName);
     const response = await chatStream(prompt, model, endpoint, onToken);
     return { response: response.toLowerCase(), sources };
@@ -566,14 +559,12 @@ async function askWithRagAndAttachments(
         { role: 'user', content: userContent }
     ];
     
-    if (typeof console !== 'undefined' && console.info) {
-        console.info('[ai-worker] askWithRagAndAttachments:', { 
+    secureLogger.info('[ai-worker] askWithRagAndAttachments:', { 
             model, 
             query, 
             attachmentCount: attachments?.length || 0,
             sources: ragCtx.sources.length
         });
-    }
     
     // use multimodal streaming for vision models
     const isVisionModel = model.includes('vl') || model.includes('vision') || model.includes('llava');
