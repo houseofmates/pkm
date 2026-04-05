@@ -580,12 +580,12 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
 
 
   const tabs = [
-    { id: 'databases', icon: Database, label: 'databases' },
-    { id: 'captures', icon: Inbox, label: 'captures' },
-    { id: 'home', icon: Home, label: 'home' },
-    { id: 'journal', icon: BookOpen, label: 'journal' },
-    { id: 'calendar', icon: LucideIcons.Calendar, label: 'calendar' },
-    { id: 'headmates', icon: Users, label: 'headmates' },
+    { id: 'databases', icon: Database, label: 'Databases' },
+    { id: 'captures', icon: Inbox, label: 'Captures' },
+    { id: 'home', icon: Home, label: 'Home' },
+    { id: 'journal', icon: BookOpen, label: 'Journal' },
+    { id: 'calendar', icon: LucideIcons.Calendar, label: 'Calendar' },
+    { id: 'headmates', icon: Users, label: 'Headmates' },
   ] as const;
 
   const handleOpenChat = () => {
@@ -599,7 +599,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         {/* top icons */}
         <div className="flex items-center justify-around px-2 mb-2">
           <NavIconButton
-            tab={{ id: 'chat', icon: MessageSquare, label: 'wilson chat' }}
+            tab={{ id: 'chat', icon: MessageSquare, label: 'Wilson Chat' }}
             isActive={false}
             onClick={handleOpenChat}
           />
@@ -624,7 +624,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
               variant="ghost"
               size="icon"
               className="h-5 w-5 rounded-full hover:bg-muted text-primary"
-              title="new folder"
+              title="New folder"
               onClick={() => setFolderDialogOpen(true)}
             >
               <Folder className="h-3 w-3" />
@@ -708,7 +708,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             variant="ghost"
             size="icon"
             className="h-5 w-5 rounded-full hover:bg-primary-soft ml-auto text-primary"
-            title="template ingestion engine"
+            title="Template Ingestion Engine"
             onClick={() => navigate('/template')}
           >
             <Wand2 className="h-3 w-3" />
@@ -718,7 +718,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             variant="ghost"
             size="icon"
             className="h-5 w-5 rounded-full hover:bg-primary-soft ml-2 text-primary"
-            title="infinite canvas database"
+            title="Infinite Canvas Database"
             onClick={() => navigate('/db-canvas')}
           >
             <LayoutDashboard className="h-3 w-3" />
@@ -803,7 +803,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             onClick={() => window.dispatchEvent(new CustomEvent('pkm:open-search'))}
           >
             <MessageCircle className="h-4 w-4" />
-            <span className="text-xs">search / ask ai...</span>
+            <span className="text-xs">Search / Ask AI...</span>
           </Button>
 
           <Button
@@ -811,10 +811,10 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
             size="icon"
             className="w-full justify-start gap-2 px-3 mt-1 text-muted-foreground hover:text-primary hover:bg-white/5 transition-colors border-none shadow-none"
             onClick={() => navigate('/settings')}
-            title="settings"
+            title="Settings"
           >
             <Settings className="h-4 w-4" />
-            <span className="text-xs">settings</span>
+            <span className="text-xs">Settings</span>
           </Button>
         </div>
       </div>
