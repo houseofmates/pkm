@@ -124,7 +124,7 @@ export function DatabaseSettingsForm({
                 {info.icontype === 'image' ? (
                   <img src={info.icon} className="h-4 w-4 object-contain" />
                 ) : (
-                  <span className="text-xs">{info.icon || 'Select'}</span>
+                  <span className="text-xs">{info.icon || 'select'}</span>
                 )}
               </Button>
               {/* hidden upload for icon */}
@@ -188,7 +188,7 @@ export function DatabaseSettingsForm({
           >
             <Star className={cn("h-3 w-3", info.default_view === currentView ? "fill-yellow-500 text-yellow-500" : "")} />
             <span className="text-xs">
-              {info.default_view === currentView ? 'Current view is default' : `Set "${currentView}" as default`}
+              {info.default_view === currentView ? 'current view is default' : `set "${currentView}" as default`}
             </span>
           </Button>
         </div>

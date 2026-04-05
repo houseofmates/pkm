@@ -273,7 +273,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
               onDoubleClick={startEditing}
             >
               <div
-                className="whitespace-nowrap overflow-hidden text-ellipsis font-medium leading-[1.2] text-base text-center w-full flex items-center justify-center gap-1"
+                className="whitespace-nowrap overflow-hidden text-ellipsis font-medium leading-[1.2] text-base text-center w-full flex items-center justify-center gap-1 lowercase"
                 style={{ minWidth: '80px', maxWidth: '200px', color: fieldColors[field?.name] || undefined }}
                 title={typeof header.column.columnDef.header === 'string' ? header.column.columnDef.header : String(header.column.columnDef.header || '')}
               >
