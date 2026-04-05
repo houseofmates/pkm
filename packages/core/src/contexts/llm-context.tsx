@@ -34,14 +34,15 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     if (!hasAuthProvider || !isAuthenticated || !client) return;
-  useEffect(() => {
-    if (!res) return;
-    const list = Array.isArray(res?.data) ? res.data : res?.data;
-
-      if (Array.isArray(list)) {
-        setAvailableCollections(list.map((c: any) => c.name));
-      }
-    }).catch((e) => { secureLogger.warn('Failed to fetch available collections:', e); });
+    client.listCollections({ pageSize: 100 })
+      .then((res: any) => {
+        if (!res) return;
+        const list = Array.isArray(res?.data) ? res.data : res?.data;
+        if (Array.isArray(list)) {
+          setAvailableCollections(list.map((c: any) => c.name));
+        }
+      })
+      .catch((e) => { secureLogger.warn('Failed to fetch available collections:', e); });
   }, [client, isAuthenticated, hasAuthProvider]);
 
   // local state for aggregated context
