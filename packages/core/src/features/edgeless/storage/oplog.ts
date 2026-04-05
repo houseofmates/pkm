@@ -106,7 +106,7 @@ export async function applyOp(canvas: FabricCanvas | null, op: DrawOp): Promise<
 
   switch (op.type) {
     case 'path': {
-      const path = new fabricRef.Path(op.pathData as unknown as string | fabric.TComplexPathData, {
+      const path = new fabricRef.Path(op.pathData as unknown as string | import('fabric').TComplexPathData, {
         stroke: op.stroke,
         strokeWidth: op.strokeWidth,
         fill: undefined,
@@ -134,7 +134,7 @@ export async function applyOp(canvas: FabricCanvas | null, op: DrawOp): Promise<
         // remove old, add new segments
         canvas.remove(target)
         for (const seg of op.segmentsKept) {
-          const newPath = new fabricRef.Path(seg as unknown as string | fabric.TComplexPathData, {
+          const newPath = new fabricRef.Path(seg as unknown as string | import('fabric').TComplexPathData, {
             stroke: target.stroke,
             strokeWidth: target.strokeWidth,
             fill: undefined,
