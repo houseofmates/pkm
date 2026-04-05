@@ -25,7 +25,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { promisify } from 'util';
-import { exec } from 'child_process';
+import { exec, execFile } from 'child_process';
 import axios from 'axios';
 import ical from 'node-ical';
 
