@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/contexts/auth-context';
 import { useFronter } from '@/contexts/fronter-context';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -6,8 +6,6 @@ import { walWrite, walCommit, walFail } from '@/lib/write-ahead-log';
 import { registry } from '@/lib/link-registry';
 import { extractRecords } from '@/lib/nocobase-utils';
 import { secureLogger } from '@/lib/secure-logger';
-
-// types available from @/types/nocobase if needed
 
 interface QueryParams {
   page?: number;
@@ -49,31 +47,26 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
     staleTime: 30000, // consider data fresh for 30 seconds
   });
 
-  useEffect(() => {
-    if (data !== undefined) {
-      secureLogger.debug('[useRecords] data updated for', collectionName, data);
-    }
-  }, [data, collectionName]);
-
-
-  const records: Record<string, unknown>[] = extractRecords(data);
+  const records = useMemo(() => extractRecords(data), [data]);
   const meta: Meta | undefined = (data as { meta?: Meta })?.meta;
 
-  // if a non-zero page returns no records, try swapping between 0/1 once.
+  // handle pagination fallback without imperative settimeout
   const [pageFallbackTried, setPageFallbackTried] = useState(false);
+
+  useEffect(() => {
+    // reset fallback flag when collection or filters change significantly
+    setPageFallbackTried(false);
+  }, [collectionName, queryParams.pageSize]);
+
   useEffect(() => {
     if (
       !isFetching &&
       records.length === 0 &&
       !pageFallbackTried &&
-      typeof queryParams.page === 'number'
+      typeof queryParams.page === 'number' &&
+      queryParams.page !== 0
     ) {
-      const current = queryParams.page as number;
-      const newPage = current === 0 ? 1 : 0;
-      // postpone state update to avoid synchronous setstate in effect
-      setTimeout(() => {
-        setQueryParams((prev) => ({ ...prev, page: newPage }));
-      }, 0);
+      setQueryParams((prev) => ({ ...prev, page: 0 }));
       setPageFallbackTried(true);
     }
   }, [isFetching, records.length, pageFallbackTried, queryParams.page]);
@@ -82,11 +75,10 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
     if (newParams) {
       setQueryParams((prev) => ({ ...prev, ...newParams }));
     }
-    // refetch returns a promise that resolves once the request completes
     return refetch();
   };
 
-  // create
+  // create record mutation
   const createMutation = useMutation({
     mutationFn: async (data: Record<string, unknown>) => {
       const payload: Record<string, unknown> = { ...data };
@@ -108,7 +100,7 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
     },
   });
 
-  // update (optimistic)
+  // update record mutation (with optimistic updates)
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string | number; data: Record<string, unknown> }) => {
       const payload: Record<string, unknown> = { ...data };
@@ -132,11 +124,11 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
       await queryClient.cancelQueries({ queryKey: ['records', collectionName] });
       const previousData = queryClient.getQueryData(['records', collectionName, queryParams]);
 
-      queryClient.setQueryData(['records', collectionName, queryParams], (old: { data?: Array<{ id: string | number } & Record<string, unknown>> } | undefined) => {
+      queryClient.setQueryData(['records', collectionName, queryParams], (old: any) => {
         if (!old || !old.data) return old;
         return {
           ...old,
-          data: old.data.map((record) =>
+          data: old.data.map((record: any) =>
             String(record.id) === String(id) ? { ...record, ...data } : record
           ),
         };
@@ -154,7 +146,7 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
     },
   });
 
-  // delete
+  // delete record mutation
   const deleteMutation = useMutation({
     mutationFn: async (id: string | number) => {
       const walId = await walWrite(collectionName, String(id), 'delete', null);
@@ -215,12 +207,10 @@ export function useRecord(collectionName: string, recordId: string | number) {
     },
   });
 
-  // safely extract data from various response formats
+  // extract data from various response formats safely
   const extractRecordData = (responseData: unknown): unknown => {
     if (!responseData) return null;
     if (typeof responseData !== 'object') return responseData;
-
-    // try to extract from common wrapper formats
     const obj = responseData as Record<string, unknown>;
     return obj.data ?? responseData;
   };

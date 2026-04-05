@@ -736,7 +736,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   const columns = React.useMemo(() => {
     let cols: any[] = [];
 
-    if (collection.fields && collection.fields.length > 0) {
+    if (collection && collection.fields && collection.fields.length > 0) {
       const visibleFields = (collection.fields || [])
         .filter((f: any) => !f.hidden)
         .filter((f: any) => f.name && !hiddenColumns.includes(f.name));

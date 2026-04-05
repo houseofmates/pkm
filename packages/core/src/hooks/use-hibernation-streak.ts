@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
+import { secureLogger } from '@/lib/secure-logger'
 
 export interface HibernationStreakData {
   current: number
@@ -15,33 +16,33 @@ const GRACE_WINDOW_DAYS = 3
 
 function getToday(): string {
   const d = new Date()
+  // day-shift at 5am for consistent did tracking
   if (d.getHours() >= 0 && d.getHours() < 5) {
     d.setDate(d.getDate() - 1)
   }
-  return d.toLocaleDateString('en-CA')
-}
-
-function getYesterday(): string {
-  const d = new Date()
-  if (d.getHours() >= 0 && d.getHours() < 5) {
-    d.setDate(d.getDate() - 1)
-  }
-  d.setDate(d.getDate() - 1)
   return d.toLocaleDateString('en-CA')
 }
 
 function daysBetween(date1: string, date2: string): number {
-  const d1 = new Date(date1)
-  const d2 = new Date(date2)
-  const diff = Math.abs(d2.getTime() - d1.getTime())
-  return Math.floor(diff / (1000 * 60 * 60 * 24))
+  try {
+    const d1 = new Date(date1)
+    const d2 = new Date(date2)
+    const diff = Math.abs(d2.getTime() - d1.getTime())
+    return Math.floor(diff / (1000 * 60 * 60 * 24))
+  } catch {
+    return 999; // safe fallback for invalid dates
+  }
 }
 
 export function useHibernationStreak() {
   const [streakData, setStreakData] = useState<HibernationStreakData>(() => {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) {
-      return JSON.parse(saved)
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (saved) {
+        return JSON.parse(saved)
+      }
+    } catch (err) {
+      secureLogger.warn('corrupted streak data in storage', err);
     }
     return {
       current: 0,
@@ -54,35 +55,25 @@ export function useHibernationStreak() {
     }
   })
 
-  // save to localstorage whenever data changes
+  // sync to localstorage on every update
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(streakData))
   }, [streakData])
 
-  // check streak status on mount and daily
+  // validate streak status periodically
   useEffect(() => {
     const checkStreak = () => {
       const today = getToday()
       
-      if (!streakData.lastDate) {
-        // no streak yet
-        return
-      }
-      
-      if (streakData.lastDate === today) {
-        // already logged today
-        return
-      }
+      if (!streakData.lastDate) return;
+      if (streakData.lastDate === today) return;
       
       const daysSince = daysBetween(streakData.lastDate, today)
       
-      if (daysSince === 1) {
-        // yesterday - streak continues normally
-        return
-      }
+      if (daysSince === 1) return; // consecutive
       
       if (daysSince <= GRACE_WINDOW_DAYS) {
-        // within grace window - enter hibernation if not already
+        // enter hibernation within grace period
         if (!streakData.hibernating) {
           setStreakData(prev => ({
             ...prev,
@@ -92,7 +83,7 @@ export function useHibernationStreak() {
           }))
         }
       } else {
-        // past grace window - reset streak but save previous best
+        // hard reset after grace window expires
         if (streakData.current > 0) {
           setStreakData(prev => ({
             ...prev,
@@ -108,19 +99,16 @@ export function useHibernationStreak() {
 
     checkStreak()
     
-    // check every hour
+    // hourly check for day rollovers
     const interval = setInterval(checkStreak, 60 * 60 * 1000)
     return () => clearInterval(interval)
-  }, [streakData.lastDate, streakData.hibernating])
+  }, [streakData.lastDate, streakData.hibernating, streakData.current])
 
   const recordActivity = useCallback(() => {
     const today = getToday()
     
     setStreakData(prev => {
-      // already recorded today
-      if (prev.lastDate === today) {
-        return prev
-      }
+      if (prev.lastDate === today) return prev;
       
       let newCurrent = prev.current
       let newHibernating = false
@@ -128,33 +116,29 @@ export function useHibernationStreak() {
       let newGraceDaysUsed = 0
       
       if (!prev.lastDate) {
-        // first ever activity
         newCurrent = 1
       } else {
         const daysSince = daysBetween(prev.lastDate, today)
         
         if (daysSince === 1) {
-          // consecutive day - increment streak
           newCurrent = prev.current + 1
         } else if (daysSince <= GRACE_WINDOW_DAYS && prev.hibernating) {
-          // resumed from hibernation within grace window
+          // resume from hibernation
           newCurrent = prev.current + 1
           newHibernating = false
           newHibernationStart = null
           newGraceDaysUsed = 0
-        } else if (daysSince > GRACE_WINDOW_DAYS) {
-          // too long, start new streak
+        } else {
+          // reset for missed days
           newCurrent = 1
         }
       }
-      
-      const newLongest = Math.max(prev.longest, newCurrent)
       
       return {
         ...prev,
         current: newCurrent,
         lastDate: today,
-        longest: newLongest,
+        longest: Math.max(prev.longest, newCurrent),
         hibernating: newHibernating,
         hibernationStart: newHibernationStart,
         graceDaysUsed: newGraceDaysUsed

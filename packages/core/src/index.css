@@ -431,7 +431,7 @@ button,
   filter: drop-shadow(0 0 1px rgba(0, 0, 0, 0.2));
 }
 
-/* explicitly allow images like favicons/avatars to NOT be colored */
+/* explicitly allow images like favicons/avatars to not be colored */
 img svg,
 img .lucide,
 .avatar svg,
@@ -447,7 +447,7 @@ img .lucide,
 }
 
 /* kill random white borders, force them to primary or transparent */
-/* DISABLED: This was preventing widget borders from using custom colors
+/* disabled: this was preventing widget borders from using custom colors
 *[style*="border"],
 [class*="border"] {
   border-color: var(--primary) !important;
@@ -537,13 +537,13 @@ img .lucide,
   padding-bottom: max(env(safe-area-inset-bottom, 0px), 0px);
 }
 
-/* --- Canvas cursor system --- */
-/* Pen/eraser use a native SVG CSS cursor applied directly to the fabric canvas elements.
-   No cursor-none class or overlay div needed — the browser positions native cursors
-   correctly in all environments including Electron AppImage. */
+/* --- canvas cursor system --- */
+/* pen/eraser use a native svg css cursor applied directly to the fabric canvas elements.
+   no cursor-none class or overlay div needed — the browser positions native cursors
+   correctly in all environments including electron appimage. */
 
-/* --- Global interactive cursor hints (always active) --- */
-/* Pointer hand for clickable elements */
+/* --- global interactive cursor hints (always active) --- */
+/* pointer hand for clickable elements */
 button,
 [role="button"],
 .btn,
@@ -556,7 +556,7 @@ label.cursor-pointer,
   cursor: pointer;
 }
 
-/* Grab (palm) cursor for sliders */
+/* grab (palm) cursor for sliders */
 input[type="range"] {
   cursor: grab;
 }
