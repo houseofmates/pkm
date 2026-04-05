@@ -859,7 +859,8 @@ app.get('/api/players', requireAuth, async (req, res) => {
             return res.json({ players: [] });
         }
 
-        const { stdout, stderr } = await execPromise(`python3 "${scriptPath}"`);
+        const execFilePromise = promisify(execFile);
+        const { stdout, stderr } = await execFilePromise('python3', [scriptPath]);
 
         if (stderr) {
             console.warn('[Player Data] Warning:', stderr);
