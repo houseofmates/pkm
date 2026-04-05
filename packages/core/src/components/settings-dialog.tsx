@@ -65,33 +65,33 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                         </h4>
                         <div className="bg-white/5 p-3 rounded-lg flex items-center justify-between">
                             <div>
-                                <p className="text-sm font-medium lowercase">canvas web worker</p>
-                                <p className="text-xs text-muted-foreground lowercase">offloads idb ops to background thread</p>
+                                <p className="text-sm font-medium">Canvas Web Worker</p>
+                                <p className="text-xs text-muted-foreground">Offloads IDB Ops to Background Thread</p>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-                                <span className="text-xs font-mono text-green-500 lowercase">active</span>
+                                <span className="text-xs text-white/40">Identity</span>
                             </div>
                         </div>
                     </div>
 
                     {/* data integrity section */}
                     <div className="space-y-3">
-                        <h4 className="text-sm font-semibold text-muted-foreground lowercase flex items-center gap-2">
-                            <ShieldCheck className="h-4 w-4" /> data integrity
+                        <h4 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
+                            <ShieldCheck className="h-4 w-4" /> Data Integrity
                         </h4>
 
                         <div className="bg-white/5 p-3 rounded-lg space-y-4">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium lowercase">write-ahead log</p>
-                                    <p className="text-xs text-muted-foreground lowercase">journaled writes pending recovery</p>
+                                    <p className="text-sm font-medium">Write-Ahead Log</p>
+                                    <p className="text-xs text-muted-foreground">Journaled Writes Pending Recovery</p>
                                 </div>
                                 <span className={cn(
-                                    "text-xs font-mono lowercase px-2 py-0.5 rounded",
+                                    "text-xs font-mono",
                                     pendingWal > 0 ? "bg-amber-500/20 text-amber-500" : "bg-green-500/20 text-green-500"
                                 )}>
-                                    {pendingWal} pending
+                                    {pendingWal} Pending
                                 </span>
                             </div>
 
@@ -137,12 +137,12 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                         {/* notion import button */}
                         <Button
                             variant="outline"
-                            className="w-full justify-start h-9 px-3 lowercase"
+                            className="w-full justify-start h-9 px-3"
                             onClick={() => {
                                 window.location.href = '/notion-import';
                             }}
                         >
-                            import notion workspace
+                            Import Notion Workspace
                         </Button>
                     </div>
                 </div>
