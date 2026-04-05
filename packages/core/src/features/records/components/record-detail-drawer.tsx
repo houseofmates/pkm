@@ -132,7 +132,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
                 <div key={field.name} className="space-y-2">
                   <Label 
                     htmlFor={`field-${field.name}`}
-                    className="text-xs text-zinc-400 lowercase flex items-center gap-2"
+                    className="text-xs text-zinc-400 flex items-center gap-2"
                   >
                     {displayName}
                     {field.required && (
