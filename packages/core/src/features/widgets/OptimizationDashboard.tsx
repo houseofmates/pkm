@@ -94,7 +94,7 @@ export function OptimizationDashboard({ data, onUpdate }: { data?: any; onUpdate
         <div className="mb-4 p-3 border border-white/10 rounded-lg bg-black/30">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
-              <div className="text-[10px] text-muted-foreground uppercase tracking-widest">collection</div>
+              <div className="text-[10px] text-muted-foreground lowercase tracking-widest">collection</div>
               <Select value={currentCollectionName} onValueChange={(value) => handleConfigChange({ collectionName: value })}>
                 <SelectTrigger className="mt-1">
                   <SelectValue placeholder="select" />

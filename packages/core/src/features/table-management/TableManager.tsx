@@ -65,7 +65,7 @@ export const TableManager: React.FC = () => {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle>Create New Collection</CardTitle>
+          <CardTitle className="lowercase">create new collection</CardTitle>
         </CardHeader>
         <CardContent className="flex gap-2">
           <Input
@@ -83,7 +83,7 @@ export const TableManager: React.FC = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Existing Collections</CardTitle>
+          <CardTitle className="lowercase">existing collections</CardTitle>
         </CardHeader>
         <CardContent>
           {visibleCollections.length > 0 ? (
@@ -93,7 +93,7 @@ export const TableManager: React.FC = () => {
               ))}
             </ul>
           ) : (
-            <p>No collections found. They may be loading...</p>
+            <p className="lowercase">no collections found. they may be loading...</p>
           )}
         </CardContent>
       </Card>
