@@ -12,7 +12,6 @@ import { useFronter } from '@/contexts/fronter-context';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { toTitleCase } from '@/lib/casing';
 import { humanizeFieldName } from '@/features/records/components/record-table';
 
 // bring in shared schema types so we can stop using `any`
@@ -171,25 +170,25 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             <div className="p-4 md:p-8 h-full flex items-center justify-center">
                 <Card className="max-w-md w-full">
                     <CardHeader>
-                        <CardTitle>Connect NocoBase</CardTitle>
+                        <h1 className="text-xl font-bold lowercase">settings</h1>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="space-y-2">
-                            <Label>API Token</Label>
+                            <Label className="lowercase">api token</Label>
                             <Input
                                 type="password"
                                 value={apiKey}
                                 onChange={(e) => setApiKey(e.target.value)}
-                                placeholder="Enter NocoBase API Token"
+                                placeholder="enter nocobase api token"
                             />
-                            <p className="text-xs text-muted-foreground">
-                                Your Token Is Stored Locally.
+                            <p className="text-xs text-muted-foreground lowercase">
+                                your token is stored locally.
                             </p>
-                            <p className="text-xs text-muted-foreground">
-                                <strong>Note:</strong> Accessing via IP address requires re-authentication as localstorage is origin-specific.
+                            <p className="text-xs text-muted-foreground lowercase">
+                                <strong>note:</strong> accessing via ip address requires re-authentication as localstorage is origin-specific.
                             </p>
                         </div>
-                        <Button className="w-full" onClick={handleLogin}>Connect</Button>
+                        <Button className="w-full lowercase" onClick={handleLogin}>connect</Button>
                     </CardContent>
                 </Card>
             </div>
@@ -197,15 +196,15 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     }
 
     if (!collection) {
-        if (loading) return <div className="p-10 text-center animate-pulse">Loading {humanizeFieldName(collectionName)}...</div>;
+        if (loading) return <div className="p-10 text-center animate-pulse lowercase">loading {humanizeFieldName(collectionName)}...</div>;
         return (
             <div className="p-10 flex flex-col items-center gap-4 text-center">
-                <div className="text-destructive font-bold text-lg">Collection Not Found</div>
-                <div className="text-muted-foreground text-sm max-w-md">
-                    The requested collection could not be loaded. Please check the name or return to the databases page.
+                <div className="text-destructive font-bold text-lg lowercase">collection not found</div>
+                <div className="text-muted-foreground text-sm max-w-md lowercase">
+                    the requested collection could not be loaded. please check the name or return to the databases page.
                 </div>
-                <Button variant="outline" onClick={() => navigate('/databases')}>
-                    Return to Databases
+                <Button variant="outline" onClick={() => navigate('/databases')} className="lowercase">
+                    return to databases
                 </Button>
             </div>
         );
@@ -214,7 +213,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     // fix "no fields" flash: if we rescued a collection object but it has no fields (and we are loading),
     // we should wait. the rescued object from sidebar list often lacks 'fields'.
     if (!collection.fields && loading) {
-        return <div className="p-10 text-center animate-pulse">Loading Schema for {humanizeFieldName(collectionName)}...</div>;
+        return <div className="p-10 text-center animate-pulse lowercase">loading schema for {humanizeFieldName(collectionName)}...</div>;
     }
 
     const CurrentViewComponent = VIEW_REGISTRY[currentView] || VIEW_REGISTRY['table'];
@@ -301,7 +300,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             <Dialog open={defaultPickerOpen} onOpenChange={setDefaultPickerOpen}>
                 <DialogContent className="sm:max-w-[300px] p-0 overflow-hidden border-none bg-popover/90 backdrop-blur-xl shadow-2xl">
                     <DialogHeader className="p-4 pb-2">
-                        <DialogTitle className="text-sm font-medium opacity-50">Set Default View</DialogTitle>
+                        <DialogTitle className="text-sm font-medium opacity-50 lowercase">set default view</DialogTitle>
                     </DialogHeader>
                     <div className="flex flex-col p-1">
                         {VIEW_OPTIONS.map((view) => (
