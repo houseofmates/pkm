@@ -105,7 +105,7 @@ export function useHibernationStreak() {
     // hourly check for day rollovers
     const interval = setInterval(checkStreak, 60 * 60 * 1000)
     return () => clearInterval(interval)
-  }, [streakData.lastDate, streakData.hibernating, streakData.current])
+  }, [streakData.lastDate, streakData.hibernating])
 
   const recordActivity = useCallback(() => {
     const today = getToday()
