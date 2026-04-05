@@ -11,7 +11,7 @@ export function IdentityBadges({ className }: IdentityBadgesProps) {
   return (
     <div className={cn("space-y-3", className)}>
       <div className="flex items-center justify-between">
-        <span className="text-xs text-white/40">Identity</span>
+        <span className="text-xs text-white/40 lowercase">identity</span>
         <span className="text-xs text-white/60">{earnedCount}/{totalCount}</span>
       </div>
 
@@ -30,12 +30,12 @@ export function IdentityBadges({ className }: IdentityBadgesProps) {
               <span className="text-lg">{badge.emoji}</span>
               <div className="flex-1 min-w-0">
                 <p className={cn(
-                  "text-xs font-medium truncate",
+                  "text-xs font-medium lowercase truncate",
                   badge.earned ? "text-yellow-200" : "text-white/40"
                 )}>
                   {badge.name}
                 </p>
-                <p className="text-[10px] text-white/30 truncate">
+                <p className="text-[10px] text-white/30 lowercase truncate">
                   {badge.description}
                 </p>
               </div>

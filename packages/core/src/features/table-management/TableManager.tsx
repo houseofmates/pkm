@@ -84,7 +84,7 @@ export const TableManager: React.FC = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>Existing Collections</CardTitle>
+          <CardTitle>existing collections</CardTitle>
         </CardHeader>
         <CardContent>
           {visibleCollections.length > 0 ? (
