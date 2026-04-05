@@ -218,7 +218,7 @@ export function useCollectionData(
         setRecords(prev => prev.filter(r => r.id !== record.id));
       } catch (error) {
         secureLogger.error('failed to delete record', error);
-        toast.error('failed to delete record');
+        toast.error('Failed to delete record');
       }
     },
     [client, collectionName]
