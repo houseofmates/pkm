@@ -1,5 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { humanizeFieldName } from '@/features/records/components/record-table';
 
 type SidebarCollection = {
   name: string;
@@ -20,6 +21,7 @@ export function Sidebar({ className, collections = [], selectedCollection = null
       <div className="space-y-1">
         {collections.map((collection) => {
           const isActive = selectedCollection?.name === collection.name;
+          const displayName = collection.title || humanizeFieldName(collection.name);
           return (
             <Button
               key={collection.name}
@@ -30,7 +32,7 @@ export function Sidebar({ className, collections = [], selectedCollection = null
               )}
               onClick={() => onSelect?.(collection)}
             >
-              {collection.title || collection.name}
+              {displayName}
             </Button>
           );
         })}
