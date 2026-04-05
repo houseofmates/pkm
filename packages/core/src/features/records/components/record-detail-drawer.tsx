@@ -143,8 +143,8 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
       >
         <SheetHeader className="border-b border-[#222] p-4 pb-3 flex-shrink-0">
           <div className="flex items-center justify-between">
-            <SheetTitle className="text-lg font-semibold lowercase text-white">
-              record details
+            <SheetTitle className="text-lg font-semibold text-white">
+              Record Details
             </SheetTitle>
             <div className="flex items-center gap-2">
               <Button
