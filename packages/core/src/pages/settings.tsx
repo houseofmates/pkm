@@ -30,27 +30,27 @@ export default function SettingsPage() {
     return (
         // container must occupy full height of parent so scrolling works
         <div className="h-full flex flex-col overflow-auto p-4 min-h-0">
-            <h1 className="text-xl font-bold">Settings</h1>
+            <h1 className="text-xl font-bold lowercase">settings</h1>
 
             <section className="mt-6 space-y-4">
-                <h2 className="text-lg font-semibold">General</h2>
+                <h2 className="text-lg font-semibold lowercase">general</h2>
                 <div className="space-y-2">
-                    <label className="flex flex-col text-sm">
-                        API Key
+                    <label className="flex flex-col text-sm lowercase">
+                        api key
                         <div className="relative mt-1">
                             <input
                                 type={showApiKey ? 'text' : 'password'}
                                 value={apiKey as string}
                                 onChange={e => setApiKey(e.target.value)}
                                 className="px-2 py-1 bg-background border border-border rounded w-full pr-10"
-                                placeholder="Enter your API key"
+                                placeholder="enter your api key"
                             />
                             <Button
                                 variant="ghost"
                                 size="icon"
                                 className="absolute right-0 top-0 h-full w-10 opacity-50 hover:opacity-100"
                                 onClick={() => setShowApiKey(!showApiKey)}
-                                title={showApiKey ? 'Hide API Key' : 'Show API Key'}
+                                title={showApiKey ? 'hide api key' : 'show api key'}
                             >
                                 {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                             </Button>
@@ -94,7 +94,7 @@ export default function SettingsPage() {
 
             <section className="mt-8">
                 {!(apiKey && typeof apiKey === 'string' && apiKey.trim().length > 5) && !localStorage.getItem('nocobase_token') ? (
-                    <p className="italic text-sm text-red-500">Set your API key above to enable Notion import</p>
+                    <p className="italic text-sm text-red-500 lowercase">set your api key above to enable notion import</p>
                 ) : null}
                 <NotionImportWidget />
             </section>
