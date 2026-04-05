@@ -24,6 +24,14 @@ const journalStyles = `
 const styleEl = document.createElement('style');
 styleEl.textContent = journalStyles;
 document.head.appendChild(styleEl);
+// cleanup on module hot-reload (dev only)
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => { document.head.removeChild(styleEl); });
+}
+// cleanup on module hot-reload (dev only)
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => { document.head.removeChild(styleEl); });
+}
 
 // ─────────────────────────────────────────────
 //  constants
