@@ -1686,7 +1686,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
               if (layer) useEdgelessStore.getState().toggleLayerLock(layer.id)
             }
           }}
-          title="lock/unlock (ctrl+l)"
+          title="Lock/Unlock (Ctrl+L)"
         >
           {(() => {
             const el = useEdgelessStore.getState().elements.find(e => e.id === useEdgelessStore.getState().activeElementId)
@@ -1709,7 +1709,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         <button
           classname="p-2 bg-black/80 backdrop-blur border border-white/20 rounded-md shadow hover:bg-white/10 transition-colors text-foreground"
           onclick={() => fileinputref.current?.click()}
-          title="upload image/pdf"
+          title="Upload Image/PDF"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewbox="0 0 24 24" fill="none" stroke="currentcolor" strokewidth="2" strokelinecap="round" strokelinejoin="round"><path d="m21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48" /></svg>
         </button>
