@@ -1738,7 +1738,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
             }}
           >
             <div className="absolute -top-6 left-0 text-xs text-muted-foreground font-mono">
-              {canvasConfig && canvasConfig.mode === 'desktop-8k' ? '8k desktop (7680x4320)' : '8k iphone (4320x9360)'}
+              {canvasConfig && canvasConfig.mode === 'desktop-8k' ? '8K Desktop (7680x4320)' : '8K iPhone (4320x9360)'}
             </div>
           </div>
         )
