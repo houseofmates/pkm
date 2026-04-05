@@ -632,7 +632,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-5 w-5 rounded-full hover:bg-muted text-primary" title="create new...">
+                <Button variant="ghost" size="icon" className="h-5 w-5 rounded-full hover:bg-muted text-primary" title="Create New...">
                   <Plus className="h-3 w-3" />
                 </Button>
               </DropdownMenuTrigger>
