@@ -377,10 +377,10 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
     if (!drawingId) return
 
     // apply strong typing/copy to avoid mutation from outside
-    const opWithLayer = {
-      ...(op as any),
-      layerId: (op as any).layerId || activeLayerId,
-    }
+    const opWithLayer: DrawOp = {
+      ...op,
+      layerId: op.layerId || activeLayerId,
+    } as DrawOp
 
     const entry: OpLogEntry = {
       id: `${drawingId}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
@@ -523,8 +523,8 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   setSelectedIds: (ids) => set({ selectedIds: ids }),
   setActiveElementId: (id) => set({ activeElementId: id }),
   setPdfDoc: (doc) => set({ pdfDoc: doc }),
-  addHistoryOp: async (op: DrawOp) => { // alias to recordop
-    await get().recordOp(op as any)
+  addHistoryOp: async (op: DrawOp) => {
+    await get().recordOp(op)
   },
 }))
 
