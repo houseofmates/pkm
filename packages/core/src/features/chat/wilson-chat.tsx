@@ -193,7 +193,7 @@ const ChatBubble = memo(function ChatBubble({ message }: ChatBubbleProps) {
   return (
     <div className={`flex flex-col gap-1 ${message.role === 'assistant' ? 'items-start' : 'items-end'}`}>
       <span className="text-[10px] text-primary opacity-50">{message.role === 'assistant' ? 'Wilson' : 'user'}</span>
-      <div className={`p-3 rounded-lg max-w-[90%] lowercase ${message.role === 'assistant' ? 'bg-primary/10 border border-primary/20 text-primary' : 'bg-black border border-gray-700 text-gray-300'}`}>
+      <div className={`p-3 rounded-lg max-w-[90%] ${message.role === 'assistant' ? 'bg-primary/10 border border-primary/20 text-primary' : 'bg-black border border-gray-700 text-gray-300'}`}>
         {message.content}
       </div>
       {message.createdAt && (
@@ -227,7 +227,7 @@ const StreamingBubble = memo(function StreamingBubble() {
   return (
     <div className="flex flex-col gap-1 items-start">
       <span className="text-[10px] text-primary opacity-50">Wilson</span>
-      <div className="p-3 rounded-lg max-w-[90%] lowercase bg-primary/10 border border-primary/20 text-primary">
+      <div className="p-3 rounded-lg max-w-[90%] bg-primary/10 border border-primary/20 text-primary">
         {streamingContent}
         <span className="inline-block w-1.5 h-3.5 bg-primary/60 ml-0.5 animate-pulse" />
       </div>
@@ -273,11 +273,11 @@ const SessionItem = memo(function SessionItem({ session, isActive, onClick, onRe
           onKeyDown={handleKeyDown}
           onBlur={handleSave}
           autoFocus
-          className="flex-1 bg-black/50 border border-primary/30 rounded px-1 py-0.5 text-xs text-primary lowercase"
+          className="flex-1 bg-black/50 border border-primary/30 rounded px-1 py-0.5 text-xs text-primary"
           onClick={(e) => e.stopPropagation()}
         />
       ) : (
-        <span className="flex-1 text-xs text-primary lowercase truncate">{session.title}</span>
+        <span className="flex-1 text-xs text-primary truncate">{session.title}</span>
       )}
       <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
         <button onClick={(e) => { e.stopPropagation(); setIsEditing(true); }} className="p-1 hover:bg-primary/20 rounded text-primary/60 hover:text-primary">
@@ -415,8 +415,8 @@ export function WilsonChat() {
       {showHistory && (
         <div className="w-[200px] border-r border-primary/30 flex flex-col bg-black/30">
           <div className="p-3 border-b border-primary/30 flex justify-between items-center">
-            <span className="text-xs font-bold text-primary lowercase flex items-center gap-2">
-              <History size={14} /> chat history
+            <span className="text-xs font-bold text-primary flex items-center gap-2">
+              <History size={14} /> Chat History
             </span>
             <button onClick={handleNewChat} className="p-1 hover:bg-primary/20 rounded text-primary/60 hover:text-primary" title="New chat">
               <Plus size={14} />
@@ -424,7 +424,7 @@ export function WilsonChat() {
           </div>
           <div className="flex-1 overflow-y-auto p-2 space-y-1">
             {sessions.length === 0 && (
-              <div className="text-center text-primary/40 text-xs lowercase p-4">no saved chats yet</div>
+              <div className="text-center text-primary/40 text-xs p-4">No Saved Chats Yet</div>
             )}
             {sessions.map((session) => (
               <SessionItem
@@ -466,9 +466,9 @@ export function WilsonChat() {
         </div>
         <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 font-mono text-sm">
           {interactionHistory.length === 0 && !streamingContent && (
-            <div className="text-primary opacity-50 text-center mt-10 lowercase">
-              <p>systems online.</p>
-              <p>waiting for input...</p>
+            <div className="text-primary opacity-50 text-center mt-10">
+              <p>Systems Online.</p>
+              <p>Waiting For Input...</p>
               <p className="mt-4 text-xs" title={RAW_MODEL_NAME}>supports images, gifs, and videos with {friendlyModelName(RAW_MODEL_NAME)}</p>
               <p className="mt-2 text-xs text-primary/30" title={RAW_MODEL_NAME}>routing to: {friendlyModelName(RAW_MODEL_NAME)}</p>
             </div>
@@ -476,8 +476,8 @@ export function WilsonChat() {
           {interactionHistory.map((msg) => <ChatBubble key={msg.id} message={msg} />)}
           <StreamingBubble />
           {isThinking && !streamingContent && (
-            <div className="flex items-center gap-2 text-primary text-xs animate-pulse lowercase">
-              <BrainCircuit size={14} /><span title={RAW_MODEL_NAME}>processing with {friendlyModelName(RAW_MODEL_NAME).split(' ')[0]}...</span>
+            <div className="flex items-center gap-2 text-primary text-xs animate-pulse">
+              <BrainCircuit size={14} /><span title={RAW_MODEL_NAME}>Processing With {friendlyModelName(RAW_MODEL_NAME).split(' ')[0]}...</span>
             </div>
           )}
         </div>
@@ -498,7 +498,7 @@ export function WilsonChat() {
               <Camera size={18} />
             </button>
             <div className="relative flex-1">
-              <input value={userInput} onChange={(e) => setUserInput(e.target.value)} onKeyDown={handleKeyDown} type="text" placeholder="chat..." disabled={isThinking} className="w-full bg-black border-2 border-primary rounded-lg py-3 pl-4 pr-10 text-primary focus:outline-none focus:border-primary placeholder:text-primary/30 lowercase disabled:opacity-50" />
+              <input value={userInput} onChange={(e) => setUserInput(e.target.value)} onKeyDown={handleKeyDown} type="text" placeholder="Chat..." disabled={isThinking} className="w-full bg-black border-2 border-primary rounded-lg py-3 pl-4 pr-10 text-primary focus:outline-none focus:border-primary placeholder:text-primary/30 disabled:opacity-50" />
               <button onClick={checkAndSend} className="absolute right-2 top-1/2 -translate-y-1/2 text-primary hover:text-white disabled:opacity-50" disabled={(!userInput.trim() && pendingAttachments.length === 0) || isThinking}>
                 <Send size={16} />
               </button>
@@ -509,10 +509,10 @@ export function WilsonChat() {
               wilsonPersonality={true}
             />
           </div>
-          <div className="text-[10px] text-primary/30 mt-2 lowercase flex items-center gap-2">
+          <div className="text-[10px] text-primary/30 mt-2 flex items-center gap-2">
             <Image size={10} />
-            <span>supports: jpg, png, gif, webp, mp4, mov</span>
-            <span className="ml-auto" title={RAW_MODEL_NAME}>model: {friendlyModelName(RAW_MODEL_NAME)}</span>
+            <span>Supports: JPG, PNG, GIF, WebP, MP4, MOV</span>
+            <span className="ml-auto" title={RAW_MODEL_NAME}>Model: {friendlyModelName(RAW_MODEL_NAME)}</span>
           </div>
         </div>
       </div>

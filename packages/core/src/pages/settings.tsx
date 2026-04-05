@@ -35,8 +35,8 @@ export default function SettingsPage() {
             <section className="mt-6 space-y-4">
                 <h2 className="text-lg font-semibold">General</h2>
                 <div className="space-y-2">
-                    <label className="flex flex-col text-sm lowercase">
-                        api key
+                    <label className="flex flex-col text-sm">
+                        API Key
                         <div className="relative mt-1">
                             <input
                                 type={showApiKey ? 'text' : 'password'}
@@ -50,7 +50,7 @@ export default function SettingsPage() {
                                 size="icon"
                                 className="absolute right-0 top-0 h-full w-10 opacity-50 hover:opacity-100"
                                 onClick={() => setShowApiKey(!showApiKey)}
-                                title={showApiKey ? 'hide api key' : 'show api key'}
+                                title={showApiKey ? 'Hide API Key' : 'Show API Key'}
                             >
                                 {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                             </Button>
@@ -62,10 +62,10 @@ export default function SettingsPage() {
                             checked={!!darkMode}
                             onChange={e => setDarkMode(e.target.checked)}
                         />
-                        dark mode
+                        Dark Mode
                     </label>
-                    <label className="flex flex-col text-sm lowercase">
-                        default page size
+                    <label className="flex flex-col text-sm">
+                        Default Page Size
                         <input
                             type="number"
                             value={pageSize as number}

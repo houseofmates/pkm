@@ -218,7 +218,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
           "flex-1 justify-start text-base font-normal h-8 px-2 overflow-hidden hover:bg-transparent", // bumped up font size for better readability
           selected && "font-medium shadow-none",
           item.type === 'folder' && "font-semibold text-muted-foreground",
-          capsClass ? capsClass : "lowercase"
+          capsClass ? capsClass : ""
         )}
         style={metaColor ? { color: metaColor } : undefined}
         onClick={() => onSelect(id)}
@@ -624,7 +624,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
               variant="ghost"
               size="icon"
               className="h-5 w-5 rounded-full hover:bg-muted text-primary"
-              title="New folder"
+              title="Create New Folder"
               onClick={() => setFolderDialogOpen(true)}
             >
               <Folder className="h-3 w-3" />

@@ -113,16 +113,16 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
       });
 
       if (Object.keys(changedFields).length === 0) {
-        toast.info('no changes to save');
+        toast.info('No Changes to Save');
         onClose();
         return;
       }
 
       await onUpdate(record.id, changedFields);
-      toast.success('record updated');
+      toast.success('Record Updated');
       onClose();
     } catch (error) {
-      toast.error('failed to update record');
+      toast.error('Failed to Update Record');
     } finally {
       setIsSaving(false);
     }
@@ -152,7 +152,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
                 size="icon"
                 className="h-8 w-8 text-zinc-400 hover:text-white hover:bg-white/10"
                 onClick={handleOpenFullPage}
-                title="open full page"
+                title="Open Full Page"
               >
                 <ExternalLink className="h-4 w-4" />
               </Button>
@@ -167,16 +167,16 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
             </div>
           </div>
           <p className="text-xs text-zinc-500 mt-1">
-            {collection.title || collection.name} • id: {record.id}
+            {collection.title || collection.name} • ID: {record.id}
           </p>
         </SheetHeader>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {displayFields.length === 0 ? (
-            <div className="text-center text-zinc-500 py-8">
-              no editable fields available
-            </div>
-          ) : (
+          <div className="text-center text-zinc-500 py-8">
+            No Editable Fields Available
+          </div>
+        ) : (
             displayFields.map((field: any) => {
               const value = editedData[field.name];
               const displayName = field.uiSchema?.title || humanizeFieldName(field.name);
@@ -216,7 +216,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
             onClick={onClose}
             className="text-zinc-400 hover:text-white"
           >
-            cancel
+            Cancel
           </Button>
           <Button
             size="sm"
@@ -227,12 +227,12 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
             {isSaving ? (
               <span className="flex items-center gap-2">
                 <span className="animate-spin h-4 w-4 border-2 border-black border-t-transparent rounded-full" />
-                saving...
+                Saving...
               </span>
             ) : (
               <span className="flex items-center gap-2">
                 <Save className="h-4 w-4" />
-                save changes
+                Save Changes
               </span>
             )}
           </Button>
