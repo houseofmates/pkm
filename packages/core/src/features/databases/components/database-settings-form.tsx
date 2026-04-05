@@ -102,19 +102,11 @@ export function DatabaseSettingsForm({
             onChange={(e) => {
               setLocalName(e.target.value);
             }}
-            onBlur={async () => {
+            onBlur={() => {
               const newName = localName.trim();
               if (newName && newName !== (title || collectionName)) {
-                try {
-                  await client.updateCollection(collectionName, { title: newName });
-                  updateMeta('title', newName);
-                  toast.success(`renamed to ${newName}`);
-                } catch (error) {
-                  secureLogger.error('Failed to rename collection:', error);
-                  toast.error('failed to rename database');
-                  // Revert to original name on error
-                  setLocalName(title || collectionName);
-                }
+                updateMeta('title', newName);
+                toast.success(`renamed to ${newName}`);
               }
             }}
             onKeyDown={(e) => {
