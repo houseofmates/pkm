@@ -18,18 +18,43 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
+// Types for collection fields
+interface CollectionField {
+  name: string;
+  interface?: string;
+  uiSchema?: {
+    title?: string;
+  };
+}
+
+// Type for collection
+interface Collection {
+  name: string;
+  fields?: CollectionField[];
+}
+
+// Type for record data
+interface RecordData {
+  id: string | number;
+  [key: string]: unknown;
+}
+
+// Type for view config
+interface ViewConfig {
+  visibleFields?: string[];
+}
 
 interface RecordContextMenuProps {
-  record: any;
-  collection: any;
+  record: RecordData;
+  collection: Collection;
   children: React.ReactNode;
-  onUpdate?: (id: string | number, data: any) => void;
-  onDelete?: (rec: any) => void;
-  onConfigChange?: (key: string, value: any) => void;
-  config?: any;
-  className?: string; // for wrapper styling
+  onUpdate?: (id: string | number, data: Record<string, unknown>) => void;
+  onDelete?: (rec: RecordData) => void;
+  onConfigChange?: (key: string, value: unknown) => void;
+  config?: ViewConfig;
+  className?: string;
   style?: React.CSSProperties;
-  titleField?: any;
+  titleField?: CollectionField;
 }
 
 export function RecordEditContent({ record, collection, onUpdate, onDelete, onView, titleField: customTitleField, config, onConfigChange, showViewConfig = true }: { record: any, collection: any, onUpdate?: any, onDelete?: any, onView?: any, titleField?: any, config?: any, onConfigChange?: any, showViewConfig?: boolean }) {
