@@ -332,17 +332,17 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   }
 
   if (error) {
-    return      <div className="P-8 Text-destructive">Error Loading Databases: {error}</div>;
+    return <div className="p-8 text-destructive">Error Loading Databases: {error}</div>;
   }
 
   if (loading && collections.length === 0) {
-    return      <div className="P-8 Text-muted-foreground">Loading Databases...</div>;
+    return <div className="p-8 text-muted-foreground">Loading Databases...</div>;
   }
 
   // only exclude if truly empty (no collections and no sidebar docs)
   if (allItems.length === 0) {
     return (
-      <div className="P-4 Md:P-8 Space-y-6 H-full Overflow-auto">
+      <div className="p-4 md:p-8 space-y-6 h-full overflow-auto">
         {/* still show the add button even if empty */}
         <div className="flex items-center justify-end mb-4">
           <div className="flex items-center gap-2">
