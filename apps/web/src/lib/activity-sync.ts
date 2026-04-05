@@ -75,7 +75,7 @@ export async function findOrCreateActivity(name: string, localId?: string): Prom
       }
 
       // create new activity if not found
-      const created = await apiFetch(`/activities:create`, { method: 'POST', body: JSON.stringify({ name }) })
+      const created = await apiFetch(`/activities:create`, { method: 'POST', body: JSON.stringify({ name: cacheKey }) })
       const sid = extractId(created)
       if (sid) {
         // reload map from storage to avoid race condition with other sync processes
