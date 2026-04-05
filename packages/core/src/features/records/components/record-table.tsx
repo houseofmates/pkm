@@ -38,17 +38,8 @@ function parseI18nTemplate(str: string | undefined): string {
 }
 
 export function humanizeFieldName(name: string): string {
-  const ACRONYMS = new Set(['url', 'uid', 'id', 'api', 'csv', 'pdf']);
-  return name
-    .replace(/[_-]/g, ' ')
-    .replace(/([a-z])([A-Z])/g, '$1 $2')
-    .split(' ')
-    .map((word) => {
-      const lower = word.toLowerCase();
-      if (ACRONYMS.has(lower)) return word.toUpperCase();
-      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    })
-    .join(' ');
+  if (!name) return name;
+  return name.replace(/[_-]/g, ' ').toLowerCase();
 }
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
