@@ -5,7 +5,7 @@ import { type JournalRecord, parseActivities } from '@/schema/journal-collection
 import { secureLogger } from '@/lib/secure-logger';
 import type { Activity } from '@/components/ActivitiesPanel';
 
-// simple helpers identical to journal.tsx; mirrors localStorage access used
+// simple helpers identical to journal.tsx; mirrors localstorage access used
 function getStoredData<T>(key: string, defaultValue: T): T {
   const raw = localStorage.getItem(key);
   if (raw === null) return defaultValue;
@@ -40,7 +40,7 @@ export const MOODS = [
   { id: '6', label: 'amazing!', emoji: '/images/moods/amazing.png', color: '#8b5cf6', value: 6 },
 ];
 
-// hook handles all journal page state & business logic; the page component simply renders UI
+// hook handles all journal page state & business logic; the page component simply renders ui
 export function useJournalData() {
   // general page state
   const [entries, setEntries] = useState<JournalRecord[]>([]);
@@ -53,10 +53,11 @@ export function useJournalData() {
   );
   const [showBookmarksOnly, setShowBookmarksOnly] = useState(false);
 
-  // past entries filter (search/mood/tag) and NL search results
+  // past entries filter (search/mood/tag) and nl search results
   const [pastEntriesFilter, setPastEntriesFilter] = useState({ search: '', mood: '', tag: '' });
   const [nlIds, setNlIds] = useState<string[] | null>(null);
   const [isNlSearching, setIsNlSearching] = useState(false);
+  const nlSearchCounterRef = useRef(0);
 
   // entry metadata
   const [selectedTemplate, setSelectedTemplate] = useState<any | null>(null);
@@ -220,6 +221,39 @@ export function useJournalData() {
     entries.forEach(e => { map[e.date] = e; });
     return map;
   }, [entries]);
+
+  // semantic search with race condition handling
+  useEffect(() => {
+    if (!pastEntriesFilter.search || pastEntriesFilter.search.length < 3) {
+      setNlIds(null);
+      return;
+    }
+
+    const searchId = ++nlSearchCounterRef.current;
+    setIsNlSearching(true);
+
+    const timer = setTimeout(async () => {
+      try {
+        const results = await api.listRecords('journal', {
+          filter: {
+            content: { _ilike: `%${pastEntriesFilter.search}%` }
+          }
+        });
+
+        if (searchId === nlSearchCounterRef.current) {
+          const raw = (results as any)?.data;
+          const rows = Array.isArray(raw) ? raw : (raw?.data || []);
+          setNlIds(rows.map((r: any) => String(r.id)));
+        }
+      } catch (e) {
+        secureLogger.error('semantic search failed', e);
+      } finally {
+        if (searchId === nlSearchCounterRef.current) setIsNlSearching(false);
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [pastEntriesFilter.search]);
 
 
   return {

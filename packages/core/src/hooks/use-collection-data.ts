@@ -7,14 +7,14 @@ import { extractRecords } from '@/lib/nocobase-utils';
 import { generateAndSaveAiField } from '@/services/ai-field-generator';
 
 /**
- * Encapsulates the data loading / mutation logic previously found
- * in CollectionDetailPage.  The hook is intentionally fairly
- * "dumb"; it takes an API client and the collection name as
- * arguments and returns state and callbacks.  Calling components
+ * encapsulates the data loading / mutation logic previously found
+ * in collectiondetailpage.  the hook is intentionally fairly
+ * "dumb"; it takes an api client and the collection name as
+ * arguments and returns state and callbacks.  calling components
  * deal only with rendering.
  */
 
-// minimal shape of the API client used by the hook
+// minimal shape of the api client used by the hook
 interface CollectionClient {
   getCollection(name: string): Promise<any>;
   listRecords(name: string, opts?: any): Promise<any>;
@@ -37,14 +37,16 @@ export function useCollectionData(
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   const [, setDeletedStack] = useState<SchemaRecord[]>([]);
+  const fetchCounterRef = useRef(0);
 
-  // we reuse availableCollections from useCollections so that fetchData
-  // can try a preloaded copy before hitting the API
+  // we reuse availablecollections from usecollections so that fetchdata
+  // can try a preloaded copy before hitting the api
   const { collections: availableCollections, loading: collectionsLoading } = useCollections();
   const availableCollectionsRef = useRef(availableCollections);
   availableCollectionsRef.current = availableCollections;
 
   const fetchData = useCallback(async () => {
+    const fetchId = ++fetchCounterRef.current;
     setLoading(true);
     setFetchError(null);
     try {
@@ -56,123 +58,81 @@ export function useCollectionData(
       );
 
       if (preloaded) {
-        secureLogger.info('Found preloaded collection:', preloaded.name);
+        secureLogger.info('found preloaded collection:', preloaded.name);
         colData = preloaded;
       }
 
       if (!colData?.fields) {
         try {
-          secureLogger.info('Attempting to fetch full collection schema with fields...');
+          secureLogger.info('attempting to fetch full collection schema with fields...');
           const colRes = await client.getCollection(collectionName);
-          secureLogger.info('getCollection response:', colRes);
+          if (fetchId !== fetchCounterRef.current) return;
+
           if (colRes?.data && typeof colRes.data === 'object') {
             colData = colRes.data;
-          } else {
-            secureLogger.warn('getCollection returned invalid data, using preloaded');
-            if (preloaded) {
-              colData = preloaded;
-            }
-          }
-        } catch (e: unknown) {
-          const msg =
-            typeof e === 'object' && e !== null && 'message' in e
-              ? (e as { message?: unknown }).message
-              : String(e);
-          secureLogger.warn('getCollection failed, using preloaded if available:', msg);
-          if (preloaded) {
-            secureLogger.info('Using preloaded collection without fields');
+          } else if (preloaded) {
             colData = preloaded;
-          } else {
-            throw e;
-          }
-        }
-      }
-
-      if (!colData) {
-        throw new Error(`Collection ${collectionName} not found`);
-      }
-
-      if (!colData.fields || colData.fields.length === 0) {
-        try {
-          secureLogger.info('Collection lacks fields, fetching them separately...');
-          const fields = await client.listFields(collectionName);
-          secureLogger.info('Fetched fields:', fields);
-          if (fields && fields.length > 0) {
-            colData.fields = fields;
           }
         } catch (e) {
-          secureLogger.warn('Failed to fetch fields separately:', e);
+          if (fetchId !== fetchCounterRef.current) return;
+          secureLogger.warn('failed to fetch collection schema, using preloaded if available', e);
+          if (preloaded) colData = preloaded;
         }
       }
 
-      setCollection(colData);
+      if (colData && fetchId === fetchCounterRef.current) {
+        setCollection(colData);
+        // check for fronter field and auto-create if missing for pkm consistency
+        let hasFronter = colData.fields?.some((f: FieldDefinition) => f.name === 'fronter');
 
-      // auto-create fronter field if missing
-      if (colData) {
-        let hasFronter =
-          Array.isArray(colData.fields) &&
-          colData.fields.some((f: FieldDefinition) => f.name === 'fronter');
-        if (!hasFronter && (!colData.fields || colData.fields.length === 0)) {
+        if (!hasFronter) {
           try {
-            const fields = await client.listFields(collectionName);
-            if (fields && fields.length > 0) {
+            const fieldsRes = await client.listFields(collectionName);
+            if (fetchId !== fetchCounterRef.current) return;
+            const fields = fieldsRes?.data || [];
+            if (fields.length > 0) {
               colData.fields = fields;
               hasFronter = fields.some((f: FieldDefinition) => f.name === 'fronter');
             }
           } catch (e) {
-            secureLogger.warn(
-              "Failed to fetch fields separately when checking for fronter:",
-              e
-            );
+            secureLogger.warn("failed to fetch fields separately when checking for fronter:", e);
           }
         }
 
-        if (!hasFronter) {
+        if (!hasFronter && fetchId === fetchCounterRef.current) {
           try {
-            secureLogger.info('Auto-creating \'fronter\' field for', collectionName);
+            secureLogger.info('auto-creating "fronter" field for', collectionName);
             await client.createField(collectionName, {
               name: 'fronter',
               type: 'string',
               interface: 'input',
             });
             if (!colData.fields) colData.fields = [];
-            colData.fields.push({
-              id: 'fronter',
-              name: 'fronter',
-              type: 'string',
-              label: 'fronter'
-            });
-          } catch (e: unknown) {
-            const msg =
-              typeof e === 'object' && e !== null &&
-              'response' in e &&
-              (e as any).response?.data?.errors?.[0]?.message
-                ? (e as any).response.data.errors[0].message
-                : String(e);
-            if (msg.includes('already exists')) {
-              secureLogger.info("'fronter' field already exists, skipping creation");
-            } else {
-              secureLogger.warn('Failed to auto-create fronter field', e);
-            }
+            colData.fields.push({ id: 'fronter', name: 'fronter', type: 'string', label: 'fronter' });
+          } catch (e: any) {
+             const msg = e.response?.data?.errors?.[0]?.message || String(e);
+             if (msg.includes('already exists')) {
+               secureLogger.info("'fronter' field already exists, skipping creation");
+             } else {
+               secureLogger.warn('failed to auto-create fronter field', e);
+             }
           }
         }
       }
 
       const recRes = await client.listRecords(collectionName);
+      if (fetchId !== fetchCounterRef.current) return;
       const recData = extractRecords(recRes);
       setRecords(recData);
-    } catch (error: unknown) {
-      secureLogger.error(
-        error instanceof Error ? error.message : String(error)
-      );
-      setFetchError(
-        typeof error === 'object' && error !== null && 'message' in error
-          ? (error as any).message
-          : 'Unknown Error'
-      );
+    } catch (error: any) {
+      if (fetchId !== fetchCounterRef.current) return;
+      secureLogger.error(error instanceof Error ? error.message : String(error));
+      setFetchError(error?.message || 'unknown error');
       toast.error('failed to load collection data');
     } finally {
-      setLoading(false);
+      if (fetchId === fetchCounterRef.current) {
+        setLoading(false);
+      }
     }
   }, [client, collectionName]);
 
@@ -193,9 +153,7 @@ export function useCollectionData(
         toast.success('record created');
         fetchData();
       } catch (error) {
-        secureLogger.error(
-          error instanceof Error ? error.message : String(error)
-        );
+        secureLogger.error(error instanceof Error ? error.message : String(error));
         toast.error('failed to create record');
       }
     },
@@ -205,9 +163,7 @@ export function useCollectionData(
   const handleUpdateRecord = useCallback(
     async (id: string | number, data: Partial<SchemaRecord>) => {
       try {
-        setRecords(prev =>
-          prev.map(r => (r.id === id ? { ...r, ...data } : r))
-        );
+        setRecords(prev => prev.map(r => (r.id === id ? { ...r, ...data } : r)));
         await client.updateRecord(collectionName, id, data);
       } catch (error) {
         secureLogger.error('failed to update record', error);
@@ -229,35 +185,26 @@ export function useCollectionData(
     try {
       const rest: Partial<SchemaRecord> = { ...lastDeleted };
       delete rest.id;
-      delete rest.created_at;
-      delete rest.updated_at;
+      delete (rest as any).created_at;
+      delete (rest as any).updated_at;
       await client.createRecord(collectionName, rest);
       toast.success('deletion undone');
-      const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
-      setRecords(extractRecords(res));
+      fetchData();
     } catch (e) {
       secureLogger.error('failed to undo delete', e);
       toast.error('failed to undo delete');
     }
-  }, [client, collectionName]);
+  }, [client, collectionName, fetchData]);
 
   const handleDeleteRecord = useCallback(
     async (record: SchemaRecord) => {
       if (!record || record.id === undefined || record.id === null) {
-        // fallback: try to delete by timestamp if id is missing
-        if (record && record.timestamp) {
-          secureLogger.info('id missing, attempting to delete by timestamp:', record.timestamp);
+        if (record && (record as any).timestamp) {
           try {
-            await client.deleteRecordByFilter(collectionName, { timestamp: record.timestamp });
+            await client.deleteRecordByFilter(collectionName, { timestamp: (record as any).timestamp });
             setDeletedStack(prev => [...prev, record]);
-            toast.success('record deleted (by timestamp)', {
-              action: {
-                label: 'undo',
-                onClick: () => handleUndoDelete()
-              }
-            });
-            // remove from local state using timestamp as fallback
-            setRecords(prev => prev.filter(r => r.timestamp !== record.timestamp));
+            toast.success('record deleted');
+            setRecords(prev => prev.filter(r => (r as any).timestamp !== (record as any).timestamp));
             return;
           } catch (error) {
             secureLogger.error('failed to delete record by timestamp', error);
@@ -265,7 +212,6 @@ export function useCollectionData(
             return;
           }
         }
-        secureLogger.warn('attempted to delete record with missing id', record);
         toast.error('cannot delete record: missing id');
         return;
       }
@@ -273,20 +219,14 @@ export function useCollectionData(
       try {
         await client.deleteRecord(collectionName, record.id);
         setDeletedStack(prev => [...prev, record]);
-
-        toast.success('record deleted', {
-          action: {
-            label: 'undo',
-            onClick: () => handleUndoDelete()
-          }
-        });
+        toast.success('record deleted');
         setRecords(prev => prev.filter(r => r.id !== record.id));
       } catch (error) {
         secureLogger.error('failed to delete record', error);
         toast.error('failed to delete record');
       }
     },
-    [client, collectionName, handleUndoDelete]
+    [client, collectionName]
   );
 
   const restoreRecord = useCallback(
@@ -294,22 +234,20 @@ export function useCollectionData(
       try {
         const rest: Partial<SchemaRecord> = { ...recordToRestore };
         delete rest.id;
-        delete rest.created_at;
-        delete rest.updated_at;
+        delete (rest as any).created_at;
+        delete (rest as any).updated_at;
         await client.createRecord(collectionName, rest);
         toast.success('deletion undone');
-        const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
-        setRecords(extractRecords(res));
+        fetchData();
         setDeletedStack(prev => prev.filter(r => r.id !== recordToRestore.id));
       } catch (e) {
         secureLogger.error('failed to undo delete', e);
         toast.error('failed to undo delete');
       }
     },
-    [client, collectionName]
+    [client, collectionName, fetchData]
   );
 
-  // keyboard undo listener (ctrl/cmd+z)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
@@ -327,27 +265,20 @@ export function useCollectionData(
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [restoreRecord]);
 
-  // listen for external create-record events
   useEffect(() => {
     const handleCreate = async (evt: Event) => {
-      const e = evt as CustomEvent<Partial<SchemaRecord>>;
+      const e = evt as CustomEvent<any>;
       if (e.detail?.collection === collectionName) {
-        secureLogger.info('Creating record via event:', e.detail.data);
         try {
           const createRes = await client.createRecord(collectionName, e.detail.data);
-          const newId = createRes?.id || (createRes?.data && createRes.data.id);
+          const newId = createRes?.id || createRes?.data?.id;
           toast.success('record created!');
-          const res = await client.listRecords(collectionName, { pageSize: 100, sort: ['-created_at'] });
-          setRecords(extractRecords(res));
+          fetchData();
           if (newId && collection?.fields?.some((f: FieldDefinition) => f.name === 'ai')) {
-            generateAndSaveAiField(collectionName, newId, 'ai', {
+             generateAndSaveAiField(collectionName, newId, 'ai', {
               instruction: 'provide a brief summary and initial ideas for this new entry',
               topK: 5
-            }).then(r => {
-              if (!r.success) {
-                secureLogger.warn('auto-suggest generation failed', r.error);
-              }
-            });
+            }).catch(err => secureLogger.warn('auto-suggest generation failed', err));
           }
         } catch (err) {
           secureLogger.error(String(err));
@@ -357,32 +288,13 @@ export function useCollectionData(
     };
     window.addEventListener('pkm:create-record', handleCreate);
     return () => window.removeEventListener('pkm:create-record', handleCreate);
-  }, [collectionName, client, collection]);
+  }, [collectionName, client, collection, fetchData]);
 
-  // re-fetch when collections list finishes loading
   useEffect(() => {
     if (!collectionsLoading) {
       fetchData();
     }
   }, [fetchData, collectionsLoading]);
-
-  // retry if collection still missing once availableCollections populates
-  useEffect(() => {
-    if (!collection && !loading && availableCollections.length > 0) {
-      const found = availableCollections.find(
-        (c: TableDefinition) => (c.name || '').toLowerCase() === (collectionName || '').toLowerCase()
-      );
-      if (found) {
-        secureLogger.info('Late-rescue: Found collection in availableCollections:', found.name);
-        setCollection(found);
-        client.listRecords(collectionName).then(res => {
-          setRecords(extractRecords(res));
-        }).catch(e => secureLogger.error('Late-rescue record fetch failed', e));
-      }
-    }
-  }, [collection, loading, availableCollections, collectionName, client]);
-
-  // view config loader moved to component
 
   return {
     collection,

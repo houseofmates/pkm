@@ -12,7 +12,7 @@
 import { storageManager } from './storage-manager';
 
 /**
- * Deep sanitization utility for logging objects/arrays
+ * deep sanitization utility for logging objects/arrays
  */
 export function sanitizeForLogging<T>(input: T): T {
   if (typeof input === 'string') {
@@ -61,8 +61,8 @@ const SENSITIVE_PATTERNS = [
   { pattern: /[a-zA-Z0-9_-]*secret[a-zA-Z0-9_-]*["']?\s*[:=]\s*["']?[^"'\s]{8,}/gi, replacement: '[SECRET_REDACTED]' },
   { pattern: /[a-zA-Z0-9_-]*credential[a-zA-Z0-9_-]*["']?\s*[:=]\s*["']?[^"'\s]{8,}/gi, replacement: '[CREDENTIAL_REDACTED]' },
   { pattern: /Bearer\s+[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+\.[a-zA-Z0-9_-]+/gi, replacement: '[JWT_REDACTED]' },
-  { pattern: /[a-f0-9]{32,}/gi, replacement: '[HASH_REDACTED]' }, // MD5, SHA hashes
-  { pattern: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/gi, replacement: '[EMAIL_REDACTED]' }, // Emails
+  { pattern: /[a-f0-9]{32,}/gi, replacement: '[HASH_REDACTED]' }, // md5, sha hashes
+  { pattern: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/gi, replacement: '[EMAIL_REDACTED]' }, // emails
 ];
 
 // check if user is properly authenticated
