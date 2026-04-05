@@ -43,7 +43,7 @@ export function ChartView(props: ViewProps) {
 
   // data transformation for charts
   const chartData = useMemo(() => {
-    if (type === 'network' || type === 'mindmap') return []; // Handled by their own views
+    if (type === 'network' || type === 'mindmap') return []; // handled by their own views
 
     // multi-series: build nested map: x -> seriesval -> { value, records }
     // simple single-series aggregation by x
@@ -244,7 +244,7 @@ export function ChartView(props: ViewProps) {
                       {(seriesField || type === 'pie' || type === 'radar') && chartData.length > 0 ? (
                         // dynamic series colors (limited to top 5-8 for ui sanity)
                         chartData[0] && Object.keys(chartData[0])
-                          .filter(k => k !== 'name' && k !== 'value') // Assuming transformed keys
+                          .filter(k => k !== 'name' && k !== 'value') // assuming transformed keys
                           .slice(0, 10)
                           .map((bgKey) => {
                             const current = config?.chartSeriesColors?.[bgKey];
@@ -429,7 +429,7 @@ export function ChartView(props: ViewProps) {
                   collection={collection}
                   onUpdate={onUpdateRecord}
                   onDelete={(rec: any) => { onDelete?.(rec); setVirtualMenu(null); }}
-                  onView={() => setVirtualMenu(null)} // Close on full view
+                  onView={() => setVirtualMenu(null)} // close on full view
                   titleField={collection.fields?.find((f: any) => f.name === config?.titleField)}
                 />
               )}

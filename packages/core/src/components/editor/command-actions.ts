@@ -12,7 +12,7 @@ const getActiveFronter = (): string | null => {
   try {
     const stored = storageManager.getItem('pkm_active_fronters');
     const list = stored ? JSON.parse(stored) : [];
-    if (list.length > 0) return list[0]; // Just grab the first one
+    if (list.length > 0) return list[0]; // just grab the first one
     return null;
   } catch {
     return null;
@@ -44,7 +44,7 @@ export const CommandActions = {
  content = node.textContent;
   } else {
  // fallback to selection
- const slice = editor.state.doc.slice(range.from - 50, range.from); // Grab some context
+ const slice = editor.state.doc.slice(range.from - 50, range.from); // grab some context
  content = slice.content.textBetween(0, slice.content.size) || "New Thought";
   }
   } catch (e) {
@@ -56,16 +56,16 @@ export const CommandActions = {
 
   store.addElement({
   type: 'note',
-  x: -viewport.x + (window.innerWidth / 2) - 150, // Center roughly
+  x: -viewport.x + (window.innerWidth / 2) - 150, // center roughly
   y: -viewport.y + (window.innerHeight / 2) - 100,
   width: 300,
   height: 200,
-  data: { content: `<p>${content}</p>` }, // HTML content for the card
+  data: { content: `<p>${content}</p>` }, // html content for the card
   layerId: store.activeLayerId
   });
 
   toast.success("sent to canvas");
-  editor.chain().focus().deleteRange(range).run(); // Clear the command
+  editor.chain().focus().deleteRange(range).run(); // clear the command
   },
 
   triggerImageUpload: (editor: Editor, range: TiptapRange) => {

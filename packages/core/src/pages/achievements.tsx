@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 import api from '@/api/nocobase-client';
 import { secureLogger } from '@/lib/secure-logger';
 
-// Achievement definitions from journal.tsx
+// achievement definitions from journal.tsx
 const ACHIEVEMENTS = [
   { id: 'first_entry', name: 'first step', description: 'wrote your first journal entry', icon: '🌱', category: 'milestone' },
   { id: 'week_streak', name: 'week warrior', description: '7 day journaling streak', icon: '🔥', category: 'consistency' },
@@ -107,7 +107,7 @@ export function AchievementsPage() {
   const [showLevels, setShowLevels] = useState(true);
   const [showStats, setShowStats] = useState(true);
 
-  // Load entries and unlocked achievements
+  // load entries and unlocked achievements
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -127,7 +127,7 @@ export function AchievementsPage() {
     loadData();
   }, []);
 
-  // Calculate level info
+  // calculate level info
   const levelInfo = useMemo(() => {
     const currentLevelDef = LEVELS.find(l => l.level === level) || LEVELS[0];
     const nextLevelDef = LEVELS.find(l => l.level === level + 1) || currentLevelDef;
@@ -144,7 +144,7 @@ export function AchievementsPage() {
     };
   }, [totalXp, level, levelName]);
 
-  // Filter achievements by category
+  // filter achievements by category
   const filteredAchievements = useMemo(() => {
     if (!activeCategory) return ACHIEVEMENTS;
     return ACHIEVEMENTS.filter(a => a.category === activeCategory);
@@ -154,7 +154,7 @@ export function AchievementsPage() {
   const totalCount = ACHIEVEMENTS.length;
   const completionRate = Math.round((unlockedCount / totalCount) * 100);
 
-  // Get unique categories
+  // get unique categories
   const categories = useMemo(() => {
     const cats = new Set(ACHIEVEMENTS.map(a => a.category));
     return Array.from(cats);
@@ -166,7 +166,7 @@ export function AchievementsPage() {
 
   return (
     <div className="min-h-screen bg-black text-white font-varela py-4 px-4 pb-24">
-      {/* Header */}
+      {/* header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
           <Link 
@@ -188,7 +188,7 @@ export function AchievementsPage() {
         </div>
       </div>
 
-      {/* Overall Progress */}
+      {/* overall progress */}
       <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02] mb-4">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -205,7 +205,7 @@ export function AchievementsPage() {
         </div>
       </div>
 
-      {/* Current Level */}
+      {/* current level */}
       <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02] mb-4">
         <button 
           onClick={() => setShowLevels(!showLevels)}
@@ -237,7 +237,7 @@ export function AchievementsPage() {
         )}
       </div>
 
-      {/* Identity Badges */}
+      {/* identity badges */}
       <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02] mb-4">
         <button 
           onClick={() => setShowIdentityBadges(!showIdentityBadges)}
@@ -284,7 +284,7 @@ export function AchievementsPage() {
         )}
       </div>
 
-      {/* Category Filter */}
+      {/* category filter */}
       <div className="flex flex-wrap gap-2 mb-4">
         <button
           onClick={() => setActiveCategory(null)}
@@ -319,7 +319,7 @@ export function AchievementsPage() {
         ))}
       </div>
 
-      {/* Achievements Grid */}
+      {/* achievements grid */}
       <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02] mb-4">
         <button 
           onClick={() => setShowAchievements(!showAchievements)}
@@ -364,7 +364,7 @@ export function AchievementsPage() {
         )}
       </div>
 
-      {/* Stats Summary */}
+      {/* stats summary */}
       <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02] mb-4">
         <button 
           onClick={() => setShowStats(!showStats)}
@@ -398,7 +398,7 @@ export function AchievementsPage() {
         )}
       </div>
 
-      {/* Wilson Status */}
+      {/* wilson status */}
       {wilson && (
         <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
           <div className="flex items-center gap-2 mb-3">

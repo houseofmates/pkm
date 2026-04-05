@@ -20,7 +20,7 @@ export function DragHandle({ editor }: DragHandleProps) {
       const editorDom = editor.view.dom;
       const rect = editorDom.getBoundingClientRect();
 
-      // Expanded hit area for the handle
+      // expanded hit area for the handle
       if (
         e.clientY >= rect.top &&
         e.clientY <= rect.bottom &&
@@ -30,11 +30,11 @@ export function DragHandle({ editor }: DragHandleProps) {
         const pos = editor.view.posAtCoords({ left: rect.left + 10, top: e.clientY });
 
         if (pos) {
-          // Find the block node
+          // find the block node
           const resolvedPos = editor.state.doc.resolve(pos.pos);
           let depth = resolvedPos.depth;
-          // Walk up to find a block level node that is a direct child of doc or column
-          // We want the "block" (paragraph, heading, etc)
+          // walk up to find a block level node that is a direct child of doc or column
+          // we want the "block" (paragraph, heading, etc)
           while (depth > 0) {
             const node = resolvedPos.node(depth);
             if (node.isBlock && (node.type.name !== 'doc' && node.type.name !== 'columnList')) {
@@ -43,7 +43,7 @@ export function DragHandle({ editor }: DragHandleProps) {
             depth--;
           }
 
-          // If we went too far up or didn't find a good block, fallback to immediate
+          // if we went too far up or didn't find a good block, fallback to immediate
           if (depth <= 0) depth = 1;
 
           const nodePos = resolvedPos.before(depth);
@@ -52,11 +52,11 @@ export function DragHandle({ editor }: DragHandleProps) {
           if (nodeDom && nodeDom.getBoundingClientRect) {
             const nodeRect = nodeDom.getBoundingClientRect();
 
-            // Only update if significantly different to avoid jitter
-            // Check Y position
+            // only update if significantly different to avoid jitter
+            // check y position
             const newTop = nodeRect.top + window.scrollY;
 
-            // Debounce/check if close enough
+            // debounce/check if close enough
             setPosition({
               top: newTop,
               left: nodeRect.left + window.scrollX - 24,
@@ -67,7 +67,7 @@ export function DragHandle({ editor }: DragHandleProps) {
           }
         }
       }
-      // Don't hide immediately if hovering the handle itself
+      // don't hide immediately if hovering the handle itself
       if (menuRef.current && menuRef.current.contains(e.target as Node)) return;
 
       setPosition(null);
@@ -86,7 +86,7 @@ export function DragHandle({ editor }: DragHandleProps) {
       style={{
         top: position.top,
         left: position.left - 10, // slight offset
-        height: 24, // Fixed height handle
+        height: 24, // fixed height handle
         pointerEvents: 'auto',
       }}
     >
@@ -99,14 +99,14 @@ export function DragHandle({ editor }: DragHandleProps) {
           e.dataTransfer.effectAllowed = 'move';
           e.dataTransfer.setDragImage(e.target as Element, 0, 0);
 
-          // Select the node
+          // select the node
           const node = editor.state.doc.nodeAt(currentNodePos);
           if (node) {
-             // We set a custom mime type to identify this as a prose-mirror drag
-             // But actually, we just want to leverage native behavior if possible
-             // OR trigger our extension's drag handler
+             // we set a custom mime type to identify this as a prose-mirror drag
+             // but actually, we just want to leverage native behavior if possible
+             // or trigger our extension's drag handler
 
-             // Trick: Select the node in the editor so Tiptap's drag handler picks it up
+             // trick: select the node in the editor so tiptap's drag handler picks it up
              editor.commands.setNodeSelection(currentNodePos);
           }
         }}
@@ -114,15 +114,15 @@ export function DragHandle({ editor }: DragHandleProps) {
         <GripVertical className="w-4 h-4 text-muted-foreground" />
       </div>
 
-      {/* Quick Actions (e.g. Add Column) */}
+      {/* quick actions (e.g. add column) */}
       <button
         className="p-1 hover:bg-white/10 rounded text-muted-foreground hover:text-primary transition-colors"
         title="Wrap in Columns"
         onClick={() => {
             if (currentNodePos !== null) {
-                // Replace setColumns with a valid command or show a placeholder
-                // Example: wrap node in columns extension if available, otherwise show toast
-                // editor.chain().setNodeSelection(currentNodePos).wrapInColumns(2).run();
+                // replace setcolumns with a valid command or show a placeholder
+                // example: wrap node in columns extension if available, otherwise show toast
+                // editor.chain().setnodeselection(currentnodepos).wrapincolumns(2).run();
                 toast.info('columns extension not available');
             }
         }}

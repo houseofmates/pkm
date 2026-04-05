@@ -12,8 +12,8 @@ interface VirtualListProps<T> {
 }
 
 /**
- * Virtual scrolling list component
- * Renders only visible items for performance with large lists
+ * virtual scrolling list component
+ * renders only visible items for performance with large lists
  */
 export function VirtualList<T>({
   items,
@@ -28,7 +28,7 @@ export function VirtualList<T>({
   const [scrollTop, setScrollTop] = useState(0);
   const [containerHeight, setContainerHeight] = useState(0);
 
-  // Calculate visible range
+  // calculate visible range
   const visibleRange = useMemo(() => {
     const start = Math.floor(scrollTop / itemHeight);
     const visibleCount = Math.ceil(containerHeight / itemHeight);
@@ -37,14 +37,14 @@ export function VirtualList<T>({
     return { startIndex, endIndex };
   }, [scrollTop, containerHeight, itemHeight, overscan, items.length]);
 
-  // Handle scroll
+  // handle scroll
   const handleScroll = useCallback(() => {
     if (containerRef.current) {
       setScrollTop(containerRef.current.scrollTop);
     }
   }, []);
 
-  // Update container height on mount and resize
+  // update container height on mount and resize
   useEffect(() => {
     const updateHeight = () => {
       if (containerRef.current) {
@@ -57,7 +57,7 @@ export function VirtualList<T>({
     return () => window.removeEventListener('resize', updateHeight);
   }, []);
 
-  // Group items if groupBy is provided
+  // group items if groupby is provided
   const groupedItems = useMemo(() => {
     if (!groupBy) return null;
     
@@ -76,16 +76,16 @@ export function VirtualList<T>({
     return groups;
   }, [items, groupBy]);
 
-  // Calculate total height
+  // calculate total height
   const totalHeight = items.length * itemHeight;
 
-  // Render visible items
+  // render visible items
   const visibleItems = useMemo(() => {
     const { startIndex, endIndex } = visibleRange;
     const result: ReactNode[] = [];
 
     if (groupedItems && renderGroupHeader) {
-      // Handle grouped virtual list
+      // handle grouped virtual list
       let currentIndex = 0;
       let currentGroup: string | null = null;
       
@@ -93,7 +93,7 @@ export function VirtualList<T>({
         const item = items[i];
         const groupKey = groupBy!(item);
         
-        // Add group header when group changes
+        // add group header when group changes
         if (groupKey !== currentGroup) {
           currentGroup = groupKey;
           if (i >= startIndex && i < endIndex) {
@@ -115,7 +115,7 @@ export function VirtualList<T>({
           currentIndex++;
         }
         
-        // Add item if in visible range
+        // add item if in visible range
         if (i >= startIndex && i < endIndex) {
           result.push(
             <div
@@ -135,7 +135,7 @@ export function VirtualList<T>({
         currentIndex++;
       }
     } else {
-      // Simple virtual list
+      // simple virtual list
       for (let i = startIndex; i < endIndex; i++) {
         result.push(
           <div
@@ -172,7 +172,7 @@ export function VirtualList<T>({
 }
 
 /**
- * Simplified virtual list without grouping
+ * simplified virtual list without grouping
  */
 export function SimpleVirtualList<T>({
   items,

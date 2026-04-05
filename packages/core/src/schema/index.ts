@@ -11,19 +11,19 @@
  * 
  * usage:
  * ```typescript
- * import { schemaService, fieldRegistry } from '@/schema';
+ * import { schemaservice, fieldregistry } from '@/schema';
  * 
  * // initialize
- * await schemaService.initialize();
+ * await schemaservice.initialize();
  * 
  * // create a table
- * const table = await schemaService.createTable('tasks', 'tasks', [
+ * const table = await schemaservice.createtable('tasks', 'tasks', [
  *   { name: 'title', type: 'text', label: 'title' },
  *   { name: 'done', type: 'boolean', label: 'done' },
  * ]);
  * 
  * // create a record
- * const record = await schemaService.createRecord('tasks', {
+ * const record = await schemaservice.createrecord('tasks', {
  *   title: 'buy groceries',
  *   done: false,
  * });

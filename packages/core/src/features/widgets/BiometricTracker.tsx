@@ -41,7 +41,7 @@ export function BiometricTracker({ data, onUpdate }: BiometricTrackerProps) {
       </div>
 
       <div className="space-y-3">
-        {/* Energy */}
+        {/* energy */}
         <div className="space-y-1">
           <div className="flex justify-between text-[10px] lowercase text-muted-foreground">
             <span className="flex items-center gap-1"><Battery className="w-3 h-3" /> energy</span>
@@ -61,7 +61,7 @@ export function BiometricTracker({ data, onUpdate }: BiometricTrackerProps) {
           />
         </div>
 
-        {/* Sensory Friction */}
+        {/* sensory friction */}
         <div className="space-y-1">
           <div className="flex justify-between text-[10px] lowercase text-muted-foreground">
             <span className="flex items-center gap-1"><Zap className="w-3 h-3" /> friction</span>
@@ -81,7 +81,7 @@ export function BiometricTracker({ data, onUpdate }: BiometricTrackerProps) {
           />
         </div>
 
-        {/* Focus */}
+        {/* focus */}
         <div className="space-y-1">
           <div className="flex justify-between text-[10px] lowercase text-muted-foreground">
             <span className="flex items-center gap-1"><Brain className="w-3 h-3" /> focus</span>

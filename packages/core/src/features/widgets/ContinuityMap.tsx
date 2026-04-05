@@ -37,7 +37,7 @@ export function ContinuityMap({ data }: ContinuityMapProps) {
     const end = new Date();
     const start = new Date();
     start.setMonth(start.getMonth() - monthsToShow);
-    start.setDate(1); // Start from first day of the month
+    start.setDate(1); // start from first day of the month
     return { start, end };
   }, [monthsToShow]);
 

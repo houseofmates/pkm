@@ -1,5 +1,5 @@
-// Gamification routes module for PKM backend
-// Handles XP, achievements, and user stats
+// gamification routes module for pkm backend
+// handles xp, achievements, and user stats
 
 import express from 'express';
 import { asyncHandler } from '../error-handler.js';
@@ -8,17 +8,17 @@ import { apiLogger } from '../logger.js';
 
 const router = express.Router();
 
-// Apply API logger to all routes
+// apply api logger to all routes
 router.use(apiLogger);
 
 /**
- * POST /api/gamification/award-xp
- * Award XP to a user
+ * post /api/gamification/award-xp
+ * award xp to a user
  */
 router.post('/award-xp', validateBody(gamificationSchemas.awardXP), asyncHandler(async (req, res) => {
     const { user_id, amount, reason, metadata } = req.body;
     
-    // TODO: Implement actual XP awarding
+    // todo: implement actual xp awarding
     res.status(201).json({
         success: true,
         data: {
@@ -31,13 +31,13 @@ router.post('/award-xp', validateBody(gamificationSchemas.awardXP), asyncHandler
 }));
 
 /**
- * GET /api/gamification/stats/:user_id
- * Get user gamification stats
+ * get /api/gamification/stats/:user_id
+ * get user gamification stats
  */
 router.get('/stats/:user_id', validateParams(gamificationSchemas.getStats), asyncHandler(async (req, res) => {
     const { user_id } = req.params;
     
-    // TODO: Implement actual stats retrieval
+    // todo: implement actual stats retrieval
     res.json({
         success: true,
         data: {
@@ -51,13 +51,13 @@ router.get('/stats/:user_id', validateParams(gamificationSchemas.getStats), asyn
 }));
 
 /**
- * POST /api/gamification/unlock-achievement
- * Unlock an achievement for a user
+ * post /api/gamification/unlock-achievement
+ * unlock an achievement for a user
  */
 router.post('/unlock-achievement', validateBody(gamificationSchemas.unlockAchievement), asyncHandler(async (req, res) => {
     const { user_id, achievement_id, metadata } = req.body;
     
-    // TODO: Implement actual achievement unlocking
+    // todo: implement actual achievement unlocking
     res.status(201).json({
         success: true,
         data: {

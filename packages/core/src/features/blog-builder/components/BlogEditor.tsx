@@ -172,7 +172,7 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
  slug: '',
  content: [],
  published: false,
- elements: [] // Sync
+ elements: [] // sync
  });
  } else {
  const res = await api.request('blog_posts', 'list', {
@@ -256,7 +256,7 @@ function BlogEditorParamsWrapper({ slug }: { slug: string }) {
   const payload = {
  ...post,
  content: JSON.stringify(post.elements),
- elements: undefined // Don't send this duplicate field to DB if not in schema, or DB ignores it
+ elements: undefined // don't send this duplicate field to db if not in schema, or db ignores it
   };
 
   if (post.id === 'temp-new') {

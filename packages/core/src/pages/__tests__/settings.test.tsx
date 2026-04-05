@@ -48,7 +48,7 @@ describe('Settings page', () => {
     expect(checkbox.checked).toBe(false);
     fireEvent.click(checkbox);
     expect(checkbox.checked).toBe(true);
-    // drop into localStorage
+    // drop into localstorage
     expect(storageManager.getItem('pkm_setting:darkMode')).toBe('true');
   });
 });

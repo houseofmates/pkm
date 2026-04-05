@@ -41,8 +41,8 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
         type: 'collection',
         name: collection.name,
         title: collection.title,
-        fields: collection.fields?.map((f: any) => f.name), // Simplify schema
-        records: records.slice(0, 10) // Limit to top 10 for context window
+        fields: collection.fields?.map((f: any) => f.name), // simplify schema
+        records: records.slice(0, 10) // limit to top 10 for context window
       });
     }
     return () => setContext(null);

@@ -1,7 +1,7 @@
 /**
- * storage-manager - centralized localStorage access with optional encryption
+ * storage-manager - centralized localstorage access with optional encryption
  *
- * provides a single API layer that wraps safeStorage (sanitization warnings) and
+ * provides a single api layer that wraps safestorage (sanitization warnings) and
  * adds aes-gcm encryption via the web crypto api so that values stored for
  * sensitive keys aren't plainly visible in the clear.
  */
@@ -61,7 +61,7 @@ async function encrypt(str: string): Promise<string> {
 async function decrypt(encStr: string): Promise<string> {
   try {
     // fast check if it's even worth trying to decrypt
-    // base64 encoded packed data should at least be longer than IV (12 bytes)
+    // base64 encoded packed data should at least be longer than iv (12 bytes)
     if (!encStr || encStr.length < 16) return encStr;
 
     const key = await getEncryptionKey();
@@ -96,7 +96,7 @@ export const storageManager = {
   },
   setItem(key: string, value: string): void {
     safeStorage.setItem(key, value);
-    // if this key was in secret cache, update it (though setItem shouldn't really be used for secrets anymore)
+    // if this key was in secret cache, update it (though setitem shouldn't really be used for secrets anymore)
     if (key in secretCache) {
       secretCache[key] = value;
     }
@@ -116,7 +116,7 @@ export const storageManager = {
   },
 
   /**
-   * stores a value encrypted in localStorage
+   * stores a value encrypted in localstorage
    */
   async setEncryptedItem(key: string, value: string): Promise<void> {
     secretCache[key] = value;
@@ -125,7 +125,7 @@ export const storageManager = {
   },
 
   /**
-   * retrieves and decrypts a value from localStorage.
+   * retrieves and decrypts a value from localstorage.
    * uses an in-memory cache for performance.
    */
   async getEncryptedItem(key: string): Promise<string | null> {
@@ -144,7 +144,7 @@ export const storageManager = {
 
   /**
    * synchronous version that only works if the item was already loaded
-   * into cache via getEncryptedItem or setEncryptedItem.
+   * into cache via getencrypteditem or setencrypteditem.
    */
   getCachedSecret(key: string): string | null {
     return secretCache[key] || null;

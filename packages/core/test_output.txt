@@ -1,0 +1,12 @@
+
+> @pkm/core@0.0.0 test
+> vitest --run
+
+sh: 1: vitest: not found
+npm error Lifecycle script `test` failed with error:
+npm error code 127
+npm error path /app/packages/core
+npm error workspace @pkm/core@0.0.0
+npm error location /app/packages/core
+npm error command failed
+npm error command sh -c vitest --run

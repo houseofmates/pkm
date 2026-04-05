@@ -25,8 +25,8 @@ export interface UseFasterWhisperState {
 }
 
 /**
- * Unified hook for faster-whisper transcription with detail enhancement
- * Records audio -> sends to 192.168.4.250:5000/transcribe -> enhances with Ollama
+ * unified hook for faster-whisper transcription with detail enhancement
+ * records audio -> sends to 192.168.4.250:5000/transcribe -> enhances with ollama
  */
 export function useFasterWhisper(options: UseFasterWhisperOptions = {}) {
   const {
@@ -54,14 +54,14 @@ export function useFasterWhisper(options: UseFasterWhisperOptions = {}) {
   const audioChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
 
-  // Check server availability on mount
+  // check server availability on mount
   useEffect(() => {
     fasterWhisperClient.isAvailable().then(available => {
       setState(prev => ({ ...prev, serverAvailable: available }));
     });
   }, []);
 
-  // Cleanup on unmount
+  // cleanup on unmount
   useEffect(() => {
     return () => {
       stopRecording();
@@ -148,7 +148,7 @@ export function useFasterWhisper(options: UseFasterWhisperOptions = {}) {
     setState(prev => ({ ...prev, isRecording: false, isProcessing: true }));
 
     try {
-      // Step 1: Transcribe with faster-whisper
+      // step 1: transcribe with faster-whisper
       const result: FasterWhisperTranscriptionResult = await fasterWhisperClient.transcribe(
         audioBlob,
         { language, vad_filter: true }
@@ -158,7 +158,7 @@ export function useFasterWhisper(options: UseFasterWhisperOptions = {}) {
       setState(prev => ({ ...prev, transcript: rawTranscript }));
       onTranscript?.(rawTranscript);
 
-      // Step 2: Enhance with detail enhancer (if enabled)
+      // step 2: enhance with detail enhancer (if enabled)
       if (enhanceWithContext) {
         setState(prev => ({ ...prev, isEnhancing: true }));
 

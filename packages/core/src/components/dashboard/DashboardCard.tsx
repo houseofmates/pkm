@@ -14,7 +14,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = React.memo(({ collect
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // moved early return check to useEffect to avoid conditional hooks
+  // moved early return check to useeffect to avoid conditional hooks
   const isValidCollection = Boolean(collectionName);
 
   const handleClick = useCallback((item: Record<string, unknown>) => {
@@ -39,7 +39,7 @@ export const DashboardCard: React.FC<DashboardCardProps> = React.memo(({ collect
 
  const res = await api.listRecords(collectionName, {
  filter: queryFilter,
- pageSize: 12, // Limit for dashboard view
+ pageSize: 12, // limit for dashboard view
  sort: '-createdAt'
  });
 

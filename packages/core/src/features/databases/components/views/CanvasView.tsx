@@ -158,7 +158,7 @@ export function CanvasView({ data: rows, collection, loading, config: _config }:
       const x = layoutItem?.x ?? defaultX;
       const y = layoutItem?.y ?? defaultY;
       const w = layoutItem?.width ?? 300;
-      const h = layoutItem?.height ?? 300; // Taller default for image cards
+      const h = layoutItem?.height ?? 300; // taller default for image cards
 
       if (!exists) {
         const rect = new Rect({

@@ -60,7 +60,7 @@ function SortableItem({ id, record, collection, onUpdateRecord, onDelete, titleF
       titleField={titleField}
       config={config}
       onConfigChange={onConfigChange}
-      className="contents" // Ensure it doesn't break layout if context menu adds wrapper
+      className="contents" // ensure it doesn't break layout if context menu adds wrapper
     >
       <Card ref={setNodeRef} style={style} className="cursor-grab active:cursor-grabbing mb-2 shadow-sm bg-card hover:bg-accent/50 group border-muted">
         <CardHeader className="p-3 space-y-0">
@@ -308,7 +308,7 @@ export function KanbanView({ data, collection, config, onUpdateRecord, onDelete,
     if (activeContainer && overContainer && activeContainer !== overContainer) {
       // moved to new column -> update api
       const recordId = active.id;
-      const newValue = overContainer === 'uncategorized' ? null : overContainer; // Assuming undefined/null for uncat
+      const newValue = overContainer === 'uncategorized' ? null : overContainer; // assuming undefined/null for uncat
 
       try {
         await client.updateRecord(collection.name, recordId, {

@@ -45,7 +45,7 @@ export async function getAutoSuggestions(
     const actions = generateActions(currentText);
     suggestions.push(...actions);
 
-    // sort by confidence and return top N
+    // sort by confidence and return top n
     return suggestions
       .sort((a, b) => b.confidence - a.confidence)
       .slice(0, maxSuggestions);
@@ -252,7 +252,7 @@ function extractContinuation(currentText: string, sentence: string): string | nu
   return continuation || null;
 }
 
-// debounced suggestion fetcher for UI
+// debounced suggestion fetcher for ui
 export function createDebouncedSuggestions(
   callback: (suggestions: Suggestion[]) => void,
   delay: number = 300

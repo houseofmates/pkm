@@ -16,8 +16,8 @@ interface State {
 }
 
 /**
- * Error boundary for widget sections
- * Prevents a crashing component from killing the whole dashboard
+ * error boundary for widget sections
+ * prevents a crashing component from killing the whole dashboard
  */
 export class WidgetErrorBoundary extends Component<Props, State> {
   constructor(props: Props) {
@@ -78,7 +78,7 @@ export class WidgetErrorBoundary extends Component<Props, State> {
 }
 
 /**
- * Wrapper component for widgets with error boundary
+ * wrapper component for widgets with error boundary
  */
 export function WidgetContainer({
   children,

@@ -20,14 +20,14 @@ async function waitForDone(taskId: string) {
   throw new Error('timeout waiting for task completion');
 }
 
-// configure a dummy admin secret for tests (backend expects ADMIN_SECRET)
+// configure a dummy admin secret for tests (backend expects admin_secret)
 process.env.ADMIN_SECRET = 'test-secret';
 // also override broadcast key in case it's set in environment
 process.env.BROADCAST_AUTH_KEY = 'test-secret';
 process.env.MOCK_NOTION_IMPORT = 'true';
 
-// import the server AFTER configuring env vars to ensure they are picked up
-// server.js exports { app, importTasks }
+// import the server after configuring env vars to ensure they are picked up
+// server.js exports { app, importtasks }
 import { app as server } from '@pkm/backend/server.js';
 
 // ensure the public upload directory exists
@@ -72,12 +72,12 @@ describe('backend /api/nb-import', () => {
       .set('Authorization', 'Bearer test-secret')
       .attach('file', tmp);
     const taskId = upload.taskId;
-    // poll GET
+    // poll get
     let r1 = await request(server)
       .get(`/api/nb-import/logs?id=${taskId}`)
       .set('Authorization', 'Bearer test-secret');
     expect(r1.status).toBe(200);
-    // poll POST
+    // poll post
     const r2 = await request(server)
       .post('/api/nb-import/logs')
       .set('Authorization', 'Bearer test-secret')

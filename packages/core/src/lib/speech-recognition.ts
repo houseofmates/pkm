@@ -1,14 +1,14 @@
 /**
- * Speech Recognition utility with Firefox support
- * Firefox doesn't support Web Speech API natively, so we provide
+ * speech recognition utility with firefox support
+ * firefox doesn't support web speech api natively, so we provide
  * graceful degradation without error toasts.
  * 
- * Now with Whisper fallback via Ollama for full transcription support in Firefox!
+ * now with whisper fallback via ollama for full transcription support in firefox!
  * 
- * Recommended setup:
- * 1. Ensure Ollama is running locally (or configured endpoint)
- * 2. Pull a Whisper model: `ollama pull whisper-small` (or whisper-base, whisper-medium, whisper-large-v3)
- * 3. The hook will automatically use Whisper when SpeechRecognition is unavailable
+ * recommended setup:
+ * 1. ensure ollama is running locally (or configured endpoint)
+ * 2. pull a whisper model: `ollama pull whisper-small` (or whisper-base, whisper-medium, whisper-large-v3)
+ * 3. the hook will automatically use whisper when speechrecognition is unavailable
  */
 
 import { useState, useRef, useCallback, useEffect } from 'react';
@@ -62,8 +62,8 @@ declare global {
   }
 }
 
-// Use type assertions for cross-browser compatibility
-// instead of redeclaring to avoid conflicts with built-in DOM types
+// use type assertions for cross-browser compatibility
+// instead of redeclaring to avoid conflicts with built-in dom types
 
 export function isFirefox(): boolean {
   if (typeof navigator === 'undefined') return false;
@@ -91,7 +91,7 @@ export function safelyStartSpeechRecognition(onUnsupported?: () => void): boolea
 }
 
 // =============================================================================
-// Unified Transcription Hook with Whisper Fallback
+// unified transcription hook with whisper fallback
 // =============================================================================
 
 export interface UnifiedTranscriptionOptions {
@@ -385,7 +385,7 @@ export function useUnifiedTranscription(options: UnifiedTranscriptionOptions = {
       try {
         recognitionRef.current.stop();
       } catch {
-        // Ignore
+        // ignore
       }
       recognitionRef.current = null;
     }

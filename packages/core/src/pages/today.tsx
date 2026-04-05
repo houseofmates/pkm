@@ -11,7 +11,7 @@ import { secureLogger } from '@/lib/secure-logger';
 import { Calendar, BookOpen, ChevronRight, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
-// System Aliveness Indicator
+// system aliveness indicator
 function AlivenessOrb({ className }: { className?: string }) {
   const { sevenDayCoverage } = useGamificationStore();
   const [isHovered, setIsHovered] = useState(false);
@@ -38,7 +38,7 @@ function AlivenessOrb({ className }: { className?: string }) {
   );
 }
 
-// Monthly Coverage Map
+// monthly coverage map
 function MonthlyCoverageMap({ className }: { className?: string }) {
   const [moodData, setMoodData] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
@@ -102,7 +102,7 @@ function MonthlyCoverageMap({ className }: { className?: string }) {
   );
 }
 
-// Journal Status Card
+// journal status card
 function JournalStatusCard({ className }: { className?: string }) {
   const navigate = useNavigate();
   const [todayEntry, setTodayEntry] = useState<any>(null);
@@ -143,7 +143,7 @@ function JournalStatusCard({ className }: { className?: string }) {
   );
 }
 
-// Hibernation Streak Display
+// hibernation streak display
 function StreakDisplay({ className }: { className?: string }) {
   const { streakDays, longestStreak } = useGamificationStore();
   const { streakData } = useHibernationStreak();
@@ -168,7 +168,7 @@ function StreakDisplay({ className }: { className?: string }) {
   );
 }
 
-// XP and Level Display
+// xp and level display
 function LevelDisplay({ className }: { className?: string }) {
   const { totalXp, level, levelName } = useGamificationStore();
   const getNextLevelXp = (lvl: number) => [0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1200, 1400, 1600, 1800, 2000, 2500, 3000, 3500, 4000, 5000][lvl] || 10000;
@@ -193,7 +193,7 @@ function LevelDisplay({ className }: { className?: string }) {
   );
 }
 
-// Main Today Page Component
+// main today page component
 export function TodayPage() {
   const navigate = useNavigate();
   const { loadFromServer, saveToServer, setSevenDayCoverage, updateCategory } = useGamificationStore();

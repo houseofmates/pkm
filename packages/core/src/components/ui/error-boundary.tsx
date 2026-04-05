@@ -14,10 +14,10 @@ interface ErrorBoundaryState {
 }
 
 /**
- * Global Error Boundary component that catches render errors gracefully.
- * - Shows styled error card with dark bg and gold accent (consistent with app theme)
- * - Includes Return to Dashboard and Try Again buttons
- * - NEVER exposes file paths, stack traces, or component names in production
+ * global error boundary component that catches render errors gracefully.
+ * - shows styled error card with dark bg and gold accent (consistent with app theme)
+ * - includes return to dashboard and try again buttons
+ * - never exposes file paths, stack traces, or component names in production
  */
 export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props: ErrorBoundaryProps) {
@@ -30,7 +30,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, info: React.ErrorInfo) {
-    // Log to console for debugging, but DON'T display to user
+    // log to console for debugging, but don't display to user
     secureLogger.error('[ErrorBoundary] Caught error:', error);
     secureLogger.error('[ErrorBoundary] Component stack:', info.componentStack);
   }
@@ -45,7 +45,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 
   render() {
     if (this.state.hasError) {
-      // If a custom fallback is provided, use it
+      // if a custom fallback is provided, use it
       if (this.props.fallback) {
         return this.props.fallback;
       }
@@ -66,7 +66,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
               we encountered an unexpected issue. please try again or return to the dashboard.
             </p>
 
-            {/* Only show error details in development */}
+            {/* only show error details in development */}
             {isDev && this.state.error && (
               <div className="bg-black/50 rounded p-3 mb-4 text-left overflow-auto max-h-32">
                 <code className="text-xs text-[#ffb10f]/80 font-mono">
@@ -106,8 +106,8 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
 }
 
 /**
- * Page-level Error Boundary wrapper that preserves the sidebar/shell when a page crashes.
- * Use this to wrap individual page components so one page crash doesn't nuke the entire app.
+ * page-level error boundary wrapper that preserves the sidebar/shell when a page crashes.
+ * use this to wrap individual page components so one page crash doesn't nuke the entire app.
  */
 export function PageErrorBoundary({ children }: { children: React.ReactNode }) {
   return (

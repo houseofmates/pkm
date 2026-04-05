@@ -10,7 +10,7 @@ import { storageManager } from '@/lib/storage-manager';
 import type { AxiosInstance } from 'axios';
 import { normalizeListResponse } from '@/lib/nocobase-utils';
 
-// Type definitions for NocoBase API
+// type definitions for nocobase api
 export interface Collection {
   name: string;
   title?: string;

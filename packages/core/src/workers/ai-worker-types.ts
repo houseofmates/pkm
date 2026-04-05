@@ -1,7 +1,7 @@
 // shared types between the ai worker and the main thread
 // both sides import this file — no runtime dependencies
 
-/** Content part for multimodal messages (text, images, etc.) */
+/** content part for multimodal messages (text, images, etc.) */
 export interface TextContentPart {
     type: 'text';
     text: string;
@@ -16,18 +16,18 @@ export interface ImageContentPart {
 
 export type ContentPart = TextContentPart | ImageContentPart;
 
-/** Chat message that can be text-only or multimodal */
+/** chat message that can be text-only or multimodal */
 export interface ChatMessage {
     role: 'system' | 'user' | 'assistant';
     content: string | ContentPart[];
 }
 
-/** Attachment file for multimodal input */
+/** attachment file for multimodal input */
 export interface Attachment {
     id: string;
     file: File;
     type: 'image' | 'video' | 'gif' | 'other';
-    dataUrl?: string; // base64 data URL for preview and sending
+    dataUrl?: string; // base64 data url for preview and sending
     name: string;
 }
 
@@ -51,8 +51,8 @@ export interface AIWorkerAPI {
 
     /**
      * stream a chat completion from ollama.
-     * `onToken` is called with the cumulative content on each chunk.
-     * the comlink caller wraps its callback with `Comlink.proxy(cb)`.
+     * `ontoken` is called with the cumulative content on each chunk.
+     * the comlink caller wraps its callback with `comlink.proxy(cb)`.
      */
     chatStream(
         prompt: string,
@@ -63,7 +63,7 @@ export interface AIWorkerAPI {
 
     /**
      * stream a multimodal chat completion from ollama (for vision models).
-     * supports images/gifs/videos as base64 data URLs.
+     * supports images/gifs/videos as base64 data urls.
      */
     chatStreamMultimodal(
         messages: ChatMessage[],
@@ -77,7 +77,7 @@ export interface AIWorkerAPI {
      * 1. build rag context
      * 2. stream response from ollama
      * returns the final complete response.
-     * `onToken` receives cumulative streamed text.
+     * `ontoken` receives cumulative streamed text.
      */
     askWithRag(
         query: string,

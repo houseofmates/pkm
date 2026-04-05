@@ -4,7 +4,7 @@ export interface IdentityContext {
   name: string;
   pronouns?: string;
   description?: string;
-  avatarUrl?: string; // Local or proxied URL
+  avatarUrl?: string; // local or proxied url
   } | null;
   systemName?: string;
   // we can add a summary of recent fronters here later if needed
@@ -26,7 +26,7 @@ export interface ActivityContext {
   summary: string;
   timestamp: string;
   }>;
-  activeProject?: string; // Inferred from dashboard usage
+  activeProject?: string; // inferred from dashboard usage
 }
 
 export interface LLMContextPayload {

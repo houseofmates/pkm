@@ -1,4 +1,4 @@
-// Tests for error handler middleware
+// tests for error handler middleware
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { APIError, notFoundHandler, errorHandler, asyncHandler } from '../error-handler.js';
 

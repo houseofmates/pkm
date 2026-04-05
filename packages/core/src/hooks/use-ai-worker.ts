@@ -2,12 +2,12 @@
 //
 // strategy:
 //   1. try to spin up a web worker + comlink proxy (fast, off main thread)
-//   2. if the worker fails (mobile webview, CSP, etc) fall back to
+//   2. if the worker fails (mobile webview, csp, etc) fall back to
 //      importing ai-worker-core.ts directly and running on the main thread
 //
 // the hook is a singleton — every consumer gets the same instance.
 // comlink proxy callbacks are properly released after each streaming call
-// to prevent MessageChannel / MessagePort memory leaks.
+// to prevent messagechannel / messageport memory leaks.
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import * as Comlink from 'comlink';
@@ -333,8 +333,8 @@ export function useAIWorker() {
             }
 
             const proxiedOnToken = Comlink.proxy(onToken);
-            // We need to transfer the attachments without the File object (not clonable)
-            // The attachments should already have dataUrl set
+            // we need to transfer the attachments without the file object (not clonable)
+            // the attachments should already have dataurl set
             const serializableAttachments = attachments?.map(att => ({
                 id: att.id,
                 type: att.type,

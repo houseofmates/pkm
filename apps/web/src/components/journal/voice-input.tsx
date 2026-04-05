@@ -44,7 +44,7 @@ const VoiceInput: React.FC<{ onTranscribe: (text: string) => void }> = ({ onTran
   const startListening = useCallback(() => {
     const recognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
     if (!recognition) {
-      // Firefox and other unsupported browsers - silently return without error
+      // firefox and other unsupported browsers - silently return without error
       return
     }
 
@@ -94,7 +94,7 @@ const VoiceInput: React.FC<{ onTranscribe: (text: string) => void }> = ({ onTran
     const modelUrl = platform === 'grapheneos' 
       ? 'whisper-tiny-mobile.ggml' 
       : 'whisper-small-desktop.ggml'
-    window.open(`https://huggingface.co/ggerganov/whisper.cpp/${modelUrl}`)
+    window.open(`https://huggingface.co/ggerganov/whisper.cpp/${modelurl}`)
   }
 
   return (

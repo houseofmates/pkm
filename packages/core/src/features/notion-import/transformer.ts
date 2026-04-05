@@ -12,8 +12,8 @@ const REL_SAMPLE_SIZE = 120; // cap value comparisons for performance
 const REL_KEY_UNIQUENESS_MIN = 0.6; // require keys to be reasonably unique
 
 /**
- * Utility to yield control back to the main thread.
- * Uses requestAnimationFrame if in browser, otherwise setTimeout.
+ * utility to yield control back to the main thread.
+ * uses requestanimationframe if in browser, otherwise settimeout.
  */
 const yieldControl = () => new Promise(resolve => {
     if (typeof requestAnimationFrame !== 'undefined') {
@@ -55,7 +55,7 @@ function guessType(values: any[]): string {
             } else if (trimmed === 'true' || trimmed === 'false') {
                 hasBoolean = true;
             } else if (/^\d{4}-\d{2}-\d{2}/.test(trimmed)) {
-                // simple ISO date detection
+                // simple iso date detection
                 hasDate = true;
             } else if (trimmed.includes(',') || trimmed.startsWith('[')) {
                 hasArray = true;
@@ -75,7 +75,7 @@ function guessType(values: any[]): string {
     return 'string';
 }
 
-// convert Notion property type (from metadata) into a nocobase field type
+// convert notion property type (from metadata) into a nocobase field type
 function notionPropertyToType(type: string): string {
     switch (type.toLowerCase()) {
         case 'title':
@@ -169,10 +169,10 @@ export async function transformWorkspace(
     // cache field type guesses per database for reuse during relation inference
     const dbFieldTypes: Record<string, Record<string, string>> = {};
 
-    // databases -> collection + createRecords
+    // databases -> collection + createrecords
     for (const db of ws.databases) {
         reportProgress(`Analyzing database: ${db.name}`);
-        // build field definitions (try to respect Notion props if available)
+        // build field definitions (try to respect notion props if available)
         const sampleRows = db.rows.slice(0, 20);
         const fields: Record<string, string> = {};
         for (const field of db.fields) {
@@ -196,7 +196,7 @@ export async function transformWorkspace(
             completedSteps++;
             rowCount++;
 
-            // yield every 200 rows to keep UI responsive
+            // yield every 200 rows to keep ui responsive
             if (rowCount % 200 === 0) {
                 reportProgress(`Transforming records for ${db.name}...`);
                 await yieldControl();
@@ -231,7 +231,7 @@ export async function transformWorkspace(
         }
     }
 
-    // infer and register relations based on Notion metadata or cross-dataset value matching
+    // infer and register relations based on notion metadata or cross-dataset value matching
     for (const db of ws.databases) {
         const fieldTypes = dbFieldTypes[db.name] || {};
         for (const field of db.fields) {

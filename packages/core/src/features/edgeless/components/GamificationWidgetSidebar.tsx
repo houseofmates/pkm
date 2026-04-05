@@ -39,7 +39,7 @@ export function GamificationWidgetSidebar({ className }: GamificationWidgetSideb
 
         {isOpen && (
           <div className="space-y-3">
-            {/* Quests progress */}
+            {/* quests progress */}
             <div className="p-2 rounded-lg bg-white/5 border border-white/10">
               <div className="flex items-center gap-2 mb-1">
                 <Target className="w-3 h-3 text-blue-400" />
@@ -50,7 +50,7 @@ export function GamificationWidgetSidebar({ className }: GamificationWidgetSideb
               </div>
             </div>
 
-            {/* Pets count */}
+            {/* pets count */}
             <div className="p-2 rounded-lg bg-white/5 border border-white/10">
               <div className="flex items-center gap-2 mb-1">
                 <Heart className="w-3 h-3 text-pink-400" />

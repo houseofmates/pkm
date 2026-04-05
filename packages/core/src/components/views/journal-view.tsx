@@ -29,7 +29,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
   // moved early return check after hooks to avoid conditional hooks
   const hasCollection = Boolean(collection);
 
-  // fields - use useMemo to avoid conditional hooks
+  // fields - use usememo to avoid conditional hooks
   const contentField = useMemo(() => {
     if (!collection) return { name: 'content' };
     return collection.fields?.find((f: { interface?: string; name: string }) => f.interface === 'markdown' || f.interface === 'textarea' || f.name === 'content') || { name: 'content' };
@@ -111,7 +111,7 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
       const strong = div.querySelector('strong');
       if (strong && div.firstChild === strong) {
         promptText = strong.textContent || '';
-        strong.remove(); // Remove prompt from body
+        strong.remove(); // remove prompt from body
         bodyText = div.innerHTML;
       }
     }
@@ -228,4 +228,4 @@ export function JournalView({ data, collection, config = {}, onConfigChange, onU
     </div>
   );
 }
-// Forced refresh Sat Feb 21 05:08:47 UTC 2026
+// forced refresh sat feb 21 05:08:47 utc 2026

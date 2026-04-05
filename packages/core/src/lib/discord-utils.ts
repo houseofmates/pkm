@@ -18,4 +18,4 @@ export function isDiscordLinkExpired(url: string | undefined): boolean {
   return false;
 }
 
-export const PLACEHOLDER_IMAGE = "https://placehold.co/400x400/333/f6b012?text=Exp";
+export const PLACEHOLDER_IMAGE = "https://placehold.co/400x400/333/f6b012?text=exp";

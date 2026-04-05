@@ -142,7 +142,7 @@ export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onA
         </div>
     );
 
-    // New Widget Types
+    // new widget types
     const type = (widget.view_type || widget.type || '').toLowerCase();
 
     if (type === 'clock') {
@@ -185,7 +185,7 @@ export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onA
                 <div className="flex items-center justify-between">
                     <h4 className="font-bold text-sm lowercase">{widget.title || collectionName}</h4>
                     <div className="flex gap-2">
-                         {/* View Switcher Placeholder */}
+                         {/* view switcher placeholder */}
                          <Select
                            value={widget.data?.view || 'gallery'}
                            onValueChange={(val) => onUpdateWidget?.({ data: { ...widget.data, view: val } })}
@@ -217,14 +217,14 @@ export function WidgetRenderer({ widget, data, onUpdateWidget, onUpdateData, onA
         return renderRichText(widget);
     }
 
-    // Legacy / Other
+    // legacy / other
     switch (type) {
         case 'table': return renderTable(widget);
         case 'kanban': return renderKanban(widget);
         case 'chart': return renderChart(widget);
         case 'map': return renderMap(widget);
-        // case 'gallery': return renderGallery(widget);
-        // case 'form': return renderForm(widget);
+        // case 'gallery': return rendergallery(widget);
+        // case 'form': return renderform(widget);
         case 'iframe':
         case 'embed': return (
             <div className="aspect-video bg-muted/20 border border-border/50 rounded-xl flex items-center justify-center overflow-hidden">

@@ -78,7 +78,7 @@ interface SearchResult {
     score?: number;
 }
 
-// localStorage helpers for activity tracking
+// localstorage helpers for activity tracking
 function getStoredData<T>(key: string, defaultValue: T): T {
   const raw = localStorage.getItem(key);
   if (raw === null) return defaultValue;
@@ -217,7 +217,7 @@ export function Spotlight() {
     const logActivity = useCallback((activity: Activity) => {
         const now = new Date().toISOString();
         
-        // update activity history in localStorage
+        // update activity history in localstorage
         const historyKey = 'journal_activity_history';
         const existingHistory = getStoredData<Record<string, string[]>>(historyKey, {});
         const activityTimestamps = existingHistory[activity.id] || [];
@@ -245,7 +245,7 @@ export function Spotlight() {
         // gamification updates
         const { addXp, updateQuestCell, updateCategory, saveToServer } = gamificationStore;
         
-        // add base XP for logging activity
+        // add base xp for logging activity
         const xpGained = XP_PER_ENTRY;
         addXp(xpGained);
         
@@ -289,7 +289,7 @@ export function Spotlight() {
         // persist to server
         saveToServer();
         
-        // show toast with activity and XP info
+        // show toast with activity and xp info
         const themeColor = '#f6b012';
         toast.success(
             <div className="flex flex-col gap-1">

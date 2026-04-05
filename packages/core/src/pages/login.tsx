@@ -16,7 +16,7 @@ export function LoginPage() {
 
   // performs a quick sanity check against the backend before
   // actually storing the token. previously we unconditionally saved the
-  // value and relied on the first API call to fail, which would dispatch
+  // value and relied on the first api call to fail, which would dispatch
   // an `auth-error` event and drop the token. this caused a confusing
   // experience where users would paste a *bad* token and then immediately
   // be asked to paste it again even though nothing looked wrong. instead we

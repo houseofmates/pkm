@@ -31,7 +31,7 @@ export class StaleDetector {
 
   /**
    * run full stale/merge analysis:
-   *   1. find notes not updated in `staleThresholdDays`.
+   *   1. find notes not updated in `stalethresholddays`.
    *   2. find near-duplicate pairs (cosine sim above merge threshold).
    *   3. optionally enrich merge suggestions with llm reasoning.
    */

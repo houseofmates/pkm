@@ -73,10 +73,10 @@ export function safeErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     // remove file paths, stack traces, internal details
     return error.message
-      .replace(/\/[\w/.-]+/g, '[PATH]') // File paths
-      .replace(/at\s+[\w\s.]+/g, '[STACK]') // Stack traces
-      .replace(/localhost:\d+/g, '[LOCAL]') // Local addresses
-      .replace(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/g, '[IP]'); // IP addresses
+      .replace(/\/[\w/.-]+/g, '[PATH]') // file paths
+      .replace(/at\s+[\w\s.]+/g, '[STACK]') // stack traces
+      .replace(/localhost:\d+/g, '[LOCAL]') // local addresses
+      .replace(/\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}/g, '[IP]'); // ip addresses
   }
   
   if (typeof error === 'string') {
@@ -112,10 +112,10 @@ export function looksLikeSecret(value: string): boolean {
   if (!value || value.length < 8) return false;
   
   const patterns = [
-    /^[a-zA-Z0-9_-]{20,}$/, // JWT or long token
-    /^[a-f0-9]{32,}$/i, // Hex hash
-    /^(sk-|pk-|bearer|token)/i, // Common prefixes
-    /^[A-Za-z0-9+/]{40,}={0,2}$/, // Base64
+    /^[a-zA-Z0-9_-]{20,}$/, // jwt or long token
+    /^[a-f0-9]{32,}$/i, // hex hash
+    /^(sk-|pk-|bearer|token)/i, // common prefixes
+    /^[A-Za-z0-9+/]{40,}={0,2}$/, // base64
   ];
   
   return patterns.some(p => p.test(value));
@@ -124,7 +124,7 @@ export function looksLikeSecret(value: string): boolean {
 /**
  * safe localstorage wrapper that warns about sensitive data
  */
-// safeStorage no longer depends on storageManager; it wraps localStorage
+// safestorage no longer depends on storagemanager; it wraps localstorage
 // directly and applies some heuristic warnings for sensitive values.
 
 export const safeStorage = {

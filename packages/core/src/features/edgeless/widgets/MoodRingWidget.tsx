@@ -19,7 +19,7 @@ const MOOD_LABELS = ['terrible', 'bad', 'fine', 'good', 'excellent'];
 
 export function MoodRingWidget({ className, onMoodSelect }: MoodRingWidgetProps) {
   const handleMoodClick = (moodIndex: number) => {
-    // Log mood via event for journal to handle
+    // log mood via event for journal to handle
     window.dispatchEvent(new CustomEvent('quick-mood-log', { detail: { mood: moodIndex + 1 } }));
     onMoodSelect?.(moodIndex + 1);
   };

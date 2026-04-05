@@ -59,7 +59,7 @@ export class SyncService {
         throw new Error(`Failed to fetch SP history: ${spRes.status} ${spRes.statusText} - ${errorText}`);
       }
 
-      const spHistory = await spRes.json(); // Returns array of objects
+      const spHistory = await spRes.json(); // returns array of objects
       if (!Array.isArray(spHistory)) return;
 
       // 3. filter (process last 50 for safety)
@@ -72,7 +72,7 @@ export class SyncService {
       for (const entry of recentEntries) {
         const startTime = new Date(entry.content.startTime).toISOString();
         const endTime = entry.content.endTime ? new Date(entry.content.endTime).toISOString() : null;
-        const sp_id = entry.id; // UUID
+        const sp_id = entry.id; // uuid
         const member_id = entry.content.member;
         const customStatus = entry.content.customStatus;
         const live = entry.content.live;
@@ -106,7 +106,7 @@ export class SyncService {
             }
           } else {
             // create new
-            // secureLogger.info(`sync: writing new entry [${sp_id}] to nocobase...`);
+            // securelogger.info(`sync: writing new entry [${sp_id}] to nocobase...`);
             await api.createRecord(this.COLLECTION, {
               sp_id,
               member_id,
@@ -144,12 +144,12 @@ export class SyncService {
   }
 
   /**
-   * Syncs local canvas operations to the server using the compacted oplog strategy.
+   * syncs local canvas operations to the server using the compacted oplog strategy.
    */
   static async syncOplog() {
     secureLogger.info("syncOplog: starting...");
     try {
-      // 1. Fetch unsynced oplog entries from Local DB
+      // 1. fetch unsynced oplog entries from local db
       const unsyncedOps = await localDbService.getUnsyncedOplog();
       if (unsyncedOps.length === 0) {
         secureLogger.info("syncOplog: No unsynced operations found.");
@@ -158,7 +158,7 @@ export class SyncService {
 
       secureLogger.info(`syncOplog: Found ${unsyncedOps.length} unsynced operations. Compacting...`);
 
-      // 2. Resolve conflicts and compact operations per drawing
+      // 2. resolve conflicts and compact operations per drawing
       const opsByDrawing = unsyncedOps.reduce((acc, op) => {
         if (!acc[op.drawingId]) acc[op.drawingId] = [];
         acc[op.drawingId].push(op);
@@ -176,11 +176,11 @@ export class SyncService {
 
       secureLogger.info(`syncOplog: Compacted to ${allCompactedOps.length} operations. Syncing to server...`);
 
-      // 3. Simulate syncing to server (in reality: api.request('canvas_oplog', 'create', { ... }))
-      // We assume a successful sync for this implementation.
+      // 3. simulate syncing to server (in reality: api.request('canvas_oplog', 'create', { ... }))
+      // we assume a successful sync for this implementation.
 
-      // 4. Mark ALL original unsynced ops as synced.
-      // Even intermediate mutations that were compacted away should be marked synced locally so they aren't processed again.
+      // 4. mark all original unsynced ops as synced.
+      // even intermediate mutations that were compacted away should be marked synced locally so they aren't processed again.
       const now = Date.now();
       const updatedOriginals = unsyncedOps.map(op => ({
         ...op,
@@ -188,7 +188,7 @@ export class SyncService {
         serverAckedAt: now
       }));
 
-      // 5. Save back to Local DB to update `synced` status using batching
+      // 5. save back to local db to update `synced` status using batching
       await localDbService.saveOplogBatch(updatedOriginals);
 
       secureLogger.info("syncOplog: Complete.");

@@ -11,13 +11,13 @@
  *
  *  field name  | interface       | type         | notes
  *  ──────────────────────────────────────────────────────────────────────────
- *  id          | id              | bigInt       | auto, primary key (nocobase default)
- *  createdAt   | createdAt       | date         | auto-managed by nocobase
- *  updatedAt   | updatedAt       | date         | auto-managed by nocobase
- *  timestamp   | datetime        | string       | ISO 8601 client timestamp (e.g. 2026-03-04T14:32:00.000Z)
- *  date        | input           | string       | YYYY-MM-DD local date (e.g. 2026-03-04), used for grouping/filtering
+ *  id          | id              | bigint       | auto, primary key (nocobase default)
+ *  createdat   | createdat       | date         | auto-managed by nocobase
+ *  updatedat   | updatedat       | date         | auto-managed by nocobase
+ *  timestamp   | datetime        | string       | iso 8601 client timestamp (e.g. 2026-03-04t14:32:00.000z)
+ *  date        | input           | string       | yyyy-mm-dd local date (e.g. 2026-03-04), used for grouping/filtering
  *  mood        | select          | string       | one of: 6 | 5 | 4 | 2 | 1 | 0   (nullable) (labels: amazing!, great, good, fine, bad, terrible)
- *  activities  | input           | string       | JSON-serialised string array (e.g. '["sleep","exercise"]')
+ *  activities  | input           | string       | json-serialised string array (e.g. '["sleep","exercise"]')
  *  body        | textarea        | text         | long-form journal text (nullable / empty)
  *
  * ─────────────────────────────────────────────
@@ -26,40 +26,40 @@
  *
  *  {
  *    "id": 1,
- *    "timestamp": "2026-03-04T14:32:00.000Z",
+ *    "timestamp": "2026-03-04t14:32:00.000z",
  *    "date": "2026-03-04",
  *    "mood": "4", // good
  *    "activities": "[\"sleep\",\"exercise\",\"hydrated\"]",
  *    "body": "today felt okay. switched a bit in the morning.",
- *    "createdAt": "2026-03-04T14:32:05.000Z",
- *    "updatedAt": "2026-03-04T14:32:05.000Z"
+ *    "createdat": "2026-03-04t14:32:05.000z",
+ *    "updatedat": "2026-03-04t14:32:05.000z"
  *  }
  *
  * ─────────────────────────────────────────────
  *  reading activities back in the frontend
  * ─────────────────────────────────────────────
  *
- *  const activitiesList: string[] = JSON.parse(record.activities || '[]');
+ *  const activitieslist: string[] = json.parse(record.activities || '[]');
  *
  * ─────────────────────────────────────────────
  *  nocobase rest api – quick reference
  * ─────────────────────────────────────────────
  *
- *  create:  POST   /api/journal:create       { mood, activities, body, timestamp, date }
- *  list:    GET    /api/journal:list          ?pageSize=20&sort=-date
- *  get one: GET    /api/journal:get?filterByTk=<id>
- *  update:  POST   /api/journal:update?filterByTk=<id>
- *  delete:  POST   /api/journal:destroy?filterByTk=<id>
+ *  create:  post   /api/journal:create       { mood, activities, body, timestamp, date }
+ *  list:    get    /api/journal:list          ?pagesize=20&sort=-date
+ *  get one: get    /api/journal:get?filterbytk=<id>
+ *  update:  post   /api/journal:update?filterbytk=<id>
+ *  delete:  post   /api/journal:destroy?filterbytk=<id>
  */
 
 export interface JournalRecord {
   id?: number;
-  timestamp: string;   // ISO 8601
-  date: string;        // YYYY-MM-DD
+  timestamp: string;   // iso 8601
+  date: string;        // yyyy-mm-dd
   mood: string | null;
-  activities: string;  // JSON string – parse before use
+  activities: string;  // json string – parse before use
   body: string;
-  tags?: string;       // JSON string – parse before use
+  tags?: string;       // json string – parse before use
   // optional metadata added by frontend
   weather?: string;
   location?: string;

@@ -43,13 +43,13 @@ export const HeadmateCard = React.memo(forwardRef<HTMLDivElement, HeadmateCardPr
   const textColorField = collection?.fields?.find((f: any) => f.name === 'textColor') || { name: 'textColor' };
 
   let rawName = member[titleField.name];
-  // fallback to member.name if rawName is missing or looks like an ID
+  // fallback to member.name if rawname is missing or looks like an id
   const isId = (val: any) => {
     const s = String(val);
     if (!s) return true;
-    // numeric IDs
+    // numeric ids
     if (/^\d+$/.test(s)) return true;
-    // SimplyPlural / PluralKit style alphanumeric IDs (often long, or member_ prefixes)
+    // simplyplural / pluralkit style alphanumeric ids (often long, or member_ prefixes)
     if (s.length > 15 && /^[a-zA-Z0-9_\-]+$/.test(s)) return true;
     if (s.startsWith('member_') || s.startsWith('pk_')) return true;
     return false;

@@ -47,7 +47,7 @@ export function GalleryView({ records, isLoading, theme, onSelect }: GalleryView
 function GalleryCard({ record, theme, onClick }: any) {
   const [isHovered, setHovered] = useState(false);
 
-  // Heuristics for image fields
+  // heuristics for image fields
   const image = record.avatar?.[0]?.url || record.image?.[0]?.url || record.cover?.[0]?.url;
   const color = record.color || theme.raw.primary || '#f5af12';
 
@@ -70,7 +70,7 @@ function GalleryCard({ record, theme, onClick }: any) {
         '--card-accent': color
       } as any}
     >
-      {/* Image / Header */}
+      {/* image / header */}
       <div className="aspect-[4/3] w-full relative overflow-hidden bg-black/40">
         {image ? (
           <img
@@ -85,10 +85,10 @@ function GalleryCard({ record, theme, onClick }: any) {
           </div>
         )}
 
-        {/* Overlay Gradient */}
+        {/* overlay gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-80 group-hover:opacity-90 transition-opacity" />
 
-        {/* Content */}
+        {/* content */}
         <div className="absolute bottom-0 left-0 p-4 w-full">
           <h3 className="font-bold text-white text-lg truncate drop-shadow-md leading-tight">
             {record.name || record.title || 'Untitled'}
@@ -99,7 +99,7 @@ function GalleryCard({ record, theme, onClick }: any) {
                 {record.status}
               </span>
             )}
-            {/* Active Indicator */}
+            {/* active indicator */}
             {(record.fronting || record.active) && (
               <span className="flex h-2 w-2 relative">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -110,7 +110,7 @@ function GalleryCard({ record, theme, onClick }: any) {
         </div>
       </div>
 
-      {/* Hover Details */}
+      {/* hover details */}
       <motion.div
         initial={false}
         animate={{ height: isHovered ? 'auto' : 0, opacity: isHovered ? 1 : 0 }}
@@ -121,7 +121,7 @@ function GalleryCard({ record, theme, onClick }: any) {
         </div>
       </motion.div>
 
-      {/* Accent Line */}
+      {/* accent line */}
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-[var(--card-accent)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
     </motion.div>
   );

@@ -104,7 +104,7 @@ async function runFullAnalysis(ctx: GardenerContext): Promise<void> {
 export function createGardenerRouter(ctx: GardenerContext): Router {
   const router = Router();
 
-  // POST /gardener/run — trigger a full analysis
+  // post /gardener/run — trigger a full analysis
   router.post('/run', async (_req: Request, res: Response) => {
     try {
       await runFullAnalysis(ctx);
@@ -115,7 +115,7 @@ export function createGardenerRouter(ctx: GardenerContext): Router {
     }
   });
 
-  // GET /gardener/status — last run info
+  // get /gardener/status — last run info
   router.get('/status', (_req: Request, res: Response) => {
     res.json({
       lastRun: cache.lastRun,
@@ -124,7 +124,7 @@ export function createGardenerRouter(ctx: GardenerContext): Router {
     });
   });
 
-  // GET /gardener/links — broken link report
+  // get /gardener/links — broken link report
   router.get('/links', async (req: Request, res: Response) => {
     try {
       // if no cached results or ?fresh=true, run check now
@@ -138,7 +138,7 @@ export function createGardenerRouter(ctx: GardenerContext): Router {
     }
   });
 
-  // GET /gardener/clusters — concept cluster report
+  // get /gardener/clusters — concept cluster report
   router.get('/clusters', async (req: Request, res: Response) => {
     try {
       if (!cache.clusters || req.query.fresh === 'true') {
@@ -151,7 +151,7 @@ export function createGardenerRouter(ctx: GardenerContext): Router {
     }
   });
 
-  // GET /gardener/stale — stale notes and merge suggestions
+  // get /gardener/stale — stale notes and merge suggestions
   router.get('/stale', async (req: Request, res: Response) => {
     try {
       const enrichWithLlm = req.query.enrich === 'true';
@@ -165,7 +165,7 @@ export function createGardenerRouter(ctx: GardenerContext): Router {
     }
   });
 
-  // GET /gardener/report — latest continuity report
+  // get /gardener/report — latest continuity report
   router.get('/report', async (_req: Request, res: Response) => {
     try {
       const dates = await ctx.continuityReporter.listReports();
@@ -180,7 +180,7 @@ export function createGardenerRouter(ctx: GardenerContext): Router {
     }
   });
 
-  // GET /gardener/report/:date — report for a specific date
+  // get /gardener/report/:date — report for a specific date
   router.get('/report/:date', async (req: Request, res: Response) => {
     try {
       const dateStr = String(req.params.date);

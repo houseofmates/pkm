@@ -1,5 +1,5 @@
-// apkUpdater.ts
-// Utility for checking and downloading new APK versions from server
+// apkupdater.ts
+// utility for checking and downloading new apk versions from server
 
 import axios from 'axios';
 
@@ -25,11 +25,11 @@ export async function checkForApkUpdate(currentVersion: string, apiKey: string):
 }
 
 export async function downloadAndPromptInstall(apkUrl: string) {
-  // Only attempt import if running in Capacitor environment
+  // only attempt import if running in capacitor environment
   if (typeof window !== 'undefined' && typeof (window as any).Capacitor !== 'undefined') {
     try {
-      // Dynamic import with proper error handling - avoids eval() security risk
-      // Using variable to prevent vite from trying to resolve at build time
+      // dynamic import with proper error handling - avoids eval() security risk
+      // using variable to prevent vite from trying to resolve at build time
       const moduleName = '@capacitor/browser';
 
       const browserModule = await import(moduleName) as { Browser: any };

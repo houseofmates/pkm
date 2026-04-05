@@ -10,8 +10,8 @@ export interface BM25Hit {
 
 // serialized format
 interface BM25Data {
-  invertedIndex: Record<string, Record<string, number>>; // term → { docId → tf }
-  docLengths: Record<string, number>;                    // docId → word count
+  invertedIndex: Record<string, Record<string, number>>; // term → { docid → tf }
+  docLengths: Record<string, number>;                    // docid → word count
   totalDocs: number;
   totalLength: number;
 }
@@ -31,7 +31,7 @@ const STOP_WORDS = new Set([
 // ── bm25 index ───────────────────────────────────────────────
 
 export class BM25Index {
-  // term → Map<docId, termFrequency>
+  // term → map<docid, termfrequency>
   private invertedIndex = new Map<string, Map<string, number>>();
   private docLengths = new Map<string, number>();
   private totalDocs = 0;
@@ -110,7 +110,7 @@ export class BM25Index {
 
   private idf(term: string): number {
     const df = this.invertedIndex.get(term)?.size || 0;
-    // bm25 idf: log((N - df + 0.5) / (df + 0.5) + 1)
+    // bm25 idf: log((n - df + 0.5) / (df + 0.5) + 1)
     return Math.log((this.totalDocs - df + 0.5) / (df + 0.5) + 1);
   }
 

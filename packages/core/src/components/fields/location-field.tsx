@@ -15,7 +15,7 @@ L.Icon.Default.mergeOptions({
 });
 
 interface LocationFieldProps {
-  value: string; // Stored as "lat,lng" or JSON
+  value: string; // stored as "lat,lng" or json
   onChange: (val: string) => void;
   readOnly?: boolean;
 }

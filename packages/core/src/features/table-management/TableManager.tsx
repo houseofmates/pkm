@@ -8,12 +8,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
 
 export const TableManager: React.FC = () => {
-  // Subscribe to the collections from the central Zustand store
+  // subscribe to the collections from the central zustand store
   const collections = useCollectionsStore((state) => state.collections);
   const [newTableName, setNewTableName] = useState('');
   const [isCreating, setIsCreating] = useState(false);
 
-  // When the component mounts, trigger a sync to load cached data and fetch fresh data.
+  // when the component mounts, trigger a sync to load cached data and fetch fresh data.
   useEffect(() => {
     dataService.syncTables();
   }, []);
@@ -26,11 +26,11 @@ export const TableManager: React.FC = () => {
 
     setIsCreating(true);
     try {
-      // For simplicity, new tables will have a single 'name' field by default.
+      // for simplicity, new tables will have a single 'name' field by default.
       const defaultFields: FieldInstance[] = [{ name: 'name', type: 'text' }];
       await dataService.createTable(newTableName, defaultFields);
       setNewTableName('');
-      // No need to manually refresh; createTable now triggers a sync automatically.
+      // no need to manually refresh; createtable now triggers a sync automatically.
       toast.success(`collection '${newTableName}' created successfully`);
     } catch (error) {
       if (error instanceof Error) {

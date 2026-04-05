@@ -96,7 +96,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   }
 
   toast.success("image link saved");
-  setImageUrl(''); // Clear input after saving
+  setImageUrl(''); // clear input after saving
   setImageOpen(false);
   };
 
@@ -210,7 +210,7 @@ export function HeadmateContextMenu({ memberId, memberName, children }: Headmate
   </ContextMenu>
 
   {/* hidden file input for direct click if needed, but using dialog now mostly */}
-  <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileChange} />
+  <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onchange={handlefilechange} />
 
   {/* visual name dialog */}
   <Dialog open={nameOpen} onOpenChange={setNameOpen}>

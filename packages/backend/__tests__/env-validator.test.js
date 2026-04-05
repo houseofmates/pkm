@@ -1,4 +1,4 @@
-// Tests for environment validator
+// tests for environment validator
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { loadEnvironment, getEnv, getEnvNumber, getEnvBoolean } from '../env-validator.js';
 
@@ -6,7 +6,7 @@ describe('Environment Validator', () => {
     const originalEnv = { ...process.env };
     
     beforeEach(() => {
-        // Reset environment
+        // reset environment
         process.env = { ...originalEnv };
     });
     
@@ -38,7 +38,7 @@ describe('Environment Validator', () => {
             process.env.NOCOBASE_URL = 'https://test.example.com/api';
             process.env.NOCOBASE_API_KEY = 'test-api-key';
             
-            // Should not throw in test mode
+            // should not throw in test mode
             const env = loadEnvironment();
             expect(env).toBeDefined();
         });
@@ -49,7 +49,7 @@ describe('Environment Validator', () => {
             process.env.NOCOBASE_URL = 'https://test.example.com/api';
             process.env.NOCOBASE_API_KEY = 'test-api-key';
             
-            // Should handle validation error gracefully in test mode
+            // should handle validation error gracefully in test mode
             const env = loadEnvironment();
             expect(env).toBeDefined();
         });

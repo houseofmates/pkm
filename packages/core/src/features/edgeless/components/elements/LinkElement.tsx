@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ExternalLink, Type, Eye, File, type LucideIcon } from 'lucide-react';
-// Dynamic icon loader for Lucide icons
+// dynamic icon loader for lucide icons
 const lucideIconMap: Record<string, LucideIcon> = {};
 function getLucideIcon(name: string): LucideIcon | undefined {
   return lucideIconMap[name];

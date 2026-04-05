@@ -12,17 +12,17 @@ import { secureLogger } from '@/lib/secure-logger';
 export function CalendarPage() {
   const { data: collection, loading: colLoading } = useCollection('events');
   const { records, loading: recLoading, error, updateRecord, deleteRecord, createRecord, refresh } = useRecords('events', {
-    pageSize: 500 // Fetch a good chunk of events
+    pageSize: 500 // fetch a good chunk of events
   });
 
-  // Try to load any user-defined view config for events, or fallback to sensible defaults
+  // try to load any user-defined view config for events, or fallback to sensible defaults
   const [viewConfig, setViewConfig] = useAppSetting('events_calendar_config', {
     titleField: 'title',
     dateField: 'start_time',
     endDateField: 'end_time',
     visibleFields: ['notes', 'location', 'url'],
     allDayField: 'all_day',
-    recurringField: '' // If they add one later
+    recurringField: '' // if they add one later
   });
 
   const [isSyncing, setIsSyncing] = useState(false);
@@ -95,9 +95,9 @@ export function CalendarPage() {
         return iso;
       };
 
-      // Build a set of existing event keys for fast lookup.
-      // NocoBase may not return `id` on event records, so we can't rely on IDs.
-      // We use the title + date as the dedup key to correctly handle recurring events.
+      // build a set of existing event keys for fast lookup.
+      // nocobase may not return `id` on event records, so we can't rely on ids.
+      // we use the title + date as the dedup key to correctly handle recurring events.
       const existingKeys = new Set<string>();
       for (const r of freshRecords) {
         const u = uidField ? r[uidField] : r.uid;
@@ -114,7 +114,7 @@ export function CalendarPage() {
       }
 
       let created = 0;
-      let updated = 0; // Unused now, but kept for logging format
+      let updated = 0; // unused now, but kept for logging format
 
       const newEventsPayloads: Record<string, unknown>[] = [];
       const MAX_BATCH_SIZE = 50;
@@ -160,7 +160,7 @@ export function CalendarPage() {
         existingKeys.add(eventKey);
       }
 
-      // Create new events. NocoBase collection create endpoint expects a single record object.
+      // create new events. nocobase collection create endpoint expects a single record object.
       for (const payload of newEventsPayloads) {
         try {
           await client.createRecord('events', payload);
@@ -228,8 +228,8 @@ export function CalendarPage() {
   };
 
   const parseIcsDate = (value: string) => {
-    // if value ends with Z, treat as UTC, else local
-    // support yyyyMMdd or yyyyMMddTHHmmss
+    // if value ends with z, treat as utc, else local
+    // support yyyymmdd or yyyymmddthhmmss
     if (/^\d{8}T\d{6}Z$/.test(value)) {
       return new Date(value).toISOString();
     }
@@ -253,7 +253,7 @@ export function CalendarPage() {
 
   const loading = colLoading || (recLoading && !records.length); // don't show loading overlay if we already have records
 
-  // If the API doesn't return the events collection, create a fallback so the calendar still renders
+  // if the api doesn't return the events collection, create a fallback so the calendar still renders
   const fallbackCollection = !collection ? {
     name: 'events',
     title: 'events',
@@ -288,15 +288,15 @@ export function CalendarPage() {
     );
   }
 
-  // Infer view config securely so we don't end up with field mismatch
+  // infer view config securely so we don't end up with field mismatch
   const collectionFields = Array.isArray(effectiveCollection?.fields) ? effectiveCollection.fields : [];
   const fieldNames = collectionFields.map((f: any) => f.name);
 
-  // Fallback to checking keys on the first record if fieldNames is empty or missing expected fields
+  // fallback to checking keys on the first record if fieldnames is empty or missing expected fields
   const sampleKeys = records.length > 0 ? Object.keys(records[0]) : [];
   const availableKeys = [...new Set([...fieldNames, ...sampleKeys])];
 
-  // Overwrite viewConfig properties if they are invalid and we can fix them
+  // overwrite viewconfig properties if they are invalid and we can fix them
   const finalViewConfig = { ...viewConfig };
   
   if (!availableKeys.includes(finalViewConfig.titleField)) {
@@ -309,9 +309,9 @@ export function CalendarPage() {
       finalViewConfig.endDateField = availableKeys.find((n: string) => ['end_time', 'end-time', 'endDate', 'end_date'].includes(n)) || 'end_time';
   }
 
-  // Ensure all records have a unique ID for React keys and DndKit
+  // ensure all records have a unique id for react keys and dndkit
   const mappedRecords = records.map((r, i) => {
-    // Strictly prioritize database ID, then UID, then fallback to something unique
+    // strictly prioritize database id, then uid, then fallback to something unique
     const uniqueId = r.id ? String(r.id) : (r.uid ? `uid-${r.uid}` : `ev-${i}-${r[finalViewConfig.titleField] || 'untitled'}`);
     return { ...r, __originalId: r.id, id: uniqueId };
   });

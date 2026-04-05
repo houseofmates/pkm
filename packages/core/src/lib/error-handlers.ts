@@ -1,12 +1,12 @@
 import { secureLogger } from './secure-logger';
 
-// Global error handler for WebSocket-related promise rejections
-// This file should be imported early in the app lifecycle
+// global error handler for websocket-related promise rejections
+// this file should be imported early in the app lifecycle
 
 const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
   const reason = event.reason;
   
-  // Helper to check if a string contains WebSocket/HMR related terms
+  // helper to check if a string contains websocket/hmr related terms
   const isWebSocketError = (str: string): boolean => 
     str.includes('WebSocket') || 
     str.includes('socket') || 
@@ -17,33 +17,33 @@ const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
     str.includes('ws://') ||
     str.includes('wss://');
   
-  // Check if reason is a string
+  // check if reason is a string
   if (reason && typeof reason === 'string') {
     if (isWebSocketError(reason)) {
       secureLogger.warn('WebSocket/HMR promise rejection caught and handled:', reason);
       event.preventDefault();
       return;
     }
-    // Suppress all string rejections during startup to prevent fatal error UI
+    // suppress all string rejections during startup to prevent fatal error ui
     secureLogger.warn('Promise rejection caught (string):', reason);
     event.preventDefault();
     return;
   }
   
-  // Handle Error objects
+  // handle error objects
   if (reason instanceof Error && reason.message) {
     if (isWebSocketError(reason.message) || isWebSocketError(reason.stack || '')) {
       secureLogger.warn('WebSocket/HMR error caught and handled:', reason.message);
       event.preventDefault();
       return;
     }
-    // Log but don't crash
+    // log but don't crash
     secureLogger.warn('Promise rejection (Error):', reason.message);
     event.preventDefault();
     return;
   }
   
-  // Handle objects with toString() that might contain the error (Vite HMR errors)
+  // handle objects with tostring() that might contain the error (vite hmr errors)
   if (reason && typeof reason === 'object') {
     const reasonStr = reason.toString ? reason.toString() : String(reason);
     const stackStr = reason.stack ? String(reason.stack) : '';
@@ -54,22 +54,22 @@ const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       return;
     }
     
-    // Suppress object rejections to prevent fatal error UI
+    // suppress object rejections to prevent fatal error ui
     secureLogger.warn('Promise rejection (object):', reasonStr);
     event.preventDefault();
     return;
   }
   
-  // Catch-all for any other rejection types
+  // catch-all for any other rejection types
   secureLogger.warn('Promise rejection caught:', reason);
   event.preventDefault();
 };
 
-// Set up global error handler once
+// set up global error handler once
 if (typeof window !== 'undefined') {
   window.addEventListener('unhandledrejection', handleUnhandledRejection);
   
-  // Also handle regular errors that might bubble up
+  // also handle regular errors that might bubble up
   window.addEventListener('error', (event) => {
     if (event.message && 
         (event.message.includes('WebSocket') || 
@@ -81,12 +81,12 @@ if (typeof window !== 'undefined') {
       event.preventDefault();
       return;
     }
-    // Log other errors but don't crash
+    // log other errors but don't crash
     secureLogger.warn('Global error caught:', event.message);
     event.preventDefault();
   });
   
-  // Override console.error to suppress fatal error spam from Vite HMR
+  // override console.error to suppress fatal error spam from vite hmr
   const originalConsoleError = console.error;
   console.error = (...args: any[]) => {
     const msg = args.join(' ');

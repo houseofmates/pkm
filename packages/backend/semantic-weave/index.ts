@@ -30,7 +30,7 @@ export async function initSemanticWeave(config: WeaveConfig): Promise<SemanticWe
   const pipeline = new EmbeddingPipeline(vectorStore, bm25Index, config);
   const watcher = new DirectoryWatcher(config.notesDir, pipeline, config.watchDebounceMs);
 
-  // start watching (also triggers initial scan via ignoreInitial: false)
+  // start watching (also triggers initial scan via ignoreinitial: false)
   await watcher.start();
 
   return { vectorStore, bm25Index, pipeline, watcher, config };
@@ -42,7 +42,7 @@ export async function initSemanticWeave(config: WeaveConfig): Promise<SemanticWe
 export function createWeaveRouter(ctx: SemanticWeaveContext): Router {
   const router = Router();
 
-  // POST /weave/search — hybrid search
+  // post /weave/search — hybrid search
   router.post('/search', async (req: Request, res: Response) => {
     try {
       const { q, topK = 20, mode = 'hybrid' } = req.body as {
@@ -119,7 +119,7 @@ export function createWeaveRouter(ctx: SemanticWeaveContext): Router {
     }
   });
 
-  // GET /weave/status — index statistics
+  // get /weave/status — index statistics
   router.get('/status', (_req: Request, res: Response) => {
     res.json({
       documents: ctx.vectorStore.size(),
@@ -130,7 +130,7 @@ export function createWeaveRouter(ctx: SemanticWeaveContext): Router {
     });
   });
 
-  // POST /weave/reindex — force full reindex
+  // post /weave/reindex — force full reindex
   router.post('/reindex', async (_req: Request, res: Response) => {
     try {
       const stats = await ctx.pipeline.fullReindex();
@@ -141,7 +141,7 @@ export function createWeaveRouter(ctx: SemanticWeaveContext): Router {
     }
   });
 
-  // GET /weave/document/:id — retrieve a specific indexed document
+  // get /weave/document/:id — retrieve a specific indexed document
   router.get('/document/{*id}', (req: Request, res: Response) => {
     const id = Array.isArray(req.params.id) ? req.params.id.join('/') : String(req.params.id);
     const doc = ctx.vectorStore.get(id);

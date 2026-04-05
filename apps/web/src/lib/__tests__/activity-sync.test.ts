@@ -23,19 +23,19 @@ describe('activity-sync', () => {
   })
 
   it('syncs logs to server', async () => {
-    // ensure test payloads are returned by localStorage.getItem
-    // stub localStorage.getItem to return our test payloads
+    // ensure test payloads are returned by localstorage.getitem
+    // stub localstorage.getitem to return our test payloads
     ;(global as any).localStorage.getItem = (k: string) => {
       if (k === 'pkm_activities') return JSON.stringify([{ id: '1', name: 'walk' }])
       if (k === 'pkm_activity_logs') return JSON.stringify([{ id: 'l1', activityId: '1', note: 'ok', rating: 4, createdAt: new Date().toISOString() }])
       return null
     }
 
-    // findOrCreateActivity -> returns server id
+    // findorcreateactivity -> returns server id
     (global.fetch as any)
       .mockResolvedValueOnce({ text: async () => JSON.stringify({ data: [] }), ok: true })
       .mockResolvedValueOnce({ text: async () => JSON.stringify({ data: { id: 'srv-1' } }), ok: true })
-      // createActivityLog
+      // createactivitylog
       .mockResolvedValueOnce({ text: async () => JSON.stringify({ data: { id: 'log-1' } }), ok: true })
 
     const res = await syncAllLocalLogs()

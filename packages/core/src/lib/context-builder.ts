@@ -64,7 +64,7 @@ export async function buildKnowledgeContext(client: NocoBaseClient): Promise<str
   // describe fields
   if (col.fields && col.fields.length > 0) {
  const fieldDesc = col.fields
- .filter((f: Field) => !f.hidden && f.interface !== 'subTable') // Skip complex relations for brevity
+ .filter((f: Field) => !f.hidden && f.interface !== 'subTable') // skip complex relations for brevity
  .map((f: Field) => `${f.title || f.name} (${f.type})`)
  .join(', ');
  context += `Fields: ${fieldDesc}\n`;
@@ -74,7 +74,7 @@ export async function buildKnowledgeContext(client: NocoBaseClient): Promise<str
   try {
  const recordsRes = await client.listRecords(col.name, {
  pageSize: 5,
- sort: '-createdAt,-id' // Recent first
+ sort: '-createdAt,-id' // recent first
  });
 
  const records = Array.isArray(recordsRes.data) ? recordsRes.data : (recordsRes.data as { data?: Record<string, unknown>[] })?.data || [];

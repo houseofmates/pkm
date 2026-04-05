@@ -22,7 +22,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
   const [editedData, setEditedData] = useState<Record<string, any>>({});
   const [isSaving, setIsSaving] = useState(false);
 
-  // Reset edited data when record changes
+  // reset edited data when record changes
   useEffect(() => {
     if (record) {
       setEditedData({ ...record });
@@ -33,7 +33,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
 
   const fields = collection.fields || [];
   
-  // Filter out internal/system fields
+  // filter out internal/system fields
   const displayFields = fields.filter((f: any) => {
     const internalFields = ['id', 'createdAt', 'updatedAt', 'createdBy', 'updatedBy', 'created_at', 'updated_at'];
     return !internalFields.includes(f.name);
@@ -51,7 +51,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
 
     setIsSaving(true);
     try {
-      // Only send changed fields
+      // only send changed fields
       const changedFields: Record<string, any> = {};
       Object.keys(editedData).forEach(key => {
         if (editedData[key] !== record[key]) {

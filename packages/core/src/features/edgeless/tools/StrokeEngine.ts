@@ -14,10 +14,10 @@ export class StrokeEngine {
   }
 
   public setPressureCurve(points: [number, number][]) {
-    // Basic linear interpolation for the curve points
+    // basic linear interpolation for the curve points
     this.pressureCurve = (p) => {
       if (points.length < 2) return p;
-      // Simple implementation: find segment and interpolate
+      // simple implementation: find segment and interpolate
       for (let i = 0; i < points.length - 1; i++) {
         if (p >= points[i][0] && p <= points[i+1][0]) {
           const t = (p - points[i][0]) / (points[i+1][0] - points[i][0]);
@@ -38,11 +38,11 @@ export class StrokeEngine {
   }
 
   private applySmoothing(point: Point): Point {
-    // If we have at least two prior points, use a small 3-point weighted average (better curvature and pressure smoothing)
+    // if we have at least two prior points, use a small 3-point weighted average (better curvature and pressure smoothing)
     if (this.points.length >= 2) {
       const a = this.points[this.points.length - 2];
       const b = this.points[this.points.length - 1];
-      // Weighted average (gives more weight to the most recent point)
+      // weighted average (gives more weight to the most recent point)
       return {
         x: (a.x + 2 * b.x + point.x) / 4,
         y: (a.y + 2 * b.y + point.y) / 4,
@@ -52,7 +52,7 @@ export class StrokeEngine {
 
     if (this.points.length === 0) return point;
     const lastPoint = this.points[this.points.length - 1];
-    // Fallback to the original exponential smoothing for the very first sample
+    // fallback to the original exponential smoothing for the very first sample
     return {
       x: lastPoint.x + (point.x - lastPoint.x) * (1 - this.smoothing),
       y: lastPoint.y + (point.y - lastPoint.y) * (1 - this.smoothing),

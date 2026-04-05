@@ -3,7 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { parseNotionExport, NodeFsSource } from '../parser';
 
-// helper to recursively find files and create NodeFsSource
+// helper to recursively find files and create nodefssource
 async function walkSources(dir: string, root: string = dir): Promise<NodeFsSource[]> {
     const entries = await fs.promises.readdir(dir, { withFileTypes: true });
     const results: NodeFsSource[] = [];

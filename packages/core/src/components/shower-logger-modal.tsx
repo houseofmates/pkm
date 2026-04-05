@@ -248,7 +248,7 @@ export function ShowerLoggerModal({ isOpen, onClose }: ShowerLoggerModalProps) {
 
       toast.success('Shower log saved successfully!');
       onClose(false);
-      // Reset form
+      // reset form
       setFormData({
         shaved: false,
         used_body_scrub: false,

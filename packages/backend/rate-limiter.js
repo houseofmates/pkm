@@ -1,17 +1,17 @@
-// Rate limiting middleware for PKM backend
-// Implements protection against API abuse and DoS attacks
+// rate limiting middleware for pkm backend
+// implements protection against api abuse and dos attacks
 
 import rateLimit from 'express-rate-limit';
 
 /**
- * Creates rate limiting middleware for the PKM API
+ * creates rate limiting middleware for the pkm api
  */
 export function createRateLimiters() {
     const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000', 10);
     const RATE_LIMIT_MAX_REQUESTS = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100', 10);
     const RATE_LIMIT_AI_MAX = parseInt(process.env.RATE_LIMIT_AI_MAX || '20', 10);
 
-    // General API rate limiter
+    // general api rate limiter
     const generalLimiter = rateLimit({
         windowMs: RATE_LIMIT_WINDOW_MS,
         max: RATE_LIMIT_MAX_REQUESTS,
@@ -23,7 +23,7 @@ export function createRateLimiters() {
         }
     });
 
-    // Stricter rate limit for AI endpoints (expensive operations)
+    // stricter rate limit for ai endpoints (expensive operations)
     const aiLimiter = rateLimit({
         windowMs: RATE_LIMIT_WINDOW_MS,
         max: RATE_LIMIT_AI_MAX,
@@ -35,7 +35,7 @@ export function createRateLimiters() {
         }
     });
 
-    // Very strict rate limit for authentication endpoints
+    // very strict rate limit for authentication endpoints
     const authLimiter = rateLimit({
         windowMs: 15 * 60 * 1000, // 15 minutes
         max: 5,
@@ -48,7 +48,7 @@ export function createRateLimiters() {
         }
     });
 
-    // File upload rate limiter
+    // file upload rate limiter
     const uploadLimiter = rateLimit({
         windowMs: 60 * 60 * 1000, // 1 hour
         max: 10,

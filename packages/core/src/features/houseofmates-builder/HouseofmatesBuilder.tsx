@@ -17,7 +17,7 @@ export interface PageData {
   title: string;
   slug: string;
   theme_color: string;
-  background?: string; // color, gradient, or image URL
+  background?: string; // color, gradient, or image url
   height?: number; // custom height in pixels (optional, default min-h-screen)
   elements: ElementData[];
   enable_sounds?: boolean;
@@ -41,8 +41,8 @@ export interface ElementData {
   content: any; // type-specific content
   styles: ElementStyles;
   link?: string;
-  clickAction?: 'link' | 'copy' | 'none'; // Default is 'link' if link exists, else 'none'
-  copyContent?: string; // Content to copy if clickAction is 'copy'. If empty, tries to infer content.
+  clickAction?: 'link' | 'copy' | 'none'; // default is 'link' if link exists, else 'none'
+  copyContent?: string; // content to copy if clickaction is 'copy'. if empty, tries to infer content.
   zIndex: number;
   tablet?: { x: number; y: number; width: number; height: number; fontSize?: number };
   mobile?: { x: number; y: number; width: number; height: number; fontSize?: number };
@@ -184,7 +184,7 @@ export function HouseofmatesBuilder() {
       }
     };
 
-    window.addEventListener('mousedown', handleGlobalMousedown, true); // Use capture phase
+    window.addEventListener('mousedown', handleGlobalMousedown, true); // use capture phase
     return () => window.removeEventListener('mousedown', handleGlobalMousedown, true);
   }, [selectedElementIds]);
 
@@ -335,7 +335,7 @@ export function HouseofmatesBuilder() {
 
     const init = async () => {
       const key = storageManager.getCachedSecret('hom_api_key');
-      // only set admin mode if we have an API key
+      // only set admin mode if we have an api key
       // on public domains without a key, stay in read-only public mode
       const shouldBeAdmin = !!key;
       setIsAdmin(shouldBeAdmin);
@@ -795,13 +795,13 @@ export function HouseofmatesBuilder() {
       // ctrl+e: admin login toggle
       if (e.ctrlKey && e.key.toLowerCase() === 'e') {
         // only handle if we're already in admin mode (showing modal to update key)
-        // public users use the App-level ctrl+e handler, not this one
+        // public users use the app-level ctrl+e handler, not this one
         if (isAdmin) {
           e.preventDefault();
           toast.info('update api key');
           setShowLoginModal(true);
         }
-        // if not admin, let the App.tsx ctrl+e handler deal with it
+        // if not admin, let the app.tsx ctrl+e handler deal with it
         return;
       }
 
@@ -1001,7 +1001,7 @@ export function HouseofmatesBuilder() {
         onDragOver={handleDragOver}
         onDrop={handleDrop}
         onMouseDown={(e) => {
-          if (e.button !== 0) return; // Only left click
+          if (e.button !== 0) return; // only left click
 
           const target = e.target as HTMLElement;
 

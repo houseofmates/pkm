@@ -12,7 +12,7 @@ interface FormField {
     label: string;
     placeholder?: string;
     required?: boolean;
-    options?: string[]; // For dropdown
+    options?: string[]; // for dropdown
 }
 
 interface FormContent {
@@ -25,7 +25,7 @@ interface FormContent {
 interface FormElementData {
     id: string;
     type: 'form';
-    content?: FormContent; // New structure
+    content?: FormContent; // new structure
     // legacy support: properties might exist at top level
     formName?: string;
     fields?: FormField[];

@@ -1,5 +1,5 @@
-// JWT Authentication middleware for PKM backend
-// Implements secure token-based authentication
+// jwt authentication middleware for pkm backend
+// implements secure token-based authentication
 
 import jwt from 'jsonwebtoken';
 import { APIError } from './error-handler.js';
@@ -14,7 +14,7 @@ if (!JWT_SECRET) {
 }
 
 /**
- * Generate access token
+ * generate access token
  */
 export function generateAccessToken(user) {
     const payload = {
@@ -29,7 +29,7 @@ export function generateAccessToken(user) {
 }
 
 /**
- * Generate refresh token
+ * generate refresh token
  */
 export function generateRefreshToken(user) {
     const payload = {
@@ -43,7 +43,7 @@ export function generateRefreshToken(user) {
 }
 
 /**
- * Verify and decode token
+ * verify and decode token
  */
 export function verifyToken(token) {
     try {
@@ -60,7 +60,7 @@ export function verifyToken(token) {
 }
 
 /**
- * Authentication middleware
+ * authentication middleware
  */
 export function authenticate(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -85,7 +85,7 @@ export function authenticate(req, res, next) {
 }
 
 /**
- * Role-based authorization middleware
+ * role-based authorization middleware
  */
 export function authorize(...roles) {
     return (req, res, next) => {
@@ -102,7 +102,7 @@ export function authorize(...roles) {
 }
 
 /**
- * Optional authentication (doesn't fail if no token)
+ * optional authentication (doesn't fail if no token)
  */
 export function optionalAuth(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -129,7 +129,7 @@ export function optionalAuth(req, res, next) {
 }
 
 /**
- * Generate CSRF token
+ * generate csrf token
  */
 export function generateCsrfToken(sessionId) {
     return jwt.sign(
@@ -140,7 +140,7 @@ export function generateCsrfToken(sessionId) {
 }
 
 /**
- * Verify CSRF token
+ * verify csrf token
  */
 export function verifyCsrfToken(token, sessionId) {
     try {

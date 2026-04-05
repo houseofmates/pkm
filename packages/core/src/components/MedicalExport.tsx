@@ -66,7 +66,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
   const { entries } = useJournalData();
   const { collections } = useCollections();
 
-  // Calculate date range
+  // calculate date range
   const dateRange = useMemo(() => {
     const end = new Date();
     const start = new Date();
@@ -74,18 +74,18 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
     return { start, end };
   }, [weeks]);
 
-  // Aggregate data from all sources
+  // aggregate data from all sources
   useEffect(() => {
     async function loadData() {
       setIsLoading(true);
       try {
-        // Filter journal entries by date
+        // filter journal entries by date
         const filteredEntries = entries.filter(e => {
           const entryDate = new Date(e.date);
           return entryDate >= dateRange.start && entryDate <= dateRange.end;
         }).sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
-        // Fetch habit logs
+        // fetch habit logs
         const habitLogsRes = await api.listRecords('habit_logs', {
           filter: {
             createdAt: {
@@ -97,7 +97,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
         });
         const habitLogs = (habitLogsRes.data as any[]) || [];
 
-        // Fetch medications
+        // fetch medications
         const medsRes = await api.listRecords('medication_logs', {
           filter: {
             date: {
@@ -109,7 +109,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
         });
         const medications = (medsRes.data as any[]) || [];
 
-        // Process mood trend
+        // process mood trend
         const moodTrend = filteredEntries
           .filter(e => e.mood)
           .map(e => ({
@@ -118,7 +118,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
             label: MOOD_LABELS[parseInt(e.mood!) - 1] || 'unknown',
           }));
 
-        // Process activity summary
+        // process activity summary
         const activityMap = new Map();
         habitLogs.forEach((log: any) => {
           const key = log.habit_id || log.habit_name;
@@ -138,7 +138,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
           .sort((a, b) => b.count - a.count)
           .slice(0, 10);
 
-        // Process sleep data from journal entries (use type assertion for extensible fields)
+        // process sleep data from journal entries (use type assertion for extensible fields)
         const sleepData = filteredEntries
           .filter(e => (e as any).sleep_hours || (e as any).sleep_quality)
           .map(e => ({
@@ -147,7 +147,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
             quality: parseInt((e as any).sleep_quality || '0'),
           }));
 
-        // Process symptoms from journal body text
+        // process symptoms from journal body text
         const symptomKeywords = ['headache', 'pain', 'nausea', 'fatigue', 'anxiety', 'depression', 
           'stress', 'insomnia', 'migraine', 'dizzy', 'tired', 'exhausted'];
         const symptomLog = filteredEntries
@@ -163,7 +163,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
           })
           .filter(s => s.symptoms.length > 0);
 
-        // Aggregate gamification stats from localStorage (fallback)
+        // aggregate gamification stats from localstorage (fallback)
         const gamificationData = JSON.parse(localStorage.getItem('gamification-state') || '{}');
         const questsCompleted = gamificationData.questRows?.filter((r: any) => r.completed).length || 0;
         const totalQuests = gamificationData.questRows?.length || 0;
@@ -194,12 +194,12 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
     loadData();
   }, [entries, dateRange, weeks]);
 
-  // Export to PDF
+  // export to pdf
   const handleExportPDF = () => {
     window.print();
   };
 
-  // Export to HTML for sharing
+  // export to html for sharing
   const handleExportHTML = () => {
     const html = generateMedicalHTML(data!, weeks);
     const blob = new Blob([html], { type: 'text/html' });
@@ -247,7 +247,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
 
   return (
     <div className="fixed inset-0 bg-black/90 backdrop-blur-sm z-50 overflow-auto print:bg-white print:overflow-visible">
-      {/* Header */}
+      {/* header */}
       <div className="sticky top-0 bg-black/50 backdrop-blur-md border-b border-white/10 p-4 print:hidden">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -284,9 +284,9 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
         </div>
       </div>
 
-      {/* Content */}
+      {/* content */}
       <div className="max-w-4xl mx-auto p-6 space-y-6 print:p-0 print:space-y-4">
-        {/* Title Section - Print only */}
+        {/* title section - print only */}
         <div className="hidden print:block mb-8">
           <h1 className="text-2xl font-bold mb-2">Medical Summary Report</h1>
           <p className="text-gray-600">
@@ -295,7 +295,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
           <p className="text-gray-600">Generated: {new Date().toLocaleString()}</p>
         </div>
 
-        {/* Executive Summary */}
+        {/* executive summary */}
         <section className="bg-white/[0.02] border border-white/10 rounded-xl p-4 print:border-gray-200">
           <button 
             onClick={() => toggleSection('overview')}
@@ -338,7 +338,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
           )}
         </section>
 
-        {/* Mood Trend Chart */}
+        {/* mood trend chart */}
         <section className="bg-white/[0.02] border border-white/10 rounded-xl p-4 print:border-gray-200">
           <button 
             onClick={() => toggleSection('mood')}
@@ -394,7 +394,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
                 </ResponsiveContainer>
               </div>
               
-              {/* Mood Distribution */}
+              {/* mood distribution */}
               <div className="mt-4 grid grid-cols-6 gap-2">
                 {MOOD_LABELS.map((label, i) => {
                   const count = data.moodTrend.filter(m => m.mood === i).length;
@@ -416,7 +416,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
           )}
         </section>
 
-        {/* Activity Summary */}
+        {/* activity summary */}
         <section className="bg-white/[0.02] border border-white/10 rounded-xl p-4 print:border-gray-200">
           <button 
             onClick={() => toggleSection('activities')}
@@ -475,7 +475,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
           )}
         </section>
 
-        {/* Category Saturation Radar */}
+        {/* category saturation radar */}
         <section className="bg-white/[0.02] border border-white/10 rounded-xl p-4 print:border-gray-200">
           <button 
             onClick={() => toggleSection('categories')}
@@ -534,7 +534,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
           )}
         </section>
 
-        {/* Sleep Analysis */}
+        {/* sleep analysis */}
         {data.sleepData.length > 0 && (
           <section className="bg-white/[0.02] border border-white/10 rounded-xl p-4 print:border-gray-200">
             <button 
@@ -624,7 +624,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
           </section>
         )}
 
-        {/* Medication Adherence */}
+        {/* medication adherence */}
         {data.medications.length > 0 && (
           <section className="bg-white/[0.02] border border-white/10 rounded-xl p-4 print:border-gray-200">
             <button 
@@ -653,7 +653,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
           </section>
         )}
 
-        {/* Symptom Log */}
+        {/* symptom log */}
         {data.symptomLog.length > 0 && (
           <section className="bg-white/[0.02] border border-white/10 rounded-xl p-4 print:border-gray-200">
             <button 
@@ -694,7 +694,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
           </section>
         )}
 
-        {/* Journal Entries Summary */}
+        {/* journal entries summary */}
         {data.journalEntries.length > 0 && (
           <section className="bg-white/[0.02] border border-white/10 rounded-xl p-4 print:border-gray-200 print:break-inside-avoid">
             <button 
@@ -748,7 +748,7 @@ export function MedicalExport({ weeks = 2, onClose }: MedicalExportProps) {
           </section>
         )}
 
-        {/* Footer */}
+        {/* footer */}
         <footer className="text-center text-xs text-white/30 pt-8 print:pt-4 print:text-gray-400">
           <p>Generated by PKM Medical Report System</p>
           <p className="mt-1">This report is for informational purposes only and should be reviewed by a qualified healthcare professional.</p>
@@ -768,7 +768,7 @@ function SummaryCard({ icon, label, value, color }: { icon: React.ReactNode; lab
   );
 }
 
-// Generate HTML export for sharing
+// generate html export for sharing
 function generateMedicalHTML(data: AggregatedData, weeks: number): string {
   const avgMood = data.moodTrend.length > 0 
     ? (data.moodTrend.reduce((a, b) => a + b.mood, 0) / data.moodTrend.length).toFixed(1)

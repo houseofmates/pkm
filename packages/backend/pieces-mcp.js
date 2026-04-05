@@ -31,7 +31,7 @@ async function mcpRequest(method, params = {}) {
   }
 }
 
-// get recent activity from pieces os (last N hours)
+// get recent activity from pieces os (last n hours)
 export async function getPiecesRecentActivity(hours = CONTEXT_HOURS) {
   const result = await mcpRequest('get_recent_activity', { hours });
   

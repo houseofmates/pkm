@@ -1,31 +1,31 @@
-// Input validation schemas for PKM API endpoints
-// Uses Zod for type-safe validation
+// input validation schemas for pkm api endpoints
+// uses zod for type-safe validation
 
 import { z } from 'zod';
 
 /**
- * Common validation schemas
+ * common validation schemas
  */
 export const commonSchemas = {
-    // UUID v4 validation
+    // uuid v4 validation
     uuid: z.string().uuid('Invalid UUID format'),
     
-    // Email validation
+    // email validation
     email: z.string().email('Invalid email format'),
     
-    // URL validation
+    // url validation
     url: z.string().url('Invalid URL format'),
     
-    // Positive integer
+    // positive integer
     positiveInt: z.number().int().positive(),
     
-    // Non-empty string
+    // non-empty string
     nonEmptyString: z.string().min(1, 'Field cannot be empty'),
     
-    // Date string in ISO format
+    // date string in iso format
     isoDate: z.string().datetime().optional(),
     
-    // Pagination parameters
+    // pagination parameters
     pagination: z.object({
         page: z.number().int().positive().default(1),
         limit: z.number().int().positive().max(100).default(20)
@@ -33,7 +33,7 @@ export const commonSchemas = {
 };
 
 /**
- * Player/User validation schemas
+ * player/user validation schemas
  */
 export const playerSchemas = {
     createPlayer: z.object({
@@ -54,7 +54,7 @@ export const playerSchemas = {
 };
 
 /**
- * Activity logging validation schemas
+ * activity logging validation schemas
  */
 export const activitySchemas = {
     logActivity: z.object({
@@ -75,7 +75,7 @@ export const activitySchemas = {
 };
 
 /**
- * AI/Chat validation schemas
+ * ai/chat validation schemas
  */
 export const aiSchemas = {
     chatMessage: z.object({
@@ -96,11 +96,11 @@ export const aiSchemas = {
 };
 
 /**
- * Notion import validation schemas
+ * notion import validation schemas
  */
 export const notionSchemas = {
     importNotion: z.object({
-        file: z.any(), // Multer file object
+        file: z.any(), // multer file object
         options: z.object({
             create_collections: z.boolean().default(true),
             import_relations: z.boolean().default(true)
@@ -109,7 +109,7 @@ export const notionSchemas = {
 };
 
 /**
- * CSV import validation schemas
+ * csv import validation schemas
  */
 export const csvSchemas = {
     importCSV: z.object({
@@ -123,7 +123,7 @@ export const csvSchemas = {
 };
 
 /**
- * Gamification validation schemas
+ * gamification validation schemas
  */
 export const gamificationSchemas = {
     awardXP: z.object({
@@ -145,7 +145,7 @@ export const gamificationSchemas = {
 };
 
 /**
- * Collection/Database validation schemas
+ * collection/database validation schemas
  */
 export const collectionSchemas = {
     createCollection: z.object({
@@ -169,7 +169,7 @@ export const collectionSchemas = {
 };
 
 /**
- * Middleware to validate request body against schema
+ * middleware to validate request body against schema
  */
 export function validateBody(schema) {
     return (req, res, next) => {
@@ -183,7 +183,7 @@ export function validateBody(schema) {
 }
 
 /**
- * Middleware to validate request query against schema
+ * middleware to validate request query against schema
  */
 export function validateQuery(schema) {
     return (req, res, next) => {
@@ -197,7 +197,7 @@ export function validateQuery(schema) {
 }
 
 /**
- * Middleware to validate request params against schema
+ * middleware to validate request params against schema
  */
 export function validateParams(schema) {
     return (req, res, next) => {
