@@ -82,11 +82,13 @@ export function securityHeaders() {
  * additional security headers not covered by helmet
  */
 export function additionalSecurityHeaders(req, res, next) {
-    // prevent caching of sensitive data
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
-    res.setHeader('Surrogate-Control', 'no-store');
+    // only apply cache-control to api responses, not static assets
+    if (req.path.startsWith('/api/')) {
+        res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+        res.setHeader('Pragma', 'no-cache');
+        res.setHeader('Expires', '0');
+        res.setHeader('Surrogate-Control', 'no-store');
+    }
     
     // prevent clickjacking
     res.setHeader('X-Frame-Options', 'SAMEORIGIN');
