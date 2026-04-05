@@ -237,7 +237,7 @@ export function useCollectionData(
         setDeletedStack(prev => prev.filter(r => r.id !== recordToRestore.id));
       } catch (e) {
         secureLogger.error('failed to undo delete', e);
-        toast.error('failed to undo delete');
+        toast.error('Failed to undo delete');
       }
     },
     [client, collectionName, fetchData]
