@@ -19,7 +19,7 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
   const fieldCount = fields.length;
   const recordCount = (collection as any).recordCount;
 
-  const [metadata] = useAppSetting<Record<string, { image?: string; color?: string }>>('collection_metadata', {}, { pollIntervalMs: 3000 });
+  const [metadata] = useAppSetting<Record<string, { title?: string; image?: string; color?: string }>>('collection_metadata', {}, { pollIntervalMs: 3000 });
   // check for injected meta (from sidebar docs) or global metadata
   const injectedMeta = (collection as any).meta || {};
   const meta = metadata[collection.name] || {};
@@ -76,7 +76,7 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
               className="font-bold text-lg truncate"
               style={borderColor ? { color: borderColor } : undefined}
             >
-              {(meta as any).title || collection.title || collection.name}
+              {meta.title || collection.title || collection.name}
             </h3>
             <p className="text-xs opacity-80 lowercase">{fieldCount} fields{recordCount !== undefined ? ` · ${recordCount} records` : ''}</p>
           </div>

@@ -54,6 +54,7 @@ interface CollectionDialogProps {
 }
 
 export interface CollectionMetadata {
+  title?: string;
   color?: string;
   image?: string;
   default_view?: ViewType;
