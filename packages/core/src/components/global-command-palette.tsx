@@ -9,6 +9,7 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
+import { toTitleCase } from '@/lib/casing';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCollections } from "@/hooks/use-collections";
 import { api } from "@/api/nocobase-client";
@@ -281,11 +282,11 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
    </CommandItem>
  </CommandGroup>
 
- <CommandGroup heading="databases">
+ <CommandGroup heading="Databases">
    {collections.map((collection: any) => (
    <CommandItem key={collection.name} onSelect={() => runCommand(() => navigate(`/databases/${collection.name}`))}>
    <Database className="mr-2 h-4 w-4" />
-   <span className="lowercase">{collection.title || collection.name}</span>
+   <span>{collection.title || toTitleCase(collection.name)}</span>
    </CommandItem>
    ))}
  </CommandGroup>
