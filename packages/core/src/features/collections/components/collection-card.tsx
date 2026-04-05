@@ -73,10 +73,10 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
           <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
           <div className="absolute bottom-4 left-4 text-white z-10 w-[calc(100%-2rem)]">
             <h3
-              className="font-bold text-lg lowercase truncate"
+              className="font-bold text-lg truncate"
               style={borderColor ? { color: borderColor } : undefined}
             >
-              {collection.title || collection.name}
+              {humanizeFieldName(collection.title || collection.name)}
             </h3>
             <p className="text-xs opacity-80 lowercase">{fieldCount} fields{recordCount !== undefined ? ` · ${recordCount} records` : ''}</p>
           </div>
@@ -101,10 +101,10 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
 
           {/* main title - sync color */}
           <CardTitle
-            className="lowercase truncate text-xl relative z-10 flex-shrink-0"
+            className="truncate text-xl relative z-10 flex-shrink-0"
             style={borderColor ? { color: borderColor } : undefined}
           >
-            {collection.title || collection.name}
+            {humanizeFieldName(collection.title || collection.name)}
           </CardTitle>
           <p className="text-xs text-muted-foreground lowercase relative z-10">
             {fieldCount} fields{recordCount !== undefined ? ` · ${recordCount} records` : ''}
