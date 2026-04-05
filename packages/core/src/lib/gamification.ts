@@ -33,33 +33,36 @@ const ACHIEVEMENTS: Array<{
   xp: number;
   condition: (stats: GamificationStats) => boolean;
 }> = [
-  { id: 'first_log', name: 'first step', xp: 25, condition: (stats) => stats.activities_logged >= 1 },
-  { id: 'week_streak', name: 'week warrior', xp: 100, condition: (stats) => stats.total_streaks >= 7 },
-  { id: 'month_streak', name: 'month master', xp: 500, condition: (stats) => stats.total_streaks >= 30 },
-  { id: 'hundred_logs', name: 'century', xp: 250, condition: (stats) => stats.activities_logged >= 100 },
-  { id: 'level_5', name: 'rising star', xp: 200, condition: (stats) => stats.level >= 5 },
-  { id: 'level_10', name: 'legendary', xp: 1000, condition: (stats) => stats.level >= 10 },
-  { id: 'perfect_week', name: 'perfect week', xp: 300, condition: (stats) => stats.perfect_weeks >= 1 },
-  { id: 'multi_streak', name: 'multi-tasker', xp: 150, condition: (stats) => stats.active_streaks >= 3 }
+  { id: 'first_log', name: 'first step', xp: 25, condition: (stats) => (stats.activities_logged || 0) >= 1 },
+  { id: 'week_streak', name: 'week warrior', xp: 100, condition: (stats) => (stats.total_streaks || 0) >= 7 },
+  { id: 'month_streak', name: 'month master', xp: 500, condition: (stats) => (stats.total_streaks || 0) >= 30 },
+  { id: 'hundred_logs', name: 'century', xp: 250, condition: (stats) => (stats.activities_logged || 0) >= 100 },
+  { id: 'level_5', name: 'rising star', xp: 200, condition: (stats) => (stats.level || 0) >= 5 },
+  { id: 'level_10', name: 'legendary', xp: 1000, condition: (stats) => (stats.level || 0) >= 10 },
+  { id: 'perfect_week', name: 'perfect week', xp: 300, condition: (stats) => (stats.perfect_weeks || 0) >= 1 },
+  { id: 'multi_streak', name: 'multi-tasker', xp: 150, condition: (stats) => (stats.active_streaks || 0) >= 3 }
 ];
 
 function calculateLevel(xp: number) {
+  // ensure xp is a positive number
+  const safeXp = Math.max(0, xp || 0);
+
   let currentLevel = LEVELS[0];
   for (let i = LEVELS.length - 1; i >= 0; i--) {
-    if (xp >= LEVELS[i].xp_required) {
+    if (safeXp >= LEVELS[i].xp_required) {
       currentLevel = LEVELS[i];
       break;
     }
   }
   const nextLevel = LEVELS.find(l => l.level === currentLevel.level + 1) || currentLevel;
   const progress = nextLevel.xp_required > currentLevel.xp_required
-    ? ((xp - currentLevel.xp_required) / (nextLevel.xp_required - currentLevel.xp_required)) * 100
+    ? ((safeXp - currentLevel.xp_required) / (nextLevel.xp_required - currentLevel.xp_required)) * 100
     : 100;
 
   return {
     level: currentLevel.level,
     name: currentLevel.name,
-    xp_current: xp,
+    xp_current: safeXp,
     xp_next: nextLevel.xp_required,
     progress: Math.min(progress, 100),
     theme: currentLevel.theme,
@@ -68,8 +71,11 @@ function calculateLevel(xp: number) {
 }
 
 function calculateXpReward(baseXp: number, streakCount: number, isMilestone = false) {
-  let xp = baseXp;
-  if (streakCount >= 7) {
+  // ensure inputs are valid numbers
+  let xp = Math.max(0, baseXp || 0);
+  const safeStreak = Math.max(0, streakCount || 0);
+
+  if (safeStreak >= 7) {
     xp = Math.floor(xp * XP_STREAK_MULTIPLIER);
   }
   if (isMilestone) {
@@ -79,6 +85,9 @@ function calculateXpReward(baseXp: number, streakCount: number, isMilestone = fa
 }
 
 function checkAchievements(stats: GamificationStats, unlockedIds: string[]) {
+  // ensure stats exist
+  if (!stats) return [];
+
   const newAchievements: typeof ACHIEVEMENTS = [];
   for (const achievement of ACHIEVEMENTS) {
     if (!unlockedIds.includes(achievement.id) && achievement.condition(stats)) {
@@ -89,11 +98,13 @@ function checkAchievements(stats: GamificationStats, unlockedIds: string[]) {
 }
 
 function getUnlockedThemes(level: number) {
-  return LEVELS.filter(l => l.level <= level && l.theme).map(l => l.theme);
+  const safeLevel = Math.max(0, level || 0);
+  return LEVELS.filter(l => l.level <= safeLevel && l.theme).map(l => l.theme);
 }
 
 function getUnlockedColors(level: number) {
-  return LEVELS.filter(l => l.level <= level && l.color).map(l => l.color);
+  const safeLevel = Math.max(0, level || 0);
+  return LEVELS.filter(l => l.level <= safeLevel && l.color).map(l => l.color);
 }
 
 export {
