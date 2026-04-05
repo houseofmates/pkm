@@ -172,9 +172,19 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
               method: 'GET',
               params: { pageSize: 1, fields: ['id'] }
             }) as any;
-            const total = res?.data?.meta?.total ?? res?.meta?.total ?? 0;
+            // Handle various NocoBase API response structures
+            const total = res?.data?.meta?.count ?? 
+                          res?.data?.meta?.total ?? 
+                          res?.data?.meta?.totalCount ?? 
+                          res?.meta?.count ?? 
+                          res?.meta?.total ?? 
+                          res?.meta?.totalCount ?? 
+                          res?.total ?? 
+                          0;
             counts[col.name] = total;
-          } catch {
+            secureLogger.debug(`[Databases] ${col.name} count:`, total);
+          } catch (err) {
+            secureLogger.warn(`[Databases] Failed to fetch count for ${col.name}:`, err);
             counts[col.name] = 0;
           }
         })
