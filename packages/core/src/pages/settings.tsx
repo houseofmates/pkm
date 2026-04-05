@@ -82,7 +82,7 @@ export default function SettingsPage() {
             </section>
 
             <section className="mt-8">
-                {!(apiKey && typeof apiKey === 'string' && apiKey.trim().length > 5) ? (
+                {!(apiKey && typeof apiKey === 'string' && apiKey.trim().length > 5) && !localStorage.getItem('nocobase_token') ? (
                     <p className="italic text-sm text-red-500">Set your API key above to enable Notion import</p>
                 ) : null}
                 <NotionImportWidget />

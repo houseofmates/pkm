@@ -164,7 +164,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>create new record</DialogTitle>
+            <DialogTitle>Create New Record</DialogTitle>
           </DialogHeader>
           <RecordForm
             collection={collection}
@@ -178,7 +178,7 @@ export function CollectionView({ collection, onBack }: CollectionViewProps) {
       <Dialog open={!!editingRecord} onOpenChange={(open) => !open && setEditingRecord(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>edit record</DialogTitle>
+            <DialogTitle>Edit Record</DialogTitle>
           </DialogHeader>
           {editingRecord && (
             <RecordForm
