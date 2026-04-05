@@ -130,7 +130,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   const [hovered, setHovered] = useState(false);
 
 
-  // global metadata for collections (legacy localstorage fallback)
+  // global metadata for collections (legacy localStorage fallback)
   const [metadata] = useAppSetting<Record<string, { color?: string; title?: string }>>('collection_metadata', {});
   // prefer synced colors from nocobase (cross-device sync), then local item color, then legacy metadata
   const metaColor = syncedColors?.[id]?.color || item.color || (item.type === 'collection' ? metadata[id]?.color : undefined);
