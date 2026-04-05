@@ -151,6 +151,13 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
     ],
   };
 
+  const collectionsWithFallbackFields = filteredCollections.map((col: Collection) => {
+    if (col.fields && col.fields.length > 0) return col;
+    const fallback = FALLBACK_FIELDS[col.name];
+    if (fallback) return { ...col, fields: fallback };
+    return col;
+  });
+
   // fetch record counts for each collection
   useEffect(() => {
     if (!isAuthenticated || collectionsWithFallbackFields.length === 0) return;
