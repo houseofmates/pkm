@@ -124,8 +124,8 @@ export function FinancialHub() {
       {/* header */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs text-white/40 lowercase">financial hub</p>
-          <h2 className="text-2xl font-bold lowercase">net worth: ${netWorth.toFixed(2)}</h2>
+          <p className="text-xs text-white/40">Financial Hub</p>
+          <h2 className="text-2xl font-bold">Net Worth: ${netWorth.toFixed(2)}</h2>
         </div>
         <button
           onClick={() => setShowAddTransaction(true)}
@@ -142,7 +142,7 @@ export function FinancialHub() {
             key={v}
             onClick={() => setView(v as any)}
             className={cn(
-              'px-3 py-1.5 rounded-full text-xs lowercase',
+              'px-3 py-1.5 rounded-full text-xs',
               view === v ? 'bg-blue-600' : 'bg-white/10'
             )}
           >
@@ -164,10 +164,10 @@ export function FinancialHub() {
               >
                 <div className="flex items-center gap-2 mb-1">
                   {acc.icon && <span>{acc.icon}</span>}
-                  <span className="text-sm lowercase text-white/70">{acc.name}</span>
+                  <span className="text-sm text-white/70">{acc.name}</span>
                 </div>
                 <p className="text-xl font-bold">${acc.current_balance.toFixed(2)}</p>
-                <p className="text-xs text-white/40 lowercase">{acc.type}</p>
+                <p className="text-xs text-white/40">{acc.type}</p>
               </div>
             ))}
           </div>
@@ -177,14 +177,14 @@ export function FinancialHub() {
             <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/30">
               <div className="flex items-center gap-2 mb-1">
                 <TrendingUp size={16} className="text-green-400" />
-                <span className="text-xs text-white/40 lowercase">income</span>
+                <span className="text-xs text-white/40">Income</span>
               </div>
               <p className="text-xl font-bold text-green-400">${monthlyIncome.toFixed(2)}</p>
             </div>
             <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30">
               <div className="flex items-center gap-2 mb-1">
                 <TrendingDown size={16} className="text-red-400" />
-                <span className="text-xs text-white/40 lowercase">expenses</span>
+                <span className="text-xs text-white/40">Expenses</span>
               </div>
               <p className="text-xl font-bold text-red-400">${monthlyExpenses.toFixed(2)}</p>
             </div>
@@ -195,10 +195,10 @@ export function FinancialHub() {
       {/* cashflow sankey */}
       {view === 'cashflow' && (
         <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-          <p className="text-xs text-white/40 lowercase mb-3">cash flow (this month)</p>
+          <p className="text-xs text-white/40 mb-3">Cash Flow (This Month)</p>
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <div className="w-24 text-xs text-white/60 lowercase">income</div>
+              <div className="w-24 text-xs text-white/60">Income</div>
               <div className="flex-1 h-8 bg-green-500/20 rounded-lg relative overflow-hidden">
                 <div 
                   className="absolute inset-y-0 left-0 bg-green-500/40"
@@ -215,7 +215,7 @@ export function FinancialHub() {
                 const percentage = (amount / monthlyIncome) * 100;
                 return (
                   <div key={category} className="flex items-center gap-2">
-                    <div className="w-24 text-xs text-white/60 lowercase truncate">{category}</div>
+                    <div className="w-24 text-xs text-white/60 truncate">{category}</div>
                     <div className="flex-1 h-6 bg-white/5 rounded-lg relative overflow-hidden">
                       <div 
                         className="absolute inset-y-0 left-0 bg-blue-500/40"
@@ -243,7 +243,7 @@ export function FinancialHub() {
             return (
               <div key={budget.id} className="p-3 rounded-lg bg-white/[0.02]">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm lowercase text-white">{budget.category}</span>
+                  <span className="text-sm text-white">{budget.category}</span>
                   <span className="text-xs text-white/40">
                     ${budget.current_spent.toFixed(0)} / ${budget.monthly_limit.toFixed(0)}
                   </span>
@@ -257,8 +257,8 @@ export function FinancialHub() {
                     }}
                   />
                 </div>
-                <p className="text-xs text-white/40 mt-1 lowercase">
-                  {percentage.toFixed(0)}% used
+                <p className="text-xs text-white/40 mt-1">
+                  {percentage.toFixed(0)}% Used
                   {status === 'over' && ' - over budget!'}
                   {status === 'warning' && ' - approaching limit'}
                 </p>
@@ -266,8 +266,8 @@ export function FinancialHub() {
             );
           })}
           {budgets.length === 0 && (
-            <p className="text-center text-white/30 text-sm lowercase py-8">
-              no budgets configured yet
+            <p className="text-center text-white/30 text-sm py-8">
+              No Budgets Configured Yet
             </p>
           )}
         </div>
@@ -276,13 +276,13 @@ export function FinancialHub() {
       {/* trends */}
       {view === 'trends' && (
         <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-          <p className="text-xs text-white/40 lowercase mb-3">spending by category</p>
+          <p className="text-xs text-white/40 mb-3">Spending by Category</p>
           <div className="space-y-2">
             {Object.entries(categorySpending)
               .sort((a, b) => b[1] - a[1])
               .map(([category, amount]) => (
                 <div key={category} className="flex items-center justify-between">
-                  <span className="text-sm lowercase text-white/70">{category}</span>
+                  <span className="text-sm text-white/70">{category}</span>
                   <span className="text-sm font-medium">${amount.toFixed(2)}</span>
                 </div>
               ))}
@@ -359,7 +359,7 @@ function AddTransactionModal({
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm lowercase text-white">log transaction</p>
+          <p className="text-sm text-white">Log Transaction</p>
           <button onClick={onClose} className="text-white/40 hover:text-white">
             <X size={16} />
           </button>
@@ -370,27 +370,27 @@ function AddTransactionModal({
             <button
               onClick={() => setType('expense')}
               className={cn(
-                'flex-1 py-2 rounded-lg text-sm lowercase',
+                'flex-1 py-2 rounded-lg text-sm',
                 type === 'expense' ? 'bg-red-600' : 'bg-white/10'
               )}
             >
-              expense
+              Expense
             </button>
             <button
               onClick={() => setType('income')}
               className={cn(
-                'flex-1 py-2 rounded-lg text-sm lowercase',
+                'flex-1 py-2 rounded-lg text-sm',
                 type === 'income' ? 'bg-green-600' : 'bg-white/10'
               )}
             >
-              income
+              Income
             </button>
           </div>
 
           <select
             value={accountId}
             onChange={e => setAccountId(parseInt(e.target.value))}
-            className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase"
+            className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm"
           >
             {accounts.map(acc => (
               <option key={acc.id} value={acc.id}>{acc.name}</option>
@@ -401,32 +401,32 @@ function AddTransactionModal({
             type="number"
             value={amount}
             onChange={e => setAmount(e.target.value)}
-            placeholder="amount"
-            className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase placeholder:text-white/30"
+            placeholder="Amount"
+            className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm placeholder:text-white/30"
           />
 
           <input
             type="text"
             value={category}
             onChange={e => setCategory(e.target.value)}
-            placeholder="category"
-            className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase placeholder:text-white/30"
+            placeholder="Category"
+            className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm placeholder:text-white/30"
           />
 
           <textarea
             value={description}
             onChange={e => setDescription(e.target.value)}
-            placeholder="description (optional)"
-            className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm lowercase placeholder:text-white/30 resize-none"
+            placeholder="Description (Optional)"
+            className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm placeholder:text-white/30 resize-none"
             rows={2}
           />
 
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full py-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white lowercase"
+            className="w-full py-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white"
           >
-            {loading ? 'logging...' : 'log transaction'}
+            {loading ? 'Logging...' : 'Log Transaction'}
           </button>
         </div>
       </div>
