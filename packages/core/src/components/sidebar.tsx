@@ -21,7 +21,7 @@ export function Sidebar({ className, collections = [], selectedCollection = null
       <div className="space-y-1">
         {collections.map((collection) => {
           const isActive = selectedCollection?.name === collection.name;
-          const displayName = collection.title || humanizeFieldName(collection.name);
+          const displayName = <span className="lowercase">{collection.title || collection.name}</span>;
           return (
             <Button
               key={collection.name}

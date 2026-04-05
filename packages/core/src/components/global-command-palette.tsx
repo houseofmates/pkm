@@ -282,11 +282,11 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
    </CommandItem>
  </CommandGroup>
 
- <CommandGroup heading="Databases">
+ <CommandGroup heading="databases">
    {collections.map((collection: any) => (
    <CommandItem key={collection.name} onSelect={() => runCommand(() => navigate(`/databases/${collection.name}`))}>
    <Database className="mr-2 h-4 w-4" />
-   <span>{collection.title || toTitleCase(collection.name)}</span>
+   <span className="lowercase">{collection.title || collection.name}</span>
    </CommandItem>
    ))}
  </CommandGroup>
