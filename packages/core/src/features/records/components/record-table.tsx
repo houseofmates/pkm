@@ -273,7 +273,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
               onDoubleClick={startEditing}
             >
               <div
-                className="whitespace-nowrap overflow-hidden text-ellipsis font-medium leading-[1.2] text-base text-center w-full flex items-center justify-center gap-1 lowercase"
+                className="whitespace-nowrap overflow-hidden text-ellipsis font-medium leading-[1.2] text-base text-center w-full flex items-center justify-center gap-1"
                 style={{ minWidth: '80px', maxWidth: '200px', color: fieldColors[field?.name] || undefined }}
                 title={typeof header.column.columnDef.header === 'string' ? header.column.columnDef.header : String(header.column.columnDef.header || '')}
               >
@@ -517,7 +517,7 @@ const DraggableRecordRow = (props: any) => {
             className="h-full w-full rounded-none opacity-50 hover:opacity-100 flex items-center justify-center p-0"
             onClick={(e) => { e.stopPropagation(); onOpenDetail?.(row.original); }}
             onDoubleClick={(e) => { e.stopPropagation(); }}
-            title="view details"
+            title="View Details"
           >
             <Maximize2 className="h-4 w-4" />
           </Button>
@@ -827,23 +827,23 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                     variant="ghost" 
                     size="icon" 
                     className={cn("h-6 w-6", (sortField || isManualOrderActive) && "text-primary")}
-                    title={isManualOrderActive ? "manual order active" : (sortField ? `sorted by ${sortField} (${sortDirection})` : "sort")}
+                    title={isManualOrderActive ? "Manual Order Active" : (sortField ? `Sorted by ${sortField} (${sortDirection})` : "Sort")}
                   >
                     <ArrowUpDown className="h-4 w-4" />
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent align="end" className="w-56">
                   <div className="space-y-3">
-                    <h4 className="font-medium text-sm leading-none border-b pb-2 mb-2 lowercase">
-                      {isManualOrderActive ? "manual order" : "sort by"}
+                    <h4 className="font-medium text-sm leading-none border-b pb-2 mb-2">
+                      {isManualOrderActive ? "Manual Order" : "Sort By"}
                     </h4>
                     {isManualOrderActive && (
-                      <div className="text-xs text-muted-foreground lowercase">
-                        rows manually reordered. sort to reset.
+                      <div className="text-xs text-muted-foreground">
+                        Rows manually reordered. Sort to reset.
                       </div>
                     )}
                     <div className="space-y-2">
-                      <Label className="text-xs lowercase">field</Label>
+                      <Label className="text-xs">Field</Label>
                       <select
                         value={sortField}
                         onChange={(e) => {
@@ -852,7 +852,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         }}
                         className="w-full h-8 px-2 text-sm bg-[#111] border border-[#333] rounded text-white"
                       >
-                        <option value="">select field...</option>
+                        <option value="">Select Field...</option>
                         {(() => {
                           const availableFields: any[] =
                             collection.fields && collection.fields.length > 0
@@ -871,44 +871,44 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                       </select>
                     </div>
                     <div className="space-y-2">
-                      <Label className="text-xs lowercase">direction</Label>
+                      <Label className="text-xs">Direction</Label>
                       <div className="flex items-center gap-2">
                         <Button
                           variant={sortDirection === 'up' ? 'default' : 'ghost'}
                           size="sm"
-                          className="h-7 flex-1 text-xs lowercase"
+                          className="h-7 flex-1 text-xs"
                           onClick={() => setSortDirection('up')}
                           disabled={!sortField}
                         >
-                          up
+                          Up
                         </Button>
                         <Button
                           variant={sortDirection === 'down' ? 'default' : 'ghost'}
                           size="sm"
-                          className="h-7 flex-1 text-xs lowercase"
+                          className="h-7 flex-1 text-xs"
                           onClick={() => setSortDirection('down')}
                           disabled={!sortField}
                         >
-                          down
+                          Down
                         </Button>
                       </div>
                     </div>
                     {sortField && (
-                      <div className="text-xs text-muted-foreground lowercase pt-1">
-                        {sortDirection === 'up' ? 'ascending (a → z, old → new)' : 'descending (z → a, new → old)'}
+                      <div className="text-xs text-muted-foreground pt-1">
+                        {sortDirection === 'up' ? 'Ascending (A → Z, Old → New)' : 'Descending (Z → A, New → Old)'}
                       </div>
                     )}
                     {(sortField || isManualOrderActive) && (
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="w-full text-xs lowercase text-muted-foreground"
+                        className="w-full text-xs text-muted-foreground"
                         onClick={() => {
                           setSortField('');
                           setManualOrder([]);
                         }}
                       >
-                        clear sort / reset order
+                        Clear Sort / Reset Order
                       </Button>
                     )}
                   </div>
@@ -923,8 +923,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                 </PopoverTrigger>
                 <PopoverContent align="end" className="w-56">
                   <div className="space-y-2">
-                    <h4 className="font-medium text-sm leading-none border-b pb-2 mb-2 lowercase">view settings</h4>
-                    <div className="text-xs text-muted-foreground mb-2 lowercase">check to unhide properties</div>
+                    <h4 className="font-medium text-sm leading-none border-b pb-2 mb-2">View Settings</h4>
+                    <div className="text-xs text-muted-foreground mb-2">Check to unhide properties</div>
                     <div className="max-h-60 overflow-y-auto space-y-1">
                       {(() => {
                         // figure out which fields to show in the settings menu.  if we
@@ -939,8 +939,8 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                               : [];
                         if (availableFields.length === 0) {
                           return (
-                            <div className="text-xs text-muted-foreground lowercase">
-                              no properties yet – use the + button to add one
+                            <div className="text-xs text-muted-foreground">
+                              No properties yet – use the + button to add one
                             </div>
                           );
                         }
