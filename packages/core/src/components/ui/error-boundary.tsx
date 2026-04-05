@@ -57,13 +57,13 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
           <div className="max-w-md w-full bg-[#0a0a0a] border border-[#ffb10f]/30 rounded-lg p-6 text-center">
             <AlertTriangle className="w-12 h-12 text-[#ffb10f] mx-auto mb-4" />
             <h2 
-              className="text-xl font-bold text-white mb-2 lowercase" 
+              className="text-xl font-bold text-white mb-2" 
               style={{ fontFamily: 'varela round, sans-serif' }}
             >
-              something went wrong
+              Something Went Wrong
             </h2>
-            <p className="text-zinc-400 text-sm mb-6 lowercase">
-              we encountered an unexpected issue. please try again or return to the dashboard.
+            <p className="text-zinc-400 text-sm mb-6">
+              We encountered an unexpected issue. Please try again or return to the dashboard.
             </p>
 
             {/* only show error details in development */}
@@ -78,23 +78,23 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
             <div className="flex gap-3 justify-center">
               <Button
                 onClick={this.handleReturnHome}
-                className="bg-[#ffb10f] text-black hover:bg-[#ffb10f]/90 lowercase"
+                className="bg-[#ffb10f] text-black hover:bg-[#ffb10f]/90"
               >
                 <Home className="w-4 h-4 mr-2" />
-                return to dashboard
+                Return to Dashboard
               </Button>
               <Button
                 onClick={this.handleTryAgain}
                 variant="outline"
-                className="border-zinc-600 text-zinc-300 hover:bg-zinc-800 hover:text-white lowercase"
+                className="border-zinc-600 text-zinc-300 hover:bg-zinc-800 hover:text-white"
               >
                 <RefreshCw className="w-4 h-4 mr-2" />
-                try again
+                Try Again
               </Button>
             </div>
 
-            <p className="text-zinc-600 text-xs mt-4 lowercase">
-              if this persists, please check your connection and try refreshing the page
+            <p className="text-zinc-600 text-xs mt-4">
+              If this persists, please check your connection and try refreshing the page
             </p>
           </div>
         </div>
