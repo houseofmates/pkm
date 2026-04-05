@@ -34,8 +34,9 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
 
   useEffect(() => {
     if (!hasAuthProvider || !isAuthenticated || !client) return;
-    client.listCollections({ pageSize: 100 }).then((res: any) => {
-      const list = Array.isArray(res?.data) ? res.data : res?.data;
+  useEffect(() => {
+    if (!res) return;
+    const list = Array.isArray(res?.data) ? res.data : res?.data;
 
       if (Array.isArray(list)) {
         setAvailableCollections(list.map((c: any) => c.name));
@@ -72,17 +73,21 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
     if (!hasAuthProvider || !isAuthenticated || !client) return;
     if (!availableCollections.includes('moods')) return;
 
+    let cancelled = false;
+
     // strategy: look for a 'moods' or 'journal' collection
     const checkMood = async () => {
+      if (cancelled) return;
       // try 'moods' collection first
       try {
  const res = await client.listRecords('moods', { pageSize: 1, sort: '-createdAt' });
+ if (!res) return;
  const rawData = res?.data;
  const data = Array.isArray(rawData) ? rawData : [];
 
         if (data && data.length > 0) {
           const last = data[0];
-          setMoodState({
+          if (!cancelled) setMoodState({
             name: last.mood || last.name || last.state || 'Unknown',
             intensity: last.intensity,
             note: last.note || last.description
@@ -98,7 +103,7 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
     checkMood();
     // poll every minute? or just on mount/change.
     const interval = setInterval(checkMood, 60000);
-    return () => clearInterval(interval);
+    return () => { cancelled = true; clearInterval(interval); };
   }, [client, isAuthenticated, availableCollections]);
 
   // --- 3. activity context ---
@@ -108,7 +113,10 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
     if (!isAuthenticated) return;
     if (!availableCollections.includes('journal')) return;
 
+    let cancelled = false;
+
     const checkActivity = async () => {
+      if (cancelled) return;
       // check 'journal' or just generic audit logs?
       // let's look for 'journal'
       try {
@@ -118,7 +126,7 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
  const data = Array.isArray(rawData) ? rawData : [];
 
         if (data && data.length > 0) {
-          setRecentActivity(data.map((item: any) => ({
+          if (!cancelled) setRecentActivity(data.map((item: any) => ({
             type: 'journal_entry',
             summary: item.title || item.content?.substring(0, 50) || 'Entry',
             timestamp: item.createdAt || new Date().toISOString()
@@ -128,7 +136,7 @@ export function LLMContextProvider({ children }: { children: React.ReactNode }) 
     };
     checkActivity();
     const interval = setInterval(checkActivity, 60000);
-    return () => clearInterval(interval);
+    return () => { cancelled = true; clearInterval(interval); };
   }, [client, isAuthenticated, availableCollections]);
 
 

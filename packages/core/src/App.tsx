@@ -188,16 +188,18 @@ function AppContent() {
   useEffect(() => {
     if (window.location.pathname === "/apk" && !updateChecked && token) {
       const currentVersion = import.meta.env.VITE_APP_VERSION || "0.0.0"
-      import("@/utils/apkUpdater").then(({ checkForApkUpdate, downloadAndPromptInstall }) => {
-        checkForApkUpdate(currentVersion, token).then(manifest => {
-          if (manifest) {
-            if (window.confirm(`a new version (${manifest.version}) is available. update now?`)) {
-              downloadAndPromptInstall(manifest.apkUrl)
+      import("@/utils/apkUpdater")
+        .then(({ checkForApkUpdate, downloadAndPromptInstall }) => {
+          return checkForApkUpdate(currentVersion, token).then(manifest => {
+            if (manifest) {
+              if (window.confirm(`a new version (${manifest.version}) is available. update now?`)) {
+                downloadAndPromptInstall(manifest.apkUrl)
+              }
             }
-          }
-          setUpdateChecked(true)
+            setUpdateChecked(true)
+          })
         })
-      })
+        .catch((err) => secureLogger.error('apk update check failed:', err))
     }
   }, [updateChecked, token])
   const [setupNeeded, setSetupNeeded] = useState<boolean | null>(null)
