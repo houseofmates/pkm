@@ -64,7 +64,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
   // identify title field once
   const titleField = customTitleField || collection.fields?.find((f: CollectionField) => f.name === 'title' || f.name === 'name') || collection.fields?.find((f: CollectionField) => f.interface === 'input');
 
-  const [title, setTitle] = useState<string>(record[titleField?.name || 'title'] || '');
+  const [title, setTitle] = useState<string>((titleField?.name ? record[titleField.name] : record['title']) || '');
 
   // color state
   const [color, setColor] = useState(metadata[record.id]?.color || '');
@@ -172,7 +172,9 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
                           className="h-4 w-4"
                           disabled={idx === 0}
                           onClick={() => {
-                            const newFields = [...config.visibleFields];
+                            const visibleFields = config?.visibleFields;
+                            if (!visibleFields) return;
+                            const newFields = [...visibleFields];
                             [newFields[idx - 1], newFields[idx]] = [newFields[idx], newFields[idx - 1]];
                             onConfigChange('visibleFields', newFields);
                           }}
@@ -183,9 +185,11 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
                           variant="ghost"
                           size="icon"
                           className="h-4 w-4"
-                          disabled={idx === (config.visibleFields?.length || 0) - 1 || idx === 2}
+                          disabled={idx === (config?.visibleFields?.length || 0) - 1 || idx === 2}
                           onClick={() => {
-                            const newFields = [...config.visibleFields];
+                            const visibleFields = config?.visibleFields;
+                            if (!visibleFields) return;
+                            const newFields = [...visibleFields];
                             [newFields[idx + 1], newFields[idx]] = [newFields[idx], newFields[idx + 1]];
                             onConfigChange('visibleFields', newFields);
                           }}
@@ -197,7 +201,9 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
                           size="icon"
                           className="h-4 w-4 text-destructive"
                           onClick={() => {
-                            onConfigChange('visibleFields', config.visibleFields.filter((f: string) => f !== fName));
+                            const visibleFields = config?.visibleFields;
+                            if (!visibleFields) return;
+                            onConfigChange('visibleFields', visibleFields.filter((f: string) => f !== fName));
                           }}
                         >
                           <X className="w-2.5 h-2.5" />
@@ -269,7 +275,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
                     record={record}
                     collectionName={collection?.name}
                     className="h-8 text-sm"
-                    onChange={(val: any) => {
+                    onChange={(val: unknown) => {
                       if (onUpdate) onUpdate(record.id, { [field.name]: val });
                     }}
                   />
