@@ -2950,8 +2950,8 @@ summary:`;
         type="file" 
         accept="image/*" 
         multiple 
-        classname="hidden"
-        onchange={handlephotoupload}
+        className="hidden"
+        onChange={handlePhotoUpload}
       />
 
       {/* header */}
