@@ -30,10 +30,10 @@ export default function SettingsPage() {
     return (
         // container must occupy full height of parent so scrolling works
         <div className="h-full flex flex-col overflow-auto p-4 min-h-0">
-            <h1 className="text-xl font-bold lowercase">settings</h1>
+            <h1 className="text-xl font-bold">Settings</h1>
 
             <section className="mt-6 space-y-4">
-                <h2 className="text-lg font-semibold lowercase">general</h2>
+                <h2 className="text-lg font-semibold">General</h2>
                 <div className="space-y-2">
                     <label className="flex flex-col text-sm lowercase">
                         api key
@@ -43,7 +43,7 @@ export default function SettingsPage() {
                                 value={apiKey as string}
                                 onChange={e => setApiKey(e.target.value)}
                                 className="px-2 py-1 bg-background border border-border rounded w-full pr-10"
-                                placeholder="enter your api key"
+                                placeholder="Enter your API key"
                             />
                             <Button
                                 variant="ghost"
@@ -56,7 +56,7 @@ export default function SettingsPage() {
                             </Button>
                         </div>
                     </label>
-                    <label className="flex items-center gap-2 text-sm lowercase">
+                    <label className="flex items-center gap-2 text-sm">
                         <input
                             type="checkbox"
                             checked={!!darkMode}
@@ -77,13 +77,13 @@ export default function SettingsPage() {
             </section>
 
             <section className="mt-8">
-                <h2 className="text-lg font-semibold lowercase">data management</h2>
+                <h2 className="text-lg font-semibold">Data Management</h2>
                 <TableManager />
             </section>
 
             <section className="mt-8">
                 {!(apiKey && typeof apiKey === 'string' && apiKey.trim().length > 5) ? (
-                    <p className="italic text-sm text-red-500 lowercase">set your api key above to enable notion import</p>
+                    <p className="italic text-sm text-red-500">Set your API key above to enable Notion import</p>
                 ) : null}
                 <NotionImportWidget />
             </section>
