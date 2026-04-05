@@ -320,7 +320,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
         onTouchStart={header.getResizeHandler()}
         onPointerDown={(e) => e.stopPropagation()}
         className={cn(
-          "absolute -right-2 top-0 h-full w-4 z-30 cursor-col-resize touch-none select-none transition-opacity",
+          "absolute -right-1 top-0 h-full w-1.5 z-30 cursor-col-resize touch-none select-none transition-opacity",
           header.column.getIsResizing() ? "opacity-100 bg-[#333] shadow-[0_4000px_0_0_currentColor]" : "opacity-20 hover:opacity-100"
         )}
         style={{ color: '#333' }}
