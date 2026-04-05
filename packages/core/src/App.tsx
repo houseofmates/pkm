@@ -255,6 +255,12 @@ function AppContent() {
       return;
     }
     
+    // if no token, skip setup check - let the login page handle connectivity
+    if (!token) {
+      setSetupNeeded(false);
+      return;
+    }
+    
     // try to fetch stats from the absolute api url if available, otherwise relative
     const baseUrl = import.meta.env.VITE_API_URL?.replace(/\/api\/?$/, '') || '';
     const statsUrl = `${baseUrl}/api/stats`;
@@ -265,7 +271,7 @@ function AppContent() {
         else setSetupNeeded(true)
       })
       .catch(() => setSetupNeeded(true))
-  }, [])
+  }, [token])
 
   if (setupNeeded === null) {
     return LoadingFallback

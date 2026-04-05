@@ -130,8 +130,8 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   const [hovered, setHovered] = useState(false);
 
 
-  // global metadata for collections (legacy localstorage fallback)
-  const [metadata] = useAppSetting<Record<string, { color?: string }>>('collection_metadata', {});
+  // global metadata for collections (legacy localStorage fallback)
+  const [metadata] = useAppSetting<Record<string, { color?: string; title?: string }>>('collection_metadata', {});
   // prefer synced colors from nocobase (cross-device sync), then local item color, then legacy metadata
   const metaColor = syncedColors?.[id]?.color || item.color || (item.type === 'collection' ? metadata[id]?.color : undefined);
 
@@ -193,8 +193,9 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
     return <Database className="h-6 w-6 mr-2 flex-shrink-0" />;
   };
 
-  const displayName = formatHeadmateName(item.name);
-  const capsClass = getCapitalizationClass(item.name);
+  const rawName = (item.type === 'collection' && metadata[id]?.title) ? metadata[id].title! : item.name;
+  const displayName = formatHeadmateName(rawName);
+  const capsClass = getCapitalizationClass(rawName);
 
   const content = (
     <div className="flex items-center">

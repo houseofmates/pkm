@@ -12,14 +12,11 @@ export function securityHeaders() {
         contentSecurityPolicy: {
             directives: {
                 defaultSrc: ["'self'"],
-                scriptSrc: ["'self'", "'unsafe-inline'"],
-                styleSrc: ["'self'", "'unsafe-inline'"],
-                imgSrc: ["'self'", "data:", "https:"],
-                connectSrc: ["'self'", "ws:", "wss:"],
-                fontSrc: ["'self'", "data:"],
-                objectSrc: ["'none'"],
-                mediaSrc: ["'self'", "blob:"],
-                frameSrc: ["'none'"],
+                scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://challenges.cloudflare.com", "https://*.cloudflare.com"],
+                styleSrc: ["'self'", "'unsafe-inline'", "https://challenges.cloudflare.com", "https://*.cloudflare.com"],
+                connectSrc: ["'self'", "ws:", "wss:", "https:", "https://challenges.cloudflare.com", "https://*.cloudflare.com"],
+                fontSrc: ["'self'", "data:", "https://challenges.cloudflare.com", "https://*.cloudflare.com"],
+                frameSrc: ["https://challenges.cloudflare.com", "https://*.cloudflare.com"],
                 frameAncestors: ["'self'"],
                 baseUri: ["'self'"],
                 formAction: ["'self'"],
@@ -106,7 +103,7 @@ export function additionalSecurityHeaders(req, res, next) {
     // permissions policy (formerly feature-policy)
     res.setHeader(
         'Permissions-Policy',
-        'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()'
+        'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=(), xr-spatial-tracking=()'
     );
     
     // remove server header
