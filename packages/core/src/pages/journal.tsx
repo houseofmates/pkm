@@ -3080,7 +3080,7 @@ summary:`;
       {/* daily prompt */}
       <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
         <div className="flex items-center justify-between mb-2">
-          <p className="text-xs text-white/30 lowercase">today's prompt</p>
+          <p className="text-xs text-white/30">Today's Prompt</p>
           <div className="flex gap-1">
             <button onClick={handleShufflePrompt} className="p-1 rounded hover:bg-white/10" title="new prompt"><Sparkles size={12} /></button>
             <button onClick={() => setShowTemplates(true)} className="p-1 rounded hover:bg-white/10" title="templates"><BookOpen size={12} /></button>
@@ -3294,7 +3294,7 @@ summary:`;
         <>
           {/* mood selector */}
           <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-            <p className="text-xs text-white/40 lowercase mb-3">how are you feeling?</p>
+            <p className="text-xs text-white/40 mb-3">How Are You Feeling?</p>
             <div className="flex gap-3 justify-center">
               {MOODS.map(m => renderMoodButton(m))}
             </div>
@@ -3307,7 +3307,7 @@ summary:`;
 
           {/* emotions */}
           <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-            <p className="text-xs text-white/40 lowercase mb-3">what emotions are you experiencing?</p>
+            <p className="text-xs text-white/40 mb-3">What Emotions Are You Experiencing?</p>
             <div className="flex flex-wrap gap-2 mb-3">
               {availableEmotions.filter(e => e.toLowerCase().includes(emotionQuery.toLowerCase())).map(emotion => (
                 <button
@@ -3352,7 +3352,7 @@ summary:`;
           {/* activities */}
           <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs text-white/40 lowercase">what have you done today?</p>
+              <p className="text-xs text-white/40">What Have You Done Today?</p>
               <div className="flex gap-1">
                 {['health', 'productivity', 'creative', 'social', 'leisure', 'wellness'].map(cat => (
                   <button
@@ -3401,7 +3401,7 @@ summary:`;
 
           {/* tags */}
           <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-            <p className="text-xs text-white/40 lowercase mb-3">add tags</p>
+            <p className="text-xs text-white/40 mb-3">Add Tags</p>
             <div className="flex flex-wrap gap-2 mb-3">
               {availableTags.filter(t => t.toLowerCase().includes(tagQuery.toLowerCase())).slice(0, 10).map(tag => {
                 const color = tagColors[tag] || '#ffffff';
@@ -3452,7 +3452,7 @@ summary:`;
           <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
             <div className="flex items-center gap-2 mb-3">
               <Wind size={16} className="text-amber-500/60" />
-              <p className="text-xs text-white/40 lowercase">breathing exercises</p>
+              <p className="text-xs text-white/40">Breathing Exercises</p>
             </div>
             <div className="grid grid-cols-3 gap-2">
               <button
@@ -3482,12 +3482,12 @@ summary:`;
           {/* notes */}
           <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs text-white/40 lowercase">journal notes</p>
+              <p className="text-xs text-white/40">Journal Notes</p>
               <div className="flex items-center gap-2">
                 <button 
                   onClick={() => fileInputRef.current?.click()}
                   className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors"
-                  title="add photo"
+                  title="Add Photo"
                 >
                   <Image size={16} />
                 </button>
@@ -3497,7 +3497,7 @@ summary:`;
                     "p-1.5 rounded-lg transition-colors",
                     isRecording ? "bg-red-500/20 text-red-400 animate-pulse" : "hover:bg-white/10 text-white/40 hover:text-white"
                   )}
-                  title={isRecording ? `recording ${formatTime(recordingTime)}` : "voice memo"}
+                  title={isRecording ? `Recording ${formatTime(recordingTime)}` : "Voice Memo"}
                 >
                   <Mic size={16} />
                 </button>
@@ -3507,14 +3507,14 @@ summary:`;
                     "p-1.5 rounded-lg transition-colors",
                     isTranscribing ? "bg-red-500/20 text-red-400 animate-pulse" : "hover:bg-white/10 text-white/40 hover:text-white"
                   )}
-                  title={isTranscribing ? `transcribing` : "voice summary"}
+                  title={isTranscribing ? `Transcribing` : "Voice Summary"}
                 >
                   <FileText size={16} />
                 </button>
               </div>
             </div>
 
-            {/* photos preview */}
+            {/* Photos Preview */}
             {photos.length > 0 && (
               <div className="flex gap-2 mb-3 flex-wrap">
                 {photos.map((photo, i) => (
@@ -3531,7 +3531,7 @@ summary:`;
               </div>
             )}
 
-            {/* voice memos */}
+            {/* Voice Memos */}
             {voiceMemos.length > 0 && (
               <div className="flex gap-2 mb-3 flex-wrap">
                 {voiceMemos.map((memo, i) => (
