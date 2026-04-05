@@ -364,8 +364,8 @@ export function TemplatePage() {
             <Wand2 className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold lowercase">Template Ingestion Engine</h1>
-            <p className="text-muted-foreground text-sm lowercase">JSON to Workspace Pipeline</p>
+            <h1 className="text-2xl font-bold">Template Ingestion Engine</h1>
+            <p className="text-muted-foreground text-sm">JSON to Workspace Pipeline</p>
           </div>
         </div>
       </header>
