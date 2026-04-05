@@ -197,7 +197,7 @@ class DataService {
 
     // 2. Fetch fresh data from the network
     try {
-      const response = await api.listCollections();
+      const response = await api.listCollections({ appends: ['fields'] });
       // Handle both array and object-with-data-array responses
       const freshCollections = Array.isArray(response.data)
         ? response.data

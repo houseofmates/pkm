@@ -1,12 +1,13 @@
 import { useRecords } from '@/hooks/use-records';
 import { useCollection } from '@/hooks/use-collections';
 import { RecordGallery } from '@/features/records/components/record-gallery';
+import { CreateRecordDialog } from '@/components/create-record-dialog';
 import { Loader2, Plus, Camera } from 'lucide-react';
 import { useState } from 'react';
 
 export function CapturesPage() {
   const { data: collection, loading: colLoading } = useCollection('captures');
-  const { records, loading: recLoading, error, updateRecord, deleteRecord } = useRecords('captures', {
+  const { records, loading: recLoading, error, updateRecord, deleteRecord, refresh } = useRecords('captures', {
     sort: '-createdAt',
     pageSize: 50
   });
@@ -53,6 +54,13 @@ export function CapturesPage() {
           <Plus className="h-4 w-4" />
           New Capture
         </button>
+        <CreateRecordDialog
+          open={showForm}
+          onOpenChange={setShowForm}
+          collectionName="captures"
+          onSuccess={() => { refresh(); setShowForm(false); }}
+          fields={collection.fields}
+        />
       </div>
     );
   }
