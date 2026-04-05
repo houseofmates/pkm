@@ -7,7 +7,6 @@ import { SmartField } from '@/components/fields/smart-field';
 import { X, Save, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
-import { toTitleCase } from '@/lib/casing';
 import { humanizeFieldName } from './record-table';
 
 interface RecordDetailDrawerProps {
@@ -114,16 +113,16 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
       });
 
       if (Object.keys(changedFields).length === 0) {
-        toast.info('No Changes to Save');
+        toast.info('no changes to save');
         onClose();
         return;
       }
 
       await onUpdate(record.id, changedFields);
-      toast.success('Record Updated');
+      toast.success('record updated');
       onClose();
     } catch (error) {
-      toast.error('Failed to Update Record');
+      toast.error('failed to update record');
     } finally {
       setIsSaving(false);
     }
@@ -144,8 +143,8 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
       >
         <SheetHeader className="border-b border-[#222] p-4 pb-3 flex-shrink-0">
           <div className="flex items-center justify-between">
-            <SheetTitle className="text-lg font-semibold text-white">
-              Record Details
+            <SheetTitle className="text-lg font-semibold text-white lowercase">
+              record details
             </SheetTitle>
             <div className="flex items-center gap-2">
               <Button
@@ -153,7 +152,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
                 size="icon"
                 className="h-8 w-8 text-zinc-400 hover:text-white hover:bg-white/10"
                 onClick={handleOpenFullPage}
-                title="Open Full Page"
+                title="open full page"
               >
                 <ExternalLink className="h-4 w-4" />
               </Button>
@@ -174,8 +173,8 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {displayFields.length === 0 ? (
-          <div className="text-center text-zinc-500 py-8">
-            No Editable Fields Available
+          <div className="text-center text-zinc-500 py-8 lowercase">
+            no editable fields available
           </div>
         ) : (
             displayFields.map((field: any) => {
@@ -215,9 +214,9 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
             variant="ghost"
             size="sm"
             onClick={onClose}
-            className="text-zinc-400 hover:text-white"
+            className="text-zinc-400 hover:text-white lowercase"
           >
-            Cancel
+            cancel
           </Button>
           <Button
             size="sm"
@@ -226,14 +225,14 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
             className="bg-[#ffb10f] text-black hover:bg-[#ffb10f]/90 disabled:opacity-50"
           >
             {isSaving ? (
-              <span className="flex items-center gap-2">
+              <span className="flex items-center gap-2 lowercase">
                 <span className="animate-spin h-4 w-4 border-2 border-black border-t-transparent rounded-full" />
-                Saving...
+                saving...
               </span>
             ) : (
-              <span className="flex items-center gap-2">
+              <span className="flex items-center gap-2 lowercase">
                 <Save className="h-4 w-4" />
-                Save Changes
+                save changes
               </span>
             )}
           </Button>
