@@ -149,7 +149,7 @@ export function useCollectionData(
         fetchData();
       } catch (error) {
         secureLogger.error(error instanceof Error ? error.message : String(error));
-        toast.error('failed to create record');
+        toast.error('Failed to create record');
       }
     },
     [activeFronters, client, collection, collectionName, fetchData]
@@ -277,7 +277,7 @@ export function useCollectionData(
           }
         } catch (err) {
           secureLogger.error(String(err));
-          toast.error('failed to create record');
+          toast.error('Failed to create record');
         }
       }
     };
