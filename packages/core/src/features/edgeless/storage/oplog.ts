@@ -88,7 +88,7 @@ export interface CanvasCheckpoint {
   id: string
   drawingId: string
   timestamp: number
-  state: string | Record<string, any> // full fabricjs canvas state
+  state: string | Record<string, unknown> // full fabricjs canvas state
 }
 
 /**
@@ -102,9 +102,11 @@ export async function applyOp(canvas: FabricCanvas | null, op: DrawOp): Promise<
 
   const fabricRef = (window as unknown as { fabric?: typeof import('fabric') }).fabric
 
+  if (!fabricRef?.Path) return
+
   switch (op.type) {
     case 'path': {
-      const path = new (fabricRef as any).Path(op.pathData, {
+      const path = new fabricRef.Path(op.pathData as unknown as string | fabric.TComplexPathData, {
         stroke: op.stroke,
         strokeWidth: op.strokeWidth,
         fill: undefined,
@@ -121,8 +123,9 @@ export async function applyOp(canvas: FabricCanvas | null, op: DrawOp): Promise<
     case 'erase': {
       // find target and replace or remove
       const target = canvas.getObjects().find(
-        (o) => (o as any).data?.id === op.targetId
-      ) as (FabricObject & { data?: { id?: string } }) | undefined
+        (o): o is FabricObject & { data?: { id?: string } } =>
+          (o as FabricObject & { data?: { id?: string } }).data?.id === op.targetId
+      )
       if (!target) return
 
       if (op.segmentsKept.length === 0) {
@@ -131,9 +134,9 @@ export async function applyOp(canvas: FabricCanvas | null, op: DrawOp): Promise<
         // remove old, add new segments
         canvas.remove(target)
         for (const seg of op.segmentsKept) {
-          const newPath = new (fabricRef as any).Path(seg, {
-            stroke: (target as any).stroke,
-            strokeWidth: (target as any).strokeWidth,
+          const newPath = new fabricRef.Path(seg as unknown as string | fabric.TComplexPathData, {
+            stroke: target.stroke,
+            strokeWidth: target.strokeWidth,
             fill: undefined,
           })
           newPath.set('data', { layerId: op.layerId, originalId: op.targetId })
@@ -145,8 +148,9 @@ export async function applyOp(canvas: FabricCanvas | null, op: DrawOp): Promise<
 
     case 'transform': {
       const target = canvas.getObjects().find(
-        (o) => (o as any).data?.id === op.targetId
-      ) as (FabricObject & { data?: { id?: string } }) | undefined
+        (o): o is FabricObject & { data?: { id?: string } } =>
+          (o as FabricObject & { data?: { id?: string } }).data?.id === op.targetId
+      )
       if (!target) return
       target.set({
         left: op.position.x,
@@ -161,8 +165,9 @@ export async function applyOp(canvas: FabricCanvas | null, op: DrawOp): Promise<
 
     case 'delete': {
       const target = canvas.getObjects().find(
-        (o) => (o as any).data?.id === op.targetId
-      ) as (FabricObject & { data?: { id?: string } }) | undefined
+        (o): o is FabricObject & { data?: { id?: string } } =>
+          (o as FabricObject & { data?: { id?: string } }).data?.id === op.targetId
+      )
       if (target) canvas.remove(target)
       break
     }
@@ -172,8 +177,9 @@ export async function applyOp(canvas: FabricCanvas | null, op: DrawOp): Promise<
 
       const removeExisting = () => {
         const existing = canvas.getObjects().find(
-          (o) => (o as any).data?.id === op.targetId
-        ) as (FabricObject & { data?: { id?: string } }) | undefined
+          (o): o is FabricObject & { data?: { id?: string } } =>
+            (o as FabricObject & { data?: { id?: string } }).data?.id === op.targetId
+        )
         if (existing) canvas.remove(existing)
       }
 
@@ -276,7 +282,7 @@ export function compactOplog(ops: OpLogEntry[]): OpLogEntry[] {
     const op = entry.op;
 
     if (op.type === 'delete' || op.type === 'bitmap-replace') {
-      const targetId = (op as any).targetId
+      const targetId = op.targetId
       // if we see a delete or replacement, any previous operations for this target are redundant
       if (!terminalTargets.has(targetId)) {
         terminalTargets.add(targetId);
@@ -286,7 +292,7 @@ export function compactOplog(ops: OpLogEntry[]): OpLogEntry[] {
     }
 
     // skip operations on deleted or replaced targets
-    if ('targetId' in op && terminalTargets.has((op as any).targetId)) {
+    if ('targetId' in op && terminalTargets.has(op.targetId)) {
       continue;
     }
 
