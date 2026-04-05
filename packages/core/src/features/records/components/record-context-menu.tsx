@@ -115,7 +115,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
           <div className="flex-1 space-y-1">
             <Label className="text-[10px] font-bold text-muted-foreground ">title / name</Label>
             <Input
-              value={title}
+              value={title || ''}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)}
               onBlur={(e: React.FocusEvent<HTMLInputElement>) => handleTitleChange(e.target.value)}
               className="h-8 font-semibold text-sm bg-[#050505] border-transparent hover:border-input focus:border-primary transition-colors text-white"
