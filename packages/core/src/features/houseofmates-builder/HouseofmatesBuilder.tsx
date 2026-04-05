@@ -321,24 +321,15 @@ export function HouseofmatesBuilder() {
     }
   }, [slug, site_identifier, collectionNames]);
 
-  const hasFetchedRef = useRef(false);
-
   useEffect(() => {
-    // only fetch once on mount
-    if (hasFetchedRef.current) {
-      secureLogger.info('[HouseofmatesBuilder] Skipping duplicate fetch');
-      return;
-    }
-
-    secureLogger.info('[HouseofmatesBuilder] init useEffect running');
-    hasFetchedRef.current = true;
+    let cancelled = false;
 
     const init = async () => {
       const key = storageManager.getCachedSecret('hom_api_key');
       // only set admin mode if we have an api key
       // on public domains without a key, stay in read-only public mode
       const shouldBeAdmin = !!key;
-      setIsAdmin(shouldBeAdmin);
+      if (!cancelled) setIsAdmin(shouldBeAdmin);
       
       // run collection ensures only if we might be admin
       if (shouldBeAdmin) {
@@ -346,16 +337,18 @@ export function HouseofmatesBuilder() {
           await ensureWebsiteCollection();
           await ensureFormsCollection();
         } catch (err) {
-          secureLogger.error('collection setup failed:', err);
+          if (!cancelled) secureLogger.error('collection setup failed:', err);
         }
       }
-      await fetchPage();
+      if (!cancelled) await fetchPage();
     };
 
     init().catch((e) => {
-      secureLogger.error('[HouseofmatesBuilder] init failed', e);
+      if (!cancelled) secureLogger.error('[HouseofmatesBuilder] init failed', e);
     });
-  }, []);
+
+    return () => { cancelled = true; };
+  }, [slug, site_identifier]);
 
 
   // --- admin login handler ---
