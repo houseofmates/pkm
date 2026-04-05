@@ -260,7 +260,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                             <PopoverContent className="w-80">
                                 <DatabaseSettingsForm
                                     collectionName={collectionName}
-                                    title={collection.label || collectionName}
+                                    title={metadata[collectionName]?.title || collection.label || collectionName}
                                     viewConfig={viewConfig}
                                     fields={collection.fields}
                                     currentView={currentView}
