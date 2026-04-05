@@ -1715,7 +1715,7 @@ export function EdgelessCanvas({ onObjectModified: _onObjectModified, className,
         </button>
       </div>
 
-      <canvas ref={canvasel} />
+      <canvas ref={canvasEl} />
 
       {/* page boundary indicator */}
       {(() => {
