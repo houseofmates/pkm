@@ -57,12 +57,12 @@ interface RecordContextMenuProps {
   titleField?: CollectionField;
 }
 
-export function RecordEditContent({ record, collection, onUpdate, onDelete, onView, titleField: customTitleField, config, onConfigChange, showViewConfig = true }: { record: any, collection: any, onUpdate?: any, onDelete?: any, onView?: any, titleField?: any, config?: any, onConfigChange?: any, showViewConfig?: boolean }) {
+export function RecordEditContent({ record, collection, onUpdate, onDelete, onView, titleField: customTitleField, config, onConfigChange, showViewConfig = true }: { record: RecordData, collection: Collection, onUpdate?: (id: string | number, data: Record<string, unknown>) => void, onDelete?: (rec: RecordData) => void, onView?: () => void, titleField?: CollectionField, config?: ViewConfig, onConfigChange?: (key: string, value: unknown) => void, showViewConfig?: boolean }) {
   const navigate = useNavigate();
   const [metadata, setMetadata] = useAppSetting<Record<string, { color?: string }>>(`record_meta_${collection?.name || 'unknown'}`, {});
 
   // identify title field once
-  const titleField = customTitleField || collection.fields?.find((f: any) => f.name === 'title' || f.name === 'name') || collection.fields?.find((f: any) => f.interface === 'input');
+  const titleField = customTitleField || collection.fields?.find((f: CollectionField) => f.name === 'title' || f.name === 'name') || collection.fields?.find((f: CollectionField) => f.interface === 'input');
 
   const [title, setTitle] = useState<string>(record[titleField?.name || 'title'] || '');
 
@@ -89,7 +89,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
   // fields to show in quick edit - allow all text-capable fields including ids
   const visibleFields = useMemo(() => {
     if (!collection?.fields) return [];
-    return collection.fields.filter((f: any) =>
+    return collection.fields.filter((f: CollectionField) =>
       f.name !== 'created_at' &&
       f.name !== 'updated_at'
     );
@@ -99,7 +99,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
 
   const availableFields = useMemo(() => {
     if (!collection?.fields) return [];
-    return collection.fields.filter((f: any) =>
+    return collection.fields.filter((f: CollectionField) =>
       !config?.visibleFields?.includes(f.name) &&
       f.name !== 'created_at' &&
       f.name !== 'updated_at' &&
@@ -160,7 +160,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
               <Label className="text-[10px] font-bold text-muted-foreground mb-2 block">display properties (max 3)</Label>
               <div className="space-y-1">
                 {(config?.visibleFields || []).slice(0, 3).map((fName: string, idx: number) => {
-                  const field = collection.fields?.find((f: any) => f.name === fName);
+                  const field = collection.fields?.find((f: CollectionField) => f.name === fName);
                   if (!field) return null;
                   return (
                     <div key={fName} className="flex items-center gap-2 bg-background border px-2 py-1 rounded-sm text-xs group">
@@ -229,7 +229,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
                           {availableFields.length === 0 ? (
                             <div className="p-4 text-center text-muted-foreground text-[10px] lowercase">no properties found</div>
                           ) : (
-                            availableFields.map((f: any) => (
+                            availableFields.map((f: CollectionField) => (
                               <Button
                                 key={f.name}
                                 variant="ghost"
@@ -257,7 +257,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
           {visibleFields.length === 0 ? (
             <p className="text-xs text-muted-foreground lowercase py-2">no properties in this collection</p>
           ) : (
-            visibleFields.map((field: any) => (
+            visibleFields.map((field: CollectionField) => (
               <div key={field.name} className="gap-2 grid grid-cols-[100px_1fr] items-center group">
                 <Label className="text-xs text-muted-foreground font-medium truncate group-hover:text-foreground transition-colors lowercase" title={field.uiSchema?.title || field.name}>
                   {field.uiSchema?.title || field.name}
