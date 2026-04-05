@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import { SemanticSearch } from "@/components/search/SemanticSearch";
 import { toast } from 'sonner';
 import { useGamificationStore, HABIT_TO_QUEST_MAPPING, XP_PER_ENTRY } from '@/store/useGamificationStore';
+import { toTitleCase } from '@/lib/casing';
 import { dataService } from '@/services/data.service';
 import { secureLogger } from '@/lib/secure-logger';
 
@@ -397,7 +398,7 @@ export function Spotlight() {
                                 </CommandEmpty>
 
                                 {filteredActivities.length > 0 && (
-                                    <CommandGroup heading="quick log activity" className="px-2">
+                                    <CommandGroup heading="Quick Log Activity" className="px-2">
                                         {filteredActivities.map((activity) => (
                                             <CommandItem
                                                 key={activity.id}
@@ -460,12 +461,12 @@ export function Spotlight() {
 
                         <ScrollArea className="flex-1">
                             <CommandList className="pb-4">
-                                <CommandEmpty className="p-8 text-center text-muted-foreground lowercase">
-                                    {isSearching ? "tuning into your thoughts..." : "no matches found."}
+                                <CommandEmpty className="p-8 text-center text-muted-foreground">
+                                    {isSearching ? "Tuning into your thoughts..." : "No matches found."}
                                 </CommandEmpty>
 
                                 {dbResults.length > 0 && (
-                                    <CommandGroup heading="database matches" className="px-2">
+                                    <CommandGroup heading="Database Matches" className="px-2">
                                         {dbResults.map((res, i) => (
                                             <CommandItem
                                                 key={`${res.collectionName}-${res.id}-${i}`}
@@ -478,61 +479,20 @@ export function Spotlight() {
                                                         <span className="text-sm font-medium lowercase truncate">
                                                             {(res.record?.title as string) || (res.record?.name as string) || `record #${res.id}`}
                                                         </span>
-                                                        <Badge variant="outline" className="text-[10px] py-0 h-4 border-primary/20 text-primary/60 lowercase">
-                                                            {res.collectionTitle || res.collectionName}
+                                                        <Badge variant="outline" className="text-[10px] py-0 h-4 border-primary/20 text-primary/60">
+                                                            {toTitleCase(res.collectionTitle || res.collectionName)}
                                                         </Badge>
                                                     </div>
                                                 </div>
                                             </CommandItem>
                                         ))}
-                                    </CommandGroup>
-                                )}
-
-                                <CommandSeparator className="bg-primary/5 mx-4" />
-
-                                <CommandGroup heading="navigation & actions" className="px-2">
-                                    <CommandItem
-                                        onSelect={() => setMode('activity')}
-                                        className="px-4 py-3 rounded-lg cursor-pointer"
-                                    >
-                                        <PlusCircle className="mr-3 h-4 w-4 text-[#f6b012]" />
-                                        <span className="lowercase" style={{ color: '#f6b012' }}>log activity</span>
-                                        <Badge variant="outline" className="ml-2 text-[10px] py-0 h-4 border-[#f6b012]/30 text-[#f6b012]/60 lowercase">
-                                            ctrl+shift+a
-                                        </Badge>
-                                    </CommandItem>
-                                    <CommandItem
-                                        onSelect={() => {
-                                            secureLogger.debug('[Spotlight] Opening Wilson chat...');
-                                            setOpen(false);
-                                            setChatOpen(true);
-                                            secureLogger.debug('[Spotlight] setChatOpen(true) called');
-                                        }}
-                                        className="px-4 py-3 rounded-lg cursor-pointer"
-                                    >
-                                        <MessageCircle className="mr-3 h-4 w-4 text-primary/60" />
-                                        <span className="lowercase">open wilson chat</span>
-                                    </CommandItem>
-                                    <CommandItem onSelect={() => runAction(() => navigate('/'))} className="px-4 py-3 rounded-lg cursor-pointer">
-                                        <Rocket className="mr-3 h-4 w-4 text-primary/60" />
-                                        <span className="lowercase">go to dashboard</span>
-                                    </CommandItem>
-                                    <CommandItem onSelect={() => runAction(() => navigate('/headmates'))} className="px-4 py-3 rounded-lg cursor-pointer">
-                                        <User className="mr-3 h-4 w-4 text-primary/60" />
-                                        <span className="lowercase">switch headmate context</span>
-                                    </CommandItem>
-                                </CommandGroup>
-
-                                {collections.length > 0 && query.length === 0 && (
-                                    <CommandGroup heading="active databases" className="px-2">
-                                        {collections.map((col: Collection) => (
                                             <CommandItem
                                                 key={col.name}
                                                 onSelect={() => runAction(() => navigate(`/databases/${col.name}`))}
                                                 className="px-4 py-3 rounded-lg cursor-pointer"
                                             >
                                                 <Database className="mr-3 h-4 w-4 text-primary/60" />
-                                                <span className="lowercase">{col.title || col.name}</span>
+                                                <span>{col.title || toTitleCase(col.name)}</span>
                                             </CommandItem>
                                         ))}
                                     </CommandGroup>
@@ -540,15 +500,15 @@ export function Spotlight() {
                             </CommandList>
                         </ScrollArea>
 
-                        <div className="flex items-center justify-between px-4 py-3 border-t border-primary/10 bg-primary/5 text-[10px] text-muted-foreground lowercase shrink-0">
+                        <div className="flex items-center justify-between px-4 py-3 border-t border-primary/10 bg-primary/5 text-[10px] text-muted-foreground shrink-0">
                             <div className="flex items-center gap-4">
                                 <span><strong>↑↓</strong> to navigate</span>
-                                <span><strong>enter</strong> to select</span>
-                                <span><strong>esc</strong> to close</span>
+                                <span><strong>Enter</strong> to select</span>
+                                <span><strong>Esc</strong> to close</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <CommandIcon className="h-3 w-3" />
-                                <span>spotlight v2.0</span>
+                                <span>Spotlight v2.0</span>
                             </div>
                         </div>
                     </Command>
