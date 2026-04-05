@@ -1,3 +1,5 @@
+import { loadChatHistory, saveChatHistory, addChatEntry, isDuplicateEntry } from './chat-history.js';
+
 // typer: removing ts-node dependency; import js version of importer script instead
 
 import express from 'express';
@@ -336,13 +338,13 @@ let lastServerStats = {
     lastUpdated: new Date().toISOString()
 };
 
-let chatHistory = [];
+let chatHistory = loadChatHistory();
 
 // placeholder persistence functions – the original snippet referenced
-// `savedata()` but didn’t include an implementation.  define a no‑op so the
+// `savedata()` but didn't include an implementation.  define a no‑op so the
 // call below can be uncommented later without throwing.
 function saveData() {
-  // todo: actually persist chathistory/server state if desired
+  saveChatHistory(chatHistory);
 }
 const execPromise = promisify(exec);
 
@@ -971,13 +973,9 @@ app.post('/api/broadcast', requireAuth, async (req, res) => {
         };
     }
 
-    const currentGeneratedMsg = (normalizedType === 'chat') ? message : `${finalPlayer} ${normalizedType === 'join' ? 'joined' : 'left'} the game`;
-
     // deduplication
-    const isDuplicate = chatHistory.length > 0 && chatHistory.slice(-3).some(past => {
-        const timeDiff = Math.abs(new Date().getTime() - new Date(past.timestamp).getTime());
-        return past.message === currentGeneratedMsg && past.type === normalizedType && timeDiff < 10000;
-    });
+    const currentGeneratedMsg = (normalizedType === 'chat') ? message : `${finalPlayer} ${normalizedType === 'join' ? 'joined' : 'left'} the game`;
+    const isDuplicate = isDuplicateEntry(currentGeneratedMsg, normalizedType, chatHistory);
 
     if (!isDuplicate) {
         if (normalizedType === 'chat') {
@@ -996,8 +994,7 @@ app.post('/api/broadcast', requireAuth, async (req, res) => {
         chatHistory = chatHistory.slice(-50);
     }
 
-    // todo: persist data (savedata() was called in original but undefined in snippet)
-    // savedata();
+    saveData();
 
     console.log(`[Broadcast] ${type} | Online: ${safeOnline} | Players: ${safeCount} | Msg: ${message || 'none'}`);
     res.json({ status: 'broadcasted' });
