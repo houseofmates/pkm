@@ -301,11 +301,11 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
       <div className="p-4 md:p-8 h-full flex items-center justify-center">
         <Card className="max-w-md w-full">
           <CardHeader>
-            <CardTitle className="lowercase">connect nocobase</CardTitle>
+            <CardTitle className="">Connect NocoBase</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label className="lowercase">api token</Label>
+              <Label className="">API Token</Label>
               <Input
                 type="password"
                 value={apiKey}
@@ -314,16 +314,16 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
                 onKeyDown={(e) => e.key === 'Enter' && !validating && handleLogin()}
                 disabled={validating}
               />
-              <p className="text-xs text-muted-foreground lowercase">
-                your token is stored locally.
+              <p className="text-xs text-muted-foreground">
+                Your Token Is Stored Locally.
               </p>
             </div>
             <Button
-              className="w-full lowercase"
+              className="w-full"
               onClick={handleLogin}
               disabled={validating || !apiKey}
             >
-              {validating ? 'validating...' : 'connect'}
+              {validating ? 'Validating...' : 'Connect'}
             </Button>
           </CardContent>
         </Card>
@@ -332,17 +332,17 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   }
 
   if (error) {
-    return <div className="p-8 text-destructive">error loading databases: {error}</div>;
+    return      <div className="P-8 Text-destructive">Error Loading Databases: {error}</div>;
   }
 
   if (loading && collections.length === 0) {
-    return <div className="p-8 text-muted-foreground">loading databases...</div>;
+    return      <div className="P-8 Text-muted-foreground">Loading Databases...</div>;
   }
 
   // only exclude if truly empty (no collections and no sidebar docs)
   if (allItems.length === 0) {
     return (
-      <div className="p-4 md:p-8 space-y-6 h-full overflow-auto">
+      <div className="P-4 Md:P-8 Space-y-6 H-full Overflow-auto">
         {/* still show the add button even if empty */}
         <div className="flex items-center justify-end mb-4">
           <div className="flex items-center gap-2">
@@ -354,8 +354,8 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
           </div>
         </div>
         <div className="flex flex-col items-center justify-center p-20 text-center space-y-4 border-2 border-dashed rounded-lg opacity-50">
-          <p className="text-xl">no databases found</p>
-          <p className="text-sm">create one to get started</p>
+          <p className="text-xl">No Databases Found</p>
+          <p className="text-sm">Create One to Get Started</p>
         </div>
       </div>
     );
