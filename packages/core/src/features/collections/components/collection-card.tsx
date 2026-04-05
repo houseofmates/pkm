@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { storageManager } from '@/lib/storage-manager';
 import { Database } from "lucide-react";
+import { toTitleCase } from '@/lib/casing';
 import { humanizeFieldName } from '@/features/records/components/record-table';
 
 import { useAppSetting } from "@/hooks/use-app-setting";
@@ -76,9 +77,9 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
               className="font-bold text-lg truncate"
               style={borderColor ? { color: borderColor } : undefined}
             >
-              {meta.title || collection.title || collection.name}
+              {meta.title || collection.title || toTitleCase(collection.name)}
             </h3>
-            <p className="text-xs opacity-80 lowercase">{fieldCount} fields{recordCount !== undefined ? ` · ${recordCount} records` : ''}</p>
+            <p className="text-xs opacity-80">{fieldCount} Fields{recordCount !== undefined ? ` · ${recordCount} Records` : ''}</p>
           </div>
         </div>
       ) : (
@@ -104,10 +105,10 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
             className="truncate text-xl relative z-10 flex-shrink-0"
             style={borderColor ? { color: borderColor } : undefined}
           >
-            {(meta as any).title || collection.title || collection.name}
+            {(meta as any).title || collection.title || toTitleCase(collection.name)}
           </CardTitle>
-          <p className="text-xs text-muted-foreground lowercase relative z-10">
-            {fieldCount} fields{recordCount !== undefined ? ` · ${recordCount} records` : ''}
+          <p className="text-xs text-muted-foreground relative z-10">
+            {fieldCount} Fields{recordCount !== undefined ? ` · ${recordCount} Records` : ''}
           </p>
 
           {/* preview area - only render if we have something to show */}

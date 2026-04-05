@@ -7,6 +7,7 @@ import { SmartField } from '@/components/fields/smart-field';
 import { X, Save, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { toTitleCase } from '@/lib/casing';
 import { humanizeFieldName } from './record-table';
 
 interface RecordDetailDrawerProps {
@@ -167,7 +168,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
             </div>
           </div>
           <p className="text-xs text-zinc-500 mt-1">
-            {collection.title || collection.name} • ID: {record.id}
+            {collection.title || toTitleCase(collection.name)} • ID: {record.id}
           </p>
         </SheetHeader>
 

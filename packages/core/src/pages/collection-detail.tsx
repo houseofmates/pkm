@@ -12,6 +12,7 @@ import { useFronter } from '@/contexts/fronter-context';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { toTitleCase } from '@/lib/casing';
 import { humanizeFieldName } from '@/features/records/components/record-table';
 
 // bring in shared schema types so we can stop using `any`
@@ -235,7 +236,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                                 className="text-xl font-bold tracking-tight hover:opacity-70 transition-opacity cursor-pointer bg-transparent border-none p-0"
                                 style={{ color: collectionColor }}
                             >
-                                {metadata[collectionName]?.title || collection.label || collection.name}
+                                {metadata[collectionName]?.title || collection.label || toTitleCase(collection.name)}
                             </button>
                         </PopoverTrigger>
                         <PopoverContent className="w-80">
