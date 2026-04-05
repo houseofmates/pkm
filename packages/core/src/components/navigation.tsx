@@ -642,7 +642,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   trigger={
                     <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
                       <Database className="h-4 w-4 mr-2 text-primary" />
-                      <span>new database</span>
+                      <span>New Database</span>
                     </DropdownMenuItem>
                   }
                 />
@@ -664,7 +664,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   }]);
                 }}>
                   <FileText className="h-4 w-4 mr-2 text-primary" />
-                  <span>new document</span>
+                  <span>New Document</span>
                 </DropdownMenuItem>
                 <DropdownMenuItem onSelect={async () => {
                   // create new drawing in idb and navigate
@@ -687,7 +687,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
                   }]);
                 }}>
                   <PenTool className="h-4 w-4 mr-2 text-primary" />
-                  <span>new drawing</span>
+                  <span>New Drawing</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -729,17 +729,17 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
         {folderDialogOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
             <div className="bg-popover border p-4 rounded-lg shadow-lg w-full max-w-xs">
-              <h3 className="font-semibold mb-2">create folder</h3>
+              <h3 className="font-semibold mb-2">Create Folder</h3>
               <Input
-                placeholder="folder name"
+                placeholder="Folder name"
                 value={newFolderName}
                 onChange={e => setNewFolderName(e.target.value)}
                 autoFocus
                 className="mb-4"
               />
               <div className="flex justify-end gap-2">
-                <Button variant="ghost" size="sm" onClick={() => setFolderDialogOpen(false)}>cancel</Button>
-                <Button size="sm" onClick={createFolder}>create</Button>
+                <Button variant="ghost" size="sm" onClick={() => setFolderDialogOpen(false)}>Cancel</Button>
+                <Button size="sm" onClick={createFolder}>Create</Button>
               </div>
             </div>
           </div>
