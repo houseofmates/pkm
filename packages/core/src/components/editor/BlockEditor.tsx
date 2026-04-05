@@ -102,7 +102,7 @@ export function BlockEditor({ content, onChange, editable = true, className, pla
     <div className="relative w-full border border-input bg-transparent rounded-md px-3 py-2 shadow-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 group/editor">
       <EditorContent editor={editor} />
 
-      {/* Drag handle overlay */}
+      {/* drag handle overlay */}
       {editable && <DragHandle editor={editor} />}
 
       <UniversalWidgetPicker

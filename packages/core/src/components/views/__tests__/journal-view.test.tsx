@@ -3,7 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { JournalView } from '../journal-view';
 import * as React from 'react';
 
-// Mocks
+// mocks
 vi.mock('@/components/ui/rich-editor', () => ({
   default: ({ onChange, value }: any) => (
     <input
@@ -56,7 +56,7 @@ describe('JournalView', () => {
         onCreate={vi.fn()}
       />
     );
-    // Button text contains "post entry" and icon
+    // button text contains "post entry" and icon
     expect(screen.getByRole('button', { name: /post entry/i })).toBeInTheDocument();
   });
 

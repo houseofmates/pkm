@@ -113,7 +113,7 @@ export function RichEditor({ value = '', placeholder, className, onChange, uploa
   };
 
   const handleSlashSelect = (cmdId: string) => {
-    // Delete the slash
+    // delete the slash
     document.execCommand('delete', false);
 
     switch (cmdId) {
@@ -128,25 +128,25 @@ export function RichEditor({ value = '', placeholder, className, onChange, uploa
   };
 
   const handleWidgetSelect = (type: string, data: any) => {
-    // Insert a widget placeholder block
-    // In a real WYSIWYG, this would be a React Node View (like Tiptap)
-    // For contentEditable, we insert an HTML element with data attributes
-    // that the parent renderer (PageRenderer) can hydrate.
+    // insert a widget placeholder block
+    // in a real wysiwyg, this would be a react node view (like tiptap)
+    // for contenteditable, we insert an html element with data attributes
+    // that the parent renderer (pagerenderer) can hydrate.
 
     const id = Math.random().toString(36).substr(2, 9);
     const widgetHtml = `<div class="widget-embed" data-widget-type="${type}" data-widget-id="${id}" data-widget-props='${JSON.stringify(data)}' contenteditable="false" style="padding: 10px; background: rgba(255,255,255,0.05); border-radius: 8px; border: 1px dashed rgba(255,255,255,0.2); margin: 10px 0;">[Widget: ${type}]</div><p><br/></p>`;
 
-    // We need to insert this HTML at the cursor position
+    // we need to insert this html at the cursor position
     const sel = window.getSelection();
     if (sel && sel.rangeCount > 0) {
         const range = sel.getRangeAt(0);
         range.deleteContents();
         const frag = document.createRange().createContextualFragment(widgetHtml);
         range.insertNode(frag);
-        // Move cursor after
+        // move cursor after
         range.collapse(false);
     } else {
-        // Fallback append
+        // fallback append
         ref.current!.innerHTML += widgetHtml;
     }
 

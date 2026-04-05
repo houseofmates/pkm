@@ -15,7 +15,7 @@ export interface LLMResponse {
 
 export async function generateText(prompt: string, model: string = DEFAULT_OLLAMA_MODEL, endpoint: string): Promise<string | null> {
   try {
-    // If this looks like the Gemini API, send the request in the Gemini format.
+    // if this looks like the gemini api, send the request in the gemini format.
     const isGemini = /generativeai\.googleapis\.com\//i.test(endpoint);
 
     const body = isGemini
@@ -40,7 +40,7 @@ export async function generateText(prompt: string, model: string = DEFAULT_OLLAM
     const data = await response.json();
 
     if (isGemini) {
-      // Gemini returns candidates array
+      // gemini returns candidates array
       const candidate = data?.candidates?.[0]?.content;
       return typeof candidate === 'string' ? candidate : null;
     }

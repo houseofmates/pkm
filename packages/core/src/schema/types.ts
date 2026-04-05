@@ -94,7 +94,7 @@ export const FieldDefinitionSchema = z.object({
   // default value for this specific field instance
   defaultValue: z.any().optional(),
   
-  // field-specific configuration (validated against field type's configSchema)
+  // field-specific configuration (validated against field type's configschema)
   config: z.record(z.string(), z.any()).optional(),
   
   // validation rules for this field

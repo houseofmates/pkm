@@ -60,7 +60,7 @@ export function usePetHealthTracker() {
             return need
           }))
         } else {
-          // check localStorage fallback
+          // check localstorage fallback
           const local = localStorage.getItem(`pkm:pets:${today}`)
           if (local) {
             const parsed = JSON.parse(local)
@@ -98,7 +98,7 @@ export function usePetHealthTracker() {
       return need
     }))
     
-    // save to localStorage
+    // save to localstorage
     const currentNeeds = needs.map(n => {
       if (type === 'feed' && n.id === 'fed') return { ...n, completed: true }
       if (type === 'play' && n.id === 'played') return { ...n, completed: true }

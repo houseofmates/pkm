@@ -72,53 +72,53 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   const file = e.target.files[0];
   if (!file) return;
 
-  secureLogger.info('[globalcontextmenu] uploading file:', file.name, file.type, file.size);
+  securelogger.info('[globalcontextmenu] uploading file:', file.name, file.type, file.size);
   toast.info('uploading background...');
   try {
  const uploaded = await api.upload(file);
-   const uploadedAny = uploaded as any;
- secureLogger.info('[globalcontextmenu] upload response:', uploaded);
+   const uploadedany = uploaded as any;
+ securelogger.info('[globalcontextmenu] upload response:', uploaded);
 
  // try multiple possible response structures
-   const url = uploadedAny?.url || uploadedAny?.data?.url || uploadedAny?.data?.data?.url;
- secureLogger.info('[globalcontextmenu] extracted url:', url);
+   const url = uploadedany?.url || uploadedany?.data?.url || uploadedany?.data?.data?.url;
+ securelogger.info('[globalcontextmenu] extracted url:', url);
 
  if (url) {
  const bgstyle = `url("${url}") center center / cover no-repeat fixed`;
- secureLogger.info('[globalcontextmenu] setting background to:', bgstyle);
- secureLogger.info('[globalcontextmenu] current page:', page);
+ securelogger.info('[globalcontextmenu] setting background to:', bgstyle);
+ securelogger.info('[globalcontextmenu] current page:', page);
 
- updatePage({ background: bgstyle });
+ updatepage({ background: bgstyle });
  toast.success('background uploaded successfully');
  } else {
- secureLogger.error('[globalcontextmenu] no url found in upload response:', uploaded);
- throw new Error('no url in response - upload may have failed');
+ securelogger.error('[globalcontextmenu] no url found in upload response:', uploaded);
+ throw new error('no url in response - upload may have failed');
  }
   } catch (err: any) {
- secureLogger.error('[globalcontextmenu] upload error:', err);
- secureLogger.error('[globalcontextmenu] error details:', err?.response || err?.message);
+ securelogger.error('[globalcontextmenu] upload error:', err);
+ securelogger.error('[globalcontextmenu] error details:', err?.response || err?.message);
  toast.error('failed to upload background: ' + (err?.message || 'unknown error'));
   }
-  onClose();
+  onclose();
   };
   input.click();
   };
 
-  const handleCreatePage = async () => {
-  if (!newPageTitle.trim()) return;
+  const handlecreatepage = async () => {
+  if (!newpagetitle.trim()) return;
 
-  const slug = generateSlug(newPageTitle);
-  setCreating(true);
+  const slug = generateslug(newpagetitle);
+  setcreating(true);
 
   try {
-  await api.createRecord(collectionNames.website, {
- title: newPageTitle.trim(),
+  await api.createrecord(collectionnames.website, {
+ title: newpagetitle.trim(),
  slug,
  site: site_identifier,
  is_home: false,
  theme_color: 'var(--primary)',
  background: page?.background || '#050505',
- elements: JSON.stringify([])
+ elements: json.stringify([])
   });
   toast.success(`page "${slug}" created!`);
   // navigate to new page
@@ -126,40 +126,40 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   } catch (e: any) {
   toast.error(`failed to create page: ${e.message}`);
   } finally {
-  setCreating(false);
-  setShowPageModal(false);
-  onClose();
+  setcreating(false);
+  setshowpagemodal(false);
+  onclose();
   }
   };
 
-  const handleExpandPage = () => {
-  const currentHeight = page?.height || window.innerHeight;
-  const newHeight = currentHeight + 500;
-  updatePage({ height: newHeight });
-  toast.success(`page extended to ${newHeight}px`);
-  onClose();
+  const handleexpandpage = () => {
+  const currentheight = page?.height || window.innerheight;
+  const newheight = currentheight + 500;
+  updatepage({ height: newheight });
+  toast.success(`page extended to ${newheight}px`);
+  onclose();
   };
 
-  const addElementAtCursor = (type: string) => {
+  const addelementatcursor = (type: string) => {
   const element = {
   type: type as any,
   x: x - 100,
   y: y - 50,
   width: type === 'text' ? 250 : type === 'button' ? 150 : 200,
   height: type === 'text' ? 60 : type === 'button' ? 50 : 200,
-  content: getDefaultContent(type),
+  content: getdefaultcontent(type),
   styles: {
- backgroundColor: type === 'text' ? 'transparent' : '#0b0015',
+ backgroundcolor: type === 'text' ? 'transparent' : '#0b0015',
  opacity: type === 'text' ? 1 : 0.5
   },
-  zIndex: 10,
+  zindex: 10,
   };
-  addElement(element);
-  onClose();
+  addelement(element);
+  onclose();
   toast.success(`${type} added`);
   };
 
-  const getDefaultContent = (type: string) => {
+  const getdefaultcontent = (type: string) => {
   switch (type) {
   case 'text': return { html: '<p>new text block</p>' };
   case 'button': return { text: 'click me', bgcolor: 'var(--primary)', textcolor: '#000' };
@@ -171,47 +171,47 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   }
   };
 
-  const handleDatabaseViewSelect = (collectionName: string, viewType: string) => {
+  const handledatabaseviewselect = (collectionname: string, viewtype: string) => {
   const element = {
   type: 'database_view' as const,
   x: x - 200,
   y: y - 150,
   width: 500,
   height: 350,
-  content: { collectionName, viewType },
+  content: { collectionname, viewtype },
   styles: {},
-  zIndex: 10,
+  zindex: 10,
   };
-  addElement(element);
-  setShowCollectionPicker(false);
-  onClose();
+  addelement(element);
+  setshowcollectionpicker(false);
+  onclose();
   };
 
   // color picker modal
-  if (showColorPicker) {
+  if (showcolorpicker) {
   return (
-  <div className="fixed inset-0 z-[30000] flex items-center justify-center bg-black/80" onClick={onClose}>
- <div className="bg-[#050505] border border-white/10 rounded-2xl p-6 w-80" onClick={e => e.stopPropagation()}>
- <div className="flex justify-between items-center mb-4">
- <h3 className="text-lg font-bold text-[var(--primary)] lowercase">background color</h3>
- <button onClick={onClose} className="text-white/40 hover:text-white"><X className="w-5 h-5" /></button>
+  <div classname="fixed inset-0 z-[30000] flex items-center justify-center bg-black/80" onclick={onclose}>
+ <div classname="bg-[#050505] border border-white/10 rounded-2xl p-6 w-80" onclick={e => e.stoppropagation()}>
+ <div classname="flex justify-between items-center mb-4">
+ <h3 classname="text-lg font-bold text-[var(--primary)] lowercase">background color</h3>
+ <button onclick={onclose} classname="text-white/40 hover:text-white"><x classname="w-5 h-5" /></button>
  </div>
  <input
  type="color"
- value={bgColor.startsWith('#') ? bgColor : '#050505'}
- onChange={(e) => setBgColor(e.target.value)}
- className="w-full h-16 rounded-xl cursor-pointer mb-4"
+ value={bgcolor.startswith('#') ? bgcolor : '#050505'}
+ onchange={(e) => setbgcolor(e.target.value)}
+ classname="w-full h-16 rounded-xl cursor-pointer mb-4"
  />
  <input
  type="text"
- value={bgColor}
- onChange={(e) => setBgColor(e.target.value)}
+ value={bgcolor}
+ onchange={(e) => setbgcolor(e.target.value)}
  placeholder="#050505 or linear-gradient(...)"
- className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white mb-4"
+ classname="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white mb-4"
  />
  <button
- onClick={handleBackgroundColorSave}
- className="w-full py-3 rounded-xl selected-icon-btn font-bold hover:scale-[1.02] transition-transform"
+ onclick={handlebackgroundcolorsave}
+ classname="w-full py-3 rounded-xl selected-icon-btn font-bold hover:scale-[1.02] transition-transform"
  >
  apply
  </button>
@@ -221,36 +221,36 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   }
 
   // page creation modal
-  if (showPageModal) {
-  const previewSlug = generateSlug(newPageTitle);
+  if (showpagemodal) {
+  const previewslug = generateslug(newpagetitle);
   return (
-  <div className="fixed inset-0 z-[30000] flex items-center justify-center bg-black/80" onClick={onClose}>
- <div className="bg-[#050505] border border-white/10 rounded-2xl p-6 w-96" onClick={e => e.stopPropagation()}>
- <div className="flex justify-between items-center mb-4">
- <h3 className="text-lg font-bold text-[var(--primary)] lowercase">create new page</h3>
- <button onClick={onClose} className="text-white/40 hover:text-white"><X className="w-5 h-5" /></button>
+  <div classname="fixed inset-0 z-[30000] flex items-center justify-center bg-black/80" onclick={onclose}>
+ <div classname="bg-[#050505] border border-white/10 rounded-2xl p-6 w-96" onclick={e => e.stoppropagation()}>
+ <div classname="flex justify-between items-center mb-4">
+ <h3 classname="text-lg font-bold text-[var(--primary)] lowercase">create new page</h3>
+ <button onclick={onclose} classname="text-white/40 hover:text-white"><x classname="w-5 h-5" /></button>
  </div>
- <label className="block text-white/60 text-sm mb-2 lowercase">page title</label>
+ <label classname="block text-white/60 text-sm mb-2 lowercase">page title</label>
  <input
  type="text"
- value={newPageTitle}
- onChange={(e) => setNewPageTitle(e.target.value)}
+ value={newpagetitle}
+ onchange={(e) => setnewpagetitle(e.target.value)}
  placeholder="e.g. about us"
- className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white mb-4"
- autoFocus
+ classname="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white mb-4"
+ autofocus
  />
- {newPageTitle && (
- <div className="mb-4 p-3 rounded-xl bg-white/5 border border-white/10">
-   <p className="text-xs text-white/40 lowercase mb-1">url preview</p>
-   <p className="text-sm text-[var(--primary)] font-mono">
-   {import.meta.env.vite_domain || 'localhost'}/<span className="text-white">{previewSlug || 'page-slug'}</span>
+ {newpagetitle && (
+ <div classname="mb-4 p-3 rounded-xl bg-white/5 border border-white/10">
+   <p classname="text-xs text-white/40 lowercase mb-1">url preview</p>
+   <p classname="text-sm text-[var(--primary)] font-mono">
+   {import.meta.env.vite_domain || 'localhost'}/<span classname="text-white">{previewslug || 'page-slug'}</span>
    </p>
  </div>
  )}
  <button
- onClick={handleCreatePage}
- disabled={!newPageTitle.trim() || creating}
- className="w-full py-3 rounded-xl bg-[var(--primary)] text-black font-bold hover:scale-[1.02] transition-transform disabled:opacity-50"
+ onclick={handlecreatepage}
+ disabled={!newpagetitle.trim() || creating}
+ classname="w-full py-3 rounded-xl bg-[var(--primary)] text-black font-bold hover:scale-[1.02] transition-transform disabled:opacity-50"
  >
  {creating ? 'creating...' : 'create page'}
  </button>
@@ -355,28 +355,28 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   toast.info('uploading open sound...');
   try {
   const uploaded = await api.upload(file);
-  const uploadedAny = uploaded as any;
-  const url = uploadedAny?.url || uploadedAny?.data?.url;
+  const uploadedany = uploaded as any;
+  const url = uploadedany?.url || uploadedany?.data?.url;
   if (url) {
-  updatePage({ custom_pop_sound: url });
+  updatepage({ custom_pop_sound: url });
   toast.success('page open sound updated');
   }
   } catch (err) {
-  secureLogger.error(String(err));
+  securelogger.error(string(err));
   toast.error('upload failed');
   }
-  onClose();
+  onclose();
    };
    input.click();
    }}
-   className="w-full px-3 py-1.5 flex items-center gap-3 text-white/50 hover:bg-white/10 hover:text-white lowercase text-[10px] rounded-lg"
+   classname="w-full px-3 py-1.5 flex items-center gap-3 text-white/50 hover:bg-white/10 hover:text-white lowercase text-[10px] rounded-lg"
    >
-   <Upload className="w-3 h-3" />
+   <upload classname="w-3 h-3" />
    {page?.custom_pop_sound ? 'change open mp3' : 'upload open mp3'}
    </button>
    <button
-   onClick={() => {
-   const input = document.createElement('input');
+   onclick={() => {
+   const input = document.createelement('input');
    input.type = 'file';
    input.accept = 'audio/*';
    input.onchange = async (e: any) => {
@@ -385,30 +385,30 @@ export function GlobalContextMenu({ x, y, onClose }: Props) {
   toast.info('uploading close sound...');
   try {
   const uploaded = await api.upload(file);
-  const uploadedAny = uploaded as any;
-  const url = uploadedAny?.url || uploadedAny?.data?.url;
+  const uploadedany = uploaded as any;
+  const url = uploadedany?.url || uploadedany?.data?.url;
   if (url) {
-  updatePage({ custom_exit_sound: url });
+  updatepage({ custom_exit_sound: url });
   toast.success('page close sound updated');
   }
   } catch (err) {
-  secureLogger.error(String(err));
+  securelogger.error(string(err));
   toast.error('upload failed');
   }
-  onClose();
+  onclose();
    };
    input.click();
    }}
-   className="w-full px-3 py-1.5 flex items-center gap-3 text-white/50 hover:bg-white/10 hover:text-white lowercase text-[10px] rounded-lg"
+   classname="w-full px-3 py-1.5 flex items-center gap-3 text-white/50 hover:bg-white/10 hover:text-white lowercase text-[10px] rounded-lg"
    >
-   <Upload className="w-3 h-3" />
+   <upload classname="w-3 h-3" />
    {page?.custom_exit_sound ? 'change close mp3' : 'upload close mp3'}
    </button>
  </div>
  )}
  </div>
 
- <div className="h-px bg-white/10 my-1" />
+ <div classname="h-px bg-white/10 my-1" />
 
  {/* pages section */}
  <div className="px-3 py-1 text-[10px]  text-white/40">pages</div>

@@ -1,6 +1,6 @@
 // write-ahead-log.ts
 // ensures zero data loss by journaling all writes before they happen
-// incomplete writes are replayed on app startup via walRecover()
+// incomplete writes are replayed on app startup via walrecover()
 
 import { openDB } from 'idb'
 import type { IDBPDatabase, DBSchema } from 'idb'

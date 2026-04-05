@@ -17,7 +17,7 @@ function render(ui: React.ReactElement) {
 }
 
 // wrap component with store if needed
-// The Toolbar doesn't need router
+// the toolbar doesn't need router
 
 describe('Toolbar', () => {
   it('renders with bottom safe-area class', () => {

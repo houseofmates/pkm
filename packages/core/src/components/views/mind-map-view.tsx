@@ -93,7 +93,7 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
     if (onConfigChange) {
       onConfigChange('positions', positions);
     }
-    // also local backup (use storageManager for safety)
+    // also local backup (use storagemanager for safety)
     storageManager.setItem(`mindmap_${collection.name}`, JSON.stringify(positions));
     toast.success("mind map layout saved");
   };
@@ -207,7 +207,7 @@ export function MindMapView({ data, collection, config = {}, onConfigChange, onU
    top: pos.y,
    }}
    onMouseDown={(e) => {
-   if (e.button !== 0) return; // Only drag on left click
+   if (e.button !== 0) return; // only drag on left click
    e.stopPropagation();
    setNodeDrag({
   id: record.id,

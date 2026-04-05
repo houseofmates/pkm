@@ -4,7 +4,7 @@ import { useEdgelessStore } from '../../store';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Maximize2, Minimize2 } from 'lucide-react';
-import { RecordForm } from '@/features/records/components/record-form'; // Re-use existing form!
+import { RecordForm } from '@/features/records/components/record-form'; // re-use existing form!
 import { useCollection } from '@/hooks/use-collections';
 import { useRecord } from '@/hooks/use-records';
 
@@ -34,7 +34,7 @@ export const RecordNodeElement = React.memo<RecordNodeElementProps>(({ element }
   return (
     <div className={cn(
       "w-full h-full flex flex-col transition-all duration-300",
-      "bg-black/80 backdrop-blur-md border border-primary/50 rounded-lg overflow-hidden shadow-xl", // Modern glassmorphism aesthetic
+      "bg-black/80 backdrop-blur-md border border-primary/50 rounded-lg overflow-hidden shadow-xl", // modern glassmorphism aesthetic
       isExpanded ? "z-50" : "z-auto"
     )}>
       {/* header (node view) */}
@@ -78,7 +78,7 @@ export const RecordNodeElement = React.memo<RecordNodeElementProps>(({ element }
               await updateRecord(data);
               // visual feedback?
             }}
-            onCancel={() => { }} // Hide cancel button?
+            onCancel={() => { }} // hide cancel button?
           />
         </div>
       )}

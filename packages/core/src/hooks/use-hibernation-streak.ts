@@ -54,7 +54,7 @@ export function useHibernationStreak() {
     }
   })
 
-  // save to localStorage whenever data changes
+  // save to localstorage whenever data changes
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(streakData))
   }, [streakData])

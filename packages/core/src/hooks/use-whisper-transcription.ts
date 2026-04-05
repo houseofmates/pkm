@@ -21,17 +21,17 @@ interface WhisperTranscriptionState {
 }
 
 /**
- * Hook for Whisper-based speech transcription via Ollama
- * Works in Firefox where Web Speech API is not supported
+ * hook for whisper-based speech transcription via ollama
+ * works in firefox where web speech api is not supported
  * 
- * Recommended Whisper models (in order of preference):
- * - 'whisper-large-v3': Best accuracy, slower, requires more VRAM
- * - 'whisper-medium': Good balance of accuracy and speed
- * - 'whisper-small': Fast, good for real-time, lower accuracy
- * - 'whisper-base': Very fast, acceptable accuracy
- * - 'whisper-tiny': Fastest, lowest accuracy, minimal resource usage
+ * recommended whisper models (in order of preference):
+ * - 'whisper-large-v3': best accuracy, slower, requires more vram
+ * - 'whisper-medium': good balance of accuracy and speed
+ * - 'whisper-small': fast, good for real-time, lower accuracy
+ * - 'whisper-base': very fast, acceptable accuracy
+ * - 'whisper-tiny': fastest, lowest accuracy, minimal resource usage
  * 
- * To use: Pull a whisper model in Ollama: `ollama pull whisper-small`
+ * to use: pull a whisper model in ollama: `ollama pull whisper-small`
  */
 export function useWhisperTranscription(options: WhisperTranscriptionOptions = {}) {
   const {
@@ -56,7 +56,7 @@ export function useWhisperTranscription(options: WhisperTranscriptionOptions = {
   const audioChunksRef = useRef<Blob[]>([]);
   const streamRef = useRef<MediaStream | null>(null);
 
-  // Cleanup on unmount
+  // cleanup on unmount
   useEffect(() => {
     return () => {
       stopRecording();
@@ -64,14 +64,14 @@ export function useWhisperTranscription(options: WhisperTranscriptionOptions = {
   }, []);
 
   /**
-   * Convert audio blob to base64 for sending to Ollama
+   * convert audio blob to base64 for sending to ollama
    */
   const blobToBase64 = (blob: Blob): Promise<string> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64 = reader.result as string;
-        // Remove data URL prefix (e.g., "data:audio/webm;base64,")
+        // remove data url prefix (e.g., "data:audio/webm;base64,")
         const base64Data = base64.split(',')[1];
         resolve(base64Data);
       };
@@ -81,7 +81,7 @@ export function useWhisperTranscription(options: WhisperTranscriptionOptions = {
   };
 
   /**
-   * Send audio to Ollama Whisper model for transcription
+   * send audio to ollama whisper model for transcription
    */
   const transcribeAudio = useCallback(async (audioBlob: Blob) => {
     setState(prev => ({ ...prev, isProcessing: true }));
@@ -90,7 +90,7 @@ export function useWhisperTranscription(options: WhisperTranscriptionOptions = {
       const base64Audio = await blobToBase64(audioBlob);
       const ollamaUrl = getOllamaBase();
 
-      // Try Whisper model first, fall back to default model if not available
+      // try whisper model first, fall back to default model if not available
       const model = whisperModel;
 
       const response = await fetch(`${ollamaUrl}/api/generate`, {
@@ -99,13 +99,13 @@ export function useWhisperTranscription(options: WhisperTranscriptionOptions = {
         body: JSON.stringify({
           model,
           prompt: `Transcribe this audio to text. Language: ${language}. Only return the transcription, no additional text.`,
-          images: [], // Whisper in Ollama can process audio via the generate endpoint
+          images: [], // whisper in ollama can process audio via the generate endpoint
           system: 'You are a speech-to-text transcription service. Transcribe the audio accurately.',
         }),
       });
 
       if (!response.ok) {
-        // If Whisper model fails, try alternative approach with generic model
+        // if whisper model fails, try alternative approach with generic model
         if (response.status === 404) {
           throw new Error(
             `Whisper model "${model}" not found. Please run: ollama pull ${model}`
@@ -135,11 +135,11 @@ export function useWhisperTranscription(options: WhisperTranscriptionOptions = {
   }, [language, whisperModel, onTranscript, onError]);
 
   /**
-   * Start recording audio for transcription
+   * start recording audio for transcription
    */
   const startRecording = useCallback(async () => {
     try {
-      // Reset state
+      // reset state
       audioChunksRef.current = [];
       setState({
         isRecording: true,
@@ -149,17 +149,17 @@ export function useWhisperTranscription(options: WhisperTranscriptionOptions = {
         isProcessing: false,
       });
 
-      // Get microphone access
+      // get microphone access
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           echoCancellation: true,
           noiseSuppression: true,
-          sampleRate: 16000, // Optimal for Whisper
+          sampleRate: 16000, // optimal for whisper
         } 
       });
       streamRef.current = stream;
 
-      // Create MediaRecorder with webm format (widely supported)
+      // create mediarecorder with webm format (widely supported)
       const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
         ? 'audio/webm;codecs=opus'
         : MediaRecorder.isTypeSupported('audio/webm')
@@ -180,11 +180,11 @@ export function useWhisperTranscription(options: WhisperTranscriptionOptions = {
       };
 
       mediaRecorder.onstop = async () => {
-        // Stop all tracks to release microphone
+        // stop all tracks to release microphone
         stream.getTracks().forEach(track => track.stop());
         streamRef.current = null;
 
-        // Process the recorded audio
+        // process the recorded audio
         const audioBlob = new Blob(audioChunksRef.current, { type: mimeType });
         if (audioBlob.size > 0) {
           await transcribeAudio(audioBlob);
@@ -198,7 +198,7 @@ export function useWhisperTranscription(options: WhisperTranscriptionOptions = {
         onError?.(error);
       };
 
-      // Start recording with 1-second chunks for longer recordings
+      // start recording with 1-second chunks for longer recordings
       mediaRecorder.start(1000);
     } catch (error) {
       const err = error instanceof Error ? error : new Error(String(error))
@@ -214,14 +214,14 @@ export function useWhisperTranscription(options: WhisperTranscriptionOptions = {
   }, [onStart, onEnd, onError, transcribeAudio]);
 
   /**
-   * Stop recording and process the audio
+   * stop recording and process the audio
    */
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
       mediaRecorderRef.current.stop();
     }
     
-    // Also stop the stream tracks directly
+    // also stop the stream tracks directly
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(track => track.stop());
       streamRef.current = null;
@@ -231,7 +231,7 @@ export function useWhisperTranscription(options: WhisperTranscriptionOptions = {
   }, []);
 
   /**
-   * Toggle recording state
+   * toggle recording state
    */
   const toggleRecording = useCallback(() => {
     if (state.isRecording) {
@@ -242,7 +242,7 @@ export function useWhisperTranscription(options: WhisperTranscriptionOptions = {
   }, [state.isRecording, startRecording, stopRecording]);
 
   /**
-   * Reset the transcription state
+   * reset the transcription state
    */
   const reset = useCallback(() => {
     audioChunksRef.current = [];

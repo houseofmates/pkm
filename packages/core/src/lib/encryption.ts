@@ -1,5 +1,5 @@
 // encryption.ts
-// simple AES-GCM encryption helper for client-side payload protection.
+// simple aes-gcm encryption helper for client-side payload protection.
 // this is intentionally minimal and avoids dependencies.
 
 const STORAGE_KEY = 'pkm_aesgcm_key_v1'
@@ -22,7 +22,7 @@ async function getCrypto(): Promise<Crypto> {
   if (typeof crypto !== 'undefined' && (crypto as any).subtle) {
     return crypto as Crypto
   }
-  // Node.js support for test environments
+  // node.js support for test environments
   const nodeCrypto = (await import('crypto')).webcrypto
   return nodeCrypto as unknown as Crypto
 }

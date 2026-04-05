@@ -36,13 +36,13 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
 
   // fields - compute defaults directly from member
   // const name = member.name;
-  // const bannerUrl = (member as any).banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070&auto=format&fit=crop';
+  // const bannerurl = (member as any).banner || 'https://images.unsplash.com/photo-1579546929518-9e396f3cc809?q=80&w=2070&auto=format&fit=crop';
   // const birthday = (member as any).birthday || '';
-  // const favColor = member.color || '#ffffff';
+  // const favcolor = member.color || '#ffffff';
   // const description = member.description || '';
   // const pronouns = member.pronouns || '';
   // const role = (member as any).role || '';
-  // const status = (member as any).status || 'Active';
+  // const status = (member as any).status || 'active';
 
   const formattedName = formatHeadmateName(name);
 
@@ -149,22 +149,22 @@ export function ContactProfileView({ member, onClose, isOpen }: ContactProfileVi
                   ref={bannerInputRef}
                   type="file"
                   accept="image/*"
-                  onChange={handleBannerUpload}
-                  className="hidden"
+                  onchange={handlebannerupload}
+                  classname="hidden"
                 />
                 <button
-                  onClick={() => bannerInputRef.current?.click()}
-                  className="bg-white/20 hover:bg-white/30 border border-white/40 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+                  onclick={() => bannerinputref.current?.click()}
+                  classname="bg-white/20 hover:bg-white/30 border border-white/40 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
                 >
-                  <Upload size={18} />
+                  <upload size={18} />
                   upload image
                 </button>
-                <div className="text-white/60 text-xs">or</div>
+                <div classname="text-white/60 text-xs">or</div>
                 <input
                   type="text"
-                  value={bannerUrl}
-                  onChange={(e) => setBannerUrl(e.target.value)}
-                  className="bg-black/80 border border-white/30 p-2 rounded text-white text-sm w-3/4"
+                  value={bannerurl}
+                  onchange={(e) => setbannerurl(e.target.value)}
+                  classname="bg-black/80 border border-white/30 p-2 rounded text-white text-sm w-3/4"
                   placeholder="enter url..."
                 />
               </div>

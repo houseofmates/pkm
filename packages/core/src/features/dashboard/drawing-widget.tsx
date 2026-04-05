@@ -15,7 +15,7 @@ export function DrawingWidget({ title = 'quick sketch' }: DrawingWidgetProps) {
   const [brushSize, setBrushSize] = useState(3);
   const lastPosRef = useRef<{ x: number; y: number } | null>(null);
 
-  // Initialize canvas
+  // initialize canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     const container = containerRef.current;
@@ -130,7 +130,7 @@ export function DrawingWidget({ title = 'quick sketch' }: DrawingWidgetProps) {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Toolbar */}
+      {/* toolbar */}
       <div className="flex items-center justify-between p-2 border-b border-white/10 bg-black/20">
         <div className="flex items-center gap-1">
           <Button
@@ -169,7 +169,7 @@ export function DrawingWidget({ title = 'quick sketch' }: DrawingWidgetProps) {
         </div>
       </div>
       
-      {/* Canvas */}
+      {/* canvas */}
       <div ref={containerRef} className="flex-1 relative min-h-0 bg-[#0a0a0a]">
         <canvas
           ref={canvasRef}
@@ -181,7 +181,7 @@ export function DrawingWidget({ title = 'quick sketch' }: DrawingWidgetProps) {
         />
       </div>
       
-      {/* Brush size slider */}
+      {/* brush size slider */}
       <div className="p-2 border-t border-white/10 bg-black/20">
         <div className="flex items-center gap-2">
           <span className="text-[10px] text-zinc-400 lowercase">size</span>

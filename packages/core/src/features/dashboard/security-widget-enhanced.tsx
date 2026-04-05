@@ -103,7 +103,7 @@ const SECURITY_PROMPTS = {
 
   sensitiveDataExposure: (file: string) => `Remove sensitive data exposure in ${file}. Ensure API responses don't include passwords, tokens, or internal IDs. Use data transformers to remove sensitive fields before sending to frontend.`,
 
-  insecureWebSocket: `Secure WebSocket connections with wss:// (WebSocket Secure). Validate the origin of incoming connections on the server and implement authentication for socket events.`,
+  insecureWebSocket: `Secure WebSocket connections with wss:// (websocket secure). validate the origin of incoming connections on the server and implement authentication for socket events.`,
 
   missingRateLimit: `Implement rate limiting on API endpoints to prevent brute force attacks. Use exponential backoff for failed authentication attempts and limit sensitive operations per user.`,
 

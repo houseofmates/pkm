@@ -52,7 +52,7 @@ export function NarrativeLog({ data, onUpdate }: { data: any; onUpdate?: (patch:
 
   return (
     <div className="relative p-4 bg-[#0a0a0a] border border-white/10 rounded-xl overflow-hidden group">
-      {/* Cinematic Background Effect */}
+      {/* cinematic background effect */}
       {isCinematic && (
         <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent opacity-50 animate-pulse" />
       )}

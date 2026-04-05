@@ -11,11 +11,11 @@ import * as Icons from 'lucide-react';
 // pull a handful of frequently-used icons out of the namespace so that the
 // bundler doesn't tree-shake them away when they are only ever referenced via
 // string names later on.  this mirrors what we do in the rich-resource menu.
-// we also include the helper icons used in the picker UI itself ( upload,
+// we also include the helper icons used in the picker ui itself ( upload,
 // sparkles, loader, etc ) – this allows us to drop the second destructure
-// block further down which was accidentally redeclaring `Check`.
+// block further down which was accidentally redeclaring `check`.
 const {
-  Folder, File, Database, /* Layout removed, rarely used and caused test mocks to fail */ User, Users,
+  Folder, File, Database, /* layout removed, rarely used and caused test mocks to fail */ User, Users,
   Home, Search, Menu, MoreVertical, MoreHorizontal, Plus, Minus,
   X, Check, ChevronRight, ChevronDown, ArrowRight, ArrowLeft,
   Calendar, Clock, Bell, Mail, MessageSquare, Phone, Video,
@@ -30,7 +30,7 @@ import { useAppSetting } from '@/hooks/use-app-setting';
 import { generateVertexIcon } from '@/lib/vertex-image'; // legacy shim – still works
 
 const common_icons = [
-  "Folder", "File", "Database", /* Layout removed */ "User", "Users",
+  "Folder", "File", "Database", /* layout removed */ "User", "Users",
   "Home", "Search", "Menu", "MoreVertical", "MoreHorizontal", "Plus", "Minus",
   "X", "Check", "ChevronRight", "ChevronDown", "ArrowRight", "ArrowLeft",
   "Calendar", "Clock", "Bell", "Mail", "MessageSquare", "Phone", "Video",

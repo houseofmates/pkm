@@ -1,5 +1,5 @@
-// AI routes module for PKM backend
-// Handles all AI-related endpoints
+// ai routes module for pkm backend
+// handles all ai-related endpoints
 
 import express from 'express';
 import { asyncHandler } from '../error-handler.js';
@@ -9,17 +9,17 @@ import { apiLogger } from '../logger.js';
 
 const router = express.Router();
 
-// Apply API logger to all routes
+// apply api logger to all routes
 router.use(apiLogger);
 
 /**
- * POST /api/ai/chat
- * Send chat message to AI
+ * post /api/ai/chat
+ * send chat message to ai
  */
 router.post('/chat', validateBody(aiSchemas.chatMessage), asyncHandler(async (req, res) => {
     const { message, context, model } = req.body;
     
-    // TODO: Implement actual AI chat logic
+    // todo: implement actual ai chat logic
     res.json({
         success: true,
         data: {
@@ -30,13 +30,13 @@ router.post('/chat', validateBody(aiSchemas.chatMessage), asyncHandler(async (re
 }));
 
 /**
- * POST /api/ai/describe
- * Describe an image using AI
+ * post /api/ai/describe
+ * describe an image using ai
  */
 router.post('/describe', validateBody(aiSchemas.describeImage), asyncHandler(async (req, res) => {
     const { image_url, prompt } = req.body;
     
-    // TODO: Implement actual image description logic
+    // todo: implement actual image description logic
     res.json({
         success: true,
         data: {
@@ -46,13 +46,13 @@ router.post('/describe', validateBody(aiSchemas.describeImage), asyncHandler(asy
 }));
 
 /**
- * POST /api/ai/habits
- * Generate habit suggestions
+ * post /api/ai/habits
+ * generate habit suggestions
  */
 router.post('/habits', validateBody(aiSchemas.generateHabits), asyncHandler(async (req, res) => {
     const { user_data, preferences } = req.body;
     
-    // TODO: Implement actual habit generation logic
+    // todo: implement actual habit generation logic
     res.json({
         success: true,
         data: {
@@ -62,11 +62,11 @@ router.post('/habits', validateBody(aiSchemas.generateHabits), asyncHandler(asyn
 }));
 
 /**
- * GET /api/ai/models
- * List available AI models
+ * get /api/ai/models
+ * list available ai models
  */
 router.get('/models', asyncHandler(async (req, res) => {
-    // TODO: Implement actual model listing
+    // todo: implement actual model listing
     res.json({
         success: true,
         data: {
@@ -76,11 +76,11 @@ router.get('/models', asyncHandler(async (req, res) => {
 }));
 
 /**
- * GET /api/ai/memory
- * Get AI memory for user
+ * get /api/ai/memory
+ * get ai memory for user
  */
 router.get('/memory', asyncHandler(async (req, res) => {
-    // TODO: Implement actual memory retrieval
+    // todo: implement actual memory retrieval
     res.json({
         success: true,
         data: {
@@ -90,8 +90,8 @@ router.get('/memory', asyncHandler(async (req, res) => {
 }));
 
 /**
- * POST /api/ai/remember
- * Store memory for user
+ * post /api/ai/remember
+ * store memory for user
  */
 router.post('/remember', validateBody(z.object({
     memory: z.string(),
@@ -99,7 +99,7 @@ router.post('/remember', validateBody(z.object({
 })), asyncHandler(async (req, res) => {
     const { memory, metadata } = req.body;
     
-    // TODO: Implement actual memory storage
+    // todo: implement actual memory storage
     res.json({
         success: true,
         data: {
@@ -109,11 +109,11 @@ router.post('/remember', validateBody(z.object({
 }));
 
 /**
- * DELETE /api/ai/memory
- * Delete AI memory
+ * delete /api/ai/memory
+ * delete ai memory
  */
 router.delete('/memory', asyncHandler(async (req, res) => {
-    // TODO: Implement actual memory deletion
+    // todo: implement actual memory deletion
     res.json({
         success: true,
         message: 'Memory deleted'
@@ -121,11 +121,11 @@ router.delete('/memory', asyncHandler(async (req, res) => {
 }));
 
 /**
- * GET /api/ai/pieces/status
- * Get Pieces MCP connection status
+ * get /api/ai/pieces/status
+ * get pieces mcp connection status
  */
 router.get('/pieces/status', asyncHandler(async (req, res) => {
-    // TODO: Implement actual status check
+    // todo: implement actual status check
     res.json({
         success: true,
         data: {
@@ -135,11 +135,11 @@ router.get('/pieces/status', asyncHandler(async (req, res) => {
 }));
 
 /**
- * GET /api/ai/pieces/recent
- * Get recent Pieces activity
+ * get /api/ai/pieces/recent
+ * get recent pieces activity
  */
 router.get('/pieces/recent', asyncHandler(async (req, res) => {
-    // TODO: Implement actual activity retrieval
+    // todo: implement actual activity retrieval
     res.json({
         success: true,
         data: {

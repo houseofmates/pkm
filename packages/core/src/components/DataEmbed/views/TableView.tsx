@@ -12,7 +12,7 @@ interface TableViewProps {
 }
 
 export function TableView({ records, isLoading, onSelect, fields }: TableViewProps) {
-  // Generate columns dynamically from the first record or schema.  We
+  // generate columns dynamically from the first record or schema.  we
   // also keep a ref to the last known column set so that headers remain
   // visible when the record list becomes empty; this mirrors the behaviour
   // in the main record table.
@@ -22,7 +22,7 @@ export function TableView({ records, isLoading, onSelect, fields }: TableViewPro
     if (value === null || value === undefined) return <span className="text-center w-full block">empty</span>;
 
     if (typeof value === 'object') {
-      // keep it brief and avoid rendering huge JSON blobs
+      // keep it brief and avoid rendering huge json blobs
       return <span className="break-words">{JSON.stringify(value)}</span>;
     }
 
@@ -73,7 +73,7 @@ export function TableView({ records, isLoading, onSelect, fields }: TableViewPro
           header: titleKey,
           cell: (info: any) => {
             const value = info.getValue();
-            // center IDs, times, datetimes
+            // center ids, times, datetimes
             if (
               typeof value === 'string' && (
                 value.match(/^\d+$/) || // id
@@ -91,7 +91,7 @@ export function TableView({ records, isLoading, onSelect, fields }: TableViewPro
           header: k,
           cell: (info: any) => {
             const value = info.getValue();
-            // center IDs, times, datetimes, and empty
+            // center ids, times, datetimes, and empty
             if (
               value === null || value === undefined ||
               (typeof value === 'string' && (
@@ -113,7 +113,7 @@ export function TableView({ records, isLoading, onSelect, fields }: TableViewPro
       const fieldNames = fields.map(f => f.name).filter(Boolean);
       if (fieldNames.length > 0) {
         const cols = makeColsFromKeys(fieldNames as string[]);
-        // if makeColsFromKeys filtered out everything (unlikely with field schema),
+        // if makecolsfromkeys filtered out everything (unlikely with field schema),
         // create columns directly from field definitions to ensure they show up
         if (cols.length === 0) {
           const directCols = fieldNames.map((name, idx) => ({
@@ -185,12 +185,12 @@ export function TableView({ records, isLoading, onSelect, fields }: TableViewPro
 
   // when there are no records we still want to render the header bar, and
   // provide a helpful placeholder row in the body rather than removing the
-  // entire table from the DOM. the `isLoading` case above handles the
+  // entire table from the dom. the `isloading` case above handles the
   // spinner.
 
   return (
     <div className="w-full h-full bg-card/50 backdrop-blur-xl border border-white/10 rounded-xl flex flex-col text-sm overflow-hidden">
-      {/* Header */}
+      {/* header */}
       <div
         ref={headerRef}
         data-testid="table-header-container"
@@ -216,7 +216,7 @@ export function TableView({ records, isLoading, onSelect, fields }: TableViewPro
         ))}
       </div>
 
-      {/* Body (Virtualized) */}
+      {/* body (virtualized) */}
       <div className="flex-1 relative">
         {/* @ts-expect-error types mismatch */}
         <AutoSizer>

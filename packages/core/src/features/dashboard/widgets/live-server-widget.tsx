@@ -126,7 +126,7 @@ export function LiveServerWidget() {
   if (!data) {
   return {
  name: username,
- color: '#ffaa00', // Default yellow
+ color: '#ffaa00', // default yellow
  style: {}
   };
   }

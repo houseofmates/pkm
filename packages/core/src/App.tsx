@@ -1,5 +1,5 @@
 import { AuthProvider, useAuth } from "@/contexts/auth-context"
-// import apkUpdater only when needed
+// import apkupdater only when needed
 import { LoginPage } from "@/pages/login"
 import { RootLayout } from "@/pages/root-layout"
 import { Toaster } from "@/components/ui/sonner"
@@ -38,7 +38,7 @@ const WorkspacePage = lazy(() => import("@/pages/workspace").then(m => ({ defaul
 const NotionImportPage = lazy(() => import("@/pages/notion-import").then(m => ({ default: m.default })));
 const SettingsPage = lazy(() => import("@/pages/settings").then(m => ({ default: m.default })));
 const PublicDocViewer = lazy(() => import("@/components/journal/public-doc-viewer").then(m => ({ default: m.PublicDocViewer })));
-// RechartsModule uses named exports - import the module directly for lazy loading
+// rechartsmodule uses named exports - import the module directly for lazy loading
 const RechartsModule = lazy(() => import('@/components/journal/recharts-wrapper').then(m => ({ 
   default: () => null // placeholder, actual usage destructures from m directly
 })));
@@ -47,7 +47,7 @@ const JournalPage = lazy(() => import("@/pages/journal"));
 const CalendarPage = lazy(() => import("@/pages/calendar").then(m => ({ default: m.CalendarPage })));
 const AchievementsPage = lazy(() => import("@/pages/achievements").then(m => ({ default: m.AchievementsPage })));
 
-// Simple breathe page component that renders the breathing exercise
+// simple breathe page component that renders the breathing exercise
 function BreathePage() {
   useEffect(() => {
     const ROTATION_PERIOD = 12;
@@ -180,11 +180,11 @@ const LoadingFallback = (
 function AppContent() {
   const { token } = useAuth()
   const [updateChecked, setUpdateChecked] = useState(false)
-  // state to track if login was triggered via Ctrl+E on public domains
+  // state to track if login was triggered via ctrl+e on public domains
   const [loginModeForced, setLoginModeForced] = useState(() => {
     return sessionStorage.getItem('pkm_force_login') === 'true'
   })
-  // check for APK update ONLY on /apk
+  // check for apk update only on /apk
   useEffect(() => {
     if (window.location.pathname === "/apk" && !updateChecked && token) {
       const currentVersion = import.meta.env.VITE_APP_VERSION || "0.0.0"
@@ -202,7 +202,7 @@ function AppContent() {
   }, [updateChecked, token])
   const [setupNeeded, setSetupNeeded] = useState<boolean | null>(null)
 
-  // handle Ctrl+E to toggle login mode on public domains
+  // handle ctrl+e to toggle login mode on public domains
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey && e.key === 'e') {
@@ -243,7 +243,7 @@ function AppContent() {
         secureLogger.error('link registry migration failed:', error)
       }
     }
-    // run in background, don't block UI
+    // run in background, don't block ui
     setTimeout(runMigration, 1000)
   }, [])
 
@@ -281,7 +281,7 @@ function AppContent() {
 
   // public domain rendering - always show public content unless explicitly in login mode
   if (isPublicDomain()) {
-    // when login mode is forced via Ctrl+E, show login overlay if not authenticated
+    // when login mode is forced via ctrl+e, show login overlay if not authenticated
     // otherwise show public content
     if (!loginModeForced || token) {
       return (
@@ -298,7 +298,7 @@ function AppContent() {
         </>
       );
     }
-    // loginModeForced is true and no token - show login page
+    // loginmodeforced is true and no token - show login page
     return (
       <>
         <LoginPage />

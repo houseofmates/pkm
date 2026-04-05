@@ -29,7 +29,7 @@ export function ContextMenu() {
   setShowColorPicker(false);
   }, [isOpen, data]);
 
-  // Calculate initial darkness from pen color when tool menu opens
+  // calculate initial darkness from pen color when tool menu opens
   useEffect(() => {
     if (!isOpen || targetType !== 'tool' || data?.tool !== 'pen') {
       setBrushDarkness(0);
@@ -39,23 +39,23 @@ export function ContextMenu() {
     const store = useEdgelessStore.getState();
     const currentColor = store.penColor;
     
-    // Reverse-calculate darkness from the current pen color
-    // We estimate by comparing luminance - darker colors have lower luminance
+    // reverse-calculate darkness from the current pen color
+    // we estimate by comparing luminance - darker colors have lower luminance
     const getLuminance = (hex: string) => {
       const m = hex.replace(/^#/, '');
       if (m.length === 6) {
         const r = parseInt(m.slice(0, 2), 16) / 255;
         const g = parseInt(m.slice(2, 4), 16) / 255;
         const b = parseInt(m.slice(4, 6), 16) / 255;
-        // Perceptual luminance formula
+        // perceptual luminance formula
         return 0.299 * r + 0.587 * g + 0.114 * b;
       }
       return 1;
     };
 
     const luminance = getLuminance(currentColor);
-    // Estimate darkness: pure white (luminance 1) = 0% darkness, black (luminance 0) = 100% darkness
-    // We use a nonlinear curve to match the applyDark function's behavior
+    // estimate darkness: pure white (luminance 1) = 0% darkness, black (luminance 0) = 100% darkness
+    // we use a nonlinear curve to match the applydark function's behavior
     const estimatedDarkness = Math.round((1 - Math.pow(luminance, 0.5)) * 100);
     setBrushDarkness(Math.max(0, Math.min(100, estimatedDarkness)));
   }, [isOpen, targetType, data?.tool]);
@@ -69,7 +69,7 @@ export function ContextMenu() {
     };
 
     if (isOpen) {
-      // Use capture phase to ensure canvas drawing/gesture handlers cannot block closing.
+      // use capture phase to ensure canvas drawing/gesture handlers cannot block closing.
       window.addEventListener('pointerdown', handlePointerDown, { capture: true });
       window.addEventListener('mousedown', handlePointerDown, { capture: true });
       window.addEventListener('touchstart', handlePointerDown, { capture: true });
@@ -116,7 +116,7 @@ export function ContextMenu() {
   } else if (targetType === 'dashboard-card' && data?.collection) {
   try {
  await client.updateRecord(data.collection, targetId!, {
- title: renameValue // Assuming 'title' is the field, might vary
+ title: renameValue // assuming 'title' is the field, might vary
  });
  toast.success('renamed');
   } catch (e) {
@@ -176,7 +176,7 @@ export function ContextMenu() {
   // using window.location for simplicity or need router hook (not available in portal easily without wrapper)
   // but we are inside react component tree if creating portal properly.
   // let's assume we can navigate.
-  window.location.hash = `/databases/${data.collection}/${targetId}`; // Hash router? No, we use Browser router.
+  window.location.hash = `/databases/${data.collection}/${targetId}`; // hash router? no, we use browser router.
   // we need `usenavigate` but we might not be inside router context if rendered at root?
   // actually, if we put <contextmenu /> in rootlayout (inside router), we are good.
   }
@@ -242,7 +242,7 @@ export function ContextMenu() {
  </div>
   )}
 
-  {/* text formatting options (for fabric Textbox/IText objects) */}
+  {/* text formatting options (for fabric textbox/itext objects) */}
   {targetType === 'canvas-object' && (data?.type === 'textbox' || data?.type === 'i-text' || data?.type === 'Textbox' || data?.type === 'IText') && (() => {
     const fabricCanvas = useEdgelessStore.getState().fabricCanvas;
     const activeObj = fabricCanvas?.getActiveObject() as any;
@@ -333,7 +333,7 @@ export function ContextMenu() {
 
   {/* ask ai (canvas/object) */}
   {targetType === 'tool' && (() => {
-    // moved hook call outside of callback - use getState() for store access
+    // moved hook call outside of callback - use getstate() for store access
     const store = useEdgelessStore.getState();
     const isBrush = data?.tool === 'pen';
     const widthVal = isBrush ? store.penWidth : store.eraserWidth;

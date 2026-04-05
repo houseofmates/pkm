@@ -12,7 +12,7 @@ export function WorkspacePage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-        {/* Headmates Gallery */}
+        {/* headmates gallery */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold lowercase tracking-tight">system members</h2>
@@ -29,7 +29,7 @@ export function WorkspacePage() {
           />
         </section>
 
-        {/* Recent Captures */}
+        {/* recent captures */}
         <section className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold lowercase tracking-tight">recent captures</h2>

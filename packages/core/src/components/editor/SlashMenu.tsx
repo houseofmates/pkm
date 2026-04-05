@@ -37,7 +37,7 @@ const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   'Image': ImageIcon,
   'Echo Block': ArrowLeftRight,
   'Dashboard': LayoutGrid,
-  'AI Assistant': User // Reusing User or finding a better one? Let's use Sparkles if available or just User for now to avoid import errors since Sparkles isn't imported. Wait, I can verify imports.
+  'AI Assistant': User // reusing user or finding a better one? let's use sparkles if available or just user for now to avoid import errors since sparkles isn't imported. wait, i can verify imports.
 };
 
 interface SlashMenuItem {

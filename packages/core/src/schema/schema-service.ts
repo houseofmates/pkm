@@ -204,7 +204,7 @@ class SchemaService {
 
   /**
    * add a field to an existing table
-   * @param tableName the table name
+   * @param tablename the table name
    * @param field the field definition (without id)
    * @returns the updated table definition
    */
@@ -239,8 +239,8 @@ class SchemaService {
 
   /**
    * remove a field from a table
-   * @param tableName the table name
-   * @param fieldId the field id to remove
+   * @param tablename the table name
+   * @param fieldid the field id to remove
    * @returns the updated table definition
    */
   public async removeField(tableName: string, fieldId: string): Promise<TableDefinition> {
@@ -269,7 +269,7 @@ class SchemaService {
 
   /**
    * create a new record in a table
-   * @param tableName the table name
+   * @param tablename the table name
    * @param data the record data (without system fields)
    * @returns the created record with id and timestamps
    */
@@ -320,7 +320,7 @@ class SchemaService {
 
   /**
    * get a record by id
-   * @param recordId the record id
+   * @param recordid the record id
    * @returns the record or undefined
    */
   public async getRecord(recordId: string): Promise<TableRecord | undefined> {
@@ -330,8 +330,8 @@ class SchemaService {
 
   /**
    * update a record
-   * @param tableName the table name
-   * @param recordId the record id
+   * @param tablename the table name
+   * @param recordid the record id
    * @param updates the data to update
    * @returns the updated record
    */
@@ -375,7 +375,7 @@ class SchemaService {
 
   /**
    * delete a record
-   * @param recordId the record id to delete
+   * @param recordid the record id to delete
    */
   public async deleteRecord(recordId: string): Promise<void> {
     this.ensureInitialized();
@@ -384,7 +384,7 @@ class SchemaService {
 
   /**
    * query records from a table
-   * @param tableName the table name
+   * @param tablename the table name
    * @param options query options (filter, sort, pagination)
    * @returns query result with records and pagination info
    */
@@ -404,7 +404,7 @@ class SchemaService {
 
   /**
    * get all records from a table
-   * @param tableName the table name
+   * @param tablename the table name
    * @returns array of all records
    */
   public async getAllRecords(tableName: string): Promise<TableRecord[]> {

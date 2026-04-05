@@ -4,8 +4,8 @@ import type { FieldType } from './schema.service';
 import { secureLogger } from '@/lib/secure-logger';
 
 /**
- * Text Field Type
- * A simple string-based field.
+ * text field type
+ * a simple string-based field.
  */
 const textField: FieldType = {
   typeName: 'text',
@@ -14,8 +14,8 @@ const textField: FieldType = {
 };
 
 /**
- * Number Field Type
- * A numeric field that supports both integers and floats.
+ * number field type
+ * a numeric field that supports both integers and floats.
  */
 const numberField: FieldType = {
   typeName: 'number',
@@ -23,7 +23,7 @@ const numberField: FieldType = {
   defaultValue: 0,
 };
 
-// Additional field types used by nocobase
+// additional field types used by nocobase
 const booleanField: FieldType = {
   typeName: 'boolean',
   schema: z.boolean().nullable(),
@@ -32,7 +32,7 @@ const booleanField: FieldType = {
 
 const dateField: FieldType = {
   typeName: 'date',
-  schema: z.string().nullable(), // dates stored as ISO strings
+  schema: z.string().nullable(), // dates stored as iso strings
   defaultValue: '',
 };
 
@@ -132,9 +132,9 @@ const relationField: FieldType = {
 };
 
 /**
- * Link Database Field Type
- * References another database/collection in the PKM system.
- * Stores the database name and display info.
+ * link database field type
+ * references another database/collection in the pkm system.
+ * stores the database name and display info.
  */
 const linkDatabaseField: FieldType = {
   typeName: 'linkDatabase',
@@ -146,9 +146,9 @@ const linkDatabaseField: FieldType = {
 };
 
 /**
- * Link Item Field Type
- * References a specific item/record in any database, canvas, or document.
- * Stores the item id, collection name, title, and item type.
+ * link item field type
+ * references a specific item/record in any database, canvas, or document.
+ * stores the item id, collection name, title, and item type.
  */
 const linkItemField: FieldType = {
   typeName: 'linkItem',

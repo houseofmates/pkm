@@ -6,7 +6,7 @@ import { Progress } from '../ui/progress'
 import { Sparkles, Trophy, Zap, Flame, Shield, Star } from 'lucide-react'
 import { useGamificationStore } from '../../stores/gamification-store'
 
-// Quadrant positions for 2-minute brushing
+// quadrant positions for 2-minute brushing
 const QUADRANTS = [
   { id: 'q1', name: 'top-left', position: 'top-0 left-0', targetTime: 30, icon: '🦷' },
   { id: 'q2', name: 'top-right', position: 'top-0 right-0', targetTime: 30, icon: '🦷' },
@@ -14,7 +14,7 @@ const QUADRANTS = [
   { id: 'q4', name: 'bottom-right', position: 'bottom-0 right-0', targetTime: 30, icon: '🦷' }
 ]
 
-// Tooth grid positions
+// tooth grid positions
 const UPPER_TEETH = [
   { id: 'u1', row: 0, col: 0 }, { id: 'u2', row: 0, col: 1 }, { id: 'u3', row: 0, col: 2 }, { id: 'u4', row: 0, col: 3 }, { id: 'u5', row: 0, col: 4 },
   { id: 'u6', row: 0, col: 5 }, { id: 'u7', row: 0, col: 6 }, { id: 'u8', row: 0, col: 7 }
@@ -24,7 +24,7 @@ const LOWER_TEETH = [
   { id: 'l6', row: 1, col: 5 }, { id: 'l7', row: 1, col: 6 }, { id: 'l8', row: 1, col: 7 }
 ]
 
-// Sparkle effect component
+// sparkle effect component
 const Sparkle: React.FC<{ x: number; y: number; active: boolean }> = ({ x, y, active }) => (
   <div
     className={`absolute pointer-events-none transition-all duration-500 ${active ? 'opacity-100 scale-100' : 'opacity-0 scale-0'}`}
@@ -57,7 +57,7 @@ const ToothbrushGame: React.FC = () => {
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const { earnXp } = useGamificationStore()
 
-  // Sound effects using Web Audio API
+  // sound effects using web audio api
   const playSound = useCallback((type: 'brush' | 'sparkle' | 'complete' | 'quadrant') => {
     try {
       const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)()
@@ -108,7 +108,7 @@ const ToothbrushGame: React.FC = () => {
     }
   }, [])
 
-  // Load streak from localStorage
+  // load streak from localstorage
   useEffect(() => {
     const saved = localStorage.getItem('pkm:toothbrush:streak')
     if (saved) setStreak(parseInt(saved))
@@ -122,13 +122,13 @@ const ToothbrushGame: React.FC = () => {
     }
   }, [])
 
-  // Timer logic
+  // timer logic
   useEffect(() => {
     if (isPlaying && timeRemaining > 0) {
       timerRef.current = setTimeout(() => {
         setTimeRemaining(prev => prev - 1)
         
-        // Auto-advance quadrant every 30 seconds
+        // auto-advance quadrant every 30 seconds
         const elapsed = 120 - timeRemaining + 1
         const newQuadrant = Math.min(Math.floor(elapsed / 30), 3)
         if (newQuadrant > currentQuadrant) {
@@ -164,7 +164,7 @@ const ToothbrushGame: React.FC = () => {
       setCleanedTeeth(prev => new Set([...prev, toothId]))
       playSound('sparkle')
       
-      // Add sparkle effect
+      // add sparkle effect
       setSparkles(prev => [...prev, { x, y, id: `${toothId}-${Date.now()}` }])
       setTimeout(() => {
         setSparkles(prev => prev.filter(s => s.id !== `${toothId}-${Date.now()}`))
@@ -190,7 +190,7 @@ const ToothbrushGame: React.FC = () => {
       return updated
     })
     
-    // Update streak
+    // update streak
     const today = new Date().toDateString()
     const lastSession = sessions[sessions.length - 1]
     let newStreak = streak
@@ -209,7 +209,7 @@ const ToothbrushGame: React.FC = () => {
     setStreak(newStreak)
     localStorage.setItem('pkm:toothbrush:streak', newStreak.toString())
     
-    // Award XP
+    // award xp
     setTotalXp(prev => {
       const newXp = prev + xpEarned
       localStorage.setItem('pkm:toothbrush:xp', newXp.toString())
@@ -235,7 +235,7 @@ const ToothbrushGame: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Status Bar */}
+      {/* status bar */}
       <Card className="bg-gradient-to-r from-cyan-900/30 to-emerald-900/30 border-cyan-500/30">
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
@@ -269,7 +269,7 @@ const ToothbrushGame: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Victory Screen */}
+      {/* victory screen */}
       {showVictory && (
         <Card className="bg-gradient-to-r from-emerald-900/50 to-cyan-900/50 border-emerald-500/50 animate-pulse">
           <CardContent className="p-8 text-center">
@@ -286,7 +286,7 @@ const ToothbrushGame: React.FC = () => {
         </Card>
       )}
 
-      {/* Game Area */}
+      {/* game area */}
       <Card className="bg-gradient-to-b from-slate-900 to-slate-950">
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
@@ -305,7 +305,7 @@ const ToothbrushGame: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="relative">
-          {/* Quadrant Indicator */}
+          {/* quadrant indicator */}
           {isPlaying && (
             <div className="absolute -top-8 left-0 right-0 flex justify-center">
               <Badge className="bg-cyan-500/20 text-cyan-400 border-cyan-500/50">
@@ -314,9 +314,9 @@ const ToothbrushGame: React.FC = () => {
             </div>
           )}
 
-          {/* Tooth Grid */}
+          {/* tooth grid */}
           <div className="relative py-8">
-            {/* Upper Teeth */}
+            {/* upper teeth */}
             <div className="grid grid-cols-8 gap-1 mb-2">
               {UPPER_TEETH.map(tooth => {
                 const quadrant = tooth.col < 4 ? 0 : 1
@@ -344,10 +344,10 @@ const ToothbrushGame: React.FC = () => {
               })}
             </div>
 
-            {/* Gums Line */}
+            {/* gums line */}
             <div className="h-4 bg-gradient-to-r from-pink-300 via-pink-400 to-pink-300 rounded-full my-1" />
 
-            {/* Lower Teeth */}
+            {/* lower teeth */}
             <div className="grid grid-cols-8 gap-1">
               {LOWER_TEETH.map(tooth => {
                 const quadrant = tooth.col < 4 ? 2 : 3
@@ -375,13 +375,13 @@ const ToothbrushGame: React.FC = () => {
               })}
             </div>
 
-            {/* Sparkle Effects */}
+            {/* sparkle effects */}
             {sparkles.map(sparkle => (
               <Sparkle key={sparkle.id} x={sparkle.x} y={sparkle.y} active={true} />
             ))}
           </div>
 
-          {/* Progress Stats */}
+          {/* progress stats */}
           {isPlaying && (
             <div className="mt-4 space-y-2">
               <div className="flex justify-between text-sm text-slate-400">
@@ -395,7 +395,7 @@ const ToothbrushGame: React.FC = () => {
             </div>
           )}
 
-          {/* Start Button */}
+          {/* start button */}
           {!isPlaying && !showVictory && (
             <Button 
               onClick={startBrushing} 
@@ -408,7 +408,7 @@ const ToothbrushGame: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Quadrant Guide */}
+      {/* quadrant guide */}
       <Card>
         <CardHeader>
           <CardTitle className="text-sm">brushing guide</CardTitle>
@@ -426,7 +426,7 @@ const ToothbrushGame: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Achievements & Rewards */}
+      {/* achievements & rewards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="bg-gradient-to-br from-amber-900/30 to-orange-900/30">
           <CardContent className="p-4 text-center">
@@ -458,7 +458,7 @@ const ToothbrushGame: React.FC = () => {
         </Card>
       </div>
 
-      {/* Recent Sessions */}
+      {/* recent sessions */}
       {sessions.length > 0 && (
         <Card>
           <CardHeader>

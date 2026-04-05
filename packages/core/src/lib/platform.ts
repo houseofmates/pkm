@@ -20,9 +20,9 @@ export function isCapacitorNative(): boolean {
         // capacitor injects this on the window object
         const cap = (window as CapacitorWindow).Capacitor;
         if (!cap) return false;
-        // isNative is set to true by capacitor on native platforms
+        // isnative is set to true by capacitor on native platforms
         if (cap.isNative === true) return true;
-        // fallback to calling isNativePlatform if available
+        // fallback to calling isnativeplatform if available
         if (typeof cap.isNativePlatform === 'function') {
             return cap.isNativePlatform();
         }
@@ -43,7 +43,7 @@ export function isMobileContext(): boolean {
     const ua = navigator.userAgent || navigator.vendor || '';
     const isMobileUA = /android|iphone|ipad|ipod|iemobile|mobile/i.test(ua);
     
-    // if we're on mobile UA AND loading from our mobile server, treat as mobile context
+    // if we're on mobile ua and loading from our mobile server, treat as mobile context
     if (isMobileUA && typeof window !== 'undefined') {
         const host = window.location.hostname;
         if (host === 'pkm.houseofmates.space' || host.endsWith('.houseofmates.space')) {
@@ -85,7 +85,7 @@ export function isLocalhostUnreachable(): boolean {
 export function isWorkerSupported(): boolean {
     if (typeof Worker === 'undefined') return false;
 
-    // some android webviews expose Worker but throw on `type: 'module'`
+    // some android webviews expose worker but throw on `type: 'module'`
     // we can't probe without actually creating one, so we check a known
     // indicator: capacitor native webviews on older android versions
     // often lack full module-worker support.
@@ -99,15 +99,15 @@ export function isWorkerSupported(): boolean {
  * - on desktop/browser: `http://localhost:11434` (local ollama)
  * - on mobile/capacitor: proxy through the remote server
  *
- * @param serverOrigin - the remote server origin (e.g. from capacitor config)
- * @param localEndpoint - the default local endpoint
+ * @param serverorigin - the remote server origin (e.g. from capacitor config)
+ * @param localendpoint - the default local endpoint
  */
 export function resolveOllamaEndpoint(
     localEndpoint: string,
     _serverOrigin?: string,
 ): string {
-    // The wilson/llm client now targets the Google Gemini public API directly.
-    // We no longer proxy LLM traffic through the server mobile endpoint.
+    // the wilson/llm client now targets the google gemini public api directly.
+    // we no longer proxy llm traffic through the server mobile endpoint.
     return localEndpoint;
 }
 

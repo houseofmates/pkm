@@ -21,5 +21,5 @@ export const LifeTrackerChips = ({ date }: { date?: string }) => {
     return []
   })
 
-  return null; // Implementation shortened for brevity
+  return null; // implementation shortened for brevity
 }

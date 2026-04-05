@@ -248,15 +248,15 @@ export class SpatialIndex {
   }
 
   /**
-   * Convenience method for overlay elements: convert viewport params (pan + zoom
-   * + screen dimensions) into world-space bounds and return visible element IDs.
+   * convenience method for overlay elements: convert viewport params (pan + zoom
+   * + screen dimensions) into world-space bounds and return visible element ids.
    *
-   * @param panX - viewport pan X (viewPort.x)
-   * @param panY - viewport pan Y (viewPort.y)
+   * @param panx - viewport pan x (viewport.x)
+   * @param pany - viewport pan y (viewport.y)
    * @param zoom - current zoom level
-   * @param screenW - visible screen width in pixels
-   * @param screenH - visible screen height in pixels
-   * @param bufferPercent - percentage of screen size to use as buffer (default 0.2)
+   * @param screenw - visible screen width in pixels
+   * @param screenh - visible screen height in pixels
+   * @param bufferpercent - percentage of screen size to use as buffer (default 0.2)
    */
   queryViewportIds(
     panX: number,
@@ -266,8 +266,8 @@ export class SpatialIndex {
     screenH: number,
     bufferPercent: number = 0.2,
   ): Set<string> {
-    // Convert screen-space viewport rectangle to world-space coordinates.
-    // Screen point (sx, sy) maps to world point:  wx = (sx - panX) / zoom
+    // convert screen-space viewport rectangle to world-space coordinates.
+    // screen point (sx, sy) maps to world point:  wx = (sx - panx) / zoom
     const worldBounds: Bounds = {
       minX: -panX / zoom,
       minY: -panY / zoom,
@@ -275,7 +275,7 @@ export class SpatialIndex {
       maxY: (screenH - panY) / zoom,
     }
 
-    // Buffer in world units
+    // buffer in world units
     const marginX = (screenW * bufferPercent) / zoom
     const marginY = (screenH * bufferPercent) / zoom
 
@@ -341,8 +341,8 @@ export function buildSpatialIndex(canvas: FabricCanvas): SpatialIndex {
 }
 
 /**
- * Build a spatial index from EdgelessElement overlay elements (not fabric objects).
- * Used for viewport culling of the HTML overlay layer.
+ * build a spatial index from edgelesselement overlay elements (not fabric objects).
+ * used for viewport culling of the html overlay layer.
  */
 export function buildOverlaySpatialIndex(elements: { id: string; x: number; y: number; width: number; height: number; layerId?: string }[]): SpatialIndex {
   const index = new SpatialIndex(200) // larger cells for overlay elements (they're bigger than strokes)

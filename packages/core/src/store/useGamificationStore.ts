@@ -27,7 +27,7 @@ export interface PetStatus {
   cleanliness: number // 0-100, new stat for bathing
   // visual state determines which asset to show
   visualState: 'idle-happy' | 'idle-sad' | 'idle-dirty' | 'reading' | 'eating' | 'being-pet' | 'bathing' | 'sleeping'
-  lastInteraction: string | null // ISO date
+  lastInteraction: string | null // iso date
   emoji: string // fallback if no asset
 }
 
@@ -264,7 +264,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
       levelName: newLevelInfo.name 
     })
     
-    // persist to localStorage immediately
+    // persist to localstorage immediately
     localStorage.setItem('pkm:gamification:xp', JSON.stringify({
       totalXp: newXp,
       level: newLevelInfo.level,
@@ -332,7 +332,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
       // trigger celebration - will be handled by component
       window.dispatchEvent(new CustomEvent('quest-row-complete', { detail: { rowId } }))
       
-      // add XP bonus for completing a quest row
+      // add xp bonus for completing a quest row
       const { addXp } = get()
       const XP_PER_QUEST_ROW = 25
       addXp(XP_PER_QUEST_ROW)
@@ -416,7 +416,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
       }
     } catch (e) {
       secureLogger.error('failed to save gamification state', e)
-      // save to localStorage as fallback
+      // save to localstorage as fallback
       localStorage.setItem('pkm:gamification:today', JSON.stringify({
         date: today,
         questRows,
@@ -461,7 +461,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
         updates.saturation = JSON.parse(data.saturation || '{}')
         updates.sevenDayCoverage = data.coverage || 0
       } else {
-        // check localStorage fallback for daily
+        // check localstorage fallback for daily
         const local = localStorage.getItem('pkm:gamification:today')
         if (local) {
           const parsed = JSON.parse(local)
@@ -484,7 +484,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
         updates.totalEntries = data.total_entries || 0
         updates.lastEntryDate = data.last_entry_date || null
       } else {
-        // check localStorage fallback for profile
+        // check localstorage fallback for profile
         const localProfile = localStorage.getItem('pkm:gamification:profile')
         if (localProfile) {
           const parsed = JSON.parse(localProfile)
@@ -510,7 +510,7 @@ export const useGamificationStore = create<GamificationState>((set, get) => ({
       set(updates)
     } catch (e) {
       secureLogger.error('failed to load gamification state', e)
-      // try localStorage fallback
+      // try localstorage fallback
       const localProfile = localStorage.getItem('pkm:gamification:profile')
       if (localProfile) {
         const parsed = JSON.parse(localProfile)

@@ -132,7 +132,7 @@ export function clearMemory(fileName) {
   return writeMemory(fileName, '');
 }
 
-// get recent memories (last N entries)
+// get recent memories (last n entries)
 export function getRecentMemories(limit = 10) {
   const recent = readMemory(MEMORY_FILES.recent);
   if (!recent) return [];

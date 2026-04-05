@@ -22,23 +22,23 @@ import { secureLogger } from '@/lib/secure-logger';
 import { useEdgelessStore } from '@/features/edgeless/store';
 import type { Collection } from '@/hooks/use-collections';
 
-// wrapper component to fetch full collection details with fields
-function CollectionWidgetWrapper({ collectionName, initialView, viewConfig, onRemove }: { 
-  collectionName: string; 
-  initialView: ViewType; 
-  viewConfig?: any; 
+// Wrapper component to fetch full collection details with fields
+function CollectionWidgetWrapper({ collectionName, initialView, viewConfig, onRemove }: {
+  collectionName: string;
+  initialView: ViewType;
+  viewConfig?: any;
   onRemove: () => void;
 }) {
   const { data: collection, loading } = useCollection(collectionName);
-  
+
   if (loading) {
     return <div className="p-4 text-xs text-muted-foreground">loading collection...</div>;
   }
-  
+
   if (!collection) {
     return <div className="p-4 text-xs text-muted-foreground">collection '{collectionName}' not found</div>;
   }
-  
+
   return <DatabaseWidget collection={collection} initialView={initialView} viewConfig={viewConfig} onRemove={onRemove} />;
 }
 
@@ -297,11 +297,11 @@ export function DashboardGrid({ layoutKey = 'dashboard_widgets_v2' }: { layoutKe
                                     </CardHeader>
                                     <CardContent className="flex-1 p-0 overflow-hidden relative">
                                         {widget.type === 'view' && (
-                                            <CollectionWidgetWrapper 
-                                                collectionName={widget.collectionName} 
-                                                initialView={widget.viewType} 
-                                                viewConfig={widget.viewConfig} 
-                                                onRemove={() => handleRemoveWidget(widget.id)} 
+                                            <CollectionWidgetWrapper
+                                                collectionName={widget.collectionName}
+                                                initialView={widget.viewType}
+                                                viewConfig={widget.viewConfig}
+                                                onRemove={() => handleRemoveWidget(widget.id)}
                                             />
                                         )}
                                         {widget.type === 'document' && <div className="p-4 text-sm text-muted-foreground">document preview: {widget.collectionName}</div>}

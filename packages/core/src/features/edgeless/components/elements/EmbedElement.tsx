@@ -6,14 +6,14 @@ interface EmbedElementProps {
 }
 
 export const EmbedElement = React.memo(function EmbedElement({ element }: EmbedElementProps) {
-  // NocoBase collection embed
+  // nocobase collection embed
   if (element.data.subType === 'nocobase' || element.data.collection) {
     const colName = element.data.collection || element.data.id; // fallback
     const viewType = element.data.view || 'gallery';
 
     return (
       <div className="w-full h-full bg-card/10 backdrop-blur-md border border-white/5 rounded-xl overflow-hidden shadow-2xl flex flex-col">
-        {/* Header/Handle */}
+        {/* header/handle */}
         <div className="h-8 bg-black/20 border-b border-white/5 flex items-center px-3 justify-between shrink-0 select-none">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-red-500/50" />
@@ -25,7 +25,7 @@ export const EmbedElement = React.memo(function EmbedElement({ element }: EmbedE
           <span className="text-[9px] opacity-30 font-mono">LIVE</span>
         </div>
 
-        {/* Content */}
+        {/* content */}
         <div className="flex-1 relative overflow-hidden bg-background/5">
           <DataEmbed
             collection={colName}
@@ -39,7 +39,7 @@ export const EmbedElement = React.memo(function EmbedElement({ element }: EmbedE
     );
   }
 
-  // Web Embed (Iframe)
+  // web embed (iframe)
   if (element.data.subType === 'web' || element.data.url) {
     return (
       <div className="w-full h-full bg-black/40 border border-white/10 rounded-xl overflow-hidden flex flex-col backdrop-blur-sm shadow-xl">

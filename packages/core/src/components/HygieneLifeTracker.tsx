@@ -25,7 +25,7 @@ interface HygieneLifeTrackerProps {
 }
 
 const DEFAULT_TRACKERS: Omit<LifeTracker, 'checked' | 'scaleValue'>[] = [
-  // Hygiene
+  // hygiene
   { id: 'shower', label: 'shower', emoji: '🚿', category: 'hygiene', type: 'toggle' },
   { id: 'brush_teeth_morning', label: 'brushed (am)', emoji: '🌅', category: 'hygiene', type: 'toggle' },
   { id: 'brush_teeth_night', label: 'brushed (pm)', emoji: '🌙', category: 'hygiene', type: 'toggle' },
@@ -33,14 +33,14 @@ const DEFAULT_TRACKERS: Omit<LifeTracker, 'checked' | 'scaleValue'>[] = [
   { id: 'skincare', label: 'skincare', emoji: '✨', category: 'hygiene', type: 'toggle' },
   { id: 'makeup', label: 'grooming', emoji: '💄', category: 'hygiene', type: 'toggle' },
   
-  // Health basics
+  // health basics
   { id: 'ate', label: 'ate something', emoji: '🍽️', category: 'health', type: 'toggle' },
   { id: 'meds', label: 'took meds', emoji: '💊', category: 'health', type: 'toggle' },
   
-  // Water with scale
+  // water with scale
   { id: 'water', label: 'hydration', emoji: '💧', category: 'water', type: 'scale' },
   
-  // Movement (the "left" track - progressive disclosure)
+  // movement (the "left" track - progressive disclosure)
   { id: 'left_bed', label: 'left bed', emoji: '🛏️', category: 'wellness', type: 'toggle' },
   { id: 'left_room', label: 'left room', emoji: '🚪', category: 'wellness', type: 'toggle' },
   { id: 'left_house', label: 'left house', emoji: '🌳', category: 'wellness', type: 'toggle' },
@@ -73,7 +73,7 @@ function ToggleTracker({
           : "border-white/15 bg-black/20 text-white/40 hover:border-white/30 hover:text-white/60"
       )}
     >
-      {/* Background fill animation */}
+      {/* background fill animation */}
       <span 
         className={cn(
           "absolute inset-0 rounded-xl transition-all duration-300",
@@ -87,7 +87,7 @@ function ToggleTracker({
       />
       
       <span className="relative z-10 flex items-center gap-2">
-        {/* Check indicator */}
+        {/* check indicator */}
         <span className={cn(
           "w-5 h-5 rounded-full flex items-center justify-center text-[10px] transition-all duration-200 border",
           tracker.checked 
@@ -97,7 +97,7 @@ function ToggleTracker({
           {tracker.checked ? <Check className="w-3 h-3" /> : '○'}
         </span>
         
-        {/* Emoji with bounce */}
+        {/* emoji with bounce */}
         <span className={cn(
           "transition-transform duration-200",
           isAnimating && tracker.checked && "scale-125"
@@ -105,7 +105,7 @@ function ToggleTracker({
           {tracker.emoji}
         </span>
         
-        {/* Label */}
+        {/* label */}
         <span className={cn(
           "transition-all duration-200",
           tracker.checked && "font-medium text-white"
@@ -114,7 +114,7 @@ function ToggleTracker({
         </span>
       </span>
       
-      {/* Subtle pulse when checked */}
+      {/* subtle pulse when checked */}
       {tracker.checked && (
         <span className="absolute inset-0 rounded-xl animate-pulse opacity-20 bg-emerald-400/10" />
       )}
@@ -177,7 +177,7 @@ export function HygieneLifeTracker({ date, onChange, className }: HygieneLifeTra
     }));
   });
   
-  // Persist to localStorage
+  // persist to localstorage
   useEffect(() => {
     const checked: Record<string, boolean> = {};
     const scales: Record<string, number> = {};
@@ -210,14 +210,14 @@ export function HygieneLifeTracker({ date, onChange, className }: HygieneLifeTra
   const waterTracker = trackers.find(t => t.category === 'water');
   const wellnessTrackers = trackers.filter(t => t.category === 'wellness');
   
-  // Calculate progress for each section
+  // calculate progress for each section
   const hygieneProgress = hygieneTrackers.filter(t => t.checked).length;
   const healthProgress = healthTrackers.filter(t => t.checked).length;
   const wellnessProgress = wellnessTrackers.filter(t => t.checked).length;
   
   return (
     <div className={cn("space-y-4", className)}>
-      {/* Hygiene Section */}
+      {/* hygiene section */}
       <div>
         <div className="flex items-center gap-2 mb-2">
           <span className="text-[10px] text-white/30 lowercase">hygiene</span>
@@ -238,7 +238,7 @@ export function HygieneLifeTracker({ date, onChange, className }: HygieneLifeTra
         </div>
       </div>
       
-      {/* Health Basics */}
+      {/* health basics */}
       <div>
         <div className="flex items-center gap-2 mb-2">
           <span className="text-[10px] text-white/30 lowercase">health basics</span>
@@ -259,7 +259,7 @@ export function HygieneLifeTracker({ date, onChange, className }: HygieneLifeTra
         </div>
       </div>
       
-      {/* Water Scale */}
+      {/* water scale */}
       {waterTracker && (
         <WaterScaleTracker 
           tracker={waterTracker} 
@@ -267,7 +267,7 @@ export function HygieneLifeTracker({ date, onChange, className }: HygieneLifeTra
         />
       )}
       
-      {/* Movement/Wellness - progressive disclosure style */}
+      {/* movement/wellness - progressive disclosure style */}
       <div>
         <div className="flex items-center gap-2 mb-2">
           <span className="text-[10px] text-white/30 lowercase">movement</span>
@@ -291,7 +291,7 @@ export function HygieneLifeTracker({ date, onChange, className }: HygieneLifeTra
   );
 }
 
-// Hook for external access to tracker data
+// hook for external access to tracker data
 export function useLifeTrackers(date?: string) {
   const storageKey = `pkm:life-trackers:${date || new Date().toISOString().split('T')[0]}`;
   

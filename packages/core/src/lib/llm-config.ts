@@ -1,6 +1,6 @@
-// helper utilities for resolving the LLM endpoint (Google Gemini)
+// helper utilities for resolving the llm endpoint (google gemini)
 // - prefer a runtime user setting stored in localstorage ('gemini_api_url', fallback to 'wilson_api_url')
-// - storageManager wrapper used for safer access
+// - storagemanager wrapper used for safer access
 
 import { storageManager } from './storage-manager';
 
@@ -43,7 +43,7 @@ export function geminiAuthHeaders(apiKey: string): Record<string, string> {
 
 // - fall back to vite_gemini_url / vite_ollama_url if provided at build time
 // - default to the google gemini public api endpoint when nothing else is configured
-// all helpers return normalized urls (no trailing slashes) or full endpoint URLs
+// all helpers return normalized urls (no trailing slashes) or full endpoint urls
 
 export function normalizeBaseUrl(urlOrEndpoint?: string): string {
   if (!urlOrEndpoint) return '';
@@ -73,7 +73,7 @@ export function getOllamaBase(): string {
   const env = import.meta.env.VITE_OLLAMA_URL || import.meta.env.VITE_GEMINI_URL;
   if (env) return String(env).replace(/\/$/, '');
 
-  // default to local Ollama at the user's IP
+  // default to local ollama at the user's ip
   return DEFAULT_OLLAMA_URL;
 }
 

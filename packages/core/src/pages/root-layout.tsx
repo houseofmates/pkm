@@ -33,7 +33,7 @@ import { getSidebarColors } from '@/utils/getSidebarColors';
 import { useEdgelessStore } from '@/features/edgeless/store';
 import { ContextMenu } from '@/components/ui/context-menu-custom';
 
-// declare global window properties to fix TS errors
+// declare global window properties to fix ts errors
 declare global {
   interface Window {
     accentBg?: string;
@@ -108,7 +108,7 @@ export function RootLayout() {
     getSidebarColors().then(setSidebarColors);
   }, []);
 
-  // Listen for chat open event from navigation buttons
+  // listen for chat open event from navigation buttons
   useEffect(() => {
     const handleOpenChat = () => {
       setChatOpen(true);
@@ -136,7 +136,7 @@ export function RootLayout() {
     if (color.startsWith('rgb')) {
       return color.replace(/rgb\(([^)]+)\)/, 'rgba($1, 0.15)');
     }
-    // generic fallback that respects the CSS variable
+    // generic fallback that respects the css variable
     return `hsl(var(--primary) / 0.15)`;
   }
   const accentBg = getAccentBg(accentColor);
@@ -179,9 +179,9 @@ export function RootLayout() {
   const [sidebarItems, setSidebarItems] = useAppSetting<NavItem[]>('sidebar_items', [], { pollIntervalMs: 5000 });
   const [activeDragItem, setActiveDragItem] = useState<NavItem | null>(null);
 
-  // Force sidebar refresh when collections change - clear cache for new collections
+  // force sidebar refresh when collections change - clear cache for new collections
   useEffect(() => {
-    // Clear deleted collections cache to ensure new collections appear
+    // clear deleted collections cache to ensure new collections appear
     localStorage.removeItem('sidebar_deleted_collections');
   }, []);
 
@@ -251,8 +251,8 @@ export function RootLayout() {
     if (name.startsWith('doc_')) { navigate(`/page/${name.replace('doc_', '')}`); setActiveTab('databases'); setSelectedCollection(name); return; }
     if (name.startsWith('drawing_')) { navigate(`/drawings/${name.replace('drawing_', '')}`); setActiveTab('databases'); setSelectedCollection(name); return; }
     setSelectedCollection(name);
-    // Use the backend collection name (id) for navigation, which may differ from display name
-    // The name parameter here is the item.id which is the actual backend collection name
+    // use the backend collection name (id) for navigation, which may differ from display name
+    // the name parameter here is the item.id which is the actual backend collection name
     navigate('/databases/' + encodeURIComponent(name), { state: { fromSidebar: true } });
     setActiveTab('databases');
   };
@@ -321,7 +321,7 @@ export function RootLayout() {
               {/* live preview of sidebar item, styled as in navigation */}
               <div className="mb-0.5 group relative">
                 <div className="flex items-center bg-card border border-white/10 rounded shadow-lg p-2 w-full">
-                  {/* icon logic (copied from navigation/SortableItem) */}
+                  {/* icon logic (copied from navigation/sortableitem) */}
                   {(() => {
                     if (activeDragItem.icon && activeDragItem.iconType) {
                       if (activeDragItem.iconType === 'emoji') return <span className="mr-2 text-base leading-none">{activeDragItem.icon}</span>;

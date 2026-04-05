@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Database, Home, Users, Search, MessageCircle, Folder, ChevronRight, ChevronDown, Plus, Trash2, FileText, Inbox, PenTool, Wand2, LayoutDashboard, Settings, UploadCloud, BookOpen, type LucideIcon, MessageSquare } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 
-// Dynamic icon loader for Lucide icons
+// dynamic icon loader for lucide icons
 function getLucideIcon(name: string): LucideIcon | undefined {
   return (LucideIcons as unknown as Record<string, unknown>)[name] as LucideIcon | undefined;
 }
@@ -72,7 +72,7 @@ export interface NavItem {
   id: string;
   type: 'collection' | 'folder';
   name: string;
-  children?: string[]; // IDs of children if folder
+  children?: string[]; // ids of children if folder
   collapsed?: boolean;
   icon?: string;
   iconType?: 'lucide' | 'emoji' | 'image';
@@ -88,7 +88,7 @@ interface NavigationProps {
 
   // lifted state props
   items: NavItem[];
-  // setItems can be omitted for read-only renders (e.g. mobile drawer that just displays the list)
+  // setitems can be omitted for read-only renders (e.g. mobile drawer that just displays the list)
   setItems?: (items: NavItem[] | ((prev: NavItem[]) => NavItem[])) => void; // for local updates like folder creation
 }
 
@@ -130,7 +130,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   const [hovered, setHovered] = useState(false);
 
 
-  // global metadata for collections (legacy localStorage fallback)
+  // global metadata for collections (legacy localstorage fallback)
   const [metadata] = useAppSetting<Record<string, { color?: string }>>('collection_metadata', {});
   // prefer synced colors from nocobase (cross-device sync), then local item color, then legacy metadata
   const metaColor = syncedColors?.[id]?.color || item.color || (item.type === 'collection' ? metadata[id]?.color : undefined);
@@ -140,7 +140,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
     // sidebar items: use their own color if available, else white
     const base = metaColor || '#ffffff';
     if (base.startsWith('#')) {
-      // Convert hex to rgba
+      // convert hex to rgba
       const hex = base.replace('#', '');
       const r = parseInt(hex.substring(0, 2), 16);
       const g = parseInt(hex.substring(2, 4), 16);
@@ -148,7 +148,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
       return `rgba(${r}, ${g}, ${b}, ${opacity})`;
     }
     if (base.startsWith('rgb')) {
-      // Replace any existing alpha with desired opacity
+      // replace any existing alpha with desired opacity
       if (base.startsWith('rgba')) {
         return base.replace(/rgba\(([^,]+),([^,]+),([^,]+),[^)]+\)/, `rgba($1,$2,$3,${opacity})`);
       }
@@ -175,7 +175,7 @@ export function SortableItem({ id, item, depth = 0, onSelect, selected, onToggle
   const renderIcon = () => {
     // use current theme color if no local override
     // logic: if item.color is set, use it. if generic, use primary.
-    // no explicit icon color, let CSS inherit from the button/text color
+    // no explicit icon color, let css inherit from the button/text color
 
     if (item.icon && item.iconType) {
       // ... strict icon logic
@@ -288,7 +288,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     pollIntervalMs: 30000 // sync every 30 seconds
   });
 
-  // track recently deleted items to prevent useEffect from re-adding them
+  // track recently deleted items to prevent useeffect from re-adding them
   // stored in a ref so it does not cause re-renders or effect dependency churn
   const deletedItemsRef = useRef<Set<string>>(new Set());
 
@@ -414,7 +414,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     // for collections (databases), refresh from server to ensure sync
     if (!id.startsWith('doc_') && !id.startsWith('drawing_') && !id.startsWith('folder_')) {
       if (updates.delete) {
-        // track this deletion so the useEffect won't re-add it
+        // track this deletion so the useeffect won't re-add it
         deletedItemsRef.current.add(id.toLowerCase());
         addStoredDeleted(id);
         // immediately remove from local state for instant feedback
@@ -436,7 +436,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
       return;
     }
 
-    // If renaming a collection, update both .name and .title fields for sidebar display
+    // if renaming a collection, update both .name and .title fields for sidebar display
     if (updates.name) {
       safeSetItems(items.map(item =>
         item.id === id ? { ...item, name: updates.name, title: updates.name, ...updates } : item
@@ -456,8 +456,8 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
     const forbiddenCollections = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website', 'users', 'roles'];
     const visibleCollections = collections.filter((c: any) => !forbiddenCollections.includes(String(c.name).toLowerCase()));
 
-    // Clear any stored deleted state for collections that exist on server
-    // This ensures newly created collections always appear
+    // clear any stored deleted state for collections that exist on server
+    // this ensures newly created collections always appear
     const storedDeleted = getStoredDeleted();
     visibleCollections.forEach((c: any) => {
       const nameLC = String(c.name).toLowerCase();
@@ -527,7 +527,7 @@ export function Navigation({ activeTab, onTabChange, className, onSelectCollecti
           return true;
         });
 
-        // build a set of existing IDs (non-drawing, non-forbidden)
+        // build a set of existing ids (non-drawing, non-forbidden)
         const existingIds = new Set(cleaned.map(i => String(i.id).toLowerCase()));
 
         // add new collections that aren't already present and weren't recently deleted

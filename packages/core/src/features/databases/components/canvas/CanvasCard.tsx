@@ -10,10 +10,10 @@ import { SmartField } from '@/components/fields/smart-field';
 import { secureLogger } from '@/lib/secure-logger';
 
 interface CanvasCardProps {
-  data: any; // NocoBASE row data
+  data: any; // nocobase row data
   collection: any;
-  layout: any; // Position/Size data
-  fields: any[]; // Schema definition
+  layout: any; // position/size data
+  fields: any[]; // schema definition
   isSelected?: boolean;
   onUpdate?: (id: string | number, data: any) => void;
   style?: React.CSSProperties;
@@ -28,7 +28,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
   }, [data]);
 
   // --- living data: visual decay ---
-  const lastWatered = data['last_watered'] || data['updatedAt']; // Fallback
+  const lastWatered = data['last_watered'] || data['updatedAt']; // fallback
   const daysSince = lastWatered
     ? Math.floor((new Date().getTime() - new Date(lastWatered).getTime()) / (1000 * 3600 * 24))
     : 0;
@@ -74,7 +74,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
       {
         collection: collection.name,
         title: localData[titleField.name] || 'Untitled',
-        color: localData['color'] // Assuming color might be on record
+        color: localData['color'] // assuming color might be on record
       }
     );
   };
@@ -155,7 +155,7 @@ export function CanvasCard({ data, collection, layout: _layout, fields, isSelect
               <img
                 src={previewImage}
                 alt="cover"
-                className="w-full h-full object-cover rounded-t-[inherit]" // Inherit top radius
+                className="w-full h-full object-cover rounded-t-[inherit]" // inherit top radius
                 draggable={false}
               />
             ) : null}

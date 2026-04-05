@@ -1,5 +1,5 @@
-// Redis caching layer for PKM backend
-// Provides high-performance caching for frequently accessed data
+// redis caching layer for pkm backend
+// provides high-performance caching for frequently accessed data
 
 import { createClient } from 'redis';
 
@@ -8,7 +8,7 @@ const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 const CACHE_TTL = parseInt(process.env.CACHE_TTL || '3600', 10); // 1 hour default
 
 /**
- * Initialize Redis connection
+ * initialize redis connection
  */
 export async function initializeCache() {
     if (redisClient) {
@@ -47,7 +47,7 @@ export async function initializeCache() {
 }
 
 /**
- * Get value from cache
+ * get value from cache
  */
 export async function cacheGet(key) {
     if (!redisClient) {
@@ -65,7 +65,7 @@ export async function cacheGet(key) {
 }
 
 /**
- * Set value in cache
+ * set value in cache
  */
 export async function cacheSet(key, value, ttl = CACHE_TTL) {
     if (!redisClient) {
@@ -84,7 +84,7 @@ export async function cacheSet(key, value, ttl = CACHE_TTL) {
 }
 
 /**
- * Delete value from cache
+ * delete value from cache
  */
 export async function cacheDelete(key) {
     if (!redisClient) {
@@ -102,7 +102,7 @@ export async function cacheDelete(key) {
 }
 
 /**
- * Delete multiple keys by pattern
+ * delete multiple keys by pattern
  */
 export async function cacheDeletePattern(pattern) {
     if (!redisClient) {
@@ -123,16 +123,16 @@ export async function cacheDeletePattern(pattern) {
 }
 
 /**
- * Cache middleware for API routes
+ * cache middleware for api routes
  */
 export function cacheMiddleware(ttl = CACHE_TTL) {
     return async (req, res, next) => {
-        // Only cache GET requests
+        // only cache get requests
         if (req.method !== 'GET') {
             return next();
         }
         
-        // Skip if user is authenticated (personalized data)
+        // skip if user is authenticated (personalized data)
         if (req.user) {
             return next();
         }
@@ -149,12 +149,12 @@ export function cacheMiddleware(ttl = CACHE_TTL) {
             console.error('[Cache] Middleware error:', error.message);
         }
         
-        // Store original json method
+        // store original json method
         const originalJson = res.json.bind(res);
         
-        // Override json to cache response
+        // override json to cache response
         res.json = (body) => {
-            // Only cache successful responses
+            // only cache successful responses
             if (res.statusCode === 200) {
                 cacheSet(cacheKey, body, ttl).catch(err => {
                     console.error('[Cache] Failed to cache response:', err.message);
@@ -168,14 +168,14 @@ export function cacheMiddleware(ttl = CACHE_TTL) {
 }
 
 /**
- * Invalidate cache for a collection
+ * invalidate cache for a collection
  */
 export async function invalidateCollection(collectionName) {
     return cacheDeletePattern(`api:*${collectionName}*`);
 }
 
 /**
- * Get cache statistics
+ * get cache statistics
  */
 export async function getCacheStats() {
     if (!redisClient) {
@@ -198,7 +198,7 @@ export async function getCacheStats() {
 }
 
 /**
- * Clear all cache
+ * clear all cache
  */
 export async function clearCache() {
     if (!redisClient) {

@@ -46,7 +46,7 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
     placeholderData: (previousData) => previousData,
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
-    staleTime: 30000, // Consider data fresh for 30 seconds
+    staleTime: 30000, // consider data fresh for 30 seconds
   });
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
   const records: Record<string, unknown>[] = extractRecords(data);
   const meta: Meta | undefined = (data as { meta?: Meta })?.meta;
 
-  // If a non-zero page returns no records, try swapping between 0/1 once.
+  // if a non-zero page returns no records, try swapping between 0/1 once.
   const [pageFallbackTried, setPageFallbackTried] = useState(false);
   useEffect(() => {
     if (
@@ -70,7 +70,7 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
     ) {
       const current = queryParams.page as number;
       const newPage = current === 0 ? 1 : 0;
-      // postpone state update to avoid synchronous setState in effect
+      // postpone state update to avoid synchronous setstate in effect
       setTimeout(() => {
         setQueryParams((prev) => ({ ...prev, page: newPage }));
       }, 0);
@@ -215,12 +215,12 @@ export function useRecord(collectionName: string, recordId: string | number) {
     },
   });
 
-  // Safely extract data from various response formats
+  // safely extract data from various response formats
   const extractRecordData = (responseData: unknown): unknown => {
     if (!responseData) return null;
     if (typeof responseData !== 'object') return responseData;
 
-    // Try to extract from common wrapper formats
+    // try to extract from common wrapper formats
     const obj = responseData as Record<string, unknown>;
     return obj.data ?? responseData;
   };

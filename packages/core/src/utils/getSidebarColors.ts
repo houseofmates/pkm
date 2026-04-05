@@ -1,26 +1,26 @@
-// getSidebarColors.ts
-// Utility to fetch sidebar colors from API, fallback to local JSON
+// getsidebarcolors.ts
+// utility to fetch sidebar colors from api, fallback to local json
 
 export async function getSidebarColors(): Promise<any> {
-  // Try API first
+  // try api first
   try {
-    const res = await fetch('/api/sidebar-colors'); // Adjust endpoint as needed
+    const res = await fetch('/api/sidebar-colors'); // adjust endpoint as needed
     if (res.ok) {
       return await res.json();
     }
   } catch {
-    // API failed, fallback to local JSON
+    // api failed, fallback to local json
   }
-  // Fallback: local file
+  // fallback: local file
   try {
     const res = await fetch('/sidebar-colors.json');
     if (res.ok) {
       return await res.json();
     }
   } catch {
-    // Both sources failed
+    // both sources failed
   }
-  // Final fallback: hardcoded default
+  // final fallback: hardcoded default
   return {
     primary: '#f6b012',
     secondary: '#252525',

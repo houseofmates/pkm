@@ -58,7 +58,7 @@ export function XPExplosion({ trigger, onComplete, className, rowId = 'journal' 
     setParticles(newParticles);
     setIsExploding(true);
     
-    // Auto-cleanup after animation
+    // auto-cleanup after animation
     setTimeout(() => {
       setIsExploding(false);
       setParticles([]);
@@ -72,7 +72,7 @@ export function XPExplosion({ trigger, onComplete, className, rowId = 'journal' 
     }
   }, [trigger, createExplosion, isExploding]);
   
-  // Animation loop
+  // animation loop
   useEffect(() => {
     if (!isExploding || particles.length === 0) return;
     
@@ -104,13 +104,13 @@ export function XPExplosion({ trigger, onComplete, className, rowId = 'journal' 
   
   return (
     <div className={cn("absolute inset-0 pointer-events-none overflow-hidden z-50", className)}>
-      {/* Center flash */}
+      {/* center flash */}
       <div 
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 rounded-full animate-ping opacity-30"
         style={{ background: `radial-gradient(circle, ${colors[0]} 0%, transparent 70%)` }}
       />
       
-      {/* Particles */}
+      {/* particles */}
       {particles.map(p => (
         <div
           key={p.id}
@@ -128,7 +128,7 @@ export function XPExplosion({ trigger, onComplete, className, rowId = 'journal' 
         />
       ))}
       
-      {/* XP text */}
+      {/* xp text */}
       <div 
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-2xl font-bold text-white animate-bounce"
         style={{ textShadow: `0 0 20px ${colors[0]}` }}
@@ -139,14 +139,14 @@ export function XPExplosion({ trigger, onComplete, className, rowId = 'journal' 
   );
 }
 
-// Hook to trigger explosions
+// hook to trigger explosions
 export function useXPExplosion() {
   const [explosions, setExplosions] = useState<Record<string, boolean>>({});
   
   const triggerExplosion = useCallback((rowId: string) => {
     setExplosions(prev => ({ ...prev, [rowId]: true }));
     
-    // Auto-reset after animation
+    // auto-reset after animation
     setTimeout(() => {
       setExplosions(prev => ({ ...prev, [rowId]: false }));
     }, 2000);

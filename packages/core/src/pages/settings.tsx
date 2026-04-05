@@ -18,7 +18,7 @@ export default function SettingsPage() {
     const [pageSize, setPageSize] = useAppSetting('defaultPageSize', 20);
     const [showApiKey, setShowApiKey] = useState(false);
 
-    // Apply dark mode class to document based on setting
+    // apply dark mode class to document based on setting
     useEffect(() => {
         if (darkMode) {
             document.documentElement.classList.add('dark');

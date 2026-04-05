@@ -61,7 +61,7 @@ const HEADER_PATTERNS: Record<string, FieldType> = {
   rating: 'number',
   score: 'number',
   percent: 'number',
-  age: 'number', // Explicit user request
+  age: 'number', // explicit user request
 
   // attachment
   image: 'attachment',
@@ -91,7 +91,7 @@ const HEADER_PATTERNS: Record<string, FieldType> = {
   completed: 'checkbox',
   done: 'checkbox',
   active: 'checkbox',
-  is_: 'checkbox', // Matches is_active, is_valid etc
+  is_: 'checkbox', // matches is_active, is_valid etc
   has_: 'checkbox',
 
   // text
@@ -105,7 +105,7 @@ const HEADER_PATTERNS: Record<string, FieldType> = {
   // plural system special
   front: 'datetime',
   fronting: 'datetime',
-  last_fronted: 'datetime', // Handles 'last fronted', 'dynamic last fronted'
+  last_fronted: 'datetime', // handles 'last fronted', 'dynamic last fronted'
 
   // select / demographics
   gender: 'select',
@@ -118,7 +118,7 @@ const HEADER_PATTERNS: Record<string, FieldType> = {
   // tracking
   frequency: 'select', // 'fronting frequency'
   communication: 'text', // 'communication style'
-  boundaries: 'text', // Long text
+  boundaries: 'text', // long text
   triggers: 'text', // 'pos. triggers'
 
   // interests
@@ -219,7 +219,7 @@ export function detectFieldType(header: string, values: any[], existingCollectio
   // check if parts match known tag-like length (short items)
   const isTags = nonNullValues.every(v => {
   const parts = String(v).split(',');
-  return parts.every(p => p.trim().length < 50); // Tags are usually short
+  return parts.every(p => p.trim().length < 50); // tags are usually short
   });
   if (isTags) return { type: 'multipleSelect', confidence: 'medium', reason: 'comma-separated short values' };
   }
@@ -241,13 +241,13 @@ const isUrl = (v: any) => /^(https?:\/\/[^\s]+|www\.[^\s]+)/.test(String(v));
 const isDate = (v: any) => {
   const s = String(v);
   if (!isNaN(Number(s))) return false; // purely numeric strings might be numbers not dates here
-  if (s.match(/^\d{4}-\d{2}-\d{2}/)) return true; // ISO
-  if (s.match(/^[A-Z][a-z]+ \d{1,2}, \d{4}/)) return true; // Month DD, YYYY (Notion)
+  if (s.match(/^\d{4}-\d{2}-\d{2}/)) return true; // iso
+  if (s.match(/^[A-Z][a-z]+ \d{1,2}, \d{4}/)) return true; // month dd, yyyy (notion)
   return !isNaN(Date.parse(s));
 };
 const isBoolean = (v: any) => ['true', 'false', 'yes', 'no', '1', '0', 'checked', 'unchecked'].includes(String(v).toLowerCase());
 const isNumber = (v: any) => {
-  const s = String(v).replace(/[$,]/g, ''); // Allow currency $ and commas
+  const s = String(v).replace(/[$,]/g, ''); // allow currency $ and commas
   return !isNaN(Number(s)) && s.trim() !== '';
 };
 

@@ -17,7 +17,7 @@ const MOODS = [
 
 export function GamificationMoodWidget({ className }: GamificationMoodWidgetProps) {
   const handleMoodClick = (moodId: number) => {
-    // Dispatch event for journal to capture
+    // dispatch event for journal to capture
     window.dispatchEvent(new CustomEvent('quick-mood-log', { 
       detail: { mood: moodId } 
     }));

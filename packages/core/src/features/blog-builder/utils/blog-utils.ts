@@ -66,7 +66,7 @@ export function calculateReadingTime(content: any): number {
 
   // average reading speed: 200 words per minute
   const minutes = Math.ceil(wordCount / 200);
-  return Math.max(1, minutes); // Minimum 1 minute
+  return Math.max(1, minutes); // minimum 1 minute
 }
 
 export function getMoodColor(mood?: string): string {

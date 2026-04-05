@@ -274,8 +274,8 @@ describe('schema service', () => {
       expect(updated.title).toBe('updated');
       expect(updated.count).toBe(100);
       expect(updated.id).toBe(record.id); // id unchanged
-      expect(updated.createdAt).toBe(record.createdAt); // createdAt unchanged
-      expect(updated.updatedAt).not.toBe(record.updatedAt); // updatedAt changed
+      expect(updated.createdAt).toBe(record.createdAt); // createdat unchanged
+      expect(updated.updatedAt).not.toBe(record.updatedAt); // updatedat changed
     });
 
     it('should delete a record', async () => {

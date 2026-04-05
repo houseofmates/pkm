@@ -119,7 +119,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
         };
 
         window.addEventListener('keydown', handleKeyDown);
-        window.addEventListener('contextmenu', handleContextMenu, true); // Use capture to beat other listeners
+        window.addEventListener('contextmenu', handleContextMenu, true); // use capture to beat other listeners
         return () => {
             window.removeEventListener('keydown', handleKeyDown);
             window.removeEventListener('contextmenu', handleContextMenu, true);
@@ -164,7 +164,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     };
 
 
-    // if the user isn't authenticated we short-circuit before rendering the main collection UI
+    // if the user isn't authenticated we short-circuit before rendering the main collection ui
     if (!isAuthenticated) {
         return (
             <div className="p-4 md:p-8 h-full flex items-center justify-center">

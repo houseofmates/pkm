@@ -1,4 +1,4 @@
-// Tests for request validator
+// tests for request validator
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { validateBody, validateQuery, validateParams } from '../request-validator.js';
 import { z } from 'zod';

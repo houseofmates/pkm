@@ -1,10 +1,10 @@
-// utilities for working with NocoBase API responses
+// utilities for working with nocobase api responses
 
 /**
- * Normalize the raw response from a NocoBase list endpoint into a
+ * normalize the raw response from a nocobase list endpoint into a
  * consistent shape that always has a `data` array and optional `meta`.
  *
- * NocoBase has changed response formats over time and different endpoints
+ * nocobase has changed response formats over time and different endpoints
  * or server versions may return:
  *
  *   - `[{...}, {...}]`
@@ -13,7 +13,7 @@
  *   - `{ data: { list: [...], total: 3 } }`
  *   - `{ list: [...], count: 5 }`
  *
- * This helper inspects several common locations and flattens them.
+ * this helper inspects several common locations and flattens them.
  */
 export function normalizeListResponse(raw: any) {
   let data: any[] = [];
@@ -51,9 +51,9 @@ export function normalizeListResponse(raw: any) {
 }
 
 /**
- * Convenience wrapper used by hooks/components to pull the "records"
- * portion out of whatever NocoBase gave us.  This mirrors the logic used
- * internally by normalizeListResponse but returns just an array so callers
+ * convenience wrapper used by hooks/components to pull the "records"
+ * portion out of whatever nocobase gave us.  this mirrors the logic used
+ * internally by normalizelistresponse but returns just an array so callers
  * don't need to worry about metadata.
  */
 export function extractRecords(responseData: any): any[] {
@@ -70,11 +70,11 @@ export function extractRecords(responseData: any): any[] {
     return null;
   };
 
-  // Try direct properties
+  // try direct properties
   let data = tryExtract(responseData);
   if (data) return data;
 
-  // Try nested data property (common in NocoBase)
+  // try nested data property (common in nocobase)
   if (responseData.data) {
     data = tryExtract(responseData.data);
     if (data) return data;

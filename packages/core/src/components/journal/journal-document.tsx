@@ -175,16 +175,16 @@ export function JournalDocument({ document, onUpdate, readOnly = false }: Journa
    <input
    type="file"
    accept="image/*"
-   onChange={(e) => {
+   onchange={(e) => {
    const file = e.target.files?.[0];
-   if (file) handleBannerUpload(file);
+   if (file) handlebannerupload(file);
    }}
-   className="w-full"
+   classname="w-full"
    />
-   <div className="flex gap-2 mt-4">
+   <div classname="flex gap-2 mt-4">
    <button
-   onClick={() => setShowBannerUpload(false)}
-   className="flex-1 lowercase"
+   onclick={() => setshowbannerupload(false)}
+   classname="flex-1 lowercase"
    >
    cancel
    </button>

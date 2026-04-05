@@ -18,12 +18,12 @@ export interface FrontEntry {
   id: string;
   startTime: string;
   endTime?: string;
-  members: { id: string; role?: string; customStatus?: string }[]; // Ordered list
+  members: { id: string; role?: string; customStatus?: string }[]; // ordered list
   comment?: string;
 }
 
 interface FronterContextType {
-  activeFronters: string[]; // IDs
+  activeFronters: string[]; // ids
   members: Headmate[];
   history: FrontEntry[];
   loading: boolean;
@@ -132,8 +132,8 @@ export function FronterProvider({ children }: { children: ReactNode }) {
         const res = await api.listRecords('front_history', { sort: '-startTime', pageSize: 50 });
         historyData = Array.isArray(res) ? res : ((res as { data?: any[] })?.data || []);
       } catch (e: any) {
-        // Axios aborts (e.g. HMR / navigation) often show as ECONNABORTED.
-        // This is not fatal; keep existing history instead of wiping it.
+        // axios aborts (e.g. hmr / navigation) often show as econnaborted.
+        // this is not fatal; keep existing history instead of wiping it.
         const isAbort = e?.code === 'ECONNABORTED' || e?.message?.toLowerCase()?.includes('aborted');
         secureLogger.warn('Front history fetch failed (will keep cached history):', e);
         if (isAbort) {
@@ -143,9 +143,9 @@ export function FronterProvider({ children }: { children: ReactNode }) {
 
       // parse members
       const parsedMembers: Headmate[] = headmatesData.map((m: any) => ({
-        id: m.id?.toString(), // Ensure string ID
+        id: m.id?.toString(), // ensure string id
         name: m.name || 'Unnamed',
-        avatar: m.avatar?.[0]?.url || m.avatarUrl, // NocoBase attachment vs direct URL
+        avatar: m.avatar?.[0]?.url || m.avatarUrl, // nocobase attachment vs direct url
         pronouns: m.pronouns,
         color: m.color,
         description: m.description
@@ -180,7 +180,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
           }
         } else {
           secureLogger.info('No active front found in history, checking localStorage backup');
-          // try to restore from localStorage if database has no active front
+          // try to restore from localstorage if database has no active front
           try {
             const cached = storageManager.getItem('pkm_active_fronters');
             if (cached) {
@@ -243,7 +243,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
     const interval = setInterval(() => {
       refresh();
       syncFrontFromSimplyPlural();
-    }, 60000); // Poll every minute
+    }, 60000); // poll every minute
     return () => clearInterval(interval);
   }, []);
 
@@ -278,7 +278,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
         const createResult = await api.createRecord('front_history', newEntry);
         secureLogger.info('New front entry created, result:', createResult);
 
-        // --- SimplyPlural sync ---
+        // --- simplyplural sync ---
         try {
           const apiKey = storageManager.getItem('pk_api_key');
           if (apiKey) {
@@ -316,7 +316,7 @@ export function FronterProvider({ children }: { children: ReactNode }) {
         } catch (spErr) {
           secureLogger.error('SimplyPlural sync error:', spErr);
         }
-        // --- end SimplyPlural sync ---
+        // --- end simplyplural sync ---
       } else {
         secureLogger.info('No members specified, just closing previous front');
       }

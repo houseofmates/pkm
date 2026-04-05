@@ -1,4 +1,4 @@
-// offline service for APK - caches recent records and queues changes for sync
+// offline service for apk - caches recent records and queues changes for sync
 // designed for ~200 records max to stay lightweight on mobile
 
 import { secureLogger } from '@/lib/secure-logger'
@@ -12,7 +12,7 @@ interface CachedRecord {
   collection: string;
   data: any;
   cachedAt: number;
-  accessedAt: number; // for LRU eviction
+  accessedAt: number; // for lru eviction
 }
 
 interface QueuedChange {
@@ -91,7 +91,7 @@ class OfflineService {
     if (existingIndex >= 0) {
       this.cache.records[existingIndex] = record;
     } else {
-      // enforce max cache size with LRU eviction
+      // enforce max cache size with lru eviction
       if (this.cache.records.length >= MAX_CACHED_RECORDS) {
         this.evictLRU();
       }
@@ -111,7 +111,7 @@ class OfflineService {
       r => r.collection === collection && r.id === id
     );
     if (record) {
-      record.accessedAt = Date.now(); // update LRU
+      record.accessedAt = Date.now(); // update lru
       this.saveToStorage();
       return record.data;
     }
@@ -226,7 +226,7 @@ class OfflineService {
 
   // evict least recently used record when cache is full
   private evictLRU() {
-    // sort by accessedAt ascending, remove oldest
+    // sort by accessedat ascending, remove oldest
     this.cache.records.sort((a, b) => a.accessedAt - b.accessedAt);
     const removed = this.cache.records.shift();
     secureLogger.debug(`[Offline] evicted LRU record ${removed?.collection}/${removed?.id}`);

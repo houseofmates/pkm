@@ -4,7 +4,7 @@ import { useElement, useViewport } from '../../store';
 export const ConnectorElement = React.memo(function ConnectorElement({ element }: { element: any }) {
   const { connectorData } = element;
 
-  // ── Granular subscriptions: only re-render when THIS specific connected node changes ──
+  // ── granular subscriptions: only re-render when this specific connected node changes ──
   const startNode = useElement(connectorData?.startId || '');
   const endNode = useElement(connectorData?.endId || '');
   const viewPort = useViewport();

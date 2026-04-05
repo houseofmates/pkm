@@ -345,42 +345,42 @@ export function BuilderToolbox() {
   input.type = 'file';
   input.accept = 'image/*';
   input.onchange = async (e) => {
-  const file = (e.target as HTMLInputElement).files?.[0];
+  const file = (e.target as htmlinputelement).files?.[0];
   if (!file) return;
 
   toast.info('uploading image...');
   try {
  const uploaded = await api.upload(file);
-   const uploadedAny = uploaded as any;
-   const url = uploadedAny?.url || uploadedAny?.data?.url;
+   const uploadedany = uploaded as any;
+   const url = uploadedany?.url || uploadedany?.data?.url;
  if (url) {
-    addElement(createDefaultElement('image', { url, alt: file.name }));
+    addelement(createdefaultelement('image', { url, alt: file.name }));
     toast.success('image uploaded');
  }
   } catch (err) {
- secureLogger.error(String(err));
+ securelogger.error(string(err));
  toast.error('upload failed');
   }
-  setIsOpen(false);
+  setisopen(false);
   };
   input.click();
   };
 
-  const handleVideoUpload = () => {
-  const input = document.createElement('input');
+  const handlevideoupload = () => {
+  const input = document.createelement('input');
   input.type = 'file';
   input.accept = 'video/*';
   input.onchange = async (e) => {
-  const file = (e.target as HTMLInputElement).files?.[0];
+  const file = (e.target as htmlinputelement).files?.[0];
   if (!file) return;
 
   toast.info('uploading video...');
   try {
  const uploaded = await api.upload(file);
-   const uploadedAny = uploaded as any;
-   const url = uploadedAny?.url || uploadedAny?.data?.url;
+   const uploadedany = uploaded as any;
+   const url = uploadedany?.url || uploadedany?.data?.url;
  if (url) {
-    addElement(createDefaultElement('video', {
+    addelement(createdefaultelement('video', {
  url,
  autoplay: false,
  loop: false,
@@ -390,88 +390,88 @@ export function BuilderToolbox() {
  toast.success('video uploaded');
  }
   } catch (err) {
- secureLogger.error(String(err));
+ securelogger.error(string(err));
  toast.error('upload failed');
   }
-  setIsOpen(false);
+  setisopen(false);
   };
   input.click();
   };
 
-  const handleAddEmbed = () => {
+  const handleaddembed = () => {
   const url = prompt('enter embed url (youtube, spotify, etc.):');
   if (!url) return;
 
-  let embedUrl = url;
+  let embedurl = url;
   if (url.includes('youtube.com/watch')) {
-    const videoId = new URL(url).searchParams.get('v');
-  embedUrl = `https://www.youtube.com/embed/${videoId}`;
+    const videoid = new url(url).searchparams.get('v');
+  embedurl = `https://www.youtube.com/embed/${videoid}`;
   } else if (url.includes('youtu.be/')) {
-  const videoId = url.split('youtu.be/')[1]?.split('?')[0];
-  embedUrl = `https://www.youtube.com/embed/${videoId}`;
+  const videoid = url.split('youtu.be/')[1]?.split('?')[0];
+  embedurl = `https://www.youtube.com/embed/${videoid}`;
   }
 
-  addElement({
-    ...createDefaultElement('embed', { url: embedUrl }),
+  addelement({
+    ...createdefaultelement('embed', { url: embedurl }),
   width: 560,
   height: 315,
   });
-  setIsOpen(false);
+  setisopen(false);
   };
 
   // unsplash search
-  const searchUnsplash = async () => {
-    if (!searchQuery.trim()) return;
-    setSearching(true);
+  const searchunsplash = async () => {
+    if (!searchquery.trim()) return;
+    setsearching(true);
   try {
-    let key = storageManager.getItem('unsplash_key');
+    let key = storagemanager.getitem('unsplash_key');
   if (!key) {
  key = prompt('enter your unsplash access key (will be saved locally):') || '';
- if (key) storageManager.setItem('unsplash_key', key);
+ if (key) storagemanager.setitem('unsplash_key', key);
   }
-    if (!key) throw new Error('unsplash key missing');
+    if (!key) throw new error('unsplash key missing');
 
   const res = await fetch(
- `https://api.unsplash.com/search/photos?query=${encodeURIComponent(searchQuery)}&per_page=12&client_id=${key}`
+ `https://api.unsplash.com/search/photos?query=${encodeuricomponent(searchquery)}&per_page=12&client_id=${key}`
   );
   const data = await res.json();
-    setSearchResults(data.results || []);
+    setsearchresults(data.results || []);
   } catch (e) {
   toast.error('unsplash search failed');
   } finally {
-  setSearching(false);
+  setsearching(false);
   }
   };
 
   // giphy search
-  const searchGiphy = async () => {
-    if (!searchQuery.trim()) return;
-    setSearching(true);
+  const searchgiphy = async () => {
+    if (!searchquery.trim()) return;
+    setsearching(true);
   try {
-    let key = storageManager.getItem('giphy_key');
+    let key = storagemanager.getitem('giphy_key');
   if (!key) {
  key = prompt('enter your giphy api key (will be saved locally):') || '';
- if (key) storageManager.setItem('giphy_key', key);
+ if (key) storagemanager.setitem('giphy_key', key);
   }
-    if (!key) throw new Error('giphy key missing');
+    if (!key) throw new error('giphy key missing');
 
   const res = await fetch(
- `https://api.giphy.com/v1/gifs/search?q=${encodeURIComponent(searchQuery)}&limit=12&api_key=${key}`
+ `https://api.giphy.com/v1/gifs/search?q=${encodeuricomponent(searchquery)}&limit=12&api_key=${key}`
   );
   const data = await res.json();
-    setSearchResults(data.data || []);
+    setsearchresults(data.data || []);
   } catch (e) {
   toast.error('giphy search failed');
   } finally {
-  setSearching(false);
+  setsearching(false);
   }
   };
 
-  const handleSelectMedia = (url: string, type: 'image' | 'video' = 'image') => {
-    addElement(createDefaultElement(type, { url }));
-    setIsOpen(false);
-    setSearchResults([]);
-    setSearchQuery('');
+  const handleselectmedia = (url: string, type: 'image' | 'video' = 'image') => {
+    addelement(createdefaultelement(type, { url }));
+    setisopen(false);
+    setsearchresults([]);
+    setsearchquery('');
   };
 
   return (

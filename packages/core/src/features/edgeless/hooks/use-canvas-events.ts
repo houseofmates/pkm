@@ -2,9 +2,9 @@ import { useEffect, useCallback } from 'react';
 import { useEdgelessStore } from '../store';
 
 export function useCanvasEvents() {
-  // ── Stable callbacks: read viewport from store at call-time ──
-  // This eliminates the dependency on viewPort, so callbacks are never recreated
-  // during pan/zoom. The paste event listener stays stable.
+  // ── stable callbacks: read viewport from store at call-time ──
+  // this eliminates the dependency on viewport, so callbacks are never recreated
+  // during pan/zoom. the paste event listener stays stable.
 
   const addElement = useEdgelessStore((s) => s.addElement);
 
@@ -41,14 +41,14 @@ export function useCanvasEvents() {
         });
       }
     }
-  }, []); // ← stable: no viewPort dependency
+  }, []); // ← stable: no viewport dependency
 
   const handleDrop = useCallback(async (e: React.DragEvent) => {
     // don't intercept internal drags (like nodes moving) if managed by fabric
     // but do intercept drop from outside or records
     // check if datatransfer has files or specific types
     
-    // Handle gamification widget drops from sidebar
+    // handle gamification widget drops from sidebar
     if (e.dataTransfer.types.includes('application/json')) {
       e.preventDefault();
       e.stopPropagation();
@@ -57,7 +57,7 @@ export function useCanvasEvents() {
       if (data) {
         try {
           const widget = JSON.parse(data);
-          // Check if this is a widget template
+          // check if this is a widget template
           if (widget.id && ['streak', 'mood', 'pet', 'quest', 'voice'].includes(widget.id)) {
             const x = e.clientX;
             const y = e.clientY;
@@ -66,7 +66,7 @@ export function useCanvasEvents() {
             const canvasX = (x - vx) / zoom;
             const canvasY = (y - vy) / zoom;
             
-            // Map widget types to gamification widget IDs
+            // map widget types to gamification widget ids
             const widgetIdMap: Record<string, string> = {
               'streak': 'gamification-streak',
               'mood': 'gamification-mood',
@@ -89,7 +89,7 @@ export function useCanvasEvents() {
             return;
           }
         } catch {
-          // Not valid JSON or not a widget, continue with other drop handling
+          // not valid json or not a widget, continue with other drop handling
         }
       }
     }
@@ -122,10 +122,10 @@ export function useCanvasEvents() {
         await processTextContent(text, x, y);
       }
     }
-  }, [addElement]); // ← stable: no viewPort dependency
+  }, [addElement]); // ← stable: no viewport dependency
 
   // --- helpers ---
-  // All helpers read viewport at call-time from the store, making them closure-stable.
+  // all helpers read viewport at call-time from the store, making them closure-stable.
 
   const createImageElement = (src: string, x?: number, y?: number) => {
     const { x: vx, y: vy, zoom } = useEdgelessStore.getState().viewPort;
@@ -183,7 +183,7 @@ export function useCanvasEvents() {
     }
 
     // 4. fallback: create link card with void glyph logic
-    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    if (trimmed.startsWith('http://') || trimmed.startswith('https://')) {
       try {
         createLinkElement(trimmed, x, y);
       } catch (e) {

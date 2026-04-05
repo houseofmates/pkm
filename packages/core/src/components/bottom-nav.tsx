@@ -25,7 +25,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
           "w-full max-w-md flex items-center justify-between bg-black/95 backdrop-blur-xl border-t border-white/10 shadow-[0_-4px_32px_rgba(0,0,0,0.5)] px-1 py-1 pointer-events-auto",
           className
         )}>
-          {/* Chat button - leftmost */}
+          {/* chat button - leftmost */}
           <Button
             variant="ghost"
             className="flex flex-col items-center justify-center h-[48px] w-[48px] min-w-[48px] rounded-2xl gap-0.5 hover:bg-white/10"
@@ -62,7 +62,7 @@ export function BottomNav({ activeTab, onTabChange, className }: BottomNavProps)
             <span className="text-[10px] font-medium lowercase">inbox</span>
           </Button>
 
-          {/* Search button - centered in middle of toolbar */}
+          {/* search button - centered in middle of toolbar */}
           <Button
             variant="ghost"
             size="icon"

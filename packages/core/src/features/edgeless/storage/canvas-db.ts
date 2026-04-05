@@ -4,7 +4,7 @@ import type { DrawOp, OpLogEntry, CanvasCheckpoint } from './oplog'
 import { secureLogger } from '@/lib/secure-logger'
 
 const DB_NAME = 'pkm-canvas-v1'
-// bump version to ensure upgrade runs for clients that created the DB without stores
+// bump version to ensure upgrade runs for clients that created the db without stores
 const DB_VERSION = 2
 
 interface CanvasDBSchema extends DBSchema {
@@ -116,14 +116,14 @@ function isOpLogEntry(value: unknown): value is OpLogEntry {
 }
 
 /**
- * Batch append ops to the oplog in a single IndexedDB transaction.
+ * batch append ops to the oplog in a single indexeddb transaction.
  *
- * This is used for high-frequency stroke writes: the runtime can buffer
+ * this is used for high-frequency stroke writes: the runtime can buffer
  * multiple operations in memory and flush in batches to avoid excessive
- * IndexedDB round-trips.
+ * indexeddb round-trips.
  *
- * @param drawingId id of the drawing canvas
- * @param ops array of DrawOp or pre-built OpLogEntry objects
+ * @param drawingid id of the drawing canvas
+ * @param ops array of drawop or pre-built oplogentry objects
  * @returns the stored entries (same ordering as input)
  */
 export async function appendOps(drawingId: string, ops: AppendOpsInput[]): Promise<OpLogEntry[]> {
@@ -158,9 +158,9 @@ export async function appendOps(drawingId: string, ops: AppendOpsInput[]): Promi
 }
 
 /**
- * Retrieve up to `limit` unsynced oplog entries for a drawing.
+ * retrieve up to `limit` unsynced oplog entries for a drawing.
  *
- * Uses an indexed cursor scan to avoid allocating the full index result.
+ * uses an indexed cursor scan to avoid allocating the full index result.
  */
 export async function getUnsyncedOps(drawingId: string, limit = Infinity): Promise<OpLogEntry[]> {
   const db = await getCanvasDB()

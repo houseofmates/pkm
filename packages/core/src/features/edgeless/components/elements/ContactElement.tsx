@@ -3,7 +3,7 @@ import React from 'react';
 // import { usefronter } from "@/contexts/fronter-context";
 // import { headmatecard } from "@/features/headmates/components/headmate-card";
 // import { edgelesselement } from "../../store";
-// import { useMemo } from "react";
+// import { usememo } from "react";
 
 export const ContactElement = React.memo(function ContactElement({ element: _element }: { element: any }) {
   return null;

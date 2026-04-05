@@ -30,45 +30,45 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: WidgetPrope
     input.onchange = (e: any) => {
       const file = e.target.files?.[0];
       if (file) {
-        setCropperFile(file);
-        setCropperConfig({ field, ...config });
-        setCropperOpen(true);
+        setcropperfile(file);
+        setcropperconfig({ field, ...config });
+        setcropperopen(true);
       }
     };
     input.click();
   };
 
-  const handleCropComplete = (blob: Blob) => {
-    const reader = new FileReader();
+  const handlecropcomplete = (blob: blob) => {
+    const reader = new filereader();
     reader.onload = (e) => {
-      updateField(cropperConfig.field, e.target?.result);
-      setCropperOpen(false);
-      setCropperFile(null);
+      updatefield(cropperconfig.field, e.target?.result);
+      setcropperopen(false);
+      setcropperfile(null);
     };
-    reader.readAsDataURL(blob);
+    reader.readasdataurl(blob);
   };
 
-  const renderFields = () => {
+  const renderfields = () => {
     switch (element.type) {
       case 'text':
-        return <div className="text-white/50 italic">edit text directly on canvas. use double click.</div>;
+        return <div classname="text-white/50 italic">edit text directly on canvas. use double click.</div>;
       case 'button':
       case 'slick_button':
         return (
           <>
-            <Input label="button text" value={content.text} onChange={(v: string) => updateField('text', v)} />
-            <Input label="url" value={content.url} onChange={(v: string) => updateField('url', v)} placeholder="https://" />
-            <div className="flex flex-col gap-1.5">
-              <label className="text-white/70 text-xs font-bold">icon (lucide name)</label>
-              <div className="flex gap-2">
+            <input label="button text" value={content.text} onchange={(v: string) => updatefield('text', v)} />
+            <input label="url" value={content.url} onchange={(v: string) => updatefield('url', v)} placeholder="https://" />
+            <div classname="flex flex-col gap-1.5">
+              <label classname="text-white/70 text-xs font-bold">icon (lucide name)</label>
+              <div classname="flex gap-2">
                 <input
-                  className="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white focus:border-[var(--primary)] outline-none"
+                  classname="w-full bg-black/50 border border-white/10 rounded-lg px-3 py-2 text-white focus:border-[var(--primary)] outline-none"
                   value={content.icon || ''}
-                  onChange={e => updateField('icon', e.target.value)}
-                  placeholder="e.g. Star, Heart, Link"
+                  onchange={e => updatefield('icon', e.target.value)}
+                  placeholder="e.g. star, heart, link"
                 />
-                <a href="https://lucide.dev/icons" target="_blank" rel="noopener noreferrer" className="p-2 bg-white/5 rounded-lg hover:bg-white/10 text-white/50 hover:text-white" title="browse icons">
-                  <Search size={16} />
+                <a href="https://lucide.dev/icons" target="_blank" rel="noopener noreferrer" classname="p-2 bg-white/5 rounded-lg hover:bg-white/10 text-white/50 hover:text-white" title="browse icons">
+                  <search size={16} />
                 </a>
               </div>
             </div>
@@ -77,56 +77,56 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: WidgetPrope
       case 'hero':
         return (
           <>
-            <Input label="headline" value={content.headline} onChange={(v: string) => updateField('headline', v)} />
-            <Input label="subheadline" value={content.subheadline} onChange={(v: string) => updateField('subheadline', v)} textarea />
-            <Input label="button text" value={content.ctaText} onChange={(v: string) => updateField('ctaText', v)} />
-            <Input label="button link" value={content.ctaLink} onChange={(v: string) => updateField('ctaLink', v)} />
+            <input label="headline" value={content.headline} onchange={(v: string) => updatefield('headline', v)} />
+            <input label="subheadline" value={content.subheadline} onchange={(v: string) => updatefield('subheadline', v)} textarea />
+            <input label="button text" value={content.ctatext} onchange={(v: string) => updatefield('ctatext', v)} />
+            <input label="button link" value={content.ctalink} onchange={(v: string) => updatefield('ctalink', v)} />
           </>
         );
       case 'gallery':
-        return <div className="text-white/50 italic">gallery configuration coming soon (manage items via list)</div>;
+        return <div classname="text-white/50 italic">gallery configuration coming soon (manage items via list)</div>;
       case 'stats_bar':
         return (
           <>
-            <Input label="label" value={content.label} onChange={(v: string) => updateField('label', v)} />
-            <div className="grid grid-cols-2 gap-4">
-              <Input label="current value" type="number" value={content.value} onChange={(v: number) => updateField('value', Number(v))} />
-              <Input label="max value" type="number" value={content.max} onChange={(v: number) => updateField('max', Number(v))} />
+            <input label="label" value={content.label} onchange={(v: string) => updatefield('label', v)} />
+            <div classname="grid grid-cols-2 gap-4">
+              <input label="current value" type="number" value={content.value} onchange={(v: number) => updatefield('value', number(v))} />
+              <input label="max value" type="number" value={content.max} onchange={(v: number) => updatefield('max', number(v))} />
             </div>
-            <Input label="bar color" value={content.color} onChange={(v: string) => updateStyle('color', v)} />
-            <Checkbox label="show numeric value" checked={content.showValue !== false} onChange={(v: boolean) => updateField('showValue', v)} />
+            <input label="bar color" value={content.color} onchange={(v: string) => updatestyle('color', v)} />
+            <checkbox label="show numeric value" checked={content.showvalue !== false} onchange={(v: boolean) => updatefield('showvalue', v)} />
           </>
         );
       case 'eternal_flame':
       case 'gold_pile':
       case 'sleep_ring':
-        return <div className="text-white/50 italic">visual widget. styles can be adjusted above.</div>;
+        return <div classname="text-white/50 italic">visual widget. styles can be adjusted above.</div>;
       case 'testimonial':
         return (
           <>
-            <Input label="quote" value={content.quote} onChange={(v: string) => updateField('quote', v)} textarea />
-            <Input label="author name" value={content.author} onChange={(v: string) => updateField('author', v)} />
-            <Input label="role/title" value={content.role} onChange={(v: string) => updateField('role', v)} />
-            <div className="space-y-2">
-              <label className="text-white/70 text-sm">avatar</label>
-              <div className="flex gap-2">
-                <Input
+            <input label="quote" value={content.quote} onchange={(v: string) => updatefield('quote', v)} textarea />
+            <input label="author name" value={content.author} onchange={(v: string) => updatefield('author', v)} />
+            <input label="role/title" value={content.role} onchange={(v: string) => updatefield('role', v)} />
+            <div classname="space-y-2">
+              <label classname="text-white/70 text-sm">avatar</label>
+              <div classname="flex gap-2">
+                <input
                   placeholder="avatar url (optional)"
                   value={content.avatar}
-                  onChange={(v: string) => updateField('avatar', v)}
+                  onchange={(v: string) => updatefield('avatar', v)}
                 />
                 <button
-                  onClick={() => handleFileUpload('avatar', { aspectRatio: 1, shape: 'round', width: 200, height: 200 })}
-                  className="px-4 py-2 bg-[var(--primary)]/20 hover:bg-[var(--primary)]/30 text-[var(--primary)] rounded-md flex items-center gap-2 whitespace-nowrap transition-colors"
+                  onclick={() => handlefileupload('avatar', { aspectratio: 1, shape: 'round', width: 200, height: 200 })}
+                  classname="px-4 py-2 bg-[var(--primary)]/20 hover:bg-[var(--primary)]/30 text-[var(--primary)] rounded-md flex items-center gap-2 whitespace-nowrap transition-colors"
                   title="upload from device"
                 >
-                  <Upload size={16} />
+                  <upload size={16} />
                   upload
                 </button>
               </div>
               {content.avatar && (
-                <div className="mt-2">
-                  <img src={content.avatar} alt="preview" className="w-16 h-16 rounded-full object-cover" />
+                <div classname="mt-2">
+                  <img src={content.avatar} alt="preview" classname="w-16 h-16 rounded-full object-cover" />
                 </div>
               )}
             </div>
@@ -135,32 +135,32 @@ export function WidgetPropertyEditor({ element, onUpdate, onClose }: WidgetPrope
       case 'serverip':
         return (
           <>
-            <Input label="java address" value={content.javaIP} onChange={(v: string) => updateField('javaIP', v)} placeholder="dupemates.playit.pub" />
-            <Input label="java port" value={content.javaPort} onChange={(v: string) => updateField('javaPort', v)} placeholder="25565 (optional)" />
-            <Input label="bedrock address" value={content.bedrockIP} onChange={(v: string) => updateField('bedrockIP', v)} placeholder="dupemates.playit.pub" />
-            <Input label="bedrock port" value={content.bedrockPort} onChange={(v: string) => updateField('bedrockPort', v)} placeholder="19132" />
-            <Checkbox label="show bedrock" checked={content.showBedrock !== false} onChange={(v: boolean) => updateField('showBedrock', v)} />
+            <input label="java address" value={content.javaip} onchange={(v: string) => updatefield('javaip', v)} placeholder="dupemates.playit.pub" />
+            <input label="java port" value={content.javaport} onchange={(v: string) => updatefield('javaport', v)} placeholder="25565 (optional)" />
+            <input label="bedrock address" value={content.bedrockip} onchange={(v: string) => updatefield('bedrockip', v)} placeholder="dupemates.playit.pub" />
+            <input label="bedrock port" value={content.bedrockport} onchange={(v: string) => updatefield('bedrockport', v)} placeholder="19132" />
+            <checkbox label="show bedrock" checked={content.showbedrock !== false} onchange={(v: boolean) => updatefield('showbedrock', v)} />
           </>
         );
       default:
-        return <div className="text-white/50 italic">no specific editor for this widget type.</div>;
+        return <div classname="text-white/50 italic">no specific editor for this widget type.</div>;
     }
   };
 
   return (
-    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[50000] flex items-center justify-center p-4 widget-property-editor" onClick={onClose}>
+    <div classname="fixed inset-0 bg-black/80 backdrop-blur-sm z-[50000] flex items-center justify-center p-4 widget-property-editor" onclick={onclose}>
       <div
-        className="bg-[#1a1a1a] border border-white/10 rounded-2xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl animate-bounce-up"
-        onClick={e => e.stopPropagation()}
-        onMouseDown={e => e.stopPropagation()}
+        classname="bg-[#1a1a1a] border border-white/10 rounded-2xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl animate-bounce-up"
+        onclick={e => e.stoppropagation()}
+        onmousedown={e => e.stoppropagation()}
       >
-        <div className="flex justify-between items-center p-6 border-b border-white/10 bg-[#1a1a1a] sticky top-0 z-10 rounded-t-2xl">
-          <h3 className="text-xl font-bold text-[var(--primary)] lowercase">edit {element.type}</h3>
-          <button onClick={onClose} className="text-white/40 hover:text-white"><X size={20} /></button>
+        <div classname="flex justify-between items-center p-6 border-b border-white/10 bg-[#1a1a1a] sticky top-0 z-10 rounded-t-2xl">
+          <h3 classname="text-xl font-bold text-[var(--primary)] lowercase">edit {element.type}</h3>
+          <button onclick={onclose} classname="text-white/40 hover:text-white"><x size={20} /></button>
         </div>
 
-        <div className="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-4 bg-[#111]">
-          {renderFields()}
+        <div classname="p-6 overflow-y-auto custom-scrollbar flex-1 space-y-4 bg-[#111]">
+          {renderfields()}
           {/* common style fields */}
           <div className="p-4 bg-white/5 rounded-xl space-y-4 mb-4">
             <h4 className="text-[var(--primary)] text-xs font-black mb-2 lowercase">background styles</h4>

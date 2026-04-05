@@ -50,7 +50,7 @@ export function PetStatusDisplay({ className, onInteract }: PetStatusDisplayProp
   
   if (!pet) return null;
   
-  // Determine visual state
+  // determine visual state
   const getPetMood = () => {
     const avgStat = (pet.hunger + pet.happiness + pet.energy + pet.cleanliness) / 4;
     if (avgStat >= 70) return { emoji: '😊', color: '#22c55e', state: 'active' };
@@ -95,7 +95,7 @@ export function PetStatusDisplay({ className, onInteract }: PetStatusDisplayProp
     await saveToServer();
     onInteract?.(type);
     
-    // Return to idle after interaction
+    // return to idle after interaction
     setTimeout(() => {
       updatePet(pet.id, { visualState: isSleeping ? 'sleeping' : 'idle-happy' });
     }, 3000);
@@ -103,7 +103,7 @@ export function PetStatusDisplay({ className, onInteract }: PetStatusDisplayProp
   
   return (
     <div className={cn("p-4 rounded-xl bg-black/60 backdrop-blur-sm border border-white/10", className)}>
-      {/* Header */}
+      {/* header */}
       <div className="flex items-center gap-2 mb-3">
         <span className="text-lg">{mood.emoji}</span>
         <div>
@@ -117,7 +117,7 @@ export function PetStatusDisplay({ className, onInteract }: PetStatusDisplayProp
         </div>
       </div>
       
-      {/* Pet Avatar */}
+      {/* pet avatar */}
       <div className="flex gap-4 mb-4">
         <div 
           className={cn(
@@ -130,7 +130,7 @@ export function PetStatusDisplay({ className, onInteract }: PetStatusDisplayProp
           {pet.emoji}
         </div>
         
-        {/* Stats */}
+        {/* stats */}
         <div className="flex-1 space-y-1.5">
           <PetStatBar 
             label="hunger" 
@@ -159,7 +159,7 @@ export function PetStatusDisplay({ className, onInteract }: PetStatusDisplayProp
         </div>
       </div>
       
-      {/* Interaction buttons */}
+      {/* interaction buttons */}
       {!isSleeping && (
         <div className="flex gap-2">
           <button

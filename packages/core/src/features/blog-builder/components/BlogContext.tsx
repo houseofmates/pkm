@@ -6,11 +6,11 @@ export interface BlogPostData {
   title: string;
   slug: string;
   description?: string; // excerpt
-  content: ElementData[]; // JSON in DB
+  content: ElementData[]; // json in db
   banner_image?: string;
   published: boolean;
   published_date?: string;
-  tags?: string[]; // stored as JSON array
+  tags?: string[]; // stored as json array
   mood?: string;
   energy_level?: string;
   blocks?: any;

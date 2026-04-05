@@ -1,14 +1,14 @@
-// Security headers middleware for PKM backend
-// Implements comprehensive security headers following OWASP guidelines
+// security headers middleware for pkm backend
+// implements comprehensive security headers following owasp guidelines
 
 import helmet from 'helmet';
 
 /**
- * Configure security headers middleware
+ * configure security headers middleware
  */
 export function securityHeaders() {
     return helmet({
-        // Content Security Policy
+        // content security policy
         contentSecurityPolicy: {
             directives: {
                 defaultSrc: ["'self'"],
@@ -27,99 +27,99 @@ export function securityHeaders() {
             }
         },
         
-        // Cross-Origin Embedder Policy
+        // cross-origin embedder policy
         crossOriginEmbedderPolicy: true,
         
-        // Cross-Origin Opener Policy
+        // cross-origin opener policy
         crossOriginOpenerPolicy: {
             policy: "same-origin"
         },
         
-        // Cross-Origin Resource Policy
+        // cross-origin resource policy
         crossOriginResourcePolicy: {
             policy: "same-origin"
         },
         
-        // DNS Prefetch Control
+        // dns prefetch control
         dnsPrefetchControl: {
             allow: false
         },
         
-        // Frameguard (X-Frame-Options)
+        // frameguard (x-frame-options)
         frameguard: {
             action: "sameorigin"
         },
         
-        // Hide X-Powered-By header
+        // hide x-powered-by header
         hidePoweredBy: true,
         
-        // HTTP Strict Transport Security (HSTS)
+        // http strict transport security (hsts)
         hsts: {
             maxAge: 31536000, // 1 year
             includeSubDomains: true,
             preload: true
         },
         
-        // IE No Open
+        // ie no open
         ieNoOpen: true,
         
-        // No Sniff
+        // no sniff
         noSniff: true,
         
-        // Permitted Cross-Domain Policies
+        // permitted cross-domain policies
         permittedCrossDomainPolicies: {
             permittedPolicies: "none"
         },
         
-        // Referrer Policy
+        // referrer policy
         referrerPolicy: {
             policy: "strict-origin-when-cross-origin"
         },
         
-        // X-XSS-Protection
+        // x-xss-protection
         xssFilter: true
     });
 }
 
 /**
- * Additional security headers not covered by Helmet
+ * additional security headers not covered by helmet
  */
 export function additionalSecurityHeaders(req, res, next) {
-    // Prevent caching of sensitive data
+    // prevent caching of sensitive data
     res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
     res.setHeader('Pragma', 'no-cache');
     res.setHeader('Expires', '0');
     res.setHeader('Surrogate-Control', 'no-store');
     
-    // Prevent clickjacking
+    // prevent clickjacking
     res.setHeader('X-Frame-Options', 'SAMEORIGIN');
     
-    // Prevent MIME type sniffing
+    // prevent mime type sniffing
     res.setHeader('X-Content-Type-Options', 'nosniff');
     
-    // Enable XSS filtering
+    // enable xss filtering
     res.setHeader('X-XSS-Protection', '1; mode=block');
     
-    // Referrer policy
+    // referrer policy
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
     
-    // Permissions Policy (formerly Feature-Policy)
+    // permissions policy (formerly feature-policy)
     res.setHeader(
         'Permissions-Policy',
         'camera=(), microphone=(), geolocation=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()'
     );
     
-    // Remove Server header
+    // remove server header
     res.removeHeader('Server');
     
-    // Remove X-AspNet-Version header
+    // remove x-aspnet-version header
     res.removeHeader('X-AspNet-Version');
     
     next();
 }
 
 /**
- * CORS configuration
+ * cors configuration
  */
 export function corsConfig() {
     const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
@@ -138,10 +138,10 @@ export function corsConfig() {
 }
 
 /**
- * Rate limit headers
+ * rate limit headers
  */
 export function rateLimitHeaders(req, res, next) {
-    // Add security headers to rate limit responses
+    // add security headers to rate limit responses
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
     next();

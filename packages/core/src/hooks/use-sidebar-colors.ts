@@ -29,13 +29,13 @@ interface SidebarColorMap {
  * hook for managing sidebar colors with cross-device sync
  * 
  * usage:
- * const { colors, updateColor, isLoading } = useSidebarColors();
+ * const { colors, updatecolor, isloading } = usesidebarcolors();
  * 
  * // get color for an item
  * const color = colors['my_collection']?.color;
  * 
  * // update color (syncs to all devices)
- * await updateColor('my_collection', '#ff0000');
+ * await updatecolor('my_collection', '#ff0000');
  */
 export function useSidebarColors(options?: { pollIntervalMs?: number }) {
   const { isAuthenticated, token } = useAuth();

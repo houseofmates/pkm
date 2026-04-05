@@ -6,7 +6,7 @@ import { Mic } from 'lucide-react';
 // a standalone widget for mobile home screen packaging).
 // it toggles voice transcription on/off and indicates
 // its state with a yellow or gray background. the
-// parent must supply the "handleVoiceTranscription" function
+// parent must supply the "handlevoicetranscription" function
 // from journal.tsx or wherever transcription logic lives.
 
 export function PushToTalkWidget({ handleVoiceTranscription }: { handleVoiceTranscription: () => void }) {

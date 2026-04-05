@@ -28,7 +28,7 @@ export const ShoppingCard = React.memo(function ShoppingCard({ element }: { elem
       className={`w-full h-full flex flex-col relative transition-all duration-500 group
  ${localStatus === 'desire'
           ? 'animate-float border-2 border-dashed border-primary/50 bg-black/40 backdrop-blur-sm rounded-full aspect-square justify-center items-center p-6 text-center shadow-[0_0_30px_rgba(246,176,18,0.2)]'
-          : 'border border-white/10 bg-zinc-900 rounded-lg shadow-xl' // Inventory Mode
+          : 'border border-white/10 bg-zinc-900 rounded-lg shadow-xl' // inventory mode
         }
   `}
     >

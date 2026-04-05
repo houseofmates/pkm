@@ -3,9 +3,9 @@
 // communicates with db-bridge.ts via structured message passing
 
 import { openDB } from 'idb'
-import type { DBSchema, IDBPDatabase } from 'idb' // DBSchema is purely a type and already imported as such
+import type { DBSchema, IDBPDatabase } from 'idb' // dbschema is purely a type and already imported as such
 
-// simple logger for worker context (no access to main thread secureLogger)
+// simple logger for worker context (no access to main thread securelogger)
 const workerLogger = {
   error: (...args: unknown[]) => console.error('[Worker]', ...args),
   warn: (...args: unknown[]) => console.warn('[Worker]', ...args),
@@ -59,7 +59,7 @@ interface canvasdbschema extends DBSchema {
 }
 
 const DB_NAME = 'pkm-canvas-v1'
-// bump version to ensure upgrade runs for clients that created the DB without stores
+// bump version to ensure upgrade runs for clients that created the db without stores
 const DB_VERSION = 2
 
 let db: IDBPDatabase<canvasdbschema> | null = null

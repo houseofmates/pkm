@@ -234,9 +234,9 @@ export function useJournalData() {
 
     const timer = setTimeout(async () => {
       try {
-        // assume api.semanticSearch exists or use a generic fetch
-        // const results = await api.resource('journal').list({ filter: { content: { _ilike: `%${pastEntriesFilter.search}%` } } });
-        // if (searchId === nlSearchCounterRef.current) setNlIds(results.map(r => r.id));
+        // assume api.semanticsearch exists or use a generic fetch
+        // const results = await api.resource('journal').list({ filter: { content: { _ilike: `%${pastentriesfilter.search}%` } } });
+        // if (searchid === nlsearchcounterref.current) setnlids(results.map(r => r.id));
       } catch (e) {
         secureLogger.error('semantic search failed', e);
       } finally {

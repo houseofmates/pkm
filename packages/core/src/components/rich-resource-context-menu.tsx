@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { ErrorBoundary } from '@/components/ui/error-boundary';
 import { HexColorPicker } from 'react-colorful';
 import { Upload, Search, Loader2, Wand2, Undo2, Save, RotateCcw, Sparkles, Check, Image as ImageIcon, type LucideIcon } from 'lucide-react';
-// Note: static import of lucide-react gets tree-shaken by bundlers. a number of
+// note: static import of lucide-react gets tree-shaken by bundlers. a number of
 // other modules rely on some of the helper icons above, so we keep those
 // exports around, but the full namespace may still be pruned.
 //
@@ -59,10 +59,10 @@ interface CustomIconEntry {
 }
 
 // instead of computing the complete icon list at module load time we
-// populate it dynamically when the menu is rendered.  bundlers like Vite
+// populate it dynamically when the menu is rendered.  bundlers like vite
 // aggressively tree‑shake unused exports from `lucide-react` which means the
 // namespace object may only contain the handful of icons that were imported
-// statically elsewhere in the bundle.  as a result, a static ALL_ICONS array
+// statically elsewhere in the bundle.  as a result, a static all_icons array
 // could end up empty or missing most of the icons, which is exactly what
 // manifested when right‑clicking a sidebar item – the "icons" tab would be
 // completely blank.
@@ -72,10 +72,10 @@ interface CustomIconEntry {
 // rebuild the list when the context menu opens.  we also keep the filtering
 // logic the same so we still exclude internal helpers and duplicates.
 
-// helper used in `useEffect` below; not exported because it's only relevant in
+// helper used in `useeffect` below; not exported because it's only relevant in
 // this file.
 //
-// Lucide's module shape has changed a few times – during development the
+// lucide's module shape has changed a few times – during development the
 // namespace might expose every icon as a top‑level export, and in production
 // builds a single `icons` object may be provided instead.  the previous
 // implementation blindly filtered out the `icons` property which meant that
@@ -651,7 +651,7 @@ function renderMenu({ currentName, currentColor, onUpdate, children, itemId }: R
                   onUpdate({ name: val });
                   // close context menu after rename
                   setTimeout(() => {
-                    // try to close the menu (works for Radix UI context menu)
+                    // try to close the menu (works for radix ui context menu)
                     if (contextMenuRef.current) {
                       const evt = new Event('pointerdown', { bubbles: true });
                       contextMenuRef.current.dispatchEvent(evt);
@@ -686,8 +686,8 @@ function renderMenu({ currentName, currentColor, onUpdate, children, itemId }: R
       {/* color dot toggle removed - moved to tabs */}
 
       {/* main content area */}
-      {/* explicit h-[300px] required: ContextMenuContent has no intrinsic height so
-           flex-1 resolves to 0, causing h-full on Tabs to also be 0 and hiding icons */}
+      {/* explicit h-[300px] required: contextmenucontent has no intrinsic height so
+           flex-1 resolves to 0, causing h-full on tabs to also be 0 and hiding icons */}
       <div className="h-[300px] w-full flex flex-col relative">
         <Tabs defaultValue="icons" className="w-full h-full flex flex-col" onValueChange={(v) => setActiveTab(v as 'icons' | 'emojis' | 'color')}>
           <div className="px-0 border-b bg-muted/30 shrink-0 flex items-center">

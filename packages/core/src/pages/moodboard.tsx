@@ -21,10 +21,10 @@ interface BoardElement {
   y: number;
   w: number;
   h: number;
-  content?: string; // Text content or Image URL or Collection Name
+  content?: string; // text content or image url or collection name
   style?: React.CSSProperties;
   zIndex: number;
-  config?: any; // For views
+  config?: any; // for views
 }
 
 export function MoodboardPage() {
@@ -56,7 +56,7 @@ export function MoodboardPage() {
     const newEl: BoardElement = {
       id: `el_${Date.now()}`,
       type,
-      x: center.x - 100, // Roughly center
+      x: center.x - 100, // roughly center
       y: center.y - 100,
       w: type === 'view' ? 400 : 200,
       h: type === 'view' ? 300 : type === 'text' ? 50 : 200,
@@ -170,7 +170,7 @@ export function MoodboardPage() {
                   ...el.style
                 }}
                 onMouseDown={(e) => {
-                  // Only allow dragging in viewing mode, not when editing
+                  // only allow dragging in viewing mode, not when editing
                   if (canvasMode === 'editing' && editingId === el.id) return;
                   e.stopPropagation();
                   if (e.button === 0 && canvasMode === 'viewing') {
@@ -214,7 +214,7 @@ export function MoodboardPage() {
                     value={el.content}
                     onChange={(e) => updateElement(el.id, { content: e.target.value })}
                     onMouseDown={(e) => {
-                      // In editing mode, prevent drag initiation on the textarea
+                      // in editing mode, prevent drag initiation on the textarea
                       if (canvasMode === 'editing') {
                         e.stopPropagation();
                       }

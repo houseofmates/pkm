@@ -27,7 +27,7 @@ interface SearchResult {
 }
 
 interface GlobalCommandPaletteProps {
-  open?: boolean; // Controlled
+  open?: boolean; // controlled
   onOpenChange?: (open: boolean) => void;
   externalContext?: string | null;
 }
@@ -104,7 +104,7 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
   }
 
   setIsSearching(true);
-  setAiInsight(null); // Clear previous insight
+  setAiInsight(null); // clear previous insight
 
   // 1. database retrieval (simulated global search)
   // ideally we hit a specific endpoint.
@@ -127,7 +127,7 @@ export function GlobalCommandPalette({ open: controlledOpen, onOpenChange, exter
    $or: [
    { title: { $includes: value } },
    { content: { $includes: value } },
-   { Name: { $includes: value } } // Common fallback
+   { Name: { $includes: value } } // common fallback
    ]
  },
  pageSize: 3

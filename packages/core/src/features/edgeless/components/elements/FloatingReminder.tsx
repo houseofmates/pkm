@@ -14,7 +14,7 @@ export const FloatingReminder = React.memo(function FloatingReminder({ element }
   const hoursLeft = (due - now) / 3600000;
 
   // speed increases as deadline approaches
-  const speed = Math.max(0.2, 5 - Math.max(0, hoursLeft / 24)); // Max speed 5, min 0.2
+  const speed = Math.max(0.2, 5 - Math.max(0, hoursLeft / 24)); // max speed 5, min 0.2
 
   // initialize velocity with random start direction (only once on mount)
   useEffect(() => {

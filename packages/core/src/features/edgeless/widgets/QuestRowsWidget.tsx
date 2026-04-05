@@ -71,7 +71,7 @@ export function QuestRowsWidget({ className }: QuestRowsWidgetProps) {
                 ))}
               </div>
               
-              {/* Progress bar */}
+              {/* progress bar */}
               <div className="mt-2 h-1 bg-white/10 rounded-full overflow-hidden">
                 <div 
                   className={cn(
