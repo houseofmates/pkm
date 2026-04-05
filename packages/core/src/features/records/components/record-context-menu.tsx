@@ -64,7 +64,7 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
   // identify title field once
   const titleField = customTitleField || collection.fields?.find((f: CollectionField) => f.name === 'title' || f.name === 'name') || collection.fields?.find((f: CollectionField) => f.interface === 'input');
 
-  const [title, setTitle] = useState((titleField?.name ? record[titleField.name] : record['title']) || '');
+  const [title, setTitle] = useState<string>(String((titleField?.name ? record[titleField.name] : record['title']) || ''));
 
   // color state
   const [color, setColor] = useState(metadata[record.id]?.color || '');
