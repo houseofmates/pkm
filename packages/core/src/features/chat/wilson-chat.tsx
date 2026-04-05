@@ -192,7 +192,7 @@ interface ChatBubbleProps {
 const ChatBubble = memo(function ChatBubble({ message }: ChatBubbleProps) {
   return (
     <div className={`flex flex-col gap-1 ${message.role === 'assistant' ? 'items-start' : 'items-end'}`}>
-      <span className="text-[10px] text-primary opacity-50">{message.role === 'assistant' ? 'wilson' : 'user'}</span>
+      <span className="text-[10px] text-primary opacity-50">{message.role === 'assistant' ? 'Wilson' : 'user'}</span>
       <div className={`p-3 rounded-lg max-w-[90%] lowercase ${message.role === 'assistant' ? 'bg-primary/10 border border-primary/20 text-primary' : 'bg-black border border-gray-700 text-gray-300'}`}>
         {message.content}
       </div>
@@ -226,7 +226,7 @@ const StreamingBubble = memo(function StreamingBubble() {
   if (!streamingContent) return null;
   return (
     <div className="flex flex-col gap-1 items-start">
-      <span className="text-[10px] text-primary opacity-50">wilson</span>
+      <span className="text-[10px] text-primary opacity-50">Wilson</span>
       <div className="p-3 rounded-lg max-w-[90%] lowercase bg-primary/10 border border-primary/20 text-primary">
         {streamingContent}
         <span className="inline-block w-1.5 h-3.5 bg-primary/60 ml-0.5 animate-pulse" />
@@ -441,11 +441,11 @@ export function WilsonChat() {
       )}
       <div className="flex-1 flex flex-col min-w-0">
         <div className="p-4 border-b border-primary flex justify-between items-center bg-black/50">
-          <div className="flex items-center gap-2 text-primary font-bold lowercase">
+          <div className="flex items-center gap-2 text-primary font-bold">
             <button onClick={() => setShowHistory(!showHistory)} className={`p-1 rounded hover:bg-primary/20 transition-colors ${showHistory ? 'text-primary' : 'text-primary/60'}`} title={showHistory ? 'Hide history' : 'Show history'}>
               <History size={18} />
             </button>
-            <span>wilson</span>
+            <span>Wilson</span>
             {currentSession && (
               <span className="text-xs font-normal text-primary/50 truncate max-w-[120px]" title={currentSession.title}>
                 - {compactTimestamp(currentSession.createdAt)}
