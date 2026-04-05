@@ -212,10 +212,10 @@ export function CalendarView({ data, config, collection, onUpdateRecord, onDelet
           </div>
           <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)} className="w-full md:w-auto">
             <TabsList className="grid w-full grid-cols-4 md:w-auto">
-              <TabsTrigger value="year" className="text-xs md:text-sm">year</TabsTrigger>
-              <TabsTrigger value="month" className="text-xs md:text-sm">month</TabsTrigger>
-              <TabsTrigger value="week" className="text-xs md:text-sm">week</TabsTrigger>
-              <TabsTrigger value="day" className="text-xs md:text-sm">day</TabsTrigger>
+              <TabsTrigger value="year" className="text-xs md:text-sm">Year</TabsTrigger>
+              <TabsTrigger value="month" className="text-xs md:text-sm">Month</TabsTrigger>
+              <TabsTrigger value="week" className="text-xs md:text-sm">Week</TabsTrigger>
+              <TabsTrigger value="day" className="text-xs md:text-sm">Day</TabsTrigger>
             </TabsList>
           </Tabs>
         </div>
