@@ -476,16 +476,57 @@ export function Spotlight() {
                                                 <FileText className="h-4 w-4 text-primary/70 mt-1" />
                                                 <div className="flex-1 space-y-1">
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-sm font-medium lowercase truncate">
-                                                            {(res.record?.title as string) || (res.record?.name as string) || `record #${res.id}`}
+                                                        <span className="text-sm font-medium truncate">
+                                                            {(res.record?.title as string) || (res.record?.name as string) || `Record #${res.id}`}
                                                         </span>
                                                         <Badge variant="outline" className="text-[10px] py-0 h-4 border-primary/20 text-primary/60">
-                                                            {toTitleCase(res.collectionTitle || res.collectionName)}
+                                                            {toTitleCase(res.collectionTitle || res.collectionName || '')}
                                                         </Badge>
                                                     </div>
                                                 </div>
                                             </CommandItem>
                                         ))}
+                                    </CommandGroup>
+                                )}
+
+                                <CommandSeparator className="bg-primary/5 mx-4" />
+
+                                <CommandGroup heading="Navigation & Actions" className="px-2">
+                                    <CommandItem
+                                        onSelect={() => setMode('activity')}
+                                        className="px-4 py-3 rounded-lg cursor-pointer"
+                                    >
+                                        <PlusCircle className="mr-3 h-4 w-4 text-[#f6b012]" />
+                                        <span style={{ color: '#f6b012' }}>Log Activity</span>
+                                        <Badge variant="outline" className="ml-2 text-[10px] py-0 h-4 border-[#f6b012]/30 text-[#f6b012]/60">
+                                            Ctrl+Shift+A
+                                        </Badge>
+                                    </CommandItem>
+                                    <CommandItem
+                                        onSelect={() => {
+                                            secureLogger.debug('[Spotlight] Opening Wilson chat...');
+                                            setOpen(false);
+                                            setChatOpen(true);
+                                            secureLogger.debug('[Spotlight] setChatOpen(true) called');
+                                        }}
+                                        className="px-4 py-3 rounded-lg cursor-pointer"
+                                    >
+                                        <MessageCircle className="mr-3 h-4 w-4 text-primary/60" />
+                                        <span>Open Wilson Chat</span>
+                                    </CommandItem>
+                                    <CommandItem onSelect={() => runAction(() => navigate('/'))} className="px-4 py-3 rounded-lg cursor-pointer">
+                                        <Rocket className="mr-3 h-4 w-4 text-primary/60" />
+                                        <span>Go to Dashboard</span>
+                                    </CommandItem>
+                                    <CommandItem onSelect={() => runAction(() => navigate('/headmates'))} className="px-4 py-3 rounded-lg cursor-pointer">
+                                        <User className="mr-3 h-4 w-4 text-primary/60" />
+                                        <span>Switch Headmate Context</span>
+                                    </CommandItem>
+                                </CommandGroup>
+
+                                {collections.length > 0 && query.length === 0 && (
+                                    <CommandGroup heading="Active Databases" className="px-2">
+                                        {collections.map((col: Collection) => (
                                             <CommandItem
                                                 key={col.name}
                                                 onSelect={() => runAction(() => navigate(`/databases/${col.name}`))}
