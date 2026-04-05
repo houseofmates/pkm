@@ -466,7 +466,7 @@ export function Spotlight() {
                                 </CommandEmpty>
 
                                 {dbResults.length > 0 && (
-                                    <CommandGroup heading="Database Matches" className="px-2">
+                                    <CommandGroup heading="database matches" className="px-2">
                                         {dbResults.map((res, i) => (
                                             <CommandItem
                                                 key={`${res.collectionName}-${res.id}-${i}`}
@@ -491,15 +491,15 @@ export function Spotlight() {
 
                                 <CommandSeparator className="bg-primary/5 mx-4" />
 
-                                <CommandGroup heading="Navigation & Actions" className="px-2">
+                                <CommandGroup heading="navigation & actions" className="px-2">
                                     <CommandItem
                                         onSelect={() => setMode('activity')}
                                         className="px-4 py-3 rounded-lg cursor-pointer"
                                     >
                                         <PlusCircle className="mr-3 h-4 w-4 text-[#f6b012]" />
-                                        <span style={{ color: '#f6b012' }}>Log Activity</span>
+                                        <span style={{ color: '#f6b012' }}>log activity</span>
                                         <Badge variant="outline" className="ml-2 text-[10px] py-0 h-4 border-[#f6b012]/30 text-[#f6b012]/60">
-                                            Ctrl+Shift+A
+                                            ctrl+shift+a
                                         </Badge>
                                     </CommandItem>
                                     <CommandItem
@@ -512,20 +512,20 @@ export function Spotlight() {
                                         className="px-4 py-3 rounded-lg cursor-pointer"
                                     >
                                         <MessageCircle className="mr-3 h-4 w-4 text-primary/60" />
-                                        <span>Open Wilson Chat</span>
+                                        <span>open wilson chat</span>
                                     </CommandItem>
                                     <CommandItem onSelect={() => runAction(() => navigate('/'))} className="px-4 py-3 rounded-lg cursor-pointer">
                                         <Rocket className="mr-3 h-4 w-4 text-primary/60" />
-                                        <span>Go to Dashboard</span>
+                                        <span>go to dashboard</span>
                                     </CommandItem>
                                     <CommandItem onSelect={() => runAction(() => navigate('/headmates'))} className="px-4 py-3 rounded-lg cursor-pointer">
                                         <User className="mr-3 h-4 w-4 text-primary/60" />
-                                        <span>Switch Headmate Context</span>
+                                        <span>switch headmate context</span>
                                     </CommandItem>
                                 </CommandGroup>
 
                                 {collections.length > 0 && query.length === 0 && (
-                                    <CommandGroup heading="Active Databases" className="px-2">
+                                    <CommandGroup heading="active databases" className="px-2">
                                         {collections.map((col: Collection) => (
                                             <CommandItem
                                                 key={col.name}
@@ -549,7 +549,7 @@ export function Spotlight() {
                             </div>
                             <div className="flex items-center gap-2">
                                 <CommandIcon className="h-3 w-3" />
-                                <span>Spotlight v2.0</span>
+                                <span>spotlight v2.0</span>
                             </div>
                         </div>
                     </Command>
