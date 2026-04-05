@@ -236,10 +236,10 @@ export function Toolbar() {
 
         {/* primary tools - centered */}
         <div className="flex items-center gap-1 px-2">
-          <button onClick={store.undo} className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors" title="undo">
+          <button onClick={store.undo} className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors" title="Undo">
             <Undo2 size={20} />
           </button>
-          <button onClick={store.redo} className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors" title="redo">
+          <button onClick={store.redo} className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors" title="Redo">
             <Redo2 size={20} />
           </button>
           <div className="w-px h-6 bg-white/10 mx-1" />
@@ -261,12 +261,12 @@ export function Toolbar() {
             specialModeIcon={store.selectionMode === 'cursor' ? <MousePointer2 size={24} /> : <Hand size={24} />}
             menuContent={
               <div className="flex flex-col gap-2">
-                <span className="text-xs text-primary font-bold lowercase">mode</span>
-                <button onClick={() => { store.setSelectionMode('grab'); closeMenu() }} className={`text-sm p-2 rounded flex items-center gap-2 lowercase ${store.selectionMode === 'grab' ? 'bg-primary/20 text-primary' : 'text-zinc-300 hover:bg-white/10'}`}>
-                  <Hand size={16} /> grab (pan)
+                <span className="text-xs text-primary font-bold">Mode</span>
+                <button onClick={() => { store.setSelectionMode('grab'); closeMenu() }} className={`text-sm p-2 rounded flex items-center gap-2 ${store.selectionMode === 'grab' ? 'bg-primary/20 text-primary' : 'text-zinc-300 hover:bg-white/10'}`}>
+                  <Hand size={16} /> Grab (Pan)
                 </button>
-                <button onClick={() => { store.setSelectionMode('cursor'); closeMenu() }} className={`text-sm p-2 rounded flex items-center gap-2 lowercase ${store.selectionMode === 'cursor' ? 'bg-primary/20 text-primary' : 'text-zinc-300 hover:bg-white/10'}`}>
-                  <MousePointer2 size={16} /> interact
+                <button onClick={() => { store.setSelectionMode('cursor'); closeMenu() }} className={`text-sm p-2 rounded flex items-center gap-2 ${store.selectionMode === 'cursor' ? 'bg-primary/20 text-primary' : 'text-zinc-300 hover:bg-white/10'}`}>
+                  <MousePointer2 size={16} /> Interact
                 </button>
               </div>
             }
@@ -282,7 +282,7 @@ export function Toolbar() {
             closeMenu={closeMenu}
             menuContent={
               <div className="flex flex-col gap-2 min-w-[200px]">
-                <span className="text-xs text-primary font-bold lowercase">lasso selection</span>
+                <span className="text-xs text-primary font-bold">Lasso Selection</span>
                 <p className="text-xs text-zinc-400">
                   draw a freeform loop to select multiple objects
                 </p>
@@ -310,7 +310,7 @@ export function Toolbar() {
             }}
             menuContent={
               <div className="flex flex-col gap-2 min-w-[200px]">
-                <span className="text-xs text-primary font-bold lowercase">selection</span>
+                <span className="text-xs text-primary font-bold">Selection</span>
                 <p className="text-xs text-zinc-400">
                   draw a rectangle to cut & move pixels
                 </p>
@@ -340,7 +340,7 @@ export function Toolbar() {
             }}
             menuContent={
               <div className="flex flex-col gap-2 min-w-[200px]">
-                <span className="text-xs text-primary font-bold lowercase">transform</span>
+                <span className="text-xs text-primary font-bold">Transform</span>
                 <p className="text-xs text-zinc-400">
                   scale, rotate and move selected objects
                 </p>
@@ -365,8 +365,8 @@ export function Toolbar() {
               <>
                 {/* size */}
                 <div className="flex flex-col gap-1 mb-2">
-                  <label className="text-xs text-primary lowercase flex justify-between">
-                    <span>size</span>
+                  <label className="text-xs text-primary flex justify-between">
+                    <span>Size</span>
                     <span>{store.penWidth}px</span>
                   </label>
                   <input
@@ -378,8 +378,8 @@ export function Toolbar() {
                 </div>
                 {/* opacity */}
                 <div className="flex flex-col gap-1 mb-2">
-                  <label className="text-xs text-primary lowercase flex justify-between">
-                    <span>opacity</span>
+                  <label className="text-xs text-primary flex justify-between">
+                    <span>Opacity</span>
                     <span>{store.penOpacity}%</span>
                   </label>
                   <input
@@ -391,8 +391,8 @@ export function Toolbar() {
                 </div>
                 {/* smoothness */}
                 <div className="flex flex-col gap-1 mb-2">
-                  <label className="text-xs text-primary lowercase flex justify-between">
-                    <span>smooth</span>
+                  <label className="text-xs text-primary flex justify-between">
+                    <span>Smooth</span>
                     <span>{store.stabilizerLevel}</span>
                   </label>
                   <input
@@ -411,8 +411,8 @@ export function Toolbar() {
                     onChange={(e) => store.setPressureEnabled(e.target.checked)}
                     className="accent-primary"
                   />
-                  <label htmlFor="pressure-toggle" className="text-xs text-primary lowercase">
-                    pen pressure
+                  <label htmlFor="pressure-toggle" className="text-xs text-primary">
+                    Pen Pressure
                   </label>
                 </div>
                 <div className="grid grid-cols-5 gap-2">
@@ -433,15 +433,15 @@ export function Toolbar() {
           <ToolBtn tool="eraser" icon={Eraser} store={store} activeMenu={activeMenu} openMenu={openMenu} closeMenu={closeMenu}
             menuContent={
               <>
-                <label className="text-xs text-primary lowercase">width: {store.eraserWidth}px</label>
+                <label className="text-xs text-primary">Width: {store.eraserWidth}px</label>
                 <input
                   type="range" min="5" max="100"
                   value={store.eraserWidth}
                   onChange={(e) => store.setEraserWidth(Number(e.target.value))}
                   className="accent-primary"
                 />
-                <label className="text-xs text-primary lowercase flex justify-between mt-2">
-                  <span>opacity</span>
+                <label className="text-xs text-primary flex justify-between mt-2">
+                  <span>Opacity</span>
                   <span>{store.eraserOpacity}%</span>
                 </label>
                 <input
@@ -465,7 +465,7 @@ export function Toolbar() {
           <button
             onClick={handlePinToDashboard}
             className="p-2 text-zinc-400 hover:text-white rounded-full hover:bg-white/5 transition-colors"
-            title="pin to dashboard"
+            title="Pin to Dashboard"
           >
             <Pin size={20} />
           </button>
@@ -484,9 +484,9 @@ export function Toolbar() {
             menuContent={
               <div className="flex flex-col gap-2 min-w-[200px]">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-bold text-primary">layers</span>
+                  <span className="text-xs font-bold text-primary">Layers</span>
                   <button onClick={() => store.addLayer(`Layer ${store.layers.length + 1}`)} className="text-xs px-2 py-1 bg-primary/20 hover:bg-primary/40 rounded text-primary">
-                    + add
+                    + Add
                   </button>
                 </div>
                 <div className="flex flex-col gap-1 max-h-[200px] overflow-y-auto">
@@ -531,7 +531,7 @@ export function Toolbar() {
       <button
         onClick={() => setWidgetPickerOpen(true)}
         className="fixed bottom-4 right-4 z-50 h-[48px] w-[48px] flex items-center justify-center rounded-full bg-[#050505] border border-primary/50 text-primary hover:bg-primary/20 hover:scale-105 transition-all shadow-lg pointer-events-auto"
-        title="add widget"
+        title="Add Widget"
       >
         <Plus size={24} />
       </button>
