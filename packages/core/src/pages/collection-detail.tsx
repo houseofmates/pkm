@@ -242,7 +242,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                         <PopoverContent className="w-80">
                             <DatabaseSettingsForm
                                 collectionName={collectionName}
-                                title={metadata[collectionName]?.title || collection.label || collectionName}
+                                title={metadata[collectionName]?.title || collection.label || toTitleCase(collectionName)}
                                 viewConfig={viewConfig}
                                 fields={collection.fields}
                                 currentView={currentView}
@@ -261,7 +261,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                             <PopoverContent className="w-80">
                                 <DatabaseSettingsForm
                                     collectionName={collectionName}
-                                    title={metadata[collectionName]?.title || collection.label || collectionName}
+                                    title={metadata[collectionName]?.title || collection.label || toTitleCase(collectionName)}
                                     viewConfig={viewConfig}
                                     fields={collection.fields}
                                     currentView={currentView}
