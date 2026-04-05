@@ -364,8 +364,8 @@ export function TemplatePage() {
             <Wand2 className="h-6 w-6 text-primary" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold lowercase">template ingestion engine</h1>
-            <p className="text-muted-foreground text-sm lowercase">json to workspace pipeline</p>
+            <h1 className="text-2xl font-bold lowercase">Template Ingestion Engine</h1>
+            <p className="text-muted-foreground text-sm lowercase">JSON to Workspace Pipeline</p>
           </div>
         </div>
       </header>
@@ -378,7 +378,7 @@ export function TemplatePage() {
         >
           <span className="text-sm font-medium lowercase flex items-center gap-2">
             <Info className="h-4 w-4 text-primary" />
-            getting started
+            Getting Started
           </span>
           {onboardingOpen ? <ChevronDown className="h-4 w-4 text-muted-foreground" /> : <ChevronRight className="h-4 w-4 text-muted-foreground" />}
         </button>
