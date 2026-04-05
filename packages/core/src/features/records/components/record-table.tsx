@@ -1425,10 +1425,10 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
             variant="ghost"
             className="h-9 w-full rounded-none opacity-50 hover:opacity-100 hover:bg-white/10 flex items-center justify-start gap-2 px-3 transition-opacity"
             onClick={onCreateRecord}
-            title="create new record"
+            title="Create New Record"
           >
             <Plus className="h-4 w-4" />
-            <span className="text-xs text-muted-foreground lowercase">new record</span>
+            <span className="text-xs text-muted-foreground">New Record</span>
             <span className="text-[10px] text-muted-foreground/40 ml-auto">(⌘N)</span>
           </Button>
         </div>
