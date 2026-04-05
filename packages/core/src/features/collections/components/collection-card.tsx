@@ -76,7 +76,7 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
               className="font-bold text-lg truncate"
               style={borderColor ? { color: borderColor } : undefined}
             >
-              {humanizeFieldName(collection.title || collection.name)}
+              {(meta as any).title || collection.title || collection.name}
             </h3>
             <p className="text-xs opacity-80 lowercase">{fieldCount} fields{recordCount !== undefined ? ` · ${recordCount} records` : ''}</p>
           </div>
