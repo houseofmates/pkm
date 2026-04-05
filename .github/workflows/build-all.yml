@@ -46,11 +46,6 @@ jobs:
         run: npm run electron:build
         working-directory: apps/desktop-electron
 
-      - name: build electron apps (windows)
-        if: matrix.target == 'exe'
-        run: npm run electron:build
-        working-directory: apps/desktop-electron
-
       # capacitor for apk
       - name: build android apk
         if: matrix.target == 'apk'
@@ -60,13 +55,6 @@ jobs:
           npx cap sync android
           cd android
           ./gradlew assembleRelease
-
-      - name: setup java for android
-        if: matrix.target == 'apk'
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
 
       - name: upload release artifacts
         uses: actions/upload-artifact@v4
@@ -98,4 +86,3 @@ jobs:
           draft: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
