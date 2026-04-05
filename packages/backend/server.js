@@ -33,7 +33,6 @@ import ical from 'node-ical';
 import { getPiecesRecentActivity, getPiecesContextForQuery, isPiecesConnected } from './pieces-mcp.js';
 import { getAllMemoryContext, addMemory, recordInteraction, readMemory, writeMemory, appendMemory, clearMemory } from './bot-memory.js';
 import { securityHeaders, additionalSecurityHeaders } from './security-headers.js';
-import { securityHeaders, additionalSecurityHeaders } from './security-headers.js';
 
 // Load environment variables if .env exists
 if (fs.existsSync('.env')) {
