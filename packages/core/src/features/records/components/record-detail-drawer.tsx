@@ -126,7 +126,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
           ) : (
             displayFields.map((field: any) => {
               const value = editedData[field.name];
-              const displayName = field.uiSchema?.title || field.name;
+              const displayName = field.uiSchema?.title || humanizeFieldName(field.name);
 
               return (
                 <div key={field.name} className="space-y-2">
