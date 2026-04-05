@@ -1,5 +1,5 @@
 // sidebar-color-service.ts
-// Service for syncing sidebar item colors with nocobase
+// service for syncing sidebar item colors with nocobase
 // enables cross-platform color persistence (web, electron, apk, exe)
 
 import { api } from '@/api/nocobase-client';

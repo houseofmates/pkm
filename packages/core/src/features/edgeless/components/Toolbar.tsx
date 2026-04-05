@@ -40,7 +40,7 @@ const ToolBtn = ({ tool, icon: Icon, store, activeMenu, openMenu, closeMenu, onC
   const btnRef = useRef<HTMLButtonElement>(null)
   const [menuPos, setMenuPos] = useState({ x: 0, y: 0 })
 
-  // Position menu above the button using a portal
+  // position menu above the button using a portal
   useEffect(() => {
     if (showMenu && btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect()
@@ -130,7 +130,7 @@ export function Toolbar() {
   const setActiveLayer = useEdgelessStore(s => s.setActiveLayer)
   const removeLayer = useEdgelessStore(s => s.removeLayer)
 
-  // Reconstruct a minimal store-like object for ToolBtn to maintain compatibility with minimal changes
+  // reconstruct a minimal store-like object for toolbtn to maintain compatibility with minimal changes
   const store = {
     activeTool,
     setTool,
@@ -172,7 +172,7 @@ export function Toolbar() {
       toast.error('no drawing id found')
       return
     }
-    // Dispatch event to add drawing to dashboard
+    // dispatch event to add drawing to dashboard
     window.dispatchEvent(new CustomEvent('pkm:add-widget', {
       detail: { 
         id: `drawing_${drawingId}`, 
@@ -197,7 +197,7 @@ export function Toolbar() {
     const handleClick = (e: MouseEvent) => {
       if (activeMenu) {
         const target = e.target as Element
-        // Don't close if clicking inside the portal menu or the toolbar button
+        // don't close if clicking inside the portal menu or the toolbar button
         if (target.closest('.relative.group') || target.closest('[class*="backdrop-blur-xl"]')) return
         closeMenu()
       }
@@ -527,7 +527,7 @@ export function Toolbar() {
         </div>
       </div>
 
-      {/* Floating + button at bottom right */}
+      {/* floating + button at bottom right */}
       <button
         onClick={() => setWidgetPickerOpen(true)}
         className="fixed bottom-4 right-4 z-50 h-[48px] w-[48px] flex items-center justify-center rounded-full bg-[#050505] border border-primary/50 text-primary hover:bg-primary/20 hover:scale-105 transition-all shadow-lg pointer-events-auto"

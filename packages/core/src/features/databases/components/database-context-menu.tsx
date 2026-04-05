@@ -42,7 +42,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
   const [colorOpen, setColorOpen] = useState(false);
   const [imageOpen, setImageOpen] = useState(false);
 
-  // metadata for cosmetics (legacy localStorage fallback)
+  // metadata for cosmetics (legacy localstorage fallback)
   const [metadata, setMetadata] = useAppSetting<Record<string, { image?: string; color?: string }>>('collection_metadata', {}, { pollIntervalMs: 3000 });
   
   // synced colors from nocobase (cross-device persistence)
@@ -146,7 +146,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
         </RichResourceContextMenuContent>
       </ContextMenu>
 
-      {/* removed CollectionDialog for renaming to avoid popup */}
+      {/* removed collectiondialog for renaming to avoid popup */}
 
       {/* color dialog */}
       <Dialog open={colorOpen} onOpenChange={setColorOpen}>
@@ -193,7 +193,7 @@ export function DatabaseContextMenu({ collection, children, onUpdate, onDelete }
             <Button onClick={() => {
               // this relies on the input value being set, simpler to just use onkeydown or controlled state
               // but for brevity in this replace block:
-              const input = document.querySelector('input[placeholder="https://..."]') as HTMLInputElement;
+              const input = document.querySelector('input[placeholder="https://..."]') as htmlinputelement;
               if (input) {
                 updateMeta('image', input.value);
                 setImageOpen(false);

@@ -50,7 +50,7 @@ export function TemplatePage() {
   const [isBuilding, setIsBuilding] = useState(false);
   const [previewState, setPreviewState] = useState<Record<string, any>>({});
   const [previewData, setPreviewData] = useState<Record<string, any[]>>({});
-  // liveColumns holds interactive layout state for preview and persists to json
+  // livecolumns holds interactive layout state for preview and persists to json
   const [liveColumns, setLiveColumns] = useState<any[][]>([]);
 
   // fullscreen preview dialog state
@@ -82,7 +82,7 @@ export function TemplatePage() {
   };
 
   const updateWidgetConfig = (targetWidget: any, patch: Record<string, any>) => {
-    // shallow-merge patch into the matching widget in liveColumns and persist
+    // shallow-merge patch into the matching widget in livecolumns and persist
     const cols = liveColumns.map(col => col.map((w: any) => w === targetWidget ? ({ ...w, ...patch }) : w));
     setLiveColumns(cols);
     persistColumns(cols);
@@ -117,7 +117,7 @@ export function TemplatePage() {
   useEffect(() => {
     try {
       const parsed = JSON.parse(json);
-      // seed previewData from parsed.data if present, or from databases rows/sample/records
+      // seed previewdata from parsed.data if present, or from databases rows/sample/records
       const seed: Record<string, any[]> = {};
       if (parsed?.data && typeof parsed.data === 'object') {
         Object.keys(parsed.data).forEach(k => { seed[k] = Array.isArray(parsed.data[k]) ? parsed.data[k] : []; });
@@ -147,7 +147,7 @@ export function TemplatePage() {
     }
   }, [json]);
 
-  // sync liveColumns from json when preview is validated or json changes
+  // sync livecolumns from json when preview is validated or json changes
   useEffect(() => {
     if (!isValid) return;
     try {
@@ -241,14 +241,14 @@ export function TemplatePage() {
       const colWidths = config.layout?.columnWidths || Array(colCount).fill(100 / colCount);
 
       const widgets: any[] = [];
-      const TOTAL_WIDTH = 1600; // Base width for coordinate calculation
+      const TOTAL_WIDTH = 1600; // base width for coordinate calculation
 
-      let currentX = 100; // Margin
+      let currentX = 100; // margin
       columns.forEach((col: any[], ci: number) => {
         const colWidthPerc = colWidths[ci] || (100 / colCount);
         const w = (colWidthPerc / 100) * TOTAL_WIDTH;
 
-        let currentY = 100; // Margin
+        let currentY = 100; // margin
         col.forEach((wConfig: any) => {
           widgets.push({
             id: crypto.randomUUID(),
@@ -259,11 +259,11 @@ export function TemplatePage() {
             viewConfig: wConfig.viewConfig || {},
             x: currentX,
             y: currentY,
-            w: w - 20, // Small gap between columns
+            w: w - 20, // small gap between columns
             h: wConfig.h || 400,
             zIndex: 10
           });
-          currentY += (wConfig.h || 400) + 20; // Gap
+          currentY += (wConfig.h || 400) + 20; // gap
         });
 
         currentX += w;

@@ -137,7 +137,7 @@ export function PageRenderer() {
       }
     };
 
-    document.addEventListener('mousedown', handleGlobalMousedown, true); // Capture phase
+    document.addEventListener('mousedown', handleGlobalMousedown, true); // capture phase
     return () => document.removeEventListener('mousedown', handleGlobalMousedown, true);
   }, [selectedElementIds, setSelectedElementIds]);
 
@@ -353,8 +353,8 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   const { page, previewMode, viewWidth } = useBuilder();
 
   // calculate scale factor for mobile/tablet responsive layout
-  // designWidth for mobile is 430px (iphone 14/15 pro max)
-  // designWidth for tablet is 834px (ipad air)
+  // designwidth for mobile is 430px (iphone 14/15 pro max)
+  // designwidth for tablet is 834px (ipad air)
   const designWidth = previewMode === 'mobile' ? 430 : previewMode === 'tablet' ? 834 : viewWidth;
 
   // in admin mode (builder), we keep 1:1 scale for precise editing inside the frame.
@@ -719,7 +719,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
     e.stopPropagation();
 
     if (isAdmin) {
-      return; // handleMouseDown handles election
+      return; // handlemousedown handles election
     }
 
     // public mode interactions
@@ -809,7 +809,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
     const op = element.styles?.opacity;
 
     // styling fixes: apply border radius and overflow to container to prevent background bleed
-    (baseStyles as any).borderRadius = element.styles?.borderRadius ? `${element.styles.borderRadius}px` : '16px'; // Default 16px radius
+    (baseStyles as any).borderRadius = element.styles?.borderRadius ? `${element.styles.borderRadius}px` : '16px'; // default 16px radius
     (baseStyles as any).overflow = 'hidden';
 
     // default black outline
@@ -1075,7 +1075,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
               )}
             </div>
 
-            {/* resize handles (invisible UI indicators, still interactive) */}
+            {/* resize handles (invisible ui indicators, still interactive) */}
             <div data-handle="n" className="resize-handle absolute -top-1 left-1/2 -translate-x-1/2 w-4 h-2 opacity-0 cursor-ns-resize z-50" />
             <div data-handle="s" className="resize-handle absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-2 opacity-0 cursor-ns-resize z-50" />
             <div data-handle="e" className="resize-handle absolute top-1/2 -right-1 -translate-y-1/2 w-2 h-4 opacity-0 cursor-ew-resize z-50" />

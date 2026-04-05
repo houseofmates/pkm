@@ -46,9 +46,9 @@ function scheduleFlush(drawingId: string) {
 }
 
 /**
- * Force immediate persistence of any queued operations for a drawing.
+ * force immediate persistence of any queued operations for a drawing.
  *
- * This is used for critical moments such as page unload to avoid losing
+ * this is used for critical moments such as page unload to avoid losing
  * recent user input before the debounce timer fires.
  */
 export async function flushDrawingOps(drawingId: string): Promise<void> {
@@ -144,7 +144,7 @@ interface EdgelessState {
 
   // elements (non-canvas html overlays)
   elements: EdgelessElement[]
-  // O(1) lookup map kept in sync with elements array
+  // o(1) lookup map kept in sync with elements array
   elementMap: Map<string, EdgelessElement>
 
   // viewport
@@ -224,7 +224,7 @@ interface EdgelessState {
 
 // ─── helpers ────────────────────────────────────────────────────────────────────
 
-/** Build a Map<id, element> from an array – used by every mutation */
+/** build a map<id, element> from an array – used by every mutation */
 function buildMap(elements: EdgelessElement[]): Map<string, EdgelessElement> {
   const m = new Map<string, EdgelessElement>()
   for (const el of elements) m.set(el.id, el)
@@ -318,7 +318,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
 
   setActiveLayer: (id) => set({ activeLayerId: id }),
 
-  // element actions ─── all keep elementMap in sync ──────────────────────────
+  // element actions ─── all keep elementmap in sync ──────────────────────────
   addElement: (el) =>
     set((state) => {
       const newEl: EdgelessElement = { ...el, id: uuidv4(), layerId: el.layerId || state.activeLayerId }
@@ -335,7 +335,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
       const existing = state.elementMap.get(id)
       if (!existing) return state
       const updated = { ...existing, ...patch }
-      // Only create a new array if something actually changed
+      // only create a new array if something actually changed
       if (updated === existing) return state
       const newMap = new Map(state.elementMap)
       newMap.set(id, updated)
@@ -390,7 +390,7 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
       synced: false,
     }
 
-    // optimistic UI: update history immediately
+    // optimistic ui: update history immediately
     set((state) => ({
       history: {
         ops: [...state.history.ops, entry.id],
@@ -523,40 +523,40 @@ export const useEdgelessStore = create<EdgelessState>()((set, get) => ({
   setSelectedIds: (ids) => set({ selectedIds: ids }),
   setActiveElementId: (id) => set({ activeElementId: id }),
   setPdfDoc: (doc) => set({ pdfDoc: doc }),
-  addHistoryOp: async (op: DrawOp) => { // alias to recordOp
+  addHistoryOp: async (op: DrawOp) => { // alias to recordop
     await get().recordOp(op as any)
   },
 }))
 
 // ─── granular selectors ─────────────────────────────────────────────────────────
-// These hooks subscribe to a single slice of state, preventing cascading re-renders.
+// these hooks subscribe to a single slice of state, preventing cascading re-renders.
 
-/** Subscribe to a single element by ID. Returns undefined if not found.
- *  The component only re-renders when *this specific element object* changes. */
+/** subscribe to a single element by id. returns undefined if not found.
+ *  the component only re-renders when *this specific element object* changes. */
 export function useElement(id: string): EdgelessElement | undefined {
   return useEdgelessStore((s) => s.elementMap.get(id))
 }
 
-/** Subscribe to the viewport with shallow equality – prevents re-render
+/** subscribe to the viewport with shallow equality – prevents re-render
  *  when the reference changes but x/y/zoom values are identical. */
 export function useViewport() {
   return useEdgelessStore(useShallow((s: EdgelessState) => s.viewPort))
 }
 
-/** Subscribe to the element IDs array only (not the element objects).
- *  Re-renders only when elements are added/removed, not when one is moved. */
+/** subscribe to the element ids array only (not the element objects).
+ *  re-renders only when elements are added/removed, not when one is moved. */
 export function useElementIds(): string[] {
   return useEdgelessStore(
     useShallow((s: EdgelessState) => s.elements.map((e) => e.id))
   )
 }
 
-/** Subscribe to the active tool */
+/** subscribe to the active tool */
 export function useActiveTool(): ToolType {
   return useEdgelessStore((s) => s.activeTool)
 }
 
-/** Subscribe to selection mode */
+/** subscribe to selection mode */
 export function useSelectionMode() {
   return useEdgelessStore((s) => s.selectionMode)
 }

@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
-// dynamically load the script using node import so vite doesn't try to bundle an external TS file
+// dynamically load the script using node import so vite doesn't try to bundle an external ts file
 let run: (zip: string, client?: any) => Promise<void>;
 import childProcess from 'child_process';
 
@@ -14,7 +14,7 @@ async function makeZippedSample(): Promise<string> {
     // create nested directory with another markdown page
     await fs.promises.mkdir(path.join(tmp, 'subfolder'));
     await fs.promises.writeFile(path.join(tmp, 'subfolder', 'other.md'), `# heading`);
-    // create two CSV databases, one in a nested folder as well
+    // create two csv databases, one in a nested folder as well
     const csv1 = 'Name,Value\nX,1';
     const csv2 = 'A,B\n1,2';
     await fs.promises.writeFile(path.join(tmp, 'db.csv'), csv1);
@@ -44,7 +44,7 @@ describe('notion importer integration', () => {
         };
         await run(zipfile, fake);
 
-        // verify we created collections for both CSV files and pages
+        // verify we created collections for both csv files and pages
         const createCols = calls.filter(c => c.url === '/collections:create').map(c => c.body.name);
         expect(createCols).toEqual(expect.arrayContaining(['db', 'db2', 'pages']));
 
@@ -55,7 +55,7 @@ describe('notion importer integration', () => {
         // frontmatter columns should be added as well (foo was in sample)
         expect(pagesDef.body.fields.foo).toBeDefined();
 
-        // find records added (URLs include the collection name)
+        // find records added (urls include the collection name)
         const recs = calls.filter(c => c.url.startsWith('/records:'));
         // we should have at least 1 page + 3 csv rows (1 in db, 2 in db2)
         expect(recs.length).toBeGreaterThanOrEqual(3);
@@ -66,7 +66,7 @@ describe('notion importer integration', () => {
         expect(pageRec.body.values.body).toContain('This is the body text.');
         expect(pageRec.body.values.foo).toBe('bar');
 
-        // inspect CSV row data exists
+        // inspect csv row data exists
         const dbRow = recs.find(r => r.url.includes('records:db:create') && r.body.values.Name === 'X');
         expect(dbRow).toBeDefined();
 

@@ -11,7 +11,7 @@ interface VoiceChatProps {
   wilsonPersonality?: boolean;
 }
 
-// Web Speech API types
+// web speech api types
 interface SpeechRecognition extends EventTarget {
   continuous: boolean;
   interimResults: boolean;
@@ -78,13 +78,13 @@ export function VoiceChat({
   const animationFrameRef = useRef<number | null>(null);
   const speechSynthesisRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  // Initialize speech recognition
+  // initialize speech recognition
   useEffect(() => {
     if (typeof window === 'undefined') return;
     
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SpeechRecognition) {
-      // Firefox and other unsupported browsers - silently return without error toast
+      // firefox and other unsupported browsers - silently return without error toast
       return;
     }
 
@@ -138,7 +138,7 @@ export function VoiceChat({
     };
   }, [onTranscript]);
 
-  // Initialize audio visualizer
+  // initialize audio visualizer
   const initAudioVisualizer = useCallback(async () => {
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -159,7 +159,7 @@ export function VoiceChat({
         const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
         analyserRef.current.getByteFrequencyData(dataArray);
         
-        // Downsample to 20 bars
+        // downsample to 20 bars
         const bars = 20;
         const step = Math.floor(dataArray.length / bars);
         const newData = [];
@@ -204,7 +204,7 @@ export function VoiceChat({
       cancelAnimationFrame(animationFrameRef.current);
     }
     
-    // Close audio context
+    // close audio context
     if (audioContextRef.current) {
       audioContextRef.current.close();
       audioContextRef.current = null;
@@ -213,23 +213,23 @@ export function VoiceChat({
     setVisualizerData(new Array(20).fill(0));
   }, []);
 
-  // Text-to-speech for Wilson
+  // text-to-speech for wilson
   const speak = useCallback((text: string) => {
     if (!audioEnabled || typeof window === 'undefined') return;
     
-    // Cancel any ongoing speech
+    // cancel any ongoing speech
     window.speechSynthesis.cancel();
     
     const utterance = new SpeechSynthesisUtterance(text);
     
-    // Configure voice for Wilson personality
+    // configure voice for wilson personality
     if (wilsonPersonality) {
-      utterance.pitch = 1.1; // Slightly higher pitch for friendliness
-      utterance.rate = 0.95; // Slightly slower for clarity
+      utterance.pitch = 1.1; // slightly higher pitch for friendliness
+      utterance.rate = 0.95; // slightly slower for clarity
       utterance.volume = 0.9;
     }
     
-    // Try to find a good voice
+    // try to find a good voice
     const voices = window.speechSynthesis.getVoices();
     const preferredVoice = voices.find(v => 
       v.name.includes('Google') || 
@@ -259,7 +259,7 @@ export function VoiceChat({
     window.speechSynthesis.speak(utterance);
   }, [audioEnabled, wilsonPersonality, onSpeakingStateChange]);
 
-  // Stop speaking
+  // stop speaking
   const stopSpeaking = useCallback(() => {
     if (typeof window !== 'undefined') {
       window.speechSynthesis.cancel();
@@ -268,7 +268,7 @@ export function VoiceChat({
     onSpeakingStateChange?.(false);
   }, [onSpeakingStateChange]);
 
-  // Toggle audio
+  // toggle audio
   const toggleAudio = useCallback(() => {
     setAudioEnabled(!audioEnabled);
     if (audioEnabled) {
@@ -277,9 +277,9 @@ export function VoiceChat({
     toast.success(audioEnabled ? 'Wilson muted' : 'Wilson unmuted');
   }, [audioEnabled, stopSpeaking]);
 
-  // Expose speak function via ref pattern
+  // expose speak function via ref pattern
   useEffect(() => {
-    // Add speak function to window for external access
+    // add speak function to window for external access
     (window as any).wilsonSpeak = speak;
     return () => {
       delete (window as any).wilsonSpeak;
@@ -288,7 +288,7 @@ export function VoiceChat({
 
   return (
     <div className="flex items-center gap-2">
-      {/* Audio visualizer - only show when listening */}
+      {/* audio visualizer - only show when listening */}
       {isListening && (
         <div className="flex items-end gap-0.5 h-8">
           {visualizerData.map((value, i) => (
@@ -304,14 +304,14 @@ export function VoiceChat({
         </div>
       )}
       
-      {/* Transcript preview */}
+      {/* transcript preview */}
       {(transcript || interimTranscript) && (
         <span className="text-xs text-white/60 max-w-[150px] truncate">
           {transcript || interimTranscript}
         </span>
       )}
       
-      {/* Mute/Unmute button */}
+      {/* mute/unmute button */}
       <button
         onClick={toggleAudio}
         className={cn(
@@ -327,7 +327,7 @@ export function VoiceChat({
         )}
       </button>
       
-      {/* Voice input button */}
+      {/* voice input button */}
       <button
         onClick={isListening ? stopListening : startListening}
         disabled={disabled}
@@ -358,7 +358,7 @@ export function VoiceChat({
   );
 }
 
-// Hook for using Wilson's voice
+// hook for using wilson's voice
 export function useWilsonVoice() {
   const speak = useCallback((text: string) => {
     if (typeof window !== 'undefined' && (window as any).wilsonSpeak) {

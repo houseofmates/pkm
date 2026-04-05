@@ -33,7 +33,7 @@ export class BrushTool extends BaseTool {
     this.lastSmoothedPoint = point;
     this.leftoverDistance = 0;
 
-    // Draw the initial dot
+    // draw the initial dot
     this.drawDot(ctx, point);
   }
 
@@ -42,25 +42,25 @@ export class BrushTool extends BaseTool {
 
     const mappedPressure = this.applyPressureCurve(pressure);
 
-    // 1. Add raw point to engine to get smoothed point
-    // We don't use the raw (x,y) for drawing directly, we use the smoothed result
+    // 1. add raw point to engine to get smoothed point
+    // we don't use the raw (x,y) for drawing directly, we use the smoothed result
     const point = this.engine.addPoint({ x, y, pressure: mappedPressure });
 
-    // 2. Interpolate between lastSmoothedPoint and new smoothed point
+    // 2. interpolate between lastsmoothedpoint and new smoothed point
     const dx = point.x - this.lastSmoothedPoint.x;
     const dy = point.y - this.lastSmoothedPoint.y;
     const distance = Math.sqrt(dx * dx + dy * dy);
 
-    // Calculate step size based on brush size and spacing
-    // We use the pressure-adjusted size at the *start* of the segment to approximate
+    // calculate step size based on brush size and spacing
+    // we use the pressure-adjusted size at the *start* of the segment to approximate
     const startSize = this.size * this.lastSmoothedPoint.pressure;
     const step = Math.max(1, startSize * this.spacing);
 
-    // 3. Fill gaps
+    // 3. fill gaps
     let currentDist = this.leftoverDistance;
 
     while (currentDist <= distance) {
-      const t = currentDist / distance; // Normalized position (0 to 1)
+      const t = currentDist / distance; // normalized position (0 to 1)
 
       const interpolatedPoint = {
         x: this.lastSmoothedPoint.x + dx * t,
@@ -81,13 +81,13 @@ export class BrushTool extends BaseTool {
     const { ctx: layerCtx } = ctx;
     const store = useEdgelessStore.getState();
 
-    // Calculate effective size with pressure and jitter
+    // calculate effective size with pressure and jitter
     let effectiveSize = this.size * point.pressure;
     if (this.sizeJitter > 0) {
       effectiveSize *= 1 + (Math.random() - 0.5) * (this.sizeJitter / 50);
     }
 
-    // Scatter
+    // scatter
     let finalX = point.x;
     let finalY = point.y;
     if (this.scatter > 0) {
@@ -96,13 +96,13 @@ export class BrushTool extends BaseTool {
       finalY += (Math.random() - 0.5) * scatterAmount;
     }
 
-    // Blend
+    // blend
     if (this.blend > 0) {
       layerCtx.globalAlpha = 1 - (this.blend / 200);
     }
 
     layerCtx.beginPath();
-    // Draw a circle for the dab
+    // draw a circle for the dab
     layerCtx.arc(finalX, finalY, effectiveSize / 2, 0, Math.PI * 2);
     layerCtx.fillStyle = store.penColor;
     layerCtx.fill();

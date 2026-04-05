@@ -32,10 +32,10 @@ export function useDrawing(id?: string, migrating?: boolean): UseDrawingResult {
   const lastCheckpointTimeRef = useRef(Date.now());
   const syncIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // No longer using historyOpsLength via hook to avoid re-renders on every stroke.
+  // no longer using historyopslength via hook to avoid re-renders on every stroke.
   const historyOpsLengthRef = useRef(0);
 
-  // Sync the ref with the store manually
+  // sync the ref with the store manually
   useEffect(() => {
     return useEdgelessStore.subscribe(
       (state) => {
@@ -124,7 +124,7 @@ export function useDrawing(id?: string, migrating?: boolean): UseDrawingResult {
     }
   }, [id]);
 
-  // ref to always point to latest version of saveCurrentCheckpoint
+  // ref to always point to latest version of savecurrentcheckpoint
   const saveCurrentCheckpointRef = useRef(saveCurrentCheckpoint);
   saveCurrentCheckpointRef.current = saveCurrentCheckpoint;
 
@@ -132,7 +132,7 @@ export function useDrawing(id?: string, migrating?: boolean): UseDrawingResult {
   useEffect(() => {
     if (!id || loading) return;
     
-    // Check every 5 seconds as a fallback, and also on every store change
+    // check every 5 seconds as a fallback, and also on every store change
     const checkAndSave = () => {
       if (!initialLoadCompleteRef.current) return;
       const state = useEdgelessStore.getState();
@@ -238,6 +238,6 @@ export function useDrawing(id?: string, migrating?: boolean): UseDrawingResult {
     saveCurrentCheckpoint,
     updateTitle,
     handleForceSync,
-    history: { ops: { length: historyOpsLengthRef.current } } as any, // Only mock what the legacy returned property actually exposes to not break API completely
+    history: { ops: { length: historyOpsLengthRef.current } } as any, // only mock what the legacy returned property actually exposes to not break api completely
   };
 }

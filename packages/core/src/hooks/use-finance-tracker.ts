@@ -39,7 +39,7 @@ export function useFinanceTracker() {
   const [loading, setLoading] = useState(false)
   
   const today = new Date().toISOString().split('T')[0]
-  const currentMonth = today.slice(0, 7) // YYYY-MM
+  const currentMonth = today.slice(0, 7) // yyyy-mm
 
   // load finance data
   useEffect(() => {
@@ -62,7 +62,7 @@ export function useFinanceTracker() {
             { id: 'budget', name: 'budget', target: data.budget_target || 0, current: data.budget_remaining || 0, currency: 'USD' },
           ])
         } else {
-          // check localStorage fallback
+          // check localstorage fallback
           const local = localStorage.getItem(`pkm:finance:${today}`)
           if (local) {
             const parsed = JSON.parse(local)
@@ -85,7 +85,7 @@ export function useFinanceTracker() {
     )
     setCategories(newCategories)
     
-    // save to localStorage
+    // save to localstorage
     localStorage.setItem(`pkm:finance:${today}`, JSON.stringify({
       categories: newCategories,
       timestamp: new Date().toISOString()

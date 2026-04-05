@@ -8,7 +8,7 @@ interface InfiniteCanvasWrapperProps {
     initialScale?: number;
     minScale?: number;
     maxScale?: number;
-    header?: React.ReactNode; // Content to stay fixed at the top (for alignment)
+    header?: React.ReactNode; // content to stay fixed at the top (for alignment)
 }
 
 export function InfiniteCanvasWrapper({
@@ -74,7 +74,7 @@ export function InfiniteCanvasWrapper({
             drag: {
                 // filtertaps: true, 
                 from: () => [offset.x, offset.y],
-                pointer: { buttons: [1, 2, 4] } // Allow Left(1), Right(2), Middle(4). Re-evaluate Right usually context menu.
+                pointer: { buttons: [1, 2, 4] } // allow left(1), right(2), middle(4). re-evaluate right usually context menu.
             },
             wheel: {
                 from: () => [offset.x, offset.y],

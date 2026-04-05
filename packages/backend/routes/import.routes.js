@@ -1,5 +1,5 @@
-// Import routes module for PKM backend
-// Handles Notion and CSV imports
+// import routes module for pkm backend
+// handles notion and csv imports
 
 import express from 'express';
 import multer from 'multer';
@@ -8,7 +8,7 @@ import { apiLogger } from '../logger.js';
 
 const router = express.Router();
 
-// Configure multer for file uploads
+// configure multer for file uploads
 const upload = multer({
     storage: multer.diskStorage({
         destination: (req, file, cb) => {
@@ -20,16 +20,16 @@ const upload = multer({
         }
     }),
     limits: {
-        fileSize: 50 * 1024 * 1024 // 50MB
+        fileSize: 50 * 1024 * 1024 // 50mb
     }
 });
 
-// Apply API logger to all routes
+// apply api logger to all routes
 router.use(apiLogger);
 
 /**
- * POST /api/notion-import
- * Import Notion workspace export
+ * post /api/notion-import
+ * import notion workspace export
  */
 router.post('/notion-import', upload.single('file'), asyncHandler(async (req, res) => {
     if (!req.file) {
@@ -42,7 +42,7 @@ router.post('/notion-import', upload.single('file'), asyncHandler(async (req, re
         });
     }
     
-    // TODO: Implement actual Notion import
+    // todo: implement actual notion import
     res.status(202).json({
         success: true,
         data: {
@@ -53,24 +53,24 @@ router.post('/notion-import', upload.single('file'), asyncHandler(async (req, re
 }));
 
 /**
- * GET /api/notion-import/:taskId/stream
- * Get SSE stream for import progress
+ * get /api/notion-import/:taskid/stream
+ * get sse stream for import progress
  */
 router.get('/notion-import/:taskId/stream', asyncHandler(async (req, res) => {
     const { taskId } = req.params;
     
-    // Set up SSE headers
+    // set up sse headers
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
     
-    // TODO: Implement actual progress streaming
+    // todo: implement actual progress streaming
     res.write('data: {"progress": 0}\n\n');
 }));
 
 /**
- * POST /api/csv-import
- * Import CSV files
+ * post /api/csv-import
+ * import csv files
  */
 router.post('/csv-import', upload.array('files'), asyncHandler(async (req, res) => {
     if (!req.files || req.files.length === 0) {
@@ -83,7 +83,7 @@ router.post('/csv-import', upload.array('files'), asyncHandler(async (req, res) 
         });
     }
     
-    // TODO: Implement actual CSV import
+    // todo: implement actual csv import
     res.status(202).json({
         success: true,
         data: {

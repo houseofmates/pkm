@@ -25,7 +25,7 @@ function extractId(resp: any) {
   return d?.id || d?.key || d?._id || null
 }
 
-// prevent concurrent findOrCreateActivity calls for the same name
+// prevent concurrent findorcreateactivity calls for the same name
 const activityCreationPromises: Record<string, Promise<string | null>> = {};
 
 export async function findOrCreateActivity(name: string, localId?: string): Promise<string | null> {

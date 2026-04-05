@@ -30,7 +30,7 @@ export function StreakWidget({ className }: StreakWidgetProps) {
       </div>
 
       <div className="space-y-2">
-        {/* XP Bar */}
+        {/* xp bar */}
         <div className="flex items-center gap-2">
           <Zap className="w-3 h-3 text-yellow-400" />
           <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
@@ -42,7 +42,7 @@ export function StreakWidget({ className }: StreakWidgetProps) {
           <span className="text-xs text-white/60">{totalXp} xp</span>
         </div>
 
-        {/* Quest Progress */}
+        {/* quest progress */}
         <div className="flex items-center gap-2">
           <Target className="w-3 h-3 text-blue-400" />
           <div className="flex-1 h-2 bg-white/10 rounded-full overflow-hidden">
@@ -54,7 +54,7 @@ export function StreakWidget({ className }: StreakWidgetProps) {
           <span className="text-xs text-white/60">{questPercent}%</span>
         </div>
 
-        {/* Level */}
+        {/* level */}
         <div className="flex items-center justify-between text-xs text-white/40">
           <span className="lowercase">level {level}</span>
           <span className="lowercase">{completedQuests}/{totalQuests} quests</span>

@@ -33,7 +33,7 @@ interface ChartProps {
   seriesType?: 'bar' | 'line' | 'area';
   seriesTypes?: Record<string, 'bar' | 'line' | 'area'>;
   seriesOrder?: string[];
-  seriesColors?: Record<string, string>; // NEW: Custom colors per series
+  seriesColors?: Record<string, string>; // new: custom colors per series
   legendCollapsed?: boolean;
   onConfig?: (key: string, value?: any) => void;
   columns?: { label: string, value: string }[];
@@ -133,7 +133,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
   } : {};
   const toggle = (k: string) => setHidden(prev => ({ ...prev, [k]: !prev[k] }));
 
-  // build the ordered keys list (respect seriesOrder if present)
+  // build the ordered keys list (respect seriesorder if present)
   const buildKeys = () => {
     const base = seriesKeys || [];
     if (seriesOrder && seriesOrder.length > 0) {
@@ -427,7 +427,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
               data={chartData}
               cx="50%"
               cy="50%"
-              innerRadius={60} // Donut style by default for modern look
+              innerRadius={60} // donut style by default for modern look
               outerRadius={80}
               paddingAngle={5}
               dataKey={isPlaceholder ? "value" : yKey}
@@ -657,7 +657,7 @@ export function ChartWidget({ type = 'line', data = [], xKey = 'name', yKey = 'v
       <div ref={containerRef} className="h-full w-full flex flex-col items-center justify-center p-4 group cursor-pointer relative"
         onClick={() => {
           if (isPlaceholder) triggerConfig('chartY');
-          else if (onDataClick) onDataClick({ name: 'All' }, xKey); // Special handling for KPI to signal all?
+          else if (onDataClick) onDataClick({ name: 'All' }, xKey); // special handling for kpi to signal all?
           // note: chartview needs to handle 'all', or we rely on user filtering.
           // for now, let's just trigger it.
         }}>

@@ -1,16 +1,16 @@
 /**
- * NocoBase Collection Schema: High-Granularity Activity Logging System
+ * nocobase collection schema: high-granularity activity logging system
  * 
- * This file contains the complete collection configuration for the
+ * this file contains the complete collection configuration for the
  * multi-metric habits tracking system with timer support and
  * category-specific feedback.
  * 
- * Colors: background #050505, primary #f5af12, secondary #3c9fdd
- * Typography: Varela Round (all UI text lowercase)
+ * colors: background #050505, primary #f5af12, secondary #3c9fdd
+ * typography: varela round (all ui text lowercase)
  */
 
 // ============================================================================
-// COLLECTION 1: habits (activity definitions)
+// collection 1: habits (activity definitions)
 // ============================================================================
 
 export const HABITS_COLLECTION_SCHEMA = {
@@ -191,7 +191,7 @@ export const HABITS_COLLECTION_SCHEMA = {
 };
 
 // ============================================================================
-// COLLECTION 2: habit_logs (activity instances)
+// collection 2: habit_logs (activity instances)
 // ============================================================================
 
 export const HABIT_LOGS_COLLECTION_SCHEMA = {
@@ -369,7 +369,7 @@ export const HABIT_LOGS_COLLECTION_SCHEMA = {
 };
 
 // ============================================================================
-// COLLECTION 3: habit_tips (category-specific facts)
+// collection 3: habit_tips (category-specific facts)
 // ============================================================================
 
 export const HABIT_TIPS_COLLECTION_SCHEMA = {
@@ -481,7 +481,7 @@ export const HABIT_TIPS_COLLECTION_SCHEMA = {
 };
 
 // ============================================================================
-// COLLECTION 4: habit_streaks (aggregated streak data)
+// collection 4: habit_streaks (aggregated streak data)
 // ============================================================================
 
 export const HABIT_STREAKS_COLLECTION_SCHEMA = {
@@ -592,7 +592,7 @@ export const HABIT_STREAKS_COLLECTION_SCHEMA = {
 };
 
 // ============================================================================
-// NOCOBASE SETUP INSTRUCTIONS
+// nocobase setup instructions
 // ============================================================================
 
 export const NOCOBASE_SETUP_INSTRUCTIONS = `
@@ -666,11 +666,11 @@ The system uses standard NocoBase REST API:
 `;
 
 // ============================================================================
-// EXAMPLE API CALLS
+// example api calls
 // ============================================================================
 
 export const EXAMPLE_API_CALLS = {
-  // Create a habit log with full metrics
+  // create a habit log with full metrics
   createHabitLog: {
     method: 'POST',
     endpoint: '/api/habit_logs:create',
@@ -690,7 +690,7 @@ export const EXAMPLE_API_CALLS = {
     }
   },
   
-  // Query habit stats
+  // query habit stats
   getHabitStats: {
     method: 'GET',
     endpoint: '/api/habit_logs:list',
@@ -701,7 +701,7 @@ export const EXAMPLE_API_CALLS = {
     }
   },
   
-  // Get today's logs
+  // get today's logs
   getTodayLogs: {
     method: 'GET',
     endpoint: '/api/habit_logs:list',
@@ -712,7 +712,7 @@ export const EXAMPLE_API_CALLS = {
 };
 
 // ============================================================================
-// TYPE DEFINITIONS FOR FRONTEND
+// type definitions for frontend
 // ============================================================================
 
 export interface HabitRecord {

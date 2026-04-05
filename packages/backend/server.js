@@ -1,11 +1,11 @@
-// typer: removing ts-node dependency; import JS version of importer script instead
+// typer: removing ts-node dependency; import js version of importer script instead
 
 import express from 'express';
 
 // guard against unzipper (or other event emitters) emitting 'error' with no
 // listener. failing to handle these leads to the whole backend crashing with
-// ERR_UNHANDLED_ERROR. the only error we've seen is "invalid signature" from
-// corrupted ZIPs; swallow those and let the import task handle the failure.
+// err_unhandled_error. the only error we've seen is "invalid signature" from
+// corrupted zips; swallow those and let the import task handle the failure.
 process.on('uncaughtException', (err) => {
     if (err && err.code === 'ERR_UNHANDLED_ERROR' &&
         typeof err.context === 'string' &&
@@ -34,9 +34,9 @@ import { getPiecesRecentActivity, getPiecesContextForQuery, isPiecesConnected } 
 import { getAllMemoryContext, addMemory, recordInteraction, readMemory, writeMemory, appendMemory, clearMemory } from './bot-memory.js';
 import { securityHeaders, additionalSecurityHeaders } from './security-headers.js';
 
-// Load environment variables if .env exists
+// load environment variables if .env exists
 if (fs.existsSync('.env')) {
-    // Basic dotenv loader since we are in ES module and might not have dotenv package installed
+    // basic dotenv loader since we are in es module and might not have dotenv package installed
     // do not overwrite existing variables so tests can override values before import
     const envContent = fs.readFileSync('.env', 'utf-8');
     envContent.split('\n').forEach(line => {
@@ -68,7 +68,7 @@ app.set('trust proxy', 1);
 // create http server from express app for socket.io
 const server = http.createServer(app);
 
-// Serve static assets for mobile and web clients
+// serve static assets for mobile and web clients
 app.use('/assets', express.static(path.join(process.cwd(), 'dist/assets')));
 app.use('/assets', express.static(path.join(process.cwd(), 'public/assets')));
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || '')
@@ -120,7 +120,7 @@ const debounceBroadcast = (event, payload, delay = 500) => {
     };
 };
 
-// CORS middleware --------------------------------------------------
+// cors middleware --------------------------------------------------
 app.use(cors({
     origin: (origin, callback) => {
         if (isAllowedOrigin(origin)) {
@@ -139,7 +139,7 @@ app.use(additionalSecurityHeaders);
 app.use(express.json({ limit: process.env.REQUEST_BODY_LIMIT || '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: process.env.REQUEST_BODY_LIMIT || '1mb' }));
 
-// Rate limiting middleware --------------------------------------------------
+// rate limiting middleware --------------------------------------------------
 const rateLimitStore = new Map();
 const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000', 10);
 const RATE_LIMIT_MAX_REQUESTS = parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100', 10);
@@ -193,17 +193,17 @@ const rateLimitAi = rateLimit(RATE_LIMIT_AI_MAX);
 app.use('/api/ai/', rateLimitAi);
 app.use(rateLimitGeneral);
 
-// Serve static files for the breathing page
+// serve static files for the breathing page
 app.use('/breathe', express.static(path.join(process.cwd(), 'public/breathe')));
 
-// Serve static files from public directory
+// serve static files from public directory
 app.use('/public', express.static(path.join(process.cwd(), 'public')));
 
-// Serve APK files from releases directory (cwd/release)
+// serve apk files from releases directory (cwd/release)
 const apkDir = path.join(process.cwd(), 'releases');
 console.log('[APK] serving from:', apkDir);
 
-// APK download endpoint - serves latest APK file in releases directory
+// apk download endpoint - serves latest apk file in releases directory
 app.get('/apk', (req, res) => {
     try {
         if (!fs.existsSync(apkDir)) {
@@ -233,16 +233,16 @@ app.get('/apk', (req, res) => {
     }
 });
 
-// Static file serving for direct APK file paths (e.g., /apk/pkm-v1.apk)
+// static file serving for direct apk file paths (e.g., /apk/pkm-v1.apk)
 // placed after the /apk handler to avoid directory redirects overriding the download endpoint
 app.use('/apk', express.static(apkDir, { redirect: false }));
 
-// Authentication Middleware
+// authentication middleware
 const authenticate = (req, res, next) => {
     const authHeader = req.headers['authorization'];
 
-    // Allow if no auth required for public endpoints (though applied globally here for specific routes)
-    // We only protect specific routes
+    // allow if no auth required for public endpoints (though applied globally here for specific routes)
+    // we only protect specific routes
     return next();
 };
 
@@ -257,17 +257,17 @@ const requireAuth = (req, res, next) => {
 
     const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
 
-    // Check against secret
+    // check against secret
     if (token === ADMIN_SECRET) {
         return next();
     }
 
-    // also accept a configured NocoBase API key if present
+    // also accept a configured nocobase api key if present
     if (process.env.NOCOBASE_API_KEY && token === process.env.NOCOBASE_API_KEY) {
         return next();
     }
 
-    // NOTE: we could eventually validate against nocobase_token in storage,
+    // note: we could eventually validate against nocobase_token in storage,
     // but for now we only honour the environment variable to avoid leaking
     // secrets from request bodies.
 
@@ -292,7 +292,7 @@ const storage = multer.diskStorage({
 // upload middleware for images
 const upload = multer({
     storage,
-    limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+    limits: { fileSize: 10 * 1024 * 1024 }, // 10mb limit
     fileFilter: (req, file, cb) => {
         const allowedTypes = /jpeg|jpg|png|gif|webp/;
         const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
@@ -322,11 +322,11 @@ const importUpload = multer({
 
 // multi-csv import endpoint for up to 60 files (from server.ts)
 const csvUpload = multer({
-    storage, // optionally use diskStorage so files aren't kept in memory
-    limits: { files: 60, fileSize: 10 * 1024 * 1024 } // allow up to 10MB total to be safe, though user requested 230kb
+    storage, // optionally use diskstorage so files aren't kept in memory
+    limits: { files: 60, fileSize: 10 * 1024 * 1024 } // allow up to 10mb total to be safe, though user requested 230kb
 });
 
-// State
+// state
 let lastServerStats = {
     online: false,
     players: 0,
@@ -339,14 +339,14 @@ let lastServerStats = {
 let chatHistory = [];
 
 // placeholder persistence functions – the original snippet referenced
-// `saveData()` but didn’t include an implementation.  define a no‑op so the
+// `savedata()` but didn’t include an implementation.  define a no‑op so the
 // call below can be uncommented later without throwing.
 function saveData() {
-  // TODO: actually persist chatHistory/server state if desired
+  // todo: actually persist chathistory/server state if desired
 }
 const execPromise = promisify(exec);
 
-// API Routes
+// api routes
 
 app.get('/api/status', (req, res) => {
     res.json({ status: 'online', clients: io.engine.clientsCount });
@@ -377,12 +377,12 @@ app.get('/api/chat', (req, res) => {
     res.json(chatHistory);
 });
 
-// Auth check endpoint
+// auth check endpoint
 app.get('/api/whoami', requireAuth, (req, res) => {
     res.json({ role: 'admin', authenticated: true });
 });
 
-// Protected Upload Endpoints
+// protected upload endpoints
 app.post('/api/upload/banner', requireAuth, upload.single('file'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
@@ -391,7 +391,7 @@ app.post('/api/upload/banner', requireAuth, upload.single('file'), (req, res) =>
     res.json({ url: fileUrl, filename: req.file.filename });
 });
 
-// Notion import support
+// notion import support
 // path to shared scripts folder (moves mean backend is nested)
 import { run as notionRun, getApiClient } from '../../scripts/notion-import.js';
 import EventEmitter from 'events';
@@ -490,7 +490,7 @@ function handleNotionImport(req, res) {
                 log('parsing CSV import');
                 const content = fs.readFileSync(req.file.path, 'utf-8');
                 const rows = [];
-                // Papa.parse is async when using callback, so wrap in promise
+                // papa.parse is async when using callback, so wrap in promise
                 await new Promise((resolve) => {
                     Papa.parse(content, {
                         header: true,
@@ -583,12 +583,12 @@ function handleNotionImport(req, res) {
     res.json({ taskId });
 }
 
-// primary endpoint uses shorter name to avoid Cloudflare filtering
+// primary endpoint uses shorter name to avoid cloudflare filtering
 app.post('/api/nb-import', requireAuth, importUpload.single('file'), handleNotionImport);
 // legacy route still available for local tests
 app.post('/api/notion-import', requireAuth, importUpload.single('file'), handleNotionImport);
 
-// Multi-CSV import endpoint for notion databases
+// multi-csv import endpoint for notion databases
 async function handleCsvImport(req, res) {
     console.log('[CsvImport] request received, auth=', req.headers.authorization);
     if (!req.files || !Array.isArray(req.files) || req.files.length === 0) {
@@ -611,7 +611,7 @@ async function handleCsvImport(req, res) {
         }
 
         try {
-            // Use the authorization header directly from the frontend request to authenticate with NocoBase
+            // use the authorization header directly from the frontend request to authenticate with nocobase
             const authHeader = req.headers.authorization;
             if (!authHeader) throw new Error("No authorization header provided to import");
 
@@ -719,7 +719,7 @@ async function handleCsvImport(req, res) {
             const current = importTasks.get(taskId);
             if (current) current.status = 'error';
         } finally {
-            // Cleanup uploaded files
+            // cleanup uploaded files
             req.files.forEach(f => {
                 try { fs.unlinkSync(f.path); } catch (e) { }
             });
@@ -732,11 +732,11 @@ async function handleCsvImport(req, res) {
 
 app.post('/nb-import-csv', csvUpload.array('files', 60), handleCsvImport);
 
-// Alias under /api path since Vite proxy rewrites to /api
+// alias under /api path since vite proxy rewrites to /api
 app.post('/api/nb-import-csv', requireAuth, csvUpload.array('files', 60), handleCsvImport);
 
 // streaming endpoint - still available for backwards compatibility but
-// may be unreliable through Cloudflare; prefer polling.
+// may be unreliable through cloudflare; prefer polling.
 app.get('/api/notion-import/:id/stream', requireAuth, (req, res) => {
     const id = req.params.id;
     const entry = importTasks.get(id);
@@ -772,24 +772,24 @@ app.get('/api/notion-import/:id/stream', requireAuth, (req, res) => {
 });
 
 // polling/logs endpoints
-// we provide multiple flavours because Cloudflare WAF frequently filters
-// URLs containing `/notion-import` or long IDs. the safest is the query
+// we provide multiple flavours because cloudflare waf frequently filters
+// urls containing `/notion-import` or long ids. the safest is the query
 // variant which is unlikely to trigger rules:
-//   GET /api/nb-import/logs?id=<taskId>
+//   get /api/nb-import/logs?id=<taskid>
 // path-based routes are kept for backwards compatibility.
-// explicit OPTIONS route so preflight will be answered (particularly
+// explicit options route so preflight will be answered (particularly
 // important when the browser hits the route via cross‑origin). the
 // global cors middleware already handles things, but some proxies
-// (Cloudflare) may return 502 on unknown methods so being explicit
+// (cloudflare) may return 502 on unknown methods so being explicit
 // prevents mysterious failures.
 app.options('/api/notion-import/:id/logs', cors());
 app.options('/api/nb-import/:id/logs', cors());
 app.options('/api/nb-import/logs', cors());
 
-// helper for responding with current logs for a task id. used by both GET and
-// POST handlers so we can share the logic and keep tests simple.
+// helper for responding with current logs for a task id. used by both get and
+// post handlers so we can share the logic and keep tests simple.
 function respondWithLogs(req, res) {
-    // id may come from params (GET forms) or query (GET) or body (POST)
+    // id may come from params (get forms) or query (get) or body (post)
     const id = req.params.id || req.query.id || (req.body && req.body.id);
     console.log('[NotionImport] logs poll for id', id);
     const entry = importTasks.get(id);
@@ -807,18 +807,18 @@ function respondWithLogs(req, res) {
     }
 }
 
-// GET routes (query param preferred for Cloudflare compatibility)
+// get routes (query param preferred for cloudflare compatibility)
 app.get(['/api/notion-import/:id/logs', '/api/nb-import/logs', '/api/nb-import/:id/logs'], requireAuth, (req, res) => {
     // explicit `/logs` entry must appear before the parameterized route or it
     // would capture as id='logs'.
     respondWithLogs(req, res);
 });
 
-// Accept POST as an alternative shape that keeps the identifier in the JSON
-// body. POST requests tend not to be inspected by Cloudflare WAF rules as
-// aggressively as GET query strings, so this is our best bet for avoiding
-// mysterious 500 responses in production. The handler is intentionally
-// identical to the GET version.
+// accept post as an alternative shape that keeps the identifier in the json
+// body. post requests tend not to be inspected by cloudflare waf rules as
+// aggressively as get query strings, so this is our best bet for avoiding
+// mysterious 500 responses in production. the handler is intentionally
+// identical to the get version.
 app.post('/api/nb-import/logs', requireAuth, (req, res) => {
     respondWithLogs(req, res);
 });
@@ -846,16 +846,16 @@ app.post('/api/upload-background', requireAuth, upload.single('file'), (req, res
     }
 });
 
-// Dangerous Endpoint - Restricted access and sanitized
-// Ideally, this should be removed or strictly controlled.
+// dangerous endpoint - restricted access and sanitized
+// ideally, this should be removed or strictly controlled.
 app.get('/api/players', requireAuth, async (req, res) => {
     try {
-        // Hardcoded safe path
+        // hardcoded safe path
         const scriptPath = '/home/house/Documents/docker/dupemates/data/read_player_data.py';
 
-        // Ensure the path exists before running
+        // ensure the path exists before running
         if (!fs.existsSync(scriptPath)) {
-            // Fallback for dev/test environment
+            // fallback for dev/test environment
             return res.json({ players: [] });
         }
 
@@ -875,7 +875,7 @@ app.get('/api/players', requireAuth, async (req, res) => {
 
 app.get('/api/public/doc/:slug', (req, res) => {
     const { slug } = req.params;
-    // Mock data for now
+    // mock data for now
     const mockDocument = {
         id: slug,
         title: 'Sample Journal Entry',
@@ -889,7 +889,7 @@ app.get('/api/public/doc/:slug', (req, res) => {
 });
 
 
-// Webhook Handler (from previous implementation, consolidated)
+// webhook handler (from previous implementation, consolidated)
 const sendWebhook = async (type, player, message, timestamp, online) => {
     const webhookUrl = process.env.N8N_WEBHOOK_URL || 'http://localhost:5678/webhook/leave-join';
     try {
@@ -911,21 +911,21 @@ const sendWebhook = async (type, player, message, timestamp, online) => {
     }
 };
 
-// Broadcast Endpoint
+// broadcast endpoint
 app.post('/api/broadcast', requireAuth, async (req, res) => {
     const { type, message, online, count, source, uuid } = req.body;
 
-    // Validation
+    // validation
     if (!type) {
         return res.status(400).json({ error: 'Missing type' });
     }
 
-    // Update stats
+    // update stats
     const safeOnline = typeof online === 'boolean' ? online : lastServerStats.online;
     const safeCount = typeof count === 'number' ? count : lastServerStats.players;
     const msgTimestamp = new Date().toISOString();
 
-    // Determine player name
+    // determine player name
     let finalPlayer = 'Server';
     if (message && message.includes('joined the game')) {
         finalPlayer = message.replace(' joined the game', '');
@@ -955,10 +955,10 @@ app.post('/api/broadcast', requireAuth, async (req, res) => {
         emitPayload.player = 'system';
     }
 
-    // Emit to clients
+    // emit to clients
     debounceBroadcast('minecraft_update', emitPayload);
 
-    // Update Server Stats
+    // update server stats
     if (normalizedType !== 'chat') {
         lastServerStats = {
             online: safeOnline,
@@ -972,7 +972,7 @@ app.post('/api/broadcast', requireAuth, async (req, res) => {
 
     const currentGeneratedMsg = (normalizedType === 'chat') ? message : `${finalPlayer} ${normalizedType === 'join' ? 'joined' : 'left'} the game`;
 
-    // Deduplication
+    // deduplication
     const isDuplicate = chatHistory.length > 0 && chatHistory.slice(-3).some(past => {
         const timeDiff = Math.abs(new Date().getTime() - new Date(past.timestamp).getTime());
         return past.message === currentGeneratedMsg && past.type === normalizedType && timeDiff < 10000;
@@ -985,24 +985,24 @@ app.post('/api/broadcast', requireAuth, async (req, res) => {
             const msg = `${finalPlayer} ${normalizedType === 'join' ? 'joined' : 'left'} the game`;
             chatHistory.push({ type: 'system', player: 'system', message: msg, timestamp: msgTimestamp });
 
-            // Trigger Webhook
+            // trigger webhook
             sendWebhook(normalizedType, finalPlayer, msg, msgTimestamp, safeOnline);
         }
     }
 
-    // Limit History
+    // limit history
     if (chatHistory.length > 50) {
         chatHistory = chatHistory.slice(-50);
     }
 
-    // TODO: Persist data (saveData() was called in original but undefined in snippet)
-    // saveData();
+    // todo: persist data (savedata() was called in original but undefined in snippet)
+    // savedata();
 
     console.log(`[Broadcast] ${type} | Online: ${safeOnline} | Players: ${safeCount} | Msg: ${message || 'none'}`);
     res.json({ status: 'broadcasted' });
 });
 
-// proxy endpoint for fetching ics calendar (avoids CORS issues)
+// proxy endpoint for fetching ics calendar (avoids cors issues)
 const ICS_URL = process.env.PROTON_ICS_URL;
 app.get('/api/ics-proxy', requireAuth, async (req, res) => {
     if (!ICS_URL) {
@@ -1015,7 +1015,7 @@ app.get('/api/ics-proxy', requireAuth, async (req, res) => {
             maxRedirects: 5,
             validateStatus: () => true,
             headers: {
-                // mimic a browser request so Proton's endpoint accepts it
+                // mimic a browser request so proton's endpoint accepts it
                 'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
                 'Accept': 'text/calendar,application/calendar,application/octet-stream,text/plain,*/*;q=0.1',
                 'Referer': 'https://calendar.proton.me/',
@@ -1045,7 +1045,7 @@ app.get('/api/ics-proxy', requireAuth, async (req, res) => {
                             const exdates = ev.exdate || {};
                             
                             for (const date of dates) {
-                                // node-ical returns Date objects for between()
+                                // node-ical returns date objects for between()
                                 const dateStr = date.toISOString().substring(0, 10);
                                 
                                 // check if this instance was excluded
@@ -1097,7 +1097,7 @@ app.get('/api/ics-proxy', requireAuth, async (req, res) => {
     }
 });
 
-// Socket.io
+// socket.io
 io.on('connection', (socket) => {
     console.log('[Socket] Client connected:', socket.id);
 
@@ -1120,7 +1120,7 @@ if (process.env.NODE_ENV !== 'test') {
         console.log(`[Backend] Protected endpoints enabled`);
         console.log(`[Backend] MOCK_NOTION_IMPORT: ${process.env.MOCK_NOTION_IMPORT}`);
 
-        // Resolve preferred Ollama models for qwen and vision (non-blocking)
+        // resolve preferred ollama models for qwen and vision (non-blocking)
         resolveOllamaModelSelection().catch((err) => {
             console.warn('[AI] failed to resolve ollama models', err?.message || err);
         });

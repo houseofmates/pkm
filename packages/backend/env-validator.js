@@ -1,46 +1,46 @@
-// Environment variable validation for PKM backend
-// Ensures all required environment variables are present and valid
+// environment variable validation for pkm backend
+// ensures all required environment variables are present and valid
 
 import dotenv from 'dotenv';
 import { z } from 'zod';
 
 /**
- * Load and validate environment variables
- * @returns {Object} Validated environment configuration
+ * load and validate environment variables
+ * @returns {object} validated environment configuration
  */
 export function loadEnvironment() {
-    // Load environment variables from .env file
+    // load environment variables from .env file
     const result = dotenv.config();
     
     if (result.error && process.env.NODE_ENV === 'production') {
         console.warn('[Backend] Warning: .env file not found in production environment');
     }
 
-    // Define validation schema for critical environment variables
+    // define validation schema for critical environment variables
     const envSchema = z.object({
         PORT: z.string().regex(/^\d+$/).default('4100'),
         NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
         
-        // Security - REQUIRED in production
+        // security - required in production
         ADMIN_SECRET: z.string().min(16, 'ADMIN_SECRET must be at least 16 characters for security'),
         BROADCAST_AUTH_KEY: z.string().min(16).optional(),
         
-        // NocoBase Integration - REQUIRED
+        // nocobase integration - required
         NOCOBASE_URL: z.string().url('NOCOBASE_URL must be a valid URL'),
         NOCOBASE_API_KEY: z.string().min(1, 'NOCOBASE_API_KEY is required'),
         
-        // CORS Configuration
+        // cors configuration
         ALLOWED_ORIGINS: z.string().default('http://localhost:3010'),
         
-        // Rate Limiting
+        // rate limiting
         RATE_LIMIT_WINDOW_MS: z.string().regex(/^\d+$/).default('60000'),
         RATE_LIMIT_MAX_REQUESTS: z.string().regex(/^\d+$/).default('100'),
         RATE_LIMIT_AI_MAX: z.string().regex(/^\d+$/).default('20'),
         
-        // WebSocket Configuration
+        // websocket configuration
         MAX_WS_CONNECTIONS: z.string().regex(/^\d+$/).default('1000'),
         
-        // Optional configurations
+        // optional configurations
         MOCK_NOTION_IMPORT: z.string().optional(),
         PROTON_ICS_URL: z.string().url().optional(),
         N8N_WEBHOOK_URL: z.string().url().optional(),
@@ -58,10 +58,10 @@ export function loadEnvironment() {
     });
 
     try {
-        // Validate environment variables
+        // validate environment variables
         const validatedEnv = envSchema.parse(process.env);
         
-        // Log validation success in development
+        // log validation success in development
         if (process.env.NODE_ENV === 'development') {
             console.log('[Backend] ✓ Environment variables validated successfully');
         }
@@ -78,34 +78,34 @@ export function loadEnvironment() {
             console.error(error);
         }
         
-        // In production, exit with error code
+        // in production, exit with error code
         if (process.env.NODE_ENV === 'production') {
             console.error('\n[Backend] FATAL: Cannot start without valid environment variables');
             console.error('[Backend] Please check your .env file or environment variables');
             process.exit(1);
         }
         
-        // In development, continue with defaults but warn
+        // in development, continue with defaults but warn
         console.warn('\n[Backend] WARNING: Continuing with default values (development mode only)');
         return process.env;
     }
 }
 
 /**
- * Get validated environment variable
- * @param {string} key - Environment variable name
- * @param {string} defaultValue - Default value if not set
- * @returns {string} Environment variable value
+ * get validated environment variable
+ * @param {string} key - environment variable name
+ * @param {string} defaultvalue - default value if not set
+ * @returns {string} environment variable value
  */
 export function getEnv(key, defaultValue) {
     return process.env[key] || defaultValue;
 }
 
 /**
- * Get validated environment variable as number
- * @param {string} key - Environment variable name
- * @param {number} defaultValue - Default value if not set
- * @returns {number} Environment variable value as number
+ * get validated environment variable as number
+ * @param {string} key - environment variable name
+ * @param {number} defaultvalue - default value if not set
+ * @returns {number} environment variable value as number
  */
 export function getEnvNumber(key, defaultValue) {
     const value = process.env[key];
@@ -116,10 +116,10 @@ export function getEnvNumber(key, defaultValue) {
 }
 
 /**
- * Get validated environment variable as boolean
- * @param {string} key - Environment variable name
- * @param {boolean} defaultValue - Default value if not set
- * @returns {boolean} Environment variable value as boolean
+ * get validated environment variable as boolean
+ * @param {string} key - environment variable name
+ * @param {boolean} defaultvalue - default value if not set
+ * @returns {boolean} environment variable value as boolean
  */
 export function getEnvBoolean(key, defaultValue) {
     const value = process.env[key];

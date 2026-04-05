@@ -20,7 +20,7 @@ class FieldRegistry {
 
   /**
    * register a new field type
-   * @param fieldType the field type definition to register
+   * @param fieldtype the field type definition to register
    * @throws error if field type is invalid or already registered (and overwrite is false)
    */
   public register(fieldType: FieldTypeDefinition, overwrite: boolean = false): void {
@@ -47,7 +47,7 @@ class FieldRegistry {
 
   /**
    * get a registered field type by name
-   * @param typeName the name of the field type
+   * @param typename the name of the field type
    * @returns the field type definition or undefined if not found
    */
   public get(typeName: string): FieldTypeDefinition | undefined {
@@ -56,7 +56,7 @@ class FieldRegistry {
 
   /**
    * check if a field type is registered
-   * @param typeName the name of the field type
+   * @param typename the name of the field type
    * @returns true if the field type is registered
    */
   public has(typeName: string): boolean {
@@ -81,7 +81,7 @@ class FieldRegistry {
 
   /**
    * unregister a field type
-   * @param typeName the name of the field type to unregister
+   * @param typename the name of the field type to unregister
    * @returns true if the field type was removed, false if it didn't exist
    */
   public unregister(typeName: string): boolean {

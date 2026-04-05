@@ -85,7 +85,7 @@ export function FieldSettingsDialog({ collectionName, field, open, onOpenChange,
         setLoading(true);
 
         try {
-            // 1. Update NocoBase schema
+            // 1. update nocobase schema
             await client.updateField(collectionName, field.name, {
                 uiSchema: {
                     ...field.uiSchema,

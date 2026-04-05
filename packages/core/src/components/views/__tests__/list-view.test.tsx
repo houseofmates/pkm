@@ -35,9 +35,9 @@ import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { ListView } from '../list-view';
 
-// we don't need to mock SmartField because ListView uses it directly and
-// our earlier tests already validate its behaviour. Instead we provide a
-// very simple field and confirm that onUpdateRecord is called when the
+// we don't need to mock smartfield because listview uses it directly and
+// our earlier tests already validate its behaviour. instead we provide a
+// very simple field and confirm that onupdaterecord is called when the
 // user clicks and updates the value.
 
 const mockCollection = {
@@ -51,13 +51,13 @@ const mockConfig = { titleField: 'title', visibleFields: [] };
 
 const fakeRow = { id: '1', title: 'hello' };
 
-// provide a dummy auth context if needed (SmartField may require it)
+// provide a dummy auth context if needed (smartfield may require it)
 import { AuthContext } from '@/contexts/auth-context';
 const fakeClient = {};
 const authValue = { token: 'x', isAuthenticated: true, login: vi.fn(), logout: vi.fn(), client: fakeClient };
 
 function withAuth(ui: React.ReactElement) {
-  // many components inside ListView rely on react-router hooks; wrap with a
+  // many components inside listview rely on react-router hooks; wrap with a
   // lightweight memory router to satisfy them.
   return render(
     <MemoryRouter>
@@ -78,7 +78,7 @@ describe('ListView', () => {
       />
     );
 
-    // value should be visible through mocked SmartField input
+    // value should be visible through mocked smartfield input
     const input = screen.getByTestId('smartfield-input');
     expect(input).toHaveValue('hello');
     // click to edit (focus the input)

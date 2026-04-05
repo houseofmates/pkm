@@ -15,7 +15,7 @@ export function useThemeReactor() {
 
     // strategy: use the first active fronter's color.
     // fallback: use the first headmate's color in the system list.
-    // fallback 2: use last known color from localStorage to prevent flicker during load.
+    // fallback 2: use last known color from localstorage to prevent flicker during load.
     const primaryFronterId = activeFronters[0];
     let color: string | undefined;
 
@@ -97,14 +97,14 @@ export function useThemeReactor() {
           document.body.style.setProperty('--ring', finalHsl, 'important');
           document.body.style.setProperty('--headmate-white', finalHsl, 'important');
 
-          // ensure window.accentBg is synced for components that use it (sidebar)
+          // ensure window.accentbg is synced for components that use it (sidebar)
           const soft = getAccentBg(finalColor);
           if (typeof window !== 'undefined') (window as any).accentBg = soft;
           document.documentElement.style.setProperty('--primary-soft', soft);
         }
       }
     } else {
-      // no color found AND no cache, use default #f6b012 immediately
+      // no color found and no cache, use default #f6b012 immediately
       const defaultColor = '#f6b012';
       const defaultHsl = hexToHsl(defaultColor);
       if (defaultHsl) {
@@ -169,6 +169,6 @@ export function getAccentBg(color: string) {
   if (color.startsWith('rgb')) {
     return color.replace(/rgb\(([^)]+)\)/, 'rgba($1, 0.15)');
   }
-  // generic fallback that respects the CSS variable
+  // generic fallback that respects the css variable
   return `hsl(var(--primary) / 0.15)`;
 }

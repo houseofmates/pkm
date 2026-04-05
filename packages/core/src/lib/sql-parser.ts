@@ -1,4 +1,4 @@
-// simple SQL parser with basic subquery support
+// simple sql parser with basic subquery support
 // intended for lightweight client-side completion and testing
 
 export interface SQLParsed {
@@ -10,7 +10,7 @@ export interface SQLParsed {
   having?: string;
   orderBy?: { field: string; dir: 'ASC' | 'DESC' };
   limit?: number;
-  union?: SQLParsed[]; // additional SELECTs in a UNION
+  union?: SQLParsed[]; // additional selects in a union
 }
 
 export type TableRef =
@@ -46,7 +46,7 @@ function takeBalanced(str: string): [string, string] {
 }
 
 export function parseSQL(sql: string): SQLParsed {
-  // handle simple UNION by parsing each segment recursively and preserving them
+  // handle simple union by parsing each segment recursively and preserving them
   const uText = sql.toUpperCase();
   if (uText.includes(' UNION ')) {
     const parts = sql.split(/\sUNION\s/i).map(p => p.trim());
@@ -65,7 +65,7 @@ export function parseSQL(sql: string): SQLParsed {
 
   const parsed: SQLParsed = { fields: fieldsStr.split(',').map(f => f.trim()), from: { name: '' } };
 
-  // parse FROM clause (table or subquery)
+  // parse from clause (table or subquery)
   if (after.startsWith('(')) {
     const [sub, rest] = takeBalanced(after);
     const inner = sub.slice(1, -1);
@@ -122,7 +122,7 @@ export function parseSQL(sql: string): SQLParsed {
       }
       tableRef = { name, alias };
     }
-    // extract ON clause
+    // extract on clause
     let on: string | undefined;
     const onMatch = after.match(/^ON\s+([^]+?)(?=\sJOIN\s|\sWHERE\s|\sGROUP\s|\sORDER\s|\sLIMIT|$)/i);
     if (onMatch) {

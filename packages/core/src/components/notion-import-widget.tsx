@@ -31,7 +31,7 @@ const getRuntimeLocation = () => {
 };
 
 const resolveBackendBaseUrl = () => {
-    // support older tests and configs that set VITE_API_URL (nocobase) as well
+    // support older tests and configs that set vite_api_url (nocobase) as well
     const overrideBackend = globalThis.__HOM_TEST_BACKEND_URL__;
     const rawApiEnv = (typeof process !== 'undefined' && (process as any).env && (process as any).env.VITE_API_URL)
       || (import.meta.env as any).VITE_API_URL;
@@ -88,13 +88,13 @@ export function NotionImportWidget() {
             appendLog('error: total upload exceeds 230kb');
             return;
         }
-        // reject files that are too small (likely invalid HTML or truncated)
+        // reject files that are too small (likely invalid html or truncated)
         const minSize = 64; // bytes
         if (files.some(f => f.size < minSize)) {
             appendLog('error: one or more files are too small to be valid');
             return;
         }
-        // prefer the PKM app setting but fall back to known localStorage keys
+        // prefer the pkm app setting but fall back to known localstorage keys
         let apiKey: string | null | undefined = appApiKey ||
             storageManager.getItem('hom_api_key') ||
             storageManager.getItem('nocobase_token') ||
@@ -118,7 +118,7 @@ export function NotionImportWidget() {
                 appendLog(`warning: file ${f.name} is not a CSV`);
             }
         });
-        // inspect the first few bytes of each file to warn if it looks like an HTML error page
+        // inspect the first few bytes of each file to warn if it looks like an html error page
         for (const f of files) {
             try {
                 const sl = f.slice(0, 32);
@@ -143,9 +143,9 @@ export function NotionImportWidget() {
         appendLog('uploading...');
         const fd = new FormData();
         files.forEach((f) => fd.append('files', f, f.name));
-        // determine the backend URL for handling imports. this is **not** the
-        // nocobase API (VITE_API_URL) but the PKM backend service. the latter
-        // is exposed via VITE_BACKEND_URL or proxied under `/api` in dev.
+        // determine the backend url for handling imports. this is **not** the
+        // nocobase api (vite_api_url) but the pkm backend service. the latter
+        // is exposed via vite_backend_url or proxied under `/api` in dev.
         const { baseUrl, rawEnv, envBase, source } = resolveBackendBaseUrl() as any;
         const url = (source === 'api') ? `${baseUrl}/nb-import` : `${baseUrl}/nb-import-csv`;
         if (import.meta.env.DEV) {
@@ -221,7 +221,7 @@ export function NotionImportWidget() {
                         }
                         return;
                     }
-                    // backend/csv import behaviour: GET logs?id=...
+                    // backend/csv import behaviour: get logs?id=...
                     const pollUrl = `${baseUrl}/nb-import/logs?id=${encodeURIComponent(data.taskId)}`;
                     const pres = await fetch(pollUrl, {
                         headers: { Authorization: `Bearer ${apiKey}` }
@@ -270,7 +270,7 @@ export function NotionImportWidget() {
         if (!lastTaskId) return;
         appendLog(`retrying poll for task ${lastTaskId}...`);
         setRunning(true);
-        // reuse most recent API key lookup
+        // reuse most recent api key lookup
         const apiKey = appApiKey ||
             storageManager.getItem('hom_api_key') ||
             storageManager.getItem('nocobase_token') ||

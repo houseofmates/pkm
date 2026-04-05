@@ -101,7 +101,7 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   const FORBIDDEN_COLLECTIONS = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website', 'dupemates-pages'];
   const filteredCollections = collections.filter((c: Collection) => !FORBIDDEN_COLLECTIONS.includes(String(c.name).toLowerCase()));
 
-  // 2. supplement missing field metadata for collections the API doesn't return fields for
+  // 2. supplement missing field metadata for collections the api doesn't return fields for
   const FALLBACK_FIELDS: Record<string, Array<{ name: string; type: string; interface?: string }>> = {
     events: [
       { name: 'title', type: 'string', interface: 'input' },
@@ -215,11 +215,11 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   const sidebarDocs = sidebarItems
     .filter(item => (item.id.startsWith('doc_') || item.id.startsWith('drawing_')))
     .map(item => ({
-      name: item.id, // e.g. doc_123 - Use this as unique key
+      name: item.id, // e.g. doc_123 - use this as unique key
       title: item.name,
       description: item.id.startsWith('drawing_') ? 'drawing' : 'document',
-      fields: [], // No fields
-      meta: { color: item.color } // Inject color for CollectionCard to pick up
+      fields: [], // no fields
+      meta: { color: item.color } // inject color for collectioncard to pick up
     })) as unknown as Collection[];
 
   // 3. merge lists

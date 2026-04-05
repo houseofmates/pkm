@@ -41,7 +41,7 @@ export const SmartTextElement = React.memo(function SmartTextElement({ element }
         placeholder="type anything..."
         onChange={(html) => {
           setContent(html);
-          // In a real app, debounce and call updateElement here
+          // in a real app, debounce and call updateelement here
         }}
       />
     </div>

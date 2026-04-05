@@ -77,7 +77,7 @@ const runSecurityScan = (): Vulnerability[] => {
   const vulnerabilities: Vulnerability[] = [];
   
   // check for console logging issues
-  const hasConsoleLogs = true; // Simulated - in real implementation, scan source code
+  const hasConsoleLogs = true; // simulated - in real implementation, scan source code
   if (hasConsoleLogs) {
     vulnerabilities.push({
       id: 'console-1',

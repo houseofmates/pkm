@@ -17,7 +17,7 @@ export function FrontingLogGraph() {
   const days: Record<string, Record<string, number>> = {};
 
   history.forEach(entry => {
-  if (!entry.endTime) return; // Skip active or calculate partial? Skip for now.
+  if (!entry.endTime) return; // skip active or calculate partial? skip for now.
   const date = entry.startTime.split('T')[0];
   const start = new Date(entry.startTime).getTime();
   const end = new Date(entry.endTime).getTime();
@@ -34,7 +34,7 @@ export function FrontingLogGraph() {
   return Object.entries(days)
   .map(([k, v]) => ({ date: k, ...v }))
   .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-  .slice(-14); // Last 14 days
+  .slice(-14); // last 14 days
   }, [history]);
 
   // get unique members in this period

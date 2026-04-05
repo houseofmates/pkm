@@ -119,7 +119,7 @@ export function useIdentityBadges() {
 
   // load entries
   useEffect(() => {
-    // try to get from localStorage first (sync with journal)
+    // try to get from localstorage first (sync with journal)
     const savedEntries = localStorage.getItem('pkm:journal:entries_cache')
     if (savedEntries) {
       try {

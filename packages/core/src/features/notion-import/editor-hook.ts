@@ -2,7 +2,7 @@ import { NotionWorkspace } from './parser';
 
 /**
  * mapping for editors to show human‑readable descriptions or completions when
- * dealing with Notion export data.
+ * dealing with notion export data.
  */
 export const notionTypeMap: Record<string, string> = {
     title: 'string',

@@ -32,7 +32,7 @@ interface SchemaDB extends DBSchema {
     value: Record;
     indexes: {
       'by-table': string; // table name
-      'by-updated': string; // updatedAt timestamp
+      'by-updated': string; // updatedat timestamp
     };
   };
   
@@ -118,7 +118,7 @@ class PersistenceService {
 
   /**
    * get a table definition by id
-   * @param tableId the table id
+   * @param tableid the table id
    * @returns the table definition or undefined
    */
   public async getTable(tableId: string): Promise<TableDefinition | undefined> {
@@ -128,7 +128,7 @@ class PersistenceService {
 
   /**
    * get a table definition by name
-   * @param tableName the table name
+   * @param tablename the table name
    * @returns the table definition or undefined
    */
   public async getTableByName(tableName: string): Promise<TableDefinition | undefined> {
@@ -147,7 +147,7 @@ class PersistenceService {
 
   /**
    * delete a table and all its records
-   * @param tableId the table id to delete
+   * @param tableid the table id to delete
    */
   public async deleteTable(tableId: string): Promise<void> {
     const db = await this.ensureInitialized();
@@ -177,7 +177,7 @@ class PersistenceService {
 
   /**
    * save a record
-   * @param tableName the table this record belongs to
+   * @param tablename the table this record belongs to
    * @param record the record to save
    */
   public async saveRecord(tableName: string, record: Record): Promise<void> {
@@ -188,7 +188,7 @@ class PersistenceService {
 
   /**
    * get a record by id
-   * @param recordId the record id
+   * @param recordid the record id
    * @returns the record or undefined
    */
   public async getRecord(recordId: string): Promise<Record | undefined> {
@@ -198,7 +198,7 @@ class PersistenceService {
 
   /**
    * get all records for a table
-   * @param tableName the table name
+   * @param tablename the table name
    * @returns array of records
    */
   public async getRecordsByTable(tableName: string): Promise<Record[]> {
@@ -209,7 +209,7 @@ class PersistenceService {
 
   /**
    * delete a record
-   * @param recordId the record id to delete
+   * @param recordid the record id to delete
    */
   public async deleteRecord(recordId: string): Promise<void> {
     const db = await this.ensureInitialized();
@@ -218,7 +218,7 @@ class PersistenceService {
 
   /**
    * query records with filtering, sorting, and pagination
-   * @param tableName the table to query
+   * @param tablename the table to query
    * @param options query options
    * @returns query result with records and pagination info
    */

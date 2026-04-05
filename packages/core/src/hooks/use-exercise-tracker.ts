@@ -55,7 +55,7 @@ export function useExerciseTracker() {
             completed: sessionGroups.includes(mg.id)
           })))
         } else {
-          // check localStorage fallback
+          // check localstorage fallback
           const local = localStorage.getItem(`pkm:exercise:${today}`)
           if (local) {
             const parsed = JSON.parse(local)
@@ -79,7 +79,7 @@ export function useExerciseTracker() {
     )
     setMuscleGroups(newGroups)
     
-    // save to localStorage immediately
+    // save to localstorage immediately
     const completedIds = newGroups.filter(mg => mg.completed).map(mg => mg.id)
     localStorage.setItem(`pkm:exercise:${today}`, JSON.stringify({
       completed: completedIds,
@@ -106,7 +106,7 @@ export function useExerciseTracker() {
         await api.createRecord('exercise_sessions', payload)
       }
     } catch (e) {
-      // localStorage fallback already done
+      // localstorage fallback already done
       secureLogger.warn('failed to save exercise to server', e)
     }
     

@@ -1,17 +1,17 @@
-// Structured logging for PKM backend
-// Uses Winston for production-ready logging
+// structured logging for pkm backend
+// uses winston for production-ready logging
 
 import winston from 'winston';
 import path from 'path';
 import fs from 'fs';
 
-// Ensure logs directory exists
+// ensure logs directory exists
 const logsDir = path.join(process.cwd(), 'logs');
 if (!fs.existsSync(logsDir)) {
     fs.mkdirSync(logsDir, { recursive: true });
 }
 
-// Define log levels
+// define log levels
 const levels = {
     error: 0,
     warn: 1,
@@ -20,7 +20,7 @@ const levels = {
     debug: 4
 };
 
-// Define log level colors
+// define log level colors
 const colors = {
     error: 'red',
     warn: 'yellow',
@@ -29,10 +29,10 @@ const colors = {
     debug: 'white'
 };
 
-// Add colors to winston
+// add colors to winston
 winston.addColors(colors);
 
-// Define log format
+// define log format
 const format = winston.format.combine(
     winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
     winston.format.errors({ stack: true }),
@@ -40,7 +40,7 @@ const format = winston.format.combine(
     winston.format.json()
 );
 
-// Console format with colors
+// console format with colors
 const consoleFormat = winston.format.combine(
     winston.format.colorize({ all: true }),
     winston.format.printf(
@@ -48,45 +48,45 @@ const consoleFormat = winston.format.combine(
     )
 );
 
-// Create logger instance
+// create logger instance
 const logger = winston.createLogger({
     level: process.env.LOG_LEVEL || 'info',
     levels,
     format,
     transports: [
-        // Error log
+        // error log
         new winston.transports.File({
             filename: path.join(logsDir, 'error.log'),
             level: 'error',
-            maxsize: 5242880, // 5MB
+            maxsize: 5242880, // 5mb
             maxFiles: 5
         }),
         
-        // Combined log
+        // combined log
         new winston.transports.File({
             filename: path.join(logsDir, 'combined.log'),
-            maxsize: 5242880, // 5MB
+            maxsize: 5242880, // 5mb
             maxFiles: 5
         }),
         
-        // HTTP log
+        // http log
         new winston.transports.File({
             filename: path.join(logsDir, 'http.log'),
             level: 'http',
-            maxsize: 5242880, // 5MB
+            maxsize: 5242880, // 5mb
             maxFiles: 5
         })
     ]
 });
 
-// Add console transport in non-production environments
+// add console transport in non-production environments
 if (process.env.NODE_ENV !== 'production') {
     logger.add(new winston.transports.Console({
         format: consoleFormat
     }));
 }
 
-// HTTP request logger middleware
+// http request logger middleware
 export function httpLogger(req, res, next) {
     const start = Date.now();
     
@@ -105,7 +105,7 @@ export function httpLogger(req, res, next) {
     next();
 }
 
-// API request/response logger
+// api request/response logger
 export function apiLogger(req, res, next) {
     const start = Date.now();
     
@@ -117,7 +117,7 @@ export function apiLogger(req, res, next) {
         userId: req.user?.id || 'anonymous'
     });
     
-    // Log response
+    // log response
     const originalJson = res.json.bind(res);
     res.json = (body) => {
         const duration = Date.now() - start;
@@ -134,7 +134,7 @@ export function apiLogger(req, res, next) {
     next();
 }
 
-// Security event logger
+// security event logger
 export function securityLogger(event, details) {
     logger.warn({
         type: 'SECURITY_EVENT',
@@ -143,7 +143,7 @@ export function securityLogger(event, details) {
     });
 }
 
-// Performance logger
+// performance logger
 export function performanceLogger(operation, duration, metadata = {}) {
     logger.info({
         type: 'PERFORMANCE',
@@ -153,7 +153,7 @@ export function performanceLogger(operation, duration, metadata = {}) {
     });
 }
 
-// Error logger with context
+// error logger with context
 export function errorLogger(error, context = {}) {
     logger.error({
         type: 'ERROR',
@@ -163,7 +163,7 @@ export function errorLogger(error, context = {}) {
     });
 }
 
-// Database query logger
+// database query logger
 export function queryLogger(query, duration, metadata = {}) {
     logger.debug({
         type: 'DATABASE_QUERY',

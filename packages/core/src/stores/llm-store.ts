@@ -98,7 +98,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
   pendingAttachments: [],
 
   addAttachment: async (file: File) => {
-    // Determine attachment type
+    // determine attachment type
     let type: Attachment['type'] = 'other';
     if (file.type.startsWith('image/')) {
       type = file.type === 'image/gif' ? 'gif' : 'image';
@@ -106,7 +106,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
       type = 'video';
     }
 
-    // Create attachment object
+    // create attachment object
     const attachment: Attachment = {
       id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       file,
@@ -114,7 +114,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
       name: file.name,
     };
 
-    // Convert to data URL for preview and sending
+    // convert to data url for preview and sending
     const dataUrl = await new Promise<string>((resolve) => {
       const reader = new FileReader();
       reader.onloadend = () => resolve(reader.result as string);
@@ -245,7 +245,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
 
     set({ isThinking: true, streamingContent: '' })
 
-    // Check if we're using local Ollama (no API key needed)
+    // check if we're using local ollama (no api key needed)
     const ollamaBase = getOllamaBase();
     const isOllama = !ollamaBase.includes('googleapis.com') && !ollamaBase.includes('gemini');
     
@@ -280,12 +280,12 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
   askWilsonWithRag: async (text, isBackground = false) => {
     if (!text.trim() && get().pendingAttachments.length === 0) return null
 
-    // Get attachments from the last user message if they exist
+    // get attachments from the last user message if they exist
     const lastMessage = get().interactionHistory[get().interactionHistory.length - 1]
     const attachments = lastMessage?.attachments || get().pendingAttachments
     const hasAttachments = attachments && attachments.length > 0
 
-    // add user message if not background and not already added by askWilson
+    // add user message if not background and not already added by askwilson
     if (!isBackground && lastMessage?.content !== text && !lastMessage?.attachments) {
       set((state) => ({
         interactionHistory: [...state.interactionHistory, {
@@ -316,7 +316,7 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
 
       const { activeModel, apiUrl } = get()
       
-      // Use local Ollama directly - no API key needed
+      // use local ollama directly - no api key needed
       const resolvedUrl = apiUrl;
       
       secureLogger.info('[wilson] using endpoint:', resolvedUrl)
@@ -326,15 +326,15 @@ export const useLLMStore = create<LLMState>()((set, get) => ({
         throw new Error('AI worker failed to initialize')
       }
 
-      // stream tokens from the worker — each callback updates streamingContent
-      // which only the StreamingBubble component subscribes to
+      // stream tokens from the worker — each callback updates streamingcontent
+      // which only the streamingbubble component subscribes to
       const onToken = Comlink.proxy((cumulativeContent: string) => {
         set({ streamingContent: cumulativeContent.toLowerCase() })
       })
 
       let result: AskWithRagResult | null = null
       try {
-        // Use askWithRagAndAttachments if there are attachments, otherwise use askWithRag
+        // use askwithragandattachments if there are attachments, otherwise use askwithrag
         if (hasAttachments) {
           secureLogger.info('[wilson] sending with attachments:', attachments.length)
           secureLogger.debug('[wilson] Calling askWithRagAndAttachments with:', { text, fronterName, activeModel, resolvedUrl, attachmentsCount: attachments?.length });
@@ -458,7 +458,7 @@ important rules:
     const fullPrompt = `${systemPrompt}\n\n${fronterName}: ${text}\nwilson:`
 
     try {
-      // Use local Ollama directly
+      // use local ollama directly
       const resolvedUrl = apiUrl;
       const worker = await getAIWorkerProxy()
 

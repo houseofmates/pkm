@@ -2364,8 +2364,8 @@ export function JournalPage() {
     const data = labels.map(l => activityCounts[l]);
     const moodData = moods;
     const statsHtml = `<p>entries: ${recent.length} &nbsp; average mood: ${avgMood}</p>`;
-    const moodChartUrl = `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify({type:'line',data:{labels:recent.map(r=>r.date),datasets:[{label:'mood',data:moodData,fill:false,borderColor:'blue'}]}}))}`;
-    const activityChartUrl = labels.length ? `https://quickchart.io/chart?c=${encodeURIComponent(JSON.stringify({type:'bar',data:{labels, datasets:[{label:'activities',data}]}}))}` : '';
+    const moodChartUrl = `https://quickchart.io/chart?c=${encodeuricomponent(json.stringify({type:'line',data:{labels:recent.map(r=>r.date),datasets:[{label:'mood',data:mooddata,fill:false,bordercolor:'blue'}]}}))}`;
+    const activityChartUrl = labels.length ? `https://quickchart.io/chart?c=${encodeuricomponent(json.stringify({type:'bar',data:{labels, datasets:[{label:'activities',data}]}}))}` : '';
     const printHtml = `<!doctype html><html><head><meta charset="utf-8"><title>journal report</title><style>body{font-family:sans-serif;padding:1em;color:#000}h1{text-transform:lowercase}p,div{page-break-inside:avoid}a{color:#000}</style></head><body><h1>journal report (last 14 days)</h1>${statsHtml}${moodChartUrl?`<img src="${moodChartUrl}" style="width:100%;max-width:600px;"/>`:''}${activityChartUrl?`<img src="${activityChartUrl}" style="width:100%;max-width:600px;"/>`:''}<div>${summary}</div>${htmlEntries}</body></html>`;
     const win = window.open('','_blank');
     if (win) {
@@ -2725,7 +2725,7 @@ summary:`;
     setTranscript('');
   };
 
-  // ── derived state for UI ──
+  // ── derived state for ui ──
   const levelInfo = useMemo(() => getLevelFromXp(xp), [xp]);
   
   const completedGoals = dailyGoals.filter(g => g.completed).length;
@@ -2936,8 +2936,8 @@ summary:`;
         type="file" 
         accept="image/*" 
         multiple 
-        className="hidden" 
-        onChange={handlePhotoUpload}
+        classname="hidden"
+        onchange={handlephotoupload}
       />
 
       {/* header */}

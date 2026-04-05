@@ -76,7 +76,7 @@ export interface BitmapReplaceOp {
 export type DrawOp = PathOp | EraseOp | TransformOp | DeleteOp | LayerCreateOp | LayerDeleteOp | BitmapReplaceOp
 
 export interface OpLogEntry {
-  id: string // client-generated uuid: drawingId-timestamp-random
+  id: string // client-generated uuid: drawingid-timestamp-random
   drawingId: string
   timestamp: number
   op: DrawOp
@@ -92,9 +92,9 @@ export interface CanvasCheckpoint {
 }
 
 /**
- * Apply a single oplog operation to a fabric canvas instance.
+ * apply a single oplog operation to a fabric canvas instance.
  *
- * This is intentionally low-level and avoids replaying the entire canvas
+ * this is intentionally low-level and avoids replaying the entire canvas
  * snapshot for each step; instead we mutate the canvas in-place.
  */
 export async function applyOp(canvas: FabricCanvas | null, op: DrawOp): Promise<void> {
@@ -244,40 +244,40 @@ export async function replayOplog(
 }
 
 /**
- * Deterministically resolves conflicts between concurrent operations.
- * Implements Last-Write-Wins (LWW) based on timestamp.
- * In case of a tie (same timestamp), it falls back to string comparison of the operation ID.
+ * deterministically resolves conflicts between concurrent operations.
+ * implements last-write-wins (lww) based on timestamp.
+ * in case of a tie (same timestamp), it falls back to string comparison of the operation id.
  */
 export function resolveConflicts(ops: OpLogEntry[]): OpLogEntry[] {
   return [...ops].sort((a, b) => {
     if (a.timestamp !== b.timestamp) {
       return a.timestamp - b.timestamp;
     }
-    // Tie-breaker: sort by ID to ensure deterministic ordering across all clients
+    // tie-breaker: sort by id to ensure deterministic ordering across all clients
     return a.id.localeCompare(b.id);
   });
 }
 
 /**
- * Compacts an array of operations by removing redundant intermediate states.
- * - Keeps only the latest TransformOp for a given targetId.
- * - Removes TransformOp and EraseOp that precede a DeleteOp for the same targetId.
+ * compacts an array of operations by removing redundant intermediate states.
+ * - keeps only the latest transformop for a given targetid.
+ * - removes transformop and eraseop that precede a deleteop for the same targetid.
  * 
- * Assumes the input `ops` array is already sorted chronologically (e.g., via resolveConflicts).
+ * assumes the input `ops` array is already sorted chronologically (e.g., via resolveconflicts).
  */
 export function compactOplog(ops: OpLogEntry[]): OpLogEntry[] {
   const result: OpLogEntry[] = [];
   const processedTransforms = new Set<string>();
-  const terminalTargets = new Set<string>(); // Targets that are deleted or fully replaced
+  const terminalTargets = new Set<string>(); // targets that are deleted or fully replaced
 
-  // Process from newest to oldest to preserve the latest state
+  // process from newest to oldest to preserve the latest state
   for (let i = ops.length - 1; i >= 0; i--) {
     const entry = ops[i];
     const op = entry.op;
 
     if (op.type === 'delete' || op.type === 'bitmap-replace') {
       const targetId = (op as any).targetId
-      // If we see a delete or replacement, any previous operations for this target are redundant
+      // if we see a delete or replacement, any previous operations for this target are redundant
       if (!terminalTargets.has(targetId)) {
         terminalTargets.add(targetId);
         result.unshift(entry);
@@ -285,14 +285,14 @@ export function compactOplog(ops: OpLogEntry[]): OpLogEntry[] {
       continue;
     }
 
-    // Skip operations on deleted or replaced targets
+    // skip operations on deleted or replaced targets
     if ('targetId' in op && terminalTargets.has((op as any).targetId)) {
       continue;
     }
 
     if (op.type === 'transform') {
       const targetId = op.targetId
-      // Keep only the latest transform for a given target
+      // keep only the latest transform for a given target
       if (!processedTransforms.has(targetId)) {
         processedTransforms.add(targetId);
         result.unshift(entry);
@@ -300,7 +300,7 @@ export function compactOplog(ops: OpLogEntry[]): OpLogEntry[] {
       continue;
     }
 
-    // Keep all other operations (path, layer-create, etc.)
+    // keep all other operations (path, layer-create, etc.)
     result.unshift(entry);
   }
 

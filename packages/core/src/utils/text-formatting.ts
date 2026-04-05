@@ -41,7 +41,7 @@ export function getCapitalizationClass(name: string): string {
   // we return a class that forces normal case.
   const firstChar = formatted.charAt(0);
   if (firstChar !== firstChar.toLowerCase() && CAPITALIZED_NAMES.has(formatted)) {
-  return 'keep-case'; // Matches index.css exception
+  return 'keep-case'; // matches index.css exception
   }
   return '';
 }

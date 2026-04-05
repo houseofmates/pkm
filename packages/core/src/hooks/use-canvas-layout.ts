@@ -5,7 +5,7 @@ import { debounce } from 'lodash';
 import { secureLogger } from '@/lib/secure-logger';
 
 export interface CanvasLayoutItem {
-  id: string; // matches row ID
+  id: string; // matches row id
   x: number;
   y: number;
   width?: number;

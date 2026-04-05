@@ -22,7 +22,7 @@ export const TRACKING_TEMPLATES: TrackingTemplate[] = [
   label: 'hobbies & projects',
   icon: 'Palette',
   description: 'Track your creative projects, hobbies, and learning goals.',
-  metadata: { color: '#ec4899' }, // Pink
+  metadata: { color: '#ec4899' }, // pink
   fields: [
   { name: 'status', title: 'status', interface: 'select', type: 'string', uiSchema: { 'x-component': 'Select', enum: [{ label: 'idea', value: 'idea' }, { label: 'in progress', value: 'in_progress' }, { label: 'completed', value: 'completed' }] } },
   { name: 'category', title: 'category', interface: 'select', type: 'string', uiSchema: { 'x-component': 'Select', enum: [{ label: 'art', value: 'art' }, { label: 'code', value: 'code' }, { label: 'writing', value: 'writing' }, { label: 'gaming', value: 'gaming' }] } },
@@ -35,7 +35,7 @@ export const TRACKING_TEMPLATES: TrackingTemplate[] = [
   label: 'tasks & chores',
   icon: 'CheckSquare',
   description: 'Manage daily chores, habit tracking, and to-do lists.',
-  metadata: { color: '#22c55e' }, // Green
+  metadata: { color: '#22c55e' }, // green
   fields: [
   { name: 'done', title: 'done', interface: 'checkbox', type: 'boolean', uiSchema: { 'x-component': 'Checkbox' } },
   { name: 'due_date', title: 'due date', interface: 'datetime', type: 'date', uiSchema: { 'x-component': 'DatePicker' } },
@@ -48,7 +48,7 @@ export const TRACKING_TEMPLATES: TrackingTemplate[] = [
   label: 'financial tracking',
   icon: 'DollarSign',
   description: 'Track expenses, income, and budget.',
-  metadata: { color: '#eab308' }, // Yellow
+  metadata: { color: '#eab308' }, // yellow
   fields: [
   { name: 'amount', title: 'amount', interface: 'number', type: 'double', uiSchema: { 'x-component': 'InputNumber' } },
   { name: 'type', title: 'type', interface: 'select', type: 'string', uiSchema: { 'x-component': 'Select', enum: [{ label: 'expense', value: 'expense' }, { label: 'income', value: 'income' }] } },
@@ -61,7 +61,7 @@ export const TRACKING_TEMPLATES: TrackingTemplate[] = [
   label: 'mood & health',
   icon: 'Smile',
   description: 'Log your daily mood and health metrics.',
-  metadata: { color: '#8b5cf6' }, // Violet
+  metadata: { color: '#8b5cf6' }, // violet
   fields: [
   { name: 'mood_rating', title: 'mood (1-10)', interface: 'number', type: 'integer', uiSchema: { 'x-component': 'InputNumber', min: 1, max: 10 } },
   { name: 'tags', title: 'tags', interface: 'multipleSelect', type: 'json', uiSchema: { 'x-component': 'Select', 'x-component-props': { mode: 'multiple' }, enum: [{ label: 'happy', value: 'happy' }, { label: 'anxious', value: 'anxious' }, { label: 'tired', value: 'tired' }, { label: 'energetic', value: 'energetic' }] } },
@@ -73,7 +73,7 @@ export const TRACKING_TEMPLATES: TrackingTemplate[] = [
   label: 'gift tracker',
   icon: 'Gift',
   description: 'Track gift ideas and purchases for others.',
-  metadata: { color: '#ef4444' }, // Red
+  metadata: { color: '#ef4444' }, // red
   fields: [
   { name: 'recipient', title: 'recipient', interface: 'text', type: 'string', uiSchema: { 'x-component': 'Input' } },
   { name: 'price', title: 'price', interface: 'number', type: 'double', uiSchema: { 'x-component': 'InputNumber' } },
@@ -86,7 +86,7 @@ export const TRACKING_TEMPLATES: TrackingTemplate[] = [
   label: 'contacts (crm)',
   icon: 'Users',
   description: 'Simple CRM for tracking people outside of the main system.',
-  metadata: { color: '#3b82f6' }, // Blue
+  metadata: { color: '#3b82f6' }, // blue
   fields: [
   { name: 'email', title: 'email', interface: 'email', type: 'string', uiSchema: { 'x-component': 'Input' } },
   { name: 'phone', title: 'phone', interface: 'phone', type: 'string', uiSchema: { 'x-component': 'Input' } },

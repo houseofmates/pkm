@@ -9,7 +9,7 @@ import {
 import { toast } from 'sonner';
 
 // ============================================================================
-// Types
+// types
 // ============================================================================
 
 export interface TemplateWidget {
@@ -46,7 +46,7 @@ export interface TemplateData {
 }
 
 // ============================================================================
-// Pre-built Complex Templates
+// pre-built complex templates
 // ============================================================================
 
 export const COMPLEX_TEMPLATES: EntryTemplate[] = [
@@ -210,7 +210,7 @@ export const COMPLEX_TEMPLATES: EntryTemplate[] = [
 ];
 
 // ============================================================================
-// Widget Components
+// widget components
 // ============================================================================
 
 function MoodTrackerWidget({ value, onChange }: { value?: string; onChange: (val: string) => void }) {
@@ -423,7 +423,7 @@ function ReflectionPromptWidget({ value, onChange, prompt }: { value?: string; o
 }
 
 // ============================================================================
-// Template Renderer
+// template renderer
 // ============================================================================
 
 interface TemplateRendererProps {
@@ -479,7 +479,7 @@ export function TemplateRenderer({ template, data, onDataChange, onSave }: Templ
 
   return (
     <div className="space-y-4">
-      {/* Template Header */}
+      {/* template header */}
       <div className="flex items-center justify-between p-4 rounded-xl border border-white/10 bg-white/[0.02]">
         <div className="flex items-center gap-3">
           <span className="text-2xl">{template.emoji}</span>
@@ -497,10 +497,10 @@ export function TemplateRenderer({ template, data, onDataChange, onSave }: Templ
         </div>
       </div>
 
-      {/* Sections */}
+      {/* sections */}
       {template.sections.map((section) => (
         <div key={section.id} className="rounded-xl border border-white/10 bg-white/[0.02] overflow-hidden">
-          {/* Section Header */}
+          {/* section header */}
           <button
             onClick={() => section.collapsible && toggleSection(section.id)}
             className={cn(
@@ -519,7 +519,7 @@ export function TemplateRenderer({ template, data, onDataChange, onSave }: Templ
             )}
           </button>
 
-          {/* Section Content */}
+          {/* section content */}
           {(!section.collapsible || expandedSections[section.id]) && (
             <div className="p-3 pt-0 space-y-4">
               {section.widgets.map((widget) => (
@@ -533,7 +533,7 @@ export function TemplateRenderer({ template, data, onDataChange, onSave }: Templ
         </div>
       ))}
 
-      {/* Save Button */}
+      {/* save button */}
       <button
         onClick={onSave}
         className="w-full py-3 rounded-xl bg-white/10 hover:bg-white/20 text-sm lowercase transition-colors flex items-center justify-center gap-2"
@@ -546,7 +546,7 @@ export function TemplateRenderer({ template, data, onDataChange, onSave }: Templ
 }
 
 // ============================================================================
-// Template Selector Modal
+// template selector modal
 // ============================================================================
 
 interface TemplateSelectorProps {
@@ -574,7 +574,7 @@ export function TemplateSelectorModal({ isOpen, onClose, onSelect }: TemplateSel
   const handleSave = () => {
     if (!selectedTemplate) return;
     
-    // Convert template data to entry format
+    // convert template data to entry format
     const entryBody = generateEntryBody(selectedTemplate, templateData);
     
     onSelect({
@@ -653,7 +653,7 @@ export function TemplateSelectorModal({ isOpen, onClose, onSelect }: TemplateSel
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
       <div className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/10 bg-[#0a0a0a] p-6">
-        {/* Header */}
+        {/* header */}
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-lg font-medium lowercase">
             {selectedTemplate ? selectedTemplate.name : 'choose a template'}
@@ -663,7 +663,7 @@ export function TemplateSelectorModal({ isOpen, onClose, onSelect }: TemplateSel
           </button>
         </div>
 
-        {/* Template Grid or Renderer */}
+        {/* template grid or renderer */}
         {!selectedTemplate ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {COMPLEX_TEMPLATES.map((template) => (
@@ -697,7 +697,7 @@ export function TemplateSelectorModal({ isOpen, onClose, onSelect }: TemplateSel
           />
         )}
 
-        {/* Back Button */}
+        {/* back button */}
         {selectedTemplate && (
           <button
             onClick={() => setSelectedTemplate(null)}

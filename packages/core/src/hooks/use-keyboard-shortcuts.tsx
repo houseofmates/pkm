@@ -12,15 +12,15 @@ interface KeyboardShortcut {
 }
 
 /**
- * Hook for global keyboard shortcuts
- * Usage: useKeyboardShortcuts([
- *   { key: 'j', ctrl: true, action: () => navigate('/journal'), description: 'Go to journal' }
+ * hook for global keyboard shortcuts
+ * usage: usekeyboardshortcuts([
+ *   { key: 'j', ctrl: true, action: () => navigate('/journal'), description: 'go to journal' }
  * ])
  */
 export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]) {
   const handleKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      // Skip if user is typing in input/textarea
+      // skip if user is typing in input/textarea
       if (
         event.target instanceof HTMLInputElement ||
         event.target instanceof HTMLTextAreaElement
@@ -52,7 +52,7 @@ export function useKeyboardShortcuts(shortcuts: KeyboardShortcut[]) {
 }
 
 /**
- * Default keyboard shortcuts for the app
+ * default keyboard shortcuts for the app
  */
 export function useAppKeyboardShortcuts() {
   useKeyboardShortcuts([
@@ -78,7 +78,7 @@ export function useAppKeyboardShortcuts() {
 }
 
 /**
- * Keyboard shortcuts for journal page
+ * keyboard shortcuts for journal page
  */
 export function useJournalKeyboardShortcuts({
   onSave,
@@ -107,7 +107,7 @@ export function useJournalKeyboardShortcuts({
 }
 
 /**
- * Show keyboard shortcuts help
+ * show keyboard shortcuts help
  */
 export function showKeyboardShortcutsHelp() {
   const shortcuts = [

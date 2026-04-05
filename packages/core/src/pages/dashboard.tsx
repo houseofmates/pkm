@@ -16,7 +16,7 @@ export function Dashboard() {
 
   const handleCollectionSelect = (col: Collection) => {
   setSelectedCollection(col);
-  setMobileMenuOpen(false); // Close on mobile select
+  setMobileMenuOpen(false); // close on mobile select
   };
 
   const handleBack = () => {

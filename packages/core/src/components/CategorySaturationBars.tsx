@@ -31,12 +31,12 @@ function CategoryBar({ label, value, color, icon, emptyHint }: CategoryBarProps)
         </span>
       </div>
       
-      {/* Bar container */}
+      {/* bar container */}
       <div className={cn(
         "h-3 rounded-full overflow-hidden transition-all duration-300",
         isEmpty ? "bg-white/5 border border-white/10" : "bg-black/40 border border-white/10"
       )}>
-        {/* Fill */}
+        {/* fill */}
         <div
           className={cn(
             "h-full rounded-full transition-all duration-500 ease-out relative",
@@ -48,7 +48,7 @@ function CategoryBar({ label, value, color, icon, emptyHint }: CategoryBarProps)
             boxShadow: fillPercent > 0 ? `0 0 10px ${color}50` : 'none'
           }}
         >
-          {/* Shimmer effect when filling */}
+          {/* shimmer effect when filling */}
           {fillPercent > 0 && (
             <div 
               className="absolute inset-0 animate-pulse"
@@ -61,7 +61,7 @@ function CategoryBar({ label, value, color, icon, emptyHint }: CategoryBarProps)
         </div>
       </div>
       
-      {/* Empty hint - shows as subtle ghost text */}
+      {/* empty hint - shows as subtle ghost text */}
       {isEmpty && emptyHint && (
         <p className="text-[10px] text-white/10 lowercase mt-1 italic">
           {emptyHint}

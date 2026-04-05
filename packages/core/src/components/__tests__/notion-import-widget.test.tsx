@@ -4,7 +4,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { NotionImportWidget } from '../notion-import-widget';
 import { vi, describe, it, beforeEach, afterEach, expect } from 'vitest';
 
-// fake EventSource for tests
+// fake eventsource for tests
 class MockEventSource implements EventSource {
   static readonly CONNECTING = 0;
   static readonly OPEN = 1;

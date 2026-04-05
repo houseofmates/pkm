@@ -39,7 +39,7 @@ interface CollectionDialogProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
   initialTitle?: string;
-  // when CSV import is initiated externally we prepopulate data/fields
+  // when csv import is initiated externally we prepopulate data/fields
   initialCsvData?: any[];
   initialCsvFields?: Array<{
     name: string;
@@ -108,7 +108,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
       if (isEdit) {
         setStep('database-form');
       } else {
-        // when preloaded from CSV, go directly to form
+        // when preloaded from csv, go directly to form
         if (initialCsvData && initialCsvData.length > 0) {
           setCsvData(initialCsvData);
           setCsvFields(initialCsvFields || []);
@@ -206,7 +206,7 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
     interface: string;
     target?: string;
     expression?: string;
-    uiSchema?: any; // Added for template support
+    uiSchema?: any; // added for template support
     detectionReason?: string;
     detectionConfidence?: 'high' | 'medium' | 'low';
   }[]>([]);
@@ -254,11 +254,11 @@ export function CollectionDialog({ collection, onSuccess, trigger, open: control
     setLoading(true);
 
     try {
-      // Only sanitize system name on create, not on edit/rename
+      // only sanitize system name on create, not on edit/rename
       const finalName = name || displayName.toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
 
       if (isEdit) {
-        // allow spaces in displayName/title when renaming
+        // allow spaces in displayname/title when renaming
         await client.updateCollection(collection.name, {
           title: displayName, // can include spaces
         });

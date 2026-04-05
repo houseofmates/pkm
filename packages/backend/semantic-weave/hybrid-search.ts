@@ -13,11 +13,11 @@ export interface HybridHit {
  * reciprocal rank fusion (rrf) combines ranked lists from different retrieval
  * methods into a single ranking. for each document, the fused score is:
  *
- *   rrf(d) = Σ 1 / (k + rank_i(d))
+ *   rrf(d) = σ 1 / (k + rank_i(d))
  *
  * where k is a constant (default 60) and rank_i is the 1-based rank in list i.
  *
- * the `semanticWeight` parameter (0–1) scales the contribution of semantic vs
+ * the `semanticweight` parameter (0–1) scales the contribution of semantic vs
  * bm25 results so the caller can bias toward one method.
  */
 export function hybridSearch(

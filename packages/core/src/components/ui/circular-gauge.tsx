@@ -8,8 +8,8 @@ import { useState, useEffect } from 'react';
 
 interface CircularGaugeProps {
   title: string;
-  totalSeconds: number; // e.g. 1500 for Pomodoro (25m)
-  color?: string; // Default var(--primary)
+  totalSeconds: number; // e.g. 1500 for pomodoro (25m)
+  color?: string; // default var(--primary)
   className?: string;
 }
 

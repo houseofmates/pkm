@@ -4,14 +4,14 @@ import { useCollectionsStore } from '@/store/useCollectionsStore';
 import { useGamificationStore } from '@/store/useGamificationStore';
 import { secureLogger } from '@/lib/secure-logger';
 import { toast } from 'sonner';
-import './field-types'; // For side-effect: registers default field types.
+import './field-types'; // for side-effect: registers default field types.
 import type { FieldInstance } from './schema.service';
 import { io, Socket } from 'socket.io-client';
 
 // theme color for sync toasts
 const SYNC_THEME_COLOR = '#f6b012';
 
-// Single source of truth for all 15 user collections
+// single source of truth for all 15 user collections
 const HARDCODED_COLLECTIONS = [
   'activities', 'activity_logs', 'bookmarks', 'captures', 'drawings',
   'events', 'exercise', 'finances', 'habits', 'headmates',
@@ -19,9 +19,9 @@ const HARDCODED_COLLECTIONS = [
 ];
 
 /**
- * A service that orchestrates data flow between the UI, local cache, and NocoBase backend.
- * It implements a read-through cache for offline-first capabilities.
- * Adds real-time sync via WebSocket for multi-device continuity.
+ * a service that orchestrates data flow between the ui, local cache, and nocobase backend.
+ * it implements a read-through cache for offline-first capabilities.
+ * adds real-time sync via websocket for multi-device continuity.
  */
 class DataService {
   private socket: Socket | null = null;
@@ -33,8 +33,8 @@ class DataService {
   }
 
   /**
-   * Initialize Socket.io connection for real-time data sync.
-   * Listens for data_update events from server and refreshes local stores.
+   * initialize socket.io connection for real-time data sync.
+   * listens for data_update events from server and refreshes local stores.
    */
   private initializeSocket(): void {
     const backendUrl = import.meta.env.VITE_BACKEND_URL || 'https://db.houseofmates.space';
@@ -78,8 +78,8 @@ class DataService {
   }
 
   /**
-   * Handle incoming data_update events from other devices.
-   * Refreshes relevant stores and shows sync confirmation.
+   * handle incoming data_update events from other devices.
+   * refreshes relevant stores and shows sync confirmation.
    */
   private handleDataUpdate(payload: any): void {
     const { type, source } = payload;
@@ -120,8 +120,8 @@ class DataService {
   }
 
   /**
-   * Refresh gamification state from server (nocobase as source of truth).
-   * Falls back to localStorage if server unavailable.
+   * refresh gamification state from server (nocobase as source of truth).
+   * falls back to localstorage if server unavailable.
    */
   private async refreshGamificationState(): Promise<void> {
     try {
@@ -134,8 +134,8 @@ class DataService {
   }
 
   /**
-   * Emit data update event to server (for other devices to receive).
-   * Use this when local data changes to broadcast to other devices.
+   * emit data update event to server (for other devices to receive).
+   * use this when local data changes to broadcast to other devices.
    */
   public emitDataUpdate(dataType: string, payload: any): void {
     if (this.socket?.connected) {
@@ -150,16 +150,16 @@ class DataService {
   }
 
   /**
-   * Check if socket is connected.
+   * check if socket is connected.
    */
   public isConnected(): boolean {
     return this.socket?.connected || false;
   }
 
   /**
-   * Creates a new NocoBase collection and then triggers a fresh sync.
-   * @param name The name of the collection.
-   * @param fields The fields that define the collection's schema.
+   * creates a new nocobase collection and then triggers a fresh sync.
+   * @param name the name of the collection.
+   * @param fields the fields that define the collection's schema.
    */
   public async createTable(name: string, fields: FieldInstance[]): Promise<void> {
     const backendFields = fields.map(field => ({
@@ -170,7 +170,7 @@ class DataService {
     secureLogger.info(`Creating collection "${name}" in NocoBase...`);
     await api.createCollection({ name, fields: backendFields });
 
-    // After creating, trigger a sync to refresh the UI and cache
+    // after creating, trigger a sync to refresh the ui and cache
     await this.syncTables();
     
     // broadcast update to other devices
@@ -178,13 +178,13 @@ class DataService {
   }
 
   /**
-   * Syncs the list of tables/collections.
-   * 1. Loads and displays data from the local cache immediately.
-   * 2. Fetches fresh data from the NocoBase backend.
-   * 3. Updates the local cache and the UI with the fresh data.
+   * syncs the list of tables/collections.
+   * 1. loads and displays data from the local cache immediately.
+   * 2. fetches fresh data from the nocobase backend.
+   * 3. updates the local cache and the ui with the fresh data.
    */
   public async syncTables(): Promise<void> {
-    // 1. Load from cache and update UI immediately for instant load
+    // 1. load from cache and update ui immediately for instant load
     try {
       const cachedCollections = await localDbService.getAllCollections();
       if (cachedCollections && cachedCollections.length > 0) {
@@ -195,10 +195,10 @@ class DataService {
       secureLogger.error('Failed to load collections from cache:', error);
     }
 
-    // 2. Fetch fresh data from the network
+    // 2. fetch fresh data from the network
     try {
       const response = await api.listCollections({ appends: ['fields'] });
-      // Handle both array and object-with-data-array responses
+      // handle both array and object-with-data-array responses
       const freshCollections = Array.isArray(response.data)
         ? response.data
         : Array.isArray(response.data?.data)
@@ -207,7 +207,7 @@ class DataService {
 
       secureLogger.info(`Fetched ${freshCollections.length} collections from NocoBase.`);
 
-      // Filter out system collections and i18n template entries
+      // filter out system collections and i18n template entries
       const SYSTEM_NAMES = new Set([
         'server-stats', 'pkm_backend', 'pkm_canvases', 'pkm_settings',
         'form-submissions', 'public_blocks', 'public_pages', 'site-pages',
@@ -223,26 +223,26 @@ class DataService {
         return true;
       });
 
-      // Merge with hardcoded collections that may be missing from API response
+      // merge with hardcoded collections that may be missing from api response
       const existingNames = new Set(userCollections.map((c: any) => (c.name || '').toLowerCase()));
       const missingHardcoded = HARDCODED_COLLECTIONS
         .filter(name => !existingNames.has(name.toLowerCase()))
         .map(name => ({ name, title: name, fields: [] }));
       
-      // Deduplicate: if API returned a collection with a slightly different name (e.g. hygiene-log vs hygiene_log), skip the hardcoded one
+      // deduplicate: if api returned a collection with a slightly different name (e.g. hygiene-log vs hygiene_log), skip the hardcoded one
       const normalizedNames = new Set(userCollections.map((c: any) => (c.name || '').toLowerCase().replace(/[-_]/g, '')));
       const dedupedHardcoded = missingHardcoded.filter(hc => !normalizedNames.has(hc.name.toLowerCase().replace(/[-_]/g, '')));
       
       const mergedCollections = [...userCollections, ...dedupedHardcoded];
 
-      // 3. Update the local cache with merged data
+      // 3. update the local cache with merged data
       await localDbService.saveCollections(mergedCollections);
 
-      // 4. Update the UI (Zustand store) with merged data
+      // 4. update the ui (zustand store) with merged data
       useCollectionsStore.getState().setCollections(mergedCollections as any);
     } catch (error) {
       secureLogger.error('Failed to sync collections from NocoBase. App may be offline.', error);
-      // If the network fails, the app will continue to run with the cached data.
+      // if the network fails, the app will continue to run with the cached data.
     }
   }
 }

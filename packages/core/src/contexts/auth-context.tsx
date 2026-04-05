@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const internals = (React as any).__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED;
   if (internals?.ReactCurrentDispatcher?.current == null) {
-    // stub provider for SSR/HMR
+    // stub provider for ssr/hmr
     const initialToken = storageManager.getCachedSecret('nocobase_token');
     const stub: AuthContextType = {
       token: initialToken,

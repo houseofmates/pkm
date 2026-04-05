@@ -96,7 +96,7 @@ const GamifiedPets: React.FC = () => {
   
   const { earnXp, updateStreak } = useGamificationStore()
 
-  // Load from localStorage
+  // load from localstorage
   useEffect(() => {
     const saved = localStorage.getItem('pkm:wilson:state')
     if (saved) {
@@ -105,7 +105,7 @@ const GamifiedPets: React.FC = () => {
     }
   }, [])
 
-  // Save to localStorage
+  // save to localstorage
   useEffect(() => {
     localStorage.setItem('pkm:wilson:state', JSON.stringify({
       name: wilson.name,
@@ -126,18 +126,18 @@ const GamifiedPets: React.FC = () => {
     }))
   }, [wilson])
 
-  // Stat decay over time
+  // stat decay over time
   useEffect(() => {
     const decayInterval = setInterval(() => {
       setWilson(prev => ({
         ...prev,
         hunger: Math.max(0, prev.hunger - 0.5),
         happiness: Math.max(0, prev.happiness - 0.3),
-        energy: Math.min(100, prev.energy + 2), // Recover energy over time
+        energy: Math.min(100, prev.energy + 2), // recover energy over time
         cleanliness: Math.max(0, prev.cleanliness - 0.2),
         mood: getMood(prev.hunger, prev.happiness, prev.energy)
       }))
-    }, 60000) // Every minute
+    }, 60000) // every minute
     
     return () => clearInterval(decayInterval)
   }, [])
@@ -161,7 +161,7 @@ const GamifiedPets: React.FC = () => {
     }
   }
 
-  // Wilson Abilities
+  // wilson abilities
   const ABILITIES: WilsonAbility[] = [
     {
       id: 'motivation-boost',
@@ -215,7 +215,7 @@ const GamifiedPets: React.FC = () => {
     }
   ]
 
-  // Care actions
+  // care actions
   const CARE_ACTIONS: CareAction[] = [
     { id: 'feed', name: 'feed', icon: <Cookie className="w-5 h-5" />, xpReward: 15, cooldown: 1800000, lastPerformed: null },
     { id: 'play', name: 'play', icon: <Play className="w-5 h-5" />, xpReward: 20, cooldown: 3600000, lastPerformed: null },
@@ -223,7 +223,7 @@ const GamifiedPets: React.FC = () => {
     { id: 'nap', name: 'nap together', icon: <Moon className="w-5 h-5" />, xpReward: 5, cooldown: 1800000, lastPerformed: null }
   ]
 
-  // Loot box rewards pool
+  // loot box rewards pool
   const LOOT_POOL: LootBoxReward[] = [
     { id: 'xp-small', type: 'xp', amount: 25, label: '25 bonus xp', rarity: 'common' },
     { id: 'xp-medium', type: 'xp', amount: 50, label: '50 bonus xp', rarity: 'rare' },
@@ -251,11 +251,11 @@ const GamifiedPets: React.FC = () => {
       const xpToNext = prev.xpToNext
       
       if (newXp >= xpToNext) {
-        // Level up!
+        // level up!
         const newLevel = prev.level + 1
         const newXpToNext = Math.floor(xpToNext * 1.5)
         
-        // Check for new abilities
+        // check for new abilities
         const newAbilities = [...prev.abilitiesUnlocked]
         ABILITIES.forEach(ability => {
           if (newLevel >= ability.levelRequired && !newAbilities.includes(ability.id)) {
@@ -263,7 +263,7 @@ const GamifiedPets: React.FC = () => {
           }
         })
         
-        // Trigger loot box
+        // trigger loot box
         setTimeout(() => {
           openLootBox()
         }, 500)
@@ -286,7 +286,7 @@ const GamifiedPets: React.FC = () => {
   }, [addActivityLog])
 
   const openLootBox = () => {
-    // Roll for rewards
+    // roll for rewards
     const roll = () => {
       const rand = Math.random()
       if (rand < 0.5) return LOOT_POOL.filter(r => r.rarity === 'common')[0]
@@ -325,7 +325,7 @@ const GamifiedPets: React.FC = () => {
   const performCareAction = (action: CareAction) => {
     const now = Date.now()
     if (action.lastPerformed && now - action.lastPerformed < action.cooldown) {
-      return // On cooldown
+      return // on cooldown
     }
     
     setWilson(prev => {
@@ -372,7 +372,7 @@ const GamifiedPets: React.FC = () => {
     const now = Date.now()
     if (ability.lastUsed && now - ability.lastUsed < ability.cooldown) return
     
-    // Track ability use
+    // track ability use
     setWilson(prev => ({
       ...prev,
       lastAbilityUse: { ...prev.lastAbilityUse, [ability.id]: now }
@@ -397,7 +397,7 @@ const GamifiedPets: React.FC = () => {
         break
     }
     
-    // Mark ability as used (in real app, track lastUsed per ability)
+    // mark ability as used (in real app, track lastused per ability)
   }
 
   const getWilsonEmoji = () => {
@@ -421,7 +421,7 @@ const GamifiedPets: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Loot Box Modal */}
+      {/* loot box modal */}
       {showLootBox && (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <Card className="bg-gradient-to-br from-purple-950 via-purple-900 to-indigo-950 border-purple-500 max-w-md w-full">
@@ -450,7 +450,7 @@ const GamifiedPets: React.FC = () => {
         </div>
       )}
 
-      {/* Wilson Status Card */}
+      {/* wilson status card */}
       <Card className="bg-gradient-to-r from-amber-900/30 via-orange-900/30 to-yellow-900/30 border-amber-500/30">
         <CardContent className="p-6">
           <div className="flex items-start justify-between flex-wrap gap-4">
@@ -492,7 +492,7 @@ const GamifiedPets: React.FC = () => {
             </div>
           </div>
 
-          {/* Wilson Stats Grid */}
+          {/* wilson stats grid */}
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-6">
             {[
               { label: 'hunger', value: wilson.hunger, icon: <Cookie className="w-4 h-4" />, color: 'orange' },
@@ -517,7 +517,7 @@ const GamifiedPets: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Care Actions */}
+      {/* care actions */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -553,7 +553,7 @@ const GamifiedPets: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Wilson Abilities */}
+      {/* wilson abilities */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -623,7 +623,7 @@ const GamifiedPets: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Wilson Stats & Evolution */}
+      {/* wilson stats & evolution */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -651,7 +651,7 @@ const GamifiedPets: React.FC = () => {
             </div>
           </div>
 
-          {/* Evolution Tree */}
+          {/* evolution tree */}
           <div className="border-t border-slate-700 pt-4">
             <div className="text-sm font-bold mb-3">evolution path</div>
             <div className="flex items-center justify-between">
@@ -679,7 +679,7 @@ const GamifiedPets: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Activity Log */}
+      {/* activity log */}
       <Card>
         <CardHeader>
           <CardTitle className="text-sm">recent activity</CardTitle>
@@ -703,7 +703,7 @@ const GamifiedPets: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Warning if Wilson needs care */}
+      {/* warning if wilson needs care */}
       {(wilson.hunger < 30 || wilson.happiness < 30 || wilson.cleanliness < 30) && (
         <Card className="bg-orange-900/20 border-orange-500/30">
           <CardContent className="p-4 flex items-center gap-4">

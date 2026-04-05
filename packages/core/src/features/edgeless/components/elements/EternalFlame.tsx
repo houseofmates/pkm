@@ -68,7 +68,7 @@ export const EternalFlame = React.memo(function EternalFlame({ element: _element
   useEffect(() => {
     const interval = setInterval(() => {
       setFuel(prev => Math.max(0, prev - 1));
-    }, 60000); // Burn 1% every minute (fast for demo, normally 24h = 1440 mins, so 1% every 15 mins)
+    }, 60000); // burn 1% every minute (fast for demo, normally 24h = 1440 mins, so 1% every 15 mins)
     return () => clearInterval(interval);
   }, []);
 

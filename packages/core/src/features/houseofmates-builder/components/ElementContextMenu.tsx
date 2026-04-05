@@ -109,9 +109,9 @@ export function ElementContextMenu({ element, x, y, onClose }: ElementContextMen
     top: Math.min(y, window.innerHeight - 450),
   };
 
-  // If a modal is open, prevent rendering the context menu *itself* to avoid overlap issues,
-  // or render it hidden. But better to keep the menu mounted if it holds state.
-  // Actually, we can return null for the menu UI but keep the modals mounted.
+  // if a modal is open, prevent rendering the context menu *itself* to avoid overlap issues,
+  // or render it hidden. but better to keep the menu mounted if it holds state.
+  // actually, we can return null for the menu ui but keep the modals mounted.
 
   const modals = (
     <>

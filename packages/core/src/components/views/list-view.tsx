@@ -8,12 +8,12 @@ import { getLucideIcon } from '@/lib/field-meta';
 import { List as _List } from 'react-window';
 import { AutoSizer as _AutoSizer } from 'react-virtualized-auto-sizer';
 
-// react-window v2 ships its own types that conflict with @types/react-window v1 API.
-// The v1 API (itemCount, itemSize, etc) works at runtime; cast to bypass the type mismatch.
+// react-window v2 ships its own types that conflict with @types/react-window v1 api.
+// the v1 api (itemcount, itemsize, etc) works at runtime; cast to bypass the type mismatch.
 const List = _List as any;
 const AutoSizer = _AutoSizer as any;
 
-// Row component for react-window List
+// row component for react-window list
 const RowComponent = ({ index, style, data }: { index: number; style: React.CSSProperties; data: any }): React.ReactElement | null => {
   const { rows, collection, config, onConfigChange, onEdit, onDelete, onUpdateRecord, metadata } = data;
   const record = rows[index];

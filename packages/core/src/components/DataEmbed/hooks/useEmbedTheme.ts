@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 
 export function useEmbedTheme() {
   const [theme, setTheme] = useState({
-    primary: 'hsl(0 0% 0%)', // Default
+    primary: 'hsl(0 0% 0%)', // default
     ring: 'hsl(0 0% 0%)',
     bg: 'hsl(0 0% 100%)',
     text: 'hsl(0 0% 0%)',
@@ -35,10 +35,10 @@ export function useEmbedTheme() {
       });
     };
 
-    // Initial load
+    // initial load
     updateTheme();
 
-    // Observer for changes (e.g. useThemeReactor updates)
+    // observer for changes (e.g. usethemereactor updates)
     const observer = new MutationObserver(updateTheme);
     observer.observe(document.documentElement, {
       attributes: true,

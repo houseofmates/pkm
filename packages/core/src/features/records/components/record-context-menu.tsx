@@ -283,8 +283,8 @@ export function RecordEditContent({ record, collection, onUpdate, onDelete, onVi
               onClick={async () => {
                 try {
                   toast.info("duplicating...");
-                  // Full duplication logic will be implemented as a separate feature.
-                  // For now, it notifies the user of the intent.
+                  // full duplication logic will be implemented as a separate feature.
+                  // for now, it notifies the user of the intent.
                 } catch (e) {
                   toast.error("duplication failed");
                 }

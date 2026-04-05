@@ -3,14 +3,14 @@ import { TransformBox } from './TransformBox';
 import { useEdgelessStore } from '../store';
 
 /**
- * SelectionTool – marquee rectangle or lasso-capture → pixel-level cut → TransformBox
- * Ported from drawing-app SelectionTool.ts, adapted for pkm edgeless store.
+ * selectiontool – marquee rectangle or lasso-capture → pixel-level cut → transformbox
+ * ported from drawing-app selectiontool.ts, adapted for pkm edgeless store.
  *
- * Flow:
- *   1. User draws a marquee rect OR lasso path closes
- *   2. captureSelection() cuts the selected pixels out of the layer
- *   3. A TransformBox appears – user can move, scale (freeform squish/stretch), rotate
- *   4. confirmTransform() stamps the sub-canvas back onto the layer
+ * flow:
+ *   1. user draws a marquee rect or lasso path closes
+ *   2. captureselection() cuts the selected pixels out of the layer
+ *   3. a transformbox appears – user can move, scale (freeform squish/stretch), rotate
+ *   4. confirmtransform() stamps the sub-canvas back onto the layer
  */
 export class SelectionTool extends BaseTool {
   name = 'selection' as const;
@@ -20,23 +20,23 @@ export class SelectionTool extends BaseTool {
   private selectionRect: { x: number; y: number; w: number; h: number } | null = null;
   public transformBox: TransformBox | null = null;
 
-  // Pixel buffer held during transformation
+  // pixel buffer held during transformation
   private subCanvas: HTMLCanvasElement | null = null;
   private originalPos = { x: 0, y: 0 };
 
   onStart(ctx: ToolContext, x: number, y: number, pressure: number) {
-    // If we already have a transform box, check if the click lands on a handle
+    // if we already have a transform box, check if the click lands on a handle
     if (this.transformBox) {
       const hit = this.transformBox.hitTest(x, y);
       if (hit) {
         this.transformBox.startDrag(x, y);
         return;
       }
-      // Clicked outside the box – confirm (stamp) the current transform
+      // clicked outside the box – confirm (stamp) the current transform
       this.confirmTransform(ctx);
     }
 
-    // Begin marquee rectangle
+    // begin marquee rectangle
     this.isDrawing = true;
     this.startX = x;
     this.startY = y;
@@ -44,7 +44,7 @@ export class SelectionTool extends BaseTool {
   }
 
   onMove(ctx: ToolContext, x: number, y: number, pressure: number) {
-    // Dragging a transform handle
+    // dragging a transform handle
     if (this.transformBox) {
       this.transformBox.drag(x, y);
       return;
@@ -52,7 +52,7 @@ export class SelectionTool extends BaseTool {
 
     if (!this.isDrawing) return;
 
-    // Build the rectangle as the user drags
+    // build the rectangle as the user drags
     const rx = Math.min(this.startX, x);
     const ry = Math.min(this.startY, y);
     const rw = Math.abs(x - this.startX);
@@ -61,7 +61,7 @@ export class SelectionTool extends BaseTool {
   }
 
   onEnd(ctx: ToolContext) {
-    // Releasing a transform handle
+    // releasing a transform handle
     if (this.transformBox) {
       this.transformBox.endDrag();
       return;
@@ -69,7 +69,7 @@ export class SelectionTool extends BaseTool {
 
     this.isDrawing = false;
 
-    // If the rectangle is large enough, capture the pixels
+    // if the rectangle is large enough, capture the pixels
     if (this.selectionRect && this.selectionRect.w > 5 && this.selectionRect.h > 5) {
       this.captureSelection(ctx, [
         { x: this.selectionRect.x, y: this.selectionRect.y },
@@ -81,16 +81,16 @@ export class SelectionTool extends BaseTool {
     this.selectionRect = null;
   }
 
-  // ── Public API: capture arbitrary polygon path ────────────────────────────
+  // ── public api: capture arbitrary polygon path ────────────────────────────
 
   /**
-   * Cut the pixels inside `path` out of the layer canvas and wrap them in a
-   * TransformBox so the user can drag / scale / rotate freely.
+   * cut the pixels inside `path` out of the layer canvas and wrap them in a
+   * transformbox so the user can drag / scale / rotate freely.
    */
   public captureSelection(ctx: ToolContext, path: { x: number; y: number }[]) {
     const { ctx: layerCtx, canvas } = ctx;
 
-    // Bounding box of the selection path
+    // bounding box of the selection path
     const minX = Math.min(...path.map((p) => p.x));
     const minY = Math.min(...path.map((p) => p.y));
     const maxX = Math.max(...path.map((p) => p.x));
@@ -99,13 +99,13 @@ export class SelectionTool extends BaseTool {
     const h = maxY - minY;
     if (w < 1 || h < 1) return;
 
-    // 1. Create a sub-canvas that holds only the selected pixels
+    // 1. create a sub-canvas that holds only the selected pixels
     this.subCanvas = document.createElement('canvas');
     this.subCanvas.width = w;
     this.subCanvas.height = h;
     const sctx = this.subCanvas.getContext('2d')!;
 
-    // 2. Clip to the selection path and copy
+    // 2. clip to the selection path and copy
     sctx.save();
     sctx.beginPath();
     sctx.moveTo(path[0].x - minX, path[0].y - minY);
@@ -117,7 +117,7 @@ export class SelectionTool extends BaseTool {
     sctx.drawImage(canvas, minX, minY, w, h, 0, 0, w, h);
     sctx.restore();
 
-    // 3. Erase the selected area from the source layer
+    // 3. erase the selected area from the source layer
     layerCtx.save();
     layerCtx.beginPath();
     layerCtx.moveTo(path[0].x, path[0].y);
@@ -133,9 +133,9 @@ export class SelectionTool extends BaseTool {
     this.transformBox = new TransformBox(minX, minY, w, h);
   }
 
-  // ── Confirm / Cancel ─────────────────────────────────────────────────────
+  // ── confirm / cancel ─────────────────────────────────────────────────────
 
-  /** Stamp the transformed sub-canvas back onto the layer */
+  /** stamp the transformed sub-canvas back onto the layer */
   confirmTransform(ctx: ToolContext) {
     if (this.transformBox && this.subCanvas) {
       const { ctx: layerCtx } = ctx;
@@ -150,7 +150,7 @@ export class SelectionTool extends BaseTool {
       layerCtx.scale(state.scaleX, state.scaleY);
       layerCtx.translate(-cx, -cy);
 
-      // Draw at (possibly) new position & size – this is the freeform squish/stretch
+      // draw at (possibly) new position & size – this is the freeform squish/stretch
       layerCtx.drawImage(this.subCanvas, state.x, state.y, state.width, state.height);
       layerCtx.restore();
     }
@@ -159,16 +159,16 @@ export class SelectionTool extends BaseTool {
   }
 
   cancel() {
-    // Put pixels back at original position without transform
+    // put pixels back at original position without transform
     this.transformBox = null;
     this.selectionRect = null;
     this.subCanvas = null;
   }
 
-  // ── Overlay rendering ─────────────────────────────────────────────────────
+  // ── overlay rendering ─────────────────────────────────────────────────────
 
   drawOverlay(overlayCtx: CanvasRenderingContext2D, time: number) {
-    // Marching-ants marquee rectangle while dragging
+    // marching-ants marquee rectangle while dragging
     if (this.selectionRect) {
       const { x, y, w, h } = this.selectionRect;
       overlayCtx.setLineDash([6, 4]);
@@ -179,7 +179,7 @@ export class SelectionTool extends BaseTool {
       overlayCtx.setLineDash([]);
     }
 
-    // Semi-transparent preview of the captured pixels + transform box
+    // semi-transparent preview of the captured pixels + transform box
     if (this.transformBox) {
       if (this.subCanvas) {
         const state = this.transformBox.state;
@@ -198,7 +198,7 @@ export class SelectionTool extends BaseTool {
     }
   }
 
-  // ── Getters ───────────────────────────────────────────────────────────────
+  // ── getters ───────────────────────────────────────────────────────────────
 
   hasActiveTransform() {
     return this.transformBox !== null;

@@ -7,23 +7,23 @@ describe('detectFieldType', () => {
   expect(detectFieldType('User Email', ['test@example.com']).type).toBe('email');
   expect(detectFieldType('Phone Number', ['1234567890']).type).toBe('phone');
   expect(detectFieldType('Sale Price', ['100']).type).toBe('number');
-  expect(detectFieldType('Product URL', ['http://example.com']).type).toBe('url');
+  expect(detectFieldType('Product URL', ['http://example.com']).type).tobe('url');
   expect(detectFieldType('Created Date', ['2023-01-01']).type).toBe('datetime');
   expect(detectFieldType('Is Active', ['true']).type).toBe('checkbox');
   expect(detectFieldType('Tags', ['tag1, tag2']).type).toBe('multipleSelect');
   expect(detectFieldType('Background Color', ['#fff']).type).toBe('color');
-  expect(detectFieldType('Age', ['25']).type).toBe('number'); // Explicit user request
+  expect(detectFieldType('Age', ['25']).type).toBe('number'); // explicit user request
   expect(detectFieldType('Profile Pic', ['img.png']).type).toBe('attachment');
   expect(detectFieldType('Img', ['img.png']).type).toBe('attachment');
 
   // system specific
-  expect(detectFieldType('Pronouns', ['she/her']).type).toBe('text'); // Override default?
+  expect(detectFieldType('Pronouns', ['she/her']).type).toBe('text'); // override default?
   expect(detectFieldType('Gender', ['Non-binary']).type).toBe('select');
   expect(detectFieldType('Introject Type', ['Fictive']).type).toBe('select');
   expect(detectFieldType('Role', ['Protector, Caretaker']).type).toBe('multipleSelect');
   expect(detectFieldType('Likes', ['Pizza, Games']).type).toBe('multipleSelect');
   expect(detectFieldType('Last Fronted', ['2023-01-01']).type).toBe('datetime');
-  expect(detectFieldType('Days Fronted', ['5', '10']).type).toBe('number'); // Test collision with 'front' -> datetime
+  expect(detectFieldType('Days Fronted', ['5', '10']).type).toBe('number'); // test collision with 'front' -> datetime
   });
 
   it('detects relations matches against existing collections', () => {
@@ -81,7 +81,7 @@ describe('detectFieldType', () => {
   });
 
   it('infers url from values', () => {
-  expect(detectFieldType('Website', ['https://google.com', 'http://test.com']).type).toBe('url');
+  expect(detectFieldType('Website', ['https://google.com', 'http://test.com']).type).tobe('url');
   });
 
   // 4. edge cases

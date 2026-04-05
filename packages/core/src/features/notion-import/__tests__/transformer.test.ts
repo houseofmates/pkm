@@ -72,7 +72,7 @@ describe('Notion transformer', () => {
     it('gracefully handles empty datasets', async () => {
         const ws: NotionWorkspace = { pages: [], databases: [{ name: 'Empty', fields: [], rows: [], props: {} }], assets: [] };
         const ins = await transformWorkspace(ws);
-        expect(ins.filter(i => i.type === 'createCollection').length).toBe(2); // Empty + pages
+        expect(ins.filter(i => i.type === 'createCollection').length).toBe(2); // empty + pages
         expect(ins.filter(i => i.type === 'createRecord').length).toBe(0);
         expect(ins.filter(i => i.type === 'addRelation').length).toBe(0);
     });

@@ -27,7 +27,7 @@ export function QuickEditSheet() {
   useEffect(() => {
     const handleEdit = (e: CustomEvent<EditEventDetail>) => {
       const { record, collectionName, onSave } = e.detail;
-      setData({ ...record }); // Clone to avoid direct mutation
+      setData({ ...record }); // clone to avoid direct mutation
       setCollectionName(collectionName);
       if (onSave) setCallback(() => onSave);
       setOpen(true);

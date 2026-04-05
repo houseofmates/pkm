@@ -2,8 +2,8 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 
-// ContextMenuContent (Radix UI) requires being inside a ContextMenu portal tree;
-// mock it as a plain div so we can render RichResourceContextMenuContent directly.
+// contextmenucontent (radix ui) requires being inside a contextmenu portal tree;
+// mock it as a plain div so we can render richresourcecontextmenucontent directly.
 vi.mock('@/components/ui/context-menu', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/components/ui/context-menu')>();
   return {
@@ -27,7 +27,7 @@ vi.mock('../rich-resource-context-menu', () => ({
   ),
 }));
 
-// minimal onUpdate handler stub
+// minimal onupdate handler stub
 const noop = vi.fn();
 
 describe('RichResourceContextMenuContent', () => {

@@ -1,11 +1,11 @@
 // ai-worker-core.ts — pure logic extracted from ai.worker.ts
 //
-// this module contains ALL the ai/vector/rag/streaming logic with
+// this module contains all the ai/vector/rag/streaming logic with
 // zero comlink or web-worker dependencies. it can be imported by:
 //   1. ai.worker.ts (runs in a dedicated worker thread)
 //   2. use-ai-worker.ts main-thread fallback (runs on the ui thread)
 //
-// a custom `fetchImpl` can be injected at init time so mobile builds
+// a custom `fetchimpl` can be injected at init time so mobile builds
 // can route requests through capacitor's native http bridge.
 
 import type { AIWorkerAPI, SearchResultDTO, RagPromptResult, AskWithRagResult, ChatMessage, Attachment } from './ai-worker-types';
@@ -46,7 +46,7 @@ export function init(
     _apiBaseUrl = apiBaseUrl.replace(/\/+$/, '');
     _authToken = authToken;
     
-    // log the incoming ollamaBaseUrl for debugging
+    // log the incoming ollamabaseurl for debugging
     if (typeof console !== 'undefined' && console.info) {
         console.info('[ai-worker] init called with ollamaBaseUrl:', ollamaBaseUrl);
     }
@@ -120,8 +120,8 @@ async function generateEmbedding(text: string): Promise<number[]> {
 // ---------------------------------------------------------------------------
 
 async function searchKnowledgeBase(query: string, topK: number = VECTOR_CONFIG.topK): Promise<SearchResultDTO[]> {
-    // Skip the AI knowledge base search - it requires a collection that doesn't exist
-    // Just use the fallback local search which searches through collections directly
+    // skip the ai knowledge base search - it requires a collection that doesn't exist
+    // just use the fallback local search which searches through collections directly
     console.log('[ai-worker] Using fallback local search (knowledge base not available)');
     return fallbackLocalSearch(query, topK);
 }
@@ -306,7 +306,7 @@ async function chatStream(
         console.info('[ai-worker] chatStream using endpoint:', resolvedEndpoint, '(input was:', endpoint + ')');
     }
 
-    const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
+    const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedendpoint);
 
     if (isGemini) {
         const response = await _fetch(resolvedEndpoint, {
@@ -388,9 +388,9 @@ async function chatStreamMultimodal(
         console.info('[ai-worker] chatStreamMultimodal using endpoint:', resolvedEndpoint, 'model:', model);
     }
 
-    const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
+    const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedendpoint);
     if (isGemini) {
-        // flatten the messages into a single prompt for Gemini
+        // flatten the messages into a single prompt for gemini
         const prompt = messages
             .map(m => `${m.role}: ${typeof m.content === 'string' ? m.content : JSON.stringify(m.content)}`)
             .join('\n');
@@ -460,7 +460,7 @@ async function generateTextLegacy(
 ): Promise<string | null> {
     try {
         const resolvedEndpoint = resolveOllamaEndpointForWorker(endpoint, '/api/generate');
-        const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedEndpoint);
+        const isGemini = /generativeai\.googleapis\.com\//i.test(resolvedendpoint);
 
         const body = isGemini
             ? { prompt: { text: prompt } }
@@ -498,8 +498,8 @@ async function askWithRag(
 ): Promise<AskWithRagResult> {
     console.log('[ai-worker] askWithRag called:', { query: query.slice(0, 50), fronterName, model, endpoint: endpoint.slice(0, 100) });
     
-    // Vision models need the chat endpoint with messages format
-    // qwen2.5-coder:7b-instruct-q4_K_S is actually the VL model renamed for Pieces OS compatibility
+    // vision models need the chat endpoint with messages format
+    // qwen2.5-coder:7b-instruct-q4_k_s is actually the vl model renamed for pieces os compatibility
     const isVisionModel = model.includes('vl') || model.includes('vision') || model.includes('llava') || model.includes('qwen2.5-coder');
     
     if (isVisionModel) {
@@ -520,7 +520,7 @@ async function askWithRag(
         }
     }
     
-    // Non-vision models use the generate endpoint
+    // non-vision models use the generate endpoint
     console.log('[ai-worker] Using generate endpoint');
     const { prompt, sources } = await buildRagPrompt(query, fronterName);
     const response = await chatStream(prompt, model, endpoint, onToken);
@@ -539,16 +539,16 @@ async function askWithRagAndAttachments(
     onToken: (cumulativeContent: string) => void,
     attachments?: Attachment[],
 ): Promise<AskWithRagResult> {
-    // Build RAG context for the text query
+    // build rag context for the text query
     const ragCtx = await buildRagContext(query, 8);
     
-    // Build system message with RAG context
+    // build system message with rag context
     const systemContent = `${WILSON_RAG_SYSTEM_PROMPT}\n\ncurrent user: ${fronterName}\n\nretrieved context from your pkm:\n${ragCtx.formattedContext}`;
     
-    // Build user message content parts
+    // build user message content parts
     const userContent: { type: 'text'; text: string; } | Array<{ type: 'text'; text: string } | { type: 'image_url'; image_url: { url: string } }> = [{ type: 'text', text: query }];
     
-    // Add image attachments if provided
+    // add image attachments if provided
     if (attachments && attachments.length > 0) {
         for (const attachment of attachments) {
             if (attachment.dataUrl && (attachment.type === 'image' || attachment.type === 'gif')) {
@@ -560,7 +560,7 @@ async function askWithRagAndAttachments(
         }
     }
     
-    // Build messages array for chat API
+    // build messages array for chat api
     const messages: ChatMessage[] = [
         { role: 'system', content: systemContent },
         { role: 'user', content: userContent }
@@ -575,14 +575,14 @@ async function askWithRagAndAttachments(
         });
     }
     
-    // Use multimodal streaming for vision models
+    // use multimodal streaming for vision models
     const isVisionModel = model.includes('vl') || model.includes('vision') || model.includes('llava');
     
     let response: string;
     if (isVisionModel && attachments && attachments.length > 0) {
         response = await chatStreamMultimodal(messages, model, endpoint, onToken);
     } else {
-        // Fall back to regular streaming for non-vision models or no attachments
+        // fall back to regular streaming for non-vision models or no attachments
         const { prompt } = await buildRagPrompt(query, fronterName);
         response = await chatStream(prompt, model, endpoint, onToken);
     }
@@ -591,7 +591,7 @@ async function askWithRagAndAttachments(
 }
 
 // ---------------------------------------------------------------------------
-// factory — returns the full API object
+// factory — returns the full api object
 // ---------------------------------------------------------------------------
 
 export type WorkerAPIWithInit = AIWorkerAPI & {
@@ -610,18 +610,18 @@ function resolveOllamaEndpointForWorker(endpoint: string, fallbackPath: string =
 
     const stripped = endpoint.replace(/\/+$/, '');
     
-    // if endpoint is already a full URL (starts with http:// or https://)
+    // if endpoint is already a full url (starts with http:// or https://)
     if (/^https?:\/\//.test(stripped)) {
-        // Check if it ends with /api/generate but we need /api/chat (or vice versa)
+        // check if it ends with /api/generate but we need /api/chat (or vice versa)
         const generatePattern = /\/api\/generate$/;
         const chatPattern = /\/api\/chat$/;
         
         if (fallbackPath === '/api/chat' && generatePattern.test(stripped)) {
-            // Replace /api/generate with /api/chat
+            // replace /api/generate with /api/chat
             return stripped.replace(generatePattern, '/api/chat');
         }
         if (fallbackPath === '/api/generate' && chatPattern.test(stripped)) {
-            // Replace /api/chat with /api/generate
+            // replace /api/chat with /api/generate
             return stripped.replace(chatPattern, '/api/generate');
         }
         
@@ -630,7 +630,7 @@ function resolveOllamaEndpointForWorker(endpoint: string, fallbackPath: string =
         if (localhostPattern.test(stripped)) {
             return stripped.replace(localhostPattern, normalizedBase);
         }
-        // otherwise, it's already a resolved URL (like the server proxy), return as-is
+        // otherwise, it's already a resolved url (like the server proxy), return as-is
         return stripped;
     }
 

@@ -67,7 +67,7 @@ const LogBlock: React.FC<LogBlockProps> = ({ onSave }) => {
             try { const { toast } = await import('sonner'); toast?.success('log synced') } catch {}
           }
         } catch (e) {
-          // ignore failures; logs remain in localStorage
+          // ignore failures; logs remain in localstorage
           console.warn('immediate server sync failed', e)
         }
       })()

@@ -8,7 +8,7 @@ import { JournalPage } from '@/pages/journal';
 import api from '@/api/nocobase-client';
 import { AuthProvider } from '@/contexts/auth-context';
 
-// basic smoke test for mood buttons reflecting MOODS constant and behavior
+// basic smoke test for mood buttons reflecting moods constant and behavior
 
 describe('JournalPage', () => {
   it.skip('renders mood emoji buttons and can toggle selection; emotions are searchable', () => {

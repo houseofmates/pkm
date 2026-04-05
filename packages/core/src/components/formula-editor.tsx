@@ -15,7 +15,7 @@ interface FormulaEditorProps {
   record: any;
   onSave: (code: string) => void;
   onCancel: () => void;
-  client: any; // NocoBase client
+  client: any; // nocobase client
 }
 
 // mock ai service until websocket is fully confirmed
@@ -35,7 +35,7 @@ const fetchAIResponse = async (prompt: string, context: any) => {
 };
 
 export function FormulaEditor({ value, record, onSave, onCancel, client }: FormulaEditorProps) {
-  const [code, setCode] = useState(value || '// Access "record" or "api" objects here\nreturn record.title;');
+  const [code, setCode] = useState(value || '// access "record" or "api" objects here\nreturn record.title;');
   const [output, setOutput] = useState<string>('');
   const [chatInput, setChatInput] = useState('');
   const [messages, setMessages] = useState<{ role: 'user' | 'assistant', content: string }[]>([
@@ -56,7 +56,7 @@ export function FormulaEditor({ value, record, onSave, onCancel, client }: Formu
  }
   `);
 
-  // capture secureLogger.info
+  // capture securelogger.info
   const logs: string[] = [];
   const mockConsole = {
  log: (...args: any[]) => logs.push(args.map(a => JSON.stringify(a)).join(' ')),

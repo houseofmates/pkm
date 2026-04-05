@@ -16,7 +16,7 @@ const moodEmojis = ['😢', '😟', '😐', '🙂', '😊', '🤩'];
 const moodLabels = ['terrible', 'bad', 'fine', 'good', 'great', 'amazing'];
 
 export const MoodTrendWidget = memo(function MoodTrendWidget({ entries, className }: MoodTrendWidgetProps) {
-  // Get last 7 days of moods
+  // get last 7 days of moods
   const last7Days = useMemo(() => {
     const days: (MoodEntry | null)[] = [];
     const today = new Date();
@@ -33,7 +33,7 @@ export const MoodTrendWidget = memo(function MoodTrendWidget({ entries, classNam
     return days;
   }, [entries]);
 
-  // Calculate trend
+  // calculate trend
   const trend = useMemo(() => {
     const validMoods = last7Days.filter(d => d !== null).map(d => d!.mood);
     if (validMoods.length < 2) return 'neutral';
@@ -46,7 +46,7 @@ export const MoodTrendWidget = memo(function MoodTrendWidget({ entries, classNam
     return 'neutral';
   }, [last7Days]);
 
-  // Calculate average
+  // calculate average
   const average = useMemo(() => {
     const validMoods = last7Days.filter(d => d !== null).map(d => d!.mood);
     if (validMoods.length === 0) return null;
@@ -66,7 +66,7 @@ export const MoodTrendWidget = memo(function MoodTrendWidget({ entries, classNam
         {trend === 'neutral' && <Minus size={14} className="text-white/40" />}
       </div>
 
-      {/* Sparkline */}
+      {/* sparkline */}
       <div className="flex items-end gap-1 h-16">
         {last7Days.map((entry, i) => {
           const height = entry ? `${((entry.mood + 1) / 6) * 100}%` : '0%';
@@ -90,7 +90,7 @@ export const MoodTrendWidget = memo(function MoodTrendWidget({ entries, classNam
         })}
       </div>
 
-      {/* Average */}
+      {/* average */}
       {average !== null && (
         <div className="flex items-center gap-2 pt-1 border-t border-white/10">
           <span className="text-lg">{moodEmojis[Math.round(average)]}</span>

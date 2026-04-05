@@ -52,7 +52,7 @@ export const getSuggestionItems = async ({ query }: { query: string }) => {
  editor.chain().focus().deleteRange(range).setNode('heading', { level: 2 }).run();
   },
   },
-  // --- Columns ---
+  // --- columns ---
   {
   title: '2 Columns',
   description: 'Create two equal columns.',
@@ -74,7 +74,7 @@ export const getSuggestionItems = async ({ query }: { query: string }) => {
  editor.chain().focus().deleteRange(range).setColumns(4).run();
   },
   },
-  // --- Widgets ---
+  // --- widgets ---
   {
   title: 'Database View',
   description: 'Embed a view from any database.',
@@ -87,14 +87,14 @@ export const getSuggestionItems = async ({ query }: { query: string }) => {
   title: 'Insert Widget',
   description: 'Pick a widget from the registry.',
   command: ({ editor, range }: any) => {
- // This will trigger the react state in the parent component to open the picker
- // Since we can't easily access React state from here without a context bridge,
+ // this will trigger the react state in the parent component to open the picker
+ // since we can't easily access react state from here without a context bridge,
  // we'll dispatch a custom event.
  editor.chain().focus().deleteRange(range).run();
  window.dispatchEvent(new CustomEvent('pkm:open-widget-picker', {
  detail: {
  onSelect: (type: string, data: any) => {
- // Insert widget block
+ // insert widget block
  editor.chain().focus().insertContent({
  type: 'widgetBlock',
  attrs: { type, data }
@@ -104,7 +104,7 @@ export const getSuggestionItems = async ({ query }: { query: string }) => {
  }));
   },
   },
-  // --- Lists ---
+  // --- lists ---
   {
   title: 'Bullet List',
   description: 'Simple bulleted list.',

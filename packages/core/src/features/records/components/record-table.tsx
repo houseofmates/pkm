@@ -26,7 +26,7 @@ function getLucideIcon(name: string): LucideIcon | undefined {
   return (Icons as unknown as Record<string, unknown>)[name] as LucideIcon | undefined;
 }
 
-// helper to parse i18n template strings like {{t('ID')}} or {{t("Created at")}}
+// helper to parse i18n template strings like {{t('id')}} or {{t("created at")}}
 // returns the inner string if it matches the pattern, otherwise returns the original
 function parseI18nTemplate(str: string | undefined): string {
   if (!str) return '';
@@ -96,7 +96,7 @@ import type {
 import { cn } from '@/lib/utils';
 import { secureLogger } from '@/lib/secure-logger';
 
-// Sortable Header Component
+// sortable header component
 function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSettings, fieldColors, fieldIcons, valueColorRules, setMetadata, onHide }: any) {
   const { client } = useAuth();
   const [isEditing, setIsEditing] = React.useState(false);
@@ -114,7 +114,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
     return String(h);
   };
 
-  // whenever editing is enabled, refresh draftTitle from header metadata
+  // whenever editing is enabled, refresh drafttitle from header metadata
   const startEditing = () => {
     if (isSystemColumn) return;
     setDraftTitle(computeTitle());
@@ -193,7 +193,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
           onOpenFieldSettings?.(field);
         }}
         onHide={() => {
-          // call provided handler (from RecordTable) to toggle hidden columns
+          // call provided handler (from recordtable) to toggle hidden columns
           try {
             onHide?.(field);
           } catch (e: unknown) {
@@ -329,7 +329,7 @@ function SortableHeader({ header, collectionName, onFieldUpdated, onOpenFieldSet
   );
 };
 
-// Simple drag handle for row reordering using dnd-kit sortable
+// simple drag handle for row reordering using dnd-kit sortable
 function RowDragHandle({
   rowId,
   index,
@@ -485,7 +485,7 @@ const DraggableRecordRow = (props: any) => {
           const target = e.target as HTMLElement;
           const inCellContent = target.closest('[data-cell-content]');
           const isExpandBtn = target.closest('[data-expand-btn]');
-          if (isExpandBtn) return; // Don't select when clicking expand
+          if (isExpandBtn) return; // don't select when clicking expand
           if (!inCellContent) {
             if (isSelected && selectedIds?.length === 1 && clearSelection) {
               clearSelection();
@@ -610,7 +610,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
   // sort state
   const [sortField, setSortField] = React.useState<string>('');
 
-  // keyboard shortcut: Ctrl/Cmd+N to create new record
+  // keyboard shortcut: ctrl/cmd+n to create new record
   React.useEffect(() => {
     if (!onCreateRecord) return;
     const handler = (e: KeyboardEvent) => {
@@ -623,7 +623,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     return () => window.removeEventListener('keydown', handler);
   }, [onCreateRecord]);
 
-  // keyboard shortcut: Ctrl/Cmd+N to create new record
+  // keyboard shortcut: ctrl/cmd+n to create new record
   React.useEffect(() => {
     if (!onCreateRecord) return;
     const handler = (e: KeyboardEvent) => {
@@ -745,7 +745,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         header: (() => {
           const parsed = parseI18nTemplate(field.uiSchema?.title);
           if (parsed) return parsed;
-          // Always humanize the field name - handles single-word, multi-word, snake_case, camelCase
+          // always humanize the field name - handles single-word, multi-word, snake_case, camelcase
           return humanizeFieldName(field.name);
         })(),
         meta: { field },
@@ -848,7 +848,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
                         value={sortField}
                         onChange={(e) => {
                           setSortField(e.target.value);
-                          setManualOrder([]); // Clear manual order when sorting
+                          setManualOrder([]); // clear manual order when sorting
                         }}
                         className="w-full h-8 px-2 text-sm bg-[#111] border border-[#333] rounded text-white"
                       >
@@ -1017,7 +1017,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     const activeId = String(active.id);
     const overId = String(over.id);
 
-    // Handle row reordering
+    // handle row reordering
     if (activeId.startsWith('row-')) {
       const fromIndex = rows.findIndex((r: any) => `row-${r.original.id}` === activeId);
       const toIndex = rows.findIndex((r: any) => `row-${r.original.id}` === overId);
@@ -1028,7 +1028,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       return;
     }
 
-    // Handle column reordering (existing logic)
+    // handle column reordering (existing logic)
     const headerGroups = table.getHeaderGroups();
     const headers = headerGroups[0].headers;
     const oldIndex = headers.findIndex((h) => h.id === active.id);
@@ -1039,9 +1039,9 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     setColumnOrder(newOrder);
   };
 
-  // sort data based on sortField and sortDirection, or use manualOrder
+  // sort data based on sortfield and sortdirection, or use manualorder
   const sortedData = React.useMemo(() => {
-    // If manual order is active and no sort is applied, use manual order
+    // if manual order is active and no sort is applied, use manual order
     if (manualOrder.length > 0 && !sortField) {
       const orderMap = new Map(manualOrder.map((id, index) => [id, index]));
       return [...data].sort((a, b) => {
@@ -1057,12 +1057,12 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
       const aVal = a[sortField];
       const bVal = b[sortField];
 
-      // Handle null/undefined values
+      // handle null/undefined values
       if (aVal == null && bVal == null) return 0;
       if (aVal == null) return sortDirection === 'up' ? -1 : 1;
       if (bVal == null) return sortDirection === 'up' ? 1 : -1;
 
-      // Try to parse as date
+      // try to parse as date
       const aDate = new Date(aVal);
       const bDate = new Date(bVal);
       const isADate = !isNaN(aDate.getTime());
@@ -1074,7 +1074,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
           : bDate.getTime() - aDate.getTime();
       }
 
-      // Try to parse as number
+      // try to parse as number
       const aNum = parseFloat(aVal);
       const bNum = parseFloat(bVal);
       const isANum = !isNaN(aNum) && !isNaN(parseFloat(aVal));
@@ -1084,7 +1084,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         return sortDirection === 'up' ? aNum - bNum : bNum - aNum;
       }
 
-      // Default string comparison
+      // default string comparison
       const aStr = String(aVal).toLowerCase();
       const bStr = String(bVal).toLowerCase();
       if (aStr < bStr) return sortDirection === 'up' ? -1 : 1;
@@ -1093,7 +1093,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
     });
   }, [data, sortField, sortDirection, manualOrder]);
 
-  // Handle manual row reordering - clears sort when user drags rows
+  // handle manual row reordering - clears sort when user drags rows
   const handleRowReorder = React.useCallback((fromIndex: number, toIndex: number) => {
     const currentOrder = manualOrder.length > 0 ? manualOrder : sortedData.map(r => r.id);
     const clampedToIndex = Math.max(0, Math.min(toIndex, currentOrder.length - 1));
@@ -1491,7 +1491,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         </DialogContent>
       </Dialog>
 
-      {/* Record Detail Drawer */}
+      {/* record detail drawer */}
       <RecordDetailDrawer
         isOpen={detailDrawerOpen}
         onClose={handleCloseDetail}

@@ -3,8 +3,8 @@ import yaml from 'js-yaml';
 import { secureLogger } from '@/lib/secure-logger';
 
 /**
- * Interface for a file-like object that can be read as a stream or text.
- * This allows the parser to work with both Node.js filesystem and Web File/Blob APIs.
+ * interface for a file-like object that can be read as a stream or text.
+ * this allows the parser to work with both node.js filesystem and web file/blob apis.
  */
 export interface NotionSource {
     name: string;
@@ -22,11 +22,11 @@ export interface NotionPage {
 }
 
 export interface NotionDatabase {
-    /** filename of the CSV (without extension) */
+    /** filename of the csv (without extension) */
     name: string;
     rows: Record<string, any>[];
     fields: string[];
-    /** optional Notion property metadata (if export includes JSON) */
+    /** optional notion property metadata (if export includes json) */
     props?: Record<string, any>;
 }
 
@@ -39,7 +39,7 @@ export interface NotionWorkspace {
 }
 
 /**
- * Node.js implementation of NotionSource using the filesystem.
+ * node.js implementation of notionsource using the filesystem.
  */
 export class NodeFsSource implements NotionSource {
     constructor(private filePath: string, private rootRelativePath: string = filePath) { }
@@ -76,7 +76,7 @@ async function parseMarkdownSource(source: NotionSource): Promise<NotionPage> {
 }
 
 /**
- * Parses a Notion export. Accept sources instead of a root path to support streaming/Web APIs.
+ * parses a notion export. accept sources instead of a root path to support streaming/web apis.
  */
 export async function parseNotionExport(sources: NotionSource[]): Promise<NotionWorkspace> {
     const pages: NotionPage[] = [];
@@ -101,7 +101,7 @@ export async function parseNotionExport(sources: NotionSource[]): Promise<Notion
                     header: true,
                     skipEmptyLines: true,
                     dynamicTyping: true,
-                    chunkSize: 1024 * 128, // process in 128KB chunks
+                    chunkSize: 1024 * 128, // process in 128kb chunks
                     transformHeader: h => h.trim(),
                     chunk: (results) => {
                         rows.push(...(results.data as any[]));
@@ -113,7 +113,7 @@ export async function parseNotionExport(sources: NotionSource[]): Promise<Notion
 
             const fields = rows.length > 0 ? Object.keys(rows[0]) : [];
 
-            // try to find matching metadata JSON among sources
+            // try to find matching metadata json among sources
             let props: Record<string, any> | undefined;
             const jsonName = source.name.replace(/\.csv$/, '.json');
             const jsonSource = sources.find(s => s.name === jsonName);

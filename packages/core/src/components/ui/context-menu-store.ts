@@ -8,7 +8,7 @@ export interface ContextMenuState {
   y: number;
   targetId: string | null;
   targetType: ContextMenuTargetType | null;
-  data?: any; // Flexible payload (e.g. current color, title)
+  data?: any; // flexible payload (e.g. current color, title)
   openMenu: (x: number, y: number, targetId: string, targetType: ContextMenuTargetType, data?: any) => void;
   closeMenu: () => void;
 }

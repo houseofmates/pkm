@@ -46,8 +46,8 @@ export class EmbeddingPipeline {
 
   /**
    * process a single markdown file: parse → embed → store.
-   * `filePath` is the absolute path; the document id is derived as the
-   * relative path from `config.notesDir`.
+   * `filepath` is the absolute path; the document id is derived as the
+   * relative path from `config.notesdir`.
    */
   async processFile(filePath: string): Promise<void> {
     const stat = await fs.promises.stat(filePath).catch(() => null);

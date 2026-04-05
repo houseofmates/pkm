@@ -67,7 +67,7 @@ const FieldContextMenu = ({ children, onEdit, onClear, value, record, collection
     });
   };
 
-  // Check if this is a date/time field
+  // check if this is a date/time field
   const fieldName = field?.name?.toLowerCase() || '';
   const fieldBaseType = field?.interface || field?.type || 'string';
   const isDateTimeField = field && (field.interface === 'datetime' || field.type === 'datetime' || fieldBaseType === 'datetime' || fieldName.includes('datetime') ||
@@ -283,7 +283,7 @@ function LinkDatabasePicker({ value, onChange, onCancel }: any) {
     setHighlightedIndex(0);
   }, [search]);
 
-  // Click outside to close
+  // click outside to close
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -396,7 +396,7 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
   const containerRef = useRef<HTMLDivElement>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Debounced search with cleanup
+  // debounced search with cleanup
   useEffect(() => {
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
@@ -417,7 +417,7 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
       let hasErrors = false;
 
       try {
-        // Search in collections (records)
+        // search in collections (records)
         if (selectedType === 'all' || selectedType === 'record') {
           const searchPromises = collections.slice(0, 5).map(async (collection: any) => {
             try {
@@ -446,7 +446,7 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
           });
         }
 
-        // Search in canvases (from local storage)
+        // search in canvases (from local storage)
         if (selectedType === 'all' || selectedType === 'canvas') {
           try {
             const canvasData = localStorage.getItem('edgeless_canvases');
@@ -468,7 +468,7 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
           }
         }
 
-        // Search in documents
+        // search in documents
         if (selectedType === 'all' || selectedType === 'document') {
           try {
             const docsData = localStorage.getItem('pkm_documents');
@@ -509,12 +509,12 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
     };
   }, [search, selectedType, collections, client]);
 
-  // Reset highlight when results change
+  // reset highlight when results change
   useEffect(() => {
     setHighlightedIndex(0);
   }, [results.length]);
 
-  // Click outside to close
+  // click outside to close
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -679,8 +679,8 @@ function LinkItemPicker({ value, onChange, onCancel }: any) {
 export interface SmartFieldProps {
   value: any;
   field: any;
-  record?: any; // Added record context
-  collectionName?: string; // Added for context menu actions
+  record?: any; // added record context
+  collectionName?: string; // added for context menu actions
   mode?: 'view' | 'edit';
   onChange: (value: any) => void;
   className?: string;
@@ -710,17 +710,17 @@ export function SmartField({ value, field, record, collectionName, mode: _mode =
 
 function SmartFieldInner({ value, field, record, collectionName, mode: _mode = 'view', onChange, className, inputClassName, size = 'lg' }: SmartFieldProps) {
   // during unit tests we bypass the complex rendering logic entirely —
-  // past failures showed the component often returned nothing in Vitest,
+  // past failures showed the component often returned nothing in vitest,
   // so this stub keeps tests focused on integration elsewhere.
   if (import.meta.env?.VITEST) {
     return <div data-testid="smartfield-vitest">{String(value)}</div>;
   }
 
-  // Defensive: if field or value is missing, show a graceful message instead of error boundary
+  // defensive: if field or value is missing, show a graceful message instead of error boundary
   if (!field) {
     return <div className="italic text-red-400">field missing</div>;
   }
-  // If value is undefined/null, show 'empty' (matches existing UI convention)
+  // if value is undefined/null, show 'empty' (matches existing ui convention)
   if (value === undefined || value === null || (typeof value === 'string' && value.trim() === '')) {
     return <div className="italic text-muted-foreground">empty</div>;
   }
@@ -810,7 +810,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
   const isUrl = detectedType === 'url' || detectedType === 'link' || name.includes('link') || name.includes('url');
   const isFile = detectedType === 'attachment' || name.includes('file') || name.includes('image') || name.includes('avatar');
   const isDateTime = detectedType === 'datetime' || baseType === 'datetime' || field?.interface === 'datetime' || field?.type === 'datetime' || name.includes('datetime');
-  // Only treat as pure time field if explicitly time type/interface, or if name suggests time-only (not datetime)
+  // only treat as pure time field if explicitly time type/interface, or if name suggests time-only (not datetime)
   const isTime = detectedType === 'time' || field?.interface === 'time' || field?.type === 'time' || 
     (name.includes('time') && !name.includes('date') && !isDateTime);
   const isId = looksLikeId(value);
@@ -829,7 +829,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
   const colorInputRef = useRef<HTMLInputElement>(null);
   const [colorTarget, setColorTarget] = useState<string | null>(null);
 
-  // Date/time display preferences per field (persisted) - use same key as FieldContextMenu
+  // date/time display preferences per field (persisted) - use same key as fieldcontextmenu
   const [dateTimePrefs, setDateTimePrefs] = useAppSetting<Record<string, { showDate?: boolean; showTime?: boolean }>>(`datetime_prefs_${collectionName || 'unknown'}`, {});
   const fieldKey = field?.name || 'unknown';
   const currentPref = { showDate: true, showTime: true, ...dateTimePrefs[fieldKey] };
@@ -877,7 +877,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
       hours = hours % 12;
       hours = hours ? hours : 12; // 0 should be 12
       const minutes = t.getMinutes();
-      // Only show minutes if not zero
+      // only show minutes if not zero
       return minutes === 0 ? `${hours}${ampm}` : `${hours}:${String(minutes).padStart(2, '0')}${ampm}`;
     } catch (e) { return dateStr; }
   };
@@ -893,7 +893,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
     return new File([blob], filename, { type: blob.type || 'image/png' });
   };
 
-  // ImageEditor component - extracted to avoid hooks-in-function issue
+  // imageeditor component - extracted to avoid hooks-in-function issue
   const ImageEditor = ({ src }: { src: string }) => {
     const drawPreview = async () => {
       const canvas = previewRef.current;
@@ -1148,7 +1148,7 @@ function SmartFieldInner({ value, field, record, collectionName, mode: _mode = '
                     const url = uploaded?.data?.url || uploaded?.url;
                     handleSave(url || dataUrl);
                   } catch (e) {
-                    // fallback to data URL if upload fails
+                    // fallback to data url if upload fails
                     handleSave(dataUrl);
                   }
                   setEditorOpen(false);

@@ -47,7 +47,7 @@ export const VIEW_REGISTRY: Record<ViewType, React.ComponentType<ViewProps>> = {
 import {
   Table, List, BookOpen, Calendar, Kanban as KanbanIcon,
   LayoutGrid, GitGraph, BarChart3, Network, GitMerge,
-  LayoutDashboard, Users // Added Users icon
+  LayoutDashboard, Users // added users icon
 } from 'lucide-react';
 
 export const VIEW_OPTIONS: { id: ViewType; label: string; icon?: any }[] = [

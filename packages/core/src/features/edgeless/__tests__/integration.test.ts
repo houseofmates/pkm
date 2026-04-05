@@ -178,9 +178,9 @@ describe('edgeless canvas integration', () => {
 
     it('should query viewport with 20% buffer', () => {
       const index = new SpatialIndex(100)
-      // Screen 1000x1000, 20% buffer = 200px
-      // World bounds: (0,0) to (1000,1000)
-      // Buffered bounds: (-200,-200) to (1200,1200)
+      // screen 1000x1000, 20% buffer = 200px
+      // world bounds: (0,0) to (1000,1000)
+      // buffered bounds: (-200,-200) to (1200,1200)
 
       index.insert({
         id: 'visible',

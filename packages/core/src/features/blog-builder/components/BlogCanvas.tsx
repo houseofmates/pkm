@@ -85,7 +85,7 @@ export function BlogCanvas() {
   }
   };
 
-  document.addEventListener('mousedown', handleGlobalMousedown, true); // Capture phase
+  document.addEventListener('mousedown', handleGlobalMousedown, true); // capture phase
   return () => document.removeEventListener('mousedown', handleGlobalMousedown, true);
   }, [selectedElementIds, setSelectedElementIds]);
 
@@ -162,7 +162,7 @@ export function BlogCanvas() {
   // responsive canvas styling
   const isDesktop = previewMode === 'desktop';
   const canvasStyle: React.CSSProperties = {
-  background: page.background || 'transparent', // Blog posts might not cover full bg
+  background: page.background || 'transparent', // blog posts might not cover full bg
   height: isDesktop ? (page.height ? `${page.height}px` : 'auto') : '100%',
   minHeight: isDesktop ? '100vh' : '100%',
   };
@@ -609,7 +609,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   e.stopPropagation();
 
   if (isAdmin) {
-  return; // handleMouseDown handles election
+  return; // handlemousedown handles election
   }
 
   // public mode interactions
@@ -701,7 +701,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
   boxShadow: element.styles?.boxShadow || 'none',
   backgroundClip: 'padding-box',
   isolation: 'isolate' as const,
-  WebkitTransform: 'translateZ(0)', // Force GPU rendering for sharper corners
+  WebkitTransform: 'translateZ(0)', // force gpu rendering for sharper corners
   overflow: ['text', 'serverstatus', 'minecraft_stats', 'rules', 'faq', 'staffcard', 'featurecard', 'testimonial'].includes(element.type) ? 'visible' : 'hidden',
   fontSize: ['text', 'button', 'version', 'versionbadge', 'serverip', 'serverstatus', 'featurecard', 'staffcard', 'rules', 'faq', 'testimonial', 'countdown'].includes(element.type)
   ? (deviceLayout?.fontSize ? `${deviceLayout.fontSize * scaleFactor}px` : (element.content?.fontSize ? `${parseFloat(element.content.fontSize) * scaleFactor}px` : (element.styles?.fontSize ? getPx(element.styles.fontSize, 16) : `${16 * scaleFactor}px`)))
@@ -900,7 +900,7 @@ function ElementRenderer({ element, isSelected, isAdmin, onSelect, onUpdate, onU
    </div>
  </div>
 
- {/* resize handles (invisible UI indicators, still interactive) */}
+ {/* resize handles (invisible ui indicators, still interactive) */}
  <div data-handle="n" className="resize-handle absolute -top-1 left-1/2 -translate-x-1/2 w-4 h-2 opacity-0 cursor-ns-resize z-50" />
  <div data-handle="s" className="resize-handle absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-2 opacity-0 cursor-ns-resize z-50" />
  <div data-handle="e" className="resize-handle absolute top-1/2 -right-1 -translate-y-1/2 w-2 h-4 opacity-0 cursor-ew-resize z-50" />
