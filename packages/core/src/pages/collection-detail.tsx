@@ -280,7 +280,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                         className="w-full md:w-[240px] h-9 bg-background/50 backdrop-blur border-input/50"
                         data-view-switcher="true"
                     >
-                        <SelectValue placeholder="Select View" />
+                        <SelectValue placeholder="select view" />
                     </SelectTrigger>
                     <SelectContent align="start">
                         {VIEW_OPTIONS.map((view) => (
