@@ -91,8 +91,23 @@ export class NocoBaseClient {
   }
 
   async updateCollection(name: string, data: Partial<Collection>) {
-    const res = await this._axios.post(`/collections/${name}:update`, data);
-    return GetRecordResponseSchema.parse(res.data);
+    try {
+      const res = await this._axios.request({
+        url: '/collections:update',
+        method: 'POST',
+        params: { filterByTk: name },
+        data
+      });
+      return res.data;
+    } catch (error: unknown) {
+      const err = error as ApiError;
+      if (err.response?.status === 404) {
+        secureLogger.warn(`updateCollection(${name}) failed with 404, trying alternative endpoint...`);
+        const res = await this._axios.post(`/collections/${name}:update`, data);
+        return res.data;
+      }
+      throw error;
+    }
   }
 
   async deleteCollection(name: string) {

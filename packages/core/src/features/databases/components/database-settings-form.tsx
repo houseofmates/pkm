@@ -11,9 +11,7 @@ import { useAppSetting } from '@/hooks/use-app-setting';
 import { IconPicker } from '@/components/icon-picker-dialog';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-import { useAuth } from '@/contexts/auth-context';
 import { toast } from 'sonner';
-import { secureLogger } from '@/lib/secure-logger';
 
 // color palette
 const COLORS = [
@@ -45,7 +43,6 @@ export function DatabaseSettingsForm({
   onDelete,
   isPage = false
 }: DatabaseSettingsFormProps) {
-  const { client } = useAuth();
   const [metadata, setMetadata] = useAppSetting<Record<string, any>>('collection_metadata', {}, { pollIntervalMs: 3000 });
   const info = metadata[collectionName] || {};
 
