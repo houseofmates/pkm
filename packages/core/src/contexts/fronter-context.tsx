@@ -356,8 +356,9 @@ export function FronterProvider({ children }: { children: ReactNode }) {
     // then sync to backend (don't await, it refreshes internally)
     registerFrontChange(newIds).catch(err => {
       secureLogger.error('failed to register front change:', err);
-      // revert optimistic update on failure
-      setActiveFronters(activeFronters);
+      // revert optimistic update on failure using functional update to avoid stale closure
+      setActiveFronters((prev) => prev.filter(fid => String(fid) !== stringId));
+      toast.error('front sync failed, reverted locally');
     });
   };
 
