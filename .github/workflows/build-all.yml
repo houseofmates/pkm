@@ -8,89 +8,15 @@ on:
 
 jobs:
   build:
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            target: linux
-          - os: ubuntu-latest
-            target: deb
-          - os: windows-latest
-            target: exe
-          - os: ubuntu-latest
-            target: apk
-
-    runs-on: ${{ matrix.os }}
-
+    runs-on: ubuntu-latest
     steps:
-      - name: checkout repository
-        uses: actions/checkout@v4
-
-      - name: setup node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: install dependencies
-        run: npm ci
-
-      - name: build web assets
-        run: npm run build
-        env:
-          VITE_API_URL: https://pkm.houseofmates.space/api
-
-      # electron-builder for appimage, deb, exe
-      - name: build electron apps
-        if: matrix.target == 'linux' || matrix.target == 'deb' || matrix.target == 'exe'
-        run: npm run electron:build
-        working-directory: apps/desktop-electron
-
-      # capacitor for apk
-      - name: build android apk
-        if: matrix.target == 'apk'
-        run: |
-          cd apps/mobile
-          npm run build
-          npx cap sync android
-          cd android
-          ./gradlew assembleRelease
-
-      # upload only the files that exist for this target
-      - name: upload electron artifacts
-        if: matrix.target == 'linux' || matrix.target == 'deb' || matrix.target == 'exe'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.target }}-release
-          path: apps/desktop-electron/release/**/*
-          retention-days: 30
-
-      - name: upload apk artifact
-        if: matrix.target == 'apk'
-        uses: actions/upload-artifact@v4
-        with:
-          name: apk-release
-          path: apps/mobile/android/app/build/outputs/apk/release/*.apk
-          retention-days: 30
+      - name: skip build
+        run: echo "build disabled — nothing to do"
 
   release:
     needs: build
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
-
     steps:
-      - name: download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: releases
-
-      - name: list downloaded files
-        run: ls -R releases/
-
-      - name: create release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: releases/**/*
-          draft: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: skip release
+        run: echo "release disabled — nothing to do"
