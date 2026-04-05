@@ -391,17 +391,15 @@ function MonthView({ currentDate, recordsByDate, collection, onUpdateRecord, onD
   const monthStart = safeZonedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), 1), timeZone)
     ?? new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
   const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
-  const startDayOfWeek = monthStart.getDay();
+  const startDayOfWeek = Number.isFinite(monthStart.getDay()) ? monthStart.getDay() : new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
   const calendarDays = useMemo(() => {
-    const days = [];
+    const days: (Date | null)[] = [];
     for (let i = 0; i < startDayOfWeek; i++) days.push(null);
     for (let i = 1; i <= daysInMonth; i++) {
-      const rawDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), i);
-      const d = safeZonedDate(rawDate, timeZone) ?? rawDate;
-      days.push(d);
+      days.push(new Date(currentDate.getFullYear(), currentDate.getMonth(), i));
     }
     return days;
-  }, [currentDate, startDayOfWeek, daysInMonth, timeZone]);
+  }, [currentDate, startDayOfWeek, daysInMonth]);
 
   return (
     <div className="h-full flex flex-col">
