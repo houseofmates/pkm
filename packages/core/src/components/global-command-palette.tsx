@@ -9,11 +9,8 @@ import {
   CommandList,
   CommandSeparator,
 } from "@/components/ui/command";
-import { toTitleCase } from '@/lib/casing';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useCollections } from "@/hooks/use-collections";
-import { api } from "@/api/nocobase-client";
-import { useEdgelessStore } from '@/features/edgeless/store';
 import { useFronter } from '@/contexts/fronter-context';
 import { getOllamaGenerateUrl, DEFAULT_OLLAMA_MODEL } from '@/lib/llm-config';
 import { generateText } from '@/lib/llm-service';
