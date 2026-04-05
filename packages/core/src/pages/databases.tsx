@@ -101,6 +101,120 @@ export function DatabasesPage({ onSelect }: DatabasesPageProps) {
   const FORBIDDEN_COLLECTIONS = ['site-pages', 'dupemates-pages', 'server-stats', 'public_blocks', 'public_pages', 'pkm_canvases', 'pkm_settings', 'front_history', 'website', 'dupemates-pages'];
   const filteredCollections = collections.filter((c: Collection) => !FORBIDDEN_COLLECTIONS.includes(String(c.name).toLowerCase()));
 
+  // 2. supplement missing field metadata for collections the API doesn't return fields for
+  const FALLBACK_FIELDS: Record<string, Array<{ name: string; type: string; interface?: string }>> = {
+    events: [
+      { name: 'title', type: 'string', interface: 'input' },
+      { name: 'start_time', type: 'datetime', interface: 'datetime' },
+      { name: 'end_time', type: 'datetime', interface: 'datetime' },
+      { name: 'location', type: 'string', interface: 'input' },
+      { name: 'notes', type: 'text', interface: 'textarea' },
+      { name: 'url', type: 'string', interface: 'input' },
+      { name: 'uid', type: 'string', interface: 'input' },
+      { name: 'fronter', type: 'string', interface: 'input' },
+      { name: 'id', type: 'integer', interface: 'integer' },
+    ],
+    exercise: [
+      { name: 'exercise_type', type: 'string', interface: 'input' },
+      { name: 'duration', type: 'integer', interface: 'integer' },
+      { name: 'intensity', type: 'string', interface: 'select' },
+      { name: 'calories', type: 'integer', interface: 'integer' },
+      { name: 'notes', type: 'text', interface: 'textarea' },
+      { name: 'created_at', type: 'datetime', interface: 'datetime' },
+      { name: 'fronter', type: 'string', interface: 'input' },
+    ],
+    finances: [
+      { name: 'description', type: 'string', interface: 'input' },
+      { name: 'amount', type: 'float', interface: 'input' },
+      { name: 'category', type: 'string', interface: 'select' },
+      { name: 'type', type: 'string', interface: 'select' },
+      { name: 'date', type: 'date', interface: 'datetime' },
+      { name: 'notes', type: 'text', interface: 'textarea' },
+      { name: 'fronter', type: 'string', interface: 'input' },
+    ],
+    journal: [
+      { name: 'title', type: 'string', interface: 'input' },
+      { name: 'content', type: 'text', interface: 'markdown' },
+      { name: 'mood', type: 'string', interface: 'select' },
+      { name: 'tags', type: 'json', interface: 'tag' },
+      { name: 'created_at', type: 'datetime', interface: 'datetime' },
+      { name: 'fronter', type: 'string', interface: 'input' },
+    ],
+    sleep: [
+      { name: 'bedtime', type: 'datetime', interface: 'datetime' },
+      { name: 'wake_time', type: 'datetime', interface: 'datetime' },
+      { name: 'duration', type: 'float', interface: 'input' },
+      { name: 'quality', type: 'integer', interface: 'integer' },
+      { name: 'notes', type: 'text', interface: 'textarea' },
+      { name: 'created_at', type: 'datetime', interface: 'datetime' },
+      { name: 'fronter', type: 'string', interface: 'input' },
+    ],
+  };
+
+  const collectionsWithFallbackFields = filteredCollections.map((col: Collection) => {
+    if (col.fields && col.fields.length > 0) return col;
+    const fallback = FALLBACK_FIELDS[col.name];
+    if (fallback) return { ...col, fields: fallback };
+    return col;
+  });
+
+  // 2. supplement missing field metadata for collections the API doesn't return fields for
+  const FALLBACK_FIELDS: Record<string, Array<{ name: string; type: string; interface?: string }>> = {
+    events: [
+      { name: 'title', type: 'string', interface: 'input' },
+      { name: 'start_time', type: 'datetime', interface: 'datetime' },
+      { name: 'end_time', type: 'datetime', interface: 'datetime' },
+      { name: 'location', type: 'string', interface: 'input' },
+      { name: 'notes', type: 'text', interface: 'textarea' },
+      { name: 'url', type: 'string', interface: 'input' },
+      { name: 'uid', type: 'string', interface: 'input' },
+      { name: 'fronter', type: 'string', interface: 'input' },
+      { name: 'id', type: 'integer', interface: 'integer' },
+    ],
+    exercise: [
+      { name: 'exercise_type', type: 'string', interface: 'input' },
+      { name: 'duration', type: 'integer', interface: 'integer' },
+      { name: 'intensity', type: 'string', interface: 'select' },
+      { name: 'calories', type: 'integer', interface: 'integer' },
+      { name: 'notes', type: 'text', interface: 'textarea' },
+      { name: 'created_at', type: 'datetime', interface: 'datetime' },
+      { name: 'fronter', type: 'string', interface: 'input' },
+    ],
+    finances: [
+      { name: 'description', type: 'string', interface: 'input' },
+      { name: 'amount', type: 'float', interface: 'input' },
+      { name: 'category', type: 'string', interface: 'select' },
+      { name: 'type', type: 'string', interface: 'select' },
+      { name: 'date', type: 'date', interface: 'datetime' },
+      { name: 'notes', type: 'text', interface: 'textarea' },
+      { name: 'fronter', type: 'string', interface: 'input' },
+    ],
+    journal: [
+      { name: 'title', type: 'string', interface: 'input' },
+      { name: 'content', type: 'text', interface: 'markdown' },
+      { name: 'mood', type: 'string', interface: 'select' },
+      { name: 'tags', type: 'json', interface: 'tag' },
+      { name: 'created_at', type: 'datetime', interface: 'datetime' },
+      { name: 'fronter', type: 'string', interface: 'input' },
+    ],
+    sleep: [
+      { name: 'bedtime', type: 'datetime', interface: 'datetime' },
+      { name: 'wake_time', type: 'datetime', interface: 'datetime' },
+      { name: 'duration', type: 'float', interface: 'input' },
+      { name: 'quality', type: 'integer', interface: 'integer' },
+      { name: 'notes', type: 'text', interface: 'textarea' },
+      { name: 'created_at', type: 'datetime', interface: 'datetime' },
+      { name: 'fronter', type: 'string', interface: 'input' },
+    ],
+  };
+
+  const collectionsWithFallbackFields = filteredCollections.map((col: Collection) => {
+    if (col.fields && col.fields.length > 0) return col;
+    const fallback = FALLBACK_FIELDS[col.name];
+    if (fallback) return { ...col, fields: fallback };
+    return col;
+  });
+
   // fetch record counts for each collection
   useEffect(() => {
     if (!isAuthenticated || filteredCollections.length === 0) return;
