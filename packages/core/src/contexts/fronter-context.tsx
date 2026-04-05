@@ -238,13 +238,17 @@ export function FronterProvider({ children }: { children: ReactNode }) {
 
   // initial load & poll
   useEffect(() => {
-    refresh();
-    syncFrontFromSimplyPlural();
-    const interval = setInterval(() => {
-      refresh();
-      syncFrontFromSimplyPlural();
-    }, 60000); // poll every minute
-    return () => clearInterval(interval);
+    let cancelled = false;
+    const doRefresh = async () => {
+      if (!cancelled) await refresh();
+      if (!cancelled) await syncFrontFromSimplyPlural();
+    };
+    doRefresh();
+    const interval = setInterval(doRefresh, 60000);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
   }, []);
 
   const registerFrontChange = async (memberIds: string[], comment?: string) => {
