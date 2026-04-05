@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toTitleCase } from '@/lib/casing';
 import { dataService } from '@/services/data.service';
 import { useCollectionsStore } from '@/store/useCollectionsStore';
 import type { FieldInstance } from '@/services/schema.service';
@@ -65,7 +66,7 @@ export const TableManager: React.FC = () => {
     <div className="space-y-4">
       <Card>
         <CardHeader>
-          <CardTitle className="lowercase">create new collection</CardTitle>
+          <CardTitle>Create New Collection</CardTitle>
         </CardHeader>
         <CardContent className="flex gap-2">
           <Input
@@ -83,17 +84,17 @@ export const TableManager: React.FC = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle className="lowercase">existing collections</CardTitle>
+          <CardTitle>Existing Collections</CardTitle>
         </CardHeader>
         <CardContent>
           {visibleCollections.length > 0 ? (
             <ul className="list-disc pl-5 space-y-1">
               {visibleCollections.map(collection => (
-                <li key={collection.name}>{collection.title || collection.name}</li>
+                <li key={collection.name}>{collection.title || toTitleCase(collection.name)}</li>
               ))}
             </ul>
           ) : (
-            <p className="lowercase">no collections found. they may be loading...</p>
+            <p>No collections found. They may be loading...</p>
           )}
         </CardContent>
       </Card>
