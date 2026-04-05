@@ -62,10 +62,10 @@ export default function SettingsPage() {
                             checked={!!darkMode}
                             onChange={e => setDarkMode(e.target.checked)}
                         />
-                        Dark Mode
+                        dark mode
                     </label>
                     <label className="flex flex-col text-sm">
-                        Default Page Size
+                        default page size
                         <input
                             type="number"
                             value={pageSize as number}
@@ -73,11 +73,22 @@ export default function SettingsPage() {
                             className="mt-1 px-2 py-1 bg-background border border-border rounded w-full"
                         />
                     </label>
+                    <label className="flex items-center gap-2 text-sm">
+                        <Button
+                            variant="outline"
+                            className="w-full justify-start h-9 px-3 lowercase"
+                            onClick={() => {
+                                window.location.href = '/notion-import';
+                            }}
+                        >
+                            import notion workspace
+                        </Button>
+                    </label>
                 </div>
             </section>
 
             <section className="mt-8">
-                <h2 className="text-lg font-semibold">Data Management</h2>
+                <h2 className="text-lg font-semibold lowercase">data management</h2>
                 <TableManager />
             </section>
 

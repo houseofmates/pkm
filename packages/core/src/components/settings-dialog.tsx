@@ -77,21 +77,21 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
 
                     {/* data integrity section */}
                     <div className="space-y-3">
-                        <h4 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-                            <ShieldCheck className="h-4 w-4" /> Data Integrity
+                        <h4 className="text-sm font-semibold text-muted-foreground lowercase flex items-center gap-2">
+                            <ShieldCheck className="h-4 w-4" /> data integrity
                         </h4>
 
                         <div className="bg-white/5 p-3 rounded-lg space-y-4">
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium">Write-Ahead Log</p>
-                                    <p className="text-xs text-muted-foreground">Journaled Writes Pending Recovery</p>
+                                    <p className="text-sm font-medium lowercase">write-ahead log</p>
+                                    <p className="text-xs text-muted-foreground lowercase">journaled writes pending recovery</p>
                                 </div>
                                 <span className={cn(
-                                    "text-xs font-mono",
+                                    "text-xs font-mono lowercase",
                                     pendingWal > 0 ? "bg-amber-500/20 text-amber-500" : "bg-green-500/20 text-green-500"
                                 )}>
-                                    {pendingWal} Pending
+                                    {pendingWal} pending
                                 </span>
                             </div>
 
