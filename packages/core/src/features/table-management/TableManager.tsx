@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import { toTitleCase } from '@/lib/casing';
 import { dataService } from '@/services/data.service';
 import { useCollectionsStore } from '@/store/useCollectionsStore';
 import type { FieldInstance } from '@/services/schema.service';

@@ -5,7 +5,6 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { storageManager } from '@/lib/storage-manager';
 import { Database } from "lucide-react";
-import { toTitleCase } from '@/lib/casing';
 import { humanizeFieldName } from '@/features/records/components/record-table';
 
 import { useAppSetting } from "@/hooks/use-app-setting";
