@@ -8,12 +8,10 @@ let socketRefCount = 0;
 
 export const useSocket = () => {
   const [isConnected, setIsConnected] = useState(false);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const socketRef = useRef<Socket | null>(null);
 
   useEffect(() => {
     socketRefCount++;
-    socketRef.current = socket;
 
     if (!socket) {
       socket = io(import.meta.env.VITE_SOCKET_URL || 'wss://db.houseofmates.space', {
@@ -21,52 +19,54 @@ export const useSocket = () => {
         reconnectionDelay: 1000,
         autoConnect: true,
         timeout: 10000,
+        path: '/socket.io', // use relative path for compatibility
       });
+    }
 
-      socket.on('connect', () => {
-        secureLogger.info('Socket connected:', socket?.id);
-        setIsConnected(true);
-        if (reconnectTimeoutRef.current) {
-          clearTimeout(reconnectTimeoutRef.current);
-          reconnectTimeoutRef.current = null;
-        }
-      });
+    const s = socket;
+    socketRef.current = s;
 
-      socket.on('disconnect', () => {
-        secureLogger.info('Socket disconnected');
-        setIsConnected(false);
-      });
+    // sync initial state
+    setIsConnected(s.connected);
 
-      socket.on('connect_error', (err) => {
-        secureLogger.warn("Socket connect error:", err?.message || err);
-        setIsConnected(false);
-      });
+    const onConnect = () => {
+      secureLogger.info('socket connected:', s.id);
+      setIsConnected(true);
+    };
 
-      socket.on('reconnect_failed', () => {
-        secureLogger.warn("Socket reconnection failed after all attempts");
-        setIsConnected(false);
-      });
+    const onDisconnect = () => {
+      secureLogger.info('socket disconnected');
+      setIsConnected(false);
+    };
 
-    } else {
-      const raf = requestAnimationFrame(() => setIsConnected(!!socket?.connected));
-      if (!socket.connected) {
-        try {
-          socket.connect();
-        } catch (err) {
-          secureLogger.warn("Socket connect failed:", err);
-        }
+    const onError = (err: any) => {
+      secureLogger.warn('socket connect error:', err?.message || err);
+      setIsConnected(false);
+    };
+
+    s.on('connect', onConnect);
+    s.on('disconnect', onDisconnect);
+    s.on('connect_error', onError);
+    s.on('reconnect_failed', onDisconnect);
+
+    // ensure connected
+    if (!s.connected) {
+      try {
+        s.connect();
+      } catch (err) {
+        secureLogger.warn('socket connect attempt failed:', err);
       }
-      return () => cancelAnimationFrame(raf);
     }
 
     return () => {
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current);
-        reconnectTimeoutRef.current = null;
-      }
+      s.off('connect', onConnect);
+      s.off('disconnect', onDisconnect);
+      s.off('connect_error', onError);
+      s.off('reconnect_failed', onDisconnect);
+
       socketRefCount--;
       if (socketRefCount <= 0 && socket) {
-        secureLogger.info('Disconnecting socket (no active consumers)');
+        secureLogger.info('disconnecting socket (no active consumers)');
         socket.disconnect();
         socket = null;
         socketRefCount = 0;
@@ -74,5 +74,5 @@ export const useSocket = () => {
     };
   }, []);
 
-  return { socket, isConnected };
+  return { socket: socketRef.current, isConnected };
 };

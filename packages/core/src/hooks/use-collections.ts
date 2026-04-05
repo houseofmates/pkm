@@ -1,4 +1,3 @@
-
 import { useAuth } from '@/contexts/auth-context';
 import type { Collection } from '@/types/nocobase';
 import { useQuery } from '@tanstack/react-query';
@@ -6,8 +5,8 @@ import { secureLogger } from '@/lib/secure-logger';
 
 export type { Collection };
 
-// The single source of truth for all 15 user collections.
-// These are merged with API results so collections show up even if the API doesn't list them.
+// the single source of truth for all 15 user collections.
+// these are merged with api results so collections show up even if the api doesn't list them.
 export const HARDCODED_COLLECTIONS = [
   'activities', 'activity_logs', 'bookmarks', 'captures', 'drawings',
   'events', 'exercise', 'finances', 'habits', 'headmates',
@@ -24,11 +23,11 @@ const SYSTEM_COLLECTIONS_SET = new Set([
   'form_submissions', 'site_pages',
 ]);
 
-// Discover additional collections from localStorage cache
+// discover additional collections from localstorage cache
 function discoverCollectionsFromCache(): Array<{name: string, title: string}> {
   const discovered: Array<{name: string, title: string}> = [];
   try {
-    // Check sidebar items for collection references
+    // check sidebar items for collection references
     const sidebarItems = localStorage.getItem('sidebar_items');
     if (sidebarItems) {
       const items = JSON.parse(sidebarItems);
@@ -43,7 +42,7 @@ function discoverCollectionsFromCache(): Array<{name: string, title: string}> {
       });
     }
     
-    // Check database order setting
+    // check database order setting
     const dbOrder = localStorage.getItem('database_order');
     if (dbOrder) {
       const order = JSON.parse(dbOrder);
@@ -77,24 +76,24 @@ export function useCollections() {
         if (nameNorm === 'pkm_settings' && !col.hidden) {
           try {
             if (client?.updateCollection) {
-              await client.updateCollection(col.name, { hidden: true, title: col.title || 'PKM Settings' });
+              await client.updateCollection(col.name, { hidden: true, title: col.title || 'pkm settings' });
             }
           } catch (e) {
-            secureLogger.error('Failed to hide pkm_settings:', e);
+            secureLogger.error('failed to hide pkm_settings:', e);
           }
         }
       });
 
       return rawCollections;
     } catch (err: unknown) {
-      secureLogger.error("fetchCollections Error object:", err);
+      secureLogger.error("fetchcollections error object:", err);
       const msg = (err instanceof Error ? err.message : JSON.stringify(err) || '').toString();
 
       if (msg.includes('404') || msg.includes('401')) {
-        secureLogger.warn("Auth Error Detected: Logging out.");
+        secureLogger.warn("auth error detected: logging out.");
         logout();
       }
-      throw new Error(msg || 'Failed to fetch collections');
+      throw new Error(msg || 'failed to fetch collections');
     }
   };
 
@@ -111,7 +110,7 @@ export function useCollections() {
         return true;
       });
 
-      // Merge with hardcoded collections that may be missing from API response
+      // merge with hardcoded collections that may be missing from api response
       const existingNames = new Set(filtered.map((c: Collection) => c.name.toLowerCase()));
       const cachedCollections = discoverCollectionsFromCache();
       
@@ -123,7 +122,7 @@ export function useCollections() {
         .filter(name => !normalizedExisting.has(name.toLowerCase().replace(/[-_]/g, '')))
         .map(name => ({ name, title: name, fields: [] } as Collection));
 
-      // Then add any additional collections discovered from cache
+      // then add any additional collections discovered from cache
       const cacheMissing = cachedCollections
         .filter(hc => !existingNames.has(hc.name.toLowerCase()) && !HARDCODED_COLLECTIONS.includes(hc.name.toLowerCase()))
         .map(hc => ({ ...hc, fields: [] } as Collection));
@@ -145,7 +144,7 @@ export function useCollection(name: string) {
   const { collections, loading: collectionsLoading, error: collectionsError } = useCollections();
   const collectionFromList = collections.find((c: Collection) => c.name === name);
 
-  // If collection has no fields, fetch full details
+  // if collection has no fields, fetch full details
   const shouldFetchDetails = !!collectionFromList && (!collectionFromList.fields || collectionFromList.fields.length === 0);
 
   const { data: fullCollection, isLoading: detailsLoading } = useQuery({
@@ -156,7 +155,7 @@ export function useCollection(name: string) {
         const response = await client.getCollection(name);
         return response?.data || null;
       } catch (e) {
-        secureLogger.warn('Failed to fetch collection details:', e);
+        secureLogger.warn('failed to fetch collection details:', e);
         return null;
       }
     },

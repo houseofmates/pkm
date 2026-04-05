@@ -7,6 +7,7 @@ export const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 export const apiClient = axios.create({
  baseURL: API_URL,
+ timeout: 30000, // 30s timeout for production stability
  headers: {
   'Content-Type': 'application/json',
  },
@@ -78,10 +79,10 @@ apiClient.interceptors.response.use(
    return response;
  },
  (error) => {
-  if (error.response?.status === 401) {
-    const auth = (error.config as any)?._pkmAuth as PKMAuthConfig | undefined;
-    const kind = auth?.tokenKind;
+  const auth = (error.config as any)?._pkmAuth as PKMAuthConfig | undefined;
+  const kind = auth?.tokenKind;
 
+  if (error.response?.status === 401) {
     secureLogger.warn('[auth] 401 unauthorized - clearing stored token', kind || 'unknown');
 
     if (kind === 'hom_api_key') {
@@ -98,7 +99,17 @@ apiClient.interceptors.response.use(
     if (typeof window !== 'undefined' && (window as any).toast) {
       (window as any).toast.error('session expired - please log in again');
     }
+  } else if (error.code === 'ECONNABORTED') {
+    secureLogger.error('[api] request timeout', error.config?.url);
+  } else {
+    // silently log other errors to prevent ui crashes while maintaining traceability
+    secureLogger.debug('[api] unexpected error', {
+      status: error.response?.status,
+      url: error.config?.url,
+      message: error.message
+    });
   }
+
   return Promise.reject(error);
  }
 );
@@ -114,7 +125,7 @@ export const apiRequest = async <T = unknown>(resource: string, action: string, 
   });
   return res.data as T;
  } catch (e) {
-  secureLogger.error("API Error:", sanitizeForLogging(e));
+  secureLogger.debug("api_request_error", sanitizeForLogging(e));
   throw e;
  }
 };
