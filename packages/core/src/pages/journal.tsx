@@ -573,6 +573,11 @@ function BreathingExerciseModal({ isOpen, onClose, preset }: { isOpen: boolean; 
     return { inhale: 4, hold: 4, exhale: 4, hold2: 4 };
   };
 
+  const phaseRef = useRef(phase);
+  const techniqueRef = useRef(technique);
+  phaseRef.current = phase;
+  techniqueRef.current = technique;
+
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isActive) {
@@ -580,13 +585,14 @@ function BreathingExerciseModal({ isOpen, onClose, preset }: { isOpen: boolean; 
         setCount(prev => {
           if (prev <= 1) {
             const counts = getCounts();
-            if (phase === 'inhale') {
+            const currentPhase = phaseRef.current;
+            if (currentPhase === 'inhale') {
               setPhase('hold');
               return counts.hold;
-            } else if (phase === 'hold') {
+            } else if (currentPhase === 'hold') {
               setPhase('exhale');
               return counts.exhale;
-            } else if (phase === 'exhale') {
+            } else if (currentPhase === 'exhale') {
               if (counts.hold2 > 0) {
                 setPhase('hold2');
                 return counts.hold2;
@@ -595,7 +601,7 @@ function BreathingExerciseModal({ isOpen, onClose, preset }: { isOpen: boolean; 
                 setCycles(c => c + 1);
                 return counts.inhale;
               }
-            } else if (phase === 'hold2') {
+            } else if (currentPhase === 'hold2') {
               setPhase('inhale');
               setCycles(c => c + 1);
               return counts.inhale;
@@ -606,7 +612,7 @@ function BreathingExerciseModal({ isOpen, onClose, preset }: { isOpen: boolean; 
       }, 1000);
     }
     return () => clearInterval(interval);
-  }, [isActive, phase, technique]);
+  }, [isActive]);
 
   const handleComplete = () => {
     setIsActive(false);
