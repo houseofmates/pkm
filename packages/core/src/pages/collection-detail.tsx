@@ -196,15 +196,15 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     }
 
     if (!collection) {
-        if (loading) return <div className="p-10 text-center animate-pulse">loading {collectionName}...</div>;
+        if (loading) return <div className="p-10 text-center animate-pulse">Loading {humanizeFieldName(collectionName)}...</div>;
         return (
             <div className="p-10 flex flex-col items-center gap-4 text-center">
-                <div className="text-destructive font-bold text-lg">collection not found</div>
+                <div className="text-destructive font-bold text-lg">Collection Not Found</div>
                 <div className="text-muted-foreground text-sm max-w-md">
-                    the requested collection could not be loaded. please check the name or return to the databases page.
+                    The requested collection could not be loaded. Please check the name or return to the databases page.
                 </div>
                 <Button variant="outline" onClick={() => navigate('/databases')}>
-                    return to databases
+                    Return to Databases
                 </Button>
             </div>
         );
@@ -213,7 +213,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
     // fix "no fields" flash: if we rescued a collection object but it has no fields (and we are loading),
     // we should wait. the rescued object from sidebar list often lacks 'fields'.
     if (!collection.fields && loading) {
-        return <div className="p-10 text-center animate-pulse">loading schema for {collectionName}...</div>;
+        return <div className="p-10 text-center animate-pulse">Loading Schema for {humanizeFieldName(collectionName)}...</div>;
     }
 
     const CurrentViewComponent = VIEW_REGISTRY[currentView] || VIEW_REGISTRY['table'];
@@ -280,7 +280,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                         className="w-full md:w-[240px] h-9 bg-background/50 backdrop-blur border-input/50"
                         data-view-switcher="true"
                     >
-                        <SelectValue placeholder="select view" />
+                        <SelectValue placeholder="Select View" />
                     </SelectTrigger>
                     <SelectContent align="start">
                         {VIEW_OPTIONS.map((view) => (
@@ -300,14 +300,14 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
             <Dialog open={defaultPickerOpen} onOpenChange={setDefaultPickerOpen}>
                 <DialogContent className="sm:max-w-[300px] p-0 overflow-hidden border-none bg-popover/90 backdrop-blur-xl shadow-2xl">
                     <DialogHeader className="p-4 pb-2">
-                        <DialogTitle className="text-sm font-medium lowercase opacity-50">set default view</DialogTitle>
+                        <DialogTitle className="text-sm font-medium opacity-50">Set Default View</DialogTitle>
                     </DialogHeader>
                     <div className="flex flex-col p-1">
                         {VIEW_OPTIONS.map((view) => (
                             <Button
                                 key={view.id}
                                 variant="ghost"
-                                className="justify-start gap-3 h-10 px-3 lowercase font-normal"
+                                className="justify-start gap-3 h-10 px-3 font-normal"
                                 onClick={() => handleSetDefaultView(view.id as ViewType)}
                             >
                                 {view.icon && <view.icon className="h-4 w-4 opacity-50 text-primary" />}
