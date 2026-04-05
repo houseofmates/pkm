@@ -123,7 +123,7 @@ export function useCollectionData(
       if (fetchId !== fetchCounterRef.current) return;
       secureLogger.error(error instanceof Error ? error.message : String(error));
       setFetchError(error?.message || 'unknown error');
-      toast.error('failed to load collection data');
+      toast.error('Failed to load collection data');
     } finally {
       if (fetchId === fetchCounterRef.current) {
         setLoading(false);
@@ -162,7 +162,7 @@ export function useCollectionData(
         await client.updateRecord(collectionName, id, data);
       } catch (error) {
         secureLogger.error('failed to update record', error);
-        toast.error('failed to update record');
+        toast.error('Failed to update record');
         fetchData();
       }
     },
@@ -203,11 +203,11 @@ export function useCollectionData(
             return;
           } catch (error) {
             secureLogger.error('failed to delete record by timestamp', error);
-            toast.error('failed to delete record');
+            toast.error('Failed to delete record');
             return;
           }
         }
-        toast.error('cannot delete record: missing id');
+        toast.error('Cannot delete record: Missing ID');
         return;
       }
 
