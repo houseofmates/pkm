@@ -10,7 +10,7 @@ vi.mock('@/contexts/auth-context', () => ({
   useAuth: vi.fn()
 }));
 
-// mock usequery specifically for this test to bypass the global mock in setup-test.ts
+// mock useQuery specifically for this test to bypass the global mock in setup-test.ts
 vi.mock('@tanstack/react-query', async (importOriginal) => {
   const actual = await importOriginal<any>();
   return {
@@ -44,7 +44,7 @@ describe('useCollections filtering', () => {
       logout: mockClient.logout
     });
 
-    // simulate the usequery behavior including the 'select' transformation
+    // simulate the useQuery behavior including the 'select' transformation
     (useQuery as any).mockImplementation((options: any) => {
       // we simulate the async fetch and then the select
       const rawData = [

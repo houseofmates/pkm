@@ -91,8 +91,11 @@ export class NocoBaseClient {
   }
 
   async updateCollection(name: string, data: Partial<Collection>) {
-    const res = await this._axios.post(`/collections/${name}:update`, data);
-    return GetRecordResponseSchema.parse(res.data);
+    return this.request('collections', 'update', {
+      method: 'POST',
+      params: { filterByTk: name },
+      data
+    });
   }
 
   async deleteCollection(name: string) {

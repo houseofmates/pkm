@@ -525,7 +525,7 @@ export function Spotlight() {
 
                                 {collections.length > 0 && query.length === 0 && (
                                     <CommandGroup heading="active databases" className="px-2">
-                                        {collections.slice(0, 5).map((col: Collection) => (
+                                        {collections.map((col: Collection) => (
                                             <CommandItem
                                                 key={col.name}
                                                 onSelect={() => runAction(() => navigate(`/databases/${col.name}`))}

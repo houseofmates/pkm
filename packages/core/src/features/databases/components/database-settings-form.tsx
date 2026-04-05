@@ -11,6 +11,7 @@ import { useAppSetting } from '@/hooks/use-app-setting';
 import { IconPicker } from '@/components/icon-picker-dialog';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 // color palette
 const COLORS = [
@@ -97,7 +98,18 @@ export function DatabaseSettingsForm({
             value={localName}
             onChange={(e) => {
               setLocalName(e.target.value);
-              updateMeta('title', e.target.value);
+            }}
+            onBlur={() => {
+              const newName = localName.trim();
+              if (newName && newName !== (title || collectionName)) {
+                updateMeta('title', newName);
+                toast.success(`renamed to ${newName}`);
+              }
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                (e.target as HTMLInputElement).blur();
+              }
             }}
             className="h-8 text-sm"
           />

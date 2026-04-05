@@ -745,9 +745,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
         header: (() => {
           const parsed = parseI18nTemplate(field.uiSchema?.title);
           if (parsed) return parsed;
-          // if the API title already looks human-readable (has spaces, no underscores), use it
-          const rawTitle = field.uiSchema?.title || '';
-          if (rawTitle && !rawTitle.includes('_') && !rawTitle.startsWith('{{')) return rawTitle;
+          // Always humanize the field name - handles single-word, multi-word, snake_case, camelCase
           return humanizeFieldName(field.name);
         })(),
         meta: { field },

@@ -114,9 +114,12 @@ export function useCollections() {
       const existingNames = new Set(filtered.map((c: Collection) => c.name.toLowerCase()));
       const cachedCollections = discoverCollectionsFromCache();
       
-      // first add hardcoded collections that are missing from api
+      // Normalize names for dedup (handles hygiene-log vs hygiene_log etc.)
+      const normalizedExisting = new Set(filtered.map((c: Collection) => (c.name || '').toLowerCase().replace(/[-_]/g, '')));
+      
+      // First add hardcoded collections that are missing from API
       const hardcodedMissing = HARDCODED_COLLECTIONS
-        .filter(name => !existingNames.has(name.toLowerCase()))
+        .filter(name => !normalizedExisting.has(name.toLowerCase().replace(/[-_]/g, '')))
         .map(name => ({ name, title: name, fields: [] } as Collection));
 
       // then add any additional collections discovered from cache

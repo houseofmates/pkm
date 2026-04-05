@@ -7,6 +7,7 @@ import { SmartField } from '@/components/fields/smart-field';
 import { X, Save, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import { humanizeFieldName } from './record-table';
 
 interface RecordDetailDrawerProps {
   isOpen: boolean;
@@ -125,7 +126,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
           ) : (
             displayFields.map((field: any) => {
               const value = editedData[field.name];
-              const displayName = field.uiSchema?.title || field.name;
+              const displayName = field.uiSchema?.title || humanizeFieldName(field.name);
 
               return (
                 <div key={field.name} className="space-y-2">

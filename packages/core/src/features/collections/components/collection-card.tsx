@@ -5,6 +5,7 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { storageManager } from '@/lib/storage-manager';
 import { Database } from "lucide-react";
+import { humanizeFieldName } from '@/features/records/components/record-table';
 
 import { useAppSetting } from "@/hooks/use-app-setting";
 
@@ -72,10 +73,10 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
           <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-colors" />
           <div className="absolute bottom-4 left-4 text-white z-10 w-[calc(100%-2rem)]">
             <h3
-              className="font-bold text-lg lowercase truncate"
+              className="font-bold text-lg truncate"
               style={borderColor ? { color: borderColor } : undefined}
             >
-              {collection.title || collection.name}
+              {humanizeFieldName(collection.title || collection.name)}
             </h3>
             <p className="text-xs opacity-80 lowercase">{fieldCount} fields{recordCount !== undefined ? ` · ${recordCount} records` : ''}</p>
           </div>
@@ -100,10 +101,10 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
 
           {/* main title - sync color */}
           <CardTitle
-            className="lowercase truncate text-xl relative z-10 flex-shrink-0"
+            className="truncate text-xl relative z-10 flex-shrink-0"
             style={borderColor ? { color: borderColor } : undefined}
           >
-            {collection.title || collection.name}
+            {humanizeFieldName(collection.title || collection.name)}
           </CardTitle>
           <p className="text-xs text-muted-foreground lowercase relative z-10">
             {fieldCount} fields{recordCount !== undefined ? ` · ${recordCount} records` : ''}
@@ -126,7 +127,7 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
                   {fields.slice(0, 3).map((f: any) => (
                     <div key={f.name} className="flex items-center text-[10px] text-muted-foreground gap-2">
                       <div className="w-1.5 h-1.5 rounded-full bg-primary/20" style={borderColor ? { backgroundColor: borderColor } : undefined} />
-                      <span className="truncate opacity-70">{f.name}</span>
+                      <span className="truncate opacity-70">{humanizeFieldName(f.name)}</span>
                       <span className="opacity-40 ml-auto">{f.interface || f.type}</span>
                     </div>
                   ))}

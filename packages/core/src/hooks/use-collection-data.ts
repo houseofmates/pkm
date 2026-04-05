@@ -110,12 +110,7 @@ export function useCollectionData(
             if (!colData.fields) colData.fields = [];
             colData.fields.push({ id: 'fronter', name: 'fronter', type: 'string', label: 'fronter' });
           } catch (e: any) {
-             const msg = e.response?.data?.errors?.[0]?.message || String(e);
-             if (msg.includes('already exists')) {
-               secureLogger.info("'fronter' field already exists, skipping creation");
-             } else {
-               secureLogger.warn('failed to auto-create fronter field', e);
-             }
+             secureLogger.warn('failed to auto-create fronter field', e);
           }
         }
       }

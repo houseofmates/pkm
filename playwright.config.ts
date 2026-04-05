@@ -9,6 +9,14 @@ export default defineConfig({
   retries: process.env.CI ? 1 : 0,
   workers: process.env.CI ? 1 : undefined,
 
+  // TestChimp-compatible reporters
+  reporter: [
+    ['html', { outputFolder: 'playwright-report' }],
+    ['json', { outputFile: 'playwright-report/test-results.json' }],
+    ['junit', { outputFile: 'playwright-report/test-results.xml' }],
+    ['list']
+  ],
+
   webServer: {
     command: 'npm run dev',
     port: 3010,
