@@ -188,16 +188,13 @@ export function CalendarPage() {
 
   useEffect(() => {
     // auto-sync once the collection schema is loaded
-    if (collection) {
-      syncIcs(true); // background silent sync initially
-
-      // also auto-refresh every 2 minutes
-      const interval = setInterval(() => {
-        syncIcs(true);
-      }, 120_000); 
-
-      return () => clearInterval(interval);
-    }
+    if (!collection) return;
+    let cancelled = false;
+    const doSync = async () => { if (!cancelled) await syncIcs(true); };
+    doSync();
+    // also auto-refresh every 2 minutes
+    const interval = setInterval(doSync, 120_000);
+    return () => { cancelled = true; clearInterval(interval); };
   }, [collection]);
 
   const parseIcs = (ics: string) => {
