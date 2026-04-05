@@ -16,7 +16,7 @@ interface SidebarProps {
 export function Sidebar({ className, collections = [], selectedCollection = null, onSelect }: SidebarProps) {
   return (
     <aside className={cn('w-64 border-r border-white/10 bg-[#050505] p-3', className)}>
-      <p className="text-xs text-white/40 lowercase mb-2">collections</p>
+      <p className="text-xs text-white/40 mb-2">Collections</p>
       <div className="space-y-1">
         {collections.map((collection) => {
           const isActive = selectedCollection?.name === collection.name;
@@ -25,7 +25,7 @@ export function Sidebar({ className, collections = [], selectedCollection = null
               key={collection.name}
               variant="ghost"
               className={cn(
-                'w-full justify-start lowercase',
+                'w-full justify-start',
                 isActive ? 'bg-white/10 text-white' : 'text-white/70 hover:bg-white/5'
               )}
               onClick={() => onSelect?.(collection)}
