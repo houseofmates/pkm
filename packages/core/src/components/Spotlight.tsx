@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import { SemanticSearch } from "@/components/search/SemanticSearch";
 import { toast } from 'sonner';
 import { useGamificationStore, HABIT_TO_QUEST_MAPPING, XP_PER_ENTRY } from '@/store/useGamificationStore';
-import { toTitleCase } from '@/lib/casing';
 import { dataService } from '@/services/data.service';
 import { secureLogger } from '@/lib/secure-logger';
 
