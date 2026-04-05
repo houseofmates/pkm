@@ -479,8 +479,8 @@ export function Spotlight() {
                                                         <span className="text-sm font-medium truncate">
                                                             {(res.record?.title as string) || (res.record?.name as string) || `Record #${res.id}`}
                                                         </span>
-                                                        <Badge variant="outline" className="text-[10px] py-0 h-4 border-primary/20 text-primary/60">
-                                                            {toTitleCase(res.collectionTitle || res.collectionName || '')}
+                                                        <Badge variant="outline" className="text-[10px] py-0 h-4 border-primary/20 text-primary/60 lowercase">
+                                                            {res.collectionTitle || res.collectionName || ''}
                                                         </Badge>
                                                     </div>
                                                 </div>
@@ -533,7 +533,7 @@ export function Spotlight() {
                                                 className="px-4 py-3 rounded-lg cursor-pointer"
                                             >
                                                 <Database className="mr-3 h-4 w-4 text-primary/60" />
-                                                <span>{col.title || toTitleCase(col.name)}</span>
+                                                <span className="lowercase">{col.title || col.name}</span>
                                             </CommandItem>
                                         ))}
                                     </CommandGroup>

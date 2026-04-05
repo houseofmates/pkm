@@ -105,7 +105,7 @@ function CollectionCardImpl({ collection, className }: CollectionCardProps) {
             className="truncate text-xl relative z-10 flex-shrink-0"
             style={borderColor ? { color: borderColor } : undefined}
           >
-            {(meta as any).title || collection.title || toTitleCase(collection.name)}
+            {(meta as any).title || collection.title || collection.name}
           </CardTitle>
           <p className="text-xs text-muted-foreground relative z-10">
             {fieldCount} Fields{recordCount !== undefined ? ` · ${recordCount} Records` : ''}

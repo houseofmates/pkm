@@ -236,13 +236,13 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                                 className="text-xl font-bold tracking-tight hover:opacity-70 transition-opacity cursor-pointer bg-transparent border-none p-0"
                                 style={{ color: collectionColor }}
                             >
-                                {metadata[collectionName]?.title || collection.label || toTitleCase(collection.name)}
+                                {metadata[collectionName]?.title || collection.label || collection.name}
                             </button>
                         </PopoverTrigger>
                         <PopoverContent className="w-80">
                             <DatabaseSettingsForm
                                 collectionName={collectionName}
-                                title={metadata[collectionName]?.title || collection.label || toTitleCase(collectionName)}
+                                title={metadata[collectionName]?.title || collection.label || collectionName}
                                 viewConfig={viewConfig}
                                 fields={collection.fields}
                                 currentView={currentView}
@@ -261,7 +261,7 @@ export function CollectionDetailPage({ collectionName: propCollectionName, onBac
                             <PopoverContent className="w-80">
                                 <DatabaseSettingsForm
                                     collectionName={collectionName}
-                                    title={metadata[collectionName]?.title || collection.label || toTitleCase(collectionName)}
+                                    title={metadata[collectionName]?.title || collection.label || collectionName}
                                     viewConfig={viewConfig}
                                     fields={collection.fields}
                                     currentView={currentView}

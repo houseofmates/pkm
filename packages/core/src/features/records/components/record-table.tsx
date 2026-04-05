@@ -1428,7 +1428,7 @@ export function RecordTable({ data, collection, onEdit, onDelete, onUpdateRecord
             title="Create New Record"
           >
             <Plus className="h-4 w-4" />
-            <span className="text-sm font-medium lowercase">{toTitleCase(field.name)}</span>
+            <span className="text-sm font-medium lowercase">{field.name}</span>
             <span className="text-[10px] text-muted-foreground/40 ml-auto">(⌘N)</span>
           </Button>
         </div>

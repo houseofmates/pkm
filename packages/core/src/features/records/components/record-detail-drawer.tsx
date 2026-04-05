@@ -168,7 +168,7 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
             </div>
           </div>
           <p className="text-xs text-zinc-500 mt-1">
-            {collection.title || toTitleCase(collection.name)} • ID: {record.id}
+            {collection.title || collection.name} • ID: {record.id}
           </p>
         </SheetHeader>
 
