@@ -416,15 +416,15 @@ export function WilsonChat() {
         <div className="w-[200px] border-r border-primary/30 flex flex-col bg-black/30">
           <div className="p-3 border-b border-primary/30 flex justify-between items-center">
             <span className="text-xs font-bold text-primary flex items-center gap-2">
-              <History size={14} /> Chat History
+              <History size={14} /> chat history
             </span>
-            <button onClick={handleNewChat} className="p-1 hover:bg-primary/20 rounded text-primary/60 hover:text-primary" title="New chat">
+            <button onClick={handleNewChat} className="p-1 hover:bg-primary/20 rounded text-primary/60 hover:text-primary" title="new chat">
               <Plus size={14} />
             </button>
           </div>
           <div className="flex-1 overflow-y-auto p-2 space-y-1">
             {sessions.length === 0 && (
-              <div className="text-center text-primary/40 text-xs p-4">No Saved Chats Yet</div>
+              <div className="text-center text-primary/40 text-xs p-4">no saved chats yet</div>
             )}
             {sessions.map((session) => (
               <SessionItem
@@ -456,7 +456,7 @@ export function WilsonChat() {
             )}
           </div>
           <div className="flex items-center gap-1">
-            <button onClick={handleNewChat} className="p-2 hover:bg-primary/20 rounded text-primary/60 hover:text-primary" title="New chat">
+            <button onClick={handleNewChat} className="p-2 hover:bg-primary/20 rounded text-primary/60 hover:text-primary" title="new chat">
               <Plus size={16} />
             </button>
             <button onClick={() => setChatOpen(false)} className="p-2 hover:bg-primary/20 rounded text-primary/60 hover:text-white">
@@ -467,8 +467,8 @@ export function WilsonChat() {
         <div ref={chatContainerRef} className="flex-1 overflow-y-auto p-4 flex flex-col gap-4 font-mono text-sm">
           {interactionHistory.length === 0 && !streamingContent && (
             <div className="text-primary opacity-50 text-center mt-10">
-              <p>Systems Online.</p>
-              <p>Waiting For Input...</p>
+              <p>systems online.</p>
+              <p>waiting for input...</p>
               <p className="mt-4 text-xs" title={RAW_MODEL_NAME}>supports images, gifs, and videos with {friendlyModelName(RAW_MODEL_NAME)}</p>
               <p className="mt-2 text-xs text-primary/30" title={RAW_MODEL_NAME}>routing to: {friendlyModelName(RAW_MODEL_NAME)}</p>
             </div>
@@ -477,7 +477,7 @@ export function WilsonChat() {
           <StreamingBubble />
           {isThinking && !streamingContent && (
             <div className="flex items-center gap-2 text-primary text-xs animate-pulse">
-              <BrainCircuit size={14} /><span title={RAW_MODEL_NAME}>Processing With {friendlyModelName(RAW_MODEL_NAME).split(' ')[0]}...</span>
+              <BrainCircuit size={14} /><span title={RAW_MODEL_NAME}>processing with {friendlyModelName(RAW_MODEL_NAME).split(' ')[0]}...</span>
             </div>
           )}
         </div>
@@ -491,10 +491,10 @@ export function WilsonChat() {
         <div className="p-4 border-t border-primary bg-background">
           <div className="relative flex items-center gap-2">
             <input ref={fileInputRef} type="file" multiple accept="image/*,video/*,.gif" onChange={handleFileSelect} className="hidden" />
-            <button onClick={handleAttachmentClick} disabled={isThinking} className="text-primary hover:text-white disabled:opacity-30 p-2 rounded-lg hover:bg-primary/10 transition-colors" title="Attach files">
+            <button onClick={handleAttachmentClick} disabled={isThinking} className="text-primary hover:text-white disabled:opacity-30 p-2 rounded-lg hover:bg-primary/10 transition-colors" title="attach files">
               <Paperclip size={18} />
             </button>
-            <button onClick={handleScreenshotClick} disabled={isThinking} className="text-primary hover:text-white disabled:opacity-30 p-2 rounded-lg hover:bg-primary/10 transition-colors" title="Capture screenshot of current page">
+            <button onClick={handleScreenshotClick} disabled={isThinking} className="text-primary hover:text-white disabled:opacity-30 p-2 rounded-lg hover:bg-primary/10 transition-colors" title="capture screenshot of current page">
               <Camera size={18} />
             </button>
             <div className="relative flex-1">

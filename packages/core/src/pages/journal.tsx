@@ -3487,7 +3487,7 @@ summary:`;
                 <button 
                   onClick={() => fileInputRef.current?.click()}
                   className="p-1.5 rounded-lg hover:bg-white/10 text-white/40 hover:text-white transition-colors"
-                  title="Add Photo"
+                  title="add photo"
                 >
                   <Image size={16} />
                 </button>
