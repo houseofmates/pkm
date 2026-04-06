@@ -64,7 +64,7 @@ export default function SettingsPage() {
                         />
                         dark mode
                     </label>
-                    <label className="flex flex-col text-sm">
+                    <label className="flex flex-col text-sm lowercase">
                         default page size
                         <input
                             type="number"
