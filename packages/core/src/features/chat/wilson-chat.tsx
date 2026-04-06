@@ -442,7 +442,7 @@ export function WilsonChat() {
       <div className="flex-1 flex flex-col min-w-0">
         <div className="p-4 border-b border-primary flex justify-between items-center bg-black/50">
           <div className="flex items-center gap-2 text-primary font-bold">
-            <button onClick={() => setShowHistory(!showHistory)} className={`p-1 rounded hover:bg-primary/20 transition-colors ${showHistory ? 'text-primary' : 'text-primary/60'}`} title={showHistory ? 'Hide history' : 'Show history'}>
+            <button onClick={() => setShowHistory(!showHistory)} className={`p-1 rounded hover:bg-primary/20 transition-colors ${showHistory ? 'text-primary' : 'text-primary/60'}`} title={showHistory ? 'hide history' : 'show history'}>
               <History size={18} />
             </button>
             <span className="lowercase">wilson</span>

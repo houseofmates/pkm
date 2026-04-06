@@ -2957,7 +2957,7 @@ summary:`;
       {/* header */}
       <div className="flex items-center justify-between pl-2">
         <div>
-          <p className="text-xs text-white/40 lowercase">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</p>
+          <p className="text-xs text-white/40 lowercase">{new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toLowerCase()}</p>
           <h1 className="text-2xl font-bold tracking-tight lowercase">journal</h1>
         </div>
         <div className="flex items-center gap-1 flex-wrap justify-end">
