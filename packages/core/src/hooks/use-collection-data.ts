@@ -123,7 +123,7 @@ export function useCollectionData(
       if (fetchId !== fetchCounterRef.current) return;
       secureLogger.error(error instanceof Error ? error.message : String(error));
       setFetchError(error?.message || 'unknown error');
-      toast.error('Failed to load collection data');
+      toast.error('failed to load collection data');
     } finally {
       if (fetchId === fetchCounterRef.current) {
         setLoading(false);
@@ -162,7 +162,7 @@ export function useCollectionData(
         await client.updateRecord(collectionName, id, data);
       } catch (error) {
         secureLogger.error('failed to update record', error);
-        toast.error('Failed to update record');
+        toast.error('failed to update record');
         fetchData();
       }
     },
@@ -207,7 +207,7 @@ export function useCollectionData(
             return;
           }
         }
-        toast.error('Cannot delete record: Missing ID');
+        toast.error('cannot delete record: missing id');
         return;
       }
 
@@ -237,7 +237,7 @@ export function useCollectionData(
         setDeletedStack(prev => prev.filter(r => r.id !== recordToRestore.id));
       } catch (e) {
         secureLogger.error('failed to undo delete', e);
-        toast.error('Failed to undo delete');
+        toast.error('failed to undo delete');
       }
     },
     [client, collectionName, fetchData]
@@ -277,7 +277,7 @@ export function useCollectionData(
           }
         } catch (err) {
           secureLogger.error(String(err));
-          toast.error('Failed to create record');
+          toast.error('failed to create record');
         }
       }
     };

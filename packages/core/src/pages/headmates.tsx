@@ -27,7 +27,7 @@ export const HeadmatesPage: React.FC = () => {
       setMembers(membersData);
     } catch (err) {
       secureLogger.error('Failed to fetch SimplyPlural members:', err);
-      toast.error('Could not load headmates. Check your API key.');
+      toast.error('could not load headmates. check your api key.');
     } finally {
       setLoading(false);
     }
