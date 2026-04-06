@@ -142,7 +142,7 @@ export function SettingsDialog({ open, onOpenChange }: { open: boolean, onOpenCh
                                 window.location.href = '/notion-import';
                             }}
                         >
-                            Import Notion Workspace
+                            import notion workspace
                         </Button>
                     </div>
                 </div>

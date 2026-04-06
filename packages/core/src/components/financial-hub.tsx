@@ -124,8 +124,8 @@ export function FinancialHub() {
       {/* header */}
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs text-white/40">Financial Hub</p>
-          <h2 className="text-2xl font-bold">Net Worth: ${netWorth.toFixed(2)}</h2>
+          <p className="text-xs text-white/40 lowercase">financial hub</p>
+          <h2 className="text-2xl font-bold lowercase">net worth: ${netWorth.toFixed(2)}</h2>
         </div>
         <button
           onClick={() => setShowAddTransaction(true)}
@@ -195,7 +195,7 @@ export function FinancialHub() {
       {/* cashflow sankey */}
       {view === 'cashflow' && (
         <div className="p-4 rounded-xl border border-white/10 bg-white/[0.02]">
-          <p className="text-xs text-white/40 mb-3">Cash Flow (This Month)</p>
+          <p className="text-xs text-white/40 mb-3 lowercase">cash flow (this month)</p>
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <div className="w-24 text-xs text-white/60">Income</div>
@@ -267,7 +267,7 @@ export function FinancialHub() {
           })}
           {budgets.length === 0 && (
             <p className="text-center text-white/30 text-sm py-8">
-              No Budgets Configured Yet
+              no budgets configured yet
             </p>
           )}
         </div>
@@ -359,7 +359,7 @@ function AddTransactionModal({
         onClick={e => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <p className="text-sm text-white">Log Transaction</p>
+          <p className="text-sm text-white lowercase">log transaction</p>
           <button onClick={onClose} className="text-white/40 hover:text-white">
             <X size={16} />
           </button>
@@ -401,7 +401,7 @@ function AddTransactionModal({
             type="number"
             value={amount}
             onChange={e => setAmount(e.target.value)}
-            placeholder="Amount"
+            placeholder="amount"
             className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm placeholder:text-white/30"
           />
 
@@ -409,14 +409,14 @@ function AddTransactionModal({
             type="text"
             value={category}
             onChange={e => setCategory(e.target.value)}
-            placeholder="Category"
+            placeholder="category"
             className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm placeholder:text-white/30"
           />
 
           <textarea
             value={description}
             onChange={e => setDescription(e.target.value)}
-            placeholder="Description (Optional)"
+            placeholder="description (optional)"
             className="w-full px-3 py-2 rounded-lg bg-white/5 border border-white/10 text-sm placeholder:text-white/30 resize-none"
             rows={2}
           />
@@ -426,7 +426,7 @@ function AddTransactionModal({
             disabled={loading}
             className="w-full py-2 rounded-lg bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white"
           >
-            {loading ? 'Logging...' : 'Log Transaction'}
+            {loading ? 'logging...' : 'log transaction'}
           </button>
         </div>
       </div>
