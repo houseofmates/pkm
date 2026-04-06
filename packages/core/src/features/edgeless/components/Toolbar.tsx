@@ -282,7 +282,7 @@ export function Toolbar() {
             closeMenu={closeMenu}
             menuContent={
               <div className="flex flex-col gap-2 min-w-[200px]">
-                <span className="text-xs text-primary font-bold">Lasso Selection</span>
+                <span className="text-xs text-primary font-bold lowercase">lasso selection</span>
                 <p className="text-xs text-zinc-400">
                   draw a freeform loop to select multiple objects
                 </p>
@@ -531,7 +531,7 @@ export function Toolbar() {
       <button
         onClick={() => setWidgetPickerOpen(true)}
         className="fixed bottom-4 right-4 z-50 h-[48px] w-[48px] flex items-center justify-center rounded-full bg-[#050505] border border-primary/50 text-primary hover:bg-primary/20 hover:scale-105 transition-all shadow-lg pointer-events-auto"
-        title="Add Widget"
+        title="add widget"
       >
         <Plus size={24} />
       </button>
