@@ -9,6 +9,7 @@
     "target": "ES2022",
     "moduleResolution": "node",
     "strict": true,
+    "ignoreDeprecations": "6.0",
     "skipLibCheck": true,
     "jsx": "react-jsx",
     "allowSyntheticDefaultImports": true,
