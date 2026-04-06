@@ -35,11 +35,47 @@ export function RecordDetailDrawer({ isOpen, onClose, record, collection, onUpda
   const FALLBACK_FIELDS: Record<string, Array<{ name: string; type: string; interface?: string; uiSchema?: { title?: string } }>> = {
     events: [
       { name: 'title', type: 'string', interface: 'input', uiSchema: { title: 'title' } },
+      { name: 'start_time', type: 'string', interface: 'input', uiSchema: { title: 'start time' } },
+      { name: 'end_time', type: 'string', interface: 'input', uiSchema: { title: 'end time' } },
+      { name: 'location', type: 'string', interface: 'input', uiSchema: { title: 'location' } },
+      { name: 'notes', type: 'text', interface: 'textarea', uiSchema: { title: 'notes' } },
+      { name: 'url', type: 'string', interface: 'input', uiSchema: { title: 'url' } },
+      { name: 'uid', type: 'string', interface: 'input', uiSchema: { title: 'uid' } },
+    ],
+    exercise: [
+      { name: 'title', type: 'string', interface: 'input', uiSchema: { title: 'title' } },
+      { name: 'exercise_type', type: 'string', interface: 'input', uiSchema: { title: 'exercise type' } },
+      { name: 'duration', type: 'number', interface: 'number', uiSchema: { title: 'duration' } },
+      { name: 'intensity', type: 'string', interface: 'input', uiSchema: { title: 'intensity' } },
+      { name: 'calories', type: 'number', interface: 'number', uiSchema: { title: 'calories' } },
+      { name: 'notes', type: 'text', interface: 'textarea', uiSchema: { title: 'notes' } },
+      { name: 'date', type: 'date', interface: 'date', uiSchema: { title: 'date' } },
+    ],
+    finances: [
+      { name: 'title', type: 'string', interface: 'input', uiSchema: { title: 'title' } },
+      { name: 'amount', type: 'number', interface: 'number', uiSchema: { title: 'amount' } },
+      { name: 'category', type: 'string', interface: 'input', uiSchema: { title: 'category' } },
+      { name: 'date', type: 'date', interface: 'date', uiSchema: { title: 'date' } },
+      { name: 'notes', type: 'text', interface: 'textarea', uiSchema: { title: 'notes' } },
+      { name: 'type', type: 'string', interface: 'input', uiSchema: { title: 'type' } },
+      { name: 'payment_method', type: 'string', interface: 'input', uiSchema: { title: 'payment method' } },
+    ],
+    journal: [
+      { name: 'title', type: 'string', interface: 'input', uiSchema: { title: 'title' } },
       { name: 'content', type: 'text', interface: 'markdown', uiSchema: { title: 'content' } },
       { name: 'mood', type: 'string', interface: 'select', uiSchema: { title: 'mood' } },
       { name: 'tags', type: 'json', interface: 'tag', uiSchema: { title: 'tags' } },
-      { name: 'created_at', type: 'datetime', interface: 'datetime', uiSchema: { title: 'created at' } },
       { name: 'fronter', type: 'string', interface: 'input', uiSchema: { title: 'fronter' } },
+      { name: 'date', type: 'date', interface: 'date', uiSchema: { title: 'date' } },
+    ],
+    sleep: [
+      { name: 'title', type: 'string', interface: 'input', uiSchema: { title: 'title' } },
+      { name: 'bed_time', type: 'string', interface: 'input', uiSchema: { title: 'bed time' } },
+      { name: 'wake_time', type: 'string', interface: 'input', uiSchema: { title: 'wake time' } },
+      { name: 'duration', type: 'number', interface: 'number', uiSchema: { title: 'duration' } },
+      { name: 'quality', type: 'string', interface: 'input', uiSchema: { title: 'quality' } },
+      { name: 'notes', type: 'text', interface: 'textarea', uiSchema: { title: 'notes' } },
+      { name: 'date', type: 'date', interface: 'date', uiSchema: { title: 'date' } },
     ],
   };
 
