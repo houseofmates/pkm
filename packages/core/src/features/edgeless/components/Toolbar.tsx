@@ -411,8 +411,8 @@ export function Toolbar() {
                     onChange={(e) => store.setPressureEnabled(e.target.checked)}
                     className="accent-primary"
                   />
-                  <label htmlFor="pressure-toggle" className="text-xs text-primary">
-                    Pen Pressure
+                  <label htmlFor="pressure-toggle" className="text-xs text-primary lowercase">
+                    pen pressure
                   </label>
                 </div>
                 <div className="grid grid-cols-5 gap-2">
