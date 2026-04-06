@@ -51,13 +51,13 @@ export const HeadmatesPage: React.FC = () => {
       fetchMembers(apiKey);
     } catch (e) {
       secureLogger.error('Failed to save SimplyPlural API key:', e);
-      toast.error('Failed to save API key.');
+      toast.error('failed to save api key.');
     }
   };
 
   return (
     <div className="p-8 max-w-4xl mx-auto space-y-6">
-      <h1 className="text-2xl font-bold">Headmates</h1>
+      <h1 className="text-2xl font-bold lowercase">headmates</h1>
 
       {!hasKey ? (
         <div className="space-y-4 p-6 bg-white/5 rounded-xl border border-white/10">
