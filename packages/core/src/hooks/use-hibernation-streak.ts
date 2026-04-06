@@ -24,17 +24,14 @@ function getToday(): string {
 }
 
 function daysBetween(date1: string, date2: string): number {
-  const d1 = new Date(date1)
-  const d2 = new Date(date2)
-  const time1 = d1.getTime()
-  const time2 = d2.getTime()
-
-  if (!Number.isFinite(time1) || !Number.isFinite(time2)) {
-    return 999 // safe fallback for invalid dates
+  try {
+    const d1 = new Date(date1)
+    const d2 = new Date(date2)
+    const diff = Math.abs(d2.getTime() - d1.getTime())
+    return Math.floor(diff / (1000 * 60 * 60 * 24))
+  } catch {
+    return 999; // safe fallback for invalid dates
   }
-
-  const diff = Math.abs(time2 - time1)
-  return Math.floor(diff / (1000 * 60 * 60 * 24))
 }
 
 export function useHibernationStreak() {
@@ -105,7 +102,7 @@ export function useHibernationStreak() {
     // hourly check for day rollovers
     const interval = setInterval(checkStreak, 60 * 60 * 1000)
     return () => clearInterval(interval)
-  }, [streakData.lastDate, streakData.hibernating])
+  }, [streakData.lastDate, streakData.hibernating, streakData.current])
 
   const recordActivity = useCallback(() => {
     const today = getToday()

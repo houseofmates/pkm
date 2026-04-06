@@ -41,8 +41,8 @@ jobs:
           VITE_API_URL: https://pkm.houseofmates.space/api
 
       # electron-builder for appimage, deb, exe
-      - name: build electron apps
-        if: matrix.target == 'linux' || matrix.target == 'deb' || matrix.target == 'exe'
+      - name: build electron apps (linux)
+        if: matrix.target == 'linux' || matrix.target == 'deb'
         run: npm run electron:build
         working-directory: apps/desktop-electron
 
@@ -56,21 +56,13 @@ jobs:
           cd android
           ./gradlew assembleRelease
 
-      # upload only the files that exist for this target
-      - name: upload electron artifacts
-        if: matrix.target == 'linux' || matrix.target == 'deb' || matrix.target == 'exe'
+      - name: upload release artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.target }}-release
-          path: apps/desktop-electron/release/**/*
-          retention-days: 30
-
-      - name: upload apk artifact
-        if: matrix.target == 'apk'
-        uses: actions/upload-artifact@v4
-        with:
-          name: apk-release
-          path: apps/mobile/android/app/build/outputs/apk/release/*.apk
+          path: |
+            apps/desktop-electron/release/**/*
+            apps/mobile/android/app/build/outputs/apk/release/*.apk
           retention-days: 30
 
   release:
@@ -85,7 +77,7 @@ jobs:
           path: releases
 
       - name: list downloaded files
-        run: ls -R releases/
+        run: ls -la releases/
 
       - name: create release
         uses: softprops/action-gh-release@v1

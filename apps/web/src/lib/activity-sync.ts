@@ -1,4 +1,4 @@
-import { secureLogger } from '@pkm/core/lib/secure-logger';
+import { secureLogger } from 'packages/core/src/lib/secure-logger';
 
 export async function apiFetch(path: string, opts: RequestInit = {}) {
   const base = (import.meta.env.VITE_NOCOBASE_URL || '/api').replace(/\/$/, '')

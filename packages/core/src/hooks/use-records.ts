@@ -66,7 +66,7 @@ export function useRecords(collectionName: string, initialParams: QueryParams = 
       typeof queryParams.page === 'number' &&
       queryParams.page !== 0
     ) {
-      setQueryParams((prev) => ({ ...prev, page: newPage }));
+      setQueryParams((prev) => ({ ...prev, page: 0 }));
       setPageFallbackTried(true);
     }
   }, [isFetching, records.length, pageFallbackTried, queryParams.page]);
