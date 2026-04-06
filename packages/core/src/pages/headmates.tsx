@@ -61,7 +61,7 @@ export const HeadmatesPage: React.FC = () => {
 
       {!hasKey ? (
         <div className="space-y-4 p-6 bg-white/5 rounded-xl border border-white/10">
-          <p className="text-sm text-white/60">Enter your SimplyPlural API key to sync your headmates.</p>
+          <p className="text-sm text-white/60 lowercase">enter your simplyplural api key to sync your headmates.</p>
           <input
             type="password"
             value={apiKey}
